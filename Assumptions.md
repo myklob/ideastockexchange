@@ -1,0 +1,9 @@
+In logic an assumption is a proposition that is taken for granted, as if it were true based upon presupposition without preponderance of the facts.
+
+This website will allow people to brainstorm lists of assumptions necessary to agree or disagree with a conclusion. If you have spent any time on this site you should notice a pattern. When you submit an assumption required to agree or disagree with a conclusion, you are coming to a new conclusion. And, as with every other conclusion, assumptions (necessary to agree or disagree) will also have reasons to agree and disagree, etc.
+
+For instance the conclusion that "We should use genetically modified food." There would be some who believe that it would be necessary to to assume that "we will be able to prevent accidental pollination" before supporting the use of genetically modified food.  So their will be two list of all these assumptions, and when you click on them, you can see all the reasons to agree or disagree that that needs to be assumed before supporting the conclusion. For instance do we really need to prevent accidental pollination before we use GM food? This assumes their can be bad side affects from cross pollination. But if something gets cross pollinated which makes it less effective, then it would die off. However this assumes that the only bad effect of accidental cross pollination would cause a plant to under compete... but a plant could over compete, and block out a balanced habitat, etc...
+
+This goes on and on when you try to explain it with a conversation, but would be very clear if each assertion had its own page.
+
+In Logic
