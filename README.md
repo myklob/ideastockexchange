@@ -1,0 +1,4 @@
+An effort to create an open online cost-benefit analysis of policy. We will brainstorm costs, benefits, and risks, and weigh them according to the strength of pro/con arguments and evidence that they are more/less likely or will have a greater/lesser impact. We’ll use:
+•	the techniques taught in conflict resolution and mediation By Roger Fisher and William Ury and the Harvard Negotiation Project to encourage helpful behavior in the discussion/debate forum and the 
+•	cost-benefit-risk analysis techniques taught by Cass Sunstein in The Cost-Benefit Revolution
+•	we will become an extension of the effective altruism movement that uses evidence and reasoning to determine the most effective government policy. Effectiveness refers to doing the most good (most benefits and least costs and risks) with what is available as opposed to following political dogma and philosophy. 
