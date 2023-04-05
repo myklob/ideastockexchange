@@ -433,3 +433,273 @@ def equivalency_score(statement1, statement2, user_scores):
     
     return equivalency_score
 ```
+
+
+#Belief and Argument Stability Scores 
+
+The Belief Stability Score (BSS) measures the stability and reliability of a belief's score over time, considering how a group of well-informed and reasonable users would engage with the most critical pro/con arguments to achieve consensus or equilibrium. Although it's unlikely to assemble a perfect group of such users, we can provide ordinary people with a framework and tools that encourage techniques taught in conflict resolution, formal logic, and cost-benefit analysis. We will also leverage every available tool to measure, identify, and promote reasoning and conflict resolution techniques.
+
+Several issues have been fully addressed and have achieved belief stability. For example, beliefs such as theft, pollution, and murder have widely been accepted as wrong, making them more stable in consensus.
+
+# Algorithm Development Path Forward 
+
+To ensure the accuracy and effectiveness of the ESS, we will continuously improve our algorithm. This involves analyzing the algorithm's performance based on user feedback and making necessary adjustments to enhance its capabilities. We will also gather additional data and consider new factors that may impact the score, such as the quality and quantity of evidence, the credibility of sources, and the level of agreement among experts. We aim to create a reliable, transparent, and user-friendly algorithm, providing valuable insights to individuals and groups engaged in debates and discussions.
+
+To calculate the ESS for a particular argument, we will need to take into account various factors, such as the quality and credibility of the sources cited, the level of agreement among experts, and the extent to which the evidence has been challenged and debated. We will also consider factors such as the number of citations, the date of publication, and the level of scrutiny the evidence has undergone.
+
+Overall, the ESS will help users make more informed decisions by providing an accurate and reliable measure of the quality and reliability of the evidence supporting a particular argument. It will also help to promote more reasoned and informed debate by encouraging users to focus on issues that are still unresolved or where there is still significant disagreement among experts.
+
+#Algorithm 
+
+Collect data on the pro and con sub-arguments for a given debate, including the following: 
+
+1. The number of reasons for each pro/con sub-argument.
+2. The number of reasons attempted to be submitted by users who realize that those arguments, or arguments saying essentially the same thing, have already been submitted and thoroughly evaluated.
+3. The number of positive and negative responses to questions about the different aspects of each argument, such as: "is the argument:
+- True (based on facts and accurate information)
+- TLogically sound (premises support the conclusion and no logical fallacies)
+- TClear and concise (not convoluted or overly complex)
+- TRelevant to the topic at hand
+- TCoherent (do the different arguments fit together)
+- TConsistent (does the argument contradict other arguments, what are their truth scores)
+- TComplete (does it address all relevant topics at hand)
+- TPersuasiveness
+- THave a respectful and appropriate Tone."
+
+4. The number and ratio of up/down votes
+5. The number of weekly visitors
+6. The Google page rank on different searches
+7. The amount of time users spent reading and referencing the debate.
+8. The number of up-votes.
+
+To calculate the Confidence Stability Score, we measure the standard deviation of the argument's score based on the amount of effort put in by users, with different weights assigned to each type of interaction mentioned above. This score measures the stability of the argument's confidence, indicating how confident users are in the view over time.
+
+We calculate the BSS and ESS for each pro and con sub-argument, respectively. These scores are calculated based on the frequency of changes made to the sub-argument, the amount of time users have spent making changes, and the number of users who have made changes. We can then use these scores to weigh the Confidence Stability Score, as arguments with higher BSS or ESS are considered more stable.
+
+We should also calculate the Confidence Stability Score for each sub-argument to assess its stability.
+
+Apply a relative weighting to each measure of effort (such as the number of reasons to agree/disagree, up/down votes, evaluations, time spent, and arguments) based on its relative importance in determining the overall argument score.
+
+Compare the weighted Confidence Stability Score to other arguments in the system.
+
+# Determine the percentile ranking.
+
+The Confidence Stability Score measures the argument's stability and the level of confidence users have in engaging with the view over time. The relative weighting ensures that the score is not solely based on the quantity of pro/con sub-arguments but also considers the quality and development of those sub-arguments and the stability of those sub-arguments as measured by the BSS and ESS.
+
+# Code
+Here is some Python code that calculates the confidence stability: 
+
+```makefile
+# Collect data on the pro and con sub-arguments for a given debate
+
+# Calculate the number of pro and con sub-arguments
+num_pro = len(pro_sub_args)
+num_con = len(con_sub_args)
+
+# Calculate the total number of pro and con reasons
+num_pro_reasons = sum([len(sub_arg["reasons"]) for sub_arg in pro_sub_args])
+num_con_reasons = sum([len(sub_arg["reasons"]) for sub_arg in con_sub_args])
+
+# Calculate the total number of evaluations (up and down votes) for pro and con sub-arguments
+num_pro_evaluations = sum([sub_arg["up_votes"] + sub_arg["down_votes"] for sub_arg in pro_sub_args])
+num_con_evaluations = sum([sub_arg["up_votes"] + sub_arg["down_votes"] for sub_arg in con_sub_args])
+
+# Calculate the average score (up_votes / total_evaluations) for each pro and con sub-argument
+pro_scores = [sub_arg["up_votes"] / (sub_arg["up_votes"] + sub_arg["down_votes"]) for sub_arg in pro_sub_args]
+con_scores = [sub_arg["up_votes"] / (sub_arg["up_votes"] + sub_arg["down_votes"]) for sub_arg in con_sub_args]
+
+# Calculate the standard deviation of the scores for each pro and con sub-argument
+pro_score_std = statistics.stdev(pro_scores)
+con_score_std = statistics.stdev(con_scores)
+
+# Calculate the BSS weight based on the relative performance of pro and con sub-arguments in terms of reasons submitted
+if num_pro_reasons > num_con_reasons:
+    bss_weight = num_con_reasons / num_pro_reasons
+else:
+    bss_weight = num_pro_reasons / num_con_reasons
+
+# Calculate the ESS weight based on the relative performance of pro and con sub-arguments in terms of evaluations received
+if num_pro_evaluations > num_con_evaluations:
+    ess_weight = con_score_std / pro_score_std
+else:
+    ess_weight = pro_score_std / con_score_std
+
+# Calculate the Argument Quantity Stability Score
+pro_num_reasons_weight = 0.3
+con_num_reasons_weight = 0.3
+pro_score_weight = 0.2
+con_score_weight = 0.2
+
+pro_num_reasons_score = num_pro_reasons * pro_num_reasons_weight
+con_num_reasons_score = num_con_reasons * con_num_reasons_weight
+pro_score_score = pro_score_std * pro_score_weight
+con_score_score = con_score_std * con_score_weight
+
+argument_quantity_stability_score = ((pro_num_reasons_score + con_num_reasons_score) * bss_weight +
+                                      (pro_score_score + con_score_score) * ess_weight)
+```
+This code calculates the BSS and ESS weights based on the relative performance of pro and con sub-arguments in terms of reasons submitted and evaluations received, respectively. Then, it calculates the Argument Quantity Stability Score based on the weights and the number of reasons and standard deviation of scores for each pro and con sub-argument.
+
+This code calculates the BSS and ESS weights based on the relative performance of pro and con sub-arguments in terms of reasons submitted and evaluations received, respectively. Then, it calculates the Argument Quantity Stability Score based on the weights and the number of reasons and standard deviation of scores for each pro and con sub-argument.
+
+```python
+
+# calculate number of reasons for each pro argument
+num_pro_reasons = sum([len(arg['pro_reasons']) for arg in debate['arguments']])
+
+# calculate number of reasons for each con argument
+num_con_reasons = sum([len(arg['con_reasons']) for arg in debate['arguments']])
+
+# calculate number of attempted duplicate pro reasons
+num_attempted_duplicate_pro_reasons = sum([arg['num_attempted_duplicate_pro_reasons'] for arg in debate['arguments']])
+
+# calculate number of attempted duplicate con reasons
+num_attempted_duplicate_con_reasons = sum([arg['num_attempted_duplicate_con_reasons'] for arg in debate['arguments']])
+
+# calculate total number of up-votes
+num_upvotes = sum([arg['upvotes'] for arg in debate['arguments']])
+
+# calculate total number of down-votes
+num_downvotes = sum([arg['downvotes'] for arg in debate['arguments']])
+
+# calculate number of weekly visitors
+num_weekly_visitors = debate['num_weekly_visitors']
+
+# calculate google page rank
+google_page_rank = debate['google_page_rank']
+
+# calculate amount of time users spent reading and referencing the debate
+time_spent = debate['time_spent']
+
+# calculate weight for BSS based on relative performance of pro and con arguments
+pro_perform = num_pro_reasons + num_upvotes + debate['persuasiveness_score']
+con_perform = num_con_reasons + num_downvotes
+bss_weight = pro_perform / (pro_perform + con_perform)
+
+# calculate weight for ESS based on relative performance of pro and con arguments
+pro_perform = num_pro_reasons + num_upvotes + debate['persuasiveness_score']
+con_perform = num_con_reasons + num_downvotes
+ess_weight = con_perform / (pro_perform + con_perform)
+
+# calculate argument quantity stability score
+arg_quantity_scores = []
+for arg in debate['arguments']:
+    num_pro_reasons = len(arg['pro_reasons'])
+    num_con_reasons = len(arg['con_reasons'])
+    num_attempted_duplicate_pro_reasons = arg['num_attempted_duplicate_pro_reasons']
+    num_attempted_duplicate_con_reasons = arg['num_attempted_duplicate_con_reasons']
+    upvotes = arg['upvotes']
+    downvotes = arg['downvotes']
+    evaluations = arg['evaluations']
+    time_spent = arg['time_spent']
+    num_reasons = num_pro_reasons + num_con_reasons
+    total_votes = upvotes + downvotes
+    score = (
+        bss_weight * ((num_pro_reasons - num_attempted_duplicate_pro_reasons) + upvotes) / (num_pro_reasons + 1) +
+        ess_weight * ((num_con_reasons - num_attempted_duplicate_con_reasons) + downvotes) / (num_con_reasons + 1) +
+        evaluations / num_reasons +
+        time_spent / num_reasons +
+        total_votes / num_weekly_visitors +
+        google_page_rank
+    )
+    arg_quantity_scores.append(score)
+
+# calculate evidence stability score
+evidence_scores = []
+for arg in debate['arguments']:
+    num_pro_evidences = sum([len(evid['pro_evidences']) for evid in arg['pro_reasons']])
+    num_con_evidences = sum([len(evid['con_evidences']) for evid in arg['con_reasons']])
+    num
+```
+
+Here is some code that could be used to collect the data needed for the algorithm:
+
+```python
+import requests
+from bs4 import BeautifulSoup
+import time
+
+# Define the URLs of the debate and its pro and con arguments
+debate_url = 'https://www.exampledebate.com'
+pro_arguments_url = 'https://www.exampledebate.com/pro_arguments'
+con_arguments_url = 'https://www.exampledebate.com/con_arguments'
+
+# Define a function to scrape the data for each argument
+def scrape_argument_data(argument_url):
+    # Make a GET request to the argument page
+    response = requests.get(argument_url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    
+    # Get the number of reasons for the argument
+    num_reasons = len(soup.find_all('div', class_='reason'))
+    
+    # Get the number of users who attempted to submit duplicate arguments
+    num_duplicates = len(soup.find_all('div', class_='duplicate'))
+    
+    # Get the number and ratio of up/down votes for the argument
+    upvotes = int(soup.find('span', class_='upvote-count').text)
+    downvotes = int(soup.find('span', class_='downvote-count').text)
+    ratio = upvotes / (upvotes + downvotes)
+    
+    # Get the number of positive and negative responses to different aspects of the argument
+    num_responses = len(soup.find_all('div', class_='response'))
+    true_count = 0
+    logical_count = 0
+    clear_count = 0
+    relevant_count = 0
+    coherent_count = 0
+    consistent_count = 0
+    complete_count = 0
+    persuasive_count = 0
+    for response in soup.find_all('div', class_='response'):
+        response_text = response.find('span', class_='response-text').text.lower()
+        if 'true' in response_text:
+            true_count += 1
+        if 'logically sound' in response_text:
+            logical_count += 1
+        if 'clear and concise' in response_text:
+            clear_count += 1
+        if 'relevant to the topic' in response_text:
+            relevant_count += 1
+        if 'coherent' in response_text:
+            coherent_count += 1
+        if 'consistent' in response_text:
+            consistent_count += 1
+        if 'complete' in response_text:
+            complete_count += 1
+        if 'persuasive' in response_text:
+            persuasive_count += 1
+    
+    # Get the amount of time users spent reading and referencing the argument
+    read_time = int(soup.find('span', class_='read-time').text)
+    
+    # Return a dictionary with the scraped data
+    return {
+        'num_reasons': num_reasons,
+        'num_duplicates': num_duplicates,
+        'upvotes': upvotes,
+        'downvotes': downvotes,
+        'ratio': ratio,
+        'num_responses': num_responses,
+        'true_count': true_count,
+        'logical_count': logical_count,
+        'clear_count': clear_count,
+        'relevant_count': relevant_count,
+        'coherent_count': coherent_count,
+        'consistent_count': consistent_count,
+        'complete_count': complete_count,
+        'persuasive_count': persuasive_count,
+        'read_time': read_time
+    }
+
+# Scrape the data for the pro arguments
+pro_argument_data = []
+response = requests.get(pro_arguments_url)
+soup = BeautifulSoup(response.content, 'html.parser')
+for pro_argument in soup.find_all('a', class_='pro-argument'):
+    pro_argument_url = debate_url + pro_argument['href']
+    pro_argument_data.append(scrape
+```
+
+
+
