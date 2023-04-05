@@ -272,3 +272,107 @@ print(results)  # {'false cause': 'my socks'}
 3. Human input and feedback: While machine learning algorithms can be very effective at detecting patterns in large datasets, they may still make mistakes or miss certain nuances. To address this, the system could incorporate human input and feedback. For example, users could flag examples of logical fallacies that the system missed, or provide feedback on examples that were flagged incorrectly.
 
 4. Continual improvement: Like any machine learning system, the logical fallacy detection system would benefit from continual improvement over time. This could involve collecting new data, refining the algorithms, and incorporating feedback from users. As the system improves, it could become more accurate and effective at identifying logical fallacies, which could ultimately lead to better decision-making and more informed public discourse.
+
+The Evidence to Conclusion Linkage Score (ECLS) is a score that measures the logical connections between arguments and indicates the degree to which an argument would strengthen or weaken the central belief if it were assumed to be true. We use ECLS to determine how many points arguments should give each other and to avoid the false cause logical fallacy.
+
+To calculate the ECLS between arguments A and B, we use the following formula:
+
+ECLS(A, B) = (Σ strength of reasons to agree with the linkage between A and B) / (Σ total strength of arguments, agree and disagree)
+
+The ECLS score can range from 0 to 1, where 0 indicates that there are no reasons to agree with the linkage between A and B, and 1 indicates that there are no reasons to disagree with the linkage between A and B.
+
+Using ECLS enables us to connect our ideas and avoid non-sequiturs. Simple logic demands that we automatically weaken our conclusions when their assumptions are weakened. Therefore, ECLS scores are necessary to achieve group sanity and rational decision-making.
+
+## Motos
+1. Making Connections: Avoiding Non-Sequiturs with Linkage Scores.
+2. Score to Settle: How Linkage Scores can connect our reasons.
+3. Linkage scores: unlocking the potential of interconnected reasoning
+4. Score one for rational decision-making with linkage scores
+5. Linkage scores: the missing link in practical reasoning
+6. Linkage scores: bridging the gap between arguments
+7. Score big with linkage scores
+8. Untangling Ideas: Using Linkage Scores to Weave a Rational Web
+9. Unleashing the power of logical connections with linkage scores.
+10. Keep your reasoning intact - use linkage scores. 
+11. Cutting causation confusion with linkage scores 
+
+## Algorithm
+1. Given a list of beliefs, allow users to identify potential reasons to agree or disagree with each other.
+2. Assign a unique ID to each identified linkage between beliefs (e.g., Belief A as a reason to support Belief B and Belief D as a potential reason to oppose F).
+3. Use user-generated arguments to calculate the strength of reasons to agree and disagree with each identified linkage.
+4. Calculate the Evidence to Conclusion Linkage Score (ECLS) using the formula: ECLS(A, B) = (Σ strength of reasons to agree with the linkage between A and B) / (Σ total strength of arguments, agree and disagree).
+5. Store the ECLS for each linkage in a table.
+6. Multiply each argument's score by its corresponding ECLS to determine its contribution to the total conclusion score.
+7. Sum the scores for all arguments supporting or opposing the conclusion to determine the final conclusion score.
+8. Given a list of beliefs, allow them to be tagged as potential reasons to agree or disagree with each other. 
+9. Assign a unique ID to each possible linkage.
+10. For each potential linkage, users can post reasons to support or oppose the linkage. These arguments will either be tagged as a "strengthener" or "weakener" of the conclusion.
+11. Use the performance of these pro/con reasons to calculate the linkage strength. Specifically, calculate the strength of reasons to agree with the linkage, the strength of reasons to disagree with the linkage, and then the total strength of both arguments.
+12. Calculate the Evidence to Conclusion Linkage Score (ECLS) using the formula: ECLS(A, B) = (Σ strength of reasons to agree with the linkage between A and B) / (Σ total strength of arguments, agree and disagree). Store the ECLS in a table for each argument.
+13. Each belief score will eventually be multiplied by its Belief to Conclusion Linkage Score.
+14. The final conclusion score will be the product of each supporting and weakening belief score, multiplied by their individual scores as valid reasons to support the conclusion.
+
+The linkage scores are essential because the arguments may be true. Still, they may not necessarily support the conclusion, even if they were true. For example, if someone posts the belief that the grass is green as a reason to support a conclusion, it needs to have a lower linkage score and a high truth score. On the other hand, if someone posts global warming as a reason to support a carbon tax, and the carbon tax is the best way to reduce global warming, this should strengthen the argument to conclusion linkage score.
+
+```Graphql
+# Step 1: Given a list of beliefs, allow them to be tagged as potential reasons to agree or disagree with each other.
+# For each potential linkage, users can post reasons to support or oppose the linkage.
+# These arguments will either be tagged as a "strengthener" or "weakener" of the conclusion.
+
+# Let's assume we have a list of beliefs in the form of strings
+beliefs = ["Belief A", "Belief B", "Belief C", "Belief D", "Belief E", "Belief F"]
+
+# We can create a dictionary to store potential linkages as keys, and a list of arguments as values
+potential_linkages = {"A_B": [], "A_D": [], "B_E": [], "C_F": []}
+
+# For example, let's say we want to add an argument to support the linkage between Belief A and Belief B
+potential_linkages["A_B"].append({"argument": "Belief A is supported by scientific evidence", "type": "strengthener"})
+
+# Step 2: Assign a unique ID to each possible linkage.
+# We can use the dictionary keys as unique IDs
+
+# Step 3: Use the performance of these pro/con reasons to calculate the linkage strength.
+# Specifically, calculate the strength of reasons to agree with the linkage, the strength of reasons to disagree with the linkage,
+# and then the total strength of both arguments.
+
+# Let's assume we have a function called calculate_argument_strength(argument) that takes an argument and returns its strength score.
+# We can calculate the strength of reasons to agree and disagree for each potential linkage like this:
+
+for linkage, arguments in potential_linkages.items():
+    total_strength = 0
+    agree_strength = 0
+    disagree_strength = 0
+    
+    for argument in arguments:
+        strength = calculate_argument_strength(argument["argument"])
+        total_strength += strength
+        
+        if argument["type"] == "strengthener":
+            agree_strength += strength
+        elif argument["type"] == "weakener":
+            disagree_strength += strength
+    
+    # Step 4: Calculate the Evidence to Conclusion Linkage Score (ECLS) using the formula:
+    # ECLS(A, B) = (Σ strength of reasons to agree with the linkage between A and B) / (Σ total strength of arguments, agree and disagree).
+    # Store the ECLS in a table for each argument.
+    ecls = agree_strength / total_strength
+    
+    # We can store the ECLS for each linkage in a dictionary
+    linkage_ecls[linkage] = ecls
+    
+# Step 5: Multiply each argument's score by its corresponding ECLS to determine its contribution to the total conclusion score.
+# Step 6: Sum the scores for all arguments supporting or opposing the conclusion to determine the final conclusion score.
+# Let's assume we have a function called calculate_belief_score(belief, linkages) that takes a belief and a dictionary of ECLS values,
+# and returns its score as a weighted sum of the ECLS values for all of its supporting or weakening linkages.
+
+# We can calculate the score for each belief like this:
+belief_scores = {}
+for belief in beliefs:
+    score = calculate_belief_score(belief, linkage_ecls)
+    belief_scores[belief] = score
+    
+# The final conclusion score is the product of each supporting and weakening belief score, multiplied by their individual scores as valid reasons to support the conclusion.
+# Let's assume we have a list of supporting and weakening beliefs for the conclusion
+supporting_beliefs = ["Belief A", "Belief B"]
+weakening_bel
+```
