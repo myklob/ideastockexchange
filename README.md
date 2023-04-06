@@ -1,5 +1,5 @@
 
-python
+````python
 import numpy as np
 
 def reason_rank(M_pro, M_con, M_linkage_pro, M_linkage_con, uniqueness_scores_pro, uniqueness_scores_con, initial_scores_pro, initial_scores_con, num_iterations=100, d=0.85):
