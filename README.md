@@ -1,4 +1,3 @@
-
 ````python
 import numpy as np
 
@@ -468,6 +467,3 @@ for pro_argument in soup.find_all('a', class_='pro-argument'):
     pro_argument_url = debate_url + pro_argument['href']
     pro_argument_data.append(scrape
 ```
-
-
-
