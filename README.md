@@ -1,5 +1,9 @@
 # ReasonRank: 
 ReasonRank: An adaptation of Google's PageRank to evaluate reasons based on the number and relative strength of pro/con reasons, factoring in the number of pro/con sub-arguments, similar to how Google ranks pages based on the number of links and the strength of those links determined by their sub-links.
+
+# Help Fund ReasonRank's Development 
+If the cost of a coffee is within your means, you can help support the development of ReasonRank and contribute to the advancement of online cost-benefit and reason analysis! We greatly appreciate your support. The development of this free, open-source project is made possible by our contributors and sponsors. If you'd like to sponsor this project and have your avatar or company logo displayed below, please click here.
+
 ````python
 import numpy as np
 
