@@ -1,4 +1,4 @@
-# ReasonRank: 
+# ReasonRank: Automated online cost-benefit analysis and conflict resolution
 ReasonRank: An adaptation of Google's PageRank to evaluate reasons based on the number and relative strength of pro/con reasons, factoring in the number of pro/con sub-arguments, similar to how Google ranks pages based on the number of links and the strength of those links determined by their sub-links.
 
 # Help Fund ReasonRank's Development 
