@@ -27,14 +27,14 @@ Conclusion Score (CS) = ∑ (Reasons to Agree (RtA) - Reasons to Disagree (RtD))
 
 This formula encapsulates:
 
-CS (Conclusion Score): The final score assigned to a conclusion.
-RtA/RtD: The balance of arguments supporting or opposing the conclusion.
-EA/ED: The quality of evidence for or against the conclusion.
-LV: The logical consistency of the conclusion.
-V: The degree to which the conclusion has been confirmed.
-L: How strongly the conclusion is connected to other relevant conclusions.
-U: The distinctiveness of the conclusion from similar arguments.
-I: The overall significance of the conclusion in a broader context.
+* CS (Conclusion Score): The final score assigned to a conclusion.
+* RtA/RtD: The balance of arguments supporting or opposing the conclusion.
+* EA/ED: The quality of evidence for or against the conclusion.
+* LV: The logical consistency of the conclusion.
+* V: The degree to which the conclusion has been confirmed.
+* L: How strongly the conclusion is connected to other relevant conclusions.
+* U: The distinctiveness of the conclusion from similar arguments.
+* I: The overall significance of the conclusion in a broader context.
 
 ## Getting Started
 To get started with ODES, clone this repository and follow the setup instructions in the [installation guide](/INSTALL.md).
