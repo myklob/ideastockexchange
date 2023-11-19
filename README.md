@@ -1,16 +1,27 @@
 # Idea Stock Exchange: Automating Conflict Resolution and Cost-Benefit Analysis
 
-Enhanced Conclusion Evaluation Algorithm
+The Conclusion Score (CS) in the context of the Idea Stock Exchange and its automated conflict resolution system is a metric designed to quantitatively assess the strength and validity of a particular conclusion or belief. This score is derived from a comprehensive evaluation process that considers various aspects of the arguments and evidence supporting or opposing the conclusion. Here's a breakdown of its components based on the information from your documents:
 
-In today's world, we are overwhelmed by an abundance of data, information, and diverse arguments. Given the intricate nature of the challenges we encounter, it's crucial to utilize big data effectively for more informed decision-making.
+**Reasons to Agree/Disagree (RtA/RtD):** These metrics quantify the persuasive power of arguments in favor of or against a conclusion. They include the number and strength of such arguments.
 
-Our goal is to develop a comprehensive database. This database will intricately map the interconnections between various conclusions and the impact of different assumptions on these conclusions. By establishing this system, we can assign scores to conclusions, which are derived from the collective scores of their underlying assumptions. This integration means that when an assumption's strength changes, the scores of all related conclusions will be automatically updated through computational processes.
+**Evidence Assessment (EA/ED):** This involves evaluating the solidity and relevance of evidence that reinforces or detracts from an argument. It considers the quality and directness of the evidence in relation to the conclusion.
 
-This innovative approach will enable us to leverage the vast information available to us, steering towards a more informed and better world.
+**Logical Validity (LV):** This aspect assesses whether an argument is logically coherent and free from fallacies. It is determined through debate outcomes and user responses, specifically focusing on identifying and accounting for any logical fallacies.
 
-I suggest the creation of database tools that will operationalize the following formula for evaluating conclusions:
+**Verification (V):** indicates how impartial and independent sources corroborate evidence. The score for verification is derived from how well each argument’s evidence is verified and supported.
 
-Score of a Specific Conclusion = Σ [(Score of Supporting Arguments - Score of Opposing Arguments) × Relevance Score × Distinctiveness Score]
+**Linkage (L):** This multiplier assesses the direct connection and impact of the argument on the conclusion based on how relevant and integral the argument is to the decision.
+
+**Uniqueness (U):** This recognizes the distinctiveness of arguments, rewarding originality and reducing redundancy. It involves identifying similar statements and determining a unique argument score when presented in support of the same conclusion.
+
+**Importance (I):** This measures the significance of the argument and the potential ramifications if the claim is assumed true. The weight of an argument in terms of its importance is determined through debate over its relative importance.
+
+The Conclusion Score (CS) is calculated using the formula:
+# CS=∑((RtA−RtD)×(EA−ED)×LV×V×L×U×I)
+
+Each element is critical in determining a conclusion's overall strength and credibility. The scoring system is designed to be objective and comprehensive. It incorporates many factors to evaluate conclusions based on the strength and quality of their supporting and opposing arguments and evidence​​.
+
+Each item uses ReasonRank to create a score based on the performance of pro/con sub-arguments. Of course, these sub-arguments also have their own reason rank score. 
 
 
 # Objective Debate Evaluation System (ODES)
