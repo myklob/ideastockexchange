@@ -23,32 +23,53 @@ Each element is critical in determining a conclusion's overall strength and cred
 
 Each item uses ReasonRank to create a score based on the performance of pro/con sub-arguments. Of course, these sub-arguments also have their own reason rank score. 
 
+Here's Python script where the PageRank algorithm is modified to reflect an "ArgumentRank" approach. This modification adds the scores of supporting arguments and evidence and subtracts the scores of weakening arguments and evidence:
 
-# Objective Debate Evaluation System (ODES)
+```python
+import numpy as np
 
-## Overview
-Objective Debate Evaluation System (ODES) is an innovative scoring formula designed to transform the way debates are evaluated. By quantitatively assessing the strength of evidence and its linkage to debate conclusions, ODES introduces a new level of objectivity and precision in debate analysis.
+def argumentrank(M, num_iterations: int = 100, d: float = 0.85):
+    """ArgumentRank algorithm with explicit number of iterations. Returns ranking of nodes (arguments) in the adjacency matrix.
 
-## Features
-- **Objective Scoring Formula**: Calculates the Conclusion Score (CS) based on logical, evidence-backed metrics.
-- **Comprehensive Evaluation Criteria**: Factors in reasons to agree/disagree, evidence strength, logical validity, verification, linkage, uniqueness, and importance.
-- **ReasonRank Algorithm**: An adaptation of the Google PageRank algorithm, tailored for debate scoring, to rank and weigh arguments effectively.
+    Parameters
+    ----------
+    M : numpy array
+        adjacency matrix where M_i,j represents the link from 'j' to 'i', such that for all 'j'
+        sum(i, M_i,j) != 0 (due to adding and subtracting)
+    num_iterations : int, optional
+        number of iterations, by default 100
+    d : float, optional
+        damping factor, by default 0.85
 
-Conclusion Score (CS) = ∑ (Reasons to Agree (RtA) - Reasons to Disagree (RtD)) × (Evidence Assessment for Agreement (EA) - Evidence Assessment for Disagreement (ED)) × Logical Validity (LV) × Verification (V) × Linkage (L) × Uniqueness (U) × Importance (I)
+    Returns
+    -------
+    numpy array
+        a vector of ranks such that v_i is the i-th rank,
+        v sums may not equal 1 due to addition and subtraction of arguments
 
-This formula encapsulates:
+    """
+    N = M.shape[1]
+    v = np.ones(N) / N
+    M_hat = d * M + (1 - d) / N
+    for i in range(num_iterations):
+        v = np.dot(M_hat, v)
+        # Adjustments to ensure scores are not negative and sum to 1 after each iteration
+        v = np.maximum(v, 0)
+        v /= v.sum()
+    return v
 
-* CS (Conclusion Score): The final score assigned to a conclusion.
-* RtA/RtD: The balance of arguments supporting or opposing the conclusion.
-* EA/ED: The quality of evidence for or against the conclusion.
-* LV: The logical consistency of the conclusion.
-* V: The degree to which the conclusion has been confirmed.
-* L: How strongly the conclusion is connected to other relevant conclusions.
-* U: The distinctiveness of the conclusion from similar arguments.
-* I: The overall significance of the conclusion in a broader context.
+# Example adjacency matrix for argument links
+M = np.array([[0, -0.5, 0, 0, 1],
+              [0.5, 0, -0.5, 0, 0],
+              [0.5, -0.5, 0, 0, 0],
+              [0, 1, 0.5, 0, -1],
+              [0, 0, 0.5, 1, 0]])
 
-## Getting Started
-To get started with ODES, clone this repository and follow the setup instructions in the [installation guide](/INSTALL.md).
+v = argumentrank(M, 100, 0.85)
+print(v)
+```
+
+This edited script represents an "ArgumentRank" algorithm where the adjacency matrix `M` now accounts for both strengthening and weakening arguments. The matrix entries are adjusted to add scores for supporting arguments and subtract scores for weakening arguments. Additionally, after each iteration, the algorithm ensures that the scores are normalized (non-negative and sum to 1) to maintain a consistent ranking system.
 
 ## How to Contribute
 We welcome contributions from the community. Please refer to the [contributing guidelines](/CONTRIBUTING.md) for more information on how to submit issues, propose improvements, and contribute to the codebase.
