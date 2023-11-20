@@ -71,76 +71,15 @@ print(v)
 
 This edited script represents an "ArgumentRank" algorithm where the adjacency matrix `M` now accounts for both strengthening and weakening arguments. The matrix entries are adjusted to add scores for supporting arguments and subtract scores for weakening arguments. Additionally, after each iteration, the algorithm ensures that the scores are normalized (non-negative and sum to 1) to maintain a consistent ranking system.
 
-## How to Contribute
-We welcome contributions from the community. Please refer to the [contributing guidelines](/CONTRIBUTING.md) for more information on how to submit issues, propose improvements, and contribute to the codebase.
 
 ## Feedback and Suggestions
-Your feedback is valuable to us. If you have suggestions or would like to report a bug, please open an issue in the GitHub issue tracker.
+Your insights make us better. For any suggestions, ideas, or bug reports related to the Idea Stock Exchange, please utilize our [GitHub issue tracker](/issues).
 
 ## License
-This project is licensed under the [MIT License](/LICENSE).
+The Idea Stock Exchange operates under the [MIT License](/LICENSE) - committed to openness and collaborative growth.
 
 ## Acknowledgements
-This project is inspired by the need for more objective and evidence-based debate analysis. We extend our gratitude to all contributors and supporters who share our vision for improving rational discourse.
-
----
-
-Note: This is a basic structure for a README file. You can expand each section with more detailed information as needed. Also, make sure to create the referenced documents like INSTALL.md, CONTRIBUTING.md, and LICENSE if they are mentioned in the README.
-
-
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
-
-
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-
-
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/github_username/repo_name">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">project_title</h3>
-
-  <p align="center">
-    project_description
-    <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues">Request Feature</a>
-  </p>
-</div>
-
-
+We are deeply grateful to all thinkers and contributors to the Idea Stock Exchange. Your dedication to fostering objective, evidence-based, and nuanced discussions is the cornerstone of our community. Together, we're building a platform for intelligent, balanced debate.
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -179,79 +118,255 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## Getting Started with the Idea Stock Exchange
 
-
-### Built With
-
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+Welcome to the Idea Stock Exchange! Here's a simple guide to help you set up the project on your local machine for development and testing purposes. Follow these steps to get started.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+Before you begin, make sure you have the following installed:
+- Git (for cloning the repository)
+- A preferred text editor or Integrated Development Environment (IDE)
+- Required software dependencies (as listed in the project's documentation)
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. **Clone the Repository:**
+   - Open your terminal (Command Prompt, PowerShell, Terminal, etc.).
+   - Navigate to the directory where you want to clone the project.
+   - Clone the repository by running: 
+     ```
+     git clone https://github.com/[Username]/IdeaStockExchange.git
+     ```
+   - Replace `[Username]` with the appropriate GitHub username or organization name.
+
+2. **Navigate to the Project Directory:**
+   - After cloning, move into the project directory by running:
+     ```
+     cd IdeaStockExchange
+     ```
+
+3. **Install Dependencies:**
+   - Depending on the project’s nature, you might need to install specific dependencies. This can typically be done using a package manager like `npm` for Node.js projects or `pip` for Python.
+   - For example, if it's a Node.js project, run:
+     ```
+     npm install
+     ```
+
+4. **Set Up Environment Variables:**
+   - If the project requires environment variables (like API keys or database URLs), set these up as per the project's documentation.
+
+5. **Run the Project:**
+   - Follow the instructions specific to the project to start it up. This often involves a command like `npm start` for Node.js applications or a similar command specific to your tech stack.
+
+### Testing
+
+- To ensure everything is set up correctly, run the available test scripts. For example, in many Node.js projects, you can use:
+  ```
+  npm test
+  ```
+
+### Contributing
+
+Once your setup is complete, you're ready to contribute! Make sure to adhere to the project's coding standards and guidelines when making changes or additions.
+
+### Getting Help
+
+If you run into any issues during setup, please refer to the project's documentation or reach out to the community through our issue tracker.
+
+We're excited to have you onboard and look forward to your valuable contributions to the Idea Stock Exchange!
+### Prerequisites
+
+For a project like the Idea Stock Exchange, which appears to be focused on analyzing and evaluating arguments in a structured and systematic way, the initial prerequisites might include a combination of technical and conceptual elements. Here’s a list that would make sense:
+
+### Technical Prerequisites
+
+1. **Programming Language Proficiency:** Depending on the primary language used in the project, proficiency in languages such as Python, JavaScript, or Java could be essential.
+
+2. **Database Knowledge:** Understanding of database management systems like MySQL, PostgreSQL, or MongoDB, especially if the project involves storing and retrieving large amounts of data.
+
+3. **Web Development Skills:** If the project includes a web-based platform, skills in HTML, CSS, and JavaScript, along with frameworks like React or Angular, might be necessary.
+
+4. **Version Control System:** Familiarity with Git for version control and GitHub for repository management.
+
+5. **API Interaction:** Knowledge of RESTful APIs or GraphQL if the project involves external data sources or services.
+
+6. **AI and Machine Learning Basics:** Understanding of AI principles, especially if the project uses machine learning for argument analysis or natural language processing.
+
+### Conceptual Prerequisites
+
+1. **Argumentation and Critical Thinking:** Basic understanding of argument structures, logical fallacies, and critical thinking principles.
+
+2. **Conflict Resolution Knowledge:** Familiarity with conflict resolution strategies and cost-benefit analysis methodologies, if the project aims to resolve debates or evaluate solutions.
+
+3. **Research Skills:** Ability to conduct thorough research and evaluate sources of information critically.
+
+4. **Data Analysis:** Basic skills in data analysis, which could be beneficial for interpreting the results of argument evaluations.
+
+5. **Understanding of Collective Intelligence:** Knowledge about collective intelligence principles, especially if the project aims to harness collective wisdom for decision-making.
+
+These prerequisites ensure that contributors have the necessary technical skills to contribute effectively to the project’s development and the conceptual understanding to appreciate and work with the project’s core objectives.
+
+### Installation
+
+For the Idea Stock Exchange project, if it involves integrating with external APIs and uses a standard web technology stack, the installation instructions could be similar to your example, with modifications to fit the specific technologies and dependencies of your project. Here's a suggested template:
+
+```markdown
+## Installation
+
+Follow these steps to get your development environment set up:
+
+1. **Clone the Repository:**
+   Begin by cloning the project repository to your local machine:
    ```sh
-   git clone https://github.com/github_username/repo_name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
+   git clone https://github.com/your_github_username/idea-stock-exchange.git
    ```
 
+2. **Install Dependencies:**
+   Navigate to the project directory and install the necessary packages:
+   ```sh
+   cd idea-stock-exchange
+   npm install
+   ```
+
+3. **Set Up External APIs (if applicable):**
+   If the project requires external APIs, obtain the necessary API keys:
+   - Get a free API Key at [https://api-provider.com](https://api-provider.com)
+   - Enter your API key in the configuration file:
+     ```js
+     // Replace 'config.js' with the actual config file name if different
+     const API_KEY = 'ENTER YOUR API KEY';
+     ```
+
+4. **Database Configuration (if applicable):**
+   - Set up your database and note the connection details.
+   - Update the database configuration in the project settings with your credentials.
+
+5. **Run the Application:**
+   Once the setup is complete, you can start the application:
+   ```sh
+   npm start
+   ```
+
+6. **Access the Application:**
+   Open your web browser and navigate to `http://localhost:3000` (or the port you configured) to view the application.
+
+## Troubleshooting
+
+If you encounter any issues during the installation, consider the following:
+
+- Ensure that your Node.js and npm versions are up to date.
+- Check if all environment variables and API keys are correctly set.
+- Verify database connectivity if the application fails to connect to your database.
+
+For further assistance, please open an issue in the GitHub issue tracker.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+```
+
+This template provides a clear, step-by-step guide for setting up the Idea Stock Exchange project. It includes cloning the repository, installing dependencies, configuring APIs and databases, and running the application, along with troubleshooting tips. Make sure to customize the URLs, database setup details, and other specific instructions according to your project's requirements.
 
 
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+For the Idea Stock Exchange project, usage examples should demonstrate how users can interact with the platform to engage in evidence-based debate analysis, conflict resolution, and cost-benefit analysis. Here's a template tailored for your project:
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+```markdown
+## Usage
+
+The Idea Stock Exchange platform is designed to facilitate structured and analytical debate on various topics. Below are some examples of how you can use the platform to enhance your understanding and participate in rational discourse.
+
+### Engaging in Debates
+1. **Select a Topic:** Choose from a range of topics on current affairs, political ideologies, or any subject of interest.
+2. **View Arguments:** Examine the pro/con arguments presented for each topic.
+3. **Contribute Your Perspective:** Add your own arguments or evidence, ensuring they are well-researched and relevant.
+
+### Performing Cost-Benefit Analysis
+1. **Choose a Decision:** Select a decision or policy to analyze.
+2. **List Costs and Benefits:** Identify and list potential costs and benefits associated with the decision.
+3. **Evaluate the Evidence:** Assess the strength of evidence supporting each cost and benefit.
+
+### Using ReasonRank for Argument Analysis
+1. **Browse Beliefs:** Explore different beliefs and their associated reasons to agree or disagree.
+2. **Check ReasonRank Scores:** Understand how beliefs are scored based on the strength of their supporting and opposing arguments.
+3. **Dive Deeper:** Examine the linkage and evidence scores to get a deeper understanding of each argument's validity.
+
+### Accessing Training Modules
+1. **Select a Module:** Choose from various training modules on AI policy writing, responsible AI procurement, and more.
+2. **Participate in Workshops:** Engage in live workshops led by industry experts.
+3. **Apply Learning:** Use these insights to inform your debate contributions or professional work.
+
+### Collaborative Problem-Solving
+1. **Identify a Problem:** Start with a specific problem or challenge.
+2. **Brainstorm Solutions:** Collaborate with others to propose and refine potential solutions.
+3. **Evaluate Solutions:** Use the platform's tools to analyze the feasibility and impact of each solution.
+
+_For detailed instructions and more examples, please refer to the [Documentation](https://ideastockexchange/documentation)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+```
 
+This template provides users with practical ways to utilize the Idea Stock Exchange platform, from participating in debates to leveraging training modules for professional development. It's important to ensure that the links and resources mentioned are accurate and available to users for further exploration.
 
 
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+Certainly! For the Idea Stock Exchange project, the roadmap could outline the development and implementation of key features essential for facilitating evidence-based debate analysis, conflict resolution, and cost-benefit analysis. Here's a proposed roadmap template:
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+```markdown
+## Roadmap
+
+The following is a roadmap for the ongoing development and enhancement of the Idea Stock Exchange platform. This roadmap outlines key features and functionalities that we aim to implement to improve user experience and facilitate effective decision-making processes.
+
+- [ ] **Debate and Argument Forum**
+  - [ ] User-friendly interface for submitting and viewing arguments.
+  - [ ] Mechanism for categorizing and tagging debates by topics.
+
+- [ ] **Evidence-to-Conclusion Linkage Analysis**
+  - [ ] Development of tools to assess the strength of evidence in supporting or opposing conclusions.
+  - [ ] Integration of ReasonRank algorithm for evaluating argument validity.
+
+- [ ] **Cost-Benefit Analysis Module**
+  - [ ] Tools for users to list and evaluate potential costs and benefits of decisions.
+  - [ ] Interactive platform for brainstorming and evaluating the likelihood of outcomes.
+
+- [ ] **Training and Educational Resources**
+  - [ ] Online workshops and modules on AI policy writing and responsible AI procurement.
+  - [ ] Resources for public servants on AI applications in governance.
+
+- [ ] **Collaborative Problem-Solving Tools**
+  - [ ] Features for group brainstorming and collaborative solution development.
+  - [ ] Implementation of voting and consensus-building mechanisms.
+
+- [ ] **Mobile Application Development**
+  - [ ] Design and release of a mobile app version for on-the-go access.
+  - [ ] Integration of notifications and real-time updates.
+
+- [ ] **Advanced Analytics and Reporting**
+  - [ ] Development of analytics tools for deeper insights into debate outcomes.
+  - [ ] Customizable reporting features for users to track their participation and impact.
+
+- [ ] **User Account Management and Customization**
+  - [ ] Enhanced user profile features for personalized experience.
+  - [ ] Options for users to track their favorite debates and receive tailored content.
+
+- [ ] **Platform Scalability and Performance Optimization**
+  - [ ] Upgrades for handling increased user traffic and data.
+  - [ ] Continuous performance enhancements for smoother user experience.
+
+- [ ] **Community Engagement and Feedback**
+  - [ ] Forums for user feedback and suggestions.
+  - [ ] Regular updates based on community input and technological advancements.
+
+For a comprehensive list of proposed features, enhancements, and known issues, please visit our [open issues](https://github.com/ideastockexchange/repo_name/issues) page.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+```
+
+This roadmap is a guide for the future development of the Idea Stock Exchange platform. It highlights the project's commitment to evolving and adapting its features based on technological advancements and user feedback. The roadmap should be regularly updated to reflect progress and new goals.
 
 
 
@@ -274,22 +389,67 @@ Don't forget to give the project a star! Thanks again!
 
 
 <!-- LICENSE -->
-## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+```markdown
+<!-- CONTRIBUTING -->
+## Contributing to Idea Stock Exchange
+
+The Idea Stock Exchange project thrives on community involvement, and your contributions are essential in shaping it into an effective platform for debate analysis and decision-making. Whether it's through proposing new features, enhancing existing ones, or identifying and fixing bugs, your input is invaluable.
+
+Here's how you can contribute:
+
+1. **Fork the Project:** Start by forking the repository. This creates your own copy of the project where you can make changes.
+
+2. **Create your Feature Branch:** Use the command `git checkout -b feature/YourAmazingFeature` to create a branch in your repository. This is where you'll make your changes.
+
+3. **Commit your Changes:** After making your changes, use the command `git commit -m 'Add YourAmazingFeature'` to commit those changes to your branch.
+
+4. **Push to the Branch:** Push your changes using `git push origin feature/YourAmazingFeature`. This uploads your updates to GitHub.
+
+5. **Open a Pull Request:** Go to the original Idea Stock Exchange repository on GitHub and open a pull request. Ensure you clearly describe the changes you've made and the value they add to the project.
+
+### Opening Issues
+
+If you have suggestions for improvements or have identified bugs, please open an issue with the appropriate tags such as "enhancement" or "bug". Your insights on potential improvements are crucial for the ongoing development of the platform.
+
+### Star and Share the Project
+
+Don't forget to give the Idea Stock Exchange project a star on GitHub! Sharing the project within your network helps grow the community and fosters a collaborative environment.
+
+### Stay Involved
+
+Stay engaged with the project by following updates, participating in discussions, and providing feedback on other contributors' pull requests.
+
+Your contributions, big or small, are what make the open-source community an incredible space for innovation and growth. We look forward to seeing your ideas and efforts in making the Idea Stock Exchange an even more powerful tool for rational discourse and decision-making.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+```
+
+This template emphasizes the value of community contributions and provides clear steps for how users can get involved with the project. It encourages not only code contributions but also participation in discussions and feedback sharing, fostering a collaborative atmosphere.
 
 
 
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+<!-- CONTACT -->
+## Contact the Idea Stock Exchange Team
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/github_username/repo_name)
+For inquiries, suggestions, or to know more about the Idea Stock Exchange project, connect with us through the following channels:
+
+- Twitter: [myclob](https://twitter.com/myclob)
+- Blog: [myclob.blogspot.com](https://myclob.blogspot.com/)
+- LinkedIn: [Michael Laub](https://www.linkedin.com/in/mikelaubpepmpleedbdc/)
+- Future of Politics: [Project Site](https://sites.google.com/view/futureofpolitics/template)
+- Wikipedia: [User:Myclob](https://en.wikipedia.org/wiki/User:Myclob)
+- Kialo: [Myclob's Profile](https://www.kialo.com/userprofile/faa13dd7-d35b-4b7c-a86f-8da22c54a086?back=%2Fmy)
+- Audio: [my-clob](https://audio.com/my-clob)
+- Official Website: [ideastockexchange.org](https://ideastockexchange.org/)
+
+Your contributions and insights are invaluable to our mission. Reach out to us for engaging discussions, innovative ideas, or feedback on our project.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 
 
 
