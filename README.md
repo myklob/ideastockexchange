@@ -453,12 +453,12 @@ Your contributions and insights are invaluable to our mission. Reach out to us f
 
 
 
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-* []()
-* []()
-* []()
+<!-- ACKNOWLEDGMENTS Place your name here!-->
+<!-- ## Acknowledgments-->
+<!-- -->
+<!-- * []()-->
+<!-- * []()-->
+<!-- * []()-->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
