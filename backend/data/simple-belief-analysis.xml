@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <BeliefAnalysis xmlns="http://example.org/belief-analysis"
-    version="1.3.2"
+    version="1.3.3"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://example.org/belief-analysis belief-analysis.xsd">
 
 	<Metadata>
 		<Created>2023-01-01T00:00:00Z</Created>
 		<Updated>2024-03-08T00:00:00Z</Updated>
-		<Version>1.3.2</Version>
+		<Version>1.3.3</Version>
 		<Author>IdeaStockExchange AI</Author>
 		<Source>Automated Knowledge Evaluation System</Source>
 	</Metadata>
@@ -23,62 +23,83 @@
 				<Tag>Subjectivity</Tag>
 				<Tag>Science vs Philosophy</Tag>
 			</Tags>
+		</Belief>
 
-			<Arguments>
-				<Argument type="pro" uuid="urn:uuid:4567e89b-1234-5678-90ab-cdef12345678">
-					<Statement>Cultural relativism supports the idea that truth is subjective.</Statement>
-					<Scores>
-						<LogicalValidity score="0.80"/>
-						<LinkageStrength score="0.70"/>
-						<RelativeImportance score="0.90"/>
-					</Scores>
-					<Evidence>
-						<Source>Academic Journal</Source>
-						<Details>Smith, J. (2023). "Cultural Relativism and the Nature of Truth."</Details>
-						<Link>https://example.org/cultural-relativism-truth</Link>
-					</Evidence>
-					<CounterArguments>
-						<CounterArgument>
-							<Statement>Cultural relativism itself is a subjective framework, making it unreliable.</Statement>
-							<Source>Wilson, P. (2023). "Critiques of Relativism."</Source>
-						</CounterArgument>
-					</CounterArguments>
-				</Argument>
+		<Belief uuid="urn:uuid:22334455-6789-01bc-def0-876543210999">
+			<Title>Global Warming is Largely Caused by Humans</Title>
+			<Category>Climate Science</Category>
+			<Description>Scientific consensus suggests that human activity contributes significantly to global temperature rise.</Description>
+			<Tags>
+				<Tag>Climate Change</Tag>
+				<Tag>Scientific Consensus</Tag>
+			</Tags>
+		</Belief>
 
-				<Argument type="con" uuid="urn:uuid:9012e89b-1234-5678-90ab-cdef12345679">
-					<Statement>Scientific method suggests truth is objective and measurable.</Statement>
-					<Scores>
-						<LogicalValidity score="0.90"/>
-						<LinkageStrength score="0.60"/>
-						<RelativeImportance score="0.80"/>
-					</Scores>
-					<Evidence>
-						<Source>Peer-Reviewed Study</Source>
-						<Details>Johnson, L. (2022). "Objectivity in Scientific Inquiry."</Details>
-						<Link>https://example.org/objectivity-in-science</Link>
-					</Evidence>
-					<CounterArguments>
-						<CounterArgument>
-							<Statement>Scientific findings are often influenced by human biases and interpretation.</Statement>
-							<Source>Kumar, R. (2022). "Bias in Empirical Research."</Source>
-						</CounterArgument>
-					</CounterArguments>
-				</Argument>
-			</Arguments>
-
-			<Implications>
-				<Implication type="societal">May influence how legal systems define justice.</Implication>
-				<Implication type="technological">AI and machine learning models must account for subjective interpretations.</Implication>
-			</Implications>
-
-			<RelatedBeliefs>
-				<RelatedBelief uuid="urn:uuid:11223344-5678-90ab-cdef-987654321000">
-					<Title>Objectivity in Journalism</Title>
-				</RelatedBelief>
-				<RelatedBelief uuid="urn:uuid:22334455-6789-01bc-def0-876543210999">
-					<Title>Ethics of Artificial Intelligence</Title>
-				</RelatedBelief>
-			</RelatedBeliefs>
+		<Belief uuid="urn:uuid:33445566-7890-12cd-ef01-765432109888">
+			<Title>We Should Tax the Production of Carbon</Title>
+			<Category>Environmental Policy</Category>
+			<Description>Economic incentives such as carbon taxes can help reduce greenhouse gas emissions.</Description>
+			<Tags>
+				<Tag>Carbon Tax</Tag>
+				<Tag>Economics</Tag>
+				<Tag>Environmental Policy</Tag>
+			</Tags>
 		</Belief>
 	</Beliefs>
+
+	<Arguments>
+		<Argument type="pro" uuid="urn:uuid:4567e89b-1234-5678-90ab-cdef12345678">
+			<Statement>Cultural relativism supports the idea that truth is subjective.</Statement>
+			<Scores>
+				<LogicalValidity score="0.80"/>
+				<LinkageStrength score="0.70"/>
+				<RelativeImportance score="0.90"/>
+			</Scores>
+			<Evidence>
+				<Source>Academic Journal</Source>
+				<Details>Smith, J. (2023). "Cultural Relativism and the Nature of Truth."</Details>
+				<Link>https://example.org/cultural-relativism-truth</Link>
+			</Evidence>
+		</Argument>
+
+		<Argument type="con" uuid="urn:uuid:9012e89b-1234-5678-90ab-cdef12345679">
+			<Statement>Scientific method suggests truth is objective and measurable.</Statement>
+			<Scores>
+				<LogicalValidity score="0.90"/>
+				<LinkageStrength score="0.60"/>
+				<RelativeImportance score="0.80"/>
+			</Scores>
+			<Evidence>
+				<Source>Peer-Reviewed Study</Source>
+				<Details>Johnson, L. (2022). "Objectivity in Scientific Inquiry."</Details>
+				<Link>https://example.org/objectivity-in-science</Link>
+			</Evidence>
+		</Argument>
+
+		<SupportingArgument>
+			<ConclusionID>22334455-6789-01bc-def0-876543210999</ConclusionID>
+			<SupportingArgumentID>33445566-7890-12cd-ef01-765432109888</SupportingArgumentID>
+			<LinkageScore>50</LinkageScore>
+		</SupportingArgument>
+
+		<WeakeningArgument>
+			<ConclusionID>22334455-6789-01bc-def0-876543210999</ConclusionID>
+			<WeakeningArgumentID>11223344-5678-90ab-cdef-987654321000</WeakeningArgumentID>
+			<LinkageScore>40</LinkageScore>
+		</WeakeningArgument>
+	</Arguments>
+
+	<Links>
+		<Link>
+			<LinkID>1</LinkID>
+			<IfThisBeliefWereTrueID>22334455-6789-01bc-def0-876543210999</IfThisBeliefWereTrueID>
+			<AffectedBeliefID>33445566-7890-12cd-ef01-765432109888</AffectedBeliefID>
+			<LinkType>Supporting</LinkType>
+			<JustificationText>Taxing things, such as carbon, usually reduces its production. The market is usually rational; if carbon is more expensive, people and companies will avoid producing it.</JustificationText>
+			<OtherNecessaryLinkBeliefIDs>
+				<BeliefID>4</BeliefID>
+				<BeliefID>5</BeliefID>
+			</OtherNecessaryLinkBeliefIDs>
+		</Link>
+	</Links>
 </BeliefAnalysis>
