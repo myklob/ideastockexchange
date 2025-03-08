@@ -1,81 +1,237 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output method="html" encoding="UTF-8" indent="yes" doctype-system="about:legacy-compat"/>
 
-<xsl:template match="/BeliefAnalysis">
-    <html>
-        <head>
-            <style>
-                .belief {
-                    margin-bottom: 20px;
-                }
-                .table-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                }
-                .belief-table {
-                    flex: 1;
-                    min-width: 300px;
-                    border-collapse: collapse;
-                    margin-right: 10px;
-                    margin-bottom: 10px;
-                }
-                .belief-table th, .belief-table td {
-                    border: 1px solid black;
-                    padding: 5px;
-                }
-            </style>
-        </head>
-        <body>
-            <xsl:for-each select="Beliefs/Belief">
-                <div class="belief">
-                    <h3><xsl:value-of select="Statement"/></h3>
-                    <div class="table-container">
-                        <!-- Reasons to Agree Table -->
-                        <xsl:if test="/BeliefAnalysis/Arguments/Argument[ConclusionID=current()/BeliefID and ArgumentType='Supporting']">
-                            <table class="belief-table">
-                                <caption>Reasons to Agree</caption>
-                                <tr>
-                                    <th>Statement</th>
-                                    <th>Score</th>
-                                    <th>Linkage</th>
-                                </tr>
-                                <xsl:for-each select="/BeliefAnalysis/Arguments/Argument[ConclusionID=current()/BeliefID and ArgumentType='Supporting']">
-                                    <xsl:variable name="argID" select="ArgumentID"/>
-                                    <xsl:variable name="linkedBelief" select="/BeliefAnalysis/Beliefs/Belief[BeliefID = $argID]"/>
-                                    <tr>
-                                        <td><xsl:value-of select="$linkedBelief/Statement"/></td>
-                                        <td><xsl:value-of select="$linkedBelief/Score"/></td>
-                                        <td><xsl:value-of select="LinkageScore"/></td>
-                                    </tr>
-                                </xsl:for-each>
-                            </table>
-                        </xsl:if>
+    <xsl:template match="/BeliefAnalysis">
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                <title>Belief Analysis Dashboard</title>
+                <style>
+                    :root {
+                        --primary-color: #007bff;
+                        --supporting-color: #28a745;
+                        --weakening-color: #dc3545;
+                        --neutral-bg: #f8f9fa;
+                        --border-color: #dee2e6;
+                    }
 
-                        <!-- Reasons to Disagree Table -->
-                        <xsl:if test="/BeliefAnalysis/Arguments/Argument[ConclusionID=current()/BeliefID and ArgumentType='Weakening']">
-                            <table class="belief-table">
-                                <caption>Reasons to Disagree</caption>
-                                <tr>
-                                    <th>Statement</th>
-                                    <th>Score</th>
-                                    <th>Linkage</th>
-                                </tr>
-                                <xsl:for-each select="/BeliefAnalysis/Arguments/Argument[ConclusionID=current()/BeliefID and ArgumentType='Weakening']">
-                                    <xsl:variable name="argID" select="ArgumentID"/>
-                                    <xsl:variable name="linkedBelief" select="/BeliefAnalysis/Beliefs/Belief[BeliefID = $argID]"/>
-                                    <tr>
-                                        <td><xsl:value-of select="$linkedBelief/Statement"/></td>
-                                        <td><xsl:value-of select="$linkedBelief/Score"/></td>
-                                        <td><xsl:value-of select="LinkageScore"/></td>
-                                    </tr>
-                                </xsl:for-each>
-                            </table>
-                        </xsl:if>
+                    body {
+                        font-family: 'Segoe UI', Arial, sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                        color: #333;
+                        background-color: #f5f7f9;
+                        line-height: 1.6;
+                    }
+
+                    header {
+                        text-align: center;
+                        margin-bottom: 30px;
+                    }
+
+                    h1 {
+                        color: var(--primary-color);
+                        font-size: 2rem;
+                    }
+
+                    .belief {
+                        margin-bottom: 30px;
+                        padding: 20px;
+                        border-radius: 8px;
+                        background-color: white;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                        transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    }
+
+                    .belief:hover {
+                        transform: translateY(-3px);
+                        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .belief-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        border-bottom: 1px solid var(--border-color);
+                        padding-bottom: 10px;
+                        margin-bottom: 15px;
+                    }
+
+                    .belief-statement {
+                        font-size: 1.3rem;
+                        font-weight: bold;
+                        color: #2c3e50;
+                    }
+
+                    .belief-score {
+                        font-size: 1rem;
+                        font-weight: bold;
+                        padding: 5px 15px;
+                        border-radius: 20px;
+                        background-color: var(--primary-color);
+                        color: white;
+                    }
+
+                    .table-container {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 20px;
+                    }
+
+                    .argument-section {
+                        flex: 1;
+                        min-width: 350px;
+                    }
+
+                    .section-title {
+                        font-size: 1.1rem;
+                        font-weight: bold;
+                    }
+
+                    .supporting .section-title {
+                        color: var(--supporting-color);
+                    }
+
+                    .weakening .section-title {
+                        color: var(--weakening-color);
+                    }
+
+                    .belief-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                    }
+
+                    .belief-table th, .belief-table td {
+                        padding: 12px;
+                        text-align: left;
+                        border: 1px solid var(--border-color);
+                    }
+
+                    .belief-table th {
+                        background-color: var(--neutral-bg);
+                        font-weight: 600;
+                    }
+
+                    .belief-table tr:nth-child(even) {
+                        background-color: rgba(0, 0, 0, 0.02);
+                    }
+
+                    .linkage-bar {
+                        width: 100%;
+                        height: 8px;
+                        background-color: #e9ecef;
+                        border-radius: 4px;
+                        position: relative;
+                    }
+
+                    .linkage-value {
+                        position: absolute;
+                        height: 100%;
+                        border-radius: 4px;
+                        top: 0;
+                        left: 0;
+                    }
+
+                    .supporting .linkage-value {
+                        background-color: var(--supporting-color);
+                    }
+
+                    .weakening .linkage-value {
+                        background-color: var(--weakening-color);
+                    }
+
+                    .no-arguments {
+                        padding: 15px;
+                        text-align: center;
+                        color: #6c757d;
+                        background-color: var(--neutral-bg);
+                        border-radius: 6px;
+                    }
+
+                    .back-to-top {
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        background-color: var(--primary-color);
+                        color: white;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        text-align: center;
+                        line-height: 40px;
+                        font-size: 20px;
+                        text-decoration: none;
+                        opacity: 0.8;
+                        transition: opacity 0.2s;
+                    }
+
+                    .back-to-top:hover {
+                        opacity: 1;
+                    }
+                </style>
+            </head>
+            <body>
+                <header>
+                    <h1>Belief Analysis Dashboard</h1>
+                </header>
+
+                <xsl:if test="not(Beliefs/Belief)">
+                    <p>No beliefs found.</p>
+                </xsl:if>
+
+                <xsl:for-each select="Beliefs/Belief">
+                    <div id="belief-{BeliefID}" class="belief">
+                        <div class="belief-header">
+                            <h2 class="belief-statement"><xsl:value-of select="Statement"/></h2>
+                            <div class="belief-score"><xsl:value-of select="format-number(Score, '0.00')"/></div>
+                        </div>
+
+                        <div class="table-container">
+                            <xsl:call-template name="ArgumentSection">
+                                <xsl:with-param name="type" select="'Supporting'"/>
+                                <xsl:with-param name="className" select="'supporting'"/>
+                            </xsl:call-template>
+                            <xsl:call-template name="ArgumentSection">
+                                <xsl:with-param name="type" select="'Weakening'"/>
+                                <xsl:with-param name="className" select="'weakening'"/>
+                            </xsl:call-template>
+                        </div>
                     </div>
-                </div>
-            </xsl:for-each>
-        </body>
-    </html>
-</xsl:template>
+                </xsl:for-each>
 
+                <a href="#" class="back-to-top" aria-label="Back to top">↑</a>
+            </body>
+        </html>
+    </xsl:template>
+
+    <xsl:template name="ArgumentSection">
+        <xsl:param name="type"/>
+        <xsl:param name="className"/>
+        <xsl:variable name="arguments" select="/BeliefAnalysis/Arguments/Argument[ConclusionID=current()/BeliefID and ArgumentType=$type]"/>
+
+        <div class="argument-section {$className}">
+            <h3 class="section-title">
+                <xsl:value-of select="concat($type, ' Arguments (', count($arguments), ')')"/>
+            </h3>
+
+            <xsl:choose>
+                <xsl:when test="$arguments">
+                    <table class="belief-table">
+                        <tr>
+                            <th>Statement</th>
+                            <th>Score</th>
+                            <th>Linkage</th>
+                        </tr>
+                        <xsl:apply-templates select="$arguments"/>
+                    </table>
+                </xsl:when>
+                <xsl:otherwise>
+                    <div class="no-arguments">No <xsl:value-of select="$type"/> arguments found</div>
+                </xsl:otherwise>
+            </xsl:choose>
+        </div>
+    </xsl:template>
 </xsl:stylesheet>
