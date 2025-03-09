@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 # Idea Stock Exchange: Advancing Automated Conflict Resolution and Cost-Benefit Analysis
 
 The **Idea Stock Exchange** is an innovative platform designed to facilitate **automated conflict resolution and cost-benefit analysis**. At its core is the **Conclusion Score (CS)**, a metric that quantitatively evaluates the strength and validity of conclusions or beliefs by analyzing arguments and evidence.
@@ -85,6 +86,11 @@ The **Idea Stock Exchange** is under active development. Below are key steps in 
 Below is a modified **PageRank algorithm** adapted to rank arguments based on **supporting and opposing evidence**:
 
 ```python
+=======
+# ReasonRank: 
+ReasonRank: An adaptation of Google's PageRank to evaluate reasons based on the number and relative strength of pro/con reasons, factoring in the number of pro/con sub-arguments, similar to how Google ranks pages based on the number of links and the strength of those links determined by their sub-links.
+````python
+>>>>>>> Stashed changes
 import numpy as np
 
 def argumentrank(M, num_iterations: int = 100, d: float = 0.85):
