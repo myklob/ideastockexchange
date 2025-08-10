@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Belief Template • Idea Stock Exchange</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121922; --ink:#e7eef7; --muted:#a9b4c2; --line:#223044;
+      --pro:#18b57a; --con:#e25555; --accent:#5ba3ff; --warn:#ffc857; --info:#7dd3fc;
+      --radius:16px; --gap:16px; --sm:12px; --md:14px; --lg:18px; --xl:24px; --xxl:32px;
+      --shadow:0 6px 24px rgba(0,0,0,.25);
+    }
+    html,body{background:var(--bg);color:var(--ink);font:400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif;margin:0}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1100px;margin:auto;padding:24px}
+    header{display:grid;gap:8px;margin-bottom:20px}
+    .crumbs{color:var(--muted);font-size:var(--sm)}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .pad{padding:16px}
+    h1,h2,h3{line-height:1.2;margin:0 0 8px}
+    h1{font-size:var(--xxl)} h2{font-size:var(--xl)} h3{font-size:var(--lg)}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:var(--gap)}
+    .two{grid-template-columns:1fr 1fr}
+    .three{grid-template-columns:repeat(3,1fr)}
+    .stack> * + *{margin-top:8px}
+    .tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-size:12px;color:var(--muted)}
+    .kpi{display:flex;align-items:center;gap:10px}
+    .kpi meter{width:160px}
+    .badge{font-weight:600;padding:2px 8px;border-radius:8px}
+    .pro{color:var(--pro)} .con{color:var(--con)}
+    .table{width:100%;border-collapse:separate;border-spacing:0}
+    .table caption{caption-side:top;text-align:left;color:var(--muted);font-size:12px;margin-bottom:6px}
+    .table th,.table td{border-bottom:1px solid var(--line);text-align:left;padding:10px}
+    .table thead th{font-size:12px;color:var(--muted);font-weight:600}
+    details{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+    details + details{margin-top:10px}
+    summary{cursor:pointer;font-weight:600}
+    .pill{border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px;color:var(--muted);font-size:12px}
+    .callout{border-left:4px solid var(--accent);padding:10px 12px;background:rgba(91,163,255,.06);border-radius:6px}
+    .flex{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .right{justify-content:flex-end}
+    .hl{background:rgba(125,211,252,.08);padding:2px 6px;border-radius:6px}
+    .foot{color:var(--muted);font-size:12px;margin-top:24px}
+    @media (max-width:900px){.two,.three{grid-template-columns:1fr}}
+
+    /* print */
+    @media print{
+      :root{--bg:#fff;--panel:#fff;--ink:#000;--muted:#333;--line:#ccc}
+      a{color:inherit;text-decoration:underline}
+      .wrap{padding:0}
+      .card{box-shadow:none}
+      details{border:none;padding:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="crumbs" aria-label="Breadcrumb">
+        <a href="/w/page/159323433/One%20Page%20Per%20Topic">Topic</a> ▸ <span>Subtopic</span>
+      </div>
+      <h1>Belief</h1>
+      <div class="grid two">
+        <section class="card pad stack" aria-labelledby="score-h">
+          <h2 id="score-h">Score</h2>
+          <div class="kpi" title="Combined pro/con score">
+            <span class="badge pro">+x</span>
+            <meter min="-100" max="100" low="-20" high="20" optimum="0" value="0" aria-label="Net score"></meter>
+            <span class="badge con">-y</span>
+          </div>
+          <div class="muted">Scored from <a href="/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">sub‑argument scores</a>.</div>
+        </section>
+        <section class="card pad stack" aria-labelledby="overview-h">
+          <h2 id="overview-h">Overview</h2>
+          <div class="flex">
+            <span class="tag">Version: v1.0</span>
+            <span class="tag">Last updated: ____</span>
+            <span class="tag">Curator: ____</span>
+          </div>
+          <p class="muted">One‑sentence summary of the belief and scope. Link out to <a href="/w/page/21960078/truth">truth</a> and <a href="/w/page/159338766/Linkage%20Scores">linkage</a> rubrics.</p>
+        </section>
+      </div>
+    </header>
+
+    <!-- ARGUMENT TREES -->
+    <section class="card pad" id="argument-trees" aria-labelledby="arg-h">
+      <h2 id="arg-h">🔍 Argument Trees</h2>
+      <p class="muted">Explore the logic chains supporting each belief, including all pro/con arguments, counter‑arguments, and rebuttals. Scored by sub‑argument <a href="/w/page/21960078/truth">truth</a>, <a href="/w/page/159338766/Linkage%20Scores">linkage</a>, and importance evaluations.</p>
+      <div class="grid two">
+        <div>
+          <h3>✅ <a href="/Reasons">Top Reasons to Agree</a></h3>
+          <ol>
+            <li>…</li>
+            <li>…</li>
+            <li>…</li>
+          </ol>
+        </div>
+        <div>
+          <h3>❌ <a href="/Reasons">Top Reasons to Disagree</a></h3>
+          <ol>
+            <li>…</li>
+            <li>…</li>
+            <li>…</li>
+          </ol>
+        </div>
+      </div>
+      <details>
+        <summary>How scores roll up</summary>
+        <div class="callout">Explain the aggregation from sub‑arguments → arguments → belief, with worked example and links to calculators.</div>
+      </details>
+    </section>
+
+    <!-- CORE VALUE CONFLICT -->
+    <section class="grid two" id="values">
+      <div class="card pad">
+        <h2>⚖️ Core Value Conflict</h2>
+        <table class="table" role="table" aria-label="Core value conflict">
+          <caption class="sr-only">Advertised vs actual values</caption>
+          <thead><tr><th>Supporting Values</th><th>Opposing Values</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Advertised:</strong> …</td><td><strong>Advertised:</strong> …</td></tr>
+            <tr><td><strong>Actual:</strong> …</td><td><strong>Actual:</strong> …</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Separate stated/public values from behavioral values to reveal true drivers.</p>
+      </div>
+      <div class="card pad">
+        <h2>💡 Interests &amp; Motivations</h2>
+        <p class="muted">“Focus on interests, not positions” — Fisher &amp; Ury.</p>
+        <div class="grid two">
+          <div>
+            <h3>Supporters</h3>
+            <ol><li>…</li><li>…</li><li>…</li></ol>
+          </div>
+          <div>
+            <h3>Opponents</h3>
+            <ol><li>…</li><li>…</li><li>…</li></ol>
+          </div>
+        </div>
+        <div class="grid two">
+          <div>
+            <h3>🔗 Shared Interests</h3>
+            <ol><li>…</li><li>…</li></ol>
+          </div>
+          <div>
+            <h3>⚔️ Conflicting Interests</h3>
+            <ol><li>…</li><li>…</li></ol>
+          </div>
+        </div>
+        <h3>📜 Prerequisite Beliefs &amp; Values</h3>
+        <ol><li>…</li></ol>
+        <h3>🚫 Unstated Assumptions Required to Reject</h3>
+        <ol><li>…</li></ol>
+      </div>
+    </section>
+
+    <!-- MIDDLE GROUND + COMPROMISE -->
+    <section class="grid two" id="solutions">
+      <div class="card pad">
+        <h2>🤔 Middle Ground &amp; Nuanced Positions</h2>
+        <ol>
+          <li><a href="/We%20Must%20Replace%20Arbitrary%20Decisions%20with%20Structured%20Justification">Structured Justification</a></li>
+          <li>…</li>
+        </ol>
+      </div>
+      <div class="card pad">
+        <h2>🤝 Compromise Solutions</h2>
+        <ol><li>…</li></ol>
+        <p><strong>Trade‑off Cost Mitigations:</strong> Outline mitigations when balancing competing values.</p>
+        <h3>🚧 Key Obstacles Preventing Resolution</h3>
+        <ol><li>…</li></ol>
+      </div>
+    </section>
+
+    <!-- EVIDENCE & OBJECTIVITY -->
+    <section class="card pad" id="evidence">
+      <h2>🔬 Evidence &amp; Objectivity</h2>
+      <p class="muted">Define objective criteria for measuring claim strength.</p>
+      <table class="table" role="table" aria-label="Top objective criteria">
+        <thead><tr><th>🧪 <a href="/w/page/159351732/Objective%20criteria%20scores">Top Objective Criteria</a></th></tr></thead>
+        <tbody><tr><td>1.…</td></tr><tr><td>2.…</td></tr><tr><td>3.…</td></tr></tbody>
+      </table>
+      <h3>📂 Evidence Quality Assessment</h3>
+      <ul class="muted">
+        <li><strong>Empirical/Scientific:</strong> Data, studies, testable hypotheses.</li>
+        <li><strong>Experiential/Anecdotal:</strong> Personal accounts, lived experience.</li>
+        <li><strong>Cultural/Traditional:</strong> Historical practice, community norms.</li>
+        <li><strong>Philosophical/Logical:</strong> Reason, ethical frameworks.</li>
+        <li><strong>Spiritual/Faith‑Based:</strong> Sacred texts, insight.</li>
+      </ul>
+      <table class="table" role="table" aria-label="Evidence table">
+        <thead>
+          <tr><th>Supports</th><th>Counters</th><th>Quality / Linkage / Importance</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1.…</td><td>1.…</td><td>…</td></tr>
+          <tr><td>2.…</td><td>2.…</td><td>…</td></tr>
+          <tr><td>3.…</td><td>3.…</td><td>…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- COST-BENEFIT ANALYSIS -->
+    <section class="card pad" id="cba">
+      <h2>📉 Cost‑Benefit Analysis</h2>
+      <div class="grid two">
+        <div>
+          <h3>📕 <a href="/Most%20Likely%20Benefits">Benefits</a></h3>
+          <ol><li>…</li><li>…</li><li>…</li></ol>
+        </div>
+        <div>
+          <h3>📘 Costs</h3>
+          <ol><li>…</li><li>…</li><li>…</li></ol>
+        </div>
+      </div>
+      <div class="grid two">
+        <div>
+          <h3>🎯 Short‑Term Impacts</h3>
+          <ol><li>…</li></ol>
+        </div>
+        <div>
+          <h3>🔮 Long‑Term Impacts</h3>
+          <ol><li>…</li></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEDIA RESOURCES -->
+    <section class="card pad" id="media">
+      <h2>📚 <a href="/w/page/21958666/media">Media Resources</a></h2>
+      <table class="table" role="table" aria-label="Media resources">
+        <thead><tr><th>📈 Supporting</th><th>📉 Opposing</th></tr></thead>
+        <tbody>
+          <tr><td>Books, Songs, Webpages, Videos, Podcasts, Scriptures</td><td>Books, Songs, Webpages, Videos, Podcasts, Scriptures</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- LEGAL FRAMEWORK -->
+    <section class="card pad" id="law">
+      <h2>⚖️ Legal Framework</h2>
+      <p><strong>Laws built on acceptance or rejection of this belief/values:</strong></p>
+      <table class="table" role="table" aria-label="Legal framework">
+        <thead><tr><th>Supporting Laws</th><th>Contradicting Laws</th></tr></thead>
+        <tbody><tr><td>1.…</td><td>1.…</td></tr></tbody>
+      </table>
+    </section>
+
+    <!-- ROOT CAUSE & ASSUMPTIONS -->
+    <section class="grid two" id="root">
+      <div class="card pad">
+        <h2>🔍 <a href="/Most%20Likely%20Root%20Cause">Most Likely Root Cause</a></h2>
+        <ol><li>…</li></ol>
+        <h3>Foundational Assumptions</h3>
+        <table class="table" role="table" aria-label="Foundational assumptions">
+          <thead><tr><th>To Accept</th><th>To Reject</th></tr></thead>
+          <tbody><tr><td>1.…</td><td>1.…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="card pad">
+        <h2>🧠 Cognitive Biases</h2>
+        <table class="table" role="table" aria-label="Cognitive biases">
+          <thead><tr><th>Supporters</th><th>Opponents</th></tr></thead>
+          <tbody><tr><td>1.…</td><td>1.…</td></tr></tbody>
+        </table>
+        <h2>Falsifiability &amp; Mind‑Changing Triggers</h2>
+        <table class="table" role="table" aria-label="Mind‑changing triggers">
+          <thead><tr><th>Change Supporters' Minds</th><th>Change Opponents' Minds</th></tr></thead>
+          <tbody><tr><td>1.…</td><td>1.…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- DISCUSSION GUIDE -->
+    <section class="card pad" id="discussion">
+      <h2>🗣️ Discussion Guide</h2>
+      <ul>
+        <li>Key questions to facilitate discussion</li>
+        <li>Guidelines for respectful engagement</li>
+        <li>Tips for finding common ground</li>
+      </ul>
+    </section>
+
+    <!-- BELIEF MAPPING / CONTINUUMS -->
+    <section class="card pad" id="mapping">
+      <h2>📊 <a href="/General%20to%20Specific">General to Specific</a> Belief Mapping</h2>
+      <div class="grid two">
+        <div>
+          <h3>🔹 Most General (Upstream) Beliefs</h3>
+          <table class="table" role="table" aria-label="Upstream beliefs">
+            <thead><tr><th>Support</th><th>Oppose</th></tr></thead>
+            <tbody><tr><td>1.…</td><td>1.…</td></tr></tbody>
+          </table>
+        </div>
+        <div>
+          <h3>More Specific (Downstream) Applications</h3>
+          <table class="table" role="table" aria-label="Downstream applications">
+            <thead><tr><th>Support</th><th>Oppose</th></tr></thead>
+            <tbody><tr><td>1.…</td><td>1.…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <h2>🧭 Belief Topic Continuums</h2>
+      <table class="table" role="table" aria-label="Belief topic continuums">
+        <thead><tr><th>Belief</th><th>Value Alignment</th></tr></thead>
+        <tbody>
+          <tr><td>Fully prioritizes supporting values</td><td>+100%</td></tr>
+          <tr><td>Fully rejects supporting values</td><td>-100%</td></tr>
+        </tbody>
+      </table>
+      <h2>🧮 Related Value Conflicts</h2>
+      <ol><li>…</li></ol>
+    </section>
+
+    <footer class="foot">
+      <p><a href="/w/page/160433328/Contact%20Me">📬 Contact me</a> to contribute to the Idea Stock Exchange.</p>
+      <p class="muted">This page uses an accessible, print‑friendly layout. Replace ellipses with structured content; keep headings levels sequential for assistive tech.</p>
+    </footer>
+  </div>
+</body>
+</html>
