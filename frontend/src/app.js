@@ -5,6 +5,9 @@ import ReasonRankTemplate from './components/ReasonRankTemplate.js';
 import LoginForm from './components/Auth/LoginForm.js';
 import RegisterForm from './components/Auth/RegisterForm.js';
 import BeliefForm from './components/Beliefs/BeliefForm.js';
+import BeliefsList from './pages/BeliefsList.jsx';
+import BeliefDetailsPage from './pages/BeliefDetails.jsx';
+import AddArgument from './pages/AddArgument.jsx';
 
 // Home Page
 const Home = () => {
@@ -123,21 +126,7 @@ const CreateBeliefPage = () => {
   );
 };
 
-// Beliefs List (placeholder)
-const BeliefsPage = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold mb-4">All Beliefs</h1>
-    <p>Beliefs list (coming soon)</p>
-  </div>
-);
-
-// Belief Details (placeholder)
-const BeliefDetails = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold">Belief Details</h1>
-    <p>Detailed view of a belief (coming soon)</p>
-  </div>
-);
+// Note: BeliefsPage and BeliefDetails are now imported from pages/
 
 // Argument Ranking (placeholder)
 const ArgumentRank = () => (
@@ -251,8 +240,11 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/beliefs" element={<BeliefsPage />} />
-          <Route path="/belief/:id" element={<BeliefDetails />} />
+          <Route path="/beliefs" element={<BeliefsList />} />
+          <Route path="/beliefs/create" element={<CreateBeliefPage />} />
+          <Route path="/beliefs/:id" element={<BeliefDetailsPage />} />
+          <Route path="/beliefs/:id/add-argument" element={<AddArgument />} />
+          <Route path="/beliefs/:id/edit" element={<CreateBeliefPage />} />
           <Route path="/create-belief" element={<CreateBeliefPage />} />
           <Route path="/rank" element={<ArgumentRank />} />
           <Route path="/profile" element={<Profile />} />
