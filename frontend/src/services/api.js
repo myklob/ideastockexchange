@@ -121,6 +121,16 @@ export const beliefAPI = {
     const response = await api.post(`/beliefs/${id}/calculate-score`);
     return response.data;
   },
+
+  incrementViews: async (id) => {
+    try {
+      // Silent increment - doesn't need to block UI
+      await api.post(`/beliefs/${id}/increment-views`);
+    } catch (error) {
+      // Silently fail - view counting is not critical
+      console.warn('Failed to increment views:', error);
+    }
+  },
 };
 
 // ============================================================================
