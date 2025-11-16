@@ -2,6 +2,38 @@
 
 This document outlines all planned features, bug fixes, and enhancements for the ISE platform. Use this as a reference for creating GitHub issues.
 
+**Last Updated**: 2025-11-16
+
+---
+
+## **Implementation Status Summary**
+
+### ✅ **Completed Features**
+- **Belief Editing** (Issue #6): Full CRUD operations for beliefs
+- **ArgumentRank/ReasonRank** (Phase 2 Scoring): PageRank-style argument credibility scoring
+- **Fallacy Detection** (Phase 2 Scoring): 10 fallacy types with confidence scoring
+- **Redundancy Detection** (Phase 2 Scoring): 4 similarity algorithms for duplicate detection
+- **Conclusion Score Calculation**: Multi-factor belief scoring algorithm
+- **Evidence System**: Complete CRUD with credibility scoring and verification
+- **Sub-argument Backend**: Model supports hierarchical argument structure
+
+### ⚠️ **Partially Implemented**
+- **Evidence Display** (Issue #4): Shows count only, not individual items
+- **Sub-argument UI** (Issue #5): Backend ready, no creation UI
+- **User Profiles** (Issue #7): Basic page exists, needs enhancement
+
+### ❌ **Not Started - High Priority**
+- **Testing Infrastructure** (Issues #1-3): No tests exist yet
+- **API Documentation** (Issue #8): No Swagger/OpenAPI
+- **Rate Limiting** (Issue #9): No protection against abuse
+- **Email Verification** (Issue #10): No email functionality
+- **Password Reset** (Issue #11): Only authenticated password change exists
+
+### ⚠️ **Confirmed Bugs**
+- **Voting State Sync** (Issue #43): User votes not displayed in UI
+- **Evidence Validation** (Issue #44): Basic validation, could be improved
+- **Redundancy Performance** (Issue #45): O(n²) algorithm slow with many arguments
+
 ---
 
 ## **Phase 1 Completion (Priority: High)**
@@ -47,46 +79,78 @@ These features complete the MVP and should be implemented first.
 
 #### Issue #4: Integrate evidence display in argument cards
 - **Labels**: `frontend`, `ui`, `priority-high`
+- **Status**: ⚠️ **PARTIALLY IMPLEMENTED** - ArgumentCard shows evidence count only
 - **Description**: Show attached evidence in ArgumentCard component
+- **Current Implementation** (ArgumentCard.jsx:84-87):
+  - ✅ Shows evidence count (e.g., "📎 3 evidence")
+  - ❌ Does NOT display individual evidence items
+  - ❌ No expandable section to view evidence details
 - **Tasks**:
-  - [ ] Update ArgumentCard to display evidence list
+  - [x] Update ArgumentCard to display evidence count
+  - [ ] Display full evidence list with titles
   - [ ] Add expandable section for evidence details
   - [ ] Style evidence items with type icons
   - [ ] Show credibility score and verification status
   - [ ] Add click handler to view full evidence details
-- **Acceptance Criteria**: Arguments with evidence show evidence list in card
+- **Acceptance Criteria**: Arguments with evidence show complete evidence list in card
 
 #### Issue #5: Add sub-argument creation UI
 - **Labels**: `frontend`, `ui`, `priority-high`
+- **Status**: ⚠️ **BACKEND READY** - Model supports sub-arguments, UI missing
 - **Description**: Allow users to add sub-arguments (counter-arguments)
+- **Current Implementation**:
+  - ✅ Argument model has `subArguments[]` and `parentArgument` fields
+  - ✅ ArgumentCard recursively displays sub-arguments (ArgumentCard.jsx:161-172)
+  - ❌ No "Reply" button in UI
+  - ❌ No SubArgumentForm component
 - **Tasks**:
+  - [x] Update API to handle parent-child relationships (DONE)
+  - [x] Show nested sub-arguments in hierarchical view (DONE)
   - [ ] Add "Reply" button to ArgumentCard
   - [ ] Create SubArgumentForm component
-  - [ ] Update API to handle parent-child relationships
-  - [ ] Show nested sub-arguments in hierarchical view
+  - [ ] Connect form to API
   - [ ] Add depth limit (e.g., max 3 levels)
-- **Acceptance Criteria**: Users can reply to arguments with counter-arguments
+- **Acceptance Criteria**: Users can reply to arguments with counter-arguments via UI
 
-#### Issue #6: Complete belief editing functionality
+#### Issue #6: Complete belief editing functionality ✅ **COMPLETED**
 - **Labels**: `frontend`, `priority-high`
+- **Status**: ✅ **FULLY IMPLEMENTED**
 - **Description**: Implement full edit flow for beliefs
+- **Implementation Details** (BeliefForm.js:14-36):
+  - ✅ BeliefForm component supports both create and edit modes
+  - ✅ Loads existing belief data for editing
+  - ✅ Route exists: `/beliefs/:id/edit`
+  - ✅ Edit button shown to belief owners (BeliefDetails.jsx:189-203)
+  - ✅ Updates belief via API on submission
+  - ✅ Redirects to belief details on success
 - **Tasks**:
-  - [ ] Create EditBelief page
-  - [ ] Pre-populate form with existing data
-  - [ ] Add version tracking (optional)
-  - [ ] Update belief on submission
-  - [ ] Redirect to belief details on success
-- **Acceptance Criteria**: Belief owners can edit their beliefs
+  - [x] Create EditBelief page (DONE - uses BeliefForm)
+  - [x] Pre-populate form with existing data (DONE)
+  - [ ] Add version tracking (optional - deferred to Issue #35)
+  - [x] Update belief on submission (DONE)
+  - [x] Redirect to belief details on success (DONE)
+- **Acceptance Criteria**: ✅ Belief owners can edit their beliefs
 
 #### Issue #7: Enhanced user profile page
 - **Labels**: `frontend`, `ui`, `priority-medium`
+- **Status**: ⚠️ **BASIC IMPLEMENTATION** - Minimal profile page exists
 - **Description**: Improve profile page with stats and contributions
+- **Current Implementation** (app.js:140-164):
+  - ✅ Basic profile page at `/profile` route
+  - ✅ Shows username, reputation, role
+  - ❌ No statistics (beliefs/arguments/votes counts)
+  - ❌ No list of user's content
+  - ❌ No profile editing UI
+  - ❌ No contribution timeline
+  - ❌ No public profiles for other users
 - **Tasks**:
+  - [x] Create basic profile route (DONE)
+  - [x] Show reputation score (DONE)
   - [ ] Show user statistics (beliefs created, arguments, votes)
   - [ ] List user's beliefs and arguments
   - [ ] Add profile editing (username, bio, avatar)
-  - [ ] Show reputation score prominently
   - [ ] Add contribution timeline
+  - [ ] Enable viewing other users' public profiles
 - **Acceptance Criteria**: Profile shows comprehensive user information
 
 ### **API & Documentation**
@@ -140,6 +204,12 @@ These features complete the MVP and should be implemented first.
 ## **Phase 2: Advanced Scoring (Priority: Medium)**
 
 Implement additional scoring metrics and visualizations.
+
+**✅ Note**: Several advanced scoring features from this phase are **ALREADY IMPLEMENTED**:
+- **ArgumentRank/ReasonRank** (server.js:45-88): PageRank-style algorithm for argument credibility scoring
+- **Fallacy Detection** (fallacyDetector.js): 10 fallacy types with confidence scoring and severity levels
+- **Redundancy Detection** (redundancyDetector.js): 4 similarity algorithms (Jaccard, Cosine, Levenshtein, Overlap)
+- **Conclusion Score**: Multi-dimensional belief scoring with 7-factor calculation
 
 ### **Scoring Enhancements**
 
@@ -553,23 +623,56 @@ Add moderation, peer review, and educational features.
 
 #### Issue #43: Fix argument voting state sync
 - **Labels**: `bug`, `frontend`, `priority-high`
+- **Status**: ⚠️ **CONFIRMED BUG**
 - **Description**: Vote state sometimes doesn't sync after voting
+- **Root Cause Analysis**:
+  - Backend correctly tracks votes in `User.votedArguments[]` (argumentController.js:182-214)
+  - ArgumentCard.jsx does NOT check or display user's current vote state
+  - Uses optimistic local updates but doesn't persist on page reload
+  - User cannot see which arguments they've already voted on
 - **Steps to Reproduce**:
   1. Vote on an argument
-  2. Navigate away and back
-  3. Vote state may not reflect actual vote
-- **Expected**: Vote state persists correctly
-- **Actual**: State sometimes resets
+  2. Navigate away and back to the page
+  3. Vote state does not reflect actual vote
+  4. Vote buttons appear neutral (not highlighted)
+- **Expected**: Vote state persists correctly and buttons show voted state
+- **Actual**: State resets on page reload; no visual indication of previous votes
+- **Fix Required**:
+  - Fetch user's voted arguments on component mount
+  - Check if current argument is in user's `votedArguments[]`
+  - Highlight appropriate vote button based on vote type
 
 #### Issue #44: Evidence form validation edge cases
 - **Labels**: `bug`, `frontend`, `priority-medium`
-- **Description**: Some invalid URLs pass validation
-- **Fix**: Improve URL validation regex
+- **Status**: ⚠️ **BASIC VALIDATION EXISTS** - Could be improved
+- **Description**: Some invalid URLs may pass validation
+- **Current Implementation** (EvidenceForm.jsx:84-87):
+  - ✅ Checks title and URL are required fields
+  - ✅ Uses HTML5 `type="url"` on URL field
+  - ⚠️ No custom regex validation for edge cases
+  - ⚠️ Basic error messages
+- **Fix Required**:
+  - Add comprehensive URL regex validation
+  - Better error messages for specific validation failures
+  - Validation feedback before submission
+  - Test edge cases (malformed URLs, unsupported protocols, etc.)
 
 #### Issue #45: Redundancy detector performance
 - **Labels**: `bug`, `backend`, `priority-low`
-- **Description**: Slow with >100 arguments
-- **Fix**: Optimize algorithm or add background processing
+- **Status**: ⚠️ **CONFIRMED PERFORMANCE ISSUE**
+- **Description**: Slow with >100 arguments due to O(n²) complexity
+- **Root Cause** (redundancyDetector.js):
+  - Uses O(n²) pairwise comparisons
+  - Calculates 4 similarity metrics (Jaccard, Cosine, Levenshtein, Overlap) for each pair
+  - No pagination or background processing
+  - Analysis route at `/api/analysis/redundancy` (server.js:107-154)
+- **Impact**: Performance degrades significantly with large argument sets (>100 arguments)
+- **Fix Options**:
+  - Implement pagination for redundancy analysis
+  - Add background job processing (e.g., Bull queue with Redis)
+  - Optimize algorithms (early termination, caching)
+  - Pre-compute similarity scores asynchronously
+  - Add indexing for faster lookups
 
 ---
 
@@ -582,19 +685,34 @@ Add moderation, peer review, and educational features.
 
 ---
 
-**Total Issues Identified**: 45+
+## **Issue Statistics**
+
+**Total Issues Identified**: 45
+
+**Status Breakdown**:
+- ✅ **Completed**: 1 issue (Issue #6)
+- ⚠️ **Partially Implemented**: 3 issues (Issues #4, #5, #7)
+- ❌ **Not Started**: 38 issues
+- ⚠️ **Confirmed Bugs**: 3 issues (Issues #43-45)
 
 **Priority Breakdown**:
 - **High Priority (Phase 1)**: 11 issues
+  - Completed: 1 (Issue #6)
+  - Partially done: 3 (Issues #4, #5, #7)
+  - Not started: 7 (Issues #1-3, #8-11)
 - **Medium Priority (Phases 2-3)**: 14 issues
+  - Note: Advanced scoring algorithms (ArgumentRank, fallacy detection, redundancy detection) are **FULLY IMPLEMENTED** beyond what was planned
 - **Low Priority (Phases 4-6)**: 17 issues
 - **Infrastructure**: 5 issues
-- **Bugs**: 3+ issues
+- **Bugs**: 3 confirmed bugs
 
 ---
 
-**Next Steps**:
-1. Create GitHub issues from this document
-2. Label appropriately
-3. Assign to milestones (Phase 1, 2, 3, etc.)
-4. Begin work on Phase 1 issues
+**Next Steps - Recommended Priority**:
+1. **Critical**: Implement testing infrastructure (Issues #1-3) - No tests currently exist
+2. **High**: Fix voting state sync bug (Issue #43) - Impacts user experience
+3. **High**: Complete evidence display in ArgumentCard (Issue #4) - Evidence exists but not shown
+4. **High**: Add sub-argument creation UI (Issue #5) - Backend ready, needs UI
+5. **Medium**: Add API documentation (Issue #8) - Aids development and integration
+6. **Medium**: Implement rate limiting (Issue #9) - Security concern
+7. **Medium**: Enhanced user profiles (Issue #7) - Better user engagement
