@@ -301,4 +301,85 @@ export const algorithmAPI = {
   },
 };
 
+// ============================================================================
+// CONFLICT RESOLUTION API
+// ============================================================================
+
+export const conflictAPI = {
+  getAll: async (params = {}) => {
+    const response = await api.get('/conflicts', { params });
+    return response.data;
+  },
+
+  getById: async (id) => {
+    const response = await api.get(`/conflicts/${id}`);
+    return response.data;
+  },
+
+  detectForBelief: async (beliefId) => {
+    const response = await api.post(`/conflicts/detect/${beliefId}`);
+    return response.data;
+  },
+
+  createForBelief: async (beliefId) => {
+    const response = await api.post(`/conflicts/create/${beliefId}`);
+    return response.data;
+  },
+
+  getSuggestions: async (conflictId) => {
+    const response = await api.get(`/conflicts/${conflictId}/suggestions`);
+    return response.data;
+  },
+
+  advanceWorkflow: async (conflictId, outcome) => {
+    const response = await api.put(`/conflicts/${conflictId}/advance`, { outcome });
+    return response.data;
+  },
+
+  communicate: async (conflictId, messageData) => {
+    const response = await api.post(`/conflicts/${conflictId}/communicate`, messageData);
+    return response.data;
+  },
+
+  proposeSolution: async (conflictId, solutionData) => {
+    const response = await api.post(`/conflicts/${conflictId}/propose-solution`, solutionData);
+    return response.data;
+  },
+
+  voteSolution: async (conflictId, solutionId, vote) => {
+    const response = await api.post(`/conflicts/${conflictId}/vote-solution/${solutionId}`, { vote });
+    return response.data;
+  },
+
+  proposeConcession: async (conflictId, concessionData) => {
+    const response = await api.post(`/conflicts/${conflictId}/concession`, concessionData);
+    return response.data;
+  },
+
+  acceptConcession: async (conflictId, concessionIndex) => {
+    const response = await api.post(`/conflicts/${conflictId}/accept-concession/${concessionIndex}`);
+    return response.data;
+  },
+
+  startCoolingOff: async (conflictId, hours = 24) => {
+    const response = await api.post(`/conflicts/${conflictId}/cooling-off`, { hours });
+    return response.data;
+  },
+
+  resolve: async (conflictId, resolutionData) => {
+    const response = await api.put(`/conflicts/${conflictId}/resolve`, resolutionData);
+    return response.data;
+  },
+
+  getStats: async () => {
+    const response = await api.get('/conflicts/stats/summary');
+    return response.data;
+  },
+
+  scanAll: async (category) => {
+    const response = await api.post('/conflicts/scan', { category });
+    return response.data;
+  },
+};
+
 export default api;

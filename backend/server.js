@@ -10,6 +10,7 @@ import argumentRoutes from './routes/arguments.js';
 import evidenceRoutes from './routes/evidence.js';
 import analysisRoutes from './routes/analysis.js';
 import topicRoutes from './routes/topics.js';
+import conflictResolutionRoutes from './routes/conflictResolution.js';
 
 dotenv.config();
 
@@ -132,6 +133,7 @@ app.use('/api/arguments', argumentRoutes);
 app.use('/api/evidence', evidenceRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/topics', topicRoutes);
+app.use('/api/conflicts', conflictResolutionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -258,6 +260,15 @@ app.use((req, res) => {
       'POST /api/argumentrank',
       'POST /api/conclusion-score',
       'GET  /api/examples/argumentrank',
+      'GET  /api/conflicts',
+      'GET  /api/conflicts/:id',
+      'POST /api/conflicts/detect/:beliefId',
+      'POST /api/conflicts/create/:beliefId',
+      'GET  /api/conflicts/:id/suggestions',
+      'PUT  /api/conflicts/:id/advance',
+      'POST /api/conflicts/:id/communicate',
+      'POST /api/conflicts/:id/propose-solution',
+      'PUT  /api/conflicts/:id/resolve',
     ],
   });
 });
@@ -304,6 +315,16 @@ app.listen(PORT, () => {
   console.log('  POST /api/argumentrank        - Calculate ArgumentRank');
   console.log('  POST /api/conclusion-score    - Calculate Conclusion Score');
   console.log('  GET  /api/examples/argumentrank - Example calculation');
+  console.log('\n🤝 Conflict Resolution Endpoints:');
+  console.log('  GET  /api/conflicts           - Get all conflicts');
+  console.log('  GET  /api/conflicts/:id       - Get conflict details');
+  console.log('  POST /api/conflicts/detect/:beliefId - Detect conflict');
+  console.log('  POST /api/conflicts/create/:beliefId - Create resolution workflow');
+  console.log('  GET  /api/conflicts/:id/suggestions  - Get resolution suggestions');
+  console.log('  PUT  /api/conflicts/:id/advance      - Advance workflow');
+  console.log('  POST /api/conflicts/:id/communicate  - Add communication');
+  console.log('  POST /api/conflicts/:id/propose-solution - Propose solution');
+  console.log('  PUT  /api/conflicts/:id/resolve      - Mark as resolved');
   console.log('='.repeat(70));
 });
 
