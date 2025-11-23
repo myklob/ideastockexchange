@@ -58,6 +58,52 @@ const BeliefSchema = new mongoose.Schema({
       max: 1,
     },
   }],
+  // Three-Dimensional Belief Sorting (One Page Per Belief framework)
+  dimensions: {
+    // Dimension 1: General → Specific (0-100)
+    specificity: {
+      type: Number,
+      default: 50,
+      min: 0,
+      max: 100,
+      description: 'How specific vs general the belief is (0=very general, 100=very specific)',
+    },
+    // Dimension 2: Weaker → Stronger (0-100) - uses conclusionScore
+    // conclusionScore represents argument strength
+
+    // Dimension 3: Negative → Positive (-100 to 100)
+    sentimentPolarity: {
+      type: Number,
+      default: 0,
+      min: -100,
+      max: 100,
+      description: 'Sentiment toward the topic (-100=very negative, 0=neutral, 100=very positive)',
+    },
+  },
+  // Semantic Clustering: Similar belief statements grouped together
+  similarBeliefs: [{
+    beliefId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Belief',
+    },
+    similarityScore: {
+      type: Number,
+      min: 0,
+      max: 1,
+      description: 'Semantic similarity score (0-1)',
+    },
+    mergedInto: {
+      type: Boolean,
+      default: false,
+      description: 'Whether this similar belief was merged into the current one',
+    },
+  }],
+  // Topic reference for aggregation
+  topicId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Topic',
+    description: 'Main topic this belief belongs to',
+  },
   statistics: {
     views: {
       type: Number,
@@ -286,9 +332,158 @@ BeliefSchema.methods.incrementViews = function() {
   return this.save();
 };
 
+// Calculate specificity score (General → Specific)
+// More specific beliefs have concrete terms, numbers, names, dates, etc.
+BeliefSchema.methods.calculateSpecificity = function() {
+  const statement = this.statement.toLowerCase();
+
+  let specificityScore = 50; // Start neutral
+
+  // Indicators of SPECIFICITY (+points)
+  // Has numbers or dates
+  if (/\d/.test(statement)) specificityScore += 15;
+
+  // Has proper nouns (capitalized words that aren't at sentence start)
+  const words = this.statement.split(' ');
+  const properNouns = words.slice(1).filter(w => /^[A-Z]/.test(w)).length;
+  specificityScore += Math.min(properNouns * 5, 20);
+
+  // Has specific time references
+  if (/(yesterday|today|tomorrow|january|february|march|april|may|june|july|august|september|october|november|december|\d{4})/i.test(statement)) {
+    specificityScore += 10;
+  }
+
+  // Has specific quantifiers
+  if (/(exactly|precisely|specifically|particularly|especially)/i.test(statement)) {
+    specificityScore += 10;
+  }
+
+  // Indicators of GENERALITY (-points)
+  // Has general quantifiers
+  if (/(all|every|always|never|generally|usually|most|some|many|few)/i.test(statement)) {
+    specificityScore -= 10;
+  }
+
+  // Has abstract concepts
+  if (/(concept|idea|theory|principle|generally|typically)/i.test(statement)) {
+    specificityScore -= 10;
+  }
+
+  // Ensure score is in valid range
+  this.dimensions.specificity = Math.max(0, Math.min(100, specificityScore));
+  return this.dimensions.specificity;
+};
+
+// Calculate sentiment polarity (Negative → Positive)
+// Analyzes the sentiment/tone toward the subject
+BeliefSchema.methods.calculateSentimentPolarity = function() {
+  const statement = this.statement.toLowerCase();
+
+  let polarityScore = 0; // Start neutral
+
+  // Positive sentiment words
+  const positiveWords = [
+    'good', 'great', 'excellent', 'outstanding', 'effective', 'successful',
+    'beneficial', 'positive', 'strong', 'smart', 'intelligent', 'capable',
+    'competent', 'skilled', 'talented', 'superior', 'better', 'best',
+    'improve', 'increase', 'enhance', 'benefit', 'help', 'support',
+    'right', 'correct', 'true', 'valid', 'sound', 'reasonable'
+  ];
+
+  // Negative sentiment words
+  const negativeWords = [
+    'bad', 'poor', 'terrible', 'awful', 'ineffective', 'unsuccessful',
+    'harmful', 'negative', 'weak', 'dumb', 'unintelligent', 'incapable',
+    'incompetent', 'unskilled', 'inferior', 'worse', 'worst',
+    'damage', 'decrease', 'harm', 'hurt', 'undermine',
+    'wrong', 'incorrect', 'false', 'invalid', 'unsound', 'unreasonable',
+    'lacking', 'lacks', 'not'
+  ];
+
+  // Negation words that flip sentiment
+  const negationWords = ['not', 'no', 'never', 'neither', 'nor', "n't"];
+
+  // Count positive and negative words
+  positiveWords.forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    const matches = statement.match(regex);
+    if (matches) polarityScore += matches.length * 10;
+  });
+
+  negativeWords.forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    const matches = statement.match(regex);
+    if (matches) polarityScore -= matches.length * 10;
+  });
+
+  // Adjust for negations (they typically flip sentiment)
+  negationWords.forEach(word => {
+    if (statement.includes(word)) {
+      // Negation present - might flip sentiment slightly
+      polarityScore = polarityScore * 0.8; // Dampen the polarity
+    }
+  });
+
+  // Ensure score is in valid range
+  this.dimensions.sentimentPolarity = Math.max(-100, Math.min(100, Math.round(polarityScore)));
+  return this.dimensions.sentimentPolarity;
+};
+
+// Update all dimensional scores
+BeliefSchema.methods.updateDimensions = async function() {
+  this.calculateSpecificity();
+  this.calculateSentimentPolarity();
+  // Strength is already calculated via calculateConclusionScore
+  return this.save();
+};
+
+// Add a similar belief
+BeliefSchema.methods.addSimilarBelief = function(beliefId, similarityScore) {
+  // Check if already exists
+  const exists = this.similarBeliefs.some(
+    sb => sb.beliefId.toString() === beliefId.toString()
+  );
+
+  if (!exists) {
+    this.similarBeliefs.push({
+      beliefId,
+      similarityScore,
+      mergedInto: false,
+    });
+  }
+
+  return this.save();
+};
+
+// Merge a similar belief into this one
+BeliefSchema.methods.mergeSimilarBelief = async function(beliefId) {
+  const similarBelief = this.similarBeliefs.find(
+    sb => sb.beliefId.toString() === beliefId.toString()
+  );
+
+  if (similarBelief) {
+    similarBelief.mergedInto = true;
+  }
+
+  return this.save();
+};
+
+// Get position in 3D space for visualization
+BeliefSchema.methods.get3DPosition = function() {
+  return {
+    specificity: this.dimensions.specificity,
+    strength: this.conclusionScore,
+    sentiment: this.dimensions.sentimentPolarity,
+  };
+};
+
 // Index for better query performance
 BeliefSchema.index({ statement: 'text', description: 'text' });
 BeliefSchema.index({ category: 1, status: 1 });
 BeliefSchema.index({ trending: 1, 'statistics.views': -1 });
+BeliefSchema.index({ 'dimensions.specificity': 1 });
+BeliefSchema.index({ 'dimensions.sentimentPolarity': 1 });
+BeliefSchema.index({ conclusionScore: 1 });
+BeliefSchema.index({ topicId: 1 });
 
 export default mongoose.model('Belief', BeliefSchema);

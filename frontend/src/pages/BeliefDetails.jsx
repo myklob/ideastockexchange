@@ -13,9 +13,11 @@ const BeliefDetails = () => {
 
   const [belief, setBelief] = useState(null);
   const [arguments, setArguments] = useState({ supporting: [], opposing: [] });
+  const [similarBeliefs, setSimilarBeliefs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('all'); // all, supporting, opposing
+  const [showSimilar, setShowSimilar] = useState(false);
 
   useEffect(() => {
     fetchBeliefDetails();
@@ -39,6 +41,17 @@ const BeliefDetails = () => {
         supporting: beliefData.supportingArguments || [],
         opposing: beliefData.opposingArguments || []
       });
+
+      // Fetch similar beliefs
+      try {
+        const similarResponse = await beliefAPI.getSimilar(id);
+        if (similarResponse.data && similarResponse.data.success) {
+          setSimilarBeliefs(similarResponse.data.data || []);
+        }
+      } catch (similarErr) {
+        console.error('Error fetching similar beliefs:', similarErr);
+        // Don't fail the whole page if similar beliefs fail
+      }
 
       // Increment view count
       await beliefAPI.incrementViews(id);
@@ -284,6 +297,151 @@ const BeliefDetails = () => {
           <div className="space-y-6">
             {/* Score Breakdown */}
             <ScoreBreakdown belief={belief} arguments={allArguments} />
+
+            {/* Three-Dimensional Position */}
+            {belief.dimensions && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Belief Dimensions</h3>
+                <p className="text-xs text-gray-600 mb-4">
+                  Three-dimensional positioning for semantic navigation
+                </p>
+                <div className="space-y-4">
+                  {/* Specificity */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        Specificity
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        {belief.dimensions.specificity || 50}/100
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full"
+                        style={{ width: `${belief.dimensions.specificity || 50}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>General</span>
+                      <span>Specific</span>
+                    </div>
+                  </div>
+
+                  {/* Strength (Conclusion Score) */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        Strength
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        {belief.conclusionScore || 50}/100
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full ${
+                          belief.conclusionScore >= 60
+                            ? 'bg-green-600'
+                            : belief.conclusionScore >= 40
+                            ? 'bg-yellow-600'
+                            : 'bg-red-600'
+                        }`}
+                        style={{ width: `${belief.conclusionScore || 50}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>Weaker</span>
+                      <span>Stronger</span>
+                    </div>
+                  </div>
+
+                  {/* Sentiment Polarity */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        Sentiment
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        {belief.dimensions.sentimentPolarity || 0}
+                      </span>
+                    </div>
+                    <div className="relative w-full bg-gray-200 rounded-full h-2">
+                      {/* Center line */}
+                      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-400" />
+                      {/* Sentiment bar */}
+                      <div
+                        className={`absolute h-2 rounded-full ${
+                          (belief.dimensions.sentimentPolarity || 0) > 0
+                            ? 'bg-green-600'
+                            : (belief.dimensions.sentimentPolarity || 0) < 0
+                            ? 'bg-red-600'
+                            : 'bg-gray-400'
+                        }`}
+                        style={{
+                          left: (belief.dimensions.sentimentPolarity || 0) < 0
+                            ? `${50 + (belief.dimensions.sentimentPolarity || 0) / 2}%`
+                            : '50%',
+                          width: `${Math.abs((belief.dimensions.sentimentPolarity || 0) / 2)}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>Negative</span>
+                      <span>Neutral</span>
+                      <span>Positive</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Similar Beliefs */}
+            {similarBeliefs.length > 0 && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  Similar Beliefs
+                </h3>
+                <p className="text-xs text-gray-600 mb-4">
+                  Semantically similar statements grouped together
+                </p>
+                <div className="space-y-3">
+                  {similarBeliefs.slice(0, showSimilar ? similarBeliefs.length : 3).map((similar) => (
+                    <Link
+                      key={similar.belief._id}
+                      to={`/beliefs/${similar.belief._id}`}
+                      className="block p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between">
+                        <p className="text-sm font-medium text-gray-900 flex-1">
+                          {similar.belief.statement}
+                        </p>
+                        <span
+                          className={`ml-2 px-2 py-1 text-xs rounded-full ${
+                            similar.isOpposite
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}
+                        >
+                          {similar.isOpposite ? 'Opposite' : 'Similar'}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        Similarity: {(similar.similarityScore * 100).toFixed(0)}%
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                {similarBeliefs.length > 3 && (
+                  <button
+                    onClick={() => setShowSimilar(!showSimilar)}
+                    className="mt-3 w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    {showSimilar ? 'Show Less' : `Show ${similarBeliefs.length - 3} More`}
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Related Beliefs */}
             {belief.relatedBeliefs && belief.relatedBeliefs.length > 0 && (

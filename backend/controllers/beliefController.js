@@ -1,5 +1,10 @@
 import Belief from '../models/Belief.js';
 import Argument from '../models/Argument.js';
+import {
+  findSimilarBeliefs,
+  detectDuplicate,
+  clusterBeliefs,
+} from '../utils/semanticClustering.js';
 
 // @desc    Get all beliefs
 // @route   GET /api/beliefs
@@ -284,6 +289,281 @@ export const getScoreBreakdown = async (req, res) => {
     res.json({
       success: true,
       data: breakdown,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Check for duplicate beliefs before creating
+// @route   POST /api/beliefs/check-duplicate
+// @access  Public
+export const checkDuplicate = async (req, res) => {
+  try {
+    const { statement } = req.body;
+
+    if (!statement) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a statement',
+      });
+    }
+
+    // Get all active beliefs
+    const allBeliefs = await Belief.find({ status: 'active' })
+      .populate('author', 'username')
+      .select('statement description statistics');
+
+    // Check for duplicates
+    const result = detectDuplicate(statement, allBeliefs);
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Find similar beliefs
+// @route   GET /api/beliefs/:id/similar
+// @access  Public
+export const getSimilarBeliefs = async (req, res) => {
+  try {
+    const { threshold = 0.7 } = req.query;
+
+    const belief = await Belief.findById(req.params.id);
+
+    if (!belief) {
+      return res.status(404).json({
+        success: false,
+        error: 'Belief not found',
+      });
+    }
+
+    // Get all other active beliefs
+    const allBeliefs = await Belief.find({
+      status: 'active',
+      _id: { $ne: belief._id },
+    })
+      .populate('author', 'username')
+      .select('statement description statistics dimensions');
+
+    // Find similar beliefs
+    const similar = findSimilarBeliefs(belief.statement, allBeliefs, parseFloat(threshold));
+
+    res.json({
+      success: true,
+      data: similar,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Link similar beliefs
+// @route   POST /api/beliefs/:id/link-similar
+// @access  Private
+export const linkSimilarBelief = async (req, res) => {
+  try {
+    const { similarBeliefId, similarityScore } = req.body;
+
+    const belief = await Belief.findById(req.params.id);
+
+    if (!belief) {
+      return res.status(404).json({
+        success: false,
+        error: 'Belief not found',
+      });
+    }
+
+    // Add to similarBeliefs
+    await belief.addSimilarBelief(similarBeliefId, similarityScore);
+
+    // Also add the reverse link
+    const similarBelief = await Belief.findById(similarBeliefId);
+    if (similarBelief) {
+      await similarBelief.addSimilarBelief(belief._id, similarityScore);
+    }
+
+    res.json({
+      success: true,
+      message: 'Similar belief linked successfully',
+      data: belief,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Merge similar belief into this one
+// @route   POST /api/beliefs/:id/merge
+// @access  Private (Admin)
+export const mergeBelief = async (req, res) => {
+  try {
+    const { beliefIdToMerge } = req.body;
+
+    const mainBelief = await Belief.findById(req.params.id);
+    const beliefToMerge = await Belief.findById(beliefIdToMerge);
+
+    if (!mainBelief || !beliefToMerge) {
+      return res.status(404).json({
+        success: false,
+        error: 'One or both beliefs not found',
+      });
+    }
+
+    // Transfer arguments from merged belief to main belief
+    mainBelief.supportingArguments.push(...beliefToMerge.supportingArguments);
+    mainBelief.opposingArguments.push(...beliefToMerge.opposingArguments);
+
+    // Update argument references
+    await Argument.updateMany(
+      { beliefId: beliefIdToMerge },
+      { beliefId: mainBelief._id }
+    );
+
+    // Mark as merged
+    await mainBelief.mergeSimilarBelief(beliefIdToMerge);
+
+    // Archive the merged belief
+    beliefToMerge.status = 'archived';
+    await beliefToMerge.save();
+
+    // Recalculate scores
+    await mainBelief.updateStatistics();
+    await mainBelief.calculateConclusionScore();
+    await mainBelief.save();
+
+    res.json({
+      success: true,
+      message: 'Belief merged successfully',
+      data: mainBelief,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Update belief dimensions (specificity, sentiment, strength)
+// @route   POST /api/beliefs/:id/update-dimensions
+// @access  Public
+export const updateBeliefDimensions = async (req, res) => {
+  try {
+    const belief = await Belief.findById(req.params.id);
+
+    if (!belief) {
+      return res.status(404).json({
+        success: false,
+        error: 'Belief not found',
+      });
+    }
+
+    await belief.updateDimensions();
+
+    res.json({
+      success: true,
+      data: {
+        dimensions: belief.dimensions,
+        position3D: belief.get3DPosition(),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Get beliefs with dimensional filters
+// @route   GET /api/beliefs/search/dimensions
+// @access  Public
+export const searchByDimensions = async (req, res) => {
+  try {
+    const {
+      minSpecificity,
+      maxSpecificity,
+      minStrength,
+      maxStrength,
+      minSentiment,
+      maxSentiment,
+      category,
+      topicId,
+      limit = 20,
+      page = 1,
+    } = req.query;
+
+    const query = { status: 'active' };
+
+    // Apply dimensional filters
+    if (minSpecificity !== undefined || maxSpecificity !== undefined) {
+      query['dimensions.specificity'] = {};
+      if (minSpecificity !== undefined) {
+        query['dimensions.specificity'].$gte = parseFloat(minSpecificity);
+      }
+      if (maxSpecificity !== undefined) {
+        query['dimensions.specificity'].$lte = parseFloat(maxSpecificity);
+      }
+    }
+
+    if (minStrength !== undefined || maxStrength !== undefined) {
+      query.conclusionScore = {};
+      if (minStrength !== undefined) {
+        query.conclusionScore.$gte = parseFloat(minStrength);
+      }
+      if (maxStrength !== undefined) {
+        query.conclusionScore.$lte = parseFloat(maxStrength);
+      }
+    }
+
+    if (minSentiment !== undefined || maxSentiment !== undefined) {
+      query['dimensions.sentimentPolarity'] = {};
+      if (minSentiment !== undefined) {
+        query['dimensions.sentimentPolarity'].$gte = parseFloat(minSentiment);
+      }
+      if (maxSentiment !== undefined) {
+        query['dimensions.sentimentPolarity'].$lte = parseFloat(maxSentiment);
+      }
+    }
+
+    if (category) query.category = category;
+    if (topicId) query.topicId = topicId;
+
+    const beliefs = await Belief.find(query)
+      .populate('author', 'username reputation')
+      .populate('topicId', 'name slug')
+      .sort({ 'statistics.views': -1 })
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
+
+    const total = await Belief.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: beliefs,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit)),
+      },
     });
   } catch (error) {
     res.status(500).json({
