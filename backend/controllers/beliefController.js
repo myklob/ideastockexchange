@@ -264,3 +264,31 @@ export const calculateBeliefScore = async (req, res) => {
     });
   }
 };
+
+// @desc    Get detailed score breakdown
+// @route   GET /api/beliefs/:id/score-breakdown
+// @access  Public
+export const getScoreBreakdown = async (req, res) => {
+  try {
+    const belief = await Belief.findById(req.params.id);
+
+    if (!belief) {
+      return res.status(404).json({
+        success: false,
+        error: 'Belief not found',
+      });
+    }
+
+    const breakdown = await belief.getScoreBreakdown();
+
+    res.json({
+      success: true,
+      data: breakdown,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
