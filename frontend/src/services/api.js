@@ -131,6 +131,85 @@ export const beliefAPI = {
       console.warn('Failed to increment views:', error);
     }
   },
+
+  // Semantic clustering and similarity
+  checkDuplicate: async (statement) => {
+    const response = await api.post('/beliefs/check-duplicate', { statement });
+    return response.data;
+  },
+
+  getSimilar: async (id, threshold = 0.7) => {
+    const response = await api.get(`/beliefs/${id}/similar`, {
+      params: { threshold },
+    });
+    return response.data;
+  },
+
+  linkSimilar: async (id, similarBeliefId, similarityScore) => {
+    const response = await api.post(`/beliefs/${id}/link-similar`, {
+      similarBeliefId,
+      similarityScore,
+    });
+    return response.data;
+  },
+
+  mergeBelief: async (id, beliefIdToMerge) => {
+    const response = await api.post(`/beliefs/${id}/merge`, {
+      beliefIdToMerge,
+    });
+    return response.data;
+  },
+
+  updateDimensions: async (id) => {
+    const response = await api.post(`/beliefs/${id}/update-dimensions`);
+    return response.data;
+  },
+
+  searchByDimensions: async (params = {}) => {
+    const response = await api.get('/beliefs/search/dimensions', { params });
+    return response.data;
+  },
+};
+
+// ============================================================================
+// TOPIC API
+// ============================================================================
+
+export const topicAPI = {
+  getAll: async (params = {}) => {
+    const response = await api.get('/topics', { params });
+    return response.data;
+  },
+
+  getByIdOrSlug: async (idOrSlug) => {
+    const response = await api.get(`/topics/${idOrSlug}`);
+    return response.data;
+  },
+
+  getBeliefs: async (idOrSlug, params = {}) => {
+    const response = await api.get(`/topics/${idOrSlug}/beliefs`, { params });
+    return response.data;
+  },
+
+  create: async (topicData) => {
+    const response = await api.post('/topics', topicData);
+    return response.data;
+  },
+
+  update: async (id, topicData) => {
+    const response = await api.put(`/topics/${id}`, topicData);
+    return response.data;
+  },
+
+  updateStatistics: async (id) => {
+    const response = await api.post(`/topics/${id}/update-statistics`);
+    return response.data;
+  },
+
+  delete: async (id) => {
+    const response = await api.delete(`/topics/${id}`);
+    return response.data;
+  },
 };
 
 // ============================================================================

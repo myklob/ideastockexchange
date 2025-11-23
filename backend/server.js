@@ -9,6 +9,7 @@ import beliefRoutes from './routes/beliefs.js';
 import argumentRoutes from './routes/arguments.js';
 import evidenceRoutes from './routes/evidence.js';
 import analysisRoutes from './routes/analysis.js';
+import topicRoutes from './routes/topics.js';
 
 dotenv.config();
 
@@ -130,6 +131,7 @@ app.use('/api/beliefs', beliefRoutes);
 app.use('/api/arguments', argumentRoutes);
 app.use('/api/evidence', evidenceRoutes);
 app.use('/api/analysis', analysisRoutes);
+app.use('/api/topics', topicRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
