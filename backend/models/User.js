@@ -54,6 +54,126 @@ const UserSchema = new mongoose.Schema({
       enum: ['up', 'down'],
     },
   }],
+
+  // === MONETIZATION FIELDS ===
+  subscription: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Subscription'
+  },
+
+  // === ACHIEVEMENTS ===
+  achievements: [{
+    achievement: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Achievement'
+    },
+    progress: {
+      current: {
+        type: Number,
+        default: 0
+      },
+      required: {
+        type: Number,
+        required: true
+      },
+      percentage: {
+        type: Number,
+        default: 0
+      }
+    },
+    isUnlocked: {
+      type: Boolean,
+      default: false
+    },
+    unlockedAt: {
+      type: Date
+    },
+    displayOnProfile: {
+      type: Boolean,
+      default: false
+    },
+    isPinned: {
+      type: Boolean,
+      default: false
+    }
+  }],
+
+  // === MATCHING/DATING PROFILE ===
+  matchingProfile: {
+    enabled: {
+      type: Boolean,
+      default: false
+    },
+    bio: {
+      type: String,
+      maxlength: 500
+    },
+    age: {
+      type: Number,
+      min: 18,
+      max: 120
+    },
+    location: {
+      city: String,
+      state: String,
+      country: String
+    },
+    interests: [{
+      type: String
+    }],
+    lookingFor: {
+      type: String,
+      enum: ['friendship', 'dating', 'networking', 'debate_partner'],
+      default: 'networking'
+    },
+    // Belief compatibility preferences
+    dealBreakerBeliefs: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Belief'
+    }],
+    importantBeliefs: [{
+      belief: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Belief'
+      },
+      importance: {
+        type: Number,
+        min: 1,
+        max: 10
+      }
+    }],
+    // Privacy
+    showInMatching: {
+      type: Boolean,
+      default: false
+    },
+    allowMessages: {
+      type: Boolean,
+      default: true
+    }
+  },
+
+  // === USER PREFERENCES ===
+  preferences: {
+    theme: {
+      type: String,
+      enum: ['light', 'dark', 'auto'],
+      default: 'auto'
+    },
+    emailNotifications: {
+      type: Boolean,
+      default: true
+    },
+    marketingEmails: {
+      type: Boolean,
+      default: false
+    },
+    showAds: {
+      type: Boolean,
+      default: true
+    }
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,
