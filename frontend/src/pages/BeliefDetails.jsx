@@ -3,7 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Eye, TrendingUp, Edit, Trash2, Loader } from 'lucide-react';
 import ArgumentCard from '../components/Arguments/ArgumentCard';
 import ScoreBreakdown from '../components/Beliefs/ScoreBreakdown';
-import { beliefAPI } from '../services/api';
+import ConflictResolution from '../components/ConflictResolution';
+import { beliefAPI, conflictAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const BeliefDetails = () => {
@@ -14,6 +15,7 @@ const BeliefDetails = () => {
   const [belief, setBelief] = useState(null);
   const [arguments, setArguments] = useState({ supporting: [], opposing: [] });
   const [similarBeliefs, setSimilarBeliefs] = useState([]);
+  const [conflict, setConflict] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('all'); // all, supporting, opposing
@@ -55,6 +57,21 @@ const BeliefDetails = () => {
 
       // Increment view count
       await beliefAPI.incrementViews(id);
+
+      // Detect/fetch conflict if exists
+      try {
+        const conflictResponse = await conflictAPI.detectForBelief(id);
+        if (conflictResponse.analysis?.hasConflict) {
+          // Try to get or create conflict resolution workflow
+          const conflictData = await conflictAPI.getAll({ beliefId: id, limit: 1 });
+          if (conflictData.conflicts && conflictData.conflicts.length > 0) {
+            setConflict(conflictData.conflicts[0]);
+          }
+        }
+      } catch (conflictErr) {
+        console.error('Error fetching conflict:', conflictErr);
+        // Don't fail the whole page if conflict detection fails
+      }
     } catch (err) {
       console.error('Error fetching belief:', err);
       setError(err.response?.data?.message || 'Failed to load belief details');
@@ -217,6 +234,15 @@ const BeliefDetails = () => {
                 )}
               </div>
             </div>
+
+            {/* Conflict Resolution Component */}
+            {conflict && (
+              <ConflictResolution
+                beliefId={id}
+                conflict={conflict}
+                onRefresh={fetchBeliefDetails}
+              />
+            )}
 
             {/* Arguments Section */}
             <div className="bg-white rounded-lg shadow-md p-6">
