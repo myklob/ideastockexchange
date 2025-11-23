@@ -38,38 +38,66 @@ The Idea Stock Exchange uses a multi-dimensional scoring system to evaluate the 
 
 The **Conclusion Score (CS)** represents how well-supported a belief is, ranging from 0 (strongly refuted) to 100 (strongly supported).
 
-### Formula
+### Formula (PageRank-Adapted)
+
+**ReasonRank uses a PageRank-inspired algorithm where:**
+- Supporting arguments **ADD** to the belief score
+- Opposing/con arguments **SUBTRACT** from the belief score
 
 ```
-CS = Σ((RtA - RtD) × ES × LC × VC × LR × UD × AI)
+CS = BaseScore + Σ(Supporting Scores) - Σ(Opposing Scores)
 ```
 
-Where each argument contributes based on:
-- **RtA**: Reason to Agree (positive value for supporting arguments)
-- **RtD**: Reason to Disagree (positive value for opposing arguments)
-- **ES**: Evidence Strength (0-1)
-- **LC**: Logical Coherence (0-1)
-- **VC**: Verification Credibility (0-1)
-- **LR**: Linkage Relevance (0-1)
-- **UD**: Uniqueness/Distinctiveness (0-1)
-- **AI**: Argument Importance (0-1)
+Where:
+- **BaseScore = 50** (neutral starting point)
+- **Supporting Scores** = ReasonRank × Lifecycle Multiplier for each pro argument
+- **Opposing Scores** = ReasonRank × Lifecycle Multiplier for each con argument
+- Each argument's **ReasonRank** is calculated from:
+  - **ES**: Evidence Strength (0-1)
+  - **LC**: Logical Coherence (0-1)
+  - **VC**: Verification Credibility (0-1)
+  - **LR**: Linkage Relevance (0-1)
+  - **UD**: Uniqueness/Distinctiveness (0-1)
+  - **AI**: Argument Importance (0-1)
 
 ### Current Implementation
 
-In the current codebase (`backend/models/Belief.js`), the calculation uses a simplified weighted average:
+In the current codebase (`backend/models/Belief.js`), the PageRank-style calculation works as follows:
 
 ```javascript
 calculateConclusionScore = async function() {
-  // Get average scores
-  const supportingAvg = averageOf(supportingArguments.scores.overall);
-  const opposingAvg = averageOf(opposingArguments.scores.overall);
+  // Calculate ReasonRank for each argument
+  for (const arg of supportingArguments) {
+    arg.calculateReasonRankScore();  // 0-100 score
+    arg.updateLifecycleStatus();     // active, weakened, refuted, etc.
+  }
 
-  // Weight by argument count
-  const supportWeight = supportingArguments.length / totalArguments;
-  const opposeWeight = opposingArguments.length / totalArguments;
+  for (const arg of opposingArguments) {
+    arg.calculateReasonRankScore();
+    arg.updateLifecycleStatus();
+  }
 
-  // Final score
-  CS = (supportingAvg × supportWeight) + ((100 - opposingAvg) × opposeWeight);
+  // Weight each argument by lifecycle status
+  const lifecycleMultiplier = {
+    active: 1.0,      // Full weight
+    weakened: 0.7,    // 70% weight
+    conditional: 0.8, // 80% weight
+    outdated: 0.3,    // 30% weight
+    refuted: 0.1      // 10% weight
+  };
+
+  // Calculate weighted scores
+  supportingTotal = Σ(arg.reasonRank × lifecycleMultiplier);
+  opposingTotal = Σ(arg.reasonRank × lifecycleMultiplier);
+
+  supportingAvg = supportingTotal / supportingCount;
+  opposingAvg = opposingTotal / opposingCount;
+
+  // PageRank formula: ADD supporting, SUBTRACT opposing
+  CS = 50 + (supportingAvg × supportWeight) - (opposingAvg × opposeWeight);
+
+  // Normalize to 0-100 range
+  CS = clamp(CS, 0, 100);
 }
 ```
 
@@ -79,25 +107,36 @@ calculateConclusionScore = async function() {
 Belief: "Exercise improves mental health"
 
 Supporting Arguments:
-├─ Arg 1: Score 85 ████████████████░░░
-├─ Arg 2: Score 72 ██████████████░░░░░
-└─ Arg 3: Score 68 █████████████░░░░░░
+├─ Arg 1: ReasonRank 85, Active (1.0)     → Contributes: +85
+├─ Arg 2: ReasonRank 72, Active (1.0)     → Contributes: +72
+└─ Arg 3: ReasonRank 68, Weakened (0.7)   → Contributes: +47.6
 
 Opposing Arguments:
-├─ Arg 1: Score 45 █████████░░░░░░░░░░
-└─ Arg 2: Score 52 ██████████░░░░░░░░░
+├─ Arg 1: ReasonRank 45, Active (1.0)     → Contributes: -45
+└─ Arg 2: ReasonRank 52, Weakened (0.7)   → Contributes: -36.4
 
 Calculation:
-Supporting Avg: (85 + 72 + 68) / 3 = 75
-Opposing Avg: (45 + 52) / 2 = 48.5
+Supporting Total: 85 + 72 + 47.6 = 204.6
+Supporting Avg: 204.6 / 3 = 68.2
+
+Opposing Total: 45 + 36.4 = 81.4
+Opposing Avg: 81.4 / 2 = 40.7
 
 Weights: Support = 3/5 = 0.6, Oppose = 2/5 = 0.4
 
-CS = (75 × 0.6) + ((100 - 48.5) × 0.4)
-CS = 45 + 20.6
-CS = 65.6 → 66
+CS = 50 + (68.2 × 0.6) - (40.7 × 0.4)
+CS = 50 + 40.9 - 16.3
+CS = 74.6 → 75
 
-Final Score: 66/100 (Moderately Supported)
+Final Score: 75/100 (Moderately Supported)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Why this promotes ReasonRank:
+• Strong supporting arguments INCREASE the score
+• Weak opposing arguments barely DECREASE the score
+• A belief with high-quality pro arguments and low-quality
+  con arguments will score high (as it should!)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ---

@@ -27,31 +27,92 @@ It continuously updates based on the performance of multiple sub-scores, includi
 ---
 
 ## Argument Ranking Algorithm
-Below is a simplified Python example showing how arguments can be ranked using pro/con votes and evidence strength.
+
+ReasonRank uses a **PageRank-inspired algorithm** where:
+- **Supporting arguments ADD to the belief score**
+- **Opposing/con arguments SUBTRACT from the belief score**
+
+This promotes beliefs with strong supporting arguments and weak opposing arguments.
+
+### Core Formula
+
+```
+Belief Score = BaseScore + Σ(Supporting Scores) - Σ(Opposing Scores)
+```
+
+Where:
+- `BaseScore = 50` (neutral)
+- Each argument score is weighted by its ReasonRank and lifecycle status
+- Final score is clamped to 0-100 range
+
+### Python Example
 
 ```python
-def rank_arguments(arguments):
+def calculate_belief_score(supporting_args, opposing_args):
     """
-    Ranks arguments based on pro/con votes and evidence strength.
-    arguments: list of dicts with 'pro_votes', 'con_votes', 'evidence_strength'
+    Calculate belief score using PageRank-style algorithm.
+    Args contribute their score POSITIVELY (supporting) or NEGATIVELY (opposing).
     """
-    for arg in arguments:
-        total_votes = arg['pro_votes'] + arg['con_votes']
-        if total_votes == 0:
-            pro_score = con_score = 0
-        else:
-            pro_score = arg['pro_votes'] / total_votes
-            con_score = arg['con_votes'] / total_votes
+    base_score = 50
 
-        # Strength score: assumed to be between 0 and 1
-        strength_score = arg['evidence_strength']
+    # Lifecycle multipliers
+    lifecycle_multipliers = {
+        'active': 1.0,
+        'weakened': 0.7,
+        'conditional': 0.8,
+        'outdated': 0.3,
+        'refuted': 0.1
+    }
 
-        # Overall argument score
-        arg['score'] = (pro_score - con_score) * strength_score
+    # Calculate weighted scores
+    def weighted_score(args):
+        if not args:
+            return 0
+        total = sum(
+            arg['reason_rank'] * lifecycle_multipliers[arg['lifecycle_status']]
+            for arg in args
+        )
+        return total / len(args)
 
-    # Sort arguments from strongest to weakest
-    return sorted(arguments, key=lambda x: x['score'], reverse=True)
-````
+    supporting_avg = weighted_score(supporting_args)
+    opposing_avg = weighted_score(opposing_args)
+
+    total_args = len(supporting_args) + len(opposing_args)
+    if total_args == 0:
+        return base_score
+
+    # Weight by argument count
+    support_weight = len(supporting_args) / total_args
+    oppose_weight = len(opposing_args) / total_args
+
+    # PageRank formula: ADD supporting, SUBTRACT opposing
+    score = base_score + (supporting_avg * support_weight) - (opposing_avg * oppose_weight)
+
+    # Clamp to valid range
+    return max(0, min(100, round(score)))
+
+# Example
+supporting = [
+    {'reason_rank': 85, 'lifecycle_status': 'active'},
+    {'reason_rank': 72, 'lifecycle_status': 'active'},
+    {'reason_rank': 68, 'lifecycle_status': 'weakened'}
+]
+
+opposing = [
+    {'reason_rank': 45, 'lifecycle_status': 'active'},
+    {'reason_rank': 52, 'lifecycle_status': 'weakened'}
+]
+
+belief_score = calculate_belief_score(supporting, opposing)
+print(f"Belief Score: {belief_score}/100")
+# Output: Belief Score: 75/100
+```
+
+**Why this works:**
+- Strong supporting arguments (high scores) INCREASE the belief score significantly
+- Weak opposing arguments (low scores) barely DECREASE the belief score
+- A belief with high-quality pro arguments and low-quality con arguments scores high
+- This naturally promotes reason-based conclusions over emotional or unfounded ones
 
 ---
 

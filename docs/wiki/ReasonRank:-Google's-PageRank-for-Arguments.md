@@ -10,12 +10,27 @@ However, it does **not** assess the *strength or validity* of the arguments in t
 ## How It Works
 ReasonRank modifies PageRank to:
 - Evaluate both **pro** and **con** arguments.
+- **ADD** scores from supporting/pro arguments (like positive incoming links).
+- **SUBTRACT** scores from con/weakening arguments (like negative incoming links).
 - Weigh arguments by **quantity** and **quality** of their supporting or opposing reasons.
 - Consider *linkage strength*, *uniqueness*, *verification*, and *logical soundness*.
 - Incorporate **user feedback** (votes, credibility scores) to refine rankings over time.
 
-This means:
-> Just as PageRank scores pages higher when they are linked to by high-quality pages, ReasonRank scores arguments higher when they are supported by high-quality reasoning.
+### The Core Algorithm
+Just as PageRank scores pages higher when they receive links from high-quality pages, **ReasonRank promotes beliefs that have:**
+1. **Strong supporting arguments** (high scores that ADD to the belief's score)
+2. **Weak opposing arguments** (low scores that SUBTRACT minimally from the belief's score)
+
+**Formula:**
+```
+Belief Score = BaseScore + Σ(Supporting Argument Scores) - Σ(Opposing Argument Scores)
+```
+
+Where:
+- `BaseScore = 50` (neutral starting point)
+- Supporting argument scores are weighted by their ReasonRank and lifecycle status
+- Opposing argument scores are weighted by their ReasonRank and lifecycle status
+- Final score is normalized to 0-100 range
 
 ---
 

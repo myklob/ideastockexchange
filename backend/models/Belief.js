@@ -143,8 +143,8 @@ const BeliefSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-// Calculate conclusion score based on arguments using ReasonRank algorithm
-// Implements the manifesto's pro/con ratio approach with sophisticated weighting
+// Calculate conclusion score based on arguments using ReasonRank PageRank algorithm
+// Implements PageRank-style scoring: ADD supporting arguments, SUBTRACT con/weakening arguments
 BeliefSchema.methods.calculateConclusionScore = async function() {
   await this.populate(['supportingArguments', 'opposingArguments']);
 
@@ -163,7 +163,7 @@ BeliefSchema.methods.calculateConclusionScore = async function() {
     }
   }
 
-  // Filter out refuted and outdated arguments (they contribute less)
+  // Filter out refuted and outdated arguments (they contribute minimally)
   const activeSupporting = this.supportingArguments.filter(
     arg => arg.lifecycleStatus !== 'refuted' && arg.lifecycleStatus !== 'outdated'
   );
@@ -172,6 +172,7 @@ BeliefSchema.methods.calculateConclusionScore = async function() {
   );
 
   // Calculate weighted scores using ReasonRank
+  // Each argument contributes its reasonRankScore weighted by lifecycle status
   const calculateWeightedScore = (args) => {
     if (args.length === 0) return 0;
 
@@ -192,34 +193,35 @@ BeliefSchema.methods.calculateConclusionScore = async function() {
   const supportingWeightedScore = calculateWeightedScore(activeSupporting);
   const opposingWeightedScore = calculateWeightedScore(activeOpposing);
 
-  // Calculate averages
-  const supportingAvg = activeSupporting.length > 0
-    ? supportingWeightedScore / activeSupporting.length
-    : 50;
-
-  const opposingAvg = activeOpposing.length > 0
-    ? opposingWeightedScore / activeOpposing.length
-    : 50;
-
-  // Total score calculation (manifesto approach)
-  // High supporting score + Low opposing score = High conclusion score
-  // Low supporting score + High opposing score = Low conclusion score
+  // PageRank-style calculation:
+  // Start with neutral base (50) + ADD supporting scores - SUBTRACT opposing scores
+  // This promotes beliefs with strong supporting arguments and weak opposing arguments
   const totalArgs = activeSupporting.length + activeOpposing.length;
 
   if (totalArgs === 0) {
     this.conclusionScore = 50; // Neutral if no arguments
   } else {
-    // Weight by both quality (avg score) and quantity (count)
-    const supportWeight = activeSupporting.length / totalArgs;
-    const opposeWeight = activeOpposing.length / totalArgs;
+    // Calculate average scores
+    const supportingAvg = activeSupporting.length > 0
+      ? supportingWeightedScore / activeSupporting.length
+      : 0;
 
-    // Manifesto formula: weighted combination of pro and con arguments
-    // Supporting arguments push score up, opposing arguments push it down
+    const opposingAvg = activeOpposing.length > 0
+      ? opposingWeightedScore / activeOpposing.length
+      : 0;
+
+    // PageRank formula: Base + Σ(supporting scores) - Σ(opposing scores)
+    // Normalize by argument count to prevent score inflation with many arguments
+    const baseScore = 50;
+    const supportingContribution = supportingAvg * (activeSupporting.length / totalArgs);
+    const opposingContribution = opposingAvg * (activeOpposing.length / totalArgs);
+
+    // Supporting arguments ADD to score, opposing arguments SUBTRACT from score
     this.conclusionScore = Math.round(
-      (supportingAvg * supportWeight * 100 + (100 - opposingAvg) * opposeWeight * 100) / 100
+      baseScore + supportingContribution - opposingContribution
     );
 
-    // Ensure score is in valid range
+    // Ensure score is in valid range [0, 100]
     this.conclusionScore = Math.max(0, Math.min(100, this.conclusionScore));
   }
 
