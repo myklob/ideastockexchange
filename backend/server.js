@@ -12,6 +12,13 @@ import analysisRoutes from './routes/analysis.js';
 import topicRoutes from './routes/topics.js';
 import conflictResolutionRoutes from './routes/conflictResolution.js';
 
+// Import monetization routes
+import subscriptionRoutes from './routes/subscriptions.js';
+import portfolioRoutes from './routes/portfolio.js';
+import achievementRoutes from './routes/achievements.js';
+import gamificationRoutes from './routes/gamification.js';
+import matchingRoutes from './routes/matching.js';
+
 dotenv.config();
 
 const app = express();
@@ -134,6 +141,13 @@ app.use('/api/evidence', evidenceRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/topics', topicRoutes);
 app.use('/api/conflicts', conflictResolutionRoutes);
+
+// Mount monetization routes
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/achievements', achievementRoutes);
+app.use('/api/gamification', gamificationRoutes);
+app.use('/api/matching', matchingRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

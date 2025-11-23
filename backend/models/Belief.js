@@ -488,4 +488,19 @@ BeliefSchema.index({ 'dimensions.sentimentPolarity': 1 });
 BeliefSchema.index({ conclusionScore: 1 });
 BeliefSchema.index({ topicId: 1 });
 
+// Post-save hook to update portfolio positions when belief score changes
+BeliefSchema.post('save', async function(doc) {
+  // Only update if conclusionScore was modified
+  if (this.isModified('conclusionScore')) {
+    try {
+      // Dynamically import to avoid circular dependency
+      const { updateBeliefPositions } = await import('../controllers/portfolioController.js');
+      await updateBeliefPositions(doc._id, doc.conclusionScore);
+    } catch (error) {
+      console.error('Error updating portfolio positions:', error);
+      // Don't throw - we don't want to fail belief updates if portfolio update fails
+    }
+  }
+});
+
 export default mongoose.model('Belief', BeliefSchema);

@@ -28,6 +28,27 @@ Think of it as:
 
 ---
 
+## 💰 **Revenue-Generating Features** ✨ NEW
+
+The Idea Stock Exchange implements **five complementary revenue models** that align profit incentives with quality discourse:
+
+1. **💳 Subscription Tiers** - Free/Premium/Enterprise plans with progressive features
+2. **📈 Virtual Currency Investing** - Bet on beliefs like stocks (idea investing)
+3. **🎮 Gamification** - Character stats derived from contribution quality
+4. **❤️ Matching Services** - Dating/networking based on belief compatibility
+5. **🔌 API Access** - Tiered rate limits for institutions and developers
+
+**Key Innovation**: Users profit by finding undervalued beliefs and adding quality evidence—**aligning financial incentives with truth-seeking**.
+
+**📖 Full Documentation**: See [MONETIZATION.md](./MONETIZATION.md) for complete API documentation and integration guide.
+
+**Quick Start**:
+```bash
+npm run init-monetization  # Initialize achievements and subscriptions
+```
+
+---
+
 ## 📊 **The Conclusion Score (CS)**
 
 At the heart of ISE is the **Conclusion Score**—a quantitative metric that evaluates the strength and validity of beliefs by analyzing arguments and evidence across **six dimensions**:
