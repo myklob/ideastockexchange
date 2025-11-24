@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IdeaStockExchange Dashboard</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h1>💡 IdeaStock<span>Exchange</span></h1>
+        <button class="sidebar-toggle" id="sidebarToggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="home">
+          <span class="icon">📊</span>
+          <span class="text">Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-page="claims">
+          <span class="icon">📝</span>
+          <span class="text">Claims</span>
+        </a>
+        <a href="#" class="nav-item" data-page="analytics">
+          <span class="icon">📈</span>
+          <span class="text">Analytics</span>
+        </a>
+        <a href="#" class="nav-item" data-page="add-claim">
+          <span class="icon">➕</span>
+          <span class="text">Add Claim</span>
+        </a>
+        <a href="#" class="nav-item" data-page="settings">
+          <span class="icon">⚙️</span>
+          <span class="text">Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info" id="userInfo">
+          <div class="user-avatar">A</div>
+          <div class="user-details">
+            <div class="user-name">Admin</div>
+            <div class="user-role">Administrator</div>
+          </div>
+        </div>
+        <button class="btn-logout" id="logoutBtn">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="header-right">
+          <div class="search-bar">
+            <input type="text" placeholder="Search claims..." id="globalSearch">
+            <button class="search-btn">🔍</button>
+          </div>
+          <button class="notification-btn">
+            <span class="badge">3</span>
+            🔔
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="page-content" id="pageContent">
+        <!-- Dynamic content loaded here -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/pages/home.js"></script>
+  <script src="js/pages/claims.js"></script>
+  <script src="js/pages/analytics.js"></script>
+  <script src="js/pages/add-claim.js"></script>
+  <script src="js/pages/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
