@@ -1,0 +1,133 @@
+# Idea Stock Exchange - Configuration Example
+# Copy this file to config.yaml and fill in your API keys
+
+# Search configuration
+search:
+  # Google Custom Search
+  google:
+    api_key: "YOUR_GOOGLE_API_KEY"
+    cse_id: "YOUR_CUSTOM_SEARCH_ENGINE_ID"
+    enabled: true
+    max_results_per_query: 10
+
+  # Bing Search API
+  bing:
+    api_key: "YOUR_BING_API_KEY"
+    enabled: true
+    max_results_per_query: 10
+
+  # General search settings
+  timeout: 30
+  retry_attempts: 3
+  retry_delay: 2
+
+# LLM Configuration
+llm:
+  # Provider: "anthropic" or "openai"
+  provider: "anthropic"
+
+  # API keys
+  anthropic_api_key: "YOUR_ANTHROPIC_API_KEY"
+  openai_api_key: "YOUR_OPENAI_API_KEY"
+
+  # Model selection
+  model: "claude-sonnet-4-5"  # or "gpt-4", "gpt-4-turbo", etc.
+
+  # Generation settings
+  temperature: 0.7
+  max_tokens: 4096
+  timeout: 120
+
+# Metadata enrichment
+enrichment:
+  # Book metadata (OpenLibrary API - free, no key required)
+  isbn_lookup:
+    enabled: true
+    timeout: 10
+
+  # DOI lookup (CrossRef API - free, no key required)
+  doi_lookup:
+    enabled: true
+    timeout: 10
+
+  # Podcast metadata (iTunes API - free, no key required)
+  podcast_lookup:
+    enabled: true
+    timeout: 10
+
+  # URL metadata extraction
+  url_metadata:
+    enabled: true
+    timeout: 15
+    user_agent: "Idea Stock Exchange Scanner/1.0"
+
+# Scanning configuration
+scanning:
+  # Maximum number of sources to collect per belief
+  max_sources: 50
+
+  # Depth of sub-argument exploration
+  # 1 = only direct reasons
+  # 2 = reasons + one level of linked beliefs
+  # 3+ = deeper exploration
+  depth: 3
+
+  # Number of concurrent requests
+  concurrency: 5
+
+  # Include different source types
+  include_books: true
+  include_podcasts: true
+  include_academic: true
+  include_news: true
+  include_videos: true
+
+# Analysis configuration
+analysis:
+  # Linkage scoring
+  linkage:
+    min_score: -1.0
+    max_score: 1.0
+    confidence_threshold: 0.5
+
+  # Stress test identification
+  stress_tests:
+    enabled: true
+    min_severity: 0.3
+    max_tests_per_belief: 10
+
+  # Proposal generation
+  proposals:
+    enabled: true
+    max_proposals_per_belief: 5
+    min_priority: 0.3
+
+# Output configuration
+output:
+  # XML schema version
+  xml_schema_version: "1.0"
+
+  # Validate XML against schema
+  validate_xml: true
+
+  # Pretty print XML
+  pretty_print: true
+
+  # Include timestamps
+  include_timestamps: true
+
+  # Output directory
+  output_dir: "output"
+
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: "logs/scanner.log"
+  console: true
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Cache configuration
+cache:
+  enabled: true
+  directory: ".cache"
+  ttl: 86400  # 24 hours in seconds

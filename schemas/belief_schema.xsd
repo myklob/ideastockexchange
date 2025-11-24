@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://ideastockexchange.com/schema/belief/1.0"
+           xmlns:ise="http://ideastockexchange.com/schema/belief/1.0"
+           elementFormDefault="qualified">
+
+  <!-- Root element -->
+  <xs:element name="belief" type="ise:BeliefType"/>
+
+  <!-- Complex Types -->
+  <xs:complexType name="BeliefType">
+    <xs:sequence>
+      <xs:element name="metadata" type="ise:MetadataType"/>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="breadcrumb" type="ise:BreadcrumbType" minOccurs="0"/>
+      <xs:element name="reasons-to-agree" type="ise:ReasonsType" minOccurs="0"/>
+      <xs:element name="reasons-to-disagree" type="ise:ReasonsType" minOccurs="0"/>
+      <xs:element name="core-principles" type="ise:CorePrinciplesType" minOccurs="0"/>
+      <xs:element name="specific-applications" type="ise:ApplicationsType" minOccurs="0"/>
+      <xs:element name="related-beliefs" type="ise:RelatedBeliefsType" minOccurs="0"/>
+      <xs:element name="evidence" type="ise:EvidenceCollectionType" minOccurs="0"/>
+      <xs:element name="stress-tests" type="ise:StressTestsType" minOccurs="0"/>
+      <xs:element name="proposals" type="ise:ProposalsType" minOccurs="0"/>
+      <xs:element name="tags" type="ise:TagsType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+    <xs:attribute name="version" type="xs:string" use="required"/>
+    <xs:attribute name="created" type="xs:dateTime" use="required"/>
+    <xs:attribute name="updated" type="xs:dateTime" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="MetadataType">
+    <xs:sequence>
+      <xs:element name="source" type="xs:string" minOccurs="0"/>
+      <xs:element name="author" type="xs:string" minOccurs="0"/>
+      <xs:element name="category" type="xs:string" maxOccurs="unbounded"/>
+      <xs:element name="scan-date" type="xs:dateTime"/>
+      <xs:element name="source-count" type="xs:int"/>
+      <xs:element name="confidence-score" type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BreadcrumbType">
+    <xs:sequence>
+      <xs:element name="category" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ReasonsType">
+    <xs:sequence>
+      <xs:element name="reason" type="ise:ReasonType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ReasonType">
+    <xs:sequence>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="linkage" type="ise:LinkageType"/>
+      <xs:element name="sub-reasons" type="ise:SubReasonsType" minOccurs="0"/>
+      <xs:element name="linked-belief" type="ise:LinkedBeliefType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="evidence-refs" type="ise:EvidenceRefsType" minOccurs="0"/>
+      <xs:element name="sources" type="ise:SourcesType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+    <xs:attribute name="importance" type="xs:decimal" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="LinkageType">
+    <xs:sequence>
+      <xs:element name="score" type="xs:decimal"/>
+      <xs:element name="justification" type="xs:string"/>
+      <xs:element name="linkage-argument" type="ise:LinkageArgumentType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LinkageArgumentType">
+    <xs:sequence>
+      <xs:element name="premise" type="xs:string"/>
+      <xs:element name="inference-rule" type="xs:string"/>
+      <xs:element name="conclusion" type="xs:string"/>
+      <xs:element name="strength-analysis" type="xs:string"/>
+      <xs:element name="counterarguments" type="ise:CounterArgumentsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CounterArgumentsType">
+    <xs:sequence>
+      <xs:element name="counterargument" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SubReasonsType">
+    <xs:sequence>
+      <xs:element name="sub-reason" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LinkedBeliefType">
+    <xs:sequence>
+      <xs:element name="belief-ref" type="xs:IDREF"/>
+      <xs:element name="relationship" type="xs:string"/>
+      <xs:element name="linkage-argument" type="ise:LinkageArgumentType"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="EvidenceRefsType">
+    <xs:sequence>
+      <xs:element name="evidence-ref" type="xs:IDREF" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SourcesType">
+    <xs:sequence>
+      <xs:element name="source" type="ise:SourceType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SourceType">
+    <xs:sequence>
+      <xs:element name="url" type="xs:anyURI"/>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="snippet" type="xs:string" minOccurs="0"/>
+      <xs:element name="accessed" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CorePrinciplesType">
+    <xs:sequence>
+      <xs:element name="principle" type="ise:PrincipleType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PrincipleType">
+    <xs:sequence>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="practical-meaning" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ApplicationsType">
+    <xs:sequence>
+      <xs:element name="application" type="ise:ApplicationType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ApplicationType">
+    <xs:sequence>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="requirements" type="xs:string" maxOccurs="unbounded"/>
+      <xs:element name="examples" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="RelatedBeliefsType">
+    <xs:sequence>
+      <xs:element name="upstream" type="ise:BeliefRefsType" minOccurs="0"/>
+      <xs:element name="downstream" type="ise:BeliefRefsType" minOccurs="0"/>
+      <xs:element name="related" type="ise:BeliefRefsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BeliefRefsType">
+    <xs:sequence>
+      <xs:element name="belief-ref" type="ise:BeliefRefType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BeliefRefType">
+    <xs:sequence>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="url" type="xs:anyURI" minOccurs="0"/>
+      <xs:element name="relationship-description" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="ref" type="xs:IDREF" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="EvidenceCollectionType">
+    <xs:sequence>
+      <xs:element name="evidence-item" type="ise:EvidenceItemType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EvidenceItemType">
+    <xs:sequence>
+      <xs:element name="type" type="ise:EvidenceTypeEnum"/>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="metadata" type="ise:EvidenceMetadataType"/>
+      <xs:element name="relevance" type="xs:string" minOccurs="0"/>
+      <xs:element name="quote" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+    <xs:attribute name="relevance-score" type="xs:decimal" use="optional"/>
+  </xs:complexType>
+
+  <xs:simpleType name="EvidenceTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="book"/>
+      <xs:enumeration value="article"/>
+      <xs:enumeration value="academic-paper"/>
+      <xs:enumeration value="podcast"/>
+      <xs:enumeration value="video"/>
+      <xs:enumeration value="news"/>
+      <xs:enumeration value="blog"/>
+      <xs:enumeration value="government-document"/>
+      <xs:enumeration value="legal-case"/>
+      <xs:enumeration value="dataset"/>
+      <xs:enumeration value="other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="EvidenceMetadataType">
+    <xs:sequence>
+      <xs:element name="url" type="xs:anyURI" minOccurs="0"/>
+      <xs:element name="isbn" type="xs:string" minOccurs="0"/>
+      <xs:element name="doi" type="xs:string" minOccurs="0"/>
+      <xs:element name="podcast-feed-id" type="xs:string" minOccurs="0"/>
+      <xs:element name="authors" type="ise:AuthorsType" minOccurs="0"/>
+      <xs:element name="published-date" type="xs:date" minOccurs="0"/>
+      <xs:element name="publisher" type="xs:string" minOccurs="0"/>
+      <xs:element name="accessed-date" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="pages" type="xs:string" minOccurs="0"/>
+      <xs:element name="volume" type="xs:string" minOccurs="0"/>
+      <xs:element name="issue" type="xs:string" minOccurs="0"/>
+      <xs:element name="custom-fields" type="ise:CustomFieldsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AuthorsType">
+    <xs:sequence>
+      <xs:element name="author" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CustomFieldsType">
+    <xs:sequence>
+      <xs:element name="field" type="ise:CustomFieldType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CustomFieldType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="StressTestsType">
+    <xs:sequence>
+      <xs:element name="stress-test" type="ise:StressTestType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StressTestType">
+    <xs:sequence>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="violation-type" type="xs:string"/>
+      <xs:element name="severity" type="xs:decimal"/>
+      <xs:element name="examples" type="ise:ExamplesType"/>
+      <xs:element name="analysis" type="xs:string"/>
+      <xs:element name="sources" type="ise:SourcesType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ExamplesType">
+    <xs:sequence>
+      <xs:element name="example" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ProposalsType">
+    <xs:sequence>
+      <xs:element name="proposal" type="ise:ProposalType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ProposalType">
+    <xs:sequence>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="addresses-stress-test" type="xs:IDREF" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="argument-tree" type="ise:ArgumentTreeType"/>
+      <xs:element name="implementation-steps" type="ise:ImplementationStepsType" minOccurs="0"/>
+      <xs:element name="expected-outcomes" type="ise:OutcomesType" minOccurs="0"/>
+      <xs:element name="potential-objections" type="ise:ObjectionsType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+    <xs:attribute name="priority" type="xs:decimal" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="ArgumentTreeType">
+    <xs:sequence>
+      <xs:element name="root-claim" type="xs:string"/>
+      <xs:element name="supporting-arguments" type="ise:ArgumentNodesType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ArgumentNodesType">
+    <xs:sequence>
+      <xs:element name="argument-node" type="ise:ArgumentNodeType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ArgumentNodeType">
+    <xs:sequence>
+      <xs:element name="claim" type="xs:string"/>
+      <xs:element name="support-type" type="xs:string"/>
+      <xs:element name="evidence-refs" type="ise:EvidenceRefsType" minOccurs="0"/>
+      <xs:element name="sub-arguments" type="ise:ArgumentNodesType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ImplementationStepsType">
+    <xs:sequence>
+      <xs:element name="step" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OutcomesType">
+    <xs:sequence>
+      <xs:element name="outcome" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ObjectionsType">
+    <xs:sequence>
+      <xs:element name="objection" type="ise:ObjectionType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ObjectionType">
+    <xs:sequence>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="response" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TagsType">
+    <xs:sequence>
+      <xs:element name="tag" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
