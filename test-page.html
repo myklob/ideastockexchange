@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IdeaStockExchange Extension Test Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1 {
+      color: #667eea;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #764ba2;
+      margin-top: 30px;
+    }
+    .test-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .instructions {
+      background: #fff3cd;
+      border-left: 4px solid #ff9800;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .success {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      padding: 15px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 IdeaStockExchange Extension Test Page</h1>
+
+  <div class="instructions">
+    <strong>Instructions:</strong>
+    <ol>
+      <li>Make sure the extension is installed and enabled</li>
+      <li>Look for yellow highlighting on claims below</li>
+      <li>Hover over highlighted text to see tooltips</li>
+      <li>If nothing is highlighted, check the extension popup (click the icon)</li>
+    </ol>
+  </div>
+
+  <h2>Health & Medicine Claims</h2>
+  <div class="test-section">
+    <p><strong>Test 1 - Vaccine Claim:</strong> Many people believe that vaccines cause autism, but this claim has been thoroughly debunked by numerous scientific studies. The original study linking vaccines to autism was retracted due to fraudulent data.</p>
+
+    <p><strong>Test 2 - GMO Claim:</strong> There's a common misconception that GMO foods are unsafe to eat. However, decades of research have shown that approved genetically modified foods are as safe as their conventional counterparts.</p>
+
+    <p><strong>Test 3 - 5G Claim:</strong> Some worry that 5G causes health problems, but scientific evidence shows that 5G radio waves are non-ionizing and operate at safe frequencies.</p>
+  </div>
+
+  <h2>Science & Environment Claims</h2>
+  <div class="test-section">
+    <p><strong>Test 4 - Climate Claim:</strong> Despite what some say about climate change being a hoax, 97% of climate scientists agree that global warming is real and primarily caused by human activities.</p>
+
+    <p><strong>Test 5 - Flat Earth:</strong> It's surprising that in 2024, some people still think the Earth is flat. We have overwhelming evidence from satellite imagery, physics, and direct observation that Earth is spherical.</p>
+
+    <p><strong>Test 6 - Evolution:</strong> When people say "evolution is just a theory," they're misunderstanding what "theory" means in science. In scientific terms, a theory is a well-substantiated explanation backed by extensive evidence.</p>
+  </div>
+
+  <h2>History & Conspiracy Claims</h2>
+  <div class="test-section">
+    <p><strong>Test 7 - Moon Landing:</strong> Conspiracy theorists claim the moon landing was faked in a studio. This ignores the mountain of physical evidence, including moon rocks and retroreflectors that scientists still use today.</p>
+
+    <p><strong>Test 8 - Chemtrails:</strong> The white trails you see behind airplanes are contrails (condensation trails), not chemtrails. There's no evidence of any chemical spraying program by governments or airlines.</p>
+  </div>
+
+  <h2>Mixed Content Test</h2>
+  <div class="test-section">
+    <p>This paragraph contains multiple claims: Some believe vaccines cause autism and that climate change is a hoax, while others think the Earth is flat. These beliefs persist despite overwhelming scientific evidence to the contrary.</p>
+  </div>
+
+  <h2>Edge Cases</h2>
+  <div class="test-section">
+    <p><strong>Capitalization Test:</strong> VACCINES CAUSE AUTISM (all caps should still match)</p>
+    <p><strong>Punctuation Test:</strong> Do vaccines cause autism? (with question mark)</p>
+    <p><strong>Nested HTML Test:</strong> Some say <strong>vaccines</strong> cause <em>autism</em> (claim across tags)</p>
+  </div>
+
+  <div class="success">
+    <strong>✓ Expected Results:</strong>
+    <ul>
+      <li>8 distinct claims should be highlighted</li>
+      <li>Each should show a tooltip on hover</li>
+      <li>Tooltips should display claim info and analysis link</li>
+      <li>No console errors (press F12 to check)</li>
+    </ul>
+  </div>
+
+  <h2>No Claims Here</h2>
+  <div class="test-section">
+    <p>This section contains no detectable claims. It's just regular text about how nice the weather is today. The extension should not highlight anything here. If something is highlighted in this paragraph, it's a false positive that needs to be fixed.</p>
+  </div>
+
+  <hr>
+
+  <p style="text-align: center; color: #666; font-size: 14px;">
+    <strong>IdeaStockExchange Fact Checker</strong><br>
+    Making online discussions cumulative instead of repetitive<br>
+    <a href="https://github.com/yourusername/ideastockexchange" target="_blank">View on GitHub</a>
+  </p>
+
+</body>
+</html>

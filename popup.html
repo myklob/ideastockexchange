@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IdeaStockExchange Fact Checker</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💡 IdeaStockExchange</h1>
+      <p class="subtitle">Fact Checker</p>
+    </header>
+
+    <div class="status-section">
+      <div class="status-row">
+        <span class="status-label">Detection Status:</span>
+        <label class="toggle">
+          <input type="checkbox" id="enableToggle" checked>
+          <span class="slider"></span>
+        </label>
+        <span class="status-text" id="statusText">Active</span>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <h2>Database Stats</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="totalClaims">0</div>
+          <div class="stat-label">Total Claims</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="detectedToday">0</div>
+          <div class="stat-label">Detected Today</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-section">
+      <h2>Search Claims</h2>
+      <input type="text" id="searchInput" placeholder="Search for a claim...">
+      <div id="searchResults" class="search-results"></div>
+    </div>
+
+    <div class="actions-section">
+      <button id="refreshBtn" class="btn btn-primary">
+        🔄 Refresh Database
+      </button>
+      <button id="settingsBtn" class="btn btn-secondary">
+        ⚙️ Settings
+      </button>
+    </div>
+
+    <div class="info-section">
+      <p class="info-text">
+        This extension detects common beliefs and claims in web content
+        and links them to comprehensive analysis pages.
+      </p>
+      <a href="https://ideastockexchange.com/about" target="_blank" class="link">
+        Learn More →
+      </a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

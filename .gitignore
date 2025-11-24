@@ -1,0 +1,57 @@
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Browser extension build files
+*.zip
+*.crx
+*.xpi
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Node modules (if we add build tools later)
+node_modules/
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Private/local configuration
+config.local.js
+secrets.json
+
+# Package manager lock files (if added later)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated icons (we'll keep the SVG, but ignore generated PNGs if we add them)
+icons/*.png
+
+# User data and cache (for testing)
+test-profile/
+extension-data/
