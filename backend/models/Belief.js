@@ -80,6 +80,72 @@ const BeliefSchema = new mongoose.Schema({
       description: 'Sentiment toward the topic (-100=very negative, 0=neutral, 100=very positive)',
     },
   },
+  // Hierarchical Classifications: Structured spectrum placements
+  hierarchicalClassification: {
+    sentiment: {
+      levelId: {
+        type: String,
+        enum: [
+          'extremely_negative', 'strongly_negative', 'moderately_negative', 'mildly_negative',
+          'neutral',
+          'mildly_positive', 'moderately_positive', 'strongly_positive', 'extremely_positive'
+        ],
+        description: 'Position on the Positivity/Negativity spectrum',
+      },
+      levelName: String,
+      confidence: {
+        type: Number,
+        min: 0,
+        max: 1,
+        description: 'Confidence in this classification (0-1)',
+      },
+      autoClassified: {
+        type: Boolean,
+        default: true,
+        description: 'Whether this was automatically classified or manually set',
+      },
+    },
+    specificity: {
+      levelId: {
+        type: String,
+        enum: ['highly_general', 'moderately_general', 'baseline_concept', 'moderately_specific', 'highly_specific'],
+        description: 'Position on the Specificity spectrum',
+      },
+      levelName: String,
+      confidence: {
+        type: Number,
+        min: 0,
+        max: 1,
+        description: 'Confidence in this classification (0-1)',
+      },
+      autoClassified: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    strength: {
+      levelId: {
+        type: String,
+        enum: ['very_weak', 'weak', 'moderate', 'strong', 'extreme'],
+        description: 'Position on the Strength/Intensity spectrum',
+      },
+      levelName: String,
+      confidence: {
+        type: Number,
+        min: 0,
+        max: 1,
+        description: 'Confidence in this classification (0-1)',
+      },
+      autoClassified: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    lastClassified: {
+      type: Date,
+      description: 'When the hierarchical classification was last updated',
+    },
+  },
   // Semantic Clustering: Similar belief statements grouped together
   similarBeliefs: [{
     beliefId: {
@@ -476,6 +542,102 @@ BeliefSchema.methods.get3DPosition = function() {
     specificity: this.dimensions.specificity,
     strength: this.conclusionScore,
     sentiment: this.dimensions.sentimentPolarity,
+  };
+};
+
+// Classify belief into hierarchical categories based on numeric scores
+BeliefSchema.methods.classifyHierarchically = async function() {
+  const {
+    SENTIMENT_HIERARCHY,
+    SPECIFICITY_HIERARCHY,
+    STRENGTH_HIERARCHY,
+    findLevelByScore
+  } = await import('../config/hierarchyDefinitions.js');
+
+  // Ensure dimensions are calculated
+  if (!this.dimensions.specificity) this.calculateSpecificity();
+  if (!this.dimensions.sentimentPolarity) this.calculateSentimentPolarity();
+  if (!this.conclusionScore) await this.calculateConclusionScore();
+
+  // Classify sentiment
+  const sentimentLevel = findLevelByScore(SENTIMENT_HIERARCHY, this.dimensions.sentimentPolarity);
+  if (sentimentLevel) {
+    this.hierarchicalClassification.sentiment = {
+      levelId: sentimentLevel.id,
+      levelName: sentimentLevel.name,
+      confidence: this.calculateClassificationConfidence('sentiment'),
+      autoClassified: true,
+    };
+  }
+
+  // Classify specificity
+  const specificityLevel = findLevelByScore(SPECIFICITY_HIERARCHY, this.dimensions.specificity);
+  if (specificityLevel) {
+    this.hierarchicalClassification.specificity = {
+      levelId: specificityLevel.id,
+      levelName: specificityLevel.name,
+      confidence: this.calculateClassificationConfidence('specificity'),
+      autoClassified: true,
+    };
+  }
+
+  // Classify strength (using conclusionScore as proxy for claim strength)
+  const strengthLevel = findLevelByScore(STRENGTH_HIERARCHY, this.conclusionScore);
+  if (strengthLevel) {
+    this.hierarchicalClassification.strength = {
+      levelId: strengthLevel.id,
+      levelName: strengthLevel.name,
+      confidence: this.calculateClassificationConfidence('strength'),
+      autoClassified: true,
+    };
+  }
+
+  this.hierarchicalClassification.lastClassified = new Date();
+  return this.save();
+};
+
+// Calculate confidence in classification based on various factors
+BeliefSchema.methods.calculateClassificationConfidence = function(dimension) {
+  let confidence = 0.7; // Base confidence
+
+  // Higher confidence if we have more arguments
+  if (this.statistics.totalArguments > 10) confidence += 0.1;
+  if (this.statistics.totalArguments > 20) confidence += 0.1;
+
+  // Higher confidence for sentiment if sentiment words are present
+  if (dimension === 'sentiment') {
+    const statement = this.statement.toLowerCase();
+    const hasSentimentWords = /(good|bad|great|poor|excellent|terrible|awful|wonderful|horrible)/i.test(statement);
+    if (hasSentimentWords) confidence += 0.1;
+  }
+
+  // Higher confidence for specificity if proper nouns or numbers present
+  if (dimension === 'specificity') {
+    const hasNumbers = /\d/.test(this.statement);
+    const hasProperNouns = /[A-Z][a-z]+/.test(this.statement);
+    if (hasNumbers || hasProperNouns) confidence += 0.1;
+  }
+
+  // Higher confidence for strength if we have evidence
+  if (dimension === 'strength') {
+    if (this.statistics.totalArguments > 5) confidence += 0.1;
+  }
+
+  return Math.min(1.0, confidence);
+};
+
+// Get hierarchical classification summary
+BeliefSchema.methods.getClassificationSummary = function() {
+  return {
+    sentiment: this.hierarchicalClassification.sentiment,
+    specificity: this.hierarchicalClassification.specificity,
+    strength: this.hierarchicalClassification.strength,
+    lastClassified: this.hierarchicalClassification.lastClassified,
+    numericScores: {
+      sentimentPolarity: this.dimensions.sentimentPolarity,
+      specificity: this.dimensions.specificity,
+      strength: this.conclusionScore,
+    },
   };
 };
 
