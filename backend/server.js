@@ -11,6 +11,8 @@ import evidenceRoutes from './routes/evidence.js';
 import analysisRoutes from './routes/analysis.js';
 import topicRoutes from './routes/topics.js';
 import conflictResolutionRoutes from './routes/conflictResolution.js';
+import journalRoutes from './routes/journals.js';
+import studyRoutes from './routes/studies.js';
 
 // Import monetization routes
 import subscriptionRoutes from './routes/subscriptions.js';
@@ -141,6 +143,8 @@ app.use('/api/evidence', evidenceRoutes);
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/topics', topicRoutes);
 app.use('/api/conflicts', conflictResolutionRoutes);
+app.use('/api/journals', journalRoutes);
+app.use('/api/studies', studyRoutes);
 
 // Mount monetization routes
 app.use('/api/subscriptions', subscriptionRoutes);
