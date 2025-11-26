@@ -4,7 +4,9 @@ import { ArrowLeft, Plus, Eye, TrendingUp, Edit, Trash2, Loader } from 'lucide-r
 import ArgumentCard from '../components/Arguments/ArgumentCard';
 import ScoreBreakdown from '../components/Beliefs/ScoreBreakdown';
 import ConflictResolution from '../components/ConflictResolution';
-import { beliefAPI, conflictAPI } from '../services/api';
+import AssumptionList from '../components/Assumptions/AssumptionList';
+import AddAssumptionForm from '../components/Assumptions/AddAssumptionForm';
+import { beliefAPI, conflictAPI, assumptionAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const BeliefDetails = () => {
@@ -16,9 +18,11 @@ const BeliefDetails = () => {
   const [arguments, setArguments] = useState({ supporting: [], opposing: [] });
   const [similarBeliefs, setSimilarBeliefs] = useState([]);
   const [conflict, setConflict] = useState(null);
+  const [assumptions, setAssumptions] = useState([]);
+  const [showAddAssumption, setShowAddAssumption] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('all'); // all, supporting, opposing
+  const [activeTab, setActiveTab] = useState('all'); // all, supporting, opposing, assumptions
   const [showSimilar, setShowSimilar] = useState(false);
 
   useEffect(() => {
@@ -72,11 +76,61 @@ const BeliefDetails = () => {
         console.error('Error fetching conflict:', conflictErr);
         // Don't fail the whole page if conflict detection fails
       }
+
+      // Fetch assumptions for this belief
+      await fetchAssumptions();
     } catch (err) {
       console.error('Error fetching belief:', err);
       setError(err.response?.data?.message || 'Failed to load belief details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAssumptions = async () => {
+    try {
+      const response = await assumptionAPI.getForBelief(id, {
+        sortBy: 'aggregateScore',
+        order: 'desc'
+      });
+      setAssumptions(response.assumptions || []);
+    } catch (err) {
+      console.error('Error fetching assumptions:', err);
+      // Don't fail the page if assumptions fail to load
+    }
+  };
+
+  const handleCreateAssumption = async (assumptionData) => {
+    try {
+      await assumptionAPI.create(assumptionData);
+      setShowAddAssumption(false);
+      await fetchAssumptions();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to create assumption');
+    }
+  };
+
+  const handleVoteAssumption = async (assumptionId, voteType) => {
+    try {
+      await assumptionAPI.vote(assumptionId, voteType);
+      await fetchAssumptions();
+    } catch (err) {
+      console.error('Error voting on assumption:', err);
+      alert(err.response?.data?.message || 'Failed to vote on assumption');
+    }
+  };
+
+  const handleMarkCritical = async (assumptionId, type, reason) => {
+    try {
+      if (type === 'accept') {
+        await assumptionAPI.markAsMustAccept(assumptionId, reason);
+      } else {
+        await assumptionAPI.markAsMustReject(assumptionId, reason);
+      }
+      await fetchAssumptions();
+    } catch (err) {
+      console.error('Error marking assumption as critical:', err);
+      alert(err.response?.data?.message || 'Failed to mark assumption as critical');
     }
   };
 
@@ -289,32 +343,78 @@ const BeliefDetails = () => {
                 >
                   Opposing ({arguments.opposing.length})
                 </button>
+                <button
+                  onClick={() => setActiveTab('assumptions')}
+                  className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+                    activeTab === 'assumptions'
+                      ? 'border-purple-600 text-purple-600'
+                      : 'border-transparent text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Assumptions ({assumptions.length})
+                </button>
               </div>
 
-              {/* Arguments List */}
-              {filteredArguments().length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-600 mb-4">
-                    No {activeTab !== 'all' ? activeTab : ''} arguments yet.
-                  </p>
-                  <Link
-                    to={`/beliefs/${id}/add-argument`}
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add First Argument</span>
-                  </Link>
+              {/* Content based on active tab */}
+              {activeTab === 'assumptions' ? (
+                <div className="space-y-4">
+                  {/* Add Assumption Button */}
+                  {!showAddAssumption && (
+                    <button
+                      onClick={() => setShowAddAssumption(true)}
+                      className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Propose New Assumption</span>
+                    </button>
+                  )}
+
+                  {/* Add Assumption Form */}
+                  {showAddAssumption && (
+                    <AddAssumptionForm
+                      beliefId={id}
+                      arguments={allArguments}
+                      onSubmit={handleCreateAssumption}
+                      onCancel={() => setShowAddAssumption(false)}
+                    />
+                  )}
+
+                  {/* Assumptions List */}
+                  <AssumptionList
+                    assumptions={assumptions}
+                    onVote={handleVoteAssumption}
+                    onMarkCritical={handleMarkCritical}
+                    onRefresh={fetchAssumptions}
+                  />
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {filteredArguments().map((argument) => (
-                    <ArgumentCard
-                      key={argument._id}
-                      argument={argument}
-                      onVote={handleArgumentVote}
-                    />
-                  ))}
-                </div>
+                <>
+                  {/* Arguments List */}
+                  {filteredArguments().length === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-gray-600 mb-4">
+                        No {activeTab !== 'all' ? activeTab : ''} arguments yet.
+                      </p>
+                      <Link
+                        to={`/beliefs/${id}/add-argument`}
+                        className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add First Argument</span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {filteredArguments().map((argument) => (
+                        <ArgumentCard
+                          key={argument._id}
+                          argument={argument}
+                          onVote={handleArgumentVote}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
