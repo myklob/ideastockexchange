@@ -382,4 +382,105 @@ export const conflictAPI = {
   },
 };
 
+// ============================================================================
+// ASSUMPTION API
+// ============================================================================
+
+export const assumptionAPI = {
+  // Get all assumptions for a belief
+  getForBelief: async (beliefId, params = {}) => {
+    const response = await api.get(`/assumptions/belief/${beliefId}`, { params });
+    return response.data;
+  },
+
+  // Get critical assumptions for a belief
+  getCriticalForBelief: async (beliefId) => {
+    const response = await api.get(`/assumptions/belief/${beliefId}/critical`);
+    return response.data;
+  },
+
+  // Get single assumption by ID
+  getById: async (id) => {
+    const response = await api.get(`/assumptions/${id}`);
+    return response.data;
+  },
+
+  // Get assumptions by status
+  getByStatus: async (status, params = {}) => {
+    const response = await api.get(`/assumptions/status/${status}`, { params });
+    return response.data;
+  },
+
+  // Create new assumption
+  create: async (assumptionData) => {
+    const response = await api.post('/assumptions', assumptionData);
+    return response.data;
+  },
+
+  // Update assumption
+  update: async (id, assumptionData) => {
+    const response = await api.put(`/assumptions/${id}`, assumptionData);
+    return response.data;
+  },
+
+  // Delete assumption
+  delete: async (id) => {
+    const response = await api.delete(`/assumptions/${id}`);
+    return response.data;
+  },
+
+  // Add dependent argument to assumption
+  addDependentArgument: async (id, argumentId, integralityScore = 50) => {
+    const response = await api.post(`/assumptions/${id}/arguments`, {
+      argumentId,
+      integralityScore
+    });
+    return response.data;
+  },
+
+  // Remove dependent argument from assumption
+  removeDependentArgument: async (id, argumentId) => {
+    const response = await api.delete(`/assumptions/${id}/arguments/${argumentId}`);
+    return response.data;
+  },
+
+  // Update integrality score for a dependent argument
+  updateIntegralityScore: async (id, argumentId, integralityScore) => {
+    const response = await api.put(`/assumptions/${id}/arguments/${argumentId}`, {
+      integralityScore
+    });
+    return response.data;
+  },
+
+  // Link assumption to another belief
+  linkToBelief: async (id, linkData) => {
+    const response = await api.post(`/assumptions/${id}/link-belief`, linkData);
+    return response.data;
+  },
+
+  // Mark assumption as must-accept
+  markAsMustAccept: async (id, reason = '') => {
+    const response = await api.post(`/assumptions/${id}/mark-accept`, { reason });
+    return response.data;
+  },
+
+  // Mark assumption as must-reject
+  markAsMustReject: async (id, reason = '') => {
+    const response = await api.post(`/assumptions/${id}/mark-reject`, { reason });
+    return response.data;
+  },
+
+  // Vote on assumption
+  vote: async (id, voteType) => {
+    const response = await api.post(`/assumptions/${id}/vote`, { voteType });
+    return response.data;
+  },
+
+  // Recalculate aggregate score
+  recalculateScore: async (id) => {
+    const response = await api.post(`/assumptions/${id}/recalculate`);
+    return response.data;
+  },
+};
+
 export default api;
