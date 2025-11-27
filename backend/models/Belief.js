@@ -42,6 +42,12 @@ const BeliefSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Argument',
   }],
+  // Contributors (public figures, experts, historical figures)
+  // Links to Contributor model for People Evaluation ranking system
+  contributors: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Contributor',
+  }],
   relatedBeliefs: [{
     beliefId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -118,6 +124,10 @@ const BeliefSchema = new mongoose.Schema({
       default: 0,
     },
     totalArguments: {
+      type: Number,
+      default: 0,
+    },
+    contributorCount: {
       type: Number,
       default: 0,
     },
@@ -325,6 +335,7 @@ BeliefSchema.methods.updateStatistics = function() {
   this.statistics.supportingCount = this.supportingArguments.length;
   this.statistics.opposingCount = this.opposingArguments.length;
   this.statistics.totalArguments = this.supportingArguments.length + this.opposingArguments.length;
+  this.statistics.contributorCount = this.contributors.length;
   return this.save();
 };
 
