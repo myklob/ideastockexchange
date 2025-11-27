@@ -15,6 +15,10 @@ import {
   updateBeliefDimensions,
   searchByDimensions,
 } from '../controllers/beliefController.js';
+import {
+  getBeliefContributors,
+  createContributor,
+} from '../controllers/contributorController.js';
 import { protect, authorize, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -38,5 +42,9 @@ router.get('/:id/similar', getSimilarBeliefs);
 router.post('/:id/link-similar', protect, linkSimilarBelief);
 router.post('/:id/merge', protect, authorize('admin', 'moderator'), mergeBelief);
 router.post('/:id/update-dimensions', updateBeliefDimensions);
+
+// Contributors (People Evaluation)
+router.get('/:beliefId/contributors', optionalAuth, getBeliefContributors);
+router.post('/:beliefId/contributors', protect, createContributor);
 
 export default router;

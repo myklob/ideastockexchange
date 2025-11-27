@@ -483,4 +483,66 @@ export const assumptionAPI = {
   },
 };
 
+// ============================================================================
+// CONTRIBUTOR API (People Evaluation - Ranking Contributors to Beliefs)
+// ============================================================================
+
+export const contributorAPI = {
+  // Get ranked contributors for a belief
+  getBeliefContributors: async (beliefId, params = {}) => {
+    const response = await api.get(`/beliefs/${beliefId}/contributors`, { params });
+    return response.data;
+  },
+
+  // Get single contributor
+  getById: async (id) => {
+    const response = await api.get(`/contributors/${id}`);
+    return response.data;
+  },
+
+  // Create new contributor
+  create: async (beliefId, contributorData) => {
+    const response = await api.post(`/beliefs/${beliefId}/contributors`, contributorData);
+    return response.data;
+  },
+
+  // Update contributor
+  update: async (id, contributorData) => {
+    const response = await api.put(`/contributors/${id}`, contributorData);
+    return response.data;
+  },
+
+  // Delete contributor
+  delete: async (id) => {
+    const response = await api.delete(`/contributors/${id}`);
+    return response.data;
+  },
+
+  // Search contributors
+  search: async (query, beliefId = null) => {
+    const params = { query };
+    if (beliefId) params.beliefId = beliefId;
+    const response = await api.get('/contributors/search', { params });
+    return response.data;
+  },
+
+  // Flag contributor for moderation
+  flag: async (id, reason) => {
+    const response = await api.post(`/contributors/${id}/flag`, { reason });
+    return response.data;
+  },
+
+  // Recalculate contributor scores (admin only)
+  recalculateScores: async (id) => {
+    const response = await api.post(`/contributors/${id}/recalculate`);
+    return response.data;
+  },
+
+  // Get contributor statistics
+  getStats: async () => {
+    const response = await api.get('/contributors/stats');
+    return response.data;
+  },
+};
+
 export default api;
