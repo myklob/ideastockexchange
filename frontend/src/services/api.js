@@ -545,4 +545,88 @@ export const contributorAPI = {
   },
 };
 
+// ============================================================================
+// LAW API
+// ============================================================================
+
+export const lawAPI = {
+  // Get all laws
+  getAll: async (params = {}) => {
+    const response = await api.get('/laws', { params });
+    return response.data;
+  },
+
+  // Get law by ID
+  getById: async (id) => {
+    const response = await api.get(`/laws/${id}`);
+    return response.data;
+  },
+
+  // Create new law
+  create: async (lawData) => {
+    const response = await api.post('/laws', lawData);
+    return response.data;
+  },
+
+  // Update law
+  update: async (id, lawData) => {
+    const response = await api.put(`/laws/${id}`, lawData);
+    return response.data;
+  },
+
+  // Delete law
+  delete: async (id) => {
+    const response = await api.delete(`/laws/${id}`);
+    return response.data;
+  },
+
+  // Get laws for a specific belief
+  getBeliefLaws: async (beliefId, relationship = null) => {
+    const params = relationship ? { relationship } : {};
+    const response = await api.get(`/beliefs/${beliefId}/laws`, { params });
+    return response.data;
+  },
+
+  // Link law to belief
+  linkToBelief: async (lawId, beliefId, relationship, strength = 50, notes = '') => {
+    const response = await api.post(`/laws/${lawId}/link-belief`, {
+      beliefId,
+      relationship,
+      strength,
+      notes,
+    });
+    return response.data;
+  },
+
+  // Unlink law from belief
+  unlinkFromBelief: async (lawId, beliefId) => {
+    const response = await api.delete(`/laws/${lawId}/unlink-belief/${beliefId}`);
+    return response.data;
+  },
+
+  // Verify law (admin/moderator only)
+  verify: async (id) => {
+    const response = await api.post(`/laws/${id}/verify`);
+    return response.data;
+  },
+
+  // Calculate law scores
+  calculateScores: async (id) => {
+    const response = await api.post(`/laws/${id}/calculate-scores`);
+    return response.data;
+  },
+
+  // Get law analysis
+  getAnalysis: async (id) => {
+    const response = await api.get(`/laws/${id}/analysis`);
+    return response.data;
+  },
+
+  // Search laws
+  search: async (query, params = {}) => {
+    const response = await api.get('/laws/search', { params: { q: query, ...params } });
+    return response.data;
+  },
+};
+
 export default api;

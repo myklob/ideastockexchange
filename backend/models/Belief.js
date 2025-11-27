@@ -42,6 +42,16 @@ const BeliefSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Argument',
   }],
+  // Laws that support or oppose this belief
+  // Tracks legal framework alignment as evidence
+  supportingLaws: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Law',
+  }],
+  opposingLaws: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Law',
+  }],
   // Contributors (public figures, experts, historical figures)
   // Links to Contributor model for People Evaluation ranking system
   contributors: [{
@@ -128,6 +138,18 @@ const BeliefSchema = new mongoose.Schema({
       default: 0,
     },
     contributorCount: {
+      type: Number,
+      default: 0,
+    },
+    supportingLawsCount: {
+      type: Number,
+      default: 0,
+    },
+    opposingLawsCount: {
+      type: Number,
+      default: 0,
+    },
+    totalLaws: {
       type: Number,
       default: 0,
     },
@@ -336,6 +358,9 @@ BeliefSchema.methods.updateStatistics = function() {
   this.statistics.opposingCount = this.opposingArguments.length;
   this.statistics.totalArguments = this.supportingArguments.length + this.opposingArguments.length;
   this.statistics.contributorCount = this.contributors.length;
+  this.statistics.supportingLawsCount = this.supportingLaws ? this.supportingLaws.length : 0;
+  this.statistics.opposingLawsCount = this.opposingLaws ? this.opposingLaws.length : 0;
+  this.statistics.totalLaws = this.statistics.supportingLawsCount + this.statistics.opposingLawsCount;
   return this.save();
 };
 
