@@ -15,6 +15,7 @@ import journalRoutes from './routes/journals.js';
 import studyRoutes from './routes/studies.js';
 import assumptionRoutes from './routes/assumptions.js';
 import contributorRoutes from './routes/contributors.js';
+import lawRoutes from './routes/laws.js';
 
 // Import monetization routes
 import subscriptionRoutes from './routes/subscriptions.js';
@@ -149,6 +150,7 @@ app.use('/api/journals', journalRoutes);
 app.use('/api/studies', studyRoutes);
 app.use('/api/assumptions', assumptionRoutes);
 app.use('/api/contributors', contributorRoutes);
+app.use('/api/laws', lawRoutes);
 
 // Mount monetization routes
 app.use('/api/subscriptions', subscriptionRoutes);
