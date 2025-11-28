@@ -9,6 +9,8 @@
     "dev": "nodemon server.js",
     "seed": "node scripts/seedDatabase.js",
     "init-monetization": "node scripts/initializeMonetization.js",
+    "generate-beliefs": "node scripts/generateBeliefs.js",
+    "test-belief-generator": "node scripts/testBeliefGenerator.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -21,6 +23,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

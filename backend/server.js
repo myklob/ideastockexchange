@@ -16,6 +16,7 @@ import studyRoutes from './routes/studies.js';
 import assumptionRoutes from './routes/assumptions.js';
 import contributorRoutes from './routes/contributors.js';
 import lawRoutes from './routes/laws.js';
+import beliefGeneratorRoutes from './routes/beliefGenerator.js';
 
 // Import monetization routes
 import subscriptionRoutes from './routes/subscriptions.js';
@@ -151,6 +152,7 @@ app.use('/api/studies', studyRoutes);
 app.use('/api/assumptions', assumptionRoutes);
 app.use('/api/contributors', contributorRoutes);
 app.use('/api/laws', lawRoutes);
+app.use('/api/belief-generator', beliefGeneratorRoutes);
 
 // Mount monetization routes
 app.use('/api/subscriptions', subscriptionRoutes);
