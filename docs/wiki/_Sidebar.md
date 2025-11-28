@@ -5,6 +5,7 @@
 * [Installation Guide](Installation-Guide)
 * [Architecture Overview](Architecture-Overview)
 * [Core Concepts](Core-Concepts)
+* [Belief Web Navigation](Belief-Web-Navigation)
 
 ## Technical Reference
 * [Data Models](Data-Models)
