@@ -18,13 +18,31 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check if user is logged in on mount
-    const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
 
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+    if (token) {
+      // Fetch full user data from API to get votedArguments
+      authAPI.getCurrentUser()
+        .then((response) => {
+          if (response.success) {
+            setUser(response.data);
+            localStorage.setItem('user', JSON.stringify(response.data));
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to fetch user:', err);
+          // Fall back to stored user if API fails
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            setUser(JSON.parse(storedUser));
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const register = async (userData) => {
@@ -32,7 +50,14 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       const response = await authAPI.register(userData);
       if (response.success) {
-        setUser(response.data.user);
+        // Fetch full user data including votedArguments
+        const userResponse = await authAPI.getCurrentUser();
+        if (userResponse.success) {
+          setUser(userResponse.data);
+          localStorage.setItem('user', JSON.stringify(userResponse.data));
+        } else {
+          setUser(response.data.user);
+        }
         return { success: true };
       }
       return { success: false, error: response.error };
@@ -48,7 +73,14 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       const response = await authAPI.login(credentials);
       if (response.success) {
-        setUser(response.data.user);
+        // Fetch full user data including votedArguments
+        const userResponse = await authAPI.getCurrentUser();
+        if (userResponse.success) {
+          setUser(userResponse.data);
+          localStorage.setItem('user', JSON.stringify(userResponse.data));
+        } else {
+          setUser(response.data.user);
+        }
         return { success: true };
       }
       return { success: false, error: response.error };
