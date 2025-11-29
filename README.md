@@ -32,11 +32,12 @@ Think of it as:
 
 The Idea Stock Exchange implements **five complementary revenue models** that align profit incentives with quality discourse:
 
-1. **💳 Subscription Tiers** - Free/Premium/Enterprise plans with progressive features
-2. **📈 Virtual Currency Investing** - Bet on beliefs like stocks (idea investing)
-3. **🎮 Gamification** - Character stats derived from contribution quality
-4. **❤️ Matching Services** - Dating/networking based on belief compatibility
-5. **🔌 API Access** - Tiered rate limits for institutions and developers
+1.**$ Advertising** - The internet is biased and trying to sell you something. You don't need to go to a bunch of different pages: you need quality, and an internet that doesn't promote AI slop or search-engine-optimized advertising campaigns. You need quality that is built from the ground up, that promotes the strongest beliefs by ranking and sorting pro/con arguments for whatever decision you need to make. 
+2. **💳 Subscription Tiers** - Free/Premium/Enterprise plans with progressive features
+3. **📈 Virtual Currency Investing** - Bet on beliefs like stocks (idea investing)
+4. **🎮 Gamification** - Character stats derived from contribution quality
+5. **❤️ Matching Services** - Dating/networking based on belief compatibility
+6. **🔌 API Access** - Tiered rate limits for institutions and developers
 
 **Key Innovation**: Users profit by finding undervalued beliefs and adding quality evidence—**aligning financial incentives with truth-seeking**.
 
