@@ -13,6 +13,95 @@ const ArgumentSchema = new mongoose.Schema({
     enum: ['supporting', 'opposing'],
     required: [true, 'Please specify argument type'],
   },
+  // ===== ARGUMENT EXTRACTION SYSTEM FIELDS =====
+  // Based on docs/ARGUMENT_EXTRACTION_SPEC.md
+
+  // Structured decomposition
+  conclusion: {
+    type: String,
+    trim: true,
+    description: 'The main claim or conclusion of the argument',
+  },
+  premises: [{
+    text: {
+      type: String,
+      required: true,
+      trim: true,
+      description: 'The premise statement',
+    },
+    role: {
+      type: String,
+      enum: ['linkage', 'strengthener', 'weakener'],
+      default: 'linkage',
+      description: 'Role: Linkage (L) connects to conclusion, Strengthener (S) adds support, Weakener (W) adds caveats',
+    },
+    type: {
+      type: String,
+      enum: ['truth', 'importance', 'relevance'],
+      description: 'Truth (T) = factual claim, Importance (I) = value claim, Relevance (R) = connection claim',
+    },
+    order: {
+      type: Number,
+      description: 'Order in the argument (P1, P2, P3...)',
+    },
+  }],
+
+  // Argument classification
+  argumentType: {
+    type: String,
+    enum: ['truth', 'importance', 'relevance'],
+    description: 'Primary type: Truth (factual), Importance (value), or Relevance (logical connection)',
+  },
+  mainRole: {
+    type: String,
+    enum: ['linkage', 'strengthener', 'weakener'],
+    default: 'linkage',
+    description: 'Primary role of this argument in the broader debate',
+  },
+
+  // Evidence classification
+  evidenceTier: {
+    type: Number,
+    min: 1,
+    max: 4,
+    description: 'Evidence quality: 1=Meta-analysis/peer-reviewed, 2=Expert/institutional, 3=Journalism/surveys, 4=Anecdotes/opinion',
+  },
+
+  // Valence (positivity/negativity)
+  valence: {
+    type: Number,
+    min: -100,
+    max: 100,
+    default: 0,
+    description: 'Sentiment toward belief: +100 (strongly supports) to -100 (strongly opposes), 0 (neutral)',
+  },
+
+  // Formal logic notation
+  formalNotation: {
+    type: String,
+    description: 'Formal logic representation (e.g., "P1ₗᵀ ∧ P2ₛᵀ → C")',
+  },
+
+  // Extraction metadata
+  extractedFrom: {
+    type: String,
+    description: 'Original text from which this argument was extracted',
+  },
+  extractionConfidence: {
+    type: Number,
+    min: 0,
+    max: 1,
+    description: 'Confidence score for automated extraction (0-1)',
+  },
+  extractionMethod: {
+    type: String,
+    enum: ['manual', 'pattern-based', 'ml-based', 'hybrid'],
+    default: 'manual',
+    description: 'How this argument was extracted',
+  },
+
+  // ===== END ARGUMENT EXTRACTION FIELDS =====
+
   beliefId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Belief',
