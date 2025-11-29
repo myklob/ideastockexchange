@@ -1,0 +1,42 @@
+{
+  "name": "idea-stock-exchange-backend",
+  "version": "0.1.0",
+  "description": "Backend API for Idea Stock Exchange - Automated Conflict Resolution Platform",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node scripts/seedDatabase.js",
+    "init-monetization": "node scripts/initializeMonetization.js",
+    "generate-beliefs": "node scripts/generateBeliefs.js",
+    "test-belief-generator": "node scripts/testBeliefGenerator.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "reasoning",
+    "arguments",
+    "debate",
+    "conflict-resolution",
+    "pagerank"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
+    "express-validator": "^7.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mathjs": "^12.2.1",
+    "mongoose": "^8.0.3",
+    "stripe": "^14.10.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

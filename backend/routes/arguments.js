@@ -1,0 +1,32 @@
+import express from 'express';
+import {
+  createArgument,
+  updateArgument,
+  deleteArgument,
+  voteArgument,
+  extractFromText,
+  decomposeArgument,
+  classifyArgument,
+  extractAndSave,
+  batchExtract,
+  getArgumentAnalysis,
+} from '../controllers/argumentController.js';
+import { protect } from '../middleware/auth.js';
+
+const router = express.Router();
+
+// Original routes
+router.post('/', protect, createArgument);
+router.put('/:id', protect, updateArgument);
+router.delete('/:id', protect, deleteArgument);
+router.post('/:id/vote', protect, voteArgument);
+
+// Argument extraction system routes (based on docs/ARGUMENT_EXTRACTION_SPEC.md)
+router.post('/extract', extractFromText);              // Extract arguments from text
+router.post('/decompose', decomposeArgument);          // Decompose into formal logic
+router.post('/classify', classifyArgument);            // Classify type/tier/valence
+router.post('/extract-and-save', protect, extractAndSave); // Complete pipeline
+router.post('/batch-extract', batchExtract);           // Batch process multiple texts
+router.get('/:id/analysis', getArgumentAnalysis);      // Get full analysis
+
+export default router;
