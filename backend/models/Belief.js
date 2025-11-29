@@ -120,6 +120,61 @@ const BeliefSchema = new mongoose.Schema({
     ref: 'Topic',
     description: 'Main topic this belief belongs to',
   },
+  // Topic Signature: Multi-taxonomy classification (Belief DNA)
+  topicSignature: [{
+    taxonomy: {
+      type: String,
+      enum: ['technology', 'environment', 'economics', 'politics', 'ethics', 'science', 'health', 'social', 'education', 'culture'],
+      description: 'Which taxonomy system this classification belongs to'
+    },
+    path: [{
+      type: String,
+      description: 'Hierarchical path within taxonomy (e.g., ["Transportation", "Electric Vehicles"])'
+    }],
+    confidence: {
+      type: Number,
+      min: 0,
+      max: 1,
+      default: 0.5,
+      description: 'Confidence in this classification (0-1)'
+    },
+    source: {
+      type: String,
+      enum: ['manual', 'wikipedia', 'dewey', 'loc', 'openalex', 'mesh', 'unesco', 'google-kg', 'ai-generated'],
+      default: 'manual',
+      description: 'Source of this classification'
+    }
+  }],
+  // Strength Score: Measures claim intensity (separate from truthfulness)
+  strengthScore: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 50,
+    description: 'How bold/intense the claim is (0=weak/hedged, 100=absolute/superlative)'
+  },
+  strengthAnalysis: {
+    intensifiers: [{
+      type: String,
+      description: 'Words that strengthen the claim (very, extremely, etc.)'
+    }],
+    hedges: [{
+      type: String,
+      description: 'Words that weaken the claim (somewhat, maybe, etc.)'
+    }],
+    superlatives: [{
+      type: String,
+      description: 'Superlative words (best, worst, greatest, etc.)'
+    }],
+    absolutes: [{
+      type: String,
+      description: 'Absolute words (always, never, completely, etc.)'
+    }],
+    calculatedScore: {
+      type: Number,
+      description: 'Auto-calculated strength before manual adjustment'
+    }
+  },
   statistics: {
     views: {
       type: Number,
@@ -471,7 +526,8 @@ BeliefSchema.methods.calculateSentimentPolarity = function() {
 BeliefSchema.methods.updateDimensions = async function() {
   this.calculateSpecificity();
   this.calculateSentimentPolarity();
-  // Strength is already calculated via calculateConclusionScore
+  this.calculateStrengthScore();
+  // Note: conclusionScore is calculated separately via calculateConclusionScore based on arguments
   return this.save();
 };
 
@@ -504,6 +560,73 @@ BeliefSchema.methods.mergeSimilarBelief = async function(beliefId) {
   }
 
   return this.save();
+};
+
+// Calculate strength score (claim intensity, not truthfulness)
+BeliefSchema.methods.calculateStrengthScore = function() {
+  const statement = this.statement.toLowerCase();
+
+  let baseScore = 50; // Start neutral
+
+  // Reset analysis arrays
+  this.strengthAnalysis = {
+    intensifiers: [],
+    hedges: [],
+    superlatives: [],
+    absolutes: [],
+    calculatedScore: 50
+  };
+
+  // Intensifiers (+10 each)
+  const intensifierPatterns = ['very', 'extremely', 'incredibly', 'highly', 'utterly', 'completely', 'totally', 'absolutely', 'entirely', 'thoroughly'];
+  intensifierPatterns.forEach(pattern => {
+    const regex = new RegExp(`\\b${pattern}\\b`, 'gi');
+    const matches = statement.match(regex);
+    if (matches) {
+      this.strengthAnalysis.intensifiers.push(...matches);
+      baseScore += matches.length * 10;
+    }
+  });
+
+  // Hedges (-10 each)
+  const hedgePatterns = ['somewhat', 'kind of', 'sort of', 'perhaps', 'maybe', 'possibly', 'probably', 'might', 'could', 'seems', 'appears'];
+  hedgePatterns.forEach(pattern => {
+    const regex = new RegExp(`\\b${pattern}\\b`, 'gi');
+    const matches = statement.match(regex);
+    if (matches) {
+      this.strengthAnalysis.hedges.push(...matches);
+      baseScore -= matches.length * 10;
+    }
+  });
+
+  // Superlatives (+20 each) - strongest claims
+  const superlativePatterns = ['best', 'worst', 'greatest', 'dumbest', 'smartest', 'most', 'least', 'finest', 'ultimate', 'supreme', 'optimal'];
+  superlativePatterns.forEach(pattern => {
+    const regex = new RegExp(`\\b${pattern}\\b`, 'gi');
+    const matches = statement.match(regex);
+    if (matches) {
+      this.strengthAnalysis.superlatives.push(...matches);
+      baseScore += matches.length * 20;
+    }
+  });
+
+  // Absolutes (+15 each) - categorical claims
+  const absolutePatterns = ['always', 'never', 'all', 'none', 'every', 'nobody', 'everyone', 'everything', 'nothing', 'impossible', 'certain', 'definitely'];
+  absolutePatterns.forEach(pattern => {
+    const regex = new RegExp(`\\b${pattern}\\b`, 'gi');
+    const matches = statement.match(regex);
+    if (matches) {
+      this.strengthAnalysis.absolutes.push(...matches);
+      baseScore += matches.length * 15;
+    }
+  });
+
+  // Ensure score is in valid range [0, 100]
+  const calculatedScore = Math.max(0, Math.min(100, Math.round(baseScore)));
+  this.strengthAnalysis.calculatedScore = calculatedScore;
+  this.strengthScore = calculatedScore;
+
+  return this.strengthScore;
 };
 
 // Get position in 3D space for visualization

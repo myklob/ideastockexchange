@@ -46,6 +46,34 @@ const TopicSchema = new mongoose.Schema({
       max: 1,
     },
   }],
+  // External taxonomy mappings (Dewey, LoC, Wikipedia, etc.)
+  taxonomyMappings: [{
+    system: {
+      type: String,
+      enum: ['dewey', 'loc', 'wikipedia', 'openalex', 'mesh', 'unesco', 'google-kg'],
+      description: 'External taxonomy system'
+    },
+    code: {
+      type: String,
+      description: 'External classification code (e.g., "500" for Dewey Science)'
+    },
+    name: {
+      type: String,
+      description: 'Human-readable name in external system'
+    },
+    confidence: {
+      type: Number,
+      min: 0,
+      max: 1,
+      default: 0.5,
+      description: 'Confidence in this mapping (0-1)'
+    },
+    source: {
+      type: String,
+      enum: ['manual', 'automated', 'ai-generated', 'community'],
+      default: 'manual'
+    }
+  }],
   // Aggregated statistics from all beliefs in this topic
   statistics: {
     totalBeliefs: {
@@ -72,6 +100,22 @@ const TopicSchema = new mongoose.Schema({
     averageSentiment: {
       type: Number,
       default: 0,
+    },
+    // Belief counts by sentiment polarity (for topic page organization)
+    positiveBeliefs: {
+      type: Number,
+      default: 0,
+      description: 'Count of beliefs with positive sentiment (>20)'
+    },
+    neutralBeliefs: {
+      type: Number,
+      default: 0,
+      description: 'Count of beliefs with neutral sentiment (-20 to 20)'
+    },
+    negativeBeliefs: {
+      type: Number,
+      default: 0,
+      description: 'Count of beliefs with negative sentiment (<-20)'
     },
   },
   tags: [{
@@ -138,24 +182,43 @@ TopicSchema.methods.updateStatistics = async function() {
     this.statistics.averageBeliefScore = 50;
     this.statistics.averageSpecificity = 50;
     this.statistics.averageSentiment = 0;
+    this.statistics.positiveBeliefs = 0;
+    this.statistics.neutralBeliefs = 0;
+    this.statistics.negativeBeliefs = 0;
   } else {
     // Calculate totals and averages
     let totalArgs = 0;
     let totalScore = 0;
     let totalSpecificity = 0;
     let totalSentiment = 0;
+    let positiveCount = 0;
+    let neutralCount = 0;
+    let negativeCount = 0;
 
     beliefs.forEach(belief => {
       totalArgs += belief.statistics?.totalArguments || 0;
       totalScore += belief.conclusionScore || 50;
       totalSpecificity += belief.dimensions?.specificity || 50;
       totalSentiment += belief.dimensions?.sentimentPolarity || 0;
+
+      // Categorize by sentiment polarity
+      const sentiment = belief.dimensions?.sentimentPolarity || 0;
+      if (sentiment > 20) {
+        positiveCount++;
+      } else if (sentiment < -20) {
+        negativeCount++;
+      } else {
+        neutralCount++;
+      }
     });
 
     this.statistics.totalArguments = totalArgs;
     this.statistics.averageBeliefScore = Math.round(totalScore / beliefs.length);
     this.statistics.averageSpecificity = Math.round(totalSpecificity / beliefs.length);
     this.statistics.averageSentiment = Math.round(totalSentiment / beliefs.length);
+    this.statistics.positiveBeliefs = positiveCount;
+    this.statistics.neutralBeliefs = neutralCount;
+    this.statistics.negativeBeliefs = negativeCount;
   }
 
   return this.save();
@@ -223,6 +286,50 @@ TopicSchema.methods.getHierarchy = async function() {
   }
 
   return hierarchy;
+};
+
+// Get beliefs organized by sentiment polarity (for topic page display)
+// Returns: { positive: [...], neutral: [...], negative: [...] }
+TopicSchema.methods.getOrganizedBeliefs = async function(options = {}) {
+  const Belief = mongoose.model('Belief');
+
+  // Default sort: by strength (conclusionScore) descending
+  const sortBy = options.sortBy || 'conclusionScore';
+  const sortOrder = options.sortOrder || -1;
+  const sortCriteria = {};
+  sortCriteria[sortBy] = sortOrder;
+
+  const beliefs = await Belief.find({ topicId: this._id, status: 'active' })
+    .populate('author', 'username')
+    .sort(sortCriteria);
+
+  // Categorize by sentiment polarity
+  const organized = {
+    positive: [],
+    neutral: [],
+    negative: [],
+    all: beliefs
+  };
+
+  beliefs.forEach(belief => {
+    const sentiment = belief.dimensions?.sentimentPolarity || 0;
+    if (sentiment > 20) {
+      organized.positive.push(belief);
+    } else if (sentiment < -20) {
+      organized.negative.push(belief);
+    } else {
+      organized.neutral.push(belief);
+    }
+  });
+
+  // Sort each category by conclusionScore (strongest first)
+  if (sortBy === 'conclusionScore') {
+    organized.positive.sort((a, b) => (b.conclusionScore || 50) - (a.conclusionScore || 50));
+    organized.neutral.sort((a, b) => (b.conclusionScore || 50) - (a.conclusionScore || 50));
+    organized.negative.sort((a, b) => (b.conclusionScore || 50) - (a.conclusionScore || 50));
+  }
+
+  return organized;
 };
 
 // Index for better query performance
