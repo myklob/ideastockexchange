@@ -28,11 +28,11 @@ Think of it as:
 
 ---
 
-## 💰 **Revenue-Generating Features** ✨ NEW
+## 💰 **Revenue-Generating Features** 
 
-The Idea Stock Exchange implements **five complementary revenue models** that align profit incentives with quality discourse:
+The Idea Stock Exchange implements **six complementary revenue models** that align profit incentives with quality discourse:
 
-1.**$ Advertising** - The internet is biased and trying to sell you something. You don't need to go to a bunch of different pages: you need quality, and an internet that doesn't promote AI slop or search-engine-optimized advertising campaigns. You need quality that is built from the ground up, that promotes the strongest beliefs by ranking and sorting pro/con arguments for whatever decision you need to make. 
+1. **$ Advertising** - The internet is biased and trying to sell you something. You don't need to go to a bunch of different pages: you need quality, and an internet that doesn't promote AI slop or search-engine-optimized advertising campaigns. You need quality that is built from the ground up, that promotes the strongest beliefs by ranking and sorting pro/con arguments for whatever decision you need to make. 
 2. **💳 Subscription Tiers** - Free/Premium/Enterprise plans with progressive features
 3. **📈 Virtual Currency Investing** - Bet on beliefs like stocks (idea investing)
 4. **🎮 Gamification** - Character stats derived from contribution quality
