@@ -306,6 +306,92 @@ const ArgumentSchema = new mongoose.Schema({
       description: 'How much they are affected (negative = harmed, positive = benefits)',
     },
   }],
+  // Confidence Interval Tracking Fields
+  // Tracks metrics used for calculating belief confidence intervals
+  ciTracking: {
+    // User examination tracking
+    readingTime: {
+      type: Number,
+      default: 0,
+      min: 0,
+      description: 'Total minutes users spent reading this argument',
+    },
+    uniqueReaders: {
+      type: Number,
+      default: 0,
+      min: 0,
+      description: 'Number of unique users who read this argument',
+    },
+    expansionCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+      description: 'Number of times this argument was expanded/viewed in detail',
+    },
+    // Challenge tracking
+    isRedundant: {
+      type: Boolean,
+      default: false,
+      description: 'Marked as redundant (repeats an existing argument)',
+    },
+    redundancyScore: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 1,
+      description: 'Similarity to other arguments (0=unique, 1=duplicate)',
+    },
+    markedRedundantBy: [{
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+    }],
+    // Expert review tracking
+    reviewedByExperts: {
+      type: Number,
+      default: 0,
+      min: 0,
+      description: 'Number of verified experts who reviewed this argument',
+    },
+    expertReviewers: [{
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      expertise: String,
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+    }],
+    // Score impact tracking
+    initialBeliefScore: {
+      type: Number,
+      description: 'Belief score before this argument was added',
+    },
+    scoreImpact: {
+      type: Number,
+      default: 0,
+      description: 'How much this argument changed the belief score',
+    },
+    // Quality indicators
+    contestedAsLowQuality: {
+      type: Boolean,
+      default: false,
+      description: 'Flagged as low quality by users',
+    },
+    lowQualityFlags: {
+      type: Number,
+      default: 0,
+      min: 0,
+      description: 'Number of low-quality flags',
+    },
+  },
   createdAt: {
     type: Date,
     default: Date.now,

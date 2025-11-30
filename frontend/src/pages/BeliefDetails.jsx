@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Eye, TrendingUp, Edit, Trash2, Loader } from 'lucide-react';
 import ArgumentCard from '../components/Arguments/ArgumentCard';
 import ScoreBreakdown from '../components/Beliefs/ScoreBreakdown';
+import ConfidenceIntervalDisplay from '../components/ConfidenceInterval/ConfidenceIntervalDisplay';
 import ConflictResolution from '../components/ConflictResolution';
 import AssumptionList from '../components/Assumptions/AssumptionList';
 import AddAssumptionForm from '../components/Assumptions/AddAssumptionForm';
@@ -469,6 +470,9 @@ const BeliefDetails = () => {
           <div className="space-y-6">
             {/* Score Breakdown */}
             <ScoreBreakdown belief={belief} arguments={allArguments} />
+
+            {/* Confidence Interval Display */}
+            <ConfidenceIntervalDisplay beliefId={id} />
 
             {/* Three-Dimensional Position */}
             {belief.dimensions && (

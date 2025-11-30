@@ -209,6 +209,13 @@ const BeliefSchema = new mongoose.Schema({
       default: 0,
     },
   },
+  // Confidence Interval: Measure of reliability of the conclusion score
+  // This is NOT about truth - it's about trust in the score's stability
+  confidenceInterval: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ConfidenceInterval',
+    description: 'Reference to ConfidenceInterval tracking score reliability',
+  },
   status: {
     type: String,
     enum: ['draft', 'active', 'archived', 'flagged'],
