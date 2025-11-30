@@ -26,6 +26,9 @@ import achievementRoutes from './routes/achievements.js';
 import gamificationRoutes from './routes/gamification.js';
 import matchingRoutes from './routes/matching.js';
 
+// Import confidence interval routes
+import confidenceIntervalRoutes from './routes/confidenceIntervals.js';
+
 dotenv.config();
 
 const app = express();
@@ -162,6 +165,9 @@ app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/achievements', achievementRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/matching', matchingRoutes);
+
+// Mount confidence interval routes
+app.use('/api/confidence-intervals', confidenceIntervalRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -19,6 +19,11 @@ import {
   getBeliefContributors,
   createContributor,
 } from '../controllers/contributorController.js';
+import {
+  getBeliefCI,
+  calculateBeliefCI,
+  getCIBreakdown,
+} from '../controllers/confidenceIntervalController.js';
 import { protect, authorize, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -46,5 +51,10 @@ router.post('/:id/update-dimensions', updateBeliefDimensions);
 // Contributors (People Evaluation)
 router.get('/:beliefId/contributors', optionalAuth, getBeliefContributors);
 router.post('/:beliefId/contributors', protect, createContributor);
+
+// Confidence Intervals
+router.get('/:id/confidence-interval', optionalAuth, getBeliefCI);
+router.get('/:id/confidence-interval/breakdown', optionalAuth, getCIBreakdown);
+router.post('/:id/confidence-interval/calculate', protect, authorize('admin', 'moderator'), calculateBeliefCI);
 
 export default router;
