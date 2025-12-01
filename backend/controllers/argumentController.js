@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Argument from '../models/Argument.js';
 import Belief from '../models/Belief.js';
 import argumentExtractionService from '../services/argumentExtractionService.js';
@@ -553,6 +554,154 @@ export const getArgumentAnalysis = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Rate a specific aspect of an argument
+ * Allows users to provide dimensional feedback
+ *
+ * @route POST /api/arguments/:id/rate-aspect
+ * @access Protected
+ */
+export const rateAspect = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { aspect, rating } = req.body;
+    const userId = req.user._id;
+
+    // Validate inputs
+    const validAspects = ['clarity', 'truth', 'usefulness', 'evidence', 'logic'];
+    if (!validAspects.includes(aspect)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid aspect. Must be one of: ${validAspects.join(', ')}`,
+      });
+    }
+
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({
+        success: false,
+        message: 'Rating must be between 1 and 5',
+      });
+    }
+
+    // Find argument
+    const argument = await Argument.findById(id);
+    if (!argument) {
+      return res.status(404).json({
+        success: false,
+        message: 'Argument not found',
+      });
+    }
+
+    // Rate the aspect
+    argument.rateAspect(userId, aspect, rating);
+
+    // Save argument
+    await argument.save();
+
+    // Update related belief links if they exist
+    const BeliefLink = mongoose.model('BeliefLink');
+    const link = await BeliefLink.findOne({ argumentId: id });
+    if (link) {
+      await link.calculateLinkStrength();
+      await link.save();
+    }
+
+    res.json({
+      success: true,
+      message: 'Aspect rated successfully',
+      data: {
+        aspect,
+        rating,
+        aspectRatings: argument.aspectRatings,
+        aspectStats: argument.getAspectStats(),
+      },
+    });
+  } catch (error) {
+    console.error('Error rating aspect:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error rating aspect',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get aspect rating statistics for an argument
+ *
+ * @route GET /api/arguments/:id/aspect-stats
+ * @access Public
+ */
+export const getAspectStats = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const argument = await Argument.findById(id);
+    if (!argument) {
+      return res.status(404).json({
+        success: false,
+        message: 'Argument not found',
+      });
+    }
+
+    const stats = argument.getAspectStats();
+
+    res.json({
+      success: true,
+      data: stats,
+    });
+  } catch (error) {
+    console.error('Error getting aspect stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error retrieving aspect statistics',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get user's aspect ratings for an argument
+ *
+ * @route GET /api/arguments/:id/my-aspect-ratings
+ * @access Protected
+ */
+export const getMyAspectRatings = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const argument = await Argument.findById(id);
+    if (!argument) {
+      return res.status(404).json({
+        success: false,
+        message: 'Argument not found',
+      });
+    }
+
+    const aspects = ['clarity', 'truth', 'usefulness', 'evidence', 'logic'];
+    const userRatings = {};
+
+    aspects.forEach(aspect => {
+      const ratings = argument.aspectRatings?.[aspect] || [];
+      const userRating = ratings.find(r => r.userId.toString() === userId.toString());
+      userRatings[aspect] = userRating ? userRating.rating : null;
+    });
+
+    res.json({
+      success: true,
+      data: userRatings,
+    });
+  } catch (error) {
+    console.error('Error getting user aspect ratings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error retrieving user aspect ratings',
       error: error.message,
     });
   }

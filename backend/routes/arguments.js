@@ -10,6 +10,9 @@ import {
   extractAndSave,
   batchExtract,
   getArgumentAnalysis,
+  rateAspect,
+  getAspectStats,
+  getMyAspectRatings,
 } from '../controllers/argumentController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -20,6 +23,11 @@ router.post('/', protect, createArgument);
 router.put('/:id', protect, updateArgument);
 router.delete('/:id', protect, deleteArgument);
 router.post('/:id/vote', protect, voteArgument);
+
+// Aspect rating routes (for dimensional feedback)
+router.post('/:id/rate-aspect', protect, rateAspect);        // Rate a specific aspect
+router.get('/:id/aspect-stats', getAspectStats);             // Get aspect rating statistics
+router.get('/:id/my-aspect-ratings', protect, getMyAspectRatings); // Get user's ratings
 
 // Argument extraction system routes (based on docs/ARGUMENT_EXTRACTION_SPEC.md)
 router.post('/extract', extractFromText);              // Extract arguments from text

@@ -209,6 +209,108 @@ const BeliefSchema = new mongoose.Schema({
       default: 0,
     },
   },
+  // Belief Link Statistics - "What Links Here" feature
+  // Tracks incoming and outgoing belief connections
+  linkStatistics: {
+    // Incoming links (beliefs that support/oppose this belief)
+    incoming: {
+      total: {
+        type: Number,
+        default: 0,
+        description: 'Total number of beliefs that link to this one',
+      },
+      supporting: {
+        type: Number,
+        default: 0,
+        description: 'Number of beliefs that support this one',
+      },
+      opposing: {
+        type: Number,
+        default: 0,
+        description: 'Number of beliefs that oppose this one',
+      },
+      totalContribution: {
+        type: Number,
+        default: 0,
+        description: 'Total weighted contribution from incoming links',
+      },
+      averageStrength: {
+        type: Number,
+        default: 0,
+        description: 'Average strength of incoming links',
+      },
+    },
+    // Outgoing links (beliefs this belief supports/opposes)
+    outgoing: {
+      total: {
+        type: Number,
+        default: 0,
+        description: 'Total number of beliefs this one links to',
+      },
+      supporting: {
+        type: Number,
+        default: 0,
+        description: 'Number of beliefs this one supports',
+      },
+      opposing: {
+        type: Number,
+        default: 0,
+        description: 'Number of beliefs this one opposes',
+      },
+      totalContribution: {
+        type: Number,
+        default: 0,
+        description: 'Total weighted contribution to other beliefs',
+      },
+      averageStrength: {
+        type: Number,
+        default: 0,
+        description: 'Average strength of outgoing links',
+      },
+    },
+    // Network metrics
+    networkPosition: {
+      centrality: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 1,
+        description: 'How central this belief is in the network (0-1)',
+      },
+      influenceScore: {
+        type: Number,
+        default: 0,
+        description: 'How much this belief influences other beliefs',
+      },
+      dependencyScore: {
+        type: Number,
+        default: 0,
+        description: 'How much this belief depends on others',
+      },
+    },
+    // Top connections (updated periodically)
+    topIncoming: [{
+      beliefId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Belief',
+      },
+      strength: Number,
+      type: String, // 'SUPPORTS' or 'OPPOSES'
+    }],
+    topOutgoing: [{
+      beliefId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Belief',
+      },
+      strength: Number,
+      type: String, // 'SUPPORTS' or 'OPPOSES'
+    }],
+    // Last time link statistics were updated
+    lastUpdated: {
+      type: Date,
+      default: Date.now,
+    },
+  },
   // Confidence Interval: Measure of reliability of the conclusion score
   // This is NOT about truth - it's about trust in the score's stability
   confidenceInterval: {
@@ -642,6 +744,132 @@ BeliefSchema.methods.get3DPosition = function() {
     specificity: this.dimensions.specificity,
     strength: this.conclusionScore,
     sentiment: this.dimensions.sentimentPolarity,
+  };
+};
+
+// Update link statistics from BeliefLink collection
+BeliefSchema.methods.updateLinkStatistics = async function() {
+  const BeliefLink = mongoose.model('BeliefLink');
+
+  // Get all incoming links
+  const incomingLinks = await BeliefLink.find({
+    toBeliefId: this._id,
+    'metadata.isActive': true,
+  });
+
+  // Get all outgoing links
+  const outgoingLinks = await BeliefLink.find({
+    fromBeliefId: this._id,
+    'metadata.isActive': true,
+  });
+
+  // Calculate incoming statistics
+  const incomingSupporting = incomingLinks.filter(link => link.linkType === 'SUPPORTS');
+  const incomingOpposing = incomingLinks.filter(link => link.linkType === 'OPPOSES');
+
+  this.linkStatistics.incoming.total = incomingLinks.length;
+  this.linkStatistics.incoming.supporting = incomingSupporting.length;
+  this.linkStatistics.incoming.opposing = incomingOpposing.length;
+
+  if (incomingLinks.length > 0) {
+    this.linkStatistics.incoming.totalContribution = incomingLinks.reduce(
+      (sum, link) => sum + (link.contribution?.totalContribution || 0),
+      0
+    );
+    this.linkStatistics.incoming.averageStrength = incomingLinks.reduce(
+      (sum, link) => sum + link.linkStrength,
+      0
+    ) / incomingLinks.length;
+  } else {
+    this.linkStatistics.incoming.totalContribution = 0;
+    this.linkStatistics.incoming.averageStrength = 0;
+  }
+
+  // Calculate outgoing statistics
+  const outgoingSupporting = outgoingLinks.filter(link => link.linkType === 'SUPPORTS');
+  const outgoingOpposing = outgoingLinks.filter(link => link.linkType === 'OPPOSES');
+
+  this.linkStatistics.outgoing.total = outgoingLinks.length;
+  this.linkStatistics.outgoing.supporting = outgoingSupporting.length;
+  this.linkStatistics.outgoing.opposing = outgoingOpposing.length;
+
+  if (outgoingLinks.length > 0) {
+    this.linkStatistics.outgoing.totalContribution = outgoingLinks.reduce(
+      (sum, link) => sum + (link.contribution?.totalContribution || 0),
+      0
+    );
+    this.linkStatistics.outgoing.averageStrength = outgoingLinks.reduce(
+      (sum, link) => sum + link.linkStrength,
+      0
+    ) / outgoingLinks.length;
+  } else {
+    this.linkStatistics.outgoing.totalContribution = 0;
+    this.linkStatistics.outgoing.averageStrength = 0;
+  }
+
+  // Calculate network position metrics
+  const totalConnections = incomingLinks.length + outgoingLinks.length;
+  if (totalConnections > 0) {
+    // Centrality: normalized measure of total connections
+    this.linkStatistics.networkPosition.centrality = Math.min(totalConnections / 100, 1);
+
+    // Influence: based on outgoing links strength
+    this.linkStatistics.networkPosition.influenceScore =
+      this.linkStatistics.outgoing.totalContribution;
+
+    // Dependency: based on incoming links strength
+    this.linkStatistics.networkPosition.dependencyScore =
+      this.linkStatistics.incoming.totalContribution;
+  }
+
+  // Update top connections (top 5 each direction)
+  const sortedIncoming = [...incomingLinks]
+    .sort((a, b) => b.linkStrength - a.linkStrength)
+    .slice(0, 5);
+
+  this.linkStatistics.topIncoming = sortedIncoming.map(link => ({
+    beliefId: link.fromBeliefId,
+    strength: link.linkStrength,
+    type: link.linkType,
+  }));
+
+  const sortedOutgoing = [...outgoingLinks]
+    .sort((a, b) => b.linkStrength - a.linkStrength)
+    .slice(0, 5);
+
+  this.linkStatistics.topOutgoing = sortedOutgoing.map(link => ({
+    beliefId: link.toBeliefId,
+    strength: link.linkStrength,
+    type: link.linkType,
+  }));
+
+  this.linkStatistics.lastUpdated = new Date();
+
+  return this.linkStatistics;
+};
+
+// Get link summary for display
+BeliefSchema.methods.getLinkSummary = function() {
+  return {
+    incoming: {
+      total: this.linkStatistics.incoming.total,
+      supporting: this.linkStatistics.incoming.supporting,
+      opposing: this.linkStatistics.incoming.opposing,
+      avgStrength: this.linkStatistics.incoming.averageStrength,
+    },
+    outgoing: {
+      total: this.linkStatistics.outgoing.total,
+      supporting: this.linkStatistics.outgoing.supporting,
+      opposing: this.linkStatistics.outgoing.opposing,
+      avgStrength: this.linkStatistics.outgoing.averageStrength,
+    },
+    network: {
+      centrality: this.linkStatistics.networkPosition.centrality,
+      influence: this.linkStatistics.networkPosition.influenceScore,
+      dependency: this.linkStatistics.networkPosition.dependencyScore,
+    },
+    topIncoming: this.linkStatistics.topIncoming,
+    topOutgoing: this.linkStatistics.topOutgoing,
   };
 };
 

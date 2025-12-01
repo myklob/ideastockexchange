@@ -196,6 +196,136 @@ const ArgumentSchema = new mongoose.Schema({
       default: 0,
     },
   },
+  // Aspect Ratings System
+  // Allows users to rate specific aspects of arguments
+  // Provides middle-ground feedback between binary votes and full reasoning
+  aspectRatings: {
+    clarity: [{
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+      rating: {
+        type: Number,
+        min: 1,
+        max: 5,
+        required: true,
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+    }],
+    truth: [{
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+      rating: {
+        type: Number,
+        min: 1,
+        max: 5,
+        required: true,
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+    }],
+    usefulness: [{
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+      rating: {
+        type: Number,
+        min: 1,
+        max: 5,
+        required: true,
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+    }],
+    evidence: [{
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+      rating: {
+        type: Number,
+        min: 1,
+        max: 5,
+        required: true,
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+    }],
+    logic: [{
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+      rating: {
+        type: Number,
+        min: 1,
+        max: 5,
+        required: true,
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+    }],
+    // Computed aggregate scores (updated when ratings change)
+    aggregates: {
+      clarityAvg: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: 3,
+      },
+      truthAvg: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: 3,
+      },
+      usefulnessAvg: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: 3,
+      },
+      evidenceAvg: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: 3,
+      },
+      logicAvg: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: 3,
+      },
+      overallAspectScore: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: 50,
+        description: 'Average of all aspect ratings, normalized to 0-100 scale',
+      },
+    },
+  },
   reasonRankScore: {
     type: Number,
     default: 0,
@@ -562,6 +692,119 @@ ArgumentSchema.methods.updateLifecycleStatus = async function() {
 ArgumentSchema.methods.updateReasonRankScore = function(score) {
   this.reasonRankScore = score;
   return this.save();
+};
+
+// Calculate aspect rating aggregates
+ArgumentSchema.methods.calculateAspectAggregates = function() {
+  const aspects = ['clarity', 'truth', 'usefulness', 'evidence', 'logic'];
+  const aggregateKeys = ['clarityAvg', 'truthAvg', 'usefulnessAvg', 'evidenceAvg', 'logicAvg'];
+
+  let totalScore = 0;
+  let ratedAspects = 0;
+
+  aspects.forEach((aspect, index) => {
+    const ratings = this.aspectRatings?.[aspect] || [];
+    if (ratings.length > 0) {
+      const avgRating = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length;
+      this.aspectRatings.aggregates[aggregateKeys[index]] = avgRating;
+      totalScore += avgRating;
+      ratedAspects++;
+    } else {
+      this.aspectRatings.aggregates[aggregateKeys[index]] = 3; // Default neutral
+    }
+  });
+
+  // Calculate overall aspect score (normalized to 0-100 scale)
+  if (ratedAspects > 0) {
+    const avgScore = totalScore / ratedAspects;
+    // Convert from 1-5 scale to 0-100 scale: 1->0, 3->50, 5->100
+    this.aspectRatings.aggregates.overallAspectScore = ((avgScore - 1) / 4) * 100;
+  } else {
+    this.aspectRatings.aggregates.overallAspectScore = 50; // Neutral
+  }
+
+  return this.aspectRatings.aggregates;
+};
+
+// Add or update an aspect rating for this argument
+ArgumentSchema.methods.rateAspect = function(userId, aspect, rating) {
+  if (!['clarity', 'truth', 'usefulness', 'evidence', 'logic'].includes(aspect)) {
+    throw new Error('Invalid aspect. Must be one of: clarity, truth, usefulness, evidence, logic');
+  }
+
+  if (rating < 1 || rating > 5) {
+    throw new Error('Rating must be between 1 and 5');
+  }
+
+  // Initialize aspectRatings if it doesn't exist
+  if (!this.aspectRatings) {
+    this.aspectRatings = {
+      clarity: [],
+      truth: [],
+      usefulness: [],
+      evidence: [],
+      logic: [],
+      aggregates: {
+        clarityAvg: 3,
+        truthAvg: 3,
+        usefulnessAvg: 3,
+        evidenceAvg: 3,
+        logicAvg: 3,
+        overallAspectScore: 50,
+      },
+    };
+  }
+
+  // Check if user already rated this aspect
+  const existingRatingIndex = this.aspectRatings[aspect].findIndex(
+    r => r.userId.toString() === userId.toString()
+  );
+
+  if (existingRatingIndex >= 0) {
+    // Update existing rating
+    this.aspectRatings[aspect][existingRatingIndex].rating = rating;
+    this.aspectRatings[aspect][existingRatingIndex].timestamp = new Date();
+  } else {
+    // Add new rating
+    this.aspectRatings[aspect].push({
+      userId,
+      rating,
+      timestamp: new Date(),
+    });
+  }
+
+  // Recalculate aggregates
+  this.calculateAspectAggregates();
+
+  return this.aspectRatings;
+};
+
+// Get aspect rating statistics
+ArgumentSchema.methods.getAspectStats = function() {
+  const aspects = ['clarity', 'truth', 'usefulness', 'evidence', 'logic'];
+  const stats = {};
+
+  aspects.forEach(aspect => {
+    const ratings = this.aspectRatings?.[aspect] || [];
+    stats[aspect] = {
+      count: ratings.length,
+      average: this.aspectRatings?.aggregates?.[`${aspect}Avg`] || 3,
+      distribution: {
+        1: ratings.filter(r => r.rating === 1).length,
+        2: ratings.filter(r => r.rating === 2).length,
+        3: ratings.filter(r => r.rating === 3).length,
+        4: ratings.filter(r => r.rating === 4).length,
+        5: ratings.filter(r => r.rating === 5).length,
+      },
+    };
+  });
+
+  stats.overall = {
+    totalRatings: aspects.reduce((sum, aspect) => sum + (this.aspectRatings?.[aspect]?.length || 0), 0),
+    overallScore: this.aspectRatings?.aggregates?.overallAspectScore || 50,
+  };
+
+  return stats;
 };
 
 export default mongoose.model('Argument', ArgumentSchema);
