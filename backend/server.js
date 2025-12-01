@@ -6,6 +6,7 @@ import connectDatabase from './config/database.js';
 // Import routes
 import authRoutes from './routes/auth.js';
 import beliefRoutes from './routes/beliefs.js';
+import beliefLinksRoutes from './routes/beliefLinks.js';
 import argumentRoutes from './routes/arguments.js';
 import evidenceRoutes from './routes/evidence.js';
 import analysisRoutes from './routes/analysis.js';
@@ -146,6 +147,7 @@ function calculateConclusionScore(argumentsList) {
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/beliefs', beliefRoutes);
+app.use('/api/beliefs', beliefLinksRoutes); // Belief link routes (What Links Here feature)
 app.use('/api/arguments', argumentRoutes);
 app.use('/api/evidence', evidenceRoutes);
 app.use('/api/analysis', analysisRoutes);
