@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BeliefAnalysis>
+  <Beliefs>
+    <!-- Main Conclusions -->
+    <Belief id="tax-carbon-production">
+      <BeliefID>tax-carbon-production</BeliefID>
+      <Statement>We should tax the production of carbon</Statement>
+      <Category>Policy > Environment > Climate</Category>
+      <Description>Implementing a carbon tax on production would incentivize companies to reduce emissions and generate revenue for climate initiatives.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+
+    <Belief id="global-warming-human-caused">
+      <BeliefID>global-warming-human-caused</BeliefID>
+      <Statement>Global warming is largely caused by humans</Statement>
+      <Category>Science > Climate</Category>
+      <Description>Scientific evidence overwhelmingly demonstrates that human activities, particularly fossil fuel combustion and deforestation, are the primary drivers of current climate change.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+
+    <Belief id="global-warming-problem">
+      <BeliefID>global-warming-problem</BeliefID>
+      <Statement>Global warming is a significant problem that requires action</Statement>
+      <Category>Policy > Environment > Climate</Category>
+      <Description>The impacts of global warming pose serious risks to ecosystems, economies, and human societies, warranting immediate and substantial intervention.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+
+    <Belief id="taxes-reduce-production">
+      <BeliefID>taxes-reduce-production</BeliefID>
+      <Statement>Taxing things usually reduces their production</Statement>
+      <Category>Economics > Market Behavior</Category>
+      <Description>Basic economic principle: increasing the cost of producing something through taxation typically leads to reduced production as producers seek to avoid the tax burden.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+
+    <Belief id="market-rational">
+      <BeliefID>market-rational</BeliefID>
+      <Statement>The market is usually rational - if carbon is more expensive, people and companies will avoid producing it</Statement>
+      <Category>Economics > Market Behavior</Category>
+      <Description>Market actors respond rationally to price signals, adjusting their behavior to minimize costs and maximize profits.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+
+    <!-- Scientific Evidence -->
+    <Belief id="scientific-studies-correlation">
+      <BeliefID>scientific-studies-correlation</BeliefID>
+      <Statement>Scientific studies show a significant correlation between human activities and global temperature rise</Statement>
+      <Category>Science > Climate > Evidence</Category>
+      <Description>Peer-reviewed research from multiple independent sources demonstrates clear statistical correlations between industrial-era human activities and observed temperature increases.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+
+    <!-- Counter-arguments -->
+    <Belief id="natural-factors-significant">
+      <BeliefID>natural-factors-significant</BeliefID>
+      <Statement>Some climatologists argue that natural factors play a more significant role in global warming</Statement>
+      <Category>Science > Climate > Alternative Views</Category>
+      <Description>A minority of climate scientists suggest that natural climate variability, solar cycles, or other non-anthropogenic factors contribute more significantly to observed warming.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+
+    <Belief id="carbon-taxes-harm-economy">
+      <BeliefID>carbon-taxes-harm-economy</BeliefID>
+      <Statement>Carbon taxes could harm economic growth and competitiveness</Statement>
+      <Category>Economics > Policy Impacts</Category>
+      <Description>Critics argue that carbon taxes increase costs for businesses, potentially reducing competitiveness and slowing economic growth.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+
+    <Belief id="carbon-taxes-regressive">
+      <BeliefID>carbon-taxes-regressive</BeliefID>
+      <Statement>Carbon taxes disproportionately burden low-income households</Statement>
+      <Category>Economics > Social Impact</Category>
+      <Description>Since energy costs consume a larger share of low-income household budgets, carbon taxes can have regressive distributional effects.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+
+    <!-- Supporting Arguments for Carbon Tax -->
+    <Belief id="revenue-for-climate-action">
+      <BeliefID>revenue-for-climate-action</BeliefID>
+      <Statement>Carbon tax revenue can fund renewable energy and climate adaptation</Statement>
+      <Category>Policy > Environment > Solutions</Category>
+      <Description>Revenue generated from carbon taxes provides a dedicated funding stream for clean energy development, climate resilience, and transition support.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+
+    <Belief id="innovation-incentive">
+      <BeliefID>innovation-incentive</BeliefID>
+      <Statement>Carbon pricing creates strong incentives for clean technology innovation</Statement>
+      <Category>Economics > Innovation</Category>
+      <Description>By making carbon-intensive activities more expensive, carbon pricing mechanisms encourage investment in and development of low-carbon alternatives.</Description>
+      <Created>2024-01-01</Created>
+      <Updated>2024-12-04</Updated>
+    </Belief>
+  </Beliefs>
+
+  <Arguments>
+    <!-- Supporting Arguments for Carbon Tax -->
+    <SupportingArgument>
+      <ConclusionID>tax-carbon-production</ConclusionID>
+      <SupportingArgumentID>global-warming-human-caused</SupportingArgumentID>
+      <LinkageScore>90</LinkageScore>
+      <TruthScore>95</TruthScore>
+      <ImportanceScore>95</ImportanceScore>
+      <EvidenceStrength>98</EvidenceStrength>
+    </SupportingArgument>
+
+    <SupportingArgument>
+      <ConclusionID>tax-carbon-production</ConclusionID>
+      <SupportingArgumentID>global-warming-problem</SupportingArgumentID>
+      <LinkageScore>85</LinkageScore>
+      <TruthScore>90</TruthScore>
+      <ImportanceScore>100</ImportanceScore>
+      <EvidenceStrength>85</EvidenceStrength>
+    </SupportingArgument>
+
+    <SupportingArgument>
+      <ConclusionID>tax-carbon-production</ConclusionID>
+      <SupportingArgumentID>taxes-reduce-production</SupportingArgumentID>
+      <LinkageScore>95</LinkageScore>
+      <TruthScore>85</TruthScore>
+      <ImportanceScore>80</ImportanceScore>
+      <EvidenceStrength>90</EvidenceStrength>
+    </SupportingArgument>
+
+    <SupportingArgument>
+      <ConclusionID>tax-carbon-production</ConclusionID>
+      <SupportingArgumentID>market-rational</SupportingArgumentID>
+      <LinkageScore>88</LinkageScore>
+      <TruthScore>80</TruthScore>
+      <ImportanceScore>75</ImportanceScore>
+      <EvidenceStrength>85</EvidenceStrength>
+    </SupportingArgument>
+
+    <SupportingArgument>
+      <ConclusionID>tax-carbon-production</ConclusionID>
+      <SupportingArgumentID>revenue-for-climate-action</SupportingArgumentID>
+      <LinkageScore>75</LinkageScore>
+      <TruthScore>88</TruthScore>
+      <ImportanceScore>70</ImportanceScore>
+      <EvidenceStrength>80</EvidenceStrength>
+    </SupportingArgument>
+
+    <SupportingArgument>
+      <ConclusionID>tax-carbon-production</ConclusionID>
+      <SupportingArgumentID>innovation-incentive</SupportingArgumentID>
+      <LinkageScore>82</LinkageScore>
+      <TruthScore>85</TruthScore>
+      <ImportanceScore>78</ImportanceScore>
+      <EvidenceStrength>82</EvidenceStrength>
+    </SupportingArgument>
+
+    <!-- Supporting Arguments for Global Warming is Human-Caused -->
+    <SupportingArgument>
+      <ConclusionID>global-warming-human-caused</ConclusionID>
+      <SupportingArgumentID>scientific-studies-correlation</SupportingArgumentID>
+      <LinkageScore>95</LinkageScore>
+      <TruthScore>98</TruthScore>
+      <ImportanceScore>100</ImportanceScore>
+      <EvidenceStrength>99</EvidenceStrength>
+    </SupportingArgument>
+
+    <!-- Weakening Arguments -->
+    <WeakeningArgument>
+      <ConclusionID>tax-carbon-production</ConclusionID>
+      <WeakeningArgumentID>carbon-taxes-harm-economy</WeakeningArgumentID>
+      <LinkageScore>70</LinkageScore>
+      <TruthScore>45</TruthScore>
+      <ImportanceScore>65</ImportanceScore>
+      <EvidenceStrength>40</EvidenceStrength>
+    </WeakeningArgument>
+
+    <WeakeningArgument>
+      <ConclusionID>tax-carbon-production</ConclusionID>
+      <WeakeningArgumentID>carbon-taxes-regressive</WeakeningArgumentID>
+      <LinkageScore>75</LinkageScore>
+      <TruthScore>70</TruthScore>
+      <ImportanceScore>60</ImportanceScore>
+      <EvidenceStrength>65</EvidenceStrength>
+    </WeakeningArgument>
+
+    <WeakeningArgument>
+      <ConclusionID>global-warming-human-caused</ConclusionID>
+      <WeakeningArgumentID>natural-factors-significant</WeakeningArgumentID>
+      <LinkageScore>60</LinkageScore>
+      <TruthScore>20</TruthScore>
+      <ImportanceScore>50</ImportanceScore>
+      <EvidenceStrength>25</EvidenceStrength>
+    </WeakeningArgument>
+  </Arguments>
+
+  <Links>
+    <Link>
+      <LinkID>1</LinkID>
+      <IfThisBeliefWereTrueID>global-warming-human-caused</IfThisBeliefWereTrueID>
+      <AffectedBeliefID>global-warming-problem</AffectedBeliefID>
+      <LinkType>Supporting</LinkType>
+      <JustificationText>If humans are causing global warming, then it is a problem we can and should address through policy changes.</JustificationText>
+    </Link>
+
+    <Link>
+      <LinkID>2</LinkID>
+      <IfThisBeliefWereTrueID>taxes-reduce-production</IfThisBeliefWereTrueID>
+      <AffectedBeliefID>tax-carbon-production</AffectedBeliefID>
+      <LinkType>Supporting</LinkType>
+      <JustificationText>Since taxes generally reduce production, a carbon tax would effectively reduce carbon emissions.</JustificationText>
+    </Link>
+  </Links>
+</BeliefAnalysis>
