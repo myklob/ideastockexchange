@@ -14,6 +14,7 @@ pnpm-lock.yaml
 # Build outputs
 dist/
 build/
+backend/output/
 *.log
 
 # IDE
