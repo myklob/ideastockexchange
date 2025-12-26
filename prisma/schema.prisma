@@ -1,0 +1,174 @@
+// Prisma schema for IdeaStockExchange
+// A Kialo-like debate platform with integrated media lists
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and authorship
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  username      String   @unique
+  passwordHash  String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  debates       Debate[]
+  arguments     Argument[]
+  media         Media[]
+  votes         Vote[]
+
+  @@map("users")
+}
+
+// Core debate/discussion topic
+model Debate {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  authorId      String
+
+  // Metadata
+  isPublic      Boolean  @default(true)
+  tags          String[]
+
+  // Relations
+  author        User     @relation(fields: [authorId], references: [id])
+  arguments     Argument[]
+
+  @@map("debates")
+}
+
+// Argument in a debate (can be pro, con, or neutral)
+model Argument {
+  id            String   @id @default(cuid())
+  content       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Position in debate
+  debateId      String
+  parentId      String?  // For nested arguments
+  authorId      String
+  position      ArgumentPosition @default(NEUTRAL)
+
+  // Scoring
+  truthScore        Float?   // 0-1 score for truthfulness
+  importanceScore   Float?   // 0-1 score for importance
+  relevanceScore    Float?   // 0-1 score for relevance
+  reasonRank        Float?   // Calculated ranking based on various factors
+
+  // Relations
+  debate        Debate   @relation(fields: [debateId], references: [id], onDelete: Cascade)
+  parent        Argument? @relation("ArgumentHierarchy", fields: [parentId], references: [id])
+  children      Argument[] @relation("ArgumentHierarchy")
+  author        User     @relation(fields: [authorId], references: [id])
+  media         ArgumentMedia[]
+  votes         Vote[]
+
+  @@map("arguments")
+}
+
+// Enum for argument position
+enum ArgumentPosition {
+  PRO       // Agrees with parent/debate
+  CON       // Disagrees with parent/debate
+  NEUTRAL   // Informational/clarification
+}
+
+// Media items (books, videos, articles, images)
+model Media {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  url           String?
+  mediaType     MediaType
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  authorId      String
+
+  // Metadata
+  thumbnailUrl  String?
+  author        String?  // Content author (not user)
+  publishDate   DateTime?
+  isbn          String?  // For books
+  duration      Int?     // For videos (in seconds)
+
+  // Source credibility
+  sourceUrl     String?
+  credibilityScore Float? // 0-1 score for source credibility
+  biasScore     Float?   // -1 to 1 (-1 = left bias, 1 = right bias, 0 = neutral)
+
+  // Relations
+  creator       User     @relation(fields: [authorId], references: [id])
+  arguments     ArgumentMedia[]
+
+  @@map("media")
+}
+
+// Enum for media types
+enum MediaType {
+  BOOK
+  VIDEO
+  ARTICLE
+  IMAGE
+  PODCAST
+  DOCUMENTARY
+  PAPER      // Academic paper
+  WEBSITE
+}
+
+// Junction table linking arguments to media
+model ArgumentMedia {
+  id            String   @id @default(cuid())
+  argumentId    String
+  mediaId       String
+  position      MediaPosition
+  relevance     Float?   // 0-1 score for how relevant this media is to the argument
+  createdAt     DateTime @default(now())
+
+  // Relations
+  argument      Argument @relation(fields: [argumentId], references: [id], onDelete: Cascade)
+  media         Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([argumentId, mediaId])
+  @@map("argument_media")
+}
+
+// Enum for media position relative to argument
+enum MediaPosition {
+  SUPPORTS    // Media supports/agrees with the argument
+  REFUTES     // Media refutes/disagrees with the argument
+  NEUTRAL     // Media provides context without taking a position
+}
+
+// Votes on arguments
+model Vote {
+  id            String   @id @default(cuid())
+  userId        String
+  argumentId    String
+  voteType      VoteType
+  createdAt     DateTime @default(now())
+
+  // Relations
+  user          User     @relation(fields: [userId], references: [id])
+  argument      Argument @relation(fields: [argumentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, argumentId])
+  @@map("votes")
+}
+
+// Enum for vote types
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}

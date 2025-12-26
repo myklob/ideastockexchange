@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+coverage/
+.vscode/
+.idea/
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+
+# Client build
+client/build/
+client/node_modules/
