@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idea Stock Exchange - Topic Overlap Scores</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.65;
+            color: #333;
+            background: #f5f7fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+            color: white;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            opacity: 0.95;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background: #f8fafc;
+        }
+
+        .tab.active {
+            background: #2b6cb0;
+            color: white;
+            border-color: #2b6cb0;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 12px;
+            color: #2b6cb0;
+            font-size: 1.2em;
+        }
+
+        .card p {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .score-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .score-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .score-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #2b6cb0;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1e4e8c;
+        }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .signal-breakdown {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 12px;
+        }
+
+        .signal-bar {
+            margin-bottom: 10px;
+        }
+
+        .signal-bar label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+
+        .signal-bar-container {
+            background: #e2e8f0;
+            height: 24px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .signal-bar-fill {
+            background: linear-gradient(90deg, #3182ce, #2b6cb0);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: width 0.3s;
+        }
+
+        .topic-page-header {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e0edff 100%);
+            border: 1px solid #d6dbe8;
+            border-left: 4px solid #2b6cb0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .topic-page-header h2 {
+            color: #2b6cb0;
+            margin-bottom: 8px;
+        }
+
+        .ranked-statement {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #2b6cb0;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 6px;
+        }
+
+        .ranked-statement .rank-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #2b6cb0;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .argument-tree {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .argument-list {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 6px;
+        }
+
+        .argument-list.pro {
+            border-left: 4px solid #10b981;
+        }
+
+        .argument-list.con {
+            border-left: 4px solid #ef4444;
+        }
+
+        .argument-list h4 {
+            margin-bottom: 12px;
+            color: #2d3748;
+        }
+
+        .argument-item {
+            background: white;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .error {
+            background: #fed7d7;
+            border: 1px solid #fc8181;
+            color: #742a2a;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .success {
+            background: #c6f6d5;
+            border: 1px solid #68d391;
+            color: #22543d;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .metadata {
+            font-size: 0.85em;
+            color: #718096;
+            margin-top: 8px;
+        }
+
+        .clickable {
+            cursor: pointer;
+        }
+
+        .clickable:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Idea Stock Exchange</h1>
+            <p>Topic Overlap Scores: How Beliefs Find Their Pages</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('topics')">Topics</div>
+            <div class="tab" onclick="showTab('statements')">Statements</div>
+            <div class="tab" onclick="showTab('topic-page')">Topic Page</div>
+            <div class="tab" onclick="showTab('add-data')">Add Data</div>
+            <div class="tab" onclick="showTab('stats')">Stats</div>
+        </div>
+
+        <!-- TOPICS TAB -->
+        <div id="topics" class="tab-content active">
+            <h2>All Topics</h2>
+            <div id="topics-list" class="loading">Loading topics...</div>
+        </div>
+
+        <!-- STATEMENTS TAB -->
+        <div id="statements" class="tab-content">
+            <h2>All Statements (Beliefs)</h2>
+            <div class="form-group">
+                <input type="text" id="search-query" placeholder="Search statements...">
+                <button class="btn" onclick="searchStatements()" style="margin-top: 10px;">Search</button>
+            </div>
+            <div id="statements-list" class="loading">Loading statements...</div>
+        </div>
+
+        <!-- TOPIC PAGE TAB -->
+        <div id="topic-page" class="tab-content">
+            <div class="form-group">
+                <label>Select Topic:</label>
+                <select id="topic-select" onchange="loadTopicPage()">
+                    <option value="">-- Select a topic --</option>
+                </select>
+            </div>
+
+            <div id="topic-page-content"></div>
+        </div>
+
+        <!-- ADD DATA TAB -->
+        <div id="add-data" class="tab-content">
+            <h2>Add New Data</h2>
+
+            <div class="card">
+                <h3>Add Topic</h3>
+                <div class="form-group">
+                    <label>Topic Name *</label>
+                    <input type="text" id="new-topic-name" placeholder="e.g., Global Warming">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="new-topic-description" placeholder="Describe the topic..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Keywords (comma-separated)</label>
+                    <input type="text" id="new-topic-keywords" placeholder="e.g., climate, warming, CO2">
+                </div>
+                <button class="btn" onclick="addTopic()">Create Topic</button>
+                <div id="topic-result"></div>
+            </div>
+
+            <div class="card">
+                <h3>Add Statement (Belief)</h3>
+                <div class="form-group">
+                    <label>Statement Text *</label>
+                    <textarea id="new-statement-text" placeholder="Enter the statement..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Author</label>
+                    <input type="text" id="new-statement-author" placeholder="Author name">
+                </div>
+                <div class="form-group">
+                    <label>Source URL</label>
+                    <input type="text" id="new-statement-url" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Platform</label>
+                    <input type="text" id="new-statement-platform" placeholder="e.g., twitter, blog, paper">
+                </div>
+                <button class="btn" onclick="addStatement()">Create Statement</button>
+                <div id="statement-result"></div>
+            </div>
+
+            <div class="card">
+                <h3>Calculate Overlap Score</h3>
+                <div class="form-group">
+                    <label>Statement ID *</label>
+                    <input type="number" id="overlap-statement-id" placeholder="Statement ID">
+                </div>
+                <div class="form-group">
+                    <label>Topic ID *</label>
+                    <input type="number" id="overlap-topic-id" placeholder="Topic ID">
+                </div>
+                <button class="btn" onclick="calculateOverlap()">Calculate Overlap</button>
+                <div id="overlap-result"></div>
+            </div>
+        </div>
+
+        <!-- STATS TAB -->
+        <div id="stats" class="tab-content">
+            <h2>System Statistics</h2>
+            <div id="stats-content" class="loading">Loading stats...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load data for tab
+            if (tabName === 'topics') loadTopics();
+            if (tabName === 'statements') loadStatements();
+            if (tabName === 'stats') loadStats();
+        }
+
+        // Load topics
+        async function loadTopics() {
+            const container = document.getElementById('topics-list');
+            container.innerHTML = '<div class="loading">Loading topics...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/topics`);
+                const topics = await response.json();
+
+                if (topics.length === 0) {
+                    container.innerHTML = '<p>No topics yet. <a href="#" onclick="showTab(\'add-data\')">Add one!</a></p>';
+                    return;
+                }
+
+                container.innerHTML = topics.map(topic => `
+                    <div class="card clickable" onclick="viewTopic(${topic.id})">
+                        <h3>${topic.name}</h3>
+                        <p>${topic.description || '<em>No description</em>'}</p>
+                        <div class="metadata">
+                            ID: ${topic.id} | Created: ${new Date(topic.created_at).toLocaleDateString()}
+                        </div>
+                    </div>
+                `).join('');
+
+                // Also populate topic select dropdown
+                const select = document.getElementById('topic-select');
+                select.innerHTML = '<option value="">-- Select a topic --</option>' +
+                    topics.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error loading topics: ${error.message}</div>`;
+            }
+        }
+
+        // Load statements
+        async function loadStatements() {
+            const container = document.getElementById('statements-list');
+            container.innerHTML = '<div class="loading">Loading statements...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/statements`);
+                const statements = await response.json();
+
+                if (statements.length === 0) {
+                    container.innerHTML = '<p>No statements yet. <a href="#" onclick="showTab(\'add-data\')">Add one!</a></p>';
+                    return;
+                }
+
+                container.innerHTML = statements.map(stmt => {
+                    const truthClass = stmt.truth_score >= 70 ? 'score-high' :
+                                      stmt.truth_score >= 40 ? 'score-medium' : 'score-low';
+                    return `
+                        <div class="card">
+                            <p><strong>${stmt.text}</strong></p>
+                            <div>
+                                Truth Score: <span class="score-badge ${truthClass}">${stmt.truth_score}%</span>
+                            </div>
+                            <div class="metadata">
+                                ID: ${stmt.id} | Author: ${stmt.author || 'Unknown'} |
+                                Created: ${new Date(stmt.created_at).toLocaleDateString()}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error loading statements: ${error.message}</div>`;
+            }
+        }
+
+        // Search statements
+        async function searchStatements() {
+            const query = document.getElementById('search-query').value;
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            const container = document.getElementById('statements-list');
+            container.innerHTML = '<div class="loading">Searching...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/statements/search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query, limit: 20})
+                });
+                const results = await response.json();
+
+                if (results.length === 0) {
+                    container.innerHTML = '<p>No results found.</p>';
+                    return;
+                }
+
+                container.innerHTML = '<h3>Search Results</h3>' + results.map(result => {
+                    const scoreClass = result.similarity_score >= 80 ? 'score-high' :
+                                      result.similarity_score >= 50 ? 'score-medium' : 'score-low';
+                    return `
+                        <div class="card">
+                            <p><strong>${result.statement.text}</strong></p>
+                            <div>
+                                Similarity: <span class="score-badge ${scoreClass}">${result.similarity_score}%</span>
+                            </div>
+                            <div class="metadata">ID: ${result.statement.id}</div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Load topic page
+        async function loadTopicPage() {
+            const topicId = document.getElementById('topic-select').value;
+            const container = document.getElementById('topic-page-content');
+
+            if (!topicId) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = '<div class="loading">Loading topic page...</div>';
+
+            try {
+                // Load topic info
+                const topicResponse = await fetch(`${API_BASE}/topics/${topicId}`);
+                const topic = await topicResponse.json();
+
+                // Load ranked statements
+                const stmtsResponse = await fetch(`${API_BASE}/topics/${topicId}/statements?min_overlap=0&page=1&page_size=50`);
+                const rankedStatements = await stmtsResponse.json();
+
+                if (rankedStatements.length === 0) {
+                    container.innerHTML = `
+                        <div class="topic-page-header">
+                            <h2>${topic.name}</h2>
+                            <p>${topic.description || ''}</p>
+                        </div>
+                        <p>No statements linked to this topic yet. Calculate some overlap scores to populate this page!</p>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="topic-page-header">
+                        <h2>${topic.name}</h2>
+                        <p>${topic.description || ''}</p>
+                        <p><strong>Page 1:</strong> Top-ranked beliefs by TopicRank</p>
+                    </div>
+                `;
+
+                rankedStatements.forEach((item, index) => {
+                    const overlapClass = item.overlap_score >= 80 ? 'score-high' :
+                                        item.overlap_score >= 40 ? 'score-medium' : 'score-low';
+                    const rankClass = item.topic_rank >= 70 ? 'score-high' :
+                                     item.topic_rank >= 40 ? 'score-medium' : 'score-low';
+
+                    html += `
+                        <div class="ranked-statement">
+                            <div>
+                                <span class="rank-number">${index + 1}</span>
+                                <strong>${item.statement.text}</strong>
+                            </div>
+                            <div style="margin-top: 12px;">
+                                Overlap: <span class="score-badge ${overlapClass}">${item.overlap_score}%</span>
+                                TopicRank: <span class="score-badge ${rankClass}">${item.topic_rank}%</span>
+                                Truth: <span class="score-badge ${item.statement.truth_score >= 70 ? 'score-high' : 'score-medium'}">${item.statement.truth_score}%</span>
+                            </div>
+                    `;
+
+                    // Signal breakdown
+                    if (item.signal_breakdown) {
+                        html += `
+                            <div class="signal-breakdown">
+                                <strong>Signal Breakdown:</strong>
+                                ${Object.entries(item.signal_breakdown).map(([signal, value]) => `
+                                    <div class="signal-bar">
+                                        <label>${signal.replace('_', ' ')}</label>
+                                        <div class="signal-bar-container">
+                                            <div class="signal-bar-fill" style="width: ${value * 100}%">
+                                                ${Math.round(value * 100)}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+
+                    html += '</div>';
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            const container = document.getElementById('stats-content');
+            container.innerHTML = '<div class="loading">Loading stats...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const stats = await response.json();
+
+                container.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="number">${stats.total_topics}</div>
+                            <div class="label">Topics</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">${stats.total_statements}</div>
+                            <div class="label">Statements</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">${stats.total_overlap_scores}</div>
+                            <div class="label">Overlap Scores</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">${stats.total_arguments}</div>
+                            <div class="label">Arguments</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">${stats.total_overlap_claims}</div>
+                            <div class="label">Overlap Claims</div>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Add topic
+        async function addTopic() {
+            const name = document.getElementById('new-topic-name').value;
+            const description = document.getElementById('new-topic-description').value;
+            const keywords = document.getElementById('new-topic-keywords').value
+                .split(',').map(k => k.trim()).filter(k => k);
+
+            if (!name) {
+                alert('Topic name is required');
+                return;
+            }
+
+            const resultDiv = document.getElementById('topic-result');
+            resultDiv.innerHTML = '<div class="loading">Creating topic...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/topics`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, description, keywords})
+                });
+
+                if (!response.ok) throw new Error('Failed to create topic');
+
+                const topic = await response.json();
+                resultDiv.innerHTML = `<div class="success">Topic created! ID: ${topic.id}</div>`;
+
+                // Clear form
+                document.getElementById('new-topic-name').value = '';
+                document.getElementById('new-topic-description').value = '';
+                document.getElementById('new-topic-keywords').value = '';
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Add statement
+        async function addStatement() {
+            const text = document.getElementById('new-statement-text').value;
+            const author = document.getElementById('new-statement-author').value;
+            const source_url = document.getElementById('new-statement-url').value;
+            const platform = document.getElementById('new-statement-platform').value;
+
+            if (!text) {
+                alert('Statement text is required');
+                return;
+            }
+
+            const resultDiv = document.getElementById('statement-result');
+            resultDiv.innerHTML = '<div class="loading">Creating statement...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/statements`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text, author, source_url, platform})
+                });
+
+                if (!response.ok) throw new Error('Failed to create statement');
+
+                const statement = await response.json();
+                resultDiv.innerHTML = `<div class="success">Statement created! ID: ${statement.id}</div>`;
+
+                // Clear form
+                document.getElementById('new-statement-text').value = '';
+                document.getElementById('new-statement-author').value = '';
+                document.getElementById('new-statement-url').value = '';
+                document.getElementById('new-statement-platform').value = '';
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Calculate overlap
+        async function calculateOverlap() {
+            const statementId = document.getElementById('overlap-statement-id').value;
+            const topicId = document.getElementById('overlap-topic-id').value;
+
+            if (!statementId || !topicId) {
+                alert('Both statement ID and topic ID are required');
+                return;
+            }
+
+            const resultDiv = document.getElementById('overlap-result');
+            resultDiv.innerHTML = '<div class="loading">Calculating overlap score (this may take a few seconds)...</div>';
+
+            try {
+                const response = await fetch(
+                    `${API_BASE}/overlap/calculate?statement_id=${statementId}&topic_id=${topicId}`,
+                    {method: 'POST'}
+                );
+
+                if (!response.ok) throw new Error('Failed to calculate overlap');
+
+                const overlap = await response.json();
+                const scoreClass = overlap.overlap_score >= 80 ? 'score-high' :
+                                  overlap.overlap_score >= 40 ? 'score-medium' : 'score-low';
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        Overlap Score Calculated!<br>
+                        Score: <span class="score-badge ${scoreClass}">${overlap.overlap_score}%</span><br>
+                        TopicRank: ${overlap.topic_rank}%
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // View topic (click handler)
+        function viewTopic(topicId) {
+            document.getElementById('topic-select').value = topicId;
+            showTab('topic-page');
+            loadTopicPage();
+        }
+
+        // Load initial data
+        window.onload = function() {
+            loadTopics();
+            loadStats();
+        };
+    </script>
+</body>
+</html>
