@@ -1,0 +1,55 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.belief {
+    background-color: #fff;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h2 {
+    color: #2c3e50;
+}
+
+.reasons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.agree, .disagree {
+    width: 48%;
+}
+
+.agree h3, .disagree h3 {
+    color: #27ae60; /* Green for agree */
+    margin-bottom: 10px;
+}
+
+.disagree h3 {
+    color: #c0392b; /* Red for disagree */
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background-color: #ecf0f1;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+p, li {
+    font-size: 16px;
+    line-height: 1.6;
+}

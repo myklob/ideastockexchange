@@ -8,6 +8,39 @@ yarn-error.log*
 *.db
 *.sqlite
 *.sqlite3
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # Environment variables
 .env
@@ -23,6 +56,15 @@ logs
 # OS files
 .DS_Store
 Thumbs.db
+
+.env.development
+.env.test
+.env.production
+
+# Build outputs
+dist/
+build/
+*.log
 
 # IDE
 .vscode/
@@ -48,3 +90,27 @@ coverage/
 
 # Documentation builds
 docs/_build/
+# Generated files
+topics/*.html
+topics/**/*.html
+
+# Config (optional - remove if you want to commit your config)
+# config.yaml
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+temp/
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
