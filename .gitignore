@@ -31,6 +31,15 @@ __pycache__/
 *$py.class
 *.so
 .Python
+venv/
+ENV/
+.env
+*.db
+*.sqlite3
+.vscode/
+.idea/
+*.log
+embeddings_cache/
 build/
 develop-eggs/
 dist/
