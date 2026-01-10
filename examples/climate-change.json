@@ -1,0 +1,49 @@
+{
+  "topic_name": "Carbon Tax",
+  "raw_beliefs": [
+    {
+      "text": "A carbon tax creates economic incentives to reduce emissions and transition to clean energy",
+      "source": "Environmental economics"
+    },
+    {
+      "text": "Carbon taxes disproportionately harm low-income families who spend more on energy costs",
+      "source": "Equity analysis"
+    },
+    {
+      "text": "Market-based solutions like carbon taxes are more efficient than government mandates",
+      "source": "Free market perspective"
+    },
+    {
+      "text": "Carbon taxes alone are insufficient without direct investment in renewable infrastructure",
+      "source": "Climate policy research"
+    },
+    {
+      "text": "Revenue from carbon taxes can be returned to citizens as dividends, making it revenue-neutral",
+      "source": "Fee and dividend proposal"
+    },
+    {
+      "text": "Carbon taxes will drive jobs overseas to countries without similar regulations",
+      "source": "Manufacturing industry"
+    },
+    {
+      "text": "The cost of climate inaction far exceeds the cost of a carbon tax",
+      "source": "Climate science"
+    }
+  ],
+  "related_topics": {
+    "general": [
+      "Climate Change Policy",
+      "Environmental Regulation"
+    ],
+    "specific": [
+      "Cap and Trade",
+      "Carbon Pricing Mechanisms",
+      "Renewable Energy Subsidies"
+    ],
+    "related": [
+      "Green New Deal",
+      "Clean Energy Transition",
+      "Climate Justice"
+    ]
+  }
+}

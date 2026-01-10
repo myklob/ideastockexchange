@@ -1,0 +1,215 @@
+<p style="font-size: 0.9em; color: #666; text-align: right;"><a href="/w/page/21957696/Colorado%20Should">Home</a> &rsaquo;    <a href="/w/page/159323433/One%20Page%20Per%20Topic">Topics</a> &rsaquo;    <strong>{{ topic_name }}</strong></p>
+<h1>Topic: {{ topic_name }}</h1>
+<p style="text-align: right; font-size: 0.9em; color: #666;"><em>Importance Score: {{ importance_score }}/100 | Engagement Score: {{ engagement_score }}/100</em></p>
+<hr />
+<h2>📊 Beliefs</h2>
+<p style="text-align: right; font-size: 0.9em; color: #666;"><em>Organized by judgment type: Purpose (goals/values), Function (performance), Form (experience)</em></p>
+<h3>🎯 Purpose: Goals and Values</h3>
+<table style="width: 100%; border-collapse: collapse;" border="1" cellspacing="0" cellpadding="10">
+<thead>
+<tr style="background-color: #eee;">
+<th style="width: 25%;">Sub-Topic</th> <th style="width: 15%;">Score</th> <th style="width: 60%;">Belief</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><strong>Moral Ends</strong></td>
+<td align="center">{{ purpose.moral_ends.score }}</td>
+<td>{{ purpose.moral_ends.belief }}</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td align="center"><strong>Interests Served</strong></td>
+<td align="center">{{ purpose.interests_served.score }}</td>
+<td>{{ purpose.interests_served.belief }}</td>
+</tr>
+<tr>
+<td align="center"><strong>Values Alignment</strong></td>
+<td align="center">{{ purpose.values_alignment.score }}</td>
+<td>{{ purpose.values_alignment.belief }}</td>
+</tr>
+</tbody>
+</table>
+<h3>&nbsp;</h3>
+<h3>⚙️ Function: Performance and Results</h3>
+<table style="width: 100%; border-collapse: collapse;" border="1" cellspacing="0" cellpadding="10">
+<thead>
+<tr style="background-color: #eee;">
+<th style="width: 25%;">Sub-Topic</th> <th style="width: 15%;">Score</th> <th style="width: 60%;">Belief</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><strong>Ethical Means</strong></td>
+<td align="center">{{ function.ethical_means.score }}</td>
+<td>{{ function.ethical_means.belief }}</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td align="center"><strong>Effectiveness</strong></td>
+<td align="center">{{ function.effectiveness.score }}</td>
+<td>{{ function.effectiveness.belief }}</td>
+</tr>
+<tr>
+<td align="center"><strong>Efficiency</strong></td>
+<td align="center">{{ function.efficiency.score }}</td>
+<td>{{ function.efficiency.belief }}</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td align="center"><strong>Reliability</strong></td>
+<td align="center">{{ function.reliability.score }}</td>
+<td>{{ function.reliability.belief }}</td>
+</tr>
+</tbody>
+</table>
+<h3>&nbsp;</h3>
+<h3>🎨 Form: Experience and Presentation</h3>
+<table style="width: 100%; border-collapse: collapse;" border="1" cellspacing="0" cellpadding="10">
+<thead>
+<tr style="background-color: #eee;">
+<th style="width: 25%;">Sub-Topic</th> <th style="width: 15%;">Score</th> <th style="width: 60%;">Belief</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><strong>Appeal</strong></td>
+<td align="center">{{ form.appeal.score }}</td>
+<td>{{ form.appeal.belief }}</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td align="center"><strong>Order</strong></td>
+<td align="center">{{ form.order.score }}</td>
+<td>{{ form.order.belief }}</td>
+</tr>
+<tr>
+<td align="center"><strong>Harmony</strong></td>
+<td align="center">{{ form.harmony.score }}</td>
+<td>{{ form.harmony.belief }}</td>
+</tr>
+</tbody>
+</table>
+<h3>&nbsp;</h3>
+<h3>⚪ Neutral / Synthesis</h3>
+<table style="width: 100%; border-collapse: collapse;" border="1" cellspacing="0" cellpadding="10">
+<thead>
+<tr style="background-color: #eee;">
+<th style="width: 25%;">Type</th> <th style="width: 15%;">Score</th> <th style="width: 60%;">Belief</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><strong>Synthesis</strong></td>
+<td align="center">{{ neutral.synthesis.score }}</td>
+<td>{{ neutral.synthesis.belief }}</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td align="center"><strong>Contextual</strong></td>
+<td align="center">{{ neutral.contextual.score }}</td>
+<td>{{ neutral.contextual.belief }}</td>
+</tr>
+<tr>
+<td align="center"><strong>Agnostic</strong></td>
+<td align="center">{{ neutral.agnostic.score }}</td>
+<td>{{ neutral.agnostic.belief }}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>&nbsp;</h2>
+<h2>📈 Importance</h2>
+<table style="width: 100%; border-collapse: collapse;" border="1" cellspacing="0" cellpadding="10">
+<thead>
+<tr style="background-color: #eee;">
+<th style="width: 15%;">Score</th> <th style="width: 85%;">Argument</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">{{ importance.score }}</td>
+<td>{{ importance.argument }}</td>
+</tr>
+</tbody>
+</table>
+<p style="text-align: right; font-size: 0.9em; color: #666;"><em>Calculated from: Scale of impact &times; Number affected &times; Urgency &times; Foundation for other topics</em></p>
+<hr />
+<h2>📚 ISE Framework</h2>
+<p style="text-align: right; font-size: 0.9em; color: #666;"><em>Each belief analyzed using:</em></p>
+<ul>
+<li><a href="/w/page/21960078/truth">Truth Scoring</a></li>
+<li><a href="/Reasons">Argument Trees</a></li>
+<li><a href="/w/page/159353568/Evidence">Evidence Tiers</a></li>
+<li><a href="/w/page/159338766/Linkage%20Scores">Linkage Scores</a></li>
+<li><a href="/Assumptions">Assumptions</a></li>
+<li><a href="/w/page/159301140/Interests">Interests</a></li>
+<li><a href="/w/page/156187122/cost-benefit%20analysis">Cost-Benefit Analysis</a></li>
+</ul>
+<hr />
+<div style="background: #e8f6f3; padding: 15px; border-left: 4px solid #a2d9ce;">
+<h3 style="margin-top: 0;">Contributing</h3>
+<p>Missing a perspective? <a href="/w/page/160433328/Contact%20Me">Contact me</a> to add beliefs, strengthen arguments, or link new evidence.</p>
+</div>
+<hr />
+<h2>🔗 Related Topics</h2>
+<table style="width: 100%; border-collapse: collapse;" border="1" cellspacing="0" cellpadding="10">
+<thead>
+<tr style="background-color: #eee;">
+<th style="width: 33%;">More General</th> <th style="width: 34%;">More Specific</th> <th style="width: 33%;">Related</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="vertical-align: top;">
+{%- if related_topics.general %}
+{%- for topic in related_topics.general %}
+<a href="{{ base_url }}/{{ topic|slugify }}">{{ topic }}</a><br/>
+{%- endfor %}
+{%- else %}
+[Parent topics when they exist]
+{%- endif %}
+</td>
+<td style="vertical-align: top;">
+{%- if related_topics.specific %}
+{%- for topic in related_topics.specific %}
+<a href="{{ base_url }}/{{ topic|slugify }}">{{ topic }}</a><br/>
+{%- endfor %}
+{%- else %}
+[Child topics when they exist]
+{%- endif %}
+</td>
+<td style="vertical-align: top;">
+{%- if related_topics.related %}
+{%- for topic in related_topics.related %}
+<a href="{{ base_url }}/{{ topic|slugify }}">{{ topic }}</a><br/>
+{%- endfor %}
+{%- else %}
+[Sibling topics when they exist]
+{%- endif %}
+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Why One Page Per Topic Matters</h2>
+<h3>&nbsp;</h3>
+<h3>The Current System Is Designed for <a href="/w/page/160805853/Chaos">Chaos</a></h3>
+<p>Online platforms organize content <a href="/w/page/21957077/chronological">by time, not topic</a>. Newer posts bury older insights, making it impossible to find or build on previous work. People have the same debates year after year without realizing someone else already solved it. (<a href="/w/page/162495756/organizing%20content%20chronologicly">see a full explanation of the problems of organizing our online content chronologically</a>)</p>
+<h3>&nbsp;</h3>
+<h3>Arguments Scattered = Progress Lost</h3>
+<p>The same point gets made <a href="/w/page/21957405/duplication">over and over across posts, platforms, and years</a>. When ideas aren't linked to each other or their evidence, we waste time rediscovering instead of progressing.</p>
+<h3>&nbsp;</h3>
+<h3>No Sorting = Talking Past Each Other</h3>
+<p>Without separation by pro/con, general/specific, or intensity, people argue without realizing they're not even debating the same claim. Topic <a href="/w/page/21959000/Organization">organization</a> prevents this.</p>
+<h3>&nbsp;</h3>
+<h3><a href="/w/page/159386988/Topic%20Drift">Topic Drift</a> Enables Manipulation</h3>
+<p>When there's no fixed topic, it's easy to pivot to a distraction. Staying anchored to one page keeps everyone focused on resolving the actual issue at hand.</p>
+<h3>&nbsp;</h3>
+<h3><a href="/w/page/21957077/chronological">Chronological Order Rewards Noise</a></h3>
+<p>The best argument from last year is invisible, while today's loudest take is front and center. Topic pages reward clarity and evidence, not recency and volume.</p>
+<h3>&nbsp;</h3>
+<h3>Isolated Ideas Can't Compound</h3>
+<p>When each contribution is siloed, no one can build on others. A shared page allows knowledge to accumulate, arguments to improve, and contradictions to get resolved.</p>
+<h3>&nbsp;</h3>
+<h3>Related Topics = Clarity, Not Chaos</h3>
+<p>Instead of jumping from topic to topic mid-conversation, this format lets users navigate thoughtfully. It shows connections while maintaining clear boundaries for focused analysis.</p>
+<h3>&nbsp;</h3>
+<h3>This Is Wikipedia for Arguments</h3>
+<p>Wikipedia works because they have one page per topic, and separate pages for sub-topics. We can do the same thing for our debates.</p>
+<p>&nbsp;</p>
