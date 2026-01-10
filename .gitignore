@@ -1,3 +1,13 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
 # Python
 __pycache__/
 *.py[cod]
@@ -35,6 +45,18 @@ pnpm-lock.yaml
 # Environment variables
 .env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
 .env.development
 .env.test
 .env.production
@@ -51,6 +73,23 @@ build/
 *.swo
 *~
 
+# Build outputs
+dist/
+build/
+*.min.js
+*.min.css
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Documentation builds
+docs/_build/
 # Generated files
 topics/*.html
 topics/**/*.html
