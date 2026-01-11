@@ -1,3 +1,5 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 // Prisma schema for IdeaStockExchange
 // A comprehensive debate platform with integrated media lists and social features
 
@@ -10,6 +12,267 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Core Book Model
+model Book {
+  id          String   @id @default(cuid())
+  title       String
+  author      String
+  isbn        String?  @unique
+  publishYear Int?
+  description String?  @db.Text
+  coverImage  String?
+
+  // Four-Dimensional Scoring Framework
+  logicalValidityScore Float @default(0) // 0-100
+  qualityScore         Float @default(0) // 0-100
+  beliefImpactWeight   Float @default(0) // Influence multiplier (log of reach)
+
+  // Reach metrics for Belief Impact calculation
+  salesCount      Int @default(0)
+  citationCount   Int @default(0)
+  socialShares    Int @default(0)
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  claims         Claim[]
+  topicOverlaps  TopicOverlap[]
+  fallacies      Fallacy[]
+  contradictions Contradiction[]
+  evidenceItems  Evidence[]
+  metaphors      Metaphor[]
+  predictions    Prediction[]
+  authorProfile  Author? @relation(fields: [authorId], references: [id])
+  authorId       String?
+
+  @@index([title])
+  @@index([author])
+}
+
+// Individual testable claims within a book
+model Claim {
+  id             String   @id @default(cuid())
+  bookId         String
+  book           Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  content        String   @db.Text
+  pageNumber     Int?
+  chapterNumber  Int?
+
+  // Centrality weighting (0.1 to 1.0)
+  centralityWeight Float @default(0.5)
+  centralityType   String @default("supporting") // "thesis", "major", "supporting", "example", "tangential", "footnote"
+
+  // Validity score for this specific claim
+  validityScore  Float @default(50) // 0-100
+
+  // AI + Crowd scoring
+  aiConfidence   Float @default(0) // 0-1
+  crowdConsensus Float @default(0) // 0-1
+  expertWeighting Float @default(0) // 0-1
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fallacies      Fallacy[]
+  evidenceLinks  Evidence[]
+
+  @@index([bookId])
+}
+
+// Topic Overlap Scores (how central a belief is to the book)
+model TopicOverlap {
+  id             String   @id @default(cuid())
+  bookId         String
+  book           Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  topicName      String   // e.g., "Revenge", "Mortality", "Cognitive Biases"
+  overlapScore   Float    // 0-100%
+  pagesDevoted   Int?
+  argumentDensity Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([bookId, topicName])
+  @@index([topicName])
+}
+
+// Logic Battleground 1: Fallacy Autopsy Theater
+model Fallacy {
+  id             String   @id @default(cuid())
+  bookId         String
+  book           Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  claimId        String?
+  claim          Claim?   @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  fallacyType    String   // "ad_hominem", "strawman", "slippery_slope", "post_hoc", "false_equivalence", etc.
+  description    String   @db.Text
+  quote          String?  @db.Text
+  pageNumber     Int?
+
+  // Scoring
+  flaggedBy      String   // "ai" or "crowd" or "expert"
+  confidence     Float    @default(0.5) // 0-1
+  debateConsensus Float?  // After crowd debate
+
+  impactOnValidity Float @default(-10) // Percentage impact on overall score
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookId])
+  @@index([fallacyType])
+}
+
+// Logic Battleground 2: Contradiction Trials
+model Contradiction {
+  id             String   @id @default(cuid())
+  bookId         String
+  book           Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  claim1         String   @db.Text
+  claim1Page     Int?
+  claim2         String   @db.Text
+  claim2Page     Int?
+
+  contradictionType String // "direct", "implicit", "context_dependent"
+  severity       Float    @default(0.5) // 0-1
+
+  // Crowd validation
+  validatedBy    Int      @default(0) // Number of users who confirmed
+  disputedBy     Int      @default(0) // Number who disputed
+
+  impactOnIntegrity Float @default(-8) // Percentage impact
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookId])
+}
+
+// Logic Battleground 3: Evidence War Rooms
+model Evidence {
+  id             String   @id @default(cuid())
+  bookId         String
+  book           Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  claimId        String?
+  claim          Claim?   @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  evidenceType   String   // "peer_reviewed", "statistical", "anecdotal", "speculation"
+  description    String   @db.Text
+  sourceUrl      String?
+
+  // Quality assessment
+  qualityTier    String   // "tier1_peer_reviewed", "tier2_statistical", "tier3_anecdotal", "tier4_speculation"
+  replicationStatus String? // "replicated", "failed_replication", "not_tested"
+
+  validityScore  Float    @default(50) // 0-100
+
+  // Time decay for outdated claims
+  publishedDate  DateTime?
+  lastVerified   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookId])
+  @@index([evidenceType])
+}
+
+// Logic Battleground 4: Metaphor MRI Scans
+model Metaphor {
+  id             String   @id @default(cuid())
+  bookId         String
+  book           Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  metaphorText   String   @db.Text
+  pageNumber     Int?
+
+  targetConcept  String   // What's being explained
+  sourceConcept  String   // What it's compared to
+
+  // Accuracy assessment
+  structuralSimilarity Float @default(0.5) // 0-1
+  clarityScore   Float    @default(0.5) // Does it clarify or confuse?
+
+  isMisleading   Boolean  @default(false)
+  impactOnValidity Float  @default(0) // Can be positive or negative
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookId])
+}
+
+// Logic Battleground 5: Prediction Mortuaries
+model Prediction {
+  id             String   @id @default(cuid())
+  bookId         String
+  book           Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  predictionText String   @db.Text
+  targetDate     DateTime? // When prediction should be evaluated
+  pageNumber     Int?
+
+  // Outcome tracking
+  actualOutcome  String?  @db.Text
+  accuracyScore  Float?   // 0-100, evaluated after target date
+
+  status         String   @default("pending") // "pending", "verified", "failed", "partially_correct"
+
+  impactOnCredibility Float @default(0) // Affects author's overall credibility
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  evaluatedAt DateTime?
+
+  @@index([bookId])
+  @@index([targetDate])
+  @@index([status])
+}
+
+// Author profile with Truth Equity tracking
+model Author {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  bio            String?  @db.Text
+
+  // Truth Equity: historical accuracy across all works
+  truthEquityScore Float @default(50) // 0-100
+  totalBooks       Int    @default(0)
+  avgBookValidity  Float  @default(0)
+
+  // Prediction track record
+  totalPredictions    Int   @default(0)
+  accuratePredictions Int   @default(0)
+
+  books          Book[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+}
+
+// User contributions for crowd validation
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String?
+
+  // Credibility multiplier (top contributors get higher weight)
+  credibilityScore Float @default(1.0) // 1.0 to 10.0
+  accuracyRate     Float @default(0.5) // 0-1
+
+  contributionCount Int  @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
 // ============================================================================
 // USER & AUTHENTICATION
 // ============================================================================
