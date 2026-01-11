@@ -268,10 +268,10 @@ Documentation of all formulas used in the ISE system.
 - Excel syntax examples
 - Score ranges and interpretations
 - Links to ISE technical documentation:
-  - [Argument Scores](https://myclob.pbworks.com/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores)
-  - [Truth Scoring](https://myclob.pbworks.com/w/page/21960078/truth)
-  - [Linkage Scores](https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores)
-  - [Evidence Quality](https://myclob.pbworks.com/w/page/159353568/Evidence)
+  - [Argument Scores](https://github.com/myklob/ideastockexchange/wiki)
+  - [Truth Scoring](https://github.com/myklob/ideastockexchange/wiki/Truth-Score)
+  - [Linkage Scores](https://github.com/myklob/ideastockexchange/wiki/Evidence-to-Conclusion-Relevance-Score)
+  - [Evidence Quality](https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS))
   - [GitHub Repository](https://github.com/myklob/ideastockexchange)
 
 ## Scoring Formulas
@@ -536,7 +536,7 @@ MIT License - See main project LICENSE file
 
 For questions or issues:
 - GitHub: https://github.com/myklob/ideastockexchange
-- Documentation: https://myclob.pbworks.com
+- Documentation: https://github.com/myklob/ideastockexchange/wiki
 
 ---
 

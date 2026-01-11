@@ -181,17 +181,17 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 ### For Framework Documentation
 
-The canonical reference for all ISE concepts lives on PBworks:
+The canonical reference for all ISE concepts lives in our GitHub wiki:
 
-- [One Page Per Topic](https://myclob.pbworks.com/w/page/159323433/One%20Page%20Per%20Topic)
-- [Reasons](https://myclob.pbworks.com/Reasons)
-- [Evidence](https://myclob.pbworks.com/w/page/159353568/Evidence)
-- [Truth Scores](https://myclob.pbworks.com/w/page/21960078/truth)
-- [Linkage Scores](https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores)
-- [Importance Scores](https://myclob.pbworks.com/importance%20score)
-- [Cost-Benefit Analysis](https://myclob.pbworks.com/w/page/156187122/cost-benefit%20analysis)
-- [Interests](https://myclob.pbworks.com/w/page/159301140/Interests)
-- [Assumptions](https://myclob.pbworks.com/Assumptions)
+- [One Page Per Topic](https://github.com/myklob/ideastockexchange/wiki)
+- [Reasons](https://github.com/myklob/ideastockexchange/wiki)
+- [Evidence](https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS))
+- [Truth Scores](https://github.com/myklob/ideastockexchange/wiki/Truth-Score)
+- [Linkage Scores](https://github.com/myklob/ideastockexchange/wiki/Evidence-to-Conclusion-Relevance-Score)
+- [Importance Scores](https://github.com/myklob/ideastockexchange/wiki)
+- [Cost-Benefit Analysis](https://github.com/myklob/ideastockexchange/wiki)
+- [Interests](https://github.com/myklob/ideastockexchange/wiki)
+- [Assumptions](https://github.com/myklob/ideastockexchange/wiki)
 
 ---
 
@@ -225,7 +225,7 @@ This isn't utopian. It's engineering. The same institutional design thinking tha
 
 The journey starts with a single page, organized by evidence, updated by the crowd, scored by math.
 
-**Ready to help build it?** [Contact us](https://myclob.pbworks.com/w/page/160433328/Contact%20Me) or open a pull request.
+**Ready to help build it?** [Contact us](https://github.com/myklob/ideastockexchange/wiki) or open a pull request.
 
 ---
 

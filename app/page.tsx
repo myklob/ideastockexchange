@@ -256,16 +256,16 @@ export default function Home() {
                 <li><Link href="/about" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">About</Link></li>
                 <li><Link href="/laws" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Browse Laws</Link></li>
                 <li><Link href="/proposals" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Proposals</Link></li>
-                <li><a href="https://myclob.pbworks.com" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">MyClob Framework</a></li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">MyClob Framework</a></li>
               </ul>
             </div>
             <div>
               <h3 className="font-bold mb-4">Framework</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="https://myclob.pbworks.com/w/page/21960078/truth" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Truth</a></li>
-                <li><a href="https://myclob.pbworks.com/w/page/159301140/Interests" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Interests</a></li>
-                <li><a href="https://myclob.pbworks.com/w/page/159353568/Evidence" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Evidence</a></li>
-                <li><a href="https://myclob.pbworks.com/Assumptions" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Assumptions</a></li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki/Truth-Score" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Truth</a></li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Interests</a></li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS)" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Evidence</a></li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Assumptions</a></li>
               </ul>
             </div>
           </div>
