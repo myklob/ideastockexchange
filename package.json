@@ -1,4 +1,23 @@
 {
+  "name": "idea-stock-exchange",
+  "version": "1.0.0",
+  "description": "A marketplace where ideas are traded like stocks",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "init-db": "node scripts/init-db.js",
+    "test": "node test/test.js"
+  },
+  "keywords": ["ideas", "trading", "marketplace", "stock-exchange"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.2.2",
+    "body-parser": "^1.20.2"
   "name": "ideastockexchange",
   "version": "0.1.0",
   "private": true,
