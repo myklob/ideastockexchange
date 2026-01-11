@@ -57,11 +57,14 @@ wheels/
 *.egg
 MANIFEST
 
+# Virtual Environment
 # Virtual environments
 venv/
 env/
 ENV/
 .venv
+
+# IDEs
 # Dependencies
 node_modules/
 package-lock.json
@@ -99,6 +102,13 @@ build/
 *.swo
 *~
 
+# Environment Variables
+.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
 # Build outputs
 dist/
 build/
@@ -130,6 +140,12 @@ topics/**/*.html
 .DS_Store
 Thumbs.db
 
+# Sentence Transformers Cache
+.cache/
+sentence_transformers/
+
+# NLTK Data
+nltk_data/
 # Temporary files
 *.tmp
 temp/
