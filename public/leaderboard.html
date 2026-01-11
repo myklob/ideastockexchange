@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard - Idea Stock Exchange</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-content">
+      <a href="/" class="nav-brand">💡 Idea Stock Exchange</a>
+      <div class="nav-links">
+        <a href="/market">Market</a>
+        <a href="/portfolio">Portfolio</a>
+        <a href="/create">Create Idea</a>
+        <a href="/leaderboard">Leaderboard</a>
+        <div id="user-section"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h1 class="card-header">🏆 Top Investors</h1>
+
+      <div id="loading" class="spinner"></div>
+
+      <div id="leaderboard-content" class="hidden">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Username</th>
+              <th>Cash Balance</th>
+              <th>Holdings Value</th>
+              <th>Total Value</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1 class="card-header">📈 Top Ideas</h1>
+
+      <div id="ideas-loading" class="spinner"></div>
+
+      <div id="ideas-content" class="hidden">
+        <div class="ideas-grid" id="top-ideas"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/common.js"></script>
+  <script>
+    async function loadLeaderboard() {
+      try {
+        const response = await fetch('/api/leaderboard');
+        const leaderboard = await response.json();
+
+        const tbody = document.getElementById('leaderboard-body');
+        tbody.innerHTML = leaderboard.map((user, index) => {
+          const rank = index + 1;
+          const rankClass = rank <= 3 ? `rank-${rank}` : '';
+
+          return `
+            <tr>
+              <td><span class="rank ${rankClass}">${rank}</span></td>
+              <td><strong>${user.username}</strong></td>
+              <td>${formatCurrency(user.balance)}</td>
+              <td>${formatCurrency(user.holdings_value)}</td>
+              <td style="font-weight: bold; color: #667eea;">${formatCurrency(user.total_value)}</td>
+            </tr>
+          `;
+        }).join('');
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('leaderboard-content').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading leaderboard:', error);
+        document.getElementById('loading').classList.add('hidden');
+      }
+    }
+
+    async function loadTopIdeas() {
+      try {
+        const response = await fetch('/api/market/top');
+        const ideas = await response.json();
+
+        const container = document.getElementById('top-ideas');
+        container.innerHTML = ideas.map(idea => `
+          <div class="idea-card" onclick="window.location.href='/idea/${idea.ticker}'">
+            <div class="idea-ticker">${idea.ticker}</div>
+            <div class="idea-title">${idea.title}</div>
+            <div class="idea-price">$${idea.current_price.toFixed(2)}</div>
+            <div class="idea-creator">by ${idea.creator_name}</div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 14px; color: #888;">
+              ${idea.trade_count || 0} trades
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('ideas-loading').classList.add('hidden');
+        document.getElementById('ideas-content').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading top ideas:', error);
+        document.getElementById('ideas-loading').classList.add('hidden');
+      }
+    }
+
+    initAuth();
+    loadLeaderboard();
+    loadTopIdeas();
+
+    // Refresh leaderboard every 10 seconds
+    setInterval(() => {
+      loadLeaderboard();
+      loadTopIdeas();
+    }, 10000);
+  </script>
+</body>
+</html>

@@ -4,6 +4,12 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Idea Stock Exchange - One Page Per Topic',
   description: 'The Architecture of Reason: Organizing beliefs in three simultaneous dimensions',
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Idea Stock Exchange - Book Analysis System",
+  description: "Combat Reports for Ideas - Systematic book analysis with transparent scoring",
 };
 
 export default function RootLayout({
@@ -34,6 +40,13 @@ export default function RootLayout({
             </p>
           </div>
         </footer>
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className="antialiased">
+        {children}
       </body>
     </html>
   );

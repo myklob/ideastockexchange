@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Idea Details - Idea Stock Exchange</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-content">
+      <a href="/" class="nav-brand">💡 Idea Stock Exchange</a>
+      <div class="nav-links">
+        <a href="/market">Market</a>
+        <a href="/portfolio">Portfolio</a>
+        <a href="/create">Create Idea</a>
+        <a href="/leaderboard">Leaderboard</a>
+        <div id="user-section"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div id="loading" class="spinner"></div>
+
+    <div id="idea-content" class="hidden">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+          <div>
+            <div style="font-size: 32px; font-weight: bold; color: #667eea;" id="idea-ticker"></div>
+            <h1 id="idea-title" style="margin: 10px 0;"></h1>
+            <p id="idea-creator" style="color: #888;"></p>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 36px; font-weight: bold; color: #28a745;" id="idea-price"></div>
+            <div style="color: #888; margin-top: 5px;" id="idea-shares"></div>
+          </div>
+        </div>
+
+        <div style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+          <p id="idea-description" style="line-height: 1.6;"></p>
+        </div>
+
+        <div class="trade-actions">
+          <div class="card" style="background: #e8f5e9;">
+            <h3 style="color: #28a745; margin-bottom: 15px;">Buy Shares</h3>
+            <div class="form-group">
+              <label for="buy-shares">Number of Shares</label>
+              <input type="number" id="buy-shares" min="1" value="1">
+            </div>
+            <div style="margin: 15px 0; font-size: 18px;">
+              Total Cost: <span id="buy-cost" style="font-weight: bold;">$0.00</span>
+            </div>
+            <button class="btn btn-success" onclick="executeBuy()" style="width: 100%;">Buy Now</button>
+          </div>
+
+          <div class="card" style="background: #ffebee;">
+            <h3 style="color: #dc3545; margin-bottom: 15px;">Sell Shares</h3>
+            <div class="form-group">
+              <label for="sell-shares">Number of Shares</label>
+              <input type="number" id="sell-shares" min="1" value="1">
+            </div>
+            <div style="margin: 15px 0;">
+              <div style="font-size: 14px; color: #666;">You own: <span id="user-shares" style="font-weight: bold;">0</span> shares</div>
+              <div style="font-size: 18px; margin-top: 5px;">
+                Total Proceeds: <span id="sell-proceeds" style="font-weight: bold;">$0.00</span>
+              </div>
+            </div>
+            <button class="btn btn-danger" onclick="executeSell()" style="width: 100%;">Sell Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-header">Recent Transactions</h2>
+        <div id="transactions-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/common.js"></script>
+  <script>
+    let currentIdea = null;
+    let currentPrice = 0;
+    let userHolding = 0;
+
+    async function loadIdea() {
+      const ticker = window.location.pathname.split('/').pop();
+
+      try {
+        const response = await fetch(`/api/ideas/${ticker}`);
+        if (!response.ok) {
+          throw new Error('Idea not found');
+        }
+
+        currentIdea = await response.json();
+        currentPrice = currentIdea.current_price;
+        displayIdea();
+
+        // Load user's holdings
+        if (currentUser) {
+          await loadUserHolding();
+        }
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('idea-content').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading idea:', error);
+        alert('Idea not found!');
+        window.location.href = '/market';
+      }
+    }
+
+    async function loadUserHolding() {
+      try {
+        const response = await fetch('/api/portfolio');
+        const portfolio = await response.json();
+        const holding = portfolio.holdings.find(h => h.ticker === currentIdea.ticker);
+        userHolding = holding ? holding.shares : 0;
+        document.getElementById('user-shares').textContent = userHolding;
+      } catch (error) {
+        console.error('Error loading holdings:', error);
+      }
+    }
+
+    function displayIdea() {
+      document.getElementById('idea-ticker').textContent = currentIdea.ticker;
+      document.getElementById('idea-title').textContent = currentIdea.title;
+      document.getElementById('idea-creator').textContent = `Created by ${currentIdea.creator_name}`;
+      document.getElementById('idea-price').textContent = `$${currentIdea.current_price.toFixed(2)}`;
+      document.getElementById('idea-shares').textContent = `${currentIdea.shares_outstanding} shares outstanding`;
+      document.getElementById('idea-description').textContent = currentIdea.description || 'No description provided.';
+
+      // Display transactions
+      const txList = document.getElementById('transactions-list');
+      if (currentIdea.recentTransactions && currentIdea.recentTransactions.length > 0) {
+        txList.innerHTML = currentIdea.recentTransactions.map(tx => `
+          <div class="transaction-item transaction-type-${tx.transaction_type}">
+            <div>
+              <strong>${tx.transaction_type}</strong>
+              ${tx.buyer_name || tx.seller_name || 'System'}
+              - ${tx.shares} shares @ $${tx.price.toFixed(2)}
+            </div>
+            <div style="color: #888; font-size: 14px;">
+              ${formatDate(tx.created_at)}
+            </div>
+          </div>
+        `).join('');
+      } else {
+        txList.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">No transactions yet</p>';
+      }
+
+      updateCalculations();
+    }
+
+    function updateCalculations() {
+      const buyShares = parseInt(document.getElementById('buy-shares').value) || 0;
+      const sellShares = parseInt(document.getElementById('sell-shares').value) || 0;
+
+      document.getElementById('buy-cost').textContent = formatCurrency(buyShares * currentPrice);
+      document.getElementById('sell-proceeds').textContent = formatCurrency(sellShares * currentPrice);
+    }
+
+    document.getElementById('buy-shares').addEventListener('input', updateCalculations);
+    document.getElementById('sell-shares').addEventListener('input', updateCalculations);
+
+    async function executeBuy() {
+      if (!currentUser) {
+        alert('Please log in to trade!');
+        window.location.href = '/';
+        return;
+      }
+
+      const shares = parseInt(document.getElementById('buy-shares').value);
+      if (!shares || shares <= 0) {
+        alert('Please enter a valid number of shares!');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/trade/buy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker: currentIdea.ticker, shares })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showAlert(`Successfully bought ${shares} shares!`, 'success');
+          currentPrice = data.newPrice;
+          await refreshBalance();
+          await loadIdea();
+        } else {
+          showAlert(data.error || 'Trade failed!', 'error');
+        }
+      } catch (error) {
+        showAlert('Network error. Please try again!', 'error');
+      }
+    }
+
+    async function executeSell() {
+      if (!currentUser) {
+        alert('Please log in to trade!');
+        window.location.href = '/';
+        return;
+      }
+
+      const shares = parseInt(document.getElementById('sell-shares').value);
+      if (!shares || shares <= 0) {
+        alert('Please enter a valid number of shares!');
+        return;
+      }
+
+      if (shares > userHolding) {
+        alert(`You only own ${userHolding} shares!`);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/trade/sell', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker: currentIdea.ticker, shares })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showAlert(`Successfully sold ${shares} shares!`, 'success');
+          currentPrice = data.newPrice;
+          await refreshBalance();
+          await loadIdea();
+        } else {
+          showAlert(data.error || 'Trade failed!', 'error');
+        }
+      } catch (error) {
+        showAlert('Network error. Please try again!', 'error');
+      }
+    }
+
+    // Real-time price updates
+    const eventSource = new EventSource('/api/stream/prices');
+    eventSource.onmessage = (event) => {
+      const prices = JSON.parse(event.data);
+      const priceUpdate = prices.find(p => p.ticker === currentIdea?.ticker);
+      if (priceUpdate) {
+        currentPrice = priceUpdate.price;
+        document.getElementById('idea-price').textContent = `$${currentPrice.toFixed(2)}`;
+        updateCalculations();
+      }
+    };
+
+    initAuth().then(() => loadIdea());
+  </script>
+</body>
+</html>
