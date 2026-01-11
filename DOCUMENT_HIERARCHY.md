@@ -10,8 +10,8 @@ This document maps the ISE framework into a clear conceptual hierarchy. Use it a
 
 | Concept | Purpose | Canonical Reference |
 |---------|---------|---------------------|
-| [One Page Per Topic](https://myclob.pbworks.com/w/page/159323433/One%20Page%20Per%20Topic) | Eliminates fragmentation by creating single canonical locations | Foundation for all ISE organization |
-| [Topic Overlap Scores](https://myclob.pbworks.com/w/page/159323433/One%20Page%20Per%20Topic) | Determines which beliefs belong on which pages | Prevents misplacement of arguments |
+| [One Page Per Topic](https://github.com/myklob/ideastockexchange/wiki) | Eliminates fragmentation by creating single canonical locations | Foundation for all ISE organization |
+| [Topic Overlap Scores](https://github.com/myklob/ideastockexchange/wiki) | Determines which beliefs belong on which pages | Prevents misplacement of arguments |
 | Multi-Dimensional Sorting | Organizes beliefs by generality, strength, and valence | Enables nuanced navigation |
 
 **Key Insight:** Until every topic has exactly one home, we can't build cumulative knowledge. Duplication is the enemy of progress.
@@ -24,8 +24,8 @@ This document maps the ISE framework into a clear conceptual hierarchy. Use it a
 
 | Concept | Purpose | Canonical Reference |
 |---------|---------|---------------------|
-| [Reasons](https://myclob.pbworks.com/Reasons) | Pro/con arguments that support or oppose conclusions | Building blocks of all evaluations |
-| [Assumptions](https://myclob.pbworks.com/Assumptions) | Unstated premises required for arguments to work | Makes hidden logic visible |
+| [Reasons](https://github.com/myklob/ideastockexchange/wiki) | Pro/con arguments that support or oppose conclusions | Building blocks of all evaluations |
+| [Assumptions](https://github.com/myklob/ideastockexchange/wiki) | Unstated premises required for arguments to work | Makes hidden logic visible |
 | Argument Trees | Hierarchical structure showing how sub-arguments support parent claims | Enables recursive scoring |
 | Fallacy Detection | Identifies logical errors in arguments | Reduces manipulation |
 
@@ -39,10 +39,10 @@ This document maps the ISE framework into a clear conceptual hierarchy. Use it a
 
 | Concept | Purpose | Canonical Reference |
 |---------|---------|---------------------|
-| [Evidence](https://myclob.pbworks.com/w/page/159353568/Evidence) | Empirical data supporting or opposing claims | Grounds arguments in reality |
+| [Evidence](https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS)) | Empirical data supporting or opposing claims | Grounds arguments in reality |
 | Evidence Quality Scores | Rates intrinsic reliability (methodology, replication, bias) | Prevents weak evidence from dominating |
 | Evidence Tiers | Categorizes evidence types (RCT > observational > anecdote) | Establishes hierarchy of confidence |
-| [Media](https://myclob.pbworks.com/w/page/21958666/media) | Books, articles, videos that transmit beliefs | Tracks influence and validity |
+| [Media](https://github.com/myklob/ideastockexchange/wiki/Media) | Books, articles, videos that transmit beliefs | Tracks influence and validity |
 
 **Key Insight:** A single well-designed RCT outweighs a hundred anecdotes. Quality matters more than quantity.
 
@@ -54,7 +54,7 @@ This document maps the ISE framework into a clear conceptual hierarchy. Use it a
 
 | Concept | Purpose | Canonical Reference |
 |---------|---------|---------------------|
-| [Linkage Scores](https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores) | Measures how well evidence supports specific conclusions | Prevents irrelevant evidence from polluting scores |
+| [Linkage Scores](https://github.com/myklob/ideastockexchange/wiki/Evidence-to-Conclusion-Relevance-Score) | Measures how well evidence supports specific conclusions | Prevents irrelevant evidence from polluting scores |
 | Evidence-to-Conclusion Linkage | Evaluates directness of support/opposition | Strong evidence + weak linkage = low impact |
 | Argument-to-Conclusion Linkage | Evaluates how well reasons support parent claims | Enables cascading validity |
 
@@ -68,9 +68,9 @@ This document maps the ISE framework into a clear conceptual hierarchy. Use it a
 
 | Concept | Purpose | Canonical Reference |
 |---------|---------|---------------------|
-| [Truth Scores](https://myclob.pbworks.com/w/page/21960078/truth) | Master integration of all validity dimensions | Final confidence metric |
-| [Importance Scores](https://myclob.pbworks.com/importance%20score) | Measures real-world significance (separate from truth) | Prioritizes consequential beliefs |
-| [Logical Validity Scores](https://myclob.pbworks.com/w/page/159301147/Logical%20Validity%20Scores) | Evaluates argument structure independent of content | Catches invalid reasoning |
+| [Truth Scores](https://github.com/myklob/ideastockexchange/wiki/Truth-Score) | Master integration of all validity dimensions | Final confidence metric |
+| [Importance Scores](https://github.com/myklob/ideastockexchange/wiki) | Measures real-world significance (separate from truth) | Prioritizes consequential beliefs |
+| [Logical Validity Scores](https://github.com/myklob/ideastockexchange/wiki) | Evaluates argument structure independent of content | Catches invalid reasoning |
 | ReasonRank | PageRank-style algorithm for argument importance | Propagates confidence recursively |
 
 **Key Insight:** Every score must trace back to linked argument nodes. No manual scoring, no gaming, no hidden weights.
@@ -100,9 +100,9 @@ Impact = Evidence_Quality (0-10) × Linkage (0-1)
 
 | Concept | Purpose | Canonical Reference |
 |---------|---------|---------------------|
-| [Interests](https://myclob.pbworks.com/w/page/159301140/Interests) | What stakeholders actually care about (vs. stated positions) | Enables principled negotiation |
-| [American Values](https://myclob.pbworks.com/w/page/21956745/American%20values) | Moral foundations underlying political positions | Maps value conflicts |
-| [Cost-Benefit Analysis](https://myclob.pbworks.com/w/page/156187122/cost-benefit%20analysis) | Systematic evaluation of tradeoffs | Quantifies real-world impact |
+| [Interests](https://github.com/myklob/ideastockexchange/wiki) | What stakeholders actually care about (vs. stated positions) | Enables principled negotiation |
+| [American Values](https://github.com/myklob/ideastockexchange/wiki) | Moral foundations underlying political positions | Maps value conflicts |
+| [Cost-Benefit Analysis](https://github.com/myklob/ideastockexchange/wiki) | Systematic evaluation of tradeoffs | Quantifies real-world impact |
 | Stakeholder Ledger | Who wins, who loses, who pays | Reveals hidden consequences |
 
 **Key Insight:** Most disagreements aren't about facts, they're about values and interests. Make them visible.
@@ -233,9 +233,9 @@ Impact = Evidence_Quality (0-10) × Linkage (0-1)
 
 ## Next Steps
 
-- **For Users:** Start with [One Page Per Topic](https://myclob.pbworks.com/w/page/159323433/One%20Page%20Per%20Topic) to understand the organizing principle
+- **For Users:** Start with [One Page Per Topic](https://github.com/myklob/ideastockexchange/wiki) to understand the organizing principle
 - **For Developers:** See [README.md](README.md) for implementation details
-- **For Contributors:** Read the canonical PBworks pages before proposing changes
+- **For Contributors:** Read the canonical wiki pages before proposing changes
 - **For Researchers:** Explore the scoring algorithms in the `/lib` directories
 
 ---

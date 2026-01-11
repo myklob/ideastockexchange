@@ -504,11 +504,11 @@ class ExcelExporter {
     row++;
 
     const links = [
-      { text: 'Argument Scores from Sub-Argument Scores', url: 'https://myclob.pbworks.com/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores' },
-      { text: 'Truth Scoring', url: 'https://myclob.pbworks.com/w/page/21960078/truth' },
-      { text: 'Linkage Scores', url: 'https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores' },
-      { text: 'Evidence Quality', url: 'https://myclob.pbworks.com/w/page/159353568/Evidence' },
-      { text: 'Cost-Benefit Analysis', url: 'https://myclob.pbworks.com/w/page/156187122/cost-benefit%20analysis' },
+      { text: 'Argument Scores from Sub-Argument Scores', url: 'https://github.com/myklob/ideastockexchange/wiki' },
+      { text: 'Truth Scoring', url: 'https://github.com/myklob/ideastockexchange/wiki/Truth-Score' },
+      { text: 'Linkage Scores', url: 'https://github.com/myklob/ideastockexchange/wiki/Evidence-to-Conclusion-Relevance-Score' },
+      { text: 'Evidence Quality', url: 'https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS)' },
+      { text: 'Cost-Benefit Analysis', url: 'https://github.com/myklob/ideastockexchange/wiki' },
       { text: 'GitHub Repository', url: 'https://github.com/myklob/ideastockexchange' }
     ];
 

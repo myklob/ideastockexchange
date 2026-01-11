@@ -375,7 +375,7 @@ Coming soon:
 - **Documentation**: `backend/exporters/README.md`
 - **API Docs**: Visit `/api/export/info` for capabilities
 - **GitHub Issues**: https://github.com/myklob/ideastockexchange/issues
-- **PBworks**: https://myclob.pbworks.com
+- **Wiki**: https://github.com/myklob/ideastockexchange/wiki
 
 ## Example Projects
 
