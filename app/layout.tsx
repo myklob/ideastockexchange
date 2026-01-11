@@ -8,6 +8,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  title: "wikiLaw - The Operating System for Law",
+  description: "Debug legislation. Test assumptions. Propose upgrades. wikiLaw makes the legal code auditable.",
+  keywords: ["law", "legislation", "policy", "evidence", "reform", "government", "transparency"],
   title: "Idea Stock Exchange - Book Analysis System",
   description: "Combat Reports for Ideas - Systematic book analysis with transparent scoring",
 };

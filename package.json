@@ -1,4 +1,8 @@
 {
+  "name": "ideastockexchange",
+  "version": "1.0.0",
+  "description": "Idea Stock Exchange - wikiLaw Integration: The Operating System for Law",
+  "main": "index.js",
   "name": "idea-stock-exchange",
   "version": "1.0.0",
   "description": "A marketplace where ideas are traded like stocks",
@@ -27,6 +31,25 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:31380/git/IdeaStockExchange/ideastockexchange"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^25.0.6",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.23",
+    "clsx": "^2.1.1",
+    "next": "^16.1.1",
+    "postcss": "^8.5.6",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3"
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
