@@ -822,7 +822,7 @@ Additional revenue from:
 - **API Documentation**: See above
 - **Stripe Documentation**: https://stripe.com/docs
 - **GitHub Issues**: https://github.com/myklob/ideastockexchange/issues
-- **Contact**: See /w/page/160433328/Contact%20Me
+- **Contact**: See https://github.com/myklob/ideastockexchange/wiki
 
 ## License
 
