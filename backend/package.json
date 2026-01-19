@@ -12,6 +12,8 @@
     "generate-beliefs": "node scripts/generateBeliefs.js",
     "test-belief-generator": "node scripts/testBeliefGenerator.js",
     "combine-html": "node scripts/combineHtmlToText.js",
+    "seed:evidence-quality": "node seeds/evidenceQualitySeed.js",
+    "demo:evidence-quality": "node examples/evidenceQualityExample.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

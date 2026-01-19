@@ -30,6 +30,9 @@ import matchingRoutes from './routes/matching.js';
 // Import confidence interval routes
 import confidenceIntervalRoutes from './routes/confidenceIntervals.js';
 
+// Import evidence quality scoring routes
+import methodologyChallengeRoutes from './routes/methodologyChallenges.js';
+
 dotenv.config();
 
 const app = express();
@@ -171,6 +174,9 @@ app.use('/api/matching', matchingRoutes);
 // Mount confidence interval routes
 app.use('/api/confidence-intervals', confidenceIntervalRoutes);
 
+// Mount evidence quality scoring routes
+app.use('/api/methodology-challenges', methodologyChallengeRoutes);
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -305,6 +311,12 @@ app.use((req, res) => {
       'POST /api/conflicts/:id/communicate',
       'POST /api/conflicts/:id/propose-solution',
       'PUT  /api/conflicts/:id/resolve',
+      'POST /api/methodology-challenges',
+      'GET  /api/methodology-challenges/:id',
+      'GET  /api/methodology-challenges/evidence/:evidenceId',
+      'POST /api/methodology-challenges/:id/evaluate',
+      'POST /api/methodology-challenges/:id/respond',
+      'POST /api/methodology-challenges/:id/evaluate-response',
     ],
   });
 });
@@ -361,6 +373,12 @@ app.listen(PORT, () => {
   console.log('  POST /api/conflicts/:id/communicate  - Add communication');
   console.log('  POST /api/conflicts/:id/propose-solution - Propose solution');
   console.log('  PUT  /api/conflicts/:id/resolve      - Mark as resolved');
+  console.log('\n🔬 Evidence Quality Scoring Endpoints:');
+  console.log('  POST /api/methodology-challenges     - Submit methodology challenge');
+  console.log('  GET  /api/methodology-challenges/:id - Get challenge details');
+  console.log('  GET  /api/methodology-challenges/evidence/:evidenceId - Get challenges for evidence');
+  console.log('  POST /api/methodology-challenges/:id/evaluate - Evaluate challenge');
+  console.log('  POST /api/methodology-challenges/:id/respond - Respond to challenge');
   console.log('='.repeat(70));
 });
 
