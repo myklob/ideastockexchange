@@ -19,6 +19,7 @@ import contributorRoutes from './routes/contributors.js';
 import lawRoutes from './routes/laws.js';
 import beliefGeneratorRoutes from './routes/beliefGenerator.js';
 import exportRoutes from './routes/exportRoutes.js';
+import methodologyRoutes from './routes/methodology.js';
 
 // Import monetization routes
 import subscriptionRoutes from './routes/subscriptions.js';
@@ -170,6 +171,9 @@ app.use('/api/matching', matchingRoutes);
 
 // Mount confidence interval routes
 app.use('/api/confidence-intervals', confidenceIntervalRoutes);
+
+// Mount methodology routes (Evidence Quality Scores system)
+app.use('/api', methodologyRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

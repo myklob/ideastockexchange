@@ -36,6 +36,11 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  reasonRank: {
+    type: Number,
+    default: 0,
+    description: 'ReasonRank score - earned through valid methodological challenges and accurate evaluations',
+  },
   createdBeliefs: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Belief',
