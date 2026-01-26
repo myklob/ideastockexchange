@@ -13,6 +13,10 @@ import {
   rateAspect,
   getAspectStats,
   getMyAspectRatings,
+  getArgumentNetwork,
+  linkArguments,
+  getArgumentNetworkContext,
+  getRankedArguments,
 } from '../controllers/argumentController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -36,5 +40,11 @@ router.post('/classify', classifyArgument);            // Classify type/tier/val
 router.post('/extract-and-save', protect, extractAndSave); // Complete pipeline
 router.post('/batch-extract', batchExtract);           // Batch process multiple texts
 router.get('/:id/analysis', getArgumentAnalysis);      // Get full analysis
+
+// Argument network/map routes (for visualization)
+router.get('/network/:beliefId', getArgumentNetwork);  // Get network graph data
+router.get('/ranked/:beliefId', getRankedArguments);   // Get ranked arguments for belief
+router.post('/link', protect, linkArguments);          // Link two arguments together
+router.get('/:id/network-context', getArgumentNetworkContext); // Get argument with context
 
 export default router;

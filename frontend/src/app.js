@@ -8,6 +8,8 @@ import BeliefForm from './components/Beliefs/BeliefForm.js';
 import BeliefsList from './pages/BeliefsList.jsx';
 import BeliefDetailsPage from './pages/BeliefDetails.jsx';
 import AddArgument from './pages/AddArgument.jsx';
+import ArgumentMap from './pages/ArgumentMap.jsx';
+import ArgumentExplorer from './pages/ArgumentExplorer.jsx';
 
 // Home Page
 const Home = () => {
@@ -128,11 +130,17 @@ const CreateBeliefPage = () => {
 
 // Note: BeliefsPage and BeliefDetails are now imported from pages/
 
-// Argument Ranking (placeholder)
+// Argument Ranking - redirects to map
 const ArgumentRank = () => (
   <div className="p-8">
     <h1 className="text-2xl font-bold">Argument Ranking</h1>
-    <p>Argument ranking system (coming soon)</p>
+    <p className="mb-4">Explore argument networks and ReasonRank scores.</p>
+    <Link
+      to="/beliefs"
+      className="text-blue-600 hover:underline"
+    >
+      Browse beliefs to see their argument maps
+    </Link>
   </div>
 );
 
@@ -195,6 +203,9 @@ const App = () => {
               <Link to="/beliefs" className="hover:text-blue-600 transition-colors">
                 Beliefs
               </Link>
+              <Link to="/explore" className="hover:text-blue-600 transition-colors">
+                Explore Maps
+              </Link>
               {isAuthenticated ? (
                 <>
                   <Link
@@ -243,9 +254,11 @@ const App = () => {
           <Route path="/beliefs" element={<BeliefsList />} />
           <Route path="/beliefs/create" element={<CreateBeliefPage />} />
           <Route path="/beliefs/:id" element={<BeliefDetailsPage />} />
+          <Route path="/beliefs/:id/map" element={<ArgumentMap />} />
           <Route path="/beliefs/:id/add-argument" element={<AddArgument />} />
           <Route path="/beliefs/:id/edit" element={<CreateBeliefPage />} />
           <Route path="/create-belief" element={<CreateBeliefPage />} />
+          <Route path="/explore" element={<ArgumentExplorer />} />
           <Route path="/rank" element={<ArgumentRank />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />

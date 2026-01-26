@@ -236,6 +236,65 @@ export const argumentAPI = {
     const response = await api.post(`/arguments/${id}/vote`, { vote: voteType });
     return response.data;
   },
+
+  // Network/Map endpoints
+  getNetwork: async (beliefId, params = {}) => {
+    const response = await api.get(`/arguments/network/${beliefId}`, { params });
+    return response.data;
+  },
+
+  getRanked: async (beliefId, params = {}) => {
+    const response = await api.get(`/arguments/ranked/${beliefId}`, { params });
+    return response.data;
+  },
+
+  link: async (sourceId, targetId, linkageType, strength, notes) => {
+    const response = await api.post('/arguments/link', {
+      sourceId,
+      targetId,
+      linkageType,
+      strength,
+      notes,
+    });
+    return response.data;
+  },
+
+  getNetworkContext: async (id) => {
+    const response = await api.get(`/arguments/${id}/network-context`);
+    return response.data;
+  },
+
+  getAnalysis: async (id) => {
+    const response = await api.get(`/arguments/${id}/analysis`);
+    return response.data;
+  },
+
+  // Argument extraction
+  extract: async (text, options = {}) => {
+    const response = await api.post('/arguments/extract', { text, options });
+    return response.data;
+  },
+
+  extractAndSave: async (text, beliefId, source = null, options = {}) => {
+    const response = await api.post('/arguments/extract-and-save', {
+      text,
+      beliefId,
+      source,
+      options,
+    });
+    return response.data;
+  },
+
+  // Aspect ratings
+  rateAspect: async (id, aspect, rating) => {
+    const response = await api.post(`/arguments/${id}/rate-aspect`, { aspect, rating });
+    return response.data;
+  },
+
+  getAspectStats: async (id) => {
+    const response = await api.get(`/arguments/${id}/aspect-stats`);
+    return response.data;
+  },
 };
 
 // ============================================================================

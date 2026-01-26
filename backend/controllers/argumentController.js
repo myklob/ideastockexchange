@@ -706,3 +706,363 @@ export const getMyAspectRatings = async (req, res) => {
     });
   }
 };
+
+// ===== ARGUMENT NETWORK/MAP ENDPOINTS =====
+
+/**
+ * Get argument network data for visualization
+ * Returns nodes and edges for the argument graph
+ *
+ * @route GET /api/arguments/network/:beliefId
+ * @access Public
+ */
+export const getArgumentNetwork = async (req, res) => {
+  try {
+    const { beliefId } = req.params;
+    const { depth = 10, includeEvidence = false } = req.query;
+
+    // Fetch the belief with all arguments
+    const belief = await Belief.findById(beliefId)
+      .populate({
+        path: 'supportingArguments',
+        populate: [
+          { path: 'author', select: 'username' },
+          { path: 'subArguments', populate: { path: 'author', select: 'username' } },
+          ...(includeEvidence === 'true' ? [{ path: 'evidence' }] : []),
+        ],
+      })
+      .populate({
+        path: 'opposingArguments',
+        populate: [
+          { path: 'author', select: 'username' },
+          { path: 'subArguments', populate: { path: 'author', select: 'username' } },
+          ...(includeEvidence === 'true' ? [{ path: 'evidence' }] : []),
+        ],
+      });
+
+    if (!belief) {
+      return res.status(404).json({
+        success: false,
+        error: 'Belief not found',
+      });
+    }
+
+    // Build nodes and edges
+    const nodes = [];
+    const edges = [];
+    const processedIds = new Set();
+
+    // Helper to process arguments recursively
+    const processArgument = (arg, parentId = null, currentDepth = 0) => {
+      if (!arg || processedIds.has(arg._id.toString()) || currentDepth > parseInt(depth)) {
+        return;
+      }
+      processedIds.add(arg._id.toString());
+
+      // Add node
+      nodes.push({
+        id: arg._id.toString(),
+        label: arg.content?.slice(0, 100),
+        fullContent: arg.content,
+        type: arg.type,
+        score: arg.scores?.overall || 0,
+        reasonRankScore: arg.reasonRankScore || 0,
+        healthMetrics: arg.healthMetrics,
+        networkMetrics: arg.networkMetrics,
+        lifecycleStatus: arg.lifecycleStatus,
+        votes: arg.votes,
+        author: arg.author?.username || 'Anonymous',
+        depth: currentDepth,
+        evidenceCount: arg.evidence?.length || 0,
+        subArgumentCount: arg.subArguments?.length || 0,
+        createdAt: arg.createdAt,
+      });
+
+      // Add edge to parent if exists
+      if (parentId) {
+        edges.push({
+          source: parentId,
+          target: arg._id.toString(),
+          type: arg.type,
+          strength: arg.scores?.linkage || 50,
+        });
+      }
+
+      // Process sub-arguments
+      if (arg.subArguments && Array.isArray(arg.subArguments)) {
+        arg.subArguments.forEach(subArg => {
+          processArgument(subArg, arg._id.toString(), currentDepth + 1);
+        });
+      }
+    };
+
+    // Process all arguments
+    const allArguments = [
+      ...(belief.supportingArguments || []),
+      ...(belief.opposingArguments || []),
+    ];
+
+    allArguments.forEach(arg => processArgument(arg, null, 0));
+
+    // Calculate network statistics
+    const stats = {
+      totalNodes: nodes.length,
+      totalEdges: edges.length,
+      supportingCount: nodes.filter(n => n.type === 'supporting').length,
+      opposingCount: nodes.filter(n => n.type === 'opposing').length,
+      maxDepth: Math.max(...nodes.map(n => n.depth), 0),
+      avgReasonRank: nodes.length > 0
+        ? nodes.reduce((sum, n) => sum + (n.reasonRankScore || 0), 0) / nodes.length
+        : 0,
+      avgScore: nodes.length > 0
+        ? nodes.reduce((sum, n) => sum + (n.score || 0), 0) / nodes.length
+        : 0,
+    };
+
+    res.json({
+      success: true,
+      data: {
+        belief: {
+          _id: belief._id,
+          statement: belief.statement,
+          description: belief.description,
+          conclusionScore: belief.conclusionScore,
+          statistics: belief.statistics,
+        },
+        network: {
+          nodes,
+          edges,
+        },
+        stats,
+      },
+    });
+  } catch (error) {
+    console.error('Error getting argument network:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Link two arguments together
+ *
+ * @route POST /api/arguments/link
+ * @access Protected
+ */
+export const linkArguments = async (req, res) => {
+  try {
+    const { sourceId, targetId, linkageType, strength, notes } = req.body;
+
+    // Validate inputs
+    if (!sourceId || !targetId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Source and target argument IDs are required',
+      });
+    }
+
+    const sourceArg = await Argument.findById(sourceId);
+    const targetArg = await Argument.findById(targetId);
+
+    if (!sourceArg || !targetArg) {
+      return res.status(404).json({
+        success: false,
+        error: 'One or both arguments not found',
+      });
+    }
+
+    // Add as sub-argument if same belief, or create a cross-belief link
+    if (sourceArg.beliefId.toString() === targetArg.beliefId.toString()) {
+      // Same belief - add as sub-argument
+      if (!sourceArg.subArguments) {
+        sourceArg.subArguments = [];
+      }
+
+      // Check if already linked
+      if (sourceArg.subArguments.includes(targetId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Arguments are already linked',
+        });
+      }
+
+      sourceArg.subArguments.push(targetId);
+      targetArg.parentArgument = sourceId;
+
+      await sourceArg.save();
+      await targetArg.save();
+
+      // Recalculate scores
+      await sourceArg.calculateReasonRankScore();
+      await sourceArg.save();
+    }
+
+    res.json({
+      success: true,
+      message: 'Arguments linked successfully',
+      data: {
+        source: sourceArg._id,
+        target: targetArg._id,
+        linkageType,
+        strength,
+      },
+    });
+  } catch (error) {
+    console.error('Error linking arguments:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get argument by ID with full network context
+ *
+ * @route GET /api/arguments/:id/network-context
+ * @access Public
+ */
+export const getArgumentNetworkContext = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const argument = await Argument.findById(id)
+      .populate('author', 'username')
+      .populate('beliefId', 'statement conclusionScore')
+      .populate({
+        path: 'subArguments',
+        populate: { path: 'author', select: 'username' },
+      })
+      .populate({
+        path: 'parentArgument',
+        populate: { path: 'author', select: 'username' },
+      })
+      .populate('evidence');
+
+    if (!argument) {
+      return res.status(404).json({
+        success: false,
+        error: 'Argument not found',
+      });
+    }
+
+    // Get sibling arguments (same parent)
+    let siblings = [];
+    if (argument.parentArgument) {
+      const parent = await Argument.findById(argument.parentArgument._id)
+        .populate('subArguments');
+      siblings = parent.subArguments.filter(
+        sa => sa._id.toString() !== argument._id.toString()
+      );
+    }
+
+    // Calculate path to root
+    const pathToRoot = [];
+    let current = argument;
+    while (current.parentArgument) {
+      pathToRoot.push({
+        _id: current.parentArgument._id,
+        content: current.parentArgument.content?.slice(0, 100),
+        type: current.parentArgument.type,
+      });
+      current = await Argument.findById(current.parentArgument._id)
+        .populate('parentArgument');
+    }
+
+    res.json({
+      success: true,
+      data: {
+        argument,
+        context: {
+          pathToRoot,
+          siblings,
+          subArgumentCount: argument.subArguments?.length || 0,
+          evidenceCount: argument.evidence?.length || 0,
+          depth: pathToRoot.length,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error getting argument network context:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get ranked arguments for a belief
+ *
+ * @route GET /api/arguments/ranked/:beliefId
+ * @access Public
+ */
+export const getRankedArguments = async (req, res) => {
+  try {
+    const { beliefId } = req.params;
+    const { type = 'all', limit = 20, sortBy = 'reasonRank' } = req.query;
+
+    const belief = await Belief.findById(beliefId);
+    if (!belief) {
+      return res.status(404).json({
+        success: false,
+        error: 'Belief not found',
+      });
+    }
+
+    // Build query
+    let query = { beliefId };
+    if (type !== 'all') {
+      query.type = type;
+    }
+
+    // Build sort
+    let sort = {};
+    switch (sortBy) {
+      case 'reasonRank':
+        sort.reasonRankScore = -1;
+        break;
+      case 'score':
+        sort['scores.overall'] = -1;
+        break;
+      case 'votes':
+        sort['votes.up'] = -1;
+        break;
+      case 'recent':
+        sort.createdAt = -1;
+        break;
+      default:
+        sort.reasonRankScore = -1;
+    }
+
+    const arguments_ = await Argument.find(query)
+      .sort(sort)
+      .limit(parseInt(limit))
+      .populate('author', 'username')
+      .populate({
+        path: 'subArguments',
+        populate: { path: 'author', select: 'username' },
+      });
+
+    res.json({
+      success: true,
+      data: {
+        arguments: arguments_,
+        total: arguments_.length,
+        belief: {
+          _id: belief._id,
+          statement: belief.statement,
+          conclusionScore: belief.conclusionScore,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error getting ranked arguments:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
