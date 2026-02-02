@@ -1,3 +1,91 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Core belief - each belief gets its own page
+model Belief {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  statement   String   // The belief statement
+  category    String?  // Topic category
+  subcategory String?  // Topic subcategory
+  deweyNumber String?  // Dewey classification
+  positivity  Float    @default(0) // -100 to +100
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Arguments where this belief IS the reason (child)
+  asArgument Argument[] @relation("ArgumentBelief")
+
+  // Arguments attached TO this belief (parent)
+  arguments Argument[] @relation("ParentBelief")
+
+  // Evidence attached to this belief
+  evidence Evidence[]
+
+  // Objective criteria for this belief
+  objectiveCriteria ObjectiveCriteria[]
+
+  // Values analysis
+  valuesAnalysis ValuesAnalysis?
+
+  // Interests analysis
+  interestsAnalysis InterestsAnalysis?
+
+  // Assumptions
+  assumptions Assumption[]
+
+  // Cost-benefit analysis
+  costBenefitAnalysis CostBenefitAnalysis?
+
+  // Short vs long term impacts
+  impactAnalysis ImpactAnalysis?
+
+  // Compromise solutions
+  compromises Compromise[]
+
+  // Obstacles to resolution
+  obstacles Obstacle[]
+
+  // Biases
+  biases BiasEntry[]
+
+  // Media resources
+  mediaResources MediaResource[]
+
+  // Legal framework
+  legalEntries LegalEntry[]
+
+  // Belief mapping (general to specific)
+  upstreamMappings   BeliefMapping[] @relation("MappingChild")
+  downstreamMappings BeliefMapping[] @relation("MappingParent")
+
+  // Similar beliefs
+  similarTo      SimilarBelief[] @relation("SimilarFrom")
+  similarFrom    SimilarBelief[] @relation("SimilarTo")
+}
+
+// An argument linking one belief (reason) to another belief (conclusion)
+// Each reason is itself a belief with its own page
+model Argument {
+  id Int @id @default(autoincrement())
+
+  parentBeliefId Int
+  parentBelief   Belief @relation("ParentBelief", fields: [parentBeliefId], references: [id])
+
+  // The reason (which is itself a belief with its own page)
+  beliefId Int
+  belief   Belief @relation("ArgumentBelief", fields: [beliefId], references: [id])
+
+  side         String // "agree" or "disagree"
+  linkageScore Float  @default(0.5) // 0 to 1
+  impactScore  Float  @default(0)   // computed
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 // Prisma schema for IdeaStockExchange
@@ -150,6 +238,224 @@ model Contradiction {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Linkage arguments - reasons to agree/disagree with the linkage itself
+  linkageArguments LinkageArgument[]
+}
+
+// Arguments about whether a linkage between two beliefs is valid
+model LinkageArgument {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+  side       String   // "agree" or "disagree" with the linkage
+  statement  String
+  strength   Float    @default(0.5)
+  createdAt  DateTime @default(now())
+}
+
+// Evidence supporting or weakening a belief
+model Evidence {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side        String // "supporting" or "weakening"
+  description String
+  sourceUrl   String?
+  evidenceType String @default("T3") // T1=Peer-reviewed, T2=Expert, T3=Journalism, T4=Opinion
+
+  // Evidence Verification Score components
+  sourceIndependenceWeight Float @default(0.5) // ESIW
+  replicationQuantity      Int   @default(1)   // ERQ
+  conclusionRelevance      Float @default(0.5) // ECRS
+  replicationPercentage    Float @default(1.0) // ERP
+
+  linkageScore Float @default(0.5)
+  impactScore  Float @default(0) // computed
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Objective criteria for measuring belief strength
+model ObjectiveCriteria {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  description      String
+  independenceScore Float @default(0.5)
+  linkageScore     Float @default(0.5)
+  criteriaType     String? // e.g. "market value", "scientific judgment", "precedent"
+  totalScore       Float  @default(0) // computed
+
+  createdAt DateTime @default(now())
+}
+
+// Core values conflict analysis
+model ValuesAnalysis {
+  id       Int    @id @default(autoincrement())
+  beliefId Int    @unique
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  supportingAdvertised String? // What supporters claim
+  supportingActual     String? // What actually motivates supporters
+  opposingAdvertised   String? // What opponents claim
+  opposingActual       String? // What actually motivates opponents
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Interests & motivations analysis
+model InterestsAnalysis {
+  id       Int    @id @default(autoincrement())
+  beliefId Int    @unique
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  supporterInterests   String? // Numbered list
+  opponentInterests    String? // Numbered list
+  sharedInterests      String? // Numbered list
+  conflictingInterests String? // Numbered list
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Foundational assumptions
+model Assumption {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side       String // "accept" or "reject"
+  statement  String
+  strength   String @default("MODERATE") // CRITICAL, STRONG, MODERATE, WEAK
+
+  createdAt DateTime @default(now())
+}
+
+// Cost-benefit analysis
+model CostBenefitAnalysis {
+  id       Int    @id @default(autoincrement())
+  beliefId Int    @unique
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  benefits          String? // improvements, who gains, positive externalities
+  benefitLikelihood Float?
+  costs             String? // problems, who loses, negative externalities
+  costLikelihood    Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Short vs long-term impact analysis
+model ImpactAnalysis {
+  id       Int    @id @default(autoincrement())
+  beliefId Int    @unique
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  shortTermEffects    String? // 0-2 years
+  shortTermCosts      String? // transition costs
+  longTermEffects     String? // 5+ years
+  longTermChanges     String? // structural changes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Compromise solutions
+model Compromise {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  description String
+  createdAt   DateTime @default(now())
+}
+
+// Obstacles to resolution
+model Obstacle {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side        String // "supporter" or "opposition"
+  description String
+  createdAt   DateTime @default(now())
+}
+
+// Bias entries
+model BiasEntry {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side     String // "supporter" or "opponent"
+  biasType String // CONFIRMATION_BIAS, ANCHORING, etc.
+  description String?
+
+  createdAt DateTime @default(now())
+}
+
+// Media resources
+model MediaResource {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side       String // "supporting" or "opposing"
+  mediaType  String // "book", "article", "podcast", "movie", "song"
+  title      String
+  author     String?
+  url        String?
+
+  createdAt DateTime @default(now())
+}
+
+// Legal framework
+model LegalEntry {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side        String // "supporting" or "contradicting"
+  description String
+  jurisdiction String? // "local", "state", "federal", "international"
+
+  createdAt DateTime @default(now())
+}
+
+// General to specific belief mapping
+model BeliefMapping {
+  id       Int @id @default(autoincrement())
+
+  parentBeliefId Int
+  parentBelief   Belief @relation("MappingParent", fields: [parentBeliefId], references: [id])
+
+  childBeliefId Int
+  childBelief   Belief @relation("MappingChild", fields: [childBeliefId], references: [id])
+
+  direction String // "upstream" (more general) or "downstream" (more specific)
+  side      String // "support" or "oppose"
+
+  createdAt DateTime @default(now())
+}
+
+// Similar beliefs
+model SimilarBelief {
+  id Int @id @default(autoincrement())
+
+  fromBeliefId Int
+  fromBelief   Belief @relation("SimilarFrom", fields: [fromBeliefId], references: [id])
+
+  toBeliefId Int
+  toBelief   Belief @relation("SimilarTo", fields: [toBeliefId], references: [id])
+
+  variant String // "extreme" or "moderate"
+
+  createdAt DateTime @default(now())
   @@index([bookId])
 }
 
