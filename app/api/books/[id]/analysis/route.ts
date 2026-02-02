@@ -3,10 +3,11 @@ import { getBookAnalysisReport } from '@/lib/services/bookService'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const report = await getBookAnalysisReport(params.id)
+    const { id } = await params
+    const report = await getBookAnalysisReport(id)
 
     if (!report) {
       return NextResponse.json({ error: 'Book not found' }, { status: 404 })

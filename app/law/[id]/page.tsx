@@ -11,8 +11,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export default function LawPage({ params }: { params: { id: string } }) {
-  const law = exampleLaws.find((l) => l.id === params.id);
+export default async function LawPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const law = exampleLaws.find((l) => l.id === id);
 
   if (!law) {
     notFound();
@@ -479,18 +480,18 @@ function StakeholderCard({
     silent: 'border-[var(--warning)]/30 bg-[var(--warning)]/5'
   };
 
-  const magnitudeBadge = {
-    low: 'default' as const,
-    medium: 'warning' as const,
-    high: 'critical' as const,
-    critical: 'critical' as const
+  const magnitudeBadge: Record<string, 'default' | 'warning' | 'critical'> = {
+    low: 'default',
+    medium: 'warning',
+    high: 'critical',
+    critical: 'critical'
   };
 
   return (
     <div className={`border rounded-lg p-4 mb-3 last:mb-0 ${typeColors[type]}`}>
       <div className="flex items-start justify-between mb-2">
         <span className="font-semibold">{stakeholder.group}</span>
-        <Badge variant={magnitudeBadge[stakeholder.magnitude]}>
+        <Badge variant={magnitudeBadge[stakeholder.magnitude] || 'default'}>
           {stakeholder.magnitude}
         </Badge>
       </div>

@@ -1,0 +1,94 @@
+import { NextResponse } from 'next/server'
+import { getSchilchtBelief } from '@/lib/data/schlicht-data'
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
+  const belief = getSchilchtBelief(id)
+
+  if (!belief) {
+    return NextResponse.json(
+      { error: 'Belief not found', beliefId: id },
+      { status: 404 }
+    )
+  }
+
+  // Return the Schlicht Protocol JSON format as specified in the design
+  const schlichtJson = {
+    belief_id: belief.beliefId,
+    statement: belief.statement,
+    status: belief.status,
+    metrics: {
+      truth_score: belief.metrics.truthScore,
+      confidence_interval: belief.metrics.confidenceInterval,
+      volatility: belief.metrics.volatility,
+      adversarial_cycles: belief.metrics.adversarialCycles,
+      last_updated: belief.metrics.lastUpdated,
+    },
+    agents: Object.fromEntries(
+      Object.entries(belief.agents).map(([role, agent]) => [
+        role,
+        agent.name,
+      ])
+    ),
+    graph: {
+      pro_tree: belief.proTree.map((arg) => ({
+        id: arg.id,
+        claim: arg.claim,
+        linkage_score: arg.linkageScore,
+        truth_score: arg.truthScore,
+        impact_score: arg.impactScore,
+        certified_by: arg.certifiedBy,
+        fallacies_detected: arg.fallaciesDetected.map((f) => ({
+          type: f.type,
+          description: f.description,
+          impact: f.impact,
+        })),
+      })),
+      con_tree: belief.conTree.map((arg) => ({
+        id: arg.id,
+        claim: arg.claim,
+        linkage_score: arg.linkageScore,
+        truth_score: arg.truthScore,
+        impact_score: arg.impactScore,
+        certified_by: arg.certifiedBy,
+        fallacies_detected: arg.fallaciesDetected.map((f) => ({
+          type: f.type,
+          description: f.description,
+          impact: f.impact,
+        })),
+        ...(arg.rebuttal
+          ? {
+              rebuttal: {
+                id: arg.rebuttal.id,
+                statement: arg.rebuttal.statement,
+                confidence: arg.rebuttal.confidence,
+              },
+            }
+          : {}),
+      })),
+    },
+    evidence: belief.evidence.map((ev) => ({
+      id: ev.id,
+      tier: ev.tier,
+      tier_label: ev.tierLabel,
+      title: ev.title,
+      linkage_score: ev.linkageScore,
+    })),
+    protocol_log: belief.protocolLog.map((entry) => ({
+      id: entry.id,
+      timestamp: entry.timestamp,
+      agent: entry.agentName,
+      content: entry.content,
+    })),
+  }
+
+  return NextResponse.json(schlichtJson, {
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Protocol': 'schlicht-v1',
+    },
+  })
+}

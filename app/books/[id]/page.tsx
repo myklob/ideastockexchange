@@ -29,8 +29,9 @@ function ProgressBar({ value, max = 100, color = 'blue' }: { value: number; max?
   )
 }
 
-export default async function BookAnalysisPage({ params }: { params: { id: string } }) {
-  const report = await getBookAnalysisReport(params.id)
+export default async function BookAnalysisPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const report = await getBookAnalysisReport(id)
 
   if (!report) {
     notFound()
