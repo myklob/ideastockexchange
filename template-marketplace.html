@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace - Idea Stock Exchange</title>
+    <link rel="stylesheet" href="template-styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>💡 Idea Stock Exchange</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="template-index.html">Home</a></li>
+                <li><a href="template-marketplace.html" class="active">Marketplace</a></li>
+                <li><a href="template-belief-analysis.html">Belief Analysis</a></li>
+                <li><a href="template-argument-analysis.html">Argument Analysis</a></li>
+                <li><a href="template-portfolio.html">My Portfolio</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="btn btn-outline">Sign In</button>
+                <button class="btn btn-primary">Get Started</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Idea Marketplace</h1>
+            <p>Browse, analyze, and trade ideas across all domains of knowledge</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="marketplace-layout">
+            <aside class="marketplace-sidebar">
+                <div class="card">
+                    <h3>Filters</h3>
+
+                    <div class="filter-group">
+                        <label>Category</label>
+                        <div class="checkbox-list">
+                            <label><input type="checkbox" checked> Technology (2,847)</label>
+                            <label><input type="checkbox"> Science (1,923)</label>
+                            <label><input type="checkbox"> Economics (1,456)</label>
+                            <label><input type="checkbox"> Philosophy (892)</label>
+                            <label><input type="checkbox"> Politics (1,234)</label>
+                            <label><input type="checkbox"> Health (678)</label>
+                            <label><input type="checkbox"> Environment (543)</label>
+                            <label><input type="checkbox"> Other (2,274)</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Price Range</label>
+                        <div class="range-inputs">
+                            <input type="number" placeholder="Min" value="0">
+                            <span>to</span>
+                            <input type="number" placeholder="Max" value="100">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Confidence Level</label>
+                        <div class="range-slider">
+                            <input type="range" min="0" max="100" value="50">
+                            <div class="range-labels">
+                                <span>0%</span>
+                                <span>50%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Popularity</label>
+                        <select class="form-select">
+                            <option>All Ideas</option>
+                            <option>100+ holders</option>
+                            <option>500+ holders</option>
+                            <option>1000+ holders</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Time Frame</label>
+                        <select class="form-select">
+                            <option>All Time</option>
+                            <option>Past 24 hours</option>
+                            <option>Past Week</option>
+                            <option>Past Month</option>
+                            <option>Past Year</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-outline btn-block">Reset Filters</button>
+                </div>
+
+                <div class="card">
+                    <h3>Market Stats</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Ideas</span>
+                        <span class="stat-value">12,847</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">24h Volume</span>
+                        <span class="stat-value">$284,392</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Active Traders</span>
+                        <span class="stat-value">45,392</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg. Confidence</span>
+                        <span class="stat-value">64%</span>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="marketplace-content">
+                <div class="marketplace-header">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search ideas, topics, or arguments..." class="search-input">
+                        <button class="btn btn-primary">Search</button>
+                    </div>
+                    <div class="sort-options">
+                        <label>Sort by:</label>
+                        <select class="form-select">
+                            <option>Trending</option>
+                            <option>Highest Price</option>
+                            <option>Lowest Price</option>
+                            <option>Most Holders</option>
+                            <option>Highest Confidence</option>
+                            <option>Recently Added</option>
+                            <option>Most Debated</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="marketplace-grid">
+                    <div class="idea-card-large trending-up">
+                        <div class="idea-badge">🔥 Hot</div>
+                        <div class="idea-header">
+                            <div>
+                                <span class="idea-category">Technology</span>
+                                <h3 class="idea-title">AI will achieve AGI by 2030</h3>
+                            </div>
+                            <div class="idea-change positive">+12.4%</div>
+                        </div>
+                        <p class="idea-description">
+                            Artificial General Intelligence, defined as AI systems that can perform most economically
+                            valuable work at human level or above, will be achieved by 2030 through continued scaling
+                            of current approaches.
+                        </p>
+                        <div class="idea-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Current Price</span>
+                                <span class="metric-value price-value">$42.50</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value">78%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">24h Volume</span>
+                                <span class="metric-value">$12,847</span>
+                            </div>
+                        </div>
+                        <div class="idea-stats">
+                            <span>👥 2,847 holders</span>
+                            <span>💬 342 arguments</span>
+                            <span>📊 89% analyzed</span>
+                        </div>
+                        <div class="idea-actions">
+                            <button class="btn btn-primary">Buy Shares</button>
+                            <button class="btn btn-outline">View Analysis</button>
+                            <a href="template-idea-detail.html" class="btn btn-outline">Details</a>
+                        </div>
+                    </div>
+
+                    <div class="idea-card-large trending-down">
+                        <div class="idea-badge badge-falling">📉 Falling</div>
+                        <div class="idea-header">
+                            <div>
+                                <span class="idea-category">Economics</span>
+                                <h3 class="idea-title">Universal Basic Income is economically viable</h3>
+                            </div>
+                            <div class="idea-change negative">-5.2%</div>
+                        </div>
+                        <p class="idea-description">
+                            A universal basic income can be implemented in developed economies without causing
+                            inflation or economic disruption, funded through productivity gains and tax restructuring.
+                        </p>
+                        <div class="idea-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Current Price</span>
+                                <span class="metric-value price-value">$28.75</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value">62%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">24h Volume</span>
+                                <span class="metric-value">$8,234</span>
+                            </div>
+                        </div>
+                        <div class="idea-stats">
+                            <span>👥 1,523 holders</span>
+                            <span>💬 189 arguments</span>
+                            <span>📊 76% analyzed</span>
+                        </div>
+                        <div class="idea-actions">
+                            <button class="btn btn-primary">Buy Shares</button>
+                            <button class="btn btn-outline">View Analysis</button>
+                            <a href="template-idea-detail.html" class="btn btn-outline">Details</a>
+                        </div>
+                    </div>
+
+                    <div class="idea-card-large">
+                        <div class="idea-badge badge-new">✨ New</div>
+                        <div class="idea-header">
+                            <div>
+                                <span class="idea-category">Science</span>
+                                <h3 class="idea-title">Dark matter is composed of primordial black holes</h3>
+                            </div>
+                            <div class="idea-change positive">+3.1%</div>
+                        </div>
+                        <p class="idea-description">
+                            The mysterious dark matter that makes up 85% of matter in the universe consists primarily
+                            of primordial black holes formed in the early universe, rather than exotic particles.
+                        </p>
+                        <div class="idea-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Current Price</span>
+                                <span class="metric-value price-value">$15.30</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value">45%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">24h Volume</span>
+                                <span class="metric-value">$3,421</span>
+                            </div>
+                        </div>
+                        <div class="idea-stats">
+                            <span>👥 892 holders</span>
+                            <span>💬 127 arguments</span>
+                            <span>📊 82% analyzed</span>
+                        </div>
+                        <div class="idea-actions">
+                            <button class="btn btn-primary">Buy Shares</button>
+                            <button class="btn btn-outline">View Analysis</button>
+                            <a href="template-idea-detail.html" class="btn btn-outline">Details</a>
+                        </div>
+                    </div>
+
+                    <div class="idea-card-large">
+                        <div class="idea-header">
+                            <div>
+                                <span class="idea-category">Philosophy</span>
+                                <h3 class="idea-title">Consciousness requires quantum processes</h3>
+                            </div>
+                            <div class="idea-change">0.0%</div>
+                        </div>
+                        <p class="idea-description">
+                            Human consciousness fundamentally depends on quantum mechanical processes in brain
+                            microtubules and cannot be replicated by classical computation alone.
+                        </p>
+                        <div class="idea-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Current Price</span>
+                                <span class="metric-value price-value">$8.45</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value">31%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">24h Volume</span>
+                                <span class="metric-value">$1,892</span>
+                            </div>
+                        </div>
+                        <div class="idea-stats">
+                            <span>👥 456 holders</span>
+                            <span>💬 234 arguments</span>
+                            <span>📊 91% analyzed</span>
+                        </div>
+                        <div class="idea-actions">
+                            <button class="btn btn-primary">Buy Shares</button>
+                            <button class="btn btn-outline">View Analysis</button>
+                            <a href="template-idea-detail.html" class="btn btn-outline">Details</a>
+                        </div>
+                    </div>
+
+                    <div class="idea-card-large trending-up">
+                        <div class="idea-header">
+                            <div>
+                                <span class="idea-category">Environment</span>
+                                <h3 class="idea-title">Geoengineering can safely mitigate climate change</h3>
+                            </div>
+                            <div class="idea-change positive">+8.7%</div>
+                        </div>
+                        <p class="idea-description">
+                            Large-scale geoengineering interventions like stratospheric aerosol injection can safely
+                            and effectively reduce global temperatures without catastrophic side effects.
+                        </p>
+                        <div class="idea-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Current Price</span>
+                                <span class="metric-value price-value">$22.90</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value">54%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">24h Volume</span>
+                                <span class="metric-value">$5,673</span>
+                            </div>
+                        </div>
+                        <div class="idea-stats">
+                            <span>👥 1,124 holders</span>
+                            <span>💬 298 arguments</span>
+                            <span>📊 85% analyzed</span>
+                        </div>
+                        <div class="idea-actions">
+                            <button class="btn btn-primary">Buy Shares</button>
+                            <button class="btn btn-outline">View Analysis</button>
+                            <a href="template-idea-detail.html" class="btn btn-outline">Details</a>
+                        </div>
+                    </div>
+
+                    <div class="idea-card-large">
+                        <div class="idea-header">
+                            <div>
+                                <span class="idea-category">Health</span>
+                                <h3 class="idea-title">mRNA vaccines can cure most cancers by 2035</h3>
+                            </div>
+                            <div class="idea-change positive">+6.3%</div>
+                        </div>
+                        <p class="idea-description">
+                            Personalized mRNA-based cancer vaccines will achieve cure rates above 80% for most
+                            common cancers within the next decade, revolutionizing oncology treatment.
+                        </p>
+                        <div class="idea-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Current Price</span>
+                                <span class="metric-value price-value">$35.60</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value">71%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">24h Volume</span>
+                                <span class="metric-value">$9,421</span>
+                            </div>
+                        </div>
+                        <div class="idea-stats">
+                            <span>👥 2,134 holders</span>
+                            <span>💬 167 arguments</span>
+                            <span>📊 79% analyzed</span>
+                        </div>
+                        <div class="idea-actions">
+                            <button class="btn btn-primary">Buy Shares</button>
+                            <button class="btn btn-outline">View Analysis</button>
+                            <a href="template-idea-detail.html" class="btn btn-outline">Details</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pagination">
+                    <button class="btn btn-outline" disabled>Previous</button>
+                    <div class="page-numbers">
+                        <button class="page-number active">1</button>
+                        <button class="page-number">2</button>
+                        <button class="page-number">3</button>
+                        <button class="page-number">4</button>
+                        <button class="page-number">5</button>
+                        <span class="page-ellipsis">...</span>
+                        <button class="page-number">127</button>
+                    </div>
+                    <button class="btn btn-outline">Next</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Idea Stock Exchange</h3>
+                    <p>The marketplace for ideas, beliefs, and rational discourse.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">Marketplace</a></li>
+                        <li><a href="#">Analysis Tools</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Idea Stock Exchange. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
