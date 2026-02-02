@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/db'
 
 async function getTopics() {
-  const topicOverlaps = await prisma.topicOverlap.findMany({
+  const topicOverlaps: any[] = await (prisma as any).topicOverlap.findMany({
     include: {
       book: {
         include: {
@@ -34,6 +34,8 @@ async function getTopics() {
     books: books.sort((a, b) => b.overlapScore - a.overlapScore),
   }))
 }
+
+export const dynamic = 'force-dynamic'
 
 export default async function TopicsPage() {
   const topics = await getTopics()

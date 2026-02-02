@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 
-async function getBooks() {
-  return prisma.book.findMany({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getBooks(): Promise<any[]> {
+  return (prisma as any).book.findMany({
     include: {
       topicOverlaps: true,
       authorProfile: true,
@@ -32,6 +33,8 @@ function getScoreLabel(score: number): string {
   if (score >= 60) return 'Moderate'
   return 'Weak'
 }
+
+export const dynamic = 'force-dynamic'
 
 export default async function BooksPage() {
   const books = await getBooks()
@@ -74,7 +77,7 @@ export default async function BooksPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            {books.map((book) => (
+            {books.map((book: any) => (
               <Link
                 key={book.id}
                 href={`/books/${book.id}`}
@@ -140,7 +143,7 @@ export default async function BooksPage() {
                         <strong>Topic Overlap:</strong>
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {book.topicOverlaps.slice(0, 5).map((topic) => (
+                        {book.topicOverlaps.slice(0, 5).map((topic: any) => (
                           <span
                             key={topic.id}
                             className="inline-block px-3 py-1 bg-gray-100 rounded-full text-sm"

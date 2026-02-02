@@ -7,13 +7,14 @@ import ValenceSpectrum from '@/components/ValenceSpectrum';
 import MasterView from '@/components/MasterView';
 
 interface TopicPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function TopicPage({ params }: TopicPageProps) {
-  const topic = getTopicWithBeliefs(params.id);
+export default async function TopicPage({ params }: TopicPageProps) {
+  const { id } = await params;
+  const topic = getTopicWithBeliefs(id);
 
   if (!topic) {
     notFound();
@@ -38,25 +39,25 @@ export default function TopicPage({ params }: TopicPageProps) {
       </div>
 
       {/* Show different views based on which topic it is */}
-      {params.id === 'term-limits' && (
+      {id === 'term-limits' && (
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <AbstractionLadder beliefs={topic.beliefs} />
         </div>
       )}
 
-      {params.id === 'electric-cars' && (
+      {id === 'electric-cars' && (
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <ConfidenceScale beliefs={topic.beliefs} />
         </div>
       )}
 
-      {params.id === 'social-media' && (
+      {id === 'social-media' && (
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <ValenceSpectrum beliefs={topic.beliefs} />
         </div>
       )}
 
-      {params.id === 'trump-capability' && (
+      {id === 'trump-capability' && (
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <MasterView beliefs={topic.beliefs} topicTitle={topic.title} />
         </div>
@@ -64,25 +65,25 @@ export default function TopicPage({ params }: TopicPageProps) {
 
       {/* Show all views for demonstration */}
       <div className="space-y-8">
-        {params.id !== 'term-limits' && topic.beliefs.length > 1 && (
+        {id !== 'term-limits' && topic.beliefs.length > 1 && (
           <div className="bg-white rounded-lg shadow-lg p-8">
             <AbstractionLadder beliefs={topic.beliefs} />
           </div>
         )}
 
-        {params.id !== 'electric-cars' && topic.beliefs.length > 1 && (
+        {id !== 'electric-cars' && topic.beliefs.length > 1 && (
           <div className="bg-white rounded-lg shadow-lg p-8">
             <ConfidenceScale beliefs={topic.beliefs} />
           </div>
         )}
 
-        {params.id !== 'social-media' && topic.beliefs.length > 1 && (
+        {id !== 'social-media' && topic.beliefs.length > 1 && (
           <div className="bg-white rounded-lg shadow-lg p-8">
             <ValenceSpectrum beliefs={topic.beliefs} />
           </div>
         )}
 
-        {params.id !== 'trump-capability' && topic.beliefs.length > 1 && (
+        {id !== 'trump-capability' && topic.beliefs.length > 1 && (
           <div className="bg-white rounded-lg shadow-lg p-8">
             <MasterView beliefs={topic.beliefs} topicTitle={topic.title} />
           </div>
