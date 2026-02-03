@@ -8,6 +8,7 @@ interface ProtocolLogProps {
     claimsPendingLogicCheck: number
     activeRedTeams: number
   }
+  live?: boolean
 }
 
 function getAgentColor(name: string): string {
@@ -20,12 +21,20 @@ function getAgentColor(name: string): string {
   if (lower.includes('calibration')) return 'text-blue-600'
   if (lower.includes('base')) return 'text-teal-600'
   if (lower.includes('system')) return 'text-indigo-600'
+  if (lower.includes('human')) return 'text-emerald-600'
   return 'text-[var(--accent)]'
+}
+
+function getAgentIcon(name: string): string {
+  const lower = name.toLowerCase()
+  if (lower.includes('human')) return '\u{1F464}'
+  return '\u{1F916}'
 }
 
 export default function ProtocolLog({
   entries,
   protocolStatus,
+  live = false,
 }: ProtocolLogProps) {
   return (
     <div className="bg-white border border-[var(--border)] rounded-lg overflow-hidden sticky top-5">
@@ -34,7 +43,14 @@ export default function ProtocolLog({
         <span className="text-sm font-bold tracking-wide">
           SCHLICHT PROTOCOL LOG
         </span>
-        <span className="h-2 w-2 bg-red-500 rounded-full animate-pulse" />
+        <div className="flex items-center gap-2">
+          {live && (
+            <span className="text-[10px] font-semibold tracking-wider text-red-300">
+              LIVE
+            </span>
+          )}
+          <span className="h-2 w-2 bg-red-500 rounded-full animate-pulse" />
+        </div>
       </div>
 
       {/* Log entries */}
@@ -42,12 +58,13 @@ export default function ProtocolLog({
         {entries.map((entry) => (
           <div
             key={entry.id}
-            className="px-4 py-3 border-b border-gray-100 grid grid-cols-[24px_1fr] gap-2 text-sm"
+            className="log-entry-animate px-4 py-3 border-b border-gray-100 grid grid-cols-[24px_1fr] gap-2 text-sm"
           >
             <span className="text-[var(--muted-foreground)] text-xs font-mono pt-0.5">
               {entry.timestamp}
             </span>
             <div className="text-[var(--foreground)]">
+              <span className="text-xs mr-1">{getAgentIcon(entry.agentName)}</span>
               <span className={`font-bold ${getAgentColor(entry.agentName)}`}>
                 {entry.agentName}
               </span>{' '}

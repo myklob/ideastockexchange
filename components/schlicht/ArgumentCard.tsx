@@ -57,6 +57,25 @@ export default function ArgumentCard({ argument }: ArgumentCardProps) {
         </div>
       )}
 
+      {/* Contributor badge */}
+      {argument.contributor && (
+        <div className="mb-2">
+          <span
+            className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border font-medium ${
+              argument.contributor.type === 'human'
+                ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                : 'text-blue-700 bg-blue-50 border-blue-200'
+            }`}
+          >
+            <span>{argument.contributor.type === 'human' ? '\u{1F464}' : '\u{1F916}'}</span>
+            {argument.contributor.name}
+            <span className="text-[10px] opacity-60">
+              ({argument.contributor.type})
+            </span>
+          </span>
+        </div>
+      )}
+
       {/* Agent badges */}
       <div className="flex flex-wrap gap-1.5 mb-3">
         {argument.certifiedBy.map((agent) => (
