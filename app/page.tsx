@@ -254,6 +254,46 @@ export default function Home() {
           </Link>
         </section>
 
+        {/* Cost-Benefit Analysis */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6">
+            Cost-Benefit Analysis: Calibrated Expected Value
+          </h2>
+          <p className="text-lg text-[var(--muted-foreground)] mb-8">
+            Traditional CBA lets proponents claim &ldquo;Best Case Scenario&rdquo; without justification.
+            Here, every cost and benefit has a Likelihood Score that must survive adversarial scrutiny.
+            Impacts don&apos;t count unless their probabilities survive attack.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Likelihood as Nested Belief</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Each probability is a claim that must be argued for with evidence, base rates, and historical data.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Competing Estimates</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Multiple probability estimates coexist. The one backed by the strongest argument tree wins.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Expected Value Formula</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Predicted Impact &times; Likelihood Score = Expected Value. A $10M risk at 10% subtracts exactly $1M.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href="/cba"
+            className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          >
+            View Cost-Benefit Analyses
+          </Link>
+        </section>
+
         {/* Get Started */}
         <section className="bg-gradient-to-r from-[var(--accent)]/10 to-[var(--accent)]/5 p-12 rounded-lg text-center">
           <h2 className="text-3xl font-bold mb-4">
@@ -262,12 +302,18 @@ export default function Home() {
           <p className="text-xl text-[var(--muted-foreground)] mb-8">
             Start debugging.
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4 justify-center flex-wrap">
             <Link
               href="/laws"
               className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-8 py-3 rounded-lg font-medium transition-colors"
             >
               Browse Laws
+            </Link>
+            <Link
+              href="/cba"
+              className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-8 py-3 rounded-lg font-medium transition-colors"
+            >
+              Cost-Benefit Analysis
             </Link>
             <Link
               href="/protocol"
@@ -293,6 +339,7 @@ export default function Home() {
               <h3 className="font-bold mb-4">Resources</h3>
               <ul className="space-y-2 text-sm">
                 <li><Link href="/protocol" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Schlicht Protocol</Link></li>
+                <li><Link href="/cba" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Cost-Benefit Analysis</Link></li>
                 <li><Link href="/laws" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Browse Laws</Link></li>
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Framework Wiki</a></li>
               </ul>
