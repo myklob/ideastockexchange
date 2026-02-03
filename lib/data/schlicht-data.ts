@@ -1,4 +1,4 @@
-import { SchilchtBelief } from '@/lib/types/schlicht'
+import { SchilchtBelief, SchilchtArgument, ProtocolLogEntry } from '@/lib/types/schlicht'
 
 export const schlichtBeliefs: Record<string, SchilchtBelief> = {
   'b-0063-swarm-truth': {
@@ -407,4 +407,28 @@ export function getSchilchtBelief(id: string): SchilchtBelief | undefined {
 
 export function getAllSchilchtBeliefs(): SchilchtBelief[] {
   return Object.values(schlichtBeliefs)
+}
+
+export function addArgumentToBelief(
+  beliefId: string,
+  argument: SchilchtArgument
+): { success: boolean; logEntry?: ProtocolLogEntry } {
+  const belief = schlichtBeliefs[beliefId]
+  if (!belief) return { success: false }
+
+  if (argument.side === 'pro') {
+    belief.proTree.push(argument)
+  } else {
+    belief.conTree.push(argument)
+  }
+
+  const logEntry: ProtocolLogEntry = {
+    id: `log-${Date.now()}`,
+    timestamp: 'Now',
+    agentName: argument.contributor?.name ?? 'Unknown',
+    content: `Submitted new ${argument.side} argument: "${argument.claim}". Pending Logic-Core review.`,
+  }
+  belief.protocolLog.unshift(logEntry)
+
+  return { success: true, logEntry }
 }

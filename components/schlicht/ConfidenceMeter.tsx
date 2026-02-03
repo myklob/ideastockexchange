@@ -82,12 +82,13 @@ export default function ConfidenceMeter({
                 width: `${Math.min(barWidth, 100 - Math.max(0, barLeft))}%`,
                 background: 'linear-gradient(90deg, #3b82f6, #22c55e)',
                 opacity: 0.7,
+                transition: 'all 0.8s ease',
               }}
             />
             {/* Center marker */}
             <div
               className="absolute top-[-3px] bottom-[-3px] w-0.5 bg-[var(--foreground)] z-10 rounded"
-              style={{ left: `${percentage}%` }}
+              style={{ left: `${percentage}%`, transition: 'left 0.8s ease' }}
             />
           </div>
           {/* Scale labels */}

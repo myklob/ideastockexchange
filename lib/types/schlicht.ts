@@ -34,6 +34,12 @@ export interface DetectedFallacy {
   impact: number // negative number
 }
 
+export interface ArgumentContributor {
+  type: 'human' | 'ai'
+  name: string
+  submittedAt: string // ISO 8601
+}
+
 export interface SchilchtArgument {
   id: string
   claim: string
@@ -44,6 +50,7 @@ export interface SchilchtArgument {
   impactScore: number     // signed: positive for pro, negative for con
   certifiedBy: string[]   // agent names
   fallaciesDetected: DetectedFallacy[]
+  contributor?: ArgumentContributor
   rebuttal?: {
     id: string
     statement: string

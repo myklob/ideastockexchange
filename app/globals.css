@@ -73,3 +73,35 @@ pre code {
   padding: 0;
   background: transparent;
 }
+
+/* Protocol log entry animation */
+@keyframes logEntryFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.log-entry-animate {
+  animation: logEntryFadeIn 0.3s ease;
+}
+
+/* Argument card entrance */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.argument-card-animate {
+  animation: cardSlideIn 0.4s ease;
+}
