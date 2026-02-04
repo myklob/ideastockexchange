@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getSchilchtBelief, addArgumentToBelief } from '@/features/reasonrank/data/schlicht-data'
+import { getSchilchtBelief, addArgumentToBelief } from '@/features/epistemology/data/schlicht-data'
 import { SchilchtArgument } from '@/core/types/schlicht'
 import { calculateArgumentImpact } from '@/core/scoring/scoring-engine'
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getSchilchtBelief, getBeliefScoreBreakdown } from '@/features/reasonrank/data/schlicht-data'
+import { getSchilchtBelief, getBeliefScoreBreakdown } from '@/features/epistemology/data/schlicht-data'
 
 export async function GET(
   _request: Request,

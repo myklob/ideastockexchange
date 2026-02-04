@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { exampleLaws } from '@/features/wikilaw/data/example-laws';
-import { DiagnosticSection, SubSection, InfoBox, Badge, QualityBar } from '@/features/wikilaw/components/DiagnosticSection';
-import { AssumptionCard } from '@/features/wikilaw/components/AssumptionCard';
-import { EvidenceCard } from '@/features/wikilaw/components/EvidenceCard';
+import { exampleLaws } from '@/features/legal-framework/data/example-laws';
+import { DiagnosticSection, SubSection, InfoBox, Badge, QualityBar } from '@/features/legal-framework/components/DiagnosticSection';
+import { AssumptionCard } from '@/features/legal-framework/components/AssumptionCard';
+import { EvidenceCard } from '@/features/legal-framework/components/EvidenceCard';
 
 export async function generateStaticParams() {
   return exampleLaws.map((law) => ({

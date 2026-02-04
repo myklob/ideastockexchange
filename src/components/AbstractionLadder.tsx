@@ -1,6 +1,6 @@
 import React from 'react';
 import { Belief } from '@/core/types/ise';
-import { sortBeliefsByAbstraction, getAbstractionLabel, formatScore } from '@/shared/utils';
+import { sortBeliefsByAbstraction, getAbstractionLabel, formatScore } from '@/lib/utils';
 
 interface AbstractionLadderProps {
   beliefs: Belief[];

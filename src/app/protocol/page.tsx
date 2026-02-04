@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getAllSchilchtBeliefs } from '@/features/reasonrank/data/schlicht-data'
+import { getAllSchilchtBeliefs } from '@/features/epistemology/data/schlicht-data'
 
 function getStatusStyle(status: string): string {
   switch (status) {
