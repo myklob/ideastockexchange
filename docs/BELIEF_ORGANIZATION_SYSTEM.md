@@ -673,28 +673,35 @@ GET    /api/beliefs/:id/full-context
 
 ### 🔄 Planned Features
 
-1. **Taxonomy Integration** (Phase 2)
-   - Dewey Decimal mapping
-   - Library of Congress integration
-   - Wikipedia category sync
-   - OpenAlex topic mapping
-   - MeSH integration (medical)
-   - UNESCO fields integration
+> **Tracked in:** [TAXONOMY_ROADMAP.md](./TAXONOMY_ROADMAP.md) | **Create GitHub Issues:** `./scripts/create-taxonomy-issues.sh`
+
+1. **Taxonomy Integration** (Phase 2) — [see prioritized roadmap](./TAXONOMY_ROADMAP.md#phase-2-taxonomy-integration--scoring)
+   - [P0] Core TaxonomyService (blocks all other taxonomy work)
+   - [P0] Wikipedia category sync (complete partial integration)
+   - [P1] Google Knowledge Graph (entity relationships)
+   - [P2] OpenAlex topic mapping (academic research)
+   - [P2] MeSH integration (medical/health sciences)
+   - [P2] UNESCO fields integration (scientific disciplines)
+   - [P3] Dewey Decimal mapping (general knowledge)
+   - [P3] Library of Congress integration (academic)
 
 2. **Enhanced Strength Scoring** (Phase 2)
-   - Advanced intensity detection
+   - [P1] Advanced intensity detection
    - Contextual analysis
    - Comparative strength
 
-3. **Comprehensive Linkage** (Phases 3-4)
-   - People/stakeholder tracking
-   - Media integration
-   - Values analysis
-   - Interest mapping
-   - Obstacle identification
-   - Bias detection
+3. **Comprehensive Linkage** (Phases 3-4) — [see roadmap](./TAXONOMY_ROADMAP.md#phase-3-comprehensive-linkage)
+   - [P1] People/stakeholder tracking
+   - [P2] Values analysis
+   - [P2] Interest mapping
+   - [P2] Cognitive bias detection
+   - [P2] Cost-benefit quantification
+   - [P3] Media integration (books, articles, videos)
+   - [P3] Obstacle identification
 
 4. **Advanced UI** (Phase 2-3)
+   - [P2] Enhanced topic page organization (sort by polarity, strength, generality)
+   - [P2] Sentiment analysis API integration
    - 3D belief space visualization
    - Interactive topic hierarchies
    - Multi-dimensional filtering
@@ -767,9 +774,17 @@ This organizational system makes **one page per topic** possible at scale, trans
 
 **Want to help build this system?**
 
-- 📧 Contact: [GitHub Issues](https://github.com/myklob/ideastockexchange/issues)
-- 💻 Code: [View on GitHub](https://github.com/myklob/ideastockexchange)
-- 📚 Docs: [Technical Framework](./ARCHITECTURE.md)
+- **Roadmap:** [TAXONOMY_ROADMAP.md](./TAXONOMY_ROADMAP.md) — Prioritized task list with Definition of Done
+- **Issues:** [GitHub Issues](https://github.com/myklob/ideastockexchange/issues) — Pick an issue and start contributing
+- **Code:** [View on GitHub](https://github.com/myklob/ideastockexchange)
+- **Docs:** [Technical Framework](./ARCHITECTURE.md)
+
+**Getting started:**
+1. Look for `good-first-issue` labels (UNESCO Fields, Dewey Decimal are good starters)
+2. Read the [TAXONOMY_ROADMAP.md](./TAXONOMY_ROADMAP.md) for priorities and DoD
+3. Each taxonomy integration follows the provider pattern — register with `TaxonomyService`
+4. Use [GitHub Discussions](https://github.com/myklob/ideastockexchange/discussions) for architectural questions
+5. Use [GitHub Issues](https://github.com/myklob/ideastockexchange/issues) for implementation tasks
 
 **Areas to contribute:**
 - Belief taxonomies and classification
@@ -777,9 +792,10 @@ This organizational system makes **one page per topic** possible at scale, trans
 - Semantic matching algorithms
 - Evidence verification systems
 - Taxonomy API integrations
+- Scoring enhancements (strength, sentiment, bias detection)
 
 ---
 
-**Built with ❤️ by the ISE community**
+**Built by the ISE community**
 
-*Last updated: 2025-01-28*
+*Last updated: 2026-02-04*
