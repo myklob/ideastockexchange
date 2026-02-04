@@ -327,6 +327,110 @@ Redundancy_Penalty = 0.9 if hard duplicate (>0.85 similarity)
 
 ---
 
+## 11. Likelihood Score (Calibrated Probability for Cost-Benefit Analysis)
+
+The Likelihood Score is not a subjective guess. It is a nested belief that must earn its probability through structured reasoning using ReasonRank.
+
+### Core Formula
+
+```
+Expected Value = Predicted Impact × Likelihood Score
+```
+
+Where the Likelihood Score is a probability (0-1) derived from a competition between arguments, not from voting or averaging.
+
+### How the Score Is Generated
+
+#### Step 1: Likelihood as a Conclusion
+
+When a user adds a cost or benefit (e.g., "This project will save $1M"), a second claim is implicitly created: "There is an X% chance this will happen." This probability claim becomes a nested belief node. Multiple competing probability estimates can coexist.
+
+#### Step 2: Argument Trees Build the Score
+
+Each competing probability estimate has its own pro/con argument tree. Arguments can branch into recursive sub-arguments. A likelihood earns strength only if:
+- It has strong supporting sub-arguments
+- It has weak opposing sub-arguments
+
+Evidence types include base rates, historical data, and falsifiable assumptions.
+
+#### Step 3: Three-Metric Recursive Scoring
+
+Each argument is scored using three recursive metrics:
+
+| Metric | Question | Range |
+|--------|----------|-------|
+| **Truth** | Is the evidence or data factually accurate? | 0-1 |
+| **Linkage** | How strongly does this connect to *this specific* prediction? | 0-1 |
+| **Importance** | How much does this argument move the probability? | 0-1 |
+
+#### Argument Impact Formula
+
+```
+Impact = AdjustedTruth × Linkage × Importance
+
+Where:
+  AdjustedTruth = TruthScore × (1 - FallacyPenalty) × SubArgumentFactor
+  SubArgumentFactor = 1 + (NetSubStrength / SubArgCount) × 0.3
+  FallacyPenalty = Σ(|fallacy.impact| / 100)
+```
+
+Sub-arguments modify the parent's effective truth score by up to ±30%:
+- Pro sub-arguments strengthen the parent argument's credibility
+- Con sub-arguments weaken it
+
+#### Step 4: ReasonRank Score per Estimate
+
+```
+ReasonRankScore = 0.5 + (ProStrength - ConStrength) / (2 × TotalArguments)
+
+Where:
+  ProStrength = Σ(proArg.truth × proArg.linkage × proArg.importance)
+  ConStrength = Σ(conArg.truth × conArg.linkage × conArg.importance)
+```
+
+Bounded to [0.01, 0.99].
+
+#### Step 5: The "Winning" Likelihood
+
+The active Likelihood Score is **not an average**. It is the specific probability from the estimate with the highest ReasonRank score.
+
+- If arguments for "90% likelihood" are exposed as wishful thinking (low Truth or Linkage), that estimate's ReasonRank decays.
+- If arguments for "50% likelihood" are grounded in solid reference classes and survive adversarial scrutiny, 50% becomes the active Likelihood Score.
+
+### Status Determination
+
+| Status | Condition |
+|--------|-----------|
+| `calibrated` | Winner has ≥0.2 ReasonRank gap over second place, or single estimate with ≥2 pro arguments |
+| `contested` | Multiple estimates with <0.2 gap between top two |
+| `emerging` | Single estimate or insufficient arguments |
+
+### Confidence Interval
+
+```
+CI = min(0.3, max(0.02, StdDev(probabilities) × ArgumentCountFactor))
+
+Where:
+  ArgumentCountFactor = max(0.5, 1 - TotalArgs × 0.03)
+```
+
+### Why This Matters
+
+- **Combats Optimism Bias**: Proponents cannot simply assert a best-case scenario; they must justify why that outcome is *probable*.
+- **Standardizes Comparisons**: A 10% chance of $10M and a 100% chance of $1M are treated as equal expected utilities.
+- **Rejects Intuition**: Mathematical expected value outperforms human gut feeling on complex predictions.
+
+### Testing Invariants
+
+1. **Arguments with sub-arguments score differently than flat arguments**
+2. **High importance arguments contribute more than low importance ones**
+3. **An estimate with only con arguments has ReasonRank < 0.5**
+4. **The active likelihood always comes from the highest-scoring estimate**
+5. **Fallacy penalties always reduce argument impact**
+6. **Sub-argument net strength modifies parent truth by at most ±30%**
+
+---
+
 ## Implementation Checklist
 
 ### Minimum Viable Scoring

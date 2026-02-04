@@ -37,6 +37,12 @@ const argumentSchema = z.object({
     .max(100)
     .optional()
     .default(50),
+  importance_score: z
+    .number()
+    .min(0)
+    .max(100)
+    .optional()
+    .default(100),
 })
 
 export async function POST(
@@ -86,7 +92,8 @@ export async function POST(
   // Use the unified scoring engine for impact calculation
   const truthNormalized = data.truth_score / 100
   const linkageNormalized = data.linkage_score / 100
-  const impactScore = calculateArgumentImpact(truthNormalized, linkageNormalized, data.side)
+  const importanceNormalized = data.importance_score / 100
+  const impactScore = calculateArgumentImpact(truthNormalized, linkageNormalized, data.side, importanceNormalized)
 
   const argument: SchilchtArgument = {
     id: argId,
@@ -95,6 +102,7 @@ export async function POST(
     side: data.side,
     truthScore: truthNormalized,
     linkageScore: linkageNormalized,
+    importanceScore: importanceNormalized,
     impactScore,
     certifiedBy: ['Pending-Review'],
     fallaciesDetected: [],
@@ -179,9 +187,11 @@ export async function GET(
         contributor_type:
           '"human" | "ai" (required) - Type of contributor',
         truth_score:
-          'number 0-100 (optional, default 50) - Self-assessed truth confidence',
+          'number 0-100 (optional, default 50) - Is the evidence factually accurate?',
         linkage_score:
-          'number 0-100 (optional, default 50) - How directly this relates to the belief',
+          'number 0-100 (optional, default 50) - How strongly does this connect to the belief?',
+        importance_score:
+          'number 0-100 (optional, default 100) - How much does this argument move the needle?',
       },
       example: {
         claim: 'Federated Learning Enables Privacy-Preserving Verification',
@@ -192,6 +202,7 @@ export async function GET(
         contributor_type: 'ai',
         truth_score: 78,
         linkage_score: 72,
+        importance_score: 85,
       },
     },
     {

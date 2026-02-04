@@ -26,6 +26,7 @@ export default function LikelihoodArgumentForm({
   const [contributorType, setContributorType] = useState<'human' | 'ai'>('human')
   const [truthScore, setTruthScore] = useState(50)
   const [linkageScore, setLinkageScore] = useState(50)
+  const [importanceScore, setImportanceScore] = useState(100)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -47,6 +48,7 @@ export default function LikelihoodArgumentForm({
           contributor_type: contributorType,
           truth_score: truthScore,
           linkage_score: linkageScore,
+          importance_score: importanceScore,
         }),
       })
 
@@ -188,11 +190,11 @@ export default function LikelihoodArgumentForm({
           />
         </div>
 
-        {/* Score sliders */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Score sliders — three ReasonRank metrics */}
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="block text-[10px] font-medium text-[var(--muted-foreground)] uppercase mb-0.5">
-              Truth Score: {truthScore}%
+              Truth: {truthScore}%
             </label>
             <input
               type="range"
@@ -209,7 +211,7 @@ export default function LikelihoodArgumentForm({
           </div>
           <div>
             <label className="block text-[10px] font-medium text-[var(--muted-foreground)] uppercase mb-0.5">
-              Linkage Score: {linkageScore}%
+              Linkage: {linkageScore}%
             </label>
             <input
               type="range"
@@ -222,6 +224,23 @@ export default function LikelihoodArgumentForm({
             <div className="flex justify-between text-[9px] text-[var(--muted-foreground)]">
               <span>Tangential</span>
               <span>Direct</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-[10px] font-medium text-[var(--muted-foreground)] uppercase mb-0.5">
+              Importance: {importanceScore}%
+            </label>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={importanceScore}
+              onChange={(e) => setImportanceScore(Number(e.target.value))}
+              className="w-full h-1 accent-[var(--accent)]"
+            />
+            <div className="flex justify-between text-[9px] text-[var(--muted-foreground)]">
+              <span>Minor</span>
+              <span>Decisive</span>
             </div>
           </div>
         </div>

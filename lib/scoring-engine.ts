@@ -10,7 +10,7 @@
  *   2. Truth Score    - ReasonRank applied to logical validity + empirical verification
  *   3. Linkage Score  - ReasonRank applied to evidence-to-conclusion relevance
  *   4. Evidence Score  - ReasonRank applied to evidence quality (EVS)
- *   5. Importance Weight - ReasonRank + CBA cost/benefit weighting
+ *   5. Importance Weight - How much this argument moves the probability (0-1)
  *   6. Objective Criteria - Highest-scoring standards for measuring belief strength
  *   7. Likelihood Score   - ReasonRank applied to cost/benefit predictions
  *
@@ -56,10 +56,12 @@ export interface ArgumentScoreBreakdown {
   truthScore: number
   linkageScore: number
   importanceWeight: number
-  rawImpact: number          // truth * linkage * importance
+  rawImpact: number          // truth * linkage * importance (adjusted by sub-arguments)
   signedImpact: number       // positive for pro, negative for con
   certifiedBy: string[]
   fallacyPenalty: number     // total penalty from detected fallacies
+  subArgumentCount: number   // number of recursive sub-arguments
+  subArgumentNetStrength: number // net strength from sub-argument tree
 }
 
 // ─── Evidence Verification Score ────────────────────────────────
@@ -124,9 +126,20 @@ export function calculateLinkageFromArguments(
 // ─── Argument Scoring ───────────────────────────────────────────
 
 /**
- * Calculate the full impact of a single argument.
+ * Calculate the full impact of a single argument, recursively scoring
+ * its sub-argument tree.
  *
  * Impact = truthScore * linkageScore * importanceWeight
+ *
+ * Three recursive metrics (from ReasonRank):
+ *   1. Truth:      Is the evidence factually accurate? (0-1)
+ *   2. Linkage:    How strongly does this connect to the specific prediction? (0-1)
+ *   3. Importance: How much does this argument move the probability? (0-1)
+ *
+ * Sub-arguments modify the parent's effective truth score:
+ *   - Pro sub-arguments strengthen the parent (evidence supports the claim)
+ *   - Con sub-arguments weaken it (evidence undermines the claim)
+ *   - Net sub-argument strength adjusts truth by up to ±30%
  *
  * Fallacy penalties reduce the truth score multiplicatively.
  * The result is signed: positive for pro, negative for con.
@@ -137,11 +150,34 @@ export function scoreArgument(arg: SchilchtArgument): ArgumentScoreBreakdown {
     (sum, f) => sum + Math.abs(f.impact) / 100,
     0
   )
-  const adjustedTruth = Math.max(0, arg.truthScore * (1 - fallacyPenalty))
+  let adjustedTruth = Math.max(0, arg.truthScore * (1 - fallacyPenalty))
 
-  // Importance weight defaults to 1.0 (all arguments equally important)
-  // unless overridden by objective criteria or CBA weighting
-  const importanceWeight = 1.0
+  // Recursively score sub-arguments if they exist
+  let subArgumentCount = 0
+  let subArgumentNetStrength = 0
+
+  if (arg.subArguments && arg.subArguments.length > 0) {
+    const subBreakdowns = arg.subArguments.map(scoreArgument)
+    subArgumentCount = arg.subArguments.length
+
+    const proSubStrength = subBreakdowns
+      .filter(b => b.side === 'pro')
+      .reduce((sum, b) => sum + b.rawImpact, 0)
+    const conSubStrength = subBreakdowns
+      .filter(b => b.side === 'con')
+      .reduce((sum, b) => sum + b.rawImpact, 0)
+
+    subArgumentNetStrength = proSubStrength - conSubStrength
+
+    // Sub-arguments adjust the parent's effective truth by up to ±30%
+    const maxSubStrength = Math.max(subArgumentCount, 1)
+    const subFactor = 1 + (subArgumentNetStrength / maxSubStrength) * 0.3
+    adjustedTruth = Math.max(0, Math.min(1, adjustedTruth * subFactor))
+  }
+
+  // Importance weight: how much this argument moves the probability
+  // Defaults to 1.0 if not specified
+  const importanceWeight = arg.importanceScore ?? 1.0
 
   const rawImpact = adjustedTruth * arg.linkageScore * importanceWeight
   const direction = arg.side === 'pro' ? 1 : -1
@@ -158,6 +194,8 @@ export function scoreArgument(arg: SchilchtArgument): ArgumentScoreBreakdown {
     signedImpact,
     certifiedBy: arg.certifiedBy,
     fallacyPenalty,
+    subArgumentCount,
+    subArgumentNetStrength,
   }
 }
 
@@ -377,14 +415,15 @@ export function calculateExpectedValue(predictedImpact: number, activeLikelihood
 
 /**
  * Calculate impact score for an argument.
- * Impact = truth * linkage * 100, signed by side.
+ * Impact = truth * linkage * importance * 100, signed by side.
  */
 export function calculateArgumentImpact(
   truthScore: number,
   linkageScore: number,
-  side: 'pro' | 'con'
+  side: 'pro' | 'con',
+  importanceScore: number = 1.0
 ): number {
-  const raw = Math.round(truthScore * linkageScore * 100)
+  const raw = Math.round(truthScore * linkageScore * importanceScore * 100)
   return side === 'pro' ? raw : -raw
 }
 

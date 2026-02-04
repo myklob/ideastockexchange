@@ -45,11 +45,13 @@ export interface SchilchtArgument {
   claim: string
   description: string
   side: ArgumentSide
-  truthScore: number      // 0-1
-  linkageScore: number    // 0-1
-  impactScore: number     // signed: positive for pro, negative for con
-  certifiedBy: string[]   // agent names
+  truthScore: number        // 0-1: Is the evidence factually accurate?
+  linkageScore: number      // 0-1: How strongly does this connect to the specific prediction?
+  importanceScore?: number  // 0-1: How much does this argument move the probability? (default 1.0)
+  impactScore: number       // signed: positive for pro, negative for con (computed)
+  certifiedBy: string[]     // agent names
   fallaciesDetected: DetectedFallacy[]
+  subArguments?: SchilchtArgument[]  // recursive sub-arguments forming the argument tree
   contributor?: ArgumentContributor
   rebuttal?: {
     id: string

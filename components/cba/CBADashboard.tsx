@@ -214,41 +214,62 @@ export default function CBADashboard({ initialCBA }: CBADashboardProps) {
 
           {/* How it works section */}
           <section className="bg-white border border-[var(--border)] rounded-lg p-5 mt-2">
-            <h3 className="text-sm uppercase tracking-wider font-semibold text-[var(--foreground)] mb-4">
-              How Likelihood Scores Work
+            <h3 className="text-sm uppercase tracking-wider font-semibold text-[var(--foreground)] mb-1">
+              The Likelihood Score: Calibrated Probability for Cost-Benefit Analysis
             </h3>
+            <p className="text-xs text-[var(--muted-foreground)] mb-4">
+              A Likelihood Score is not a subjective guess, a slider, or a gut feeling.
+              It is a nested belief that must earn its probability through structured reasoning.
+            </p>
             <div className="grid gap-4 md:grid-cols-2 text-sm">
               <div>
-                <h4 className="font-semibold text-[var(--foreground)] mb-1">1. Likelihood is a Conclusion</h4>
+                <h4 className="font-semibold text-[var(--foreground)] mb-1">1. The Likelihood as a &ldquo;Conclusion&rdquo;</h4>
                 <p className="text-[var(--muted-foreground)]">
-                  When someone claims &ldquo;This will save $1M,&rdquo; the implicit probability
-                  becomes a nested belief node. Multiple competing estimates coexist and vie for dominance.
+                  When a user adds a cost or benefit (e.g., &ldquo;This project will save $1M&rdquo;),
+                  they are implicitly making a second claim: &ldquo;There is an X% chance this will happen.&rdquo;
+                  That probability claim becomes a nested belief node with its own page. Multiple competing
+                  estimates (e.g., &ldquo;30%,&rdquo; &ldquo;50&ndash;60%,&rdquo; &ldquo;90%+&rdquo;) can coexist and compete.
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold text-[var(--foreground)] mb-1">2. Arguments Build the Score</h4>
+                <h4 className="font-semibold text-[var(--foreground)] mb-1">2. Arguments Build the Score (The Tree)</h4>
                 <p className="text-[var(--muted-foreground)]">
-                  Users and AI agents submit pro/con arguments backed by base rates, historical data,
-                  and falsifiable assumptions. Each creates a recursive argument tree.
+                  Users and AI agents submit pro/con arguments that branch into sub-arguments, forming
+                  an argument tree for each proposed likelihood. A likelihood earns strength only if it
+                  has strong supporting sub-arguments and weak opposing sub-arguments. Evidence includes
+                  base rates, historical data, and falsifiable assumptions.
                 </p>
               </div>
               <div>
                 <h4 className="font-semibold text-[var(--foreground)] mb-1">3. ReasonRank Scoring</h4>
                 <p className="text-[var(--muted-foreground)]">
-                  Arguments are scored on Truth (factual accuracy), Linkage (relevance to this prediction),
-                  and Importance (how much it moves the needle).
+                  Each argument in the tree is scored recursively using three metrics:
+                  <strong> Truth</strong> (Is the evidence factually accurate?),
+                  <strong> Linkage</strong> (How strongly does it connect to <em>this specific</em> probability?),
+                  and <strong> Importance</strong> (How much does this argument move the probability?).
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold text-[var(--foreground)] mb-1">4. The Winning Likelihood</h4>
+                <h4 className="font-semibold text-[var(--foreground)] mb-1">4. The &ldquo;Winning&rdquo; Likelihood</h4>
                 <p className="text-[var(--muted-foreground)]">
-                  The active probability is not an average. It is the specific estimate backed by the
-                  strongest surviving argument tree after adversarial scrutiny.
+                  The Likelihood Score is not an average. It is the specific probability range supported by
+                  the strongest surviving argument tree. If arguments for &ldquo;90% likelihood&rdquo; are exposed
+                  as wishful thinking (low Truth or Linkage), that estimate decays. If arguments for
+                  &ldquo;50% likelihood&rdquo; are grounded in solid reference classes and survive scrutiny,
+                  50% becomes the active Likelihood Score.
                 </p>
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-[var(--border)] text-xs text-[var(--muted-foreground)] font-medium text-center">
-              The Blunt Rule: Impacts don&apos;t count unless their probabilities survive attack.
+            <div className="mt-4 pt-3 border-t border-[var(--border)]">
+              <div className="text-xs text-[var(--muted-foreground)] mb-2">
+                <strong className="text-[var(--foreground)]">Why This Matters:</strong>{' '}
+                Combats optimism bias (proponents must justify why outcomes are <em>probable</em>).
+                Standardizes comparisons (10% of $10M = 100% of $1M).
+                Rejects intuition (mathematical expected value outperforms gut feeling).
+              </div>
+              <div className="text-xs text-[var(--foreground)] font-semibold text-center">
+                The blunt rule: Impacts don&apos;t count unless their probabilities survive attack.
+              </div>
             </div>
           </section>
         </main>

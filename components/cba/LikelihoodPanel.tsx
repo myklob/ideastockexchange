@@ -28,11 +28,11 @@ function EstimateCard({
 
   const totalArgs = estimate.proArguments.length + estimate.conArguments.length
   const proStrength = estimate.proArguments.reduce(
-    (s, a) => s + a.truthScore * a.linkageScore,
+    (s, a) => s + a.truthScore * a.linkageScore * (a.importanceScore ?? 1),
     0
   )
   const conStrength = estimate.conArguments.reduce(
-    (s, a) => s + a.truthScore * a.linkageScore,
+    (s, a) => s + a.truthScore * a.linkageScore * (a.importanceScore ?? 1),
     0
   )
 
@@ -177,14 +177,18 @@ function EstimateCard({
   )
 }
 
-function MiniArgumentCard({ argument }: { argument: SchilchtArgument }) {
+function MiniArgumentCard({ argument, depth = 0 }: { argument: SchilchtArgument; depth?: number }) {
+  const [showSubs, setShowSubs] = useState(false)
   const isPro = argument.side === 'pro'
+  const importance = argument.importanceScore ?? 1
+  const hasSubArgs = argument.subArguments && argument.subArguments.length > 0
 
   return (
     <div
       className={`text-xs border-l-2 ${
         isPro ? 'border-l-green-500' : 'border-l-red-500'
       } bg-white border border-[var(--border)] rounded-r p-2 mb-1.5`}
+      style={{ marginLeft: depth > 0 ? `${depth * 12}px` : undefined }}
     >
       <div className="font-medium text-[var(--foreground)] mb-0.5">{argument.claim}</div>
       <p className="text-[var(--muted-foreground)] leading-relaxed mb-1">
@@ -192,12 +196,15 @@ function MiniArgumentCard({ argument }: { argument: SchilchtArgument }) {
           ? argument.description.slice(0, 200) + '...'
           : argument.description}
       </p>
-      <div className="flex gap-3 text-[10px] text-[var(--muted-foreground)]">
+      <div className="flex flex-wrap gap-3 text-[10px] text-[var(--muted-foreground)]">
         <span>
           Truth: <strong>{(argument.truthScore * 100).toFixed(0)}%</strong>
         </span>
         <span>
           Linkage: <strong>{(argument.linkageScore * 100).toFixed(0)}%</strong>
+        </span>
+        <span>
+          Importance: <strong>{(importance * 100).toFixed(0)}%</strong>
         </span>
         <span>
           Impact:{' '}
@@ -213,6 +220,24 @@ function MiniArgumentCard({ argument }: { argument: SchilchtArgument }) {
           </span>
         )}
       </div>
+      {/* Sub-argument tree toggle */}
+      {hasSubArgs && (
+        <div className="mt-1.5">
+          <button
+            onClick={() => setShowSubs(!showSubs)}
+            className="text-[10px] text-[var(--accent)] font-medium hover:underline"
+          >
+            {showSubs ? '\u25B2 Hide' : '\u25BC Show'} {argument.subArguments!.length} sub-argument{argument.subArguments!.length !== 1 ? 's' : ''}
+          </button>
+          {showSubs && (
+            <div className="mt-1">
+              {argument.subArguments!.map((sub) => (
+                <MiniArgumentCard key={sub.id} argument={sub} depth={depth + 1} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
