@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSchilchtBelief, addArgumentToBelief } from '@/lib/data/schlicht-data'
 import { SchilchtArgument } from '@/lib/types/schlicht'
+import { calculateArgumentImpact } from '@/lib/scoring-engine'
 
 const argumentSchema = z.object({
   claim: z
@@ -82,11 +83,10 @@ export async function POST(
   const now = new Date().toISOString()
   const argId = `arg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
 
-  // Calculate impact score based on truth and linkage
+  // Use the unified scoring engine for impact calculation
   const truthNormalized = data.truth_score / 100
   const linkageNormalized = data.linkage_score / 100
-  const rawImpact = Math.round(truthNormalized * linkageNormalized * 100)
-  const impactScore = data.side === 'pro' ? rawImpact : -rawImpact
+  const impactScore = calculateArgumentImpact(truthNormalized, linkageNormalized, data.side)
 
   const argument: SchilchtArgument = {
     id: argId,
@@ -105,7 +105,7 @@ export async function POST(
     },
   }
 
-  // Add to in-memory store
+  // Add to in-memory store — triggers recalculation via the unified scoring engine
   const result = addArgumentToBelief(id, argument)
   if (!result.success) {
     return NextResponse.json(
@@ -124,6 +124,27 @@ export async function POST(
             timestamp: result.logEntry.timestamp,
             agent: result.logEntry.agentName,
             content: result.logEntry.content,
+          }
+        : null,
+      // Return updated belief metrics (computed by the unified scoring engine)
+      updated_metrics: result.belief
+        ? {
+            truthScore: result.belief.metrics.truthScore,
+            confidenceInterval: result.belief.metrics.confidenceInterval,
+            volatility: result.belief.metrics.volatility,
+            status: result.belief.status,
+            adversarialCycles: result.belief.metrics.adversarialCycles,
+          }
+        : null,
+      // Return the full score breakdown so clients can inspect the math
+      score_breakdown: result.breakdown
+        ? {
+            proArgumentStrength: result.breakdown.proArgumentStrength,
+            conArgumentStrength: result.breakdown.conArgumentStrength,
+            evidenceScore: result.breakdown.evidenceScore,
+            linkageScore: result.breakdown.linkageScore,
+            proArgumentCount: result.breakdown.proArgumentCount,
+            conArgumentCount: result.breakdown.conArgumentCount,
           }
         : null,
     },

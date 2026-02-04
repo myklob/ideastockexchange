@@ -1,4 +1,5 @@
 import { SchilchtBelief, SchilchtArgument, ProtocolLogEntry } from '@/lib/types/schlicht'
+import { recalculateProtocolBelief, scoreProtocolBelief, ScoreBreakdown } from '@/lib/scoring-engine'
 
 export const schlichtBeliefs: Record<string, SchilchtBelief> = {
   'b-0063-swarm-truth': {
@@ -412,7 +413,7 @@ export function getAllSchilchtBeliefs(): SchilchtBelief[] {
 export function addArgumentToBelief(
   beliefId: string,
   argument: SchilchtArgument
-): { success: boolean; logEntry?: ProtocolLogEntry } {
+): { success: boolean; belief?: SchilchtBelief; logEntry?: ProtocolLogEntry; breakdown?: ScoreBreakdown } {
   const belief = schlichtBeliefs[beliefId]
   if (!belief) return { success: false }
 
@@ -422,13 +423,46 @@ export function addArgumentToBelief(
     belief.conTree.push(argument)
   }
 
+  // Recalculate all metrics using the unified scoring engine
+  const recalculated = recalculateProtocolBelief(belief)
+  recalculated.metrics.adversarialCycles = belief.metrics.adversarialCycles + 1
+
+  // Get the full score breakdown for the response
+  const breakdown = scoreProtocolBelief(recalculated)
+
   const logEntry: ProtocolLogEntry = {
     id: `log-${Date.now()}`,
     timestamp: 'Now',
     agentName: argument.contributor?.name ?? 'Unknown',
-    content: `Submitted new ${argument.side} argument: "${argument.claim}". Pending Logic-Core review.`,
+    content: `Submitted new ${argument.side} argument: "${argument.claim}". Truth Score updated to ${(recalculated.metrics.truthScore * 100).toFixed(1)}%.`,
   }
-  belief.protocolLog.unshift(logEntry)
+  recalculated.protocolLog = [logEntry, ...belief.protocolLog].slice(0, 20)
 
-  return { success: true, logEntry }
+  // Update the store
+  schlichtBeliefs[beliefId] = recalculated
+
+  return { success: true, belief: recalculated, logEntry, breakdown }
+}
+
+/**
+ * Get the full score breakdown for a belief.
+ * This shows how all sub-scores contribute to the final truth score.
+ */
+export function getBeliefScoreBreakdown(beliefId: string): ScoreBreakdown | undefined {
+  const belief = schlichtBeliefs[beliefId]
+  if (!belief) return undefined
+  return scoreProtocolBelief(belief)
+}
+
+/**
+ * Recalculate and update a belief in the store.
+ * Call this when you need to refresh scores without adding an argument.
+ */
+export function refreshBeliefScores(beliefId: string): SchilchtBelief | undefined {
+  const belief = schlichtBeliefs[beliefId]
+  if (!belief) return undefined
+
+  const recalculated = recalculateProtocolBelief(belief)
+  schlichtBeliefs[beliefId] = recalculated
+  return recalculated
 }

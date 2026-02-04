@@ -6,6 +6,11 @@ import {
   SchilchtArgument,
   ProtocolLogEntry,
 } from '@/lib/types/schlicht'
+import {
+  scoreProtocolBelief,
+  recalculateProtocolBelief,
+  ScoreBreakdown,
+} from '@/lib/scoring-engine'
 import ConfidenceMeter from './ConfidenceMeter'
 import ArgumentCard from './ArgumentCard'
 import ProtocolLog from './ProtocolLog'
@@ -73,21 +78,17 @@ export default function ProtocolDashboard({
   initialBelief,
 }: ProtocolDashboardProps) {
   const [belief, setBelief] = useState<SchilchtBelief>(initialBelief)
+  const [breakdown, setBreakdown] = useState<ScoreBreakdown>(() => scoreProtocolBelief(initialBelief))
   const [showArgumentForm, setShowArgumentForm] = useState(false)
   const [showJsonModal, setShowJsonModal] = useState(false)
+  const [showScoreBreakdown, setShowScoreBreakdown] = useState(false)
   const [isSimulating, setIsSimulating] = useState(true)
 
   const protocolId = `SCHLICHT-${belief.beliefId.slice(0, 8).toUpperCase()}`
   const activeAgentCount = Object.keys(belief.agents).length
 
-  const proNetStrength = belief.proTree.reduce(
-    (sum, a) => sum + a.impactScore,
-    0
-  )
-  const conNetStrength = belief.conTree.reduce(
-    (sum, a) => sum + Math.abs(a.impactScore),
-    0
-  )
+  const proNetStrength = breakdown.proArgumentStrength
+  const conNetStrength = breakdown.conArgumentStrength
 
   // Live protocol simulation
   useEffect(() => {
@@ -119,42 +120,23 @@ export default function ProtocolDashboard({
   }, [isSimulating])
 
   // Handle new argument submission (from form or API)
+  // Uses the unified scoring engine for proper recursive scoring
   const handleNewArgument = useCallback((arg: SchilchtArgument) => {
     setBelief((prev) => {
-      const updated = { ...prev }
-
-      if (arg.side === 'pro') {
-        updated.proTree = [...prev.proTree, arg]
-      } else {
-        updated.conTree = [...prev.conTree, arg]
+      // Add argument to the appropriate tree
+      const updatedBelief: SchilchtBelief = {
+        ...prev,
+        proTree: arg.side === 'pro' ? [...prev.proTree, arg] : [...prev.proTree],
+        conTree: arg.side === 'con' ? [...prev.conTree, arg] : [...prev.conTree],
       }
 
-      // Recalculate metrics based on argument balance
-      const totalProImpact = updated.proTree.reduce(
-        (s, a) => s + a.impactScore,
-        0
-      )
-      const totalConImpact = updated.conTree.reduce(
-        (s, a) => s + a.impactScore,
-        0
-      )
-      const netImpact = totalProImpact + totalConImpact
-      const totalArgs = updated.proTree.length + updated.conTree.length
-      const maxImpact = totalArgs * 100
+      // Use the unified scoring engine to recalculate all metrics
+      const recalculated = recalculateProtocolBelief(updatedBelief)
+      recalculated.metrics.adversarialCycles = prev.metrics.adversarialCycles + 1
 
-      // Adjust truth score toward the argument balance
-      const balanceRatio = maxImpact > 0 ? netImpact / maxImpact : 0
-      const newTruthScore = Math.max(
-        0.1,
-        Math.min(0.99, 0.5 + balanceRatio * 0.5)
-      )
-
-      updated.metrics = {
-        ...prev.metrics,
-        truthScore: newTruthScore,
-        adversarialCycles: prev.metrics.adversarialCycles + 1,
-        lastUpdated: new Date().toISOString(),
-      }
+      // Update the score breakdown
+      const newBreakdown = scoreProtocolBelief(recalculated)
+      setBreakdown(newBreakdown)
 
       // Add log entry for the submission
       const contributorLabel =
@@ -166,12 +148,12 @@ export default function ProtocolDashboard({
         id: `log-arg-${Date.now()}`,
         timestamp: 'Now',
         agentName: contributorLabel,
-        content: `Submitted new ${arg.side} argument: "${arg.claim}". Pending Logic-Core review.`,
+        content: `Submitted new ${arg.side} argument: "${arg.claim}". Truth Score: ${(recalculated.metrics.truthScore * 100).toFixed(1)}%.`,
       }
 
-      updated.protocolLog = [logEntry, ...prev.protocolLog].slice(0, 20)
+      recalculated.protocolLog = [logEntry, ...prev.protocolLog].slice(0, 20)
 
-      return updated
+      return recalculated
     })
   }, [])
 
@@ -261,6 +243,16 @@ export default function ProtocolDashboard({
           <span>+</span> Propose New Argument
         </button>
         <button
+          onClick={() => setShowScoreBreakdown((s) => !s)}
+          className={`px-4 py-2 rounded font-semibold text-sm border transition-colors flex items-center gap-2 ${
+            showScoreBreakdown
+              ? 'text-purple-700 bg-purple-50 border-purple-200'
+              : 'text-[var(--foreground)] bg-[var(--muted)] border-[var(--border)] hover:bg-gray-200'
+          }`}
+        >
+          <span>&#x1D4AE;</span> {showScoreBreakdown ? 'Hide Score Breakdown' : 'Score Breakdown'}
+        </button>
+        <button
           onClick={() => setShowJsonModal(true)}
           className="px-4 py-2 rounded font-semibold text-sm text-[var(--foreground)] bg-[var(--muted)] border border-[var(--border)] hover:bg-gray-200 transition-colors flex items-center gap-2"
         >
@@ -278,6 +270,85 @@ export default function ProtocolDashboard({
           {isSimulating ? 'Pause Simulation' : 'Resume Simulation'}
         </button>
       </div>
+
+      {/* Score Breakdown Panel */}
+      {showScoreBreakdown && (
+        <div className="bg-white border border-purple-200 rounded-lg p-5 mb-5">
+          <h3 className="text-sm uppercase tracking-wider font-semibold text-purple-800 mb-4">
+            Full Score Breakdown — How ReasonRank Computes This Score
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="bg-green-50 border border-green-200 rounded p-3">
+              <div className="text-xs text-green-700 font-medium">Pro Argument Strength</div>
+              <div className="text-lg font-bold text-green-800">
+                +{breakdown.proArgumentStrength.toFixed(2)}
+              </div>
+              <div className="text-xs text-green-600">{breakdown.proArgumentCount} arguments</div>
+            </div>
+            <div className="bg-red-50 border border-red-200 rounded p-3">
+              <div className="text-xs text-red-700 font-medium">Con Argument Strength</div>
+              <div className="text-lg font-bold text-red-800">
+                -{breakdown.conArgumentStrength.toFixed(2)}
+              </div>
+              <div className="text-xs text-red-600">{breakdown.conArgumentCount} arguments</div>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded p-3">
+              <div className="text-xs text-blue-700 font-medium">Evidence Score</div>
+              <div className="text-lg font-bold text-blue-800">
+                +{breakdown.supportingEvidenceScore.toFixed(2)}
+              </div>
+              <div className="text-xs text-blue-600">{breakdown.evidenceCount} sources</div>
+            </div>
+            <div className="bg-purple-50 border border-purple-200 rounded p-3">
+              <div className="text-xs text-purple-700 font-medium">Avg Linkage</div>
+              <div className="text-lg font-bold text-purple-800">
+                {(breakdown.linkageScore * 100).toFixed(0)}%
+              </div>
+              <div className="text-xs text-purple-600">relevance to conclusion</div>
+            </div>
+          </div>
+
+          {/* Formula visualization */}
+          <div className="bg-gray-50 border border-gray-200 rounded p-3 mb-4 font-mono text-xs">
+            <div className="text-gray-500 mb-1">Master Formula:</div>
+            <div className="text-gray-800">
+              Truth Score = normalize( (Pro: {breakdown.proArgumentStrength.toFixed(2)} - Con: {breakdown.conArgumentStrength.toFixed(2)}) + Evidence: {breakdown.evidenceScore.toFixed(2)} )
+            </div>
+            <div className="text-gray-800 mt-1">
+              = <span className="font-bold text-[var(--accent)]">{(breakdown.truthScore * 100).toFixed(1)}%</span> ± {(breakdown.confidenceInterval * 100).toFixed(1)}%
+            </div>
+          </div>
+
+          {/* Per-argument details */}
+          <details className="text-xs">
+            <summary className="cursor-pointer text-purple-700 font-semibold mb-2">
+              Per-Argument Score Details ({breakdown.argumentBreakdowns.length} arguments)
+            </summary>
+            <div className="space-y-1 max-h-48 overflow-y-auto">
+              {breakdown.argumentBreakdowns.map((ab) => (
+                <div key={ab.id} className="flex items-center gap-2 py-1 border-b border-gray-100">
+                  <span className={`w-12 text-right font-mono font-bold ${
+                    ab.side === 'pro' ? 'text-green-700' : 'text-red-700'
+                  }`}>
+                    {ab.side === 'pro' ? '+' : '-'}{ab.rawImpact.toFixed(2)}
+                  </span>
+                  <span className="text-gray-400">=</span>
+                  <span className="text-gray-600">
+                    T:{(ab.truthScore * 100).toFixed(0)}%
+                    {ab.fallacyPenalty > 0 && (
+                      <span className="text-red-500 ml-1">(-{(ab.fallacyPenalty * 100).toFixed(0)}% fallacy)</span>
+                    )}
+                  </span>
+                  <span className="text-gray-400">×</span>
+                  <span className="text-gray-600">L:{(ab.linkageScore * 100).toFixed(0)}%</span>
+                  <span className="text-gray-400">→</span>
+                  <span className="text-gray-800 truncate flex-1">{ab.claim}</span>
+                </div>
+              ))}
+            </div>
+          </details>
+        </div>
+      )}
 
       {/* Participation info banner */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-5 text-sm">

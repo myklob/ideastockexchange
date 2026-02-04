@@ -294,6 +294,114 @@ export default function Home() {
           </Link>
         </section>
 
+        {/* ReasonRank Scoring System */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6">
+            The ReasonRank Scoring System
+          </h2>
+          <p className="text-lg text-[var(--muted-foreground)] mb-8">
+            Like Google&apos;s PageRank but for reasoning. Every belief gets scored based on
+            the network of arguments supporting and opposing it. All scores flow through
+            a single unified scoring engine.
+          </p>
+
+          <div className="overflow-x-auto mb-8">
+            <table className="w-full text-sm border border-[var(--border)] rounded-lg overflow-hidden">
+              <thead className="bg-[var(--muted)]">
+                <tr>
+                  <th className="text-left px-4 py-3 font-semibold w-1/4">Score Type</th>
+                  <th className="text-left px-4 py-3 font-semibold">What It Measures</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-[var(--border)]">
+                  <td className="px-4 py-3 font-semibold">
+                    <Link href="/protocol" className="text-[var(--accent)] hover:underline">ReasonRank</Link>
+                  </td>
+                  <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                    The foundation. Uses argument network analysis. A belief&apos;s score = strength of
+                    supporting arguments minus opposing arguments, weighted by each argument&apos;s linkage,
+                    importance, logical validity, and evidence quality.
+                  </td>
+                </tr>
+                <tr className="border-t border-[var(--border)]">
+                  <td className="px-4 py-3 font-semibold">Truth Scores</td>
+                  <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                    ReasonRank applied to whether a belief is logically valid and empirically verified.
+                    Measures &quot;Is this claim true?&quot; separate from &quot;Is it relevant?&quot;
+                  </td>
+                </tr>
+                <tr className="border-t border-[var(--border)]">
+                  <td className="px-4 py-3 font-semibold">Linkage Scores</td>
+                  <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                    How strongly evidence connects to conclusions. High linkage = &quot;If this evidence is true,
+                    it necessarily strengthens the conclusion.&quot; Low linkage = &quot;True but irrelevant.&quot;
+                  </td>
+                </tr>
+                <tr className="border-t border-[var(--border)]">
+                  <td className="px-4 py-3 font-semibold">Evidence Scores</td>
+                  <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                    EVS = Source Weight × log2(Replications + 1) × Relevance × Consistency.
+                    Peer-reviewed studies (T1) score higher than anecdotes (T4). Reproducible experiments
+                    beat one-off observations.
+                  </td>
+                </tr>
+                <tr className="border-t border-[var(--border)]">
+                  <td className="px-4 py-3 font-semibold">Importance Weights</td>
+                  <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                    Two components: (1) ReasonRank score for whether an argument aligns with the best
+                    objective criteria, (2) Total expected costs + benefits weighted by how critical
+                    the belief is to outcomes.
+                  </td>
+                </tr>
+                <tr className="border-t border-[var(--border)]">
+                  <td className="px-4 py-3 font-semibold">
+                    <Link href="/cba" className="text-[var(--accent)] hover:underline">Likelihood Scores</Link>
+                  </td>
+                  <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                    ReasonRank applied to cost/benefit predictions. Competing forecasts argue for their
+                    probability. The estimate backed by the strongest surviving argument tree wins.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="bg-[var(--muted)] p-6 rounded-lg">
+            <h3 className="font-semibold mb-3">How It All Connects</h3>
+            <div className="text-sm text-[var(--muted-foreground)] space-y-2">
+              <p>
+                <strong>1.</strong> Every belief has a <strong>Truth Score</strong> computed from
+                its argument tree (pro vs. con strength) and evidence quality.
+              </p>
+              <p>
+                <strong>2.</strong> Each argument&apos;s impact is weighted by its <strong>Linkage Score</strong> (relevance)
+                and <strong>Truth Score</strong> (accuracy). Detected fallacies reduce the truth score.
+              </p>
+              <p>
+                <strong>3.</strong> Evidence is scored by the <strong>EVS formula</strong> —
+                source independence, replication count, conclusion relevance, and replication consistency.
+              </p>
+              <p>
+                <strong>4.</strong> In Cost-Benefit Analysis, each probability is a nested belief node
+                with competing <strong>Likelihood Scores</strong>. The winner is determined by ReasonRank, not voting.
+              </p>
+              <p>
+                <strong>5.</strong> All scores flow through a <strong>single unified scoring engine</strong>,
+                ensuring Protocol beliefs and CBA estimates use identical logic.
+              </p>
+            </div>
+            <div className="mt-4">
+              <Link
+                href="/api/scoring"
+                className="text-sm text-[var(--accent)] hover:underline font-medium"
+              >
+                View Live Scoring Data (JSON) &rarr;
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Get Started */}
         <section className="bg-gradient-to-r from-[var(--accent)]/10 to-[var(--accent)]/5 p-12 rounded-lg text-center">
           <h2 className="text-3xl font-bold mb-4">
