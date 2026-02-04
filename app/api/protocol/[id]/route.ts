@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getSchilchtBelief } from '@/lib/data/schlicht-data'
+import { getSchilchtBelief, getBeliefScoreBreakdown } from '@/lib/data/schlicht-data'
 
 export async function GET(
   _request: Request,
@@ -83,6 +83,32 @@ export async function GET(
       agent: entry.agentName,
       content: entry.content,
     })),
+    // Score breakdown from the unified scoring engine — shows exactly how the truth score is computed
+    score_breakdown: (() => {
+      const bd = getBeliefScoreBreakdown(id)
+      if (!bd) return null
+      return {
+        truth_score: bd.truthScore,
+        confidence_interval: bd.confidenceInterval,
+        pro_argument_strength: bd.proArgumentStrength,
+        con_argument_strength: bd.conArgumentStrength,
+        evidence_score: bd.evidenceScore,
+        average_linkage: bd.linkageScore,
+        pro_argument_count: bd.proArgumentCount,
+        con_argument_count: bd.conArgumentCount,
+        evidence_count: bd.evidenceCount,
+        per_argument: bd.argumentBreakdowns.map((ab) => ({
+          id: ab.id,
+          claim: ab.claim,
+          side: ab.side,
+          truth_score: ab.truthScore,
+          linkage_score: ab.linkageScore,
+          raw_impact: ab.rawImpact,
+          signed_impact: ab.signedImpact,
+          fallacy_penalty: ab.fallacyPenalty,
+        })),
+      }
+    })(),
   }
 
   return NextResponse.json(schlichtJson, {
