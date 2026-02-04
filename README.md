@@ -68,35 +68,39 @@ Copy `.env.example` to `.env` and configure required variables. The `.env` file 
 
 ## Architecture
 
-The system is organized by **intent** (Domain-Driven Design) rather than by technology layer.
+The system is organized by **intent** (Domain-Driven Design) rather than by technology layer. Each folder describes *what it does*, not when it was last touched.
 
 ```
 src/
-  app/              Next.js App Router -- routing, layouts, server actions only
-  features/         Domain logic grouped by feature
-    reasonrank/       ReasonRank scoring, protocol components, data
-    cost-benefit-analysis/  CBA dashboard, likelihood panels, line items
-    wikilaw/          Law analysis, diagnostic sections, evidence cards
-    books/            Book analysis services
-    topics/           Topic data and sample beliefs
-  core/             Framework-agnostic logic
-    scoring/          Unified scoring engine, CBA scoring, book scoring
-    types/            All TypeScript type definitions
-    schemas/          XSD and XSLT schema artifacts
-    ai/               Python ML models, LLM clients, distributed AI framework
-  lib/              Third-party integration wrappers (Prisma)
-  shared/           Reusable UI components and utilities
-docs/               Design documents and technical specifications
-prisma/             Database schema and migrations
-_archive/           Legacy code preserved for reference
+  app/                        Next.js App Router -- routing and server boundaries only
+  features/                   Domain logic grouped by business purpose
+    epistemology/               Schlicht Protocol: belief verification and confidence scoring
+    cost-benefit-analysis/      Policy evaluation with adversarial likelihood estimates
+    legal-framework/            wikiLaw: law diagnostic dashboards and assumption auditing
+    books/                      Book claim analysis and fallacy detection
+    topics/                     Topic hubs aggregating related beliefs
+  core/                       Framework-agnostic logic shared across all features
+    scoring/                    Unified scoring engine (ReasonRank, EVS, truth, likelihood)
+    types/                      All TypeScript type definitions by domain
+    ai/                         LLM clients, analysis generators, task queue
+    schemas/                    XSD and XSLT schema artifacts
+  components/                 Global reusable UI (only components used by 3+ features)
+  lib/                        Third-party wrappers (Prisma client) and shared utilities
+  styles/                     CSS assets
+docs/                         Design documents and technical specifications
+prisma/                       Database schema and migrations
+_archive/                     Legacy code preserved for reference
 ```
+
+Each feature folder contains a `README.md` explaining its purpose, key concepts, and internal structure.
 
 ### Key Design Decisions
 
 - **Single scoring engine** (`src/core/scoring/scoring-engine.ts`) ensures Protocol and CBA use identical ReasonRank logic
-- **Feature isolation** -- each feature owns its components, data, and services
+- **Feature isolation** -- each feature owns its components, data, and services; co-located unless shared by 3+ features
 - **Typed contracts** -- all domain types live in `src/core/types/` and are shared across features
 - **No business logic in routes** -- `src/app/` contains only routing and server boundaries
+- **Rule of Three** -- a component stays co-located in its feature until it is used by three or more features, then it moves to `/src/components/`
 
 ## Documentation
 

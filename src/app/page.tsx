@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { exampleLaws } from '@/features/wikilaw/data/example-laws';
+import { exampleLaws } from '@/features/legal-framework/data/example-laws';
 
 export default function Home() {
   return (

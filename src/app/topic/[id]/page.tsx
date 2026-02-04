@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getTopicWithBeliefs } from '@/features/topics/data/sample-data';
-import AbstractionLadder from '@/shared/components/AbstractionLadder';
-import ConfidenceScale from '@/shared/components/ConfidenceScale';
-import ValenceSpectrum from '@/shared/components/ValenceSpectrum';
-import MasterView from '@/shared/components/MasterView';
+import AbstractionLadder from '@/components/AbstractionLadder';
+import ConfidenceScale from '@/components/ConfidenceScale';
+import ValenceSpectrum from '@/components/ValenceSpectrum';
+import MasterView from '@/components/MasterView';
 
 interface TopicPageProps {
   params: Promise<{

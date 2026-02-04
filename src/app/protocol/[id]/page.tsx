@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { getSchilchtBelief } from '@/features/reasonrank/data/schlicht-data'
-import ProtocolDashboard from '@/features/reasonrank/components/ProtocolDashboard'
+import { getSchilchtBelief } from '@/features/epistemology/data/schlicht-data'
+import ProtocolDashboard from '@/features/epistemology/components/ProtocolDashboard'
 
 interface ProtocolPageProps {
   params: Promise<{ id: string }>

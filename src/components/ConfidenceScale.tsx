@@ -1,40 +1,41 @@
 import React from 'react';
 import { Belief } from '@/core/types/ise';
-import { sortBeliefsByValence, getValenceLabel, getValenceColor, formatScore } from '@/shared/utils';
+import { sortBeliefsByIntensity, getIntensityLabel, formatScore } from '@/lib/utils';
 
-interface ValenceSpectrumProps {
+interface ConfidenceScaleProps {
   beliefs: Belief[];
 }
 
-export default function ValenceSpectrum({ beliefs }: ValenceSpectrumProps) {
-  const sortedBeliefs = sortBeliefsByValence(beliefs);
+export default function ConfidenceScale({ beliefs }: ConfidenceScaleProps) {
+  const sortedBeliefs = sortBeliefsByIntensity(beliefs);
 
   return (
     <div className="mb-8">
       <h3 className="text-2xl font-bold mb-4">
-        Dimension 3: Negative → Positive (The Valence Spectrum)
+        Dimension 2: Weak → Strong (The Confidence Scale)
       </h3>
       <p className="text-gray-700 mb-4">
-        View the full spectrum of positions in one view. Instead of a binary "Pro/Con," we map
-        the nuance of the debate, allowing users to find the exact point where they stand.
+        Sort beliefs by intensity. Note that the strongest claims often have lower scores because
+        they require a higher burden of proof. This dimension helps users distinguish between
+        nuanced reality and dogmatic extremism.
       </p>
 
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300 bg-white">
           <thead className="bg-gray-200">
             <tr>
-              <th className="px-6 py-3 border-b text-left font-semibold">Position</th>
               <th className="px-6 py-3 border-b text-left font-semibold">Belief Statement</th>
+              <th className="px-6 py-3 border-b text-center font-semibold">Intensity</th>
               <th className="px-6 py-3 border-b text-center font-semibold">Score</th>
             </tr>
           </thead>
           <tbody>
             {sortedBeliefs.map((belief) => (
               <tr key={belief.id} className="hover:bg-gray-50">
-                <td className={`px-6 py-4 border-b font-semibold ${getValenceColor(belief.valence)}`}>
-                  {getValenceLabel(belief.valence)}
-                </td>
                 <td className="px-6 py-4 border-b">&quot;{belief.statement}&quot;</td>
+                <td className="px-6 py-4 border-b text-center">
+                  {belief.intensityPercentage}% ({getIntensityLabel(belief.intensity)})
+                </td>
                 <td className="px-6 py-4 border-b text-center font-bold">
                   {formatScore(belief.score)}
                 </td>

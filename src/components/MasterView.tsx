@@ -7,7 +7,7 @@ import {
   getValenceLabel,
   getValenceColor,
   formatScore,
-} from '@/shared/utils';
+} from '@/lib/utils';
 
 interface MasterViewProps {
   beliefs: Belief[];

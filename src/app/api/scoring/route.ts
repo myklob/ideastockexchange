@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getAllSchilchtBeliefs, getBeliefScoreBreakdown } from '@/features/reasonrank/data/schlicht-data'
+import { getAllSchilchtBeliefs, getBeliefScoreBreakdown } from '@/features/epistemology/data/schlicht-data'
 import { getAllCBAs } from '@/features/cost-benefit-analysis/data/cba-data'
 import { scoreLikelihoodEstimate } from '@/core/scoring/scoring-engine'
 
