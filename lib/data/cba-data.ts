@@ -12,7 +12,9 @@ function makeArg(
   side: 'pro' | 'con',
   truthScore: number,
   linkageScore: number,
-  contributor: { type: 'human' | 'ai'; name: string }
+  contributor: { type: 'human' | 'ai'; name: string },
+  importanceScore: number = 1.0,
+  subArguments?: SchilchtArgument[]
 ): SchilchtArgument {
   const direction = side === 'pro' ? 1 : -1
   return {
@@ -22,9 +24,11 @@ function makeArg(
     side,
     truthScore,
     linkageScore,
-    impactScore: Math.round(truthScore * linkageScore * 100) * direction,
+    importanceScore,
+    impactScore: Math.round(truthScore * linkageScore * importanceScore * 100) * direction,
     certifiedBy: ['Logic-Core-v4', 'Evidence-Bot-9'],
     fallaciesDetected: [],
+    subArguments,
     contributor: {
       type: contributor.type,
       name: contributor.name,
@@ -120,7 +124,32 @@ const bridgeCBA: CostBenefitAnalysis = {
                 'Reference class of 47 similar bridge projects shows 70% achieve projected savings',
                 'Analysis of 47 bridge replacement projects in the US (2010-2024) shows that 70% achieved at least 80% of projected commute time savings within 2 years of completion.',
                 'pro', 0.85, 0.80,
-                { type: 'human', name: 'Dr. Sarah Chen, Transportation Research' }
+                { type: 'human', name: 'Dr. Sarah Chen, Transportation Research' },
+                0.9, // high importance: reference class forecasting is a key methodology
+                [
+                  // Sub-arguments about whether reference class forecasting applies here
+                  makeArg(
+                    'arg-b1h-2-sub1',
+                    'Reference class forecasting is the gold standard for infrastructure predictions',
+                    'As described in superforecasting literature (Tetlock, 2015), reference class forecasting outperforms expert intuition by anchoring to base rates from comparable projects.',
+                    'pro', 0.90, 0.85,
+                    { type: 'ai', name: 'Base-Rate-Core-v3' }
+                  ),
+                  makeArg(
+                    'arg-b1h-2-sub2',
+                    'The 47-project sample has strong geographic and scope match',
+                    'All 47 projects are US highway bridges built 2010-2024 with 2-6 lanes, providing a tight reference class rather than a broad, heterogeneous comparison.',
+                    'pro', 0.82, 0.88,
+                    { type: 'human', name: 'Dr. Sarah Chen, Transportation Research' }
+                  ),
+                  makeArg(
+                    'arg-b1h-2-sub3',
+                    'Pre-2020 reference class may not account for post-COVID commuter behavior shifts',
+                    '34 of the 47 projects were completed before 2020. Post-pandemic commuter patterns differ substantially, reducing the reference class applicability to this specific prediction.',
+                    'con', 0.75, 0.72,
+                    { type: 'ai', name: 'Red-Team-Delta' }
+                  ),
+                ]
               ),
             ],
             [
@@ -319,14 +348,39 @@ const bridgeCBA: CostBenefitAnalysis = {
                 'Reference class: only 30% of bridge projects complete within original budget',
                 'Analysis of 200+ bridge construction projects (ASCE database, 2005-2023) shows that only 30% completed within the original budget estimate. Median cost overrun was 34%.',
                 'pro', 0.91, 0.88,
-                { type: 'ai', name: 'Base-Rate-Core-v3' }
+                { type: 'ai', name: 'Base-Rate-Core-v3' },
+                0.95, // very high importance: base rate is the strongest predictor
+                [
+                  makeArg(
+                    'arg-c1ob-1-sub1',
+                    'Base rates from large databases are the most reliable predictor of project outcomes',
+                    'Flyvbjerg meta-analysis across 258 infrastructure projects confirms that base rates outperform expert judgment for cost prediction. This is the core insight of reference class forecasting.',
+                    'pro', 0.92, 0.90,
+                    { type: 'ai', name: 'Evidence-Bot-9' }
+                  ),
+                  makeArg(
+                    'arg-c1ob-1-sub2',
+                    'ASCE database uses standardized reporting, minimizing data quality issues',
+                    'The ASCE infrastructure database requires projects to report using standardized cost categories, reducing apples-to-oranges comparisons that plague ad hoc reference classes.',
+                    'pro', 0.80, 0.78,
+                    { type: 'human', name: 'InfrastructureAnalyst_7' }
+                  ),
+                  makeArg(
+                    'arg-c1ob-1-sub3',
+                    'Database includes projects from different regulatory regimes, reducing comparability',
+                    'The 200+ projects span 18 years and multiple states with varying regulatory requirements. Construction cost drivers differ significantly by jurisdiction.',
+                    'con', 0.72, 0.68,
+                    { type: 'human', name: 'ProjectManager_DB' }
+                  ),
+                ]
               ),
               makeArg(
                 'arg-c1ob-2',
                 'Current inflation in construction materials exceeds 5%',
                 'Steel prices up 12% YoY, concrete up 8%. With a 3-year construction timeline, material cost escalation alone adds $1.5-2M to the estimate.',
                 'pro', 0.85, 0.82,
-                { type: 'human', name: 'ConstructionCostAnalyst' }
+                { type: 'human', name: 'ConstructionCostAnalyst' },
+                0.8 // high importance: inflation directly affects the prediction
               ),
             ],
             [

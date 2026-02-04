@@ -29,6 +29,7 @@ const argumentSchema = z.object({
   }),
   truth_score: z.number().min(0).max(100).optional().default(50),
   linkage_score: z.number().min(0).max(100).optional().default(50),
+  importance_score: z.number().min(0).max(100).optional().default(100),
 })
 
 const newEstimateSchema = z.object({
@@ -87,7 +88,8 @@ export async function POST(
 
     const truthNormalized = data.truth_score / 100
     const linkageNormalized = data.linkage_score / 100
-    const impactScore = calculateArgumentImpact(truthNormalized, linkageNormalized, data.side)
+    const importanceNormalized = data.importance_score / 100
+    const impactScore = calculateArgumentImpact(truthNormalized, linkageNormalized, data.side, importanceNormalized)
 
     const argument: SchilchtArgument = {
       id: argId,
@@ -96,6 +98,7 @@ export async function POST(
       side: data.side,
       truthScore: truthNormalized,
       linkageScore: linkageNormalized,
+      importanceScore: importanceNormalized,
       impactScore,
       certifiedBy: ['Pending-Review'],
       fallaciesDetected: [],
@@ -202,8 +205,9 @@ export async function POST(
         side: '"pro" | "con"',
         contributor_name: 'string (required)',
         contributor_type: '"human" | "ai"',
-        truth_score: 'number 0-100 (optional, default 50)',
-        linkage_score: 'number 0-100 (optional, default 50)',
+        truth_score: 'number 0-100 (optional, default 50) - Is the evidence factually accurate?',
+        linkage_score: 'number 0-100 (optional, default 50) - How strongly does this connect to the prediction?',
+        importance_score: 'number 0-100 (optional, default 100) - How much does this argument move the probability?',
       },
       estimate_schema: {
         probability: 'number 1-99 (required) - Your probability estimate (%)',
@@ -229,7 +233,7 @@ export async function GET(
         'Submit an argument for/against a likelihood estimate, or propose a new competing probability estimate.',
       usage: {
         submit_argument: {
-          description: 'Argue for or against an existing probability estimate',
+          description: 'Argue for or against an existing probability estimate. Arguments are scored on three metrics: Truth (factual accuracy), Linkage (relevance to this prediction), and Importance (how much it moves the probability).',
           schema: {
             estimate_id: 'string (required)',
             claim: 'string (required, max 500)',
@@ -237,8 +241,9 @@ export async function GET(
             side: '"pro" | "con"',
             contributor_name: 'string (required)',
             contributor_type: '"human" | "ai"',
-            truth_score: 'number 0-100 (optional)',
-            linkage_score: 'number 0-100 (optional)',
+            truth_score: 'number 0-100 (optional) - Is the evidence factually accurate?',
+            linkage_score: 'number 0-100 (optional) - How strongly does this connect to the prediction?',
+            importance_score: 'number 0-100 (optional) - How much does this argument move the probability?',
           },
         },
         propose_estimate: {
