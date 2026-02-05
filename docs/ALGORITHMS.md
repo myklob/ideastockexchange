@@ -66,17 +66,117 @@ Intrinsic reliability of evidence, independent of what it's being used to prove.
 ### Formula
 
 ```
-EQ = (IV × 0.30) + (SS × 0.25) + (R × 0.25) + (BR × 0.20)
+EQ = (IV × W_iv) + (SS × W_ss) + (R × W_r) + (BR × W_br)
+
+Where weights are determined by Objective Criteria Alignment:
+W_iv + W_ss + W_r + W_br = 1.0
 ```
 
 ### Variables
 
-| Symbol | Meaning | Weight | Scale |
-|--------|---------|--------|-------|
-| `IV` | Internal Validity (methodology rigor) | 30% | 0-10 |
-| `SS` | Statistical Soundness (effect size, p-values) | 25% | 0-10 |
-| `R` | Replicability (independent verification) | 25% | 0-10 |
-| `BR` | Bias Resistance (conflicts of interest) | 20% | 0-10 |
+| Symbol | Meaning | Scale |
+|--------|---------|-------|
+| `IV` | Internal Validity (methodology rigor) | 0-10 |
+| `SS` | Statistical Soundness (effect size, p-values) | 0-10 |
+| `R` | Replicability (independent verification) | 0-10 |
+| `BR` | Bias Resistance (conflicts of interest) | 0-10 |
+
+### Dynamic Weights via Objective Criteria Alignment (OCA)
+
+Instead of fixed weights, each weight (W_iv, W_ss, W_r, W_br) is itself a conclusion determined by ReasonRank scoring. This "bootstraps all the way down" - even the meta-question of how to weight evidence components is resolved through pro/con arguments.
+
+#### Weight Resolution Hierarchy
+
+```
+1. Debate-Specific Weights   → Arguments about why THIS debate needs different weights
+       ↓ (if insufficient arguments)
+2. Category Default Weights  → Arguments about why THIS CATEGORY of debates needs different weights
+       ↓ (if insufficient arguments)
+3. System Default Weights    → Current consensus defaults (bootstrapped over time)
+```
+
+#### How Weight Arguments Work
+
+Each weight has its own mini-debate:
+
+```
+Belief: "Internal Validity should be weighted at X% for [context]"
+  ├── Pro: "Methodology rigor is paramount in medical claims because..."
+  ├── Pro: "Historical failures in this domain trace to poor methodology..."
+  ├── Con: "Effect size matters more when sample sizes are large because..."
+  └── Con: "For replicated findings, original methodology matters less..."
+```
+
+The ReasonRank score of competing weight proposals determines the active weight.
+
+#### Weight Calculation
+
+```
+W_component = ArgumentWinningProposal.value × OCA_confidence +
+              CategoryDefault.value × (1 - OCA_confidence)
+
+Where:
+  OCA_confidence = ReasonRank gap between winning and second-place proposal
+  Bounded: OCA_confidence ∈ [0, 1]
+```
+
+When debate-specific arguments are sparse, weights blend toward category defaults. As arguments accumulate, the debate-specific weights dominate.
+
+#### System Default Weights (Initial Bootstrap Values)
+
+These serve as starting points when no category or debate-specific arguments exist:
+
+| Component | Default Weight | Rationale |
+|-----------|----------------|-----------|
+| `W_iv` | 0.30 | Methodology is foundational |
+| `W_ss` | 0.25 | Statistical rigor validates findings |
+| `W_r` | 0.25 | Replication confirms reliability |
+| `W_br` | 0.20 | Bias affects interpretation |
+
+**These defaults are provisional.** As the system accumulates arguments about optimal weighting across different contexts, category-specific and global defaults will evolve.
+
+#### Example: Category-Specific Weights
+
+| Category | W_iv | W_ss | W_r | W_br | Reasoning (via ReasonRank) |
+|----------|------|------|-----|------|----------------------------|
+| Medical Claims | 0.35 | 0.25 | 0.25 | 0.15 | Methodology failures dominate historical errors |
+| Social Science | 0.20 | 0.20 | 0.35 | 0.25 | Replication crisis; bias prevalent |
+| Physics/Engineering | 0.25 | 0.35 | 0.30 | 0.10 | Precise measurements; low bias risk |
+| Economics/Policy | 0.20 | 0.25 | 0.20 | 0.35 | High conflict-of-interest prevalence |
+
+#### Implementation
+
+```javascript
+function getEvidenceQualityWeights(debateId, categoryId) {
+  // Try debate-specific weights first
+  const debateWeights = getWeightProposals(debateId, 'debate');
+  if (hasStrongConsensus(debateWeights)) {
+    return resolveWinningWeights(debateWeights);
+  }
+
+  // Fall back to category defaults (also determined by ReasonRank)
+  const categoryWeights = getWeightProposals(categoryId, 'category');
+  if (hasStrongConsensus(categoryWeights)) {
+    // Blend based on debate-level argument strength
+    const confidence = getOCAConfidence(debateWeights);
+    return blendWeights(
+      resolveWinningWeights(debateWeights),
+      resolveWinningWeights(categoryWeights),
+      confidence
+    );
+  }
+
+  // Fall back to system defaults (subject to global ReasonRank debate)
+  return getSystemDefaultWeights();
+}
+
+function calculateEQ(iv, ss, r, br, weights) {
+  return (iv * weights.W_iv) +
+         (ss * weights.W_ss) +
+         (r * weights.W_r) +
+         (br * weights.W_br);
+}
+```
 
 ### Evidence Type Defaults
 
