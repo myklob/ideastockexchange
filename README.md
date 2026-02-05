@@ -1,8 +1,49 @@
 # Idea Stock Exchange
 
+> A marketplace for ideas where truth is the currency.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./docs/CONTRIBUTING.md)
+
 A platform for structured disagreement, probabilistic reasoning, and argument-weighted decision analysis.
 
+---
+
+## Why This Exists
+
+Public discourse is broken. People argue past each other, cherry-pick evidence, and conflate values with facts. The Idea Stock Exchange provides a framework where:
+
+- **Arguments are investments** -- Every claim you make has a "price" that rises or falls based on evidence quality
+- **Disagreement is structured** -- Identify whether you disagree on facts, values, or the strength of the link between them
+- **Uncertainty is explicit** -- All scores include confidence intervals, not false precision
+- **Adversarial testing is built-in** -- The best arguments survive scrutiny; weak ones get repriced
+
 The Idea Stock Exchange applies computational epistemology to real-world claims. Every belief is treated as a tradeable proposition: its "price" (truth score) rises or falls based on the quality, linkage, and adversarial strength of the arguments behind it.
+
+---
+
+## Quick Start
+
+```bash
+# Clone and install
+git clone https://github.com/myklob/ideastockexchange.git
+cd ideastockexchange
+npm install
+
+# Set up database
+cp .env.example .env
+npx prisma generate
+npm run db:migrate
+
+# Start development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to explore.
+
+---
 
 ## Core Concepts
 
@@ -88,7 +129,9 @@ src/
   lib/                        Third-party wrappers (Prisma client) and shared utilities
   styles/                     CSS assets
 docs/                         Design documents and technical specifications
+tests/                        Unit, integration, and e2e tests
 prisma/                       Database schema and migrations
+scripts/                      Automation and CI/CD scripts
 _archive/                     Legacy code preserved for reference
 ```
 
