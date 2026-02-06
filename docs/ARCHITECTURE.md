@@ -365,7 +365,7 @@ The ISE is a **crowdsourced reasoning engine** — a platform where:
 * Every **belief**, **argument**, **piece of evidence**, and **media item** is treated as a *trackable object* with its own truth score.
 * Users **contribute**, **challenge**, and **link** these objects through structured reasoning.
 * The system dynamically updates each item's **score** based on pro/con performance and evidence quality — similar to a stock market's price.
-* The entire ecosystem becomes a transparent **marketplace of ideas** ranked by truth, evidence, and importance.
+* The whole system works as a transparent **marketplace of ideas** ranked by truth, evidence, and importance.
 
 ---
 
@@ -1131,7 +1131,7 @@ The ISE combines:
 * **Academic peer review standards** - Evidence-based verification
 * **Social network scale** - Broad participation and engagement
 
-…to create the world's first **living, open-source system for evaluating truth and importance** — where ideas are scored, evidence is tracked, and influence is transparent.
+…to create a **living, open-source system for evaluating truth and importance** — where ideas are scored, evidence is tracked, and influence is transparent.
 
 ---
 

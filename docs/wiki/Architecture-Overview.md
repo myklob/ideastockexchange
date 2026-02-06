@@ -702,14 +702,14 @@ console.error('Error:', err);
 
 ## Summary
 
-The Idea Stock Exchange architecture follows modern best practices:
+The Idea Stock Exchange architecture follows standard conventions:
 
 - **Clean Separation** - Frontend, API, Database layers
 - **RESTful Design** - Resource-oriented, stateless API
 - **Document Database** - Flexible schema for evolving models
 - **Modular Code** - Reusable components and utilities
 - **Security First** - Authentication, authorization, validation
-- **Scalable Foundation** - Ready for growth with planned improvements
+- **Scalable** - Ready for growth with planned improvements
 
 The architecture is designed to evolve from a single-server prototype to a distributed, production-ready system while maintaining code clarity and developer productivity.
 

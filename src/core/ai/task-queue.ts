@@ -1,6 +1,6 @@
 /**
  * Distributed AI Framework - Task Queue with Spare Capacity Usage
- * Manages analysis tasks and utilizes idle processing power
+ * Manages analysis tasks and uses idle processing power
  */
 
 import * as os from 'os';

@@ -1,6 +1,6 @@
 # wikiLaw: Evidence-Based Legal Analysis
 
-wikiLaw is a revolutionary application built on the Idea Stock Exchange platform for analyzing legislation and legal documents using structured, evidence-based methods.
+wikiLaw is an application built on the Idea Stock Exchange platform for analyzing legislation and legal documents using structured, evidence-based methods.
 
 ---
 
