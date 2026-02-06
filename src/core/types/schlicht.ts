@@ -46,8 +46,9 @@ export interface SchilchtArgument {
   description: string
   side: ArgumentSide
   truthScore: number        // 0-1: Is the evidence factually accurate?
-  linkageScore: number      // 0-1: How strongly does this connect to the specific prediction?
+  linkageScore: number      // 0-1: How strongly does this connect to the parent claim?
   importanceScore?: number  // 0-1: How much does this argument move the probability? (default 1.0)
+  uniquenessScore?: number  // 0-1: How unique is this among sibling arguments? (default 1.0, lower = more redundant)
   impactScore: number       // signed: positive for pro, negative for con (computed)
   certifiedBy: string[]     // agent names
   fallaciesDetected: DetectedFallacy[]
