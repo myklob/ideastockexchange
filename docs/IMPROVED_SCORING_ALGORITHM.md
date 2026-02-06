@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the enhanced scoring algorithm that implements the principles outlined in the "Why Every Belief Must Face Its Critics" manifesto. The new algorithm transforms the simple pro/con ratio approach into a sophisticated multi-dimensional evaluation system.
+This document describes the enhanced scoring algorithm that implements the principles outlined in the "Why Every Belief Must Face Its Critics" manifesto. The new algorithm replaces the simple pro/con ratio with a multi-dimensional evaluation system.
 
 ---
 

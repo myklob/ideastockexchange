@@ -6,7 +6,7 @@ Imagine if every argument automatically showed its score. Not based on how many 
 
 That's ReasonRank.
 
-Google revolutionized web search by treating links as votes. A webpage matters when other important pages link to it. The algorithm doesn't care about popularity contests or paid placement. It follows the network of trust.
+Google changed web search by treating links as votes. A webpage matters when other important pages link to it. The algorithm doesn't care about popularity contests or paid placement. It follows the network of trust.
 
 ReasonRank does the same thing for ideas. Instead of counting hyperlinks, it weighs arguments. Instead of ranking websites, it scores beliefs. The truth rises not because we voted for it, but because the evidence demands it.
 
@@ -76,7 +76,7 @@ Here's where it gets interesting. Every argument is itself a belief page with it
 
 Now watch what happens when new evidence appears. If that peer-reviewed study gets retracted, the score doesn't just update on one page. It ripples through the entire network instantly. Every conclusion built on that foundation automatically adjusts.
 
-This is what makes ReasonRank revolutionary. **The truth updates itself.**
+This is what makes ReasonRank different. **The truth updates itself.**
 
 ---
 

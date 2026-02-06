@@ -1,7 +1,7 @@
 # Idea Stock Exchange - Advancement Implementation Plan
 
-## Executive Summary
-This plan advances the ISE from a functional prototype to a complete, usable platform that demonstrates the core value proposition: evidence-based reasoning through algorithmic scoring and crowd-sourced debate.
+## Summary
+This plan advances the ISE from a functional prototype to a complete, usable platform that shows what it does best: evidence-based reasoning through algorithmic scoring and crowd-sourced debate.
 
 ---
 
@@ -127,7 +127,7 @@ This plan advances the ISE from a functional prototype to a complete, usable pla
 ---
 
 ### 1.4 Evidence Upload Interface
-**Goal**: Comprehensive evidence submission with source tracking and verification
+**Goal**: Evidence submission with source tracking and verification
 
 **Components to Build**:
 - `EvidenceForm.jsx` - Main upload form
@@ -180,7 +180,7 @@ This plan advances the ISE from a functional prototype to a complete, usable pla
 **Goal**: Make all scoring components visible, understandable, and interactive
 
 **Components to Build**:
-- `ScoreDashboard.jsx` - Comprehensive score overview
+- `ScoreDashboard.jsx` - Full score overview
 - `ConclusionScoreGauge.jsx` - Primary CS display (0-100)
 - `ComponentBreakdown.jsx` - All 7 components with explanations
 - `ScoreTimeline.jsx` - Historical score changes
@@ -428,7 +428,7 @@ Reputation = (
 - **Unstable** (0-30): New, volatile, insufficient analysis
 - **Developing** (30-60): Growing analysis, some volatility
 - **Stable** (60-85): Well-analyzed, consistent
-- **Highly Stable** (85-100): Comprehensive, settled
+- **Highly Stable** (85-100): Thoroughly analyzed, settled
 
 **Display**:
 - Badge on belief cards
