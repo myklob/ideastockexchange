@@ -28,11 +28,11 @@ function EstimateCard({
 
   const totalArgs = estimate.proArguments.length + estimate.conArguments.length
   const proStrength = estimate.proArguments.reduce(
-    (s, a) => s + a.truthScore * a.linkageScore * (a.importanceScore ?? 1),
+    (s, a) => s + a.truthScore * a.linkageScore * (a.importanceScore ?? 1) * (a.uniquenessScore ?? 1),
     0
   )
   const conStrength = estimate.conArguments.reduce(
-    (s, a) => s + a.truthScore * a.linkageScore * (a.importanceScore ?? 1),
+    (s, a) => s + a.truthScore * a.linkageScore * (a.importanceScore ?? 1) * (a.uniquenessScore ?? 1),
     0
   )
 

@@ -310,12 +310,18 @@ export default function ProtocolDashboard({
 
           {/* Formula visualization */}
           <div className="bg-gray-50 border border-gray-200 rounded p-3 mb-4 font-mono text-xs">
-            <div className="text-gray-500 mb-1">Master Formula:</div>
+            <div className="text-gray-500 mb-1">ReasonRank Formula (PageRank-inspired):</div>
             <div className="text-gray-800">
-              Truth Score = normalize( (Pro: {breakdown.proArgumentStrength.toFixed(2)} - Con: {breakdown.conArgumentStrength.toFixed(2)}) + Evidence: {breakdown.evidenceScore.toFixed(2)} )
+              TruthScore = ProRank / (ProRank + ConRank) + Evidence
+            </div>
+            <div className="text-gray-800 mt-0.5">
+              = {breakdown.proArgumentStrength.toFixed(2)} / ({breakdown.proArgumentStrength.toFixed(2)} + {breakdown.conArgumentStrength.toFixed(2)}) + {breakdown.evidenceScore.toFixed(2)}
             </div>
             <div className="text-gray-800 mt-1">
               = <span className="font-bold text-[var(--accent)]">{(breakdown.truthScore * 100).toFixed(1)}%</span> ± {(breakdown.confidenceInterval * 100).toFixed(1)}%
+            </div>
+            <div className="text-gray-500 mt-1">
+              Per-arg: RR(A) = 0.15 × baseTruth + 0.85 × f(proSubRank − conSubRank)
             </div>
           </div>
 
@@ -334,13 +340,24 @@ export default function ProtocolDashboard({
                   </span>
                   <span className="text-gray-400">=</span>
                   <span className="text-gray-600">
-                    T:{(ab.truthScore * 100).toFixed(0)}%
+                    RR:{(ab.reasonRank * 100).toFixed(0)}%
                     {ab.fallacyPenalty > 0 && (
                       <span className="text-red-500 ml-1">(-{(ab.fallacyPenalty * 100).toFixed(0)}% fallacy)</span>
                     )}
                   </span>
                   <span className="text-gray-400">×</span>
                   <span className="text-gray-600">L:{(ab.linkageScore * 100).toFixed(0)}%</span>
+                  <span className="text-gray-400">×</span>
+                  <span className="text-gray-600">I:{(ab.importanceWeight * 100).toFixed(0)}%</span>
+                  {ab.uniquenessScore < 1 && (
+                    <>
+                      <span className="text-gray-400">×</span>
+                      <span className="text-amber-600">U:{(ab.uniquenessScore * 100).toFixed(0)}%</span>
+                    </>
+                  )}
+                  {ab.subArgumentCount > 0 && (
+                    <span className="text-purple-500 text-[9px]">[{ab.subArgumentCount} subs]</span>
+                  )}
                   <span className="text-gray-400">→</span>
                   <span className="text-gray-800 truncate flex-1">{ab.claim}</span>
                 </div>

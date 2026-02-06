@@ -99,7 +99,7 @@ export async function GET() {
         objective_criteria:
           'Highest ReasonRank-scoring standards for measuring belief strength.',
       },
-      formula: 'TruthScore = normalize( (ProStrength - ConStrength) + EvidenceContribution )',
+      formula: 'TruthScore = ProRank / (ProRank + ConRank) + EvidenceContribution, where each arg ReasonRank = (1-d) × baseTruth + d × f(proSubRank - conSubRank)',
       protocol_beliefs: protocolScores,
       cost_benefit_analyses: cbaScores,
     },

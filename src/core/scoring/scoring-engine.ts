@@ -1,24 +1,57 @@
 /**
  * Unified Scoring Engine for the Idea Stock Exchange
  *
- * This module is the single source of truth for all scoring calculations.
- * It bridges the master formula (src/lib/scoring.ts), the CBA scoring
- * (lib/cba-scoring.ts), and the Protocol scoring into one coherent system.
+ * ReasonRank — a PageRank-inspired algorithm for epistemic scoring.
  *
- * Score Types (from the ReasonRank system):
- *   1. ReasonRank     - Foundation: argument tree strength after adversarial scrutiny
- *   2. Truth Score    - ReasonRank applied to logical validity + empirical verification
- *   3. Linkage Score  - ReasonRank applied to evidence-to-conclusion relevance
- *   4. Evidence Score  - ReasonRank applied to evidence quality (EVS)
- *   5. Importance Weight - How much this argument moves the probability (0-1)
- *   6. Objective Criteria - Highest-scoring standards for measuring belief strength
- *   7. Likelihood Score   - ReasonRank applied to cost/benefit predictions
+ * Like Google's PageRank, ReasonRank propagates scores bottom-up through a
+ * directed graph. But where PageRank has one score per node and only positive
+ * links, ReasonRank has TWO score channels (pro and con) and subtracts
+ * "reasons to disagree" from "reasons to agree."
  *
- * All scores flow through the same recursive engine.
+ * Core analogy:
+ *   PageRank:   PR(A) = (1−d)/N + d × Σ PR(Tᵢ)/C(Tᵢ)
+ *   ReasonRank: RR(A) = (1−d) × baseTruth + d × f(proSubRank − conSubRank)
+ *
+ * Where:
+ *   d          = damping factor (0.85, same as PageRank)
+ *   baseTruth  = argument's own truth score after fallacy penalties
+ *   proSubRank = Σ RR(sub) × linkage × importance × uniqueness  (for pro subs)
+ *   conSubRank = Σ RR(sub) × linkage × importance × uniqueness  (for con subs)
+ *   f(net)     = normalize net sub-argument support to [0, 1]
+ *
+ * Key properties:
+ *   1. Bottom-up recursive: each node's score is fully determined by its
+ *      immediate children — no need to look at distant ancestors or depth.
+ *   2. No depth penalty: a deep argument contributes naturally through its
+ *      parent's recursion, exactly like PageRank propagation.
+ *   3. Two-sided: pro sub-arguments increase support, con sub-arguments
+ *      decrease it (PageRank only has positive in-links).
+ *   4. Weighted edges: linkage × importance × uniqueness act as edge weights,
+ *      analogous to PageRank's 1/C(T) outlink normalization.
+ *   5. Redundancy control: uniqueness scores (0-1) penalize arguments that
+ *      are merely restating the same point, preventing score inflation.
+ *
+ * Belief-level scoring:
+ *   ProRank  = Σ RR(arg) × linkage × importance × uniqueness  (for pro args)
+ *   ConRank  = Σ RR(arg) × linkage × importance × uniqueness  (for con args)
+ *   TruthScore = ProRank / (ProRank + ConRank)
+ *
+ * This mirrors PageRank's probability interpretation: the "probability" that
+ * a random walker following the argument graph lands on a pro-conclusion.
  */
 
 import { SchilchtArgument, SchilchtEvidence, SchilchtBelief } from '../types/schlicht'
 import { LikelihoodEstimate, LikelihoodBelief, LikelihoodStatus } from '../types/cba'
+
+// ─── ReasonRank Constants ───────────────────────────────────────
+
+/**
+ * Damping factor, analogous to PageRank's d = 0.85.
+ * 85% of an argument's score comes from its sub-argument evidence.
+ * 15% comes from the argument's own base truth (the "teleportation" term).
+ * For leaf arguments with no sub-arguments, 100% comes from base truth.
+ */
+const DAMPING_FACTOR = 0.85
 
 // ─── Score Breakdown Types ──────────────────────────────────────
 
@@ -35,8 +68,8 @@ export interface ScoreBreakdown {
   importanceWeight: number     // importance-weighted contribution
 
   // Detailed sub-scores
-  proArgumentStrength: number  // total pro argument impact
-  conArgumentStrength: number  // total con argument impact
+  proArgumentStrength: number  // total pro argument ReasonRank contribution
+  conArgumentStrength: number  // total con argument ReasonRank contribution
   proArgumentCount: number
   conArgumentCount: number
 
@@ -53,15 +86,17 @@ export interface ArgumentScoreBreakdown {
   id: string
   claim: string
   side: 'pro' | 'con'
-  truthScore: number
-  linkageScore: number
-  importanceWeight: number
-  rawImpact: number          // truth * linkage * importance (adjusted by sub-arguments)
-  signedImpact: number       // positive for pro, negative for con
+  truthScore: number           // base truth after fallacy penalties (before sub-arg propagation)
+  reasonRank: number           // PageRank-style score after sub-argument propagation
+  linkageScore: number         // 0-1: relevance to parent claim
+  importanceWeight: number     // 0-1: how much this moves the needle
+  uniquenessScore: number      // 0-1: redundancy penalty (1 = fully unique)
+  rawImpact: number            // reasonRank × linkage × importance × uniqueness (unsigned)
+  signedImpact: number         // positive for pro, negative for con
   certifiedBy: string[]
-  fallacyPenalty: number     // total penalty from detected fallacies
-  subArgumentCount: number   // number of recursive sub-arguments
-  subArgumentNetStrength: number // net strength from sub-argument tree
+  fallacyPenalty: number       // total penalty from detected fallacies
+  subArgumentCount: number     // number of direct sub-arguments
+  subArgumentNetStrength: number // proSubRank − conSubRank (before normalization)
 }
 
 // ─── Evidence Verification Score ────────────────────────────────
@@ -123,63 +158,91 @@ export function calculateLinkageFromArguments(
   return totalSum === 0 ? 0.5 : agreeSum / totalSum
 }
 
-// ─── Argument Scoring ───────────────────────────────────────────
+// ─── ReasonRank: Argument Scoring ───────────────────────────────
 
 /**
- * Calculate the full impact of a single argument, recursively scoring
- * its sub-argument tree.
+ * Calculate the ReasonRank score for a single argument, recursively
+ * propagating scores from its sub-argument tree (PageRank-style).
  *
- * Impact = truthScore * linkageScore * importanceWeight
+ * Like PageRank, each argument's score is determined by the scores
+ * flowing in from its sub-arguments. Unlike PageRank, we have two
+ * channels: pro sub-arguments add support, con sub-arguments subtract.
  *
- * Three recursive metrics (from ReasonRank):
- *   1. Truth:      Is the evidence factually accurate? (0-1)
- *   2. Linkage:    How strongly does this connect to the specific prediction? (0-1)
- *   3. Importance: How much does this argument move the probability? (0-1)
+ * For leaf arguments (no sub-arguments):
+ *   ReasonRank = baseTruth
+ *   (Like a PageRank node with no incoming links — gets only the
+ *   teleportation/damping term, which here is the base truth.)
  *
- * Sub-arguments modify the parent's effective truth score:
- *   - Pro sub-arguments strengthen the parent (evidence supports the claim)
- *   - Con sub-arguments weaken it (evidence undermines the claim)
- *   - Net sub-argument strength adjusts truth by up to ±30%
+ * For arguments with sub-arguments:
+ *   proSubRank = Σ (RR(sub) × sub.linkage × sub.importance × sub.uniqueness) for pro subs
+ *   conSubRank = Σ (RR(sub) × sub.linkage × sub.importance × sub.uniqueness) for con subs
+ *   netNormalized = (proSubRank − conSubRank) / numSubArgs
+ *   subArgScore = 0.5 + netNormalized × 0.5     (maps [-1,1] → [0,1])
+ *   ReasonRank = (1 − d) × baseTruth + d × subArgScore
  *
- * Fallacy penalties reduce the truth score multiplicatively.
- * The result is signed: positive for pro, negative for con.
+ * The rawImpact is this argument's weighted contribution to its parent:
+ *   rawImpact = ReasonRank × linkage × importance × uniqueness
  */
 export function scoreArgument(arg: SchilchtArgument): ArgumentScoreBreakdown {
-  // Apply fallacy penalties to truth score
+  // Apply fallacy penalties to truth score (multiplicative reduction)
   const fallacyPenalty = arg.fallaciesDetected.reduce(
     (sum, f) => sum + Math.abs(f.impact) / 100,
     0
   )
-  let adjustedTruth = Math.max(0, arg.truthScore * (1 - fallacyPenalty))
+  const baseTruth = Math.max(0, arg.truthScore * (1 - fallacyPenalty))
 
-  // Recursively score sub-arguments if they exist
+  // Edge weights for this argument's contribution to its parent
+  const importanceWeight = arg.importanceScore ?? 1.0
+  const uniquenessScore = arg.uniquenessScore ?? 1.0
+
+  let reasonRank: number
   let subArgumentCount = 0
   let subArgumentNetStrength = 0
 
-  if (arg.subArguments && arg.subArguments.length > 0) {
+  if (!arg.subArguments || arg.subArguments.length === 0) {
+    // Leaf node: ReasonRank is just the base truth.
+    // Like a PageRank node with no incoming links.
+    reasonRank = baseTruth
+  } else {
+    // Recursively compute ReasonRank for all sub-arguments.
+    // Each sub-argument's rawImpact already incorporates its own
+    // ReasonRank × linkage × importance × uniqueness.
     const subBreakdowns = arg.subArguments.map(scoreArgument)
-    subArgumentCount = arg.subArguments.length
+    subArgumentCount = subBreakdowns.length
 
-    const proSubStrength = subBreakdowns
+    // Sum weighted contributions from pro and con sub-arguments.
+    // This is analogous to summing incoming PageRank contributions,
+    // but with pro adding and con subtracting.
+    const proSubRank = subBreakdowns
       .filter(b => b.side === 'pro')
       .reduce((sum, b) => sum + b.rawImpact, 0)
-    const conSubStrength = subBreakdowns
+    const conSubRank = subBreakdowns
       .filter(b => b.side === 'con')
       .reduce((sum, b) => sum + b.rawImpact, 0)
 
-    subArgumentNetStrength = proSubStrength - conSubStrength
+    subArgumentNetStrength = proSubRank - conSubRank
 
-    // Sub-arguments adjust the parent's effective truth by up to ±30%
-    const maxSubStrength = Math.max(subArgumentCount, 1)
-    const subFactor = 1 + (subArgumentNetStrength / maxSubStrength) * 0.3
-    adjustedTruth = Math.max(0, Math.min(1, adjustedTruth * subFactor))
+    // Normalize by number of sub-arguments.
+    // Each sub can contribute at most 1.0 (RR=1 × linkage=1 × importance=1 × uniqueness=1),
+    // so dividing by count keeps the normalized value in [-1, 1].
+    const normalizedNet = subArgumentNetStrength / subArgumentCount
+
+    // Map [-1, 1] → [0, 1] so we can blend with base truth.
+    // +1 (all pro, max strength) → 1.0
+    //  0 (balanced or no net)    → 0.5
+    // -1 (all con, max strength) → 0.0
+    const subArgScore = Math.max(0, Math.min(1, 0.5 + normalizedNet * 0.5))
+
+    // PageRank-style damped combination:
+    // 15% from base truth (the "teleportation" term)
+    // 85% from sub-argument evidence (the "link" term)
+    reasonRank = (1 - DAMPING_FACTOR) * baseTruth + DAMPING_FACTOR * subArgScore
   }
 
-  // Importance weight: how much this argument moves the probability
-  // Defaults to 1.0 if not specified
-  const importanceWeight = arg.importanceScore ?? 1.0
-
-  const rawImpact = adjustedTruth * arg.linkageScore * importanceWeight
+  // This argument's weighted contribution to its parent.
+  // Incorporates ReasonRank (recursive quality) × linkage (relevance) ×
+  // importance (how much it moves the needle) × uniqueness (redundancy penalty).
+  const rawImpact = reasonRank * arg.linkageScore * importanceWeight * uniquenessScore
   const direction = arg.side === 'pro' ? 1 : -1
   const signedImpact = rawImpact * direction
 
@@ -187,9 +250,11 @@ export function scoreArgument(arg: SchilchtArgument): ArgumentScoreBreakdown {
     id: arg.id,
     claim: arg.claim,
     side: arg.side,
-    truthScore: adjustedTruth,
+    truthScore: baseTruth,
+    reasonRank,
     linkageScore: arg.linkageScore,
     importanceWeight,
+    uniquenessScore,
     rawImpact,
     signedImpact,
     certifiedBy: arg.certifiedBy,
@@ -199,27 +264,32 @@ export function scoreArgument(arg: SchilchtArgument): ArgumentScoreBreakdown {
   }
 }
 
-// ─── Belief Scoring (Protocol) ──────────────────────────────────
+// ─── ReasonRank: Belief Scoring (Protocol) ──────────────────────
 
 /**
  * Calculate the full score breakdown for a Schlicht Protocol belief.
  *
- * This implements the master formula:
- *   CS = (ProArgumentScore - ConArgumentScore) + (SupportingEvidence - WeakeningEvidence)
+ * Uses PageRank-style scoring:
+ *   ProRank  = Σ rawImpact for pro arguments
+ *   ConRank  = Σ rawImpact for con arguments
+ *   TruthScore = ProRank / (ProRank + ConRank)
  *
- * Each argument's contribution is weighted by its truth, linkage, and importance.
- * Evidence is weighted by its verification score and tier.
+ * This is the PageRank probability interpretation: the "probability"
+ * that a random walker following the argument graph lands on a
+ * pro-conclusion node.
  *
- * The truth score is normalized to 0-1 where 0.5 = maximum uncertainty.
+ * Evidence provides a supplementary signal (up to 20% contribution)
+ * that can shift the score when argument trees are sparse.
  */
 export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
-  // Score all arguments
+  // Score all arguments using recursive ReasonRank
   const proBreakdowns = belief.proTree.map(scoreArgument)
   const conBreakdowns = belief.conTree.map(scoreArgument)
   const allBreakdowns = [...proBreakdowns, ...conBreakdowns]
 
-  const proStrength = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
-  const conStrength = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+  // Sum ReasonRank-weighted contributions (rawImpact = RR × linkage × importance × uniqueness)
+  const proRank = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+  const conRank = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
 
   // Score evidence
   let supportingEvidenceScore = 0
@@ -228,14 +298,27 @@ export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
   for (const ev of belief.evidence) {
     const tierWeight = getEvidenceTypeWeight(ev.tier)
     const evidenceImpact = tierWeight * ev.linkageScore
-    // Evidence in Protocol format doesn't have side, so we treat all as supporting
-    // (counter-evidence would be in the con tree as arguments)
     supportingEvidenceScore += evidenceImpact
   }
 
-  // Calculate net scores
-  const argumentNet = proStrength - conStrength
+  // PageRank-style belief score: ProRank / (ProRank + ConRank)
+  // When all arguments favor pro → 1.0, when all favor con → 0.0,
+  // when balanced → 0.5 (maximum uncertainty).
+  const totalRank = proRank + conRank
+  let baseTruthScore: number
+  if (totalRank > 0) {
+    baseTruthScore = proRank / totalRank
+  } else {
+    baseTruthScore = 0.5 // No arguments = maximum uncertainty
+  }
+
+  // Evidence contribution (scaled to not dominate arguments)
   const evidenceNet = supportingEvidenceScore - weakeningEvidenceScore
+  const evidenceContribution = belief.evidence.length > 0
+    ? (evidenceNet / (belief.evidence.length * 1.0)) * 0.2
+    : 0
+
+  const truthScore = Math.max(0.01, Math.min(0.99, baseTruthScore + evidenceContribution))
 
   // Calculate weighted average linkage across all arguments
   const totalArgs = belief.proTree.length + belief.conTree.length
@@ -243,35 +326,22 @@ export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
     ? allBreakdowns.reduce((sum, b) => sum + b.linkageScore, 0) / totalArgs
     : 0.5
 
-  // Normalize truth score to 0-1
-  // Total possible strength = number of arguments (each maxes at 1.0 impact)
-  const maxStrength = Math.max(totalArgs, 1)
-  const normalizedNet = argumentNet / maxStrength
-
-  // Add evidence contribution (scaled to not dominate)
-  const evidenceContribution = belief.evidence.length > 0
-    ? evidenceNet / (belief.evidence.length * 1.0) * 0.2 // evidence contributes up to 20%
-    : 0
-
-  const truthScore = Math.max(0.01, Math.min(0.99, 0.5 + (normalizedNet + evidenceContribution) * 0.5))
-
-  // Calculate confidence interval
-  // Narrows with more arguments, widens with more disagreement
-  const argBalance = totalArgs > 0 ? Math.abs(proStrength - conStrength) / (proStrength + conStrength || 1) : 0
+  // Confidence interval narrows with more arguments, widens with disagreement
+  const argBalance = totalRank > 0 ? Math.abs(proRank - conRank) / totalRank : 0
   const baseCI = 0.15
   const argFactor = Math.max(0.3, 1 - totalArgs * 0.03) // more args = tighter
-  const balanceFactor = 1 - argBalance * 0.5 // higher imbalance = tighter (clearer winner)
+  const balanceFactor = 1 - argBalance * 0.5 // higher imbalance = tighter
   const confidenceInterval = Math.max(0.02, Math.min(0.2, baseCI * argFactor * balanceFactor))
 
   return {
     truthScore,
     confidenceInterval,
-    argumentScore: argumentNet,
+    argumentScore: proRank - conRank,
     evidenceScore: evidenceNet,
     linkageScore: avgLinkage,
     importanceWeight: 1.0,
-    proArgumentStrength: proStrength,
-    conArgumentStrength: conStrength,
+    proArgumentStrength: proRank,
+    conArgumentStrength: conRank,
     proArgumentCount: belief.proTree.length,
     conArgumentCount: belief.conTree.length,
     supportingEvidenceScore,
@@ -313,32 +383,31 @@ export function recalculateProtocolBelief(belief: SchilchtBelief): SchilchtBelie
   }
 }
 
-// ─── CBA / Likelihood Scoring ───────────────────────────────────
+// ─── ReasonRank: CBA / Likelihood Scoring ───────────────────────
 
 /**
  * Calculate ReasonRank score for a likelihood estimate.
  *
- * This uses the same argument scoring as the Protocol,
- * but applied to competing probability estimates.
+ * Uses the same PageRank-style argument scoring as Protocol beliefs,
+ * applied to competing probability estimates.
  *
- * Score = (proStrength - conStrength) / maxPossibleStrength, normalized to 0-1
+ * Score = ProRank / (ProRank + ConRank), or 0.5 if no arguments.
  */
 export function calculateReasonRankScore(estimate: LikelihoodEstimate): number {
   const proBreakdowns = estimate.proArguments.map(scoreArgument)
   const conBreakdowns = estimate.conArguments.map(scoreArgument)
 
-  const proStrength = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
-  const conStrength = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+  const proRank = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+  const conRank = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
 
   const totalArgs = estimate.proArguments.length + estimate.conArguments.length
   if (totalArgs === 0) return 0.5 // No arguments = maximum uncertainty
 
-  // Net strength normalized to 0-1
-  const maxStrength = totalArgs // theoretical max if all scores were 1.0
-  const netStrength = proStrength - conStrength
-  const normalized = 0.5 + (netStrength / (maxStrength * 2))
+  // PageRank probability: pro / (pro + con)
+  const totalRank = proRank + conRank
+  if (totalRank === 0) return 0.5
 
-  return Math.max(0.01, Math.min(0.99, normalized))
+  return Math.max(0.01, Math.min(0.99, proRank / totalRank))
 }
 
 /**
@@ -415,7 +484,7 @@ export function calculateExpectedValue(predictedImpact: number, activeLikelihood
 
 /**
  * Calculate impact score for an argument.
- * Impact = truth * linkage * importance * 100, signed by side.
+ * Impact = truth × linkage × importance × 100, signed by side.
  */
 export function calculateArgumentImpact(
   truthScore: number,
