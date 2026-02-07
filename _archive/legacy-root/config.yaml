@@ -1,0 +1,29 @@
+# Idea Stock Exchange Configuration
+
+llm:
+  # LLM Provider: ollama, lmstudio, or openai-compatible
+  provider: "ollama"
+
+  # Model name (examples: llama3, mistral, gpt-3.5-turbo)
+  model: "llama3"
+
+  # API base URL
+  # Ollama: http://localhost:11434
+  # LM Studio: http://localhost:1234/v1
+  api_base: "http://localhost:11434"
+
+  # Temperature (0.0 - 1.0, higher = more creative)
+  temperature: 0.7
+
+  # Max tokens per request
+  max_tokens: 2000
+
+output:
+  # Directory for generated topic pages
+  directory: "topics"
+
+  # Base URL for links (used in templates)
+  base_url: "/w/page"
+
+# Template directory (default: templates)
+template_dir: "templates"

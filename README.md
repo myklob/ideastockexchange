@@ -1,98 +1,160 @@
-# Idea Stock Exchange - Objective Criteria System
+# Idea Stock Exchange
 
-A platform for systematic evaluation of ideas through objective criteria and evidence-based argumentation.
+> A marketplace for ideas where truth is the currency.
 
-## Overview
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./docs/CONTRIBUTING.md)
 
-The Idea Stock Exchange implements a structured approach to public discourse by:
-- Establishing objective criteria before evaluating evidence
-- Scoring criteria quality across four dimensions (Validity, Reliability, Independence, Linkage)
-- Using argument-based evaluation to determine criteria scores
-- Enabling transparent, measurable debates
+A platform for structured disagreement, probabilistic reasoning, and argument-weighted decision analysis.
 
-## Features
+---
 
-### Objective Criteria System
-- Propose and debate measurement standards for any topic
-- Four-dimensional quality scoring (Validity, Reliability, Independence, Linkage)
-- Argument-based scoring with transparent algorithms
-- Community-driven evaluation
+## Why This Exists
 
-### Key Components
-- **Validity**: Does this actually measure what we think it measures?
-- **Reliability**: Can different people measure this consistently?
-- **Independence**: Is the data source neutral?
-- **Linkage**: How strongly does this correlate with the ultimate goal?
+Public discourse is broken. People argue past each other, cherry-pick evidence, and conflate values with facts. The Idea Stock Exchange provides a framework where:
 
-## Project Structure
+- **Arguments are investments** -- Every claim you make has a "price" that rises or falls based on evidence quality
+- **Disagreement is structured** -- Identify whether you disagree on facts, values, or the strength of the link between them
+- **Uncertainty is explicit** -- All scores include confidence intervals, not false precision
+- **Adversarial testing is built-in** -- The best arguments survive scrutiny; weak ones get repriced
 
-```
-├── backend/              # FastAPI backend
-│   ├── models/          # Database models
-│   ├── api/             # API endpoints
-│   ├── services/        # Business logic
-│   └── algorithms/      # Scoring algorithms
-├── frontend/            # React frontend
-│   ├── src/
-│   │   ├── components/  # UI components
-│   │   ├── services/    # API client
-│   │   └── types/       # TypeScript types
-└── docs/                # Documentation
-```
+The Idea Stock Exchange applies computational epistemology to real-world claims. Every belief is treated as a tradeable proposition: its "price" (truth score) rises or falls based on the quality, linkage, and adversarial strength of the arguments behind it.
 
-## Tech Stack
+---
 
-- **Backend**: Python 3.11+, FastAPI, SQLAlchemy, PostgreSQL
-- **Frontend**: React 18, TypeScript, TailwindCSS
-- **Algorithms**: Custom ReasonRank implementation
-
-## Getting Started
-
-### Backend Setup
+## Quick Start
 
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-### Frontend Setup
-
-```bash
-cd frontend
+# Clone and install
+git clone https://github.com/myklob/ideastockexchange.git
+cd ideastockexchange
 npm install
-npm start
+
+# Set up database
+cp .env.example .env
+npx prisma generate
+npm run db:migrate
+
+# Start development server
+npm run dev
 ```
 
-## API Documentation
+Open [http://localhost:3000](http://localhost:3000) to explore.
 
-Once running, visit:
-- API docs: http://localhost:8000/docs
-- Frontend: http://localhost:3000
+---
 
 ## Core Concepts
 
-### Criteria Evaluation Flow
+### ReasonRank
 
-1. **Propose Criteria**: Users suggest objective measures for a topic
-2. **Create Arguments**: Community provides pro/con arguments for each dimension
-3. **Calculate Scores**: Algorithm weighs arguments by quality
-4. **Apply to Evidence**: Claims measured by high-scoring criteria get higher confidence
+A recursive scoring algorithm that evaluates arguments through three dimensions:
 
-### Scoring Algorithm
+- **Truth Score** -- Is the evidence factually accurate? (0-1)
+- **Linkage Score** -- Does this evidence actually support the conclusion? (0-1)
+- **Importance Weight** -- How much does this argument move the probability? (0-1)
 
-Criteria scores (0-100%) are calculated by:
-1. Evaluating arguments for each dimension
-2. Weighing by evidence quality and logical validity
-3. Calculating weighted average across dimensions
-4. Normalizing to 0-100 scale
+Sub-arguments modify their parent's effective truth score, and fallacy detection applies multiplicative penalties. The result is a single composite score that reflects adversarial scrutiny.
+
+### Likelihood Scores
+
+Competing probability estimates for a given prediction, each scored by ReasonRank. The estimate with the highest ReasonRank score determines the "active likelihood" -- the system's best current assessment.
+
+### Cost-Benefit Analysis
+
+Line items (costs and benefits) are each assigned a likelihood belief. Expected value is computed as `Predicted Impact x Active Likelihood`. The system aggregates these into net expected value with confidence intervals.
+
+### Nested Beliefs
+
+Beliefs are organized along three dimensions:
+
+- **Abstraction** -- General to specific (from "democracy matters" to "12-year term limits reduce lobbying")
+- **Intensity** -- Modest to extreme (from "some effect" to "the only solution")
+- **Valence** -- Negative to positive sentiment
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript (strict) |
+| Database | SQLite via Prisma + better-sqlite3 |
+| Styling | Tailwind CSS 4 |
+| AI/ML | Python (sentence-transformers, LLM clients) |
+| Charts | Recharts |
+| Validation | Zod |
+
+## Local Development
+
+```bash
+npm install
+npx prisma generate
+npm run dev
+```
+
+The app runs at [http://localhost:3000](http://localhost:3000).
+
+### Database
+
+```bash
+npm run db:migrate   # Run migrations
+npm run db:seed      # Seed sample data
+npm run db:reset     # Reset and re-migrate
+```
+
+### Environment
+
+Copy `.env.example` to `.env` and configure required variables. The `.env` file is gitignored.
+
+## Architecture
+
+The system is organized by **intent** (Domain-Driven Design) rather than by technology layer. Each folder describes *what it does*, not when it was last touched.
+
+```
+src/
+  app/                        Next.js App Router -- routing and server boundaries only
+  features/                   Domain logic grouped by business purpose
+    epistemology/               Schlicht Protocol: belief verification and confidence scoring
+    cost-benefit-analysis/      Policy evaluation with adversarial likelihood estimates
+    legal-framework/            wikiLaw: law diagnostic dashboards and assumption auditing
+    books/                      Book claim analysis and fallacy detection
+    topics/                     Topic hubs aggregating related beliefs
+  core/                       Framework-agnostic logic shared across all features
+    scoring/                    Unified scoring engine (ReasonRank, EVS, truth, likelihood)
+    types/                      All TypeScript type definitions by domain
+    ai/                         LLM clients, analysis generators, task queue
+    schemas/                    XSD and XSLT schema artifacts
+  components/                 Global reusable UI (only components used by 3+ features)
+  lib/                        Third-party wrappers (Prisma client) and shared utilities
+  styles/                     CSS assets
+docs/                         Design documents and technical specifications
+tests/                        Unit, integration, and e2e tests
+prisma/                       Database schema and migrations
+scripts/                      Automation and CI/CD scripts
+_archive/                     Legacy code preserved for reference
+```
+
+Each feature folder contains a `README.md` explaining its purpose, key concepts, and internal structure.
+
+### Key Design Decisions
+
+- **Single scoring engine** (`src/core/scoring/scoring-engine.ts`) ensures Protocol and CBA use identical ReasonRank logic
+- **Feature isolation** -- each feature owns its components, data, and services; co-located unless shared by 3+ features
+- **Typed contracts** -- all domain types live in `src/core/types/` and are shared across features
+- **No business logic in routes** -- `src/app/` contains only routing and server boundaries
+- **Rule of Three** -- a component stays co-located in its feature until it is used by three or more features, then it moves to `/src/components/`
+
+## Documentation
+
+Detailed specifications and design documents are in [`/docs`](./docs/):
+
+- [Algorithms](./docs/ALGORITHMS.md) -- Scoring formulas and mathematical models
+- [Architecture](./docs/ARCHITECTURE.md) -- System design and type system
+- [Implementation](./docs/IMPLEMENTATION.md) -- Implementation details
+- [Contributing](./docs/CONTRIBUTING.md) -- Contribution guidelines
+- [Quickstart](./docs/QUICKSTART.md) -- Getting started guide
 
 ## License
 
 MIT
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

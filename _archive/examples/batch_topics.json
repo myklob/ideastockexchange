@@ -1,0 +1,54 @@
+[
+  {
+    "topic_name": "Minimum Wage Increase",
+    "raw_beliefs": [
+      {
+        "text": "Raising the minimum wage helps workers afford basic necessities and reduces poverty",
+        "source": "Labor advocacy"
+      },
+      {
+        "text": "Higher minimum wages force small businesses to cut jobs or close entirely",
+        "source": "Small business owners"
+      },
+      {
+        "text": "Studies show modest minimum wage increases have minimal impact on employment",
+        "source": "Economic research"
+      },
+      {
+        "text": "Workers deserve a living wage that keeps up with inflation and cost of living",
+        "source": "Workers' rights perspective"
+      }
+    ],
+    "related_topics": {
+      "general": ["Labor Policy", "Economic Inequality"],
+      "specific": ["$15 Minimum Wage", "Wage Indexing"],
+      "related": ["Income Inequality", "Worker Rights", "Small Business Support"]
+    }
+  },
+  {
+    "topic_name": "Student Loan Forgiveness",
+    "raw_beliefs": [
+      {
+        "text": "Student loan debt prevents young people from buying homes, starting businesses, and building wealth",
+        "source": "Economic mobility analysis"
+      },
+      {
+        "text": "Loan forgiveness is unfair to those who already paid off their loans or chose not to attend college",
+        "source": "Fairness argument"
+      },
+      {
+        "text": "Forgiving loans without fixing the underlying system will just create the same problem again",
+        "source": "Systemic analysis"
+      },
+      {
+        "text": "An educated population benefits society as a whole and should be publicly supported",
+        "source": "Public good perspective"
+      }
+    ],
+    "related_topics": {
+      "general": ["Education Policy", "Economic Policy"],
+      "specific": ["Public College Funding", "Income-Based Repayment"],
+      "related": ["College Affordability", "Education Access", "Economic Inequality"]
+    }
+  }
+]

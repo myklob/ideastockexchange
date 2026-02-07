@@ -1,0 +1,46 @@
+{
+  "name": "ideastockexchange",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Idea Stock Exchange - Computational Epistemology Platform",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:seed": "npx tsx prisma/seed.ts",
+    "db:migrate": "npx prisma migrate dev",
+    "db:reset": "npx prisma migrate reset --force"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "better-sqlite3": "^12.6.2",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.451.0",
+    "next": "16.1.6",
+    "prisma": "^7.3.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "recharts": "^2.13.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.23",
+    "dotenv": "^17.2.3",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.3"
+  },
+  "author": "Mike Laub",
+  "license": "MIT"
+}
