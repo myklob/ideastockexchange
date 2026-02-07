@@ -1,129 +1,66 @@
-# ReasonRank: Enlightenment Promotion Algorithm
+Home > Page Design > ReasonRank
 
-The **ReasonRank** framework evaluates arguments by breaking them into components and scoring each one using specialized algorithms.  
-The goal is to **tie the strength of a conclusion directly to the strength of the evidence** supporting it — and to make this process transparent by showing the math.
 
----
 
-## Guiding Principles
-- **"Extraordinary claims require extraordinary evidence."** – Carl Sagan  
-- **"The wise man proportions his belief to the evidence."** – David Hume  
-- From Aristotle to modern science, progress has relied on linking belief strength to evidence quality.  
-- For the first time, we define these principles explicitly in software, enabling large-scale, simultaneous reasoning.
+ReasonRank: The PageRank for Arguments
+ReasonRank is a network-based scoring algorithm designed to measure the strength of a belief based on the quality of its supporting arguments, rather than its popularity. Just as Google's PageRank revolutionized the web by treating hyperlinks as "votes" for importance, ReasonRank treats logical arguments as votes for a belief's validity.
 
----
+The Problem vs. The Solution
+Current Online Debates	The ReasonRank Solution
+Volume over Quality: The most frequent or loudest comments win, not the most truthful.	Meritocracy of Ideas: Logic and verified evidence determine the score, not "likes" or post frequency.
+Echo Chambers: Algorithms optimize for engagement and outrage, not objective understanding.	Trust Graph: Mathematical weighting of connections ensures only sound reasoning moves the needle.
+Information Amnesia: Debates "reset" constantly; we rarely build on previously established conclusions.	Institutional Memory: Every topic has one permanent page that grows in accuracy over time.
 
-## Belief Score
-The **Belief Score** is the primary output of ReasonRank.  
-It continuously updates based on the performance of multiple sub-scores, including:
-- Truth scores
-- Linkage scores
-- Equivalency scores
-- Logical fallacy penalties
-- Evidence verification
 
-**Purpose:** Reflect the **current best estimate** of a belief's validity given all available arguments and evidence.
+How ReasonRank Compares to PageRank
+ReasonRank applies graph theory to logic. It functions within a network where every claim is a node and every reason is a weighted link.
 
----
+Feature	Google PageRank	ISE ReasonRank
+The Node	A webpage	A belief or argument
+The Connection	A hyperlink	A "reason to agree" or "reason to disagree"
+The Weight	Domain authority (traffic/trust)	Truth score (verified evidence and logic)
+Propagation	"Link Juice" flows to important pages	"Logic Strength" flows to valid conclusions
+Spam Filter	Filters link farms/spam sites	Filters redundancy using uniqueness scores
 
-## Argument Ranking Algorithm
 
-ReasonRank uses a **PageRank-inspired algorithm** where:
-- **Supporting arguments ADD to the belief score**
-- **Opposing/con arguments SUBTRACT from the belief score**
+The Four Scoring Dimensions
+ReasonRank calculates a composite truth score based on four critical metrics. A score of any conclusion (C) is updated dynamically using the formula:
+C = Σ [(A - D) × L × V × U]
 
-This promotes beliefs with strong supporting arguments and weak opposing arguments.
+1. Truth (Evidence Score - V)
+How logically sound is the argument? This is recursive; an argument's score depends on the score of its sub-arguments.
+Reference: Evidence Verification Tiers
 
-### Core Formula
+2. Linkage (Relevance Score - L)
+Does the evidence actually prove the conclusion? This penalizes "True but Irrelevant" claims.
+Reference: Linkage Score Methodology
 
-```
-Belief Score = BaseScore + Σ(Supporting Scores) - Σ(Opposing Scores)
-```
+3. Impact (Importance Score - A/D)
+How much weight should this point carry? Does it address a core pillar or a minor triviality?
+Reference: Importance Scores
 
-Where:
-- `BaseScore = 50` (neutral)
-- Each argument score is weighted by its ReasonRank and lifecycle status
-- Final score is clamped to 0-100 range
+4. Uniqueness (Redundancy Factor - U)
+Is this a new point? We group semantically similar arguments to prevent a user from inflating a score by repeating the same point.
+Reference: Belief Sorting & Uniqueness
 
-### Python Example
 
-```python
-def calculate_belief_score(supporting_args, opposing_args):
-    """
-    Calculate belief score using PageRank-style algorithm.
-    Args contribute their score POSITIVELY (supporting) or NEGATIVELY (opposing).
-    """
-    base_score = 50
 
-    # Lifecycle multipliers
-    lifecycle_multipliers = {
-        'active': 1.0,
-        'weakened': 0.7,
-        'conditional': 0.8,
-        'outdated': 0.3,
-        'refuted': 0.1
-    }
+Example: The Logic Cascade
+Conclusion: "Solar energy is cost-competitive with fossil fuels"
 
-    # Calculate weighted scores
-    def weighted_score(args):
-        if not args:
-            return 0
-        total = sum(
-            arg['reason_rank'] * lifecycle_multipliers[arg['lifecycle_status']]
-            for arg in args
-        )
-        return total / len(args)
+Supporting Argument A: "Solar costs decreased 90%." (High Weight)
+Calculation: 85 (Evidence) × 0.8 (Linkage) × 0.9 (Impact) = +61.2
+Supporting Argument B: "Installation is cheaper." (Low Weight due to 70% overlap with A)
+Calculation: 75 × 0.7 × 0.6 × 0.3 (Uniqueness) = +9.45
+Current Total: +70.65
 
-    supporting_avg = weighted_score(supporting_args)
-    opposing_avg = weighted_score(opposing_args)
+The Power of ReasonRank: If the data for Argument A is debunked, its score drops to zero. Because the system is a Network Logic, the final conclusion score immediately collapses to +9.45. The system stays current automatically as new evidence appears.
 
-    total_args = len(supporting_args) + len(opposing_args)
-    if total_args == 0:
-        return base_score
 
-    # Weight by argument count
-    support_weight = len(supporting_args) / total_args
-    oppose_weight = len(opposing_args) / total_args
-
-    # PageRank formula: ADD supporting, SUBTRACT opposing
-    score = base_score + (supporting_avg * support_weight) - (opposing_avg * oppose_weight)
-
-    # Clamp to valid range
-    return max(0, min(100, round(score)))
-
-# Example
-supporting = [
-    {'reason_rank': 85, 'lifecycle_status': 'active'},
-    {'reason_rank': 72, 'lifecycle_status': 'active'},
-    {'reason_rank': 68, 'lifecycle_status': 'weakened'}
-]
-
-opposing = [
-    {'reason_rank': 45, 'lifecycle_status': 'active'},
-    {'reason_rank': 52, 'lifecycle_status': 'weakened'}
-]
-
-belief_score = calculate_belief_score(supporting, opposing)
-print(f"Belief Score: {belief_score}/100")
-# Output: Belief Score: 75/100
-```
-
-**Why this works:**
-- Strong supporting arguments (high scores) INCREASE the belief score significantly
-- Weak opposing arguments (low scores) barely DECREASE the belief score
-- A belief with high-quality pro arguments and low-quality con arguments scores high
-- This naturally promotes reason-based conclusions over emotional or unfounded ones
-
----
-
-## Transparency
-
-* Every component of the score is public and **open to challenge**.
-* Users can see exactly how each argument influences the overall belief score.
-* Algorithms are linked across the wiki (see sidebar) so the scoring process is auditable.
-
----
-
-**See Also:**
-
-* (http://myclob.pbworks.com/w/page/159300543/ReasonRank)
+Technical Integration
+Linkage Propagation: Scores flow through the entire graph.
+Objective Criteria: Measurable standards for evaluation.
+Bias Detection: Algorithms identify systematic reasoning errors.
+Ready for Better Thinking?
+Explore the Argument Structure or help us build the future of rational debate.
+View the Code on GitHub | Contact the Project Lead
