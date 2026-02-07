@@ -24,6 +24,33 @@ class ArgumentDirection(enum.Enum):
     OPPOSING = "opposing"  # Pushes score lower
 
 
+class BetType(enum.Enum):
+    """Type of prediction market bet."""
+    YES = "yes"
+    NO = "no"
+
+
+class MarketStatus(enum.Enum):
+    """Status of a prediction market."""
+    OPEN = "open"
+    RESOLVED_YES = "resolved_yes"
+    RESOLVED_NO = "resolved_no"
+
+
+class User(Base):
+    """A user who can participate in prediction markets."""
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(100), unique=True, nullable=False, index=True)
+    display_name = Column(String(200), nullable=True)
+    balance = Column(Float, default=1000.0)  # Virtual currency balance
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    bets = relationship("Bet", back_populates="user", cascade="all, delete-orphan")
+
+
 class Topic(Base):
     """A topic being debated (e.g., 'Is the Economy Healthy?')."""
     __tablename__ = "topics"
@@ -56,6 +83,13 @@ class Criterion(Base):
     independence_score = Column(Float, default=50.0)
     linkage_score = Column(Float, default=50.0)
 
+    # Prediction market fields
+    market_price = Column(Float, default=0.50)  # Current price 0.00-1.00
+    yes_shares_outstanding = Column(Float, default=0.0)
+    no_shares_outstanding = Column(Float, default=0.0)
+    total_liquidity_pool = Column(Float, default=100.0)  # Initial AMM liquidity
+    market_status = Column(SQLEnum(MarketStatus), default=MarketStatus.OPEN)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -63,6 +97,7 @@ class Criterion(Base):
     topic = relationship("Topic", back_populates="criteria")
     dimension_arguments = relationship("DimensionArgument", back_populates="criterion", cascade="all, delete-orphan")
     evidence_items = relationship("Evidence", back_populates="criterion")
+    bets = relationship("Bet", back_populates="criterion", cascade="all, delete-orphan")
 
 
 class DimensionArgument(Base):
@@ -163,3 +198,21 @@ class CriteriaViewWeight(Base):
 
     # Relationships
     view = relationship("CriteriaView", back_populates="weights")
+
+
+class Bet(Base):
+    """A prediction market trade/bet on a criterion."""
+    __tablename__ = "bets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    criterion_id = Column(Integer, ForeignKey("criteria.id"), nullable=False)
+    bet_type = Column(SQLEnum(BetType), nullable=False)  # YES or NO
+    amount_spent = Column(Float, nullable=False)  # How much virtual currency was spent
+    shares_bought = Column(Float, nullable=False)  # Number of shares received
+    price_at_trade = Column(Float, nullable=False)  # Market price when trade was made
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="bets")
+    criterion = relationship("Criterion", back_populates="bets")

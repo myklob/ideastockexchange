@@ -1,12 +1,15 @@
 /**
- * Main page for viewing and interacting with a topic and its criteria.
+ * Main page for viewing and interacting with a topic, its criteria,
+ * and prediction markets.
  */
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { TopicWithCriteria, Criterion, CriterionCreateRequest } from '../types';
-import { topicAPI, criterionAPI } from '../services/api';
+import { TopicWithCriteria, Criterion, CriterionCreateRequest, User, TradeResponse } from '../types';
+import { topicAPI, criterionAPI, userAPI } from '../services/api';
 import CriterionCard from './CriterionCard';
 import ArgumentForm from './ArgumentForm';
+import UserSelector from './UserSelector';
+import UserWallet from './UserWallet';
 
 const TopicPage: React.FC = () => {
   const { topicId } = useParams<{ topicId: string }>();
@@ -18,6 +21,8 @@ const TopicPage: React.FC = () => {
   const [newCriterionName, setNewCriterionName] = useState('');
   const [newCriterionDesc, setNewCriterionDesc] = useState('');
   const [sortBy, setSortBy] = useState<'score' | 'name' | 'recent'>('score');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [walletKey, setWalletKey] = useState(0);
 
   useEffect(() => {
     loadTopic();
@@ -56,6 +61,25 @@ const TopicPage: React.FC = () => {
     }
   };
 
+  const handleTradeComplete = async (trade: TradeResponse) => {
+    // Refresh topic data and user balance
+    loadTopic();
+    if (selectedUser) {
+      try {
+        const updatedUser = await userAPI.get(selectedUser.id);
+        setSelectedUser(updatedUser);
+        setWalletKey((k) => k + 1); // Force wallet refresh
+      } catch (e) {
+        // Ignore refresh failure
+      }
+    }
+  };
+
+  const handleUserSelect = (user: User | null) => {
+    setSelectedUser(user);
+    setWalletKey((k) => k + 1);
+  };
+
   const getSortedCriteria = (criteria: Criterion[]): Criterion[] => {
     const sorted = [...criteria];
     switch (sortBy) {
@@ -76,7 +100,7 @@ const TopicPage: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">⟳</div>
+          <div className="animate-spin text-4xl mb-4">&#x27F3;</div>
           <p className="text-gray-600">Loading topic...</p>
         </div>
       </div>
@@ -103,6 +127,17 @@ const TopicPage: React.FC = () => {
         )}
       </div>
 
+      {/* User Selector + Wallet */}
+      <div className="mb-6 space-y-3">
+        <UserSelector
+          onUserSelect={handleUserSelect}
+          selectedUser={selectedUser}
+        />
+        {selectedUser && (
+          <UserWallet key={walletKey} userId={selectedUser.id} />
+        )}
+      </div>
+
       {/* Intro Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
         <h2 className="text-xl font-bold text-blue-900 mb-2">
@@ -113,9 +148,14 @@ const TopicPage: React.FC = () => {
           is evaluated across four dimensions: <strong>Validity</strong>, <strong>Reliability</strong>,
           <strong>Independence</strong>, and <strong>Linkage</strong>.
         </p>
-        <p className="text-sm text-blue-700">
+        <p className="text-sm text-blue-700 mb-2">
           Community arguments determine each criterion's quality score. Better measures get more
           weight when evaluating evidence. This makes debates transparent and resolvable.
+        </p>
+        <p className="text-sm text-blue-700">
+          <strong>Prediction Markets:</strong> Each criterion also has a market where you can bet YES/NO
+          with virtual currency. The market price reflects crowd sentiment, displayed alongside
+          the ReasonRank logical score.
         </p>
       </div>
 
@@ -137,7 +177,7 @@ const TopicPage: React.FC = () => {
           onClick={() => setShowAddCriterion(!showAddCriterion)}
           className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 font-medium"
         >
-          {showAddCriterion ? '✕ Cancel' : '+ Propose New Criterion'}
+          {showAddCriterion ? 'Cancel' : '+ Propose New Criterion'}
         </button>
       </div>
 
@@ -196,7 +236,13 @@ const TopicPage: React.FC = () => {
             </div>
             {getSortedCriteria(topic.criteria).map((criterion) => (
               <div key={criterion.id}>
-                <CriterionCard criterion={criterion} onUpdate={loadTopic} />
+                <CriterionCard
+                  criterion={criterion}
+                  onUpdate={loadTopic}
+                  userId={selectedUser?.id}
+                  userBalance={selectedUser?.balance || 0}
+                  onTradeComplete={handleTradeComplete}
+                />
 
                 {/* Add Argument for this Criterion */}
                 {showAddArgument === criterion.id ? (

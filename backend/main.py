@@ -4,21 +4,36 @@ Main FastAPI application for Idea Stock Exchange Objective Criteria system.
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List
 
 from backend.database import get_db, init_db
-from backend.models import Topic, Criterion, DimensionArgument, ArgumentEvidence, Evidence
+from backend.models import (
+    Topic, Criterion, DimensionArgument, ArgumentEvidence, Evidence,
+    User, Bet, BetType, MarketStatus
+)
 from backend.schemas import (
     TopicCreate, TopicResponse, TopicWithCriteria,
     CriterionCreate, CriterionResponse, CriterionWithArguments,
     DimensionArgumentCreate, DimensionArgumentUpdate, DimensionArgumentResponse,
     ArgumentEvidenceCreate, ArgumentEvidenceResponse,
     EvidenceCreate, EvidenceResponse,
-    CriterionScoreBreakdown
+    CriterionScoreBreakdown,
+    UserCreate, UserResponse,
+    TradeRequest, TradeResponse, BetResponse,
+    PortfolioResponse, PortfolioPosition,
+    MarketSummary, ResolveMarketRequest, ResolveMarketResponse
 )
 from backend.algorithms.scoring import (
     recalculate_criterion_scores,
     get_criterion_score_breakdown
+)
+from backend.algorithms.market_maker import (
+    execute_trade,
+    get_market_summary,
+    calculate_payout,
+    lmsr_price_yes,
+    MarketState
 )
 
 # Create FastAPI app
@@ -316,6 +331,291 @@ def get_score_breakdown(criterion_id: int, db: Session = Depends(get_db)):
 
     breakdown = get_criterion_score_breakdown(db, criterion_id)
     return breakdown
+
+
+# ============================================================================
+# USER ENDPOINTS
+# ============================================================================
+
+@app.post("/users/", response_model=UserResponse)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    """Create a new user with starting balance."""
+    existing = db.query(User).filter(User.username == user.username).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Username already taken")
+
+    db_user = User(**user.model_dump())
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+@app.get("/users/", response_model=List[UserResponse])
+def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """List all users."""
+    users = db.query(User).offset(skip).limit(limit).all()
+    return users
+
+
+@app.get("/users/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    """Get a specific user."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+# ============================================================================
+# TRADE / PREDICTION MARKET ENDPOINTS
+# ============================================================================
+
+@app.post("/api/trade", response_model=TradeResponse)
+def execute_market_trade(trade: TradeRequest, db: Session = Depends(get_db)):
+    """
+    Execute a prediction market trade.
+
+    1. Validates the user has enough balance.
+    2. Calculates the new price based on the trade size using LMSR.
+    3. Updates the user's balance and the criterion's market state atomically.
+    """
+    # Validate user exists and has enough balance
+    user = db.query(User).filter(User.id == trade.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.balance < trade.amount:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Insufficient balance. Have {user.balance:.2f}, need {trade.amount:.2f}"
+        )
+
+    # Validate criterion exists and market is open
+    criterion = db.query(Criterion).filter(Criterion.id == trade.criterion_id).first()
+    if not criterion:
+        raise HTTPException(status_code=404, detail="Criterion not found")
+
+    if criterion.market_status != MarketStatus.OPEN:
+        raise HTTPException(status_code=400, detail="Market is not open for trading")
+
+    # Execute the trade using LMSR
+    bet_type_str = trade.bet_type.value
+    shares_bought, new_price, new_yes, new_no = execute_trade(
+        yes_shares=criterion.yes_shares_outstanding,
+        no_shares=criterion.no_shares_outstanding,
+        liquidity=criterion.total_liquidity_pool,
+        bet_type=bet_type_str,
+        amount=trade.amount
+    )
+
+    # Record the price before updating
+    price_at_trade = criterion.market_price
+
+    # Update user balance
+    user.balance -= trade.amount
+
+    # Update criterion market state
+    criterion.yes_shares_outstanding = new_yes
+    criterion.no_shares_outstanding = new_no
+    criterion.market_price = new_price
+
+    # Create bet record
+    db_bet = Bet(
+        user_id=trade.user_id,
+        criterion_id=trade.criterion_id,
+        bet_type=trade.bet_type,
+        amount_spent=trade.amount,
+        shares_bought=shares_bought,
+        price_at_trade=price_at_trade
+    )
+    db.add(db_bet)
+    db.commit()
+    db.refresh(db_bet)
+
+    return TradeResponse(
+        bet_id=db_bet.id,
+        user_id=user.id,
+        criterion_id=criterion.id,
+        bet_type=trade.bet_type,
+        amount_spent=trade.amount,
+        shares_bought=shares_bought,
+        price_at_trade=price_at_trade,
+        new_market_price=new_price,
+        user_balance_after=user.balance
+    )
+
+
+@app.get("/users/{user_id}/bets", response_model=List[BetResponse])
+def list_user_bets(user_id: int, db: Session = Depends(get_db)):
+    """List all bets for a user."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    bets = db.query(Bet).filter(Bet.user_id == user_id).order_by(Bet.created_at.desc()).all()
+    return bets
+
+
+@app.get("/users/{user_id}/portfolio", response_model=PortfolioResponse)
+def get_user_portfolio(user_id: int, db: Session = Depends(get_db)):
+    """
+    Get a user's portfolio showing all active positions and their market values.
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Aggregate bets by criterion and bet_type
+    bets = db.query(Bet).filter(Bet.user_id == user_id).all()
+
+    # Group by (criterion_id, bet_type)
+    positions_map = {}
+    for bet in bets:
+        key = (bet.criterion_id, bet.bet_type.value)
+        if key not in positions_map:
+            positions_map[key] = {
+                "criterion_id": bet.criterion_id,
+                "bet_type": bet.bet_type,
+                "total_shares": 0.0,
+                "total_spent": 0.0,
+            }
+        positions_map[key]["total_shares"] += bet.shares_bought
+        positions_map[key]["total_spent"] += bet.amount_spent
+
+    positions = []
+    total_invested = 0.0
+    total_market_value = 0.0
+
+    for key, pos in positions_map.items():
+        criterion = db.query(Criterion).filter(Criterion.id == pos["criterion_id"]).first()
+        if not criterion:
+            continue
+
+        # Current value: shares * current_price for that side
+        state = MarketState(
+            yes_shares=criterion.yes_shares_outstanding,
+            no_shares=criterion.no_shares_outstanding,
+            b=criterion.total_liquidity_pool
+        )
+        if pos["bet_type"].value == "yes":
+            current_price = lmsr_price_yes(state)
+        else:
+            current_price = 1.0 - lmsr_price_yes(state)
+
+        market_value = pos["total_shares"] * current_price
+        profit_loss = market_value - pos["total_spent"]
+
+        positions.append(PortfolioPosition(
+            criterion_id=criterion.id,
+            criterion_name=criterion.name,
+            bet_type=pos["bet_type"],
+            total_shares=pos["total_shares"],
+            total_spent=pos["total_spent"],
+            current_price=current_price,
+            market_value=market_value,
+            profit_loss=profit_loss
+        ))
+
+        total_invested += pos["total_spent"]
+        total_market_value += market_value
+
+    return PortfolioResponse(
+        user_id=user.id,
+        username=user.username,
+        balance=user.balance,
+        positions=positions,
+        total_invested=total_invested,
+        total_market_value=total_market_value,
+        total_profit_loss=total_market_value - total_invested
+    )
+
+
+@app.get("/criteria/{criterion_id}/market", response_model=MarketSummary)
+def get_criterion_market(criterion_id: int, db: Session = Depends(get_db)):
+    """Get the prediction market summary for a criterion."""
+    criterion = db.query(Criterion).filter(Criterion.id == criterion_id).first()
+    if not criterion:
+        raise HTTPException(status_code=404, detail="Criterion not found")
+
+    summary = get_market_summary(
+        criterion.yes_shares_outstanding,
+        criterion.no_shares_outstanding,
+        criterion.total_liquidity_pool
+    )
+
+    return MarketSummary(
+        criterion_id=criterion.id,
+        criterion_name=criterion.name,
+        reason_rank_score=criterion.overall_score,
+        market_price=criterion.market_price,
+        yes_price_percent=summary["yes_price_percent"],
+        no_price_percent=summary["no_price_percent"],
+        yes_shares_outstanding=summary["yes_shares_outstanding"],
+        no_shares_outstanding=summary["no_shares_outstanding"],
+        market_status=criterion.market_status
+    )
+
+
+@app.post("/api/resolve", response_model=ResolveMarketResponse)
+def resolve_market(request: ResolveMarketRequest, db: Session = Depends(get_db)):
+    """
+    Resolve a prediction market and pay out winners.
+
+    Winners receive 1.0 per share held. Losers get nothing.
+    """
+    criterion = db.query(Criterion).filter(Criterion.id == request.criterion_id).first()
+    if not criterion:
+        raise HTTPException(status_code=404, detail="Criterion not found")
+
+    if criterion.market_status != MarketStatus.OPEN:
+        raise HTTPException(status_code=400, detail="Market is already resolved")
+
+    # Update market status
+    if request.resolved_yes:
+        criterion.market_status = MarketStatus.RESOLVED_YES
+        criterion.market_price = 1.0
+    else:
+        criterion.market_status = MarketStatus.RESOLVED_NO
+        criterion.market_price = 0.0
+
+    # Calculate and distribute payouts
+    bets = db.query(Bet).filter(Bet.criterion_id == request.criterion_id).all()
+    payouts = []
+
+    for bet in bets:
+        payout = calculate_payout(bet.shares_bought, bet.bet_type.value, request.resolved_yes)
+        if payout > 0:
+            user = db.query(User).filter(User.id == bet.user_id).first()
+            if user:
+                user.balance += payout
+                payouts.append({
+                    "user_id": user.id,
+                    "username": user.username,
+                    "payout": payout,
+                    "bet_type": bet.bet_type.value,
+                    "shares": bet.shares_bought
+                })
+
+    db.commit()
+
+    return ResolveMarketResponse(
+        criterion_id=criterion.id,
+        resolved_yes=request.resolved_yes,
+        market_status=criterion.market_status,
+        payouts=payouts
+    )
+
+
+@app.get("/criteria/{criterion_id}/bets", response_model=List[BetResponse])
+def list_criterion_bets(criterion_id: int, db: Session = Depends(get_db)):
+    """List all bets for a criterion's market."""
+    criterion = db.query(Criterion).filter(Criterion.id == criterion_id).first()
+    if not criterion:
+        raise HTTPException(status_code=404, detail="Criterion not found")
+
+    bets = db.query(Bet).filter(Bet.criterion_id == criterion_id).order_by(Bet.created_at.desc()).all()
+    return bets
 
 
 if __name__ == "__main__":

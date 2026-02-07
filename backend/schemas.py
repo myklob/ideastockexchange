@@ -4,7 +4,7 @@ Pydantic schemas for API request/response validation.
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from backend.models import DimensionType, ArgumentDirection
+from backend.models import DimensionType, ArgumentDirection, BetType, MarketStatus
 
 
 # Topic Schemas
@@ -48,6 +48,11 @@ class CriterionResponse(CriterionBase):
     reliability_score: float
     independence_score: float
     linkage_score: float
+    market_price: float
+    yes_shares_outstanding: float
+    no_shares_outstanding: float
+    total_liquidity_pool: float
+    market_status: MarketStatus
     created_at: datetime
     updated_at: datetime
 
@@ -188,6 +193,111 @@ class CriterionScoreBreakdown(BaseModel):
     overall_score: float
     argument_count: int
     dimensions: dict  # Maps dimension name to DimensionScoreBreakdown
+
+
+# ============================================================================
+# User Schemas
+# ============================================================================
+
+class UserCreate(BaseModel):
+    username: str = Field(..., max_length=100)
+    display_name: Optional[str] = Field(None, max_length=200)
+
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    display_name: Optional[str]
+    balance: float
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ============================================================================
+# Trade / Bet Schemas
+# ============================================================================
+
+class TradeRequest(BaseModel):
+    user_id: int
+    criterion_id: int
+    bet_type: BetType
+    amount: float = Field(..., gt=0)
+
+
+class TradeResponse(BaseModel):
+    bet_id: int
+    user_id: int
+    criterion_id: int
+    bet_type: BetType
+    amount_spent: float
+    shares_bought: float
+    price_at_trade: float
+    new_market_price: float
+    user_balance_after: float
+
+    class Config:
+        from_attributes = True
+
+
+class BetResponse(BaseModel):
+    id: int
+    user_id: int
+    criterion_id: int
+    bet_type: BetType
+    amount_spent: float
+    shares_bought: float
+    price_at_trade: float
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class PortfolioPosition(BaseModel):
+    criterion_id: int
+    criterion_name: str
+    bet_type: BetType
+    total_shares: float
+    total_spent: float
+    current_price: float
+    market_value: float
+    profit_loss: float
+
+
+class PortfolioResponse(BaseModel):
+    user_id: int
+    username: str
+    balance: float
+    positions: List[PortfolioPosition]
+    total_invested: float
+    total_market_value: float
+    total_profit_loss: float
+
+
+class MarketSummary(BaseModel):
+    criterion_id: int
+    criterion_name: str
+    reason_rank_score: float
+    market_price: float
+    yes_price_percent: float
+    no_price_percent: float
+    yes_shares_outstanding: float
+    no_shares_outstanding: float
+    market_status: MarketStatus
+
+
+class ResolveMarketRequest(BaseModel):
+    criterion_id: int
+    resolved_yes: bool
+
+
+class ResolveMarketResponse(BaseModel):
+    criterion_id: int
+    resolved_yes: bool
+    market_status: MarketStatus
+    payouts: List[dict]
 
 
 # Update forward references

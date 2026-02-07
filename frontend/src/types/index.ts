@@ -14,6 +14,17 @@ export enum ArgumentDirection {
   OPPOSING = "opposing"
 }
 
+export enum BetType {
+  YES = "yes",
+  NO = "no"
+}
+
+export enum MarketStatus {
+  OPEN = "open",
+  RESOLVED_YES = "resolved_yes",
+  RESOLVED_NO = "resolved_no"
+}
+
 export interface Topic {
   id: number;
   title: string;
@@ -36,6 +47,11 @@ export interface Criterion {
   reliability_score: number;
   independence_score: number;
   linkage_score: number;
+  market_price: number;
+  yes_shares_outstanding: number;
+  no_shares_outstanding: number;
+  total_liquidity_pool: number;
+  market_status: MarketStatus;
   created_at: string;
   updated_at: string;
 }
@@ -141,4 +157,82 @@ export interface EvidenceCreateRequest {
   measurement_value?: string;
   source: string;
   url?: string;
+}
+
+// User types
+export interface User {
+  id: number;
+  username: string;
+  display_name?: string;
+  balance: number;
+  created_at: string;
+}
+
+export interface UserCreateRequest {
+  username: string;
+  display_name?: string;
+}
+
+// Trade / Prediction Market types
+export interface TradeRequest {
+  user_id: number;
+  criterion_id: number;
+  bet_type: BetType;
+  amount: number;
+}
+
+export interface TradeResponse {
+  bet_id: number;
+  user_id: number;
+  criterion_id: number;
+  bet_type: BetType;
+  amount_spent: number;
+  shares_bought: number;
+  price_at_trade: number;
+  new_market_price: number;
+  user_balance_after: number;
+}
+
+export interface BetRecord {
+  id: number;
+  user_id: number;
+  criterion_id: number;
+  bet_type: BetType;
+  amount_spent: number;
+  shares_bought: number;
+  price_at_trade: number;
+  created_at: string;
+}
+
+export interface PortfolioPosition {
+  criterion_id: number;
+  criterion_name: string;
+  bet_type: BetType;
+  total_shares: number;
+  total_spent: number;
+  current_price: number;
+  market_value: number;
+  profit_loss: number;
+}
+
+export interface Portfolio {
+  user_id: number;
+  username: string;
+  balance: number;
+  positions: PortfolioPosition[];
+  total_invested: number;
+  total_market_value: number;
+  total_profit_loss: number;
+}
+
+export interface MarketSummary {
+  criterion_id: number;
+  criterion_name: string;
+  reason_rank_score: number;
+  market_price: number;
+  yes_price_percent: number;
+  no_price_percent: number;
+  yes_shares_outstanding: number;
+  no_shares_outstanding: number;
+  market_status: MarketStatus;
 }

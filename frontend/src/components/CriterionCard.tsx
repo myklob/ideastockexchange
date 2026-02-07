@@ -1,19 +1,32 @@
 /**
- * Component for displaying a criterion with its scores and quality dimensions.
+ * Component for displaying a criterion with its scores, quality dimensions,
+ * and prediction market trading interface.
  */
-import React, { useState, useEffect } from 'react';
-import { Criterion, CriterionScoreBreakdown, DimensionType } from '../types';
+import React, { useState } from 'react';
+import { Criterion, CriterionScoreBreakdown, TradeResponse } from '../types';
 import { criterionAPI } from '../services/api';
 import ScoreBar from './ScoreBar';
 import DimensionBreakdown from './DimensionBreakdown';
+import MarketPriceBar from './MarketPriceBar';
+import TradingPanel from './TradingPanel';
 
 interface CriterionCardProps {
   criterion: Criterion;
   onUpdate?: () => void;
+  userId?: number | null;
+  userBalance?: number;
+  onTradeComplete?: (trade: TradeResponse) => void;
 }
 
-const CriterionCard: React.FC<CriterionCardProps> = ({ criterion, onUpdate }) => {
+const CriterionCard: React.FC<CriterionCardProps> = ({
+  criterion,
+  onUpdate,
+  userId,
+  userBalance = 0,
+  onTradeComplete,
+}) => {
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [showTrading, setShowTrading] = useState(false);
   const [breakdown, setBreakdown] = useState<CriterionScoreBreakdown | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -49,6 +62,10 @@ const CriterionCard: React.FC<CriterionCardProps> = ({ criterion, onUpdate }) =>
     return 'Weak';
   };
 
+  const handleTradeComplete = (trade: TradeResponse) => {
+    if (onTradeComplete) onTradeComplete(trade);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-4 border border-gray-200 hover:shadow-lg transition-shadow">
       {/* Header */}
@@ -67,6 +84,15 @@ const CriterionCard: React.FC<CriterionCardProps> = ({ criterion, onUpdate }) =>
             {getScoreLabel(criterion.overall_score)}
           </div>
         </div>
+      </div>
+
+      {/* Dual-Score Dashboard: ReasonRank + Market Price */}
+      <div className="mb-4">
+        <MarketPriceBar
+          marketPrice={criterion.market_price}
+          reasonRankScore={criterion.overall_score}
+          marketStatus={criterion.market_status}
+        />
       </div>
 
       {/* Overall Score Bar */}
@@ -114,8 +140,14 @@ const CriterionCard: React.FC<CriterionCardProps> = ({ criterion, onUpdate }) =>
         </div>
       </div>
 
-      {/* Show Breakdown Button */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
+      {/* Trading toggle and Breakdown buttons */}
+      <div className="mt-4 pt-4 border-t border-gray-200 flex items-center gap-4">
+        <button
+          onClick={() => setShowTrading(!showTrading)}
+          className="bg-indigo-600 text-white hover:bg-indigo-700 font-medium text-sm px-3 py-1 rounded-md transition-colors"
+        >
+          {showTrading ? 'Hide Trading' : 'Trade'}
+        </button>
         <button
           onClick={loadBreakdown}
           disabled={loading}
@@ -123,7 +155,7 @@ const CriterionCard: React.FC<CriterionCardProps> = ({ criterion, onUpdate }) =>
         >
           {loading ? (
             <>
-              <span className="animate-spin mr-2">⟳</span>
+              <span className="animate-spin mr-2">&#x27F3;</span>
               Loading...
             </>
           ) : (
@@ -133,6 +165,18 @@ const CriterionCard: React.FC<CriterionCardProps> = ({ criterion, onUpdate }) =>
           )}
         </button>
       </div>
+
+      {/* Trading Panel */}
+      {showTrading && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <TradingPanel
+            criterion={criterion}
+            userId={userId || null}
+            userBalance={userBalance}
+            onTradeComplete={handleTradeComplete}
+          />
+        </div>
+      )}
 
       {/* Detailed Breakdown */}
       {showBreakdown && breakdown && (

@@ -3,9 +3,11 @@ Seed the database with example data from the Objective Criteria documentation.
 """
 from backend.database import SessionLocal, init_db
 from backend.models import (
-    Topic, Criterion, DimensionArgument, DimensionType, ArgumentDirection
+    Topic, Criterion, DimensionArgument, DimensionType, ArgumentDirection,
+    User, Bet, BetType
 )
 from backend.algorithms.scoring import recalculate_criterion_scores
+from backend.algorithms.market_maker import execute_trade
 
 
 def seed_database():
@@ -18,10 +20,25 @@ def seed_database():
     try:
         # Clear existing data (for demo purposes)
         print("Clearing existing data...")
+        db.query(Bet).delete()
         db.query(DimensionArgument).delete()
         db.query(Criterion).delete()
         db.query(Topic).delete()
+        db.query(User).delete()
         db.commit()
+
+        # ====================================================================
+        # Create example users
+        # ====================================================================
+        print("\nCreating example users...")
+        alice = User(username="alice", display_name="Alice", balance=1000.0)
+        bob = User(username="bob", display_name="Bob", balance=1000.0)
+        charlie = User(username="charlie", display_name="Charlie", balance=1000.0)
+        db.add_all([alice, bob, charlie])
+        db.commit()
+        db.refresh(alice)
+        db.refresh(bob)
+        db.refresh(charlie)
 
         # ====================================================================
         # TOPIC 1: Climate Change Severity
@@ -422,11 +439,74 @@ def seed_database():
             db.refresh(criterion)
             print(f"  - {criterion.name}: {criterion.overall_score:.1f}%")
 
+        # ====================================================================
+        # Create example prediction market trades
+        # ====================================================================
+        print("\nCreating example trades...")
+
+        # Alice bets YES on Glacier Mass Balance
+        shares, new_price, new_yes, new_no = execute_trade(
+            glacier_criterion.yes_shares_outstanding,
+            glacier_criterion.no_shares_outstanding,
+            glacier_criterion.total_liquidity_pool,
+            "yes", 50.0
+        )
+        alice.balance -= 50.0
+        glacier_criterion.yes_shares_outstanding = new_yes
+        glacier_criterion.no_shares_outstanding = new_no
+        glacier_criterion.market_price = new_price
+        db.add(Bet(
+            user_id=alice.id, criterion_id=glacier_criterion.id,
+            bet_type=BetType.YES, amount_spent=50.0,
+            shares_bought=shares, price_at_trade=0.5
+        ))
+        print(f"  - Alice bought {shares:.1f} YES shares on Glacier Mass Balance (price: {new_price:.2f})")
+
+        # Bob bets YES on Average Global Temperature
+        shares, new_price, new_yes, new_no = execute_trade(
+            temp_criterion.yes_shares_outstanding,
+            temp_criterion.no_shares_outstanding,
+            temp_criterion.total_liquidity_pool,
+            "yes", 30.0
+        )
+        bob.balance -= 30.0
+        temp_criterion.yes_shares_outstanding = new_yes
+        temp_criterion.no_shares_outstanding = new_no
+        temp_criterion.market_price = new_price
+        db.add(Bet(
+            user_id=bob.id, criterion_id=temp_criterion.id,
+            bet_type=BetType.YES, amount_spent=30.0,
+            shares_bought=shares, price_at_trade=0.5
+        ))
+        print(f"  - Bob bought {shares:.1f} YES shares on Avg Global Temp (price: {new_price:.2f})")
+
+        # Charlie bets NO on Twitter Sentiment
+        shares, new_price, new_yes, new_no = execute_trade(
+            twitter_criterion.yes_shares_outstanding,
+            twitter_criterion.no_shares_outstanding,
+            twitter_criterion.total_liquidity_pool,
+            "no", 40.0
+        )
+        charlie.balance -= 40.0
+        twitter_criterion.yes_shares_outstanding = new_yes
+        twitter_criterion.no_shares_outstanding = new_no
+        twitter_criterion.market_price = new_price
+        db.add(Bet(
+            user_id=charlie.id, criterion_id=twitter_criterion.id,
+            bet_type=BetType.NO, amount_spent=40.0,
+            shares_bought=shares, price_at_trade=0.5
+        ))
+        print(f"  - Charlie bought {shares:.1f} NO shares on Twitter Sentiment (price: {new_price:.2f})")
+
+        db.commit()
+
         print("\n✓ Database seeded successfully!")
         print(f"\nCreated:")
+        print(f"  - {db.query(User).count()} users")
         print(f"  - {db.query(Topic).count()} topics")
         print(f"  - {db.query(Criterion).count()} criteria")
         print(f"  - {db.query(DimensionArgument).count()} arguments")
+        print(f"  - {db.query(Bet).count()} trades")
 
     except Exception as e:
         print(f"\n✗ Error seeding database: {e}")

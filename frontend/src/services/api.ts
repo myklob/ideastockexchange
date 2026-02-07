@@ -14,7 +14,14 @@ import {
   DimensionArgumentUpdateRequest,
   Evidence,
   EvidenceCreateRequest,
-  CriterionScoreBreakdown
+  CriterionScoreBreakdown,
+  User,
+  UserCreateRequest,
+  TradeRequest,
+  TradeResponse,
+  BetRecord,
+  Portfolio,
+  MarketSummary
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
@@ -84,6 +91,16 @@ export const criterionAPI = {
     const response = await api.get(`/criteria/${criterionId}/breakdown`);
     return response.data;
   },
+
+  async getMarketSummary(criterionId: number): Promise<MarketSummary> {
+    const response = await api.get(`/criteria/${criterionId}/market`);
+    return response.data;
+  },
+
+  async listBets(criterionId: number): Promise<BetRecord[]> {
+    const response = await api.get(`/criteria/${criterionId}/bets`);
+    return response.data;
+  },
 };
 
 // ============================================================================
@@ -123,6 +140,56 @@ export const evidenceAPI = {
 
   async listByCriterion(criterionId: number): Promise<Evidence[]> {
     const response = await api.get(`/criteria/${criterionId}/evidence/`);
+    return response.data;
+  },
+};
+
+// ============================================================================
+// USER API
+// ============================================================================
+
+export const userAPI = {
+  async create(data: UserCreateRequest): Promise<User> {
+    const response = await api.post('/users/', data);
+    return response.data;
+  },
+
+  async list(): Promise<User[]> {
+    const response = await api.get('/users/');
+    return response.data;
+  },
+
+  async get(userId: number): Promise<User> {
+    const response = await api.get(`/users/${userId}`);
+    return response.data;
+  },
+
+  async getBets(userId: number): Promise<BetRecord[]> {
+    const response = await api.get(`/users/${userId}/bets`);
+    return response.data;
+  },
+
+  async getPortfolio(userId: number): Promise<Portfolio> {
+    const response = await api.get(`/users/${userId}/portfolio`);
+    return response.data;
+  },
+};
+
+// ============================================================================
+// TRADE API
+// ============================================================================
+
+export const tradeAPI = {
+  async executeTrade(data: TradeRequest): Promise<TradeResponse> {
+    const response = await api.post('/api/trade', data);
+    return response.data;
+  },
+
+  async resolveMarket(criterionId: number, resolvedYes: boolean): Promise<any> {
+    const response = await api.post('/api/resolve', {
+      criterion_id: criterionId,
+      resolved_yes: resolvedYes,
+    });
     return response.data;
   },
 };
