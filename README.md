@@ -1,160 +1,112 @@
-# Idea Stock Exchange
+# IdeaStockExchange
 
-> A marketplace for ideas where truth is the currency.
+A platform where ideas are valued like financial instruments. Claims rise and fall based on two independent forces: logical rigor and crowd conviction.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./docs/CONTRIBUTING.md)
+## Core Philosophy
 
-A platform for structured disagreement, probabilistic reasoning, and argument-weighted decision analysis.
+**Arguments are investments.** Every claim functions as a dual-valued asset. It possesses a **ReasonRank** derived from logical proof and a **Market Price** determined by user betting and prediction market sentiment.
 
----
+This dual-score system ensures that no single dimension of truth dominates. A claim can be logically airtight yet unpopular, or widely believed yet poorly supported. IdeaStockExchange tracks both dimensions independently, giving users a complete picture of each idea's standing.
 
-## Why This Exists
+## Key Concepts
 
-Public discourse is broken. People argue past each other, cherry-pick evidence, and conflate values with facts. The Idea Stock Exchange provides a framework where:
+### Truth Score
 
-- **Arguments are investments** --  Every claim has two values: a ReasonRank earned through proof and a market price set by the crowd.
-- **Disagreement is structured** -- Identify whether you disagree on facts, values, or the strength of the link between them
-- **Uncertainty is explicit** -- All scores include confidence intervals, not false precision
-- **Adversarial testing is built-in** -- The best arguments survive scrutiny; weak ones get repriced
+Truth Score: A composite metric representing the overall validity of a claim. It is calculated by combining the **Logical Validity Score** (structure of the argument) and the **Evidence Score** (quality and independence of supporting data).
 
-The Idea Stock Exchange applies computational epistemology to real-world claims. Every belief is treated as a tradeable proposition: its "price" (truth score) rises or falls based on the quality, linkage, and adversarial strength of the arguments behind it.
+The Truth Score is the final output of the ReasonRank algorithm. It is not a simple 0-1 accuracy rating. Instead, it synthesizes multiple dimensions of analysis into a single measure of claim validity.
 
----
+### Evidence Score
 
-## Quick Start
+The Evidence Score measures the reliability and independence of source data backing a claim. It evaluates factors such as:
 
-```bash
-# Clone and install
-git clone https://github.com/myklob/ideastockexchange.git
-cd ideastockexchange
-npm install
+- **Source credibility:** Is the data from a peer-reviewed study, a reputable institution, or an unverified source?
+- **Independence:** Are multiple lines of evidence converging on the same conclusion, or does the claim rest on a single data point?
+- **Reproducibility:** Can the evidence be independently verified?
 
-# Set up database
-cp .env.example .env
-npx prisma generate
-npm run db:migrate
+Note: The Evidence Score is strictly a measure of data quality. It is one input into the Truth Score, not a synonym for it.
 
-# Start development server
-npm run dev
-```
+### Logical Validity Score
 
-Open [http://localhost:3000](http://localhost:3000) to explore.
+The Logical Validity Score evaluates the structural integrity of an argument. It checks whether conclusions follow from premises, whether logical fallacies are present, and whether the reasoning chain is internally consistent.
 
----
+This score is the other primary input into the Truth Score.
 
-## Core Concepts
+## The Dual-Score System
 
-### ReasonRank
+IdeaStockExchange tracks two distinct and equally important scores for every claim.
 
-A recursive scoring algorithm that evaluates arguments through three dimensions:
+### ReasonRank (The Truth Metric)
 
-- **Truth Score** -- Is the evidence factually accurate? (0-1)
-- **Linkage Score** -- Does this evidence actually support the conclusion? (0-1)
-- **Importance Weight** -- How much does this argument move the probability? (0-1)
+This score is objective. It measures the logical strength, evidence quality, and redundancy of an argument. ReasonRank cannot be bought. It must be earned through rigorous proof.
 
-Sub-arguments modify their parent's effective truth score, and fallacy detection applies multiplicative penalties. The result is a single composite score that reflects adversarial scrutiny.
+ReasonRank reflects the structural and evidential integrity of a claim:
 
-### Likelihood Scores
+- **Logical Validity:** Does the argument follow sound reasoning?
+- **Evidence Quality:** Is the supporting data reliable and independent?
+- **Redundancy:** Do multiple independent arguments converge on the same conclusion?
+- **Counterargument Resilience:** Has the claim survived serious challenges?
 
-Competing probability estimates for a given prediction, each scored by ReasonRank. The estimate with the highest ReasonRank score determines the "active likelihood" -- the system's best current assessment.
+The Truth Score is the final numeric output of the ReasonRank algorithm.
 
-### Cost-Benefit Analysis
+### Market Price (The Sentiment Metric)
 
-Line items (costs and benefits) are each assigned a likelihood belief. Expected value is computed as `Predicted Impact x Active Likelihood`. The system aggregates these into net expected value with confidence intervals.
+This score is subjective. It represents the "wisdom of the crowd" through a betting market. Users wager virtual currency on whether a claim will be proven true or false.
 
-### Nested Beliefs
+Market Price reflects collective conviction:
 
-Beliefs are organized along three dimensions:
+- **Betting Volume:** How much virtual currency is staked on this claim?
+- **Directional Sentiment:** Are users betting for or against?
+- **Predictor Reputation:** Are the bettors historically accurate?
+- **Market Momentum:** Is conviction rising or falling over time?
 
-- **Abstraction** -- General to specific (from "democracy matters" to "12-year term limits reduce lobbying")
-- **Intensity** -- Modest to extreme (from "some effect" to "the only solution")
-- **Valence** -- Negative to positive sentiment
+A high Market Price with a low ReasonRank signals popular belief without logical foundation. A high ReasonRank with a low Market Price signals rigorous proof that the crowd has not yet accepted.
 
-## Tech Stack
+## How It Works
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript (strict) |
-| Database | SQLite via Prisma + better-sqlite3 |
-| Styling | Tailwind CSS 4 |
-| AI/ML | Python (sentence-transformers, LLM clients) |
-| Charts | Recharts |
-| Validation | Zod |
+1. **Submit a Claim:** A user posts a claim to the exchange. It starts with a neutral ReasonRank and an initial Market Price.
+2. **Build the Case:** Other users contribute supporting or opposing arguments. Each argument is evaluated for logical validity and evidence quality, directly influencing the claim's ReasonRank.
+3. **Place Your Bets:** Users wager IdeaCredits (virtual currency) on the claim's outcome via the prediction market. This activity sets the Market Price.
+4. **Watch the Scores Diverge or Converge:** Over time, the ReasonRank and Market Price may align (indicating consensus between logic and sentiment) or diverge (indicating a gap between proof and belief).
 
-## Local Development
+## Getting Started
 
-```bash
-npm install
-npx prisma generate
-npm run dev
-```
+### Contributing Arguments (Influence ReasonRank)
 
-The app runs at [http://localhost:3000](http://localhost:3000).
+1. Browse open claims on the exchange.
+2. Submit evidence-backed arguments for or against a claim.
+3. Your argument is scored for logical validity and evidence quality.
+4. Strong arguments raise (or lower) the claim's ReasonRank.
 
-### Database
+### Placing Bets (Influence Market Price)
 
-```bash
-npm run db:migrate   # Run migrations
-npm run db:seed      # Seed sample data
-npm run db:reset     # Reset and re-migrate
-```
+1. Review a claim's current ReasonRank and Market Price.
+2. Stake IdeaCredits on whether you believe the claim will be validated or refuted.
+3. Your bet shifts the Market Price based on volume and direction.
+4. High performers in the market earn additional IdeaCredits and build a reputation as accurate predictors.
 
-### Environment
+### Earning Reputation
 
-Copy `.env.example` to `.env` and configure required variables. The `.env` file is gitignored.
+- **Argument Quality:** Consistently contributing high-scoring arguments earns you a reputation as a rigorous thinker.
+- **Prediction Accuracy:** Successfully betting on outcomes before they resolve earns you a reputation as an accurate predictor.
+- **IdeaCredits:** Virtual currency earned through accurate predictions and high-quality contributions. IdeaCredits are not real money.
+
+## Terminology Reference
+
+| Term | Definition |
+| --- | --- |
+| **Truth Score** | Composite metric combining Logical Validity and Evidence Score. The final output of ReasonRank. |
+| **Evidence Score** | Measures the reliability and independence of source data. One input into the Truth Score. |
+| **Logical Validity Score** | Measures the structural soundness of an argument. One input into the Truth Score. |
+| **ReasonRank** | The algorithm that produces the Truth Score. Evaluates logic, evidence, and redundancy. |
+| **Market Price** | The crowd-determined value of a claim, set by betting volume and sentiment. |
+| **Market Stake** | A bet placed by a user on a claim's outcome via the prediction market. |
+| **IdeaCredits** | Virtual currency used for betting. Earned through accurate predictions and quality contributions. |
 
 ## Architecture
 
-The system is organized by **intent** (Domain-Driven Design) rather than by technology layer. Each folder describes *what it does*, not when it was last touched.
-
-```
-src/
-  app/                        Next.js App Router -- routing and server boundaries only
-  features/                   Domain logic grouped by business purpose
-    epistemology/               Schlicht Protocol: belief verification and confidence scoring
-    cost-benefit-analysis/      Policy evaluation with adversarial likelihood estimates
-    legal-framework/            wikiLaw: law diagnostic dashboards and assumption auditing
-    books/                      Book claim analysis and fallacy detection
-    topics/                     Topic hubs aggregating related beliefs
-  core/                       Framework-agnostic logic shared across all features
-    scoring/                    Unified scoring engine (ReasonRank, EVS, truth, likelihood)
-    types/                      All TypeScript type definitions by domain
-    ai/                         LLM clients, analysis generators, task queue
-    schemas/                    XSD and XSLT schema artifacts
-  components/                 Global reusable UI (only components used by 3+ features)
-  lib/                        Third-party wrappers (Prisma client) and shared utilities
-  styles/                     CSS assets
-docs/                         Design documents and technical specifications
-tests/                        Unit, integration, and e2e tests
-prisma/                       Database schema and migrations
-scripts/                      Automation and CI/CD scripts
-_archive/                     Legacy code preserved for reference
-```
-
-Each feature folder contains a `README.md` explaining its purpose, key concepts, and internal structure.
-
-### Key Design Decisions
-
-- **Single scoring engine** (`src/core/scoring/scoring-engine.ts`) ensures Protocol and CBA use identical ReasonRank logic
-- **Feature isolation** -- each feature owns its components, data, and services; co-located unless shared by 3+ features
-- **Typed contracts** -- all domain types live in `src/core/types/` and are shared across features
-- **No business logic in routes** -- `src/app/` contains only routing and server boundaries
-- **Rule of Three** -- a component stays co-located in its feature until it is used by three or more features, then it moves to `/src/components/`
-
-## Documentation
-
-Detailed specifications and design documents are in [`/docs`](./docs/):
-
-- [Algorithms](./docs/ALGORITHMS.md) -- Scoring formulas and mathematical models
-- [Architecture](./docs/ARCHITECTURE.md) -- System design and type system
-- [Implementation](./docs/IMPLEMENTATION.md) -- Implementation details
-- [Contributing](./docs/CONTRIBUTING.md) -- Contribution guidelines
-- [Quickstart](./docs/QUICKSTART.md) -- Getting started guide
+IdeaStockExchange separates truth-seeking from opinion-tracking at the architectural level. The ReasonRank engine and the prediction market operate as independent subsystems. Neither can influence the other's score directly. This separation ensures that popular opinion cannot corrupt logical evaluation, and that rigorous proof cannot suppress genuine crowd insight.
 
 ## License
 
-MIT
+This project is open source. See the LICENSE file for details.
