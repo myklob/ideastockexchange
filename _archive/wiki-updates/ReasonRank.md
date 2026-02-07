@@ -1,14 +1,16 @@
-_[Home](Home) > [Page Design](Page-Design) > **[ReasonRank](ReasonRank) Algorithm**_
+_[Home](http://myclob.pbworks.com/w/page/21957696/Colorado%20Should) > [Page Design](http://myclob.pbworks.com/w/page/159323361/Page%20Design) > **[ReasonRank](http://myclob.pbworks.com/w/page/159300543/ReasonRank) Algorithm**_
 
 # ReasonRank: PageRank for Truth
 
-Imagine if every argument automatically showed its score. Not based on how many people believe it, how loudly someone shouts it, or how slickly it's packaged. Based on _evidence_.
+Imagine if every argument automatically showed its score. Not based on how many people believe it, how loudly someone shouts it, or how slickly it's packaged. Based on *evidence*.
 
 That's ReasonRank.
 
 Google changed web search by treating links as votes. A webpage matters when other important pages link to it. The algorithm doesn't care about popularity contests or paid placement. It follows the network of trust.
 
 ReasonRank does the same thing for ideas. Instead of counting hyperlinks, it weighs arguments. Instead of ranking websites, it scores beliefs. The truth rises not because we voted for it, but because the evidence demands it.
+
+
 
 ---
 
@@ -22,7 +24,7 @@ Here's what happens in a typical online debate:
 - Weak reasoning hides behind confident rhetoric
 - Important evidence gets buried while catchy soundbites go viral
 
-We've built a system where being _persuasive_ beats being _correct_. Where tribal loyalty trumps factual accuracy. Where feelings matter more than data.
+We've built a system where being *persuasive* beats being *correct*. Where tribal loyalty trumps factual accuracy. Where feelings matter more than data.
 
 This isn't how we solve hard problems. This is how we keep having the same stupid arguments forever.
 
@@ -36,11 +38,13 @@ Think of arguments as a river system. Evidence is the source, flowing from small
 
 Here's what makes this powerful:
 
-- **Nodes are beliefs.** Each claim gets [one canonical page](One-Page-Per-Topic), not scattered fragments across a thousand comment threads.
+- **Nodes are beliefs.** Each claim gets [one canonical page](http://myclob.pbworks.com/w/page/159323433/One%20Page%20Per%20Topic), not scattered fragments across a thousand comment threads.
 - **Edges are logical connections.** Supporting or opposing links show how arguments relate to each other.
 - **Strength propagates automatically.** When the foundation is solid, the conclusion strengthens. When evidence crumbles, everything built on it collapses.
 
-The system doesn't care about your credentials, your charisma, or how many followers you have. It cares about one thing: _Can you show your work?_
+The system doesn't care about your credentials, your charisma, or how many followers you have. It cares about one thing: *Can you show your work?*
+
+
 
 ---
 
@@ -48,13 +52,13 @@ The system doesn't care about your credentials, your charisma, or how many follo
 
 Every argument gets scored using three multiplied factors:
 
-> **Argument Strength = [Truth Score](Truth-Score) × [Linkage Score](Linkage-Scores) × [Importance Weight](Importance-Score)**
+> **Argument Strength = [Truth Score](http://myclob.pbworks.com/w/page/21960078/truth) × [Linkage Score](http://myclob.pbworks.com/w/page/159338766/Linkage%20Scores) × [Importance Weight](http://myclob.pbworks.com/w/page/Importance%20Score)**
 
 | Component | What It Measures | Range |
 |-----------|------------------|-------|
-| **Truth Score** | Is this claim actually true based on evidence? | 0% to 100% |
-| **Linkage Score** | If true, does it actually prove your point? | -100% (contradicts) to +100% (proves) |
-| **Importance Weight** | Does this actually matter, or is it trivial? | 0.0 to 1.0 multiplier |
+| **[Truth Score](http://myclob.pbworks.com/w/page/21960078/truth)** | Is this claim actually true based on evidence? | 0% to 100% |
+| **[Linkage Score](http://myclob.pbworks.com/w/page/159338766/Linkage%20Scores)** | If true, does it actually prove your point? | -100% (contradicts) to +100% (proves) |
+| **[Importance Weight](http://myclob.pbworks.com/w/page/Importance%20Score)** | Does this actually matter, or is it trivial? | 0.0 to 1.0 multiplier |
 
 Notice what this prevents:
 
@@ -62,7 +66,7 @@ Notice what this prevents:
 - **Important but unproven** claims get flagged (high importance, low truth)
 - **Logically disconnected** arguments can't hide (low linkage score)
 
-You can't game this system by shouting louder. You have to _show your math_.
+You can't game this system by shouting louder. You have to *show your math*.
 
 ---
 
@@ -70,9 +74,9 @@ You can't game this system by shouting louder. You have to _show your math_.
 
 Here's where it gets interesting. Every argument is itself a belief page with its own supporting and opposing arguments. The scoring cascades through multiple levels:
 
-1. **Foundation Level:** A peer-reviewed study confirms Process X is safe. _(Truth Score: 95%)_
-2. **Middle Level:** That study supports "Process X is safe." _(Updated Score: 85%)_
-3. **Conclusion Level:** "We should implement Process X" gains strength. _(Updated Score: 70%)_
+1. **Foundation Level:** A peer-reviewed study confirms Process X is safe. *(Truth Score: 95%)*
+2. **Middle Level:** That study supports "Process X is safe." *(Updated Score: 85%)*
+3. **Conclusion Level:** "We should implement Process X" gains strength. *(Updated Score: 70%)*
 
 Now watch what happens when new evidence appears. If that peer-reviewed study gets retracted, the score doesn't just update on one page. It ripples through the entire network instantly. Every conclusion built on that foundation automatically adjusts.
 
@@ -110,7 +114,7 @@ Look at that last row. The "construction delays" argument is 100% true, but cont
 |-------------------|---------------------|
 | Arguments appear chronologically | Arguments organized by logical structure |
 | Winner determined by rhetoric | Winner determined by evidence weight |
-| Same points repeated endlessly | Duplicates merged via semantic clustering |
+| Same points repeated endlessly | Duplicates merged via [Semantic Clustering](http://myclob.pbworks.com/w/page/21957126/combine%20similar%20beliefs) |
 | **Static:** Debunked claims stay visible | **Dynamic:** Scores update when evidence changes |
 | No way to measure argument strength | Every claim gets a quantified score |
 | Tribal warfare and loyalty tests | Show your work or lose credibility |
@@ -131,7 +135,7 @@ Users can flag weak linkage scores, identify missing counterarguments, and chall
 
 ### 3. Expert Review
 
-Specialists assess [evidence quality](Evidence), evaluate logical consistency, and review the [assumptions](Assumptions) underlying major claims. This prevents sophisticated manipulation while keeping the system open to new contributors.
+Specialists assess [evidence quality](http://myclob.pbworks.com/w/page/159353568/Evidence), evaluate logical consistency, and review the [assumptions](http://myclob.pbworks.com/w/page/Assumptions) underlying major claims. This prevents sophisticated manipulation while keeping the system open to new contributors.
 
 ---
 
@@ -155,12 +159,12 @@ This is how we complete the Enlightenment project. This is how we build collecti
 Want to understand the implementation details? Explore these resources:
 
 - [Full codebase on GitHub](https://github.com/myklob/ideastockexchange)
-- [How Truth Scores Work](Truth-Scores)
-- [Understanding Linkage Scores](Linkage-Scores)
-- [Evidence Evaluation Framework](Evidence)
-- [Importance Weighting System](Importance-Score)
-- [Sub-Argument Score Calculation](Argument-scores-from-sub-argument-scores)
-- [Integration with Cost-Benefit Analysis](cost-benefit-analysis)
+- [How Truth Scores Work](http://myclob.pbworks.com/w/page/21960078/truth)
+- [Understanding Linkage Scores](http://myclob.pbworks.com/w/page/159338766/Linkage%20Scores)
+- [Evidence Evaluation Framework](http://myclob.pbworks.com/w/page/159353568/Evidence)
+- [Importance Weighting System](http://myclob.pbworks.com/w/page/Importance%20Score)
+- [Sub-Argument Score Calculation](http://myclob.pbworks.com/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores)
+- [Integration with Cost-Benefit Analysis](http://myclob.pbworks.com/w/page/156187122/cost-benefit%20analysis)
 
 ---
 
@@ -168,11 +172,11 @@ Want to understand the implementation details? Explore these resources:
 
 The Idea Stock Exchange isn't complete. It's not perfect. It never will be, because the pursuit of truth is an ongoing process, not a destination.
 
-But it's _better_. Better than shouting matches. Better than tribal warfare. Better than letting the loudest voice or the slickest marketing win.
+But it's *better*. Better than shouting matches. Better than tribal warfare. Better than letting the loudest voice or the slickest marketing win.
 
 We're building Wikipedia for policy debates. A system where you can see every argument, trace every claim back to its evidence, and watch the scores update as truth emerges.
 
-**[Help us improve the algorithm.](Contact-Me)** Submit edge cases. Challenge our assumptions. Propose better weighting systems. The strength of this platform depends on people like you who care about getting things right.
+**[Help us improve the algorithm.](http://myclob.pbworks.com/w/page/160433328/Contact%20Me)** Submit edge cases. Challenge our assumptions. Propose better weighting systems. The strength of this platform depends on people like you who care about getting things right.
 
 Because here's what's at stake: Democracy requires informed citizens. Markets require accurate information. Progress requires distinguishing good ideas from bad ones. And none of that works when we can't agree on basic facts or evaluate arguments systematically.
 
@@ -184,13 +188,13 @@ ReasonRank is our answer. Not perfect. But measurable. Transparent. Self-correct
 
 ## Related Scores Needed to be Calculated:
 
-- [Argument scores from sub-argument scores](Argument-scores-from-sub-argument-scores)
-- [Evidence Scores](Evidence-Scores)
-- [Book Logical Validity Score](Book-Logical-Validity-Score)
-- [Importance Score](Importance-Score)
-- [Linkage Score Code](Linkage-Score-Code)
-- [Truth Scores](Truth-Scores)
-- [Media Truth Score](Media-Truth-Score)
-- [topic overlap scores](topic_overlap_scores)
-- [Objective criteria scores](Objective-criteria-scores)
-- [Media Genre and Style Scores](Media-Genre-and-Style-Scores)
+- [Argument scores from sub-argument scores](http://myclob.pbworks.com/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores)
+- [Evidence Scores](http://myclob.pbworks.com/w/page/159353568/Evidence)
+- [Book Logical Validity Score](http://myclob.pbworks.com/w/page/Book%20Logical%20Validity%20Score)
+- [Importance Score](http://myclob.pbworks.com/w/page/Importance%20Score)
+- [Linkage Score Code](http://myclob.pbworks.com/w/page/Linkage%20Score%20Code)
+- [Truth Scores](http://myclob.pbworks.com/w/page/21960078/truth)
+- [Media Truth Score](http://myclob.pbworks.com/w/page/Media%20Truth%20Score)
+- [Topic Overlap Scores](http://myclob.pbworks.com/w/page/Topic%20Overlap%20Scores)
+- [Objective Criteria Scores](http://myclob.pbworks.com/w/page/159351732/Objective%20criteria%20scores)
+- [Media Genre and Style Scores](http://myclob.pbworks.com/w/page/Media%20Genre%20and%20Style%20Scores)
