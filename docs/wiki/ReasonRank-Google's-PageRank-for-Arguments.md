@@ -1,129 +1,146 @@
-# ReasonRank: Google’s PageRank for Arguments
+[_Home_](https://www.google.com/search?q=http://myclob.pbworks.com/w/page/21957696/Colorado%20Should) _>_ [_Page Design_](https://www.google.com/search?q=http://myclob.pbworks.com/w/page/159323361/Page%20Design) _>_ [_**ReasonRank**_](http://myclob.pbworks.com/w/page/159300543/ReasonRank) _**Algorithm**_
 
-Google’s **PageRank** measures the number and quality of links to a website to determine importance.  
-However, it does **not** assess the *strength or validity* of the arguments in that content.  
+ReasonRank: The Operating System for Truth
+==========================================
 
-**ReasonRank** adapts PageRank to a **pro/con forum**, evaluating the persuasiveness, relevance, and quality of individual arguments.
+**ReasonRank** is a computational scoring engine that measures the validity of a belief. It is the core algorithm of the Idea Stock Exchange.
 
----
+Just as Google’s PageRank revolutionized the internet by treating hyperlinks as "votes" for a website's importance, ReasonRank revolutionizes debate by treating logical arguments as "votes" for a belief's truth.
 
-## How It Works
-ReasonRank modifies PageRank to:
-- Evaluate both **pro** and **con** arguments.
-- **ADD** scores from supporting/pro arguments (like positive incoming links).
-- **SUBTRACT** scores from con/weakening arguments (like negative incoming links).
-- Weigh arguments by **quantity** and **quality** of their supporting or opposing reasons.
-- Consider *linkage strength*, *uniqueness*, *verification*, and *logical soundness*.
-- Incorporate **user feedback** (votes, credibility scores) to refine rankings over time.
+1\. The Core Philosophy
+-----------------------
 
-### The Core Algorithm
-Just as PageRank scores pages higher when they receive links from high-quality pages, **ReasonRank promotes beliefs that have:**
-1. **Strong supporting arguments** (high scores that ADD to the belief's score)
-2. **Weak opposing arguments** (low scores that SUBTRACT minimally from the belief's score)
+The internet solved the problem of **Information Access**, but it created the problem of **Information Verification**.
 
-**Formula:**
-```
-Belief Score = BaseScore + Σ(Supporting Argument Scores) - Σ(Opposing Argument Scores)
-```
+Currently, online debates are decided by:
 
-Where:
-- `BaseScore = 50` (neutral starting point)
-- Supporting argument scores are weighted by their ReasonRank and lifecycle status
-- Opposing argument scores are weighted by their ReasonRank and lifecycle status
-- Final score is normalized to 0-100 range
+1.  **Volume:** Who shouts the loudest?
+    
+2.  **Repetition:** Who posts the most often?
+    
+3.  **Tribalism:** Who has the most followers?
+    
 
----
+ReasonRank replaces these metrics with a single standard: **Evidence.**
 
-## Variables Needed
-To implement ReasonRank, the algorithm uses:
+### The "Trust Graph"
 
-1. **`M_pro` / `M_con`** – adjacency matrices for pro and con arguments.
-2. **`M_linkage_pro` / `M_linkage_con`** – matrices for argument-to-conclusion linkage.
-3. **`uniqueness_scores_pro` / `uniqueness_scores_con`** – argument uniqueness values.
-4. **`initial_scores_pro` / `initial_scores_con`** – starting scores for arguments.
-5. **`num_iterations`** – number of PageRank-like update cycles (default: `100`).
-6. **`d`** – damping factor (default: `0.85`).
-7. **`feedback_data`** – optional user feedback (votes, credibility, sentiment).
+ReasonRank imagines all human knowledge as a directed graph.
 
----
+*   **Nodes** are claims (Beliefs).
+    
+*   **Edges** are logical connections (Arguments).
+    
+*   **Weight** is the strength of the evidence (Truth Score).
+    
 
-## Sample Code
+In this system, you cannot "win" a debate by being charismatic. You can only win by constructing a graph of strong evidence that logically supports your conclusion.
 
-```python
-import numpy as np
-import dask.array as da
-import spacy
-from sklearn.feature_extraction.text import TfidfVectorizer
-from typing import Dict, List, Optional
+2\. The Algorithm
+-----------------
 
-nlp = spacy.load("en_core_web_lg")
+ReasonRank calculates a composite **Belief Score** (0 to 100) for every page on the site. This score is dynamic—it updates instantly whenever new evidence is added or old evidence is debunked.
 
-def reason_rank(M_pro, M_con, initial_scores, argument_texts,
-                num_iterations=100, feedback_data=None, damping_factor=0.85):
-    uniqueness_scores = compute_uniqueness_scores(argument_texts)
-    feedback_scores = integrate_feedback(feedback_data) if feedback_data else {
-        'pro': np.ones_like(initial_scores['pro']),
-        'con': np.ones_like(initial_scores['con'])
-    }
-    scores = {'pro': initial_scores['pro'].copy(), 'con': initial_scores['con'].copy()}
+### The Formula
 
-    for _ in range(num_iterations):
-        scores = propagate_scores(M_pro, M_con, scores, uniqueness_scores, feedback_scores, damping_factor)
+Unlike a simple "Pro vs. Con" list, ReasonRank weighs every argument using four specific dimensions.
 
-    return apply_domain_specific_enhancements(scores, argument_texts)
+Code snippet
 
-def propagate_scores(M_pro, M_con, scores, uniqueness_scores, feedback_scores, damping_factor):
-    updated_scores = {}
-    for arg_type, M in [('pro', M_pro), ('con', M_con)]:
-        dask_M = da.from_array(M, chunks=(1000, 1000))
-        dask_scores = da.from_array(scores[arg_type] * uniqueness_scores[arg_type] * feedback_scores[arg_type], chunks=(1000,))
-        updated_scores[arg_type] = da.dot(dask_M, dask_scores).compute() * damping_factor
-    return updated_scores
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   Belief Score = Base + Σ(Pro Scores) - Σ(Con Scores)   `
 
-def compute_uniqueness_scores(argument_texts):
-    all_texts = argument_texts['pro'] + argument_texts['con']
-    vectorizer = TfidfVectorizer().fit(all_texts)
-    return {
-        arg_type: 1 - vectorizer.transform(argument_texts[arg_type]).toarray().max(axis=1)
-        for arg_type in ['pro', 'con']
-    }
+Where the score of any single argument is calculated as:
 
-def integrate_feedback(feedback_data):
-    return {
-        arg_type: np.mean(feedback_data[arg_type], axis=0) if arg_type in feedback_data else np.ones(len(feedback_data[arg_type]))
-        for arg_type in ['pro', 'con']
-    }
+> **Argument Score = (V × L × I × U)**
 
-def apply_domain_specific_enhancements(scores, argument_texts):
-    enhanced_scores = scores.copy()
-    for arg_type in ['pro', 'con']:
-        for i, text in enumerate(argument_texts[arg_type]):
-            doc = nlp(text)
-            sentiment = doc.sentiment
-            enhanced_scores[arg_type][i] *= (1 + sentiment)
-    return enhanced_scores
+**VariableDimensionDefinitionV**[**Truth Score**](https://www.google.com/search?q=http://myclob.pbworks.com/w/page/21960078/truth)Is the argument itself true? Based on [Evidence Tiers](https://www.google.com/search?q=http://myclob.pbworks.com/w/page/159353568/Evidence).**L**[**Linkage Score**](https://www.google.com/search?q=http://myclob.pbworks.com/w/page/159338766/Linkage%20Scores)Is the argument relevant? (0.0 to 1.0). "True but irrelevant" gets a low score.**I**[**Importance Score**](https://www.google.com/search?q=http://myclob.pbworks.com/w/page/Importance%20Score)Is this a major point or a minor nitpick?**U**[**Uniqueness Score**](https://www.google.com/search?q=http://myclob.pbworks.com/w/page/21957126/combine%20similar%20beliefs)Is this a new point, or a duplicate? (Anti-spam filter).
 
-# Example
-M_pro = np.array([[0.1, 0.2], [0.2, 0.1]])
-M_con = np.array([[0.1, 0.2], [0.2, 0.1]])
-initial_scores = {'pro': np.array([1, 1]), 'con': np.array([1, 1])}
-argument_texts = {'pro': ["Pro 1", "Pro 2"], 'con': ["Con 1", "Con 2"]}
-feedback_data = {'pro': np.array([[0.9, 1.1]]), 'con': np.array([[0.8, 1.2]])}
+3\. Deep Dive: The Four Dimensions
+----------------------------------
 
-final_scores = reason_rank(M_pro, M_con, initial_scores, argument_texts, feedback_data=feedback_data)
-print("Final Scores:", final_scores)
-````
+### A. Truth Score (V)
 
----
+The engine of the system. This measures the internal validity of a claim. It is **recursive**, meaning the Truth Score of a conclusion depends on the Truth Scores of its premises.
 
-## Why It Matters
+*   **Tier 1 Evidence (Meta-Analysis):** V = 1.0
+    
+*   **Tier 2 Evidence (Peer-Reviewed Study):** V = 0.8
+    
+*   **Tier 4 Evidence (Anecdote):** V = 0.1
+    
+*   **Refuted Evidence:** V = 0.0
+    
 
-* **Objective ranking** of arguments instead of relying on loudness or popularity.
-* **Transparent scoring** – every factor in the score is visible and open to challenge.
-* **Dynamic updates** – scores shift as evidence, feedback, and arguments change.
+### B. Linkage Score (L)
 
----
+This prevents "Red Herring" fallacies. A user might post a fact that is 100% true (e.g., "The sun is hot") but use it to support an unrelated conclusion (e.g., "Therefore, we should lower taxes").
 
-**See Also:**
-http://myclob.pbworks.com/w/page/159300543/ReasonRank
-https://en.wikipedia.org/wiki/PageRank
+*   ReasonRank assigns this a **Linkage Score of 0.1**, neutralizing the argument despite its high Truth Score.
+    
+
+### C. Uniqueness Score (U)
+
+This solves the "Echo Chamber" problem. In traditional social media, if 1,000 people repeat the same slogan, it trends. In ReasonRank, the algorithm detects semantic similarity.
+
+*   **First Instance:** U = 1.0 (Full impact)
+    
+*   **Duplicate Instance:** U = 0.05 (Diminished impact)
+    
+*   _Result: 1,000 people shouting the same thing counts as ONE argument._
+    
+
+4\. The Logic Cascade (Recursion)
+---------------------------------
+
+This is the most powerful feature of ReasonRank. Because arguments are linked in a network, changes to the "Foundation" automatically update the "Roof."
+
+### Scenario: The Retraction
+
+1.  **Level 1 (Foundation):** A scientific paper claims Drug X is safe. (Score: 90)
+    
+2.  **Level 2 (Argument):** User argues "We should approve Drug X because it is safe." (Score: 90)
+    
+3.  **Level 3 (Policy):** Belief Page "Legalize Drug X" has a high score.
+    
+
+**The Event:** The scientific paper is retracted due to errors.
+
+*   **Level 1 Score** drops to **0**.
+    
+*   **Level 2 Score** automatically recalculates: (Truth 0 × Linkage 1.0) = **0**.
+    
+*   **Level 3 Score** collapses immediately.
+    
+
+No human moderator needs to intervene. The truth updates itself.
+
+5\. Technical Implementation
+----------------------------
+
+ReasonRank is implemented using **Matrix Propagation**. We treat the debate as a linear algebra problem, allowing us to calculate scores for millions of arguments simultaneously.
+
+### Python Logic (Simplified)
+
+Python
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   import numpy as np  from sklearn.feature_extraction.text import TfidfVectorizer  def calculate_reason_rank(M_pro, M_con, initial_scores, argument_texts, damping=0.85):      """      M_pro: Adjacency matrix of supporting arguments      M_con: Adjacency matrix of opposing arguments      damping: The 'friction' that prevents infinite loops (standard PageRank physics)      """      # 1. Calculate Uniqueness (The Anti-Echo Filter)      # We use TF-IDF to find and down-weight redundant text      uniqueness_scores = compute_uniqueness(argument_texts)      # 2. The Propagation Loop      # Logic flows from evidence nodes -> conclusion nodes      # Pro Arguments ADD to the score      pro_flow = np.dot(M_pro, initial_scores['pro'] * uniqueness_scores['pro'])      # Con Arguments SUBTRACT from the score      con_flow = np.dot(M_con, initial_scores['con'] * uniqueness_scores['con'])      # 3. Final Calculation      # New Score = Old Score + (Pro Flow - Con Flow) * Damping      net_score = (pro_flow - con_flow) * damping      return normalize_score(net_score)   `
+
+6\. Comparison: PageRank vs. ReasonRank
+---------------------------------------
+
+**FeatureGoogle PageRankISE ReasonRankInput**Webpages & HyperlinksBeliefs & Arguments**Primary Metric**Popularity / AuthorityValidity / Evidence**Direction**Positive Only (Links help)Positive & Negative (Refutations hurt)**Spam Protection**Link Farm Detection[Semantic Clustering](https://www.google.com/search?q=http://myclob.pbworks.com/w/page/21957126/combine%20similar%20beliefs)**Goal**Find the most _important_ pageFind the most _truthful_ idea
+
+7\. The Future of Reason
+------------------------
+
+ReasonRank is not just code; it is a mechanism for **Collective Intelligence**.
+
+By forcing arguments to compete on the basis of **Evidence (V)** and **Logic (L)** rather than rhetoric, we create a system where the best ideas naturally rise to the top. It is the first step toward a **Reason-Based Society**.
+
+### Explore the System
+
+*   [**Truth Scores**](https://www.google.com/search?q=http://myclob.pbworks.com/w/page/21960078/truth)**:** How we verify facts.
+    
+*   [**Linkage Scores**](https://www.google.com/search?q=http://myclob.pbworks.com/w/page/159338766/Linkage%20Scores)**:** How we measure relevance.
+    
+*   [**GitHub Repository**](https://github.com/myklob/ideastockexchange)**:** View the source code.
