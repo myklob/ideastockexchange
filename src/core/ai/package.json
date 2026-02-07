@@ -1,0 +1,54 @@
+{
+  "name": "ise-distributed-ai-framework",
+  "version": "1.0.0",
+  "description": "Distributed AI Framework for Idea Stock Exchange - Generate interconnected argument analysis pages using AI",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "ise-cli": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "dev": "ts-node cli.ts",
+    "analyze": "ts-node cli.ts analyze",
+    "daemon": "ts-node cli.ts daemon start",
+    "interactive": "ts-node cli.ts interactive",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "argument",
+    "analysis",
+    "debate",
+    "reasoning",
+    "llm",
+    "ollama",
+    "openai",
+    "anthropic",
+    "distributed"
+  ],
+  "author": "Idea Stock Exchange",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/myklob/ideastockexchange"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
+}
