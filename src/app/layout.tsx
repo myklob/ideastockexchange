@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   title: "IdeaStockExchange",
   description:
     "A prediction market for ideas. Profit from the gap between logical fundamentals and market price.",
+  title: "Idea Stock Exchange - Computational Epistemology Platform",
+  description: "The Architecture of Reason: AI-powered truth verification through adversarial protocol.",
 };
 
 export default function RootLayout({
@@ -40,6 +42,13 @@ export default function RootLayout({
           </div>
         </nav>
         <main className="max-w-7xl mx-auto px-6 py-8">{children}</main>
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className="antialiased">
+        {children}
       </body>
     </html>
   );

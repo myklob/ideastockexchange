@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idea Stock Exchange - Topic Overlap Scores</title>
+    <title>Idea Stock Exchange</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.65;
+            color: #333;
+            background: #f5f7fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+            color: white;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            opacity: 0.95;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background: #f8fafc;
+        }
+
+        .tab.active {
+            background: #2b6cb0;
+            color: white;
+            border-color: #2b6cb0;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 12px;
+            color: #2b6cb0;
+            font-size: 1.2em;
+        }
+
+        .card p {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .score-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .score-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .score-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #2b6cb0;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1e4e8c;
+        }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .signal-breakdown {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 12px;
+        }
+
+        .signal-bar {
+            margin-bottom: 10px;
+        }
+
+        .signal-bar label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+
+        .signal-bar-container {
+            background: #e2e8f0;
+            height: 24px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .signal-bar-fill {
+            background: linear-gradient(90deg, #3182ce, #2b6cb0);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: width 0.3s;
+        }
+
+        .topic-page-header {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e0edff 100%);
+            border: 1px solid #d6dbe8;
+            border-left: 4px solid #2b6cb0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .topic-page-header h2 {
+            color: #2b6cb0;
+            margin-bottom: 8px;
+        }
+
+        .ranked-statement {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #2b6cb0;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 6px;
+        }
+
+        .ranked-statement .rank-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #2b6cb0;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .argument-tree {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .argument-list {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 6px;
+        }
+
+        .argument-list.pro {
+            border-left: 4px solid #10b981;
+        }
+
+        .argument-list.con {
+            border-left: 4px solid #ef4444;
+        }
+
+        .argument-list h4 {
+            margin-bottom: 12px;
+            color: #2d3748;
+        }
+
+        .argument-item {
+            background: white;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .statement-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .statement-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .statement-meta {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 15px;
+        }
+
+        .similarity-score {
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .arguments {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .argument-list {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .argument-list h4 {
+            margin-bottom: 8px;
+            color: #667eea;
+        }
+
+        .agree {
+            border-left: 3px solid #4caf50;
+        }
+
+        .disagree {
+            border-left: 3px solid #f44336;
+        }
+
+        .argument-item {
+            padding: 8px;
+            background: #f0f0f0;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .error {
+            background: #fed7d7;
+            border: 1px solid #fc8181;
+            color: #742a2a;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .success {
+            background: #c6f6d5;
+            border: 1px solid #68d391;
+            color: #22543d;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .metadata {
+            font-size: 0.85em;
+            color: #718096;
+            margin-top: 8px;
+        }
+
+        .clickable {
+            cursor: pointer;
+        }
+
+        .clickable:hover {
+            opacity: 0.8;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Idea Stock Exchange</h1>
+            <p>Topic Overlap Scores: How Beliefs Find Their Pages</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('topics')">Topics</div>
+            <div class="tab" onclick="showTab('statements')">Statements</div>
+            <div class="tab" onclick="showTab('topic-page')">Topic Page</div>
+            <div class="tab" onclick="showTab('add-data')">Add Data</div>
+            <div class="tab" onclick="showTab('stats')">Stats</div>
+        </div>
+
+        <!-- TOPICS TAB -->
+        <div id="topics" class="tab-content active">
+            <h2>All Topics</h2>
+            <div id="topics-list" class="loading">Loading topics...</div>
+        </div>
+
+        <!-- STATEMENTS TAB -->
+        <div id="statements" class="tab-content">
+            <h2>All Statements (Beliefs)</h2>
+            <div class="form-group">
+                <input type="text" id="search-query" placeholder="Search statements...">
+                <button class="btn" onclick="searchStatements()" style="margin-top: 10px;">Search</button>
+            </div>
+            <div id="statements-list" class="loading">Loading statements...</div>
+        </div>
+
+        <!-- TOPIC PAGE TAB -->
+        <div id="topic-page" class="tab-content">
+            <div class="form-group">
+                <label>Select Topic:</label>
+                <select id="topic-select" onchange="loadTopicPage()">
+                    <option value="">-- Select a topic --</option>
+                </select>
+            </div>
+
+            <div id="topic-page-content"></div>
+        </div>
+
+        <!-- ADD DATA TAB -->
+        <div id="add-data" class="tab-content">
+            <h2>Add New Data</h2>
+
+            <div class="card">
+                <h3>Add Topic</h3>
+                <div class="form-group">
+                    <label>Topic Name *</label>
+                    <input type="text" id="new-topic-name" placeholder="e.g., Global Warming">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="new-topic-description" placeholder="Describe the topic..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Keywords (comma-separated)</label>
+                    <input type="text" id="new-topic-keywords" placeholder="e.g., climate, warming, CO2">
+                </div>
+                <button class="btn" onclick="addTopic()">Create Topic</button>
+                <div id="topic-result"></div>
+            </div>
+
+            <div class="card">
+                <h3>Add Statement (Belief)</h3>
+                <div class="form-group">
+                    <label>Statement Text *</label>
+                    <textarea id="new-statement-text" placeholder="Enter the statement..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Author</label>
+                    <input type="text" id="new-statement-author" placeholder="Author name">
+                </div>
+                <div class="form-group">
+                    <label>Source URL</label>
+                    <input type="text" id="new-statement-url" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Platform</label>
+                    <input type="text" id="new-statement-platform" placeholder="e.g., twitter, blog, paper">
+                </div>
+                <button class="btn" onclick="addStatement()">Create Statement</button>
+                <div id="statement-result"></div>
+            </div>
+
+            <div class="card">
+                <h3>Calculate Overlap Score</h3>
+                <div class="form-group">
+                    <label>Statement ID *</label>
+                    <input type="number" id="overlap-statement-id" placeholder="Statement ID">
+                </div>
+                <div class="form-group">
+                    <label>Topic ID *</label>
+                    <input type="number" id="overlap-topic-id" placeholder="Topic ID">
+                </div>
+                <button class="btn" onclick="calculateOverlap()">Calculate Overlap</button>
+                <div id="overlap-result"></div>
+            </div>
+        </div>
+
+        <!-- STATS TAB -->
+        <div id="stats" class="tab-content">
+            <h2>System Statistics</h2>
+            <div id="stats-content" class="loading">Loading stats...</div>
+            <h1>💡 Idea Stock Exchange</h1>
+            <p class="tagline">Find and link similar statements across the internet</p>
+        </header>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="statStatements">0</div>
+                <div class="stat-label">Statements</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statArguments">0</div>
+                <div class="stat-label">Arguments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statLinks">0</div>
+                <div class="stat-label">Similar Links</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statClusters">0</div>
+                <div class="stat-label">Clusters</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="card">
+                <h2>Add Statement</h2>
+                <textarea id="statementText" placeholder="Enter a statement..."></textarea>
+                <input type="text" id="statementAuthor" placeholder="Author (optional)">
+                <input type="text" id="statementSource" placeholder="Source URL (optional)">
+                <input type="text" id="statementPlatform" placeholder="Platform (optional)">
+                <button onclick="addStatement()">Add Statement</button>
+                <div id="addResult" class="results"></div>
+            </div>
+
+            <div class="card">
+                <h2>Search Statements</h2>
+                <input type="text" id="searchQuery" placeholder="Search for similar statements...">
+                <button onclick="searchStatements()">Search</button>
+                <div id="searchResults" class="results"></div>
+            </div>
+
+            <div class="card">
+                <h2>Collect from URL</h2>
+                <input type="text" id="collectUrl" placeholder="Enter URL to scrape...">
+                <button onclick="collectFromUrl()">Collect Statements</button>
+                <div id="collectResult" class="results"></div>
+            </div>
+
+            <div class="card">
+                <h2>Add Argument</h2>
+                <input type="text" id="argStatementId" placeholder="Statement ID">
+                <textarea id="argText" placeholder="Enter your argument..."></textarea>
+                <select id="argType" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px;">
+                    <option value="agree">Reason to Agree</option>
+                    <option value="disagree">Reason to Disagree</option>
+                </select>
+                <button onclick="addArgument()">Add Argument</button>
+                <div id="argResult" class="results"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load data for tab
+            if (tabName === 'topics') loadTopics();
+            if (tabName === 'statements') loadStatements();
+            if (tabName === 'stats') loadStats();
+        }
+
+        // Load topics
+        async function loadTopics() {
+            const container = document.getElementById('topics-list');
+            container.innerHTML = '<div class="loading">Loading topics...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/topics`);
+                const topics = await response.json();
+
+                if (topics.length === 0) {
+                    container.innerHTML = '<p>No topics yet. <a href="#" onclick="showTab(\'add-data\')">Add one!</a></p>';
+                    return;
+                }
+
+                container.innerHTML = topics.map(topic => `
+                    <div class="card clickable" onclick="viewTopic(${topic.id})">
+                        <h3>${topic.name}</h3>
+                        <p>${topic.description || '<em>No description</em>'}</p>
+                        <div class="metadata">
+                            ID: ${topic.id} | Created: ${new Date(topic.created_at).toLocaleDateString()}
+                        </div>
+                    </div>
+                `).join('');
+
+                // Also populate topic select dropdown
+                const select = document.getElementById('topic-select');
+                select.innerHTML = '<option value="">-- Select a topic --</option>' +
+                    topics.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error loading topics: ${error.message}</div>`;
+            }
+        }
+
+        // Load statements
+        async function loadStatements() {
+            const container = document.getElementById('statements-list');
+            container.innerHTML = '<div class="loading">Loading statements...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/statements`);
+                const statements = await response.json();
+
+                if (statements.length === 0) {
+                    container.innerHTML = '<p>No statements yet. <a href="#" onclick="showTab(\'add-data\')">Add one!</a></p>';
+                    return;
+                }
+
+                container.innerHTML = statements.map(stmt => {
+                    const truthClass = stmt.truth_score >= 70 ? 'score-high' :
+                                      stmt.truth_score >= 40 ? 'score-medium' : 'score-low';
+                    return `
+                        <div class="card">
+                            <p><strong>${stmt.text}</strong></p>
+                            <div>
+                                Truth Score: <span class="score-badge ${truthClass}">${stmt.truth_score}%</span>
+                            </div>
+                            <div class="metadata">
+                                ID: ${stmt.id} | Author: ${stmt.author || 'Unknown'} |
+                                Created: ${new Date(stmt.created_at).toLocaleDateString()}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error loading statements: ${error.message}</div>`;
+            }
+        }
+
+        // Search statements
+        async function searchStatements() {
+            const query = document.getElementById('search-query').value;
+        const API_BASE = 'http://localhost:8000';
+
+        // Load stats on page load
+        loadStats();
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const data = await response.json();
+                document.getElementById('statStatements').textContent = data.total_statements;
+                document.getElementById('statArguments').textContent = data.total_arguments;
+                document.getElementById('statLinks').textContent = data.total_similarity_links;
+                document.getElementById('statClusters').textContent = data.total_clusters;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function addStatement() {
+            const text = document.getElementById('statementText').value;
+            const author = document.getElementById('statementAuthor').value;
+            const source = document.getElementById('statementSource').value;
+            const platform = document.getElementById('statementPlatform').value;
+
+            if (!text) {
+                alert('Please enter a statement');
+                return;
+            }
+
+            const resultDiv = document.getElementById('addResult');
+            resultDiv.innerHTML = '<div class="loading">Adding statement...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/statements`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        text: text,
+                        author: author || null,
+                        source_url: source || null,
+                        platform: platform || null
+                    })
+                });
+
+                const data = await response.json();
+                resultDiv.innerHTML = `<div class="statement-item">
+                    <div class="statement-text">✓ Statement added with ID: ${data.id}</div>
+                    <div class="statement-meta">
+                        <span>Author: ${data.author || 'Unknown'}</span>
+                        <span>Platform: ${data.platform || 'Unknown'}</span>
+                    </div>
+                </div>`;
+
+                // Clear form
+                document.getElementById('statementText').value = '';
+                document.getElementById('statementAuthor').value = '';
+                document.getElementById('statementSource').value = '';
+                document.getElementById('statementPlatform').value = '';
+
+                loadStats();
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function searchStatements() {
+            const query = document.getElementById('searchQuery').value;
+
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            const container = document.getElementById('statements-list');
+            container.innerHTML = '<div class="loading">Searching...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/statements/search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query, limit: 20})
+                });
+                const results = await response.json();
+
+                if (results.length === 0) {
+                    container.innerHTML = '<p>No results found.</p>';
+                    return;
+                }
+
+                container.innerHTML = '<h3>Search Results</h3>' + results.map(result => {
+                    const scoreClass = result.similarity_score >= 80 ? 'score-high' :
+                                      result.similarity_score >= 50 ? 'score-medium' : 'score-low';
+                    return `
+                        <div class="card">
+                            <p><strong>${result.statement.text}</strong></p>
+                            <div>
+                                Similarity: <span class="score-badge ${scoreClass}">${result.similarity_score}%</span>
+                            </div>
+                            <div class="metadata">ID: ${result.statement.id}</div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Load topic page
+        async function loadTopicPage() {
+            const topicId = document.getElementById('topic-select').value;
+            const container = document.getElementById('topic-page-content');
+
+            if (!topicId) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = '<div class="loading">Loading topic page...</div>';
+
+            try {
+                // Load topic info
+                const topicResponse = await fetch(`${API_BASE}/topics/${topicId}`);
+                const topic = await topicResponse.json();
+
+                // Load ranked statements
+                const stmtsResponse = await fetch(`${API_BASE}/topics/${topicId}/statements?min_overlap=0&page=1&page_size=50`);
+                const rankedStatements = await stmtsResponse.json();
+
+                if (rankedStatements.length === 0) {
+                    container.innerHTML = `
+                        <div class="topic-page-header">
+                            <h2>${topic.name}</h2>
+                            <p>${topic.description || ''}</p>
+                        </div>
+                        <p>No statements linked to this topic yet. Calculate some overlap scores to populate this page!</p>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="topic-page-header">
+                        <h2>${topic.name}</h2>
+                        <p>${topic.description || ''}</p>
+                        <p><strong>Page 1:</strong> Top-ranked beliefs by TopicRank</p>
+                    </div>
+                `;
+
+                rankedStatements.forEach((item, index) => {
+                    const overlapClass = item.overlap_score >= 80 ? 'score-high' :
+                                        item.overlap_score >= 40 ? 'score-medium' : 'score-low';
+                    const rankClass = item.topic_rank >= 70 ? 'score-high' :
+                                     item.topic_rank >= 40 ? 'score-medium' : 'score-low';
+
+                    html += `
+                        <div class="ranked-statement">
+                            <div>
+                                <span class="rank-number">${index + 1}</span>
+                                <strong>${item.statement.text}</strong>
+                            </div>
+                            <div style="margin-top: 12px;">
+                                Overlap: <span class="score-badge ${overlapClass}">${item.overlap_score}%</span>
+                                TopicRank: <span class="score-badge ${rankClass}">${item.topic_rank}%</span>
+                                Truth: <span class="score-badge ${item.statement.truth_score >= 70 ? 'score-high' : 'score-medium'}">${item.statement.truth_score}%</span>
+                            </div>
+                    `;
+
+                    // Signal breakdown
+                    if (item.signal_breakdown) {
+                        html += `
+                            <div class="signal-breakdown">
+                                <strong>Signal Breakdown:</strong>
+                                ${Object.entries(item.signal_breakdown).map(([signal, value]) => `
+                                    <div class="signal-bar">
+                                        <label>${signal.replace('_', ' ')}</label>
+                                        <div class="signal-bar-container">
+                                            <div class="signal-bar-fill" style="width: ${value * 100}%">
+                                                ${Math.round(value * 100)}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+
+                    html += '</div>';
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            const container = document.getElementById('stats-content');
+            container.innerHTML = '<div class="loading">Loading stats...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const stats = await response.json();
+
+                container.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="number">${stats.total_topics}</div>
+                            <div class="label">Topics</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">${stats.total_statements}</div>
+                            <div class="label">Statements</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">${stats.total_overlap_scores}</div>
+                            <div class="label">Overlap Scores</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">${stats.total_arguments}</div>
+                            <div class="label">Arguments</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">${stats.total_overlap_claims}</div>
+                            <div class="label">Overlap Claims</div>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Add topic
+        async function addTopic() {
+            const name = document.getElementById('new-topic-name').value;
+            const description = document.getElementById('new-topic-description').value;
+            const keywords = document.getElementById('new-topic-keywords').value
+                .split(',').map(k => k.trim()).filter(k => k);
+
+            if (!name) {
+                alert('Topic name is required');
+                return;
+            }
+
+            const resultDiv = document.getElementById('topic-result');
+            resultDiv.innerHTML = '<div class="loading">Creating topic...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/topics`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, description, keywords})
+                });
+
+                if (!response.ok) throw new Error('Failed to create topic');
+
+                const topic = await response.json();
+                resultDiv.innerHTML = `<div class="success">Topic created! ID: ${topic.id}</div>`;
+
+                // Clear form
+                document.getElementById('new-topic-name').value = '';
+                document.getElementById('new-topic-description').value = '';
+                document.getElementById('new-topic-keywords').value = '';
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Add statement
+        async function addStatement() {
+            const text = document.getElementById('new-statement-text').value;
+            const author = document.getElementById('new-statement-author').value;
+            const source_url = document.getElementById('new-statement-url').value;
+            const platform = document.getElementById('new-statement-platform').value;
+
+            if (!text) {
+                alert('Statement text is required');
+                return;
+            }
+
+            const resultDiv = document.getElementById('statement-result');
+            resultDiv.innerHTML = '<div class="loading">Creating statement...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/statements`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text, author, source_url, platform})
+                });
+
+                if (!response.ok) throw new Error('Failed to create statement');
+
+                const statement = await response.json();
+                resultDiv.innerHTML = `<div class="success">Statement created! ID: ${statement.id}</div>`;
+
+                // Clear form
+                document.getElementById('new-statement-text').value = '';
+                document.getElementById('new-statement-author').value = '';
+                document.getElementById('new-statement-url').value = '';
+                document.getElementById('new-statement-platform').value = '';
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Calculate overlap
+        async function calculateOverlap() {
+            const statementId = document.getElementById('overlap-statement-id').value;
+            const topicId = document.getElementById('overlap-topic-id').value;
+
+            if (!statementId || !topicId) {
+                alert('Both statement ID and topic ID are required');
+                return;
+            }
+
+            const resultDiv = document.getElementById('overlap-result');
+            resultDiv.innerHTML = '<div class="loading">Calculating overlap score (this may take a few seconds)...</div>';
+
+            try {
+                const response = await fetch(
+                    `${API_BASE}/overlap/calculate?statement_id=${statementId}&topic_id=${topicId}`,
+                    {method: 'POST'}
+                );
+
+                if (!response.ok) throw new Error('Failed to calculate overlap');
+
+                const overlap = await response.json();
+                const scoreClass = overlap.overlap_score >= 80 ? 'score-high' :
+                                  overlap.overlap_score >= 40 ? 'score-medium' : 'score-low';
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        Overlap Score Calculated!<br>
+                        Score: <span class="score-badge ${scoreClass}">${overlap.overlap_score}%</span><br>
+                        TopicRank: ${overlap.topic_rank}%
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // View topic (click handler)
+        function viewTopic(topicId) {
+            document.getElementById('topic-select').value = topicId;
+            showTab('topic-page');
+            loadTopicPage();
+        }
+
+        // Load initial data
+        window.onload = function() {
+            loadTopics();
+            loadStats();
+        };
+    </script>
+            const resultDiv = document.getElementById('searchResults');
+            resultDiv.innerHTML = '<div class="loading">Searching...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query: query, limit: 10})
+                });
+
+                const data = await response.json();
+
+                if (data.results.length === 0) {
+                    resultDiv.innerHTML = '<div>No similar statements found</div>';
+                    return;
+                }
+
+                let html = '';
+                for (const result of data.results) {
+                    html += `<div class="statement-item">
+                        <div class="statement-text">${result.text}</div>
+                        <div class="statement-meta">
+                            <span class="similarity-score">${(result.similarity_score * 100).toFixed(0)}% match</span>
+                            <span>Author: ${result.author || 'Unknown'}</span>
+                            <span>Platform: ${result.platform || 'Unknown'}</span>
+                        </div>
+                    </div>`;
+                }
+
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function collectFromUrl() {
+            const url = document.getElementById('collectUrl').value;
+
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+
+            const resultDiv = document.getElementById('collectResult');
+            resultDiv.innerHTML = '<div class="loading">Collecting statements...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/collect`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({url: url})
+                });
+
+                const data = await response.json();
+
+                resultDiv.innerHTML = `<div class="statement-item">
+                    <div class="statement-text">✓ Collected ${data.statements_collected} statements</div>
+                    <div class="statement-meta">
+                        <span>Platform: ${data.metadata.platform || 'Unknown'}</span>
+                    </div>
+                </div>`;
+
+                document.getElementById('collectUrl').value = '';
+                loadStats();
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function addArgument() {
+            const statementId = document.getElementById('argStatementId').value;
+            const text = document.getElementById('argText').value;
+            const type = document.getElementById('argType').value;
+
+            if (!statementId || !text) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const resultDiv = document.getElementById('argResult');
+            resultDiv.innerHTML = '<div class="loading">Adding argument...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/arguments`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        statement_id: parseInt(statementId),
+                        text: text,
+                        argument_type: type
+                    })
+                });
+
+                const data = await response.json();
+
+                resultDiv.innerHTML = `<div class="statement-item">
+                    <div class="statement-text">✓ Argument added (${data.argument_type})</div>
+                </div>`;
+
+                document.getElementById('argStatementId').value = '';
+                document.getElementById('argText').value = '';
+                loadStats();
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+    <title>How the Idea Stock Exchange Works - ISE Framework</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb">
+        <a href="https://github.com/myklob/ideastockexchange/wiki">Home</a> ›
+        <a href="https://github.com/myklob/ideastockexchange/wiki">Topics</a> ›
+        <a href="/ISE-Framework">ISE Framework</a> ›
+        <strong>How the Idea Stock Exchange Works</strong>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Header -->
+        <header>
+            <h1>How the Idea Stock Exchange Works</h1>
+            <p class="subtitle">A comprehensive explanation of how structured debate, algorithmic ranking, and collaborative intelligence can transform how we evaluate ideas and make decisions.</p>
+        </header>
+
+        <!-- Opening Quotes -->
+        <blockquote class="quote-primary">
+            "No concept man forms is valid unless he integrates it without contradiction into the total sum of his knowledge. To arrive at a contradiction is to confess an error in one's thinking; to maintain a contradiction is to abdicate one's mind and to evict oneself from the realm of reality."
+            <footer>— Ayn Rand</footer>
+        </blockquote>
+
+        <blockquote class="quote-secondary">
+            "No concept you form is valid unless you integrate it without contradiction into the sum of human knowledge."
+            <footer>— Mike Laub (extending Ayn Rand's principle)</footer>
+        </blockquote>
+
+        <hr>
+
+        <!-- Table of Contents -->
+        <section id="toc">
+            <h2>📑 Table of Contents</h2>
+            <ul class="toc-list">
+                <li><a href="#core-problem">The Core Problem: Information Chaos</a></li>
+                <li><a href="#solution">The Solution: Structured Reasoning</a></li>
+                <li><a href="#technical">Technical Implementation</a></li>
+                <li><a href="#algorithms">Algorithms for Ranking Ideas</a></li>
+                <li><a href="#applications">Applications and Examples</a></li>
+                <li><a href="#conflict-resolution">Web-Based Conflict Resolution</a></li>
+                <li><a href="#comparison">Comparison to Existing Platforms</a></li>
+                <li><a href="#vision">The Vision for the Future</a></li>
+            </ul>
+        </section>
+
+        <hr>
+
+        <!-- Section 1: Core Problem -->
+        <section id="core-problem">
+            <h2>The Core Problem: Information Chaos</h2>
+
+            <h3>Why Current Online Discussions Fail</h3>
+            <div class="score-badge score-high">+88 that current forums create more conflict than they solve</div>
+
+            <div class="problem-statement">
+                <strong>The fundamental problem:</strong>
+                <blockquote class="quote-danger">
+                    Bad arguments are remade thousands of times because these arguments take place in millions of different places on the internet. No one on the planet is trying to come up with a comprehensive list of reasons to agree or disagree with different courses of action.
+                </blockquote>
+            </div>
+
+            <h4>What's wrong with current discussion formats <span class="score-inline">(+92)</span>:</h4>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Current Format Problems</th>
+                        <th>Result</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>Thread-type forums</strong><br>
+                            Everyone can instantly change subject; no organization
+                        </td>
+                        <td>
+                            Like argument where no one's in charge<br>
+                            <em>"Voice without order is just noise"</em>
+                        </td>
+                        <td class="score-cell score-negative">−85</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Chat rooms</strong><br>
+                            Every discussion resets to ground zero
+                        </td>
+                        <td>
+                            Lost progress every time you exit<br>
+                            Same debates repeated forever
+                        </td>
+                        <td class="score-cell score-negative">−82</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Scattered across websites</strong><br>
+                            Same argument on thousands of pages
+                        </td>
+                        <td>
+                            Can't disprove stupid argument once and for all<br>
+                            Endless repetition
+                        </td>
+                        <td class="score-cell score-negative">−88</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Opposing sides don't meet</strong><br>
+                            People who disagree don't talk to each other
+                        </td>
+                        <td>
+                            Echo chambers<br>
+                            No productive dialogue
+                        </td>
+                        <td class="score-cell score-negative">−90</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>No cumulative knowledge</strong><br>
+                            Each generation starts from scratch
+                        </td>
+                        <td>
+                            Like if scientists had to restart every time<br>
+                            Civilization doesn't advance
+                        </td>
+                        <td class="score-cell score-negative">−92</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="analogy-box">
+                <strong>The car analogy <span class="score-inline">(+85)</span>:</strong>
+                <blockquote>
+                    A car with multiple steering wheels would not work. Thread-type discussion forums that allow each new post to change the subject will never get anywhere.
+                </blockquote>
+            </div>
+
+            <h3>Why We Can't Kill Bad Arguments</h3>
+            <div class="score-badge score-high">+90 for core insight</div>
+
+            <div class="insight-box">
+                <strong>The duplication problem:</strong>
+                <ul>
+                    <li>Same argument appears on millions of websites</li>
+                    <li>Refuting it in one place doesn't help elsewhere</li>
+                    <li>Must disprove it every time it's ever made</li>
+                    <li>Waste of collective human intelligence</li>
+                </ul>
+
+                <strong>What we need <span class="score-inline">(+92)</span>:</strong>
+                <blockquote class="quote-primary">
+                    If we create a comprehensive list of all reasons to agree or disagree with conclusions, and let people classify specific arguments, it creates a situation where there is only ONE place for a specific argument with a specific description to live. When there's no duplication, we can finally organize information and kill bad information once and for all.
+                </blockquote>
+            </div>
+
+            <p class="related-links">
+                <strong>Related:</strong>
+                <a href="https://github.com/myklob/ideastockexchange/wiki">Combining Similar Beliefs</a>,
+                <a href="https://github.com/myklob/ideastockexchange/wiki">One Page Per Topic</a>
+            </p>
+        </section>
+
+        <hr>
+
+        <!-- Section 2: Solution -->
+        <section id="solution">
+            <h2>The Solution: Structured Reasoning</h2>
+
+            <h3>The Core Innovation: Organize Arguments Into Columns</h3>
+            <div class="score-badge score-high">+92 for fundamental breakthrough</div>
+
+            <div class="innovation-box">
+                <strong>Simple but revolutionary idea:</strong>
+                <blockquote class="quote-secondary">
+                    Allow everyone to "talk" at once if we allow users to organize their contributions. Give one page per issue, then let users post comments within a column of reasons to agree OR within the reasons to disagree column.
+                    <br><br>
+                    This simple idea of letting people tag their post as a reason to agree or disagree will change how we debate, reach conclusions, and think.
+                </blockquote>
+            </div>
+
+            <h4>Visual comparison:</h4>
+
+            <div class="comparison-grid">
+                <div class="comparison-bad">
+                    <h4>❌ Current Forums (Thread Format)</h4>
+                    <div class="forum-example">
+                        Post #1: "I support this!"<br>
+                        Post #2: "But what about X?"<br>
+                        Post #3: "I disagree!"<br>
+                        Post #4: "Off-topic comment"<br>
+                        Post #5: "Responding to #2..."<br>
+                        Post #6: "I support this too!"<br><br>
+                        <strong>Result:</strong> Chaos. Can't see arguments clearly.
+                    </div>
+                </div>
+
+                <div class="comparison-good">
+                    <h4>✅ ISE Format (Structured Columns)</h4>
+                    <div class="procon-demo">
+                        <div class="procon-container">
+                            <div class="pro-column">
+                                <h5>✅ Reasons to Agree</h5>
+                                <ol>
+                                    <li>Evidence A</li>
+                                    <li>Logic B</li>
+                                    <li>Study C</li>
+                                </ol>
+                            </div>
+                            <div class="con-column">
+                                <h5>❌ Reasons to Disagree</h5>
+                                <ol>
+                                    <li>Counter-evidence X</li>
+                                    <li>Alternative Y</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <strong>Result:</strong> Clarity. See both sides immediately.
+                    </div>
+                </div>
+            </div>
+
+            <div class="benefits-box">
+                <strong>What this enables <span class="score-inline">(+90)</span>:</strong>
+                <ul>
+                    <li><strong>Compare quantity:</strong> Are there more reasons to agree or disagree?</li>
+                    <li><strong>Compare quality:</strong> Which side has stronger evidence?</li>
+                    <li><strong>See both sides:</strong> Can't ignore opposing arguments</li>
+                    <li><strong>Build cumulatively:</strong> Each person adds to existing structure</li>
+                    <li><strong>Algorithmic evaluation:</strong> Can count and score systematically</li>
+                </ul>
+            </div>
+
+            <p class="related-links">
+                <strong>Related:</strong>
+                <a href="/Reasons">Argument Trees</a>,
+                <a href="https://github.com/myklob/ideastockexchange/wiki">ReasonRank Algorithm</a>
+            </p>
+
+            <h3>The Pro/Con Method: Tried and True</h3>
+            <div class="score-badge score-high">+88 for historical validation</div>
+
+            <div class="historical-box">
+                <strong>Historical precedent:</strong>
+                <ul>
+                    <li><strong>Benjamin Franklin:</strong> Advocated making list of pros and cons for decisions</li>
+                    <li><strong>Thomas Jefferson:</strong> Used systematic pro/con analysis</li>
+                    <li><strong>Assumption <span class="score-inline">(+92)</span>:</strong> Quantity and quality of reasons to agree/disagree has bearing on strength of conclusion</li>
+                </ul>
+
+                <strong>What we're adding <span class="score-inline">(+90)</span>:</strong>
+                <ul>
+                    <li><strong>Internet-scale:</strong> Crowd-source brainstorming of reasons</li>
+                    <li><strong>Recursive evaluation:</strong> Pro/con list FOR each pro or con</li>
+                    <li><strong>Systematic:</strong> Database tracks relationships between arguments</li>
+                    <li><strong>Algorithmic:</strong> Calculate scores based on evidence quality</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <strong>Example application:</strong>
+                <blockquote>
+                    FDR had to decide whether to join WWII. One pro: "German leaders were bad." But that pro itself has many reasons to support it. We can create a pro/con list for "German leaders were bad," then use that list's score to strengthen the original pro for joining WWII.
+                    <br><br>
+                    Not many people have time to do pro/con list for each pro or con. But on the internet, we keep making same arguments over and over. For thousands of years we've been repeating arguments Aristotle and Homer made. Most arguments have been made millions of times. No one has taken time to put them in database and outline how they relate to each other. We can change this.
+                </blockquote>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- Section 3: Technical Implementation -->
+        <section id="technical">
+            <h2>Technical Implementation</h2>
+
+            <h3>Database Structure: Like a Family Tree</h3>
+            <div class="score-badge">+85 for elegant technical analogy</div>
+
+            <div class="technical-description">
+                <strong>SQL Project Description:</strong>
+                <p>Basically it's a family tree database with these differences:</p>
+                <ul>
+                    <li><strong>Parents → Arguments</strong> (multiple arguments combine to support conclusion)</li>
+                    <li><strong>Children → Conclusions</strong> (supported by parent arguments)</li>
+                    <li><strong>Gender tags → Agreement tags</strong> (some tagged "agree," others "disagree")</li>
+                    <li><strong>Ancestor counting → Scoring</strong> (count reasons that agree, subtract reasons that disagree)</li>
+                </ul>
+            </div>
+
+            <div class="diagram-box">
+                <h4>Diagram: Arguments Support Conclusions</h4>
+                <div class="argument-tree-visual">
+                    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Main Conclusion (Red) -->
+                        <rect x="225" y="20" width="150" height="60" fill="#c0392b" stroke="#000" stroke-width="2"/>
+                        <text x="300" y="55" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Main Conclusion</text>
+
+                        <!-- Reasons to Agree (Black) -->
+                        <rect x="50" y="140" width="120" height="50" fill="#34495e" stroke="#000" stroke-width="2"/>
+                        <text x="110" y="170" text-anchor="middle" fill="white" font-size="12">Reason A</text>
+                        <line x1="110" y1="140" x2="250" y2="80" stroke="#000" stroke-width="2"/>
+
+                        <rect x="240" y="140" width="120" height="50" fill="#34495e" stroke="#000" stroke-width="2"/>
+                        <text x="300" y="170" text-anchor="middle" fill="white" font-size="12">Reason B</text>
+                        <line x1="300" y1="140" x2="300" y2="80" stroke="#000" stroke-width="2"/>
+
+                        <rect x="430" y="140" width="120" height="50" fill="#34495e" stroke="#000" stroke-width="2"/>
+                        <text x="490" y="170" text-anchor="middle" fill="white" font-size="12">Reason C</text>
+                        <line x1="490" y1="140" x2="350" y2="80" stroke="#000" stroke-width="2"/>
+
+                        <!-- Reason to Disagree (Blue) -->
+                        <rect x="50" y="260" width="120" height="50" fill="#3498db" stroke="#000" stroke-width="2"/>
+                        <text x="110" y="290" text-anchor="middle" fill="white" font-size="12">Counter D</text>
+                        <line x1="110" y1="260" x2="270" y2="80" stroke="#c0392b" stroke-width="2" stroke-dasharray="5,5"/>
+
+                        <!-- Sub-reason (Green) -->
+                        <rect x="240" y="260" width="120" height="50" fill="#27ae60" stroke="#000" stroke-width="2"/>
+                        <text x="300" y="290" text-anchor="middle" fill="white" font-size="12">Disputes A</text>
+                        <line x1="110" y1="190" x2="280" y2="260" stroke="#c0392b" stroke-width="2" stroke-dasharray="5,5"/>
+                    </svg>
+                </div>
+
+                <div class="diagram-legend">
+                    <p><strong>Explanation:</strong></p>
+                    <ul>
+                        <li><span class="legend-red">■</span> <strong>Red box:</strong> Main conclusion</li>
+                        <li><span class="legend-black">■</span> <strong>Black boxes:</strong> Reasons to agree (supports conclusion)</li>
+                        <li><span class="legend-blue">■</span> <strong>Blue box:</strong> Reason to disagree (opposes conclusion)</li>
+                        <li><span class="legend-green">■</span> <strong>Green box:</strong> Sub-reason (disagrees with one of the supporting arguments)</li>
+                    </ul>
+                    <p><strong>Net effect:</strong> Conclusion has 3 reasons to agree (in black) and 2 reasons to disagree (blue and green)</p>
+                    <p class="diagram-note">This recursive structure means arguments can support or oppose other arguments, creating tree of reasoning that extends until reaching verifiable data.</p>
+                </div>
+            </div>
+
+            <div class="database-schema">
+                <h4>Database Implementation</h4>
+                <div class="schema-box">
+                    <p><strong>Key tables:</strong></p>
+                    <ul>
+                        <li><strong>Beliefs table:</strong> All conclusions and arguments</li>
+                        <li><strong>Relationships table:</strong> Links showing which arguments support/oppose which conclusions</li>
+                        <li><strong>Agreement type:</strong> Tag indicating whether relationship is "agree" or "disagree"</li>
+                        <li><strong>Evidence table:</strong> Books, articles, studies, data supporting each argument</li>
+                        <li><strong>Scores table:</strong> Calculated values based on supporting/opposing arguments</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="related-links">
+                <strong>Related:</strong>
+                <a href="https://github.com/myklob/ideastockexchange">GitHub Technical Documentation</a>
+            </p>
+        </section>
+
+        <hr>
+
+        <!-- Section 4: Algorithms -->
+        <section id="algorithms">
+            <h2>Algorithms for Ranking Ideas</h2>
+
+            <h3>The Basic Formula</h3>
+            <div class="score-badge score-high">+90 for systematic approach</div>
+
+            <div class="formula-intro">
+                <strong>Core principle:</strong>
+                <blockquote class="quote-primary">
+                    How do you define a good conclusion? It's simple: A good conclusion has lots of good arguments that support it, and not very many good arguments that oppose it.
+                    <br><br>
+                    But how do you know if an argument is any good? Well of course <a href="http://en.wikipedia.org/wiki/Turtles_all_the_way_down">the turtle stack goes all the way down</a>: Good arguments have lots of good reasons to agree with them, and not very many good reasons to disagree with them.
+                </blockquote>
+            </div>
+
+            <div class="formula-box simple-formula">
+                <h4>Simplest formula:</h4>
+                <div class="formula">
+                    <p class="formula-text">Conclusion Score = (Reasons to Agree) − (Reasons to Disagree)</p>
+                </div>
+            </div>
+
+            <div class="formula-box advanced-formula">
+                <h4>More sophisticated formula with recursive scoring:</h4>
+                <div class="formula">
+                    <p class="formula-text">
+                        Score = Σ[(A(n,i)/n) × L] − Σ[(D(n,j)/n) × L] / (Total Reasons)
+                    </p>
+                </div>
+            </div>
+
+            <table class="variables-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Meaning</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>n</strong></td>
+                        <td>
+                            Number of "steps" current argument is removed from conclusion<br>
+                            - n=1: Direct support/opposition<br>
+                            - n=2: Reasons that support/oppose the direct reasons<br>
+                            - n=3: Third level of reasoning
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>A(n,i)/n</strong></td>
+                        <td>
+                            Reasons to agree, weighted by distance from conclusion<br>
+                            - A(1,1), A(1,2), A(1,3): First-level supporting arguments<br>
+                            - Divided by n: Each level contributes proportionally less<br>
+                            - Reasons to agree with reasons to agree contribute ½ point<br>
+                            - Third-level reasons contribute ⅓ point
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>D(n,j)/n</strong></td>
+                        <td>
+                            Reasons to disagree, weighted by distance<br>
+                            - Works same as A but subtracted from score<br>
+                            - More reasons to disagree = negative score<br>
+                            - j indicates each reason independent
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Denominator</strong></td>
+                        <td>
+                            Total number of reasons (agree + disagree)<br>
+                            - Normalizes equation<br>
+                            - Results in percentage (-100% to +100%)<br>
+                            - Or decimal (-1 to +1)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>L</strong></td>
+                        <td>
+                            <a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-to-Conclusion-Relevance-Score">Linkage Score</a> (-1 to +1)<br>
+                            - How well does argument actually support conclusion?<br>
+                            - Prevents irrelevant arguments ("grass is green" → "legalize drugs")<br>
+                            - Multiplied by argument score<br>
+                            - Weak linkage = less contribution to conclusion
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="example-calculation">
+                <h4>Example: "It was good for us to join WWII"</h4>
+
+                <div class="calc-example">
+                    <p><strong>Argument submitted:</strong> "Nazis were doing bad things"</p>
+                    <ul>
+                        <li><strong>Belief score:</strong> 99% (very high confidence this is true)</li>
+                        <li><strong>Linkage score:</strong> 90% (strong connection to WWII decision)</li>
+                        <li><strong>Contribution to conclusion:</strong> 0.99 × 0.90 × 0.5 = 0.445 points</li>
+                    </ul>
+
+                    <p><strong>Better argument submitted:</strong> "Nazis committing systematic genocide"</p>
+                    <ul>
+                        <li><strong>Belief score:</strong> 99% (historical fact)</li>
+                        <li><strong>Linkage score:</strong> 98% (genocide stronger reason for war than general "bad things")</li>
+                        <li><strong>Contribution:</strong> 0.99 × 0.98 × 0.5 = 0.485 points</li>
+                    </ul>
+
+                    <p class="calc-note">Higher linkage score reflects that we don't go to war with every country that "does bad things," but genocide is stronger justification.</p>
+                </div>
+            </div>
+
+            <p class="related-links">
+                <strong>Related algorithms:</strong><br>
+                <a href="https://github.com/myklob/ideastockexchange/wiki">ReasonRank</a> — Inspired by PageRank but for ideas<br>
+                <a href="https://github.com/myklob/ideastockexchange/wiki">Recursive Scoring</a> — Arguments scored by sub-arguments<br>
+                <a href="https://github.com/myklob/ideastockexchange/wiki/Truth-Score">Truth Scoring</a> — Overall assessment framework
+            </p>
+
+            <h3>Quality vs. Quantity</h3>
+            <div class="score-badge score-high">+88 that both matter</div>
+
+            <div class="quality-box">
+                <strong>The balance:</strong>
+                <blockquote class="quote-primary">
+                    Allowing people to categorize their arguments as reason to agree or disagree will allow us to compare the NUMBER of reasons. But QUALITY of reasons is as important as number. There are many ways to evaluate quality of reason to agree or disagree with an idea.
+                </blockquote>
+
+                <strong>Methods for evaluating quality:</strong>
+                <ul>
+                    <li><strong>User voting:</strong> Community rates each argument's strength</li>
+                    <li><strong>Evidence tiers:</strong> Peer-reviewed studies ranked higher than opinion pieces (see <a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS)">Evidence Tiers</a>)</li>
+                    <li><strong>Recursive scoring:</strong> Allow users to provide reasons to agree/disagree with each reason</li>
+                    <li><strong>Linkage scores:</strong> How well does evidence actually connect to claim? (see <a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-to-Conclusion-Relevance-Score">Linkage Scores</a>)</li>
+                    <li><strong>Expert weighting:</strong> Specialists in field have more voting power</li>
+                </ul>
+            </div>
+
+            <div class="integration-box">
+                <strong>Integration with statistical analysis <span class="score-inline">(+85)</span>:</strong>
+                <blockquote class="quote-secondary">
+                    This discussion forum allows significant leap forward by integrating statistical analysis with debate. Confidence intervals can be assigned to each belief based on:
+                    - Number of reasons posted
+                    - Percent difference between reasons to agree vs. disagree
+                    - Amount of variance between evaluations
+                    - Quality distribution of evidence
+                </blockquote>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- Section 5: Applications -->
+        <section id="applications">
+            <h2>Applications and Examples</h2>
+
+            <h3>What This Platform Enables</h3>
+            <div class="score-badge score-high">+92 for transformative potential</div>
+
+            <div class="potential-box">
+                <strong>Debates become cumulative <span class="score-inline">(+90)</span>:</strong>
+                <blockquote class="quote-primary">
+                    People love to debate. People will debate who the hottest supermodel is and won't shut up about who's going to win the Superbowl. Of course we could just wait and find out, but opinions are like elbows, everyone has them.
+                    <br><br>
+                    With world population approaching 7 billion, if we have good forum, shouldn't be hard to get hundreds of people to enter data. Arguments are currently made on websites, in books, videos, and songs. It would be powerful to outline all arguments that agree or disagree with conclusion and put them on same page.
+                </blockquote>
+            </div>
+
+            <table class="applications-table">
+                <thead>
+                    <tr>
+                        <th>Application</th>
+                        <th>How It Works</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Political Decisions</strong></td>
+                        <td>
+                            Should we raise minimum wage?<br>
+                            - ✅ Reasons to agree: Reduces poverty, stimulates economy, etc.<br>
+                            - ❌ Reasons to disagree: Increases unemployment, hurts small business, etc.<br>
+                            - Each reason has its own pro/con list with evidence<br>
+                            - Can see strongest arguments on both sides
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scientific Theories</strong></td>
+                        <td>
+                            Is string theory correct?<br>
+                            - ✅ Supporting evidence and mathematical consistency<br>
+                            - ❌ Lack of testable predictions, alternatives<br>
+                            - Evidence weighted by quality (peer review, experiments)<br>
+                            - Builds cumulative case over time
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Historical Events</strong></td>
+                        <td>
+                            Was joining WWII the right decision?<br>
+                            - ✅ Stop genocide, defend allies, prevent Nazi expansion<br>
+                            - ❌ Cost in lives, economic burden, alternatives<br>
+                            - Each major argument has sub-arguments with evidence<br>
+                            - Can see what historians have concluded
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Personal Decisions</strong></td>
+                        <td>
+                            Should I buy electric car?<br>
+                            - ✅ Environmental benefits, lower fuel costs, tax credits<br>
+                            - ❌ Higher upfront cost, charging infrastructure, battery life<br>
+                            - Personalize weights based on your values<br>
+                            - See data others have contributed
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Structure Reveals Complexity</h3>
+            <div class="score-badge">+85 for forcing intellectual honesty</div>
+
+            <div class="complexity-box">
+                <strong>Why lists beat paragraphs:</strong>
+                <blockquote>
+                    Using lists that get to main point quickly do not allow for advertising. And that's what's being done when someone uses lots of words to describe their idea... they are advertising.
+                    <br><br>
+                    But when you use lists of reasons to agree or disagree, the issue becomes clear. You see the complexity. People don't want to see that there are good reasons to agree or disagree with both sides. They want to stick with their prejudices and previous conclusions. They want to gloss over everything with nice wordy paragraph that hides shortcomings of their thinking with wordiness.
+                </blockquote>
+
+                <strong>What structured format forces <span class="score-inline">(+88)</span>:</strong>
+                <ul>
+                    <li>Can't hide weak arguments in prose</li>
+                    <li>Must acknowledge opposing viewpoints</li>
+                    <li>Complexity becomes visible</li>
+                    <li>Intellectual honesty required</li>
+                    <li>Trade-offs explicit</li>
+                </ul>
+
+                <blockquote class="quote-einstein">
+                    "Everything should be as simple as it is; but not simpler."
+                    <footer>— Albert Einstein</footer>
+                </blockquote>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- Section 6: Conflict Resolution -->
+        <section id="conflict-resolution">
+            <h2>Web-Based Conflict Resolution</h2>
+
+            <h3>Applying "Getting to Yes" Principles Online</h3>
+            <div class="score-badge score-high">+88 for integrating conflict resolution theory</div>
+
+            <div class="conflict-intro">
+                <strong>Core insight:</strong>
+                <blockquote class="quote-primary">
+                    Everyone has conflict in their lives. Source of conflict is that everyone has different reasons for doing things. When we find ourselves in groups, what other people do affects us. Conflict arises when we do not understand or accept other people's reasons for doing things.
+                    <br><br>
+                    People's reasons come from their values and needs. These values and needs help people decide what should be done with problems they face.
+                </blockquote>
+            </div>
+
+            <table class="principles-table">
+                <thead>
+                    <tr>
+                        <th>Principle from "Getting to Yes"</th>
+                        <th>How ISE Implements It</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Separate people from problem</strong></td>
+                        <td>
+                            Vote on merits of idea, not person who proposed it<br>
+                            - Anonymous submission possible<br>
+                            - Ideas rise on evidence, not personality<br>
+                            - Reduces ad hominem attacks
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Focus on interests, not positions</strong></td>
+                        <td>
+                            Users list their interests, needs, and goals<br>
+                            - Why do you support this position?<br>
+                            - What are you trying to achieve?<br>
+                            - See underlying motivations (see <a href="https://github.com/myklob/ideastockexchange/wiki">Interests</a>)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Generate variety of options</strong></td>
+                        <td>
+                            Brainstorming section for solutions<br>
+                            - All possible solutions listed<br>
+                            - Community adds creative alternatives<br>
+                            - Best ideas rise to top through voting
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. Use objective criteria</strong></td>
+                        <td>
+                            Evidence tiers provide standards<br>
+                            - Peer-reviewed data weighted higher<br>
+                            - Objective measurements preferred<br>
+                            - See <a href="https://github.com/myklob/ideastockexchange/wiki">Objective Criteria Scores</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. Two debates: Issue + How to resolve</strong></td>
+                        <td>
+                            Meta-question for each problem:<br>
+                            - "What objective criteria resolve this conflict?"<br>
+                            - UN decision? Expert panel? Coin toss?<br>
+                            - Process becomes explicit, debatable
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <hr>
+
+        <!-- Section 7: Comparison -->
+        <section id="comparison">
+            <h2>Comparison to Existing Platforms</h2>
+
+            <h3>What's Wrong With Current Platforms</h3>
+            <div class="score-badge score-high">+88 for comprehensive critique</div>
+
+            <div class="platform-critique">
+                <h4>Chat Rooms <span class="score-inline score-negative">−85</span></h4>
+                <blockquote class="quote-danger">
+                    If you desire live discussion, you might head to chat room. However, you might find yourself amidst two high school kids chatting about pop culture. Initiating conversation proves futile.
+                    <br><br>
+                    Each new discussion demands reset to ground zero, as though no one had ever debated issue before. This frequent reset signifies lost progress every time you exit chat window.
+                    <br><br>
+                    Consider state of science if scientists had to restart discussions from scratch each time. What if scientific records were written in format that could not be retraced by future generations? What if everything was written in sand?
+                </blockquote>
+
+                <h4>News Media <span class="score-inline score-negative">−80</span></h4>
+                <blockquote class="quote-danger">
+                    Motivated by profit, media doesn't necessarily aim for best solution but juicy story. They are more interested in crafting simplistic narrative with clear "winners and losers" for their audience.
+                    <br><br>
+                    Media, like lawyer, often miscommunicates narratives of opposing sides, creating distrust and confusion. News itself doesn't serve purpose unless used as reason for specific course of action.
+                    <br><br>
+                    Why do we rely on media to dictate the issues and our perspectives on them?
+                </blockquote>
+
+                <h4>Thread-Based Forums <span class="score-inline score-negative">−88</span></h4>
+                <blockquote class="quote-danger">
+                    Thread-type discussion groups accomplish nothing. On current internet platforms, opposing sides rarely encounter each other directly. Arguments scattered across millions of pages. Same debates repeated endlessly without resolution.
+                </blockquote>
+            </div>
+
+            <h3>Multiple Analogies for This Platform</h3>
+            <div class="score-badge">+85 for multiple valid comparisons</div>
+
+            <table class="analogies-table">
+                <thead>
+                    <tr>
+                        <th>Analogy</th>
+                        <th>How It Applies</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Continuous Poll</strong></td>
+                        <td>Running 24/7, tracking evolving opinions in real-time</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dynamic Discussion Board</strong></td>
+                        <td>Conversations organized by topic, but structured systematically</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stock Exchange</strong></td>
+                        <td>Tracking popularity of ideas like stock prices rise and fall<br>Ideas compete in marketplace</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Survival of Fittest</strong></td>
+                        <td>Natural selection mechanism where stronger ideas survive<br>Weak arguments naturally eliminated</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wikipedia for Arguments</strong></td>
+                        <td>Collaborative knowledge base, but for reasoning not just facts<br>Anyone can contribute; quality rises through community evaluation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Collective Consciousness</strong></td>
+                        <td>"This is collective consciousness of internet"<br>Decisions internet would make if sentient entity</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="consciousness-box">
+                <strong>Not claiming to have truth <span class="score-inline">(+90)</span>:</strong>
+                <blockquote class="quote-primary">
+                    Promotion wouldn't be "Come to our site, we have the truth." Instead: "This is the collective consciousness of the internet, representing decisions internet would make if it were sentient entity."
+                </blockquote>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- Section 8: Vision -->
+        <section id="vision">
+            <h2>The Vision for the Future</h2>
+
+            <h3>What Success Looks Like</h3>
+            <div class="score-badge score-high">+92 for transformative vision</div>
+
+            <div class="success-metrics">
+                <strong>Measurable outcomes:</strong>
+                <ul>
+                    <li><strong>Usage:</strong> Number of people using platform</li>
+                    <li><strong>Content:</strong> Number of ideas mapped</li>
+                    <li><strong>Quality:</strong> Quality of arguments submitted</li>
+                    <li><strong>Impact:</strong> Decisions improved by systematic evaluation</li>
+                </ul>
+            </div>
+
+            <div class="ultimate-goal">
+                <strong>The ultimate goal <span class="score-inline">(+95)</span>:</strong>
+                <blockquote class="quote-ultimate">
+                    If we aren't organized we can't disprove stupid argument once and for all. We have to disprove it every time that argument will ever be made.
+                    <br><br>
+                    However if we create comprehensive list of all reasons to agree or disagree with conclusions, and we let people classify specific arguments, it creates situation where there is only ONE place for specific argument to live. When there's no duplication, we can finally organize information and kill bad information once and for all.
+                </blockquote>
+            </div>
+
+            <div class="ambitious-box">
+                <strong>Ambitious but achievable <span class="score-inline">(+88)</span>:</strong>
+                <blockquote class="quote-secondary">
+                    If humans can map the universe, we can tag information as reason to agree or disagree with conclusion, in format that makes information useful.
+                </blockquote>
+            </div>
+
+            <h3>The Path Forward</h3>
+            <div class="score-badge score-high">+88 for realistic plan</div>
+
+            <div class="path-forward">
+                <strong>The plan:</strong>
+                <ol>
+                    <li><strong>Build prototype:</strong> Demonstrate core functionality</li>
+                    <li><strong>Make it better:</strong> Iterate based on user feedback</li>
+                    <li><strong>Repeat:</strong> Continuous improvement</li>
+                </ol>
+
+                <strong>What we need:</strong>
+                <ul>
+                    <li>Proper funding for development</li>
+                    <li>Community of engaged users</li>
+                    <li>Content contributors across topics</li>
+                    <li>Technical expertise for scaling</li>
+                    <li>Patience for iterative refinement</li>
+                </ul>
+            </div>
+
+            <div class="final-vision">
+                <strong>Final vision <span class="score-inline">(+95)</span>:</strong>
+                <blockquote class="quote-ultimate">
+                    Society has been engaged in debates for thousands of years, yet we often find ourselves starting from scratch when we meet someone new with whom we want to discuss matters.
+                    <br><br>
+                    We can change this. We can build cumulative knowledge infrastructure. We can organize human reasoning. We can make information truly useful by structuring how it relates to decisions.
+                    <br><br>
+                    This is not just another website. This is attempt to organize how humanity thinks.
+                </blockquote>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- Importance Section -->
+        <section id="importance">
+            <h2>📈 Importance</h2>
+
+            <table class="importance-table">
+                <thead>
+                    <tr>
+                        <th>Score</th>
+                        <th>Argument</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="score-cell score-highest">95</td>
+                        <td>Could end wasteful repetition of arguments across millions of pages; kill bad arguments once and for all</td>
+                    </tr>
+                    <tr>
+                        <td class="score-cell score-highest">92</td>
+                        <td>Transform how humanity makes decisions by providing systematic evaluation framework</td>
+                    </tr>
+                    <tr>
+                        <td class="score-cell score-high">90</td>
+                        <td>Build cumulative knowledge infrastructure where each generation builds on refined arguments of previous</td>
+                    </tr>
+                    <tr>
+                        <td class="score-cell score-high">88</td>
+                        <td>Apply conflict resolution principles at internet scale, potentially reducing real-world conflicts</td>
+                    </tr>
+                    <tr>
+                        <td class="score-cell">85</td>
+                        <td>Force intellectual honesty by making complexity visible; can't hide weak arguments in prose</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <hr>
+
+        <!-- Framework Components -->
+        <section id="framework-components">
+            <h2>📚 ISE Framework Components</h2>
+
+            <p><strong>This explanation connects to entire framework:</strong></p>
+
+            <ul class="framework-links">
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki/Truth-Score">Truth Scoring</a> — Overall assessment methodology</li>
+                <li><a href="/Reasons">Argument Trees</a> — Hierarchical reasoning structure</li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS)">Evidence Tiers</a> — Quality levels for sources</li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-to-Conclusion-Relevance-Score">Linkage Scores</a> — How well evidence supports claims</li>
+                <li><a href="/Assumptions">Assumptions</a> — Foundational beliefs required</li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki">Interests</a> — Motivations and needs analysis</li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki">Cost-Benefit Analysis</a> — Weighing pros and cons</li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki">Objective Criteria</a> — Measurable standards</li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki">Recursive Scoring</a> — Arguments scored by sub-arguments</li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki">ReasonRank</a> — PageRank-inspired algorithm for ideas</li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki">One Page Per Topic</a> — Consolidation principle</li>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki">Combining Similar Beliefs</a> — Reducing redundancy</li>
+            </ul>
+        </section>
+
+        <hr>
+
+        <!-- Contributing Section -->
+        <section id="contributing" class="contributing-section">
+            <h3>Contributing</h3>
+
+            <p>This is open-source project. Help build infrastructure for humanity's reasoning:</p>
+
+            <ul>
+                <li><a href="https://github.com/myklob/ideastockexchange/wiki">Contact me</a> to contribute ideas, code, or content</li>
+                <li><a href="https://github.com/myklob/ideastockexchange">View full codebase and technical documentation on GitHub</a></li>
+                <li>Join discussion groups:
+                    <ul>
+                        <li><a href="http://groups.google.com/group/Good-Idea-Promoting-Algorithm">Good Idea Promoting Algorithm</a></li>
+                        <li><a href="http://groups.google.com/group/Idea-Stock-Exchange">Idea Stock Exchange</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <p><strong>Start by exploring how we:</strong></p>
+            <ul>
+                <li>Calculate <a href="https://github.com/myklob/ideastockexchange/wiki">argument scores from sub-arguments</a></li>
+                <li>Measure <a href="https://github.com/myklob/ideastockexchange/wiki/Truth-Score">truth</a> and <a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS)">evidence quality</a></li>
+                <li>Apply <a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-to-Conclusion-Relevance-Score">linkage scores</a> to weight relevance</li>
+                <li>Implement <a href="https://github.com/myklob/ideastockexchange/wiki">ReasonRank</a> for quality-based sorting</li>
+            </ul>
+        </section>
+
+        <hr>
+
+        <!-- Why This Matters -->
+        <section id="why-matters" class="final-message">
+            <h2>Why This Matters</h2>
+
+            <h3>We're Building Infrastructure for Human Reasoning</h3>
+            <p>Google organized web pages. Wikipedia organized facts. We're organizing arguments—the fundamental building blocks of human decision-making.</p>
+
+            <h3>Arguments Deserve Same Treatment as Scientific Knowledge</h3>
+            <p>Science progresses because each generation builds on previous work. Arguments should work the same way. Stop starting from scratch. Build cumulative reasoning.</p>
+
+            <h3>This Is How Humanity Learns to Think Better</h3>
+            <p>Not by winning arguments. By systematically evaluating evidence. By seeing both sides honestly. By building on strongest reasoning regardless of source.</p>
+
+            <p class="closing-statement">
+                <em>This template provides the structure. Your contributions provide the content. Together, we build humanity's knowledge infrastructure for better decisions.</em>
+            </p>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2025 Idea Stock Exchange. Building infrastructure for human reasoning.</p>
+        <p><a href="https://github.com/myklob/ideastockexchange">GitHub</a> | <a href="https://github.com/myklob/ideastockexchange/wiki">Contact</a></p>
+    </footer>
+
+    <script src="app.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Idea Stock Exchange</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: system-ui, sans-serif; line-height: 1.6; margin: 0; padding: 2rem; background: #fafafa; color: #222; }
+  h1, h2, h3 { margin-top: 1.4em; }
+  ol, ul { margin-left: 1.2em; }
+  a { color: #0645ad; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .front-page { max-width: 900px; margin: auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+  .cta-links { margin-top: 1rem; }
+  .cta-button { display: inline-block; margin: 0.25rem; padding: 0.5rem 1rem; background: #eee; border-radius: 4px; }
+  footer { margin-top: 2rem; font-size: 0.9em; color: #666; }
+</style>
+</head>
+<body>
+<div class="front-page">
+<p><strong>We need our elected officials to:</strong></p>
+<ol>
+<li>respect the <a href="/Rule%20of%20law%2C%20respect%20for%20the%20constitution" target="_blank">rule of law, and the constitution</a></li>
+<li><a href="/Support%20and%20strengthen%20democracy%20to%20restore%20the%20voter's%20voice">support and strengthen democracy to restore the voter's voice</a></li>
+<li>strengthen <a href="/American%20Leadership" target="_blank">American Global Leadership and beneficial connections.</a></li>
+<li><a href="/Use%20data%20to%20drive%20collaborative%20and%20effective%20solutions%2C%20regardless%20of%20their%20ideological%20source">use data to drive collaborative and effective solutions, regardless of their ideological source</a>.</li>
+<li>understand that <a href="/Innovation%20and%20entereneurship%20are%20central%20to%20American%20culture%20and%20our%20future" target="_blank">innovation and entrepreneurship are central to American culture and our future</a></li>
+<li>respect individual liberty, personal responsibility, and civic engagement.</li>
+<li>treat everyone with respect and dignity</li>
+<li>act with ethics, integrity, and compassion</li>
+</ol>
+
+<h1>Modern debate is broken:</h1>
+<p>We're drowning in arguments and evidence — but everything’s <strong><a href="https://github.com/myklob/ideastockexchange/wiki">repeated</a></strong>, <strong><a href="https://github.com/myklob/ideastockexchange/wiki">disorganized</a></strong>, and <strong><a href="/disconnected" target="_blank">disconnected</a></strong>.</p>
+<ul>
+<li>We argue in circles — same points, no progress.</li>
+<li>No one links claims to shared evidence, so facts get lost in the noise.</li>
+<li>Beliefs get pushed without measuring real-world costs, benefits, or logic.</li>
+</ul>
+
+<h1>What’s the fix?</h1>
+<p>A platform that <strong>automates conflict resolution</strong>, <strong>ranks evidence</strong>, and <strong>structures cost-benefit analysis</strong>. Let’s stop spinning our wheels and actually get somewhere.</p>
+
+<hr>
+<h3>Key Features</h3>
+<ol>
+<li><strong>Evidence-Driven Framework</strong></li>
+<ul>
+<li><a href="https://github.com/myklob/ideastockexchange/wiki">One page per topic</a>: pros on one side, cons on the other.</li>
+<li><a href="https://github.com/myklob/ideastockexchange/wiki">ReasonRank</a>: like Google’s PageRank, but for arguments.</li>
+<li>Dynamic Scoring: updates as users add new evidence or counterpoints.</li>
+</ul>
+
+<li><strong>Analysis Tools for Smarter Decisions</strong></li>
+<ul>
+<li><a href="https://github.com/myklob/ideastockexchange/wiki">Automated Cost-Benefit Analysis</a></li>
+<li><a href="/Likelihood%20Scores" target="_blank">Likelihood Scores</a></li>
+<li><a href="https://github.com/myklob/ideastockexchange/wiki">Maslow Mapping</a></li>
+</ul>
+
+<li><strong>Built-In Conflict Resolution</strong></li>
+<ul>
+<li><a href="https://github.com/myklob/ideastockexchange/wiki">Interest Mapping</a></li>
+<li>Motivation Insight</li>
+<li>Consensus Builders</li>
+</ul>
+</ol>
+
+<h3>Join the Movement</h3>
+<p>Let’s swap confusion for clarity. Help us build the internet’s “truth infrastructure” — open, collaborative, and reason-led.</p>
+
+<div class="cta-links">
+  <a class="cta-button" href="https://github.com/myklob/ideastockexchange/wiki">Explore Features →</a>
+  <a class="cta-button" href="https://github.com/myklob/ideastockexchange/wiki">Support Us</a>
+</div>
+
+<footer>© 2025 The Idea Stock Exchange</footer>
+</div>
+</body>
+</html>
