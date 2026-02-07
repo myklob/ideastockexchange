@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Core claim: the asset being traded.
+model Claim {
+  id               String        @id @default(cuid())
+  title            String
+  description      String
+  category         String        @default("general")
+  status           ClaimStatus   @default(ACTIVE)
+  reasonRank       Float         @default(0.0)
+  truthScore       Float         @default(0.0)
+  logicalValidity  Float         @default(0.0)
+  evidenceQuality  Float         @default(0.0)
+  resolution       Resolution?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  resolvedAt       DateTime?
+
+  liquidityPool    LiquidityPool?
+  subArguments     SubArgument[]
+  evidence         Evidence[]
+  shares           Share[]
+  trades           Trade[]
+
+  @@index([status])
+  @@index([reasonRank])
+  @@index([category])
+}
+
+enum ClaimStatus {
+  ACTIVE
+  RESOLVED_YES
+  RESOLVED_NO
+  EXPIRED
+}
+
+enum Resolution {
+  YES
+  NO
+}
+
+// CPMM liquidity pool: determines Market Price via constant product formula.
+model LiquidityPool {
+  id              String   @id @default(cuid())
+  claimId         String   @unique
+  yesShares       Float    @default(1000.0)
+  noShares        Float    @default(1000.0)
+  constantProduct Float    @default(1000000.0)
+  totalVolume     Float    @default(0.0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  claim           Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
+}
+
+// Individual share holdings.
+model Share {
+  id               String    @id @default(cuid())
+  userId           String
+  claimId          String
+  shareType        ShareType
+  quantity         Float
+  avgPurchasePrice Float
+  createdAt        DateTime  @default(now())
+
+  user             User      @relation(fields: [userId], references: [id])
+  claim            Claim     @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, claimId, shareType])
+  @@index([userId])
+  @@index([claimId])
+}
+
+enum ShareType {
+  YES
+  NO
+}
+
+// Trade history: every transaction recorded.
+model Trade {
+  id            String    @id @default(cuid())
+  userId        String
+  claimId       String
+  shareType     ShareType
+  direction     TradeDirection
+  quantity      Float
+  pricePerShare Float
+  totalCost     Float
+  createdAt     DateTime  @default(now())
+
+  user          User      @relation(fields: [userId], references: [id])
+  claim         Claim     @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([claimId])
+  @@index([createdAt])
+}
+
+enum TradeDirection {
+  BUY
+  SELL
+}
+
+// User account: capital balance and portfolio metrics.
+model User {
+  id             String        @id @default(cuid())
+  username       String        @unique
+  currentBalance Float         @default(10000.0)
+  totalInvested  Float         @default(0.0)
+  realizedPnl    Float         @default(0.0)
+  roi            Float         @default(0.0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  shares         Share[]
+  trades         Trade[]
+}
+
+// Sub-arguments: pro and con analysis attached to a claim.
+model SubArgument {
+  id              String      @id @default(cuid())
+  claimId         String
+  position        ArgumentPosition
+  content         String
+  logicalValidity Float       @default(0.0)
+  evidenceQuality Float       @default(0.0)
+  createdAt       DateTime    @default(now())
+
+  claim           Claim       @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  evidence        Evidence[]
+
+  @@index([claimId])
+}
+
+enum ArgumentPosition {
+  PRO
+  CON
+}
+
+// Evidence: supporting data linked to claims or sub-arguments.
+model Evidence {
+  id               String             @id @default(cuid())
+  claimId          String
+  subArgumentId    String?
+  sourceUrl        String?
+  sourceType       EvidenceSourceType
+  description      String
+  reliabilityScore Float              @default(0.5)
+  createdAt        DateTime           @default(now())
+
+  claim            Claim              @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  subArgument      SubArgument?       @relation(fields: [subArgumentId], references: [id])
+
+  @@index([claimId])
+  @@index([subArgumentId])
+}
+
+enum EvidenceSourceType {
+  PEER_REVIEWED
+  INSTITUTIONAL
+  JOURNALISTIC
+  PRIMARY_SOURCE
+  ANECDOTAL
+  EXPERT_OPINION
+}
