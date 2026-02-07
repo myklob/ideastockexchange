@@ -126,8 +126,4 @@ print(f"Belief Score: {belief_score}/100")
 
 **See Also:**
 
-* [[Evidence Verification Score](https://chatgpt.com/g/g-zEqCtLTMb-idea-stock-exchange/c/Evidence-Verification-Score-%28EVS%29)](Evidence-Verification-Score-%28EVS%29)
-* [[Logical Fallacy Score](https://chatgpt.com/g/g-zEqCtLTMb-idea-stock-exchange/c/6897d671-d650-832b-8023-136f71fcc17f#)](#)
-* [[Equivalency Score](https://chatgpt.com/g/g-zEqCtLTMb-idea-stock-exchange/c/Equivalency-Score)](Equivalency-Score)
-* [[Evidence-to-Conclusion Linkage Score (ECLS)](https://chatgpt.com/g/g-zEqCtLTMb-idea-stock-exchange/c/Evidence-to-Conclusion-Relevance-Score)](Evidence-to-Conclusion-Relevance-Score)
-
+* (http://myclob.pbworks.com/w/page/159300543/ReasonRank)
