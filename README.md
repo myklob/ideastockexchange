@@ -15,7 +15,7 @@ A platform for structured disagreement, probabilistic reasoning, and argument-we
 
 Public discourse is broken. People argue past each other, cherry-pick evidence, and conflate values with facts. The Idea Stock Exchange provides a framework where:
 
-- **Arguments are investments** -- Every claim you make has a "price" that rises or falls based on evidence quality
+- **Arguments are investments** --  Every claim has two values: a ReasonRank earned through proof and a market price set by the crowd.
 - **Disagreement is structured** -- Identify whether you disagree on facts, values, or the strength of the link between them
 - **Uncertainty is explicit** -- All scores include confidence intervals, not false precision
 - **Adversarial testing is built-in** -- The best arguments survive scrutiny; weak ones get repriced
