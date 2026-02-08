@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSchilchtBelief, addArgumentToBelief } from '@/features/epistemology/data/schlicht-data'
-import { SchilchtArgument } from '@/core/types/schlicht'
-import { calculateArgumentImpact } from '@/core/scoring/scoring-engine'
+import { SchilchtArgument, LinkageClassification } from '@/core/types/schlicht'
+import { calculateArgumentImpact, calculateLinkageFromDiagnostic, classifyLinkageScore } from '@/core/scoring/scoring-engine'
 
 const argumentSchema = z.object({
   claim: z
@@ -33,16 +33,22 @@ const argumentSchema = z.object({
     .default(50),
   linkage_score: z
     .number()
-    .min(0)
+    .min(-100)
     .max(100)
     .optional()
-    .default(50),
+    .default(10),
   importance_score: z
     .number()
     .min(0)
     .max(100)
     .optional()
     .default(100),
+  // Linkage diagnostic wizard answers (optional — if provided, overrides linkage_score)
+  linkage_diagnostic: z.object({
+    direction: z.enum(['support', 'oppose']),
+    is_relevant: z.boolean(),
+    strength: z.enum(['proof', 'strong', 'context', 'weak']).optional(),
+  }).optional(),
 })
 
 export async function POST(
@@ -91,8 +97,25 @@ export async function POST(
 
   // Use the unified scoring engine for impact calculation
   const truthNormalized = data.truth_score / 100
-  const linkageNormalized = data.linkage_score / 100
   const importanceNormalized = data.importance_score / 100
+
+  // Determine linkage score: diagnostic wizard takes priority over raw score
+  let linkageNormalized: number
+  let linkageClassification: LinkageClassification
+
+  if (data.linkage_diagnostic) {
+    const result = calculateLinkageFromDiagnostic({
+      direction: data.linkage_diagnostic.direction,
+      isRelevant: data.linkage_diagnostic.is_relevant,
+      strength: data.linkage_diagnostic.strength,
+    })
+    linkageNormalized = result.score
+    linkageClassification = result.classification
+  } else {
+    linkageNormalized = data.linkage_score / 100
+    linkageClassification = classifyLinkageScore(linkageNormalized)
+  }
+
   const impactScore = calculateArgumentImpact(truthNormalized, linkageNormalized, data.side, importanceNormalized)
 
   const argument: SchilchtArgument = {
@@ -102,6 +125,7 @@ export async function POST(
     side: data.side,
     truthScore: truthNormalized,
     linkageScore: linkageNormalized,
+    linkageClassification,
     importanceScore: importanceNormalized,
     impactScore,
     certifiedBy: ['Pending-Review'],

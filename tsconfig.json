@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
     "target": "ES2020",
     "lib": [
       "dom",
@@ -17,7 +16,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -25,11 +23,6 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
       "@/*": [
         "./src/*"
       ]

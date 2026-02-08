@@ -241,6 +241,17 @@ model Belief {
   similarFrom    SimilarBelief[] @relation("SimilarTo")
 }
 
+// Classification of the logical connection type between two beliefs
+enum LinkageClassification {
+  DEDUCTIVE_PROOF  // Score ~1.0: If premise true, conclusion must be true
+  STRONG_CAUSAL    // Score 0.7-0.9: Direct causal evidence
+  CONTEXTUAL       // Score 0.4-0.6: Helpful context but not decisive
+  ANECDOTAL        // Score 0.1-0.3: Tangential or minor example
+  IRRELEVANT       // Score 0.0: No bearing on the conclusion
+  NON_SEQUITUR     // Score 0.0: Flagged as logical disconnect
+  CONTRADICTION    // Score -1.0: Premise disproves conclusion
+}
+
 // An argument linking one belief (reason) to another belief (conclusion)
 // Each reason is itself a belief with its own page
 model Argument {
@@ -254,14 +265,20 @@ model Argument {
   belief   Belief @relation("ArgumentBelief", fields: [beliefId], references: [id])
 
   side         String // "agree" or "disagree"
-  linkageScore Float  @default(0.5) // 0 to 1
+  linkageScore Float  @default(0.1) // -1.0 to 1.0 (start low until community validates)
   impactScore  Float  @default(0)   // computed
+
+  // Linkage classification from diagnostic wizard
+  linkageType LinkageClassification @default(ANECDOTAL)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Linkage arguments - reasons to agree/disagree with the linkage itself
   linkageArguments LinkageArgument[]
+
+  // Community votes on the linkage strength (logic, not truth)
+  linkageVotes LinkageVote[]
 }
 
 // Arguments about whether a linkage between two beliefs is valid
@@ -273,6 +290,29 @@ model LinkageArgument {
   statement  String
   strength   Float    @default(0.5)
   createdAt  DateTime @default(now())
+}
+
+// Community vote on the logical relevance (linkage) of an argument
+// Users vote on the LOGIC, not the Truth
+model LinkageVote {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  userId     String   // Reference to User
+  score      Float    // -1.0 to 1.0 (user's linkage assessment)
+  weight     Float    @default(1.0) // Based on user reputation in "Logic"
+
+  // Diagnostic answers that produced this score
+  direction    String?  // "support" or "oppose"
+  isRelevant   Boolean? // Blue Sky filter: does it force a change of mind?
+  strength     String?  // "proof", "strong", "context", "weak"
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([argumentId, userId])
+  @@index([argumentId])
 }
 
 // Evidence supporting or weakening a belief

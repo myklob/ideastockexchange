@@ -23,6 +23,60 @@ export type LinkageType =
   | 'sufficient_condition' // Evidence alone is enough to prove the conclusion
   | 'strengthener'         // Evidence modifies probability without being a hard requirement
 
+/**
+ * Linkage Classification — the logical strength category of a connection.
+ * Maps to a default score range and visual treatment.
+ *
+ * Range: -1.0 (Contradiction) to +1.0 (Deductive Proof)
+ */
+export type LinkageClassification =
+  | 'DEDUCTIVE_PROOF'  // 1.0: If premise true, conclusion must be true
+  | 'STRONG_CAUSAL'    // 0.7-0.9: Direct causal evidence
+  | 'CONTEXTUAL'       // 0.4-0.6: Helpful context but not decisive
+  | 'ANECDOTAL'        // 0.1-0.3: Tangential or minor example
+  | 'IRRELEVANT'       // 0.0: No bearing on the topic
+  | 'NON_SEQUITUR'     // 0.0: Flagged logical disconnect
+  | 'CONTRADICTION'    // -1.0: Premise disproves conclusion
+
+/**
+ * Default score ranges for each linkage classification.
+ */
+export const LINKAGE_CLASSIFICATION_SCORES: Record<LinkageClassification, number> = {
+  DEDUCTIVE_PROOF: 1.0,
+  STRONG_CAUSAL: 0.8,
+  CONTEXTUAL: 0.5,
+  ANECDOTAL: 0.2,
+  IRRELEVANT: 0.0,
+  NON_SEQUITUR: 0.0,
+  CONTRADICTION: -1.0,
+}
+
+/**
+ * User diagnostic answers from the LinkageWizard.
+ * These structured questions prevent Gish Galloping by forcing
+ * users to justify relevance, not just assert it.
+ */
+export interface LinkageDiagnostic {
+  /** Step 1: Does the argument support or oppose the conclusion? */
+  direction: 'support' | 'oppose'
+  /** Step 2: "Blue Sky" filter — if 100% true, does it force a change of mind? */
+  isRelevant: boolean
+  /** Step 3: How strong is the connection? (only if isRelevant = true) */
+  strength?: 'proof' | 'strong' | 'context' | 'weak'
+}
+
+/**
+ * A community vote on the linkage (logical relevance) of an argument.
+ * Distinct from truth voting — this measures whether the logic connects.
+ */
+export interface LinkageVote {
+  userId: string
+  score: number        // -1.0 to 1.0
+  weight: number       // Based on user reputation in "Logic"
+  diagnostic?: LinkageDiagnostic
+  createdAt: string
+}
+
 export interface SchilchtMetrics {
   truthScore: number        // 0-1
   confidenceInterval: number // 0-1
@@ -56,8 +110,10 @@ export interface SchilchtArgument {
   description: string
   side: ArgumentSide
   truthScore: number        // 0-1: Is the evidence factually accurate?
-  linkageScore: number      // 0-1: How strongly does this connect to the parent claim?
+  linkageScore: number      // -1 to 1: How strongly does this connect to the parent claim?
   linkageDebate?: LinkageDebate  // The sub-debate that determines linkageScore (if present, linkageScore is derived from this)
+  linkageClassification?: LinkageClassification  // Categorical classification of the connection strength
+  linkageVotes?: LinkageVote[]   // Community votes on the linkage (logic, not truth)
   importanceScore?: number  // 0-1: How much does this argument move the probability? (default 1.0)
   uniquenessScore?: number  // 0-1: How unique is this among sibling arguments? (default 1.0, lower = more redundant)
   impactScore: number       // signed: positive for pro, negative for con (computed)
