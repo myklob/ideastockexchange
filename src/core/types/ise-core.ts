@@ -91,16 +91,63 @@ export interface TruthAssessment {
 }
 
 /**
- * Linkage Score - measures how strongly one concept depends on another
- * Used to map dependency trees between laws, assumptions, and evidence
+ * Base interface for any node that can be debated via pro/con arguments.
+ * Both claims and linkage scores share this structure, enabling recursive
+ * "performance-based" scoring where even the relevance of an argument
+ * is subject to the same logical rigor as the claim itself.
  */
-export interface LinkageScore {
+export interface DebatableNode {
+  id: string;
+  statement: string;           // The claim being debated
+  proArguments: LinkageArgument[];
+  conArguments: LinkageArgument[];
+  score: number;               // 0-1: derived from ReasonRank of the debate
+  status: 'emerging' | 'contested' | 'calibrated' | 'archived';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * A simplified argument within a linkage debate.
+ * Uses the same structure as top-level arguments to enable recursive scoring.
+ */
+export interface LinkageArgument {
+  id: string;
+  claim: string;
+  side: 'pro' | 'con';
+  truthScore: number;          // 0-1
+  importanceScore: number;     // 0-1
+  certifiedBy: string[];
+  createdAt: Date;
+}
+
+/**
+ * Classification of how evidence connects to a conclusion.
+ * Used as metadata to seed linkage debate framing.
+ */
+export type LinkageType =
+  | 'causal'               // Evidence represents a direct cause of the conclusion
+  | 'necessary_condition'  // Evidence is required for the conclusion to be true
+  | 'sufficient_condition' // Evidence alone is enough to prove the conclusion
+  | 'strengthener';        // Evidence modifies probability without being a hard requirement
+
+/**
+ * Linkage Score - measures how strongly one concept supports/depends on another.
+ *
+ * The LS is NOT a static calculation. It is a dynamic score determined by its
+ * own dedicated pro-con sub-arguments (a "Linkage Debate"). Every link between
+ * evidence and a claim is treated as a sub-claim that must be defended and tested.
+ *
+ * Extends DebatableNode so it can hold its own list of pro and con arguments,
+ * enabling the recursive "performance-based" scoring required by the framework.
+ */
+export interface LinkageScore extends DebatableNode {
   fromId: string;
   fromType: 'law' | 'assumption' | 'interest' | 'evidence';
   toId: string;
   toType: 'law' | 'assumption' | 'interest' | 'evidence';
-  strength: number; // 0-100: how critical is this dependency?
-  reasoning: string; // Why does this linkage exist?
+  linkageType: LinkageType;    // Classification of the connection
+  strength: number;            // 0-100: derived from the linkage debate ReasonRank
+  reasoning: string;           // Auto-generated sub-claim, e.g., "Evidence A supports Claim B"
   verifiedBy: string[];
-  createdAt: Date;
 }

@@ -40,7 +40,7 @@
  * a random walker following the argument graph lands on a pro-conclusion.
  */
 
-import { SchilchtArgument, SchilchtEvidence, SchilchtBelief } from '../types/schlicht'
+import { SchilchtArgument, SchilchtEvidence, SchilchtBelief, LinkageDebate, LinkageType } from '../types/schlicht'
 import { LikelihoodEstimate, LikelihoodBelief, LikelihoodStatus } from '../types/cba'
 
 // ─── ReasonRank Constants ───────────────────────────────────────
@@ -133,9 +133,72 @@ export function calculateEVS(input: {
 // ─── Linkage Score ──────────────────────────────────────────────
 
 /**
- * Calculate linkage score from linkage arguments.
- * Linkage arguments are meta-arguments about whether the linkage
- * between an argument and its conclusion is valid.
+ * Score a LinkageDebate to determine the Linkage Score (LS).
+ *
+ * A LinkageDebate is a sub-claim ("Does Evidence A support Claim B?")
+ * with its own pro/con argument trees. The LS is derived from the
+ * ReasonRank of this sub-debate, using the same PageRank-style scoring
+ * as any other belief.
+ *
+ * This replaces the old static formula:
+ *   LS_old = (DR × 0.40) + (CS × 0.30) + (NC × 0.20) + (SC × 0.10)
+ *
+ * New logic:
+ *   LS = ReasonRank of the claim "Evidence A supports Claim B"
+ *   LS = ProRank / (ProRank + ConRank), or 0.5 if no arguments.
+ */
+export function scoreLinkageDebate(debate: LinkageDebate): number {
+  if (debate.proArguments.length === 0 && debate.conArguments.length === 0) {
+    return 0.5 // No arguments = neutral default
+  }
+
+  // Score pro and con arguments using the same recursive ReasonRank
+  const proBreakdowns = debate.proArguments.map(scoreArgument)
+  const conBreakdowns = debate.conArguments.map(scoreArgument)
+
+  const proRank = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+  const conRank = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+
+  const totalRank = proRank + conRank
+  if (totalRank === 0) return 0.5
+
+  // PageRank probability interpretation: pro / (pro + con)
+  return Math.max(0.01, Math.min(0.99, proRank / totalRank))
+}
+
+/**
+ * Resolve the linkage score for an argument.
+ * If the argument has a LinkageDebate attached, derive the score from it.
+ * Otherwise, fall back to the static linkageScore field.
+ */
+export function resolveLinkageScore(arg: SchilchtArgument): number {
+  if (arg.linkageDebate) {
+    return scoreLinkageDebate(arg.linkageDebate)
+  }
+  return arg.linkageScore
+}
+
+/**
+ * Create the sub-claim text for a linkage debate.
+ * This is the statement that pro/con arguments will argue for/against.
+ */
+export function generateLinkageSubClaim(
+  evidenceClaim: string,
+  parentClaim: string,
+  linkageType: LinkageType
+): string {
+  const typeLabels: Record<LinkageType, string> = {
+    causal: 'is a direct cause supporting',
+    necessary_condition: 'is a necessary condition for',
+    sufficient_condition: 'is sufficient to prove',
+    strengthener: 'strengthens the case for',
+  }
+  return `"${evidenceClaim}" ${typeLabels[linkageType]} "${parentClaim}"`
+}
+
+/**
+ * Calculate linkage score from simple linkage arguments (legacy support).
+ * Maintained for backward compatibility with existing data.
  *
  * ECLS = SUM(agree strengths) / SUM(all strengths)
  * Returns 0.5 if no linkage arguments exist (neutral).
@@ -195,6 +258,9 @@ export function scoreArgument(arg: SchilchtArgument): ArgumentScoreBreakdown {
   const importanceWeight = arg.importanceScore ?? 1.0
   const uniquenessScore = arg.uniquenessScore ?? 1.0
 
+  // Resolve linkage score: use linkage debate if available, otherwise static value
+  const effectiveLinkageScore = resolveLinkageScore(arg)
+
   let reasonRank: number
   let subArgumentCount = 0
   let subArgumentNetStrength = 0
@@ -242,7 +308,8 @@ export function scoreArgument(arg: SchilchtArgument): ArgumentScoreBreakdown {
   // This argument's weighted contribution to its parent.
   // Incorporates ReasonRank (recursive quality) × linkage (relevance) ×
   // importance (how much it moves the needle) × uniqueness (redundancy penalty).
-  const rawImpact = reasonRank * arg.linkageScore * importanceWeight * uniquenessScore
+  // Linkage is now derived from its own sub-debate when available.
+  const rawImpact = reasonRank * effectiveLinkageScore * importanceWeight * uniquenessScore
   const direction = arg.side === 'pro' ? 1 : -1
   const signedImpact = rawImpact * direction
 
@@ -252,7 +319,7 @@ export function scoreArgument(arg: SchilchtArgument): ArgumentScoreBreakdown {
     side: arg.side,
     truthScore: baseTruth,
     reasonRank,
-    linkageScore: arg.linkageScore,
+    linkageScore: effectiveLinkageScore,
     importanceWeight,
     uniquenessScore,
     rawImpact,

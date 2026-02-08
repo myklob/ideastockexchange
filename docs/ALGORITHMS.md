@@ -193,31 +193,90 @@ function calculateEQ(iv, ss, r, br, weights) {
 
 ## 3. Linkage Score (LS)
 
-How directly evidence supports a specific conclusion.
+The Linkage Score (LS) measures the relevance and impact of a specific argument or piece of evidence on its parent claim. It answers the fundamental question: **"If this argument or evidence were true, would it necessarily strengthen the conclusion?"**
 
-### Formula
+The LS is **not a fixed attribute**—it is a dynamic score determined by the performance of its own dedicated pro-con sub-arguments. Every link between data and a claim is treated as a "sub-claim" that must be defended and tested.
 
+### How LS Works: Performance-Based Scoring
+
+**Old approach (deprecated):** LS was calculated as a static weighted sum:
 ```
-LS = (DR × 0.40) + (CS × 0.30) + (NC × 0.20) + (SC × 0.10)
+LS_old = (DR × 0.40) + (CS × 0.30) + (NC × 0.20) + (SC × 0.10)
 ```
 
-### Variables
+**New approach:** LS is the **ReasonRank** of the sub-claim *"Evidence A supports Claim B."*
 
-| Symbol | Meaning | Weight | Scale |
-|--------|---------|--------|-------|
-| `DR` | Direct Relevance (is this actually about the conclusion?) | 40% | 0-1 |
-| `CS` | Causal Strength (does the evidence show causation?) | 30% | 0-1 |
-| `NC` | Necessary Condition (is this evidence required for the conclusion?) | 20% | 0-1 |
-| `SC` | Sufficient Condition (does this evidence alone prove the conclusion?) | 10% | 0-1 |
+For every piece of evidence or argument provided, the system automatically generates a **Linkage Debate**—a sub-argument focused solely on the strength of the connection. The community then provides pro and con arguments for that link, and the outcome of that debate becomes the Linkage Score.
+
+- If the "Pros" (reasons why this evidence supports the conclusion) outweigh the "Cons" (reasons why the evidence is irrelevant or a non-sequitur), the LS increases.
+- If the "Cons" win, the LS decreases, gating the evidence's contribution regardless of its intrinsic quality.
+
+### Linkage Types
+
+Every linkage is classified into one of four types. These replace the old `DR`, `CS`, `NC`, `SC` variables — instead of being weighted inputs to a formula, they are **metadata tags** that seed the initial framing of the linkage debate:
+
+| Type | Question | Example |
+|------|----------|---------|
+| **Causal** | Does the evidence represent a direct cause of the conclusion? | "Smoking causes lung cancer" → evidence of carcinogens in tobacco |
+| **Necessary Condition** | Is the evidence a requirement for the conclusion to be true? | "Democracy requires free speech" → evidence of censorship effects |
+| **Sufficient Condition** | Is the evidence alone enough to prove the conclusion? | "DNA match at crime scene" → sufficient to place suspect there |
+| **Strengthener/Weakener** | Does the evidence modify the probability without being a hard requirement? | "Economic growth correlates with education" → statistical evidence |
+
+### Conditional Impact
+
+The LS represents *potential* impact. A piece of evidence might have a perfect Linkage Score (it would be devastatingly effective if true), but if its own Truth Score is low, its actual contribution to the parent claim remains minimal. This separation ensures that relevance and truthfulness are evaluated independently.
 
 ### Linkage Thresholds
 
 | LS Range | Interpretation |
 |----------|----------------|
-| 0.8 - 1.0 | Core supporting evidence |
-| 0.5 - 0.8 | Relevant but not definitive |
-| 0.2 - 0.5 | Tangentially related |
-| 0.0 - 0.2 | Essentially irrelevant |
+| 0.8 - 1.0 | **Core supporting evidence** — Sub-debate strongly favors the link |
+| 0.5 - 0.8 | **Relevant but contested** — Link is debated, leaning supportive |
+| 0.2 - 0.5 | **Weakly linked** — Sub-debate shows significant objections |
+| 0.0 - 0.2 | **Essentially irrelevant** — Sub-debate consensus rejects the link |
+
+### Logic Flow
+
+1. **User submits Evidence A for Claim B.**
+2. **System creates a Linkage Debate:** *"Does Evidence A support Claim B?"*
+3. **Community provides Pro/Con arguments for that Link.**
+4. **The outcome of that debate (its ReasonRank) becomes the Linkage Score (LS).**
+5. **The final impact of Evidence A on Claim B = (Truth Score of A) × (Linkage Score).**
+
+### Implementation
+
+```typescript
+/**
+ * A LinkageDebate is a sub-claim evaluating the connection between
+ * evidence and its parent claim. It holds pro/con arguments and
+ * derives its score from ReasonRank, just like any other belief.
+ */
+interface LinkageDebate {
+  id: string;
+  evidenceId: string;
+  parentClaimId: string;
+  linkageType: 'causal' | 'necessary_condition' | 'sufficient_condition' | 'strengthener';
+  subClaim: string;            // e.g., "Evidence A supports Claim B"
+  proArguments: Argument[];    // Reasons the link is strong
+  conArguments: Argument[];    // Reasons the link is weak/irrelevant
+  linkageScore: number;        // 0-1, derived from ReasonRank of this sub-debate
+}
+
+function scoreLinkageDebate(debate: LinkageDebate): number {
+  // Score pro and con arguments using recursive ReasonRank
+  const proBreakdowns = debate.proArguments.map(scoreArgument);
+  const conBreakdowns = debate.conArguments.map(scoreArgument);
+
+  const proRank = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0);
+  const conRank = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0);
+
+  const totalRank = proRank + conRank;
+  if (totalRank === 0) return 0.5; // No arguments = neutral default
+
+  // PageRank probability: pro / (pro + con)
+  return Math.max(0.01, Math.min(0.99, proRank / totalRank));
+}
+```
 
 ---
 
@@ -228,10 +287,13 @@ Net impact of a piece of evidence on a conclusion.
 ### Formula
 
 ```
-EC = EQ × LS × Direction
+EC = TS(Evidence) × LS × Direction
 ```
 
-Where `Direction` = +1 for pro, -1 for con.
+Where:
+- `TS(Evidence)` = Truth Score of the evidence itself (0-1)
+- `LS` = Linkage Score from the linkage sub-debate (0-1)
+- `Direction` = +1 for pro, -1 for con
 
 ### Total Evidence Score
 
@@ -243,9 +305,11 @@ Total ES = Σ(EC_pro) - Σ(EC_con)
 
 | Scenario | Calculation | Result |
 |----------|-------------|--------|
-| Strong evidence, low relevance | 9 × 0.2 = 1.8 | Minimal impact |
-| Weak evidence, high relevance | 2 × 0.9 = 1.8 | Minimal impact |
-| Strong evidence, high relevance | 9 × 0.95 = 8.55 | Maximum impact |
+| True evidence, weak link (sub-debate rejects) | 0.9 × 0.2 = 0.18 | Minimal impact |
+| Unverified evidence, strong link | 0.2 × 0.9 = 0.18 | Minimal impact |
+| True evidence, strong link (sub-debate affirms) | 0.9 × 0.95 = 0.855 | Maximum impact |
+
+The linkage sub-debate ensures that even the *relevance* of an argument is subject to the same profit-motive and logical rigor as the claim itself.
 
 ---
 
@@ -537,14 +601,15 @@ Where:
 
 - [ ] Conclusion Score (pro/con aggregation)
 - [ ] Evidence Quality (tier-based defaults)
-- [ ] Basic Linkage (relevance rating 0-1)
+- [ ] Linkage Debate creation (auto-generate sub-claim for each evidence-claim link)
 - [ ] Simple normalization
 
 ### Full Scoring System
 
 - [ ] Recursive depth-weighted argument aggregation
 - [ ] Multi-factor evidence quality assessment
-- [ ] Four-factor linkage calculation
+- [ ] Linkage Debate scoring via ReasonRank (replaces static four-factor calculation)
+- [ ] Linkage type classification (causal, necessary, sufficient, strengthener)
 - [ ] ReasonRank propagation
 - [ ] Fallacy detection
 - [ ] Redundancy detection
