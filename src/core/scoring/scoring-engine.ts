@@ -40,7 +40,12 @@
  * a random walker following the argument graph lands on a pro-conclusion.
  */
 
-import { SchilchtArgument, SchilchtEvidence, SchilchtBelief, LinkageDebate, LinkageType } from '../types/schlicht'
+import {
+  SchilchtArgument, SchilchtEvidence, SchilchtBelief,
+  LinkageDebate, LinkageType,
+  LinkageClassification, LinkageDiagnostic, LinkageVote,
+  LINKAGE_CLASSIFICATION_SCORES,
+} from '../types/schlicht'
 import { LikelihoodEstimate, LikelihoodBelief, LikelihoodStatus } from '../types/cba'
 
 // ─── ReasonRank Constants ───────────────────────────────────────
@@ -168,13 +173,25 @@ export function scoreLinkageDebate(debate: LinkageDebate): number {
 
 /**
  * Resolve the linkage score for an argument.
- * If the argument has a LinkageDebate attached, derive the score from it.
- * Otherwise, fall back to the static linkageScore field.
+ *
+ * Priority chain:
+ * 1. LinkageDebate (full sub-debate with ReasonRank)
+ * 2. Aggregated community votes (weighted average)
+ * 3. Static linkageScore field (default / initial value)
  */
 export function resolveLinkageScore(arg: SchilchtArgument): number {
+  // Priority 1: Full linkage debate with its own argument tree
   if (arg.linkageDebate) {
     return scoreLinkageDebate(arg.linkageDebate)
   }
+
+  // Priority 2: Aggregated community votes
+  if (arg.linkageVotes && arg.linkageVotes.length > 0) {
+    const aggregated = aggregateLinkageVotes(arg.linkageVotes)
+    if (aggregated !== null) return aggregated
+  }
+
+  // Priority 3: Static score (from wizard or default)
   return arg.linkageScore
 }
 
@@ -219,6 +236,122 @@ export function calculateLinkageFromArguments(
   }
 
   return totalSum === 0 ? 0.5 : agreeSum / totalSum
+}
+
+// ─── Linkage Diagnostic Scoring ─────────────────────────────────
+
+/**
+ * Calculate a linkage score from diagnostic wizard answers.
+ *
+ * The wizard forces users to answer structured questions instead of
+ * just sliding a bar, which prevents "Gish Galloping" by requiring
+ * justification for relevance.
+ *
+ * Step 1: Direction — support (+) or oppose (-)
+ * Step 2: "Blue Sky" filter — is it relevant at all? If no → 0.0
+ * Step 3: Strength — proof (1.0), strong (0.8), context (0.5), weak (0.2)
+ *
+ * The sign is determined by direction.
+ */
+export function calculateLinkageFromDiagnostic(diagnostic: LinkageDiagnostic): {
+  score: number
+  classification: LinkageClassification
+} {
+  // Step 2: Blue Sky filter — if not relevant, it's a non sequitur
+  if (!diagnostic.isRelevant) {
+    return { score: 0.0, classification: 'NON_SEQUITUR' }
+  }
+
+  // Step 3: Map strength to score and classification
+  const strengthMap: Record<string, { score: number; classification: LinkageClassification }> = {
+    proof: { score: 1.0, classification: 'DEDUCTIVE_PROOF' },
+    strong: { score: 0.8, classification: 'STRONG_CAUSAL' },
+    context: { score: 0.5, classification: 'CONTEXTUAL' },
+    weak: { score: 0.2, classification: 'ANECDOTAL' },
+  }
+
+  const mapping = strengthMap[diagnostic.strength ?? 'weak'] ?? strengthMap.weak
+
+  // Step 1: Direction determines sign
+  const sign = diagnostic.direction === 'oppose' ? -1 : 1
+
+  return {
+    score: mapping.score * sign,
+    classification: mapping.classification,
+  }
+}
+
+/**
+ * Aggregate community linkage votes into a weighted score.
+ *
+ * Each vote has a weight based on user reputation in "Logic".
+ * The aggregate is the weighted average of all votes.
+ *
+ * Returns the raw static score if no votes exist (falls back to
+ * the initial linkage score or classification default).
+ */
+export function aggregateLinkageVotes(votes: LinkageVote[]): number | null {
+  if (!votes || votes.length === 0) return null
+
+  const totalWeight = votes.reduce((acc, v) => acc + v.weight, 0)
+  if (totalWeight === 0) return null
+
+  const weightedSum = votes.reduce((acc, v) => acc + v.score * v.weight, 0)
+  return Math.max(-1, Math.min(1, weightedSum / totalWeight))
+}
+
+/**
+ * Classify a numeric linkage score into a LinkageClassification.
+ * Used when a score exists but no classification has been set.
+ */
+export function classifyLinkageScore(score: number): LinkageClassification {
+  const abs = Math.abs(score)
+  if (score <= -0.5) return 'CONTRADICTION'
+  if (abs < 0.05) return 'IRRELEVANT'
+  if (abs < 0.35) return 'ANECDOTAL'
+  if (abs < 0.65) return 'CONTEXTUAL'
+  if (abs < 0.95) return 'STRONG_CAUSAL'
+  return 'DEDUCTIVE_PROOF'
+}
+
+/**
+ * Check if an argument should be flagged as a "Non Sequitur" or
+ * "True but Irrelevant".
+ *
+ * Conditions for flagging:
+ * - Linkage Score < 0.1 AND Truth Score > 0.8
+ * - Classification is NON_SEQUITUR or IRRELEVANT
+ */
+export function detectNonSequitur(arg: SchilchtArgument): {
+  isNonSequitur: boolean
+  isTrueButIrrelevant: boolean
+  warningMessage: string | null
+} {
+  const linkage = resolveLinkageScore(arg)
+  const absLinkage = Math.abs(linkage)
+  const classification = arg.linkageClassification ?? classifyLinkageScore(linkage)
+
+  const isNonSequitur = classification === 'NON_SEQUITUR' || absLinkage < 0.05
+  const isTrueButIrrelevant = absLinkage < 0.1 && arg.truthScore > 0.8
+
+  let warningMessage: string | null = null
+  if (isTrueButIrrelevant) {
+    warningMessage = 'True but Irrelevant: This argument is factually accurate but has near-zero logical connection to the conclusion.'
+  } else if (isNonSequitur) {
+    warningMessage = 'Non Sequitur: The conclusion does not follow from this premise.'
+  }
+
+  return { isNonSequitur, isTrueButIrrelevant, warningMessage }
+}
+
+/**
+ * Check if an argument has low linkage that might indicate a missing
+ * assumption. Returns true if the linkage is between 0.1 and 0.4,
+ * suggesting that an intermediate belief could repair the chain.
+ */
+export function shouldPromptForAssumption(arg: SchilchtArgument): boolean {
+  const linkage = resolveLinkageScore(arg)
+  return Math.abs(linkage) > 0.1 && Math.abs(linkage) <= 0.4
 }
 
 // ─── ReasonRank: Argument Scoring ───────────────────────────────

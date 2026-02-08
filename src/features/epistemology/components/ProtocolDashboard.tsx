@@ -399,7 +399,10 @@ export default function ProtocolDashboard({
             <div className="flex flex-col gap-4">
               {belief.proTree.map((arg) => (
                 <div key={arg.id} className="argument-card-animate">
-                  <ArgumentCard argument={arg} />
+                  <ArgumentCard
+                    argument={arg}
+                    parentClaim={belief.statement}
+                  />
                 </div>
               ))}
               {belief.proTree.length === 0 && (
@@ -423,7 +426,10 @@ export default function ProtocolDashboard({
             <div className="flex flex-col gap-4">
               {belief.conTree.map((arg) => (
                 <div key={arg.id} className="argument-card-animate">
-                  <ArgumentCard argument={arg} />
+                  <ArgumentCard
+                    argument={arg}
+                    parentClaim={belief.statement}
+                  />
                 </div>
               ))}
               {belief.conTree.length === 0 && (
@@ -516,6 +522,7 @@ export default function ProtocolDashboard({
       {showArgumentForm && (
         <ArgumentForm
           beliefId={belief.beliefId}
+          beliefStatement={belief.statement}
           onSubmit={handleNewArgument}
           onClose={() => setShowArgumentForm(false)}
         />

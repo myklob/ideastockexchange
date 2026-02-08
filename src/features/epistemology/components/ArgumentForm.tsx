@@ -1,16 +1,19 @@
 'use client'
 
 import { useState } from 'react'
-import { ArgumentSide, SchilchtArgument } from '@/core/types/schlicht'
+import { ArgumentSide, SchilchtArgument, LinkageDiagnostic, LinkageClassification } from '@/core/types/schlicht'
+import LinkageWizard from './LinkageWizard'
 
 interface ArgumentFormProps {
   beliefId: string
+  beliefStatement?: string
   onSubmit: (argument: SchilchtArgument) => void
   onClose: () => void
 }
 
 export default function ArgumentForm({
   beliefId,
+  beliefStatement,
   onSubmit,
   onClose,
 }: ArgumentFormProps) {
@@ -24,9 +27,33 @@ export default function ArgumentForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
+  // Linkage wizard state
+  const [showLinkageWizard, setShowLinkageWizard] = useState(false)
+  const [linkageDiagnostic, setLinkageDiagnostic] = useState<LinkageDiagnostic | null>(null)
+  const [linkageScore, setLinkageScore] = useState<number | null>(null)
+  const [linkageClassification, setLinkageClassification] = useState<LinkageClassification | null>(null)
+
+  const handleLinkageComplete = (result: {
+    diagnostic: LinkageDiagnostic
+    score: number
+    classification: LinkageClassification
+  }) => {
+    setLinkageDiagnostic(result.diagnostic)
+    setLinkageScore(result.score)
+    setLinkageClassification(result.classification)
+    setShowLinkageWizard(false)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // Require linkage assessment before submission
+    if (!linkageDiagnostic) {
+      setError('Please complete the Linkage Assessment before submitting.')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -39,6 +66,11 @@ export default function ArgumentForm({
           side,
           contributor_name: contributorName,
           contributor_type: contributorType,
+          linkage_diagnostic: {
+            direction: linkageDiagnostic.direction,
+            is_relevant: linkageDiagnostic.isRelevant,
+            strength: linkageDiagnostic.strength,
+          },
         }),
       })
 
@@ -209,6 +241,61 @@ export default function ArgumentForm({
               </div>
             </div>
 
+            {/* Linkage Assessment */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                Linkage Assessment <span className="text-red-500">*</span>
+              </label>
+              <p className="text-xs text-[var(--muted-foreground)] mb-2">
+                How strongly does your argument connect to the conclusion?
+                This prevents &ldquo;True but Irrelevant&rdquo; arguments from cluttering the debate.
+              </p>
+
+              {linkageDiagnostic ? (
+                <div className="flex items-center gap-3 p-3 bg-purple-50 border border-purple-200 rounded">
+                  <div className="flex-1">
+                    <div className="text-xs font-medium text-purple-800">
+                      Linkage: {linkageClassification?.replace('_', ' ')}
+                    </div>
+                    <div className="text-xs text-purple-600 font-mono">
+                      Score: {linkageScore !== null ? `${(linkageScore * 100).toFixed(0)}%` : 'N/A'}
+                    </div>
+                    <div className="text-[10px] text-purple-500 mt-0.5">
+                      Direction: {linkageDiagnostic.direction} | Relevant: {linkageDiagnostic.isRelevant ? 'Yes' : 'No'}
+                      {linkageDiagnostic.strength && ` | Strength: ${linkageDiagnostic.strength}`}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLinkageDiagnostic(null)
+                      setLinkageScore(null)
+                      setLinkageClassification(null)
+                      setShowLinkageWizard(true)
+                    }}
+                    className="text-xs text-purple-700 hover:text-purple-900 font-medium"
+                  >
+                    Redo
+                  </button>
+                </div>
+              ) : showLinkageWizard ? (
+                <LinkageWizard
+                  parentClaim={beliefStatement ?? 'the conclusion'}
+                  childClaim={claim || 'your argument'}
+                  onComplete={handleLinkageComplete}
+                  onCancel={() => setShowLinkageWizard(false)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowLinkageWizard(true)}
+                  className="w-full p-3 rounded border-2 border-dashed border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold text-sm transition-colors"
+                >
+                  Start Linkage Assessment (3 quick questions)
+                </button>
+              )}
+            </div>
+
             {/* Error */}
             {error && (
               <div className="mb-4 text-sm text-red-700 bg-red-50 border border-red-200 p-2 rounded">
@@ -220,7 +307,7 @@ export default function ArgumentForm({
             <div className="flex gap-3">
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !linkageDiagnostic}
                 className="px-4 py-2 rounded font-semibold text-sm text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Argument'}

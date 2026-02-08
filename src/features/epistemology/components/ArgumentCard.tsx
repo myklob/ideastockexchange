@@ -1,8 +1,17 @@
+'use client'
+
+import { useState, useCallback } from 'react'
 import { SchilchtArgument } from '@/core/types/schlicht'
+import { detectNonSequitur, shouldPromptForAssumption, resolveLinkageScore } from '@/core/scoring/scoring-engine'
 import AgentBadge from './AgentBadge'
+import LinkageIndicator from './LinkageIndicator'
+import NonSequiturWarning from './NonSequiturWarning'
+import MissingAssumptionPrompt from './MissingAssumptionPrompt'
 
 interface ArgumentCardProps {
   argument: SchilchtArgument
+  parentClaim?: string
+  onAssumptionSubmit?: (argumentId: string, assumption: string) => void
 }
 
 function getAgentLabel(name: string): string {
@@ -17,11 +26,26 @@ function getAgentLabel(name: string): string {
   return 'Certified'
 }
 
-export default function ArgumentCard({ argument }: ArgumentCardProps) {
+export default function ArgumentCard({ argument, parentClaim, onAssumptionSubmit }: ArgumentCardProps) {
+  const [assumptionDismissed, setAssumptionDismissed] = useState(false)
+
   const isPro = argument.side === 'pro'
   const borderColor = isPro ? 'border-l-green-600' : 'border-l-red-600'
   const impactColor = isPro ? 'text-green-700' : 'text-red-700'
   const impactPrefix = isPro ? '+' : ''
+
+  // Linkage analysis
+  const resolvedLinkage = resolveLinkageScore(argument)
+  const warnings = detectNonSequitur(argument)
+  const needsAssumption = shouldPromptForAssumption(argument) && !assumptionDismissed
+
+  const handleAssumptionSubmit = useCallback(
+    (assumption: string) => {
+      onAssumptionSubmit?.(argument.id, assumption)
+      setAssumptionDismissed(true)
+    },
+    [argument.id, onAssumptionSubmit]
+  )
 
   return (
     <div
@@ -32,10 +56,30 @@ export default function ArgumentCard({ argument }: ArgumentCardProps) {
         <h4 className="font-semibold text-[var(--foreground)]">
           {argument.claim}
         </h4>
-        <span className="text-[10px] font-mono text-[var(--muted-foreground)] bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">
-          #{argument.id.replace('arg-', '').toUpperCase()}
-        </span>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <LinkageIndicator
+            score={resolvedLinkage}
+            classification={argument.linkageClassification}
+            compact
+          />
+          <span className="text-[10px] font-mono text-[var(--muted-foreground)] bg-gray-100 px-1.5 py-0.5 rounded">
+            #{argument.id.replace('arg-', '').toUpperCase()}
+          </span>
+        </div>
       </div>
+
+      {/* Non Sequitur / True-but-Irrelevant Warning */}
+      {(warnings.isNonSequitur || warnings.isTrueButIrrelevant) && (
+        <div className="mb-3">
+          <NonSequiturWarning
+            isNonSequitur={warnings.isNonSequitur}
+            isTrueButIrrelevant={warnings.isTrueButIrrelevant}
+            warningMessage={warnings.warningMessage}
+            truthScore={argument.truthScore}
+            linkageScore={resolvedLinkage}
+          />
+        </div>
+      )}
 
       {/* Description */}
       <p className="text-sm text-[var(--muted-foreground)] mb-3 leading-relaxed">
@@ -83,6 +127,14 @@ export default function ArgumentCard({ argument }: ArgumentCardProps) {
         ))}
       </div>
 
+      {/* Linkage indicator bar */}
+      <div className="mb-3">
+        <LinkageIndicator
+          score={resolvedLinkage}
+          classification={argument.linkageClassification}
+        />
+      </div>
+
       {/* Scores */}
       <div className="flex gap-4 text-xs bg-[var(--muted)] p-2 rounded border border-[var(--border)]">
         <div className="flex flex-col items-center">
@@ -98,7 +150,7 @@ export default function ArgumentCard({ argument }: ArgumentCardProps) {
             Linkage
           </span>
           <span className="font-bold">
-            {(argument.linkageScore * 100).toFixed(0)}%
+            {(resolvedLinkage * 100).toFixed(0)}%
           </span>
         </div>
         <div className="flex flex-col items-center">
@@ -110,7 +162,29 @@ export default function ArgumentCard({ argument }: ArgumentCardProps) {
             {argument.impactScore}
           </span>
         </div>
+        <div className="flex flex-col items-center">
+          <span className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider">
+            Net Weight
+          </span>
+          <span className="font-bold text-purple-700">
+            {(argument.truthScore * resolvedLinkage * (argument.importanceScore ?? 1) * 100).toFixed(0)}%
+          </span>
+        </div>
       </div>
+
+      {/* Missing Assumption Prompt */}
+      {needsAssumption && parentClaim && (
+        <div className="mt-3">
+          <MissingAssumptionPrompt
+            argumentId={argument.id}
+            argumentClaim={argument.claim}
+            parentClaim={parentClaim}
+            linkageScore={resolvedLinkage}
+            onSubmitAssumption={handleAssumptionSubmit}
+            onDismiss={() => setAssumptionDismissed(true)}
+          />
+        </div>
+      )}
 
       {/* Rebuttal */}
       {argument.rebuttal && (
