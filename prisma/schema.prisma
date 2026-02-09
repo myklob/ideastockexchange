@@ -205,6 +205,8 @@ model Belief {
 
   similarTo      SimilarBelief[] @relation("SimilarFrom")
   similarFrom    SimilarBelief[] @relation("SimilarTo")
+
+  productReview  ProductReview?
 }
 
 enum LinkageClassification {
@@ -457,4 +459,133 @@ model SimilarBelief {
   variant String // "extreme" or "moderate"
 
   createdAt DateTime @default(now())
+}
+
+// ─── Product Review Models ──────────────────────────────────────
+
+// Core product review - links to a Belief ("X makes the best Y")
+model ProductReview {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  productName String   // e.g., "Ford F-150"
+  brand       String   // e.g., "Ford"
+  claim       String   // e.g., "Ford makes the best trucks"
+
+  // Category hierarchy: Product Type > Subcategory > Brand/Model
+  categoryType    String   // e.g., "Trucks"
+  categorySubtype String?  // e.g., "Full-size Pickup"
+
+  // Scores computed from the linked belief's argument tree
+  overallScore    Float    @default(0)
+  categoryRank    Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Link to the belief system for argument scoring
+  beliefId  Int?     @unique
+  belief    Belief?  @relation(fields: [beliefId], references: [id])
+
+  // Product-specific analysis sections
+  performanceData  ProductPerformance[]
+  tradeoffs        ProductTradeoff[]
+  alternatives     ProductAlternative[]
+  userProfiles     ProductUserProfile[]
+  awards           ProductAward[]
+  ecosystemItems   ProductEcosystem[]
+
+  @@index([categoryType])
+  @@index([overallScore])
+  @@index([brand])
+}
+
+// Per-criterion performance data with evidence quality tiers
+model ProductPerformance {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  criterion       String   // e.g., "Towing Capacity"
+  measurement     String   // e.g., "14,000 lbs"
+  evidenceTier    Int      @default(3) // 1-4 (T1=lab tested, T4=anecdotal)
+  comparisonToAvg String   @default("Same") // "Better", "Worse", "Same"
+  sourceUrl       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+// Design trade-offs: what the product optimizes for vs. sacrifices
+model ProductTradeoff {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  side            String  // "optimizes" or "sacrifices"
+  category        String  // "advertised" or "actual"
+  description     String
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+// Alternative products (premium, budget, or lateral)
+model ProductAlternative {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  alternativeName String
+  tier            String  // "premium", "budget", or "lateral"
+  keyAdvantage    String
+  linkSlug        String? // Optional link to that product's review
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+// User profile fit analysis
+model ProductUserProfile {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  side            String  // "ideal" or "not_ideal"
+  description     String
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+// Awards and certifications
+model ProductAward {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  side            String  // "independent" or "manufacturer"
+  title           String
+  details         String?
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+// Product ecosystem: upstream dependencies, downstream additions, lock-in
+model ProductEcosystem {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  category        String  // "upstream", "downstream", or "lockin"
+  description     String
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
 }

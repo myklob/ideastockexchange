@@ -254,6 +254,57 @@ export default function Home() {
           </Link>
         </section>
 
+        {/* Product Reviews */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6">
+            Product Reviews: Evidence-Based Analysis
+          </h2>
+          <p className="text-lg text-[var(--muted-foreground)] mb-8">
+            Every product claim is a testable belief. &quot;Ford makes the best trucks&quot; isn&apos;t opinion&mdash;it&apos;s
+            a hypothesis that can be scored through argument trees, evidence quality tiers, and performance metrics.
+            The best product in each category is determined by ReasonRank, not marketing.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Category Criteria First</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Before evaluating any product, establish what measurable standards define excellence
+                in that category. Towing capacity? Battery life? Reliability ratings?
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Evidence Quality Tiers</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Every performance claim is tagged T1 (lab tested) through T4 (anecdotal).
+                Independent data outweighs manufacturer marketing.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Category Rankings</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Products are scored and ranked within categories using argument tree analysis,
+                evidence quality assessment, and performance comparison metrics.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <Link
+              href="/product-reviews"
+              className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Browse Product Reviews
+            </Link>
+            <Link
+              href="/product-reviews/categories"
+              className="inline-block border border-[var(--border)] hover:border-[var(--accent)] px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              View Category Rankings
+            </Link>
+          </div>
+        </section>
+
         {/* Cost-Benefit Analysis */}
         <section className="mb-16">
           <h2 className="text-3xl font-bold mb-6">
@@ -418,6 +469,12 @@ export default function Home() {
               Browse Laws
             </Link>
             <Link
+              href="/product-reviews"
+              className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-8 py-3 rounded-lg font-medium transition-colors"
+            >
+              Product Reviews
+            </Link>
+            <Link
               href="/cba"
               className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-8 py-3 rounded-lg font-medium transition-colors"
             >
@@ -447,6 +504,7 @@ export default function Home() {
               <h3 className="font-bold mb-4">Resources</h3>
               <ul className="space-y-2 text-sm">
                 <li><Link href="/protocol" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Schlicht Protocol</Link></li>
+                <li><Link href="/product-reviews" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Product Reviews</Link></li>
                 <li><Link href="/cba" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Cost-Benefit Analysis</Link></li>
                 <li><Link href="/laws" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Browse Laws</Link></li>
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Framework Wiki</a></li>
