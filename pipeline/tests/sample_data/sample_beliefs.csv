@@ -1,0 +1,13 @@
+belief_id,statement,category,subcategory,parent_id,side,truth_score,linkage_score,importance_score,uniqueness_score,source_url,evidence_type
+1,Global warming is largely caused by humans,Climate,Science,,supporting,0.85,1.0,0.9,1.0,,T1
+2,We should tax the production of carbon,Climate,Policy,,supporting,0.6,1.0,0.8,1.0,,T3
+3,Scientific studies show significant correlation between human activities and global temperature rise,Climate,Evidence,1,supporting,0.9,0.85,0.9,1.0,https://climate.nasa.gov,T1
+4,Ice core data from 800000 years shows CO2-temperature correlation,Climate,Evidence,1,supporting,0.95,0.8,0.85,0.9,https://www.ncdc.noaa.gov,T1
+5,Some climatologists argue natural factors play a more significant role,Climate,Counter-evidence,1,weakening,0.4,0.6,0.5,0.8,,T2
+6,Solar activity cycles could explain some warming trends,Climate,Counter-evidence,1,weakening,0.35,0.5,0.4,0.7,,T2
+7,Global warming is a problem that needs addressing,Climate,Impact,2,supporting,0.75,0.7,0.85,1.0,,T2
+8,Carbon taxes successfully reduced emissions in British Columbia,Climate,Policy Evidence,2,supporting,0.8,0.75,0.7,1.0,https://www.economist.com,T1
+9,Carbon taxes can hurt economic growth in developing nations,Climate,Policy Concern,2,weakening,0.65,0.7,0.75,1.0,,T2
+10,Carbon taxes may lead to carbon leakage to unregulated regions,Climate,Policy Concern,2,weakening,0.6,0.65,0.6,0.9,,T3
+11,Taxing things like carbon usually reduces its production through market forces,Economics,Theory,2,supporting,0.7,0.6,0.65,0.85,,T2
+12,Carbon taxes disproportionately affect lower-income households,Economics,Equity,2,weakening,0.7,0.55,0.7,0.95,,T2

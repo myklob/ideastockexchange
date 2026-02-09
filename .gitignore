@@ -45,3 +45,8 @@ next-env.d.ts
 # database
 prisma/dev.db
 prisma/dev.db-journal
+
+# python
+__pycache__/
+*.pyc
+pipeline/tests/test_output/
