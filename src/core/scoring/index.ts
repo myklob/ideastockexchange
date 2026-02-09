@@ -10,4 +10,13 @@ export * from './scoring-engine';
 
 // Domain-specific scoring
 export * from './book-scoring';
-export * from './cba-scoring';
+
+// CBA scoring - exclude calculateArgumentImpact which is already in scoring-engine
+export {
+  calculateReasonRankScore,
+  determineActiveLikelihood,
+  calculateLikelihoodCI,
+  formatDollars,
+  calculateExpectedValue,
+  recalculateCBA,
+} from './cba-scoring';

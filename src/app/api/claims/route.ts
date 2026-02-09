@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
     where,
     include: {
       liquidityPool: true,
-      subArguments: { include: { evidence: true } },
-      evidence: true,
+      subArguments: { include: { claimEvidence: true } },
+      claimEvidence: true,
     },
     orderBy: { [sortBy]: "desc" },
   });
@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
 
     return {
       ...claim,
+      evidence: claim.claimEvidence,
       marketPrice: {
         yes: yesPrice,
         no: noPrice,
