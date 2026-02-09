@@ -1,13 +1,14 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
 }
 
-// Core claim: the asset being traded.
+// ─── Prediction Market Models ────────────────────────────────────
+
 model Claim {
   id               String        @id @default(cuid())
   title            String
@@ -25,7 +26,7 @@ model Claim {
 
   liquidityPool    LiquidityPool?
   subArguments     SubArgument[]
-  evidence         Evidence[]
+  claimEvidence    ClaimEvidence[]
   shares           Share[]
   trades           Trade[]
 
@@ -46,7 +47,6 @@ enum Resolution {
   NO
 }
 
-// CPMM liquidity pool: determines Market Price via constant product formula.
 model LiquidityPool {
   id              String   @id @default(cuid())
   claimId         String   @unique
@@ -60,7 +60,6 @@ model LiquidityPool {
   claim           Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
 }
 
-// Individual share holdings.
 model Share {
   id               String    @id @default(cuid())
   userId           String
@@ -83,7 +82,6 @@ enum ShareType {
   NO
 }
 
-// Trade history: every transaction recorded.
 model Trade {
   id            String    @id @default(cuid())
   userId        String
@@ -108,33 +106,31 @@ enum TradeDirection {
   SELL
 }
 
-// User account: capital balance and portfolio metrics.
 model User {
-  id             String        @id @default(cuid())
-  username       String        @unique
-  currentBalance Float         @default(10000.0)
-  totalInvested  Float         @default(0.0)
-  realizedPnl    Float         @default(0.0)
-  roi            Float         @default(0.0)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id             String   @id @default(cuid())
+  username       String   @unique
+  currentBalance Float    @default(10000.0)
+  totalInvested  Float    @default(0.0)
+  realizedPnl    Float    @default(0.0)
+  roi            Float    @default(0.0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   shares         Share[]
   trades         Trade[]
 }
 
-// Sub-arguments: pro and con analysis attached to a claim.
 model SubArgument {
-  id              String      @id @default(cuid())
+  id              String            @id @default(cuid())
   claimId         String
   position        ArgumentPosition
   content         String
-  logicalValidity Float       @default(0.0)
-  evidenceQuality Float       @default(0.0)
-  createdAt       DateTime    @default(now())
+  logicalValidity Float             @default(0.0)
+  evidenceQuality Float             @default(0.0)
+  createdAt       DateTime          @default(now())
 
-  claim           Claim       @relation(fields: [claimId], references: [id], onDelete: Cascade)
-  evidence        Evidence[]
+  claim           Claim             @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  claimEvidence   ClaimEvidence[]
 
   @@index([claimId])
 }
@@ -144,8 +140,7 @@ enum ArgumentPosition {
   CON
 }
 
-// Evidence: supporting data linked to claims or sub-arguments.
-model Evidence {
+model ClaimEvidence {
   id               String             @id @default(cuid())
   claimId          String
   subArgumentId    String?
@@ -169,22 +164,18 @@ enum EvidenceSourceType {
   PRIMARY_SOURCE
   ANECDOTAL
   EXPERT_OPINION
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
 }
 
-datasource db {
-  provider = "sqlite"
-}
+// ─── Belief Analysis Models ──────────────────────────────────────
 
-// Core belief - each belief gets its own page
+// Core belief - each belief gets its own analysis page
 model Belief {
   id          Int      @id @default(autoincrement())
   slug        String   @unique
-  statement   String   // The belief statement
-  category    String?  // Topic category
-  subcategory String?  // Topic subcategory
-  deweyNumber String?  // Dewey classification
+  statement   String
+  category    String?
+  subcategory String?
+  deweyNumber String?
   positivity  Float    @default(0) // -100 to +100
 
   createdAt DateTime @default(now())
@@ -196,117 +187,80 @@ model Belief {
   // Arguments attached TO this belief (parent)
   arguments Argument[] @relation("ParentBelief")
 
-  // Evidence attached to this belief
-  evidence Evidence[]
-
-  // Objective criteria for this belief
+  evidence          Evidence[]
   objectiveCriteria ObjectiveCriteria[]
-
-  // Values analysis
-  valuesAnalysis ValuesAnalysis?
-
-  // Interests analysis
+  valuesAnalysis    ValuesAnalysis?
   interestsAnalysis InterestsAnalysis?
-
-  // Assumptions
-  assumptions Assumption[]
-
-  // Cost-benefit analysis
+  assumptions       Assumption[]
   costBenefitAnalysis CostBenefitAnalysis?
+  impactAnalysis    ImpactAnalysis?
+  compromises       Compromise[]
+  obstacles         Obstacle[]
+  biases            BiasEntry[]
+  mediaResources    MediaResource[]
+  legalEntries      LegalEntry[]
 
-  // Short vs long term impacts
-  impactAnalysis ImpactAnalysis?
-
-  // Compromise solutions
-  compromises Compromise[]
-
-  // Obstacles to resolution
-  obstacles Obstacle[]
-
-  // Biases
-  biases BiasEntry[]
-
-  // Media resources
-  mediaResources MediaResource[]
-
-  // Legal framework
-  legalEntries LegalEntry[]
-
-  // Belief mapping (general to specific)
   upstreamMappings   BeliefMapping[] @relation("MappingChild")
   downstreamMappings BeliefMapping[] @relation("MappingParent")
 
-  // Similar beliefs
   similarTo      SimilarBelief[] @relation("SimilarFrom")
   similarFrom    SimilarBelief[] @relation("SimilarTo")
 }
 
-// Classification of the logical connection type between two beliefs
 enum LinkageClassification {
-  DEDUCTIVE_PROOF  // Score ~1.0: If premise true, conclusion must be true
-  STRONG_CAUSAL    // Score 0.7-0.9: Direct causal evidence
-  CONTEXTUAL       // Score 0.4-0.6: Helpful context but not decisive
-  ANECDOTAL        // Score 0.1-0.3: Tangential or minor example
-  IRRELEVANT       // Score 0.0: No bearing on the conclusion
-  NON_SEQUITUR     // Score 0.0: Flagged as logical disconnect
-  CONTRADICTION    // Score -1.0: Premise disproves conclusion
+  DEDUCTIVE_PROOF
+  STRONG_CAUSAL
+  CONTEXTUAL
+  ANECDOTAL
+  IRRELEVANT
+  NON_SEQUITUR
+  CONTRADICTION
 }
 
-// An argument linking one belief (reason) to another belief (conclusion)
-// Each reason is itself a belief with its own page
 model Argument {
   id Int @id @default(autoincrement())
 
   parentBeliefId Int
   parentBelief   Belief @relation("ParentBelief", fields: [parentBeliefId], references: [id])
 
-  // The reason (which is itself a belief with its own page)
   beliefId Int
   belief   Belief @relation("ArgumentBelief", fields: [beliefId], references: [id])
 
   side         String // "agree" or "disagree"
-  linkageScore Float  @default(0.1) // -1.0 to 1.0 (start low until community validates)
-  impactScore  Float  @default(0)   // computed
+  linkageScore Float  @default(0.1)
+  impactScore  Float  @default(0)
 
-  // Linkage classification from diagnostic wizard
   linkageType LinkageClassification @default(ANECDOTAL)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Linkage arguments - reasons to agree/disagree with the linkage itself
   linkageArguments LinkageArgument[]
-
-  // Community votes on the linkage strength (logic, not truth)
-  linkageVotes LinkageVote[]
+  linkageVotes     LinkageVote[]
 }
 
-// Arguments about whether a linkage between two beliefs is valid
 model LinkageArgument {
   id         Int      @id @default(autoincrement())
   argumentId Int
   argument   Argument @relation(fields: [argumentId], references: [id])
-  side       String   // "agree" or "disagree" with the linkage
+  side       String
   statement  String
   strength   Float    @default(0.5)
   createdAt  DateTime @default(now())
 }
 
-// Community vote on the logical relevance (linkage) of an argument
-// Users vote on the LOGIC, not the Truth
 model LinkageVote {
   id         Int      @id @default(autoincrement())
   argumentId Int
   argument   Argument @relation(fields: [argumentId], references: [id])
 
-  userId     String   // Reference to User
-  score      Float    // -1.0 to 1.0 (user's linkage assessment)
-  weight     Float    @default(1.0) // Based on user reputation in "Logic"
+  userId     String
+  score      Float
+  weight     Float    @default(1.0)
 
-  // Diagnostic answers that produced this score
-  direction    String?  // "support" or "oppose"
-  isRelevant   Boolean? // Blue Sky filter: does it force a change of mind?
-  strength     String?  // "proof", "strong", "context", "weak"
+  direction    String?
+  isRelevant   Boolean?
+  strength     String?
 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -315,7 +269,6 @@ model LinkageVote {
   @@index([argumentId])
 }
 
-// Evidence supporting or weakening a belief
 model Evidence {
   id       Int    @id @default(autoincrement())
   beliefId Int
@@ -324,22 +277,20 @@ model Evidence {
   side        String // "supporting" or "weakening"
   description String
   sourceUrl   String?
-  evidenceType String @default("T3") // T1=Peer-reviewed, T2=Expert, T3=Journalism, T4=Opinion
+  evidenceType String @default("T3")
 
-  // Evidence Verification Score components
-  sourceIndependenceWeight Float @default(0.5) // ESIW
-  replicationQuantity      Int   @default(1)   // ERQ
-  conclusionRelevance      Float @default(0.5) // ECRS
-  replicationPercentage    Float @default(1.0) // ERP
+  sourceIndependenceWeight Float @default(0.5)
+  replicationQuantity      Int   @default(1)
+  conclusionRelevance      Float @default(0.5)
+  replicationPercentage    Float @default(1.0)
 
   linkageScore Float @default(0.5)
-  impactScore  Float @default(0) // computed
+  impactScore  Float @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// Objective criteria for measuring belief strength
 model ObjectiveCriteria {
   id       Int    @id @default(autoincrement())
   beliefId Int
@@ -348,43 +299,40 @@ model ObjectiveCriteria {
   description      String
   independenceScore Float @default(0.5)
   linkageScore     Float @default(0.5)
-  criteriaType     String? // e.g. "market value", "scientific judgment", "precedent"
-  totalScore       Float  @default(0) // computed
+  criteriaType     String?
+  totalScore       Float  @default(0)
 
   createdAt DateTime @default(now())
 }
 
-// Core values conflict analysis
 model ValuesAnalysis {
   id       Int    @id @default(autoincrement())
   beliefId Int    @unique
   belief   Belief @relation(fields: [beliefId], references: [id])
 
-  supportingAdvertised String? // What supporters claim
-  supportingActual     String? // What actually motivates supporters
-  opposingAdvertised   String? // What opponents claim
-  opposingActual       String? // What actually motivates opponents
+  supportingAdvertised String?
+  supportingActual     String?
+  opposingAdvertised   String?
+  opposingActual       String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// Interests & motivations analysis
 model InterestsAnalysis {
   id       Int    @id @default(autoincrement())
   beliefId Int    @unique
   belief   Belief @relation(fields: [beliefId], references: [id])
 
-  supporterInterests   String? // Numbered list
-  opponentInterests    String? // Numbered list
-  sharedInterests      String? // Numbered list
-  conflictingInterests String? // Numbered list
+  supporterInterests   String?
+  opponentInterests    String?
+  sharedInterests      String?
+  conflictingInterests String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// Foundational assumptions
 model Assumption {
   id       Int    @id @default(autoincrement())
   beliefId Int
@@ -392,42 +340,39 @@ model Assumption {
 
   side       String // "accept" or "reject"
   statement  String
-  strength   String @default("MODERATE") // CRITICAL, STRONG, MODERATE, WEAK
+  strength   String @default("MODERATE")
 
   createdAt DateTime @default(now())
 }
 
-// Cost-benefit analysis
 model CostBenefitAnalysis {
   id       Int    @id @default(autoincrement())
   beliefId Int    @unique
   belief   Belief @relation(fields: [beliefId], references: [id])
 
-  benefits          String? // improvements, who gains, positive externalities
+  benefits          String?
   benefitLikelihood Float?
-  costs             String? // problems, who loses, negative externalities
+  costs             String?
   costLikelihood    Float?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// Short vs long-term impact analysis
 model ImpactAnalysis {
   id       Int    @id @default(autoincrement())
   beliefId Int    @unique
   belief   Belief @relation(fields: [beliefId], references: [id])
 
-  shortTermEffects    String? // 0-2 years
-  shortTermCosts      String? // transition costs
-  longTermEffects     String? // 5+ years
-  longTermChanges     String? // structural changes
+  shortTermEffects    String?
+  shortTermCosts      String?
+  longTermEffects     String?
+  longTermChanges     String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// Compromise solutions
 model Compromise {
   id       Int    @id @default(autoincrement())
   beliefId Int
@@ -437,7 +382,6 @@ model Compromise {
   createdAt   DateTime @default(now())
 }
 
-// Obstacles to resolution
 model Obstacle {
   id       Int    @id @default(autoincrement())
   beliefId Int
@@ -448,20 +392,18 @@ model Obstacle {
   createdAt   DateTime @default(now())
 }
 
-// Bias entries
 model BiasEntry {
   id       Int    @id @default(autoincrement())
   beliefId Int
   belief   Belief @relation(fields: [beliefId], references: [id])
 
-  side     String // "supporter" or "opponent"
-  biasType String // CONFIRMATION_BIAS, ANCHORING, etc.
+  side     String
+  biasType String
   description String?
 
   createdAt DateTime @default(now())
 }
 
-// Media resources
 model MediaResource {
   id       Int    @id @default(autoincrement())
   beliefId Int
@@ -476,7 +418,6 @@ model MediaResource {
   createdAt DateTime @default(now())
 }
 
-// Legal framework
 model LegalEntry {
   id       Int    @id @default(autoincrement())
   beliefId Int
@@ -484,12 +425,11 @@ model LegalEntry {
 
   side        String // "supporting" or "contradicting"
   description String
-  jurisdiction String? // "local", "state", "federal", "international"
+  jurisdiction String?
 
   createdAt DateTime @default(now())
 }
 
-// General to specific belief mapping
 model BeliefMapping {
   id       Int @id @default(autoincrement())
 
@@ -499,13 +439,12 @@ model BeliefMapping {
   childBeliefId Int
   childBelief   Belief @relation("MappingChild", fields: [childBeliefId], references: [id])
 
-  direction String // "upstream" (more general) or "downstream" (more specific)
+  direction String // "upstream" or "downstream"
   side      String // "support" or "oppose"
 
   createdAt DateTime @default(now())
 }
 
-// Similar beliefs
 model SimilarBelief {
   id Int @id @default(autoincrement())
 

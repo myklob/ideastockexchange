@@ -2,6 +2,6 @@
  * Legal Framework Components
  */
 
-export { default as AssumptionCard } from './AssumptionCard';
-export { default as DiagnosticSection } from './DiagnosticSection';
-export { default as EvidenceCard } from './EvidenceCard';
+export { AssumptionCard } from './AssumptionCard';
+export { DiagnosticSection } from './DiagnosticSection';
+export { EvidenceCard } from './EvidenceCard';
