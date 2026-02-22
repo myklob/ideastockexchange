@@ -21,9 +21,35 @@ function linkageLabel(type: string): string {
   }
 }
 
+function LinkageBadge({ arg }: { arg: ArgumentWithBelief }) {
+  const linkage = (arg.linkageScore * 100).toFixed(0)
+  const abs = Math.abs(arg.linkageScore)
+
+  let colorClass = 'bg-gray-100 text-gray-700 border-gray-300'
+  if (arg.linkageScore <= -0.5) colorClass = 'bg-red-100 text-red-800 border-red-400'
+  else if (abs < 0.05) colorClass = 'bg-red-50 text-red-500 border-red-200'
+  else if (abs < 0.35) colorClass = 'bg-orange-50 text-orange-700 border-orange-300'
+  else if (abs < 0.65) colorClass = 'bg-gray-50 text-gray-600 border-gray-300'
+  else if (abs < 0.95) colorClass = 'bg-blue-50 text-blue-800 border-blue-400'
+  else colorClass = 'bg-green-50 text-green-800 border-green-500'
+
+  return (
+    <Link
+      href={`/arguments/${arg.id}/linkage`}
+      title="Click to debate this linkage score"
+      className={`inline-flex items-center gap-1 text-xs font-mono px-2 py-0.5 rounded border ${colorClass} hover:opacity-80 transition-opacity`}
+    >
+      <span>{linkage}%</span>
+      <span className="text-[10px] text-[var(--muted-foreground)]">
+        ({linkageLabel(arg.linkageType)})
+      </span>
+      <span className="text-[10px] opacity-60" title="Click to debate this linkage">⚖</span>
+    </Link>
+  )
+}
+
 function ArgumentRow({ arg }: { arg: ArgumentWithBelief }) {
   const argScore = (arg.belief.positivity).toFixed(1)
-  const linkage = (arg.linkageScore * 100).toFixed(0)
   const impact = arg.impactScore.toFixed(1)
 
   return (
@@ -38,9 +64,7 @@ function ArgumentRow({ arg }: { arg: ArgumentWithBelief }) {
       </td>
       <td className="px-3 py-3 text-center text-sm font-mono">{argScore}</td>
       <td className="px-3 py-3 text-center">
-        <span className="text-xs font-medium bg-gray-100 px-2 py-0.5 rounded">
-          {linkage}% <span className="text-[var(--muted-foreground)]">({linkageLabel(arg.linkageType)})</span>
-        </span>
+        <LinkageBadge arg={arg} />
       </td>
       <td className="px-3 py-3 text-center text-sm font-bold font-mono">
         {arg.side === 'agree' ? '+' : '-'}{Math.abs(Number(impact))}

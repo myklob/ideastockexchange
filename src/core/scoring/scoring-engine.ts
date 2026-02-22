@@ -142,33 +142,53 @@ export function calculateEVS(input: {
  *
  * A LinkageDebate is a sub-claim ("Does Evidence A support Claim B?")
  * with its own pro/con argument trees. The LS is derived from the
- * ReasonRank of this sub-debate, using the same PageRank-style scoring
- * as any other belief.
+ * community debate using the canonical ISE formula:
  *
- * This replaces the old static formula:
- *   LS_old = (DR × 0.40) + (CS × 0.30) + (NC × 0.20) + (SC × 0.10)
+ *   LS = (A − D) / (A + D)
  *
- * New logic:
- *   LS = ReasonRank of the claim "Evidence A supports Claim B"
- *   LS = ProRank / (ProRank + ConRank), or 0.5 if no arguments.
+ * Where A = total adjusted weight of arguments supporting the linkage,
+ *       D = total adjusted weight of arguments opposing it.
+ *
+ * This gives a score in [-1, 1]:
+ *   +1.0  → all arguments fully support the link (deductive proof)
+ *    0.0  → equal support and opposition (argument contributes nothing)
+ *   -1.0  → all arguments oppose the link (active contradiction)
+ *
+ * When no arguments exist the score defaults to 0.0 (neutral / no
+ * contribution), not 0.5, so unscored links don't pollute parent totals.
  */
 export function scoreLinkageDebate(debate: LinkageDebate): number {
   if (debate.proArguments.length === 0 && debate.conArguments.length === 0) {
-    return 0.5 // No arguments = neutral default
+    return 0.0 // No arguments = no contribution (neutral, not assumed relevant)
   }
 
   // Score pro and con arguments using the same recursive ReasonRank
   const proBreakdowns = debate.proArguments.map(scoreArgument)
   const conBreakdowns = debate.conArguments.map(scoreArgument)
 
-  const proRank = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
-  const conRank = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+  const A = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+  const D = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
 
-  const totalRank = proRank + conRank
-  if (totalRank === 0) return 0.5
+  const total = A + D
+  if (total === 0) return 0.0
 
-  // PageRank probability interpretation: pro / (pro + con)
-  return Math.max(0.01, Math.min(0.99, proRank / totalRank))
+  // ISE canonical formula: (A − D) / (A + D) → [-1, 1]
+  return Math.max(-1, Math.min(1, (A - D) / total))
+}
+
+/**
+ * Apply depth attenuation to a linkage score.
+ *
+ * As described in the Linkage Scores documentation, each level deeper
+ * an argument is in the belief tree, its contribution is halved:
+ *   attenuated = score × 0.5^depth
+ *
+ * Level 0 (direct argument) → full weight (×1.0)
+ * Level 1                   → half weight (×0.5)
+ * Level 2                   → quarter weight (×0.25)
+ */
+export function applyDepthAttenuation(score: number, depth: number): number {
+  return score * Math.pow(0.5, depth)
 }
 
 /**
@@ -214,28 +234,32 @@ export function generateLinkageSubClaim(
 }
 
 /**
- * Calculate linkage score from simple linkage arguments (legacy support).
- * Maintained for backward compatibility with existing data.
+ * Calculate linkage score from simple linkage arguments.
  *
- * ECLS = SUM(agree strengths) / SUM(all strengths)
- * Returns 0.5 if no linkage arguments exist (neutral).
+ * Uses the canonical ISE formula: (A − D) / (A + D) → [-1, 1]
+ * where A = sum of agree-side strengths, D = sum of disagree-side strengths.
+ *
+ * Returns 0.0 (no contribution) when no arguments exist, rather than 0.5,
+ * so unscored links don't silently boost parent belief scores.
  */
 export function calculateLinkageFromArguments(
   linkageArguments: { side: string; strength: number }[]
 ): number {
-  if (linkageArguments.length === 0) return 0.5
+  if (linkageArguments.length === 0) return 0.0
 
-  let agreeSum = 0
-  let totalSum = 0
+  let A = 0  // agree (supporting the link)
+  let D = 0  // disagree (opposing the link)
 
   for (const arg of linkageArguments) {
-    totalSum += arg.strength
     if (arg.side === 'agree') {
-      agreeSum += arg.strength
+      A += arg.strength
+    } else {
+      D += arg.strength
     }
   }
 
-  return totalSum === 0 ? 0.5 : agreeSum / totalSum
+  const total = A + D
+  return total === 0 ? 0.0 : Math.max(-1, Math.min(1, (A - D) / total))
 }
 
 // ─── Linkage Diagnostic Scoring ─────────────────────────────────

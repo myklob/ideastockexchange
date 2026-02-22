@@ -35,6 +35,10 @@ export interface ArgumentWithBelief {
   linkageScore: number
   impactScore: number
   linkageType: string
+  /** ECLS = Evidence-to-Conclusion, ACLS = Argument-to-Conclusion */
+  linkageScoreType: string
+  /** Depth in the belief tree (0 = direct child). Used for depth attenuation. */
+  depth: number
   belief: {
     id: number
     slug: string
