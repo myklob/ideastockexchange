@@ -20,3 +20,6 @@ export {
   calculateExpectedValue,
   recalculateCBA,
 } from './cba-scoring';
+
+// Duplication scoring — solves the Redundancy Problem
+export * from './duplication-scoring';
