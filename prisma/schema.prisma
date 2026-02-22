@@ -219,6 +219,14 @@ enum LinkageClassification {
   CONTRADICTION
 }
 
+/// Distinguishes the two sub-types of linkage edge.
+/// ECLS: Evidence-to-Conclusion Linkage Score (raw data → belief).
+/// ACLS: Argument-to-Conclusion Linkage Score (belief → parent belief).
+enum LinkageScoreType {
+  ECLS
+  ACLS
+}
+
 model Argument {
   id Int @id @default(autoincrement())
 
@@ -232,7 +240,12 @@ model Argument {
   linkageScore Float  @default(0.1)
   impactScore  Float  @default(0)
 
-  linkageType LinkageClassification @default(ANECDOTAL)
+  linkageType      LinkageClassification @default(ANECDOTAL)
+  /// Whether this edge is Evidence-to-Conclusion (ECLS) or Argument-to-Conclusion (ACLS).
+  linkageScoreType LinkageScoreType      @default(ACLS)
+  /// Depth of this argument in the belief tree (0 = direct child of root belief).
+  /// Used for depth attenuation: effective weight = base_weight × 0.5^depth
+  depth            Int                   @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -286,8 +299,10 @@ model Evidence {
   conclusionRelevance      Float @default(0.5)
   replicationPercentage    Float @default(1.0)
 
-  linkageScore Float @default(0.5)
-  impactScore  Float @default(0)
+  /// Evidence linkage is always ECLS (Evidence-to-Conclusion).
+  linkageScoreType LinkageScoreType @default(ECLS)
+  linkageScore     Float            @default(0.5)
+  impactScore      Float            @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

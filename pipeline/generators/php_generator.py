@@ -122,6 +122,10 @@ class BeliefNode {
     public string $evidenceType;
     public float $reasonRank;
     public float $propagatedScore;
+    /** @var string 'ECLS' (evidence→conclusion) or 'ACLS' (argument→conclusion) */
+    public string $linkageScoreType;
+    /** @var int Depth in the belief tree. Used for 0.5^depth attenuation. */
+    public int $depth;
 
     /**
      * Fetch a single belief node by ID.
@@ -202,7 +206,8 @@ class BeliefNode {
             "UPDATE belief_nodes SET "
             . "truth_score = :truth, linkage_score = :linkage, "
             . "importance_score = :importance, uniqueness_score = :uniqueness, "
-            . "reason_rank = :rank, propagated_score = :propagated "
+            . "reason_rank = :rank, propagated_score = :propagated, "
+            . "linkage_score_type = :lst, depth = :depth "
             . "WHERE id = :id"
         );
         $stmt->execute([
@@ -212,6 +217,8 @@ class BeliefNode {
             'uniqueness' => $this->uniquenessScore,
             'rank' => $this->reasonRank,
             'propagated' => $this->propagatedScore,
+            'lst' => $this->linkageScoreType,
+            'depth' => $this->depth,
             'id' => $this->id,
         ]);
     }
@@ -225,10 +232,11 @@ class BeliefNode {
             "INSERT INTO belief_nodes "
             . "(id, statement, category, subcategory, parent_id, side, "
             . "truth_score, linkage_score, importance_score, uniqueness_score, "
-            . "source_url, evidence_type, reason_rank, propagated_score) "
+            . "source_url, evidence_type, reason_rank, propagated_score, "
+            . "linkage_score_type, depth) "
             . "VALUES (:id, :stmt, :cat, :subcat, :parent, :side, "
             . ":truth, :linkage, :importance, :uniqueness, "
-            . ":url, :etype, :rank, :propagated)"
+            . ":url, :etype, :rank, :propagated, :lst, :depth)"
         );
         $stmt->execute([
             'id' => $this->id,
@@ -245,6 +253,8 @@ class BeliefNode {
             'etype' => $this->evidenceType,
             'rank' => $this->reasonRank,
             'propagated' => $this->propagatedScore,
+            'lst' => $this->linkageScoreType,
+            'depth' => $this->depth,
         ]);
 
         // Also insert linkage relation if parent exists
@@ -281,7 +291,33 @@ class BeliefNode {
         $node->evidenceType = $row['evidence_type'] ?? 'T3';
         $node->reasonRank = (float)($row['reason_rank'] ?? 0);
         $node->propagatedScore = (float)($row['propagated_score'] ?? 0);
+        $node->linkageScoreType = $row['linkage_score_type'] ?? 'ACLS';
+        $node->depth = (int)($row['depth'] ?? 0);
         return $node;
+    }
+
+    /**
+     * Compute depth-attenuated linkage score.
+     *
+     * Per the ISE Linkage Scores spec, each level deeper an argument is
+     * in the belief tree, its contribution is halved:
+     *   attenuated = linkageScore × 0.5^depth
+     *
+     * Level 0 (direct argument): ×1.0
+     * Level 1:                   ×0.5
+     * Level 2:                   ×0.25
+     */
+    public function attenuatedLinkageScore(): float {
+        return $this->linkageScore * (0.5 ** $this->depth);
+    }
+
+    /**
+     * Return a human-readable label for the linkage score type.
+     */
+    public function linkageTypeLabel(): string {
+        return $this->linkageScoreType === 'ECLS'
+            ? 'ECLS (Evidence→Conclusion)'
+            : 'ACLS (Argument→Conclusion)';
     }
 }
 """
@@ -531,12 +567,26 @@ class ArgumentTree {
         $html .= "{$indent}  <div class=\\"score-breakdown\\">\\n";
         $html .= "{$indent}    <span class=\\"metric\\">T:"
                  . number_format($node->truthScore, 2) . "</span>\\n";
-        $html .= "{$indent}    <span class=\\"metric\\">L:"
-                 . number_format($node->linkageScore, 2) . "</span>\\n";
+        $html .= "{$indent}    <span class=\\"metric linkage-score\\" "
+                 . "title=\\"" . htmlspecialchars($node->linkageTypeLabel()) . " | "
+                 . "Attenuated (×0.5^{$node->depth}): "
+                 . number_format($node->attenuatedLinkageScore(), 3)
+                 . "\\">L:"
+                 . number_format($node->linkageScore, 2)
+                 . " <sup class=\\"linkage-type\\">" . htmlspecialchars($node->linkageScoreType) . "</sup>"
+                 . "</span>\\n";
         $html .= "{$indent}    <span class=\\"metric\\">I:"
                  . number_format($node->importanceScore, 2) . "</span>\\n";
         $html .= "{$indent}    <span class=\\"metric\\">U:"
                  . number_format($node->uniquenessScore, 2) . "</span>\\n";
+        if ($node->depth > 0) {
+            $attenuation = 0.5 ** $node->depth;
+            $html .= "{$indent}    <span class=\\"metric depth-badge\\" "
+                     . "title=\\"Depth attenuation: linkage × 0.5^{$node->depth} = "
+                     . number_format($attenuation, 3) . "\\">D{$node->depth} ×"
+                     . number_format($attenuation, 2)
+                     . "</span>\\n";
+        }
         $html .= "{$indent}  </div>\\n";
 
         // Pro/Con table (the ISE two-column format)
@@ -697,6 +747,21 @@ if ($beliefId === null) {
       font-family: monospace;
     }
 
+    .linkage-score { cursor: help; }
+
+    .linkage-type {
+      font-size: 0.65em;
+      vertical-align: super;
+      color: #555;
+      font-style: normal;
+    }
+
+    .depth-badge {
+      background: #e8eaf6;
+      color: #3949ab;
+      font-size: 0.8em;
+    }
+
     .pro-con-table {
       width: 100%;
       border-collapse: collapse;
@@ -846,6 +911,10 @@ try {
             $node->side = $input['side'] ?? 'supporting';
             $node->truthScore = (float)($input['truth_score'] ?? 0.5);
             $node->linkageScore = (float)($input['linkage_score'] ?? 0.5);
+            $node->linkageScoreType = in_array($input['linkage_score_type'] ?? '', ['ECLS', 'ACLS'])
+                ? $input['linkage_score_type']
+                : ($node->parentId === null ? 'ECLS' : 'ACLS');
+            $node->depth = (int)($input['depth'] ?? 0);
             $node->importanceScore = (float)($input['importance_score'] ?? 0.5);
             $node->uniquenessScore = (float)($input['uniqueness_score'] ?? 1.0);
             $node->sourceUrl = $input['source_url'] ?? '';
@@ -915,6 +984,9 @@ function nodeToArray(BeliefNode $node): array {
         'side' => $node->side,
         'truth_score' => $node->truthScore,
         'linkage_score' => $node->linkageScore,
+        'linkage_score_type' => $node->linkageScoreType,
+        'attenuated_linkage_score' => $node->attenuatedLinkageScore(),
+        'depth' => $node->depth,
         'importance_score' => $node->importanceScore,
         'uniqueness_score' => $node->uniquenessScore,
         'reason_rank' => $node->reasonRank,
