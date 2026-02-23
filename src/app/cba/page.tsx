@@ -51,6 +51,14 @@ export default function CBAListPage() {
           <div className="text-xs text-[var(--muted-foreground)] mt-1">
             Impacts don&apos;t count unless their probabilities survive attack.
           </div>
+          <div className="mt-3">
+            <Link
+              href="/cba/about"
+              className="text-xs text-[var(--accent)] hover:underline"
+            >
+              How Automated Cost-Benefit Analysis works &rarr;
+            </Link>
+          </div>
         </div>
 
         {/* CBA Cards */}
