@@ -178,6 +178,12 @@ model Belief {
   deweyNumber String?
   positivity  Float    @default(0) // -100 to +100
 
+  /// Confidence Stability Score (0-1): how settled the overall belief score is under scrutiny.
+  /// A belief that has been stable across many arguments scores near 1.0.
+  /// A belief that shifts with each new argument scores near 0.0.
+  /// Computed from argument count, score balance, and pro/con ratio consistency.
+  stabilityScore Float @default(0.5)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -240,6 +246,11 @@ model Argument {
   linkageScore Float  @default(0.1)
   impactScore  Float  @default(0)
 
+  /// Importance Score (0-1): how much this argument moves the probability needle.
+  /// 1.0 = decisive, 0.5 = moderate, 0.1 = minor. Weights the argument's contribution
+  /// to the parent belief's ReasonRank. Analogous to PageRank's link weight.
+  importanceScore Float @default(1.0)
+
   linkageType      LinkageClassification @default(ANECDOTAL)
   /// Whether this edge is Evidence-to-Conclusion (ECLS) or Argument-to-Conclusion (ACLS).
   linkageScoreType LinkageScoreType      @default(ACLS)
@@ -298,6 +309,11 @@ model Evidence {
   replicationQuantity      Int   @default(1)
   conclusionRelevance      Float @default(0.5)
   replicationPercentage    Float @default(1.0)
+
+  /// Evidence Verification Score (EVS): computed from EVS = ESIW × log2(ERQ+1) × ECRS × ERP.
+  /// Represents the overall epistemic weight of this evidence item.
+  /// T1 (peer-reviewed) sources start higher than T4 (opinion/anecdote).
+  evsScore Float @default(0.0)
 
   /// Evidence linkage is always ECLS (Evidence-to-Conclusion).
   linkageScoreType LinkageScoreType @default(ECLS)
@@ -432,6 +448,25 @@ model MediaResource {
   author     String?
   url        String?
 
+  /// Media Truth Score (0-1): flags editorializing, sensationalism, or misleading framing.
+  /// Even when underlying facts are technically accurate, genre context matters for reliability.
+  /// Derived from genreType and reliabilityTier. High = factual/neutral, Low = opinion/advocacy.
+  truthScore Float @default(0.5)
+
+  /// Media Genre Score (0-1): reliability weight based on the source's genre classification.
+  /// Genre 1 (peer-reviewed/official) = 1.0, Genre 4 (opinion/anecdote) = 0.25.
+  /// Mirrors the Evidence tier system but applied to media sources.
+  genreScore Float @default(0.5)
+
+  /// Genre classification: "peer_reviewed" | "institutional" | "investigative" |
+  /// "news_report" | "editorial" | "opinion" | "social_media" | "unknown"
+  genreType String @default("unknown")
+
+  /// Reliability tier matching Evidence tiers: "T1" | "T2" | "T3" | "T4"
+  /// T1 = peer-reviewed/official, T2 = expert/institutional,
+  /// T3 = journalism/surveys, T4 = opinion/anecdote
+  reliabilityTier String @default("T3")
+
   createdAt DateTime @default(now())
 }
 
@@ -472,6 +507,12 @@ model SimilarBelief {
   toBelief   Belief @relation("SimilarTo", fields: [toBeliefId], references: [id])
 
   variant String // "extreme" or "moderate"
+
+  /// Belief Equivalency Score (0-1): how much these two beliefs are making the
+  /// same underlying claim despite different wording. 1.0 = identical claims,
+  /// 0.0 = unrelated. Used to link parallel debates and surface the better-argued
+  /// version rather than running redundant parallel discussions.
+  equivalencyScore Float @default(0.0)
 
   createdAt DateTime @default(now())
 }
