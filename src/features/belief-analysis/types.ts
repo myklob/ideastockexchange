@@ -9,6 +9,8 @@ export interface BeliefWithRelations {
   subcategory: string | null
   deweyNumber: string | null
   positivity: number
+  /** Confidence Stability Score (0-1): how settled this belief's score is under scrutiny. */
+  stabilityScore: number
 
   arguments: ArgumentWithBelief[]
   evidence: EvidenceItem[]
@@ -34,6 +36,8 @@ export interface ArgumentWithBelief {
   side: string
   linkageScore: number
   impactScore: number
+  /** Importance Score (0-1): how much this argument moves the probability needle. */
+  importanceScore: number
   linkageType: string
   /** ECLS = Evidence-to-Conclusion, ACLS = Argument-to-Conclusion */
   linkageScoreType: string
@@ -57,6 +61,8 @@ export interface EvidenceItem {
   replicationQuantity: number
   conclusionRelevance: number
   replicationPercentage: number
+  /** Evidence Verification Score (EVS): computed quality weight for this evidence item. */
+  evsScore: number
   linkageScore: number
   impactScore: number
 }
@@ -130,6 +136,14 @@ export interface MediaItem {
   title: string
   author: string | null
   url: string | null
+  /** Media Truth Score (0-1): flags editorializing, sensationalism, or misleading framing. */
+  truthScore: number
+  /** Media Genre Score (0-1): reliability weight based on source genre classification. */
+  genreScore: number
+  /** Genre classification (e.g., peer_reviewed, news_report, opinion). */
+  genreType: string
+  /** Reliability tier matching Evidence tiers: T1–T4. */
+  reliabilityTier: string
 }
 
 export interface LegalItem {
@@ -150,15 +164,72 @@ export interface MappingItem {
 export interface SimilarBeliefItem {
   id: number
   variant: string
+  /** Belief Equivalency Score (0-1): how much these beliefs make the same underlying claim. */
+  equivalencyScore: number
   fromBelief: { id: number; slug: string; statement: string }
   toBelief: { id: number; slug: string; statement: string }
 }
 
-// Computed scores for a belief
+// Computed scores for a belief — all 11 ReasonRank score dimensions
 export interface BeliefScores {
+  // ── Raw totals (unchanged from original) ───────────────────────────────
   totalPro: number
   totalCon: number
   totalSupportingEvidence: number
   totalWeakeningEvidence: number
+
+  // ── 1. Truth Score (-100 to +100, same scale as positivity) ────────────
   overallScore: number
+  /**
+   * Logical Validity Score (0-1): structural soundness of the argument tree.
+   * Reduced by detected fallacies and unsupported logical leaps.
+   */
+  logicalValidityScore: number
+  /**
+   * Verification Truth Score (0-1): empirical accuracy of the underlying facts.
+   * Computed from EVS-weighted evidence quality and source independence.
+   */
+  verificationTruthScore: number
+
+  // ── 2. Linkage Score ────────────────────────────────────────────────────
+  /** Average linkage score across all arguments (0-1). */
+  avgLinkageScore: number
+
+  // ── 3. Importance Score ─────────────────────────────────────────────────
+  /** Importance-weighted truth score (0-1): pro / (pro + con) after importance weighting. */
+  importanceWeightedScore: number
+
+  // ── 4. Evidence Score (EVS) ─────────────────────────────────────────────
+  /** Aggregate Evidence Verification Score (0-1): supporting / (supporting + weakening) EVS. */
+  aggregateEvidenceScore: number
+
+  // ── 5. Cost/Benefit Likelihood Score ────────────────────────────────────
+  /** Net CBA likelihood (0-1): how likely net benefits exceed net costs. Null if no CBA. */
+  cbaLikelihoodScore: number | null
+
+  // ── 6. Objective Criteria Score ─────────────────────────────────────────
+  /** Aggregated objective criteria quality (0-1): independence × linkage, weighted. */
+  objectiveCriteriaScore: number
+
+  // ── 7. Confidence Stability Score ───────────────────────────────────────
+  /** How settled the overall score is under sustained scrutiny (0-1). */
+  stabilityScore: number
+  /** Stability status: 'robust' | 'established' | 'developing' | 'fragile' */
+  stabilityStatus: string
+
+  // ── 8. Media Truth Score ────────────────────────────────────────────────
+  /** Average media truth score across all linked resources (0-1). */
+  mediaTruthScore: number
+
+  // ── 9. Media Genre and Style Score ──────────────────────────────────────
+  /** Average media genre reliability weight across all linked resources (0-1). */
+  mediaGenreScore: number
+
+  // ── 10. Topic Overlap Score ─────────────────────────────────────────────
+  /** Average argument uniqueness (0-1). 1.0 = all arguments make distinct points. */
+  topicOverlapScore: number
+
+  // ── 11. Belief Equivalency Score ────────────────────────────────────────
+  /** Max equivalency score with any similar belief (0-1). Null if no similar beliefs. */
+  beliefEquivalencyScore: number | null
 }
