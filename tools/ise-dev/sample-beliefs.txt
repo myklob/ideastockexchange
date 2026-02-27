@@ -1,0 +1,14 @@
+# Sample belief list for ise-dev analyze
+# Lines beginning with # are ignored.
+
+We should ban assault weapons.
+We should prohibit military-style rifles.
+We need to restrict access to high-capacity firearms.
+The minimum wage should be raised to $15 per hour.
+We should increase the federal minimum wage.
+The capital gains tax rate should be lowered.
+We should abolish the estate tax.
+Universal healthcare should be implemented.
+The government should provide healthcare for all citizens.
+Climate change requires immediate government action.
+Carbon emissions should be taxed to reduce climate change.

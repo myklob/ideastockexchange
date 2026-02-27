@@ -1,0 +1,26 @@
+{
+  "name": "ise-dev",
+  "version": "1.0.0",
+  "description": "CLI development toolkit for the Idea Stock Exchange — test belief equivalency scores, seed the database, and manage development workflows.",
+  "bin": {
+    "ise-dev": "./dist/cli.js"
+  },
+  "main": "./dist/cli.js",
+  "scripts": {
+    "build": "node build.js",
+    "start": "node dist/cli.js",
+    "dev": "node src/cli.js"
+  },
+  "keywords": [
+    "idea-stock-exchange",
+    "belief-equivalency",
+    "reasonrank",
+    "cli",
+    "dev-tools"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}
