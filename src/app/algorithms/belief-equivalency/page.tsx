@@ -281,15 +281,13 @@ export default function BeliefEquivalencyPage() {
         </li>
         <li>
           <strong>Same argument at different strengths</strong> —{' '}
-          <Link href="/algorithms/topic-overlap" className="text-blue-700 hover:underline">
+          <Link href="/algorithms/strong-to-weak" className="text-blue-700 hover:underline">
             strong-to-weak spectrum
           </Link>
         </li>
         <li>
           <strong>Same topic with opposite conclusions</strong> —{' '}
-          <Link href="/algorithms/topic-overlap" className="text-blue-700 hover:underline">
-            positive-to-negative spectrum
-          </Link>
+          positive-to-negative spectrum
         </li>
       </ul>
 
@@ -325,7 +323,13 @@ export default function BeliefEquivalencyPage() {
             <Link href="/algorithms/reason-rank" className="text-blue-700 hover:underline">
               ReasonRank Algorithm
             </Link>{' '}
-            — the full 11-dimension scoring system
+            — the full 12-dimension scoring system
+          </li>
+          <li>
+            <Link href="/algorithms/strong-to-weak" className="text-blue-700 hover:underline">
+              Strong-to-Weak Spectrum
+            </Link>{' '}
+            — the second coordinate axis: how much is being claimed, not just which side
           </li>
           <li>
             <Link href="/beliefs" className="text-blue-700 hover:underline">

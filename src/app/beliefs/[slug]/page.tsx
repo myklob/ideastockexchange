@@ -17,6 +17,7 @@ import LegalSection from '@/features/belief-analysis/components/LegalSection'
 import BeliefMappingSection from '@/features/belief-analysis/components/BeliefMappingSection'
 import SimilarBeliefsSection from '@/features/belief-analysis/components/SimilarBeliefsSection'
 import ContributeSection from '@/features/belief-analysis/components/ContributeSection'
+import StrengthSpectrumBar, { TwoAxisCoordinate } from '@/components/StrengthSpectrumBar'
 
 interface BeliefPageProps {
   params: Promise<{ slug: string }>
@@ -77,6 +78,26 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
               </Link>{' '}
               Towards Topic: <strong>{belief.positivity >= 0 ? '+' : ''}{belief.positivity.toFixed(0)}%</strong>
             </p>
+            <div className="mt-2">
+              <p className="text-sm mb-1">
+                <Link href="/algorithms/strong-to-weak" className="text-[var(--accent)] hover:underline">
+                  Claim Strength
+                </Link>{' '}
+                on the Strong-to-Weak Spectrum:
+              </p>
+              <StrengthSpectrumBar
+                claimStrength={belief.claimStrength}
+                rawScore={scores.importanceWeightedScore}
+                showAdjusted={true}
+                showDetails={true}
+              />
+            </div>
+            <div className="mt-2">
+              <TwoAxisCoordinate
+                positivity={belief.positivity}
+                claimStrength={belief.claimStrength}
+              />
+            </div>
             <p className="text-xs text-[var(--muted-foreground)] mt-2">
               Each section builds a complete analysis from multiple angles.{' '}
               <a
@@ -185,7 +206,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
           <ContributeSection />
 
           {/* Overall Score */}
-          <div className="text-right">
+          <div className="text-right space-y-1">
             <p className="text-lg font-bold">
               Score:{' '}
               <Link
@@ -197,6 +218,22 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
               {' '}
               <span className="text-sm font-normal text-[var(--muted-foreground)]">
                 (based on argument scores)
+              </span>
+            </p>
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Strength-adjusted score:{' '}
+              <Link
+                href="/algorithms/strong-to-weak"
+                className="font-semibold text-[var(--accent)] hover:underline"
+              >
+                {(scores.strengthAdjustedScore * 100).toFixed(1)}%
+              </Link>
+              {' '}
+              <span className="text-xs">
+                (applies {Math.round((1 - 0.75 * belief.claimStrength) * 100)}% burden-of-proof factor for{' '}
+                {belief.claimStrength <= 0.3 ? 'Weak' :
+                 belief.claimStrength <= 0.65 ? 'Moderate' :
+                 belief.claimStrength <= 0.9 ? 'Strong' : 'Extreme'} claim)
               </span>
             </p>
           </div>
