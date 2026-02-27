@@ -517,6 +517,7 @@ export default function Home() {
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Interests</a></li>
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS)" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Evidence</a></li>
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Assumptions</a></li>
+                <li><Link href="/algorithms/strong-to-weak" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Strong-to-Weak Spectrum</Link></li>
               </ul>
             </div>
           </div>

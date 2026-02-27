@@ -184,6 +184,16 @@ model Belief {
   /// Computed from argument count, score balance, and pro/con ratio consistency.
   stabilityScore Float @default(0.5)
 
+  /// Claim Strength (0-1): how much this belief asserts, and therefore how much
+  /// evidence it requires to be defensible. Maps to four bands:
+  ///   0.2 = Weak      — modest support suffices (e.g. "policy X could be improved")
+  ///   0.5 = Moderate  — specific data required (e.g. "policy X has documented failures")
+  ///   0.8 = Strong    — comprehensive evidence required (e.g. "policy X causes serious net harm")
+  ///   1.0 = Extreme   — near-total evidence dominance required (e.g. "policy X must be abolished")
+  /// A weak claim can achieve a high score with modest evidence.
+  /// An extreme claim must earn its score through extraordinary evidence — or it scores near zero.
+  claimStrength Float @default(0.5)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

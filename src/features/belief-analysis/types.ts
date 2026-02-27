@@ -11,6 +11,13 @@ export interface BeliefWithRelations {
   positivity: number
   /** Confidence Stability Score (0-1): how settled this belief's score is under scrutiny. */
   stabilityScore: number
+  /**
+   * Claim Strength (0-1): how much this belief asserts, and therefore how much evidence
+   * it requires to be defensible. Four bands: Weak (0.2) / Moderate (0.5) / Strong (0.8) / Extreme (1.0).
+   * A weak claim can achieve a high score with modest evidence. An extreme claim must earn its
+   * score through extraordinary evidence — or it scores near zero. See /algorithms/strong-to-weak.
+   */
+  claimStrength: number
 
   arguments: ArgumentWithBelief[]
   evidence: EvidenceItem[]
@@ -232,4 +239,18 @@ export interface BeliefScores {
   // ── 11. Belief Equivalency Score ────────────────────────────────────────
   /** Max equivalency score with any similar belief (0-1). Null if no similar beliefs. */
   beliefEquivalencyScore: number | null
+
+  // ── 12. Claim Strength / Strong-to-Weak Spectrum ─────────────────────────
+  /**
+   * The raw claim strength value (0–1) from the belief's own claimStrength field.
+   * Weak (0.2) / Moderate (0.5) / Strong (0.8) / Extreme (1.0).
+   */
+  claimStrength: number
+  /**
+   * Strength-adjusted ReasonRank score (0–1): the overall score after applying the
+   * burden-of-proof scaler. Formula: rawScore × (1.0 − 0.75 × claimStrength).
+   * A weak claim with good evidence scores 0.75–0.95. An extreme claim with the
+   * same evidence scores only 0.00–0.25. See /algorithms/strong-to-weak.
+   */
+  strengthAdjustedScore: number
 }

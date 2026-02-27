@@ -9,6 +9,7 @@ import {
   calculateTopicOverlapScore,
 } from '@/core/scoring/all-scores'
 import { calculateEVS, getEvidenceTypeWeight } from '@/core/scoring/scoring-engine'
+import { applyStrengthPenalty } from '@/core/scoring/claim-strength'
 
 /** Shared include clause for all belief queries — includes all score-related fields. */
 const BELIEF_INCLUDE = {
@@ -93,7 +94,7 @@ export async function fetchAllBeliefs() {
   })
 }
 
-/** Compute all 11 ReasonRank scores for a belief */
+/** Compute all 12 ReasonRank scores for a belief */
 export function computeBeliefScores(belief: BeliefWithRelations): BeliefScores {
   const proArgs = belief.arguments.filter(a => a.side === 'agree')
   const conArgs = belief.arguments.filter(a => a.side === 'disagree')
@@ -213,6 +214,13 @@ export function computeBeliefScores(belief: BeliefWithRelations): BeliefScores {
     ? Math.max(...allSimilarScores)
     : null
 
+  // ── 12. Claim Strength / Strong-to-Weak Spectrum ─────────────────────────
+  // The raw 0–1 score we use as "rawScore" is the argument-weighted truth score
+  // (importanceWeightedScore), since it represents the best available evidence
+  // quality independent of claim strength.
+  const claimStrength = belief.claimStrength ?? 0.5
+  const strengthAdjustedScore = applyStrengthPenalty(importanceWeightedScore, claimStrength)
+
   return {
     totalPro,
     totalCon,
@@ -232,5 +240,7 @@ export function computeBeliefScores(belief: BeliefWithRelations): BeliefScores {
     mediaGenreScore: mediaAgg.avgGenreScore,
     topicOverlapScore,
     beliefEquivalencyScore,
+    claimStrength,
+    strengthAdjustedScore,
   }
 }

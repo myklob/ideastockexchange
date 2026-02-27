@@ -11,6 +11,7 @@
  */
 
 import type { ProductReviewWithRelations, ProductReviewScores, CategoryRanking, CategoryProduct } from '@/features/product-reviews/types'
+import { applyStrengthPenalty } from '@/core/scoring/claim-strength'
 
 // Evidence tier weights (higher tier = higher quality = higher weight)
 const TIER_WEIGHTS: Record<number, number> = {
@@ -92,12 +93,33 @@ export function scoreProductReview(review: ProductReviewWithRelations): ProductR
   // Scale to [-100, +100] for display consistency with belief scores
   const scaledScore = (overallScore - 0.5) * 200
 
+  // Claim strength defaults: use linked belief's value or 0.5 if no belief
+  const claimStrength = review.belief?.claimStrength ?? 0.5
+  const strengthAdjustedScore = applyStrengthPenalty(beliefTruthScore, claimStrength)
+
   return {
     totalPro,
     totalCon,
     totalSupportingEvidence,
     totalWeakeningEvidence,
     overallScore: scaledScore,
+    // BeliefScores fields not computed in product review context — use defaults
+    logicalValidityScore: beliefTruthScore,
+    verificationTruthScore: beliefTruthScore,
+    avgLinkageScore: 0.5,
+    importanceWeightedScore: beliefTruthScore,
+    aggregateEvidenceScore: avgTierWeight,
+    cbaLikelihoodScore: null,
+    objectiveCriteriaScore: 0.5,
+    stabilityScore: 0.5,
+    stabilityStatus: 'developing',
+    mediaTruthScore: 0.5,
+    mediaGenreScore: 0.5,
+    topicOverlapScore: 1.0,
+    beliefEquivalencyScore: null,
+    claimStrength,
+    strengthAdjustedScore,
+    // Product-specific fields
     categoryRank: review.categoryRank,
     totalInCategory: 0, // computed during ranking
     avgEvidenceTier,
