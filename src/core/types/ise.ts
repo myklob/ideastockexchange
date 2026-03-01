@@ -2,6 +2,21 @@
 
 export type AbstractionLevel = 'most_general' | 'general' | 'specific' | 'most_specific';
 
+export type QualityLevel = 'High' | 'Med' | 'Low';
+
+export interface TopicObjectiveCriterion {
+  id: string;
+  topicId: string;
+  name: string;
+  description: string;
+  criteriaScore: number; // 0-100
+  validity: QualityLevel;
+  reliability: QualityLevel;
+  linkage: QualityLevel;
+  importance: QualityLevel;
+  url?: string;
+}
+
 export type IntensityLevel = 'modest' | 'moderate' | 'strong' | 'extreme';
 
 export type ValenceType = 'strongly_negative' | 'moderately_negative' | 'neutral' | 'moderately_positive' | 'strongly_positive';
@@ -36,6 +51,7 @@ export interface Topic {
   title: string;
   description: string;
   beliefs: Belief[];
+  objectiveCriteria?: TopicObjectiveCriterion[];
   parentTopics?: string[];
   relatedTopics?: string[];
   createdAt: Date;
