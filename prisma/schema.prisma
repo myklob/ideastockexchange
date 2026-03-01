@@ -533,6 +533,199 @@ model SimilarBelief {
   createdAt DateTime @default(now())
 }
 
+// ─── Debate Topic Models ─────────────────────────────────────────
+
+/// A full Wikipedia-for-debates topic page (e.g. "Marriage", "Immigration", "Climate Change").
+/// Stores all structured sections: positions, spectra, evidence, criteria, values, etc.
+model DebateTopic {
+  id    Int    @id @default(autoincrement())
+  slug  String @unique
+  title String
+
+  /// Breadcrumb category path stored as JSON array, e.g. ["Society & Culture", "Family"]
+  categoryPath String @default("[]")
+
+  /// External reference metadata
+  wikipediaUrl      String?
+  deweyDecimal      String?
+  locSubjectHeading String?
+  locUrl            String?
+  stanfordUrl       String?
+
+  /// Main body content
+  definition String
+  scope      String
+
+  /// Key insight shown above Foundational Assumptions table
+  assumptionKeyInsight String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  positions         DebatePosition[]
+  escalationLevels  DebateEscalation[]
+  assumptions       DebateAssumption[]
+  abstractionRungs  DebateAbstractionRung[]
+  coreValues        DebateCoreValues?
+  commonGround      DebateCommonGround?
+  evidenceItems     DebateEvidence[]
+  objectiveCriteria DebateObjectiveCriteria[]
+  mediaResources    DebateMediaResource[]
+  relatedTopics     DebateRelatedTopic[]
+
+  @@index([slug])
+}
+
+/// One row in Spectrum 1 (The Debate Landscape, -100 to +100).
+model DebatePosition {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  positionScore Int    /// -100, -50, 0, 50, 100
+  positionLabel String /// "Strongly Oppose", "Skeptical", "Neutral", "Supportive", "Strongly Support"
+  coreBelief    String
+  topArgument   String
+  beliefScore   String @default("[0]")
+  mediaUrl      String?
+
+  @@index([topicId])
+}
+
+/// One row in Spectrum 3 (Escalation, 6 levels).
+model DebateEscalation {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  level       Int    /// 1–6
+  levelLabel  String /// "Preference", "Active Advocacy", etc.
+  description String
+  example     String
+  principles  String /// Which principles are still honored
+
+  @@index([topicId])
+}
+
+/// One row in the Foundational Assumptions table.
+model DebateAssumption {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  positionRange String /// "-100 to -50", "-50 to -20", "-20 to +20", "+20 to +50", "+50 to +100"
+  positionLabel String /// "Strongly Oppose", etc.
+  /// JSON array of assumption strings, ordered general → specific
+  assumptions   String @default("[]")
+
+  @@index([topicId])
+}
+
+/// One rung of Spectrum 4 (Abstraction Ladder).
+model DebateAbstractionRung {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  sortOrder  Int    @default(0)
+  rungLabel  String /// "Most General (Worldview)", "Political/Ethical Philosophy", "This Topic", "Most Specific (Policy/Action)"
+  proChain   String
+  conChain   String
+
+  @@index([topicId])
+}
+
+/// Core Values Conflict section (one record per topic).
+model DebateCoreValues {
+  id      Int         @id @default(autoincrement())
+  topicId Int         @unique
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  /// JSON arrays
+  supportingAdvertised String @default("[]")
+  supportingActual     String @default("[]")
+  opposingAdvertised   String @default("[]")
+  opposingActual       String @default("[]")
+}
+
+/// Common Ground & Compromise section (one record per topic).
+model DebateCommonGround {
+  id      Int         @id @default(autoincrement())
+  topicId Int         @unique
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  /// JSON arrays
+  agreements   String @default("[]")
+  compromises  String @default("[]")
+}
+
+/// One row in the Evidence Ledger (supporting or weakening).
+model DebateEvidence {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  side         String /// "supporting" or "weakening"
+  title        String
+  source       String
+  finding      String
+  qualityScore Int    @default(75)
+  qualityLabel String @default("Peer Reviewed")
+  url          String?
+
+  @@index([topicId])
+}
+
+/// One row in the Best Objective Criteria table.
+model DebateObjectiveCriteria {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  name          String
+  description   String
+  criteriaScore Int    @default(50)
+  validity      String @default("Med") /// "High", "Med", "Low"
+  reliability   String @default("Med")
+  linkage       String @default("Med")
+  importance    String @default("Med")
+  url           String?
+
+  @@index([topicId])
+}
+
+/// One row in the Best Media & Resources table.
+model DebateMediaResource {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  title      String
+  medium     String /// "Book", "Academic", "Documentary", "Article", "Podcast"
+  biasOrTone String
+  positivity Int    @default(0)  /// -100 to +100
+  magnitude  Int    @default(50) /// 0–100
+  escalation Int    @default(2)  /// 1–6
+  keyInsight String
+  url        String?
+
+  @@index([topicId])
+}
+
+/// A parent / child / sibling relationship from this topic to another.
+model DebateRelatedTopic {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  relationType String  /// "parent", "child", "sibling"
+  relatedTitle String
+  relatedSlug  String?
+  relatedUrl   String?
+
+  @@index([topicId])
+}
+
 // ─── Product Review Models ──────────────────────────────────────
 
 // Core product review - links to a Belief ("X makes the best Y")
