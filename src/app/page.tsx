@@ -305,6 +305,63 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Debate Topic Pages */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6">
+            Debate Topic Pages: Wikipedia for Debates
+          </h2>
+          <p className="text-lg text-[var(--muted-foreground)] mb-8">
+            Every major debate topic gets a structured, multi-dimensional page: the full spectrum of positions
+            (−100% to +100%), escalation levels, foundational assumptions, values conflicts, evidence ledger,
+            objective criteria, and related topics. Built for humans and bots alike.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">4 Spectra, Not 2 Sides</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Direction (−100↔+100), Magnitude (Weak↔Strong), Escalation (Preference↔Any Means Necessary),
+                and Abstraction (General↔Specific) — map every debate in 4 dimensions.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Foundational Assumptions</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Every position comes with the worldview, political philosophy, causal, and topic-specific assumptions
+                you must hold to rationally occupy it.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">AI-Generated or Human-Curated</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Create topic pages instantly with AI or build them manually via REST API. Bots and humans
+                collaborate on the same structured format.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <Link
+              href="/debate-topics"
+              className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Browse Debate Topics
+            </Link>
+            <Link
+              href="/debate-topics/marriage"
+              className="inline-block border border-[var(--border)] hover:border-[var(--accent)] px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Example: Marriage
+            </Link>
+            <Link
+              href="/debate-topics/new?generate=1"
+              className="inline-block border border-green-600 text-green-700 hover:bg-green-50 px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              🤖 AI Generate
+            </Link>
+          </div>
+        </section>
+
         {/* Cost-Benefit Analysis */}
         <section className="mb-16">
           <h2 className="text-3xl font-bold mb-6">
