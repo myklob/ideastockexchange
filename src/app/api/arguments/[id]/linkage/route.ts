@@ -25,6 +25,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { calculateLinkageFromArguments, applyDepthAttenuation } from '@/core/scoring/scoring-engine'
+import { propagateFromArgumentChange } from '@/lib/propagate-belief-scores'
 
 // ─── GET ───────────────────────────────────────────────────────────────────
 
@@ -148,10 +149,20 @@ export async function POST(
     data: { linkageScore: newScore },
   })
 
+  // Propagate the updated linkage score upward through the belief graph.
+  // This implements "when you strengthen an underlying fact, the algorithm
+  // automatically updates every conclusion connected to it."
+  const propagation = await propagateFromArgumentChange(argumentId)
+
   return NextResponse.json(
     {
       linkageArgument: newLinkageArg,
       updatedLinkageScore: newScore,
+      propagation: {
+        updatedArgumentIds: propagation.updatedArgumentIds,
+        updatedBeliefIds: propagation.updatedBeliefIds,
+        depth: propagation.depth,
+      },
     },
     { status: 201 }
   )
@@ -188,8 +199,16 @@ export async function PATCH(
     select: { id: true, linkageScore: true, linkageType: true, depth: true },
   })
 
+  // Propagate the recomputed linkage score upward through the belief graph.
+  const propagation = await propagateFromArgumentChange(argumentId)
+
   return NextResponse.json({
     updated,
     attenuatedScore: applyDepthAttenuation(newScore, updated.depth),
+    propagation: {
+      updatedArgumentIds: propagation.updatedArgumentIds,
+      updatedBeliefIds: propagation.updatedBeliefIds,
+      depth: propagation.depth,
+    },
   })
 }

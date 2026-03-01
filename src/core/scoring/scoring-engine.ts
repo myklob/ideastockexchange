@@ -236,19 +236,30 @@ export function generateLinkageSubClaim(
 /**
  * Calculate linkage score from simple linkage arguments.
  *
- * Uses the canonical ISE formula: (A − D) / (A + D) → [-1, 1]
- * where A = sum of agree-side strengths, D = sum of disagree-side strengths.
+ * The linkage score answers: "What fraction of the debate weight says
+ * this argument actually connects to its conclusion?"
  *
- * Returns 0.0 (no contribution) when no arguments exist, rather than 0.5,
- * so unscored links don't silently boost parent belief scores.
+ * Formula: A / (A + D) → [0, 1]
+ * where A = sum of agree-side strengths (link is valid),
+ *       D = sum of disagree-side strengths (link is not valid / irrelevant).
+ *
+ * - All agree, none disagree → 1.0 (strong linkage)
+ * - None agree, all disagree → 0.0 (no support for the link)
+ * - Equal weight both sides → 0.5 (uncertain)
+ * - No arguments yet → 0.5 (maximum uncertainty; no information either way)
+ *
+ * Note: This is distinct from scoreLinkageDebate which uses the signed
+ * (A − D) / (A + D) formula for full pro/con argument trees. Here the
+ * community is voting on "is this connection valid?" and the result is
+ * a probability in [0, 1], not a signed score.
  */
 export function calculateLinkageFromArguments(
   linkageArguments: { side: string; strength: number }[]
 ): number {
-  if (linkageArguments.length === 0) return 0.0
+  if (linkageArguments.length === 0) return 0.5  // No votes: maximum uncertainty
 
-  let A = 0  // agree (supporting the link)
-  let D = 0  // disagree (opposing the link)
+  let A = 0  // agree (link is valid / relevant)
+  let D = 0  // disagree (link is not valid / irrelevant)
 
   for (const arg of linkageArguments) {
     if (arg.side === 'agree') {
@@ -259,7 +270,7 @@ export function calculateLinkageFromArguments(
   }
 
   const total = A + D
-  return total === 0 ? 0.0 : Math.max(-1, Math.min(1, (A - D) / total))
+  return total === 0 ? 0.5 : Math.max(0, Math.min(1, A / total))
 }
 
 // ─── Linkage Diagnostic Scoring ─────────────────────────────────
@@ -718,6 +729,32 @@ export function calculateArgumentImpact(
 ): number {
   const raw = Math.round(truthScore * linkageScore * importanceScore * 100)
   return side === 'pro' ? raw : -raw
+}
+
+/**
+ * Compute the impactScore for a belief-argument edge during score propagation.
+ *
+ * Used by the recursive propagation system when a child belief's truth score
+ * changes and its contribution to parent beliefs must be updated.
+ *
+ * Formula: sign × childTruthScore × |linkageScore| × importanceScore × 100
+ *
+ * - sign is +1 for 'agree' arguments, -1 for 'disagree' arguments.
+ * - childTruthScore (0–1): how well-supported the child belief is by its own arguments.
+ * - |linkageScore| (0–1): abs value used so the side alone controls direction.
+ * - importanceScore (0–1): how much this argument moves the probability needle.
+ * - Multiplied by 100 to match the stored scale (e.g. 18.5, 22.1, 12.4).
+ * - Rounded to one decimal place to limit floating-point noise.
+ */
+export function computeArgumentImpactScore(
+  side: string,
+  childTruthScore: number,
+  linkageScore: number,
+  importanceScore: number,
+): number {
+  const sign = side === 'agree' ? 1 : -1
+  const raw = sign * childTruthScore * Math.abs(linkageScore) * importanceScore * 100
+  return Math.round(raw * 10) / 10
 }
 
 /**
