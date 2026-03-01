@@ -84,11 +84,15 @@ export interface ObjectiveCriteriaScore {
   criteriaId: number
   description: string
   criteriaType: string | null
-  /** Independence Score (0-1): does the criterion avoid circular reasoning? */
+  /** Validity Score (0-1): does this criterion actually measure what we think it measures? */
+  validityScore: number
+  /** Reliability Score (0-1): can different people measure this consistently? */
+  reliabilityScore: number
+  /** Independence Score (0-1): is the data source neutral / free of conflicts of interest? */
   independenceScore: number
-  /** Linkage Score (0-1): how strongly does this criterion connect to the belief? */
+  /** Linkage Score (0-1): how strongly does this criterion correlate with the ultimate goal? */
   linkageScore: number
-  /** Total Score (0-1): independence × linkage. */
+  /** Total Score (0-1): average of all four dimensions. */
   totalScore: number
   /** Label for the total score range. */
   label: 'excellent' | 'good' | 'moderate' | 'weak' | 'invalid'
@@ -380,10 +384,13 @@ export function calculateImportanceScore(
  * Objective criteria measure performance against standards that don't depend
  * on values or ideology — measurable benchmarks both sides can agree to in advance.
  *
- * Score = independenceScore × linkageScore
+ * Each criterion is evaluated across four dimensions:
+ *   Validity     — does this actually measure what we think it measures?
+ *   Reliability  — can different people measure this consistently?
+ *   Independence — is the data source neutral / free of conflicts of interest?
+ *   Linkage      — how strongly does this metric correlate with the ultimate goal?
  *
- * Independence: does the criterion avoid circular reasoning or motivated selection?
- * Linkage: how strongly does this criterion's measurement connect to the belief?
+ * Score = (validity + reliability + independence + linkage) / 4
  *
  * Labels map to the ObjectiveCriteriaScoringAlgorithm.md thresholds:
  *   excellent  80-100% (e.g., Glacier Mass Balance for climate change)
@@ -396,10 +403,18 @@ export function calculateObjectiveCriteriaScore(criteria: {
   id: number
   description: string
   criteriaType: string | null
+  validityScore: number
+  reliabilityScore: number
   independenceScore: number
   linkageScore: number
 }): ObjectiveCriteriaScore {
-  const totalScore = Math.max(0, Math.min(1, criteria.independenceScore * criteria.linkageScore))
+  const totalScore = Math.max(
+    0,
+    Math.min(
+      1,
+      (criteria.validityScore + criteria.reliabilityScore + criteria.independenceScore + criteria.linkageScore) / 4,
+    ),
+  )
 
   let label: ObjectiveCriteriaScore['label']
   if (totalScore >= 0.80) label = 'excellent'
@@ -412,6 +427,8 @@ export function calculateObjectiveCriteriaScore(criteria: {
     criteriaId: criteria.id,
     description: criteria.description,
     criteriaType: criteria.criteriaType,
+    validityScore: criteria.validityScore,
+    reliabilityScore: criteria.reliabilityScore,
     independenceScore: criteria.independenceScore,
     linkageScore: criteria.linkageScore,
     totalScore,
@@ -763,6 +780,8 @@ export function computeAllBeliefScores(belief: {
     id: number
     description: string
     criteriaType: string | null
+    validityScore: number
+    reliabilityScore: number
     independenceScore: number
     linkageScore: number
     totalScore: number

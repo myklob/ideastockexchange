@@ -340,7 +340,13 @@ model ObjectiveCriteria {
   belief   Belief @relation(fields: [beliefId], references: [id])
 
   description      String
+  /// Validity Score (0-1): does this criterion actually measure what we think it measures?
+  validityScore     Float @default(0.5)
+  /// Reliability Score (0-1): can different people measure this consistently?
+  reliabilityScore  Float @default(0.5)
+  /// Independence Score (0-1): is the data source neutral / free of conflicts of interest?
   independenceScore Float @default(0.5)
+  /// Linkage Score (0-1): how strongly does this criterion correlate with the ultimate goal?
   linkageScore     Float @default(0.5)
   criteriaType     String?
   totalScore       Float  @default(0)

@@ -77,6 +77,8 @@ export interface EvidenceItem {
 export interface ObjectiveCriteriaItem {
   id: number
   description: string
+  validityScore: number
+  reliabilityScore: number
   independenceScore: number
   linkageScore: number
   criteriaType: string | null
