@@ -1,4 +1,4 @@
-import { Topic, Belief } from '@/core/types/ise';
+import { Topic, Belief, TopicObjectiveCriterion } from '@/core/types/ise';
 
 export const sampleTopics: Topic[] = [
   {
@@ -285,28 +285,222 @@ export const trumpCapabilityBeliefs: Belief[] = [
   },
 ];
 
+// Objective Criteria for each topic
+export const termLimitsCriteria: TopicObjectiveCriterion[] = [
+  {
+    id: 'tl-c1',
+    topicId: 'term-limits',
+    name: 'Incumbent Re-election Rate',
+    description: 'Percentage of incumbents who win re-election; persistently high rates indicate entrenched power.',
+    criteriaScore: 88,
+    validity: 'High',
+    reliability: 'High',
+    linkage: 'High',
+    importance: 'High',
+  },
+  {
+    id: 'tl-c2',
+    topicId: 'term-limits',
+    name: 'Average Years Served',
+    description: 'Mean tenure of current members; measures whether career entrenchment is the norm.',
+    criteriaScore: 82,
+    validity: 'High',
+    reliability: 'High',
+    linkage: 'High',
+    importance: 'Med',
+  },
+  {
+    id: 'tl-c3',
+    topicId: 'term-limits',
+    name: 'Lobbyist Revolving-Door Rate',
+    description: 'Share of departing members who become registered lobbyists within two years.',
+    criteriaScore: 65,
+    validity: 'Med',
+    reliability: 'Med',
+    linkage: 'Med',
+    importance: 'High',
+  },
+  {
+    id: 'tl-c4',
+    topicId: 'term-limits',
+    name: 'Public Approval of Congress',
+    description: 'Gallup poll approval rating; reflects perceived legitimacy but is noisy and easily manipulated.',
+    criteriaScore: 28,
+    validity: 'Low',
+    reliability: 'Low',
+    linkage: 'Low',
+    importance: 'Low',
+  },
+];
+
+export const electricCarsCriteria: TopicObjectiveCriterion[] = [
+  {
+    id: 'ec-c1',
+    topicId: 'electric-cars',
+    name: 'Lifecycle CO₂ per Mile (g/mi)',
+    description: 'Total carbon emissions from production through end-of-life; the most complete measure of climate impact.',
+    criteriaScore: 93,
+    validity: 'High',
+    reliability: 'High',
+    linkage: 'High',
+    importance: 'High',
+  },
+  {
+    id: 'ec-c2',
+    topicId: 'electric-cars',
+    name: 'Grid Carbon Intensity (gCO₂/kWh)',
+    description: 'Emissions per unit of electricity in a region; determines how "clean" charging actually is.',
+    criteriaScore: 85,
+    validity: 'High',
+    reliability: 'High',
+    linkage: 'High',
+    importance: 'Med',
+  },
+  {
+    id: 'ec-c3',
+    topicId: 'electric-cars',
+    name: 'Battery Production Emissions',
+    description: 'CO₂ released manufacturing the battery pack; a front-loaded cost that takes miles to amortize.',
+    criteriaScore: 72,
+    validity: 'High',
+    reliability: 'Med',
+    linkage: 'Med',
+    importance: 'Med',
+  },
+  {
+    id: 'ec-c4',
+    topicId: 'electric-cars',
+    name: 'EV Sales Market Share (%)',
+    description: 'Share of new car sales that are electric; measures adoption rate, not environmental outcome.',
+    criteriaScore: 35,
+    validity: 'Low',
+    reliability: 'High',
+    linkage: 'Low',
+    importance: 'Low',
+  },
+];
+
+export const socialMediaCriteria: TopicObjectiveCriterion[] = [
+  {
+    id: 'sm-c1',
+    topicId: 'social-media',
+    name: 'Longitudinal Mental Health Surveys',
+    description: 'Peer-reviewed studies tracking anxiety, depression, and loneliness scores before and after platform adoption.',
+    criteriaScore: 90,
+    validity: 'High',
+    reliability: 'High',
+    linkage: 'High',
+    importance: 'High',
+  },
+  {
+    id: 'sm-c2',
+    topicId: 'social-media',
+    name: 'Misinformation Spread Rate',
+    description: 'Speed and reach of false claims relative to corrections; operationalizes the epistemic harm argument.',
+    criteriaScore: 78,
+    validity: 'High',
+    reliability: 'Med',
+    linkage: 'High',
+    importance: 'High',
+  },
+  {
+    id: 'sm-c3',
+    topicId: 'social-media',
+    name: 'Cross-Group Contact Frequency',
+    description: 'How often users interact with people outside their demographic or political in-group.',
+    criteriaScore: 62,
+    validity: 'Med',
+    reliability: 'Med',
+    linkage: 'Med',
+    importance: 'Med',
+  },
+  {
+    id: 'sm-c4',
+    topicId: 'social-media',
+    name: 'Platform-Reported Engagement Metrics',
+    description: 'Likes, shares, and time-on-platform reported by the companies; highly susceptible to self-serving manipulation.',
+    criteriaScore: 12,
+    validity: 'Low',
+    reliability: 'Low',
+    linkage: 'Low',
+    importance: 'Low',
+  },
+];
+
+export const trumpCapabilityCriteria: TopicObjectiveCriterion[] = [
+  {
+    id: 'tc-c1',
+    topicId: 'trump-capability',
+    name: 'Policy Outcome Metrics',
+    description: 'Measurable economic, foreign-policy, and governance outcomes against stated goals during the term.',
+    criteriaScore: 80,
+    validity: 'High',
+    reliability: 'Med',
+    linkage: 'High',
+    importance: 'High',
+  },
+  {
+    id: 'tc-c2',
+    topicId: 'trump-capability',
+    name: 'Cognitive Assessment (Clinical)',
+    description: 'Standardized neuropsychological testing administered by independent clinicians.',
+    criteriaScore: 75,
+    validity: 'High',
+    reliability: 'High',
+    linkage: 'Med',
+    importance: 'Med',
+  },
+  {
+    id: 'tc-c3',
+    topicId: 'trump-capability',
+    name: 'Expert Peer Ratings',
+    description: 'Assessments by political scientists of presidential decision quality and strategic coherence.',
+    criteriaScore: 55,
+    validity: 'Med',
+    reliability: 'Low',
+    linkage: 'Med',
+    importance: 'Med',
+  },
+  {
+    id: 'tc-c4',
+    topicId: 'trump-capability',
+    name: 'Social Media Sentiment Analysis',
+    description: 'Aggregated Twitter/X sentiment scores; reflects partisan intensity, not capability.',
+    criteriaScore: 8,
+    validity: 'Low',
+    reliability: 'Low',
+    linkage: 'Low',
+    importance: 'Low',
+  },
+];
+
 // Combine all beliefs with their topics
 export function getTopicWithBeliefs(topicId: string): Topic | undefined {
   const topic = sampleTopics.find((t) => t.id === topicId);
   if (!topic) return undefined;
 
   let beliefs: Belief[] = [];
+  let objectiveCriteria: TopicObjectiveCriterion[] = [];
   switch (topicId) {
     case 'term-limits':
       beliefs = termLimitsBeliefs;
+      objectiveCriteria = termLimitsCriteria;
       break;
     case 'electric-cars':
       beliefs = electricCarsBeliefs;
+      objectiveCriteria = electricCarsCriteria;
       break;
     case 'social-media':
       beliefs = socialMediaBeliefs;
+      objectiveCriteria = socialMediaCriteria;
       break;
     case 'trump-capability':
       beliefs = trumpCapabilityBeliefs;
+      objectiveCriteria = trumpCapabilityCriteria;
       break;
   }
 
-  return { ...topic, beliefs };
+  return { ...topic, beliefs, objectiveCriteria };
 }
 
 export function getAllTopicsWithBeliefs(): Topic[] {
