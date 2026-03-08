@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getDebateTopic } from '@/features/debate-topics/db';
 import ExternalReferences from '@/components/debate-topic/ExternalReferences';
+import TopicMetrics from '@/components/debate-topic/TopicMetrics';
 import Spectrum1Positions from '@/components/debate-topic/Spectrum1Positions';
 import Spectrum2Magnitude from '@/components/debate-topic/Spectrum2Magnitude';
 import Spectrum3Escalation from '@/components/debate-topic/Spectrum3Escalation';
@@ -48,15 +49,23 @@ export default async function DebateTopicPage({ params }: Props) {
           <strong>{topic.title}</strong>
         </div>
 
-        {/* Definition */}
-        <p className="mb-3">
+        {/* Title */}
+        <h1 className="text-2xl font-bold mb-3">Topic: {topic.title}</h1>
+
+        {/* Definition + Scope */}
+        <p className="mb-2 text-sm">
           <strong>Definition:</strong> {topic.definition}
         </p>
-
-        {/* Scope */}
-        <p className="mb-6">
+        <p className="mb-4 text-sm">
           <strong>Scope:</strong> {topic.scope}
         </p>
+
+        {/* Topic Metrics box */}
+        <TopicMetrics
+          importanceScore={topic.importanceScore}
+          evidenceDepth={topic.evidenceDepth}
+          controversyRating={topic.controversyRating}
+        />
 
         <hr className="my-6" />
 
@@ -69,10 +78,13 @@ export default async function DebateTopicPage({ params }: Props) {
         )}
 
         {/* Spectrum 2: Claim Magnitude */}
-        <Spectrum2Magnitude topicTitle={topic.title} />
+        <Spectrum2Magnitude
+          topicTitle={topic.title}
+          claimMagnitudeLevels={topic.claimMagnitudeLevels}
+        />
         <hr className="my-6" />
 
-        {/* Spectrum 3: Escalation */}
+        {/* Spectrum 3: Civic Engagement Level */}
         {topic.escalationLevels.length > 0 && (
           <>
             <Spectrum3Escalation escalationLevels={topic.escalationLevels} topicTitle={topic.title} />

@@ -18,6 +18,18 @@ export interface DebatePosition {
   mediaUrl?: string;
 }
 
+/// One row in Spectrum 2 (Claim Magnitude) — topic-specific pro and anti examples.
+export interface DebateClaimMagnitude {
+  id?: number;
+  sortOrder: number;
+  magnitudeLevel: string;  // "Weak (20%)", "Moderate (50%)", "Strong (80%)", "Extreme (100%)"
+  magnitudePercent: number; // 20, 50, 80, 100
+  sublabel: string;         // "Modest Assertion", "Standard Assertion", etc.
+  proExample: string;       // topic-specific pro-topic claim at this magnitude
+  antiExample: string;      // topic-specific anti-topic claim at this magnitude
+  scopeDescription: string; // what this level of assertion implies
+}
+
 export interface DebateEscalation {
   id?: number;
   level: number; // 1–6
@@ -25,6 +37,11 @@ export interface DebateEscalation {
   description: string;
   example: string;
   principles: string;
+  // Per-side fields (Spectrum 3 civic engagement model)
+  proDescription: string;
+  antiDescription: string;
+  proExample: string;
+  antiExample: string;
 }
 
 export interface DebateAssumption {
@@ -91,7 +108,9 @@ export interface DebateMediaResource {
 
 export interface DebateRelatedTopic {
   id?: number;
-  relationType: 'parent' | 'child' | 'sibling';
+  /// "parent" = broader category, "child" = sub-issue,
+  /// "sibling" = related concept, "opposingView" = critical/opposing perspective
+  relationType: 'parent' | 'child' | 'sibling' | 'opposingView';
   relatedTitle: string;
   relatedSlug?: string;
   relatedUrl?: string;
@@ -106,7 +125,13 @@ export interface DebateTopic {
   definition: string;
   scope: string;
   assumptionKeyInsight?: string;
+  // Topic Metrics
+  importanceScore: number;    // 0–100
+  evidenceDepth: string;      // "Low" | "Med" | "High"
+  controversyRating: number;  // 0–100
+  // Spectra
   positions: DebatePosition[];
+  claimMagnitudeLevels: DebateClaimMagnitude[];
   escalationLevels: DebateEscalation[];
   assumptions: DebateAssumption[];
   abstractionRungs: DebateAbstractionRung[];

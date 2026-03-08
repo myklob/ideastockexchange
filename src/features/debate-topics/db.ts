@@ -5,6 +5,7 @@ import type {
   DebateTopic,
   DebateTopicExternal,
   DebatePosition,
+  DebateClaimMagnitude,
   DebateEscalation,
   DebateAssumption,
   DebateAbstractionRung,
@@ -50,6 +51,18 @@ function mapTopicFromDb(row: any): DebateTopic {
   }));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const claimMagnitudeLevels: DebateClaimMagnitude[] = (row.claimMagnitudeLevels ?? []).map((m: any): DebateClaimMagnitude => ({
+    id: m.id,
+    sortOrder: m.sortOrder,
+    magnitudeLevel: m.magnitudeLevel,
+    magnitudePercent: m.magnitudePercent,
+    sublabel: m.sublabel,
+    proExample: m.proExample,
+    antiExample: m.antiExample,
+    scopeDescription: m.scopeDescription,
+  }));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const escalationLevels: DebateEscalation[] = (row.escalationLevels ?? []).map((e: any): DebateEscalation => ({
     id: e.id,
     level: e.level,
@@ -57,6 +70,10 @@ function mapTopicFromDb(row: any): DebateTopic {
     description: e.description,
     example: e.example,
     principles: e.principles,
+    proDescription: e.proDescription ?? '',
+    antiDescription: e.antiDescription ?? '',
+    proExample: e.proExample ?? '',
+    antiExample: e.antiExample ?? '',
   }));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -152,7 +169,11 @@ function mapTopicFromDb(row: any): DebateTopic {
     definition: row.definition,
     scope: row.scope,
     assumptionKeyInsight: row.assumptionKeyInsight ?? undefined,
+    importanceScore: row.importanceScore ?? 0,
+    evidenceDepth: row.evidenceDepth ?? 'Med',
+    controversyRating: row.controversyRating ?? 0,
     positions: positions.sort((a, b) => a.positionScore - b.positionScore),
+    claimMagnitudeLevels: claimMagnitudeLevels.sort((a, b) => a.sortOrder - b.sortOrder),
     escalationLevels: escalationLevels.sort((a, b) => a.level - b.level),
     assumptions,
     abstractionRungs: abstractionRungs.sort((a, b) => a.sortOrder - b.sortOrder),
@@ -169,6 +190,7 @@ function mapTopicFromDb(row: any): DebateTopic {
 
 const FULL_INCLUDE = {
   positions: true,
+  claimMagnitudeLevels: true,
   escalationLevels: true,
   assumptions: true,
   abstractionRungs: true,
@@ -220,6 +242,9 @@ export async function createDebateTopic(data: DebateTopic): Promise<DebateTopic>
       definition: data.definition,
       scope: data.scope,
       assumptionKeyInsight: data.assumptionKeyInsight ?? null,
+      importanceScore: data.importanceScore ?? 0,
+      evidenceDepth: data.evidenceDepth ?? 'Med',
+      controversyRating: data.controversyRating ?? 0,
       positions: {
         create: data.positions.map((p) => ({
           positionScore: p.positionScore,
@@ -230,6 +255,17 @@ export async function createDebateTopic(data: DebateTopic): Promise<DebateTopic>
           mediaUrl: p.mediaUrl ?? null,
         })),
       },
+      claimMagnitudeLevels: {
+        create: (data.claimMagnitudeLevels ?? []).map((m) => ({
+          sortOrder: m.sortOrder,
+          magnitudeLevel: m.magnitudeLevel,
+          magnitudePercent: m.magnitudePercent,
+          sublabel: m.sublabel,
+          proExample: m.proExample,
+          antiExample: m.antiExample,
+          scopeDescription: m.scopeDescription,
+        })),
+      },
       escalationLevels: {
         create: data.escalationLevels.map((e) => ({
           level: e.level,
@@ -237,6 +273,10 @@ export async function createDebateTopic(data: DebateTopic): Promise<DebateTopic>
           description: e.description,
           example: e.example,
           principles: e.principles,
+          proDescription: e.proDescription ?? '',
+          antiDescription: e.antiDescription ?? '',
+          proExample: e.proExample ?? '',
+          antiExample: e.antiExample ?? '',
         })),
       },
       assumptions: {

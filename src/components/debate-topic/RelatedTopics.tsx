@@ -17,10 +17,26 @@ function TopicLink({ topic }: { topic: DebateRelatedTopic }) {
   );
 }
 
+function TopicList({ topics }: { topics: DebateRelatedTopic[] }) {
+  if (topics.length === 0) {
+    return <span className="text-gray-400 text-xs">None listed</span>;
+  }
+  return (
+    <ul className="list-none m-0 p-0 space-y-1">
+      {topics.map((t, i) => (
+        <li key={i}>
+          <TopicLink topic={t} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function RelatedTopics({ relatedTopics }: Props) {
   const parents = relatedTopics.filter((t) => t.relationType === 'parent');
   const children = relatedTopics.filter((t) => t.relationType === 'child');
   const siblings = relatedTopics.filter((t) => t.relationType === 'sibling');
+  const opposing = relatedTopics.filter((t) => t.relationType === 'opposingView');
 
   return (
     <div className="mb-8">
@@ -29,54 +45,25 @@ export default function RelatedTopics({ relatedTopics }: Props) {
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-3 py-2 w-1/3">Broader Categories (Parents)</th>
-              <th className="border border-gray-300 px-3 py-2 w-1/3">Specific Sub-Issues (Children)</th>
-              <th className="border border-gray-300 px-3 py-2 w-1/3">Related Concepts (Siblings)</th>
+              <th className="border border-gray-300 px-3 py-2 w-1/4">Broader Categories (Parents)</th>
+              <th className="border border-gray-300 px-3 py-2 w-1/4">Specific Sub-Issues (Children)</th>
+              <th className="border border-gray-300 px-3 py-2 w-1/4">Related Concepts (Siblings)</th>
+              <th className="border border-gray-300 px-3 py-2 w-1/4">Opposing / Critical Views</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td className="border border-gray-300 px-3 py-3 align-top">
-                {parents.length > 0 ? (
-                  <span>
-                    {parents.map((t, i) => (
-                      <span key={i}>
-                        {i > 0 && ', '}
-                        <TopicLink topic={t} />
-                      </span>
-                    ))}
-                  </span>
-                ) : (
-                  <span className="text-gray-400 text-xs">None listed</span>
-                )}
+                <TopicList topics={parents} />
               </td>
               <td className="border border-gray-300 px-3 py-3 align-top">
-                {children.length > 0 ? (
-                  <span>
-                    {children.map((t, i) => (
-                      <span key={i}>
-                        {i > 0 && ', '}
-                        <TopicLink topic={t} />
-                      </span>
-                    ))}
-                  </span>
-                ) : (
-                  <span className="text-gray-400 text-xs">None listed</span>
-                )}
+                <TopicList topics={children} />
               </td>
               <td className="border border-gray-300 px-3 py-3 align-top">
-                {siblings.length > 0 ? (
-                  <span>
-                    {siblings.map((t, i) => (
-                      <span key={i}>
-                        {i > 0 && ', '}
-                        <TopicLink topic={t} />
-                      </span>
-                    ))}
-                  </span>
-                ) : (
-                  <span className="text-gray-400 text-xs">None listed</span>
-                )}
+                <TopicList topics={siblings} />
+              </td>
+              <td className="border border-gray-300 px-3 py-3 align-top">
+                <TopicList topics={opposing} />
               </td>
             </tr>
           </tbody>
