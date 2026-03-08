@@ -559,21 +559,52 @@ model DebateTopic {
   /// Key insight shown above Foundational Assumptions table
   assumptionKeyInsight String?
 
+  /// Topic Metrics (shown in the metrics box at the top)
+  /// Importance Score (0-100): community-assigned weight for how consequential this topic is
+  importanceScore Int @default(0)
+  /// Evidence Depth: how much high-quality evidence exists for claims on this topic
+  evidenceDepth String @default("Med") // "Low", "Med", "High"
+  /// Controversy Rating (0-100): how contested this topic is — derived from argument score variance
+  controversyRating Int @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  positions         DebatePosition[]
-  escalationLevels  DebateEscalation[]
-  assumptions       DebateAssumption[]
-  abstractionRungs  DebateAbstractionRung[]
-  coreValues        DebateCoreValues?
-  commonGround      DebateCommonGround?
-  evidenceItems     DebateEvidence[]
-  objectiveCriteria DebateObjectiveCriteria[]
-  mediaResources    DebateMediaResource[]
-  relatedTopics     DebateRelatedTopic[]
+  positions           DebatePosition[]
+  claimMagnitudeLevels DebateClaimMagnitude[]
+  escalationLevels    DebateEscalation[]
+  assumptions         DebateAssumption[]
+  abstractionRungs    DebateAbstractionRung[]
+  coreValues          DebateCoreValues?
+  commonGround        DebateCommonGround?
+  evidenceItems       DebateEvidence[]
+  objectiveCriteria   DebateObjectiveCriteria[]
+  mediaResources      DebateMediaResource[]
+  relatedTopics       DebateRelatedTopic[]
 
   @@index([slug])
+}
+
+/// One row in Spectrum 2 (Claim Magnitude — topic-specific pro and anti examples).
+/// Replaces the generic static component with per-topic AI-generated content.
+model DebateClaimMagnitude {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  sortOrder       Int    @default(0)
+  /// "Weak (20%)", "Moderate (50%)", "Strong (80%)", "Extreme (100%)"
+  magnitudeLevel  String
+  magnitudePercent Int   @default(50)
+  sublabel        String /// "Modest Assertion", "Standard Assertion", "Broad Assertion", "Maximal Assertion"
+  /// Topic-specific example of a pro-topic claim at this magnitude
+  proExample      String
+  /// Topic-specific example of an anti-topic claim at this magnitude
+  antiExample     String
+  /// Scope description: what this level of assertion implies
+  scopeDescription String
+
+  @@index([topicId])
 }
 
 /// One row in Spectrum 1 (The Debate Landscape, -100 to +100).
@@ -592,17 +623,30 @@ model DebatePosition {
   @@index([topicId])
 }
 
-/// One row in Spectrum 3 (Escalation, 6 levels).
+/// One row in Spectrum 3 (Civic Engagement Level, 4 core levels + optional extended).
+/// The template distinguishes pro-topic and anti-topic behaviour at each level.
 model DebateEscalation {
   id      Int         @id @default(autoincrement())
   topicId Int
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-  level       Int    /// 1–6
-  levelLabel  String /// "Preference", "Active Advocacy", etc.
+  level       Int    /// 1–4 (core civic engagement) or up to 6 (extended escalation)
+  levelLabel  String /// "Preference", "Active Advocacy", "Principled Non-Compliance", "Civil Disobedience", …
+  /// Generic description of what this level means (used as fallback)
   description String
+  /// Generic example (used when pro/anti split is not populated)
   example     String
-  principles  String /// Which principles are still honored
+  /// Which principles are still honored at this level
+  principles  String
+
+  /// Pro-topic: what engagement at this level looks like for supporters
+  proDescription String @default("")
+  /// Anti-topic: what engagement at this level looks like for opponents
+  antiDescription String @default("")
+  /// Concrete pro-topic example (real historical parallel or hypothetical)
+  proExample  String @default("")
+  /// Concrete anti-topic example
+  antiExample String @default("")
 
   @@index([topicId])
 }
@@ -712,13 +756,15 @@ model DebateMediaResource {
   @@index([topicId])
 }
 
-/// A parent / child / sibling relationship from this topic to another.
+/// A parent / child / sibling / opposing relationship from this topic to another.
 model DebateRelatedTopic {
   id      Int         @id @default(autoincrement())
   topicId Int
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-  relationType String  /// "parent", "child", "sibling"
+  /// "parent" = broader category, "child" = sub-issue, "sibling" = related concept,
+  /// "opposingView" = critical or opposing perspective on this topic
+  relationType String
   relatedTitle String
   relatedSlug  String?
   relatedUrl   String?

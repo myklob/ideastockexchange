@@ -72,6 +72,9 @@ Return a single valid JSON object matching this exact structure (all fields requ
   "definition": "A precise, neutral 2-3 sentence definition of ${topicName}.",
   "scope": "What this page covers and what is handled on sub-pages.",
   "assumptionKeyInsight": "One sentence capturing the deepest disagreement underlying the debate.",
+  "importanceScore": 75,
+  "evidenceDepth": "High",
+  "controversyRating": 80,
   "positions": [
     {
       "positionScore": -100,
@@ -109,13 +112,89 @@ Return a single valid JSON object matching this exact structure (all fields requ
       "beliefScore": "[+XX]"
     }
   ],
+  "claimMagnitudeLevels": [
+    {
+      "sortOrder": 0,
+      "magnitudeLevel": "Weak (20%)",
+      "magnitudePercent": 20,
+      "sublabel": "Modest Assertion",
+      "proExample": "A modest pro-${topicName} claim that acknowledges real flaws and leaves room for exceptions.",
+      "antiExample": "A modest anti-${topicName} claim that acknowledges some advantages while noting specific inefficiencies.",
+      "scopeDescription": "Narrow scope. Leaves room for exceptions and context-dependence."
+    },
+    {
+      "sortOrder": 1,
+      "magnitudeLevel": "Moderate (50%)",
+      "magnitudePercent": 50,
+      "sublabel": "Standard Assertion",
+      "proExample": "${topicName}, when functioning well, produces significantly better outcomes than the available alternatives.",
+      "antiExample": "${topicName} is significantly compromised by [specific flaw], producing reliably suboptimal outcomes.",
+      "scopeDescription": "Clear claim without overstating. The level at which most serious academic arguments operate."
+    },
+    {
+      "sortOrder": 2,
+      "magnitudeLevel": "Strong (80%)",
+      "magnitudePercent": 80,
+      "sublabel": "Broad Assertion",
+      "proExample": "${topicName} is the only approach that provides [key benefit], and any alternative is fundamentally unjust or ineffective.",
+      "antiExample": "${topicName} is fundamentally broken and cannot produce good outcomes without changes so drastic it would cease to be recognizable.",
+      "scopeDescription": "Wide scope, absolute framing. Leaves little room for alternatives or incremental improvement."
+    },
+    {
+      "sortOrder": 3,
+      "magnitudeLevel": "Extreme (100%)",
+      "magnitudePercent": 100,
+      "sublabel": "Maximal Assertion",
+      "proExample": "${topicName} is the pinnacle of human achievement in this domain and any deviation from it, however small, must be resisted by any means necessary.",
+      "antiExample": "${topicName} is a total fraud that has never served its intended beneficiaries and never will.",
+      "scopeDescription": "Catastrophic framing with no limiting conditions. The hardest to defend and the easiest to dismiss without engaging the moderate arguments."
+    }
+  ],
   "escalationLevels": [
-    {"level": 1, "levelLabel": "Preference", "description": "...", "example": "...", "principles": "All other principles intact."},
-    {"level": 2, "levelLabel": "Active Advocacy", "description": "...", "example": "...", "principles": "Works fully within legal and social norms."},
-    {"level": 3, "levelLabel": "Principled Non-Compliance", "description": "...", "example": "...", "principles": "Willing to sacrifice self. Will not obstruct others."},
-    {"level": 4, "levelLabel": "Civil Disobedience", "description": "...", "example": "...", "principles": "Violates specific laws. Accepts the legal system's authority to respond."},
-    {"level": 5, "levelLabel": "Resistance", "description": "...", "example": "...", "principles": "Rejects specific institutional authority. Still avoids harm to individuals."},
-    {"level": 6, "levelLabel": "Any Means Necessary", "description": "...", "example": "...", "principles": "No other principle outranks this belief."}
+    {
+      "level": 1,
+      "levelLabel": "Preference",
+      "description": "Passive lean — would support or oppose if convenient but won't prioritize over other concerns.",
+      "example": "A typical casual participant in the ${topicName} debate.",
+      "principles": "All other principles intact.",
+      "proDescription": "Would support ${topicName} if convenient. Would not prioritize it over other concerns.",
+      "antiDescription": "Mildly skeptical of ${topicName}. Would prefer alternatives in certain contexts. Would not act on this preference.",
+      "proExample": "A typical casual supporter of ${topicName} — votes accordingly when it aligns with other priorities.",
+      "antiExample": "A typical casual skeptic — expresses reservations in conversation but takes no active steps."
+    },
+    {
+      "level": 2,
+      "levelLabel": "Active Advocacy",
+      "description": "Engaged participant — votes, donates, signs petitions, argues publicly.",
+      "example": "Standard civic participation for or against ${topicName}.",
+      "principles": "Works fully within legal and social norms.",
+      "proDescription": "Votes, donates, signs petitions, argues publicly in favor of ${topicName}.",
+      "antiDescription": "Votes, donates, lobbies, and argues publicly against ${topicName} or for alternatives.",
+      "proExample": "Canvasses for candidates who support ${topicName}; writes op-eds; donates to advocacy organizations.",
+      "antiExample": "Lobbies legislators; organizes community opposition; funds legal challenges."
+    },
+    {
+      "level": 3,
+      "levelLabel": "Principled Non-Compliance",
+      "description": "Conscientious objector — refuses personal participation even at personal cost. Does not obstruct others.",
+      "example": "Accepts personal cost rather than act against conscience on ${topicName}.",
+      "principles": "Willing to sacrifice self. Will not obstruct others.",
+      "proDescription": "Refuses personal participation in what they consider unjust opposition to ${topicName}, even at personal cost. Does not obstruct others.",
+      "antiDescription": "Refuses to implement or participate in ${topicName} even when required. Does not obstruct others.",
+      "proExample": "Resigns from a position rather than implement policies hostile to ${topicName}; accepts professional consequences.",
+      "antiExample": "An official who resigns rather than implement ${topicName}-related policy they consider unjust."
+    },
+    {
+      "level": 4,
+      "levelLabel": "Civil Disobedience",
+      "description": "Principled lawbreaking — openly breaks specific unjust laws. Accepts legal consequences.",
+      "example": "MLK/Gandhi equivalent applied to the ${topicName} debate.",
+      "principles": "Violates specific laws. Accepts the legal system's authority to respond.",
+      "proDescription": "Openly breaks specific unjust laws considered obstacles to ${topicName}. Accepts legal consequences and uses prosecution as moral leverage.",
+      "antiDescription": "Openly defies specific laws or mandates related to ${topicName}. Accepts legal consequences and uses prosecution as moral leverage.",
+      "proExample": "Participates in civil disobedience to advance ${topicName} — sit-ins, blockades — while accepting arrest.",
+      "antiExample": "Conscientious objectors who accepted imprisonment rather than comply with ${topicName}-related mandates."
+    }
   ],
   "assumptions": [
     {
@@ -209,13 +288,14 @@ Return a single valid JSON object matching this exact structure (all fields requ
     {"relationType": "parent", "relatedTitle": "Parent category", "relatedSlug": "parent-slug"},
     {"relationType": "child", "relatedTitle": "Sub-issue 1", "relatedSlug": "sub-issue-1"},
     {"relationType": "child", "relatedTitle": "Sub-issue 2", "relatedSlug": "sub-issue-2"},
-    {"relationType": "sibling", "relatedTitle": "Related concept", "relatedSlug": "related-concept"}
+    {"relationType": "sibling", "relatedTitle": "Related concept", "relatedSlug": "related-concept"},
+    {"relationType": "opposingView", "relatedTitle": "Critical perspective on ${topicName}", "relatedSlug": "critical-perspective"}
   ]
 }
 
 Fill in all "..." placeholders with substantive, accurate content for "${topicName}". Use real research, real book/study titles where possible. Return ONLY the JSON object, no other text.`;
 
-  const raw = await callAI(prompt, 6000);
+  const raw = await callAI(prompt, 7000);
   const parsed = safeParseJson<Partial<DebateTopic>>(raw, {});
 
   // Ensure required fields have defaults
@@ -227,7 +307,11 @@ Fill in all "..." placeholders with substantive, accurate content for "${topicNa
     definition: parsed.definition ?? `A debate about ${topicName}.`,
     scope: parsed.scope ?? `This page covers the debate about ${topicName}.`,
     assumptionKeyInsight: parsed.assumptionKeyInsight,
+    importanceScore: parsed.importanceScore ?? 0,
+    evidenceDepth: parsed.evidenceDepth ?? 'Med',
+    controversyRating: parsed.controversyRating ?? 0,
     positions: parsed.positions ?? [],
+    claimMagnitudeLevels: parsed.claimMagnitudeLevels ?? [],
     escalationLevels: parsed.escalationLevels ?? [],
     assumptions: parsed.assumptions ?? [],
     abstractionRungs: parsed.abstractionRungs ?? [],
