@@ -80,6 +80,13 @@ export async function propagateBeliefScores(
   // child belief is, weighted by how much each argument moves the needle.
   const childTruthScore = childScores.importanceWeightedScore
 
+  // Persist the child belief's computed overallScore back to the positivity field
+  // so that parent argument-tree tables always display the up-to-date score.
+  await prisma.belief.update({
+    where: { id: beliefId },
+    data: { positivity: childScores.overallScore },
+  })
+
   // ── Step 2: Find all arguments where this belief is the child ───
   // An argument links: parentBelief (the conclusion) ← belief (the reason).
   // When the reason's truth changes, the argument's impact changes too.
@@ -129,7 +136,12 @@ export async function propagateBeliefScores(
 
     await prisma.belief.update({
       where: { id: parentBeliefId },
-      data: { stabilityScore: parentScores.stabilityScore },
+      data: {
+        stabilityScore: parentScores.stabilityScore,
+        // Also persist the parent's computed overallScore so its own parent
+        // argument-tree tables see the correct "Argument Score" for this belief.
+        positivity: parentScores.overallScore,
+      },
     })
 
     result.updatedBeliefIds.push(parentBeliefId)

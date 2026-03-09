@@ -62,7 +62,15 @@ function ArgumentRow({ arg }: { arg: ArgumentWithBelief }) {
           {arg.belief.statement}
         </Link>
       </td>
-      <td className="px-3 py-3 text-center text-sm font-mono">{argScore}</td>
+      <td className="px-3 py-3 text-center text-sm font-mono">
+        <Link
+          href={`/beliefs/${arg.belief.slug}`}
+          title="Click to see full score breakdown"
+          className="text-[var(--accent)] hover:underline"
+        >
+          {Number(argScore) >= 0 ? '+' : ''}{argScore}
+        </Link>
+      </td>
       <td className="px-3 py-3 text-center">
         <LinkageBadge arg={arg} />
       </td>
