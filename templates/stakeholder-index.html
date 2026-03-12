@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<!-- ISE TEMPLATE: Stakeholder Index (Global Directory)
+     Usage: One instance per site. Lists all registered stakeholders grouped
+     by type. Each row links to that stakeholder's individual profile page.
+     Replace [BRACKETED] placeholders with real data or wire to your CMS/API.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Stakeholder Directory — Idea Stock Exchange</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; background: #f4f6f9; margin: 0; padding: 0; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 22px; color: #1a365d; margin-bottom: 4px; }
+  h2 { font-size: 17px; color: #1a365d; margin: 24px 0 8px; font-family: 'Segoe UI', Arial, sans-serif; }
+  a  { color: #2b6cb0; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .breadcrumb { font-size: 12px; color: #666; margin-bottom: 14px; }
+  .meta-box { background: #f9f9f9; border: 1px solid #ddd; border-left: 4px solid #2b6cb0; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; }
+  .meta-box p { margin: 2px 0; }
+  .meta-box .right { text-align: right; font-size: 12px; color: #666; }
+  .summary-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .summary-chip { background: white; border: 1px solid #d6dbe8; border-radius: 4px; padding: 6px 14px; font-size: 13px; }
+  .summary-chip strong { color: #1a365d; font-size: 17px; display: block; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 8px; font-size: 13px; }
+  th { background: #e6f3ff; font-weight: 600; text-align: left; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px; color: #333; }
+  td { padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; }
+  tr:hover td { background: #f0f7ff; cursor: pointer; }
+  .sub  { font-size: 11px; color: #777; margin-top: 2px; }
+  .score { font-weight: bold; }
+  .score-high   { color: #2e7d32; }
+  .score-mid    { color: #f57c00; }
+  .score-low    { color: #c62828; }
+  .type-badge { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #e2e8f0; color: #333; border: 1px solid #cbd5e0; }
+  .group-header td { background: #f0f3f6 !important; font-weight: 700; font-size: 13px; color: #1a365d; padding: 6px 10px; }
+  .power-bar { display: inline-block; height: 6px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+  .callout-blue { background: #f4f9ff; border: 1px solid #bee3f8; border-left: 4px solid #2b6cb0; padding: 12px 16px; font-size: 13px; margin-top: 20px; }
+  hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Breadcrumb -->
+  <p class="breadcrumb">
+    <a href="/">Home</a> ›
+    <a href="/Topics">Topics</a> ›
+    <strong>Stakeholder Directory</strong>
+  </p>
+
+  <!-- Page header -->
+  <h1>🗂️ Global Stakeholder Directory</h1>
+
+  <div class="meta-box">
+    <p class="right">
+      Framework: <a href="/Interests">ISE Interest Analysis</a> &nbsp;|&nbsp;
+      <a href="https://github.com/myklob/ideastockexchange">GitHub</a>
+    </p>
+    <p>
+      Every entity whose interests influence policy, debate, and resolution.
+      Each stakeholder is profiled with population representation, power dynamics,
+      and interests mapped across all conflicts they appear in.
+      Click any stakeholder to view their full profile.
+    </p>
+  </div>
+
+  <!-- Summary counts — fill from DB or update manually -->
+  <div class="summary-bar">
+    <div class="summary-chip"><strong>[N]</strong> Total Stakeholders</div>
+    <div class="summary-chip"><strong>[N]</strong> Government / State</div>
+    <div class="summary-chip"><strong>[N]</strong> Populations</div>
+    <div class="summary-chip"><strong>[N]</strong> NGO / Civil Society</div>
+    <div class="summary-chip"><strong>[N]</strong> International Bodies</div>
+    <div class="summary-chip"><strong>[N]</strong> Conflicts Mapped</div>
+  </div>
+
+  <!-- ============================================================
+       STAKEHOLDER TABLE
+       GROUP ROWS: repeat the .group-header row for each stakeholder type.
+       DATA ROWS: one <tr> per stakeholder. Link name to /stk/[id].
+       POWER SCORE: average of 5 power dimensions (see stakeholder-profile.html).
+       ============================================================ -->
+  <table>
+    <thead>
+      <tr>
+        <th width="28%">Stakeholder</th>
+        <th width="10%">Type</th>
+        <th width="10%">Pop. Estimate</th>
+        <th width="8%">% of Total</th>
+        <th width="9%">Rep. Confidence</th>
+        <th width="9%">Power (0-100)</th>
+        <th width="26%">Primary Power Lever</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- ── Group: Government / State ── -->
+      <tr class="group-header"><td colspan="7">🏛️ Government / State</td></tr>
+      <tr onclick="location.href='/stk/[id]'">
+        <td>
+          <strong><a href="/stk/[id]">[Stakeholder Name]</a></strong>
+          <div class="sub">[One-line description]</div>
+        </td>
+        <td><span class="type-badge">Government</span></td>
+        <td>[e.g., 75,000]</td>
+        <td>[e.g., &lt;0.1%]</td>
+        <td class="score score-high">[e.g., 82]/100</td>
+        <td class="score score-high">
+          <span class="power-bar" style="width:[N]px; background:#2e7d32;"></span>[N]/100
+        </td>
+        <td>[e.g., Military force, intelligence operations, legislative leverage]</td>
+      </tr>
+      <!-- Repeat <tr> for each Government stakeholder -->
+
+      <!-- ── Group: Populations / Voters ── -->
+      <tr class="group-header"><td colspan="7">👥 Populations / Voters</td></tr>
+      <tr onclick="location.href='/stk/[id]'">
+        <td>
+          <strong><a href="/stk/[id]">[Stakeholder Name]</a></strong>
+          <div class="sub">[One-line description]</div>
+        </td>
+        <td><span class="type-badge">Population</span></td>
+        <td>[e.g., 90,000,000]</td>
+        <td>[e.g., 100% (regional)]</td>
+        <td class="score score-mid">[e.g., 65]/100</td>
+        <td class="score score-low">
+          <span class="power-bar" style="width:[N]px; background:#c62828;"></span>[N]/100
+        </td>
+        <td>[e.g., Moral authority, protest mobilization, narrative power]</td>
+      </tr>
+      <!-- Repeat <tr> for each Population stakeholder -->
+
+      <!-- ── Group: NGO / Civil Society ── -->
+      <tr class="group-header"><td colspan="7">🤝 NGO / Civil Society</td></tr>
+      <tr onclick="location.href='/stk/[id]'">
+        <td>
+          <strong><a href="/stk/[id]">[Stakeholder Name]</a></strong>
+          <div class="sub">[One-line description]</div>
+        </td>
+        <td><span class="type-badge">NGO</span></td>
+        <td>[e.g., 50,000]</td>
+        <td>[e.g., &lt;0.1%]</td>
+        <td class="score score-mid">[e.g., 75]/100</td>
+        <td class="score score-mid">
+          <span class="power-bar" style="width:[N]px; background:#f57c00;"></span>[N]/100
+        </td>
+        <td>[e.g., Documentation, UN mechanisms, media access]</td>
+      </tr>
+      <!-- Repeat <tr> for each NGO stakeholder -->
+
+      <!-- ── Group: International Bodies ── -->
+      <tr class="group-header"><td colspan="7">🌐 International Bodies</td></tr>
+      <tr onclick="location.href='/stk/[id]'">
+        <td>
+          <strong><a href="/stk/[id]">[Stakeholder Name]</a></strong>
+          <div class="sub">[One-line description]</div>
+        </td>
+        <td><span class="type-badge">International</span></td>
+        <td>[—]</td>
+        <td>[—]</td>
+        <td class="score score-mid">[e.g., 78]/100</td>
+        <td class="score score-mid">
+          <span class="power-bar" style="width:[N]px; background:#f57c00;"></span>[N]/100
+        </td>
+        <td>[e.g., Treaty authority, verification mechanisms, UNSC veto]</td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <p class="sub" style="margin-top:4px;">
+    Rep. Confidence = how accurately this group's interests are captured in ISE data.
+    Power = average of Political / Economic / Military / Narrative / Institutional scores (see each profile for breakdown).
+  </p>
+
+  <hr />
+
+  <!-- ── KEY INSIGHT ── -->
+  <div class="callout-blue">
+    <strong>Key insight on power vs. legitimacy:</strong>
+    Stakeholders with the lowest power scores often hold the highest-validity interests
+    (e.g., civilian populations bear the greatest cost of conflict but have the least ability
+    to stop it). The ISE framework scores these dimensions <em>separately</em> —
+    power determines who can force an outcome; validity determines whose interests
+    should carry the most moral weight. Both matter; neither cancels the other.
+  </div>
+
+  <hr />
+
+  <!-- ── CONTRIBUTE ── -->
+  <h2>📬 Contribute</h2>
+  <p style="font-size:13px;">
+    Missing a stakeholder? Submit a name, description, population estimate, and power profile.
+    The ISE framework is crowd-sourced: every profile is editable, evidence-driven, and auditable.<br />
+    <a href="/Contact">Contact us to add a stakeholder</a> &nbsp;|&nbsp;
+    <a href="https://github.com/myklob/ideastockexchange">GitHub</a>
+  </p>
+
+</div><!-- /page -->
+</body>
+</html>

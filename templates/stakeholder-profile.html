@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<!-- ISE TEMPLATE: Individual Stakeholder Profile
+     Usage: One page per stakeholder. Replace [BRACKETED] placeholders.
+     Sections:
+       1. Demographics & Representation
+       2. Power Dynamics (5 dimensions)
+       3. Active Conflict Nodes (cross-links)
+       4. Interest Profile (ranked by composite score across all conflicts)
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>[Stakeholder Name] — Stakeholder Profile — ISE</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; background: #f4f6f9; margin: 0; padding: 0; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 22px; color: #1a365d; margin-bottom: 6px; }
+  h2 { font-size: 17px; color: #1a365d; margin: 26px 0 8px; font-family: 'Segoe UI', Arial, sans-serif; }
+  a  { color: #2b6cb0; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .breadcrumb { font-size: 12px; color: #666; margin-bottom: 14px; }
+  .meta-box   { background: #f9f9f9; border: 1px solid #ddd; border-left: 4px solid #2b6cb0; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .meta-box .right { text-align: right; font-size: 12px; color: #666; }
+
+  .badge { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 10px; background: #e2e8f0; color: #333; border: 1px solid #cbd5e0; margin-right: 4px; }
+  .badge-blue  { background: #ebf8ff; color: #2b6cb0; border-color: #bee3f8; }
+  .badge-green { background: #f0fff4; color: #276749; border-color: #9ae6b4; }
+
+  table { border-collapse: collapse; width: 100%; margin-bottom: 8px; font-size: 13px; }
+  th { background: #f0f3f6; font-weight: 600; text-align: left; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px; }
+  td { padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; }
+  tr:hover td { background: #f8fafc; }
+  .clickable:hover td { background: #f0f7ff; cursor: pointer; }
+  .sub { font-size: 11px; color: #777; margin-top: 2px; }
+
+  .score-high { color: #2e7d32; font-weight: bold; }
+  .score-mid  { color: #f57c00; font-weight: bold; }
+  .score-low  { color: #c62828; font-weight: bold; }
+
+  /* Power bar */
+  .pbar-wrap  { display: flex; align-items: center; gap: 6px; }
+  .pbar-track { width: 80px; height: 7px; background: #e2e8f0; border-radius: 4px; flex-shrink: 0; }
+  .pbar-fill  { height: 7px; border-radius: 4px; }
+
+  /* Maslow badge */
+  .maslow { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 3px; border: 1px solid rgba(0,0,0,.1); white-space: nowrap; }
+  .maslow-physio  { background: #c8e6c9; }
+  .maslow-safety  { background: #b3e5fc; }
+  .maslow-belong  { background: #fff9c4; }
+  .maslow-esteem  { background: #ffe0b2; }
+  .maslow-self    { background: #e1bee7; }
+  .maslow-invalid { background: #ffcdd2; }
+
+  /* Position badge */
+  .pos-supp { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+  .pos-opp  { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+  .pos-mix  { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #fff9c4; color: #f57c00; border: 1px solid #ffe082; }
+
+  .callout-grey   { background: #f7fafc; border: 1px solid #e2e8f0; border-left: 4px solid #718096; padding: 12px 16px; font-size: 13px; margin-top: 10px; }
+  .callout-blue   { background: #f4f9ff; border: 1px solid #bee3f8; border-left: 4px solid #2b6cb0; padding: 12px 16px; font-size: 13px; margin-top: 16px; }
+  .callout-yellow { background: #fefce8; border: 1px solid #fde68a; border-left: 4px solid #eab308; padding: 12px 16px; font-size: 13px; margin-top: 10px; }
+  hr { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
+  .invalid-note { font-size: 11px; color: #c62828; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Breadcrumb -->
+  <p class="breadcrumb">
+    <a href="/">Home</a> ›
+    <a href="/Stakeholders">Stakeholder Directory</a> ›
+    <strong>[Stakeholder Name]</strong>
+  </p>
+
+  <!-- ── PAGE HEADER ── -->
+  <div class="meta-box">
+    <div>
+      <p style="margin:0;">
+        <strong>Type:</strong> [e.g., Government Institution]
+        &nbsp;|&nbsp;
+        <strong>Primary Power:</strong> [e.g., Military / Institutional]
+      </p>
+      <p style="margin:4px 0 0;">
+        <span class="badge badge-blue">Influence: <strong>[N]/100</strong></span>
+        <span class="badge badge-green">Rep. Confidence: <strong>[N]/100</strong></span>
+        <span class="badge">Conflicts: <strong>[N]</strong></span>
+      </p>
+    </div>
+    <div class="right">
+      Framework: <a href="/Interests">ISE Interest Analysis</a><br />
+      <a href="https://github.com/myklob/ideastockexchange">GitHub</a>
+    </div>
+  </div>
+
+  <h1>Stakeholder Profile: [Stakeholder Name]</h1>
+  <p style="font-size:13px; color:#555; margin-top:4px; margin-bottom:20px;">
+    [Full description — 2-4 sentences covering who this group is, how they are organized,
+    and what distinguishes them from similar groups.]
+  </p>
+
+  <!-- ════════════════════════════════════════════════
+       SECTION 1 — DEMOGRAPHICS & REPRESENTATION
+       ════════════════════════════════════════════════ -->
+  <h2>👥 Demographics &amp; Representation</h2>
+  <p style="font-size:13px; color:#555;">
+    How large is this group, and how accurately does the ISE data capture their interests?
+    Representation Confidence reflects the quality and breadth of evidence used to map this stakeholder.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th width="30%">Stakeholder Group</th>
+        <th width="30%">Description</th>
+        <th width="15%">Population Estimate</th>
+        <th width="10%">% of Total</th>
+        <th width="15%">Representation Confidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>[Stakeholder Name]</strong></td>
+        <td>[Brief description]</td>
+        <td>[e.g., ~75,000]</td>
+        <td>[e.g., &lt;0.1%]</td>
+        <td class="score-high">[e.g., 82]/100</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout-grey">
+    <strong>Note on representation:</strong>
+    [Explain any limitations — e.g., "Diaspora voices may not accurately represent
+    the preferences of Iranians inside Iran" or "Polling data from authoritarian states
+    is subject to social desirability bias."]
+  </div>
+
+  <hr />
+
+  <!-- ════════════════════════════════════════════════
+       SECTION 2 — POWER DYNAMICS
+       ════════════════════════════════════════════════ -->
+  <h2>⚡ Power Dynamics</h2>
+  <p style="font-size:13px; color:#555;">
+    Scores (0-100) across five dimensions. Total Influence = simple average.
+    <em>Power determines who can force an outcome — not whose interests are most legitimate.</em>
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th title="Electoral and legislative influence">Political</th>
+        <th title="Financial resources, sanctions, trade">Economic</th>
+        <th title="Armed force, coercive capacity">Military</th>
+        <th title="Media, public opinion, soft power">Narrative</th>
+        <th title="Legal, treaty, procedural authority">Institutional</th>
+        <th>Total Influence (avg)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <!-- Replace [N] and barcolor (#2e7d32 high / #f57c00 mid / #c62828 low) -->
+        <td>
+          <div class="pbar-wrap">
+            <div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:[barcolor];"></div></div>
+            <span class="score-high">[N]</span>
+          </div>
+        </td>
+        <td>
+          <div class="pbar-wrap">
+            <div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:[barcolor];"></div></div>
+            <span class="score-mid">[N]</span>
+          </div>
+        </td>
+        <td>
+          <div class="pbar-wrap">
+            <div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:[barcolor];"></div></div>
+            <span class="score-high">[N]</span>
+          </div>
+        </td>
+        <td>
+          <div class="pbar-wrap">
+            <div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:[barcolor];"></div></div>
+            <span class="score-mid">[N]</span>
+          </div>
+        </td>
+        <td>
+          <div class="pbar-wrap">
+            <div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:[barcolor];"></div></div>
+            <span class="score-high">[N]</span>
+          </div>
+        </td>
+        <td style="font-size:1.2em;" class="score-high"><strong>[avg]/100</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout-grey">
+    <strong>How this stakeholder exercises power:</strong>
+    [2-3 sentences — e.g., "Controls military force authorization and intelligence operations.
+    Narrative power through classified briefings and selective press leaks.
+    Institutional leverage via security council procedures and interagency processes."]
+  </div>
+
+  <hr />
+
+  <!-- ════════════════════════════════════════════════
+       SECTION 3 — ACTIVE CONFLICT NODES
+       ════════════════════════════════════════════════ -->
+  <h2>⚔️ Active Conflict Nodes</h2>
+  <p style="font-size:13px; color:#555;">
+    Every debate or policy conflict this stakeholder is mapped to.
+    Click a conflict to view the full interest analysis for that context.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th width="40%">Conflict / Policy Debate</th>
+        <th width="20%">Role</th>
+        <th width="15%">Position</th>
+        <th width="10%">Interests Mapped</th>
+        <th width="15%">Top Interest Validity</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="clickable" onclick="location.href='/conflict/[id]'">
+        <td>
+          <strong><a href="/conflict/[id]">[Conflict Name]</a></strong>
+          <div class="sub">[Parent topic, e.g., "Iran › Nuclear Policy"]</div>
+        </td>
+        <td>[e.g., Maximum Pressure Advocate]</td>
+        <td><span class="pos-supp">Supporter</span></td>
+        <td>[N]</td>
+        <td class="score-high">[e.g., 90]/100</td>
+      </tr>
+      <tr class="clickable" onclick="location.href='/conflict/[id]'">
+        <td>
+          <strong><a href="/conflict/[id]">[Conflict Name]</a></strong>
+          <div class="sub">[Parent topic]</div>
+        </td>
+        <td>[e.g., Affected Civilian]</td>
+        <td><span class="pos-mix">Mixed</span></td>
+        <td>[N]</td>
+        <td class="score-mid">[e.g., 72]/100</td>
+      </tr>
+      <!-- Add one row per conflict -->
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- ════════════════════════════════════════════════
+       SECTION 4 — INTEREST PROFILE
+       Ranked by Composite Score (default).
+       Composite = Validity × 0.6 + Linkage × 0.4
+       ════════════════════════════════════════════════ -->
+  <h2>🎯 Interest Profile (Across All Conflicts)</h2>
+  <p style="font-size:13px; color:#555;">
+    All interests attributed to this stakeholder, de-duplicated across conflicts and ranked by
+    <strong>Composite Score</strong> (Validity × 0.6 + Confidence × 0.4).
+    The highest-legitimacy, best-evidenced motivations appear first.<br />
+    <em>Sort by: <a href="?sort=composite">Composite ▼</a> &nbsp;|&nbsp;
+    <a href="?sort=validity">Validity</a> &nbsp;|&nbsp;
+    <a href="?sort=linkage">Confidence</a></em>
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th width="3%">#</th>
+        <th width="22%">Interest</th>
+        <th width="14%">Maslow Level</th>
+        <th width="12%">
+          <a href="?sort=validity">Validity ▼</a>
+          <div style="font-size:10px; font-weight:normal;">(Legitimacy, 0-100)</div>
+        </th>
+        <th width="14%">
+          <a href="?sort=linkage">Confidence ↕</a>
+          <div style="font-size:10px; font-weight:normal;">(True Motivation?, 0-100)</div>
+        </th>
+        <th width="10%">% Motivated</th>
+        <th width="10%">
+          <a href="?sort=composite">Composite ↕</a>
+        </th>
+        <th width="15%">Conflict Context</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- ── Repeat one <tr> per interest ── -->
+      <tr>
+        <td style="color:#888; text-align:center;">1</td>
+        <td>
+          <strong>[Interest Name]</strong>
+          <div class="sub">[One-line description]</div>
+        </td>
+        <td><span class="maslow maslow-physio">Physiological</span></td>
+        <td class="score-high">[e.g., 96]</td>
+        <td>
+          <span class="score-high">[e.g., 88]</span>
+          <div class="sub">[e.g., 2 evidence items]</div>
+        </td>
+        <td>[e.g., 90%]</td>
+        <td style="font-size:1.1em;" class="score-high"><strong>[e.g., 93]</strong></td>
+        <td class="sub"><a href="/conflict/[id]">[Conflict Name]</a></td>
+      </tr>
+
+      <tr>
+        <td style="color:#888; text-align:center;">2</td>
+        <td>
+          <strong>[Interest Name]</strong>
+          <div class="sub">[One-line description]</div>
+        </td>
+        <td><span class="maslow maslow-safety">Safety</span></td>
+        <td class="score-high">[e.g., 85]</td>
+        <td>
+          <span class="score-high">[e.g., 82]</span>
+          <div class="sub">[e.g., 3 evidence items]</div>
+        </td>
+        <td>[e.g., 75%]</td>
+        <td style="font-size:1.1em;" class="score-high"><strong>[e.g., 84]</strong></td>
+        <td class="sub"><a href="/conflict/[id]">[Conflict Name]</a></td>
+      </tr>
+
+      <!-- Invalid / zero-sum interest example -->
+      <tr style="background:#fff8f8; opacity:.85;">
+        <td style="color:#888; text-align:center;">N</td>
+        <td>
+          <strong>[Interest Name]</strong>
+          <div class="sub">[One-line description]</div>
+          <div class="invalid-note">⚠ Zero-sum / invalid — de-weighted in analysis</div>
+        </td>
+        <td><span class="maslow maslow-invalid">Invalid / Zero-Sum</span></td>
+        <td class="score-low">[e.g., 12]</td>
+        <td class="score-high">[e.g., 88]</td>
+        <td>[e.g., 35%]</td>
+        <td style="font-size:1.1em;" class="score-low"><strong>[e.g., 42]</strong></td>
+        <td class="sub"><a href="/conflict/[id]">[Conflict Name]</a></td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <div class="callout-yellow">
+    <strong>Key insight on this stakeholder:</strong>
+    [One paragraph — e.g., "The US National Security Establishment's highest-validity interest
+    (nuclear nonproliferation, 90) is also well-evidenced (88 confidence). However,
+    domestic political capital (esteem-level, validity 42) also appears in their profile
+    with high confidence (70). The ISE framework surfaces both — legitimate and
+    less-legitimate motivations are scored separately rather than collapsed."]
+  </div>
+
+  <hr />
+
+  <!-- ── CONTRIBUTE ── -->
+  <h2>📬 Contribute to This Profile</h2>
+  <p style="font-size:13px;">
+    This profile is dynamic and crowd-sourced. You can:
+  </p>
+  <ul style="font-size:13px; padding-left:20px;">
+    <li><strong>Submit evidence</strong> to correct a Linkage Accuracy score — prove or disprove a claimed motivation</li>
+    <li><strong>Challenge an interest's validity</strong> — argue that an interest deserves a higher or lower ethical score</li>
+    <li><strong>Flag misrepresentation</strong> — if this stakeholder's interests have been strawmanned</li>
+    <li><strong>Add a conflict</strong> — map this stakeholder to a policy debate not yet listed above</li>
+  </ul>
+  <p style="font-size:13px;">
+    <a href="/Contact">Contact us</a> &nbsp;|&nbsp;
+    <a href="https://github.com/myklob/ideastockexchange">GitHub — scoring algorithm and data schema</a>
+  </p>
+
+</div><!-- /page -->
+</body>
+</html>

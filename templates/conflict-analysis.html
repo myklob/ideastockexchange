@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<!-- ISE TEMPLATE: Conflict / Belief Analysis Page
+     Usage: One page per conflict, policy debate, or belief claim.
+     This is the full stakeholder analysis template — the "conflict node"
+     where Stakeholder profiles and Interest nodes meet.
+
+     SECTIONS (in order):
+       0. Header + Summary Stats
+       1. Involved Stakeholders (demographics + power overview)
+       2. Ranked Interest Profiles (sorted by Validity | Confidence | Composite)
+       3. Evidence Validating the Motives (Linkage Accuracy test)
+       4. Judging the Interests (Validity test)
+       5. Shared Interests & Compromise Engine
+       6. Semantic Clustering (duplicate reduction log)
+       7. Contribute
+
+     Replace all [BRACKETED] placeholders with real data.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>[Conflict Name] — Stakeholder Analysis — ISE</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; background: #f4f6f9; margin: 0; padding: 0; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 22px; color: #1a365d; margin-bottom: 6px; }
+  h2 { font-size: 17px; color: #1a365d; margin: 28px 0 8px; font-family: 'Segoe UI', Arial, sans-serif; }
+  a  { color: #2b6cb0; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .breadcrumb { font-size: 12px; color: #666; margin-bottom: 12px; }
+
+  .meta-box { background: #f9f9f9; border: 1px solid #ddd; border-left: 4px solid #2b6cb0; padding: 12px 16px; margin-bottom: 14px; font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+  .meta-box .right { text-align: right; font-size: 12px; color: #666; }
+
+  .summary-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .stat-chip { background: white; border: 1px solid #d6dbe8; border-radius: 4px; padding: 6px 14px; font-size: 12px; text-align: center; min-width: 80px; }
+  .stat-chip strong { color: #1a365d; font-size: 18px; display: block; }
+  .stat-chip.hi   { border-color: #9ae6b4; background: #f0fff4; }
+  .stat-chip.warn { border-color: #fde68a; background: #fefce8; }
+  .stat-chip.bad  { border-color: #fed7d7; background: #fff5f5; }
+
+  table { border-collapse: collapse; width: 100%; margin-bottom: 4px; font-size: 13px; }
+  th { font-weight: 600; text-align: left; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px; }
+  td { padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; }
+  .thead-blue   th { background: #e6f3ff; }
+  .thead-grey   th { background: #f0f0f0; }
+  .thead-warm   th { background: #fffbea; }
+  .thead-green  th { background: #e8f5e9; }
+  tr:hover td   { background: #f8fafc; }
+  .clickable:hover td { background: #f0f7ff; cursor: pointer; }
+
+  .sub { font-size: 11px; color: #777; margin-top: 2px; line-height: 1.3; }
+  .score-high { color: #2e7d32; font-weight: bold; }
+  .score-mid  { color: #f57c00; font-weight: bold; }
+  .score-low  { color: #c62828; font-weight: bold; }
+
+  .group-supp td { background: #e6ffe6 !important; font-weight: 700; }
+  .group-opp  td { background: #ffe6e6 !important; font-weight: 700; }
+  .row-invalid   { background: #fff8f8 !important; opacity: .85; }
+  .invalid-note  { font-size: 11px; color: #c62828; margin-top: 2px; }
+
+  /* Maslow */
+  .maslow { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 3px; border: 1px solid rgba(0,0,0,.1); white-space: nowrap; }
+  .maslow-physio  { background: #c8e6c9; }
+  .maslow-safety  { background: #b3e5fc; }
+  .maslow-belong  { background: #fff9c4; }
+  .maslow-esteem  { background: #ffe0b2; }
+  .maslow-self    { background: #e1bee7; }
+  .maslow-invalid { background: #ffcdd2; }
+
+  /* Position badges */
+  .pos-supp { display:inline-block; font-size:11px; padding:1px 7px; border-radius:10px; background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
+  .pos-opp  { display:inline-block; font-size:11px; padding:1px 7px; border-radius:10px; background:#ffebee; color:#c62828; border:1px solid #ef9a9a; }
+  .pos-mix  { display:inline-block; font-size:11px; padding:1px 7px; border-radius:10px; background:#fff9c4; color:#f57c00; border:1px solid #ffe082; }
+
+  /* Evidence tier */
+  .tier { display:inline-block; font-size:10px; padding:1px 6px; border-radius:3px; background:#ebf8ff; color:#2b6cb0; border:1px solid #bee3f8; margin-top:2px; }
+
+  /* Side badge */
+  .side-press { display:inline-block; font-size:11px; padding:1px 7px; border-radius:10px; background:#e8f5e9; color:#2e7d32; }
+  .side-eng   { display:inline-block; font-size:11px; padding:1px 7px; border-radius:10px; background:#ebf8ff; color:#1565c0; }
+  .side-neut  { display:inline-block; font-size:11px; padding:1px 7px; border-radius:10px; background:#f5f5f5; color:#555; }
+
+  /* Power mini-bars */
+  .pbar-row  { display:flex; flex-direction:column; gap:2px; }
+  .pbar-item { display:flex; align-items:center; gap:4px; font-size:11px; }
+  .pbar-lbl  { width:12px; color:#888; }
+  .pbar-track{ width:55px; height:5px; background:#e2e8f0; border-radius:3px; }
+  .pbar-fill { height:5px; border-radius:3px; }
+
+  /* Callouts */
+  .callout { padding: 12px 16px; margin: 10px 0; border-radius: 2px; font-size: 13px; line-height: 1.5; }
+  .callout-blue   { background:#f4f9ff; border:1px solid #bee3f8; border-left:4px solid #2b6cb0; }
+  .callout-yellow { background:#fefce8; border:1px solid #fde68a; border-left:4px solid #eab308; }
+  .callout-green  { background:#f0fff4; border:1px solid #9ae6b4; border-left:4px solid #38a169; }
+  .callout-red    { background:#fff5f5; border:1px solid #fed7d7; border-left:4px solid #e53e3e; }
+
+  /* Shared interest cards */
+  .shared-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap:12px; margin:12px 0; }
+  .shared-card { border:1px solid #e2e8f0; border-top:3px solid #38a169; border-radius:4px; padding:14px; background:#f0fff4; }
+  .shared-card h3 { font-size:14px; color:#1a365d; margin:6px 0; }
+  .shared-card .card-meta { font-size:12px; color:#666; margin-bottom:8px; }
+  .shared-card ol  { font-size:12px; padding-left:16px; color:#444; margin:6px 0 0; }
+  .shared-card li  { margin-bottom:3px; line-height:1.4; }
+
+  hr { border:none; border-top:1px solid #e2e8f0; margin:26px 0; }
+  ul { padding-left:20px; }
+  li { margin-bottom:2px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Breadcrumb -->
+  <p class="breadcrumb">
+    <a href="/">Home</a> ›
+    <a href="/Topics">Topics</a> ›
+    <a href="/[ParentTopic]">[Parent Topic]</a> ›
+    <strong>[Conflict Name]</strong>
+  </p>
+
+  <!-- ── PAGE HEADER ── -->
+  <div class="meta-box">
+    <div>
+      <p style="margin:0;"><strong><a href="/Taxonomy">Topic</a>:</strong> [Category] &gt; [Subcategory]</p>
+      <p style="margin:2px 0 0; font-size:12px; color:#666;">Dewey: [number] &nbsp;|&nbsp; ISE ID: [CFL-XXX]</p>
+    </div>
+    <div class="right">
+      <a href="/Interests">ISE Interest Analysis Framework</a><br />
+      <a href="https://github.com/myklob/ideastockexchange">GitHub</a>
+    </div>
+  </div>
+
+  <h1>Conflict Node: [Conflict Name]</h1>
+  <p style="font-size:13px; color:#555; margin-top:4px; margin-bottom:12px;">
+    [Full description — 2-3 sentences providing context and defining the scope of this conflict node.]
+  </p>
+
+  <!-- Summary stats bar -->
+  <div class="summary-bar">
+    <div class="stat-chip"><strong>[N]</strong>Stakeholders</div>
+    <div class="stat-chip"><strong>[N]</strong>Interests Mapped</div>
+    <div class="stat-chip hi"><strong>[N]</strong>High Validity (80+)</div>
+    <div class="stat-chip warn"><strong>[N]</strong>Pending Evidence</div>
+    <div class="stat-chip bad"><strong>[N]</strong>Invalid / Zero-Sum</div>
+    <div class="stat-chip hi"><strong>[N]/100</strong>Resolution Score</div>
+  </div>
+
+  <div class="callout callout-blue">
+    <strong>Analysis scope:</strong> This page maps the underlying motivations of all stakeholders
+    involved in this conflict. Interests are scored on
+    <strong>Validity</strong> (ethical legitimacy, 0-100) and
+    <strong>Linkage Accuracy</strong> (confidence this actually motivates the group, 0-100).
+    The default sort surfaces the highest-validity, best-evidenced motivations first.
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 1 — INVOLVED STAKEHOLDERS
+       One row per stakeholder. Link name to /stk/[id].
+       ════════════════════════════════════════════════════════════ -->
+  <h2>👥 <a href="/Stakeholders">Involved Stakeholders</a></h2>
+  <p style="font-size:13px; color:#555;">
+    Representation and power overview. Click any stakeholder to view their full profile.
+    Power = average of 5 dimensions (Political / Economic / Military / Narrative / Institutional).
+  </p>
+
+  <table>
+    <thead class="thead-blue">
+      <tr>
+        <th width="28%">Stakeholder</th>
+        <th width="12%">Position</th>
+        <th width="13%">Role in This Conflict</th>
+        <th width="10%">Pop. %</th>
+        <th width="10%">Rep. Conf.</th>
+        <th width="12%">Power (0-100)</th>
+        <th width="15%">Primary Power Lever</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="clickable" onclick="location.href='/stk/[id]'">
+        <td>
+          <strong><a href="/stk/[id]">[Stakeholder Name]</a></strong>
+          <div class="sub">[One-line description]</div>
+        </td>
+        <td><span class="pos-supp">Supporter</span></td>
+        <td>[e.g., Maximum Pressure Advocate]</td>
+        <td>[e.g., &lt;0.1%]</td>
+        <td class="score-high">[N]/100</td>
+        <td>
+          <!-- mini power bars — P=Political E=Economic M=Military N=Narrative I=Institutional -->
+          <div class="pbar-row">
+            <div class="pbar-item"><span class="pbar-lbl">P</span><div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:#2e7d32;"></div></div><span>[N]</span></div>
+            <div class="pbar-item"><span class="pbar-lbl">M</span><div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:#2e7d32;"></div></div><span>[N]</span></div>
+          </div>
+          <div class="sub">Avg: <strong class="score-high">[avg]</strong></div>
+        </td>
+        <td class="sub">[e.g., Military force, intelligence, institutional leverage]</td>
+      </tr>
+      <tr class="clickable" onclick="location.href='/stk/[id]'">
+        <td>
+          <strong><a href="/stk/[id]">[Stakeholder Name]</a></strong>
+          <div class="sub">[One-line description]</div>
+        </td>
+        <td><span class="pos-opp">Opponent</span></td>
+        <td>[e.g., Multilateral Diplomat]</td>
+        <td>[e.g., —]</td>
+        <td class="score-mid">[N]/100</td>
+        <td>
+          <div class="pbar-row">
+            <div class="pbar-item"><span class="pbar-lbl">E</span><div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:#f57c00;"></div></div><span>[N]</span></div>
+            <div class="pbar-item"><span class="pbar-lbl">I</span><div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:#f57c00;"></div></div><span>[N]</span></div>
+          </div>
+          <div class="sub">Avg: <strong class="score-mid">[avg]</strong></div>
+        </td>
+        <td class="sub">[e.g., Economic leverage, treaty authority, UNSC procedures]</td>
+      </tr>
+      <!-- Add one row per stakeholder -->
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 2 — RANKED INTEREST PROFILES
+       Default sort: Composite (Validity×0.6 + Linkage×0.4) descending.
+       Supporter interests grouped first (green header), then Opponents (red).
+       ════════════════════════════════════════════════════════════ -->
+  <h2>🎯 <a href="/Interests">Ranked Interest Profiles</a> — The "Why"</h2>
+  <p style="font-size:13px; color:#555;">
+    Extracted motivations scored by ethical legitimacy (<a href="/Validity">Validity</a>)
+    and confidence they actually drive behavior (<a href="/Linkage">Linkage Accuracy</a>).
+    Composite = Validity × 0.6 + Linkage × 0.4.<br />
+    <em>Sort by:
+      <a href="?sort=composite"><strong>Composite ▼</strong></a> &nbsp;|&nbsp;
+      <a href="?sort=validity">Validity</a> &nbsp;|&nbsp;
+      <a href="?sort=linkage">Confidence</a>
+    </em>
+  </p>
+
+  <table>
+    <thead class="thead-grey">
+      <tr>
+        <th width="3%">#</th>
+        <th width="20%">Stakeholder</th>
+        <th width="28%">Core Interest (The "Why")</th>
+        <th width="11%">Maslow Level</th>
+        <th width="11%">
+          <a href="?sort=validity">Validity ▼</a>
+          <div style="font-size:10px; font-weight:normal; color:#777;">(Legitimacy)</div>
+        </th>
+        <th width="12%">
+          <a href="?sort=linkage">Confidence ↕</a>
+          <div style="font-size:10px; font-weight:normal; color:#777;">(True Motivation?)</div>
+        </th>
+        <th width="8%">% Motivated</th>
+        <th width="7%">Composite</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- ── Supporter interests ── -->
+      <tr class="group-supp">
+        <td colspan="8">✅ Coalition A — Supporter / Advocate Interests</td>
+      </tr>
+
+      <tr>
+        <td style="color:#888; text-align:center;">1</td>
+        <td>
+          <strong><a href="/stk/[id]">[Stakeholder Name]</a></strong>
+          <div class="sub"><span class="pos-supp">Supporter</span></div>
+        </td>
+        <td>
+          <strong>[Interest Name]</strong>
+          <div class="sub">[One-sentence description of this interest in this context]</div>
+        </td>
+        <td><span class="maslow maslow-physio">Physiological</span></td>
+        <td class="score-high">[e.g., 96]</td>
+        <td>
+          <span class="score-high">[e.g., 88]</span>
+          <div class="sub">[e.g., T2 Gov. Report]</div>
+        </td>
+        <td>[e.g., 90%]</td>
+        <td class="score-high"><strong>[e.g., 93]</strong></td>
+      </tr>
+
+      <tr>
+        <td style="color:#888; text-align:center;">2</td>
+        <td>
+          <strong><a href="/stk/[id]">[Stakeholder Name]</a></strong>
+          <div class="sub"><span class="pos-supp">Supporter</span></div>
+        </td>
+        <td>
+          <strong>[Interest Name]</strong>
+          <div class="sub">[One-sentence description]</div>
+        </td>
+        <td><span class="maslow maslow-safety">Safety</span></td>
+        <td class="score-high">[e.g., 85]</td>
+        <td>
+          <span class="score-mid">[e.g., 74]</span>
+          <div class="sub">[e.g., T4 Expert Consensus]</div>
+        </td>
+        <td>[e.g., 60%]</td>
+        <td class="score-high"><strong>[e.g., 81]</strong></td>
+      </tr>
+
+      <!-- ── Opponent interests ── -->
+      <tr class="group-opp">
+        <td colspan="8">❌ Coalition B — Opponent / Resistance Interests</td>
+      </tr>
+
+      <tr>
+        <td style="color:#888; text-align:center;">3</td>
+        <td>
+          <strong><a href="/stk/[id]">[Stakeholder Name]</a></strong>
+          <div class="sub"><span class="pos-opp">Opponent</span></div>
+        </td>
+        <td>
+          <strong>[Interest Name]</strong>
+          <div class="sub">[One-sentence description]</div>
+        </td>
+        <td><span class="maslow maslow-safety">Safety</span></td>
+        <td class="score-high">[e.g., 82]</td>
+        <td>
+          <span class="score-high">[e.g., 85]</span>
+          <div class="sub">[e.g., T2 IAEA Report]</div>
+        </td>
+        <td>[e.g., 80%]</td>
+        <td class="score-high"><strong>[e.g., 83]</strong></td>
+      </tr>
+
+      <!-- Invalid / zero-sum interest -->
+      <tr class="row-invalid">
+        <td style="color:#888; text-align:center;">N</td>
+        <td>
+          <strong><a href="/stk/[id]">[Stakeholder Name]</a></strong>
+        </td>
+        <td>
+          <strong>[Interest Name]</strong>
+          <div class="sub">[Description]</div>
+          <div class="invalid-note">⚠ Zero-sum / invalid — de-weighted</div>
+        </td>
+        <td><span class="maslow maslow-invalid">Invalid / Zero-Sum</span></td>
+        <td class="score-low">[e.g., 10]</td>
+        <td>
+          <span class="score-high">[e.g., 88]</span>
+          <div class="sub">[e.g., Revealed Preferences]</div>
+        </td>
+        <td>[e.g., 35%]</td>
+        <td class="score-low"><strong>[e.g., 41]</strong></td>
+      </tr>
+
+    </tbody>
+  </table>
+  <p class="sub" style="margin-top:4px;">
+    Invalid interests are <em>not excluded</em> — they are scored low and de-weighted.
+    High linkage accuracy on an invalid interest is informative: it tells us the motivation
+    is real but illegitimate, which is different from a motivation that is both legitimate and real.
+  </p>
+
+  <hr />
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 3 — EVIDENCE LEDGER & LINKAGE TEST
+       One row per claim. Left column = evidence supporting the claim.
+       Right column = evidence or arguments challenging it.
+       ════════════════════════════════════════════════════════════ -->
+  <h2>🔍 <a href="/Evidence">Evidence Ledger — Testing Linkage Accuracy</a></h2>
+  <p style="font-size:13px; color:#555;">
+    <em>Prove they actually want this.</em> Speculative mind-reading is de-weighted.
+    If you claim a motive, you need evidence. Tier key:
+    T1=Peer-Reviewed · T2=Gov/IGO Report · T3=Survey Data · T4=Expert Consensus ·
+    T5=Behavioral Evidence · T6=Journalism · T7=Anecdotal.
+  </p>
+
+  <table>
+    <thead class="thead-grey">
+      <tr>
+        <th width="30%">Claim / Interest Under Test</th>
+        <th width="8%">Side</th>
+        <th width="30%">Evidence Affirming the Linkage</th>
+        <th width="30%">Evidence / Arguments Challenging the Linkage</th>
+        <th width="10%">Quality / Tier</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <strong>[Interest or Motive Claim]</strong>
+          <div class="sub">Stakeholder: <a href="/stk/[id]">[Stakeholder Name]</a></div>
+        </td>
+        <td><span class="side-press">Pro-Pressure</span></td>
+        <td>
+          <strong>✅ Behavioral Match:</strong> [Description — e.g., "Budget allocations and institutional priorities align with stated concern"]<br /><br />
+          <strong>✅ Expert Validation:</strong> <a href="[url]">[Source, e.g., RAND 2022]</a> — [one-sentence finding]
+        </td>
+        <td>
+          <strong>❌ Pretextual Claim:</strong> [Description — e.g., "Zero-tolerance position on 5% civilian enrichment goes beyond nonproliferation to regime-change goals"]<br /><br />
+          <strong>❌ Confounding Variable:</strong> [Description]
+        </td>
+        <td>
+          <span class="tier">T2</span><br />
+          <span class="score-high">[N]/100</span>
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <strong>[Interest or Motive Claim]</strong>
+          <div class="sub">Stakeholder: <a href="/stk/[id]">[Stakeholder Name]</a></div>
+        </td>
+        <td><span class="side-eng">Pro-Engagement</span></td>
+        <td>
+          <strong>✅ [Evidence Type]:</strong> <a href="[url]">[Source]</a> — [Finding]
+        </td>
+        <td>
+          <strong>❌ [Counter-argument type]:</strong> [Description]
+        </td>
+        <td>
+          <span class="tier">T3</span><br />
+          <span class="score-high">[N]/100</span>
+        </td>
+      </tr>
+      <!-- Add one row per testable linkage claim -->
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 4 — VALIDITY TEST
+       Not "is this motive real?" but "is it legitimate?"
+       ════════════════════════════════════════════════════════════ -->
+  <h2>⚖️ <a href="/Objective%20criteria%20scores">Judging the Interests — Validity Test</a></h2>
+  <p style="font-size:13px; color:#555;">
+    Even if a motive is accurately identified, is it ethical and legitimate?
+    Interests fail the validity test when they require others to lose, cannot survive
+    universal application, or are satisfied through alternative means.
+  </p>
+
+  <table>
+    <thead class="thead-grey">
+      <tr>
+        <th width="25%">Interest Under Review</th>
+        <th width="37%">Arguments for High Validity</th>
+        <th width="38%">Arguments for Low / De-weighted Validity</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <strong>[Interest Name]</strong>
+          <div class="sub">Stakeholder: [Name] | Maslow: [Level]</div>
+          <div class="sub">Current score: <span class="score-high">[N]/100</span></div>
+        </td>
+        <td>
+          <strong>1. Irreversible Harm:</strong> If this interest is ignored, [X population] suffers [permanent / catastrophic] loss.<br /><br />
+          <strong>2. Universal Test:</strong> If all nations / actors held this interest, [outcome — e.g., "the nonproliferation regime would be stronger"].<br /><br />
+          <strong>3. Scope of Impact:</strong> [How many people, how severely affected]
+        </td>
+        <td>
+          <strong>1. Zero-Sum Domination:</strong> Satisfying this interest requires [other group] to [actively suffer / lose sovereignty / accept inferior outcome].<br /><br />
+          <strong>2. Alternative Satisfaction:</strong> This [esteem / status] need can be met through [alternative means] without [cost to others].<br /><br />
+          <strong>3. Reciprocity Failure:</strong> [This actor] would not accept the same standard applied to itself.
+        </td>
+      </tr>
+      <!-- Add one row per interest under review -->
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 5 — COMPROMISE ENGINE
+       Shared high-validity interests + bridging proposals + trade-offs.
+       ════════════════════════════════════════════════════════════ -->
+  <h2>🤝 <a href="/Compromise">Compromise Engine — Shared Interests &amp; Bridging Proposals</a></h2>
+  <p style="font-size:13px; color:#555;">
+    The system surfaces interests with <strong>Validity ≥ 70</strong> that appear on
+    <em>both</em> sides of the conflict. These are the foundation for compromise.
+    Build solutions on high-validity shared ground first.
+  </p>
+
+  <!-- Resolution potential score -->
+  <div style="display:flex; align-items:center; gap:14px; background:white; border:1px solid #e2e8f0; border-radius:4px; padding:12px 16px; margin-bottom:14px;">
+    <div>
+      <div style="font-size:11px; color:#666;">Resolution Potential Score</div>
+      <div style="font-size:36px; font-weight:bold;" class="score-high">[N]/100</div>
+    </div>
+    <div style="font-size:13px; color:#555; max-width:500px; line-height:1.4;">
+      Average validity of shared high-value interests across opposing stakeholders.
+      Higher = more available common ground for compromise.
+      [N] shared high-validity interests detected.
+    </div>
+  </div>
+
+  <!-- Shared interest cards (one per shared interest) -->
+  <div class="shared-grid">
+
+    <div class="shared-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="maslow maslow-physio">Physiological</span>
+        <span class="score-high" style="font-size:13px;">Avg Validity: [N]</span>
+      </div>
+      <h3>[Shared Interest Name]</h3>
+      <p class="card-meta">[Short description] · Shared by [N] stakeholders ([N] supporters, [N] opponents)</p>
+      <strong style="font-size:12px;">Bridging Proposals:</strong>
+      <ol>
+        <li>[Proposal A — satisfies both sides' shared interest]</li>
+        <li>[Proposal B — alternative mechanism for the same goal]</li>
+        <li>[Proposal C — incremental step toward the shared interest]</li>
+      </ol>
+    </div>
+
+    <div class="shared-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="maslow maslow-safety">Safety</span>
+        <span class="score-high" style="font-size:13px;">Avg Validity: [N]</span>
+      </div>
+      <h3>[Shared Interest Name]</h3>
+      <p class="card-meta">[Short description] · Shared by [N] stakeholders</p>
+      <strong style="font-size:12px;">Bridging Proposals:</strong>
+      <ol>
+        <li>[Proposal A]</li>
+        <li>[Proposal B]</li>
+      </ol>
+    </div>
+
+    <!-- Add one card per shared high-validity interest -->
+  </div>
+
+  <!-- Remaining trade-offs table -->
+  <h3 style="font-size:15px; color:#333; margin-top:16px; margin-bottom:8px;">⚠️ Structural Trade-offs (Require Political Resolution)</h3>
+  <p style="font-size:13px; color:#555;">
+    These interest pairs are in inherent tension — satisfying one reduces the other.
+    They cannot be resolved algorithmically; they require explicit political choices.
+  </p>
+  <table>
+    <thead class="thead-grey">
+      <tr>
+        <th width="25%">Interest A</th>
+        <th width="25%">Interest B</th>
+        <th width="50%">Tension Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>[Interest A Name]</strong></td>
+        <td><strong>[Interest B Name]</strong></td>
+        <td>[One sentence — e.g., "Verifiable nuclear constraints require intrusive inspections the regime resists; regime survival drives defection from inspection agreements."]</td>
+      </tr>
+      <!-- Add one row per structural trade-off -->
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 6 — SEMANTIC CLUSTERING
+       Shows how raw brainstorm submissions were de-duplicated.
+       ════════════════════════════════════════════════════════════ -->
+  <h2>🔗 <a href="/Similarity%20Scores">Semantic Clustering — Duplicate Reduction Log</a></h2>
+  <p style="font-size:13px; color:#555;">
+    Raw interests submitted by crowd and AI are compared against the canonical registry.
+    Submissions scoring ≥ 45 similarity are auto-merged; those below go to manual review.
+    This table shows which raw phrases collapsed into which canonical interest nodes.
+  </p>
+
+  <table>
+    <thead class="thead-warm">
+      <tr>
+        <th width="38%">Raw Submitted Phrases (before clustering)</th>
+        <th width="38%">Canonical Interest Node (after clustering)</th>
+        <th width="12%">Similarity Score</th>
+        <th width="12%">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          "Stop Iranian nukes"<br />
+          "Prevent Iran from acquiring weapons"<br />
+          "No Iranian bomb"
+        </td>
+        <td><strong><a href="/interests/[id]">Nuclear Non-Proliferation</a></strong></td>
+        <td class="score-high">72 / 68 / 65</td>
+        <td><span style="color:#2e7d32; font-size:11px;">✓ Auto-clustered</span></td>
+      </tr>
+      <tr>
+        <td>"Regime survival" · "IRGC wants to stay in power"</td>
+        <td><strong><a href="/interests/[id]">Regime Survival (Islamic Republic)</a></strong></td>
+        <td class="score-high">68 / 71</td>
+        <td><span style="color:#2e7d32; font-size:11px;">✓ Auto-clustered</span></td>
+      </tr>
+      <tr>
+        <td>"[Raw submission that didn't match anything]"</td>
+        <td style="color:#888;">— Pending manual review —</td>
+        <td class="score-low">38</td>
+        <td><span style="color:#f57c00; font-size:11px;">⏳ Pending</span></td>
+      </tr>
+      <!-- Add one row per clustering result -->
+    </tbody>
+  </table>
+
+  <div class="callout callout-blue">
+    <strong>Algorithm note:</strong> The overall Conflict Resolution score updates when new evidence
+    is added. Clustering uses Jaccard token overlap + bigram matching against canonical interest names,
+    descriptions, and synonym clusters.
+    <a href="https://github.com/myklob/ideastockexchange">View the clustering logic on GitHub</a>.
+  </div>
+
+  <hr />
+
+  <!-- ── CONTRIBUTE ── -->
+  <h2>📬 Contribute to This Profile</h2>
+  <p style="font-size:13px;">
+    This profile is dynamic. If you believe a stakeholder's motive has been mischaracterized
+    (strawmanned) or an invalid interest is being treated as sacred:
+  </p>
+  <ul style="font-size:13px;">
+    <li><strong>Submit evidence</strong> to correct a Linkage Accuracy score</li>
+    <li><strong>Submit an argument</strong> to challenge an Interest Validity score</li>
+    <li><strong>Merge duplicates</strong> — flag semantically identical interests</li>
+    <li><strong>Propose a bridging solution</strong> — add to the Compromise Engine</li>
+    <li><strong>Add a stakeholder</strong> — map a group not yet represented here</li>
+  </ul>
+  <p style="font-size:13px;">
+    <a href="/Contact">Contact us</a> &nbsp;|&nbsp;
+    <a href="https://github.com/myklob/ideastockexchange">GitHub — full codebase and technical documentation</a>
+  </p>
+
+</div><!-- /page -->
+</body>
+</html>
