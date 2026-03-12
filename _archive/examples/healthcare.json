@@ -1,0 +1,59 @@
+{
+  "topic_name": "Universal Healthcare",
+  "raw_beliefs": [
+    {
+      "text": "Healthcare is a fundamental human right and should be accessible to all citizens regardless of their ability to pay",
+      "source": "Human rights perspective"
+    },
+    {
+      "text": "Government-run healthcare systems are inefficient and lead to longer wait times and reduced quality of care",
+      "source": "Economic analysis"
+    },
+    {
+      "text": "Universal healthcare would reduce overall healthcare costs through preventive care and elimination of profit-driven pricing",
+      "source": "Cost-benefit analysis"
+    },
+    {
+      "text": "Private healthcare competition drives innovation and provides better patient outcomes",
+      "source": "Market economics"
+    },
+    {
+      "text": "Medical bankruptcy shouldn't exist - no one should lose their home because they got sick",
+      "source": "Social justice argument"
+    },
+    {
+      "text": "Universal healthcare systems in other countries demonstrate that quality care can be provided more affordably",
+      "source": "International comparison"
+    },
+    {
+      "text": "Forcing people to pay for others' healthcare through taxes violates individual liberty",
+      "source": "Libertarian perspective"
+    },
+    {
+      "text": "A healthy population is more productive and benefits the economy as a whole",
+      "source": "Economic productivity"
+    }
+  ],
+  "related_topics": {
+    "general": [
+      "Healthcare Policy",
+      "Social Safety Nets"
+    ],
+    "specific": [
+      "Single Payer System",
+      "Public Option",
+      "Medicare for All"
+    ],
+    "related": [
+      "Medical Costs",
+      "Insurance Reform",
+      "Pharmaceutical Pricing",
+      "Healthcare Access"
+    ]
+  },
+  "context": {
+    "urgency": "high",
+    "affected_population": "entire_country",
+    "current_status": "ongoing_debate"
+  }
+}

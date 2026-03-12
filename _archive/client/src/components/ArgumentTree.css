@@ -1,0 +1,35 @@
+.argument-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.argument-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid;
+}
+
+.pro-title {
+  color: #27ae60;
+  border-bottom-color: #27ae60;
+}
+
+.con-title {
+  color: #e74c3c;
+  border-bottom-color: #e74c3c;
+}
+
+.neutral-title {
+  color: #3498db;
+  border-bottom-color: #3498db;
+}

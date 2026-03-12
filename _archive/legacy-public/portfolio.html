@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio - Idea Stock Exchange</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-content">
+      <a href="/" class="nav-brand">💡 Idea Stock Exchange</a>
+      <div class="nav-links">
+        <a href="/market">Market</a>
+        <a href="/portfolio">Portfolio</a>
+        <a href="/create">Create Idea</a>
+        <a href="/leaderboard">Leaderboard</a>
+        <div id="user-section"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h1 class="card-header">My Portfolio</h1>
+
+      <div id="loading" class="spinner"></div>
+
+      <div id="portfolio-content" class="hidden">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+          <div style="background: #e8f5e9; padding: 20px; border-radius: 10px;">
+            <div style="color: #666; margin-bottom: 5px;">Cash Balance</div>
+            <div style="font-size: 28px; font-weight: bold; color: #28a745;" id="cash-balance">$0.00</div>
+          </div>
+          <div style="background: #e3f2fd; padding: 20px; border-radius: 10px;">
+            <div style="color: #666; margin-bottom: 5px;">Holdings Value</div>
+            <div style="font-size: 28px; font-weight: bold; color: #2196f3;" id="holdings-value">$0.00</div>
+          </div>
+          <div style="background: #f3e5f5; padding: 20px; border-radius: 10px;">
+            <div style="color: #666; margin-bottom: 5px;">Total Value</div>
+            <div style="font-size: 28px; font-weight: bold; color: #9c27b0;" id="total-value">$0.00</div>
+          </div>
+          <div style="background: #fff3e0; padding: 20px; border-radius: 10px;">
+            <div style="color: #666; margin-bottom: 5px;">Gain/Loss</div>
+            <div style="font-size: 28px; font-weight: bold;" id="gain-loss">$0.00</div>
+            <div style="font-size: 16px;" id="gain-loss-percent">(0%)</div>
+          </div>
+        </div>
+
+        <h2 style="margin: 30px 0 20px 0; color: #667eea;">My Holdings</h2>
+        <div id="holdings-list"></div>
+
+        <h2 style="margin: 30px 0 20px 0; color: #667eea;">Recent Transactions</h2>
+        <div id="transactions-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/common.js"></script>
+  <script>
+    async function loadPortfolio() {
+      if (!currentUser) {
+        window.location.href = '/';
+        return;
+      }
+
+      try {
+        const [portfolioRes, transactionsRes] = await Promise.all([
+          fetch('/api/portfolio'),
+          fetch('/api/portfolio/transactions')
+        ]);
+
+        const portfolio = await portfolioRes.json();
+        const transactions = await transactionsRes.json();
+
+        displayPortfolio(portfolio, transactions);
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('portfolio-content').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading portfolio:', error);
+        document.getElementById('loading').classList.add('hidden');
+      }
+    }
+
+    function displayPortfolio(portfolio, transactions) {
+      document.getElementById('cash-balance').textContent = formatCurrency(portfolio.cash);
+      document.getElementById('holdings-value').textContent = formatCurrency(portfolio.holdingsValue);
+      document.getElementById('total-value').textContent = formatCurrency(portfolio.totalValue);
+
+      const gainLossEl = document.getElementById('gain-loss');
+      const gainLossPercentEl = document.getElementById('gain-loss-percent');
+
+      gainLossEl.textContent = formatCurrency(portfolio.gainLoss);
+      gainLossPercentEl.textContent = `(${formatPercent(portfolio.gainLossPercent)})`;
+
+      if (portfolio.gainLoss >= 0) {
+        gainLossEl.className = 'positive';
+        gainLossPercentEl.className = 'positive';
+      } else {
+        gainLossEl.className = 'negative';
+        gainLossPercentEl.className = 'negative';
+      }
+
+      // Display holdings
+      const holdingsList = document.getElementById('holdings-list');
+      if (portfolio.holdings && portfolio.holdings.length > 0) {
+        holdingsList.innerHTML = portfolio.holdings.map(holding => {
+          const isProfit = holding.percent_change >= 0;
+          return `
+            <div class="holding-item" onclick="window.location.href='/idea/${holding.ticker}'">
+              <div class="holding-header">
+                <div>
+                  <div class="holding-ticker">${holding.ticker}</div>
+                  <div style="font-size: 16px; color: #666;">${holding.title}</div>
+                </div>
+                <div class="holding-value ${isProfit ? 'positive' : 'negative'}">
+                  ${formatCurrency(holding.current_value)}
+                </div>
+              </div>
+              <div class="holding-stats">
+                <div>
+                  <div class="stat-label">Shares</div>
+                  <div class="stat-value">${holding.shares}</div>
+                </div>
+                <div>
+                  <div class="stat-label">Avg Cost</div>
+                  <div class="stat-value">${formatCurrency(holding.avg_cost)}</div>
+                </div>
+                <div>
+                  <div class="stat-label">Current Price</div>
+                  <div class="stat-value">${formatCurrency(holding.current_price)}</div>
+                </div>
+                <div>
+                  <div class="stat-label">Total Cost</div>
+                  <div class="stat-value">${formatCurrency(holding.shares * holding.avg_cost)}</div>
+                </div>
+                <div>
+                  <div class="stat-label">Gain/Loss</div>
+                  <div class="stat-value ${isProfit ? 'positive' : 'negative'}">
+                    ${formatCurrency(holding.current_value - (holding.shares * holding.avg_cost))}
+                  </div>
+                </div>
+                <div>
+                  <div class="stat-label">Change</div>
+                  <div class="stat-value ${isProfit ? 'positive' : 'negative'}">
+                    ${formatPercent(holding.percent_change)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        holdingsList.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">No holdings yet. <a href="/market">Start trading!</a></p>';
+      }
+
+      // Display transactions
+      const txList = document.getElementById('transactions-list');
+      if (transactions && transactions.length > 0) {
+        txList.innerHTML = transactions.map(tx => {
+          const isBuy = tx.buyer_id === currentUser.id;
+          return `
+            <div class="transaction-item transaction-type-${tx.transaction_type}">
+              <div>
+                <strong>${isBuy ? 'BOUGHT' : 'SOLD'}</strong>
+                ${tx.shares} shares of ${tx.ticker} @ ${formatCurrency(tx.price)}
+                <span style="margin-left: 10px; color: #888;">
+                  Total: ${formatCurrency(tx.shares * tx.price)}
+                </span>
+              </div>
+              <div style="color: #888; font-size: 14px;">
+                ${formatDate(tx.created_at)}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        txList.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">No transactions yet</p>';
+      }
+    }
+
+    // Real-time updates
+    const eventSource = new EventSource('/api/stream/prices');
+    eventSource.onmessage = () => {
+      // Reload portfolio when prices change
+      loadPortfolio();
+    };
+
+    initAuth().then(() => loadPortfolio());
+  </script>
+</body>
+</html>

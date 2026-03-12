@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ideastockexchange.io/schemas/stakeholder",
+  "title": "Stakeholder",
+  "description": "An individual, group, government, or organization with interests in a conflict.",
+  "type": "object",
+  "required": ["stakeholderId", "name", "type"],
+  "additionalProperties": false,
+  "properties": {
+    "stakeholderId": {
+      "type": "string",
+      "pattern": "^STK-[A-Z0-9]{4,}$",
+      "description": "Unique stable identifier, e.g. STK-0001"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "type": {
+      "type": "string",
+      "enum": ["Government", "International", "Population", "NGO", "Media", "Corporate", "Other"]
+    },
+    "description": {
+      "type": "string"
+    },
+    "populationEstimate": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Approximate number of people represented"
+    },
+    "populationFraction": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Fraction of global population represented (0–1)"
+    },
+    "representationConfidence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "How reliably does this group speak for its population? (0–100)"
+    },
+    "power": {
+      "type": "object",
+      "description": "Multi-dimensional power assessment (0–100 per dimension)",
+      "additionalProperties": false,
+      "properties": {
+        "political":     { "type": "integer", "minimum": 0, "maximum": 100 },
+        "economic":      { "type": "integer", "minimum": 0, "maximum": 100 },
+        "military":      { "type": "integer", "minimum": 0, "maximum": 100 },
+        "narrative":     { "type": "integer", "minimum": 0, "maximum": 100 },
+        "institutional": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "totalInfluence":{ "type": "integer", "minimum": 0, "maximum": 100,
+                           "description": "Computed as average of five dimensions" }
+      }
+    },
+    "powerDescription": {
+      "type": "string",
+      "description": "Qualitative explanation of how power is wielded"
+    },
+    "linkedConflictIds": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^CFL-[A-Z0-9]{3,}$" },
+      "uniqueItems": true
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "createdBy": { "type": "string" }
+  }
+}

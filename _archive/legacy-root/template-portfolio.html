@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio - Idea Stock Exchange</title>
+    <link rel="stylesheet" href="template-styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>💡 Idea Stock Exchange</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="template-index.html">Home</a></li>
+                <li><a href="template-marketplace.html">Marketplace</a></li>
+                <li><a href="template-belief-analysis.html">Belief Analysis</a></li>
+                <li><a href="template-argument-analysis.html">Argument Analysis</a></li>
+                <li><a href="template-portfolio.html" class="active">My Portfolio</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="btn btn-outline">Sign In</button>
+                <button class="btn btn-primary">Get Started</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <div class="container">
+            <div class="portfolio-header">
+                <div>
+                    <h1>My Portfolio</h1>
+                    <p>Track your ideas, beliefs, and investment performance</p>
+                </div>
+                <div class="portfolio-stats-header">
+                    <div class="stat-item-header">
+                        <span class="stat-label">Portfolio Value</span>
+                        <span class="stat-value-large">$18,472.50</span>
+                        <span class="stat-change positive">+$2,341.25 (14.5%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="portfolio-layout">
+            <div class="portfolio-main">
+                <div class="card">
+                    <div class="portfolio-overview">
+                        <div class="overview-chart">
+                            <h3>Portfolio Performance (30 Days)</h3>
+                            <div class="chart-placeholder">
+                                <svg viewBox="0 0 600 250" class="chart-svg">
+                                    <polyline points="0,200 60,190 120,185 180,175 240,165 300,155 360,140 420,130 480,115 540,100 600,85"
+                                              fill="none" stroke="#10b981" stroke-width="3"/>
+                                    <circle cx="600" cy="85" r="5" fill="#10b981"/>
+                                </svg>
+                                <div class="chart-overlay-stats">
+                                    <div class="overlay-stat">
+                                        <div class="overlay-label">Starting Value</div>
+                                        <div class="overlay-value">$16,131.25</div>
+                                    </div>
+                                    <div class="overlay-stat">
+                                        <div class="overlay-label">Current Value</div>
+                                        <div class="overlay-value">$18,472.50</div>
+                                    </div>
+                                    <div class="overlay-stat">
+                                        <div class="overlay-label">30-Day Return</div>
+                                        <div class="overlay-value positive">+14.5%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overview-metrics">
+                            <div class="metric-box">
+                                <div class="metric-label">Total Ideas</div>
+                                <div class="metric-value">12</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Total Shares</div>
+                                <div class="metric-value">847</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Avg. Confidence</div>
+                                <div class="metric-value">67%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Strongest Belief</div>
+                                <div class="metric-value">92%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Best Performer</div>
+                                <div class="metric-value positive">+42.3%</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-label">Worst Performer</div>
+                                <div class="metric-value negative">-18.2%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header-with-tabs">
+                        <h2>Holdings</h2>
+                        <div class="tab-buttons">
+                            <button class="tab-btn active">All</button>
+                            <button class="tab-btn">Gainers</button>
+                            <button class="tab-btn">Losers</button>
+                        </div>
+                    </div>
+
+                    <div class="holdings-table">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Idea</th>
+                                    <th>Category</th>
+                                    <th>Shares</th>
+                                    <th>Avg. Cost</th>
+                                    <th>Current Price</th>
+                                    <th>Value</th>
+                                    <th>Gain/Loss</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="holding-row">
+                                    <td>
+                                        <div class="idea-cell">
+                                            <a href="template-idea-detail.html" class="idea-title-link">AI will achieve AGI by 2030</a>
+                                            <div class="idea-confidence">Confidence: 78%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-tech">Technology</span></td>
+                                    <td>120</td>
+                                    <td>$35.50</td>
+                                    <td>$42.50</td>
+                                    <td>$5,100.00</td>
+                                    <td><span class="performance positive">+$840 (+19.7%)</span></td>
+                                    <td>
+                                        <button class="btn-icon" title="Trade">💹</button>
+                                        <button class="btn-icon" title="Analyze">📊</button>
+                                    </td>
+                                </tr>
+                                <tr class="holding-row">
+                                    <td>
+                                        <div class="idea-cell">
+                                            <a href="#" class="idea-title-link">mRNA vaccines can cure most cancers by 2035</a>
+                                            <div class="idea-confidence">Confidence: 71%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-health">Health</span></td>
+                                    <td>85</td>
+                                    <td>$28.90</td>
+                                    <td>$35.60</td>
+                                    <td>$3,026.00</td>
+                                    <td><span class="performance positive">+$569.50 (+23.2%)</span></td>
+                                    <td>
+                                        <button class="btn-icon" title="Trade">💹</button>
+                                        <button class="btn-icon" title="Analyze">📊</button>
+                                    </td>
+                                </tr>
+                                <tr class="holding-row">
+                                    <td>
+                                        <div class="idea-cell">
+                                            <a href="#" class="idea-title-link">Geoengineering can safely mitigate climate change</a>
+                                            <div class="idea-confidence">Confidence: 54%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-environment">Environment</span></td>
+                                    <td>150</td>
+                                    <td>$18.40</td>
+                                    <td>$22.90</td>
+                                    <td>$3,435.00</td>
+                                    <td><span class="performance positive">+$675 (+24.5%)</span></td>
+                                    <td>
+                                        <button class="btn-icon" title="Trade">💹</button>
+                                        <button class="btn-icon" title="Analyze">📊</button>
+                                    </td>
+                                </tr>
+                                <tr class="holding-row">
+                                    <td>
+                                        <div class="idea-cell">
+                                            <a href="#" class="idea-title-link">Universal Basic Income is economically viable</a>
+                                            <div class="idea-confidence">Confidence: 62%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-economics">Economics</span></td>
+                                    <td>95</td>
+                                    <td>$32.10</td>
+                                    <td>$28.75</td>
+                                    <td>$2,731.25</td>
+                                    <td><span class="performance negative">-$318.25 (-10.4%)</span></td>
+                                    <td>
+                                        <button class="btn-icon" title="Trade">💹</button>
+                                        <button class="btn-icon" title="Analyze">📊</button>
+                                    </td>
+                                </tr>
+                                <tr class="holding-row">
+                                    <td>
+                                        <div class="idea-cell">
+                                            <a href="#" class="idea-title-link">Fusion power will be commercially viable by 2035</a>
+                                            <div class="idea-confidence">Confidence: 68%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-science">Science</span></td>
+                                    <td>70</td>
+                                    <td>$24.20</td>
+                                    <td>$29.80</td>
+                                    <td>$2,086.00</td>
+                                    <td><span class="performance positive">+$392 (+23.1%)</span></td>
+                                    <td>
+                                        <button class="btn-icon" title="Trade">💹</button>
+                                        <button class="btn-icon" title="Analyze">📊</button>
+                                    </td>
+                                </tr>
+                                <tr class="holding-row">
+                                    <td>
+                                        <div class="idea-cell">
+                                            <a href="#" class="idea-title-link">Consciousness requires quantum processes</a>
+                                            <div class="idea-confidence">Confidence: 31%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-philosophy">Philosophy</span></td>
+                                    <td>200</td>
+                                    <td>$10.30</td>
+                                    <td>$8.45</td>
+                                    <td>$1,690.00</td>
+                                    <td><span class="performance negative">-$370 (-18.0%)</span></td>
+                                    <td>
+                                        <button class="btn-icon" title="Trade">💹</button>
+                                        <button class="btn-icon" title="Analyze">📊</button>
+                                    </td>
+                                </tr>
+                                <tr class="holding-row">
+                                    <td>
+                                        <div class="idea-cell">
+                                            <a href="#" class="idea-title-link">Dark matter is composed of primordial black holes</a>
+                                            <div class="idea-confidence">Confidence: 45%</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-science">Science</span></td>
+                                    <td>127</td>
+                                    <td>$12.80</td>
+                                    <td>$15.30</td>
+                                    <td>$1,943.10</td>
+                                    <td><span class="performance positive">+$317.50 (+19.5%)</span></td>
+                                    <td>
+                                        <button class="btn-icon" title="Trade">💹</button>
+                                        <button class="btn-icon" title="Analyze">📊</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Recent Activity</h2>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon buy">📈</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Bought 50 shares of "AI will achieve AGI by 2030"</div>
+                                <div class="activity-meta">3 hours ago • $42.30 per share</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon analysis">🔍</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Updated analysis for "mRNA vaccines can cure most cancers by 2035"</div>
+                                <div class="activity-meta">Yesterday • Confidence increased to 71%</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon sell">📉</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Sold 25 shares of "Universal Basic Income is economically viable"</div>
+                                <div class="activity-meta">2 days ago • $30.20 per share</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon argument">💬</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Added supporting argument to "Geoengineering can safely mitigate climate change"</div>
+                                <div class="activity-meta">3 days ago • 23 upvotes</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon buy">📈</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Bought 70 shares of "Fusion power will be commercially viable by 2035"</div>
+                                <div class="activity-meta">5 days ago • $24.20 per share</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="portfolio-sidebar">
+                <div class="card">
+                    <h3>Portfolio Allocation</h3>
+                    <div class="allocation-chart">
+                        <div class="pie-chart-placeholder">
+                            <svg viewBox="0 0 200 200" class="pie-chart">
+                                <circle cx="100" cy="100" r="80" fill="#3b82f6" stroke="#fff" stroke-width="2"/>
+                                <path d="M 100 100 L 100 20 A 80 80 0 0 1 164 64 Z" fill="#10b981" stroke="#fff" stroke-width="2"/>
+                                <path d="M 100 100 L 164 64 A 80 80 0 0 1 164 136 Z" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
+                                <path d="M 100 100 L 164 136 A 80 80 0 0 1 100 180 Z" fill="#8b5cf6" stroke="#fff" stroke-width="2"/>
+                                <path d="M 100 100 L 100 180 A 80 80 0 0 1 36 136 Z" fill="#ec4899" stroke="#fff" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="allocation-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #3b82f6"></span>
+                                <span class="legend-label">Technology (28%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #10b981"></span>
+                                <span class="legend-label">Science (22%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #f59e0b"></span>
+                                <span class="legend-label">Environment (19%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #8b5cf6"></span>
+                                <span class="legend-label">Health (16%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #ec4899"></span>
+                                <span class="legend-label">Other (15%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Watchlist</h3>
+                    <div class="watchlist">
+                        <div class="watchlist-item">
+                            <div class="watchlist-title">Quantum computing achieves commercial advantage</div>
+                            <div class="watchlist-price">$38.90 <span class="positive">+4.2%</span></div>
+                        </div>
+                        <div class="watchlist-item">
+                            <div class="watchlist-title">Lab-grown meat reaches price parity</div>
+                            <div class="watchlist-price">$26.50 <span class="positive">+2.8%</span></div>
+                        </div>
+                        <div class="watchlist-item">
+                            <div class="watchlist-title">Longevity escape velocity by 2040</div>
+                            <div class="watchlist-price">$19.75 <span class="negative">-3.1%</span></div>
+                        </div>
+                        <div class="watchlist-item">
+                            <div class="watchlist-title">Bitcoin becomes global reserve currency</div>
+                            <div class="watchlist-price">$12.30 <span class="negative">-8.4%</span></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-block">Manage Watchlist</button>
+                </div>
+
+                <div class="card">
+                    <h3>Recommended Ideas</h3>
+                    <div class="recommendations">
+                        <div class="recommendation-item">
+                            <div class="rec-title">Brain-computer interfaces enable human-AI merger</div>
+                            <div class="rec-reason">Based on your interest in Technology</div>
+                            <div class="rec-price">$18.75</div>
+                        </div>
+                        <div class="recommendation-item">
+                            <div class="rec-title">CRISPR eliminates genetic diseases</div>
+                            <div class="rec-reason">Similar to your Health holdings</div>
+                            <div class="rec-price">$32.40</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Portfolio Insights</h3>
+                    <div class="insights">
+                        <div class="insight-item">
+                            <span class="insight-icon">💡</span>
+                            <p>Your Technology allocation has grown 18% this month</p>
+                        </div>
+                        <div class="insight-item">
+                            <span class="insight-icon">⚠️</span>
+                            <p>Consider diversifying: 28% in Technology may be high</p>
+                        </div>
+                        <div class="insight-item">
+                            <span class="insight-icon">📈</span>
+                            <p>3 of your ideas gained confidence this week</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Idea Stock Exchange</h3>
+                    <p>The marketplace for ideas, beliefs, and rational discourse.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">Marketplace</a></li>
+                        <li><a href="#">Analysis Tools</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Idea Stock Exchange. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

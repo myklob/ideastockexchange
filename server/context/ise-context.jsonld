@@ -1,0 +1,125 @@
+{
+  "@context": {
+    "@version": 1.1,
+
+    "ise":    "https://ideastockexchange.io/vocab#",
+    "schema": "https://schema.org/",
+    "xsd":    "http://www.w3.org/2001/XMLSchema#",
+    "rdf":    "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+
+    "_comment": "ISE JSON-LD Context v1.0 — maps ISE data model to Schema.org where possible and defines ISE-specific vocabulary for terms with no Schema.org equivalent.",
+
+    "Stakeholder":         { "@id": "ise:Stakeholder" },
+    "Interest":            { "@id": "ise:Interest" },
+    "Conflict":            { "@id": "ise:Conflict" },
+    "StakeholderMapping":  { "@id": "ise:StakeholderMapping" },
+    "AppliedInterest":     { "@id": "ise:AppliedInterest" },
+    "EvidenceItem":        { "@id": "ise:EvidenceItem" },
+    "SharedInterest":      { "@id": "ise:SharedInterest" },
+    "EvidenceLedgerEntry": { "@id": "ise:EvidenceLedgerEntry" },
+    "BrainstormSubmission":{ "@id": "ise:BrainstormSubmission" },
+
+    "name":        { "@id": "schema:name" },
+    "description": { "@id": "schema:description" },
+    "url":         { "@id": "schema:url" },
+    "createdAt":   { "@id": "schema:dateCreated",  "@type": "xsd:dateTime" },
+    "updatedAt":   { "@id": "schema:dateModified", "@type": "xsd:dateTime" },
+    "createdBy":   { "@id": "schema:author" },
+
+    "stakeholderId": { "@id": "@id" },
+    "interestId":    { "@id": "@id" },
+    "conflictId":    { "@id": "@id" },
+    "submissionId":  { "@id": "@id" },
+    "evidenceId":    { "@id": "@id" },
+
+    "type":                    { "@id": "ise:stakeholderType" },
+    "populationEstimate":      { "@id": "ise:populationEstimate",    "@type": "xsd:integer" },
+    "populationFraction":      { "@id": "ise:populationFraction",    "@type": "xsd:decimal" },
+    "representationConfidence":{ "@id": "ise:representationConfidence", "@type": "xsd:integer" },
+    "power":                   { "@id": "ise:power" },
+    "powerDescription":        { "@id": "ise:powerDescription" },
+    "linkedConflictIds":       { "@id": "ise:linkedConflicts", "@container": "@set", "@type": "@id" },
+
+    "political":     { "@id": "ise:powerPolitical",     "@type": "xsd:integer" },
+    "economic":      { "@id": "ise:powerEconomic",      "@type": "xsd:integer" },
+    "military":      { "@id": "ise:powerMilitary",      "@type": "xsd:integer" },
+    "narrative":     { "@id": "ise:powerNarrative",     "@type": "xsd:integer" },
+    "institutional": { "@id": "ise:powerInstitutional", "@type": "xsd:integer" },
+    "totalInfluence":{ "@id": "ise:powerTotalInfluence","@type": "xsd:integer" },
+
+    "maslowLevel":        { "@id": "ise:maslowLevel",        "@type": "@vocab" },
+    "baseValidityScore":  { "@id": "ise:baseValidityScore",  "@type": "xsd:integer" },
+    "semanticClusters":   { "@id": "ise:semanticClusters",   "@container": "@set" },
+    "tags":               { "@id": "schema:keywords",        "@container": "@set" },
+
+    "parentTopic":       { "@id": "ise:parentTopic" },
+    "spectrumMin":       { "@id": "ise:spectrumMin",       "@type": "xsd:integer" },
+    "spectrumMax":       { "@id": "ise:spectrumMax",       "@type": "xsd:integer" },
+    "importanceScore":   { "@id": "ise:importanceScore",   "@type": "xsd:integer" },
+    "controversyScore":  { "@id": "ise:controversyScore",  "@type": "xsd:integer" },
+    "evidenceDepth":     { "@id": "ise:evidenceDepth" },
+
+    "stakeholderMappings": { "@id": "ise:stakeholderMappings", "@container": "@set" },
+    "sharedInterests":     { "@id": "ise:sharedInterests",     "@container": "@set" },
+    "evidenceLedger":      { "@id": "ise:evidenceLedger",      "@container": "@set" },
+    "rawBrainstorm":       { "@id": "ise:rawBrainstorm",       "@container": "@set" },
+
+    "position":       { "@id": "ise:position" },
+    "role":           { "@id": "ise:role" },
+    "appliedInterests":{ "@id": "ise:appliedInterests", "@container": "@set" },
+
+    "linkageAccuracy":          { "@id": "ise:linkageAccuracy",          "@type": "xsd:integer" },
+    "percentMotivated":         { "@id": "ise:percentMotivated",         "@type": "xsd:decimal" },
+    "contextualValidityScore":  { "@id": "ise:contextualValidityScore",  "@type": "xsd:integer" },
+    "compositeScore":           { "@id": "ise:compositeScore",           "@type": "xsd:integer" },
+
+    "evidence":          { "@id": "ise:evidence",          "@container": "@set" },
+    "linkageArguments":  { "@id": "ise:linkageArguments" },
+    "validityArguments": { "@id": "ise:validityArguments" },
+
+    "affirming":       { "@id": "ise:affirmingArguments",     "@container": "@set" },
+    "challenging":     { "@id": "ise:challengingArguments",   "@container": "@set" },
+    "forHighValidity": { "@id": "ise:forHighValidity",        "@container": "@set" },
+    "forLowValidity":  { "@id": "ise:forLowValidity",         "@container": "@set" },
+
+    "tier":         { "@id": "ise:evidenceTier" },
+    "qualityScore": { "@id": "ise:qualityScore", "@type": "xsd:integer" },
+    "year":         { "@id": "schema:datePublished", "@type": "xsd:integer" },
+    "source":       { "@id": "schema:source" },
+    "finding":      { "@id": "ise:finding" },
+
+    "stakeholderIds":      { "@id": "ise:stakeholders",       "@container": "@set", "@type": "@id" },
+    "avgValidityScore":    { "@id": "ise:avgValidityScore",   "@type": "xsd:integer" },
+    "bridgingProposals":   { "@id": "ise:bridgingProposals",  "@container": "@set" },
+
+    "claim":       { "@id": "ise:claim" },
+    "side":        { "@id": "ise:side" },
+
+    "rawText":        { "@id": "ise:rawText" },
+    "submittedBy":    { "@id": "ise:submittedBy" },
+    "submittedAt":    { "@id": "ise:submittedAt", "@type": "xsd:dateTime" },
+    "clusteredTo":    { "@id": "ise:clusteredTo", "@type": "@id" },
+    "similarityScore":{ "@id": "ise:similarityScore", "@type": "xsd:integer" },
+    "status":         { "@id": "ise:status" },
+
+    "PHYSIOLOGICAL":       "ise:MaslowPhysiological",
+    "SAFETY":              "ise:MaslowSafety",
+    "BELONGING":           "ise:MaslowBelonging",
+    "ESTEEM":              "ise:MaslowEsteem",
+    "SELF_ACTUALIZATION":  "ise:MaslowSelfActualization",
+    "INVALID":             "ise:MaslowInvalid",
+
+    "Supporter":    "ise:PositionSupporter",
+    "Opponent":     "ise:PositionOpponent",
+    "Neutral":      "ise:PositionNeutral",
+    "Mixed":        "ise:PositionMixed",
+
+    "T1": "ise:EvidenceTier1",
+    "T2": "ise:EvidenceTier2",
+    "T3": "ise:EvidenceTier3",
+    "T4": "ise:EvidenceTier4",
+    "T5": "ise:EvidenceTier5",
+    "T6": "ise:EvidenceTier6",
+    "T7": "ise:EvidenceTier7"
+  }
+}
