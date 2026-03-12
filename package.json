@@ -1,16 +1,50 @@
 {
-  "name": "idea-stock-exchange",
+  "name": "ideastockexchange",
   "version": "1.0.0",
-  "description": "ISE Stakeholder Analysis Platform - crowdsourced conflict resolution using interest scoring",
   "private": true,
-  "workspaces": ["server", "client"],
+  "description": "Idea Stock Exchange - Computational Epistemology Platform",
   "scripts": {
-    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
-    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
-    "start": "npm run start --prefix server",
-    "build": "npm run build --prefix client"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "npx tsx prisma/seed.ts",
+    "db:seed-reviews": "npx tsx prisma/seed-product-reviews.ts",
+    "db:migrate": "npx prisma migrate dev",
+    "db:reset": "npx prisma migrate reset --force"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "better-sqlite3": "^12.6.2",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.451.0",
+    "next": "16.1.6",
+    "prisma": "^7.3.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "recharts": "^2.13.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "concurrently": "^8.2.0"
-  }
+    "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.23",
+    "dotenv": "^17.3.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.3",
+    "vitest": "^4.0.18"
+  },
+  "author": "Mike Laub",
+  "license": "MIT"
 }

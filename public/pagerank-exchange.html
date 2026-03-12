@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idea Stock Exchange — Signed PageRank Engine</title>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161922;
+    --surface2: #1e2230;
+    --border: #2a2f3e;
+    --text: #e0e4f0;
+    --muted: #7a8099;
+    --green: #3ecf72;
+    --red: #e05252;
+    --gray: #8892a4;
+    --blue: #5b8dee;
+    --yellow: #f0c040;
+    --font: 'Segoe UI', system-ui, sans-serif;
+    --mono: 'Cascadia Code', 'Fira Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+  header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  header p { color: var(--muted); font-size: 13px; }
+  .badge { background: var(--blue); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; letter-spacing: 0.5px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+
+  .controls { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .btn { background: var(--blue); color: #fff; border: none; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+  .btn:hover { opacity: 0.85; }
+  .btn.secondary { background: var(--surface2); border: 1px solid var(--border); }
+  .iter-info { font-size: 13px; color: var(--muted); }
+  .iter-info span { color: var(--text); font-weight: 600; }
+
+  .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; margin-top: 28px; font-weight: 600; }
+
+  /* Score pill */
+  .score-pill {
+    display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700;
+    font-family: var(--mono); cursor: pointer; transition: transform 0.1s; border: 1px solid transparent;
+  }
+  .score-pill:hover { transform: scale(1.08); }
+  .score-pos { background: rgba(62,207,114,0.15); color: var(--green); border-color: rgba(62,207,114,0.3); }
+  .score-neg { background: rgba(224,82,82,0.15); color: var(--red); border-color: rgba(224,82,82,0.3); }
+  .score-neu { background: rgba(136,146,164,0.15); color: var(--gray); border-color: rgba(136,146,164,0.3); }
+
+  /* Belief cards */
+  .belief-grid { display: grid; gap: 14px; }
+  .belief-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .belief-card.main-belief { border-color: var(--blue); }
+  .belief-card:hover { border-color: #3a4060; }
+  .card-header {
+    padding: 14px 18px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer;
+    user-select: none;
+  }
+  .card-header:hover { background: var(--surface2); }
+  .card-type {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+    padding: 2px 7px; border-radius: 4px; margin-top: 3px; white-space: nowrap;
+  }
+  .type-main { background: rgba(91,141,238,0.2); color: var(--blue); }
+  .type-support { background: rgba(62,207,114,0.15); color: var(--green); }
+  .type-oppose { background: rgba(224,82,82,0.15); color: var(--red); }
+  .type-linkage { background: rgba(240,192,64,0.15); color: var(--yellow); }
+  .card-title { flex: 1; font-size: 14px; font-weight: 600; line-height: 1.4; }
+  .card-scores { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 110px; }
+  .score-label { font-size: 10px; color: var(--muted); text-align: right; }
+  .chevron { color: var(--muted); font-size: 12px; margin-left: 8px; transition: transform 0.2s; }
+  .chevron.open { transform: rotate(90deg); }
+
+  .card-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); background: var(--surface2); }
+  .card-body.open { display: block; }
+
+  /* Arguments table */
+  .args-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+  .args-table th { text-align: left; padding: 7px 10px; background: var(--surface); color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+  .args-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .args-table tr:last-child td { border-bottom: none; }
+  .arg-text { line-height: 1.5; }
+  .formula-cell { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .result-cell { font-family: var(--mono); font-weight: 700; }
+
+  /* Math breakdown */
+  .math-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-top: 14px; font-family: var(--mono); font-size: 12px; line-height: 1.8; }
+  .math-box .math-title { font-family: var(--font); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+  .math-row { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .math-eq { color: var(--muted); }
+  .math-val { font-weight: 700; }
+
+  /* Links section */
+  .links-section { margin-top: 14px; }
+  .link-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .link-arrow { color: var(--muted); font-size: 16px; }
+  .link-source { font-size: 13px; font-weight: 600; flex: 1; }
+  .link-via { font-size: 11px; color: var(--muted); }
+  .link-contribution { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1000; justify-content: center; align-items: flex-start; padding: 60px 20px; overflow-y: auto; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; max-width: 600px; width: 100%; padding: 24px; position: relative; }
+  .modal h2 { font-size: 16px; margin-bottom: 4px; }
+  .modal .modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: var(--border); }
+
+  /* Convergence chart */
+  .conv-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 4px; overflow: hidden; }
+  .conv-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.5s; }
+
+  /* Legend */
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 20px; font-size: 12px; color: var(--muted); }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .sep { height: 1px; background: var(--border); margin: 20px 0; }
+  .italic { font-style: italic; color: var(--muted); }
+  em { font-style: italic; color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Idea Stock Exchange <span class="badge">Signed PageRank</span></h1>
+    <p>Scores emerge from arguments → linkage evaluations → network propagation → equilibrium</p>
+  </div>
+</header>
+
+<main>
+  <div class="controls">
+    <button class="btn" onclick="runEngine()">&#9654; Run / Recalculate</button>
+    <button class="btn secondary" onclick="resetScores()">&#8635; Reset</button>
+    <span class="iter-info">Iterations: <span id="iterCount">—</span> &nbsp;|&nbsp; Max delta: <span id="maxDelta">—</span> &nbsp;|&nbsp; Status: <span id="convStatus">Not run</span></span>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Main belief</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Supporting belief</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Opposing belief</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div> Linkage belief</div>
+    <div class="legend-item">Click any <strong>score pill</strong> to inspect math</div>
+  </div>
+
+  <div class="section-title">Belief Network</div>
+  <div class="belief-grid" id="beliefGrid"></div>
+</main>
+
+<!-- Modal for score inspection -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModalDirect()">&#215;</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. BELIEF DATA — All arguments manually authored; all SCORES computed
+// ─────────────────────────────────────────────────────────────────────────────
+// Argument fields: truth [-1,+1], importance [0,1], relevance [-1,+1]
+// ArgumentScore = truth × importance × relevance
+// These raw field values are the ONLY human-authored numbers.
+
+const RAW_BELIEFS = {
+
+  // ── MAIN BELIEF ─────────────────────────────────────────────────────────────
+  "main": {
+    title: "Remote work improves overall productivity",
+    type: "main",
+    arguments: [
+      { text: "Meta-analyses of remote work studies (2015–2023) show a 13–20% average productivity gain for knowledge workers.", truth: 0.75, importance: 0.9, relevance: 0.95 },
+      { text: "Self-reported productivity gains may reflect comfort bias rather than actual output increases.", truth: 0.65, importance: 0.6, relevance: -0.6 },
+      { text: "Productivity measurement is inherently harder for distributed teams, introducing noise into studies.", truth: 0.7, importance: 0.55, relevance: -0.45 }
+    ],
+    outgoing_links: []
+  },
+
+  // ── SUPPORTING BELIEF A ──────────────────────────────────────────────────────
+  "fewer_interruptions": {
+    title: "Remote workers face significantly fewer workplace interruptions",
+    type: "support",
+    arguments: [
+      { text: "University of California Irvine study found office workers are interrupted every 11 minutes on average.", truth: 0.85, importance: 0.85, relevance: 0.9 },
+      { text: "Remote workers design their own environments, enabling deep-work blocks impossible in open offices.", truth: 0.8, importance: 0.8, relevance: 0.9 },
+      { text: "Home environments introduce their own interruptions (family, household tasks) that negate office gains.", truth: 0.6, importance: 0.6, relevance: -0.65 }
+    ],
+    outgoing_links: [{ target_id: "main", linkage_belief_id: "link_interruptions_main" }]
+  },
+
+  // ── SUPPORTING BELIEF B ──────────────────────────────────────────────────────
+  "autonomy_motivation": {
+    title: "Autonomy and flexible scheduling increase intrinsic motivation",
+    type: "support",
+    arguments: [
+      { text: "Self-Determination Theory predicts that autonomy is a core driver of sustained intrinsic motivation.", truth: 0.9, importance: 0.85, relevance: 0.85 },
+      { text: "Workers who set their own hours align peak cognitive periods with demanding tasks more effectively.", truth: 0.75, importance: 0.8, relevance: 0.85 },
+      { text: "Autonomy benefits diminish when employees lack self-regulation skills or clear outcome expectations.", truth: 0.65, importance: 0.55, relevance: -0.5 }
+    ],
+    outgoing_links: [{ target_id: "main", linkage_belief_id: "link_autonomy_main" }]
+  },
+
+  // ── OPPOSING BELIEF C ────────────────────────────────────────────────────────
+  "collaboration_loss": {
+    title: "Remote work degrades spontaneous collaboration and innovation",
+    type: "oppose",
+    arguments: [
+      { text: "MIT research shows serendipitous hallway conversations are a primary source of breakthrough ideas.", truth: 0.7, importance: 0.75, relevance: 0.8 },
+      { text: "Async communication introduces latency into iterative creative processes that thrive on tight feedback loops.", truth: 0.75, importance: 0.8, relevance: 0.8 },
+      { text: "Digital tools (Slack, Miro, Loom) increasingly replicate spontaneous collaboration at lower friction.", truth: 0.65, importance: 0.65, relevance: -0.55 }
+    ],
+    outgoing_links: [{ target_id: "main", linkage_belief_id: "link_collab_main" }]
+  },
+
+  // ── OPPOSING BELIEF D ────────────────────────────────────────────────────────
+  "monitoring_difficulty": {
+    title: "Managers cannot effectively monitor and align remote worker output",
+    type: "oppose",
+    arguments: [
+      { text: "Output-based management is better suited to knowledge work than presence-based monitoring regardless of location.", truth: 0.8, importance: 0.75, relevance: -0.7 },
+      { text: "New remote workers without established trust require more management overhead than office counterparts.", truth: 0.65, importance: 0.6, relevance: 0.7 },
+      { text: "Surveillance software used for remote monitoring causes stress and counterproductively reduces output.", truth: 0.7, importance: 0.65, relevance: -0.5 }
+    ],
+    outgoing_links: [{ target_id: "main", linkage_belief_id: "link_monitoring_main" }]
+  },
+
+  // ── LINKAGE BELIEF: fewer_interruptions → main ────────────────────────────
+  "link_interruptions_main": {
+    title: "If remote workers face fewer interruptions, that strengthens the case that remote work improves productivity",
+    type: "linkage",
+    arguments: [
+      { text: "Interruption recovery cost (>23 min/incident) makes fewer interruptions directly material to output volume.", truth: 0.85, importance: 0.9, relevance: 0.95 },
+      { text: "Productivity gains from reduced interruptions saturate quickly; other bottlenecks dominate beyond a threshold.", truth: 0.55, importance: 0.5, relevance: -0.4 }
+    ],
+    outgoing_links: []
+  },
+
+  // ── LINKAGE BELIEF: autonomy_motivation → main ────────────────────────────
+  "link_autonomy_main": {
+    title: "If autonomy increases intrinsic motivation, that strengthens the productivity improvement claim",
+    type: "linkage",
+    arguments: [
+      { text: "Motivated workers produce higher-quality output and persist longer on hard problems — directly affecting productivity.", truth: 0.85, importance: 0.9, relevance: 0.9 },
+      { text: "Motivation effects are harder to translate to short-term measurable productivity metrics used in most studies.", truth: 0.6, importance: 0.55, relevance: -0.45 }
+    ],
+    outgoing_links: []
+  },
+
+  // ── LINKAGE BELIEF: collaboration_loss → main ────────────────────────────
+  "link_collab_main": {
+    title: "If remote work degrades collaboration, that weakens the claim that remote work improves overall productivity",
+    type: "linkage",
+    arguments: [
+      { text: "Innovation and collaborative output represent a critical fraction of knowledge-worker value — their loss matters.", truth: 0.75, importance: 0.8, relevance: 0.85 },
+      { text: "Collaboration loss affects team-level productivity more than individual productivity, and the claim is ambiguous on scope.", truth: 0.65, importance: 0.6, relevance: -0.5 }
+    ],
+    outgoing_links: []
+  },
+
+  // ── LINKAGE BELIEF: monitoring_difficulty → main ──────────────────────────
+  "link_monitoring_main": {
+    title: "If managers cannot effectively monitor remote workers, that weakens the productivity improvement claim",
+    type: "linkage",
+    arguments: [
+      { text: "Without accurate monitoring, productivity claims rely on self-report, which has well-documented upward bias.", truth: 0.7, importance: 0.7, relevance: 0.8 },
+      { text: "Management difficulty is orthogonal to actual worker output — the claim concerns productivity, not manageability.", truth: 0.8, importance: 0.75, relevance: -0.75 }
+    ],
+    outgoing_links: []
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. ENGINE — Intrinsic scores, link map, iterative Signed PageRank
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DAMPING = 0.85;
+const MAX_ITER = 100;
+const THRESHOLD = 0.0001;
+
+// Compute one argument's contribution
+function argScore(arg) {
+  return arg.truth * arg.importance * arg.relevance;
+}
+
+// Sigmoid-like normaliser: maps any sum to [-1, +1] smoothly
+// Uses tanh so large stacks don't just railgun to extremes
+function normalise(sum, count) {
+  if (count === 0) return 0;
+  const avg = sum / count;
+  return Math.tanh(avg * 2); // tanh keeps it bounded and smooth
+}
+
+// Compute intrinsic score for a belief
+function computeIntrinsic(belief) {
+  const scores = belief.arguments.map(argScore);
+  const sum = scores.reduce((a, b) => a + b, 0);
+  return normalise(sum, scores.length);
+}
+
+// Build: beliefs map with computed fields, plus reverse link map
+function buildEngine() {
+  const beliefs = {};
+
+  // Deep-clone raw data and compute intrinsic scores
+  for (const [id, raw] of Object.entries(RAW_BELIEFS)) {
+    beliefs[id] = {
+      id,
+      title: raw.title,
+      type: raw.type,
+      arguments: raw.arguments.map(a => ({ ...a, score: argScore(a) })),
+      outgoing_links: (raw.outgoing_links || []).map(l => ({ ...l })),
+      intrinsicScore: 0,
+      score: 0
+    };
+    beliefs[id].intrinsicScore = computeIntrinsic(beliefs[id]);
+    beliefs[id].score = beliefs[id].intrinsicScore; // init = intrinsic
+  }
+
+  // Build reverse map: targetId → [ { sourceId, linkageId } ]
+  const incomingLinks = {};
+  for (const b of Object.values(beliefs)) {
+    for (const link of b.outgoing_links) {
+      if (!incomingLinks[link.target_id]) incomingLinks[link.target_id] = [];
+      incomingLinks[link.target_id].push({ sourceId: b.id, linkageId: link.linkage_belief_id });
+    }
+  }
+
+  return { beliefs, incomingLinks };
+}
+
+let ENGINE = null;
+let lastIterCount = 0;
+let lastMaxDelta = 0;
+
+function runPageRank(beliefs, incomingLinks) {
+  let iteration = 0;
+  let globalMaxDelta = Infinity;
+
+  while (iteration < MAX_ITER && globalMaxDelta > THRESHOLD) {
+    const newScores = {};
+    globalMaxDelta = 0;
+
+    for (const id of Object.keys(beliefs)) {
+      const b = beliefs[id];
+      const links = incomingLinks[id] || [];
+
+      let weightedSum = 0;
+      let weightTotal = 0;
+
+      for (const link of links) {
+        const source = beliefs[link.sourceId];
+        const linkageBelief = beliefs[link.linkageId];
+        if (!source || !linkageBelief) continue;
+
+        const linkageScore = linkageBelief.score; // linkage score IS its belief score
+        weightedSum += source.score * linkageScore;
+        weightTotal += Math.abs(linkageScore);
+      }
+
+      let incomingInfluence = 0;
+      if (weightTotal > 0) {
+        incomingInfluence = weightedSum / weightTotal;
+      }
+
+      newScores[id] = (1 - DAMPING) * b.intrinsicScore + DAMPING * incomingInfluence;
+
+      const delta = Math.abs(newScores[id] - b.score);
+      if (delta > globalMaxDelta) globalMaxDelta = delta;
+    }
+
+    for (const id of Object.keys(beliefs)) {
+      beliefs[id].score = newScores[id];
+    }
+
+    iteration++;
+  }
+
+  return { iteration, globalMaxDelta };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+
+function scoreClass(s) {
+  if (s > 0.08) return 'score-pos';
+  if (s < -0.08) return 'score-neg';
+  return 'score-neu';
+}
+
+function fmt(n, d = 3) {
+  const sign = n >= 0 ? '+' : '';
+  return sign + n.toFixed(d);
+}
+
+function scoreBar(s) {
+  const pct = Math.min(100, Math.max(0, ((s + 1) / 2) * 100)).toFixed(1);
+  const color = s > 0.08 ? 'var(--green)' : s < -0.08 ? 'var(--red)' : 'var(--gray)';
+  return `<div class="conv-bar"><div class="conv-fill" style="width:${pct}%;background:${color}"></div></div>`;
+}
+
+function renderArgTable(args, beliefId) {
+  const rows = args.map((a, i) => {
+    const sc = a.score;
+    return `<tr>
+      <td class="arg-text">${a.text}</td>
+      <td style="text-align:center">${fmt(a.truth,2)}</td>
+      <td style="text-align:center">${a.importance.toFixed(2)}</td>
+      <td style="text-align:center">${fmt(a.relevance,2)}</td>
+      <td class="formula-cell" style="text-align:center">${fmt(a.truth,2)}×${a.importance.toFixed(2)}×${fmt(a.relevance,2)}</td>
+      <td class="result-cell ${scoreClass(sc)}" style="text-align:center">${fmt(sc,3)}</td>
+    </tr>`;
+  }).join('');
+
+  return `<table class="args-table">
+    <thead><tr>
+      <th>Argument</th><th>Truth</th><th>Importance</th><th>Relevance</th><th>Formula</th><th>Score</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function renderMathBox(b, incomingLinks, beliefs) {
+  const scores = b.arguments.map(a => a.score);
+  const sum = scores.reduce((x, y) => x + y, 0);
+  const intrinsic = b.intrinsicScore;
+
+  let html = `<div class="math-box">
+    <div class="math-title">Score Derivation</div>`;
+
+  html += `<div class="math-row">
+    <span class="math-eq">Sum of argument scores: ${scores.map(s => fmt(s,3)).join(' + ')}</span>
+    <span class="math-val" style="color:var(--muted)">${fmt(sum,4)}</span>
+  </div>
+  <div class="math-row">
+    <span class="math-eq">Avg = ${fmt(sum,4)} / ${scores.length} = ${fmt(sum/scores.length,4)} &nbsp;→&nbsp; tanh(avg × 2)</span>
+    <span class="math-val">Intrinsic = <em>${fmt(intrinsic,4)}</em></span>
+  </div>`;
+
+  const links = incomingLinks[b.id] || [];
+  if (links.length > 0) {
+    let weightedSum = 0;
+    let weightTotal = 0;
+    const linkLines = links.map(link => {
+      const src = beliefs[link.sourceId];
+      const lb = beliefs[link.linkageId];
+      if (!src || !lb) return '';
+      const contribution = src.score * lb.score;
+      weightedSum += contribution;
+      weightTotal += Math.abs(lb.score);
+      return `<div class="math-row" style="margin-top:4px">
+        <span class="math-eq" style="padding-left:10px">&rarr; src(${src.title.slice(0,30)}…) × linkage(${fmt(lb.score,3)}) = ${fmt(src.score,3)} × ${fmt(lb.score,3)}</span>
+        <span class="math-val">${fmt(contribution,4)}</span>
+      </div>`;
+    }).join('');
+
+    const infl = weightTotal > 0 ? weightedSum / weightTotal : 0;
+    html += `<div class="math-row" style="margin-top:10px"><span class="math-eq">Incoming links:</span></div>`;
+    html += linkLines;
+    html += `<div class="math-row" style="margin-top:4px">
+      <span class="math-eq">Weighted influence = ${fmt(weightedSum,4)} / ${fmt(weightTotal,4)}</span>
+      <span class="math-val">${fmt(infl,4)}</span>
+    </div>
+    <div class="math-row" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">
+      <span class="math-eq">Final = (1−${DAMPING}) × ${fmt(intrinsic,4)} + ${DAMPING} × ${fmt(infl,4)}</span>
+      <span class="math-val" style="color:var(--blue)">= <strong>${fmt(b.score,4)}</strong></span>
+    </div>`;
+  } else {
+    html += `<div class="math-row" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">
+      <span class="math-eq">No incoming links → Final score = Intrinsic score</span>
+      <span class="math-val" style="color:var(--blue)">= <strong>${fmt(b.score,4)}</strong></span>
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function renderIncomingLinks(b, incomingLinks, beliefs) {
+  const links = incomingLinks[b.id] || [];
+  if (links.length === 0) return '';
+
+  const rows = links.map(link => {
+    const src = beliefs[link.sourceId];
+    const lb = beliefs[link.linkageId];
+    if (!src || !lb) return '';
+    const contribution = src.score * lb.score;
+    return `<div class="link-row">
+      <span class="link-arrow">&#8599;</span>
+      <span class="link-source">${src.title}</span>
+      <span class="link-via">via <em onclick="openModal('${lb.id}')" style="cursor:pointer;color:var(--yellow)">${lb.title.slice(0,50)}…</em></span>
+      <span class="link-contribution">src(${fmt(src.score,3)}) × lnk(${fmt(lb.score,3)}) = <strong>${fmt(contribution,4)}</strong></span>
+    </div>`;
+  }).join('');
+
+  return `<div class="links-section"><div class="section-title" style="margin-top:14px">Incoming link contributions</div>${rows}</div>`;
+}
+
+function renderCard(b, incomingLinks, beliefs) {
+  const typeLabel = { main: 'Main Belief', support: 'Supporting', oppose: 'Opposing', linkage: 'Linkage' }[b.type] || b.type;
+  const typeClass = { main: 'type-main', support: 'type-support', oppose: 'type-oppose', linkage: 'type-linkage' }[b.type] || '';
+  const sc = b.score;
+  const isc = b.intrinsicScore;
+
+  return `<div class="belief-card ${b.type === 'main' ? 'main-belief' : ''}" id="card-${b.id}">
+    <div class="card-header" onclick="toggleCard('${b.id}')">
+      <span class="card-type ${typeClass}">${typeLabel}</span>
+      <span class="card-title">${b.title}</span>
+      <div class="card-scores">
+        <span class="score-label">Final score</span>
+        <span class="score-pill ${scoreClass(sc)}" onclick="event.stopPropagation();openModal('${b.id}')">${fmt(sc,3)}</span>
+        <span class="score-label">Intrinsic</span>
+        <span class="score-pill ${scoreClass(isc)}" style="font-size:11px;opacity:0.7">${fmt(isc,3)}</span>
+      </div>
+      <span class="chevron" id="chev-${b.id}">&#9658;</span>
+    </div>
+    <div class="card-body" id="body-${b.id}">
+      <div style="margin-top:14px"><div class="section-title">Arguments</div>
+        ${renderArgTable(b.arguments, b.id)}
+      </div>
+      ${renderIncomingLinks(b, incomingLinks, beliefs)}
+      ${renderMathBox(b, incomingLinks, beliefs)}
+    </div>
+  </div>`;
+}
+
+function renderAll() {
+  if (!ENGINE) return;
+  const { beliefs, incomingLinks } = ENGINE;
+  const grid = document.getElementById('beliefGrid');
+
+  // Order: main first, then supporting/opposing, then linkages
+  const order = ['main', 'fewer_interruptions', 'autonomy_motivation', 'collaboration_loss', 'monitoring_difficulty',
+                  'link_interruptions_main', 'link_autonomy_main', 'link_collab_main', 'link_monitoring_main'];
+
+  grid.innerHTML = order.map(id => renderCard(beliefs[id], incomingLinks, beliefs)).join('');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. CONTROLS
+// ─────────────────────────────────────────────────────────────────────────────
+
+function runEngine() {
+  ENGINE = buildEngine();
+  const { iteration, globalMaxDelta } = runPageRank(ENGINE.beliefs, ENGINE.incomingLinks);
+  lastIterCount = iteration;
+  lastMaxDelta = globalMaxDelta;
+
+  document.getElementById('iterCount').textContent = iteration;
+  document.getElementById('maxDelta').textContent = globalMaxDelta.toFixed(6);
+  document.getElementById('convStatus').textContent = globalMaxDelta < THRESHOLD ? '✓ Converged' : '⚠ Max iterations reached';
+
+  renderAll();
+}
+
+function resetScores() {
+  ENGINE = null;
+  document.getElementById('beliefGrid').innerHTML = '<div style="color:var(--muted);padding:20px">Click "Run / Recalculate" to compute scores.</div>';
+  document.getElementById('iterCount').textContent = '—';
+  document.getElementById('maxDelta').textContent = '—';
+  document.getElementById('convStatus').textContent = 'Not run';
+}
+
+function toggleCard(id) {
+  const body = document.getElementById('body-' + id);
+  const chev = document.getElementById('chev-' + id);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. MODAL — Click score to inspect full math
+// ─────────────────────────────────────────────────────────────────────────────
+
+function openModal(id) {
+  if (!ENGINE) return;
+  const { beliefs, incomingLinks } = ENGINE;
+  const b = beliefs[id];
+  if (!b) return;
+
+  const typeLabel = { main: 'Main Belief', support: 'Supporting Belief', oppose: 'Opposing Belief', linkage: 'Linkage Belief' }[b.type] || b.type;
+
+  document.getElementById('modalBody').innerHTML = `
+    <h2>${b.title}</h2>
+    <div class="modal-sub">${typeLabel} &nbsp;·&nbsp; Final Score: <strong style="color:var(--blue)">${fmt(b.score,4)}</strong> &nbsp;·&nbsp; Intrinsic: ${fmt(b.intrinsicScore,4)}</div>
+    ${scoreBar(b.score)}
+    <div style="margin-top:18px"><div class="section-title">Arguments</div>${renderArgTable(b.arguments, id)}</div>
+    ${renderIncomingLinks(b, incomingLinks, beliefs)}
+    ${renderMathBox(b, incomingLinks, beliefs)}
+    <div class="sep"></div>
+    <div class="italic" style="font-size:12px">Signed PageRank · damping=${DAMPING} · converged in ${lastIterCount} iterations · Δmax=${lastMaxDelta.toFixed(6)}</div>
+  `;
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Auto-run on load
+// ─────────────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', runEngine);
+</script>
+</body>
+</html>

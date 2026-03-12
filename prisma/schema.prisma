@@ -1,0 +1,902 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── Prediction Market Models ────────────────────────────────────
+
+model Claim {
+  id               String        @id @default(cuid())
+  title            String
+  description      String
+  category         String        @default("general")
+  status           ClaimStatus   @default(ACTIVE)
+  reasonRank       Float         @default(0.0)
+  truthScore       Float         @default(0.0)
+  logicalValidity  Float         @default(0.0)
+  evidenceQuality  Float         @default(0.0)
+  resolution       Resolution?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  resolvedAt       DateTime?
+
+  liquidityPool    LiquidityPool?
+  subArguments     SubArgument[]
+  claimEvidence    ClaimEvidence[]
+  shares           Share[]
+  trades           Trade[]
+
+  @@index([status])
+  @@index([reasonRank])
+  @@index([category])
+}
+
+enum ClaimStatus {
+  ACTIVE
+  RESOLVED_YES
+  RESOLVED_NO
+  EXPIRED
+}
+
+enum Resolution {
+  YES
+  NO
+}
+
+model LiquidityPool {
+  id              String   @id @default(cuid())
+  claimId         String   @unique
+  yesShares       Float    @default(1000.0)
+  noShares        Float    @default(1000.0)
+  constantProduct Float    @default(1000000.0)
+  totalVolume     Float    @default(0.0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  claim           Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
+}
+
+model Share {
+  id               String    @id @default(cuid())
+  userId           String
+  claimId          String
+  shareType        ShareType
+  quantity         Float
+  avgPurchasePrice Float
+  createdAt        DateTime  @default(now())
+
+  user             User      @relation(fields: [userId], references: [id])
+  claim            Claim     @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, claimId, shareType])
+  @@index([userId])
+  @@index([claimId])
+}
+
+enum ShareType {
+  YES
+  NO
+}
+
+model Trade {
+  id            String    @id @default(cuid())
+  userId        String
+  claimId       String
+  shareType     ShareType
+  direction     TradeDirection
+  quantity      Float
+  pricePerShare Float
+  totalCost     Float
+  createdAt     DateTime  @default(now())
+
+  user          User      @relation(fields: [userId], references: [id])
+  claim         Claim     @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([claimId])
+  @@index([createdAt])
+}
+
+enum TradeDirection {
+  BUY
+  SELL
+}
+
+model User {
+  id             String   @id @default(cuid())
+  username       String   @unique
+  currentBalance Float    @default(10000.0)
+  totalInvested  Float    @default(0.0)
+  realizedPnl    Float    @default(0.0)
+  roi            Float    @default(0.0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  shares         Share[]
+  trades         Trade[]
+}
+
+model SubArgument {
+  id              String            @id @default(cuid())
+  claimId         String
+  position        ArgumentPosition
+  content         String
+  logicalValidity Float             @default(0.0)
+  evidenceQuality Float             @default(0.0)
+  createdAt       DateTime          @default(now())
+
+  claim           Claim             @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  claimEvidence   ClaimEvidence[]
+
+  @@index([claimId])
+}
+
+enum ArgumentPosition {
+  PRO
+  CON
+}
+
+model ClaimEvidence {
+  id               String             @id @default(cuid())
+  claimId          String
+  subArgumentId    String?
+  sourceUrl        String?
+  sourceType       EvidenceSourceType
+  description      String
+  reliabilityScore Float              @default(0.5)
+  createdAt        DateTime           @default(now())
+
+  claim            Claim              @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  subArgument      SubArgument?       @relation(fields: [subArgumentId], references: [id])
+
+  @@index([claimId])
+  @@index([subArgumentId])
+}
+
+enum EvidenceSourceType {
+  PEER_REVIEWED
+  INSTITUTIONAL
+  JOURNALISTIC
+  PRIMARY_SOURCE
+  ANECDOTAL
+  EXPERT_OPINION
+}
+
+// ─── Belief Analysis Models ──────────────────────────────────────
+
+// Core belief - each belief gets its own analysis page
+model Belief {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  statement   String
+  category    String?
+  subcategory String?
+  deweyNumber String?
+  positivity  Float    @default(0) // -100 to +100
+
+  /// Confidence Stability Score (0-1): how settled the overall belief score is under scrutiny.
+  /// A belief that has been stable across many arguments scores near 1.0.
+  /// A belief that shifts with each new argument scores near 0.0.
+  /// Computed from argument count, score balance, and pro/con ratio consistency.
+  stabilityScore Float @default(0.5)
+
+  /// Claim Strength (0-1): how much this belief asserts, and therefore how much
+  /// evidence it requires to be defensible. Maps to four bands:
+  ///   0.2 = Weak      — modest support suffices (e.g. "policy X could be improved")
+  ///   0.5 = Moderate  — specific data required (e.g. "policy X has documented failures")
+  ///   0.8 = Strong    — comprehensive evidence required (e.g. "policy X causes serious net harm")
+  ///   1.0 = Extreme   — near-total evidence dominance required (e.g. "policy X must be abolished")
+  /// A weak claim can achieve a high score with modest evidence.
+  /// An extreme claim must earn its score through extraordinary evidence — or it scores near zero.
+  claimStrength Float @default(0.5)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Arguments where this belief IS the reason (child)
+  asArgument Argument[] @relation("ArgumentBelief")
+
+  // Arguments attached TO this belief (parent)
+  arguments Argument[] @relation("ParentBelief")
+
+  evidence          Evidence[]
+  objectiveCriteria ObjectiveCriteria[]
+  valuesAnalysis    ValuesAnalysis?
+  interestsAnalysis InterestsAnalysis?
+  assumptions       Assumption[]
+  costBenefitAnalysis CostBenefitAnalysis?
+  impactAnalysis    ImpactAnalysis?
+  compromises       Compromise[]
+  obstacles         Obstacle[]
+  biases            BiasEntry[]
+  mediaResources    MediaResource[]
+  legalEntries      LegalEntry[]
+
+  upstreamMappings   BeliefMapping[] @relation("MappingChild")
+  downstreamMappings BeliefMapping[] @relation("MappingParent")
+
+  similarTo      SimilarBelief[] @relation("SimilarFrom")
+  similarFrom    SimilarBelief[] @relation("SimilarTo")
+
+  productReview  ProductReview?
+}
+
+enum LinkageClassification {
+  DEDUCTIVE_PROOF
+  STRONG_CAUSAL
+  CONTEXTUAL
+  ANECDOTAL
+  IRRELEVANT
+  NON_SEQUITUR
+  CONTRADICTION
+}
+
+/// Distinguishes the two sub-types of linkage edge.
+/// ECLS: Evidence-to-Conclusion Linkage Score (raw data → belief).
+/// ACLS: Argument-to-Conclusion Linkage Score (belief → parent belief).
+enum LinkageScoreType {
+  ECLS
+  ACLS
+}
+
+model Argument {
+  id Int @id @default(autoincrement())
+
+  parentBeliefId Int
+  parentBelief   Belief @relation("ParentBelief", fields: [parentBeliefId], references: [id])
+
+  beliefId Int
+  belief   Belief @relation("ArgumentBelief", fields: [beliefId], references: [id])
+
+  side         String // "agree" or "disagree"
+  linkageScore Float  @default(0.1)
+  impactScore  Float  @default(0)
+
+  /// Importance Score (0-1): how much this argument moves the probability needle.
+  /// 1.0 = decisive, 0.5 = moderate, 0.1 = minor. Weights the argument's contribution
+  /// to the parent belief's ReasonRank. Analogous to PageRank's link weight.
+  importanceScore Float @default(1.0)
+
+  linkageType      LinkageClassification @default(ANECDOTAL)
+  /// Whether this edge is Evidence-to-Conclusion (ECLS) or Argument-to-Conclusion (ACLS).
+  linkageScoreType LinkageScoreType      @default(ACLS)
+  /// Depth of this argument in the belief tree (0 = direct child of root belief).
+  /// Used for depth attenuation: effective weight = base_weight × 0.5^depth
+  depth            Int                   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  linkageArguments LinkageArgument[]
+  linkageVotes     LinkageVote[]
+}
+
+model LinkageArgument {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+  side       String
+  statement  String
+  strength   Float    @default(0.5)
+  createdAt  DateTime @default(now())
+}
+
+model LinkageVote {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  userId     String
+  score      Float
+  weight     Float    @default(1.0)
+
+  direction    String?
+  isRelevant   Boolean?
+  strength     String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([argumentId, userId])
+  @@index([argumentId])
+}
+
+model Evidence {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side        String // "supporting" or "weakening"
+  description String
+  sourceUrl   String?
+  evidenceType String @default("T3")
+
+  sourceIndependenceWeight Float @default(0.5)
+  replicationQuantity      Int   @default(1)
+  conclusionRelevance      Float @default(0.5)
+  replicationPercentage    Float @default(1.0)
+
+  /// Evidence Verification Score (EVS): computed from EVS = ESIW × log2(ERQ+1) × ECRS × ERP.
+  /// Represents the overall epistemic weight of this evidence item.
+  /// T1 (peer-reviewed) sources start higher than T4 (opinion/anecdote).
+  evsScore Float @default(0.0)
+
+  /// Evidence linkage is always ECLS (Evidence-to-Conclusion).
+  linkageScoreType LinkageScoreType @default(ECLS)
+  linkageScore     Float            @default(0.5)
+  impactScore      Float            @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ObjectiveCriteria {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  description      String
+  /// Validity Score (0-1): does this criterion actually measure what we think it measures?
+  validityScore     Float @default(0.5)
+  /// Reliability Score (0-1): can different people measure this consistently?
+  reliabilityScore  Float @default(0.5)
+  /// Independence Score (0-1): is the data source neutral / free of conflicts of interest?
+  independenceScore Float @default(0.5)
+  /// Linkage Score (0-1): how strongly does this criterion correlate with the ultimate goal?
+  linkageScore     Float @default(0.5)
+  criteriaType     String?
+  totalScore       Float  @default(0)
+
+  createdAt DateTime @default(now())
+}
+
+model ValuesAnalysis {
+  id       Int    @id @default(autoincrement())
+  beliefId Int    @unique
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  supportingAdvertised String?
+  supportingActual     String?
+  opposingAdvertised   String?
+  opposingActual       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InterestsAnalysis {
+  id       Int    @id @default(autoincrement())
+  beliefId Int    @unique
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  supporterInterests   String?
+  opponentInterests    String?
+  sharedInterests      String?
+  conflictingInterests String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Assumption {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side       String // "accept" or "reject"
+  statement  String
+  strength   String @default("MODERATE")
+
+  createdAt DateTime @default(now())
+}
+
+model CostBenefitAnalysis {
+  id       Int    @id @default(autoincrement())
+  beliefId Int    @unique
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  benefits          String?
+  benefitLikelihood Float?
+  costs             String?
+  costLikelihood    Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ImpactAnalysis {
+  id       Int    @id @default(autoincrement())
+  beliefId Int    @unique
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  shortTermEffects    String?
+  shortTermCosts      String?
+  longTermEffects     String?
+  longTermChanges     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Compromise {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  description String
+  createdAt   DateTime @default(now())
+}
+
+model Obstacle {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side        String // "supporter" or "opposition"
+  description String
+  createdAt   DateTime @default(now())
+}
+
+model BiasEntry {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side     String
+  biasType String
+  description String?
+
+  createdAt DateTime @default(now())
+}
+
+model MediaResource {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side       String // "supporting" or "opposing"
+  mediaType  String // "book", "article", "podcast", "movie", "song"
+  title      String
+  author     String?
+  url        String?
+
+  /// Media Truth Score (0-1): flags editorializing, sensationalism, or misleading framing.
+  /// Even when underlying facts are technically accurate, genre context matters for reliability.
+  /// Derived from genreType and reliabilityTier. High = factual/neutral, Low = opinion/advocacy.
+  truthScore Float @default(0.5)
+
+  /// Media Genre Score (0-1): reliability weight based on the source's genre classification.
+  /// Genre 1 (peer-reviewed/official) = 1.0, Genre 4 (opinion/anecdote) = 0.25.
+  /// Mirrors the Evidence tier system but applied to media sources.
+  genreScore Float @default(0.5)
+
+  /// Genre classification: "peer_reviewed" | "institutional" | "investigative" |
+  /// "news_report" | "editorial" | "opinion" | "social_media" | "unknown"
+  genreType String @default("unknown")
+
+  /// Reliability tier matching Evidence tiers: "T1" | "T2" | "T3" | "T4"
+  /// T1 = peer-reviewed/official, T2 = expert/institutional,
+  /// T3 = journalism/surveys, T4 = opinion/anecdote
+  reliabilityTier String @default("T3")
+
+  createdAt DateTime @default(now())
+}
+
+model LegalEntry {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side        String // "supporting" or "contradicting"
+  description String
+  jurisdiction String?
+
+  createdAt DateTime @default(now())
+}
+
+model BeliefMapping {
+  id       Int @id @default(autoincrement())
+
+  parentBeliefId Int
+  parentBelief   Belief @relation("MappingParent", fields: [parentBeliefId], references: [id])
+
+  childBeliefId Int
+  childBelief   Belief @relation("MappingChild", fields: [childBeliefId], references: [id])
+
+  direction String // "upstream" or "downstream"
+  side      String // "support" or "oppose"
+
+  createdAt DateTime @default(now())
+}
+
+model SimilarBelief {
+  id Int @id @default(autoincrement())
+
+  fromBeliefId Int
+  fromBelief   Belief @relation("SimilarFrom", fields: [fromBeliefId], references: [id])
+
+  toBeliefId Int
+  toBelief   Belief @relation("SimilarTo", fields: [toBeliefId], references: [id])
+
+  variant String // "extreme" or "moderate"
+
+  /// Belief Equivalency Score (0-1): how much these two beliefs are making the
+  /// same underlying claim despite different wording. 1.0 = identical claims,
+  /// 0.0 = unrelated. Used to link parallel debates and surface the better-argued
+  /// version rather than running redundant parallel discussions.
+  equivalencyScore Float @default(0.0)
+
+  createdAt DateTime @default(now())
+}
+
+// ─── Debate Topic Models ─────────────────────────────────────────
+
+/// A full Wikipedia-for-debates topic page (e.g. "Marriage", "Immigration", "Climate Change").
+/// Stores all structured sections: positions, spectra, evidence, criteria, values, etc.
+model DebateTopic {
+  id    Int    @id @default(autoincrement())
+  slug  String @unique
+  title String
+
+  /// Breadcrumb category path stored as JSON array, e.g. ["Society & Culture", "Family"]
+  categoryPath String @default("[]")
+
+  /// External reference metadata
+  wikipediaUrl      String?
+  deweyDecimal      String?
+  locSubjectHeading String?
+  locUrl            String?
+  stanfordUrl       String?
+
+  /// Main body content
+  definition String
+  scope      String
+
+  /// Key insight shown above Foundational Assumptions table
+  assumptionKeyInsight String?
+
+  /// Topic Metrics (shown in the metrics box at the top)
+  /// Importance Score (0-100): community-assigned weight for how consequential this topic is
+  importanceScore Int @default(0)
+  /// Evidence Depth: how much high-quality evidence exists for claims on this topic
+  evidenceDepth String @default("Med") // "Low", "Med", "High"
+  /// Controversy Rating (0-100): how contested this topic is — derived from argument score variance
+  controversyRating Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  positions           DebatePosition[]
+  claimMagnitudeLevels DebateClaimMagnitude[]
+  escalationLevels    DebateEscalation[]
+  assumptions         DebateAssumption[]
+  abstractionRungs    DebateAbstractionRung[]
+  coreValues          DebateCoreValues?
+  commonGround        DebateCommonGround?
+  evidenceItems       DebateEvidence[]
+  objectiveCriteria   DebateObjectiveCriteria[]
+  mediaResources      DebateMediaResource[]
+  relatedTopics       DebateRelatedTopic[]
+
+  @@index([slug])
+}
+
+/// One row in Spectrum 2 (Claim Magnitude — topic-specific pro and anti examples).
+/// Replaces the generic static component with per-topic AI-generated content.
+model DebateClaimMagnitude {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  sortOrder       Int    @default(0)
+  /// "Weak (20%)", "Moderate (50%)", "Strong (80%)", "Extreme (100%)"
+  magnitudeLevel  String
+  magnitudePercent Int   @default(50)
+  sublabel        String /// "Modest Assertion", "Standard Assertion", "Broad Assertion", "Maximal Assertion"
+  /// Topic-specific example of a pro-topic claim at this magnitude
+  proExample      String
+  /// Topic-specific example of an anti-topic claim at this magnitude
+  antiExample     String
+  /// Scope description: what this level of assertion implies
+  scopeDescription String
+
+  @@index([topicId])
+}
+
+/// One row in Spectrum 1 (The Debate Landscape, -100 to +100).
+model DebatePosition {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  positionScore Int    /// -100, -50, 0, 50, 100
+  positionLabel String /// "Strongly Oppose", "Skeptical", "Neutral", "Supportive", "Strongly Support"
+  coreBelief    String
+  topArgument   String
+  beliefScore   String @default("[0]")
+  mediaUrl      String?
+
+  @@index([topicId])
+}
+
+/// One row in Spectrum 3 (Civic Engagement Level, 4 core levels + optional extended).
+/// The template distinguishes pro-topic and anti-topic behaviour at each level.
+model DebateEscalation {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  level       Int    /// 1–4 (core civic engagement) or up to 6 (extended escalation)
+  levelLabel  String /// "Preference", "Active Advocacy", "Principled Non-Compliance", "Civil Disobedience", …
+  /// Generic description of what this level means (used as fallback)
+  description String
+  /// Generic example (used when pro/anti split is not populated)
+  example     String
+  /// Which principles are still honored at this level
+  principles  String
+
+  /// Pro-topic: what engagement at this level looks like for supporters
+  proDescription String @default("")
+  /// Anti-topic: what engagement at this level looks like for opponents
+  antiDescription String @default("")
+  /// Concrete pro-topic example (real historical parallel or hypothetical)
+  proExample  String @default("")
+  /// Concrete anti-topic example
+  antiExample String @default("")
+
+  @@index([topicId])
+}
+
+/// One row in the Foundational Assumptions table.
+model DebateAssumption {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  positionRange String /// "-100 to -50", "-50 to -20", "-20 to +20", "+20 to +50", "+50 to +100"
+  positionLabel String /// "Strongly Oppose", etc.
+  /// JSON array of assumption strings, ordered general → specific
+  assumptions   String @default("[]")
+
+  @@index([topicId])
+}
+
+/// One rung of Spectrum 4 (Abstraction Ladder).
+model DebateAbstractionRung {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  sortOrder  Int    @default(0)
+  rungLabel  String /// "Most General (Worldview)", "Political/Ethical Philosophy", "This Topic", "Most Specific (Policy/Action)"
+  proChain   String
+  conChain   String
+
+  @@index([topicId])
+}
+
+/// Core Values Conflict section (one record per topic).
+model DebateCoreValues {
+  id      Int         @id @default(autoincrement())
+  topicId Int         @unique
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  /// JSON arrays
+  supportingAdvertised String @default("[]")
+  supportingActual     String @default("[]")
+  opposingAdvertised   String @default("[]")
+  opposingActual       String @default("[]")
+}
+
+/// Common Ground & Compromise section (one record per topic).
+model DebateCommonGround {
+  id      Int         @id @default(autoincrement())
+  topicId Int         @unique
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  /// JSON arrays
+  agreements   String @default("[]")
+  compromises  String @default("[]")
+}
+
+/// One row in the Evidence Ledger (supporting or weakening).
+model DebateEvidence {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  side         String /// "supporting" or "weakening"
+  title        String
+  source       String
+  finding      String
+  qualityScore Int    @default(75)
+  qualityLabel String @default("Peer Reviewed")
+  url          String?
+
+  @@index([topicId])
+}
+
+/// One row in the Best Objective Criteria table.
+model DebateObjectiveCriteria {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  name          String
+  description   String
+  criteriaScore Int    @default(50)
+  validity      String @default("Med") /// "High", "Med", "Low"
+  reliability   String @default("Med")
+  linkage       String @default("Med")
+  importance    String @default("Med")
+  url           String?
+
+  @@index([topicId])
+}
+
+/// One row in the Best Media & Resources table.
+model DebateMediaResource {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  title      String
+  medium     String /// "Book", "Academic", "Documentary", "Article", "Podcast"
+  biasOrTone String
+  positivity Int    @default(0)  /// -100 to +100
+  magnitude  Int    @default(50) /// 0–100
+  escalation Int    @default(2)  /// 1–6
+  keyInsight String
+  url        String?
+
+  @@index([topicId])
+}
+
+/// A parent / child / sibling / opposing relationship from this topic to another.
+model DebateRelatedTopic {
+  id      Int         @id @default(autoincrement())
+  topicId Int
+  topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  /// "parent" = broader category, "child" = sub-issue, "sibling" = related concept,
+  /// "opposingView" = critical or opposing perspective on this topic
+  relationType String
+  relatedTitle String
+  relatedSlug  String?
+  relatedUrl   String?
+
+  @@index([topicId])
+}
+
+// ─── Product Review Models ──────────────────────────────────────
+
+// Core product review - links to a Belief ("X makes the best Y")
+model ProductReview {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  productName String   // e.g., "Ford F-150"
+  brand       String   // e.g., "Ford"
+  claim       String   // e.g., "Ford makes the best trucks"
+
+  // Category hierarchy: Product Type > Subcategory > Brand/Model
+  categoryType    String   // e.g., "Trucks"
+  categorySubtype String?  // e.g., "Full-size Pickup"
+
+  // Scores computed from the linked belief's argument tree
+  overallScore    Float    @default(0)
+  categoryRank    Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Link to the belief system for argument scoring
+  beliefId  Int?     @unique
+  belief    Belief?  @relation(fields: [beliefId], references: [id])
+
+  // Product-specific analysis sections
+  performanceData  ProductPerformance[]
+  tradeoffs        ProductTradeoff[]
+  alternatives     ProductAlternative[]
+  userProfiles     ProductUserProfile[]
+  awards           ProductAward[]
+  ecosystemItems   ProductEcosystem[]
+
+  @@index([categoryType])
+  @@index([overallScore])
+  @@index([brand])
+}
+
+// Per-criterion performance data with evidence quality tiers
+model ProductPerformance {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  criterion       String   // e.g., "Towing Capacity"
+  measurement     String   // e.g., "14,000 lbs"
+  evidenceTier    Int      @default(3) // 1-4 (T1=lab tested, T4=anecdotal)
+  comparisonToAvg String   @default("Same") // "Better", "Worse", "Same"
+  sourceUrl       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+// Design trade-offs: what the product optimizes for vs. sacrifices
+model ProductTradeoff {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  side            String  // "optimizes" or "sacrifices"
+  category        String  // "advertised" or "actual"
+  description     String
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+// Alternative products (premium, budget, or lateral)
+model ProductAlternative {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  alternativeName String
+  tier            String  // "premium", "budget", or "lateral"
+  keyAdvantage    String
+  linkSlug        String? // Optional link to that product's review
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+// User profile fit analysis
+model ProductUserProfile {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  side            String  // "ideal" or "not_ideal"
+  description     String
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+// Awards and certifications
+model ProductAward {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  side            String  // "independent" or "manufacturer"
+  title           String
+  details         String?
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+// Product ecosystem: upstream dependencies, downstream additions, lock-in
+model ProductEcosystem {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  category        String  // "upstream", "downstream", or "lockin"
+  description     String
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}

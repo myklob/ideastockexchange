@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market - Idea Stock Exchange</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-content">
+      <a href="/" class="nav-brand">💡 Idea Stock Exchange</a>
+      <div class="nav-links">
+        <a href="/market">Market</a>
+        <a href="/portfolio">Portfolio</a>
+        <a href="/create">Create Idea</a>
+        <a href="/leaderboard">Leaderboard</a>
+        <div id="user-section"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 class="card-header" style="margin: 0;">Idea Marketplace</h1>
+        <input type="text" id="search" placeholder="Search ideas..." style="padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0; width: 300px;">
+      </div>
+
+      <div id="loading" class="spinner"></div>
+      <div id="ideas-container" class="ideas-grid hidden"></div>
+      <div id="no-results" class="hidden" style="text-align: center; padding: 40px; color: #888;">
+        No ideas found. <a href="/create">Be the first to create one!</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/common.js"></script>
+  <script>
+    let allIdeas = [];
+
+    async function loadIdeas() {
+      try {
+        const response = await fetch('/api/ideas');
+        allIdeas = await response.json();
+        displayIdeas(allIdeas);
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('ideas-container').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading ideas:', error);
+        document.getElementById('loading').classList.add('hidden');
+      }
+    }
+
+    function displayIdeas(ideas) {
+      const container = document.getElementById('ideas-container');
+      const noResults = document.getElementById('no-results');
+
+      if (ideas.length === 0) {
+        container.classList.add('hidden');
+        noResults.classList.remove('hidden');
+        return;
+      }
+
+      container.classList.remove('hidden');
+      noResults.classList.add('hidden');
+
+      container.innerHTML = ideas.map(idea => `
+        <div class="idea-card" onclick="window.location.href='/idea/${idea.ticker}'">
+          <div class="idea-ticker">${idea.ticker}</div>
+          <div class="idea-title">${idea.title}</div>
+          <div class="idea-price">$${idea.current_price.toFixed(2)}</div>
+          <div class="idea-creator">by ${idea.creator_name}</div>
+          <p style="color: #666; font-size: 14px; margin-top: 10px;">
+            ${idea.description ? idea.description.substring(0, 100) + '...' : 'No description'}
+          </p>
+          <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 14px; color: #888;">
+            ${idea.shares_outstanding} shares available
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Search functionality
+    document.getElementById('search').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = allIdeas.filter(idea =>
+        idea.ticker.toLowerCase().includes(query) ||
+        idea.title.toLowerCase().includes(query) ||
+        idea.description?.toLowerCase().includes(query)
+      );
+      displayIdeas(filtered);
+    });
+
+    // Real-time price updates
+    const eventSource = new EventSource('/api/stream/prices');
+    eventSource.onmessage = (event) => {
+      const prices = JSON.parse(event.data);
+      prices.forEach(({ ticker, price }) => {
+        const idea = allIdeas.find(i => i.ticker === ticker);
+        if (idea) {
+          idea.current_price = price;
+        }
+      });
+      // Re-display with updated prices
+      const searchQuery = document.getElementById('search').value.toLowerCase();
+      if (searchQuery) {
+        const filtered = allIdeas.filter(idea =>
+          idea.ticker.toLowerCase().includes(searchQuery) ||
+          idea.title.toLowerCase().includes(searchQuery) ||
+          idea.description?.toLowerCase().includes(searchQuery)
+        );
+        displayIdeas(filtered);
+      } else {
+        displayIdeas(allIdeas);
+      }
+    };
+
+    initAuth();
+    loadIdeas();
+  </script>
+</body>
+</html>

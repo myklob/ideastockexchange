@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --color-agree: #e6ffe6;
+  --color-disagree: #ffe6e6;
+  --color-neutral: #f0f0f0;
+  --color-info: #e6f3ff;
+  --color-border: #ccc;
+  --color-muted: #666;
+  --color-link: #2563eb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --color-agree: #1a3a1a;
+    --color-disagree: #3a1a1a;
+    --color-neutral: #1a1a1a;
+    --color-info: #1a2a3a;
+    --color-border: #333;
+    --color-muted: #999;
+    --color-link: #60a5fa;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.ise-table {
+  border-collapse: collapse;
+  border-color: var(--color-border);
+  width: 100%;
+}
+
+.ise-table th,
+.ise-table td {
+  border: 1px solid var(--color-border);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.ise-table thead th {
+  font-weight: 600;
+}
+
+.bg-agree { background-color: var(--color-agree); }
+.bg-disagree { background-color: var(--color-disagree); }
+.bg-neutral { background-color: var(--color-neutral); }
+.bg-info { background-color: var(--color-info); }
