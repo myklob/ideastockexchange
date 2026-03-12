@@ -1,0 +1,614 @@
+{
+  "conflicts": [
+    {
+      "conflictId": "CFL-001",
+      "name": "What posture should democracies adopt toward Iran?",
+      "description": "The overarching strategic question: from full engagement and diplomacy to sanctions, opposition support, and military force. 47 years of history provide an empirical record. Now in active-war phase as of Feb 28, 2026 (Operation Epic Fury).",
+      "parentTopic": "Iran",
+      "spectrumMin": -100,
+      "spectrumMax": 100,
+      "importanceScore": 96,
+      "controversyScore": 92,
+      "evidenceDepth": "Very High",
+      "stakeholderMappings": [
+        {
+          "stakeholderId": "STK-0001",
+          "position": "Supporter",
+          "role": "Maximum Pressure Advocate",
+          "appliedInterests": [
+            {
+              "interestId": "INT-002",
+              "linkageAccuracy": 88,
+              "percentMotivated": 0.85,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-001",
+                  "tier": "T2",
+                  "description": "US intelligence assessments (2018-2025) document Iran's nuclear acceleration post-JCPOA withdrawal, validating hawks' proliferation concern as the central stated motivation.",
+                  "url": "https://www.dni.gov/files/ODNI/documents/assessments/ATA-2024-Unclassified-Report.pdf",
+                  "year": 2024,
+                  "qualityScore": 88
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Decades-long consistent position predating any particular administration confirms ideological commitment, not mere politics",
+                  "Budget allocations and institutional priorities (missile defense, carrier task forces) align with stated proliferation concern",
+                  "Romney 2006-2012 platform explicitly prioritized nuclear breakout prevention as primary justification"
+                ],
+                "challenging": [
+                  "IRGC designation and proxy network reduction also highly prioritized, suggesting nuclear concern may be pretext for broader regime-change goal",
+                  "Zero-tolerance position on enrichment (even 5% for civilian use) goes beyond nonproliferation to regime-change-level demands"
+                ]
+              },
+              "contextualValidityScore": 90,
+              "validityArguments": {
+                "forHighValidity": [
+                  "A nuclear-armed theocratic state that has called for genocide of a neighboring country is a category-1 proliferation risk",
+                  "Nuclear cascade risk: Saudi Arabia, Turkey, UAE have each signaled they would pursue nuclear programs if Iran succeeds"
+                ],
+                "forLowValidity": [
+                  "Maximum pressure period (2018-2025) produced maximum nuclear progress — the policy failed at its stated goal"
+                ]
+              },
+              "compositeScore": 89
+            },
+            {
+              "interestId": "INT-011",
+              "linkageAccuracy": 78,
+              "percentMotivated": 0.60,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-002",
+                  "tier": "T4",
+                  "description": "RAND Corporation analysis (2022) of US deterrence credibility in the Middle East — documents how Iranian nuclear progress damaged US coercive signaling capacity.",
+                  "url": "",
+                  "year": 2022,
+                  "qualityScore": 75
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Consistent with US strategic doctrine that allows adversaries to acquire nuclear weapons damages extended deterrence guarantees to allies",
+                  "North Korea and China watch Iran policy closely as a signal of US red-line credibility"
+                ],
+                "challenging": [
+                  "Deterrence credibility argument can justify virtually any military action and may be post-hoc rationalization"
+                ]
+              },
+              "contextualValidityScore": 78,
+              "validityArguments": {
+                "forHighValidity": [
+                  "Extended deterrence collapse in one theater demonstrably encourages proliferation elsewhere — North Korea nuclear acceleration coincided with US Iran diplomacy"
+                ],
+                "forLowValidity": [
+                  "US has tolerated nuclear acquisitions by India, Pakistan, North Korea without deterrence collapse — argument may be overstated"
+                ]
+              },
+              "compositeScore": 78
+            },
+            {
+              "interestId": "INT-010",
+              "linkageAccuracy": 70,
+              "percentMotivated": 0.30,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-003",
+                  "tier": "T5",
+                  "description": "Revealed preference: AIPAC donation patterns, evangelical constituency pressure, and defense contractor lobbying correlate with hawkish Iran positions among congressional Iran hawks.",
+                  "url": "",
+                  "year": 2023,
+                  "qualityScore": 65
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Congressional hawks disproportionately represent districts with large pro-Israel donor bases",
+                  "Defense contractor lobbying documented in multiple ethics disclosures"
+                ],
+                "challenging": [
+                  "Many hawks have ideologically consistent nonproliferation records on other issues (e.g., Pakistan, North Korea) suggesting genuine conviction"
+                ]
+              },
+              "contextualValidityScore": 42,
+              "validityArguments": {
+                "forHighValidity": [],
+                "forLowValidity": [
+                  "Electoral base management is esteem-level motivation — legitimate but should not override safety/physiological concerns of Iranian civilians"
+                ]
+              },
+              "compositeScore": 59
+            }
+          ]
+        },
+        {
+          "stakeholderId": "STK-0002",
+          "position": "Opponent",
+          "role": "Multilateral Diplomat",
+          "appliedInterests": [
+            {
+              "interestId": "INT-002",
+              "linkageAccuracy": 85,
+              "percentMotivated": 0.80,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-004",
+                  "tier": "T2",
+                  "description": "IAEA Board of Governors reports (2015-2018) confirmed 100% Iranian compliance with JCPOA constraints while in force. European position rests on this verified record.",
+                  "url": "https://www.iaea.org/newscenter/pressreleases/iaea-and-iran-iaea-director-generals-introductory-statement-to-the-board-of-governors",
+                  "year": 2018,
+                  "qualityScore": 92
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Europeans maintained INSTEX mechanism to keep JCPOA alive after US withdrawal, demonstrating genuine nonproliferation commitment not mere diplomacy",
+                  "E3 position consistent across conservative and progressive governments in UK, France, Germany"
+                ],
+                "challenging": []
+              },
+              "contextualValidityScore": 90,
+              "validityArguments": {
+                "forHighValidity": [
+                  "JCPOA achieved verified nuclear constraints that no other policy has matched — empirically the most effective nonproliferation tool applied to Iran"
+                ],
+                "forLowValidity": []
+              },
+              "compositeScore": 88
+            },
+            {
+              "interestId": "INT-006",
+              "linkageAccuracy": 82,
+              "percentMotivated": 0.70,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-005",
+                  "tier": "T2",
+                  "description": "European Commission energy security assessments (2024) documented the severe disruption risk from Strait of Hormuz closure — Iran's response to Operation Epic Fury has now materialized this risk.",
+                  "url": "",
+                  "year": 2024,
+                  "qualityScore": 80
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Strait of Hormuz closure (now Day 7) validates European energy security concerns as central motivation",
+                  "Germany and Italy import significant shares of Gulf oil — energy market disruption is existential economic concern"
+                ],
+                "challenging": []
+              },
+              "contextualValidityScore": 80,
+              "validityArguments": {
+                "forHighValidity": [
+                  "Energy security disruption affects hundreds of millions of European civilians — safety-level concern"
+                ],
+                "forLowValidity": [
+                  "Energy security interest can produce appeasement — EU has tolerated regime abuses partly to protect energy supply"
+                ]
+              },
+              "compositeScore": 81
+            },
+            {
+              "interestId": "INT-007",
+              "linkageAccuracy": 88,
+              "percentMotivated": 0.65,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-006",
+                  "tier": "T6",
+                  "description": "European Council on Foreign Relations statement (March 2026) called Operation Epic Fury 'an illegal war of choice' — documents European rule-of-law position.",
+                  "url": "https://ecfr.eu",
+                  "year": 2026,
+                  "qualityScore": 68
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "European legal establishment unanimously opposed the operation on jus ad bellum grounds",
+                  "Consistent with EU legal culture that treats multilateral authorization as prerequisite for force"
+                ],
+                "challenging": [
+                  "Europeans supported Kosovo intervention (also without UNSC authorization) — rule-of-law position selectively applied"
+                ]
+              },
+              "contextualValidityScore": 76,
+              "validityArguments": {
+                "forHighValidity": [
+                  "International legal order is the foundation of European post-WWII security architecture — undermining it creates precedent Russia will use"
+                ],
+                "forLowValidity": [
+                  "A legal framework that protects a genocidal nuclear-threshold state may itself be illegitimate when it blocks protection of others"
+                ]
+              },
+              "compositeScore": 83
+            }
+          ]
+        },
+        {
+          "stakeholderId": "STK-0003",
+          "position": "Mixed",
+          "role": "Affected Civilian Population",
+          "appliedInterests": [
+            {
+              "interestId": "INT-001",
+              "linkageAccuracy": 95,
+              "percentMotivated": 0.95,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-007",
+                  "tier": "T3",
+                  "description": "Operation Epic Fury civilian casualties: 1,332+ confirmed dead at Day 7 (ICRC, March 2026), including schoolchildren in Ahvaz and Isfahan. Direct evidence of physiological threat to civilian population.",
+                  "url": "",
+                  "year": 2026,
+                  "qualityScore": 85
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Civilian casualty counts are documented and growing — survival interest is self-evidently linked",
+                  "Iranian civilians also face regime violence (7,000-43,000 killed in Jan 2026 protests) — survival interest precedes Operation Epic Fury"
+                ],
+                "challenging": []
+              },
+              "contextualValidityScore": 98,
+              "validityArguments": {
+                "forHighValidity": [
+                  "Physiological survival is the highest validity interest in the Maslow framework",
+                  "Iranian civilians bear the cost of both the regime's choices and foreign military action without being the decision-makers"
+                ],
+                "forLowValidity": []
+              },
+              "compositeScore": 97
+            },
+            {
+              "interestId": "INT-005",
+              "linkageAccuracy": 78,
+              "percentMotivated": 0.65,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-008",
+                  "tier": "T3",
+                  "description": "HRANA documentation of Jan 2026 protests: estimated 7,000-43,000 killed. Protest chants ('Neither Gaza nor Lebanon, I give my life to Iran') capture self-determination demand and simultaneous rejection of foreign intervention.",
+                  "url": "https://www.hranairan.org",
+                  "year": 2026,
+                  "qualityScore": 75
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Repeated protest waves over 17 years demonstrate consistent democratic aspiration that is not externally manufactured",
+                  "Protest organization (Women Life Freedom) explicitly calls for secular democracy — not foreign liberation"
+                ],
+                "challenging": [
+                  "Population is internally divided: some welcome Operation Epic Fury as path to regime change; many oppose foreign military intervention",
+                  "Diaspora voices claiming to speak for Iranians inside Iran may not accurately represent their preferences"
+                ]
+              },
+              "contextualValidityScore": 82,
+              "validityArguments": {
+                "forHighValidity": [
+                  "Self-determination is a foundational human right recognized in UN Charter",
+                  "Iranian people are the intended beneficiaries of both pressure and engagement policies — their actual preference should carry maximal weight"
+                ],
+                "forLowValidity": []
+              },
+              "compositeScore": 80
+            }
+          ]
+        },
+        {
+          "stakeholderId": "STK-0004",
+          "position": "Opponent",
+          "role": "Adversarial State Actor",
+          "appliedInterests": [
+            {
+              "interestId": "INT-003",
+              "linkageAccuracy": 95,
+              "percentMotivated": 0.90,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-009",
+                  "tier": "T4",
+                  "description": "Iran International analysis (Jan 2026): 'Bruised But Undeterred' — documents regime's core survival-first orientation. Confirms that survival is the dominant strategic motivation even at extreme cost.",
+                  "url": "https://www.iranintl.com/en/202512241529",
+                  "year": 2026,
+                  "qualityScore": 78
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Every major regime decision (nuclear program continuation, proxy funding, protest suppression) is explicable as survival optimization",
+                  "Regime survived 47 years of pressure, revolution, war — survival as paramount interest has behavioral consistency"
+                ],
+                "challenging": []
+              },
+              "contextualValidityScore": 40,
+              "validityArguments": {
+                "forHighValidity": [
+                  "Regime survival is a safety-level interest for the individuals involved — 100,000+ IRGC members face execution if regime falls"
+                ],
+                "forLowValidity": [
+                  "Regime survival is pursued through the oppression and murder of the Iranian population whose interests are directly opposed",
+                  "Universal application test fails: a world where all regimes prioritize survival over their people's welfare is catastrophic"
+                ]
+              },
+              "compositeScore": 61
+            },
+            {
+              "interestId": "INT-009",
+              "linkageAccuracy": 88,
+              "percentMotivated": 0.55,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-010",
+                  "tier": "T2",
+                  "description": "US Treasury and CRS Reports (2016-2018): After JCPOA sanctions relief, Iran significantly expanded funding to Hezbollah (+$200M/year), Houthi forces, and Iraqi militias. Documents direct correlation between resources and proxy expansion.",
+                  "url": "https://www.congress.gov/crs-product/R47321",
+                  "year": 2018,
+                  "qualityScore": 82
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "IRGC-QF budget increases tracked to sanctions relief dollars",
+                  "Consistent doctrine of 'forward defense' through proxies documented in IRGC publications"
+                ],
+                "challenging": [
+                  "Regional hegemony interest may be overstated — proxy network partly serves deterrence (survival) rather than expansionism per se"
+                ]
+              },
+              "contextualValidityScore": 28,
+              "validityArguments": {
+                "forHighValidity": [],
+                "forLowValidity": [
+                  "Regional domination through proxy violence fails universal application test: harms hundreds of millions of people across Lebanon, Yemen, Gaza, Iraq",
+                  "Zero-sum domination interest — satisfying it requires others to lose"
+                ]
+              },
+              "compositeScore": 60
+            }
+          ]
+        },
+        {
+          "stakeholderId": "STK-0006",
+          "position": "Opponent",
+          "role": "Great Power Counterbalancer",
+          "appliedInterests": [
+            {
+              "interestId": "INT-015",
+              "linkageAccuracy": 92,
+              "percentMotivated": 0.80,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-011",
+                  "tier": "T2",
+                  "description": "Russia-Iran defense cooperation documented: 10,000+ Shahed drones delivered for Ukraine war (IISS, 2024). China: world's largest buyer of sanctioned Iranian oil (IEA, 2024). Both blocked UNSC Iran sanctions resolutions.",
+                  "url": "",
+                  "year": 2024,
+                  "qualityScore": 88
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Economic and military transactions with Iran are documented and consistent — not rhetoric",
+                  "UNSC veto record on Iran sanctions perfectly tracks strategic interest in keeping US contained"
+                ],
+                "challenging": []
+              },
+              "contextualValidityScore": 58,
+              "validityArguments": {
+                "forHighValidity": [
+                  "Great-power competition is a structural feature of international relations — having strategic interests is legitimate"
+                ],
+                "forLowValidity": [
+                  "Supporting a regime that massacres its citizens and sponsors terrorism as a strategic tool treats human lives as pawns",
+                  "Russia using Iranian drones in Ukraine directly links this interest to civilian casualties in a third country"
+                ]
+              },
+              "compositeScore": 72
+            }
+          ]
+        },
+        {
+          "stakeholderId": "STK-0007",
+          "position": "Mixed",
+          "role": "Human Rights Monitor",
+          "appliedInterests": [
+            {
+              "interestId": "INT-001",
+              "linkageAccuracy": 90,
+              "percentMotivated": 0.85,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-012",
+                  "tier": "T3",
+                  "description": "Amnesty International and HRW documented Jan 2026 massacre: estimated 7,000-43,000 killed. Operation Epic Fury civilian casualties 1,332+ at Day 7. NGOs are documenting both.",
+                  "url": "https://www.amnesty.org/en/countries/middle-east-and-north-africa/iran/",
+                  "year": 2026,
+                  "qualityScore": 82
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Human rights organizations' core mandate is civilian protection — linkage to survival interest is definitional"
+                ],
+                "challenging": []
+              },
+              "contextualValidityScore": 98,
+              "validityArguments": {
+                "forHighValidity": [
+                  "Documenting and preventing civilian deaths is the highest-validity activity any institution can perform"
+                ],
+                "forLowValidity": []
+              },
+              "compositeScore": 95
+            },
+            {
+              "interestId": "INT-005",
+              "linkageAccuracy": 85,
+              "percentMotivated": 0.80,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-013",
+                  "tier": "T3",
+                  "description": "Freedom House 'Not Free' rating for Iran (consistent 2009-2026). Press freedom, political prisoner data, and protest response documentation all validate self-determination as primary NGO focus.",
+                  "url": "https://freedomhouse.org/country/iran",
+                  "year": 2025,
+                  "qualityScore": 80
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Freedom House scores, Amnesty prisoner counts, and HRW reports all focus on political freedom — consistent linkage"
+                ],
+                "challenging": []
+              },
+              "contextualValidityScore": 82,
+              "validityArguments": {
+                "forHighValidity": [
+                  "Political freedom is a fundamental human right recognized in ICCPR — institutional mandate reflects legitimate global consensus"
+                ],
+                "forLowValidity": []
+              },
+              "compositeScore": 84
+            }
+          ]
+        },
+        {
+          "stakeholderId": "STK-0008",
+          "position": "Supporter",
+          "role": "Co-Belligerent / Existential Risk Actor",
+          "appliedInterests": [
+            {
+              "interestId": "INT-008",
+              "linkageAccuracy": 96,
+              "percentMotivated": 0.90,
+              "evidence": [
+                {
+                  "evidenceId": "EVD-014",
+                  "tier": "T2",
+                  "description": "Israeli National Security Council assessments (declassified summaries): Iranian nuclear capability defined as existential threat since 2012. Operation Epic Fury targeting of nuclear facilities confirms this as primary motivation.",
+                  "url": "",
+                  "year": 2025,
+                  "qualityScore": 85
+                }
+              ],
+              "linkageArguments": {
+                "affirming": [
+                  "Khamenei's statements calling for elimination of Israel are documented and repeated — linkage to existential threat is not fabricated",
+                  "Iranian proxy attacks (Oct 7 Hamas, Hezbollah rockets) provide behavioral evidence of the threat being real, not theoretical"
+                ],
+                "challenging": [
+                  "Israeli government has domestic political incentives (Netanyahu legal troubles) that may inflate threat perception"
+                ]
+              },
+              "contextualValidityScore": 96,
+              "validityArguments": {
+                "forHighValidity": [
+                  "A nation's right to prevent its own annihilation is the most fundamental security interest that exists"
+                ],
+                "forLowValidity": [
+                  "Existential security interest does not by itself determine which method of achieving security is justified"
+                ]
+              },
+              "compositeScore": 96
+            }
+          ]
+        }
+      ],
+      "sharedInterests": [
+        {
+          "interestId": "INT-002",
+          "stakeholderIds": ["STK-0001", "STK-0002", "STK-0008"],
+          "avgValidityScore": 90,
+          "bridgingProposals": [
+            "Verified nuclear constraints with intrusive IAEA inspection, regardless of whether achieved via military pressure or negotiated agreement",
+            "Iranian enrichment capped at 5% (civilian use only) with continuous on-site monitoring as a condition for any sanctions relief",
+            "Regional nuclear-weapon-free zone offer as part of comprehensive deal framework"
+          ]
+        },
+        {
+          "interestId": "INT-001",
+          "stakeholderIds": ["STK-0003", "STK-0007", "STK-0009"],
+          "avgValidityScore": 97,
+          "bridgingProposals": [
+            "Mandatory civilian protection protocols for any military operations, with international monitoring",
+            "Humanitarian corridors and exemptions maintained regardless of military operations",
+            "ICRC access to civilian infrastructure under bombardment"
+          ]
+        },
+        {
+          "interestId": "INT-005",
+          "stakeholderIds": ["STK-0001", "STK-0003", "STK-0007", "STK-0010"],
+          "avgValidityScore": 82,
+          "bridgingProposals": [
+            "Post-conflict transition framework supporting Iranian civil society, not just military opposition",
+            "Internet freedom and independent media support that empowers Iranians to determine their own future",
+            "Targeted sanctions on individual IRGC commanders rather than broad population sanctions"
+          ]
+        }
+      ],
+      "rawBrainstorm": [],
+      "evidenceLedger": [
+        {
+          "evidenceId": "EVD-L001",
+          "claim": "JCPOA verifiably constrained Iran's nuclear program while in force",
+          "side": "pro-engagement",
+          "source": "IAEA Board of Governors Reports",
+          "tier": "T2",
+          "year": 2018,
+          "qualityScore": 92,
+          "url": "",
+          "finding": "Iran was in verifiable compliance with all JCPOA constraints for the full period the agreement was in force. Uranium stockpile, enrichment levels, and centrifuge numbers all within limits. After US withdrew in 2018, Iran accelerated to 60% then 84% enrichment."
+        },
+        {
+          "evidenceId": "EVD-L002",
+          "claim": "Maximum pressure period (2018-2025) produced maximum nuclear progress",
+          "side": "pro-engagement",
+          "source": "IAEA + CFR Iran Timeline",
+          "tier": "T2",
+          "year": 2025,
+          "qualityScore": 90,
+          "url": "",
+          "finding": "Iran was years from nuclear breakout in 2018. By 2025 it had accumulated enough 60-84% enriched uranium to be months from sufficient material for a weapon. Sanctions failed at stated nonproliferation goal."
+        },
+        {
+          "evidenceId": "EVD-L003",
+          "claim": "Iran used JCPOA sanctions relief to fund proxy warfare",
+          "side": "pro-pressure",
+          "source": "US Treasury, CRS Reports, RAND Corporation",
+          "tier": "T2",
+          "year": 2018,
+          "qualityScore": 82,
+          "url": "",
+          "finding": "After JCPOA sanctions relief, Iran significantly expanded funding to Hezbollah, Houthi forces, and Iraqi militias. Agreement constrained nuclear program but not regional destabilization."
+        },
+        {
+          "evidenceId": "EVD-L004",
+          "claim": "Iraq and Libya precedents: regime change without a plan produces chaos",
+          "side": "pro-engagement",
+          "source": "RAND Corporation, Brookings, CFR",
+          "tier": "T4",
+          "year": 2020,
+          "qualityScore": 85,
+          "url": "",
+          "finding": "US removed Saddam Hussein and Gaddafi without viable post-conflict governance plans. Both countries descended into civil conflict and failed states. Neither became a democracy. Iran is larger and more institutionally complex than either."
+        },
+        {
+          "evidenceId": "EVD-L005",
+          "claim": "Economic pressure contributed to protest waves threatening regime stability",
+          "side": "pro-pressure",
+          "source": "HRANA, CFR, Chatham House",
+          "tier": "T4",
+          "year": 2026,
+          "qualityScore": 75,
+          "url": "",
+          "finding": "2019, 2022, and 2025-2026 protest waves all triggered primarily by economic deterioration linked to sanctions. January 2026 uprising was largest since 1979 and nearly toppled the regime."
+        }
+      ],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    }
+  ]
+}

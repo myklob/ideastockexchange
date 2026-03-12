@@ -1,0 +1,224 @@
+{
+  "stakeholders": [
+    {
+      "stakeholderId": "STK-0001",
+      "name": "US National Security Establishment (Hawks)",
+      "type": "Government",
+      "description": "Pentagon leadership, intelligence community, hawkish congressional caucus, and national security think tanks advocating maximum pressure. Primary decision-makers for US military and covert policy toward Iran.",
+      "populationEstimate": 75000,
+      "populationFraction": 0.0002,
+      "representationConfidence": 82,
+      "power": {
+        "political": 75,
+        "economic": 60,
+        "military": 95,
+        "narrative": 65,
+        "institutional": 85,
+        "totalInfluence": 76
+      },
+      "powerDescription": "Controls military force authorization, intelligence operations, covert action, and institutional leverage over security policy. Narrative power through classified briefings and selective leaks to press.",
+      "linkedConflictIds": ["CFL-001", "CFL-002", "CFL-003"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "stakeholderId": "STK-0002",
+      "name": "European Allies / Multilateral Diplomats",
+      "type": "International",
+      "description": "EU member state foreign ministries, European External Action Service, P5+1 negotiators, and international law advocates. Favored JCPOA framework and multilateral verification approaches.",
+      "populationEstimate": 500000,
+      "populationFraction": 0.0006,
+      "representationConfidence": 78,
+      "power": {
+        "political": 72,
+        "economic": 75,
+        "military": 40,
+        "narrative": 65,
+        "institutional": 80,
+        "totalInfluence": 66
+      },
+      "powerDescription": "Economic leverage via trade and sanctions coordination. Institutional power through UN mechanisms and treaty frameworks. Limited independent military capacity but significant diplomatic blocking power.",
+      "linkedConflictIds": ["CFL-001", "CFL-002"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "stakeholderId": "STK-0003",
+      "name": "Iranian People / Protest Movement",
+      "type": "Population",
+      "description": "90 million Iranians, predominantly young and secular. Repeated protest waves (2009, 2019, 2022, Jan 2026). Deeply divided on foreign intervention — oppose both the regime and being bombed. The protester chant 'Neither Gaza nor Lebanon, I give my life to Iran' captures this tension.",
+      "populationEstimate": 90000000,
+      "populationFraction": 1.0,
+      "representationConfidence": 65,
+      "power": {
+        "political": 20,
+        "economic": 25,
+        "military": 10,
+        "narrative": 55,
+        "institutional": 5,
+        "totalInfluence": 23
+      },
+      "powerDescription": "Moral authority and narrative power internationally. Internal power depends on scale of mobilization — Jan 2026 was largest since 1979 but was crushed. No access to institutional or military levers. Diaspora amplifies narrative power externally.",
+      "linkedConflictIds": ["CFL-001", "CFL-002", "CFL-003"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "stakeholderId": "STK-0004",
+      "name": "Islamic Republic Regime (IRGC / Supreme Leader Office)",
+      "type": "Government",
+      "description": "Supreme Leader's office, IRGC leadership, and hardline clerical establishment. Controls all coercive state apparatus, key economic sectors (bonyads), and nuclear program decision-making.",
+      "populationEstimate": 150000,
+      "populationFraction": 0.0017,
+      "representationConfidence": 88,
+      "power": {
+        "political": 90,
+        "economic": 80,
+        "military": 85,
+        "narrative": 60,
+        "institutional": 95,
+        "totalInfluence": 82
+      },
+      "powerDescription": "Near-total internal control via IRGC, Basij, judiciary. Controls oil revenues and bonyad economic empire. External power through proxy network (Hezbollah, Hamas, Houthis, Iraqi militias). Nuclear deterrence ambition.",
+      "linkedConflictIds": ["CFL-001", "CFL-002", "CFL-003"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "stakeholderId": "STK-0005",
+      "name": "Gulf Arab States (Saudi Arabia, UAE, Bahrain)",
+      "type": "Government",
+      "description": "Gulf Cooperation Council members who privately supported military action against Iran's nuclear program for decades while maintaining public deniability. Now hosting US bases from which Operation Epic Fury is being conducted.",
+      "populationEstimate": 45000000,
+      "populationFraction": 0.005,
+      "representationConfidence": 72,
+      "power": {
+        "political": 55,
+        "economic": 80,
+        "military": 50,
+        "narrative": 40,
+        "institutional": 45,
+        "totalInfluence": 54
+      },
+      "powerDescription": "Oil market influence and US basing rights. Financial leverage. Vulnerability to Houthi/Iranian retaliatory strikes constrains overt position. Abraham Accords alignment with Israel creates new strategic geometry.",
+      "linkedConflictIds": ["CFL-001"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "stakeholderId": "STK-0006",
+      "name": "Russia and China",
+      "type": "International",
+      "description": "Permanent UNSC members who have blocked Iran sanctions and provided economic lifelines. Russia received Shahed drones for Ukraine war; China is Iran's largest oil customer. Both condemned Operation Epic Fury.",
+      "populationEstimate": 1600000000,
+      "populationFraction": 0.2,
+      "representationConfidence": 80,
+      "power": {
+        "political": 85,
+        "economic": 88,
+        "military": 90,
+        "narrative": 70,
+        "institutional": 85,
+        "totalInfluence": 84
+      },
+      "powerDescription": "UNSC veto power blocks multilateral sanctions. Economic lifelines via oil purchases and technology transfers undercut US maximum pressure. Military aid and diplomatic cover for Iran. Competing with US for regional influence.",
+      "linkedConflictIds": ["CFL-001", "CFL-002"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "stakeholderId": "STK-0007",
+      "name": "International Human Rights Community",
+      "type": "NGO",
+      "description": "Human Rights Watch, Amnesty International, UN Special Rapporteurs, HRANA, and Iranian civil society advocates. Focus on regime accountability, prisoner release, and civilian protection from both regime and military strikes.",
+      "populationEstimate": 50000,
+      "populationFraction": 0.00007,
+      "representationConfidence": 75,
+      "power": {
+        "political": 30,
+        "economic": 10,
+        "military": 0,
+        "narrative": 72,
+        "institutional": 40,
+        "totalInfluence": 30
+      },
+      "powerDescription": "Narrative power through documentation and media access. Institutional leverage via UN mechanisms (Special Rapporteurs, ICC referral possibilities). No economic or military power. Vulnerable to being sidelined during active conflict.",
+      "linkedConflictIds": ["CFL-001", "CFL-003"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "stakeholderId": "STK-0008",
+      "name": "Israeli Government (Netanyahu Coalition)",
+      "type": "Government",
+      "description": "Israeli security cabinet and IDF leadership. Co-initiator of Operation Epic Fury. Existential interest in preventing Iranian nuclear capability; also domestic political incentives to maintain conflict framing.",
+      "populationEstimate": 9500000,
+      "populationFraction": 0.001,
+      "representationConfidence": 84,
+      "power": {
+        "political": 70,
+        "economic": 45,
+        "military": 80,
+        "narrative": 65,
+        "institutional": 60,
+        "totalInfluence": 64
+      },
+      "powerDescription": "Advanced military and intelligence capability (Unit 8200, Mossad). Strong Washington lobby via AIPAC and evangelical coalition. Co-author of Operation Epic Fury targeting decisions. Existential security stakes create extreme risk tolerance.",
+      "linkedConflictIds": ["CFL-001", "CFL-002", "CFL-003"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "stakeholderId": "STK-0009",
+      "name": "US Public / American Voters",
+      "type": "Population",
+      "description": "Broad American public with diffuse and often inconsistent views on Iran policy. Generally opposed to ground wars but supportive of 'stopping Iran from getting nuclear weapons'. War fatigue from Iraq/Afghanistan dampens appetite for large-scale involvement.",
+      "populationEstimate": 260000000,
+      "populationFraction": 0.78,
+      "representationConfidence": 70,
+      "power": {
+        "political": 60,
+        "economic": 50,
+        "military": 5,
+        "narrative": 45,
+        "institutional": 20,
+        "totalInfluence": 36
+      },
+      "powerDescription": "Electoral leverage constrains presidential decision-making. Diffuse coordination makes consistent pressure difficult. War fatigue from previous conflicts is a real constraint on sustained military engagement.",
+      "linkedConflictIds": ["CFL-001"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "stakeholderId": "STK-0010",
+      "name": "Iranian Diaspora / Exiled Opposition",
+      "type": "Population",
+      "description": "Estimated 5 million Iranians abroad, including Crown Prince Reza Pahlavi and organized opposition groups. Divided between those calling for targeted IRGC strikes to hasten regime collapse vs. those opposing foreign military intervention.",
+      "populationEstimate": 5000000,
+      "populationFraction": 0.05,
+      "representationConfidence": 60,
+      "power": {
+        "political": 35,
+        "economic": 30,
+        "military": 5,
+        "narrative": 65,
+        "institutional": 20,
+        "totalInfluence": 31
+      },
+      "powerDescription": "Narrative amplification through international media and social networks. Some political access in Washington and European capitals. Cannot speak with one voice — deeply divided on intervention question. Limited institutional leverage.",
+      "linkedConflictIds": ["CFL-001", "CFL-003"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    }
+  ]
+}

@@ -1,0 +1,240 @@
+{
+  "interests": [
+    {
+      "interestId": "INT-001",
+      "name": "Physical Survival / Existential Security",
+      "description": "The most basic interest: not being killed, not having one's nation destroyed, not facing genocide. Applies to Iranian civilians under military strikes, Israeli citizens under nuclear threat, and Iranian protesters under regime violence.",
+      "maslowLevel": "PHYSIOLOGICAL",
+      "baseValidityScore": 98,
+      "semanticClusters": [
+        "survival", "not being bombed", "existential security", "not being killed",
+        "physical safety", "avoiding genocide", "civilian protection", "right to life"
+      ],
+      "tags": ["universal", "iran", "israel", "war", "nuclear"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-002",
+      "name": "Nuclear Non-Proliferation",
+      "description": "Preventing Iran from acquiring nuclear weapons. A safety-level interest that intersects physiological (mass casualty risk) and safety (regional stability). Independently verifiable via IAEA breakout time metric.",
+      "maslowLevel": "SAFETY",
+      "baseValidityScore": 90,
+      "semanticClusters": [
+        "stop Iran getting the bomb", "nuclear nonproliferation", "prevent nuclear weapons",
+        "nuclear breakout prevention", "IAEA compliance", "weapons-grade enrichment halt",
+        "no Iranian nuke", "nuclear threshold state"
+      ],
+      "tags": ["nuclear", "iran", "nonproliferation", "IAEA", "security"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-003",
+      "name": "Regime Survival (Islamic Republic)",
+      "description": "The Islamic Republic leadership's interest in maintaining power and avoiding regime change. A safety-level interest for the regime itself — legitimate as a human interest (self-preservation) but carries low contextual validity when pursued through oppression and terrorism.",
+      "maslowLevel": "SAFETY",
+      "baseValidityScore": 75,
+      "semanticClusters": [
+        "regime continuity", "avoiding regime change", "IRGC institutional survival",
+        "Khamenei succession", "theocratic system preservation", "anti-intervention"
+      ],
+      "tags": ["iran-regime", "irgc", "survival", "authoritarian"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-004",
+      "name": "Economic Security for Iranian Civilians",
+      "description": "The economic welfare of ordinary Iranians — employment, food access, housing, healthcare. Severely damaged by sanctions and by regime mismanagement. A high-validity physiological/safety interest often instrumentalized by both sides.",
+      "maslowLevel": "SAFETY",
+      "baseValidityScore": 88,
+      "semanticClusters": [
+        "Iranian economic welfare", "sanctions relief for civilians", "rial collapse impact",
+        "Iranian unemployment", "food security Iran", "ordinary Iranians suffering",
+        "humanitarian exemptions", "civilian economic impact"
+      ],
+      "tags": ["iran-civilian", "sanctions", "economic", "humanitarian"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-005",
+      "name": "Iranian Self-Determination / Democratic Governance",
+      "description": "The right of the Iranian people to choose their own government. Expressed through the protest movements (2009 Green Movement, 2019, Women Life Freedom 2022, Jan 2026 uprising). A high-validity belonging/safety interest.",
+      "maslowLevel": "BELONGING",
+      "baseValidityScore": 82,
+      "semanticClusters": [
+        "Iranian democracy", "regime change by Iranians", "self-determination",
+        "freedom for Iranians", "women life freedom", "Iranian protest support",
+        "civil society empowerment", "political freedom Iran"
+      ],
+      "tags": ["iran-civilian", "democracy", "human-rights", "protest"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-006",
+      "name": "Regional Stability / Energy Market Security",
+      "description": "Keeping Gulf oil flows uninterrupted and preventing regional wars that destabilize global energy markets and create refugee flows. A safety-level interest shared by European allies, Gulf states, and global economic actors.",
+      "maslowLevel": "SAFETY",
+      "baseValidityScore": 80,
+      "semanticClusters": [
+        "Strait of Hormuz open", "Gulf stability", "oil price stability", "energy security",
+        "prevent regional war", "Middle East stability", "spillover prevention",
+        "refugee crisis prevention"
+      ],
+      "tags": ["energy", "regional-stability", "europe", "gulf", "economics"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-007",
+      "name": "International Rule of Law / Multilateral Norms",
+      "description": "Maintaining the international legal order — UN Charter, jus ad bellum, treaty frameworks — as the governing system for inter-state disputes. Violated by unilateral military action without UNSC authorization.",
+      "maslowLevel": "SAFETY",
+      "baseValidityScore": 76,
+      "semanticClusters": [
+        "UN authorization", "international law", "jus ad bellum", "sovereignty norms",
+        "multilateralism", "UNSC approval", "legal basis for war", "treaty compliance"
+      ],
+      "tags": ["international-law", "UN", "sovereignty", "multilateral"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-008",
+      "name": "Israeli Existential Security",
+      "description": "Israel's interest in not being destroyed. Iran's stated goal of eliminating Israel and its nuclear weapons pursuit create an existential threat that Israeli security decisions treat as highest priority.",
+      "maslowLevel": "PHYSIOLOGICAL",
+      "baseValidityScore": 96,
+      "semanticClusters": [
+        "Israel survival", "Iranian nuclear threat to Israel", "existential security Israel",
+        "prevent second Holocaust", "Iran threatens to wipe Israel off map",
+        "Israeli right to exist", "Jewish state security"
+      ],
+      "tags": ["israel", "existential", "nuclear", "iran-threat"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-009",
+      "name": "Regional Hegemony (Iranian Expansionism)",
+      "description": "Iran's interest in becoming the dominant regional power via proxy network (Hezbollah, Hamas, Houthis, Iraqi militias), intimidating Gulf neighbors, and projecting power. An esteem/dominance interest with low contextual validity.",
+      "maslowLevel": "ESTEEM",
+      "baseValidityScore": 35,
+      "semanticClusters": [
+        "Iranian regional dominance", "Shia crescent", "axis of resistance",
+        "proxy network expansion", "Persian empire aspirations", "regional hegemony",
+        "IRGC external operations", "Lebanese Hezbollah funding"
+      ],
+      "tags": ["iran-regime", "irgc", "proxy", "hegemony", "regional"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-010",
+      "name": "Domestic Political Capital (US Hawks)",
+      "description": "The interest of US politicians in appearing strong on national security to satisfy their electoral base — evangelical Christians, pro-Israel donors, and hawkish defense constituencies. An esteem interest that is real but does not automatically justify policy.",
+      "maslowLevel": "ESTEEM",
+      "baseValidityScore": 42,
+      "semanticClusters": [
+        "political base management", "hawkish credibility", "pro-Israel donor relations",
+        "electoral pressure on Iran", "appearing tough on national security",
+        "AIPAC influence", "evangelical vote", "defense contractor interests"
+      ],
+      "tags": ["us-politics", "domestic", "electoral", "esteem", "israel-lobby"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-011",
+      "name": "Deterrence Credibility (US Global Posture)",
+      "description": "The US interest in maintaining credible deterrence globally — that threats issued by the US are believed. Allowing Iran to acquire nuclear weapons or cross stated red lines damages this credibility with North Korea, China, and others.",
+      "maslowLevel": "SAFETY",
+      "baseValidityScore": 78,
+      "semanticClusters": [
+        "US credibility", "deterrence signaling", "red line enforcement",
+        "global deterrence posture", "extended deterrence", "alliance credibility",
+        "US resolve demonstration"
+      ],
+      "tags": ["us-security", "deterrence", "nuclear", "global-posture"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-012",
+      "name": "Nuclear Proliferation Cascade Prevention",
+      "description": "If Iran gets nuclear weapons, Saudi Arabia, Turkey, Egypt, and UAE have each signaled they would pursue their own nuclear programs. The interest in preventing a regional nuclear cascade is broader than just stopping Iran.",
+      "maslowLevel": "SAFETY",
+      "baseValidityScore": 85,
+      "semanticClusters": [
+        "nuclear cascade", "Saudi nuclear program", "Turkey nuclear ambitions",
+        "Middle East proliferation", "nuclear domino effect", "regional arms race prevention"
+      ],
+      "tags": ["nonproliferation", "regional", "cascade", "saudi", "turkey"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-013",
+      "name": "Avoiding Regime Change Chaos (Iraq/Libya Precedent)",
+      "description": "The interest in not repeating the post-2003 Iraq or post-2011 Libya scenarios, where US-led regime change produced failed states and decades of civil war. A safety interest supported by historical evidence.",
+      "maslowLevel": "SAFETY",
+      "baseValidityScore": 82,
+      "semanticClusters": [
+        "Iraq war lessons", "Libya collapse precedent", "post-conflict governance gap",
+        "regime change leads to chaos", "failed state prevention", "reconstruction planning",
+        "day after scenario", "power vacuum"
+      ],
+      "tags": ["iraq", "libya", "regime-change", "precedent", "post-conflict"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-014",
+      "name": "Tribal Winning / Zero-Sum Political Opposition",
+      "description": "The interest in 'beating the other side' regardless of policy merit — opposing Iran deals because Obama supported them, or opposing military action because Trump ordered it. A zero-sum, invalid interest that drives significant behavior.",
+      "maslowLevel": "INVALID",
+      "baseValidityScore": 8,
+      "semanticClusters": [
+        "partisan opposition", "reflexive contrarianism", "anti-Obama Iran policy",
+        "anti-Trump Iran policy", "tribal signaling", "owning the libs on Iran",
+        "team politics"
+      ],
+      "tags": ["partisan", "zero-sum", "tribal", "invalid", "politics"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    },
+    {
+      "interestId": "INT-015",
+      "name": "Russian / Chinese Strategic Counterbalance",
+      "description": "Russia and China's interest in maintaining Iran as a client state and economic partner that counterbalances US influence. Iran provides Russia with drones; China with discounted oil. Both prefer a constrained but surviving Islamic Republic.",
+      "maslowLevel": "SAFETY",
+      "baseValidityScore": 65,
+      "semanticClusters": [
+        "Russia Iran partnership", "China Iran oil", "anti-US axis", "multipolarity",
+        "blocking US hegemony", "UNSC veto on Iran", "Shahed drone supply",
+        "Iranian oil customer"
+      ],
+      "tags": ["russia", "china", "great-power", "strategic", "iran"],
+      "createdAt": "2026-03-12T00:00:00Z",
+      "updatedAt": "2026-03-12T00:00:00Z",
+      "createdBy": "seed"
+    }
+  ]
+}
