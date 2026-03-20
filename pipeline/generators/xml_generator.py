@@ -52,6 +52,9 @@ class XmlGenerator:
         # Generate a lightweight HTML viewer that loads XML + XSLT client-side
         files["viewer.html"] = self._generate_viewer_html()
 
+        # Generate an empty equivalence analysis template XML
+        files["equivalence_template.xml"] = self._generate_equivalence_template_xml()
+
         return files
 
     def write(self, tree: ArgumentTree):
@@ -487,6 +490,174 @@ class XmlGenerator:
 </body>
 </html>
 """
+
+    def generate_equivalence_xml(self, analysis: dict) -> str:
+        """
+        Generate a machine-readable XML document for a single equivalence analysis.
+
+        The ``analysis`` dict should match the schema in belief-data.schema.xsd
+        (EquivalenceAnalysisType). All keys are optional; missing ones are omitted.
+        """
+        e = escape
+
+        def tag(name: str, value, indent: int = 2) -> str:
+            pad = "  " * indent
+            if value is None or value == "":
+                return ""
+            return f"{pad}<{name}>{e(value)}</{name}>\n"
+
+        lines = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<?xml-stylesheet type="text/xsl" href="belief_tree.xslt"?>',
+            '<EquivalenceAnalysisDocument>',
+            '  <EquivalenceAnalysis>',
+        ]
+
+        # Step 1: Raw beliefs
+        lines.append(tag("Slug",               analysis.get("slug", ""),        2))
+        lines.append(tag("BeliefXRaw",         analysis.get("belief_x_raw"),    2))
+        lines.append(tag("BeliefXNormalized",  analysis.get("belief_x_normalized"), 2))
+        lines.append(tag("BeliefXSource",      analysis.get("belief_x_source"), 2))
+        lines.append(tag("BeliefYRaw",         analysis.get("belief_y_raw"),    2))
+        lines.append(tag("BeliefYNormalized",  analysis.get("belief_y_normalized"), 2))
+        lines.append(tag("BeliefYSource",      analysis.get("belief_y_source"), 2))
+
+        # Step 2: Fast path
+        lines.append(tag("FastPathPassed",  str(analysis.get("fast_path_passed", False)).lower(), 2))
+        lines.append(tag("AutoMerge",       str(analysis.get("auto_merge", False)).lower(), 2))
+
+        # Step 5: Synonym convergence
+        lines.append(tag("SynonymConvergenceScore", f'{analysis.get("synonym_convergence_score", 0):.4f}', 2))
+
+        synonym_claims = analysis.get("synonym_claims", [])
+        if synonym_claims:
+            lines.append("    <SynonymClaims>\n")
+            for sc in synonym_claims:
+                lines.append("      <SynonymClaim>\n")
+                for field, xml_name in [
+                    ("x_term", "XTerm"), ("y_term", "YTerm"),
+                    ("merriam_webster", "MerriamWebster"), ("oxford", "Oxford"),
+                    ("word_net", "WordNet"), ("embedding_model", "EmbeddingModel"),
+                    ("agreement_numerator", "AgreementNumerator"),
+                    ("agreement_denominator", "AgreementDenominator"),
+                    ("agreement_rate", "AgreementRate"),
+                ]:
+                    if sc.get(field) is not None:
+                        lines.append(tag(xml_name, sc[field], 4))
+                lines.append("      </SynonymClaim>\n")
+            lines.append("    </SynonymClaims>\n")
+
+        # Step 6: Strength delta
+        lines.append(tag("OverallStrengthDelta", f'{analysis.get("overall_strength_delta", 0):.4f}', 2))
+
+        # Step 8: Overlap score
+        for field, xml_name in [
+            ("subject_overlap", "SubjectOverlap"), ("predicate_overlap", "PredicateOverlap"),
+            ("context_overlap", "ContextOverlap"),  ("mechanism_overlap", "MechanismOverlap"),
+            ("overlap_score", "OverlapScore"),
+        ]:
+            lines.append(tag(xml_name, f'{analysis.get(field, 0):.4f}', 2))
+
+        # Step 7: Structural relationship
+        lines.append(tag("StructuralRelationship", analysis.get("structural_relationship", "same_topic_different_claim"), 2))
+
+        # Step 9: Penalties
+        for field, xml_name in [
+            ("penalty_different_causal", "PenaltyDifferentCausal"),
+            ("penalty_different_evidence", "PenaltyDifferentEvidence"),
+            ("penalty_different_assumptions", "PenaltyDifferentAssumptions"),
+            ("penalty_different_policy", "PenaltyDifferentPolicy"),
+            ("total_penalty", "TotalPenalty"),
+        ]:
+            lines.append(tag(xml_name, f'{analysis.get(field, 0):.4f}', 2))
+
+        # Step 10: Argument battle
+        lines.append(tag("ProEquivalenceScore",  f'{analysis.get("pro_equivalence_score", 0):.4f}', 2))
+        lines.append(tag("AntiEquivalenceScore", f'{analysis.get("anti_equivalence_score", 0):.4f}', 2))
+        lines.append(tag("ArgumentBalance",      f'{analysis.get("argument_balance", 0):.4f}', 2))
+
+        battle_items = analysis.get("argument_battle_items", [])
+        if battle_items:
+            lines.append("    <ArgumentBattle>\n")
+            for item in battle_items:
+                lines.append("      <Item>\n")
+                lines.append(tag("Side",              item.get("side"),              4))
+                lines.append(tag("Statement",         item.get("statement"),         4))
+                lines.append(tag("TruthScore",        f'{item.get("truth_score", 0):.4f}', 4))
+                lines.append(tag("LinkageScore",      f'{item.get("linkage_score", 0):.4f}', 4))
+                lines.append(tag("ImportanceScore",   f'{item.get("importance_score", 0):.4f}', 4))
+                lines.append(tag("ContributionScore", f'{item.get("contribution_score", 0):.4f}', 4))
+                lines.append("      </Item>\n")
+            lines.append("    </ArgumentBattle>\n")
+
+        # Step 11
+        lines.append(tag("EvidenceArgumentOverlapRate", f'{analysis.get("evidence_argument_overlap_rate", 0):.4f}', 2))
+
+        # Step 12: Final score
+        lines.append(tag("NetworkAdjustment",     f'{analysis.get("network_adjustment", 0):.4f}', 2))
+        lines.append(tag("FinalEquivalenceScore", f'{analysis.get("final_equivalence_score", 0):.4f}', 2))
+
+        # Step 13: Verdict
+        lines.append(tag("Verdict",       analysis.get("verdict", "separate"), 2))
+        lines.append(tag("CanonicalPage", analysis.get("canonical_page"),      2))
+        lines.append(tag("LinkageScore",  f'{analysis.get("linkage_score", 0):.4f}', 2))
+
+        # Step 15: Audit
+        lines.append(tag("AnalystType",   analysis.get("analyst_type",  "human"),  2))
+        lines.append(tag("AnalystId",     analysis.get("analyst_id"),               2))
+        lines.append(tag("Confidence",    analysis.get("confidence", "medium"),     2))
+        lines.append(tag("ReviewedBy",    analysis.get("reviewed_by"),              2))
+        lines.append(tag("ReviewDate",    analysis.get("review_date"),              2))
+        lines.append(tag("TriggerReason", analysis.get("trigger_reason"),           2))
+        lines.append(tag("AnalysisDate",  analysis.get("analysis_date", ""),       2))
+
+        lines.append("  </EquivalenceAnalysis>")
+        lines.append("</EquivalenceAnalysisDocument>")
+
+        return "".join(l for l in lines if l)
+
+    def _generate_equivalence_template_xml(self) -> str:
+        """Generate a blank equivalence analysis template XML with placeholder values."""
+        return self.generate_equivalence_xml({
+            "slug": "template",
+            "belief_x_raw": "[Paste exact wording of first belief here]",
+            "belief_x_source": "[Source]",
+            "belief_y_raw": "[Paste exact wording of second belief here]",
+            "belief_y_source": "[Source]",
+            "fast_path_passed": False,
+            "auto_merge": False,
+            "synonym_convergence_score": 0.0,
+            "overall_strength_delta": 0.0,
+            "structural_relationship": "same_topic_different_claim",
+            "subject_overlap": 0.0,
+            "predicate_overlap": 0.0,
+            "context_overlap": 0.0,
+            "mechanism_overlap": 0.0,
+            "overlap_score": 0.0,
+            "penalty_different_causal": 0.0,
+            "penalty_different_evidence": 0.0,
+            "penalty_different_assumptions": 0.0,
+            "penalty_different_policy": 0.0,
+            "total_penalty": 0.0,
+            "pro_equivalence_score": 0.0,
+            "anti_equivalence_score": 0.0,
+            "argument_balance": 0.5,
+            "evidence_argument_overlap_rate": 0.0,
+            "network_adjustment": 0.0,
+            "final_equivalence_score": 0.0,
+            "verdict": "separate",
+            "analyst_type": "human",
+            "confidence": "medium",
+            "analysis_date": "",
+        })
+
+    def write_equivalence(self, analysis: dict):
+        """Write a single equivalence analysis XML to the output directory."""
+        slug = self._safe_filename(analysis.get("slug", "equivalence"))
+        content = self.generate_equivalence_xml(analysis)
+        out_dir = Path(self.config.xml_output_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / f"equivalence_{slug}.xml").write_text(content, encoding="utf-8")
 
     def _collect_subtree(
         self, belief_id: str, tree: ArgumentTree, result: list[BeliefNode]

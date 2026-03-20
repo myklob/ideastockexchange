@@ -33,6 +33,7 @@ class PhpGenerator:
             "BeliefNode.php": self._generate_belief_node_class(),
             "ReasonRank.php": self._generate_reason_rank_engine(),
             "ArgumentTree.php": self._generate_argument_tree(),
+            "EquivalenceAnalysis.php": self._generate_equivalence_analysis_class(),
             "belief_tree.php": self._generate_belief_tree_page(),
             "api.php": self._generate_api(),
             "index.php": self._generate_index(),
@@ -644,6 +645,381 @@ class ArgumentTree {
 }
 """
 
+    def _generate_equivalence_analysis_class(self) -> str:
+        return """\
+<?php
+/**
+ * ISE Justification Pipeline - EquivalenceAnalysis Model
+ *
+ * Implements the 17-step Belief Equivalence Scorecard pipeline.
+ *
+ * Final Equivalence Score formula:
+ *   (0.40 × SynonymConvergence) + (0.40 × OverlapScore) + (0.20 × ArgumentBalance) − TotalPenalty
+ *
+ * Overlap Score formula:
+ *   (Subject × 0.25) + (Predicate × 0.35) + (Context × 0.20) + (Mechanism × 0.20)
+ *
+ * Verdict thresholds:
+ *   90-100% → MERGE
+ *   75-89%  → MERGE WITH NOTE
+ *   50-74%  → LINK ONLY
+ *   <50%    → SEPARATE
+ */
+
+require_once __DIR__ . '/Database.php';
+
+class EquivalenceAnalysis {
+
+    public int $id;
+    public string $slug;
+
+    // Step 1: Raw beliefs
+    public string $beliefXRaw;
+    public ?string $beliefXNormalized;
+    public ?string $beliefXSource;
+    public string $beliefYRaw;
+    public ?string $beliefYNormalized;
+    public ?string $beliefYSource;
+
+    // Step 2: Fast path
+    public bool $fastPathPassed = false;
+    public bool $autoMerge      = false;
+
+    // Step 5: Synonym convergence (0-1)
+    public float $synonymConvergenceScore = 0.0;
+
+    // Step 6: Strength delta
+    public float $overallStrengthDelta = 0.0;
+
+    // Step 7: Structural relationship
+    // same_claim | same_topic_different_claim | subset | different_topic
+    public string $structuralRelationship = 'same_topic_different_claim';
+
+    // Step 8: Overlap score components (0-1 each)
+    public float $subjectOverlap   = 0.0;
+    public float $predicateOverlap = 0.0;
+    public float $contextOverlap   = 0.0;
+    public float $mechanismOverlap = 0.0;
+    public float $overlapScore     = 0.0;
+
+    // Step 9: Non-equivalence penalties
+    public float $penaltyDifferentCausal      = 0.0;
+    public float $penaltyDifferentEvidence    = 0.0;
+    public float $penaltyDifferentAssumptions = 0.0;
+    public float $penaltyDifferentPolicy      = 0.0;
+    public float $totalPenalty                = 0.0;
+
+    // Step 10: Argument battle
+    public float $proEquivalenceScore  = 0.0;
+    public float $antiEquivalenceScore = 0.0;
+    public float $argumentBalance      = 0.0;
+
+    // Step 11
+    public float $evidenceArgumentOverlapRate = 0.0;
+
+    // Step 12: Final score
+    public float $networkAdjustment     = 0.0;
+    public float $finalEquivalenceScore = 0.0;
+
+    // Step 13: Verdict
+    public string  $verdict       = 'separate';
+    public ?string $canonicalPage = null;
+    public float   $linkageScore  = 0.0;
+
+    // Step 15: Audit
+    public string  $analystType  = 'human';
+    public ?string $analystId    = null;
+    public string  $confidence   = 'medium';
+    public ?string $reviewedBy   = null;
+    public ?string $reviewDate   = null;
+    public ?string $triggerReason = null;
+
+    // ── Scoring Methods ──────────────────────────────────────────────
+
+    /**
+     * Calculate the weighted Overlap Score from four components.
+     * Subject×0.25 + Predicate×0.35 + Context×0.20 + Mechanism×0.20
+     */
+    public function calculateOverlapScore(): float {
+        $score = ($this->subjectOverlap   * 0.25)
+               + ($this->predicateOverlap * 0.35)
+               + ($this->contextOverlap   * 0.20)
+               + ($this->mechanismOverlap * 0.20);
+        $this->overlapScore = round(max(0.0, min(1.0, $score)), 4);
+        return $this->overlapScore;
+    }
+
+    /**
+     * Calculate the total non-equivalence penalty.
+     */
+    public function calculateTotalPenalty(): float {
+        $this->totalPenalty = $this->penaltyDifferentCausal
+                            + $this->penaltyDifferentEvidence
+                            + $this->penaltyDifferentAssumptions
+                            + $this->penaltyDifferentPolicy;
+        return $this->totalPenalty;
+    }
+
+    /**
+     * Calculate Argument Balance from pro/anti equivalence scores.
+     * ArgumentBalance = Pro / (Pro + Anti), or 0.5 if both are zero.
+     */
+    public function calculateArgumentBalance(): float {
+        $total = $this->proEquivalenceScore + $this->antiEquivalenceScore;
+        $this->argumentBalance = ($total > 0)
+            ? round($this->proEquivalenceScore / $total, 4)
+            : 0.5;
+        return $this->argumentBalance;
+    }
+
+    /**
+     * Calculate the Final Equivalence Score.
+     * Formula: (0.40 × Synonym) + (0.40 × Overlap) + (0.20 × ArgumentBalance) − TotalPenalty
+     * Clamped to [0, 1].
+     */
+    public function calculateScore(): float {
+        $this->calculateOverlapScore();
+        $this->calculateTotalPenalty();
+        $this->calculateArgumentBalance();
+
+        $raw = (0.40 * $this->synonymConvergenceScore)
+             + (0.40 * $this->overlapScore)
+             + (0.20 * $this->argumentBalance)
+             + $this->networkAdjustment
+             - $this->totalPenalty;
+
+        $this->finalEquivalenceScore = round(max(0.0, min(1.0, $raw)), 4);
+        $this->verdict = $this->deriveVerdict($this->finalEquivalenceScore);
+        return $this->finalEquivalenceScore;
+    }
+
+    /**
+     * Derive verdict string from a final equivalence score (0-1).
+     */
+    public function deriveVerdict(float $score): string {
+        $pct = $score * 100;
+        if ($pct >= 90) return 'merge';
+        if ($pct >= 75) return 'merge_with_note';
+        if ($pct >= 50) return 'link';
+        return 'separate';
+    }
+
+    /**
+     * Human-readable verdict label.
+     */
+    public function verdictLabel(): string {
+        return match($this->verdict) {
+            'merge'           => 'MERGE',
+            'merge_with_note' => 'MERGE WITH NOTE',
+            'link'            => 'LINK ONLY',
+            default           => 'SEPARATE',
+        };
+    }
+
+    // ── Database Methods ─────────────────────────────────────────────
+
+    public static function findById(int $id): ?self {
+        $db   = Database::getConnection();
+        $stmt = $db->prepare('SELECT * FROM equivalence_analyses WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+        return $row ? self::fromRow($row) : null;
+    }
+
+    public static function findBySlug(string $slug): ?self {
+        $db   = Database::getConnection();
+        $stmt = $db->prepare('SELECT * FROM equivalence_analyses WHERE slug = :slug');
+        $stmt->execute(['slug' => $slug]);
+        $row = $stmt->fetch();
+        return $row ? self::fromRow($row) : null;
+    }
+
+    /** @return self[] */
+    public static function getAll(int $limit = 100, int $offset = 0): array {
+        $db   = Database::getConnection();
+        $stmt = $db->prepare(
+            'SELECT * FROM equivalence_analyses ORDER BY final_equivalence_score DESC LIMIT :lim OFFSET :off'
+        );
+        $stmt->execute(['lim' => $limit, 'off' => $offset]);
+        return array_map([self::class, 'fromRow'], $stmt->fetchAll());
+    }
+
+    public function insert(): void {
+        $db   = Database::getConnection();
+        $stmt = $db->prepare(
+            'INSERT INTO equivalence_analyses
+             (slug, belief_x_raw, belief_x_normalized, belief_x_source,
+              belief_y_raw, belief_y_normalized, belief_y_source,
+              fast_path_passed, auto_merge, synonym_convergence_score,
+              overall_strength_delta, structural_relationship,
+              subject_overlap, predicate_overlap, context_overlap, mechanism_overlap, overlap_score,
+              penalty_different_causal, penalty_different_evidence,
+              penalty_different_assumptions, penalty_different_policy, total_penalty,
+              pro_equivalence_score, anti_equivalence_score, argument_balance,
+              evidence_argument_overlap_rate, network_adjustment, final_equivalence_score,
+              verdict, canonical_page, linkage_score,
+              analyst_type, analyst_id, confidence, reviewed_by, review_date, trigger_reason)
+             VALUES
+             (:slug, :bxr, :bxn, :bxs, :byr, :byn, :bys,
+              :fpp, :am, :scs, :osd, :sr,
+              :so, :po, :co, :mo, :os,
+              :pdc, :pde, :pda, :pdp, :tp,
+              :pes, :aes, :ab, :eaor, :na, :fes,
+              :verdict, :cp, :ls,
+              :at, :ai, :conf, :rb, :rd, :tr)'
+        );
+        $stmt->execute($this->_bindParams());
+    }
+
+    public function save(): void {
+        $db   = Database::getConnection();
+        $stmt = $db->prepare(
+            'UPDATE equivalence_analyses SET
+             belief_x_raw=:bxr, belief_x_normalized=:bxn, belief_x_source=:bxs,
+             belief_y_raw=:byr, belief_y_normalized=:byn, belief_y_source=:bys,
+             fast_path_passed=:fpp, auto_merge=:am, synonym_convergence_score=:scs,
+             overall_strength_delta=:osd, structural_relationship=:sr,
+             subject_overlap=:so, predicate_overlap=:po, context_overlap=:co,
+             mechanism_overlap=:mo, overlap_score=:os,
+             penalty_different_causal=:pdc, penalty_different_evidence=:pde,
+             penalty_different_assumptions=:pda, penalty_different_policy=:pdp,
+             total_penalty=:tp, pro_equivalence_score=:pes, anti_equivalence_score=:aes,
+             argument_balance=:ab, evidence_argument_overlap_rate=:eaor,
+             network_adjustment=:na, final_equivalence_score=:fes,
+             verdict=:verdict, canonical_page=:cp, linkage_score=:ls,
+             analyst_type=:at, analyst_id=:ai, confidence=:conf,
+             reviewed_by=:rb, review_date=:rd, trigger_reason=:tr,
+             updated_at=CURRENT_TIMESTAMP
+             WHERE slug=:slug'
+        );
+        $params = $this->_bindParams();
+        $params['slug'] = $this->slug;
+        $stmt->execute($params);
+    }
+
+    private function _bindParams(): array {
+        return [
+            'slug' => $this->slug,
+            'bxr'  => $this->beliefXRaw,        'bxn' => $this->beliefXNormalized,
+            'bxs'  => $this->beliefXSource,      'byr' => $this->beliefYRaw,
+            'byn'  => $this->beliefYNormalized,  'bys' => $this->beliefYSource,
+            'fpp'  => (int) $this->fastPathPassed,
+            'am'   => (int) $this->autoMerge,
+            'scs'  => $this->synonymConvergenceScore,
+            'osd'  => $this->overallStrengthDelta,
+            'sr'   => $this->structuralRelationship,
+            'so'   => $this->subjectOverlap,    'po' => $this->predicateOverlap,
+            'co'   => $this->contextOverlap,    'mo' => $this->mechanismOverlap,
+            'os'   => $this->overlapScore,
+            'pdc'  => $this->penaltyDifferentCausal,
+            'pde'  => $this->penaltyDifferentEvidence,
+            'pda'  => $this->penaltyDifferentAssumptions,
+            'pdp'  => $this->penaltyDifferentPolicy,
+            'tp'   => $this->totalPenalty,
+            'pes'  => $this->proEquivalenceScore,
+            'aes'  => $this->antiEquivalenceScore,
+            'ab'   => $this->argumentBalance,
+            'eaor' => $this->evidenceArgumentOverlapRate,
+            'na'   => $this->networkAdjustment,
+            'fes'  => $this->finalEquivalenceScore,
+            'verdict' => $this->verdict,
+            'cp'   => $this->canonicalPage,
+            'ls'   => $this->linkageScore,
+            'at'   => $this->analystType,       'ai' => $this->analystId,
+            'conf' => $this->confidence,         'rb' => $this->reviewedBy,
+            'rd'   => $this->reviewDate,         'tr' => $this->triggerReason,
+        ];
+    }
+
+    public static function fromRow(array $row): self {
+        $a = new self();
+        $a->id                         = (int) $row['id'];
+        $a->slug                       = $row['slug'];
+        $a->beliefXRaw                 = $row['belief_x_raw'];
+        $a->beliefXNormalized          = $row['belief_x_normalized'];
+        $a->beliefXSource              = $row['belief_x_source'];
+        $a->beliefYRaw                 = $row['belief_y_raw'];
+        $a->beliefYNormalized          = $row['belief_y_normalized'];
+        $a->beliefYSource              = $row['belief_y_source'];
+        $a->fastPathPassed             = (bool) $row['fast_path_passed'];
+        $a->autoMerge                  = (bool) $row['auto_merge'];
+        $a->synonymConvergenceScore    = (float) $row['synonym_convergence_score'];
+        $a->overallStrengthDelta       = (float) $row['overall_strength_delta'];
+        $a->structuralRelationship     = $row['structural_relationship'];
+        $a->subjectOverlap             = (float) $row['subject_overlap'];
+        $a->predicateOverlap           = (float) $row['predicate_overlap'];
+        $a->contextOverlap             = (float) $row['context_overlap'];
+        $a->mechanismOverlap           = (float) $row['mechanism_overlap'];
+        $a->overlapScore               = (float) $row['overlap_score'];
+        $a->penaltyDifferentCausal     = (float) $row['penalty_different_causal'];
+        $a->penaltyDifferentEvidence   = (float) $row['penalty_different_evidence'];
+        $a->penaltyDifferentAssumptions = (float) $row['penalty_different_assumptions'];
+        $a->penaltyDifferentPolicy     = (float) $row['penalty_different_policy'];
+        $a->totalPenalty               = (float) $row['total_penalty'];
+        $a->proEquivalenceScore        = (float) $row['pro_equivalence_score'];
+        $a->antiEquivalenceScore       = (float) $row['anti_equivalence_score'];
+        $a->argumentBalance            = (float) $row['argument_balance'];
+        $a->evidenceArgumentOverlapRate = (float) $row['evidence_argument_overlap_rate'];
+        $a->networkAdjustment          = (float) $row['network_adjustment'];
+        $a->finalEquivalenceScore      = (float) $row['final_equivalence_score'];
+        $a->verdict                    = $row['verdict'];
+        $a->canonicalPage              = $row['canonical_page'];
+        $a->linkageScore               = (float) $row['linkage_score'];
+        $a->analystType                = $row['analyst_type'];
+        $a->analystId                  = $row['analyst_id'];
+        $a->confidence                 = $row['confidence'];
+        $a->reviewedBy                 = $row['reviewed_by'];
+        $a->reviewDate                 = $row['review_date'];
+        $a->triggerReason              = $row['trigger_reason'];
+        return $a;
+    }
+
+    public function toArray(): array {
+        return [
+            'id'                          => $this->id,
+            'slug'                        => $this->slug,
+            'belief_x_raw'                => $this->beliefXRaw,
+            'belief_x_normalized'         => $this->beliefXNormalized,
+            'belief_x_source'             => $this->beliefXSource,
+            'belief_y_raw'                => $this->beliefYRaw,
+            'belief_y_normalized'         => $this->beliefYNormalized,
+            'belief_y_source'             => $this->beliefYSource,
+            'fast_path_passed'            => $this->fastPathPassed,
+            'auto_merge'                  => $this->autoMerge,
+            'synonym_convergence_score'   => $this->synonymConvergenceScore,
+            'overall_strength_delta'      => $this->overallStrengthDelta,
+            'structural_relationship'     => $this->structuralRelationship,
+            'subject_overlap'             => $this->subjectOverlap,
+            'predicate_overlap'           => $this->predicateOverlap,
+            'context_overlap'             => $this->contextOverlap,
+            'mechanism_overlap'           => $this->mechanismOverlap,
+            'overlap_score'               => $this->overlapScore,
+            'penalty_different_causal'    => $this->penaltyDifferentCausal,
+            'penalty_different_evidence'  => $this->penaltyDifferentEvidence,
+            'penalty_different_assumptions' => $this->penaltyDifferentAssumptions,
+            'penalty_different_policy'    => $this->penaltyDifferentPolicy,
+            'total_penalty'               => $this->totalPenalty,
+            'pro_equivalence_score'       => $this->proEquivalenceScore,
+            'anti_equivalence_score'      => $this->antiEquivalenceScore,
+            'argument_balance'            => $this->argumentBalance,
+            'evidence_argument_overlap_rate' => $this->evidenceArgumentOverlapRate,
+            'network_adjustment'          => $this->networkAdjustment,
+            'final_equivalence_score'     => $this->finalEquivalenceScore,
+            'verdict'                     => $this->verdict,
+            'verdict_label'               => $this->verdictLabel(),
+            'canonical_page'              => $this->canonicalPage,
+            'linkage_score'               => $this->linkageScore,
+            'analyst_type'                => $this->analystType,
+            'analyst_id'                  => $this->analystId,
+            'confidence'                  => $this->confidence,
+            'reviewed_by'                 => $this->reviewedBy,
+            'review_date'                 => $this->reviewDate,
+            'trigger_reason'              => $this->triggerReason,
+        ];
+    }
+}
+"""
+
     def _generate_belief_tree_page(self) -> str:
         return """\
 <?php
@@ -960,6 +1336,78 @@ try {
         case 'recalculate':
             ReasonRank::recalculateAll();
             echo json_encode(['success' => true, 'message' => 'All scores recalculated']);
+            break;
+
+        // ── Equivalence Analysis endpoints ──────────────────────────────
+        case 'equivalence_list':
+            $limit  = max(1, min(500, (int)($_GET['limit'] ?? 100)));
+            $offset = max(0, (int)($_GET['offset'] ?? 0));
+            $items  = EquivalenceAnalysis::getAll($limit, $offset);
+            echo json_encode([
+                'success' => true,
+                'data'    => array_map(fn($a) => $a->toArray(), $items),
+            ]);
+            break;
+
+        case 'equivalence_get':
+            $slug = $_GET['slug'] ?? '';
+            $id   = (int)($_GET['id'] ?? 0);
+            $analysis = $slug ? EquivalenceAnalysis::findBySlug($slug)
+                               : ($id ? EquivalenceAnalysis::findById($id) : null);
+            if (!$analysis) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'Not found']);
+                break;
+            }
+            echo json_encode(['success' => true, 'data' => $analysis->toArray()]);
+            break;
+
+        case 'equivalence_create':
+            $input = json_decode(file_get_contents('php://input'), true);
+            if (!$input || empty($input['belief_x_raw']) || empty($input['belief_y_raw'])) {
+                throw new Exception('belief_x_raw and belief_y_raw are required');
+            }
+            $a = new EquivalenceAnalysis();
+            $a->slug               = $input['slug'] ?? 'eq-' . uniqid();
+            $a->beliefXRaw         = $input['belief_x_raw'];
+            $a->beliefXNormalized  = $input['belief_x_normalized'] ?? null;
+            $a->beliefXSource      = $input['belief_x_source'] ?? null;
+            $a->beliefYRaw         = $input['belief_y_raw'];
+            $a->beliefYNormalized  = $input['belief_y_normalized'] ?? null;
+            $a->beliefYSource      = $input['belief_y_source'] ?? null;
+            $a->synonymConvergenceScore  = (float)($input['synonym_convergence_score'] ?? 0);
+            $a->subjectOverlap     = (float)($input['subject_overlap']   ?? 0);
+            $a->predicateOverlap   = (float)($input['predicate_overlap'] ?? 0);
+            $a->contextOverlap     = (float)($input['context_overlap']   ?? 0);
+            $a->mechanismOverlap   = (float)($input['mechanism_overlap'] ?? 0);
+            $a->penaltyDifferentCausal      = (float)($input['penalty_different_causal']      ?? 0);
+            $a->penaltyDifferentEvidence    = (float)($input['penalty_different_evidence']    ?? 0);
+            $a->penaltyDifferentAssumptions = (float)($input['penalty_different_assumptions'] ?? 0);
+            $a->penaltyDifferentPolicy      = (float)($input['penalty_different_policy']      ?? 0);
+            $a->proEquivalenceScore  = (float)($input['pro_equivalence_score']  ?? 0);
+            $a->antiEquivalenceScore = (float)($input['anti_equivalence_score'] ?? 0);
+            $a->networkAdjustment    = (float)($input['network_adjustment']      ?? 0);
+            $a->analystType  = $input['analyst_type'] ?? 'human';
+            $a->analystId    = $input['analyst_id']   ?? null;
+            $a->confidence   = $input['confidence']   ?? 'medium';
+            $a->calculateScore();
+            $a->insert();
+            echo json_encode(['success' => true, 'data' => $a->toArray()]);
+            break;
+
+        case 'equivalence_score':
+            $slug = $_GET['slug'] ?? '';
+            $id   = (int)($_GET['id'] ?? 0);
+            $a = $slug ? EquivalenceAnalysis::findBySlug($slug)
+                       : ($id ? EquivalenceAnalysis::findById($id) : null);
+            if (!$a) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'Not found']);
+                break;
+            }
+            $a->calculateScore();
+            $a->save();
+            echo json_encode(['success' => true, 'data' => $a->toArray()]);
             break;
 
         default:

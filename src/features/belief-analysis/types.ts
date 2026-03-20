@@ -1,6 +1,21 @@
 // Types for the Belief Analysis template
 // These map to the Prisma models but are used as plain objects in components
 
+export interface DefinitionItem {
+  id: number
+  term: string
+  definition: string
+  sortOrder: number
+}
+
+export interface TestablePredictionItem {
+  id: number
+  prediction: string
+  timeframe: string | null
+  verificationMethod: string | null
+  sortOrder: number
+}
+
 export interface BeliefWithRelations {
   id: number
   slug: string
@@ -18,6 +33,10 @@ export interface BeliefWithRelations {
    * score through extraordinary evidence — or it scores near zero. See /algorithms/strong-to-weak.
    */
   claimStrength: number
+
+  definitions: DefinitionItem[]
+  falsifiability: string | null
+  testablePredictions: TestablePredictionItem[]
 
   arguments: ArgumentWithBelief[]
   evidence: EvidenceItem[]

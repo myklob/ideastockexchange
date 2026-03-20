@@ -18,6 +18,9 @@ import BeliefMappingSection from '@/features/belief-analysis/components/BeliefMa
 import SimilarBeliefsSection from '@/features/belief-analysis/components/SimilarBeliefsSection'
 import ContributeSection from '@/features/belief-analysis/components/ContributeSection'
 import StrengthSpectrumBar, { TwoAxisCoordinate } from '@/components/StrengthSpectrumBar'
+import DefinitionsSection from '@/features/belief-analysis/components/DefinitionsSection'
+import FalsifiabilitySection from '@/features/belief-analysis/components/FalsifiabilitySection'
+import TestablePredictionsSection from '@/features/belief-analysis/components/TestablePredictionsSection'
 
 interface BeliefPageProps {
   params: Promise<{ slug: string }>
@@ -114,6 +117,11 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
         {/* All analysis sections */}
         <div className="space-y-12">
+          {/* 0. Definitions */}
+          <DefinitionsSection definitions={belief.definitions} />
+
+          <hr className="border-gray-200" />
+
           {/* 1. Argument Trees */}
           <ArgumentTreesSection
             arguments={belief.arguments}
@@ -134,6 +142,14 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           {/* 3. Objective Criteria */}
           <ObjectiveCriteriaSection criteria={belief.objectiveCriteria} />
+
+          <hr className="border-gray-200" />
+
+          {/* 3b. Falsifiability Test */}
+          <FalsifiabilitySection falsifiability={belief.falsifiability} />
+
+          {/* 3c. Testable Predictions */}
+          <TestablePredictionsSection predictions={belief.testablePredictions} />
 
           <hr className="border-gray-200" />
 

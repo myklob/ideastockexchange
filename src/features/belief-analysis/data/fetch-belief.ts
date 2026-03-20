@@ -13,6 +13,8 @@ import { applyStrengthPenalty } from '@/core/scoring/claim-strength'
 
 /** Shared include clause for all belief queries — includes all score-related fields. */
 const BELIEF_INCLUDE = {
+  definitions: { orderBy: { sortOrder: 'asc' as const } },
+  testablePredictions: { orderBy: { sortOrder: 'asc' as const } },
   arguments: {
     include: {
       belief: {
