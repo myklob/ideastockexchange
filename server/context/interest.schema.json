@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ideastockexchange.io/schemas/interest",
+  "title": "Interest",
+  "description": "A universal human motivation or value, independent of any specific conflict.",
+  "type": "object",
+  "required": ["interestId", "name", "maslowLevel"],
+  "additionalProperties": false,
+  "properties": {
+    "interestId": {
+      "type": "string",
+      "pattern": "^INT-[A-Z0-9]{3,}$",
+      "description": "Unique stable identifier, e.g. INT-001"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string"
+    },
+    "maslowLevel": {
+      "type": "string",
+      "enum": ["PHYSIOLOGICAL", "SAFETY", "BELONGING", "ESTEEM", "SELF_ACTUALIZATION", "INVALID"],
+      "description": "Maslow hierarchy classification determines baseline validity band"
+    },
+    "baseValidityScore": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Intrinsic validity of this interest class (context-independent). PHYSIOLOGICAL: 85–100, SAFETY: 70–85, BELONGING: 50–70, ESTEEM: 40–60, SELF_ACTUALIZATION: 30–50, INVALID: 0–20"
+    },
+    "semanticClusters": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Keyword phrases used for NLP deduplication of brainstorm submissions",
+      "uniqueItems": true
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "createdBy": { "type": "string" }
+  }
+}

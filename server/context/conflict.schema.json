@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ideastockexchange.io/schemas/conflict",
+  "title": "Conflict",
+  "description": "A policy debate or contested question, linking stakeholders to their applied interests.",
+  "type": "object",
+  "required": ["conflictId", "name"],
+  "additionalProperties": false,
+
+  "$defs": {
+
+    "evidenceItem": {
+      "type": "object",
+      "required": ["tier", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "evidenceId": { "type": "string" },
+        "tier": {
+          "type": "string",
+          "enum": ["T1","T2","T3","T4","T5","T6","T7"],
+          "description": "T1=peer-reviewed (weight 1.0) … T7=anecdotal (weight 0.30)"
+        },
+        "description": { "type": "string", "minLength": 1 },
+        "url":  { "type": "string" },
+        "year": { "type": "integer", "minimum": 1900 },
+        "qualityScore": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+
+    "appliedInterest": {
+      "type": "object",
+      "required": ["interestId"],
+      "additionalProperties": false,
+      "properties": {
+        "interestId": {
+          "type": "string",
+          "pattern": "^INT-[A-Z0-9]{3,}$"
+        },
+        "linkageAccuracy": {
+          "type": "integer", "minimum": 0, "maximum": 100,
+          "description": "How reliably is this interest the actual motivation? (0–100)"
+        },
+        "percentMotivated": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "Estimated fraction of stakeholder's motivation attributable to this interest"
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/evidenceItem" }
+        },
+        "linkageArguments": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "affirming":   { "type": "array", "items": { "type": "string" } },
+            "challenging": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "contextualValidityScore": {
+          "type": "integer", "minimum": 0, "maximum": 100,
+          "description": "Adjusted validity of this interest in this specific conflict context"
+        },
+        "validityArguments": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "forHighValidity": { "type": "array", "items": { "type": "string" } },
+            "forLowValidity":  { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "compositeScore": {
+          "type": "integer", "minimum": 0, "maximum": 100,
+          "description": "Computed: (contextualValidityScore × 0.6) + (linkageAccuracy × 0.4)"
+        }
+      }
+    },
+
+    "stakeholderMapping": {
+      "type": "object",
+      "required": ["stakeholderId", "position"],
+      "additionalProperties": false,
+      "properties": {
+        "stakeholderId": {
+          "type": "string",
+          "pattern": "^STK-[A-Z0-9]{4,}$"
+        },
+        "position": {
+          "type": "string",
+          "enum": ["Supporter", "Opponent", "Neutral", "Mixed"]
+        },
+        "role": { "type": "string" },
+        "appliedInterests": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/appliedInterest" }
+        }
+      }
+    },
+
+    "sharedInterest": {
+      "type": "object",
+      "required": ["interestId"],
+      "additionalProperties": false,
+      "properties": {
+        "interestId": { "type": "string", "pattern": "^INT-[A-Z0-9]{3,}$" },
+        "stakeholderIds": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^STK-[A-Z0-9]{4,}$" },
+          "uniqueItems": true
+        },
+        "avgValidityScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "bridgingProposals": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "evidenceLedgerEntry": {
+      "type": "object",
+      "required": ["claim"],
+      "additionalProperties": false,
+      "properties": {
+        "evidenceId":  { "type": "string" },
+        "claim":       { "type": "string", "minLength": 1 },
+        "side": {
+          "type": "string",
+          "enum": ["pro-pressure", "pro-engagement", "neutral"]
+        },
+        "source":       { "type": "string" },
+        "tier": {
+          "type": "string",
+          "enum": ["T1","T2","T3","T4","T5","T6","T7"]
+        },
+        "year":         { "type": "integer", "minimum": 1900 },
+        "qualityScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "url":          { "type": "string" },
+        "finding":      { "type": "string" }
+      }
+    },
+
+    "brainstormSubmission": {
+      "type": "object",
+      "required": ["rawText"],
+      "additionalProperties": false,
+      "properties": {
+        "submissionId":   { "type": "string" },
+        "rawText":        { "type": "string", "minLength": 1 },
+        "submittedBy":    { "type": "string" },
+        "submittedAt":    { "type": "string", "format": "date-time" },
+        "clusteredTo":    { "type": ["string", "null"] },
+        "similarityScore":{ "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "clustered", "rejected"]
+        }
+      }
+    }
+  },
+
+  "properties": {
+    "conflictId": {
+      "type": "string",
+      "pattern": "^CFL-[A-Z0-9]{3,}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "description": { "type": "string" },
+    "parentTopic":  { "type": "string" },
+    "spectrumMin": {
+      "type": "integer",
+      "default": -100
+    },
+    "spectrumMax": {
+      "type": "integer",
+      "default": 100
+    },
+    "importanceScore": {
+      "type": "integer", "minimum": 0, "maximum": 100
+    },
+    "controversyScore": {
+      "type": "integer", "minimum": 0, "maximum": 100
+    },
+    "evidenceDepth": {
+      "type": "string",
+      "enum": ["Low", "Medium", "High", "Very High"]
+    },
+    "stakeholderMappings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/stakeholderMapping" }
+    },
+    "sharedInterests": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/sharedInterest" }
+    },
+    "evidenceLedger": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidenceLedgerEntry" }
+    },
+    "rawBrainstorm": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/brainstormSubmission" }
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "createdBy": { "type": "string" }
+  }
+}

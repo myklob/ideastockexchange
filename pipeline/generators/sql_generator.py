@@ -164,6 +164,239 @@ CREATE TABLE IF NOT EXISTS `score_history` (
 ) ENGINE=InnoDB DEFAULT CHARSET={DB_CHARSET} COLLATE={DB_COLLATION};
 
 
+-- ── Belief Definitions ───────────────────────────────────────
+-- Stores term/definition pairs for a belief's Definitions section.
+
+CREATE TABLE IF NOT EXISTS `belief_definitions` (
+  `id`          INT            AUTO_INCREMENT PRIMARY KEY,
+  `belief_id`   VARCHAR(64)    NOT NULL,
+  `term`        VARCHAR(255)   NOT NULL,
+  `definition`  TEXT           NOT NULL,
+  `sort_order`  INT            DEFAULT 0,
+  `created_at`  TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX `idx_def_belief` (`belief_id`),
+
+  CONSTRAINT `fk_def_belief`
+    FOREIGN KEY (`belief_id`) REFERENCES `belief_nodes`(`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET={DB_CHARSET} COLLATE={DB_COLLATION};
+
+
+-- ── Testable Predictions ──────────────────────────────────────
+-- Stores testable prediction rows for a belief.
+
+CREATE TABLE IF NOT EXISTS `testable_predictions` (
+  `id`                  INT            AUTO_INCREMENT PRIMARY KEY,
+  `belief_id`           VARCHAR(64)    NOT NULL,
+  `prediction`          TEXT           NOT NULL,
+  `timeframe`           VARCHAR(255)   DEFAULT NULL,
+  `verification_method` TEXT           DEFAULT NULL,
+  `sort_order`          INT            DEFAULT 0,
+  `created_at`          TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX `idx_pred_belief` (`belief_id`),
+
+  CONSTRAINT `fk_pred_belief`
+    FOREIGN KEY (`belief_id`) REFERENCES `belief_nodes`(`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET={DB_CHARSET} COLLATE={DB_COLLATION};
+
+
+-- ── Equivalence Analyses ──────────────────────────────────────
+-- Master record for a belief equivalence scorecard (17-step pipeline).
+
+CREATE TABLE IF NOT EXISTS `equivalence_analyses` (
+  `id`                              INT            AUTO_INCREMENT PRIMARY KEY,
+  `slug`                            VARCHAR(255)   NOT NULL UNIQUE,
+  -- Step 1: Raw beliefs
+  `belief_x_raw`                    TEXT           NOT NULL,
+  `belief_x_normalized`             TEXT           DEFAULT NULL,
+  `belief_x_source`                 VARCHAR(255)   DEFAULT NULL,
+  `belief_y_raw`                    TEXT           NOT NULL,
+  `belief_y_normalized`             TEXT           DEFAULT NULL,
+  `belief_y_source`                 VARCHAR(255)   DEFAULT NULL,
+  -- Step 2: Fast path
+  `fast_path_passed`                TINYINT(1)     DEFAULT 0,
+  `auto_merge`                      TINYINT(1)     DEFAULT 0,
+  -- Step 5: Synonym convergence
+  `synonym_convergence_score`       DECIMAL(5,4)   DEFAULT 0.0000,
+  -- Step 6: Strength delta
+  `certainty_delta_x`               VARCHAR(50)    DEFAULT NULL,
+  `certainty_delta_y`               VARCHAR(50)    DEFAULT NULL,
+  `certainty_delta`                 DECIMAL(5,4)   DEFAULT 0.0000,
+  `scope_delta_x`                   VARCHAR(50)    DEFAULT NULL,
+  `scope_delta_y`                   VARCHAR(50)    DEFAULT NULL,
+  `scope_delta`                     DECIMAL(5,4)   DEFAULT 0.0000,
+  `force_delta_x`                   VARCHAR(50)    DEFAULT NULL,
+  `force_delta_y`                   VARCHAR(50)    DEFAULT NULL,
+  `force_delta`                     DECIMAL(5,4)   DEFAULT 0.0000,
+  `overall_strength_delta`          DECIMAL(5,4)   DEFAULT 0.0000,
+  -- Step 7: Structural relationship
+  `structural_relationship`         VARCHAR(50)    DEFAULT 'same_topic_different_claim',
+  -- Step 8: Overlap score (weighted: Subject×0.25 + Predicate×0.35 + Context×0.20 + Mechanism×0.20)
+  `subject_overlap`                 DECIMAL(5,4)   DEFAULT 0.0000,
+  `predicate_overlap`               DECIMAL(5,4)   DEFAULT 0.0000,
+  `context_overlap`                 DECIMAL(5,4)   DEFAULT 0.0000,
+  `mechanism_overlap`               DECIMAL(5,4)   DEFAULT 0.0000,
+  `overlap_score`                   DECIMAL(5,4)   DEFAULT 0.0000,
+  -- Step 9: Non-equivalence penalties
+  `penalty_different_causal`        DECIMAL(5,4)   DEFAULT 0.0000,
+  `penalty_different_evidence`      DECIMAL(5,4)   DEFAULT 0.0000,
+  `penalty_different_assumptions`   DECIMAL(5,4)   DEFAULT 0.0000,
+  `penalty_different_policy`        DECIMAL(5,4)   DEFAULT 0.0000,
+  `total_penalty`                   DECIMAL(5,4)   DEFAULT 0.0000,
+  -- Step 10: Argument battle
+  `pro_equivalence_score`           DECIMAL(10,4)  DEFAULT 0.0000,
+  `anti_equivalence_score`          DECIMAL(10,4)  DEFAULT 0.0000,
+  `argument_balance`                DECIMAL(5,4)   DEFAULT 0.0000,
+  -- Step 11: Evidence/argument overlap
+  `evidence_argument_overlap_rate`  DECIMAL(5,4)   DEFAULT 0.0000,
+  -- Step 12: Final score
+  -- Formula: (0.40 × synonym_convergence) + (0.40 × overlap_score) + (0.20 × argument_balance) − total_penalty
+  `network_adjustment`              DECIMAL(5,4)   DEFAULT 0.0000,
+  `final_equivalence_score`         DECIMAL(5,4)   DEFAULT 0.0000,
+  -- Step 13: Verdict (merge | merge_with_note | link | separate)
+  `verdict`                         VARCHAR(20)    DEFAULT 'separate',
+  `canonical_page`                  VARCHAR(255)   DEFAULT NULL,
+  `linkage_score`                   DECIMAL(5,4)   DEFAULT 0.0000,
+  -- Step 15: Audit
+  `analyst_type`                    VARCHAR(10)    DEFAULT 'human',
+  `analyst_id`                      VARCHAR(255)   DEFAULT NULL,
+  `confidence`                      VARCHAR(10)    DEFAULT 'medium',
+  `reviewed_by`                     VARCHAR(255)   DEFAULT NULL,
+  `review_date`                     TIMESTAMP      NULL DEFAULT NULL,
+  `trigger_reason`                  TEXT           DEFAULT NULL,
+  `revised_from_id`                 INT            DEFAULT NULL,
+
+  `created_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  INDEX `idx_eq_verdict` (`verdict`),
+  INDEX `idx_eq_score`   (`final_equivalence_score` DESC),
+
+  CONSTRAINT `fk_eq_revised_from`
+    FOREIGN KEY (`revised_from_id`) REFERENCES `equivalence_analyses`(`id`)
+    ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET={DB_CHARSET} COLLATE={DB_COLLATION};
+
+
+-- ── Synonym Claims ───────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `synonym_claims` (
+  `id`                    INT          AUTO_INCREMENT PRIMARY KEY,
+  `analysis_id`           INT          NOT NULL,
+  `x_term`                VARCHAR(255) NOT NULL,
+  `y_term`                VARCHAR(255) NOT NULL,
+  `merriam_webster`       TINYINT(1)   DEFAULT NULL,
+  `oxford`                TINYINT(1)   DEFAULT NULL,
+  `word_net`              TINYINT(1)   DEFAULT NULL,
+  `embedding_model`       TINYINT(1)   DEFAULT NULL,
+  `agreement_numerator`   INT          DEFAULT 0,
+  `agreement_denominator` INT          DEFAULT 4,
+  `agreement_rate`        DECIMAL(5,4) DEFAULT 0.0000,
+  `created_at`            TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX `idx_syn_analysis` (`analysis_id`),
+
+  CONSTRAINT `fk_syn_analysis`
+    FOREIGN KEY (`analysis_id`) REFERENCES `equivalence_analyses`(`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET={DB_CHARSET} COLLATE={DB_COLLATION};
+
+
+-- ── Semantic Map Entries ─────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `semantic_map_entries` (
+  `id`           INT          AUTO_INCREMENT PRIMARY KEY,
+  `analysis_id`  INT          NOT NULL,
+  `x_element`    VARCHAR(255) NOT NULL,
+  `y_element`    VARCHAR(255) NOT NULL,
+  -- identical | synonym | antonym | different
+  `relationship` VARCHAR(20)  DEFAULT 'different',
+  `notes`        TEXT         DEFAULT NULL,
+  `sort_order`   INT          DEFAULT 0,
+  `created_at`   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX `idx_sem_analysis` (`analysis_id`),
+
+  CONSTRAINT `fk_sem_analysis`
+    FOREIGN KEY (`analysis_id`) REFERENCES `equivalence_analyses`(`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET={DB_CHARSET} COLLATE={DB_COLLATION};
+
+
+-- ── Equivalence Reasons ──────────────────────────────────────
+-- Scoreable arguments for/against each judgment in the pipeline
+-- (normalization, structural classification, triggers, verdict).
+
+CREATE TABLE IF NOT EXISTS `equivalence_reasons` (
+  `id`              INT          AUTO_INCREMENT PRIMARY KEY,
+  `analysis_id`     INT          NOT NULL,
+  -- normalization_correct | normalization_wrong |
+  -- structural_correct | structural_wrong |
+  -- triggers_correct | triggers_wrong |
+  -- verdict_correct | verdict_wrong
+  `reason_type`     VARCHAR(30)  NOT NULL,
+  `side`            VARCHAR(10)  NOT NULL,   -- agree | disagree
+  `statement`       TEXT         NOT NULL,
+  `truth_score`     DECIMAL(5,4) DEFAULT 0.5000,
+  `linkage_score`   DECIMAL(5,4) DEFAULT 0.5000,
+  `importance_score` DECIMAL(5,4) DEFAULT 0.5000,
+  `created_at`      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX `idx_eqr_analysis` (`analysis_id`),
+  INDEX `idx_eqr_type`     (`reason_type`),
+
+  CONSTRAINT `fk_eqr_analysis`
+    FOREIGN KEY (`analysis_id`) REFERENCES `equivalence_analyses`(`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET={DB_CHARSET} COLLATE={DB_COLLATION};
+
+
+-- ── Argument Battle Items ────────────────────────────────────
+-- Pro/anti equivalence arguments (Step 10 of the pipeline).
+
+CREATE TABLE IF NOT EXISTS `argument_battle_items` (
+  `id`                INT          AUTO_INCREMENT PRIMARY KEY,
+  `analysis_id`       INT          NOT NULL,
+  -- pro_equivalence | anti_equivalence
+  `side`              VARCHAR(20)  NOT NULL,
+  `statement`         TEXT         NOT NULL,
+  `truth_score`       DECIMAL(5,4) DEFAULT 0.5000,
+  `linkage_score`     DECIMAL(5,4) DEFAULT 0.5000,
+  `importance_score`  DECIMAL(5,4) DEFAULT 0.5000,
+  `contribution_score` DECIMAL(10,4) DEFAULT 0.0000,
+  `created_at`        TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX `idx_ab_analysis` (`analysis_id`),
+
+  CONSTRAINT `fk_ab_analysis`
+    FOREIGN KEY (`analysis_id`) REFERENCES `equivalence_analyses`(`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET={DB_CHARSET} COLLATE={DB_COLLATION};
+
+
+-- ── Network Positions ────────────────────────────────────────
+-- Upstream/downstream/evidence network context for Step 14.
+
+CREATE TABLE IF NOT EXISTS `network_positions` (
+  `id`              INT          AUTO_INCREMENT PRIMARY KEY,
+  `analysis_id`     INT          NOT NULL,
+  -- upstream | downstream | evidence
+  `position_type`   VARCHAR(20)  NOT NULL,
+  `belief_x_items`  TEXT         DEFAULT '[]',
+  `belief_y_items`  TEXT         DEFAULT '[]',
+  `overlap_percent` DECIMAL(5,4) DEFAULT 0.0000,
+  `same_cluster`    TINYINT(1)   DEFAULT 0,
+  `created_at`      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX `idx_np_analysis` (`analysis_id`),
+
+  CONSTRAINT `fk_np_analysis`
+    FOREIGN KEY (`analysis_id`) REFERENCES `equivalence_analyses`(`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET={DB_CHARSET} COLLATE={DB_COLLATION};
+
+
 -- ── Similarity Cache ────────────────────────────────────────
 -- Stores pairwise semantic similarity between sibling nodes.
 -- Used by the uniqueness penalty system.
