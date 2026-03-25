@@ -222,6 +222,11 @@ model Belief {
   similarTo      SimilarBelief[] @relation("SimilarFrom")
   similarFrom    SimilarBelief[] @relation("SimilarTo")
 
+  // New sections from belief-analysis template v2
+  definitions         Definition[]
+  falsifiability      String?           // Falsifiability Test text
+  testablePredictions TestablePrediction[]
+
   productReview  ProductReview?
 }
 
@@ -408,6 +413,143 @@ model CostBenefitAnalysis {
   updatedAt DateTime @updatedAt
 }
 
+// ─── Automated CBA Skill Models ──────────────────────────────────────────────
+// Implements docs/automated-cba/SKILL.md: 4-category impact model with
+// argument-driven likelihood scoring, de-duplication, sensitivity, and scenarios.
+
+model CBAAnalysis {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  status      String @default("active") // "active" | "concluded" | "archived"
+
+  // Computed aggregate fields (recalculated on every mutation)
+  totalExpectedBenefits Float @default(0)
+  totalExpectedCosts    Float @default(0)
+  netExpectedValue      Float @default(0)
+  // "net_positive" | "net_negative" | "uncertain"
+  verdict    String @default("uncertain")
+  confidence Float  @default(0.3)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items             CBAImpact[]
+  sensitivityItems  CBASensitivityItem[]
+  deduplicationLogs CBADeduplicationLog[]
+}
+
+model CBAImpact {
+  id          String @id @default(cuid())
+  analysisId  String
+  analysis    CBAAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String
+  direction   String // "benefit" | "cost"
+
+  // Skill canonical category: "Financial" | "HumanLife" | "Freedom" | "Time"
+  canonicalCategory     String @default("Financial")
+  // Legacy freeform category (Economic, Social, etc.)
+  category              String @default("Financial")
+  magnitude             Float  // value in category units
+  magnitudeJustification String?
+
+  // Computed fields
+  likelihoodScore Float @default(0.5)  // derived from argument trees
+  expectedValue   Float @default(0)
+  confidence      Float @default(0.3)  // mean evidence tier quality
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  arguments         CBAArgument[]
+  overlapAdjustments CBAOverlapAdjustment[]
+
+  @@index([analysisId])
+  @@index([direction])
+  @@index([canonicalCategory])
+}
+
+model CBAArgument {
+  id       String    @id @default(cuid())
+  impactId String
+  impact   CBAImpact @relation(fields: [impactId], references: [id], onDelete: Cascade)
+
+  side        String  // "pro" | "con"
+  description String
+  claim       String  // Short title for the argument
+
+  // Scoring: argument_score = truthScore × linkageScore × importanceScore
+  // Truth is 0-10 scale; linkage and importance are 0-1
+  truthScore      Float @default(5)
+  linkageScore    Float @default(0.5)
+  importanceScore Float @default(1.0)
+  score           Float @default(0)   // computed: truth × linkage × importance
+
+  // Evidence tier: "T1" | "T2" | "T3" | "T4"
+  evidenceTier String @default("T3")
+
+  // De-duplication: 0-1 multiplier applied when this arg overlaps with sibling
+  redundancyDiscount Float?
+
+  // Recursive sub-arguments (self-referential)
+  parentId    String?
+  parent      CBAArgument?  @relation("SubArguments", fields: [parentId], references: [id])
+  subArguments CBAArgument[] @relation("SubArguments")
+
+  depth     Int @default(1)  // 1 = direct argument; 2+ = sub-argument
+
+  createdAt DateTime @default(now())
+
+  @@index([impactId])
+  @@index([side])
+  @@index([parentId])
+}
+
+model CBAOverlapAdjustment {
+  id           String    @id @default(cuid())
+  impactId     String
+  impact       CBAImpact @relation(fields: [impactId], references: [id], onDelete: Cascade)
+
+  overlapsWith       String  // id of the impact this overlaps with
+  similarity         Float   // 0-1 semantic overlap score
+  adjustmentApplied  Float   // multiplier (e.g., 0.6 = discounted 40%)
+
+  createdAt DateTime @default(now())
+
+  @@index([impactId])
+}
+
+model CBASensitivityItem {
+  id         String      @id @default(cuid())
+  analysisId String
+  analysis   CBAAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  impactId    String  // references CBAImpact.id
+  impactTitle String
+  swing       Float   // |magnitude × (likelihood_high - likelihood_low)|
+  likelihoodLow  Float
+  likelihoodHigh Float
+
+  @@index([analysisId])
+}
+
+model CBADeduplicationLog {
+  id         String      @id @default(cuid())
+  analysisId String
+  analysis   CBAAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  action     String  // "merged" | "discounted"
+  items      String  // JSON array of impact IDs or argument claims
+  similarity Float
+  adjustment String  // Human-readable description
+
+  createdAt DateTime @default(now())
+
+  @@index([analysisId])
+}
+
 model ImpactAnalysis {
   id       Int    @id @default(autoincrement())
   beliefId Int    @unique
@@ -531,6 +673,226 @@ model SimilarBelief {
   equivalencyScore Float @default(0.0)
 
   createdAt DateTime @default(now())
+}
+
+model Definition {
+  id         Int    @id @default(autoincrement())
+  beliefId   Int
+  belief     Belief @relation(fields: [beliefId], references: [id])
+  term       String
+  definition String
+  sortOrder  Int    @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+model TestablePrediction {
+  id                 Int    @id @default(autoincrement())
+  beliefId           Int
+  belief             Belief @relation(fields: [beliefId], references: [id])
+  prediction         String
+  timeframe          String?
+  verificationMethod String?
+  sortOrder          Int    @default(0)
+  createdAt          DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+// ─── Belief Equivalence Analysis Models ──────────────────────────────────────
+
+model EquivalenceAnalysis {
+  id   Int    @id @default(autoincrement())
+  slug String @unique
+
+  // Raw beliefs
+  beliefXRaw        String
+  beliefXNormalized String?
+  beliefXSource     String?
+  beliefYRaw        String
+  beliefYNormalized String?
+  beliefYSource     String?
+
+  // Step 2: Fast path
+  fastPathPassed Boolean @default(false)
+  autoMerge      Boolean @default(false)
+
+  // Step 5: Synonym Convergence Score (0-1)
+  synonymConvergenceScore Float @default(0)
+
+  // Step 6: Strength Delta
+  certaintyDeltaX  String?
+  certaintyDeltaY  String?
+  certaintyDelta   Float @default(0)
+  scopeDeltaX      String?
+  scopeDeltaY      String?
+  scopeDelta       Float @default(0)
+  forceDeltaX      String?
+  forceDeltaY      String?
+  forceDelta       Float @default(0)
+  overallStrengthDelta Float @default(0)
+
+  // Step 7: Structural relationship
+  // "same_claim" | "same_topic_different_claim" | "subset" | "different_topic"
+  structuralRelationship String @default("same_topic_different_claim")
+
+  // Step 8: Overlap Score components (0-1 each)
+  subjectOverlap   Float @default(0)
+  predicateOverlap Float @default(0)
+  contextOverlap   Float @default(0)
+  mechanismOverlap Float @default(0)
+  overlapScore     Float @default(0)
+
+  // Step 9: Non-equivalence penalties
+  penaltyDifferentCausal      Float @default(0)
+  penaltyDifferentEvidence    Float @default(0)
+  penaltyDifferentAssumptions Float @default(0)
+  penaltyDifferentPolicy      Float @default(0)
+  totalPenalty                Float @default(0)
+
+  // Step 10: Argument battle
+  proEquivalenceScore  Float @default(0)
+  antiEquivalenceScore Float @default(0)
+  argumentBalance      Float @default(0)
+
+  // Step 11: Evidence/argument overlap rate
+  evidenceArgumentOverlapRate Float @default(0)
+
+  // Step 12: Final equivalence score
+  networkAdjustment     Float @default(0)
+  finalEquivalenceScore Float @default(0)
+
+  // Step 13: Verdict
+  // "merge" | "merge_with_note" | "link" | "separate"
+  verdict       String  @default("separate")
+  canonicalPage String?
+  linkageScore  Float   @default(0)
+
+  // Step 15: Audit
+  analystType  String   @default("human") // "human" | "ai" | "hybrid"
+  analystId    String?
+  confidence   String   @default("medium") // "high" | "medium" | "low"
+  reviewedBy   String?
+  reviewDate   DateTime?
+  triggerReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  synonymClaims        SynonymClaim[]
+  semanticMapEntries   SemanticMapEntry[]
+  normalizationReasons EquivalenceReason[] @relation("NormalizationReasons")
+  structuralReasons    EquivalenceReason[] @relation("StructuralReasons")
+  triggerReasons       EquivalenceReason[] @relation("TriggerReasons")
+  verdictReasons       EquivalenceReason[] @relation("VerdictReasons")
+  argumentBattleItems  ArgumentBattleItem[]
+  networkPositions     NetworkPosition[]
+  previousVersions     EquivalenceAnalysis[] @relation("Revisions")
+  revisedFrom          EquivalenceAnalysis?  @relation("Revisions", fields: [revisedFromId], references: [id])
+  revisedFromId        Int?
+
+  @@index([finalEquivalenceScore])
+  @@index([verdict])
+}
+
+model SynonymClaim {
+  id         Int    @id @default(autoincrement())
+  analysisId Int
+  analysis   EquivalenceAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  xTerm                String
+  yTerm                String
+  merriamWebster       Boolean?
+  oxford               Boolean?
+  wordNet              Boolean?
+  embeddingModel       Boolean?
+  agreementNumerator   Int   @default(0)
+  agreementDenominator Int   @default(4)
+  agreementRate        Float @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([analysisId])
+}
+
+model SemanticMapEntry {
+  id         Int    @id @default(autoincrement())
+  analysisId Int
+  analysis   EquivalenceAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  xElement     String
+  yElement     String
+  // "identical" | "synonym" | "antonym" | "different"
+  relationship String @default("different")
+  notes        String?
+  sortOrder    Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([analysisId])
+}
+
+model EquivalenceReason {
+  id         Int    @id @default(autoincrement())
+  analysisId Int
+
+  // Which step this reason belongs to
+  // "normalization_correct" | "normalization_wrong" |
+  // "structural_correct" | "structural_wrong" |
+  // "triggers_correct" | "triggers_wrong" |
+  // "verdict_correct" | "verdict_wrong"
+  reasonType String
+
+  side            String  // "agree" | "disagree"
+  statement       String
+  truthScore      Float   @default(0.5)
+  linkageScore    Float   @default(0.5)
+  importanceScore Float   @default(0.5)
+
+  createdAt DateTime @default(now())
+
+  normalizationAnalysis EquivalenceAnalysis? @relation("NormalizationReasons", fields: [analysisId], references: [id], onDelete: Cascade)
+  structuralAnalysis    EquivalenceAnalysis? @relation("StructuralReasons", fields: [analysisId], references: [id], onDelete: Cascade)
+  triggerAnalysis       EquivalenceAnalysis? @relation("TriggerReasons", fields: [analysisId], references: [id], onDelete: Cascade)
+  verdictAnalysis       EquivalenceAnalysis? @relation("VerdictReasons", fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@index([analysisId])
+  @@index([reasonType])
+}
+
+model ArgumentBattleItem {
+  id         Int    @id @default(autoincrement())
+  analysisId Int
+  analysis   EquivalenceAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  side              String  // "pro_equivalence" | "anti_equivalence"
+  statement         String
+  truthScore        Float   @default(0.5)
+  linkageScore      Float   @default(0.5)
+  importanceScore   Float   @default(0.5)
+  contributionScore Float   @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([analysisId])
+}
+
+model NetworkPosition {
+  id         Int    @id @default(autoincrement())
+  analysisId Int
+  analysis   EquivalenceAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  // "upstream" | "downstream" | "evidence"
+  positionType   String
+  beliefXItems   String  @default("[]") // JSON array of strings
+  beliefYItems   String  @default("[]") // JSON array of strings
+  overlapPercent Float   @default(0)
+  sameCluster    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([analysisId])
 }
 
 // ─── Debate Topic Models ─────────────────────────────────────────

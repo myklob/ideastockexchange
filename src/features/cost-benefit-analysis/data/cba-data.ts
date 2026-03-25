@@ -101,6 +101,9 @@ const bridgeCBA: CostBenefitAnalysis = {
         'New bridge eliminates the 15-minute average detour through downtown. ' +
         'At $25/hour average value of time, this produces substantial annual savings.',
       category: 'Economic',
+      canonicalCategory: 'Financial' as const,
+      overlapAdjustments: [],
+      confidence: 0.3,
       predictedImpact: 4_500_000,
       likelihoodBelief: makeLikelihood(
         'lb-b1-commute',
@@ -208,6 +211,9 @@ const bridgeCBA: CostBenefitAnalysis = {
         'Improved access is projected to attract $30M in new commercial development ' +
         'over 10 years, generating $2.1M in annual tax revenue.',
       category: 'Economic',
+      canonicalCategory: 'Financial' as const,
+      overlapAdjustments: [],
+      confidence: 0.3,
       predictedImpact: 2_100_000,
       likelihoodBelief: makeLikelihood(
         'lb-b2-econ',
@@ -275,6 +281,9 @@ const bridgeCBA: CostBenefitAnalysis = {
         'The current route forces traffic through a dangerous at-grade intersection. ' +
         'Projected reduction of 12 serious accidents per year, valued at $180K each using DOT VSL methodology.',
       category: 'Social',
+      canonicalCategory: 'HumanLife' as const,
+      overlapAdjustments: [],
+      confidence: 0.3,
       predictedImpact: 2_160_000,
       likelihoodBelief: makeLikelihood(
         'lb-b3-safety',
@@ -332,6 +341,9 @@ const bridgeCBA: CostBenefitAnalysis = {
         'Full construction cost including design, engineering, materials, labor, and project management. ' +
         'Initial estimate: $18.7M based on preliminary engineering study.',
       category: 'Economic',
+      canonicalCategory: 'Financial' as const,
+      overlapAdjustments: [],
+      confidence: 0.3,
       predictedImpact: -18_700_000,
       likelihoodBelief: makeLikelihood(
         'lb-c1-construction',
@@ -439,6 +451,9 @@ const bridgeCBA: CostBenefitAnalysis = {
         'Construction will impact 3 acres of wetland habitat. Required mitigation includes ' +
         'wetland banking credits and a 5-year monitoring program.',
       category: 'Environmental',
+      canonicalCategory: 'Financial' as const,
+      overlapAdjustments: [],
+      confidence: 0.3,
       predictedImpact: -1_200_000,
       likelihoodBelief: makeLikelihood(
         'lb-c2-env',
@@ -489,6 +504,9 @@ const bridgeCBA: CostBenefitAnalysis = {
         'Local businesses estimate 15-25% revenue loss during construction due to ' +
         'traffic detours, noise, and reduced foot traffic.',
       category: 'Economic',
+      canonicalCategory: 'Financial' as const,
+      overlapAdjustments: [],
+      confidence: 0.3,
       predictedImpact: -3_000_000,
       likelihoodBelief: makeLikelihood(
         'lb-c3-disruption',
@@ -533,6 +551,16 @@ const bridgeCBA: CostBenefitAnalysis = {
   totalExpectedBenefits: 0,
   totalExpectedCosts: 0,
   netExpectedValue: 0,
+  verdict: 'uncertain' as const,
+  confidence: 0.3,
+  categoryBreakdown: [],
+  sensitivity: [],
+  scenarios: {
+    optimistic: { totalEv: 0, totalBenefits: 0, totalCosts: 0, categoryEvs: [] },
+    base: { totalEv: 0, totalBenefits: 0, totalCosts: 0, categoryEvs: [] },
+    pessimistic: { totalEv: 0, totalBenefits: 0, totalCosts: 0, categoryEvs: [] },
+  },
+  deduplicationLog: [],
   createdAt: '2025-01-10T08:00:00Z',
   updatedAt: '2025-01-15T12:00:00Z',
   protocolLog: [
@@ -592,6 +620,9 @@ const educationCBA: CostBenefitAnalysis = {
         'Perry Preschool and other longitudinal studies show pre-K participants earn 10-15% more over their lifetime. ' +
         'Applied to 35,000 new participants with discounted future earnings.',
       category: 'Economic',
+      canonicalCategory: 'Financial' as const,
+      overlapAdjustments: [],
+      confidence: 0.3,
       predictedImpact: 12_000_000,
       likelihoodBelief: makeLikelihood(
         'lb-ed-b1',
@@ -671,6 +702,9 @@ const educationCBA: CostBenefitAnalysis = {
       description:
         'Early intervention reduces special education placement rates by 25-40%, saving $12,000/year per diverted student.',
       category: 'Economic',
+      canonicalCategory: 'Financial' as const,
+      overlapAdjustments: [],
+      confidence: 0.3,
       predictedImpact: 5_600_000,
       likelihoodBelief: makeLikelihood(
         'lb-ed-b2',
@@ -710,6 +744,9 @@ const educationCBA: CostBenefitAnalysis = {
       description:
         '35,000 slots at $8,500 per child. Includes teacher salaries, facilities, materials, administration, and transportation.',
       category: 'Economic',
+      canonicalCategory: 'Financial' as const,
+      overlapAdjustments: [],
+      confidence: 0.3,
       predictedImpact: -297_500_000,
       likelihoodBelief: makeLikelihood(
         'lb-ed-c1',
@@ -757,6 +794,9 @@ const educationCBA: CostBenefitAnalysis = {
       description:
         'New classrooms required for 60% of new slots. Estimated 400 new classrooms at $150K each.',
       category: 'Economic',
+      canonicalCategory: 'Financial' as const,
+      overlapAdjustments: [],
+      confidence: 0.3,
       predictedImpact: -60_000_000,
       likelihoodBelief: makeLikelihood(
         'lb-ed-c2',
@@ -801,6 +841,16 @@ const educationCBA: CostBenefitAnalysis = {
   totalExpectedBenefits: 0,
   totalExpectedCosts: 0,
   netExpectedValue: 0,
+  verdict: 'uncertain' as const,
+  confidence: 0.3,
+  categoryBreakdown: [],
+  sensitivity: [],
+  scenarios: {
+    optimistic: { totalEv: 0, totalBenefits: 0, totalCosts: 0, categoryEvs: [] },
+    base: { totalEv: 0, totalBenefits: 0, totalCosts: 0, categoryEvs: [] },
+    pessimistic: { totalEv: 0, totalBenefits: 0, totalCosts: 0, categoryEvs: [] },
+  },
+  deduplicationLog: [],
   createdAt: '2025-01-08T08:00:00Z',
   updatedAt: '2025-01-15T14:00:00Z',
   protocolLog: [

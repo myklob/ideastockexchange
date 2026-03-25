@@ -29,6 +29,49 @@
             <xsl:for-each select="Beliefs/Belief">
                 <div class="belief">
                     <h3><xsl:value-of select="Statement"/></h3>
+
+                    <!-- Definitions Table -->
+                    <xsl:if test="Definitions/Definition">
+                        <h4>📖 Definitions</h4>
+                        <table class="belief-table" style="width:100%">
+                            <tr>
+                                <th style="width:30%">Term</th>
+                                <th style="width:70%">Definition Used in This Analysis</th>
+                            </tr>
+                            <xsl:for-each select="Definitions/Definition">
+                                <tr>
+                                    <td><xsl:value-of select="Term"/></td>
+                                    <td><xsl:value-of select="Definition"/></td>
+                                </tr>
+                            </xsl:for-each>
+                        </table>
+                    </xsl:if>
+
+                    <!-- Falsifiability Test -->
+                    <xsl:if test="Falsifiability">
+                        <h4>🔬 Falsifiability Test</h4>
+                        <p><xsl:value-of select="Falsifiability"/></p>
+                    </xsl:if>
+
+                    <!-- Testable Predictions Table -->
+                    <xsl:if test="TestablePredictions/Prediction">
+                        <h4>🔮 Testable Predictions</h4>
+                        <table class="belief-table" style="width:100%">
+                            <tr>
+                                <th>Prediction</th>
+                                <th>Timeframe</th>
+                                <th>Verification Method</th>
+                            </tr>
+                            <xsl:for-each select="TestablePredictions/Prediction">
+                                <tr>
+                                    <td><xsl:value-of select="Statement"/></td>
+                                    <td><xsl:value-of select="Timeframe"/></td>
+                                    <td><xsl:value-of select="VerificationMethod"/></td>
+                                </tr>
+                            </xsl:for-each>
+                        </table>
+                    </xsl:if>
+
                     <div class="table-container">
                         <!-- Reasons to Agree Table -->
                         <xsl:if test="/BeliefAnalysis/Arguments/Argument[ConclusionID=current()/BeliefID and ArgumentType='Supporting']">

@@ -1,0 +1,734 @@
+<p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">Belief Equivalence Scorecard</span></p>
+<p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 14px;">Comparing two beliefs to determine if they should be merged, linked, or kept separate.</span></p>
+<p><span style="font-size: 150%;"><strong>Index</strong></span></p>
+<p><img class="pluginslug" src="/plugin_helper.php?plugin=toc&amp;depth=3" alt="" /></p>
+<p>&nbsp;</p>
+
+<h1>⚖️ Step 1: Raw Beliefs Under Comparison</h1>
+<table style="border-color: #cccccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #e6f3ff;">
+<th style="text-align: center;" width="15%">Label</th>
+<th style="text-align: center;" width="55%">Raw Belief Statement</th>
+<th style="text-align: center;" width="30%">Source Page</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Belief X</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Belief Y</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>⚡ Step 2: Fast Path Collapse Test</h1>
+<p><em>If both beliefs are word-for-word identical after lowercasing and punctuation stripping, skip to Verdict = MERGE.</em></p>
+<table style="border-color: #cccccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="50%">Check</th>
+<th style="text-align: center;" width="25%">Result</th>
+<th style="text-align: center;" width="25%">Auto-Merge?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exact match after normalization (lowercase, strip punctuation)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Fast path passed?</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>📝 Step 3: Normalized Core Claims</h1>
+<p><em>Strip hedging, filler, and scope qualifiers. Extract the minimal logical core.</em></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="15%">Label</th>
+<th style="text-align: center;" width="50%">Normalized Statement</th>
+<th style="text-align: center;" width="35%">Normalization Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Belief X</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Belief Y</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p><strong>Normalization Argument Battle:</strong></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr>
+<th style="background-color: #e6ffe6; text-align: center;" width="45%">✅ Normalization is correct because…</th>
+<th style="background-color: #ffe6e6; text-align: center;" width="45%">❌ Normalization is wrong because…</th>
+<th style="text-align: center;" width="10%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>🗺️ Step 4: Semantic Transformation Map</h1>
+<p><em>Map each element of Belief X to the corresponding element of Belief Y.</em></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="30%">Belief X Element</th>
+<th style="text-align: center;" width="30%">Belief Y Element</th>
+<th style="text-align: center;" width="20%">Relationship</th>
+<th style="text-align: center;" width="20%">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>identical / synonym / antonym / different</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>🔤 Step 5: Synonym Convergence Score</h1>
+<p><em>Formula: average agreement rate across all synonym claims.</em></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="20%">Term X</th>
+<th style="text-align: center;" width="20%">Term Y</th>
+<th style="text-align: center;" width="12%">Merriam-Webster</th>
+<th style="text-align: center;" width="12%">Oxford</th>
+<th style="text-align: center;" width="12%">WordNet</th>
+<th style="text-align: center;" width="12%">Embedding Model</th>
+<th style="text-align: center;" width="12%">Agreement Rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>✓ / ✗</td>
+<td>✓ / ✗</td>
+<td>✓ / ✗</td>
+<td>✓ / ✗</td>
+<td>&nbsp;/ 4</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;/ 4</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<table style="border-color: #cccccc;" border="1" cellspacing="0" cellpadding="8" width="50%">
+<tbody>
+<tr style="background-color: #e6f3ff;">
+<td><strong>Synonym Convergence Score</strong></td>
+<td><strong>&nbsp;%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>💪 Step 6: Strength Delta</h1>
+<p><em>Measures how much the two beliefs differ in certainty, scope, and causal force.</em></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="20%">Dimension</th>
+<th style="text-align: center;" width="30%">Belief X</th>
+<th style="text-align: center;" width="30%">Belief Y</th>
+<th style="text-align: center;" width="20%">Delta (0–1)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Certainty</strong> (absolute vs. probable)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Scope</strong> (universal vs. local)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Causal Force</strong> (necessary vs. contributing)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr style="background-color: #f0f0f0;">
+<td colspan="3" align="right"><strong>Overall Strength Delta:</strong></td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>🏗️ Step 7: Structural Relationship Classification</h1>
+<table style="border-color: #cccccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="30%">Classification</th>
+<th style="text-align: center;" width="70%">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>☐ Same claim</td>
+<td>Identical or synonym-level semantic content</td>
+</tr>
+<tr>
+<td>☐ Same topic, different claim</td>
+<td>Same subject domain but distinct logical assertions</td>
+</tr>
+<tr>
+<td>☐ Subset / superset</td>
+<td>One belief is a narrower or broader version of the other</td>
+</tr>
+<tr>
+<td>☐ Different topic</td>
+<td>No meaningful semantic overlap</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p><strong>Selected Classification:</strong> &nbsp;&nbsp;&nbsp;</p>
+<p><strong>Structural Argument Battle:</strong></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr>
+<th style="background-color: #e6ffe6; text-align: center;" width="45%">✅ Classification is correct because…</th>
+<th style="background-color: #ffe6e6; text-align: center;" width="45%">❌ Classification is wrong because…</th>
+<th style="text-align: center;" width="10%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>📊 Step 8: Overlap Score</h1>
+<p><em>Formula: (Subject × 0.25) + (Predicate × 0.35) + (Context × 0.20) + (Mechanism × 0.20)</em></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="25%">Dimension</th>
+<th style="text-align: center;" width="30%">Belief X</th>
+<th style="text-align: center;" width="30%">Belief Y</th>
+<th style="text-align: center;" width="15%">Overlap (0–1)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Subject</strong> (who or what) × 0.25</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Predicate</strong> (what is claimed) × 0.35</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Context</strong> (conditions) × 0.20</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Mechanism</strong> (causal path) × 0.20</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr style="background-color: #e6f3ff;">
+<td colspan="3" align="right"><strong>Weighted Overlap Score:</strong></td>
+<td><strong>&nbsp;%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>🚫 Step 9: Non-Equivalence Triggers</h1>
+<p><em>Any checked trigger applies a penalty to the final score.</em></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #ffe6e6;">
+<th style="text-align: center;" width="50%">Trigger</th>
+<th style="text-align: center;" width="25%">Present? (✓/✗)</th>
+<th style="text-align: center;" width="25%">Penalty Applied</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Different causal chains (same conclusion, opposite mechanisms)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Different supporting evidence (no shared citations)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Different foundational assumptions</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Different policy implications</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr style="background-color: #f0f0f0;">
+<td colspan="2" align="right"><strong>Total Penalty:</strong></td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p><strong>Trigger Argument Battle:</strong></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr>
+<th style="background-color: #e6ffe6; text-align: center;" width="45%">✅ Triggers correctly identified because…</th>
+<th style="background-color: #ffe6e6; text-align: center;" width="45%">❌ Triggers incorrectly flagged because…</th>
+<th style="text-align: center;" width="10%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>⚔️ Step 10: Argument Battle: Is This Equivalence Real?</h1>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr>
+<th style="background-color: #e6ffe6; text-align: center;" width="36%">✅ Pro-Equivalence Arguments</th>
+<th style="text-align: center;" width="8%">Truth</th>
+<th style="text-align: center;" width="8%">Linkage</th>
+<th style="text-align: center;" width="8%">Importance</th>
+<th style="text-align: center;" width="10%">Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr style="background-color: #f0f0f0;">
+<td colspan="4" align="right"><strong>Pro-Equivalence Score:</strong></td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr>
+<th style="background-color: #ffe6e6; text-align: center;" width="36%">❌ Anti-Equivalence Arguments</th>
+<th style="text-align: center;" width="8%">Truth</th>
+<th style="text-align: center;" width="8%">Linkage</th>
+<th style="text-align: center;" width="8%">Importance</th>
+<th style="text-align: center;" width="10%">Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr style="background-color: #f0f0f0;">
+<td colspan="4" align="right"><strong>Anti-Equivalence Score:</strong></td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<table style="border-color: #cccccc;" border="1" cellspacing="0" cellpadding="8" width="50%">
+<tbody>
+<tr style="background-color: #e6f3ff;">
+<td><strong>Argument Balance (Pro / (Pro + Anti)):</strong></td>
+<td><strong>&nbsp;%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>📋 Step 11: Shared vs. Distinct Evidence and Arguments</h1>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="40%">Shared Evidence / Arguments</th>
+<th style="text-align: center;" width="30%">Unique to Belief X</th>
+<th style="text-align: center;" width="30%">Unique to Belief Y</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td valign="top">1.<br />2.<br />3.</td>
+<td valign="top">1.<br />2.</td>
+<td valign="top">1.<br />2.</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<table style="border-color: #cccccc;" border="1" cellspacing="0" cellpadding="8" width="50%">
+<tbody>
+<tr>
+<td><strong>Evidence / Argument Overlap Rate:</strong></td>
+<td><strong>&nbsp;%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>🧮 Step 12: Final Equivalence Score</h1>
+<p><em>Equivalence = (0.40 × Synonym Score) + (0.40 × Overlap Score) + (0.20 × Argument Balance) − Penalties</em></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="40%">Component</th>
+<th style="text-align: center;" width="20%">Weight</th>
+<th style="text-align: center;" width="20%">Score (0–1)</th>
+<th style="text-align: center;" width="20%">Weighted</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Synonym Convergence Score (Step 5)</td>
+<td>0.40</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Overlap Score (Step 8)</td>
+<td>0.40</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Argument Balance (Step 10)</td>
+<td>0.20</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Network Position Adjustment (Step 14)</td>
+<td>±</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Non-Equivalence Penalties (Step 9)</td>
+<td>−</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr style="background-color: #e6f3ff;">
+<td colspan="3" align="right"><strong>Final Equivalence Score:</strong></td>
+<td><strong>&nbsp;%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>🏁 Step 13: Verdict and Action</h1>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="20%">Score Range</th>
+<th style="text-align: center;" width="20%">Verdict</th>
+<th style="text-align: center;" width="60%">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>90–100%</td>
+<td>🔴 <strong>MERGE</strong></td>
+<td>Redirect one page to the other; combine all arguments</td>
+</tr>
+<tr>
+<td>75–89%</td>
+<td>🟠 <strong>MERGE with note</strong></td>
+<td>Merge with a footnote explaining the phrasing difference</td>
+</tr>
+<tr>
+<td>50–74%</td>
+<td>🟡 <strong>LINK only</strong></td>
+<td>Add a "similar belief" link; keep both pages separate</td>
+</tr>
+<tr>
+<td>&lt; 50%</td>
+<td>🟢 <strong>SEPARATE</strong></td>
+<td>No action needed; beliefs are distinct</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<table style="border-color: #cccccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<tbody>
+<tr style="background-color: #e6ffe6;">
+<td width="20%"><strong>Final Verdict:</strong></td>
+<td width="20%">&nbsp;</td>
+<td width="20%"><strong>Canonical Page (if merge):</strong></td>
+<td width="20%">&nbsp;</td>
+<td width="20%"><strong>Linkage Score:</strong></td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p><strong>Verdict Argument Battle:</strong></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr>
+<th style="background-color: #e6ffe6; text-align: center;" width="45%">✅ Verdict is correct because…</th>
+<th style="background-color: #ffe6e6; text-align: center;" width="45%">❌ Verdict is wrong because…</th>
+<th style="text-align: center;" width="10%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>🕸️ Step 14: Network Position Adjustment</h1>
+<p><em>Beliefs that share the same upstream beliefs, downstream beliefs, or evidence cluster are more likely equivalent.</em></p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="20%">Network Layer</th>
+<th style="text-align: center;" width="30%">Belief X Items</th>
+<th style="text-align: center;" width="30%">Belief Y Items</th>
+<th style="text-align: center;" width="10%">Overlap %</th>
+<th style="text-align: center;" width="10%">Same Cluster?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Upstream</strong> (parent beliefs)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Downstream</strong> (child beliefs)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Evidence</strong> (shared citations)</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr style="background-color: #e6f3ff;">
+<td colspan="3" align="right"><strong>Network Position Adjustment:</strong></td>
+<td colspan="2"><strong>&nbsp;%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>📜 Step 15: Audit Trail</h1>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<tbody>
+<tr>
+<td width="20%"><strong>Analyst Type:</strong></td>
+<td width="30%">human / ai / hybrid</td>
+<td width="20%"><strong>Analyst ID:</strong></td>
+<td width="30%">&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Confidence:</strong></td>
+<td>high / medium / low</td>
+<td><strong>Review Date:</strong></td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Reviewed By:</strong></td>
+<td>&nbsp;</td>
+<td><strong>Trigger Reason:</strong></td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Revised From:</strong></td>
+<td>&nbsp;</td>
+<td><strong>Revision Notes:</strong></td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>🔗 Step 16: Related Pages</h1>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f0f0;">
+<th style="text-align: center;" width="30%">Page Type</th>
+<th style="text-align: center;" width="70%">Link / Title</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Belief X Source Page</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Belief Y Source Page</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Canonical Page (if merged)</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>Related Equivalence Analyses</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+
+<h1>💻 Step 17: Machine-Readable Output</h1>
+<p><em>JSON schema for programmatic import/export of this equivalence analysis.</em></p>
+<pre style="background-color: #f5f5f5; border: 1px solid #ccc; padding: 12px; font-size: 12px; overflow-x: auto;">
+{
+  "schema_version": "1.0",
+  "analysis_type": "belief_equivalence",
+  "slug": "",
+  "beliefs": {
+    "x": { "raw": "", "normalized": "", "source": "" },
+    "y": { "raw": "", "normalized": "", "source": "" }
+  },
+  "fast_path": { "passed": false, "auto_merge": false },
+  "synonym_convergence_score": 0,
+  "strength_delta": {
+    "certainty": { "x": "", "y": "", "delta": 0 },
+    "scope":     { "x": "", "y": "", "delta": 0 },
+    "force":     { "x": "", "y": "", "delta": 0 },
+    "overall": 0
+  },
+  "structural_relationship": "same_topic_different_claim",
+  "overlap_score": {
+    "subject": 0, "predicate": 0, "context": 0, "mechanism": 0,
+    "weighted": 0
+  },
+  "non_equivalence_penalties": {
+    "different_causal": 0, "different_evidence": 0,
+    "different_assumptions": 0, "different_policy": 0,
+    "total": 0
+  },
+  "argument_battle": {
+    "pro_score": 0, "anti_score": 0, "balance": 0
+  },
+  "evidence_argument_overlap_rate": 0,
+  "network_adjustment": 0,
+  "final_equivalence_score": 0,
+  "verdict": "separate",
+  "canonical_page": null,
+  "linkage_score": 0,
+  "audit": {
+    "analyst_type": "human",
+    "analyst_id": null,
+    "confidence": "medium",
+    "reviewed_by": null,
+    "review_date": null,
+    "trigger_reason": null
+  }
+}
+</pre>
+<p>&nbsp;</p>
+<p><a href="https://github.com/myklob/ideastockexchange">View the full codebase and technical documentation on GitHub</a>.</p>

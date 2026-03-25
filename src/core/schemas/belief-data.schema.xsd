@@ -1,23 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <!-- ═══ Belief Analysis Document ═══ -->
   <xs:element name="BeliefAnalysis">
     <xs:complexType>
       <xs:sequence>
         <xs:element name="Belief" minOccurs="1" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>
+              <xs:element name="BeliefID"  type="xs:string"  minOccurs="0"/>
               <xs:element name="Statement" type="xs:string"/>
-              <xs:element name="Score" type="xs:decimal"/>
-              <xs:element name="Impact">
+              <xs:element name="Category"  type="xs:string"  minOccurs="0"/>
+              <xs:element name="Subcategory" type="xs:string" minOccurs="0"/>
+              <xs:element name="DeweyNumber" type="xs:string" minOccurs="0"/>
+              <xs:element name="Positivity" type="xs:decimal" minOccurs="0"/>
+              <xs:element name="Score"     type="xs:decimal" minOccurs="0"/>
+              <xs:element name="ClaimStrength" type="xs:decimal" minOccurs="0"/>
+              <xs:element name="Falsifiability" type="xs:string" minOccurs="0"/>
+
+              <!-- Definitions section (template v2) -->
+              <xs:element name="Definitions" minOccurs="0">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="StrengthenPercentage" type="xs:string"/>
-                    <xs:element name="WeakenPercentage" type="xs:string"/>
+                    <xs:element name="Definition" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Term"       type="xs:string"/>
+                          <xs:element name="Definition" type="xs:string"/>
+                          <xs:element name="SortOrder"  type="xs:integer" minOccurs="0"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-              <xs:element name="Reasons">
+
+              <!-- Testable Predictions section (template v2) -->
+              <xs:element name="TestablePredictions" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Prediction" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Statement"          type="xs:string"/>
+                          <xs:element name="Timeframe"          type="xs:string" minOccurs="0"/>
+                          <xs:element name="VerificationMethod" type="xs:string" minOccurs="0"/>
+                          <xs:element name="SortOrder"          type="xs:integer" minOccurs="0"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="Impact" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="StrengthenPercentage" type="xs:string"/>
+                    <xs:element name="WeakenPercentage"     type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="Reasons" minOccurs="0">
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="Agree" minOccurs="0" maxOccurs="unbounded">
@@ -44,11 +89,204 @@
     </xs:complexType>
   </xs:element>
 
+  <!-- ═══ Equivalence Analysis Document ═══ -->
+  <xs:element name="EquivalenceAnalysisDocument">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="EquivalenceAnalysis" minOccurs="1" maxOccurs="unbounded" type="EquivalenceAnalysisType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ═══ Shared Complex Types ═══ -->
+
   <xs:complexType name="ReasonType">
     <xs:sequence>
-      <xs:element name="Statement" type="xs:string"/>
-      <xs:element name="Score" type="xs:decimal"/>
-      <xs:element name="LinkageScore" type="xs:decimal"/>
+      <xs:element name="Statement"     type="xs:string"/>
+      <xs:element name="Score"         type="xs:decimal"/>
+      <xs:element name="LinkageScore"  type="xs:decimal"/>
+      <xs:element name="ImportanceScore" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ContributionScore" type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SynonymClaimType">
+    <xs:sequence>
+      <xs:element name="XTerm"                type="xs:string"/>
+      <xs:element name="YTerm"                type="xs:string"/>
+      <xs:element name="MerriamWebster"       type="xs:boolean" minOccurs="0"/>
+      <xs:element name="Oxford"               type="xs:boolean" minOccurs="0"/>
+      <xs:element name="WordNet"              type="xs:boolean" minOccurs="0"/>
+      <xs:element name="EmbeddingModel"       type="xs:boolean" minOccurs="0"/>
+      <xs:element name="AgreementNumerator"   type="xs:integer" minOccurs="0"/>
+      <xs:element name="AgreementDenominator" type="xs:integer" minOccurs="0"/>
+      <xs:element name="AgreementRate"        type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SemanticMapEntryType">
+    <xs:sequence>
+      <xs:element name="XElement"     type="xs:string"/>
+      <xs:element name="YElement"     type="xs:string"/>
+      <!-- identical | synonym | antonym | different -->
+      <xs:element name="Relationship" type="xs:string"/>
+      <xs:element name="Notes"        type="xs:string" minOccurs="0"/>
+      <xs:element name="SortOrder"    type="xs:integer" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EquivalenceReasonType">
+    <xs:sequence>
+      <xs:element name="ReasonType"      type="xs:string"/>
+      <xs:element name="Side"            type="xs:string"/>
+      <xs:element name="Statement"       type="xs:string"/>
+      <xs:element name="TruthScore"      type="xs:decimal" minOccurs="0"/>
+      <xs:element name="LinkageScore"    type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ImportanceScore" type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ArgumentBattleItemType">
+    <xs:sequence>
+      <!-- pro_equivalence | anti_equivalence -->
+      <xs:element name="Side"              type="xs:string"/>
+      <xs:element name="Statement"         type="xs:string"/>
+      <xs:element name="TruthScore"        type="xs:decimal" minOccurs="0"/>
+      <xs:element name="LinkageScore"      type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ImportanceScore"   type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ContributionScore" type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NetworkPositionType">
+    <xs:sequence>
+      <!-- upstream | downstream | evidence -->
+      <xs:element name="PositionType"   type="xs:string"/>
+      <xs:element name="BeliefXItems"   type="xs:string" minOccurs="0"/>
+      <xs:element name="BeliefYItems"   type="xs:string" minOccurs="0"/>
+      <xs:element name="OverlapPercent" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="SameCluster"    type="xs:boolean" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EquivalenceAnalysisType">
+    <xs:sequence>
+      <xs:element name="Slug"    type="xs:string"/>
+      <xs:element name="Version" type="xs:string" minOccurs="0"/>
+
+      <!-- Step 1: Raw Beliefs -->
+      <xs:element name="BeliefXRaw"        type="xs:string"/>
+      <xs:element name="BeliefXNormalized" type="xs:string" minOccurs="0"/>
+      <xs:element name="BeliefXSource"     type="xs:string" minOccurs="0"/>
+      <xs:element name="BeliefYRaw"        type="xs:string"/>
+      <xs:element name="BeliefYNormalized" type="xs:string" minOccurs="0"/>
+      <xs:element name="BeliefYSource"     type="xs:string" minOccurs="0"/>
+
+      <!-- Step 2: Fast Path -->
+      <xs:element name="FastPathPassed" type="xs:boolean"/>
+      <xs:element name="AutoMerge"      type="xs:boolean"/>
+
+      <!-- Step 5: Synonym Convergence -->
+      <xs:element name="SynonymConvergenceScore" type="xs:decimal"/>
+      <xs:element name="SynonymClaims" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="SynonymClaim" minOccurs="0" maxOccurs="unbounded" type="SynonymClaimType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <!-- Step 6: Strength Delta -->
+      <xs:element name="CertaintyDeltaX"      type="xs:string"  minOccurs="0"/>
+      <xs:element name="CertaintyDeltaY"      type="xs:string"  minOccurs="0"/>
+      <xs:element name="CertaintyDelta"       type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ScopeDeltaX"          type="xs:string"  minOccurs="0"/>
+      <xs:element name="ScopeDeltaY"          type="xs:string"  minOccurs="0"/>
+      <xs:element name="ScopeDelta"           type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ForceDeltaX"          type="xs:string"  minOccurs="0"/>
+      <xs:element name="ForceDeltaY"          type="xs:string"  minOccurs="0"/>
+      <xs:element name="ForceDelta"           type="xs:decimal" minOccurs="0"/>
+      <xs:element name="OverallStrengthDelta" type="xs:decimal"/>
+
+      <!-- Step 4: Semantic Map -->
+      <xs:element name="SemanticMap" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Entry" minOccurs="0" maxOccurs="unbounded" type="SemanticMapEntryType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <!-- Step 7: Structural Relationship -->
+      <!-- same_claim | same_topic_different_claim | subset | different_topic -->
+      <xs:element name="StructuralRelationship" type="xs:string"/>
+
+      <!-- Step 8: Overlap Score -->
+      <xs:element name="SubjectOverlap"   type="xs:decimal"/>
+      <xs:element name="PredicateOverlap" type="xs:decimal"/>
+      <xs:element name="ContextOverlap"   type="xs:decimal"/>
+      <xs:element name="MechanismOverlap" type="xs:decimal"/>
+      <xs:element name="OverlapScore"     type="xs:decimal"/>
+
+      <!-- Step 9: Non-Equivalence Penalties -->
+      <xs:element name="PenaltyDifferentCausal"      type="xs:decimal"/>
+      <xs:element name="PenaltyDifferentEvidence"    type="xs:decimal"/>
+      <xs:element name="PenaltyDifferentAssumptions" type="xs:decimal"/>
+      <xs:element name="PenaltyDifferentPolicy"      type="xs:decimal"/>
+      <xs:element name="TotalPenalty"                type="xs:decimal"/>
+
+      <!-- Step 10: Argument Battle -->
+      <xs:element name="ProEquivalenceScore"  type="xs:decimal"/>
+      <xs:element name="AntiEquivalenceScore" type="xs:decimal"/>
+      <xs:element name="ArgumentBalance"      type="xs:decimal"/>
+      <xs:element name="ArgumentBattle" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Item" minOccurs="0" maxOccurs="unbounded" type="ArgumentBattleItemType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <!-- Step 11: Evidence/Argument Overlap -->
+      <xs:element name="EvidenceArgumentOverlapRate" type="xs:decimal"/>
+
+      <!-- Step 12: Final Score -->
+      <xs:element name="NetworkAdjustment"     type="xs:decimal"/>
+      <xs:element name="FinalEquivalenceScore" type="xs:decimal"/>
+
+      <!-- Step 13: Verdict -->
+      <!-- merge | merge_with_note | link | separate -->
+      <xs:element name="Verdict"       type="xs:string"/>
+      <xs:element name="CanonicalPage" type="xs:string" minOccurs="0"/>
+      <xs:element name="LinkageScore"  type="xs:decimal" minOccurs="0"/>
+
+      <!-- Step 14: Network Positions -->
+      <xs:element name="NetworkPositions" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Position" minOccurs="0" maxOccurs="unbounded" type="NetworkPositionType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <!-- Step 15: Audit -->
+      <!-- human | ai | hybrid -->
+      <xs:element name="AnalystType"  type="xs:string"/>
+      <xs:element name="AnalystId"    type="xs:string" minOccurs="0"/>
+      <xs:element name="Confidence"   type="xs:string"/>
+      <xs:element name="ReviewedBy"   type="xs:string" minOccurs="0"/>
+      <xs:element name="ReviewDate"   type="xs:date"   minOccurs="0"/>
+      <xs:element name="TriggerReason" type="xs:string" minOccurs="0"/>
+      <xs:element name="AnalysisDate" type="xs:date"/>
+
+      <!-- Reasons for judgments (Steps 3, 7, 9, 13) -->
+      <xs:element name="JudgmentReasons" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Reason" minOccurs="0" maxOccurs="unbounded" type="EquivalenceReasonType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
