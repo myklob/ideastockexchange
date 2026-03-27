@@ -601,10 +601,11 @@ model MediaResource {
   belief   Belief @relation(fields: [beliefId], references: [id])
 
   side       String // "supporting" or "opposing"
-  mediaType  String // "book", "article", "podcast", "movie", "song"
+  mediaType  String // "book", "article", "podcast", "movie", "song", "poem", "image", "scientific_paper"
   title      String
   author     String?
   url        String?
+  year       Int?
 
   /// Media Truth Score (0-1): flags editorializing, sensationalism, or misleading framing.
   /// Even when underlying facts are technically accurate, genre context matters for reliability.
@@ -625,7 +626,54 @@ model MediaResource {
   /// T3 = journalism/surveys, T4 = opinion/anecdote
   reliabilityTier String @default("T3")
 
+  /// Quality Score (0-1): technical merit of the work regardless of ideological content.
+  /// A beautifully crafted propaganda film can score high here.
+  qualityScore Float @default(0.5)
+
+  /// Linkage Score (0-1): how central the linked belief is to this media's core argument.
+  /// 0.1 = passing mention, 0.95 = the entire thesis.
+  linkageScore Float @default(0.5)
+
+  /// Impact Score (0-1): how much this media moves the needle on the linked belief.
+  impactScore Float @default(0.5)
+
+  /// Reach: estimated audience size (copies sold, box office, streams, citations).
+  reach Int @default(0)
+
+  /// Directness of Advocacy (0-100): how explicitly the media argues for its beliefs.
+  /// 100 = explicit thesis. 0 = purely implicit normalization through narrative.
+  directnessOfAdvocacy Int @default(50)
+
+  /// How this media argues for/against the belief (free text description).
+  howItArgues String?
+
+  qualityArguments MediaQualityArgument[]
+
   createdAt DateTime @default(now())
+
+  @@index([beliefId])
+  @@index([mediaType])
+  @@index([qualityScore])
+  @@index([reach])
+}
+
+/// Arguments about the quality of a media resource itself (separate from the beliefs it spreads).
+/// Uses the same pro/con argument structure as belief arguments.
+/// The implicit belief being argued is: "[Media Title] is a great [type]."
+model MediaQualityArgument {
+  id             Int           @id @default(autoincrement())
+  mediaResourceId Int
+  mediaResource  MediaResource @relation(fields: [mediaResourceId], references: [id], onDelete: Cascade)
+
+  side           String  // "agree" (it IS good) or "disagree" (it is NOT good)
+  statement      String  // The quality argument text
+  argumentScore  Float   @default(0)
+  linkageScore   Float   @default(0.5)
+  impactScore    Float   @default(0)
+
+  createdAt      DateTime @default(now())
+
+  @@index([mediaResourceId])
 }
 
 model LegalEntry {

@@ -98,6 +98,39 @@ To modify the templates:
 }
 ```
 
+## Media Templates (New)
+
+Four new templates for the Media Analysis system, which tracks the best books, movies, songs, poems, images, and other content that support or weaken each belief:
+
+- **media_index.html** - Media index page: browse all media sorted by epistemic impact, quality score, reach, category, etc. Includes media type overview (Books, Films, Songs, Poems, Images, Scientific Papers, etc.) and category groupings.
+
+- **media-belief-argument-template.html** - Individual media detail page with two parts:
+  1. **Belief Arguments**: The beliefs/claims this media supports or weakens, with linkage scores showing how central each belief is to the work's narrative
+  2. **Quality Arguments**: Pro/con arguments about the media's quality as a work (craft, originality, entertainment value), independent of its ideological message
+
+- **media-quality-template.html** - Full quality analysis page applying the ISE belief-analysis template to the question "Is [Media Title] a great [type]?" Includes argument trees, evidence ledger, and objective quality criteria.
+
+- **why_pro_con_media_per_belief.html** - Explanatory page with the rationale for tracking media per belief. Covers the influence gap (truth score vs. reach), two key reasons (understanding cultural influence and finding educational content), the danger of low directness of advocacy, and ISE's six scoring dimensions for media.
+
+### Key Media Scoring Dimensions
+
+| Dimension | Range | Description |
+|-----------|-------|-------------|
+| Quality Score | 0 - 1.0 | Technical merit regardless of ideology |
+| Truth Score | -1.0 to +1.0 | Accuracy of central claims |
+| Linkage Score | 0 - 1.0 | How central a belief is to the work |
+| Reach | 0 - infinity | Estimated audience size |
+| Epistemic Impact | computed | Truth Score x Reach |
+| Directness of Advocacy | 0% - 100% | How explicitly the media argues |
+
+### React Implementation
+
+These templates are implemented as React pages:
+- `/media` - Media index (browse all media)
+- `/media/[id]` - Individual media review (belief arguments + quality arguments)
+- `/media/[id]/quality` - Full quality analysis page
+- `/media/why-pro-con-media` - Explanatory rationale page
+
 ## Future Enhancements
 
 Potential additions to these templates:
@@ -107,6 +140,8 @@ Potential additions to these templates:
 - [ ] Interactive filter demos
 - [ ] Mobile navigation menu
 - [ ] Additional page templates (settings, help, etc.)
+- [ ] Media sorting/filtering interactivity on the index page
+- [ ] Media contribution forms
 
 ## Questions or Feedback
 

@@ -1,7 +1,7 @@
-import type { TestablePrediction } from '@/generated/prisma'
+import type { TestablePredictionItem } from '../types'
 
 interface TestablePredictionsSectionProps {
-  predictions: TestablePrediction[]
+  predictions: TestablePredictionItem[]
 }
 
 export default function TestablePredictionsSection({ predictions }: TestablePredictionsSectionProps) {

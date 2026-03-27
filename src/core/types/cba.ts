@@ -28,8 +28,6 @@ export const CBA_CATEGORY_UNITS: Record<CBACategory, string> = {
  * Named CBAEvidenceTier to avoid conflict with book.ts EvidenceTier.
  */
 export type CBAEvidenceTier = 'T1' | 'T2' | 'T3' | 'T4'
-/** @deprecated Use CBAEvidenceTier */
-export type EvidenceTier = CBAEvidenceTier
 
 export const EVIDENCE_TIER_MAX: Record<CBAEvidenceTier, number> = {
   T1: 10,

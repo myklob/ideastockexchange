@@ -33,7 +33,13 @@ const BELIEF_INCLUDE = {
   compromises: true,
   obstacles: true,
   biases: true,
-  mediaResources: true,
+  mediaResources: {
+    include: {
+      qualityArguments: {
+        orderBy: { impactScore: 'desc' as const },
+      },
+    },
+  },
   legalEntries: true,
   upstreamMappings: {
     include: {
