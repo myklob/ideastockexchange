@@ -413,6 +413,143 @@ model CostBenefitAnalysis {
   updatedAt DateTime @updatedAt
 }
 
+// ─── Automated CBA Skill Models ──────────────────────────────────────────────
+// Implements docs/automated-cba/SKILL.md: 4-category impact model with
+// argument-driven likelihood scoring, de-duplication, sensitivity, and scenarios.
+
+model CBAAnalysis {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  status      String @default("active") // "active" | "concluded" | "archived"
+
+  // Computed aggregate fields (recalculated on every mutation)
+  totalExpectedBenefits Float @default(0)
+  totalExpectedCosts    Float @default(0)
+  netExpectedValue      Float @default(0)
+  // "net_positive" | "net_negative" | "uncertain"
+  verdict    String @default("uncertain")
+  confidence Float  @default(0.3)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items             CBAImpact[]
+  sensitivityItems  CBASensitivityItem[]
+  deduplicationLogs CBADeduplicationLog[]
+}
+
+model CBAImpact {
+  id          String @id @default(cuid())
+  analysisId  String
+  analysis    CBAAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String
+  direction   String // "benefit" | "cost"
+
+  // Skill canonical category: "Financial" | "HumanLife" | "Freedom" | "Time"
+  canonicalCategory     String @default("Financial")
+  // Legacy freeform category (Economic, Social, etc.)
+  category              String @default("Financial")
+  magnitude             Float  // value in category units
+  magnitudeJustification String?
+
+  // Computed fields
+  likelihoodScore Float @default(0.5)  // derived from argument trees
+  expectedValue   Float @default(0)
+  confidence      Float @default(0.3)  // mean evidence tier quality
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  arguments         CBAArgument[]
+  overlapAdjustments CBAOverlapAdjustment[]
+
+  @@index([analysisId])
+  @@index([direction])
+  @@index([canonicalCategory])
+}
+
+model CBAArgument {
+  id       String    @id @default(cuid())
+  impactId String
+  impact   CBAImpact @relation(fields: [impactId], references: [id], onDelete: Cascade)
+
+  side        String  // "pro" | "con"
+  description String
+  claim       String  // Short title for the argument
+
+  // Scoring: argument_score = truthScore × linkageScore × importanceScore
+  // Truth is 0-10 scale; linkage and importance are 0-1
+  truthScore      Float @default(5)
+  linkageScore    Float @default(0.5)
+  importanceScore Float @default(1.0)
+  score           Float @default(0)   // computed: truth × linkage × importance
+
+  // Evidence tier: "T1" | "T2" | "T3" | "T4"
+  evidenceTier String @default("T3")
+
+  // De-duplication: 0-1 multiplier applied when this arg overlaps with sibling
+  redundancyDiscount Float?
+
+  // Recursive sub-arguments (self-referential)
+  parentId    String?
+  parent      CBAArgument?  @relation("SubArguments", fields: [parentId], references: [id])
+  subArguments CBAArgument[] @relation("SubArguments")
+
+  depth     Int @default(1)  // 1 = direct argument; 2+ = sub-argument
+
+  createdAt DateTime @default(now())
+
+  @@index([impactId])
+  @@index([side])
+  @@index([parentId])
+}
+
+model CBAOverlapAdjustment {
+  id           String    @id @default(cuid())
+  impactId     String
+  impact       CBAImpact @relation(fields: [impactId], references: [id], onDelete: Cascade)
+
+  overlapsWith       String  // id of the impact this overlaps with
+  similarity         Float   // 0-1 semantic overlap score
+  adjustmentApplied  Float   // multiplier (e.g., 0.6 = discounted 40%)
+
+  createdAt DateTime @default(now())
+
+  @@index([impactId])
+}
+
+model CBASensitivityItem {
+  id         String      @id @default(cuid())
+  analysisId String
+  analysis   CBAAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  impactId    String  // references CBAImpact.id
+  impactTitle String
+  swing       Float   // |magnitude × (likelihood_high - likelihood_low)|
+  likelihoodLow  Float
+  likelihoodHigh Float
+
+  @@index([analysisId])
+}
+
+model CBADeduplicationLog {
+  id         String      @id @default(cuid())
+  analysisId String
+  analysis   CBAAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  action     String  // "merged" | "discounted"
+  items      String  // JSON array of impact IDs or argument claims
+  similarity Float
+  adjustment String  // Human-readable description
+
+  createdAt DateTime @default(now())
+
+  @@index([analysisId])
+}
+
 model ImpactAnalysis {
   id       Int    @id @default(autoincrement())
   beliefId Int    @unique
@@ -464,10 +601,11 @@ model MediaResource {
   belief   Belief @relation(fields: [beliefId], references: [id])
 
   side       String // "supporting" or "opposing"
-  mediaType  String // "book", "article", "podcast", "movie", "song"
+  mediaType  String // "book", "article", "podcast", "movie", "song", "poem", "image", "scientific_paper"
   title      String
   author     String?
   url        String?
+  year       Int?
 
   /// Media Truth Score (0-1): flags editorializing, sensationalism, or misleading framing.
   /// Even when underlying facts are technically accurate, genre context matters for reliability.
@@ -488,7 +626,54 @@ model MediaResource {
   /// T3 = journalism/surveys, T4 = opinion/anecdote
   reliabilityTier String @default("T3")
 
+  /// Quality Score (0-1): technical merit of the work regardless of ideological content.
+  /// A beautifully crafted propaganda film can score high here.
+  qualityScore Float @default(0.5)
+
+  /// Linkage Score (0-1): how central the linked belief is to this media's core argument.
+  /// 0.1 = passing mention, 0.95 = the entire thesis.
+  linkageScore Float @default(0.5)
+
+  /// Impact Score (0-1): how much this media moves the needle on the linked belief.
+  impactScore Float @default(0.5)
+
+  /// Reach: estimated audience size (copies sold, box office, streams, citations).
+  reach Int @default(0)
+
+  /// Directness of Advocacy (0-100): how explicitly the media argues for its beliefs.
+  /// 100 = explicit thesis. 0 = purely implicit normalization through narrative.
+  directnessOfAdvocacy Int @default(50)
+
+  /// How this media argues for/against the belief (free text description).
+  howItArgues String?
+
+  qualityArguments MediaQualityArgument[]
+
   createdAt DateTime @default(now())
+
+  @@index([beliefId])
+  @@index([mediaType])
+  @@index([qualityScore])
+  @@index([reach])
+}
+
+/// Arguments about the quality of a media resource itself (separate from the beliefs it spreads).
+/// Uses the same pro/con argument structure as belief arguments.
+/// The implicit belief being argued is: "[Media Title] is a great [type]."
+model MediaQualityArgument {
+  id             Int           @id @default(autoincrement())
+  mediaResourceId Int
+  mediaResource  MediaResource @relation(fields: [mediaResourceId], references: [id], onDelete: Cascade)
+
+  side           String  // "agree" (it IS good) or "disagree" (it is NOT good)
+  statement      String  // The quality argument text
+  argumentScore  Float   @default(0)
+  linkageScore   Float   @default(0.5)
+  impactScore    Float   @default(0)
+
+  createdAt      DateTime @default(now())
+
+  @@index([mediaResourceId])
 }
 
 model LegalEntry {

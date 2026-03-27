@@ -6,7 +6,7 @@ interface MediaSectionProps {
   media: MediaItem[]
 }
 
-const MEDIA_TYPES = ['book', 'article', 'podcast', 'movie', 'song'] as const
+const MEDIA_TYPES = ['book', 'article', 'podcast', 'movie', 'song', 'poem', 'image', 'scientific_paper'] as const
 
 const TYPE_LABELS: Record<string, string> = {
   book: 'Books',
@@ -14,6 +14,9 @@ const TYPE_LABELS: Record<string, string> = {
   podcast: 'Podcasts',
   movie: 'Movies',
   song: 'Songs',
+  poem: 'Poems',
+  image: 'Images',
+  scientific_paper: 'Scientific Papers',
 }
 
 const TYPE_LINKS: Record<string, string> = {
@@ -21,6 +24,20 @@ const TYPE_LINKS: Record<string, string> = {
   podcast: '/Podcasts',
   movie: '/Movies',
   song: '/Songs%20that%20agree',
+}
+
+function formatReach(reach: number): string {
+  if (reach >= 1_000_000_000) return `${(reach / 1_000_000_000).toFixed(1)}B`
+  if (reach >= 1_000_000) return `${(reach / 1_000_000).toFixed(1)}M`
+  if (reach >= 1_000) return `${(reach / 1_000).toFixed(1)}K`
+  if (reach > 0) return String(reach)
+  return ''
+}
+
+function scoreColor(score: number): string {
+  if (score >= 0.7) return 'text-green-700'
+  if (score >= 0.4) return 'text-orange-600'
+  return 'text-red-700'
 }
 
 function MediaList({ items, side }: { items: MediaItem[]; side: string }) {
@@ -47,14 +64,20 @@ function MediaList({ items, side }: { items: MediaItem[]; side: string }) {
               <ol className="list-decimal list-inside">
                 {typeItems.map(m => (
                   <li key={m.id} className="text-sm">
-                    {m.url ? (
-                      <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">
-                        {m.title}
-                      </a>
-                    ) : (
-                      m.title
-                    )}
+                    <Link href={`/media/${m.id}`} className="text-[var(--accent)] hover:underline">
+                      {m.title}
+                    </Link>
                     {m.author && <span className="text-[var(--muted-foreground)]"> by {m.author}</span>}
+                    {m.reach > 0 && (
+                      <span className="text-xs text-[var(--muted-foreground)] ml-1">
+                        (reach: {formatReach(m.reach)})
+                      </span>
+                    )}
+                    {m.qualityScore > 0 && (
+                      <span className={`text-xs ml-1 font-semibold ${scoreColor(m.qualityScore)}`}>
+                        Q:{m.qualityScore.toFixed(2)}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ol>
@@ -75,6 +98,7 @@ export default function MediaSection({ media }: MediaSectionProps) {
         emoji="&#x1F4DA;"
         title="Media Resources"
         href="/media"
+        subtitle="Each media item has its own page with belief arguments and quality analysis"
       />
 
       <div className="overflow-x-auto">
@@ -93,6 +117,13 @@ export default function MediaSection({ media }: MediaSectionProps) {
           </tbody>
         </table>
       </div>
+
+      {/* Link to why we track media */}
+      <p className="text-xs text-[var(--muted-foreground)] mt-2">
+        <Link href="/media/why-pro-con-media" className="text-[var(--accent)] hover:underline">
+          Why do we track pro/con media per belief?
+        </Link>
+      </p>
     </section>
   )
 }

@@ -6,6 +6,10 @@ import { ProtocolLogEntry } from '@/core/types/schlicht'
 import ExpectedValueSummary from './ExpectedValueSummary'
 import LineItemCard from './LineItemCard'
 import LineItemForm from './LineItemForm'
+import CategoryBreakdown from './CategoryBreakdown'
+import SensitivityPanel from './SensitivityPanel'
+import ScenarioPanel from './ScenarioPanel'
+import DeduplicationLog from './DeduplicationLog'
 
 interface CBADashboardProps {
   initialCBA: CostBenefitAnalysis
@@ -81,23 +85,55 @@ export default function CBADashboard({ initialCBA }: CBADashboardProps) {
               {cba.description}
             </p>
           </div>
-          <span
-            className={`flex-shrink-0 text-xs px-2 py-1 rounded border font-semibold ${
-              cba.status === 'active'
-                ? 'text-green-700 bg-green-50 border-green-200'
-                : cba.status === 'concluded'
-                ? 'text-blue-700 bg-blue-50 border-blue-200'
-                : 'text-gray-700 bg-gray-50 border-gray-200'
-            }`}
-          >
-            {cba.status.toUpperCase()}
-          </span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Verdict badge */}
+            {cba.verdict && (
+              <span
+                className={`text-xs px-2 py-1 rounded border font-semibold ${
+                  cba.verdict === 'net_positive'
+                    ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                    : cba.verdict === 'net_negative'
+                    ? 'text-rose-700 bg-rose-50 border-rose-200'
+                    : 'text-amber-700 bg-amber-50 border-amber-200'
+                }`}
+              >
+                {cba.verdict === 'net_positive' ? '▲ Net Positive' : cba.verdict === 'net_negative' ? '▼ Net Negative' : '~ Uncertain'}
+              </span>
+            )}
+            {/* Confidence badge */}
+            {cba.confidence !== undefined && (
+              <span
+                className={`text-xs px-2 py-1 rounded border font-semibold ${
+                  cba.confidence >= 0.7
+                    ? 'text-blue-700 bg-blue-50 border-blue-200'
+                    : cba.confidence >= 0.4
+                    ? 'text-amber-700 bg-amber-50 border-amber-200'
+                    : 'text-gray-600 bg-gray-50 border-gray-200'
+                }`}
+                title="Overall analysis confidence based on evidence tier quality"
+              >
+                {cba.confidence >= 0.7 ? 'High' : cba.confidence >= 0.4 ? 'Moderate' : 'Low'} Confidence
+              </span>
+            )}
+            <span
+              className={`text-xs px-2 py-1 rounded border font-semibold ${
+                cba.status === 'active'
+                  ? 'text-green-700 bg-green-50 border-green-200'
+                  : cba.status === 'concluded'
+                  ? 'text-blue-700 bg-blue-50 border-blue-200'
+                  : 'text-gray-700 bg-gray-50 border-gray-200'
+              }`}
+            >
+              {cba.status.toUpperCase()}
+            </span>
+          </div>
         </div>
       </header>
 
-      {/* Expected Value Summary */}
-      <div className="mb-5">
+      {/* Expected Value Summary + Category Breakdown */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <ExpectedValueSummary cba={cba} />
+        <CategoryBreakdown cba={cba} />
       </div>
 
       {/* Controls */}
@@ -210,6 +246,17 @@ export default function CBADashboard({ initialCBA }: CBADashboardProps) {
             <div className="text-sm text-[var(--muted-foreground)] italic p-8 bg-white rounded border border-[var(--border)] text-center">
               No {filter === 'all' ? 'line items' : filter === 'benefit' ? 'benefits' : 'costs'} yet. Add the first one.
             </div>
+          )}
+
+          {/* Sensitivity, Scenarios, De-duplication */}
+          {cba.sensitivity && cba.sensitivity.length > 0 && (
+            <SensitivityPanel items={cba.sensitivity} />
+          )}
+          {cba.scenarios && (
+            <ScenarioPanel cba={cba} />
+          )}
+          {cba.deduplicationLog && cba.deduplicationLog.length > 0 && (
+            <DeduplicationLog log={cba.deduplicationLog} />
           )}
 
           {/* How it works section */}

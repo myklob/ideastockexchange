@@ -19,6 +19,10 @@ const lineItemSchema = z.object({
     .string()
     .min(1, 'Category is required')
     .max(50, 'Category must be 50 characters or fewer'),
+  canonical_category: z
+    .enum(['Financial', 'HumanLife', 'Freedom', 'Time'])
+    .optional()
+    .default('Financial'),
   predicted_impact: z
     .number()
     .positive('Predicted impact must be positive'),
@@ -119,9 +123,12 @@ export async function POST(
     title: data.title,
     description: data.description,
     category: data.category,
+    canonicalCategory: (data.canonical_category ?? 'Financial') as import('@/core/types/cba').CBACategory,
     predictedImpact: impactValue,
     likelihoodBelief,
     expectedValue: impactValue * probability,
+    confidence: 0.3,
+    overlapAdjustments: [],
     contributor: {
       type: data.contributor_type,
       name: data.contributor_name,

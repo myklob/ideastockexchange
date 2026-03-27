@@ -164,6 +164,7 @@ export interface MediaItem {
   title: string
   author: string | null
   url: string | null
+  year: number | null
   /** Media Truth Score (0-1): flags editorializing, sensationalism, or misleading framing. */
   truthScore: number
   /** Media Genre Score (0-1): reliability weight based on source genre classification. */
@@ -172,6 +173,29 @@ export interface MediaItem {
   genreType: string
   /** Reliability tier matching Evidence tiers: T1–T4. */
   reliabilityTier: string
+  /** Quality Score (0-1): technical merit of the work regardless of ideological content. */
+  qualityScore: number
+  /** Linkage Score (0-1): how central the linked belief is to this media's core argument. */
+  linkageScore: number
+  /** Impact Score (0-1): how much this media moves the needle on the linked belief. */
+  impactScore: number
+  /** Estimated audience size (copies sold, box office, streams, citations). */
+  reach: number
+  /** Directness of Advocacy (0-100): how explicitly the media argues for its beliefs. */
+  directnessOfAdvocacy: number
+  /** Free text describing how this media argues for/against the belief. */
+  howItArgues: string | null
+  /** Quality arguments about the media itself. */
+  qualityArguments?: MediaQualityArgumentItem[]
+}
+
+export interface MediaQualityArgumentItem {
+  id: number
+  side: string
+  statement: string
+  argumentScore: number
+  linkageScore: number
+  impactScore: number
 }
 
 export interface LegalItem {

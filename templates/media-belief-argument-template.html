@@ -1,426 +1,205 @@
-<!-- ============================================================ -->
-<!-- ISE MEDIA REVIEW TEMPLATE v2  (2026-03-26)                  -->
-<!--                                                              -->
-<!-- Use for: books, films, documentaries, podcasts, articles,   -->
-<!-- songs, essays — any named creative or scholarly work.        -->
-<!--                                                              -->
-<!-- NOT for: belief pages → belief-template.txt                 -->
-<!--          topic hub pages → topic-template.txt               -->
-<!--                                                              -->
-<!-- Classification test: Can you look this title up on Amazon,  -->
-<!-- IMDb, Spotify, or a journal database? If yes → this file.   -->
-<!--                                                              -->
-<!-- File naming: media_[slug].html                              -->
-<!-- Example:  media_bowling-for-columbine.html                  -->
-<!-- Location: 3-Topics/[letter]/[Category]/media_[slug].html    -->
-<!--                                                              -->
-<!-- TWO SCORING LAYERS (both required):                          -->
-<!--   Layer 1 — PER-WORK scores: Quality, Impact, Epistemic     -->
-<!--             Impact, Expert Authority (header block)          -->
-<!--   Layer 2 — PER-BELIEF scores: one row per claim the work   -->
-<!--             advocates, scored for directness, argument       -->
-<!--             quality, belief performance, and centrality      -->
-<!-- ============================================================ -->
+<p style="text-align: right; font-size: 12px; color: #666; margin-bottom: 12px;">
+  <a href="/">Home</a> &rsaquo; <a href="/media">Media Index</a> &rsaquo; <strong>[Media Title]</strong>
+</p>
 
-<div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
+<p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 22px; font-weight: bold; color: #1a365d;">ISE Media Review: [Media Title]</span></p>
 
-<!-- ============================================================ -->
-<!-- BREADCRUMB                                                   -->
-<!-- ============================================================ -->
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold; text-align: right;">
-  <a style="font-size: 13px;" href="/w/page/21957696/Colorado%20Should">Home</a>
-  <span style="font-size: 13px;"> › </span>
-  <a style="font-size: 13px;" href="/w/page/21958666/media">Media</a>
-  <span style="font-size: 13px;"> › </span>
-  <strong>[TITLE]</strong>
-</h2>
-
-<!-- ============================================================ -->
-<!-- HEADER BLOCK: TITLE + TWO SCORE TABLES                      -->
-<!-- ============================================================ -->
-<div style="background-color: #f9f9f9; padding: 16px; border: 1px solid #ddd; margin-bottom: 20px;">
-<table style="width: 100%; border: none;" cellpadding="0" cellspacing="0">
-<tr>
-  <!-- LEFT: Title + provenance -->
-  <td style="vertical-align: top; width: 50%;">
-    <h1 style="margin: 0 0 4px 0;">[TITLE]</h1>
-    <p style="margin: 0; font-size: 14px; color: #555;">
-      [Author / Creator] &nbsp;·&nbsp; [Year] &nbsp;·&nbsp;
-      <strong>[Medium]</strong>
-      <!-- Book / Film / Documentary / Podcast / Article / Song / Essay -->
-    </p>
-    <p style="margin: 6px 0 0 0; font-size: 13px;">
-      <a href="[LINK — Amazon / IMDb / publisher / Spotify]">&#128279; View / Purchase</a>
-      &nbsp;|&nbsp;
-      <a href="/w/page/21958666/media">&#8592; Media Index</a>
-    </p>
-    <p style="margin: 10px 0 0 0; font-size: 13px;">
-      <strong>Related Topic:</strong>
-      <a href="[PBWORKS TOPIC URL]">[Topic Name]</a>
-    </p>
-  </td>
-
-  <!-- RIGHT: Two score tables side by side -->
-  <td style="vertical-align: top; text-align: right; width: 50%;">
-    <table style="display: inline-table; border-collapse: collapse; margin-left: 8px; font-size: 12px;" border="1" cellspacing="0" cellpadding="5">
-    <thead>
-      <tr style="background-color: #e6f0ff;">
-        <th colspan="2">&#127775; Work Quality</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a href="/w/page/162409713/Media%20Truth%20Score">Quality Score</a></td>
-        <td align="center"><strong>[0.00–1.00]</strong></td>
-        <!-- Technical merit, depth, craft. 1984 = 0.95. Independent of ideology. -->
-      </tr>
-      <tr>
-        <td><a href="/w/page/21958019/Experts">Expert Authority</a></td>
-        <td align="center"><strong>[T1–T4]</strong></td>
-        <!-- T1=PhD/Official, T2=Practitioner/Institutional, T3=Journalist, T4=Layperson/Memoir -->
-      </tr>
-      <tr>
-        <td><a href="/w/page/159353568/Evidence%20Scores">Evidence Quality</a></td>
-        <td align="center"><strong>[T1–T4]</strong></td>
-        <!-- T1=Peer-reviewed, T2=Expert/Institutional, T3=Journalism, T4=Opinion/Anecdote -->
-      </tr>
-      <tr>
-        <td><a href="/beliefs%20grouped%20and%20eventually%20sorted%20along%20the%20the%20positivity%20continuum">Positivity</a></td>
-        <td align="center"><strong>[±XX%]</strong></td>
-        <!-- Does this work argue FOR(+) or AGAINST(-) its topic? -100 to +100. -->
-      </tr>
-      <tr>
-        <td><a href="/strong%20to%20weak">Magnitude</a></td>
-        <td align="center"><strong>[XX%]</strong></td>
-        <!-- 20%=modest/nuanced. 80%=sweeping/absolute. -->
-      </tr>
-    </tbody>
-    </table>
-
-    <table style="display: inline-table; border-collapse: collapse; margin-left: 8px; font-size: 12px;" border="1" cellspacing="0" cellpadding="5">
-    <thead>
-      <tr style="background-color: #ffe6cc;">
-        <th colspan="2">&#128200; Societal Influence</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a href="/w/page/162409713/Media%20Truth%20Score">Impact Score</a></td>
-        <td align="center"><strong>[0.00–1.00]</strong></td>
-        <!-- Influence on society over time. Communist Manifesto = 0.98 (175+ yrs). -->
-      </tr>
-      <tr>
-        <td>Reach</td>
-        <td align="center"><strong>[~X million]</strong></td>
-        <!-- Estimated cumulative audience / copies sold / streams. -->
-      </tr>
-      <tr>
-        <td><a href="/w/page/21960078/truth">Truth Score</a></td>
-        <td align="center"><strong>[–1.0 to +1.0]</strong></td>
-        <!-- Accuracy of central claims. WMD articles = -0.70. -->
-      </tr>
-      <tr>
-        <td>Epistemic Impact</td>
-        <td align="center"><strong>[±X.XXB]</strong></td>
-        <!-- Truth Score × Reach. Can be negative.                          -->
-        <!-- Infinity War = -1.36B (massive reach, harmful ethical framing) -->
-        <!-- Silent Spring = +0.50B (accurate, wide reach, positive)        -->
-      </tr>
-    </tbody>
-    </table>
-  </td>
-</tr>
-</table>
+<div style="background: #f9f9f9; border: 1px solid #ddd; border-left: 4px solid #2b6cb0; padding: 12px 16px; margin-bottom: 14px; font-size: 13px;">
+  <table style="width: 100%; border: none;">
+    <tr>
+      <td style="vertical-align: top; width: 60%; border: none; padding: 0;">
+        <strong>Type:</strong> [Book / Film / Song / Poem / Image / Scientific Paper / Article / Podcast]<br/>
+        <strong>Author / Creator:</strong> [Name]<br/>
+        <strong>Year:</strong> [Year]<br/>
+        <strong>URL:</strong> <a href="#" style="color: #2b6cb0;">[External Link]</a>
+      </td>
+      <td style="vertical-align: top; width: 40%; text-align: right; border: none; padding: 0;">
+        <strong>Reliability Tier:</strong> [T1 / T2 / T3 / T4]<br/>
+        <strong>Genre:</strong> [peer_reviewed / investigative / editorial / opinion / ...]<br/>
+        <strong>Side:</strong> <span style="color: #006600;">Supporting</span> / <span style="color: #cc0000;">Opposing</span> [Belief]
+      </td>
+    </tr>
+  </table>
 </div>
 
-<!-- ============================================================ -->
-<!-- HOOK                                                         -->
-<!-- ============================================================ -->
-<p style="font-size: 14px; background-color: #fffde7; padding: 12px; border-left: 4px solid #f9a825; margin-bottom: 20px;">
-  [One or two sentences. What does this work get right that others get wrong? Or — what does it get dangerously wrong at massive scale? Write it like a magazine opener.]
-</p>
-
-<hr />
-
-<!-- ============================================================ -->
-<!-- SECTION 1: CORE BELIEFS ADVOCATED                           -->
-<!--                                                              -->
-<!-- One row per significant belief the work promotes.            -->
-<!-- Column 2 is the critical one: direct argument vs.            -->
-<!-- "made to look cool" — Plato's distinction. A film can        -->
-<!-- teach terrible ethics without ever stating them aloud.       -->
-<!--                                                              -->
-<!-- DIRECTNESS SCALE:                                            -->
-<!--   100% Direct = work explicitly argues for the belief        -->
-<!--     (e.g., a manifesto, a thesis, a polemic)                 -->
-<!--   50% Direct = work implies the belief through plot/framing  -->
-<!--     but doesn't state it                                     -->
-<!--   0% Direct = belief is purely "shown as cool" — the work   -->
-<!--     never advocates it, it just normalizes it through        -->
-<!--     character aspiration and emotional reward                -->
-<!--                                                              -->
-<!-- BELIEF CENTRALITY (Media Linkage Score):                     -->
-<!--   1.0 = the whole work is about this belief                  -->
-<!--   0.9 = Bowling for Columbine → gun control                  -->
-<!--   0.5 = belief appears but isn't the main point             -->
-<!--   0.1 = tangential mention only                              -->
-<!-- ============================================================ -->
-<h1>&#128269; Core Beliefs Advocated By This Work</h1>
-<p style="font-size: 13px; color: #555;">Each row is a specific belief this work promotes — explicitly argued or implicitly normalized. Column 2 is the most important: distinguishing direct argument from "made to look cool" captures the mechanism Plato identified — that media shapes values by bypassing rational scrutiny entirely.</p>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead>
-  <tr style="background-color: #f0f3f6;">
-    <th width="25%">
-      Belief / Claim<br />
-      <span style="font-weight: normal; font-size: 11px;">Link to ISE belief page if it exists</span>
-    </th>
-    <th width="20%">
-      Directness of Advocacy<br />
-      <span style="font-weight: normal; font-size: 11px;">100% = explicitly argued · 0% = only "shown as cool"</span>
-    </th>
-    <th width="20%">
-      Argument Performance <em>In This Work</em><br />
-      <span style="font-weight: normal; font-size: 11px;">How well does the work argue for this belief?</span>
-    </th>
-    <th width="20%">
-      Belief Performance <em>Outside This Work</em><br />
-      <span style="font-weight: normal; font-size: 11px;">ISE Net Belief Score or consensus strength</span>
-    </th>
-    <th width="15%">
-      Belief Centrality<br />
-      <span style="font-weight: normal; font-size: 11px;">Media Linkage Score 0.0–1.0</span>
-    </th>
-  </tr>
-</thead>
-<tbody>
-  <tr>
-    <td>
-      <strong><a href="[PBWORKS BELIEF URL or #]">[Belief statement]</a></strong><br />
-      <span style="font-size: 11px; color: #666;">[e.g., "Gun control reduces mass shootings"]</span>
-    </td>
-    <td align="center">
-      <strong>[XX%]</strong><br />
-      <span style="font-size: 11px;">&#128221; [Direct / Indirect / Implicit]</span><br />
-      <span style="font-size: 11px; color: #666;">[e.g., "Argued via statistics and interviews" or "Glamorized through character aspiration"]</span>
-    </td>
-    <td align="center">
-      <strong>[0–10]</strong><br />
-      <span style="font-size: 11px; color: #666;">[Brief note on evidence quality and argument strength inside the work]</span>
-    </td>
-    <td align="center">
-      <strong>[+XX or -XX or Contested]</strong><br />
-      <span style="font-size: 11px; color: #666;">[ISE Net Belief Score if page exists, otherwise "Not yet analyzed"]</span>
-    </td>
-    <td align="center">
-      <strong>[0.0–1.0]</strong><br />
-      <span style="font-size: 11px; color: #666;">[e.g., 0.90 — Bowling for Columbine → gun control]</span>
-    </td>
-  </tr>
-  <tr>
-    <td><strong><a href="[URL]">[Belief 2]</a></strong></td>
-    <td align="center"><strong>[XX%]</strong><br /><span style="font-size: 11px;">&#128221; [Direct / Indirect / Implicit]</span></td>
-    <td align="center"><strong>[0–10]</strong></td>
-    <td align="center"><strong>[Score or Contested]</strong></td>
-    <td align="center"><strong>[0.0–1.0]</strong></td>
-  </tr>
-  <tr>
-    <td><strong><a href="[URL]">[Belief 3]</a></strong></td>
-    <td align="center"><strong>[XX%]</strong><br /><span style="font-size: 11px;">&#128221; [Direct / Indirect / Implicit]</span></td>
-    <td align="center"><strong>[0–10]</strong></td>
-    <td align="center"><strong>[Score or Contested]</strong></td>
-    <td align="center"><strong>[0.0–1.0]</strong></td>
-  </tr>
-  <tr>
-    <td><strong><a href="[URL]">[Belief 4 — optional]</a></strong></td>
-    <td align="center"><strong>[XX%]</strong></td>
-    <td align="center"><strong>[0–10]</strong></td>
-    <td align="center"><strong>[Score or Contested]</strong></td>
-    <td align="center"><strong>[0.0–1.0]</strong></td>
-  </tr>
-</tbody>
-</table>
-
-<p style="font-size: 12px; background-color: #f4f9ff; padding: 8px; border-left: 3px solid #0055a4; margin-top: 8px;">
-  <strong>Directness note:</strong> The most epistemically dangerous media often scores near 0% on directness — it never explicitly argues for a position, so readers don't activate their critical defenses. A film that makes terrible ethics <em>aspirational</em> (cool protagonist does X, gets rewarded) can shift beliefs more effectively than a polemic that argues for X directly. This column makes that mechanism visible.
-</p>
-
-<hr />
-
-<!-- ============================================================ -->
-<!-- SECTION 2: STRENGTHS AND WEAKNESSES                          -->
-<!-- Be honest regardless of Positivity score or your priors.     -->
-<!-- Works you agree with still have weak chapters.               -->
-<!-- Works you disagree with still make valid points.             -->
-<!-- ============================================================ -->
-<h1>&#9878; Strengths and Weaknesses</h1>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead>
-  <tr style="background-color: #f0f3f6;">
-    <th width="50%">&#9989; Strengths</th>
-    <th width="50%">&#10060; Weaknesses / Blind Spots</th>
-  </tr>
-</thead>
-<tbody>
-  <tr>
-    <td valign="top">
-      <p><strong>[Strength 1 — named]:</strong> [1-2 sentences. Where is the evidence or reasoning strongest? What does this work do that others in this space don't?]</p>
-      <p><strong>[Strength 2]:</strong> [Description]</p>
-      <p><strong>[Strength 3]:</strong> [Description]</p>
-    </td>
-    <td valign="top">
-      <p><strong>[Weakness 1 — named]:</strong> [1-2 sentences. What counterarguments does the work underweight or ignore? Where does it overreach its evidence?]</p>
-      <p><strong>[Weakness 2]:</strong> [Description]</p>
-      <p><strong>[Weakness 3]:</strong> [Description]</p>
-    </td>
-  </tr>
-</tbody>
-</table>
-
-<hr />
-
-<!-- ============================================================ -->
-<!-- SECTION 3: ISE INTEGRATION                                   -->
-<!-- Maps the work to the live belief/topic network.              -->
-<!-- Integration status must be one of: CURRENT / PARTIAL /      -->
-<!-- PENDING — this drives the editorial backlog.                 -->
-<!-- ============================================================ -->
-<h1>&#128279; ISE Integration</h1>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead>
-  <tr style="background-color: #f0f3f6;">
-    <th width="20%">Connection Type</th>
-    <th width="40%">ISE Page</th>
-    <th width="40%">How This Work Relates</th>
-  </tr>
-</thead>
-<tbody>
-  <tr>
-    <td><strong>Supports belief</strong></td>
-    <td><a href="[URL]">[Belief page title]</a></td>
-    <td>[Which specific argument or evidence from this work appears — or should appear — on that belief page?]</td>
-  </tr>
-  <tr>
-    <td><strong>Challenges belief</strong></td>
-    <td><a href="[URL]">[Belief page title]</a></td>
-    <td>[How does this work's evidence or framing complicate or contradict that belief?]</td>
-  </tr>
-  <tr>
-    <td><strong>Informs topic</strong></td>
-    <td><a href="[URL]">[Topic page title]</a></td>
-    <td>[How does this work's perspective fit into the spectrum of positions on that topic?]</td>
-  </tr>
-  <tr>
-    <td><strong>Content gap</strong></td>
-    <td>[Page that should cite this work but doesn't yet]</td>
-    <td>[What content from this work should be added, and in which section?]</td>
-  </tr>
-</tbody>
-</table>
-<p style="font-size: 12px; background-color: #fff3e6; padding: 8px; border-left: 3px solid #f9a825; margin-top: 8px;">
-  <strong>Integration status:</strong> [CURRENT / PARTIAL / PENDING] — [One sentence on where this work's content stands in the ISE system.]
-</p>
-
-<hr />
-
-<!-- ============================================================ -->
-<!-- SECTION 4: RECOMMENDED FOR                                   -->
-<!-- ============================================================ -->
-<h1>&#127919; Recommended For</h1>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead>
-  <tr style="background-color: #f0f3f6;">
-    <th width="30%">Audience</th>
-    <th width="70%">Why</th>
-  </tr>
-</thead>
-<tbody>
-  <tr>
-    <td>[e.g., ISE contributors working on [Topic] belief pages]</td>
-    <td>[Why is this work specifically useful for this audience?]</td>
-  </tr>
-  <tr>
-    <td>[e.g., General public curious about [Topic]]</td>
-    <td>[Why]</td>
-  </tr>
-</tbody>
-</table>
-<p style="font-size: 13px; margin-top: 8px;">
-  <strong>Difficulty:</strong> [Accessible / Moderate / Technical] &nbsp;|&nbsp;
-  <strong>Length:</strong> [~XXX pages / XX min] &nbsp;|&nbsp;
-  <strong>Best entry point:</strong> [Chapter or section to start with if not reading cover to cover]
-</p>
-
-<hr />
-
-<!-- ============================================================ -->
-<!-- FOOTER                                                       -->
-<!-- ============================================================ -->
-<p style="text-align: right; font-size: 11px; color: #999;">
-  ISE Media Review &nbsp;·&nbsp; Reviewed: [YYYY-MM-DD] &nbsp;·&nbsp;
-  <a href="/w/page/160433328/Contact%20Me">Mike Laub</a> &nbsp;·&nbsp;
-  Template v2 (2026-03-26) &nbsp;·&nbsp;
-  <a href="/w/page/162409713/Media%20Truth%20Score">Scoring methodology</a> &nbsp;·&nbsp;
-  <a href="/w/page/21958666/media">Media Index</a>
-</p>
-
+<div style="background-color: #f4f9ff; border: 1px solid #bee3f8; border-left: 4px solid #2b6cb0; padding: 12px 16px; font-size: 13px; margin: 12px 0;">
+  <strong>Two categories of analysis:</strong> This page contains (1) <strong>Belief Arguments</strong> &mdash; the ideas and claims this media spreads or counters, and (2) <strong>Quality Arguments</strong> &mdash; pro/con arguments about the quality of this media as a work, independent of its message. <a href="/media/why-pro-con-media" style="color: #2b6cb0;">Why?</a>
 </div>
-<!-- End ISE Media Review Template v2 -->
 
-<!-- ============================================================ -->
-<!-- SCORING REFERENCE (remove before publishing to PBworks)     -->
-<!--                                                              -->
-<!-- QUALITY SCORE (0.0–1.0):                                     -->
-<!--   Technical merit, depth, craft — independent of ideology.  -->
-<!--   1984 = 0.95. Gish Gallop podcast = 0.15.                  -->
-<!--   This scores the work as a work, not its politics.          -->
-<!--                                                              -->
-<!-- EXPERT AUTHORITY / EVIDENCE QUALITY:                         -->
-<!--   T1 = PhD / peer-reviewed / official data                   -->
-<!--   T2 = Experienced practitioner / institutional              -->
-<!--   T3 = Journalist / narrative / survey                       -->
-<!--   T4 = Layperson memoir / opinion / anecdote                 -->
-<!--   Note: Author Authority and Evidence Quality can differ.    -->
-<!--   A T1 author (PhD) can use T3 evidence (anecdotes).         -->
-<!--                                                              -->
-<!-- IMPACT SCORE (0.0–1.0):                                      -->
-<!--   Influence on society over time.                            -->
-<!--   Communist Manifesto = 0.98 (175+ years, global reach)     -->
-<!--   Recent bestseller with 1yr of influence = ~0.30            -->
-<!--                                                              -->
-<!-- TRUTH SCORE (-1.0 to +1.0):                                  -->
-<!--   Accuracy of central claims.                               -->
-<!--   +1.0 = all claims confirmed. -1.0 = systematically false. -->
-<!--   WMD journalism = -0.70. Factfulness = +0.85.              -->
-<!--                                                              -->
-<!-- EPISTEMIC IMPACT = Truth Score × Reach:                      -->
-<!--   Can be a large negative number.                            -->
-<!--   Infinity War ≈ -1.36B (harmful ethics × 2B viewers)       -->
-<!--   Silent Spring ≈ +0.50B (accurate × large reach)           -->
-<!--   This is the score that matters most for ISE purposes:      -->
-<!--   it captures how much a work is moving collective beliefs   -->
-<!--   toward or away from truth.                                 -->
-<!--                                                              -->
-<!-- DIRECTNESS OF ADVOCACY (0–100%):                             -->
-<!--   100% = explicitly argues for the belief (polemic/thesis)  -->
-<!--   50%  = implies it through plot framing / selection bias    -->
-<!--   0%   = never states it — purely normalizes through         -->
-<!--          aspiration, glamour, emotional reward               -->
-<!--   The 0% end is the mechanism Plato warned about:           -->
-<!--   "rhythm and harmony find their way into the inmost soul   -->
-<!--    and take strongest hold upon it."                         -->
-<!--                                                              -->
-<!-- BELIEF CENTRALITY / MEDIA LINKAGE SCORE (0.0–1.0):          -->
-<!--   How much of the work's weight is behind this one belief?  -->
-<!--   Bowling for Columbine → gun control = 0.90                 -->
-<!--   The Dark Knight → justice/order = 0.70                    -->
-<!--   Avengers: IW → ends justify means = 0.60                  -->
-<!--   Incidental mention = 0.05–0.10                             -->
-<!--                                                              -->
-<!-- DO NOT ADD to this template:                                 -->
-<!--   ✗ Spectrum tables (Negative ↔ Positive)                   -->
-<!--   ✗ Civic engagement level tables                            -->
-<!--   ✗ Abstraction Ladder                                       -->
-<!--   ✗ Falsifiability Test / Testable Predictions               -->
-<!--   ✗ Similar Beliefs spectrum                                 -->
-<!--   ✗ Any section from the 17-section belief template          -->
-<!-- ============================================================ -->
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:26px 0;">
+
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d;">&#x1F4CA; Scores at a Glance</h2>
+
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 4px; font-size: 13px;">
+  <thead>
+    <tr style="background-color: #e6f3ff;">
+      <th style="text-align: center; width: 16%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Quality Score</th>
+      <th style="text-align: center; width: 16%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Truth Score</th>
+      <th style="text-align: center; width: 16%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Linkage Score</th>
+      <th style="text-align: center; width: 16%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Reach</th>
+      <th style="text-align: center; width: 18%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Epistemic Impact</th>
+      <th style="text-align: center; width: 18%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Directness of Advocacy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 12px 10px; border: 1px solid #ddd; text-align: center; font-size: 18px; font-weight: bold; color: #2e7d32;">0.85</td>
+      <td style="padding: 12px 10px; border: 1px solid #ddd; text-align: center; font-size: 18px; font-weight: bold; color: #f57c00;">0.45</td>
+      <td style="padding: 12px 10px; border: 1px solid #ddd; text-align: center; font-size: 18px; font-weight: bold; color: #2e7d32;">0.78</td>
+      <td style="padding: 12px 10px; border: 1px solid #ddd; text-align: center; font-size: 18px; font-weight: bold;">50M</td>
+      <td style="padding: 12px 10px; border: 1px solid #ddd; text-align: center; font-size: 18px; font-weight: bold; color: #c62828;">22.5M</td>
+      <td style="padding: 12px 10px; border: 1px solid #ddd; text-align: center; font-size: 18px; font-weight: bold;">5%</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:26px 0;">
+
+<h1 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold; color: #1a365d;">Part 1: Belief Arguments &mdash; Ideas This Media Spreads</h1>
+<p style="font-size: 13px; color: #555;">These are the beliefs and claims that this media supports or weakens. Each belief links to its own ISE analysis page. The <strong>Linkage Score</strong> measures how central a belief is to this media's core argument or narrative.</p>
+
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d;">&#x2705; Beliefs This Media Supports</h2>
+
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 4px; font-size: 13px;">
+  <thead>
+    <tr style="background-color: #e6ffe6;">
+      <th style="text-align: left; width: 45%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Belief</th>
+      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">&#x1F517; Linkage Score</th>
+      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">&#x1F4A5; Impact Score</th>
+      <th style="text-align: center; width: 25%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">How It Argues</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;"><a href="/beliefs/example-belief" style="color: #2b6cb0;">[Belief statement that this media supports]</a></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #2e7d32; font-weight: 600;">0.90</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #2e7d32; font-weight: 600;">0.85</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; font-size: 12px; color: #555;">Central thesis of the work; directly argued through evidence and narrative</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;"><a href="/beliefs/secondary-belief" style="color: #2b6cb0;">[Secondary belief implicitly supported]</a></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #f57c00; font-weight: 600;">0.40</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #f57c00; font-weight: 600;">0.30</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; font-size: 12px; color: #555;">Implied through character behavior; audience absorbs by identification</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;">
+      <td colspan="3" align="right" style="padding: 8px 10px; border: 1px solid #ddd;"><strong>Total Supporting Impact:</strong></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #006600;">+1.15</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>&nbsp;</p>
+
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d;">&#x274C; Beliefs This Media Weakens</h2>
+
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 4px; font-size: 13px;">
+  <thead>
+    <tr style="background-color: #ffe6e6;">
+      <th style="text-align: left; width: 45%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Belief</th>
+      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">&#x1F517; Linkage Score</th>
+      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">&#x1F4A5; Impact Score</th>
+      <th style="text-align: center; width: 25%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">How It Argues</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;"><a href="/beliefs/opposed-belief" style="color: #2b6cb0;">[Belief this media undermines]</a></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #c62828; font-weight: 600;">0.70</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #c62828; font-weight: 600;">0.65</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; font-size: 12px; color: #555;">Villain embodies this belief; narrative punishes those who hold it</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;">
+      <td colspan="3" align="right" style="padding: 8px 10px; border: 1px solid #ddd;"><strong>Total Opposing Impact:</strong></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #cc0000;">&minus;0.65</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:26px 0;">
+
+<h1 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold; color: #1a365d;">Part 2: Quality Arguments &mdash; Is This Media Good?</h1>
+<p style="font-size: 13px; color: #555;">Separate from what ideas it spreads, is this a <em>good</em> book, film, song, or work? These arguments evaluate the media's quality on its own merits &mdash; craft, originality, entertainment value, emotional impact, etc. This section uses the ISE belief-analysis template applied to the belief: "<em>[Media Title] is a great [type]</em>."</p>
+
+<div style="background-color: #fefce8; border: 1px solid #fde68a; border-left: 4px solid #eab308; padding: 12px 16px; font-size: 13px; margin: 12px 0;">
+  <strong>Note:</strong> Quality arguments are <em>independent</em> of truth arguments. A beautifully crafted propaganda film can score high on quality and low on truth. A dry but rigorous paper can score high on truth and low on quality (entertainment). Both scores matter.
+</div>
+
+<p>&nbsp;</p>
+<p><a href="/media/1/quality" style="color: #2b6cb0; font-weight: bold;">&#x2192; View full Quality Analysis page for this media &rarr;</a></p>
+
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d;">&#x2705; Reasons This Is Good Media</h2>
+
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 4px; font-size: 13px;">
+  <thead>
+    <tr style="background-color: #e6ffe6;">
+      <th style="text-align: left; width: 55%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Reason</th>
+      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Argument Score</th>
+      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">&#x1F517; Linkage</th>
+      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">&#x1F4A5; Impact</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><a href="/beliefs/quality-reason-1" style="color: #2b6cb0;">Exceptional cinematography and visual storytelling</a></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #006600;">+8</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">0.85</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">0.80</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><a href="/beliefs/quality-reason-2" style="color: #2b6cb0;">Nuanced character development with realistic motivations</a></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #006600;">+7</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">0.90</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">0.75</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;">
+      <td colspan="3" align="right" style="padding: 8px 10px; border: 1px solid #ddd;"><strong>Total Pro:</strong></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #006600;">+15</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>&nbsp;</p>
+
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d;">&#x274C; Reasons This Is Not Good Media</h2>
+
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 4px; font-size: 13px;">
+  <thead>
+    <tr style="background-color: #ffe6e6;">
+      <th style="text-align: left; width: 55%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Reason</th>
+      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Argument Score</th>
+      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">&#x1F517; Linkage</th>
+      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">&#x1F4A5; Impact</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><a href="/beliefs/quality-con-1" style="color: #2b6cb0;">Pacing issues in the second act undermine narrative tension</a></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #cc0000;">&minus;5</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">0.70</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">0.60</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;">
+      <td colspan="3" align="right" style="padding: 8px 10px; border: 1px solid #ddd;"><strong>Total Con:</strong></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #cc0000;">&minus;5</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:26px 0;">
+
+<div style="text-align: right; font-size: 14px; font-weight: bold;">
+  Quality Score: <span style="color: #006600;">+10</span> <span style="font-size: 12px; font-weight: normal; color: #777;">(based on argument scores)</span>
+</div>
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:26px 0;">
+
+<div style="background-color: #f4f9ff; border: 1px solid #bee3f8; border-left: 4px solid #2b6cb0; padding: 12px 16px; font-size: 13px; margin: 12px 0;">
+  <strong>Related pages:</strong>
+  <ul style="margin: 8px 0 0 20px; padding: 0;">
+    <li><a href="/media" style="color: #2b6cb0;">Media Index</a></li>
+    <li><a href="/media/1/quality" style="color: #2b6cb0;">Full Quality Analysis for [Media Title]</a></li>
+    <li><a href="/media/why-pro-con-media" style="color: #2b6cb0;">Why We Track Pro/Con Media Per Belief</a></li>
+    <li><a href="/beliefs" style="color: #2b6cb0;">All Beliefs</a></li>
+  </ul>
+</div>

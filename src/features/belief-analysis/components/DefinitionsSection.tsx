@@ -1,7 +1,7 @@
-import type { Definition } from '@/generated/prisma'
+import type { DefinitionItem } from '../types'
 
 interface DefinitionsSectionProps {
-  definitions: Definition[]
+  definitions: DefinitionItem[]
 }
 
 export default function DefinitionsSection({ definitions }: DefinitionsSectionProps) {
