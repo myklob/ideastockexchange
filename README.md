@@ -242,6 +242,29 @@ A high Market Price with a low ReasonRank signals popular belief without logical
 
 IdeaStockExchange separates truth-seeking from opinion-tracking at the architectural level. The ReasonRank engine and the prediction market operate as independent subsystems. Neither can influence the other's score directly. This separation ensures that popular opinion cannot corrupt logical evaluation, and that rigorous proof cannot suppress genuine crowd insight.
 
-## License
+## 🤝 How to Contribute
+
+The ISE is an open-source platform for structured, evidence-based debate. There are three ways to help:
+
+### For Developers
+- Clone the repo and run `npm install && npx prisma generate && npm run dev`
+- - Pick an open issue labeled `good first issue` or `help wanted`
+  - - Priority areas: belief scoring pipeline, Belief Equivalency Engine, frontend belief display components
+    -
+    - ### For Researchers & Writers
+    - - Use the [Belief Template](http://myclob.pbworks.com/w/page/21959883/Template) to add or improve a belief page
+      - - Score arguments using Truth (0–100), Linkage (0–100), and Importance (0–100)
+        - - Classify evidence by type: T1=Peer-reviewed, T2=Expert/Institutional, T3=Journalism/Survey, T4=Opinion/Anecdote
+          - - Add Falsifiability Conditions and Burden of Proof to any belief page missing them
+            -
+            - ### For Everyone
+            - - ⭐ Star the repo to increase visibility and help attract contributors
+              - - Share a belief page on social media with the hashtag #IdeaStockExchange
+                - - Submit a new belief as a GitHub Issue using the belief taxonomy template in `.github/ISSUE_TEMPLATE`
+                  - - Join the discussion in [Discussions](https://github.com/myklob/ideastockexchange/discussions)
+                    -
+                    - All contributions follow the daily review protocol. See `OBJECTIVE.md` for standards.
+                    -
+                    - ## License
 
 This project is open source. See the LICENSE file for details.
