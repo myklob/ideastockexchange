@@ -1,15 +1,23 @@
 <!--
-  ISE Belief Analysis Template (canonical)
-  Section order and placement are governed by docs/BELIEF_PAGE_RULES.md.
-  Do NOT reorder without updating that rulebook.
-  Key invariants:
-    Rule 1: Definitions live LAST (just before Contribute), never first.
-    Rule 2: No Wikipedia-style Background/Summary/Overview section anywhere.
-    Rule 3: Argument cells are 2–6 word labels, not sentences.
-    Rule 4: Evidence and Arguments are in DIFFERENT sections.
-    Rule 5: No href="#" placeholders. Use plain text if the target page does not exist.
-    Rule 6: Score cells are blank until scored sub-arguments exist.
-    Rule 7: Supporters and Opponents get symmetric structure in Values, Interests, Biases.
+  ===== ISE BELIEF PAGE MASTER TEMPLATE =====
+  Canonical rules: see docs/BELIEF_PAGE_RULES.md.
+  Do NOT reorder sections or fields without updating that rulebook.
+
+  HARD RULES (every generated page MUST follow):
+    1. NO summary / background / hook / overview at the top. Go straight to Argument Trees.
+    2. Definitions and Scoring Concepts go LAST, just before Contribute, never first.
+    3. Argument cells are 2-6 word LABELS, not sentences.
+    4. Arguments are NOT Evidence. Citations, stats, and studies go in the Evidence
+       Ledger, paired with the argument they bear on, not in argument cells.
+    5. No broken links. No href="#". Use plain text if the target page doesn't exist.
+    6. Score cells stay blank until real sub-argument scoring exists. No "+0" placeholders.
+    7. Supporters and Opponents get symmetric structure everywhere (Values, Interests,
+       Biases, Assumptions) — same row count, same analytical lenses.
+
+  SCORING FORMULA (applied per argument, computed recursively — never assigned):
+    Argument Score = Evidence Quality x Logical Validity x Linkage Strength
+  Evidence without a valid argument, or an argument without supporting evidence, scores
+  near zero. Both layers are required for a confident score.
 -->
 <p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">Belief: [Insert Belief Statement Here]</span></p>
 <p><span style="font-size: 150%;"><strong>Index</strong></span></p>
@@ -99,30 +107,38 @@
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <h1>🔬 <a href="/Evidence">Evidence Ledger</a></h1>
+<p>Evidence is empirical data: studies, statistics, records, observations, and media. Each item is tiered by source quality and paired with the specific argument it bears on. Tier reflects the underlying source, not the format — a meme visualizing a T1 study is T1; a pundit asserting a claim is T4 at best, and is an argument, not evidence.</p>
 <p><em>Key: <strong>T1</strong>=Peer-reviewed/Official, <strong>T2</strong>=Expert/Institutional, <strong>T3</strong>=Journalism/Surveys, <strong>T4</strong>=Opinion/Anecdote</em></p>
 <!--
   Rule 4: Evidence is empirical data, not logical arguments. Each row records
   Tier, Source, Stance, Which-Argument-It-Bears-On, and Linkage. If a row reads
   like an argument label, it belongs in the Argument Trees, not here.
 -->
+<h3>📄 Text and Data Sources</h3>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #e6ffe6;">
-<th style="text-align: center;" width="50%">
+<th style="text-align: center;" width="30%">
 <p>✅ Top Supporting Evidence</p>
-</th> <th style="text-align: center;" width="15%">
-<p>Evidence Score</p>
-</th> <th style="text-align: center;" width="13%">
-<p><span style="font-size: 85%;">🔗</span><a href="/w/page/159338766/Linkage%20Scores">Linkage Score</a></p>
 </th> <th style="text-align: center;" width="10%">
-<p>Type</p>
-</th> <th style="text-align: center;" width="12%">
+<p>Stance</p>
+</th> <th style="text-align: center;" width="20%">
+<p>Argument It Bears On</p>
+</th> <th style="text-align: center;" width="13%">
+<p>Evidence Score</p>
+</th> <th style="text-align: center;" width="10%">
+<p><span style="font-size: 85%;">🔗</span><a href="/w/page/159338766/Linkage%20Scores">Linkage</a></p>
+</th> <th style="text-align: center;" width="7%">
+<p>Tier</p>
+</th> <th style="text-align: center;" width="10%">
 <p>Impact</p>
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>&nbsp;</td>
+<td>Supports</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -131,13 +147,15 @@
 </tr>
 <tr>
 <td>&nbsp;</td>
+<td>Supports</td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
 <tr style="background-color: #f0f0f0;">
-<td colspan="4" align="right"><strong>Total Contributing:</strong></td>
+<td colspan="6" align="right"><strong>Total Contributing:</strong></td>
 <td>&nbsp;</td>
 </tr>
 </tbody>
@@ -146,15 +164,19 @@
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #ffe6e6;">
-<th style="text-align: center;" width="50%">
+<th style="text-align: center;" width="30%">
 <p>❌ Top Weakening Evidence</p>
-</th> <th style="text-align: center;" width="15%">
-<p>Evidence Score</p>
-</th> <th width="13%">
-<p style="text-align: center;">🔗<a href="/w/page/159338766/Linkage%20Scores">Linkage Score</a></p>
 </th> <th style="text-align: center;" width="10%">
-<p>Type</p>
-</th> <th style="text-align: center;" width="12%">
+<p>Stance</p>
+</th> <th style="text-align: center;" width="20%">
+<p>Argument It Bears On</p>
+</th> <th style="text-align: center;" width="13%">
+<p>Evidence Score</p>
+</th> <th width="10%">
+<p style="text-align: center;">🔗<a href="/w/page/159338766/Linkage%20Scores">Linkage</a></p>
+</th> <th style="text-align: center;" width="7%">
+<p>Tier</p>
+</th> <th style="text-align: center;" width="10%">
 <p>Impact</p>
 </th>
 </tr>
@@ -162,6 +184,8 @@
 <tbody>
 <tr>
 <td>&nbsp;</td>
+<td>Weakens</td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -169,13 +193,83 @@
 </tr>
 <tr>
 <td>&nbsp;</td>
+<td>Weakens</td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
 <tr style="background-color: #f0f0f0;">
-<td colspan="4" align="right"><strong>Total Weakening:</strong></td>
+<td colspan="6" align="right"><strong>Total Weakening:</strong></td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h3>📸 Visual and Video Evidence</h3>
+<!--
+  Visual evidence (charts, photos, memes, video, book imagery) is tiered by the
+  SOURCE it draws from, not the format. A meme visualizing a T1 study is T1.
+  A pundit asserting a claim on video is T4 at best, and that's an argument,
+  not evidence. Pair every visual with the argument it bears on.
+-->
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th style="text-align: center;" width="12%"><p>Type</p></th>
+<th style="text-align: center;" width="22%"><p>Description</p></th>
+<th style="text-align: center;" width="10%"><p>Stance</p></th>
+<th style="text-align: center;" width="18%"><p>Source</p></th>
+<th style="text-align: center;" width="7%"><p>Tier</p></th>
+<th style="text-align: center;" width="20%"><p>Argument It Bears On</p></th>
+<th style="text-align: center;" width="11%"><p><span style="font-size: 85%;">🔗</span><a href="/w/page/159338766/Linkage%20Scores">Linkage</a></p></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📊 Chart</td>
+<td>&nbsp;</td>
+<td>Supports</td>
+<td>&nbsp;</td>
+<td>T1</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>📷 Photo</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>🎭 Meme / Cartoon</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>T4</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>🎥 Video / Documentary</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td>📚 Book</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td><a href="/Books">Books</a></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
 </tbody>
@@ -538,7 +632,10 @@
   not a tutorial. Do not move this section above the Argument Trees.
 -->
 <h1>📖 Definitions and Scoring Concepts</h1>
-<p>Terminology used on this page. For the canonical explanations of scoring concepts (<a href="/truth">Truth</a>, <a href="/Linkage%20Scores">Linkage</a>, <a href="/Importance%20Score">Importance</a>, <a href="/Evidence">Evidence tiers</a>), follow the link on each concept's own page.</p>
+<p><strong>Arguments vs. Evidence.</strong> <a href="/Reasons">Arguments</a> are logical claims — scored by <a href="/Logical%20Validity%20Scores">logical validity</a> and <a href="/Linkage%20Scores">linkage strength</a>. <a href="/Evidence">Evidence</a> is empirical data — scored by source tier and conclusion relevance. The scoring formula is <em>Argument Score = Evidence Quality x Logical Validity x Linkage Strength</em>. An argument with great evidence but a logical fallacy still scores low. Evidence attached to the wrong argument contributes almost nothing even if the data is impeccable. Both layers are required.</p>
+<p><strong>Evidence Tiers.</strong> T1 = peer-reviewed / official data. T2 = expert analysis / institutional reports. T3 = investigative journalism / surveys. T4 = opinion / anecdotal. Tier is set by the underlying source, not the format — a meme visualizing a T1 study is T1. A pundit asserting a claim is T4 at best, and is an argument, not evidence.</p>
+<p><strong>Scoring Concepts.</strong> <a href="/Argument%20scores%20from%20sub-argument%20scores">Argument Scores</a> are computed recursively — never manually assigned. <a href="/truth">Truth Scores</a> integrate validity, evidence, and linkage. <a href="/Importance%20Score">Importance Scores</a> weight arguments by how much they move the needle. <a href="/ReasonRank">ReasonRank</a> sorts by quality, not volume or recency.</p>
+<p>Page-specific terminology:</p>
 <table style="border-color: #cccccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr>
