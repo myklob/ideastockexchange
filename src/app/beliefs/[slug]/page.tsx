@@ -115,14 +115,14 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
           </div>
         </div>
 
-        {/* All analysis sections */}
+        {/*
+          Section order is CANONICAL per docs/BELIEF_PAGE_RULES.md.
+          Definitions live LAST, never first (Rule 1). No background/summary section
+          between the metadata box and the Argument Trees (Rule 2). Do not reorder
+          without updating the canonical rules doc.
+        */}
         <div className="space-y-12">
-          {/* 0. Definitions */}
-          <DefinitionsSection definitions={belief.definitions} />
-
-          <hr className="border-gray-200" />
-
-          {/* 1. Argument Trees */}
+          {/* 3. Argument Trees */}
           <ArgumentTreesSection
             arguments={belief.arguments}
             totalPro={scores.totalPro}
@@ -131,7 +131,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 2. Evidence */}
+          {/* 4. Evidence Ledger */}
           <EvidenceSection
             evidence={belief.evidence}
             totalSupporting={scores.totalSupportingEvidence}
@@ -140,76 +140,68 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 3. Objective Criteria */}
-          <ObjectiveCriteriaSection criteria={belief.objectiveCriteria} />
-
-          <hr className="border-gray-200" />
-
-          {/* 3b. Falsifiability Test */}
-          <FalsifiabilitySection falsifiability={belief.falsifiability} />
-
-          {/* 3c. Testable Predictions */}
-          <TestablePredictionsSection predictions={belief.testablePredictions} />
-
-          <hr className="border-gray-200" />
-
-          {/* 4. Core Values Conflict */}
+          {/* 5. Core Values Conflict (Advertised vs Actual for BOTH sides) */}
           <ValuesSection values={belief.valuesAnalysis} />
 
           <hr className="border-gray-200" />
 
-          {/* Conflict Resolution Framework */}
-          <div>
-            <h1 className="text-2xl font-bold text-[var(--foreground)] mb-6">
-              <Link href="/automate%20conflict%20resolution" className="text-[var(--accent)] hover:underline">
-                Conflict Resolution
-              </Link>{' '}
-              Framework
-            </h1>
-
-            <div className="space-y-10">
-              {/* 5. Interests & Motivations */}
-              <InterestsSection interests={belief.interestsAnalysis} />
-
-              {/* 6. Foundational Assumptions */}
-              <AssumptionsSection assumptions={belief.assumptions} />
-
-              {/* 7. Cost-Benefit Analysis */}
-              <CostBenefitSection cba={belief.costBenefitAnalysis} />
-
-              {/* 8. Short vs Long-Term Impacts */}
-              <ImpactSection impact={belief.impactAnalysis} />
-
-              {/* 9. Compromise Solutions */}
-              <CompromisesSection compromises={belief.compromises} />
-
-              {/* 10. Obstacles to Resolution */}
-              <ObstaclesSection obstacles={belief.obstacles} />
-
-              {/* 11. Biases */}
-              <BiasesSection biases={belief.biases} />
-            </div>
-          </div>
+          {/* 6. Interests and Motivations (Supporters vs Opponents; Shared vs Conflicting) */}
+          <InterestsSection interests={belief.interestsAnalysis} />
 
           <hr className="border-gray-200" />
 
-          {/* 12. Media Resources */}
+          {/* 7. Foundational Assumptions */}
+          <AssumptionsSection assumptions={belief.assumptions} />
+
+          <hr className="border-gray-200" />
+
+          {/* 8. Objective Criteria */}
+          <ObjectiveCriteriaSection criteria={belief.objectiveCriteria} />
+
+          <hr className="border-gray-200" />
+
+          {/* 9. Falsifiability Test */}
+          <FalsifiabilitySection falsifiability={belief.falsifiability} />
+
+          <hr className="border-gray-200" />
+
+          {/* 10. Testable Predictions */}
+          <TestablePredictionsSection predictions={belief.testablePredictions} />
+
+          <hr className="border-gray-200" />
+
+          {/* 11. Cost-Benefit Analysis (Benefits vs Costs; Short-term vs Long-term) */}
+          <CostBenefitSection cba={belief.costBenefitAnalysis} />
+          <ImpactSection impact={belief.impactAnalysis} />
+
+          <hr className="border-gray-200" />
+
+          {/* 12. Resolution (Compromise Solutions vs Primary Obstacles) */}
+          <CompromisesSection compromises={belief.compromises} />
+          <ObstaclesSection obstacles={belief.obstacles} />
+
+          <hr className="border-gray-200" />
+
+          {/* 13. Biases (affecting Supporters vs affecting Opponents) */}
+          <BiasesSection biases={belief.biases} />
+
+          <hr className="border-gray-200" />
+
+          {/* 14. Media Resources */}
           <MediaSection media={belief.mediaResources} />
 
           <hr className="border-gray-200" />
 
-          {/* 13. Legal Framework */}
+          {/* 15. Legal Framework */}
           <LegalSection legal={belief.legalEntries} />
 
           <hr className="border-gray-200" />
 
-          {/* 14. General to Specific Belief Mapping */}
+          {/* 16. Belief Mapping (Upstream, Downstream, Similar) */}
           <BeliefMappingSection
             upstreamMappings={belief.upstreamMappings}
             downstreamMappings={belief.downstreamMappings}
           />
-
-          {/* 15. Similar Beliefs */}
           <SimilarBeliefsSection
             similarTo={belief.similarTo}
             similarFrom={belief.similarFrom}
@@ -218,7 +210,12 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 16. Contribute */}
+          {/* 17. Definitions and Scoring Concepts — LAST before footer (Rule 1) */}
+          <DefinitionsSection definitions={belief.definitions} />
+
+          <hr className="border-gray-200" />
+
+          {/* 18. Contribute / footer */}
           <ContributeSection />
 
           {/* Overall Score */}
