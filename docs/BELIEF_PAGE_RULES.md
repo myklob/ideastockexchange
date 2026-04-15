@@ -73,10 +73,26 @@ Arguments are logical claims. Evidence is empirical data. They go in DIFFERENT s
 
 **Why:** Arguments fail logically (wrong reasoning, fallacies, non-sequiturs). Evidence fails empirically (bad data, weak methodology, small sample). Conflating them means a true data point piled into the argument column inflates the score without any logical scrutiny, and a weak argument in the evidence column looks T1 because it's labeled as evidence.
 
+**Scoring formula (applied per argument, computed recursively — never manually assigned):**
+
+> *Argument Score = Evidence Quality x Logical Validity x Linkage Strength*
+
+An argument with great evidence but a logical fallacy still scores low. Evidence attached to the wrong argument contributes almost nothing even if the data is impeccable. Both layers are required — this is why they live in separate sections with different scoring criteria.
+
+**Evidence Tiers (set by the underlying source, not the format):**
+
+- **T1** — peer-reviewed research / official government data
+- **T2** — expert analysis / institutional reports
+- **T3** — investigative journalism / survey data
+- **T4** — opinion / anecdote
+
+A meme visualizing a T1 study is T1. A pundit asserting a claim on video is T4 at best — and is an argument, not evidence.
+
 **How to apply:**
 
 - Argument cell: a label naming a reason. No citations, no percentages, no study names.
 - Evidence Ledger row: Tier, Source, Stance, Which-Argument-It-Bears-On, Linkage. Data lives HERE.
+- Visual and video evidence (charts, photos, memes, documentaries, book imagery) belongs in the Evidence Ledger too, tiered by the underlying source, and paired with the argument it bears on.
 - If a cell in the Argument Tree contains "FDIC data," "Pew research shows," or a number, it's misfiled. Move the data to the Evidence Ledger and keep the label in the argument tree.
 
 ---

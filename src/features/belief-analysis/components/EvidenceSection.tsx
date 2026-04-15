@@ -77,10 +77,18 @@ export default function EvidenceSection({ evidence, totalSupporting, totalWeaken
     <section>
       <SectionHeading
         emoji="&#x1F52C;"
-        title="Best Evidence"
+        title="Evidence Ledger"
         href="/Evidence"
-        subtitle="Key: T1=Peer-reviewed/Official, T2=Expert/Institutional, T3=Journalism/Surveys, T4=Opinion/Anecdote"
       />
+      <p className="text-sm text-[var(--muted-foreground)] mb-2">
+        Evidence is empirical data: studies, statistics, records, observations, and media.
+        Each item is tiered by source quality and paired with the argument it bears on.
+        Tier reflects the underlying source, not the format — a meme visualizing a T1
+        study is T1; a pundit asserting a claim is T4 at best, and is an argument, not evidence.
+      </p>
+      <p className="text-xs text-[var(--muted-foreground)] italic mb-4">
+        Key: T1=Peer-reviewed/Official, T2=Expert/Institutional, T3=Journalism/Surveys, T4=Opinion/Anecdote
+      </p>
 
       {/* Supporting Evidence */}
       <div className="mb-6 overflow-x-auto">
