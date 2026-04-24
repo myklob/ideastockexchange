@@ -21,6 +21,14 @@ export default function Home() {
             wikiLaw changes that. It takes every law in every state and turns it into something
             you can actually <strong>test, argue about, and improve</strong>.
           </p>
+          <div className="mt-8">
+            <Link
+              href="/strategy"
+              className="inline-flex items-center gap-2 text-sm font-medium text-[var(--accent)] hover:underline"
+            >
+              Read the Competitive Strategy &rarr;
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -510,6 +518,67 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Competitive Strategy */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6">
+            Competitive Strategy: A Market on Beliefs, Not Events
+          </h2>
+          <p className="text-lg text-[var(--muted-foreground)] mb-8 max-w-3xl">
+            Kalshi and Polymarket settle on external events. We settle on the output of a
+            public scoring engine. That difference is the whole point — and it opens up the
+            ~9,900 important questions that never get a binary resolution.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <div className="p-6 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Not competing on events</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Elections, sports, and earnings have clean external resolution. Kalshi and
+                Polymarket own that market. We don&apos;t try to beat them there.
+              </p>
+            </div>
+            <div className="p-6 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Competing on un-resolvable questions</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                &ldquo;Does UBI improve outcomes?&rdquo; has no bell to ring. It does have a
+                scoring engine. Contracts settle against a deterministic snapshot of the
+                argument graph.
+              </p>
+            </div>
+            <div className="p-6 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Market + reasoning platform</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                The market provides engagement. The scoring engine provides resolution.
+                Bettors who want to move the score have to post arguments that survive
+                attack.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--muted)] p-6 rounded-lg border-l-4 border-[var(--accent)] mb-8">
+            <p className="text-lg leading-relaxed">
+              <strong>The thesis:</strong> the only reliable way to move the score is to
+              post arguments that survive attack. Which means the market pays people to find
+              and defend the truth, because the truth is what survives attack.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-5 text-sm mb-8">
+            <PhasePill phase="Phase 1" title="Scoring engine" current />
+            <PhasePill phase="Phase 2" title="Play-money market" />
+            <PhasePill phase="Phase 3" title="Graph density" />
+            <PhasePill phase="Phase 4" title="Real-money pilot" />
+            <PhasePill phase="Phase 5" title="Research partnerships" />
+          </div>
+
+          <Link
+            href="/strategy"
+            className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          >
+            Read the Full Strategy
+          </Link>
+        </section>
+
         {/* Get Started */}
         <section className="bg-gradient-to-r from-[var(--accent)]/10 to-[var(--accent)]/5 p-12 rounded-lg text-center">
           <h2 className="text-3xl font-bold mb-4">
@@ -560,6 +629,7 @@ export default function Home() {
             <div>
               <h3 className="font-bold mb-4">Resources</h3>
               <ul className="space-y-2 text-sm">
+                <li><Link href="/strategy" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Competitive Strategy</Link></li>
                 <li><Link href="/protocol" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Schlicht Protocol</Link></li>
                 <li><Link href="/product-reviews" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Product Reviews</Link></li>
                 <li><Link href="/cba" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Cost-Benefit Analysis</Link></li>
@@ -593,6 +663,23 @@ function DiagnosticFeature({ title, description }: { title: string; description:
     <div className="p-4 border border-[var(--border)] rounded-lg">
       <h3 className="font-semibold mb-2">{title}</h3>
       <p className="text-sm text-[var(--muted-foreground)]">{description}</p>
+    </div>
+  );
+}
+
+function PhasePill({ phase, title, current }: { phase: string; title: string; current?: boolean }) {
+  return (
+    <div
+      className={`p-3 rounded-lg border text-center ${
+        current
+          ? 'border-[var(--accent)] bg-[var(--accent)]/10'
+          : 'border-[var(--border)]'
+      }`}
+    >
+      <div className={`text-xs font-semibold mb-1 ${current ? 'text-[var(--accent)]' : 'text-[var(--muted-foreground)]'}`}>
+        {phase}{current && ' · Now'}
+      </div>
+      <div className="font-medium">{title}</div>
     </div>
   );
 }
