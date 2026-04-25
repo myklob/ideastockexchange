@@ -139,23 +139,36 @@ Every section with "Supporters" and "Opponents" (Values, Interests, Biases, Moti
 ## Canonical Section Order
 
 1. Belief Statement
-2. Topic metadata (category, magnitude, score)
-3. Argument Trees (Reasons to Agree vs. Reasons to Disagree)
-4. Evidence Ledger (text/data sources table, then visual/video evidence table)
-5. Core Values Conflict (Advertised vs Actual for BOTH sides)
-6. Interests and Motivations (Supporters vs Opponents; Shared vs Conflicting)
-7. Foundational Assumptions (Required to Accept vs Required to Reject)
-8. Objective Criteria
-9. Falsifiability Test
-10. Testable Predictions
-11. Cost-Benefit Analysis (Benefits vs Costs; Short-term vs Long-term)
-12. Resolution (Compromise Solutions vs Primary Obstacles)
-13. Biases (affecting Supporters vs affecting Opponents)
-14. Media Resources
-15. Legal Framework
-16. Belief Mapping (Upstream, Downstream, Similar)
-17. **Definitions and Scoring Concepts (LAST before footer)**
-18. Contribute / footer
+2. Score + Topic line (Score: pro/con from sub-arguments | Topic: Category > Subcategory)
+3. Argument Trees (Reasons to Agree vs. Reasons to Disagree — labels only)
+4. Evidence Ledger
+   - 4a. Text and Data Sources (Tier / Source / Stance / Argument It Bears On / Linkage)
+   - 4b. Visual and Video Evidence (Type / Description / Stance / Source / Tier / Argument It Bears On / Linkage)
+5. Values Conflict Analysis
+   - 5a. Value Priority Rankings (Value / Supporters' Rank / Opponents' Rank / Gap / Self-Reported % / Confidence / Source)
+   - 5b. Shared Values, Different Priorities (Shared Value / Supporters' Priority Context / Opponents' Priority Context)
+   - 5c. Cross-Context Consistency Check (Value / Deprioritized By / Other Topic Where They Champion It / What This Suggests)
+   - 5d. Advertised vs. Actual Motivation (symmetric Supporters/Opponents)
+6. Interests and Motivations
+   - 6a. Interest Priority Rankings (same column shape as Values)
+   - 6b. Shared vs. Conflicting Interests (with "Why the Conflict Exists")
+   - 6c. How Interests Drive Value Rankings (Interest at Stake / Side / Value Elevated / Value Deprioritized / Confidence)
+7. Foundational Assumptions (Required to Accept vs. Required to Reject)
+8. Objective Criteria (Criterion / Current Status / Threshold for Agreement)
+9. Cost-Benefit Analysis (Benefits vs. Costs, then Short-Term vs. Long-Term)
+10. Resolution
+    - 10a. Best Compromise Solutions vs. Primary Obstacles
+    - 10b. Biases (Affecting Supporters vs. Affecting Opponents)
+11. Belief Mapping (Upstream / Downstream / Similar)
+12. Legal Framework (Supporting Laws vs. Contradicting Laws)
+13. **Definitions and Scoring Concepts (LAST before footer)**
+14. Contribute / footer
+
+**Removed from canonical order (intentionally):** Falsifiability Test, Testable
+Predictions, and Media Resources are no longer top-level sections. Falsifiability
+is implicit in the Objective Criteria thresholds. Testable Predictions, when
+relevant, render as objective criteria. Media items move into Visual and Video
+Evidence under the Evidence Ledger, paired with the argument they bear on.
 
 ---
 
@@ -168,6 +181,10 @@ Before outputting any ISE belief page, verify:
 - [ ] Every argument cell is 2-6 words
 - [ ] No citations, percentages, or study names in argument cells
 - [ ] All evidence lives in the Evidence Ledger with tier assigned
+- [ ] Visual/video items live in the Visual and Video Evidence sub-table, not in a separate Media section
+- [ ] Values section has all four sub-tables: Priority Rankings, Shared Values, Cross-Context, Advertised vs. Actual
+- [ ] Interests section has all three sub-tables: Priority Rankings, Shared vs. Conflicting (with Why), Interest -> Value Linkage
+- [ ] Resolution section bundles Compromise/Obstacles AND Biases together
 - [ ] Every link points to a page that exists OR is plain text
 - [ ] No `href="#"` anchors anywhere
 - [ ] Both sides have symmetric structure in Values, Interests, Biases
