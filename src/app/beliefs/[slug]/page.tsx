@@ -8,19 +8,14 @@ import ValuesSection from '@/features/belief-analysis/components/ValuesSection'
 import InterestsSection from '@/features/belief-analysis/components/InterestsSection'
 import AssumptionsSection from '@/features/belief-analysis/components/AssumptionsSection'
 import CostBenefitSection from '@/features/belief-analysis/components/CostBenefitSection'
-import ImpactSection from '@/features/belief-analysis/components/ImpactSection'
 import CompromisesSection from '@/features/belief-analysis/components/CompromisesSection'
 import ObstaclesSection from '@/features/belief-analysis/components/ObstaclesSection'
 import BiasesSection from '@/features/belief-analysis/components/BiasesSection'
-import MediaSection from '@/features/belief-analysis/components/MediaSection'
 import LegalSection from '@/features/belief-analysis/components/LegalSection'
 import BeliefMappingSection from '@/features/belief-analysis/components/BeliefMappingSection'
 import SimilarBeliefsSection from '@/features/belief-analysis/components/SimilarBeliefsSection'
 import ContributeSection from '@/features/belief-analysis/components/ContributeSection'
-import StrengthSpectrumBar, { TwoAxisCoordinate } from '@/components/StrengthSpectrumBar'
 import DefinitionsSection from '@/features/belief-analysis/components/DefinitionsSection'
-import FalsifiabilitySection from '@/features/belief-analysis/components/FalsifiabilitySection'
-import TestablePredictionsSection from '@/features/belief-analysis/components/TestablePredictionsSection'
 
 interface BeliefPageProps {
   params: Promise<{ slug: string }>
@@ -35,6 +30,8 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
   }
 
   const scores = computeBeliefScores(belief)
+  const proPart = scores.totalPro.toFixed(1)
+  const conPart = scores.totalCon.toFixed(1)
 
   return (
     <div className="min-h-screen bg-white">
@@ -58,71 +55,48 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
       </nav>
 
       <main className="max-w-[960px] mx-auto px-4 py-8">
-        {/* Header */}
-        <h1 className="text-2xl font-bold text-[var(--foreground)] mb-4 leading-tight">
-          Belief: {belief.statement}
+        {/*
+          Header per the canonical template (docs/BELIEF_PAGE_RULES.md):
+            - Belief statement
+            - Score (pro/con from sub-arguments) + Topic line
+            - Then straight to Argument Trees. NO summary/background/hook (Rule 2).
+        */}
+        <h1 className="text-2xl font-bold text-[var(--foreground)] mb-3 leading-tight">
+          {belief.statement}
         </h1>
-
-        {/* Meta info box */}
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8">
-          <div className="text-right space-y-1">
-            <p className="text-sm">
-              <Link href="/One%20Page%20Per%20Topic" className="text-[var(--accent)] hover:underline">Topic</Link>:{' '}
-              {belief.category || 'Uncategorized'}
-              {belief.subcategory && <> &gt; {belief.subcategory}</>}
-            </p>
-            {belief.deweyNumber && (
-              <p className="text-sm">Topic IDs: Dewey: {belief.deweyNumber}</p>
-            )}
-            <p className="text-sm">
-              Belief{' '}
-              <Link href="/beliefs%20grouped%20and%20eventually%20sorted%20along%20the%20the%20positivity%20continuum" className="text-[var(--accent)] hover:underline">
-                Positivity
-              </Link>{' '}
-              Towards Topic: <strong>{belief.positivity >= 0 ? '+' : ''}{belief.positivity.toFixed(0)}%</strong>
-            </p>
-            <div className="mt-2">
-              <p className="text-sm mb-1">
-                <Link href="/algorithms/strong-to-weak" className="text-[var(--accent)] hover:underline">
-                  Claim Strength
-                </Link>{' '}
-                on the Strong-to-Weak Spectrum:
-              </p>
-              <StrengthSpectrumBar
-                claimStrength={belief.claimStrength}
-                rawScore={scores.importanceWeightedScore}
-                showAdjusted={true}
-                showDetails={true}
-              />
-            </div>
-            <div className="mt-2">
-              <TwoAxisCoordinate
-                positivity={belief.positivity}
-                claimStrength={belief.claimStrength}
-              />
-            </div>
-            <p className="text-xs text-[var(--muted-foreground)] mt-2">
-              Each section builds a complete analysis from multiple angles.{' '}
-              <a
-                href="https://github.com/myklob/ideastockexchange"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--accent)] hover:underline"
-              >
-                View the full technical documentation on GitHub
-              </a>.
-            </p>
-          </div>
-        </div>
+        <p className="text-sm mb-8 leading-7">
+          <strong>Score:</strong>{' '}
+          <Link
+            href="/Argument%20scores%20from%20sub-argument%20scores"
+            className="text-[var(--accent)] hover:underline"
+          >
+            +{proPart} pro / -{conPart} con
+          </Link>{' '}
+          <span className="text-xs text-[var(--muted-foreground)]">
+            (computed from sub-argument scores)
+          </span>
+          <br />
+          <strong>Topic:</strong>{' '}
+          <Link href="/One%20Page%20Per%20Topic" className="text-[var(--accent)] hover:underline">
+            {belief.category || 'Uncategorized'}
+          </Link>
+          {belief.subcategory && <> &gt; {belief.subcategory}</>}
+        </p>
 
         {/*
           Section order is CANONICAL per docs/BELIEF_PAGE_RULES.md.
           Definitions live LAST, never first (Rule 1). No background/summary section
-          between the metadata box and the Argument Trees (Rule 2). Do not reorder
+          between the metadata and the Argument Trees (Rule 2). Do not reorder
           without updating the canonical rules doc.
+
+          Removed (intentionally) from the page per the new template:
+            - Standalone Falsifiability Test section (folded into Objective Criteria thresholds)
+            - Standalone Testable Predictions section (express predictions as objective criteria)
+            - Standalone Media Resources section (visual/video items live in the Evidence Ledger)
+            - Standalone Short vs. Long-Term Impact section (now a sub-table inside CBA)
         */}
         <div className="space-y-12">
-          {/* 3. Argument Trees */}
+          {/* 1. Argument Trees */}
           <ArgumentTreesSection
             arguments={belief.arguments}
             totalPro={scores.totalPro}
@@ -131,73 +105,51 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 4. Evidence Ledger */}
+          {/* 2. Evidence Ledger (text/data + visual/video) */}
           <EvidenceSection
             evidence={belief.evidence}
             totalSupporting={scores.totalSupportingEvidence}
             totalWeakening={scores.totalWeakeningEvidence}
+            media={belief.mediaResources}
           />
 
           <hr className="border-gray-200" />
 
-          {/* 5. Core Values Conflict (Advertised vs Actual for BOTH sides) */}
+          {/* 3. Values Conflict Analysis (4 sub-tables) */}
           <ValuesSection values={belief.valuesAnalysis} />
 
           <hr className="border-gray-200" />
 
-          {/* 6. Interests and Motivations (Supporters vs Opponents; Shared vs Conflicting) */}
+          {/* 4. Interests and Motivations (3 sub-tables) */}
           <InterestsSection interests={belief.interestsAnalysis} />
 
           <hr className="border-gray-200" />
 
-          {/* 7. Foundational Assumptions */}
+          {/* 5. Foundational Assumptions */}
           <AssumptionsSection assumptions={belief.assumptions} />
 
           <hr className="border-gray-200" />
 
-          {/* 8. Objective Criteria */}
+          {/* 6. Objective Criteria (Criterion / Current Status / Threshold for Agreement) */}
           <ObjectiveCriteriaSection criteria={belief.objectiveCriteria} />
 
           <hr className="border-gray-200" />
 
-          {/* 9. Falsifiability Test */}
-          <FalsifiabilitySection falsifiability={belief.falsifiability} />
+          {/* 7. Cost-Benefit Analysis (Benefits/Costs + Short-Term vs Long-Term sub-table) */}
+          <CostBenefitSection cba={belief.costBenefitAnalysis} impact={belief.impactAnalysis} />
 
           <hr className="border-gray-200" />
 
-          {/* 10. Testable Predictions */}
-          <TestablePredictionsSection predictions={belief.testablePredictions} />
+          {/* 8. Resolution: Compromise + Obstacles, then Biases */}
+          <section className="space-y-8">
+            <CompromisesSection compromises={belief.compromises} />
+            <ObstaclesSection obstacles={belief.obstacles} />
+            <BiasesSection biases={belief.biases} />
+          </section>
 
           <hr className="border-gray-200" />
 
-          {/* 11. Cost-Benefit Analysis (Benefits vs Costs; Short-term vs Long-term) */}
-          <CostBenefitSection cba={belief.costBenefitAnalysis} />
-          <ImpactSection impact={belief.impactAnalysis} />
-
-          <hr className="border-gray-200" />
-
-          {/* 12. Resolution (Compromise Solutions vs Primary Obstacles) */}
-          <CompromisesSection compromises={belief.compromises} />
-          <ObstaclesSection obstacles={belief.obstacles} />
-
-          <hr className="border-gray-200" />
-
-          {/* 13. Biases (affecting Supporters vs affecting Opponents) */}
-          <BiasesSection biases={belief.biases} />
-
-          <hr className="border-gray-200" />
-
-          {/* 14. Media Resources */}
-          <MediaSection media={belief.mediaResources} />
-
-          <hr className="border-gray-200" />
-
-          {/* 15. Legal Framework */}
-          <LegalSection legal={belief.legalEntries} />
-
-          <hr className="border-gray-200" />
-
-          {/* 16. Belief Mapping (Upstream, Downstream, Similar) */}
+          {/* 9. Belief Mapping (Upstream / Downstream / Similar) */}
           <BeliefMappingSection
             upstreamMappings={belief.upstreamMappings}
             downstreamMappings={belief.downstreamMappings}
@@ -210,46 +162,18 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 17. Definitions and Scoring Concepts — LAST before footer (Rule 1) */}
+          {/* 10. Legal Framework */}
+          <LegalSection legal={belief.legalEntries} />
+
+          <hr className="border-gray-200" />
+
+          {/* 11. Definitions and Scoring Concepts — LAST before footer (Rule 1) */}
           <DefinitionsSection definitions={belief.definitions} />
 
           <hr className="border-gray-200" />
 
-          {/* 18. Contribute / footer */}
+          {/* 12. Contribute / footer */}
           <ContributeSection />
-
-          {/* Overall Score */}
-          <div className="text-right space-y-1">
-            <p className="text-lg font-bold">
-              Score:{' '}
-              <Link
-                href="/Argument%20scores%20from%20sub-argument%20scores"
-                className="text-[var(--accent)] hover:underline"
-              >
-                {scores.overallScore >= 0 ? '+' : ''}{scores.overallScore.toFixed(1)}
-              </Link>
-              {' '}
-              <span className="text-sm font-normal text-[var(--muted-foreground)]">
-                (based on argument scores)
-              </span>
-            </p>
-            <p className="text-sm text-[var(--muted-foreground)]">
-              Strength-adjusted score:{' '}
-              <Link
-                href="/algorithms/strong-to-weak"
-                className="font-semibold text-[var(--accent)] hover:underline"
-              >
-                {(scores.strengthAdjustedScore * 100).toFixed(1)}%
-              </Link>
-              {' '}
-              <span className="text-xs">
-                (applies {Math.round((1 - 0.75 * belief.claimStrength) * 100)}% burden-of-proof factor for{' '}
-                {belief.claimStrength <= 0.3 ? 'Weak' :
-                 belief.claimStrength <= 0.65 ? 'Moderate' :
-                 belief.claimStrength <= 0.9 ? 'Strong' : 'Extreme'} claim)
-              </span>
-            </p>
-          </div>
         </div>
       </main>
     </div>

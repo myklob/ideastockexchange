@@ -102,6 +102,16 @@ export interface ObjectiveCriteriaItem {
   linkageScore: number
   criteriaType: string | null
   totalScore: number
+  /**
+   * Where the metric currently sits — e.g., "labor-force participation flat at 62.5%".
+   * Optional; renders blank if not provided.
+   */
+  currentStatus?: string | null
+  /**
+   * The threshold both sides agreed (or could agree) constitutes resolution —
+   * e.g., "+2pp sustained over 3 years would settle the debate".
+   */
+  thresholdForAgreement?: string | null
 }
 
 export interface ValuesAnalysisData {
@@ -109,6 +119,50 @@ export interface ValuesAnalysisData {
   supportingActual: string | null
   opposingAdvertised: string | null
   opposingActual: string | null
+  /**
+   * Optional structured rankings — top-3 values per side with cross-ranking and gap.
+   * Empty array means "not yet collected"; the section renders placeholder rows.
+   */
+  priorityRankings?: ValuePriorityRankingItem[]
+  /** Values both sides hold but rank differently here, with per-side context. */
+  sharedPriorities?: SharedValuePriorityItem[]
+  /** Where each side defends the value they deprioritize on this topic — hypocrisy detector. */
+  crossContextChecks?: CrossContextConsistencyItem[]
+}
+
+/**
+ * One value with its rank under each side. Gap is supporters' rank minus opponents'
+ * rank in absolute terms (computed at render time if absent).
+ */
+export interface ValuePriorityRankingItem {
+  value: string
+  supportersRank: number | null
+  opponentsRank: number | null
+  /** Self-reported share (0-100) of each side that names this value as motivating. */
+  selfReportedSupportersPct?: number | null
+  selfReportedOpponentsPct?: number | null
+  /** Confidence we are correctly attributing this ranking (0-1). */
+  confidence?: number | null
+  /** "observer-attributed" or "self-reported". */
+  source?: 'observer-attributed' | 'self-reported' | null
+}
+
+export interface SharedValuePriorityItem {
+  value: string
+  supportersContext: string | null
+  opponentsContext: string | null
+}
+
+export interface CrossContextConsistencyItem {
+  value: string
+  /** Which side deprioritizes this value on the current topic. */
+  deprioritizedBy: 'supporter' | 'opponent'
+  /** Other belief / topic where this same side champions this value. */
+  otherTopic: string | null
+  /** Slug of the other belief if linkable; plain text otherwise. */
+  otherTopicSlug?: string | null
+  /** What the asymmetry suggests (interest-driven vs. principled). */
+  whatThisSuggests: string | null
 }
 
 export interface InterestsAnalysisData {
@@ -116,6 +170,37 @@ export interface InterestsAnalysisData {
   opponentInterests: string | null
   sharedInterests: string | null
   conflictingInterests: string | null
+  /** Optional structured rankings — same shape as Value Priority Rankings. */
+  priorityRankings?: InterestPriorityRankingItem[]
+  /** Per-conflict explanation of why the conflict exists. */
+  sharedVsConflicting?: SharedConflictingInterestItem[]
+  /** Maps interests at stake to the values each side elevates / deprioritizes. */
+  interestValueLinks?: InterestValueLinkItem[]
+}
+
+export interface InterestPriorityRankingItem {
+  interest: string
+  supportersRank: number | null
+  opponentsRank: number | null
+  selfReportedSupportersPct?: number | null
+  selfReportedOpponentsPct?: number | null
+  confidence?: number | null
+  source?: 'observer-attributed' | 'self-reported' | null
+}
+
+export interface SharedConflictingInterestItem {
+  sharedInterest: string | null
+  conflictingInterest: string | null
+  /** Material, structural, or circumstantial reason the conflict exists. */
+  whyConflictExists: string | null
+}
+
+export interface InterestValueLinkItem {
+  interest: string
+  side: 'supporter' | 'opponent'
+  valueElevated: string | null
+  valueDeprioritized: string | null
+  confidence?: number | null
 }
 
 export interface AssumptionItem {
