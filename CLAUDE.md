@@ -1,0 +1,72 @@
+# CLAUDE.md
+
+Project-level guidance for Claude Code working in this repo. Keep this short and current — if something here goes stale, fix it instead of working around it.
+
+## Project Stack
+
+- **TypeScript + Next.js 16** (App Router, RSC by default). React 19. Path alias `@/*` -> `./src/*`.
+- **Prisma 7** with SQLite via `@prisma/adapter-better-sqlite3`. Schema lives in `prisma/schema.prisma`. Generated client lives at `src/generated/prisma/client` (run `npm run db:generate` if `@/generated/prisma/client` errors appear).
+- **Tailwind v4** with PostCSS. Belief pages are constrained to `max-w-[960px]`.
+- **Vitest** for unit tests under `tests/`. ESLint via `eslint-config-next` flat config.
+- TypeScript is in `strict` mode. Don't introduce `any` to silence errors — fix the type or narrow with a guard.
+
+## Verification Commands
+
+After multi-file edits, run these before declaring work done:
+
+```bash
+npx tsc --noEmit      # typecheck — must be clean for files you touched
+npx eslint <files>    # lint files you edited (`npm run lint` runs the whole repo)
+npm test              # vitest, only when changing scoring / core logic
+```
+
+The repo has ~50 pre-existing implicit-any errors in routes I didn't touch (notably `src/app/algorithms/belief-equivalency/*`, `src/app/equivalence/*`, several API routes, `src/lib/prisma.ts`'s missing generated client). They are not your fault — verify *only* that your edited files are clean, not that the global typecheck count is zero.
+
+## The Belief Page Is the Crown Jewel
+
+The single most important thing to get right in this codebase is the belief page (`/beliefs/[slug]`). It is the product. Everything else supports it.
+
+- **Canonical rules:** `docs/BELIEF_PAGE_RULES.md`. Read this before generating, restructuring, or refactoring any belief content. The seven hard rules (no top-of-page summary, definitions go last, arguments are 2-6 word labels, arguments != evidence, no broken links, blank scores until real, symmetric Supporters/Opponents) are non-negotiable.
+- **Canonical template:** `templates/belief-analysis-template.html`. This is the source of truth for the canonical section order. The live page is built around it.
+- **Live implementation:** `src/app/beliefs/[slug]/page.tsx` plus the section components in `src/features/belief-analysis/components/*`.
+- **Types:** `src/features/belief-analysis/types.ts`. New fields on Values/Interests analysis are optional so existing Prisma data still flows; populate via seed scripts as data lands.
+
+If you change the rules doc, update the template and the page. If you change the template or page, update the rules doc. The three must stay in sync.
+
+### Sections that no longer exist as standalones
+
+Per the new template (April 2026), the page does NOT have separate `Falsifiability`, `Testable Predictions`, `Media Resources`, or `Short vs Long-Term Impact` sections.
+
+- Falsifiability is implicit in Objective Criteria thresholds.
+- Testable predictions, when relevant, render as objective criteria.
+- Visual/video items live in the Visual and Video Evidence sub-table under Evidence Ledger.
+- Short vs Long-Term renders as a sub-table inside Cost-Benefit Analysis.
+
+The legacy `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, and `ImpactSection` components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
+
+## Conventions
+
+- **Comments:** default to none. Only write a comment when the *why* is non-obvious. Don't restate what the code does. Don't reference task IDs or PR numbers — those rot.
+- **No new top-level docs (*.md, README, etc.) unless explicitly asked.**
+- **Edit before Write.** Use `Edit` for changes to existing files. `Write` only for new files or full rewrites.
+- **Branch convention:** Claude-driven work goes on `claude/<short-slug>-<id>` branches. Push, but do NOT open a PR unless the user asks for one.
+- **JSX entities:** the lint rule `react/no-unescaped-entities` will flag bare apostrophes/quotes inside JSX text. Use `&apos;`, `&ldquo;`, `&rdquo;`.
+
+## Debug Logging
+
+Claude Code does not auto-create `~/.claude/debug/<session-id>.txt`. The `/debug` skill's prompt is stale on this point. To get persistent file logs, restart the CLI with:
+
+```bash
+mkdir -p ~/.claude/debug
+claude --debug-file ~/.claude/debug/session-$(date +%s).txt
+```
+
+Or set `CLAUDE_DEBUG_FILE` before launching. File logging cannot be enabled mid-session.
+
+## Routes Worth Knowing
+
+- `/beliefs` — index of all beliefs.
+- `/beliefs/[slug]` — the canonical belief page (this is the one that matters).
+- `/beliefs/set-aside-distractions-for-real-solutions` — bespoke route, predates the canonical structure. Don't use as a template.
+- `/product-reviews/[slug]` — separate concept that reuses some belief components. Edits to belief sections may affect it; check before refactoring.
+- `/algorithms/strong-to-weak`, `/Linkage Scores`, `/Argument scores from sub-argument scores` — explainer pages linked from the belief page header. If you add a link to a belief page, verify the target exists or use plain text (Rule 5).
