@@ -49,8 +49,16 @@ export default function PredictionMarketsComparisonPage() {
       <h1 className="text-3xl font-bold mb-3 leading-tight">
         Idea Stock Exchange vs Other Prediction Markets Like Polymarket
       </h1>
-      <p className="text-lg text-gray-600 mb-6">
+      <p className="text-lg text-gray-600 mb-4">
         Prediction Market Layer: Engineering Specification
+      </p>
+      <p className="mb-6">
+        <Link
+          href="/markets"
+          className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium text-sm"
+        >
+          → Browse the live play-money markets
+        </Link>
       </p>
 
       <Callout>

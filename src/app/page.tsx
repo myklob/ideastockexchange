@@ -510,6 +510,60 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Prediction Markets */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6">
+            Prediction Markets on Belief Scores
+          </h2>
+          <p className="text-lg text-[var(--muted-foreground)] mb-8">
+            Buy YES or NO shares on what the ReasonRank score of a belief
+            will be at the end of the month. The only way to move the price
+            is to post better arguments &mdash; this is a prediction market
+            and a reasoning platform at the same time. Play money for now;
+            real money once the mechanics are proven.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Settles On the Score</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Each contract pays $1 if the live belief score crosses its
+                threshold at the snapshot epoch. No external oracle.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">LMSR Pricing</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Continuous liquidity from day one. The market quotes a price
+                even when only a handful of traders have shown up.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Skin In the Argument</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Want to win? Improve the underlying argument graph. Brigading
+                with low-quality reasons gets compressed and down-weighted
+                automatically.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4 flex-wrap">
+            <Link
+              href="/markets"
+              className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Browse Markets
+            </Link>
+            <Link
+              href="/prediction-markets-comparison"
+              className="inline-block border border-[var(--border)] hover:border-[var(--accent)] px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              How It Compares to Polymarket
+            </Link>
+          </div>
+        </section>
+
         {/* Get Started */}
         <section className="bg-gradient-to-r from-[var(--accent)]/10 to-[var(--accent)]/5 p-12 rounded-lg text-center">
           <h2 className="text-3xl font-bold mb-4">
@@ -564,6 +618,7 @@ export default function Home() {
                 <li><Link href="/product-reviews" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Product Reviews</Link></li>
                 <li><Link href="/cba" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Cost-Benefit Analysis</Link></li>
                 <li><Link href="/laws" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Browse Laws</Link></li>
+                <li><Link href="/markets" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Prediction Markets</Link></li>
                 <li><Link href="/prediction-markets-comparison" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Idea Stock Exchange vs Polymarket</Link></li>
                 <li><Link href="/faq" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">FAQ &amp; Criticisms</Link></li>
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Framework Wiki</a></li>
