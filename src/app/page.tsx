@@ -564,6 +564,7 @@ export default function Home() {
                 <li><Link href="/product-reviews" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Product Reviews</Link></li>
                 <li><Link href="/cba" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Cost-Benefit Analysis</Link></li>
                 <li><Link href="/laws" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Browse Laws</Link></li>
+                <li><Link href="/prediction-markets-comparison" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Idea Stock Exchange vs Polymarket</Link></li>
                 <li><Link href="/faq" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">FAQ &amp; Criticisms</Link></li>
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Framework Wiki</a></li>
               </ul>
