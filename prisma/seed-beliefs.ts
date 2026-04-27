@@ -148,6 +148,39 @@ async function main() {
     },
   })
 
+  // Downstream conclusions: more specific beliefs that follow if the main belief is true.
+  // These exist so the propagation cascade in src/lib/propagate-belief-scores.ts has
+  // something to traverse on the seeded UBI page.
+  const ubiFundingBelief = await prisma.belief.upsert({
+    where: { slug: 'ubi-should-be-funded-by-vat' },
+    update: {},
+    create: {
+      slug: 'ubi-should-be-funded-by-vat',
+      statement: 'UBI should be funded primarily through a value-added tax',
+      category: 'Economics',
+      subcategory: 'Tax Policy',
+      deweyNumber: '336.27',
+      positivity: 30,
+      specificity: 0.85,
+      claimStrength: 0.6,
+    },
+  })
+
+  const ubiAmountBelief = await prisma.belief.upsert({
+    where: { slug: 'ubi-should-equal-poverty-line' },
+    update: {},
+    create: {
+      slug: 'ubi-should-equal-poverty-line',
+      statement: 'UBI payments should be set at the federal poverty line, not below',
+      category: 'Economics',
+      subcategory: 'Social Policy',
+      deweyNumber: '362.58',
+      positivity: 40,
+      specificity: 0.8,
+      claimStrength: 0.7,
+    },
+  })
+
   // Similar beliefs (more extreme / more moderate)
   const extremeBelief = await prisma.belief.upsert({
     where: { slug: 'fully-automated-luxury-communism' },
@@ -447,11 +480,17 @@ async function main() {
     ],
   })
 
-  // Create belief mappings (upstream = more general, downstream = more specific)
+  // Create belief mappings (upstream = more general, downstream = more specific).
+  // Upstream: foundational principles you must accept to hold mainBelief.
+  // Downstream: implementation choices that follow if mainBelief is true.
   await prisma.beliefMapping.createMany({
     data: [
+      // Upstream
       { parentBeliefId: humanDignityBelief.id, childBeliefId: mainBelief.id, direction: 'upstream', side: 'support' },
       { parentBeliefId: marketFreedomBelief.id, childBeliefId: mainBelief.id, direction: 'upstream', side: 'oppose' },
+      // Downstream
+      { parentBeliefId: mainBelief.id, childBeliefId: ubiFundingBelief.id, direction: 'downstream', side: 'support' },
+      { parentBeliefId: mainBelief.id, childBeliefId: ubiAmountBelief.id, direction: 'downstream', side: 'support' },
     ],
   })
 
@@ -465,7 +504,7 @@ async function main() {
 
   console.log('Belief analysis seed completed!')
   console.log(`Main belief: /beliefs/${mainBelief.slug}`)
-  console.log(`Total beliefs created: 11`)
+  console.log(`Total beliefs created: 13`)
 }
 
 main()
