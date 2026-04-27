@@ -33,6 +33,13 @@ export interface BeliefWithRelations {
    * score through extraordinary evidence — or it scores near zero. See /algorithms/strong-to-weak.
    */
   claimStrength: number
+  /**
+   * Specificity (0-1): position on the abstraction ladder, where 0 is a highly general
+   * principle and 1 is a single concrete instance. The same evidence can support a
+   * specific belief strongly while supporting its general parent only weakly — so
+   * specificity has to live alongside valence and claim strength, not be folded into them.
+   */
+  specificity: number
 
   definitions: DefinitionItem[]
   falsifiability: string | null

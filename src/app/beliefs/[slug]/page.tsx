@@ -16,6 +16,7 @@ import BeliefMappingSection from '@/features/belief-analysis/components/BeliefMa
 import SimilarBeliefsSection from '@/features/belief-analysis/components/SimilarBeliefsSection'
 import ContributeSection from '@/features/belief-analysis/components/ContributeSection'
 import DefinitionsSection from '@/features/belief-analysis/components/DefinitionsSection'
+import SpectrumsHeader from '@/features/belief-analysis/components/SpectrumsHeader'
 
 interface BeliefPageProps {
   params: Promise<{ slug: string }>
@@ -64,7 +65,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
         <h1 className="text-2xl font-bold text-[var(--foreground)] mb-3 leading-tight">
           {belief.statement}
         </h1>
-        <p className="text-sm mb-8 leading-7">
+        <p className="text-sm mb-4 leading-7">
           <strong>Score:</strong>{' '}
           <Link
             href="/Argument%20scores%20from%20sub-argument%20scores"
@@ -82,6 +83,18 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
           </Link>
           {belief.subcategory && <> &gt; {belief.subcategory}</>}
         </p>
+
+        {/*
+          Three Spectrums: Valence, Specificity, Intensity.
+          Per /One Page Per Belief, every belief is a coordinate on these three axes.
+          Renders as part of the metadata header (not a canonical section), so it
+          does NOT violate Rule 2 (no background/summary between metadata and Argument Trees).
+        */}
+        <SpectrumsHeader
+          positivity={belief.positivity}
+          specificity={belief.specificity}
+          claimStrength={belief.claimStrength}
+        />
 
         {/*
           Section order is CANONICAL per docs/BELIEF_PAGE_RULES.md.

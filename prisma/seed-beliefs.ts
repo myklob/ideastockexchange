@@ -20,6 +20,8 @@ async function main() {
       subcategory: 'Social Policy',
       deweyNumber: '362.5',
       positivity: 25,
+      specificity: 0.55,
+      claimStrength: 0.6,
     },
   })
 
@@ -34,6 +36,8 @@ async function main() {
       subcategory: 'Labor Economics',
       deweyNumber: '331.1',
       positivity: 60,
+      specificity: 0.4,
+      claimStrength: 0.6,
     },
   })
 
@@ -47,6 +51,8 @@ async function main() {
       subcategory: 'Poverty Studies',
       deweyNumber: '362.5',
       positivity: 85,
+      specificity: 0.15,
+      claimStrength: 0.5,
     },
   })
 
@@ -60,6 +66,8 @@ async function main() {
       subcategory: 'Welfare Policy',
       deweyNumber: '353.5',
       positivity: 45,
+      specificity: 0.55,
+      claimStrength: 0.5,
     },
   })
 
@@ -74,6 +82,8 @@ async function main() {
       subcategory: 'Monetary Policy',
       deweyNumber: '332.4',
       positivity: -30,
+      specificity: 0.5,
+      claimStrength: 0.7,
     },
   })
 
@@ -87,6 +97,8 @@ async function main() {
       subcategory: 'Labor Economics',
       deweyNumber: '331.2',
       positivity: -40,
+      specificity: 0.5,
+      claimStrength: 0.7,
     },
   })
 
@@ -100,6 +112,8 @@ async function main() {
       subcategory: 'Fiscal Policy',
       deweyNumber: '336',
       positivity: -50,
+      specificity: 0.5,
+      claimStrength: 0.7,
     },
   })
 
@@ -114,6 +128,8 @@ async function main() {
       subcategory: 'Ethics',
       deweyNumber: '170',
       positivity: 75,
+      specificity: 0.05,
+      claimStrength: 0.5,
     },
   })
 
@@ -127,6 +143,8 @@ async function main() {
       subcategory: 'Market Theory',
       deweyNumber: '330.1',
       positivity: 40,
+      specificity: 0.1,
+      claimStrength: 0.6,
     },
   })
 
@@ -141,6 +159,8 @@ async function main() {
       subcategory: 'Post-Capitalism',
       deweyNumber: '335',
       positivity: 15,
+      specificity: 0.5,
+      claimStrength: 1.0,
     },
   })
 
@@ -154,6 +174,8 @@ async function main() {
       subcategory: 'Tax Policy',
       deweyNumber: '336.2',
       positivity: 35,
+      specificity: 0.6,
+      claimStrength: 0.5,
     },
   })
 

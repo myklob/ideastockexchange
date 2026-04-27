@@ -194,6 +194,16 @@ model Belief {
   /// An extreme claim must earn its score through extraordinary evidence — or it scores near zero.
   claimStrength Float @default(0.5)
 
+  /// Specificity (0-1): position on the abstraction ladder.
+  ///   0.0 = Highly general principle (e.g. "Corruption undermines government")
+  ///   0.33 = Moderately general       (e.g. "U.S. Presidents are often corrupt")
+  ///   0.66 = Baseline / case-level    (e.g. "The Clinton Administration had ethical issues")
+  ///   1.0 = Highly specific           (e.g. "Bill Clinton accepted illegal donations in 1996")
+  /// The same evidence may strongly support a specific belief while only weakly
+  /// supporting its general parent — specificity lets the system represent that
+  /// distinction explicitly. See "Three Spectrums" on /One Page Per Belief.
+  specificity Float @default(0.5)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
