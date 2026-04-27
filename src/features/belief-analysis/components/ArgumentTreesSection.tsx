@@ -48,6 +48,39 @@ function LinkageBadge({ arg }: { arg: ArgumentWithBelief }) {
   )
 }
 
+/**
+ * Contribution Score = Linkage Score × Truth Score (per /One Page Per Belief).
+ * Since impactScore = sign × childTruth × |linkage| × importance × 100, the
+ * linkage×truth product is recovered as |impactScore| / (importance × 100).
+ * Returns a 0–1 value, blank when the argument has no impact yet (Rule 6).
+ */
+function contributionFraction(arg: ArgumentWithBelief): number | null {
+  if (!arg.impactScore || arg.importanceScore <= 0) return null
+  return Math.min(1, Math.abs(arg.impactScore) / (arg.importanceScore * 100))
+}
+
+function ContributionBadge({ arg }: { arg: ArgumentWithBelief }) {
+  const fraction = contributionFraction(arg)
+  if (fraction === null) {
+    return <span className="text-xs italic text-[var(--muted-foreground)]">[pending]</span>
+  }
+  const pct = (fraction * 100).toFixed(0)
+  let colorClass = 'bg-gray-50 text-gray-600 border-gray-300'
+  if (fraction >= 0.65) colorClass = 'bg-green-50 text-green-800 border-green-500'
+  else if (fraction >= 0.35) colorClass = 'bg-blue-50 text-blue-800 border-blue-300'
+  else if (fraction >= 0.10) colorClass = 'bg-orange-50 text-orange-700 border-orange-300'
+  else colorClass = 'bg-red-50 text-red-600 border-red-200'
+
+  return (
+    <span
+      title="Contribution = Linkage Score × Truth Score"
+      className={`inline-flex items-center text-xs font-mono px-2 py-0.5 rounded border ${colorClass}`}
+    >
+      {pct}%
+    </span>
+  )
+}
+
 function ArgumentRow({ arg }: { arg: ArgumentWithBelief }) {
   const argScore = (arg.belief.positivity).toFixed(1)
   const impact = arg.impactScore.toFixed(1)
@@ -74,6 +107,9 @@ function ArgumentRow({ arg }: { arg: ArgumentWithBelief }) {
       <td className="px-3 py-3 text-center">
         <LinkageBadge arg={arg} />
       </td>
+      <td className="px-3 py-3 text-center">
+        <ContributionBadge arg={arg} />
+      </td>
       <td className="px-3 py-3 text-center text-sm font-bold font-mono">
         {arg.side === 'agree' ? '+' : '-'}{Math.abs(Number(impact))}
       </td>
@@ -84,7 +120,7 @@ function ArgumentRow({ arg }: { arg: ArgumentWithBelief }) {
 function EmptyRow() {
   return (
     <tr className="border-b border-gray-200">
-      <td className="px-3 py-3 text-sm text-[var(--muted-foreground)] italic" colSpan={4}>
+      <td className="px-3 py-3 text-sm text-[var(--muted-foreground)] italic" colSpan={5}>
         No arguments yet. Be the first to contribute.
       </td>
     </tr>
@@ -109,12 +145,18 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-green-50">
-              <th className="px-3 py-2 text-left w-[60%] font-semibold">
+              <th className="px-3 py-2 text-left w-[52%] font-semibold">
                 Top <Link href="/Scoring" className="text-[var(--accent)] hover:underline">Scoring</Link> Reasons to Agree
               </th>
-              <th className="px-3 py-2 text-center w-[15%] font-semibold">Argument Score</th>
-              <th className="px-3 py-2 text-center w-[13%] font-semibold">
+              <th className="px-3 py-2 text-center w-[12%] font-semibold">Argument Score</th>
+              <th className="px-3 py-2 text-center w-[12%] font-semibold">
                 <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
+              </th>
+              <th
+                className="px-3 py-2 text-center w-[12%] font-semibold"
+                title="Linkage Score × Truth Score"
+              >
+                Contribution
               </th>
               <th className="px-3 py-2 text-center w-[12%] font-semibold">Impact</th>
             </tr>
@@ -126,7 +168,7 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
               <EmptyRow />
             )}
             <tr className="bg-gray-100 font-semibold">
-              <td colSpan={3} className="px-3 py-2 text-right text-sm">Total Pro:</td>
+              <td colSpan={4} className="px-3 py-2 text-right text-sm">Total Pro:</td>
               <td className="px-3 py-2 text-center text-sm font-mono text-green-700">
                 +{totalPro.toFixed(1)}
               </td>
@@ -140,12 +182,18 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-red-50">
-              <th className="px-3 py-2 text-left w-[60%] font-semibold">
+              <th className="px-3 py-2 text-left w-[52%] font-semibold">
                 Top <Link href="/Scoring" className="text-[var(--accent)] hover:underline">Scoring</Link> Reasons to Disagree
               </th>
-              <th className="px-3 py-2 text-center w-[15%] font-semibold">Argument Score</th>
-              <th className="px-3 py-2 text-center w-[13%] font-semibold">
+              <th className="px-3 py-2 text-center w-[12%] font-semibold">Argument Score</th>
+              <th className="px-3 py-2 text-center w-[12%] font-semibold">
                 <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
+              </th>
+              <th
+                className="px-3 py-2 text-center w-[12%] font-semibold"
+                title="Linkage Score × Truth Score"
+              >
+                Contribution
               </th>
               <th className="px-3 py-2 text-center w-[12%] font-semibold">Impact</th>
             </tr>
@@ -157,7 +205,7 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
               <EmptyRow />
             )}
             <tr className="bg-gray-100 font-semibold">
-              <td colSpan={3} className="px-3 py-2 text-right text-sm">Total Con:</td>
+              <td colSpan={4} className="px-3 py-2 text-right text-sm">Total Con:</td>
               <td className="px-3 py-2 text-center text-sm font-mono text-red-700">
                 -{totalCon.toFixed(1)}
               </td>
