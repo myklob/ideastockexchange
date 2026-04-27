@@ -97,9 +97,92 @@ export async function fetchAllBeliefs() {
       category: true,
       subcategory: true,
       positivity: true,
+      specificity: true,
+      claimStrength: true,
     },
     orderBy: { updatedAt: 'desc' },
   })
+}
+
+/**
+ * Filters for spectrum-driven belief navigation, mirroring &sect;5 of
+ * /One Page Per Belief: Technical Specification. All bounds are inclusive
+ * and use internal storage scales (positivity -100..+100, specificity 0..1,
+ * claimStrength 0..1). Use the spectrum-coordinates helpers to translate
+ * from the spec's coarse 1..10 / -5..+5 / 1..5 scales.
+ */
+export interface BeliefFilterParams {
+  positivityMin?: number
+  positivityMax?: number
+  specificityMin?: number
+  specificityMax?: number
+  claimStrengthMin?: number
+  claimStrengthMax?: number
+  category?: string
+  /** Field to sort on. Defaults to positivity (the "valence spectrum" surface). */
+  sortBy?: 'positivity' | 'specificity' | 'claimStrength' | 'statement' | 'updatedAt'
+  /** Sort direction. Defaults to 'asc' so the page reads negative → positive. */
+  sortDir?: 'asc' | 'desc'
+  limit?: number
+}
+
+export async function fetchFilteredBeliefs(params: BeliefFilterParams = {}) {
+  const where: Record<string, unknown> = {}
+
+  if (params.positivityMin !== undefined || params.positivityMax !== undefined) {
+    where.positivity = {
+      ...(params.positivityMin !== undefined ? { gte: params.positivityMin } : {}),
+      ...(params.positivityMax !== undefined ? { lte: params.positivityMax } : {}),
+    }
+  }
+
+  if (params.specificityMin !== undefined || params.specificityMax !== undefined) {
+    where.specificity = {
+      ...(params.specificityMin !== undefined ? { gte: params.specificityMin } : {}),
+      ...(params.specificityMax !== undefined ? { lte: params.specificityMax } : {}),
+    }
+  }
+
+  if (params.claimStrengthMin !== undefined || params.claimStrengthMax !== undefined) {
+    where.claimStrength = {
+      ...(params.claimStrengthMin !== undefined ? { gte: params.claimStrengthMin } : {}),
+      ...(params.claimStrengthMax !== undefined ? { lte: params.claimStrengthMax } : {}),
+    }
+  }
+
+  if (params.category) {
+    where.category = params.category
+  }
+
+  const sortBy = params.sortBy ?? 'positivity'
+  const sortDir = params.sortDir ?? 'asc'
+
+  return prisma.belief.findMany({
+    where,
+    select: {
+      id: true,
+      slug: true,
+      statement: true,
+      category: true,
+      subcategory: true,
+      positivity: true,
+      specificity: true,
+      claimStrength: true,
+    },
+    orderBy: { [sortBy]: sortDir },
+    ...(params.limit !== undefined ? { take: params.limit } : {}),
+  })
+}
+
+/** All distinct category values currently used on Belief rows, for filter dropdowns. */
+export async function fetchBeliefCategories(): Promise<string[]> {
+  const rows = await prisma.belief.findMany({
+    where: { category: { not: null } },
+    select: { category: true },
+    distinct: ['category'],
+    orderBy: { category: 'asc' },
+  })
+  return rows.map(r => r.category).filter((c): c is string => c !== null)
 }
 
 /** Compute all 12 ReasonRank scores for a belief */
