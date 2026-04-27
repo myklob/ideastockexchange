@@ -22,7 +22,7 @@ export default function SimilarBeliefsSection({ similarTo, similarFrom, currentB
       <SectionHeading
         emoji="&#x1F504;"
         title="Similar Beliefs"
-        href="/combine%20similar%20beliefs"
+        href="/algorithms/combine-similar-beliefs"
       />
 
       <div className="overflow-x-auto">
