@@ -1,0 +1,27 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.ideastockexchange.ios"],
+        "components": [
+          {
+            "/": "/beliefs/*",
+            "comment": "Open belief pages directly in the app"
+          },
+          {
+            "/": "/markets/*",
+            "comment": "Open market pages directly in the app"
+          },
+          {
+            "/": "/",
+            "comment": "Open the home page in the app"
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAMID.com.ideastockexchange.ios"]
+  }
+}

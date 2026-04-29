@@ -1,0 +1,64 @@
+# XcodeGen spec for the Idea Stock Exchange iOS app.
+#
+# Run `xcodegen` in this directory to materialize IdeaStockExchange.xcodeproj.
+# We don't commit the generated .xcodeproj — its pbxproj merge-conflicts constantly.
+# See ../docs/IOS.md for the full setup walkthrough.
+
+name: IdeaStockExchange
+
+options:
+  bundleIdPrefix: com.ideastockexchange
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: en
+  groupSortPosition: top
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    TARGETED_DEVICE_FAMILY: "1,2"      # iPhone + iPad
+    ENABLE_PREVIEWS: YES
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""               # set via Xcode Signing & Capabilities
+
+targets:
+  IdeaStockExchange:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    resources:
+      - path: Resources/Assets.xcassets
+    info:
+      path: Resources/Info.plist
+      properties:
+        CFBundleDisplayName: Idea Stock Exchange
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        UILaunchScreen:
+          UIColorName: AccentColor
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        ITSAppUsesNonExemptEncryption: false
+        # Default URL the WKWebView tab opens. Override per-scheme or in CI.
+        ISEWebURL: "https://ideastockexchange.com"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ideastockexchange.ios
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    entitlements:
+      path: Resources/IdeaStockExchange.entitlements
+      properties:
+        com.apple.developer.associated-domains:
+          - "applinks:ideastockexchange.com"
+          - "webcredentials:ideastockexchange.com"

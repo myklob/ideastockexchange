@@ -1,0 +1,17 @@
+# XcodeGen output — regenerated from project.yml on demand.
+*.xcodeproj/
+*.xcworkspace/
+
+# Xcode user / build artifacts
+xcuserdata/
+DerivedData/
+build/
+*.ipa
+*.xcarchive
+
+# Swift Package Manager (if added later)
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store

@@ -69,6 +69,15 @@ Or set `CLAUDE_DEBUG_FILE` before launching. File logging cannot be enabled mid-
 - The roadmap to a Play Store listing is `docs/ANDROID.md` — TWA wrapper via Google's Bubblewrap CLI. The Android project is *not* committed; it's generated against the deployed manifest.
 - `public/.well-known/assetlinks.json` is the Digital Asset Links file Android fetches to verify the TWA. The signing-key SHA-256 placeholder must be filled in after generating the keystore. If a future host strips `.well-known/`, add a rewrite.
 
+## iOS app
+
+- `ios/` holds a SwiftUI shell with two tabs: a `WKWebView` over the deployed site, and a native **Browse** tab that calls `/api/beliefs` and `/api/beliefs/[id]` to traverse Reasons-to-Agree / Reasons-to-Disagree with each argument's impact and linkage scores.
+- The `.xcodeproj` is **not** committed; run `xcodegen` from `ios/` to materialize it from `ios/project.yml`. Same philosophy as not committing the Bubblewrap-generated Android project — pbxproj files merge-conflict constantly.
+- Roadmap: `docs/IOS.md` (mirrors `docs/ANDROID.md`). PWA → WKWebView App Store wrapper → optional full SwiftUI rebuild.
+- `public/.well-known/apple-app-site-association` is the Universal Links manifest. The placeholder `TEAMID` must be replaced with a real Apple Team ID before submission. Apple is strict: no `.json` extension, `Content-Type: application/json`, status 200 with no redirect.
+- Native tab models only the subset of the API needed for argument traversal (`ios/Sources/Native/Models.swift`). When new fields land server-side, add them here as needed — don't try to mirror the full Prisma payload.
+- iOS builds require macOS + Xcode 15.4+. The repo is editable on Linux but the build step is not. Don't try to "fix" Swift errors locally without a Mac to verify.
+
 ## Routes Worth Knowing
 
 - `/beliefs` — index of all beliefs.
