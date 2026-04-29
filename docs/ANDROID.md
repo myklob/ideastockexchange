@@ -6,6 +6,7 @@ The plan is incremental. Each step is reversible and testable on its own.
 |------|-------------------|------|--------|
 | 1. Installable PWA | Chrome on Android shows "Install app". Full-screen launch, home-screen icon. | ~2 hours | ✅ Done — see `public/manifest.webmanifest` and the metadata in `src/app/layout.tsx`. |
 | 2. TWA wrapper for Play Store | Real Play Store listing. The "app" is a 100-line Android shell that opens your URL with no browser chrome. Update the web app, the shell auto-updates with it. | 1–2 days | 🟡 Scaffold ready (this doc + `public/.well-known/assetlinks.json`); waits on a deployed URL. |
+| 2b. Native Browse shell (Compose) | Two-tab app: native pro/con browser over `/api/beliefs` + WebView fallback. Same reviewer-friendly split as the iOS app. | 1–2 days | ✅ Source-only project at `android/` (mirrors `ios/`). See `android/README.md`. |
 | 3. React Native rebuild | Native UI/perf, share scoring engine via a workspace package. Dual maintenance. | 3–6 months | ⏸ Don't start until path 2 is shipped and you have usage data. |
 
 ## Step 2 in detail: Trusted Web Activity via Bubblewrap
@@ -74,6 +75,20 @@ Open the app. If you see no URL bar, asset linking worked. If you see the URL ba
 4. Promote internal testing → closed testing → production over a few days.
 
 First-time review takes 4–7 days. Updates take 1–3 days. Your web app keeps deploying normally; the AAB only needs to change when you bump version codes or alter the Android-side config.
+
+## Step 2b in detail: Compose-based Browse shell
+
+A native Kotlin/Compose project lives at `android/`. It mirrors the iOS
+counterpart — the same two-tab split (`Browse` over the JSON API, `Web` over
+the deployed URL) and the same "don't commit IDE artifacts" policy
+(`android/.gitignore` excludes `.gradle/`, `local.properties`, the wrapper).
+
+It's complementary to the TWA path in step 2: a TWA gives you a Play Store
+listing for the existing PWA in a day; the Compose project gives reviewers a
+genuinely native surface to look at and seeds an eventual fully-native rebuild
+without paying the React Native dual-maintenance tax up front. Open
+`android/` in Android Studio Iguana+ (JDK 17, SDK 35) — full setup walkthrough
+in `android/README.md`.
 
 ## When to consider step 3 (React Native or native Kotlin)
 

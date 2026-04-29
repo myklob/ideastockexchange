@@ -1,0 +1,23 @@
+# Gradle / Android Studio artifacts. Keep the source tree (`app/src/`,
+# `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`) committed and
+# let Android Studio regenerate everything else on first sync. Mirrors the
+# `ios/.gitignore` philosophy: don't commit the IDE's working files.
+
+.gradle/
+build/
+app/build/
+captures/
+local.properties
+.cxx/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Gradle wrapper artifacts (we don't ship the wrapper; Android Studio installs
+# Gradle on first sync). Comment these out if you decide to commit a wrapper.
+gradle/
+gradlew
+gradlew.bat
