@@ -1,10 +1,11 @@
 import Foundation
 
 /// Decoders for the subset of `/api/beliefs` and `/api/beliefs/[id]` shapes the
-/// native Browse tab consumes. Only the fields needed for traversing reasons
-/// to agree / disagree and rendering scores are modeled — not the full
-/// canonical belief payload (Values, Interests, Cost-Benefit, etc.). Add more
-/// here as native screens grow.
+/// native Browse and trading-game tabs consume. Only the fields needed for
+/// traversing reasons to agree / disagree, rendering scores, and pricing
+/// positions are modeled — not the full canonical belief payload (Values,
+/// Interests, etc.). Mirrors `android/.../model/Belief.kt`; when a new field is
+/// needed on either platform, add it here too.
 
 // MARK: - List endpoint
 
@@ -46,11 +47,13 @@ struct BeliefDetailResponse: Decodable {
 
 struct BeliefDetail: Decodable, Identifiable {
     let id: Int
-    let slug: String
+    let slug: String?
     let statement: String
     let category: String?
     let subcategory: String?
     let arguments: [Argument]
+    let costBenefitAnalysis: CostBenefitAnalysis?
+    let impactAnalysis: ImpactAnalysis?
 }
 
 struct BeliefScores: Decodable {
@@ -58,6 +61,10 @@ struct BeliefScores: Decodable {
     let totalCon: Double?
     let totalSupportingEvidence: Double?
     let totalWeakeningEvidence: Double?
+    let overallScore: Double?
+    let cbaLikelihoodScore: Double?
+    let claimStrength: Double?
+    let strengthAdjustedScore: Double?
 }
 
 /// One argument in the belief's tree. `side` is "agree" or "disagree".
@@ -82,4 +89,20 @@ struct ChildBelief: Decodable, Hashable {
     let slug: String?
     let statement: String
     let positivity: Double?
+}
+
+// MARK: - Cost / benefit / impact
+
+struct CostBenefitAnalysis: Decodable, Hashable {
+    let benefits: String?
+    let benefitLikelihood: Double?
+    let costs: String?
+    let costLikelihood: Double?
+}
+
+struct ImpactAnalysis: Decodable, Hashable {
+    let shortTermEffects: String?
+    let shortTermCosts: String?
+    let longTermEffects: String?
+    let longTermChanges: String?
 }

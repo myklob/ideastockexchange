@@ -1,11 +1,13 @@
 # Idea Stock Exchange — iOS app
 
-A SwiftUI shell for the Idea Stock Exchange web app. Two tabs:
+A SwiftUI shell for the Idea Stock Exchange web app. Four tabs:
 
+- **Browse** — native list/detail that traverses *Reasons to Agree* and *Reasons to Disagree* using the `/api/beliefs` JSON API. Each argument shows its impact, linkage, and importance scores; tapping it navigates into the child belief so you can recursively walk the reason graph. The detail screen also surfaces costs, benefits, risks, and likelihoods, plus **Buy / Short** buttons that open positions in the on-device trading game.
+- **Portfolio** — the user's $10,000 fake-money account. Shows cash, equity, realized + unrealized P&L, and every open position with a Close button that closes at the latest fetched mark price. Pull-to-refresh re-fetches each open belief's score.
+- **Top 10** — the leaderboard. Net worth = cash + open positions marked to market. The user's row is computed live from the local store; the other nine are seed traders so the screen has comparators on a fresh install.
 - **Web** — `WKWebView` pointing at the deployed site. The whole product, exactly as it renders in Safari, with no browser chrome.
-- **Browse** — native list/detail that traverses *Reasons to Agree* and *Reasons to Disagree* using the `/api/beliefs` JSON API. Each argument shows its impact and linkage scores; tapping it navigates into the child belief so you can recursively walk the reason graph.
 
-The split exists because Apple's App Store guideline 4.2 ("Minimum Functionality") sometimes flags pure WebView wrappers. The native Browse tab gives reviewers something native to look at, and seeds the path toward a fully native rebuild later (`docs/IOS.md`, step 3).
+The native tabs exist because Apple's App Store guideline 4.2 ("Minimum Functionality") sometimes flags pure WebView wrappers. They give reviewers something native to look at, give users a real reason to install, and seed the path toward a fully native rebuild later (`docs/IOS.md`, step 3).
 
 ## Quick start (macOS)
 
@@ -32,14 +34,21 @@ ios/
 ├── Sources/
 │   ├── App/
 │   │   ├── IdeaStockExchangeApp.swift  # @main entry point
-│   │   └── RootView.swift              # TabView shell
+│   │   └── RootView.swift              # 4-tab shell (Browse / Portfolio / Top 10 / Web)
 │   ├── Web/
 │   │   └── WebViewScreen.swift         # WKWebView wrapper with loading + error states
-│   └── Native/
-│       ├── Models.swift                # Codables for /api/beliefs and /api/beliefs/[id]
-│       ├── ISEAPI.swift                # URLSession-based networking
-│       ├── BeliefsListView.swift       # Searchable list of beliefs
-│       └── BeliefDetailView.swift      # Score banner + Reasons-to-Agree / Reasons-to-Disagree
+│   ├── Native/
+│   │   ├── Models.swift                # Codables for /api/beliefs and /api/beliefs/[id]
+│   │   ├── ISEAPI.swift                # URLSession-based networking
+│   │   ├── BeliefsListView.swift       # Searchable list of beliefs
+│   │   └── BeliefDetailView.swift      # Score banner + CBA / Impact / arguments + trade bar
+│   └── Game/
+│       ├── Trading.swift               # Portfolio / Position / Side / pricing
+│       ├── PortfolioStore.swift        # UserDefaults-backed ObservableObject store
+│       ├── Leaderboard.swift           # Seed traders + Top 10 builder
+│       ├── TradeSheet.swift            # Buy / Short modal sheet
+│       ├── PortfolioView.swift         # Portfolio tab
+│       └── LeaderboardView.swift       # Top 10 tab
 └── Resources/
     ├── Info.plist                      # ISEWebURL, ATS, orientations
     ├── IdeaStockExchange.entitlements  # Associated domains for Universal Links

@@ -119,9 +119,16 @@ If none of those bite, stay on the wrapper. The two-codebase tax of going fully 
 ## File map
 
 - `ios/project.yml` — XcodeGen spec. Source of truth for bundle ID, deployment target, capabilities.
-- `ios/Sources/App/` — `@main` entry, root TabView. Tabs: **Web** (WKWebView) and **Browse** (native).
+- `ios/Sources/App/` — `@main` entry, root TabView with four tabs: **Browse** (native), **Portfolio**, **Top 10**, **Web** (WKWebView).
 - `ios/Sources/Web/WebViewScreen.swift` — `UIViewRepresentable` over `WKWebView`. Reads `ISEWebURL` from `Info.plist`.
-- `ios/Sources/Native/` — native Browse: list of beliefs, detail view that splits arguments into "Reasons to Agree" / "Reasons to Disagree" with each argument's impact score, and a recursive sub-argument view.
+- `ios/Sources/Native/` — native Browse: list of beliefs, detail view that splits arguments into "Reasons to Agree" / "Reasons to Disagree" with each argument's impact / linkage / importance scores, plus cost-benefit and impact cards and Buy / Short trade buttons.
+- `ios/Sources/Game/` — on-device trading game: `Portfolio` model, `PortfolioStore` (UserDefaults-backed), seed-trader leaderboard, `TradeSheet` modal, and the Portfolio + Top 10 tab views. Mirrors `android/.../ui/portfolio` and `android/.../ui/leaderboard`.
 - `ios/Resources/Info.plist` — bundle config, deployed URL key, App Transport Security defaults.
 - `ios/Resources/Assets.xcassets/` — app icon and accent color slots (placeholders).
 - `public/.well-known/apple-app-site-association` — Universal Links manifest. Fill in `TEAMID` before shipping.
+
+## Trading game (Step 2.5)
+
+The native tabs preload the user with $10,000 of fake money and let them buy long ("underrated") or short ("overrated") any belief that has an `overallScore` or `strengthAdjustedScore` on file. Per-share price is `max(score × 100, $0.01)` — the same formula as the Android client (`android/.../model/Trading.kt`), so a player on either platform sees the same prices.
+
+State lives in `UserDefaults` under `ISEPortfolio.v1` and survives reinstall only if the user backs the device up. There is **no server-side persistence** yet — the leaderboard's nine non-user rows are static seed data, ranked alongside the user's live net worth. Swap `Game/Leaderboard.swift` out for an HTTP fetch when a real `/api/leaderboard` endpoint exists.
