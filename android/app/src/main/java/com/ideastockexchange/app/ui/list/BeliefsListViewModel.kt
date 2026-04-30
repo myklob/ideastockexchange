@@ -15,9 +15,9 @@ sealed interface BeliefsListState {
     data class Error(val message: String) : BeliefsListState
 }
 
-class BeliefsListViewModel(
-    private val api: IseApi = IseApi(),
-) : ViewModel() {
+class BeliefsListViewModel : ViewModel() {
+
+    private val api: IseApi = IseApi()
 
     var state: BeliefsListState by mutableStateOf(BeliefsListState.Loading)
         private set

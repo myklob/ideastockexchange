@@ -20,12 +20,20 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,8 +45,10 @@ import com.ideastockexchange.app.model.Argument
 import com.ideastockexchange.app.model.BeliefScores
 import com.ideastockexchange.app.model.CostBenefitAnalysis
 import com.ideastockexchange.app.model.ImpactAnalysis
+import com.ideastockexchange.app.model.Side
 import com.ideastockexchange.app.ui.theme.ConRed
 import com.ideastockexchange.app.ui.theme.ProGreen
+import com.ideastockexchange.app.ui.trade.TradeDialog
 
 @Composable
 fun BeliefDetailScreen(
@@ -49,7 +59,17 @@ fun BeliefDetailScreen(
 ) {
     LaunchedEffect(beliefId) { viewModel.loadIfNeeded(beliefId) }
     val state = viewModel.state
+    val snackbarHostState = remember { SnackbarHostState() }
+    var pendingSide: Side? by remember { mutableStateOf(null) }
 
+    LaunchedEffect(viewModel.tradeFeedback) {
+        viewModel.tradeFeedback?.let {
+            snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Short)
+            viewModel.clearFeedback()
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -79,6 +99,13 @@ fun BeliefDetailScreen(
 
                 ScoreBanner(scores)
 
+                TradeBar(
+                    price = viewModel.currentPrice(),
+                    cash = viewModel.cash,
+                    onBuy = { pendingSide = Side.LONG },
+                    onShort = { pendingSide = Side.SHORT },
+                )
+
                 belief.costBenefitAnalysis?.let { CostBenefitCard(it, scores.cbaLikelihoodScore) }
                 belief.impactAnalysis?.let { ImpactCard(it) }
 
@@ -107,7 +134,88 @@ fun BeliefDetailScreen(
                         color = MaterialTheme.colorScheme.secondary,
                     )
                 }
+
+                pendingSide?.let { side ->
+                    val price = viewModel.currentPrice()
+                    if (price != null) {
+                        TradeDialog(
+                            statement = belief.statement,
+                            side = side,
+                            pricePerShare = price,
+                            cashAvailable = viewModel.cash,
+                            onDismiss = { pendingSide = null },
+                            onConfirm = { shares ->
+                                viewModel.openPosition(side, shares)
+                                pendingSide = null
+                            },
+                        )
+                    } else {
+                        pendingSide = null
+                    }
+                }
             }
+        }
+    }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp),
+        )
+    }
+}
+
+@Composable
+private fun TradeBar(
+    price: Double?,
+    cash: Double,
+    onBuy: () -> Unit,
+    onShort: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Market price", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
+                Text(
+                    if (price != null) "$${"%.2f".format(price)} / share" else "—",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Cash on hand", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
+                Text("$${"%.2f".format(cash)}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = onBuy,
+                enabled = price != null,
+                colors = ButtonDefaults.buttonColors(containerColor = ProGreen),
+                modifier = Modifier.weight(1f),
+            ) { Text("Buy (Long)") }
+            Button(
+                onClick = onShort,
+                enabled = price != null,
+                colors = ButtonDefaults.buttonColors(containerColor = ConRed),
+                modifier = Modifier.weight(1f),
+            ) { Text("Short") }
+        }
+        if (price == null) {
+            Text(
+                "No score on file yet — this idea isn't tradeable until it has an overall or strength-adjusted score.",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.secondary,
+            )
         }
     }
 }
