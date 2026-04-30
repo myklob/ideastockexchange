@@ -1,25 +1,45 @@
 import SwiftUI
 
-/// Two-tab shell:
-///   - "Web" hosts a WKWebView pointing at the deployed site (the entire product).
-///   - "Browse" is a native list/detail that traverses reasons-to-agree/disagree
-///     using the JSON API. It exists primarily to clear App Store guideline 4.2
-///     ("minimum functionality") and to seed the path toward a fully native
-///     rebuild (docs/IOS.md, step 3).
+/// Four-tab shell:
+///   - "Browse" is a native list/detail that traverses reasons-to-agree /
+///     disagree using the JSON API. Each belief surfaces its costs, benefits,
+///     risks, and likelihoods, plus Buy/Short buttons that open positions in
+///     the on-device trading game.
+///   - "Portfolio" shows the user's $10,000 fake-money account: cash, equity,
+///     and every open position with mark-to-market P&L.
+///   - "Top 10" is the leaderboard of the highest-net-worth traders.
+///   - "Web" hosts a `WKWebView` over the deployed site for the full product.
+///
+/// The native tabs also clear App Store guideline 4.2 ("minimum
+/// functionality") — see ../README.md and docs/IOS.md.
 struct RootView: View {
     var body: some View {
         TabView {
-            WebViewScreen()
-                .tabItem {
-                    Label("Web", systemImage: "globe")
-                }
-
             NavigationStack {
                 BeliefsListView()
             }
             .tabItem {
                 Label("Browse", systemImage: "list.bullet.rectangle")
             }
+
+            NavigationStack {
+                PortfolioView()
+            }
+            .tabItem {
+                Label("Portfolio", systemImage: "chart.line.uptrend.xyaxis")
+            }
+
+            NavigationStack {
+                LeaderboardView()
+            }
+            .tabItem {
+                Label("Top 10", systemImage: "trophy.fill")
+            }
+
+            WebViewScreen()
+                .tabItem {
+                    Label("Web", systemImage: "globe")
+                }
         }
     }
 }
