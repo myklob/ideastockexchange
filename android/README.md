@@ -1,17 +1,42 @@
 # Idea Stock Exchange — Android app
 
-Native Android shell that mirrors `ios/`: a Jetpack Compose two-tab app over
-the deployed Idea Stock Exchange API.
+Native Android shell that mirrors `ios/`: a Jetpack Compose four-tab app over
+the deployed Idea Stock Exchange API, with a built-in fake-money trading game
+on top.
 
 - **Browse** — native list/detail that traverses *Reasons to Agree* and
   *Reasons to Disagree* via `/api/beliefs` and `/api/beliefs/[id]`. Each
   argument shows its impact, linkage, and importance scores; tapping it
   navigates into the child belief so the user can recursively walk the reason
   graph. The detail screen also surfaces the Cost-Benefit Analysis (benefits,
-  costs, and their likelihoods) and any Impact / Risks fields.
+  costs, and their likelihoods) and any Impact / Risks fields. From any
+  loaded belief the user can **Buy (Long)** or **Short** at the current
+  market price (derived from the strength-adjusted or overall score).
+- **Portfolio** — every player starts with **$10,000** of fake cash. This
+  tab shows current equity, realized + unrealized P&L, cash on hand, every
+  open position marked-to-market against the latest API score, and a close
+  button per position. There's a "Reset" affordance to wipe state and start
+  fresh. Persisted on-device as JSON in `filesDir/portfolio.json`.
+- **Top 10** — leaderboard ranked by net worth (cash + open-position
+  mark-to-market). The current player's row is computed live; the other nine
+  slots come from a static seed of fictional traders so a fresh install has
+  someone to play against. When a real backend leaderboard endpoint exists
+  we'll swap the seed list for an HTTP fetch.
 - **Web** — `WebView` over the deployed site for everything the native tab
   doesn't yet cover (Values & Interests Analysis, Evidence Ledger, Definitions,
   etc.).
+
+### Trading model
+
+- **Price** = `max(0.01, score × 100)` where `score` is the belief's
+  `strengthAdjustedScore` (preferred) or `overallScore`, both 0–1 from the
+  API. Beliefs without a score are not tradeable.
+- **Long**: buy `n` shares at price `p`. Cash decreases by `n × p`. P&L =
+  `n × (mark − p)`.
+- **Short**: collateral `n × p` is held. P&L = `n × (p − mark)`. Closing a
+  short returns `n × (2p − mark)` — collateral plus the price decline.
+- The portfolio file is rewritten atomically (temp + rename) on every trade,
+  so a crash mid-write can't corrupt state.
 
 The split exists for the same reason as iOS: Google's Play Store reviewers
 sometimes flag pure WebView wrappers under "Repetitive Content" / Minimum
@@ -74,13 +99,21 @@ android/
     └── src/main/
         ├── AndroidManifest.xml
         ├── java/com/ideastockexchange/app/
-        │   ├── MainActivity.kt    # Tab shell + Compose nav graph
+        │   ├── MainActivity.kt    # 4-tab shell + Compose nav graph
         │   ├── api/IseApi.kt      # HttpURLConnection-based JSON client
-        │   ├── model/Belief.kt    # @Serializable mirrors of the API shapes
+        │   ├── data/
+        │   │   ├── PortfolioStore.kt  # Atomic-write JSON store, $10k seed
+        │   │   └── Leaderboard.kt     # Top-10 builder + 9 mock seed traders
+        │   ├── model/
+        │   │   ├── Belief.kt      # @Serializable mirrors of the API shapes
+        │   │   └── Trading.kt     # Portfolio, Position, Side, pricing helpers
         │   └── ui/
         │       ├── theme/Theme.kt
         │       ├── list/          # Browseable list of beliefs
-        │       ├── detail/        # Pro/con + scores + CBA + impact + nav
+        │       ├── detail/        # Pro/con + scores + CBA + impact + Trade bar
+        │       ├── trade/         # Buy / Short confirmation dialog
+        │       ├── portfolio/     # Equity, positions, P&L, close
+        │       ├── leaderboard/   # Top 10 with rank badges
         │       └── web/WebScreen.kt
         └── res/
             ├── values/{strings,colors,themes}.xml
