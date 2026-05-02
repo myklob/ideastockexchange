@@ -19,6 +19,7 @@ async function fetchEnemies(): Promise<ArenaEnemy[]> {
       positivity: true,
       stabilityScore: true,
       claimStrength: true,
+      specificity: true,
       arguments: { select: { side: true } },
       evidence: { select: { id: true } },
       legalEntries: { select: { side: true } },
@@ -39,6 +40,7 @@ async function fetchEnemies(): Promise<ArenaEnemy[]> {
       positivity: b.positivity,
       stabilityScore: b.stabilityScore,
       claimStrength: b.claimStrength,
+      specificity: b.specificity,
       argumentCount: b.arguments.length,
       agreeArgumentCount: agree,
       disagreeArgumentCount: disagree,
@@ -62,6 +64,7 @@ async function fetchEnemies(): Promise<ArenaEnemy[]> {
       speed: stats.speed,
       level: stats.level,
       unitClass: stats.unitClass,
+      input,
     }
   })
 }
@@ -120,9 +123,11 @@ export default async function ArenaPage() {
           <div>
             <h2 className="mb-1 font-semibold text-white">How It Works</h2>
             <p className="text-neutral-400">
-              Each enemy is a real belief from the database. Its size scales
-              with HP, its color with stance (positivity), and its damage
-              with attack stat. Defeating one returns 1 XP plus its level.
+              Pick a belief to champion &mdash; the eight tank stats start
+              from that belief&apos;s argument-ledger characteristics
+              (stability, claim strength, evidence, legal backing, etc.).
+              Earn one upgrade point per level and spend it on any stat
+              (max 7 ranks). Your career score persists across runs.
             </p>
           </div>
           <div>

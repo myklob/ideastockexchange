@@ -1,6 +1,15 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  applyStatRanks,
+  computeChampionStats,
+  MAX_STAT_RANK,
+  STAT_NAMES,
+  type BeliefUnitInput,
+  type ChampionStats,
+  type StatName,
+} from '@/lib/battlefield'
 
 export interface ArenaEnemy {
   id: number
@@ -14,6 +23,7 @@ export interface ArenaEnemy {
   speed: number
   level: number
   unitClass: string
+  input: BeliefUnitInput
 }
 
 interface Props {
@@ -28,7 +38,6 @@ interface Vec {
 interface EnemyEntity {
   source: ArenaEnemy
   pos: Vec
-  vel: Vec
   hp: number
   maxHp: number
   radius: number
@@ -39,15 +48,16 @@ interface EnemyEntity {
 
 interface PlayerState {
   pos: Vec
-  vel: Vec
   hp: number
-  maxHp: number
   level: number
   xp: number
   xpToNext: number
   fireCooldown: number
+  damageCooldown: number
+  bodyContactCooldown: number
   radius: number
-  attack: number
+  unspentPoints: number
+  ranks: Record<StatName, number>
 }
 
 interface Bullet {
@@ -57,27 +67,38 @@ interface Bullet {
   damage: number
   fromPlayer: boolean
   radius: number
+  remaining: number
 }
 
 const WORLD_SIZE = 2400
 const VIEW_W = 960
 const VIEW_H = 600
-const PLAYER_SPEED = 220
-const PLAYER_FIRE_RATE = 0.18
-const BULLET_SPEED = 480
 const BULLET_TTL = 1.4
+const REGEN_DELAY_AFTER_HIT = 2.0
+const BODY_HIT_INTERVAL = 0.4
+const STARTING_BEST_KEY = 'arena:bestScore'
+const CAREER_KEY = 'arena:careerScore'
+
+const STAT_LABEL: Record<StatName, string> = {
+  healthRegen: 'Health Regen',
+  maxHealth: 'Max Health',
+  bodyDamage: 'Body Damage',
+  bulletSpeed: 'Bullet Speed',
+  bulletPenetration: 'Bullet Penetration',
+  bulletDamage: 'Bullet Damage',
+  reload: 'Reload',
+  movementSpeed: 'Movement Speed',
+}
 
 function clamp(v: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, v))
 }
 
 function colorForBelief(e: ArenaEnemy): string {
-  // -100 -> red, 0 -> yellow, +100 -> green
   const t = clamp((e.positivity + 100) / 200, 0, 1)
   const r = Math.round(220 * (1 - t) + 90 * t)
   const g = Math.round(80 * (1 - t) + 200 * t)
-  const b = 90
-  return `rgb(${r}, ${g}, ${b})`
+  return `rgb(${r}, ${g}, 90)`
 }
 
 function spawnEnemy(source: ArenaEnemy): EnemyEntity {
@@ -89,7 +110,6 @@ function spawnEnemy(source: ArenaEnemy): EnemyEntity {
       x: Math.random() * WORLD_SIZE,
       y: Math.random() * WORLD_SIZE,
     },
-    vel: { x: 0, y: 0 },
     hp: maxHp,
     maxHp,
     radius,
@@ -99,35 +119,277 @@ function spawnEnemy(source: ArenaEnemy): EnemyEntity {
   }
 }
 
-function makePlayer(): PlayerState {
+function emptyRanks(): Record<StatName, number> {
+  return {
+    healthRegen: 0,
+    maxHealth: 0,
+    bodyDamage: 0,
+    bulletSpeed: 0,
+    bulletPenetration: 0,
+    bulletDamage: 0,
+    reload: 0,
+    movementSpeed: 0,
+  }
+}
+
+function makePlayer(initialMaxHp: number): PlayerState {
   return {
     pos: { x: WORLD_SIZE / 2, y: WORLD_SIZE / 2 },
-    vel: { x: 0, y: 0 },
-    hp: 100,
-    maxHp: 100,
+    hp: initialMaxHp,
     level: 1,
     xp: 0,
     xpToNext: 5,
     fireCooldown: 0,
+    damageCooldown: 0,
+    bodyContactCooldown: 0,
     radius: 22,
-    attack: 18,
+    unspentPoints: 0,
+    ranks: emptyRanks(),
   }
 }
 
+interface HudState {
+  hp: number
+  maxHp: number
+  level: number
+  xp: number
+  xpToNext: number
+  unspentPoints: number
+  ranks: Record<StatName, number>
+  effective: ChampionStats
+  score: number
+  bestScore: number
+  careerScore: number
+  lastKill: string
+  enemiesAlive: number
+  gameOver: boolean
+}
+
 export default function ArenaGame({ enemies }: Props) {
+  const [championId, setChampionId] = useState<number | null>(null)
+  const [search, setSearch] = useState('')
+  const [bestScore, setBestScore] = useState(0)
+  const [careerScore, setCareerScore] = useState(0)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const b = parseInt(localStorage.getItem(STARTING_BEST_KEY) ?? '0', 10)
+    const c = parseInt(localStorage.getItem(CAREER_KEY) ?? '0', 10)
+    // One-time hydration of persisted client-only state. The "no setState in
+    // effect" rule does not have a clean alternative for SSR-safe localStorage
+    // reads in a 'use client' component.
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (Number.isFinite(b)) setBestScore(b)
+    if (Number.isFinite(c)) setCareerScore(c)
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [])
+
+  const champion = useMemo(
+    () => enemies.find(e => e.id === championId) ?? null,
+    [enemies, championId],
+  )
+
+  if (enemies.length === 0) {
+    return (
+      <div className="rounded-lg border border-neutral-800 bg-[#10131a] p-8 text-center text-neutral-400">
+        No beliefs in the database yet. Seed some beliefs and they will spawn
+        as enemies in the arena.
+      </div>
+    )
+  }
+
+  if (!champion) {
+    return (
+      <ChampionPicker
+        enemies={enemies}
+        search={search}
+        setSearch={setSearch}
+        onPick={setChampionId}
+        bestScore={bestScore}
+        careerScore={careerScore}
+      />
+    )
+  }
+
+  return (
+    <ArenaSession
+      champion={champion}
+      enemies={enemies.filter(e => e.id !== champion.id)}
+      bestScore={bestScore}
+      careerScore={careerScore}
+      onScoreUpdate={(score, runEnded) => {
+        if (typeof window === 'undefined') return
+        if (score > bestScore) {
+          setBestScore(score)
+          localStorage.setItem(STARTING_BEST_KEY, String(score))
+        }
+        if (runEnded) {
+          const next = careerScore + score
+          setCareerScore(next)
+          localStorage.setItem(CAREER_KEY, String(next))
+        }
+      }}
+      onExit={() => setChampionId(null)}
+    />
+  )
+}
+
+function ChampionPicker({
+  enemies,
+  search,
+  setSearch,
+  onPick,
+  bestScore,
+  careerScore,
+}: {
+  enemies: ArenaEnemy[]
+  search: string
+  setSearch: (v: string) => void
+  onPick: (id: number) => void
+  bestScore: number
+  careerScore: number
+}) {
+  const filtered = enemies.filter(e =>
+    search.trim() === ''
+      ? true
+      : e.name.toLowerCase().includes(search.toLowerCase()) ||
+        e.topic.toLowerCase().includes(search.toLowerCase()),
+  )
+
+  return (
+    <div className="rounded-lg border border-neutral-800 bg-[#10131a] p-5">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-white">Pick a Champion</h2>
+          <p className="text-xs text-neutral-400">
+            Your tank&apos;s eight stats start from this belief&apos;s
+            argument-ledger characteristics. Defeating other beliefs earns
+            upgrade points to spend on any stat.
+          </p>
+        </div>
+        <div className="text-right text-xs text-neutral-400">
+          <div>
+            Best run:{' '}
+            <span className="font-mono text-emerald-400">{bestScore}</span>
+          </div>
+          <div>
+            Career:{' '}
+            <span className="font-mono text-emerald-400">{careerScore}</span>
+          </div>
+        </div>
+      </div>
+
+      <input
+        type="search"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder="Filter beliefs by statement or topic..."
+        className="mb-3 w-full rounded border border-neutral-700 bg-[#0b0d12] px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-emerald-500 focus:outline-none"
+      />
+
+      <ul className="grid max-h-[460px] grid-cols-1 gap-2 overflow-y-auto md:grid-cols-2">
+        {filtered.map(e => {
+          const stats = computeChampionStats(e.input)
+          return (
+            <li key={e.id}>
+              <button
+                onClick={() => onPick(e.id)}
+                className="w-full rounded border border-neutral-800 bg-[#0b0d12] p-3 text-left transition-colors hover:border-emerald-500 hover:bg-[#101620]"
+              >
+                <div className="mb-1 text-sm font-semibold text-neutral-100">
+                  {e.name}
+                </div>
+                <div className="mb-2 text-[10px] uppercase tracking-wider text-neutral-500">
+                  {e.topic} &middot; {e.unitClass} &middot; positivity{' '}
+                  {Math.round(e.positivity)}
+                </div>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] text-neutral-400">
+                  <span>HP {stats.maxHealth}</span>
+                  <span>Regen {stats.healthRegen}/s</span>
+                  <span>Body {stats.bodyDamage}</span>
+                  <span>Bullet {stats.bulletDamage}</span>
+                  <span>Pen {stats.bulletPenetration}</span>
+                  <span>BSpeed {stats.bulletSpeed}</span>
+                  <span>Reload {stats.reload}s</span>
+                  <span>Move {stats.movementSpeed}</span>
+                </div>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+      {filtered.length === 0 && (
+        <p className="mt-4 text-sm text-neutral-500">
+          No belief matches &ldquo;{search}&rdquo;.
+        </p>
+      )}
+    </div>
+  )
+}
+
+function ArenaSession({
+  champion,
+  enemies,
+  bestScore,
+  careerScore,
+  onScoreUpdate,
+  onExit,
+}: {
+  champion: ArenaEnemy
+  enemies: ArenaEnemy[]
+  bestScore: number
+  careerScore: number
+  onScoreUpdate: (score: number, runEnded: boolean) => void
+  onExit: () => void
+}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const [hudState, setHudState] = useState({
-    hp: 100,
-    maxHp: 100,
+  const baseStats = useMemo(
+    () => computeChampionStats(champion.input),
+    [champion],
+  )
+  const playerRef = useRef<PlayerState>(makePlayer(baseStats.maxHealth))
+  const [hudState, setHudState] = useState<HudState>(() => ({
+    hp: baseStats.maxHealth,
+    maxHp: baseStats.maxHealth,
     level: 1,
     xp: 0,
     xpToNext: 5,
+    unspentPoints: 0,
+    ranks: emptyRanks(),
+    effective: baseStats,
     score: 0,
-    lastKill: '' as string,
-    enemiesAlive: 0,
+    bestScore,
+    careerScore,
+    lastKill: '',
+    enemiesAlive: enemies.length,
     gameOver: false,
-  })
+  }))
   const [paused, setPaused] = useState(false)
+
+  const upgrade = (name: StatName) => {
+    const p = playerRef.current
+    if (p.unspentPoints <= 0) return
+    if ((p.ranks[name] ?? 0) >= MAX_STAT_RANK) return
+    p.ranks[name] = (p.ranks[name] ?? 0) + 1
+    p.unspentPoints -= 1
+    const newEffective = applyStatRanks(baseStats, p.ranks)
+    // Topping up max hp gives the player some immediate benefit.
+    const previousMax = applyStatRanks(baseStats, {
+      ...p.ranks,
+      [name]: p.ranks[name] - 1,
+    }).maxHealth
+    if (newEffective.maxHealth > previousMax) {
+      p.hp = Math.min(p.hp + (newEffective.maxHealth - previousMax), newEffective.maxHealth)
+    }
+    setHudState(s => ({
+      ...s,
+      ranks: { ...p.ranks },
+      unspentPoints: p.unspentPoints,
+      effective: newEffective,
+      hp: Math.round(p.hp),
+      maxHp: Math.round(newEffective.maxHealth),
+    }))
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -139,18 +401,21 @@ export default function ArenaGame({ enemies }: Props) {
     const keys = new Set<string>()
     const mouse = { x: VIEW_W / 2, y: VIEW_H / 2, down: false }
 
-    const player = makePlayer()
-    let entities: EnemyEntity[] =
-      enemies.length > 0
-        ? enemies.map(spawnEnemy)
-        : []
+    const player = playerRef.current
+    let entities: EnemyEntity[] = enemies.map(spawnEnemy)
     let bullets: Bullet[] = []
     let score = 0
     let lastKill = ''
     let gameOver = false
 
     const onKeyDown = (e: KeyboardEvent) => {
-      keys.add(e.key.toLowerCase())
+      const k = e.key.toLowerCase()
+      keys.add(k)
+      if (k >= '1' && k <= '8') {
+        const idx = parseInt(k, 10) - 1
+        const stat = STAT_NAMES[idx]
+        if (stat) upgrade(stat)
+      }
     }
     const onKeyUp = (e: KeyboardEvent) => {
       keys.delete(e.key.toLowerCase())
@@ -189,8 +454,9 @@ export default function ArenaGame({ enemies }: Props) {
 
     const step = (dt: number) => {
       if (paused || gameOver) return
+      const stats = applyStatRanks(baseStats, player.ranks)
 
-      // Player movement
+      // Movement
       let mx = 0
       let my = 0
       if (keys.has('w') || keys.has('arrowup')) my -= 1
@@ -203,17 +469,24 @@ export default function ArenaGame({ enemies }: Props) {
         my /= len
       }
       player.pos.x = clamp(
-        player.pos.x + mx * PLAYER_SPEED * dt,
+        player.pos.x + mx * stats.movementSpeed * dt,
         player.radius,
         WORLD_SIZE - player.radius,
       )
       player.pos.y = clamp(
-        player.pos.y + my * PLAYER_SPEED * dt,
+        player.pos.y + my * stats.movementSpeed * dt,
         player.radius,
         WORLD_SIZE - player.radius,
       )
 
-      // Aim direction in world space
+      // Health regen (after a brief delay since taking damage)
+      player.damageCooldown = Math.max(0, player.damageCooldown - dt)
+      if (player.damageCooldown <= 0 && player.hp < stats.maxHealth) {
+        player.hp = Math.min(stats.maxHealth, player.hp + stats.healthRegen * dt)
+      }
+      player.bodyContactCooldown = Math.max(0, player.bodyContactCooldown - dt)
+
+      // Aim direction
       const camX = clamp(player.pos.x - VIEW_W / 2, 0, WORLD_SIZE - VIEW_W)
       const camY = clamp(player.pos.y - VIEW_H / 2, 0, WORLD_SIZE - VIEW_H)
       const aimX = mouse.x + camX - player.pos.x
@@ -222,7 +495,7 @@ export default function ArenaGame({ enemies }: Props) {
       const aimDx = aimX / aimLen
       const aimDy = aimY / aimLen
 
-      // Player firing
+      // Firing
       player.fireCooldown -= dt
       if (mouse.down && player.fireCooldown <= 0) {
         bullets.push({
@@ -230,46 +503,67 @@ export default function ArenaGame({ enemies }: Props) {
             x: player.pos.x + aimDx * (player.radius + 4),
             y: player.pos.y + aimDy * (player.radius + 4),
           },
-          vel: { x: aimDx * BULLET_SPEED, y: aimDy * BULLET_SPEED },
+          vel: { x: aimDx * stats.bulletSpeed, y: aimDy * stats.bulletSpeed },
           ttl: BULLET_TTL,
-          damage: player.attack,
+          damage: stats.bulletDamage,
           fromPlayer: true,
           radius: 5,
+          remaining: Math.max(1, Math.round(stats.bulletPenetration)),
         })
-        player.fireCooldown = PLAYER_FIRE_RATE
+        player.fireCooldown = stats.reload
       }
 
-      // Enemy AI
+      // Enemy AI + body collision
       for (const en of entities) {
         if (!en.alive) continue
         const dx = player.pos.x - en.pos.x
         const dy = player.pos.y - en.pos.y
         const dist = Math.hypot(dx, dy) || 1
-        const speed = 30 + en.source.speed * 0.6
+        const eSpeed = 30 + en.source.speed * 0.6
         const ex = dx / dist
         const ey = dy / dist
-        // Approach until close, then orbit
         const approach = dist > 280 ? 1 : -0.3
         en.pos.x = clamp(
-          en.pos.x + ex * speed * approach * dt,
+          en.pos.x + ex * eSpeed * approach * dt,
           en.radius,
           WORLD_SIZE - en.radius,
         )
         en.pos.y = clamp(
-          en.pos.y + ey * speed * approach * dt,
+          en.pos.y + ey * eSpeed * approach * dt,
           en.radius,
           WORLD_SIZE - en.radius,
         )
+
+        // Tank-on-tank body damage on contact
+        if (dist < player.radius + en.radius && player.bodyContactCooldown <= 0) {
+          const enemyContactDamage = 4 + en.source.attack * 0.15
+          const reduction = 1 - clamp(en.source.defense / 200, 0, 0.7)
+          en.hp -= stats.bodyDamage * reduction
+          player.hp -= enemyContactDamage
+          player.damageCooldown = REGEN_DELAY_AFTER_HIT
+          player.bodyContactCooldown = BODY_HIT_INTERVAL
+          if (en.hp <= 0) {
+            en.alive = false
+            const reward = 1 + en.source.level
+            score += reward
+            grantXp(player, reward, en.source.name)
+          }
+          if (player.hp <= 0) {
+            player.hp = 0
+            gameOver = true
+          }
+        }
 
         en.cooldown -= dt
         if (dist < 480 && en.cooldown <= 0) {
           bullets.push({
             pos: { x: en.pos.x, y: en.pos.y },
-            vel: { x: ex * BULLET_SPEED * 0.7, y: ey * BULLET_SPEED * 0.7 },
+            vel: { x: ex * stats.bulletSpeed * 0.7, y: ey * stats.bulletSpeed * 0.7 },
             ttl: BULLET_TTL,
             damage: 4 + en.source.attack * 0.18,
             fromPlayer: false,
             radius: 4,
+            remaining: 1,
           })
           en.cooldown = 1.4 - clamp(en.source.speed / 100, 0, 1) * 0.9
         }
@@ -291,36 +585,33 @@ export default function ArenaGame({ enemies }: Props) {
           continue
         }
         if (b.fromPlayer) {
-          let hit = false
+          let alive = true
           for (const en of entities) {
             if (!en.alive) continue
             const d = Math.hypot(en.pos.x - b.pos.x, en.pos.y - b.pos.y)
             if (d < en.radius + b.radius) {
               const reduction = 1 - clamp(en.source.defense / 200, 0, 0.7)
               en.hp -= b.damage * reduction
-              hit = true
+              b.remaining -= 1
               if (en.hp <= 0) {
                 en.alive = false
-                score += 1 + en.source.level
-                player.xp += 1 + en.source.level
+                const reward = 1 + en.source.level
+                score += reward
+                grantXp(player, reward, en.source.name)
                 lastKill = en.source.name
-                while (player.xp >= player.xpToNext) {
-                  player.xp -= player.xpToNext
-                  player.level += 1
-                  player.xpToNext = Math.ceil(player.xpToNext * 1.5)
-                  player.maxHp += 20
-                  player.hp = Math.min(player.hp + 30, player.maxHp)
-                  player.attack += 3
-                }
               }
-              break
+              if (b.remaining <= 0) {
+                alive = false
+                break
+              }
             }
           }
-          if (!hit) surviving.push(b)
+          if (alive) surviving.push(b)
         } else {
           const d = Math.hypot(player.pos.x - b.pos.x, player.pos.y - b.pos.y)
           if (d < player.radius + b.radius) {
             player.hp -= b.damage
+            player.damageCooldown = REGEN_DELAY_AFTER_HIT
             if (player.hp <= 0) {
               player.hp = 0
               gameOver = true
@@ -335,14 +626,28 @@ export default function ArenaGame({ enemies }: Props) {
       respawnIfEmpty()
     }
 
+    function grantXp(p: PlayerState, amount: number, killName: string) {
+      p.xp += amount
+      lastKill = killName
+      while (p.xp >= p.xpToNext) {
+        p.xp -= p.xpToNext
+        p.level += 1
+        p.unspentPoints += 1
+        p.xpToNext = Math.ceil(p.xpToNext * 1.5)
+        // Refill some HP at level up.
+        const stats = applyStatRanks(baseStats, p.ranks)
+        p.hp = Math.min(stats.maxHealth, p.hp + stats.maxHealth * 0.2)
+      }
+    }
+
     const draw = () => {
+      const stats = applyStatRanks(baseStats, player.ranks)
       const camX = clamp(player.pos.x - VIEW_W / 2, 0, WORLD_SIZE - VIEW_W)
       const camY = clamp(player.pos.y - VIEW_H / 2, 0, WORLD_SIZE - VIEW_H)
 
       ctx.fillStyle = '#0b0d12'
       ctx.fillRect(0, 0, VIEW_W, VIEW_H)
 
-      // Grid
       ctx.strokeStyle = '#1c2030'
       ctx.lineWidth = 1
       const gridSize = 60
@@ -359,22 +664,15 @@ export default function ArenaGame({ enemies }: Props) {
       }
       ctx.stroke()
 
-      // World border
       ctx.strokeStyle = '#3b4258'
       ctx.lineWidth = 3
       ctx.strokeRect(-camX, -camY, WORLD_SIZE, WORLD_SIZE)
 
-      // Enemies
       for (const en of entities) {
         if (!en.alive) continue
         const sx = en.pos.x - camX
         const sy = en.pos.y - camY
-        if (
-          sx < -80 ||
-          sy < -80 ||
-          sx > VIEW_W + 80 ||
-          sy > VIEW_H + 80
-        ) {
+        if (sx < -80 || sy < -80 || sx > VIEW_W + 80 || sy > VIEW_H + 80) {
           continue
         }
         ctx.fillStyle = en.color
@@ -385,7 +683,6 @@ export default function ArenaGame({ enemies }: Props) {
         ctx.lineWidth = 2
         ctx.stroke()
 
-        // HP bar
         const barW = en.radius * 2
         const hpPct = clamp(en.hp / en.maxHp, 0, 1)
         ctx.fillStyle = '#222'
@@ -393,7 +690,6 @@ export default function ArenaGame({ enemies }: Props) {
         ctx.fillStyle = hpPct > 0.4 ? '#4ade80' : '#f87171'
         ctx.fillRect(sx - en.radius, sy - en.radius - 10, barW * hpPct, 4)
 
-        // Label (truncated)
         const label =
           en.source.name.length > 38
             ? en.source.name.slice(0, 36) + '...'
@@ -411,7 +707,6 @@ export default function ArenaGame({ enemies }: Props) {
         )
       }
 
-      // Bullets
       for (const b of bullets) {
         const sx = b.pos.x - camX
         const sy = b.pos.y - camY
@@ -421,7 +716,6 @@ export default function ArenaGame({ enemies }: Props) {
         ctx.fill()
       }
 
-      // Player
       const px = player.pos.x - camX
       const py = player.pos.y - camY
       const aimX = mouse.x - px
@@ -430,7 +724,6 @@ export default function ArenaGame({ enemies }: Props) {
       const aimDx = aimX / aimLen
       const aimDy = aimY / aimLen
 
-      // Barrel
       ctx.fillStyle = '#475569'
       ctx.save()
       ctx.translate(px, py)
@@ -438,7 +731,6 @@ export default function ArenaGame({ enemies }: Props) {
       ctx.fillRect(0, -8, player.radius + 18, 16)
       ctx.restore()
 
-      // Body
       ctx.fillStyle = '#38bdf8'
       ctx.beginPath()
       ctx.arc(px, py, player.radius, 0, Math.PI * 2)
@@ -446,6 +738,17 @@ export default function ArenaGame({ enemies }: Props) {
       ctx.strokeStyle = '#0b0d12'
       ctx.lineWidth = 3
       ctx.stroke()
+
+      // Champion belief label above player
+      ctx.fillStyle = '#e5e7eb'
+      ctx.font = '11px ui-sans-serif, system-ui, sans-serif'
+      ctx.textAlign = 'center'
+      const championLabel =
+        champion.name.length > 50
+          ? champion.name.slice(0, 48) + '...'
+          : champion.name
+      ctx.fillText(championLabel, px, py - player.radius - 8)
+      void stats // stats already applied; reference to silence unused warning.
 
       if (gameOver) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
@@ -462,7 +765,7 @@ export default function ArenaGame({ enemies }: Props) {
           VIEW_H / 2 + 24,
         )
         ctx.fillText(
-          'Click "Restart" below to try again.',
+          'Click "Restart" or pick a new champion below.',
           VIEW_W / 2,
           VIEW_H / 2 + 48,
         )
@@ -478,6 +781,7 @@ export default function ArenaGame({ enemies }: Props) {
 
     let frame = 0
     let hudTick = 0
+    let scoreReportedAtDeath = false
     const loop = (now: number) => {
       if (!running) return
       const dt = Math.min(0.05, (now - last) / 1000)
@@ -487,17 +791,27 @@ export default function ArenaGame({ enemies }: Props) {
       hudTick += dt
       if (hudTick > 0.1) {
         hudTick = 0
-        setHudState({
+        const effective = applyStatRanks(baseStats, player.ranks)
+        setHudState(s => ({
+          ...s,
           hp: Math.max(0, Math.round(player.hp)),
-          maxHp: Math.round(player.maxHp),
+          maxHp: Math.round(effective.maxHealth),
           level: player.level,
           xp: player.xp,
           xpToNext: player.xpToNext,
+          unspentPoints: player.unspentPoints,
+          ranks: { ...player.ranks },
+          effective,
           score,
           lastKill,
           enemiesAlive: entities.filter(e => e.alive).length,
           gameOver,
-        })
+        }))
+        onScoreUpdate(score, false)
+      }
+      if (gameOver && !scoreReportedAtDeath) {
+        scoreReportedAtDeath = true
+        onScoreUpdate(score, true)
       }
       frame = requestAnimationFrame(loop)
     }
@@ -514,19 +828,13 @@ export default function ArenaGame({ enemies }: Props) {
       canvas.removeEventListener('mouseleave', onMouseUp)
       window.removeEventListener('blur', onBlur)
     }
-  }, [enemies, paused])
+    // upgrade is stable via ref; baseStats memoized on champion. Intentionally
+    // exclude upgrade (recreated each render) to avoid re-mounting the canvas.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enemies, paused, baseStats, champion])
 
-  if (enemies.length === 0) {
-    return (
-      <div className="rounded-lg border border-neutral-800 bg-[#10131a] p-8 text-center text-neutral-400">
-        No beliefs in the database yet. Seed some beliefs and they will spawn
-        as enemies in the arena.
-      </div>
-    )
-  }
-
-  const hpPct = (hudState.hp / hudState.maxHp) * 100
-  const xpPct = (hudState.xp / hudState.xpToNext) * 100
+  const hpPct = (hudState.hp / Math.max(1, hudState.maxHp)) * 100
+  const xpPct = (hudState.xp / Math.max(1, hudState.xpToNext)) * 100
 
   return (
     <div className="flex flex-col gap-3 lg:flex-row">
@@ -538,7 +846,10 @@ export default function ArenaGame({ enemies }: Props) {
           className="block w-full max-w-full rounded-lg border border-neutral-800 bg-[#0b0d12] shadow-lg"
           style={{ aspectRatio: `${VIEW_W} / ${VIEW_H}` }}
         />
-        <div className="absolute left-3 top-3 rounded bg-black/60 p-2 text-xs text-white">
+        <div className="absolute left-3 top-3 rounded bg-black/70 p-2 text-xs text-white">
+          <div className="mb-1 max-w-[260px] truncate font-semibold text-emerald-300">
+            Champion: {champion.name}
+          </div>
           <div className="mb-1 flex items-center gap-2">
             <span className="font-semibold">HP</span>
             <div className="h-2 w-32 overflow-hidden rounded bg-neutral-800">
@@ -563,11 +874,21 @@ export default function ArenaGame({ enemies }: Props) {
               {hudState.xp}/{hudState.xpToNext}
             </span>
           </div>
+          {hudState.unspentPoints > 0 && (
+            <div className="mt-1 font-semibold text-yellow-300">
+              {hudState.unspentPoints} upgrade point
+              {hudState.unspentPoints === 1 ? '' : 's'} &mdash; press 1-8
+            </div>
+          )}
         </div>
-        <div className="absolute right-3 top-3 rounded bg-black/60 p-2 text-right text-xs text-white">
+        <div className="absolute right-3 top-3 rounded bg-black/70 p-2 text-right text-xs text-white">
           <div>
             Score:{' '}
             <span className="font-bold tabular-nums">{hudState.score}</span>
+          </div>
+          <div className="text-neutral-400">
+            Best: <span className="tabular-nums">{bestScore}</span> &middot;
+            Career: <span className="tabular-nums">{careerScore}</span>
           </div>
           <div className="text-neutral-400">
             Beliefs left: {hudState.enemiesAlive}
@@ -579,7 +900,7 @@ export default function ArenaGame({ enemies }: Props) {
           )}
         </div>
       </div>
-      <aside className="flex w-full flex-col gap-2 rounded-lg border border-neutral-800 bg-[#10131a] p-3 lg:w-72">
+      <aside className="flex w-full flex-col gap-3 rounded-lg border border-neutral-800 bg-[#10131a] p-3 lg:w-80">
         <div className="flex gap-2">
           <button
             onClick={() => setPaused(p => !p)}
@@ -589,31 +910,69 @@ export default function ArenaGame({ enemies }: Props) {
             {paused ? 'Resume' : 'Pause'}
           </button>
           <button
-            onClick={() => {
-              setPaused(false)
-              setHudState(s => ({ ...s, gameOver: false }))
-              // re-mount the canvas effect by toggling a key would be cleaner;
-              // simplest: reload the page so server-side fetch reseeds enemies too.
-              window.location.reload()
-            }}
-            className="flex-1 rounded bg-emerald-700 px-3 py-1.5 text-sm hover:bg-emerald-600"
+            onClick={() => onExit()}
+            className="flex-1 rounded bg-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-600"
           >
-            Restart
+            New Champion
           </button>
         </div>
-        <h3 className="mt-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-          Enemy roster ({enemies.length})
-        </h3>
-        <ul className="max-h-72 space-y-1 overflow-y-auto text-xs text-neutral-400">
-          {enemies.slice(0, 40).map(e => (
-            <li key={e.id} className="flex items-center justify-between gap-2">
-              <span className="truncate" title={e.name}>
-                {e.name}
-              </span>
-              <span className="shrink-0 text-neutral-500">L{e.level}</span>
-            </li>
-          ))}
-        </ul>
+
+        <div>
+          <div className="mb-1 flex items-center justify-between text-xs">
+            <span className="font-semibold uppercase tracking-wider text-neutral-500">
+              Stats &amp; Upgrades
+            </span>
+            <span
+              className={
+                hudState.unspentPoints > 0
+                  ? 'font-bold text-yellow-300'
+                  : 'text-neutral-500'
+              }
+            >
+              {hudState.unspentPoints} pts
+            </span>
+          </div>
+          <ul className="space-y-1">
+            {STAT_NAMES.map((name, i) => {
+              const rank = hudState.ranks[name]
+              const value = hudState.effective[name]
+              const display =
+                name === 'reload'
+                  ? `${value.toFixed(2)}s`
+                  : name === 'healthRegen'
+                    ? `${value.toFixed(1)}/s`
+                    : Math.round(value).toString()
+              const canUpgrade =
+                hudState.unspentPoints > 0 && rank < MAX_STAT_RANK
+              return (
+                <li key={name}>
+                  <button
+                    disabled={!canUpgrade || hudState.gameOver}
+                    onClick={() => upgrade(name)}
+                    className={`flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-xs transition-colors ${
+                      canUpgrade
+                        ? 'bg-emerald-900/40 hover:bg-emerald-800'
+                        : 'bg-neutral-800/60 text-neutral-500'
+                    }`}
+                  >
+                    <span className="flex-1">
+                      <span className="mr-1 font-mono text-neutral-500">
+                        {i + 1}
+                      </span>
+                      {STAT_LABEL[name]}
+                    </span>
+                    <span className="font-mono text-neutral-200">{display}</span>
+                    <span className="font-mono text-neutral-400">
+                      {Array.from({ length: MAX_STAT_RANK })
+                        .map((_, k) => (k < rank ? '■' : '□'))
+                        .join('')}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
       </aside>
     </div>
   )

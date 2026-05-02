@@ -17,6 +17,8 @@ export interface BeliefUnitInput {
   stabilityScore: number;
   /** 0..1; how strong a claim is being made (Weak..Extreme) */
   claimStrength: number;
+  /** 0..1; abstraction-ladder position (0=general, 1=specific case) */
+  specificity?: number;
   /** Total arguments attached to this belief (both sides) */
   argumentCount: number;
   /** Arguments asserting the belief (side === "agree") */
@@ -263,4 +265,179 @@ function clamp01(value: number): number {
 
 function round(value: number): number {
   return Math.round(value * 10) / 10;
+}
+
+/* -----------------------------------------------------------------------
+ * Champion stats — what a player gets when they pick a belief to champion
+ * in the Arena game. These are the eight diep.io upgrade tracks, with
+ * initial values derived from the belief's argument-ledger characteristics.
+ * Players earn upgrade points by leveling up and spend them on ranks (max
+ * 7 per stat) to scale a single base value.
+ *
+ * Mapping rationale (initial values):
+ *   maxHealth         ← stabilityScore + agreeArgumentCount.
+ *                       Settled, well-supported beliefs absorb more damage.
+ *   healthRegen       ← upstreamSupportCount + supportingLawsCount.
+ *                       A belief deeply rooted in stronger parents recovers
+ *                       quickly; an orphan belief does not.
+ *   bodyDamage        ← claimStrength.
+ *                       The audacity of the assertion. Bold claims hurt on
+ *                       contact but commit you to a position.
+ *   bulletDamage      ← claimStrength × evidenceCount (log-scaled).
+ *                       Each shot's punch is the quality of your evidence.
+ *   bulletPenetration ← supportingLawsCount + mediaCount.
+ *                       Legal and media backing punches through opposing
+ *                       defenses — one bullet, multiple kills.
+ *   bulletSpeed       ← specificity + claimStrength.
+ *                       Specific, sharply-stated claims travel fast and land
+ *                       before the vague counter-arguments arrive.
+ *   reload            ← content velocity (arguments + evidence + media).
+ *                       Lots of ammo means you can keep arguing without
+ *                       pause. Lower number = faster shots.
+ *   movementSpeed     ← (1 - claimStrength) + positivity bonus.
+ *                       Modest claims maneuver freely; an extreme claim is
+ *                       committed and slow.
+ * ------------------------------------------------------------------- */
+
+export interface ChampionStats {
+  /** Hit points the tank can hold. */
+  maxHealth: number;
+  /** HP recovered per second (after a short post-damage delay). */
+  healthRegen: number;
+  /** Damage dealt by ramming an enemy. Recipient also takes this on contact. */
+  bodyDamage: number;
+  /** Damage per individual bullet. */
+  bulletDamage: number;
+  /** Number of enemies a single bullet can hit before disappearing. */
+  bulletPenetration: number;
+  /** Pixels per second a bullet travels in the world. */
+  bulletSpeed: number;
+  /** Seconds between shots. Lower is better. */
+  reload: number;
+  /** Pixels per second the tank moves. */
+  movementSpeed: number;
+}
+
+export const STAT_NAMES = [
+  'healthRegen',
+  'maxHealth',
+  'bodyDamage',
+  'bulletSpeed',
+  'bulletPenetration',
+  'bulletDamage',
+  'reload',
+  'movementSpeed',
+] as const;
+export type StatName = (typeof STAT_NAMES)[number];
+
+/** Maximum rank a single stat can reach via upgrade points. */
+export const MAX_STAT_RANK = 7;
+
+/**
+ * Per-rank multipliers / additives applied on top of the base champion
+ * stats. Most are multiplicative: +N% per rank, applied to the base value
+ * derived from the belief. Penetration is additive (+1 per rank) because
+ * the base range is too small for a percentage to matter. Reload uses a
+ * negative multiplier — a higher rank shortens the cooldown.
+ */
+const RANK_RULES: Record<
+  StatName,
+  { kind: 'mult'; perRank: number } | { kind: 'add'; perRank: number }
+> = {
+  healthRegen: { kind: 'mult', perRank: 0.45 },
+  maxHealth: { kind: 'mult', perRank: 0.20 },
+  bodyDamage: { kind: 'mult', perRank: 0.20 },
+  bulletSpeed: { kind: 'mult', perRank: 0.10 },
+  bulletPenetration: { kind: 'add', perRank: 1 },
+  bulletDamage: { kind: 'mult', perRank: 0.18 },
+  reload: { kind: 'mult', perRank: -0.10 },
+  movementSpeed: { kind: 'mult', perRank: 0.10 },
+};
+
+export function computeChampionStats(input: BeliefUnitInput): ChampionStats {
+  const stability = clamp01(input.stabilityScore);
+  const claim = clamp01(input.claimStrength);
+  const specificity = clamp01(input.specificity ?? 0.5);
+
+  const evidenceLog = Math.log2(input.evidenceCount + 1);
+  const contentVolume =
+    input.argumentCount + input.evidenceCount + input.mediaCount;
+
+  const maxHealth = round(
+    60 + stability * 100 + Math.min(input.agreeArgumentCount, 30) * 2,
+  );
+
+  const healthRegen = round(
+    clamp(
+      0.2 + input.upstreamSupportCount * 0.4 + input.supportingLawsCount * 0.2,
+      0.2,
+      4,
+    ),
+  );
+
+  const bodyDamage = round(6 + claim * 22);
+
+  const bulletDamage = round(
+    clamp(5 + claim * 15 + evidenceLog * 5, 5, 40),
+  );
+
+  const bulletPenetration = round(
+    clamp(
+      1 + input.supportingLawsCount * 0.5 + input.mediaCount * 0.3,
+      1,
+      5,
+    ),
+  );
+
+  const bulletSpeed = round(
+    320 + specificity * 200 + claim * 150,
+  );
+
+  const reload = round(
+    Math.max(0.10, 0.40 - Math.log2(contentVolume + 1) * 0.04),
+  );
+
+  const movementSpeed = round(
+    160 + (1 - claim) * 120 + Math.max(0, input.positivity) * 0.4,
+  );
+
+  return {
+    maxHealth,
+    healthRegen,
+    bodyDamage,
+    bulletDamage,
+    bulletPenetration,
+    bulletSpeed,
+    reload,
+    movementSpeed,
+  };
+}
+
+/**
+ * Apply per-stat ranks (0..MAX_STAT_RANK) on top of base ChampionStats.
+ * The base never changes — only the displayed/effective stats do.
+ */
+export function applyStatRanks(
+  base: ChampionStats,
+  ranks: Partial<Record<StatName, number>>,
+): ChampionStats {
+  const apply = (value: number, name: StatName): number => {
+    const rank = clamp(ranks[name] ?? 0, 0, MAX_STAT_RANK);
+    const rule = RANK_RULES[name];
+    if (rule.kind === 'mult') {
+      return value * (1 + rule.perRank * rank);
+    }
+    return value + rule.perRank * rank;
+  };
+
+  return {
+    maxHealth: apply(base.maxHealth, 'maxHealth'),
+    healthRegen: apply(base.healthRegen, 'healthRegen'),
+    bodyDamage: apply(base.bodyDamage, 'bodyDamage'),
+    bulletDamage: apply(base.bulletDamage, 'bulletDamage'),
+    bulletPenetration: apply(base.bulletPenetration, 'bulletPenetration'),
+    bulletSpeed: apply(base.bulletSpeed, 'bulletSpeed'),
+    reload: apply(base.reload, 'reload'),
+    movementSpeed: apply(base.movementSpeed, 'movementSpeed'),
+  };
 }
