@@ -193,7 +193,7 @@
 
   "linkage_id": "[uuid-or-slug-for-this-linkage]",
   "linkage_type": "[ECLS-or-ACLS]",
-  "direction": "[supports-or-weakens]",
+  "direction": "[supports|weakens|refutes]",
 
   "x_node": {
     "node_id": "[uuid-or-slug]",
@@ -211,11 +211,46 @@
 
   "scores": {
     "linkage_score": null,
+    "linkage_score_range": [-1.0, 1.0],
+    "linkage_score_confidence_interval": null,
+    "linkage_score_n_evaluations": 0,
     "linkage_score_computed_at": null,
+    "last_validated_at": null,
+    "stale_after_days": 365,
     "linkage_score_source": "argument-tree-aggregate",
     "audit_lock": true,
     "contribution_to_y": null,
-    "x_argument_score": null
+    "x_argument_score": null,
+    "derivation": {
+      "formula": "(A - D) / (A + D)",
+      "supporting_weight_A": null,
+      "opposing_weight_D": null,
+      "depth_attenuation": null
+    }
+  },
+
+  "diagnostic_questions": {
+    "necessity": {
+      "question": "If X were proven false, would Y suffer?",
+      "score": null,
+      "explanation": null
+    },
+    "sufficiency": {
+      "question": "Does X alone justify Y?",
+      "score": null,
+      "explanation": null
+    },
+    "directness": {
+      "question": "How many logical steps are required to connect X to Y?",
+      "step_count": null,
+      "explanation": null
+    }
+  },
+
+  "sibling_check": {
+    "candidate_parents_considered": [],
+    "chosen_parent_y": null,
+    "why_this_parent_not_a_sibling": null
   },
 
   "linkage_arguments": {
@@ -397,21 +432,55 @@
 <div class="prop-box" data-ise-section="proposition">
   <div class="prop-label">Linkage proposition</div>
   <div class="prop-text">
-    If <strong data-ise-field="x_node.canonical_statement">[X: short-form argument or evidence statement]</strong> were true, would it necessarily <strong data-ise-field="direction">[support / weaken]</strong> <strong data-ise-field="y_node.canonical_statement">[Y: short-form claim statement]</strong>?
+    If <strong data-ise-field="x_node.canonical_statement">[X: short-form argument or evidence statement]</strong> were true, would it necessarily <strong data-ise-field="direction">[support / weaken / refute]</strong> <strong data-ise-field="y_node.canonical_statement">[Y: short-form claim statement]</strong>?
+  </div>
+  <div style="font-size:85%; color:#555; margin-top:8px;">
+    Linkage scores range from <strong>&minus;1.0</strong> (X refutes Y if true) through <strong>0</strong> (irrelevant) to <strong>+1.0</strong> (X proves Y if true). The proposition above is the question the page exists to answer; everything below is the worked argument for whatever number ends up in the score pill.
   </div>
 </div>
 
 <p data-ise-section="header_metadata">
-  <strong>Linkage Score:</strong> <span class="score-pill" data-ise-field="scores.linkage_score" data-ise-source="database" data-ise-audit-locked="true">[0.00&ndash;1.00]</span>
+  <strong>Linkage Score:</strong> <span class="score-pill" data-ise-field="scores.linkage_score" data-ise-source="database" data-ise-audit-locked="true">[&minus;1.00 to +1.00]</span>
+  &nbsp;<span data-ise-field="scores.linkage_score_confidence_interval" style="font-size:85%; color:#666;">[&plusmn;CI]</span>
   &nbsp;|&nbsp;
   <strong>Type:</strong> <a href="https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores" data-ise-field="linkage_type">[ECLS&nbsp;/&nbsp;ACLS]</a>
   &nbsp;|&nbsp;
-  <strong>Direction:</strong> <span data-ise-field="direction">[Supports / Weakens]</span><br />
+  <strong>Direction:</strong> <span data-ise-field="direction">[Supports / Weakens / Refutes]</span><br />
   <strong>Argument or Evidence X:</strong> <a data-ise-field="x_node.canonical_url" href="[canonical X page]"><span data-ise-field="x_node.canonical_statement">[X full statement]</span></a><br />
   <strong>Claim Y:</strong> <a data-ise-field="y_node.canonical_url" href="[canonical Y page]"><span data-ise-field="y_node.canonical_statement">[Y full statement]</span></a><br />
   <strong>Contribution to Y:</strong> <span data-ise-field="scores.x_argument_score">[X arg score]</span> &times; <span data-ise-field="scores.linkage_score">[linkage]</span> = <span data-ise-field="scores.contribution_to_y" data-ise-source="computed">[computed from <a href="https://myclob.pbworks.com/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">sub-argument scores</a>]</span><br />
+  <strong>Last validated:</strong> <span data-ise-field="scores.last_validated_at" data-ise-source="database">[ISO timestamp]</span> &nbsp;<em style="font-size:85%; color:#666;">(re-run the five-step check if this is more than <span data-ise-field="scores.stale_after_days">365</span> days old)</em><br />
   <strong>Scope note (optional):</strong> [Use only when the linkage is easily confused with a different one between similar X and Y. State what bridge this page is and is not evaluating.]
 </p>
+
+<!--
+  PREFLIGHT BANNER
+  ----------------
+  Visible reminder that the five-step check below is the forcing
+  function, not an afterthought. If a contributor lands here without
+  having done the check, they should stop and do it before editing
+  the linkage arguments.
+-->
+<div style="background:#fffbe6; border:1px solid #f0c36d; border-left:4px solid #d49b1a; padding:10px 14px; margin-bottom:16px; border-radius:3px; font-size:95%;">
+  <strong>Preflight:</strong> Did you complete the <a href="#five-step-check">five-step linkage check</a> before editing this page? If not, scroll down, fill it in, then come back and edit. Fluent prose is not a linkage check.
+</div>
+
+<!--
+  SCORE DERIVATION BREAKDOWN
+  --------------------------
+  Mirrors the formula breakdown rendered by the live React route at
+  src/app/arguments/[id]/linkage/page.tsx (the FormulaBreakdown
+  component). Shows the reader where the cached linkage_score came
+  from. If A and D are both null the page hasn't accumulated enough
+  arguments yet and the score is intentionally blank.
+-->
+<div data-ise-section="derivation" style="background:#fafbfc; border:1px solid #b0b8c1; padding:10px 14px; margin-bottom:16px; border-radius:3px; font-family:'SFMono-Regular', Consolas, monospace; font-size:90%;">
+  <div style="font-family:'Segoe UI', Arial, sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#555; margin-bottom:6px;">Linkage Score derivation</div>
+  Formula: <span data-ise-field="scores.derivation.formula">(A &minus; D) / (A + D)</span><br />
+  A (supporting weight) = <span data-ise-field="scores.derivation.supporting_weight_A">[A]</span><br />
+  D (opposing weight) = <span data-ise-field="scores.derivation.opposing_weight_D">[D]</span><br />
+  Depth attenuation: <span data-ise-field="scores.derivation.depth_attenuation">[0.5^depth]</span>
+</div>
 
 <h2>&nbsp;</h2>
 
@@ -594,7 +663,80 @@
   be able to see exactly how the linkage was justified, in the words
   used at the time of the check.
 -->
-<h1>&#9989; Five-Step Linkage Check (Worked Record)</h1>
+<!--
+  DIAGNOSTIC QUESTIONS (canonical from docs/wiki/LinkageScores.md)
+  ----------------------------------------------------------------
+  Necessity, Sufficiency, and Directness are the three diagnostic
+  prompts the methodology page uses to derive the linkage score.
+  They live BEFORE the five-step check because they are inputs to
+  step 4 (the self-assessed score). If you can't answer all three
+  cleanly, your score is a guess, not a derivation.
+-->
+<h1>&#129518; Diagnostic Questions</h1>
+<p>The methodology page derives linkage scores from three questions. Answer each before assigning step 4 of the five-step check. If the answer to any of these is &ldquo;I&apos;m not sure,&rdquo; the linkage is contested and that uncertainty should appear in the confidence interval.</p>
+<table data-ise-section="diagnostic_questions">
+<thead>
+  <tr>
+    <th width="20%">Question</th>
+    <th width="40%">Prompt</th>
+    <th width="12%">Score / Count</th>
+    <th width="28%">Explanation</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td><strong>Necessity</strong></td>
+    <td data-ise-field="diagnostic_questions.necessity.question">If X were proven false, would Y suffer?</td>
+    <td data-ise-field="diagnostic_questions.necessity.score">[0&ndash;1]</td>
+    <td data-ise-field="diagnostic_questions.necessity.explanation">[1 sentence: how much does Y depend on X?]</td>
+  </tr>
+  <tr>
+    <td><strong>Sufficiency</strong></td>
+    <td data-ise-field="diagnostic_questions.sufficiency.question">Does X alone justify Y?</td>
+    <td data-ise-field="diagnostic_questions.sufficiency.score">[0&ndash;1]</td>
+    <td data-ise-field="diagnostic_questions.sufficiency.explanation">[1 sentence: what else is required?]</td>
+  </tr>
+  <tr>
+    <td><strong>Directness</strong></td>
+    <td data-ise-field="diagnostic_questions.directness.question">How many logical steps are required to connect X to Y?</td>
+    <td data-ise-field="diagnostic_questions.directness.step_count">[N]</td>
+    <td data-ise-field="diagnostic_questions.directness.explanation">[List the steps: X &rarr; A &rarr; B &rarr; Y]</td>
+  </tr>
+</tbody>
+</table>
+
+<h2>&nbsp;</h2>
+
+<!--
+  SIBLING CHECK (the Schiltz protection)
+  --------------------------------------
+  The Schiltz failure was a parent-mechanism mismatch: the right Y
+  was a sibling of the chosen Y, not the chosen Y itself. This
+  section forces the contributor to name the candidate parents
+  considered and explain why THIS Y was selected. If you can&apos;t
+  name at least two siblings you considered, you didn&apos;t actually
+  consider any.
+-->
+<h1>&#127919; Sibling Check (&ldquo;Why this Y, not its siblings?&rdquo;)</h1>
+<p>The Schiltz failure was a parent-mechanism mismatch: a real piece of evidence placed under a sibling-shaped claim that read fluent but didn&apos;t share a mechanism. To prevent recurrence, name the candidate parents you considered and say why this Y won.</p>
+<table data-ise-section="sibling_check">
+<thead>
+  <tr>
+    <th width="40%">Candidate parent considered</th>
+    <th width="20%">Linkage score there (estimated)</th>
+    <th width="40%">Why this Y was a better fit (mechanism, scope, directness)</th>
+  </tr>
+</thead>
+<tbody>
+  <tr><td data-ise-field="sibling_check.candidate_parents_considered[0].name">[Sibling Y&apos;]</td><td data-ise-field="sibling_check.candidate_parents_considered[0].estimated_linkage">[L]</td><td data-ise-field="sibling_check.candidate_parents_considered[0].reason_rejected">[Why this Y is the better placement]</td></tr>
+  <tr><td data-ise-field="sibling_check.candidate_parents_considered[1].name">[Sibling Y&apos;&apos;]</td><td data-ise-field="sibling_check.candidate_parents_considered[1].estimated_linkage">[L]</td><td data-ise-field="sibling_check.candidate_parents_considered[1].reason_rejected">[Why this Y is the better placement]</td></tr>
+</tbody>
+</table>
+<p style="font-size:90%; color:#555;">If you cannot name at least one candidate sibling, the Schiltz protection is bypassed. Either find a sibling to compare against, or note that the parent is unique in the graph.</p>
+
+<h2>&nbsp;</h2>
+
+<h1 id="five-step-check">&#9989; Five-Step Linkage Check (Worked Record)</h1>
 <p>Every placement of evidence under a claim, or argument under a parent argument, should pass through these five steps. This forces transparency: a linkage score is only as defensible as the check that produced it. The user-facing forcing function is the prompt &ldquo;linkage check before placing,&rdquo; which interrupts fluent restructuring and demands an explicit walk-through.</p>
 <table data-ise-section="five_step_check">
 <thead>
@@ -841,6 +983,44 @@
 <h2>&nbsp;</h2>
 
 <!--
+  SELF-VALIDATION CHECKLIST
+  -------------------------
+  Mirrors the bottom-of-document checklist in BELIEF_PAGE_RULES.md.
+  Editors run through this before declaring the page done. A "no" on
+  any line means the page is not yet ready to publish. The list is
+  the same Hard Rules from the top of this template, expressed as
+  pass/fail items so they can be checked mechanically.
+
+  Sits BEFORE Definitions because the belief template's "Definitions
+  Go Last" rule applies here too: definitions are reader-facing
+  reference material and earn the last analytical slot. The checklist
+  is editor-facing process and goes one section earlier.
+-->
+<h1>&#9745; Self-Validation Checklist</h1>
+<p>Run through this before publishing. A &ldquo;no&rdquo; on any line means the page is not ready. These are the Hard Rules from the top of the template, restated as a checklist so an editor (or a lint script) can verify mechanically.</p>
+<table data-ise-section="self_validation">
+<thead>
+  <tr><th width="6%">&nbsp;</th><th width="60%">Check</th><th width="34%">Notes / fix</th></tr>
+</thead>
+<tbody>
+  <tr><td>&#9744;</td><td>The proposition box reads &ldquo;If X were true, would it necessarily [support / weaken / refute] Y?&rdquo; &mdash; not &ldquo;is X true&rdquo; or &ldquo;is Y true.&rdquo;</td><td></td></tr>
+  <tr><td>&#9744;</td><td>Every reason in the agree column is about the BRIDGE (mechanism, necessity, scope fit, monotonicity). None argue X is well-evidenced or Y is correct.</td><td></td></tr>
+  <tr><td>&#9744;</td><td>Every reason in the disagree column maps to a named failure mode (missing-step, true-but-irrelevant, scope-mismatch, parent-mechanism-mismatch, reversal-at-scale).</td><td></td></tr>
+  <tr><td>&#9744;</td><td>Both X and Y have at least three rephrasings filled in, and drift is reported for each.</td><td></td></tr>
+  <tr><td>&#9744;</td><td>The five-step check is filled in completely, with verbatim quotes for steps 1 and 2.</td><td></td></tr>
+  <tr><td>&#9744;</td><td>The sibling check names at least one candidate parent that was considered and rejected (or explicitly states the parent is unique).</td><td></td></tr>
+  <tr><td>&#9744;</td><td>Necessity, Sufficiency, and Directness are answered with a score / count and a one-sentence explanation each.</td><td></td></tr>
+  <tr><td>&#9744;</td><td>Score cells are blank where sub-arguments don&apos;t exist yet. No placeholder &ldquo;0.5&rdquo; or &ldquo;~0.7&rdquo; values.</td><td></td></tr>
+  <tr><td>&#9744;</td><td>No <code>href="#"</code> and no <code>href="[url]"</code>. Plain text where the target page does not exist yet.</td><td></td></tr>
+  <tr><td>&#9744;</td><td>Hidden Assumptions and Bias Risks have symmetric entries on both sides (or a note explaining the asymmetry).</td><td></td></tr>
+  <tr><td>&#9744;</td><td>Last validated timestamp is current. If older than the staleness threshold, re-run the five-step check.</td><td></td></tr>
+  <tr><td>&#9744;</td><td>The JSON-LD block at the top of the page validates against schema_version <span data-ise-field="provenance.template_version">1.0.0</span>.</td><td></td></tr>
+</tbody>
+</table>
+
+<h2>&nbsp;</h2>
+
+<!--
   DEFINITIONS GO LAST
   -------------------
   Same rule as the belief template. Reader sees the analysis first,
@@ -851,10 +1031,13 @@
 -->
 <h1>&#128214; Definitions and Scoring Concepts</h1>
 <p>
-  <strong>Linkage Score:</strong> How directly X strengthens or weakens Y. Computed as Relevance &times; Network Strength &times; Contextual Fit &times; Uniqueness. See <a href="https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores">Linkage Scores</a>.
+  <strong>Linkage Score:</strong> How directly X strengthens or weakens Y. Range is &minus;1.0 (refutation) to +1.0 (proof), with 0 meaning irrelevant. Computed as Relevance &times; Network Strength &times; Contextual Fit &times; Uniqueness. See <a href="https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores">Linkage Scores</a>.
 </p>
 <p>
   <strong>ECLS vs ACLS:</strong> ECLS is Evidence-to-Conclusion Linkage (a study supports a conclusion). ACLS is Argument-to-Conclusion Linkage (a logical claim supports a conclusion). The five-step check applies to both.
+</p>
+<p>
+  <strong>Necessity / Sufficiency / Directness:</strong> The three diagnostic questions used to derive the score. Necessity asks whether Y suffers if X is false; Sufficiency asks whether X alone justifies Y; Directness counts the logical steps from X to Y.
 </p>
 <p>
   <strong>Contribution to parent:</strong> An argument&apos;s effect on its parent claim equals Argument Score &times; Linkage Score. A perfect argument with a 0.3 linkage contributes less than a moderate argument with a 0.9 linkage. See <a href="https://myclob.pbworks.com/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">Argument scores from sub-argument scores</a>.
@@ -864,6 +1047,9 @@
 </p>
 <p>
   <strong>Audit-lock:</strong> Linkage scores are computed from sub-arguments, never assigned by hand. If the score on this page changes, the change traces to a specific edit in the linkage argument tree above.
+</p>
+<p>
+  <strong>Staleness:</strong> A linkage validated more than <span data-ise-field="scores.stale_after_days">365</span> days ago is flagged stale and the five-step check should be re-run. Stale linkages don&apos;t lose their score automatically; they get a yellow indicator until re-validated.
 </p>
 
 <h2>&nbsp;</h2>
