@@ -78,12 +78,22 @@ CREATE TABLE IF NOT EXISTS `linkages` (
 
   -- Linkage metadata
   `linkage_type`        ENUM('ECLS', 'ACLS') NOT NULL,
-  `direction`           ENUM('supports', 'weakens') NOT NULL,
+  `direction`           ENUM('supports', 'weakens', 'refutes') NOT NULL,
 
   -- Cached aggregate score. AUDIT-LOCKED: do not UPDATE directly.
   -- Recomputed by the engine from the linkage_arguments table.
-  `linkage_score`       DECIMAL(5,4)  DEFAULT NULL,
-  `score_computed_at`   TIMESTAMP     NULL DEFAULT NULL,
+  -- Range is [-1, 1]: negative = X refutes Y, 0 = irrelevant, +1 = X proves Y.
+  `linkage_score`                    DECIMAL(5,4) DEFAULT NULL,
+  `linkage_score_confidence_interval` DECIMAL(5,4) DEFAULT NULL,
+  `linkage_score_n_evaluations`      INT          DEFAULT 0,
+  `score_computed_at`                TIMESTAMP    NULL DEFAULT NULL,
+  `last_validated_at`                TIMESTAMP    NULL DEFAULT NULL,
+  `stale_after_days`                 INT          DEFAULT 365,
+
+  -- Derivation breakdown (matches FormulaBreakdown in the React route)
+  `derivation_supporting_weight_a`   DECIMAL(8,4) DEFAULT NULL,
+  `derivation_opposing_weight_d`     DECIMAL(8,4) DEFAULT NULL,
+  `derivation_depth_attenuation`     DECIMAL(5,4) DEFAULT NULL,
 
   -- Provenance
   `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
@@ -242,6 +252,59 @@ CREATE TABLE IF NOT EXISTS `failure_modes` (
 );
 
 
+-- -- Diagnostic questions (Necessity / Sufficiency / Directness) -
+-- Canonical from docs/wiki/LinkageScores.md. One row per question
+-- per linkage. The three rows are inputs to step 4 of the five-step
+-- check; they are NOT scored by the recursive engine, they are
+-- editor-supplied judgments.
+
+CREATE TABLE IF NOT EXISTS `linkage_diagnostics` (
+  `diagnostic_id`       VARCHAR(64)   NOT NULL,
+  `linkage_id`          VARCHAR(64)   NOT NULL,
+  `question`            ENUM('necessity', 'sufficiency', 'directness') NOT NULL,
+  `score`               DECIMAL(5,4)  DEFAULT NULL,  -- necessity/sufficiency: 0-1
+  `step_count`          INT           DEFAULT NULL,  -- directness: number of steps
+  `explanation`         TEXT          DEFAULT NULL,
+
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+  `created_by`          VARCHAR(128)  DEFAULT NULL,
+  `last_edited_at`      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`diagnostic_id`),
+  UNIQUE KEY `unique_question_per_linkage` (`linkage_id`, `question`),
+
+  CONSTRAINT `fk_diagnostic_linkage` FOREIGN KEY (`linkage_id`) REFERENCES `linkages`(`linkage_id`),
+  CONSTRAINT `chk_diagnostic_score` CHECK (`score` IS NULL OR (`score` >= 0 AND `score` <= 1))
+);
+
+
+-- -- Sibling candidates considered (Schiltz protection) -----------
+-- Forces the contributor to record which candidate parents Y' were
+-- considered before settling on Y. The Schiltz failure mode was a
+-- parent-mechanism mismatch: a sibling was the better fit. Naming
+-- the rejected siblings makes the placement decision auditable.
+
+CREATE TABLE IF NOT EXISTS `linkage_sibling_candidates` (
+  `candidate_id`        VARCHAR(64)   NOT NULL,
+  `linkage_id`          VARCHAR(64)   NOT NULL,
+  `position`            INT           NOT NULL,
+  `candidate_node_id`   VARCHAR(64)   DEFAULT NULL,    -- nullable: may be a hypothetical parent
+  `candidate_text`      VARCHAR(500)  NOT NULL,        -- always present
+  `estimated_linkage`   DECIMAL(5,4)  DEFAULT NULL,
+  `reason_rejected`     TEXT          NOT NULL,
+
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+  `created_by`          VARCHAR(128)  DEFAULT NULL,
+
+  PRIMARY KEY (`candidate_id`),
+  INDEX `idx_linkage_position` (`linkage_id`, `position`),
+
+  CONSTRAINT `fk_sibling_linkage` FOREIGN KEY (`linkage_id`) REFERENCES `linkages`(`linkage_id`),
+  CONSTRAINT `fk_sibling_node` FOREIGN KEY (`candidate_node_id`) REFERENCES `nodes`(`node_id`),
+  CONSTRAINT `chk_sibling_linkage_range` CHECK (`estimated_linkage` IS NULL OR (`estimated_linkage` >= -1 AND `estimated_linkage` <= 1))
+);
+
+
 -- -- Hidden assumptions -----------------------------------------
 
 CREATE TABLE IF NOT EXISTS `linkage_assumptions` (
@@ -298,7 +361,17 @@ SELECT
   l.linkage_type,
   l.direction,
   l.linkage_score,
+  l.linkage_score_confidence_interval,
+  l.linkage_score_n_evaluations,
   l.score_computed_at,
+  l.last_validated_at,
+  l.stale_after_days,
+  -- Staleness flag: TRUE when last validation predates the threshold.
+  (l.last_validated_at IS NULL
+    OR l.last_validated_at < (NOW() - INTERVAL l.stale_after_days DAY)) AS is_stale,
+  l.derivation_supporting_weight_a,
+  l.derivation_opposing_weight_d,
+  l.derivation_depth_attenuation,
   l.template_version,
   l.created_at, l.created_by,
   l.last_edited_at, l.last_edited_by,
