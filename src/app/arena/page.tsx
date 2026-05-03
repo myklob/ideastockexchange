@@ -4,6 +4,11 @@ import {
   computeBeliefUnitStats,
   type BeliefUnitInput,
 } from '@/lib/battlefield'
+import {
+  computeTankStats,
+  specificityFromInputs,
+  type TankStatInput,
+} from '@/lib/tankStats'
 import ArenaGame, { type ArenaEnemy } from './ArenaGame'
 
 export const dynamic = 'force-dynamic'
@@ -35,7 +40,13 @@ async function fetchEnemies(): Promise<ArenaEnemy[]> {
     const disagree = b.arguments.filter(a => a.side === 'disagree').length
     const supportingLaws = b.legalEntries.filter(l => l.side === 'supporting').length
     const upstreamSupport = b.upstreamMappings.filter(m => m.side === 'support').length
-    const input: BeliefUnitInput = {
+    const contentVolume =
+      b.arguments.length +
+      b.evidence.length +
+      b.mediaResources.length +
+      b.objectiveCriteria.length
+
+    const battlefieldInput: BeliefUnitInput = {
       positivity: b.positivity,
       stabilityScore: b.stabilityScore,
       claimStrength: b.claimStrength,
@@ -49,19 +60,34 @@ async function fetchEnemies(): Promise<ArenaEnemy[]> {
       mediaCount: b.mediaResources.length,
       criteriaCount: b.objectiveCriteria.length,
     }
-    const stats = computeBeliefUnitStats(input)
+    const battle = computeBeliefUnitStats(battlefieldInput)
+
+    const tankInput: TankStatInput = {
+      positivity: b.positivity,
+      stabilityScore: b.stabilityScore,
+      claimStrength: b.claimStrength,
+      agreeArguments: agree,
+      evidence: b.evidence.length,
+      supportingLaws,
+      media: b.mediaResources.length,
+      contentVolume,
+      upstreamSupport,
+      specificity: specificityFromInputs(
+        b.objectiveCriteria.length,
+        supportingLaws,
+      ),
+    }
+    const tankBase = computeTankStats(tankInput)
+
     return {
       id: b.id,
       slug: b.slug,
       name: b.statement,
       topic: b.subcategory ?? b.category ?? 'unsorted',
       positivity: b.positivity,
-      hp: stats.hp,
-      attack: stats.attack,
-      defense: stats.defense,
-      speed: stats.speed,
-      level: stats.level,
-      unitClass: stats.unitClass,
+      level: battle.level,
+      unitClass: battle.unitClass,
+      tankBase,
     }
   })
 }
@@ -78,8 +104,8 @@ export default async function ArenaPage() {
               Idea Arena
             </h1>
             <p className="text-xs text-neutral-400">
-              A diep.io-style arena where every enemy is a real belief.
-              Knock the ones you disagree with off the board.
+              Pick a belief as your champion. Its tank stats are derived from
+              its evidence, claim strength, supporters, and stability.
             </p>
           </div>
           <nav className="flex items-center gap-4 text-xs text-neutral-300">
@@ -105,38 +131,36 @@ export default async function ArenaPage() {
             <ul className="space-y-1 text-neutral-400">
               <li>
                 <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">W A S D</kbd>{' '}
-                or arrow keys to move
+                or arrows to move
               </li>
               <li>
                 <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">Mouse</kbd>{' '}
-                to aim
+                to aim,{' '}
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">Click</kbd>{' '}
+                to fire
               </li>
               <li>
-                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">Click</kbd>{' '}
-                or hold to fire
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">1</kbd>&ndash;
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">8</kbd>{' '}
+                spend an upgrade point
               </li>
             </ul>
           </div>
           <div>
             <h2 className="mb-1 font-semibold text-white">How It Works</h2>
             <p className="text-neutral-400">
-              Each enemy is a real belief from the database. Its size scales
-              with HP, its color with stance (positivity), and its damage
-              with attack stat. Defeating one returns 1 XP plus its level.
+              Every belief has a tank-stat block. Settled beliefs absorb more
+              damage; bold claims hit harder; specific claims fire faster.
+              Spend upgrade points to push any stat up to rank 7.
             </p>
           </div>
           <div>
-            <h2 className="mb-1 font-semibold text-white">Want the Stats?</h2>
+            <h2 className="mb-1 font-semibold text-white">Universal Score</h2>
             <p className="text-neutral-400">
-              See the same beliefs as a head-to-head card battle on{' '}
-              <Link href="/battlefield" className="text-emerald-400 underline">
-                /battlefield
-              </Link>
-              , or read the original page at{' '}
-              <Link href="/beliefs" className="text-emerald-400 underline">
-                /beliefs
-              </Link>
-              .
+              Your <span className="text-emerald-300">best run</span> and{' '}
+              <span className="text-emerald-300">career total</span> persist
+              across deaths and champion changes, so progress accrues no
+              matter which belief you pick.
             </p>
           </div>
         </section>
