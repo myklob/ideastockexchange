@@ -62,6 +62,7 @@ async function fetchEnemies(): Promise<ArenaEnemy[]> {
       speed: stats.speed,
       level: stats.level,
       unitClass: stats.unitClass,
+      tankInput: input,
     }
   })
 }
@@ -109,34 +110,36 @@ export default async function ArenaPage() {
               </li>
               <li>
                 <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">Mouse</kbd>{' '}
-                to aim
+                to aim,{' '}
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">Click</kbd>{' '}
+                to fire
               </li>
               <li>
-                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">Click</kbd>{' '}
-                or hold to fire
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">1</kbd>&ndash;
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">8</kbd> spend
+                upgrade points;{' '}
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">P</kbd> pauses
               </li>
             </ul>
           </div>
           <div>
             <h2 className="mb-1 font-semibold text-white">How It Works</h2>
             <p className="text-neutral-400">
-              Each enemy is a real belief from the database. Its size scales
-              with HP, its color with stance (positivity), and its damage
-              with attack stat. Defeating one returns 1 XP plus its level.
+              Pick a belief as your champion &mdash; its stability, evidence,
+              claim strength and supports drive your tank&apos;s eight stats.
+              Settled beliefs tank hits; bold claims hit hard but maneuver
+              less; specific, well-evidenced beliefs fire crisper bullets.
             </p>
           </div>
           <div>
-            <h2 className="mb-1 font-semibold text-white">Want the Stats?</h2>
+            <h2 className="mb-1 font-semibold text-white">Score Tiers</h2>
             <p className="text-neutral-400">
-              See the same beliefs as a head-to-head card battle on{' '}
-              <Link href="/battlefield" className="text-emerald-400 underline">
-                /battlefield
-              </Link>
-              , or read the original page at{' '}
-              <Link href="/beliefs" className="text-emerald-400 underline">
-                /beliefs
-              </Link>
-              .
+              <span className="text-white">Run</span> resets on death.{' '}
+              <span className="text-amber-300">Best</span> is your single-run
+              high water mark.{' '}
+              <span className="text-emerald-300">Career</span> only ever grows.
+              Both persist locally across champions, so picking unlucky still
+              builds your lifetime total.
             </p>
           </div>
         </section>
