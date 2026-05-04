@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Idea Stock Exchange &mdash; how it works</title>
+    <meta name="description" content="A prediction market for ideas, where arguments are scored, not just shouted. See how the system works on real example beliefs.">
+    <style>
+      :root {
+        --ink: #1a1f2c;
+        --muted: #5a6275;
+        --line: #e3e6ec;
+        --bg: #ffffff;
+        --tint: #f6f8fb;
+        --accent: #2a5cad;
+        --accent-soft: #e8efff;
+        --pro: #15803d;
+        --con: #b91c1c;
+        --pro-bg: #ecfdf5;
+        --con-bg: #fef2f2;
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+        line-height: 1.55;
+        font-size: 17px;
+      }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+      header.hero {
+        padding: 72px 0 56px;
+        border-bottom: 1px solid var(--line);
+      }
+      header.hero h1 {
+        margin: 0 0 12px;
+        font-size: 42px;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
+      header.hero p.tagline {
+        margin: 0 0 20px;
+        font-size: 20px;
+        color: var(--muted);
+        max-width: 640px;
+      }
+      header.hero p.deck {
+        margin: 0;
+        font-size: 16px;
+        color: var(--muted);
+        max-width: 700px;
+      }
+      section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+      section:last-of-type { border-bottom: none; }
+      h2 {
+        font-size: 26px;
+        margin: 0 0 16px;
+        letter-spacing: -0.01em;
+      }
+      h3 { font-size: 18px; margin: 24px 0 8px; }
+      h4 { font-size: 15px; margin: 16px 0 6px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      li { margin-bottom: 6px; }
+      .pillars {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 8px;
+      }
+      .pillar {
+        background: var(--tint);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .pillar h3 {
+        color: var(--accent);
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0 0 10px;
+      }
+      .pillar p { font-size: 15px; color: var(--ink); margin: 0; }
+      code, .formula {
+        background: var(--accent-soft);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 0.92em;
+      }
+      .formula {
+        display: inline-block;
+        padding: 6px 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 14px;
+      }
+      .belief {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 16px 0 28px;
+        background: var(--bg);
+      }
+      .belief h3.statement {
+        margin: 0 0 6px;
+        font-size: 22px;
+        letter-spacing: -0.01em;
+      }
+      .belief p.meta {
+        margin: 0 0 18px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .belief p.meta .score-pro { color: var(--pro); font-weight: 600; }
+      .belief p.meta .score-con { color: var(--con); font-weight: 600; }
+      table.belief-table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+      table.belief-table th,
+      table.belief-table td {
+        border: 1px solid var(--line);
+        padding: 8px 10px;
+        vertical-align: top;
+        text-align: left;
+      }
+      table.belief-table thead th {
+        background: var(--tint);
+        font-weight: 600;
+        font-size: 13px;
+      }
+      table.belief-table .pro-head { background: var(--pro-bg); color: var(--pro); }
+      table.belief-table .con-head { background: var(--con-bg); color: var(--con); }
+      table.belief-table td.num {
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        white-space: nowrap;
+        width: 60px;
+      }
+      table.belief-table tbody tr:hover { background: var(--tint); }
+      .label-line {
+        font-weight: 500;
+      }
+      .scores-mini {
+        display: inline-block;
+        font-size: 12px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+        margin-top: 2px;
+      }
+      .tier {
+        display: inline-block;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+      .tier.t1 { background: #dcfce7; color: #166534; }
+      .tier.t2 { background: #dbeafe; color: #1e40af; }
+      .tier.t3 { background: #fef3c7; color: #92400e; }
+      .tier.t4 { background: #fee2e2; color: #991b1b; }
+      .stance-up { color: var(--pro); font-weight: 600; }
+      .stance-dn { color: var(--con); font-weight: 600; }
+      .arbitrage-table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14px;
+        margin: 8px 0 14px;
+      }
+      .arbitrage-table th,
+      .arbitrage-table td {
+        border: 1px solid var(--line);
+        padding: 8px 10px;
+        text-align: left;
+      }
+      .arbitrage-table thead th { background: var(--tint); font-weight: 600; }
+      .anatomy {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 10px 14px;
+        margin: 8px 0 0;
+      }
+      .anatomy .step-num {
+        background: var(--accent);
+        color: white;
+        font-weight: 700;
+        font-size: 13px;
+        height: 28px;
+        width: 28px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .anatomy .step-body { padding-top: 3px; padding-bottom: 8px; }
+      .anatomy .step-body strong { display: block; margin-bottom: 2px; }
+      .anatomy .step-body span { color: var(--muted); font-size: 14px; }
+      .callout {
+        background: var(--accent-soft);
+        border-left: 3px solid var(--accent);
+        padding: 14px 18px;
+        border-radius: 0 8px 8px 0;
+        margin: 16px 0;
+        font-size: 15px;
+      }
+      .callout strong { color: var(--accent); }
+      footer {
+        padding: 32px 0 56px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      footer p { margin: 0 0 6px; }
+      @media (max-width: 720px) {
+        header.hero { padding: 48px 0 36px; }
+        header.hero h1 { font-size: 32px; }
+        header.hero p.tagline { font-size: 17px; }
+        .pillars { grid-template-columns: 1fr; }
+        section { padding: 36px 0; }
+        table.belief-table { font-size: 13px; }
+        table.belief-table td.num { width: 50px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <h1>Idea Stock Exchange</h1>
+        <p class="tagline">A prediction market for ideas, where arguments are scored, not just shouted.</p>
+        <p class="deck">Every claim gets two numbers: a logic score derived from sub-arguments and evidence (<strong>ReasonRank</strong>), and a market price set by what the crowd is willing to bet (<strong>Market Price</strong>). When the two diverge, there&rsquo;s a trade. The examples below show what a scored belief actually looks like.</p>
+      </header>
+
+      <section id="pillars">
+        <h2>The three pillars</h2>
+        <div class="pillars">
+          <div class="pillar">
+            <h3>ReasonRank</h3>
+            <p>Each argument inherits strength from the arguments and evidence that support or undermine it &mdash; recursively. Strong claims earn their score; weak ones can&rsquo;t hide behind volume.</p>
+          </div>
+          <div class="pillar">
+            <h3>Market Price</h3>
+            <p>A belief&rsquo;s share price reflects what the crowd thinks is true, set by a constant-product market maker. Buy if you disagree with the price and can defend the position.</p>
+          </div>
+          <div class="pillar">
+            <h3>The arbitrage</h3>
+            <p>When ReasonRank and Market Price diverge, there&rsquo;s a trade. Logic-grounded conviction gets rewarded; popularity without reasoning does not.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="anatomy">
+        <h2>How a belief page is built</h2>
+        <p>Every belief decomposes the same way. The page is a navigation tool into a scored argument network, not an essay. There is no introductory paragraph &mdash; the reader goes straight from the claim to the structured pros and cons.</p>
+        <div class="anatomy">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Belief statement</strong>
+            <span>One declarative sentence. The thing under debate.</span>
+          </div>
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Argument trees</strong>
+            <span>Reasons to Agree and Reasons to Disagree, side by side. Each entry is a 2&ndash;6 word label, not a paragraph. Citations live elsewhere.</span>
+          </div>
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Evidence ledger</strong>
+            <span>Empirical data tiered by source quality (T1 peer-reviewed &rarr; T4 opinion), each row pinned to the specific argument it supports.</span>
+          </div>
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Values, interests, assumptions</strong>
+            <span>Why supporters and opponents weigh things differently &mdash; and where their material interests are nudging their stated values.</span>
+          </div>
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Objective criteria</strong>
+            <span>The measurable thresholds that would change minds. This is where falsifiability lives.</span>
+          </div>
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <strong>Cost-benefit analysis</strong>
+            <span>Benefits vs. costs, then short-term vs. long-term. Quantified where data allows.</span>
+          </div>
+          <div class="step-num">7</div>
+          <div class="step-body">
+            <strong>Resolution &amp; biases</strong>
+            <span>Best compromise paths, primary obstacles, and the cognitive biases distorting each side.</span>
+          </div>
+          <div class="step-num">8</div>
+          <div class="step-body">
+            <strong>Definitions</strong>
+            <span>Glossary at the bottom, never the top. The structured argument is what the reader came for.</span>
+          </div>
+        </div>
+        <div class="callout">
+          <strong>Two layers, scored separately.</strong> Arguments are logical claims; evidence is empirical data. They fail differently and live in different sections. The recursive scoring rule is <span class="formula">Argument Score = Evidence Quality &times; Logical Validity &times; Linkage Strength</span>.
+        </div>
+      </section>
+
+      <section id="examples">
+        <h2>Example beliefs</h2>
+        <p>Two illustrative belief pages, abbreviated to fit on this landing page. Argument labels are short on purpose &mdash; in the live application each one is its own page with its own sub-arguments and evidence ledger. Scores shown are illustrative.</p>
+
+        <div class="belief">
+          <h3 class="statement">Cities should adopt congestion pricing for the urban core.</h3>
+          <p class="meta">
+            <strong>Score:</strong> <span class="score-pro">+62 pro</span> / <span class="score-con">-41 con</span> &middot;
+            <strong>Topic:</strong> Urban policy &gt; Transportation
+          </p>
+
+          <h4>Argument trees</h4>
+          <table class="belief-table">
+            <thead>
+              <tr>
+                <th class="pro-head">&#10003; Reasons to Agree</th>
+                <th class="num pro-head" title="Impact">Imp.</th>
+                <th class="num pro-head" title="Linkage">Lnk.</th>
+                <th class="con-head">&#10007; Reasons to Disagree</th>
+                <th class="num con-head" title="Impact">Imp.</th>
+                <th class="num con-head" title="Linkage">Lnk.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label-line">prices a real externality</td><td class="num">85</td><td class="num">90</td>
+                <td class="label-line">regressive on commuters</td><td class="num">70</td><td class="num">75</td>
+              </tr>
+              <tr>
+                <td class="label-line">funds transit improvements</td><td class="num">75</td><td class="num">80</td>
+                <td class="label-line">displaces traffic to side streets</td><td class="num">60</td><td class="num">65</td>
+              </tr>
+              <tr>
+                <td class="label-line">cuts urban air pollution</td><td class="num">70</td><td class="num">78</td>
+                <td class="label-line">hurts inner-city retail</td><td class="num">55</td><td class="num">55</td>
+              </tr>
+              <tr>
+                <td class="label-line">reduces collision rates</td><td class="num">55</td><td class="num">70</td>
+                <td class="label-line">enforcement and ANPR cost</td><td class="num">45</td><td class="num">82</td>
+              </tr>
+              <tr>
+                <td class="label-line">frees curb space for buses</td><td class="num">50</td><td class="num">72</td>
+                <td class="label-line">privacy concerns from plate scans</td><td class="num">40</td><td class="num">70</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Evidence ledger (excerpt)</h4>
+          <table class="belief-table">
+            <thead>
+              <tr>
+                <th>Tier</th><th>Source</th><th>Stance</th><th>Argument it bears on</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="tier t1">T1</span></td>
+                <td>Stockholm congestion charge: peer-reviewed before/after traffic study</td>
+                <td><span class="stance-up">Supports</span></td>
+                <td>prices a real externality</td>
+              </tr>
+              <tr>
+                <td><span class="tier t1">T1</span></td>
+                <td>London ULEZ NO&#8322; monitoring data, Imperial College analysis</td>
+                <td><span class="stance-up">Supports</span></td>
+                <td>cuts urban air pollution</td>
+              </tr>
+              <tr>
+                <td><span class="tier t2">T2</span></td>
+                <td>NYC MTA financial plan: projected revenue and capital allocation</td>
+                <td><span class="stance-up">Supports</span></td>
+                <td>funds transit improvements</td>
+              </tr>
+              <tr>
+                <td><span class="tier t2">T2</span></td>
+                <td>Manhattan Institute: distributional analysis of cordon pricing</td>
+                <td><span class="stance-dn">Weakens</span></td>
+                <td>regressive on commuters</td>
+              </tr>
+              <tr>
+                <td><span class="tier t3">T3</span></td>
+                <td>Local news survey of merchants in cordon perimeter, year one</td>
+                <td><span class="stance-dn">Weakens</span></td>
+                <td>hurts inner-city retail</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Objective criteria (mind-changing thresholds)</h4>
+          <table class="belief-table">
+            <thead>
+              <tr><th>Criterion</th><th>Current status</th><th>Threshold to agree</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cordon-zone vehicle entries</td>
+                <td>baseline</td>
+                <td>&minus;15% sustained 24 months</td>
+              </tr>
+              <tr>
+                <td>PM&#8322;.&#8325; concentration in cordon</td>
+                <td>baseline</td>
+                <td>&minus;10% measured year-over-year</td>
+              </tr>
+              <tr>
+                <td>Low-income exemption uptake</td>
+                <td>n/a</td>
+                <td>&ge; 80% of eligible commuters enrolled</td>
+              </tr>
+              <tr>
+                <td>Net transit revenue, post-cost</td>
+                <td>n/a</td>
+                <td>positive within 3 years</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="belief">
+          <h3 class="statement">A modest, regular cash transfer to all adults reduces poverty without collapsing the labor market.</h3>
+          <p class="meta">
+            <strong>Score:</strong> <span class="score-pro">+48 pro</span> / <span class="score-con">-44 con</span> &middot;
+            <strong>Topic:</strong> Economic policy &gt; Social safety net
+          </p>
+
+          <h4>Argument trees</h4>
+          <table class="belief-table">
+            <thead>
+              <tr>
+                <th class="pro-head">&#10003; Reasons to Agree</th>
+                <th class="num pro-head">Imp.</th>
+                <th class="num pro-head">Lnk.</th>
+                <th class="con-head">&#10007; Reasons to Disagree</th>
+                <th class="num con-head">Imp.</th>
+                <th class="num con-head">Lnk.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label-line">eliminates means-test cliffs</td><td class="num">85</td><td class="num">88</td>
+                <td class="label-line">labor participation drag</td><td class="num">75</td><td class="num">62</td>
+              </tr>
+              <tr>
+                <td class="label-line">cash beats in-kind</td><td class="num">70</td><td class="num">80</td>
+                <td class="label-line">inflation pass-through</td><td class="num">65</td><td class="num">55</td>
+              </tr>
+              <tr>
+                <td class="label-line">buffers automation shocks</td><td class="num">65</td><td class="num">70</td>
+                <td class="label-line">fiscal cost trade-offs</td><td class="num">80</td><td class="num">82</td>
+              </tr>
+              <tr>
+                <td class="label-line">reduces caseworker overhead</td><td class="num">45</td><td class="num">85</td>
+                <td class="label-line">crowds out targeted programs</td><td class="num">60</td><td class="num">65</td>
+              </tr>
+              <tr>
+                <td class="label-line">improves child outcomes</td><td class="num">60</td><td class="num">72</td>
+                <td class="label-line">political capture risk</td><td class="num">50</td><td class="num">60</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Evidence ledger (excerpt)</h4>
+          <table class="belief-table">
+            <thead>
+              <tr>
+                <th>Tier</th><th>Source</th><th>Stance</th><th>Argument it bears on</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="tier t1">T1</span></td>
+                <td>Finnish basic-income RCT, 2017&ndash;2018, employment outcomes</td>
+                <td><span class="stance-dn">Weakens</span></td>
+                <td>labor participation drag</td>
+              </tr>
+              <tr>
+                <td><span class="tier t1">T1</span></td>
+                <td>Alaska Permanent Fund Dividend: longitudinal labor-supply study</td>
+                <td><span class="stance-dn">Weakens</span></td>
+                <td>labor participation drag</td>
+              </tr>
+              <tr>
+                <td><span class="tier t1">T1</span></td>
+                <td>2021 expanded Child Tax Credit: poverty-rate analysis (Census/CBPP)</td>
+                <td><span class="stance-up">Supports</span></td>
+                <td>eliminates means-test cliffs</td>
+              </tr>
+              <tr>
+                <td><span class="tier t2">T2</span></td>
+                <td>CBO score: revenue-neutral UBI funded by negative income tax</td>
+                <td><span class="stance-up">Supports</span></td>
+                <td>fiscal cost trade-offs</td>
+              </tr>
+              <tr>
+                <td><span class="tier t4">T4</span></td>
+                <td>Op-ed asserting cash transfers cause inflation, no model cited</td>
+                <td><span class="stance-up">Supports</span></td>
+                <td>inflation pass-through</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Cost-benefit (short vs. long term, illustrative)</h4>
+          <table class="belief-table">
+            <thead>
+              <tr><th>Horizon</th><th>Benefit</th><th>Cost</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Year 1&ndash;3</td>
+                <td>poverty rate falls 4&ndash;7 points; admin overhead drops</td>
+                <td>headline fiscal cost; transition effects on existing programs</td>
+              </tr>
+              <tr>
+                <td>Year 4&ndash;10</td>
+                <td>improved child health and educational attainment</td>
+                <td>second-order labor-supply effects in marginal sectors</td>
+              </tr>
+              <tr>
+                <td>Year 10+</td>
+                <td>reduced incarceration and ER utilization (cohort effects)</td>
+                <td>political capture if benefit is means-restored over time</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="font-size:14px;color:var(--muted);margin-top:8px;">Each argument label above is its own page in the live application, with its own sub-arguments, evidence ledger, and ReasonRank score. Top-level scores are computed bottom-up &mdash; never assigned by hand.</p>
+      </section>
+
+      <section id="reasonrank">
+        <h2>The ReasonRank formula</h2>
+        <p>An argument&rsquo;s contribution to its parent claim is the product of three independent dimensions:</p>
+        <ul>
+          <li><strong>Truth</strong> &mdash; is the claim accurate and logically coherent?</li>
+          <li><strong>Relevance (Linkage)</strong> &mdash; does the supporting argument actually bear on the conclusion?</li>
+          <li><strong>Importance (Impact)</strong> &mdash; how much does the argument move the parent claim if true?</li>
+        </ul>
+        <p style="margin-bottom:18px;"><span class="formula">contribution = Truth &times; Relevance &times; Importance</span></p>
+        <p>Scoring is recursive: a belief&rsquo;s score is computed from the scores of its sub-arguments, the way Google&rsquo;s PageRank computed page authority from inbound links. A true-but-irrelevant argument scores near zero. A relevant argument with bad evidence scores low. Both layers must hold up.</p>
+      </section>
+
+      <section id="market">
+        <h2>The market price layer</h2>
+        <p>Independent of the logic score, users invest virtual currency (<strong>IdeaCredits</strong>) in claims via a constant-product market maker. Buying YES shares pushes the price up; buying NO pushes it down. Prices reflect the crowd&rsquo;s collective probability estimate &mdash; separately from whether the claim is logically sound.</p>
+        <p>When ReasonRank and Market Price diverge, rational actors profit:</p>
+        <table class="arbitrage-table">
+          <thead>
+            <tr>
+              <th>Scenario</th><th>ReasonRank</th><th>Market Price</th><th>Action</th><th>Rationale</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Undervalued</td><td>High</td><td>Low</td><td>Buy YES</td>
+              <td>Logically supported claim the crowd hasn&rsquo;t caught up to yet.</td>
+            </tr>
+            <tr>
+              <td>Overvalued</td><td>Low</td><td>High</td><td>Buy NO</td>
+              <td>Popular claim that doesn&rsquo;t survive scrutiny.</td>
+            </tr>
+            <tr>
+              <td>Fairly valued</td><td>Aligned</td><td>Aligned</td><td>Hold</td>
+              <td>No edge.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Both numbers stay visible. No other platform shows you the gap and lets you bet on it closing.</p>
+      </section>
+
+      <section id="methodology">
+        <h2>Read the methodology</h2>
+        <p>The methodology is documented in detail across an open wiki. Start here:</p>
+        <ul>
+          <li><a href="http://myclob.pbworks.com/w/page/21957696/Colorado%20Should">Wiki home page</a> &mdash; entry point</li>
+          <li><a href="http://myclob.pbworks.com/w/page/162495654/Frequently%20Questions%20and%20Critisisms">FAQ and common criticisms</a> &mdash; eighteen questions answered</li>
+          <li><a href="http://myclob.pbworks.com/w/page/21960078/truth">Truth score</a> &mdash; the composite metric</li>
+          <li><a href="http://myclob.pbworks.com/w/page/159338766/Linkage%20Scores">Linkage scores</a> &mdash; catching the true-but-irrelevant pattern</li>
+          <li><a href="http://myclob.pbworks.com/w/page/162731388/Importance%20Score">Importance score</a> &mdash; why an argument can be true and relevant but trivial</li>
+          <li><a href="http://myclob.pbworks.com/w/page/159235779/Logical%20Validity">Logical validity score</a> &mdash; six logic battlegrounds</li>
+          <li><a href="http://myclob.pbworks.com/w/page/159300543/ReasonRank">ReasonRank algorithm</a> &mdash; how the scores compose</li>
+        </ul>
+      </section>
+
+      <section id="code">
+        <h2>The code</h2>
+        <p>The application is a TypeScript / Next.js codebase with a Prisma-backed schema for beliefs, arguments, evidence, linkage scores, and a constant-product market maker for the Market Price layer. Source lives at <a href="https://github.com/myklob/ideastockexchange">github.com/myklob/ideastockexchange</a>.</p>
+        <p>The repository is the work-in-progress reference implementation. A hosted version of the application is a separate deployment.</p>
+      </section>
+
+      <section id="contribute">
+        <h2>Contribute</h2>
+        <p>Three ways to help:</p>
+        <ul>
+          <li><strong>Developers:</strong> clone the repo, pick an issue labeled <code>good first issue</code> or <code>help wanted</code>. Priority areas: belief scoring pipeline, the Belief Equivalency Engine, and frontend belief display components.</li>
+          <li><strong>Researchers and writers:</strong> add or improve a belief page. Score arguments using Truth, Relevance, and Importance. Classify evidence as T1 (peer-reviewed), T2 (expert/institutional), T3 (journalism/survey), or T4 (opinion/anecdote).</li>
+          <li><strong>Everyone:</strong> star the repo. Submit a new belief as a <a href="https://github.com/myklob/ideastockexchange/issues">GitHub issue</a>. Join the discussion in <a href="https://github.com/myklob/ideastockexchange/discussions">GitHub Discussions</a>.</li>
+        </ul>
+      </section>
+
+      <footer>
+        <p>This project is maintained by Mike Laub.</p>
+        <p><a href="https://github.com/myklob/ideastockexchange">View the source on GitHub</a> &middot; MIT licensed.</p>
+      </footer>
+    </div>
+  </body>
+</html>
