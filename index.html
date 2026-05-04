@@ -1,42 +1,187 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Ideastockexchange by myklob</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Idea Stock Exchange</title>
+    <meta name="description" content="A prediction market for ideas, where arguments are scored, not just shouted.">
+    <style>
+      :root {
+        --ink: #1a1f2c;
+        --muted: #5a6275;
+        --line: #e3e6ec;
+        --bg: #ffffff;
+        --tint: #f6f8fb;
+        --accent: #2a5cad;
+        --accent-soft: #e8efff;
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+        line-height: 1.55;
+        font-size: 17px;
+      }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+      header.hero {
+        padding: 72px 0 56px;
+        border-bottom: 1px solid var(--line);
+      }
+      header.hero h1 {
+        margin: 0 0 12px;
+        font-size: 42px;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
+      header.hero p.tagline {
+        margin: 0;
+        font-size: 20px;
+        color: var(--muted);
+        max-width: 640px;
+      }
+      section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+      section:last-of-type { border-bottom: none; }
+      h2 {
+        font-size: 24px;
+        margin: 0 0 16px;
+        letter-spacing: -0.01em;
+      }
+      h3 { font-size: 17px; margin: 0 0 8px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      li { margin-bottom: 6px; }
+      .pillars {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 8px;
+      }
+      .pillar {
+        background: var(--tint);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .pillar h3 {
+        color: var(--accent);
+        font-size: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+      }
+      .pillar p { font-size: 15px; color: var(--ink); margin: 0; }
+      code {
+        background: var(--accent-soft);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 0.92em;
+      }
+      footer {
+        padding: 32px 0 56px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      footer p { margin: 0 0 6px; }
+      @media (max-width: 640px) {
+        header.hero { padding: 48px 0 36px; }
+        header.hero h1 { font-size: 32px; }
+        header.hero p.tagline { font-size: 17px; }
+        .pillars { grid-template-columns: 1fr; }
+        section { padding: 36px 0; }
+      }
+    </style>
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>Ideastockexchange</h1>
-        <p>Automatically exported from code.google.com/p/ideastockexchange</p>
-
-        <p class="view"><a href="https://github.com/myklob/ideastockexchange">View the Project on GitHub <small>myklob/ideastockexchange</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/myklob/ideastockexchange/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/myklob/ideastockexchange/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/myklob/ideastockexchange">View On <strong>GitHub</strong></a></li>
-        </ul>
+    <div class="wrap">
+      <header class="hero">
+        <h1>Idea Stock Exchange</h1>
+        <p class="tagline">A prediction market for ideas, where arguments are scored, not just shouted.</p>
       </header>
+
       <section>
-        <h3>
-<a id="welcome-to-idea-stock-exchange" class="anchor" href="#welcome-to-idea-stock-exchange" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to Idea Stock Exchange!</h3>
+        <h2>The three pillars</h2>
+        <div class="pillars">
+          <div class="pillar">
+            <h3>ReasonRank</h3>
+            <p>Each argument inherits strength from the arguments that support or undermine it &mdash; recursively. Strong claims earn their score; weak ones can&rsquo;t hide behind volume.</p>
+          </div>
+          <div class="pillar">
+            <h3>Market Price</h3>
+            <p>A belief&rsquo;s share price reflects what the crowd thinks is true. Buy if you disagree with the price and can defend the position with evidence.</p>
+          </div>
+          <div class="pillar">
+            <h3>The arbitrage</h3>
+            <p>When ReasonRank and Market Price diverge, there&rsquo;s a trade. Logic-grounded conviction gets rewarded; popularity without reasoning does not.</p>
+          </div>
+        </div>
       </section>
+
+      <section>
+        <h2>Methodology</h2>
+        <p>
+          Beliefs are decomposed into reasons-to-agree and reasons-to-disagree. Each
+          argument carries an <em>impact score</em> (how much it would matter if true) and
+          a <em>linkage score</em> (how strongly it actually attaches to its parent claim).
+          Sub-arguments propagate up: a reason is only as strong as the evidence and
+          counter-evidence beneath it.
+        </p>
+        <p>
+          The result is a tree of claims with calibrated, transparent scores &mdash; not a
+          karma counter. Two reasonable people who disagree on a conclusion can still
+          agree on which sub-arguments are well-supported.
+        </p>
+      </section>
+
+      <section>
+        <h2>Applied examples</h2>
+        <ul>
+          <li>Public-policy debates with quantified cost-benefit ledgers.</li>
+          <li>Scientific claims paired with falsification criteria and evidence quality.</li>
+          <li>Product and design decisions, scored against measurable objective criteria.</li>
+          <li>Personal beliefs, examined the same way you&rsquo;d examine anyone else&rsquo;s.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>The code</h2>
+        <p>
+          The application is a TypeScript / Next.js codebase with a Prisma-backed
+          schema for beliefs, arguments, evidence, and linkage scores. Source lives at
+          <a href="https://github.com/myklob/ideastockexchange">github.com/myklob/ideastockexchange</a>.
+        </p>
+        <p>
+          The repository is the work-in-progress reference implementation. A hosted
+          version of the application is a separate deployment.
+        </p>
+      </section>
+
+      <section>
+        <h2>Related projects</h2>
+        <ul>
+          <li><a href="https://en.wikipedia.org/wiki/Argument_map">Argument mapping</a> &mdash; visual decomposition of claims and inference.</li>
+          <li><a href="https://en.wikipedia.org/wiki/Prediction_market">Prediction markets</a> &mdash; price as aggregated probability.</li>
+          <li><a href="https://en.wikipedia.org/wiki/Bayesian_network">Bayesian networks</a> &mdash; propagation of evidence through structured claims.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Contribute</h2>
+        <p>
+          Issues, pull requests, and structured beliefs are all welcome. If you have a
+          claim you&rsquo;d like decomposed under this framework, open an issue on the
+          repository describing the belief and its strongest opposing reasons.
+        </p>
+      </section>
+
       <footer>
-        <p>This project is maintained by <a href="https://github.com/myklob">myklob</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+        <p>This project is maintained by Mike Laub.</p>
+        <p><a href="https://github.com/myklob/ideastockexchange">View the source on GitHub</a>.</p>
       </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
   </body>
 </html>
