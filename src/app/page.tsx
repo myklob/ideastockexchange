@@ -7,30 +7,77 @@ export default function Home() {
       {/* Hero Section */}
       <header className="border-b border-[var(--border)] bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-          <h1 className="text-5xl font-bold mb-4">
-            wikiLaw
+          <div className="flex items-center gap-3 mb-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/ise-logo-mark.svg"
+              alt=""
+              aria-hidden="true"
+              width={56}
+              height={56}
+              className="rounded-xl"
+            />
+            <span className="text-sm font-medium text-[var(--muted-foreground)] tracking-wide uppercase">
+              Idea Stock Exchange
+            </span>
+          </div>
+          <h1 className="text-5xl font-bold mb-4 tracking-tight">
+            The architecture of reason.
           </h1>
           <p className="text-2xl text-[var(--muted-foreground)] mb-8">
-            The Operating System for Law
+            Computational Epistemology Platform
           </p>
           <p className="text-lg max-w-3xl leading-relaxed">
-            Every law is a bet on reality. It says: &quot;If we enforce X, we&apos;ll get outcome Y.&quot;
+            Every claim is a bet on reality. It says: &ldquo;If we believe X, we&apos;ll get outcome Y.&rdquo;
             But unlike every other bet humans make, <strong>we&apos;re not allowed to check the math</strong>.
           </p>
           <p className="text-lg max-w-3xl leading-relaxed mt-4">
-            wikiLaw changes that. It takes every law in every state and turns it into something
-            you can actually <strong>test, argue about, and improve</strong>.
+            Idea Stock Exchange turns each belief into something you can{' '}
+            <strong>test, argue about, and improve</strong> &mdash; and lets you trade
+            on the gap between logic and crowd.
           </p>
+          <div className="flex gap-3 mt-8 flex-wrap">
+            <Link href="/beliefs" className="ise-btn ise-btn--primary">Browse Beliefs</Link>
+            <Link href="/arbitrage" className="ise-btn ise-btn--ghost">View Arbitrage</Link>
+          </div>
         </div>
       </header>
+
+      {/* The Three Pillars */}
+      <section className="max-w-7xl mx-auto px-4 pt-16 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-bold mb-6 tracking-tight">The Three Pillars</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          <PillarCard
+            heading="ReasonRank"
+            barColor="var(--ise-accent)"
+            body="The logic score. Truth × Relevance × Importance, computed recursively from the network of sub-arguments — like PageRank for claims."
+            footer="The intrinsic score."
+          />
+          <PillarCard
+            heading="Market Price"
+            barColor="var(--pro)"
+            body="The conviction score. Users invest virtual IdeaCredits in YES/NO shares; price reflects crowd probability — separate from logical soundness."
+            footer="The crowd score."
+          />
+          <PillarCard
+            heading="The Arbitrage"
+            barColor="var(--con-600)"
+            body="When ReasonRank and Market Price diverge, profit lives in the gap. Buy YES on the undervalued; buy NO on the overhyped."
+            footer="The opportunity."
+          />
+        </div>
+      </section>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         {/* Core Concept */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-6">
+          <h2 className="text-3xl font-bold mb-6 tracking-tight">
             From Legal Text to Testable Claims
           </h2>
+          <p className="text-sm text-[var(--muted-foreground)] italic mb-4">
+            wikiLaw &mdash; the law-focused application of the Idea Stock Exchange framework.
+          </p>
           <div className="bg-[var(--muted)] p-8 rounded-lg">
             <p className="text-lg mb-4">
               Right now, legal databases just catalog words. <strong>wikiLaw catalogs the beliefs those words operationalize.</strong>
@@ -640,6 +687,36 @@ export default function Home() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function PillarCard({
+  heading,
+  body,
+  footer,
+  barColor,
+}: {
+  heading: string;
+  body: string;
+  footer: string;
+  barColor: string;
+}) {
+  return (
+    <div className="ise-card flex flex-col gap-2.5 p-5">
+      <div
+        className="h-[3px] w-7 rounded-full"
+        style={{ background: barColor }}
+      />
+      <h3 className="text-lg font-bold m-0">{heading}</h3>
+      <p className="text-sm text-[var(--muted-foreground)] leading-relaxed m-0">
+        {body}
+      </p>
+      <div
+        className="mt-auto pt-3 border-t border-[var(--muted)] text-xs text-[var(--muted-foreground)] ise-mono"
+      >
+        {footer}
+      </div>
     </div>
   );
 }

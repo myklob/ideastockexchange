@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  
+  <defs>
+    <radialGradient id="ise_bg" cx="58%" cy="38%" r="80%">
+      <stop offset="0%" stop-color="#0f172a"></stop>
+      <stop offset="100%" stop-color="#020617"></stop>
+    </radialGradient>
+    <radialGradient id="ise_glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.45"></stop>
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id="ise_glowGreen" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.40"></stop>
+      <stop offset="100%" stop-color="#22c55e" stop-opacity="0"></stop>
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="96" fill="url(#ise_bg)"></rect>
+
+  
+  <circle cx="412" cy="138" r="120" fill="url(#ise_glow)"></circle>
+  <circle cx="304" cy="216" r="90" fill="url(#ise_glow)" opacity="0.6"></circle>
+
+  
+  <g stroke="#3b82f6" stroke-width="2" stroke-opacity="0.55" fill="none" stroke-linecap="round">
+    <line x1="120" y1="384" x2="194" y2="332"></line>
+    <line x1="194" y1="332" x2="156" y2="276"></line>
+    <line x1="194" y1="332" x2="248" y2="288"></line>
+    <line x1="248" y1="288" x2="218" y2="232"></line>
+    <line x1="248" y1="288" x2="316" y2="216"></line>
+    <line x1="218" y1="232" x2="316" y2="216"></line>
+    <line x1="316" y1="216" x2="372" y2="270"></line>
+    <line x1="316" y1="216" x2="376" y2="180"></line>
+    <line x1="376" y1="180" x2="412" y2="138"></line>
+    <line x1="372" y1="270" x2="316" y2="216"></line>
+  </g>
+
+  
+  <path d="M 120 384 L 194 332 L 248 288 L 316 216 L 376 180 L 412 138" stroke="#60a5fa" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+
+  
+
+  
+  <g>
+    <circle cx="120" cy="384" r="20" fill="#ef4444" fill-opacity="0.18"></circle>
+    <circle cx="120" cy="384" r="9" fill="#ef4444"></circle>
+  </g>
+
+  <circle cx="194" cy="332" r="7" fill="#e2e8f0"></circle>
+  <circle cx="156" cy="276" r="6" fill="#94a3b8"></circle>
+
+  
+  <g>
+    <circle cx="248" cy="288" r="22" fill="url(#ise_glowGreen)"></circle>
+    <circle cx="248" cy="288" r="9" fill="#22c55e"></circle>
+  </g>
+
+  <circle cx="218" cy="232" r="6" fill="#e2e8f0"></circle>
+
+  
+  <g>
+    <circle cx="316" cy="216" r="28" fill="#3b82f6" fill-opacity="0.20"></circle>
+    <circle cx="316" cy="216" r="13" fill="#3b82f6"></circle>
+    <circle cx="316" cy="216" r="5" fill="#f8fafc"></circle>
+  </g>
+
+  
+  <circle cx="372" cy="270" r="7" fill="#ef4444"></circle>
+
+  
+  <circle cx="376" cy="180" r="8" fill="#22c55e"></circle>
+
+  
+  <g>
+    <circle cx="412" cy="138" r="26" fill="#60a5fa" fill-opacity="0.32"></circle>
+    <circle cx="412" cy="138" r="14" fill="#60a5fa"></circle>
+    <circle cx="412" cy="138" r="5" fill="#f8fafc"></circle>
+  </g>
+</svg>
