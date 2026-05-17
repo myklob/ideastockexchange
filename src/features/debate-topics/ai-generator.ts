@@ -4,20 +4,23 @@
  * Uses the configured AI provider (Anthropic/OpenAI/Ollama) via environment variables.
  */
 
-import { createAIClientFromEnv } from '@/core/ai/ai-client';
-import type { DebateTopic } from '@/core/types/debate-topic';
+import { createAIClientFromEnv } from "@/core/ai/ai-client";
+import type { DebateTopic } from "@/core/types/debate-topic";
 
 function slugify(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
     .substring(0, 80);
 }
 
 function safeParseJson<T>(text: string, fallback: T): T {
   // Strip markdown code fences if present
-  const cleaned = text.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
+  const cleaned = text
+    .replace(/^```(?:json)?\n?/i, "")
+    .replace(/\n?```$/i, "")
+    .trim();
   try {
     return JSON.parse(cleaned) as T;
   } catch {
@@ -42,14 +45,14 @@ async function callAI(prompt: string, maxTokens = 4000): Promise<string> {
     systemPrompt: SYSTEM_PROMPT,
     prompt,
     maxTokens,
-    responseFormat: 'json',
+    responseFormat: "json",
   });
   return response.content;
 }
 
 export async function generateDebateTopicData(
   topicName: string,
-  categoryPath?: string[]
+  categoryPath?: string[],
 ): Promise<DebateTopic> {
   const slug = slugify(topicName);
   const catPath = categoryPath ?? [];
@@ -61,7 +64,7 @@ Return a single valid JSON object matching this exact structure (all fields requ
 {
   "slug": "${slug}",
   "title": "${topicName}",
-  "categoryPath": ${JSON.stringify(catPath.length ? catPath : ['Society & Culture'])},
+  "categoryPath": ${JSON.stringify(catPath.length ? catPath : ["Society & Culture"])},
   "external": {
     "wikipediaUrl": "https://en.wikipedia.org/wiki/...",
     "deweyDecimal": "Use the accurate Dewey Decimal number and category for ${topicName}.",
@@ -308,7 +311,7 @@ Fill in all "..." placeholders with substantive, accurate content for "${topicNa
     scope: parsed.scope ?? `This page covers the debate about ${topicName}.`,
     assumptionKeyInsight: parsed.assumptionKeyInsight,
     importanceScore: parsed.importanceScore ?? 0,
-    evidenceDepth: parsed.evidenceDepth ?? 'Med',
+    evidenceDepth: parsed.evidenceDepth ?? "Med",
     controversyRating: parsed.controversyRating ?? 0,
     positions: parsed.positions ?? [],
     claimMagnitudeLevels: parsed.claimMagnitudeLevels ?? [],
