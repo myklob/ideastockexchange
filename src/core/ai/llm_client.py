@@ -1,12 +1,13 @@
 """
 LLM Client - Unified interface for local LLM providers
-Supports: Ollama, LM Studio, OpenAI-compatible APIs
+Supports: Ollama, LM Studio, OpenAI-compatible APIs, Anthropic
 """
 
 import json
 import requests
 from typing import Dict, List, Optional, Any
 from openai import OpenAI
+import anthropic
 
 
 class LLMClient:
@@ -18,17 +19,28 @@ class LLMClient:
 
         Args:
             config: Dictionary with keys:
-                - provider: "ollama", "lmstudio", or "openai-compatible"
-                - model: Model name
-                - api_base: Base URL for API
+                - provider: "ollama", "lmstudio", "openai-compatible", or "anthropic"
+                - model: Model name (defaults to claude-opus-4-7 for anthropic)
+                - api_base: Base URL for API (not used for anthropic)
+                - api_key: API key (required for anthropic)
                 - temperature: Sampling temperature (optional)
                 - max_tokens: Maximum tokens (optional)
         """
         self.provider = config.get("provider", "ollama")
-        self.model = config.get("model", "llama3")
         self.api_base = config.get("api_base", "http://localhost:11434")
         self.temperature = config.get("temperature", 0.7)
         self.max_tokens = config.get("max_tokens", 2000)
+
+        if self.provider == "anthropic":
+            self.model = config.get("model", "claude-opus-4-7")
+            api_key = config.get("api_key")
+            self._anthropic = anthropic.Anthropic(
+                api_key=api_key,
+                default_headers={"anthropic-beta": "prompt-caching-2024-07-31"},
+            )
+        else:
+            self.model = config.get("model", "llama3")
+            self._anthropic = None
 
         # Initialize provider-specific client
         if self.provider in ["lmstudio", "openai-compatible"]:
@@ -48,10 +60,34 @@ class LLMClient:
         Returns:
             Generated text
         """
-        if self.provider == "ollama":
+        if self.provider == "anthropic":
+            return self._generate_anthropic(prompt, system_prompt)
+        elif self.provider == "ollama":
             return self._generate_ollama(prompt, system_prompt)
         else:
             return self._generate_openai_compatible(prompt, system_prompt)
+
+    def _generate_anthropic(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        """Generate using Anthropic API with prompt caching on the system prompt"""
+        system_blocks: list = []
+        if system_prompt:
+            system_blocks = [
+                {
+                    "type": "text",
+                    "text": system_prompt,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ]
+
+        response = self._anthropic.messages.create(
+            model=self.model,
+            max_tokens=self.max_tokens,
+            messages=[{"role": "user", "content": prompt}],
+            **({"system": system_blocks} if system_blocks else {}),
+        )
+
+        text_block = next((b for b in response.content if b.type == "text"), None)
+        return text_block.text if text_block else ""
 
     def _generate_ollama(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         """Generate using Ollama API"""

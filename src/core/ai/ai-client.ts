@@ -3,6 +3,7 @@
  * Supports Ollama, LM Studio, OpenAI, Anthropic, and custom endpoints
  */
 
+import Anthropic from '@anthropic-ai/sdk';
 import { AIProviderConfig, AIRequest, AIResponse } from './types';
 
 // API Response types
@@ -18,12 +19,6 @@ interface OpenAIResponse {
   usage?: { total_tokens: number };
 }
 
-interface AnthropicResponse {
-  content: Array<{ text: string }>;
-  model: string;
-  usage?: { input_tokens: number; output_tokens: number };
-}
-
 interface OllamaModelsResponse {
   models: Array<{ name: string }>;
 }
@@ -32,9 +27,21 @@ export class AIClient {
   private config: AIProviderConfig;
   private requestCount: number = 0;
   private totalTokens: number = 0;
+  private _anthropicClient: Anthropic | null = null;
 
   constructor(config: AIProviderConfig) {
     this.config = config;
+  }
+
+  private get anthropicClient(): Anthropic {
+    if (!this._anthropicClient) {
+      if (!this.config.apiKey) throw new Error('Anthropic API key required');
+      this._anthropicClient = new Anthropic({
+        apiKey: this.config.apiKey,
+        defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
+      });
+    }
+    return this._anthropicClient;
   }
 
   /**
@@ -200,41 +207,27 @@ export class AIClient {
   }
 
   /**
-   * Anthropic API completion
+   * Anthropic API completion via official SDK with prompt caching
    */
   private async anthropicComplete(request: AIRequest): Promise<AIResponse> {
-    if (!this.config.apiKey) {
-      throw new Error('Anthropic API key required');
-    }
+    const systemBlocks: Anthropic.TextBlockParam[] = request.systemPrompt
+      ? [{ type: 'text', text: request.systemPrompt, cache_control: { type: 'ephemeral' } }]
+      : [];
 
-    const url = 'https://api.anthropic.com/v1/messages';
-
-    const body: Record<string, unknown> = {
+    const stream = this.anthropicClient.messages.stream({
       model: this.config.model,
       max_tokens: request.maxTokens ?? this.config.maxTokens,
       messages: [{ role: 'user', content: request.prompt }],
-    };
-
-    if (request.systemPrompt) {
-      body.system = request.systemPrompt;
-    }
-
-    const response = await this.fetchWithTimeout(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': this.config.apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify(body),
+      ...(systemBlocks.length > 0 ? { system: systemBlocks } : {}),
     });
 
-    const data = await response.json() as AnthropicResponse;
+    const msg = await stream.finalMessage();
+    const textBlock = msg.content.find((b): b is Anthropic.TextBlock => b.type === 'text');
 
     return {
-      content: data.content[0].text,
-      model: data.model,
-      tokensUsed: (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0),
+      content: textBlock?.text ?? '',
+      model: msg.model,
+      tokensUsed: (msg.usage.input_tokens ?? 0) + (msg.usage.output_tokens ?? 0),
       latencyMs: 0,
     };
   }
@@ -321,6 +314,9 @@ export class AIClient {
    * Update configuration
    */
   updateConfig(config: Partial<AIProviderConfig>): void {
+    if (config.apiKey && config.apiKey !== this.config.apiKey) {
+      this._anthropicClient = null;
+    }
     this.config = { ...this.config, ...config };
   }
 }
@@ -370,11 +366,12 @@ export function createAIClient(configPath?: string): AIClient {
  */
 export function createAIClientFromEnv(): AIClient {
   const provider = (process.env.AI_PROVIDER || 'ollama') as AIProviderConfig['provider'];
+  const defaultModel = provider === 'anthropic' ? 'claude-opus-4-7' : 'llama3';
 
   return new AIClient({
     provider,
     apiBase: process.env.AI_API_BASE || 'http://localhost:11434',
-    model: process.env.AI_MODEL || 'llama3',
+    model: process.env.AI_MODEL || defaultModel,
     apiKey: process.env.AI_API_KEY,
     temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
     maxTokens: parseInt(process.env.AI_MAX_TOKENS || '4000'),
