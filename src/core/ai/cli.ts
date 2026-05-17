@@ -10,6 +10,7 @@
  */
 
 import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 import * as path from 'path';
 import * as readline from 'readline';
 import { AIClient, createAIClient, createAIClientFromEnv } from './ai-client';
@@ -60,8 +61,7 @@ function loadConfig(configPath?: string): FrameworkConfig {
   const configFile = configPath || path.join(process.cwd(), 'ise-config.yaml');
   if (fs.existsSync(configFile)) {
     try {
-      const yaml = require('js-yaml');
-      const fileConfig = yaml.load(fs.readFileSync(configFile, 'utf-8'));
+      const fileConfig = yaml.load(fs.readFileSync(configFile, 'utf-8')) as Partial<FrameworkConfig>;
       config = mergeConfig(config, fileConfig);
       console.log(`[CLI] Loaded config from: ${configFile}`);
     } catch (error) {

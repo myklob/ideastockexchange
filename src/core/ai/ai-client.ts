@@ -3,6 +3,8 @@
  * Supports Ollama, LM Studio, OpenAI, Anthropic, and custom endpoints
  */
 
+import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 import { AIProviderConfig, AIRequest, AIResponse } from './types';
 
 // API Response types
@@ -341,20 +343,18 @@ export function createAIClient(configPath?: string): AIClient {
 
   if (configPath) {
     try {
-      const fs = require('fs');
-      const yaml = require('js-yaml');
       const configContent = fs.readFileSync(configPath, 'utf8');
-      const config = yaml.load(configContent);
+      const config = yaml.load(configContent) as Record<string, Record<string, unknown>>;
 
       if (config.llm) {
         return new AIClient({
-          provider: config.llm.provider || defaultConfig.provider,
-          apiBase: config.llm.api_base || defaultConfig.apiBase,
-          model: config.llm.model || defaultConfig.model,
-          apiKey: config.llm.api_key,
-          temperature: config.llm.temperature || defaultConfig.temperature,
-          maxTokens: config.llm.max_tokens || defaultConfig.maxTokens,
-          timeout: config.llm.timeout || defaultConfig.timeout,
+          provider: (config.llm.provider as AIProviderConfig['provider']) || defaultConfig.provider,
+          apiBase: config.llm.api_base as string || defaultConfig.apiBase,
+          model: config.llm.model as string || defaultConfig.model,
+          apiKey: config.llm.api_key as string | undefined,
+          temperature: config.llm.temperature as number || defaultConfig.temperature,
+          maxTokens: config.llm.max_tokens as number || defaultConfig.maxTokens,
+          timeout: config.llm.timeout as number || defaultConfig.timeout,
         });
       }
     } catch (error) {
