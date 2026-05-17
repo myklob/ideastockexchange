@@ -1,0 +1,53 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(prettier *)",
+      "Bash(find *)",
+      "Bash(ls *)",
+      "Bash(echo *)",
+      "Bash(jq *)",
+      "Bash(mkdir *)",
+      "Bash(grep *)",
+      "Bash(head *)",
+      "Bash(tail *)"
+    ]
+  },
+  "env": {
+    "NODE_ENV": "development",
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p ~/.claude && jq -r '\"[\\(now | strftime(\"%H:%M:%S\"))] \\(.tool_input.command)\"' >> ~/.claude/bash-log.txt 2>/dev/null || true",
+            "run_in_background": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f && [[ \"$f\" =~ \\.(ts|tsx|js|jsx)$ ]] && prettier --write \"$f\" 2>/dev/null || true; } 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f && [[ \"$f\" == */tests/* ]] && npx vitest run \"$f\" 2>&1 | tail -15 || true; } 2>/dev/null || true",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
