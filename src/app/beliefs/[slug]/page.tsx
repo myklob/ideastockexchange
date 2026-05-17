@@ -67,20 +67,13 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
         </h1>
         <p className="text-sm mb-4 leading-7">
           <strong>Score:</strong>{' '}
-          <Link
-            href="/Argument%20scores%20from%20sub-argument%20scores"
-            className="text-[var(--accent)] hover:underline"
-          >
-            +{proPart} pro / -{conPart} con
-          </Link>{' '}
+          <span>+{proPart} pro / -{conPart} con</span>{' '}
           <span className="text-xs text-[var(--muted-foreground)]">
             (computed from sub-argument scores)
           </span>
           <br />
           <strong>Topic:</strong>{' '}
-          <Link href="/One%20Page%20Per%20Topic" className="text-[var(--accent)] hover:underline">
-            {belief.category || 'Uncategorized'}
-          </Link>
+          <span>{belief.category || 'Uncategorized'}</span>
           {belief.subcategory && <> &gt; {belief.subcategory}</>}
         </p>
 

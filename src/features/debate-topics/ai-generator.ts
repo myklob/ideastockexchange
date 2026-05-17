@@ -64,7 +64,7 @@ Return a single valid JSON object matching this exact structure (all fields requ
   "categoryPath": ${JSON.stringify(catPath.length ? catPath : ['Society & Culture'])},
   "external": {
     "wikipediaUrl": "https://en.wikipedia.org/wiki/...",
-    "deweyDecimal": "XXX.XX (Category)",
+    "deweyDecimal": "Use the accurate Dewey Decimal number and category for ${topicName}.",
     "locSubjectHeading": "Subject Heading (Call Number range)",
     "locUrl": "https://id.loc.gov/authorities/subjects/...",
     "stanfordUrl": "https://plato.stanford.edu/entries/.../"
