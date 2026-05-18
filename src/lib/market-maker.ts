@@ -151,7 +151,7 @@ export function calculateSell(
   });
 
   return {
-    sharesReceived: proceeds,
+    sharesReceived: quantity,
     pricePerShare,
     totalCost: proceeds,
     newYesPrice: postSellPrices.yesPrice,
