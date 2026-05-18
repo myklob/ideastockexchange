@@ -92,8 +92,8 @@ export function calculateRecursiveArgumentScore(
   depth: number = 1
 ): number {
   const importance = arg.importanceScore ?? 1.0
-  // Truth score in skill is 0-10; existing system stores 0-1. Normalize:
-  const truth = arg.truthScore > 1 ? arg.truthScore : arg.truthScore * 10
+  // truthScore is always stored on a 0-1 scale; multiply by 10 for the 0-10 skill scale.
+  const truth = arg.truthScore * 10
   const base = calculateArgumentScore(truth, arg.linkageScore, importance)
 
   if (!arg.subArguments || arg.subArguments.length === 0) {

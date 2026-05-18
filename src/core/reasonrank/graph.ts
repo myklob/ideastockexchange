@@ -61,18 +61,16 @@ export class DependencyGraph {
   }
 
   removeNode(id: string): void {
-    // Remove all connected edges first
-    const outgoing = this.outEdges.get(id)
-    if (outgoing) {
-      for (const edgeId of outgoing) {
-        this.removeEdge(edgeId)
-      }
+    // Remove all connected edges first.
+    // Snapshot both sets before iterating — removeEdge mutates them in place
+    // and JavaScript Set iteration is live, so deleting mid-loop skips items.
+    const outgoing = new Set(this.outEdges.get(id))
+    for (const edgeId of outgoing) {
+      this.removeEdge(edgeId)
     }
-    const incoming = this.inEdges.get(id)
-    if (incoming) {
-      for (const edgeId of incoming) {
-        this.removeEdge(edgeId)
-      }
+    const incoming = new Set(this.inEdges.get(id))
+    for (const edgeId of incoming) {
+      this.removeEdge(edgeId)
     }
     this.nodes.delete(id)
     this.outEdges.delete(id)
@@ -95,6 +93,14 @@ export class DependencyGraph {
     }
     if (!this.nodes.has(edge.targetId)) {
       throw new Error(`Target node ${edge.targetId} not found`)
+    }
+    // Only SUPPORTS and ATTACKS edges participate in the DAG topology check;
+    // SIMILAR_TO and HAS_EVIDENCE edges are allowed to be bidirectional/cyclic.
+    if ((edge.type === 'SUPPORTS' || edge.type === 'ATTACKS') &&
+        this.wouldCreateCycle(edge.sourceId, edge.targetId)) {
+      throw new Error(
+        `Adding edge ${edge.id} (${edge.sourceId} → ${edge.targetId}) would create a cycle`
+      )
     }
     this.edges.set(edge.id, edge)
     this.outEdges.get(edge.sourceId)!.add(edge.id)

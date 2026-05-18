@@ -477,9 +477,12 @@ export function scoreArgument(arg: SchilchtArgument): ArgumentScoreBreakdown {
   // Incorporates ReasonRank (recursive quality) × linkage (relevance) ×
   // importance (how much it moves the needle) × uniqueness (redundancy penalty).
   // Linkage is now derived from its own sub-debate when available.
-  const rawImpact = reasonRank * effectiveLinkageScore * importanceWeight * uniquenessScore
+  // rawImpact is unsigned — the magnitude of this argument's contribution.
+  // effectiveLinkageScore is in [-1,1]; taking abs keeps rawImpact non-negative
+  // per the ArgumentScoreBreakdown contract. signedImpact carries the sign.
+  const rawImpact = reasonRank * Math.abs(effectiveLinkageScore) * importanceWeight * uniquenessScore
   const direction = arg.side === 'pro' ? 1 : -1
-  const signedImpact = rawImpact * direction
+  const signedImpact = rawImpact * direction * Math.sign(effectiveLinkageScore || 1)
 
   return {
     id: arg.id,
