@@ -25,6 +25,8 @@
  * 11. Belief Equivalency Scores   — Identifies two beliefs making the same underlying claim
  */
 
+import { mechanicalSimilarity } from './duplication-scoring'
+
 // ─── Re-exports from scoring-engine (for consumers who import from here) ─
 
 export {
@@ -630,10 +632,6 @@ export function aggregateMediaScores(
 export function calculateTopicOverlapScore(
   items: Array<{ id: string; text: string }>,
 ): TopicOverlapResult {
-  const { mechanicalSimilarity } = require('./duplication-scoring') as {
-    mechanicalSimilarity: (a: string, b: string) => number
-  }
-
   const MECHANICAL_THRESHOLD = 0.85
 
   const contributionFactors: Record<string, number> = {}
@@ -690,13 +688,9 @@ export function calculateBeliefEquivalencyScore(
   statementB: string,
   semanticSimilarity: number | null = null,
 ): BeliefEquivalencyResult {
-  const { mechanicalSimilarity: mSim } = require('./duplication-scoring') as {
-    mechanicalSimilarity: (a: string, b: string) => number
-  }
-
   const MECHANICAL_THRESHOLD = 0.85
 
-  const mechanicalSim = mSim(statementA, statementB)
+  const mechanicalSim = mechanicalSimilarity(statementA, statementB)
   const isMechanicalEquivalent = mechanicalSim >= MECHANICAL_THRESHOLD
 
   let equivalencyScore: number
@@ -770,6 +764,7 @@ export function computeAllBeliefScores(belief: {
     impactScore: number
     importanceScore: number
     linkageScore: number
+    claim?: string
   }>
   evidence: Array<{
     side: string
@@ -878,7 +873,7 @@ export function computeAllBeliefScores(belief: {
   // 10. Topic Overlap Score (uniqueness of arguments)
   const argTexts = args.map((a, i) => ({
     id: String(i),
-    text: String(a.impactScore) + String(a.side),  // use available fields as proxy
+    text: a.claim ?? `${a.side}-${i}`,
   }))
   // Only compute if we have sibling arguments to compare
   const topicOverlapScore = argTexts.length > 1
