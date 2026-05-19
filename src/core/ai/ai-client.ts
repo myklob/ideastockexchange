@@ -145,6 +145,9 @@ export class AIClient {
 
     const data = await response.json() as OpenAIResponse;
 
+    if (!data.choices?.length) {
+      throw new Error('OpenAI-compatible response contained no choices');
+    }
     return {
       content: data.choices[0].message.content,
       model: data.model,
@@ -191,6 +194,9 @@ export class AIClient {
 
     const data = await response.json() as OpenAIResponse;
 
+    if (!data.choices?.length) {
+      throw new Error('OpenAI response contained no choices');
+    }
     return {
       content: data.choices[0].message.content,
       model: data.model,
@@ -231,6 +237,9 @@ export class AIClient {
 
     const data = await response.json() as AnthropicResponse;
 
+    if (!data.content?.length) {
+      throw new Error('Anthropic response contained no content blocks');
+    }
     return {
       content: data.content[0].text,
       model: data.model,
