@@ -145,6 +145,9 @@ export class AIClient {
 
     const data = await response.json() as OpenAIResponse;
 
+    if (!data.choices?.length) {
+      throw new Error('OpenAI-compatible API returned empty choices array');
+    }
     return {
       content: data.choices[0].message.content,
       model: data.model,
@@ -191,6 +194,9 @@ export class AIClient {
 
     const data = await response.json() as OpenAIResponse;
 
+    if (!data.choices?.length) {
+      throw new Error('OpenAI API returned empty choices array');
+    }
     return {
       content: data.choices[0].message.content,
       model: data.model,
@@ -231,6 +237,9 @@ export class AIClient {
 
     const data = await response.json() as AnthropicResponse;
 
+    if (!data.content?.length) {
+      throw new Error('Anthropic API returned empty content array');
+    }
     return {
       content: data.content[0].text,
       model: data.model,

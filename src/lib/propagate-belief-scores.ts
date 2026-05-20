@@ -80,13 +80,6 @@ export async function propagateBeliefScores(
   // child belief is, weighted by how much each argument moves the needle.
   const childTruthScore = childScores.importanceWeightedScore
 
-  // Persist the child belief's computed overallScore back to the positivity field
-  // so that parent argument-tree tables always display the up-to-date score.
-  await prisma.belief.update({
-    where: { id: beliefId },
-    data: { positivity: childScores.overallScore },
-  })
-
   // ── Step 2: Find all arguments where this belief is the child ───
   // An argument links: parentBelief (the conclusion) ← belief (the reason).
   // When the reason's truth changes, the argument's impact changes too.
@@ -103,28 +96,44 @@ export async function propagateBeliefScores(
 
   if (argumentsAsChild.length === 0) {
     // This belief is not a child of any other belief — propagation stops here.
+    // Still persist the child belief's positivity so the UI shows the latest score.
+    await prisma.belief.update({
+      where: { id: beliefId },
+      data: { positivity: childScores.overallScore },
+    })
     return result
   }
 
   // ── Step 3: Recompute impactScore for each argument edge ────────
+  // Compute all new scores first, then write atomically so a mid-flight crash
+  // can't leave some arguments updated and others stale.
   const parentBeliefIds = new Set<number>()
+  const impactUpdates: { id: number; newImpactScore: number }[] = argumentsAsChild.map(
+    (arg: { id: number; parentBeliefId: number; side: string; linkageScore: number; importanceScore: number }) => {
+      const newImpactScore = computeArgumentImpactScore(
+        arg.side,
+        childTruthScore,
+        arg.linkageScore,
+        arg.importanceScore,
+      )
+      parentBeliefIds.add(arg.parentBeliefId)
+      return { id: arg.id, newImpactScore }
+    }
+  )
 
-  for (const arg of argumentsAsChild) {
-    const newImpactScore = computeArgumentImpactScore(
-      arg.side,
-      childTruthScore,
-      arg.linkageScore,
-      arg.importanceScore,
-    )
+  // Persist the child belief's positivity and all dependent argument impactScores
+  // in one transaction so the belief score and its edge weights stay in sync.
+  await prisma.$transaction([
+    prisma.belief.update({
+      where: { id: beliefId },
+      data: { positivity: childScores.overallScore },
+    }),
+    ...impactUpdates.map((u: { id: number; newImpactScore: number }) =>
+      prisma.argument.update({ where: { id: u.id }, data: { impactScore: u.newImpactScore } })
+    ),
+  ])
 
-    await prisma.argument.update({
-      where: { id: arg.id },
-      data: { impactScore: newImpactScore },
-    })
-
-    result.updatedArgumentIds.push(arg.id)
-    parentBeliefIds.add(arg.parentBeliefId)
-  }
+  result.updatedArgumentIds.push(...impactUpdates.map((u: { id: number; newImpactScore: number }) => u.id))
 
   // ── Step 4: Recompute each parent belief's stability score ──────
   // We fetch fresh data for each parent so the updated impactScores are included.
