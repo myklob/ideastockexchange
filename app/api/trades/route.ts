@@ -5,7 +5,16 @@ import { addTrade, getBelief, users } from '@/lib/data';
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  const body = await req.json() as { beliefSlug: string; side: 'YES' | 'NO'; amount: number };
+  if (!session) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
+  let body: { beliefSlug: string; side: 'YES' | 'NO'; amount: number };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
   const { beliefSlug, side, amount } = body;
 
   if (!beliefSlug || !side || !amount || amount <= 0) {
@@ -15,9 +24,12 @@ export async function POST(req: Request) {
   const belief = getBelief(beliefSlug);
   if (!belief) return NextResponse.json({ error: 'Belief not found' }, { status: 404 });
 
-  const userId = session ? (session.user as { id?: string }).id ?? 'guest' : 'guest';
-  const user   = users.find(u => u.id === userId);
-  if (user && user.credits < amount) {
+  const userId = (session.user as { id?: string }).id ?? '';
+  const user = users.find(u => u.id === userId);
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+  if (user.credits < amount) {
     return NextResponse.json({ error: 'Insufficient credits' }, { status: 402 });
   }
 
@@ -25,7 +37,7 @@ export async function POST(req: Request) {
   const shares = amount / price;
 
   const trade = addTrade({ userId, beliefSlug, side, amount, price, shares });
-  if (user) user.credits -= amount;
+  user.credits -= amount;
 
   return NextResponse.json({ trade, newMarketPrice: belief.marketPrice });
 }
@@ -33,7 +45,6 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ trades: [] });
-  // Return trades for this user
   const { getTradesByUser } = await import('@/lib/data');
   const userId = (session.user as { id?: string }).id ?? '';
   return NextResponse.json({ trades: getTradesByUser(userId) });
