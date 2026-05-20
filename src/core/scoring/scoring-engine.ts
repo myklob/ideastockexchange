@@ -532,8 +532,12 @@ export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
 
   for (const ev of belief.evidence) {
     const tierWeight = getEvidenceTypeWeight(ev.tier)
-    const evidenceImpact = tierWeight * ev.linkageScore
-    supportingEvidenceScore += evidenceImpact
+    const evidenceImpact = tierWeight * Math.abs(ev.linkageScore)
+    if (ev.linkageScore >= 0) {
+      supportingEvidenceScore += evidenceImpact
+    } else {
+      weakeningEvidenceScore += evidenceImpact
+    }
   }
 
   // PageRank-style belief score: ProRank / (ProRank + ConRank)

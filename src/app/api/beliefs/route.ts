@@ -3,6 +3,8 @@ import {
   fetchFilteredBeliefs,
   type BeliefFilterParams,
 } from '@/features/belief-analysis/data/fetch-belief'
+
+type FilteredBelief = Awaited<ReturnType<typeof fetchFilteredBeliefs>>[number]
 import {
   toSpectrumCoordinates,
   fromValenceCoord,
@@ -73,20 +75,24 @@ export async function GET(request: Request) {
     filters.limit = Math.min(limitRaw, 500)
   }
 
-  const beliefs = await fetchFilteredBeliefs(filters)
-
-  return NextResponse.json({
-    beliefs: beliefs.map(b => ({
-      belief_id: String(b.id),
-      canonical_text: b.statement,
-      spectrum_coordinates: toSpectrumCoordinates({
-        positivity: b.positivity,
-        specificity: b.specificity,
-        claimStrength: b.claimStrength,
-      }),
-      parent_topic_id: b.category ?? null,
-      slug: b.slug,
-    })),
-    count: beliefs.length,
-  })
+  try {
+    const beliefs = await fetchFilteredBeliefs(filters)
+    return NextResponse.json({
+      beliefs: beliefs.map((b: FilteredBelief) => ({
+        belief_id: String(b.id),
+        canonical_text: b.statement,
+        spectrum_coordinates: toSpectrumCoordinates({
+          positivity: b.positivity,
+          specificity: b.specificity,
+          claimStrength: b.claimStrength,
+        }),
+        parent_topic_id: b.category ?? null,
+        slug: b.slug,
+      })),
+      count: beliefs.length,
+    })
+  } catch (err) {
+    console.error('GET /api/beliefs failed:', err)
+    return NextResponse.json({ error: 'Failed to fetch beliefs' }, { status: 500 })
+  }
 }
