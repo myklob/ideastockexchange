@@ -42,9 +42,9 @@ function linkagePct(score: number | null | undefined): string {
 }
 
 const MEDIA_TYPE_GLYPHS: Record<string, string> = {
-  image: '📊 Chart',
+  image: '📷 Photo',
   scientific_paper: '📊 Chart',
-  article: '📷 Photo',
+  article: '📰 Article',
   song: '🎭 Meme / Cartoon',
   poem: '🎭 Meme / Cartoon',
   movie: '🎥 Video / Documentary',
@@ -221,7 +221,7 @@ export default function EvidenceSection({
                       )}
                     </td>
                     <td className="px-3 py-3 text-center align-top text-xs capitalize">
-                      {m.side === 'agree' ? 'Supports' : m.side === 'disagree' ? 'Weakens' : m.side}
+                      {m.side === 'supporting' ? 'Supports' : m.side === 'opposing' ? 'Weakens' : m.side}
                     </td>
                     <td className="px-3 py-3 align-top text-xs text-[var(--muted-foreground)]">
                       {m.author ?? ''}

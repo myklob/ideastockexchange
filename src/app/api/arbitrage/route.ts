@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       const pool = claim.liquidityPool;
       if (!pool) return null;
 
-      const yesPrice = pool.noShares / (pool.yesShares + pool.noShares);
+      const yesPrice = pool.yesShares / (pool.yesShares + pool.noShares);
       const { divergence, direction, magnitude } = computeDivergence(
         claim.reasonRank,
         yesPrice
