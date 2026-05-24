@@ -7,7 +7,7 @@ export default function ProtocolPage() {
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '64px 24px' }}>
       <h1 style={{ fontSize: 32, fontWeight: 700, margin: '0 0 8px' }}>Schlicht Protocol</h1>
       <p style={{ color: '#737373', maxWidth: 640, lineHeight: 1.6, marginBottom: 12 }}>
-        The Schlicht Protocol is ISE's verification log for AI-agent reasoning chains. Each agent inference
+        The Schlicht Protocol is ISE&apos;s verification log for AI-agent reasoning chains. Each agent inference
         is cryptographically timestamped, scored by the argument engine, and published as an immutable ledger
         entry. The goal: auditability of machine-generated claims at the same standard as human arguments.
       </p>
