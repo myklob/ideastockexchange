@@ -93,7 +93,7 @@ export function calculateRecursiveArgumentScore(
 ): number {
   const importance = arg.importanceScore ?? 1.0
   // Truth score in skill is 0-10; existing system stores 0-1. Normalize:
-  const truth = arg.truthScore > 1 ? arg.truthScore : arg.truthScore * 10
+  const truth = arg.truthScore >= 1 ? arg.truthScore : arg.truthScore * 10
   const base = calculateArgumentScore(truth, arg.linkageScore, importance)
 
   if (!arg.subArguments || arg.subArguments.length === 0) {
@@ -279,7 +279,7 @@ export function applyImpactDeduplication(
           adjustmentApplied: 0, // flag for review; not automatically zeroed
         })
       } else if (similarity > 0.3) {
-        const weaker = adjustedItems[i].predictedImpact <= adjustedItems[j].predictedImpact ? i : j
+        const weaker = Math.abs(adjustedItems[i].predictedImpact) <= Math.abs(adjustedItems[j].predictedImpact) ? i : j
         const adjustmentFactor = 1 - similarity
         adjustedItems[weaker].predictedImpact *= adjustmentFactor
         adjustedItems[weaker].overlapAdjustments.push({

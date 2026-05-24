@@ -32,8 +32,14 @@ class TradingEngine {
 
     // Execute trade in a transaction
     const trade = db.transaction(() => {
+      // Re-read balance inside the transaction to prevent race conditions.
+      const freshUser = User.findById(userId);
+      if (freshUser.balance < cost) {
+        throw new Error('Oops! Not enough money!');
+      }
+
       // Deduct from buyer's balance
-      User.updateBalance(userId, user.balance - cost);
+      User.updateBalance(userId, freshUser.balance - cost);
 
       // Add shares to buyer's holdings
       Holding.upsert(userId, idea.id, shares, idea.current_price);
@@ -42,7 +48,7 @@ class TradingEngine {
       const txId = Transaction.create(userId, null, idea.id, shares, idea.current_price, 'BUY');
 
       // Update price based on demand
-      const newPrice = this.calculateNewPrice(idea, shares, 'BUY');
+      const newPrice = TradingEngine.calculateNewPrice(idea, shares, 'BUY');
       Idea.updatePrice(idea.id, newPrice);
 
       return {
@@ -51,7 +57,7 @@ class TradingEngine {
         price: idea.current_price,
         cost,
         newPrice,
-        newBalance: user.balance - cost
+        newBalance: freshUser.balance - cost
       };
     });
 
@@ -90,8 +96,11 @@ class TradingEngine {
 
     // Execute trade in a transaction
     const trade = db.transaction(() => {
+      // Re-read balance inside the transaction to prevent race conditions.
+      const freshUser = User.findById(userId);
+
       // Add to seller's balance
-      User.updateBalance(userId, user.balance + proceeds);
+      User.updateBalance(userId, freshUser.balance + proceeds);
 
       // Remove shares from seller's holdings
       Holding.reduceShares(userId, idea.id, shares);
@@ -100,7 +109,7 @@ class TradingEngine {
       const txId = Transaction.create(null, userId, idea.id, shares, idea.current_price, 'SELL');
 
       // Update price based on supply
-      const newPrice = this.calculateNewPrice(idea, shares, 'SELL');
+      const newPrice = TradingEngine.calculateNewPrice(idea, shares, 'SELL');
       Idea.updatePrice(idea.id, newPrice);
 
       return {
@@ -109,7 +118,7 @@ class TradingEngine {
         price: idea.current_price,
         proceeds,
         newPrice,
-        newBalance: user.balance + proceeds
+        newBalance: freshUser.balance + proceeds
       };
     });
 

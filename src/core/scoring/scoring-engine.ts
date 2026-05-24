@@ -477,7 +477,7 @@ export function scoreArgument(arg: SchilchtArgument): ArgumentScoreBreakdown {
   // Incorporates ReasonRank (recursive quality) × linkage (relevance) ×
   // importance (how much it moves the needle) × uniqueness (redundancy penalty).
   // Linkage is now derived from its own sub-debate when available.
-  const rawImpact = reasonRank * effectiveLinkageScore * importanceWeight * uniquenessScore
+  const rawImpact = reasonRank * Math.abs(effectiveLinkageScore) * importanceWeight * uniquenessScore
   const direction = arg.side === 'pro' ? 1 : -1
   const signedImpact = rawImpact * direction
 
@@ -532,8 +532,12 @@ export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
 
   for (const ev of belief.evidence) {
     const tierWeight = getEvidenceTypeWeight(ev.tier)
-    const evidenceImpact = tierWeight * ev.linkageScore
-    supportingEvidenceScore += evidenceImpact
+    const evidenceImpact = tierWeight * Math.abs(ev.linkageScore)
+    if (ev.linkageScore >= 0) {
+      supportingEvidenceScore += evidenceImpact
+    } else {
+      weakeningEvidenceScore += evidenceImpact
+    }
   }
 
   // PageRank-style belief score: ProRank / (ProRank + ConRank)
