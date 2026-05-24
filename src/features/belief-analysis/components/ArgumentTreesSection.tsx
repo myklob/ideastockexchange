@@ -52,10 +52,10 @@ function LinkageBadge({ arg }: { arg: ArgumentWithBelief }) {
  * Contribution Score = Linkage Score × Truth Score (per /One Page Per Belief).
  * Since impactScore = sign × childTruth × |linkage| × importance × 100, the
  * linkage×truth product is recovered as |impactScore| / (importance × 100).
- * Returns a 0–1 value, blank when the argument has no impact yet (Rule 6).
+ * Returns a 0–1 value, blank when importanceScore is zero (would divide by zero).
  */
 function contributionFraction(arg: ArgumentWithBelief): number | null {
-  if (!arg.impactScore || arg.importanceScore <= 0) return null
+  if (arg.importanceScore <= 0) return null
   return Math.min(1, Math.abs(arg.impactScore) / (arg.importanceScore * 100))
 }
 

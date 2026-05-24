@@ -31,8 +31,8 @@ function tierBadge(type: string): React.ReactNode {
 }
 
 function stanceLabel(side: string): string {
-  if (side === 'supporting') return 'Supports'
-  if (side === 'weakening') return 'Weakens'
+  if (side === 'supporting' || side === 'agree') return 'Supports'
+  if (side === 'weakening' || side === 'disagree') return 'Weakens'
   return side
 }
 
@@ -70,6 +70,23 @@ function mediaToTier(m: MediaItem): string {
   }
 }
 
+/**
+ * Maps an evidenceType string to a sort order number.
+ * Handles both direct tier labels (T1–T4) and category strings
+ * (peer_reviewed, anecdote, etc.) so sorting works regardless of
+ * which representation is stored in the DB.
+ */
+function evidenceTypeTierOrder(evidenceType: string): number {
+  const tierMap: Record<string, number> = {
+    T1: 1, T2: 2, T3: 3, T4: 4,
+    peer_reviewed: 1, institutional: 1,
+    expert_analysis: 2, investigative: 2, news_report: 2,
+    survey: 3, editorial: 3,
+    opinion: 4, anecdote: 4, social_media: 4,
+  }
+  return tierMap[evidenceType] ?? 5
+}
+
 export default function EvidenceSection({
   evidence,
   totalSupporting,
@@ -77,10 +94,9 @@ export default function EvidenceSection({
   media = [],
 }: EvidenceSectionProps) {
   const sortedEvidence = [...evidence].sort((a, b) => {
-    // T1 first, then T2 ... within tier sort by side (supporting first)
-    const tierOrder: Record<string, number> = { T1: 1, T2: 2, T3: 3, T4: 4 }
-    const at = tierOrder[a.evidenceType] ?? 5
-    const bt = tierOrder[b.evidenceType] ?? 5
+    // T1 first, then T2 … within tier sort by side (supporting first)
+    const at = evidenceTypeTierOrder(a.evidenceType)
+    const bt = evidenceTypeTierOrder(b.evidenceType)
     if (at !== bt) return at - bt
     if (a.side !== b.side) return a.side === 'supporting' ? -1 : 1
     return Math.abs(b.impactScore) - Math.abs(a.impactScore)
@@ -220,8 +236,8 @@ export default function EvidenceSection({
                         <span className="text-xs text-[var(--muted-foreground)]"> — {m.author}</span>
                       )}
                     </td>
-                    <td className="px-3 py-3 text-center align-top text-xs capitalize">
-                      {m.side === 'agree' ? 'Supports' : m.side === 'disagree' ? 'Weakens' : m.side}
+                    <td className="px-3 py-3 text-center align-top text-xs">
+                      {stanceLabel(m.side)}
                     </td>
                     <td className="px-3 py-3 align-top text-xs text-[var(--muted-foreground)]">
                       {m.author ?? ''}

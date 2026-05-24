@@ -25,6 +25,8 @@
  * 11. Belief Equivalency Scores   — Identifies two beliefs making the same underlying claim
  */
 
+import { mechanicalSimilarity } from './duplication-scoring'
+
 // ─── Re-exports from scoring-engine (for consumers who import from here) ─
 
 export {
@@ -38,7 +40,7 @@ export {
   getEvidenceTypeWeight,      // Evidence tier weights
 } from './scoring-engine'
 
-// ─── Score interfaces ─────────────────────────────────────────────────────
+// ─── Score interfaces ───────────────────────────────────────────────────────
 
 /**
  * Breakdown of how a Belief's Truth Score was computed.
@@ -171,7 +173,7 @@ export interface BeliefEquivalencyResult {
   relationship: 'identical' | 'near-identical' | 'overlapping' | 'related' | 'distinct'
 }
 
-// ─── Media Genre Types ─────────────────────────────────────────────────────
+// ─── Media Genre Types ──────────────────────────────────────────────────────
 
 export type MediaGenreType =
   | 'peer_reviewed'      // Academic journal, systematic review, meta-analysis
@@ -246,7 +248,7 @@ const GENRE_DESCRIPTIONS: Record<MediaGenreType, string> = {
   unknown:        'Source genre unclassified — treat with standard caution',
 }
 
-// ─── 1. Truth Scores ──────────────────────────────────────────────────────
+// ─── 1. Truth Scores ────────────────────────────────────────────────────────
 
 /**
  * Calculate the full Truth Score breakdown for a belief's argument/evidence pool.
@@ -280,7 +282,7 @@ export function calculateTruthScoreBreakdown(
   const argumentCount = args.length
   const evidenceCount = evidence.length
 
-  // ── Logical Validity ───────────────────────────────────────────────────
+  // ── Logical Validity ──────────────────────────────────────────────────────────────────
   // Average truth score across all arguments, penalized by detected fallacies.
   // Arguments with detected fallacies drag validity down.
   let totalFallacyPenalty = 0
@@ -296,7 +298,7 @@ export function calculateTruthScoreBreakdown(
     ? Math.max(0, Math.min(1, logicalValiditySum / argumentCount))
     : 0.5  // No arguments = maximum uncertainty
 
-  // ── Verification Truth Score ───────────────────────────────────────────
+  // ── Verification Truth Score ─────────────────────────────────────────────────────
   // Weighted average of evidence quality. Supporting evidence increases it,
   // weakening evidence decreases it.
   let supportingWeight = 0
@@ -317,7 +319,7 @@ export function calculateTruthScoreBreakdown(
     ? Math.max(0.01, Math.min(0.99, supportingWeight / totalEvidenceWeight))
     : 0.5  // No evidence = maximum uncertainty
 
-  // ── Combined Truth Score ───────────────────────────────────────────────
+  // ── Combined Truth Score ─────────────────────────────────────────────────────────
   // Equal weight to both components unless one is unavailable.
   let overallTruthScore: number
   if (argumentCount > 0 && evidenceCount > 0) {
@@ -340,7 +342,7 @@ export function calculateTruthScoreBreakdown(
   }
 }
 
-// ─── 3. Importance Scores ─────────────────────────────────────────────────
+// ─── 3. Importance Scores ─────────────────────────────────────────────────────
 
 /**
  * Calculate the Importance Score for an argument and derive its weighted impact.
@@ -376,7 +378,7 @@ export function calculateImportanceScore(
   return { importanceScore: clamped, weightedImpact, label }
 }
 
-// ─── 6. Objective Criteria Scores ─────────────────────────────────────────
+// ─── 6. Objective Criteria Scores ───────────────────────────────────────────────────
 
 /**
  * Calculate the Objective Criteria Score for a single criterion.
@@ -464,7 +466,7 @@ export function aggregateObjectiveCriteriaScores(
     : 0.5
 }
 
-// ─── 7. Confidence Stability Scores ───────────────────────────────────────
+// ─── 7. Confidence Stability Scores ─────────────────────────────────────────────────
 
 /**
  * Calculate the Confidence Stability Score.
@@ -522,7 +524,7 @@ export function calculateConfidenceStabilityScore(
   }
 }
 
-// ─── 8 & 9. Media Truth Scores and Media Genre and Style Scores ───────────
+// ─── 8 & 9. Media Truth Scores and Media Genre and Style Scores ─────────────────
 
 /**
  * Calculate Media Truth Score and Media Genre Score for a media source.
@@ -611,7 +613,7 @@ export function aggregateMediaScores(
   }
 }
 
-// ─── 10. Topic Overlap Scores ─────────────────────────────────────────────
+// ─── 10. Topic Overlap Scores ───────────────────────────────────────────────────
 
 /**
  * Calculate Topic Overlap Score for a set of beliefs or arguments.
@@ -630,10 +632,6 @@ export function aggregateMediaScores(
 export function calculateTopicOverlapScore(
   items: Array<{ id: string; text: string }>,
 ): TopicOverlapResult {
-  const { mechanicalSimilarity } = require('./duplication-scoring') as {
-    mechanicalSimilarity: (a: string, b: string) => number
-  }
-
   const MECHANICAL_THRESHOLD = 0.85
 
   const contributionFactors: Record<string, number> = {}
@@ -663,7 +661,7 @@ export function calculateTopicOverlapScore(
   return { averageUniqueness, duplicatePairCount, contributionFactors }
 }
 
-// ─── 11. Belief Equivalency Scores ───────────────────────────────────────
+// ─── 11. Belief Equivalency Scores ─────────────────────────────────────────────────
 
 /**
  * Calculate the Belief Equivalency Score between two belief statements.
@@ -690,13 +688,9 @@ export function calculateBeliefEquivalencyScore(
   statementB: string,
   semanticSimilarity: number | null = null,
 ): BeliefEquivalencyResult {
-  const { mechanicalSimilarity: mSim } = require('./duplication-scoring') as {
-    mechanicalSimilarity: (a: string, b: string) => number
-  }
-
   const MECHANICAL_THRESHOLD = 0.85
 
-  const mechanicalSim = mSim(statementA, statementB)
+  const mechanicalSim = mechanicalSimilarity(statementA, statementB)
   const isMechanicalEquivalent = mechanicalSim >= MECHANICAL_THRESHOLD
 
   let equivalencyScore: number
@@ -723,7 +717,7 @@ export function calculateBeliefEquivalencyScore(
   }
 }
 
-// ─── Combined Belief Score Summary ────────────────────────────────────────
+// ─── Combined Belief Score Summary ─────────────────────────────────────────────────────
 
 /**
  * All 11 ReasonRank scores for a single belief.
