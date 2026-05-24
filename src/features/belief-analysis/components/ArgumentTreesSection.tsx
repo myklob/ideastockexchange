@@ -55,7 +55,7 @@ function LinkageBadge({ arg }: { arg: ArgumentWithBelief }) {
  * Returns a 0–1 value, blank when the argument has no impact yet (Rule 6).
  */
 function contributionFraction(arg: ArgumentWithBelief): number | null {
-  if (!arg.impactScore || arg.importanceScore <= 0) return null
+  if (arg.impactScore == null || arg.importanceScore <= 0) return null
   return Math.min(1, Math.abs(arg.impactScore) / (arg.importanceScore * 100))
 }
 
@@ -136,7 +136,6 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
       <SectionHeading
         emoji="&#x1F50D;"
         title="Argument Trees"
-        href="/Reasons"
         subtitle="Each reason is a belief with its own page. Scoring is recursive based on truth, linkage, and importance."
       />
 
@@ -146,11 +145,11 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
           <thead>
             <tr className="bg-green-50">
               <th className="px-3 py-2 text-left w-[52%] font-semibold">
-                Top <Link href="/Scoring" className="text-[var(--accent)] hover:underline">Scoring</Link> Reasons to Agree
+                Top Scoring Reasons to Agree
               </th>
               <th className="px-3 py-2 text-center w-[12%] font-semibold">Argument Score</th>
               <th className="px-3 py-2 text-center w-[12%] font-semibold">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
               </th>
               <th
                 className="px-3 py-2 text-center w-[12%] font-semibold"
@@ -183,11 +182,11 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
           <thead>
             <tr className="bg-red-50">
               <th className="px-3 py-2 text-left w-[52%] font-semibold">
-                Top <Link href="/Scoring" className="text-[var(--accent)] hover:underline">Scoring</Link> Reasons to Disagree
+                Top Scoring Reasons to Disagree
               </th>
               <th className="px-3 py-2 text-center w-[12%] font-semibold">Argument Score</th>
               <th className="px-3 py-2 text-center w-[12%] font-semibold">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
               </th>
               <th
                 className="px-3 py-2 text-center w-[12%] font-semibold"
