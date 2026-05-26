@@ -42,13 +42,13 @@ function linkagePct(score: number | null | undefined): string {
 }
 
 const MEDIA_TYPE_GLYPHS: Record<string, string> = {
-  image: '📊 Chart',
-  scientific_paper: '📊 Chart',
-  article: '📷 Photo',
-  song: '🎭 Meme / Cartoon',
-  poem: '🎭 Meme / Cartoon',
+  image: '📷 Photo',
+  scientific_paper: '📄 Research Paper',
+  article: '📰 Article',
+  song: '🎵 Song',
+  poem: '📜 Poem',
   movie: '🎥 Video / Documentary',
-  podcast: '🎥 Video / Documentary',
+  podcast: '🎙️ Podcast',
   book: '📚 Book',
 }
 

@@ -221,7 +221,7 @@ export function computeBeliefScores(belief: BeliefWithRelations): BeliefScores {
   const truthBreakdown = calculateTruthScoreBreakdown(
     belief.arguments.map(a => ({
       side: a.side,
-      truthScore: Math.max(0, Math.min(1, Math.abs(a.impactScore) / 100)),
+      truthScore: Math.max(0, Math.min(1, Math.abs(a.belief.positivity) / 100)),
       impactScore: a.impactScore,
     })),
     evidenceWithEVS,
