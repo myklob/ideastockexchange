@@ -23,9 +23,9 @@ export default function CBAPage() {
       </p>
 
       <Callout tone="info" title="Calibrated EV:">
-        Each cost and benefit's <em>predicted impact</em> is multiplied by its{' '}
+        Each cost and benefit&apos;s <em>predicted impact</em> is multiplied by its{' '}
         <em>likelihood score</em> — a nested belief that must survive its own argument tree.
-        Impacts don't count unless their probabilities survive attack.
+        Impacts don&apos;t count unless their probabilities survive attack.
       </Callout>
 
       {/* Summary tiles */}

@@ -44,9 +44,9 @@ export default function HomePage() {
             Computational Epistemology Platform
           </p>
           <p className="text-[17px] leading-[1.7] max-w-[720px] mb-3">
-            Every claim is a bet on reality. It says: "If we believe X, we'll get outcome Y."
+            Every claim is a bet on reality. It says: &ldquo;If we believe X, we&apos;ll get outcome Y.&rdquo;
             But unlike every other bet humans make,{' '}
-            <strong>we're not allowed to check the math</strong>.
+            <strong>we&apos;re not allowed to check the math</strong>.
           </p>
           <p className="text-[17px] leading-[1.7] max-w-[720px] mb-7">
             Idea Stock Exchange turns each belief into something you can{' '}

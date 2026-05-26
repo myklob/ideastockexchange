@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = { title: 'Arbitrage Dashboard — ISE' };
 
@@ -24,12 +25,12 @@ function DarkHeader() {
   return (
     <header style={{ borderBottom: '1px solid #262626', background: '#0a0a0a', position: 'sticky', top: 0, zIndex: 10 }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: 32, height: 56 }}>
-        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <ISEMarkDark size={28} />
           <span style={{ fontWeight: 700, fontSize: 16, color: '#ededed', letterSpacing: '-0.01em' }}>
             Idea Stock Exchange
           </span>
-        </a>
+        </Link>
         <nav style={{ display: 'flex', gap: 4, flex: 1 }}>
           {NAV.map(n => (
             <a key={n.href} href={n.href} style={{
