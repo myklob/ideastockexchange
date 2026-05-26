@@ -166,8 +166,8 @@ export function scoreLinkageDebate(debate: LinkageDebate): number {
   const proBreakdowns = debate.proArguments.map(scoreArgument)
   const conBreakdowns = debate.conArguments.map(scoreArgument)
 
-  const A = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
-  const D = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+  const A = proBreakdowns.reduce((sum, b) => sum + Math.abs(b.rawImpact), 0)
+  const D = conBreakdowns.reduce((sum, b) => sum + Math.abs(b.rawImpact), 0)
 
   const total = A + D
   if (total === 0) return 0.0
@@ -533,7 +533,11 @@ export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
   for (const ev of belief.evidence) {
     const tierWeight = getEvidenceTypeWeight(ev.tier)
     const evidenceImpact = tierWeight * ev.linkageScore
-    supportingEvidenceScore += evidenceImpact
+    if (evidenceImpact >= 0) {
+      supportingEvidenceScore += evidenceImpact
+    } else {
+      weakeningEvidenceScore += Math.abs(evidenceImpact)
+    }
   }
 
   // PageRank-style belief score: ProRank / (ProRank + ConRank)
