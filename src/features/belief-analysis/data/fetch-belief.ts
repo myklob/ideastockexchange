@@ -20,6 +20,9 @@ const BELIEF_INCLUDE = {
       belief: {
         select: { id: true, slug: true, statement: true, positivity: true },
       },
+      importanceBelief: {
+        select: { id: true, slug: true, statement: true, positivity: true },
+      },
     },
     orderBy: { impactScore: 'desc' as const },
   },

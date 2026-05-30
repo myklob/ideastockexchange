@@ -37,6 +37,7 @@ export {
   scoreArgument,              // Truth + Linkage + Importance composite
   getEvidenceTypeWeight,      // Evidence tier weights
 } from './scoring-engine'
+import { mechanicalSimilarity } from './duplication-scoring'
 
 // ─── Score interfaces ─────────────────────────────────────────────────────
 
@@ -630,10 +631,6 @@ export function aggregateMediaScores(
 export function calculateTopicOverlapScore(
   items: Array<{ id: string; text: string }>,
 ): TopicOverlapResult {
-  const { mechanicalSimilarity } = require('./duplication-scoring') as {
-    mechanicalSimilarity: (a: string, b: string) => number
-  }
-
   const MECHANICAL_THRESHOLD = 0.85
 
   const contributionFactors: Record<string, number> = {}
@@ -690,13 +687,9 @@ export function calculateBeliefEquivalencyScore(
   statementB: string,
   semanticSimilarity: number | null = null,
 ): BeliefEquivalencyResult {
-  const { mechanicalSimilarity: mSim } = require('./duplication-scoring') as {
-    mechanicalSimilarity: (a: string, b: string) => number
-  }
-
   const MECHANICAL_THRESHOLD = 0.85
 
-  const mechanicalSim = mSim(statementA, statementB)
+  const mechanicalSim = mechanicalSimilarity(statementA, statementB)
   const isMechanicalEquivalent = mechanicalSim >= MECHANICAL_THRESHOLD
 
   let equivalencyScore: number

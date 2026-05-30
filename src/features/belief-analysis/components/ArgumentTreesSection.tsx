@@ -81,6 +81,30 @@ function ContributionBadge({ arg }: { arg: ArgumentWithBelief }) {
   )
 }
 
+/**
+ * Importance Score cell. When the argument sources its importance from a
+ * dedicated sub-belief, the score links to that belief's page (where the
+ * "does this matter?" debate lives). Otherwise it renders as plain text —
+ * never a broken link (Rule 5).
+ */
+function ImportanceCell({ arg }: { arg: ArgumentWithBelief }) {
+  const pct = `${(arg.importanceScore * 100).toFixed(0)}%`
+
+  if (arg.importanceBelief) {
+    return (
+      <Link
+        href={`/beliefs/${arg.importanceBelief.slug}`}
+        title="Importance is sourced from this belief — click to debate whether it matters"
+        className="text-[var(--accent)] hover:underline text-sm font-mono"
+      >
+        {pct}
+      </Link>
+    )
+  }
+
+  return <span className="text-sm font-mono text-[var(--muted-foreground)]">{pct}</span>
+}
+
 function ArgumentRow({ arg }: { arg: ArgumentWithBelief }) {
   const argScore = (arg.belief.positivity).toFixed(1)
   const impact = arg.impactScore.toFixed(1)
@@ -98,11 +122,14 @@ function ArgumentRow({ arg }: { arg: ArgumentWithBelief }) {
       <td className="px-3 py-3 text-center text-sm font-mono">
         <Link
           href={`/beliefs/${arg.belief.slug}`}
-          title="Click to see full score breakdown"
+          title="Truth — click to see the child belief's full score breakdown"
           className="text-[var(--accent)] hover:underline"
         >
           {Number(argScore) >= 0 ? '+' : ''}{argScore}
         </Link>
+      </td>
+      <td className="px-3 py-3 text-center">
+        <ImportanceCell arg={arg} />
       </td>
       <td className="px-3 py-3 text-center">
         <LinkageBadge arg={arg} />
@@ -145,15 +172,16 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-green-50">
-              <th className="px-3 py-2 text-left w-[52%] font-semibold">
+              <th className="px-3 py-2 text-left w-[44%] font-semibold">
                 Top <Link href="/Scoring" className="text-[var(--accent)] hover:underline">Scoring</Link> Reasons to Agree
               </th>
-              <th className="px-3 py-2 text-center w-[12%] font-semibold">Argument Score</th>
-              <th className="px-3 py-2 text-center w-[12%] font-semibold">
+              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Truth — the child belief's net score">Truth</th>
+              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Importance — how much this argument moves the needle">Importance</th>
+              <th className="px-3 py-2 text-center w-[11%] font-semibold">
                 <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
               </th>
               <th
-                className="px-3 py-2 text-center w-[12%] font-semibold"
+                className="px-3 py-2 text-center w-[11%] font-semibold"
                 title="Linkage Score × Truth Score"
               >
                 Contribution
@@ -168,7 +196,7 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
               <EmptyRow />
             )}
             <tr className="bg-gray-100 font-semibold">
-              <td colSpan={4} className="px-3 py-2 text-right text-sm">Total Pro:</td>
+              <td colSpan={5} className="px-3 py-2 text-right text-sm">Total Pro:</td>
               <td className="px-3 py-2 text-center text-sm font-mono text-green-700">
                 +{totalPro.toFixed(1)}
               </td>
@@ -182,15 +210,16 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-red-50">
-              <th className="px-3 py-2 text-left w-[52%] font-semibold">
+              <th className="px-3 py-2 text-left w-[44%] font-semibold">
                 Top <Link href="/Scoring" className="text-[var(--accent)] hover:underline">Scoring</Link> Reasons to Disagree
               </th>
-              <th className="px-3 py-2 text-center w-[12%] font-semibold">Argument Score</th>
-              <th className="px-3 py-2 text-center w-[12%] font-semibold">
+              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Truth — the child belief's net score">Truth</th>
+              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Importance — how much this argument moves the needle">Importance</th>
+              <th className="px-3 py-2 text-center w-[11%] font-semibold">
                 <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
               </th>
               <th
-                className="px-3 py-2 text-center w-[12%] font-semibold"
+                className="px-3 py-2 text-center w-[11%] font-semibold"
                 title="Linkage Score × Truth Score"
               >
                 Contribution
@@ -205,7 +234,7 @@ export default function ArgumentTreesSection({ arguments: args, totalPro, totalC
               <EmptyRow />
             )}
             <tr className="bg-gray-100 font-semibold">
-              <td colSpan={4} className="px-3 py-2 text-right text-sm">Total Con:</td>
+              <td colSpan={5} className="px-3 py-2 text-right text-sm">Total Con:</td>
               <td className="px-3 py-2 text-center text-sm font-mono text-red-700">
                 -{totalCon.toFixed(1)}
               </td>
