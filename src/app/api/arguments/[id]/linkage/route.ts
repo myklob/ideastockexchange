@@ -25,7 +25,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { calculateLinkageFromArguments, applyDepthAttenuation } from '@/core/scoring/scoring-engine'
-import { propagateFromArgumentChange } from '@/lib/propagate-belief-scores'
+import { propagateFromLinkageChange } from '@/lib/propagate-belief-scores'
 
 // ─── GET ───────────────────────────────────────────────────────────────────
 
@@ -137,22 +137,16 @@ export async function POST(
     },
   })
 
-  // Recompute linkage score and persist it back to the Argument
-  const allLinkageArgs = await prisma.linkageArgument.findMany({
-    where: { argumentId },
-  })
-  const newScore = calculateLinkageFromArguments(
-    allLinkageArgs.map(la => ({ side: la.side, strength: la.strength }))
-  )
-  await prisma.argument.update({
+  // Recompute the linkage score from the full sub-debate and propagate it
+  // upward through the belief graph. This implements "when you strengthen an
+  // underlying fact, the algorithm automatically updates every conclusion
+  // connected to it." propagateFromLinkageChange persists the new linkage too.
+  const propagation = await propagateFromLinkageChange(argumentId)
+  const refreshed = await prisma.argument.findUnique({
     where: { id: argumentId },
-    data: { linkageScore: newScore },
+    select: { linkageScore: true },
   })
-
-  // Propagate the updated linkage score upward through the belief graph.
-  // This implements "when you strengthen an underlying fact, the algorithm
-  // automatically updates every conclusion connected to it."
-  const propagation = await propagateFromArgumentChange(argumentId)
+  const newScore = refreshed?.linkageScore ?? arg.linkageScore
 
   return NextResponse.json(
     {
@@ -183,28 +177,23 @@ export async function PATCH(
 
   const arg = await prisma.argument.findUnique({
     where: { id: argumentId },
-    include: { linkageArguments: true },
+    select: { id: true },
   })
   if (!arg) {
     return NextResponse.json({ error: 'Argument not found' }, { status: 404 })
   }
 
-  const newScore = calculateLinkageFromArguments(
-    arg.linkageArguments.map(la => ({ side: la.side, strength: la.strength }))
-  )
-
-  const updated = await prisma.argument.update({
+  // Recompute the linkage score from the sub-debate and propagate upward.
+  const propagation = await propagateFromLinkageChange(argumentId)
+  const updated = await prisma.argument.findUnique({
     where: { id: argumentId },
-    data: { linkageScore: newScore },
     select: { id: true, linkageScore: true, linkageType: true, depth: true },
   })
-
-  // Propagate the recomputed linkage score upward through the belief graph.
-  const propagation = await propagateFromArgumentChange(argumentId)
+  const newScore = updated?.linkageScore ?? 0
 
   return NextResponse.json({
     updated,
-    attenuatedScore: applyDepthAttenuation(newScore, updated.depth),
+    attenuatedScore: applyDepthAttenuation(newScore, updated?.depth ?? 0),
     propagation: {
       updatedArgumentIds: propagation.updatedArgumentIds,
       updatedBeliefIds: propagation.updatedBeliefIds,

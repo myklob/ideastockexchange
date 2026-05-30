@@ -82,6 +82,14 @@ export interface ArgumentWithBelief {
     statement: string
     positivity: number
   }
+  /** The belief sourcing this argument's Importance Score, if any. */
+  importanceBeliefId: number | null
+  importanceBelief: {
+    id: number
+    slug: string
+    statement: string
+    positivity: number
+  } | null
 }
 
 export interface EvidenceItem {

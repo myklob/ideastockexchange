@@ -210,6 +210,9 @@ model Belief {
   // Arguments where this belief IS the reason (child)
   asArgument Argument[] @relation("ArgumentBelief")
 
+  // Arguments whose Importance Score is sourced from this belief's net score
+  asImportanceArgument Argument[] @relation("ArgumentImportanceBelief")
+
   // Arguments attached TO this belief (parent)
   arguments Argument[] @relation("ParentBelief")
 
@@ -267,6 +270,13 @@ model Argument {
   beliefId Int
   belief   Belief @relation("ArgumentBelief", fields: [beliefId], references: [id])
 
+  /// Optional third edge: a dedicated "importance" sub-belief whose net score
+  /// SOURCES this argument's importanceScore (e.g. "The spoiler effect is a
+  /// major, solvable problem"). When set, importanceScore is derived from that
+  /// belief and auto-propagates; when null, importanceScore is the manual value.
+  importanceBeliefId Int?
+  importanceBelief   Belief? @relation("ArgumentImportanceBelief", fields: [importanceBeliefId], references: [id])
+
   side         String // "agree" or "disagree"
   linkageScore Float  @default(0.1)
   impactScore  Float  @default(0)
@@ -274,6 +284,7 @@ model Argument {
   /// Importance Score (0-1): how much this argument moves the probability needle.
   /// 1.0 = decisive, 0.5 = moderate, 0.1 = minor. Weights the argument's contribution
   /// to the parent belief's ReasonRank. Analogous to PageRank's link weight.
+  /// Derived from importanceBelief's net score when importanceBeliefId is set.
   importanceScore Float @default(1.0)
 
   linkageType      LinkageClassification @default(ANECDOTAL)
@@ -288,6 +299,8 @@ model Argument {
 
   linkageArguments LinkageArgument[]
   linkageVotes     LinkageVote[]
+
+  @@index([importanceBeliefId])
 }
 
 model LinkageArgument {

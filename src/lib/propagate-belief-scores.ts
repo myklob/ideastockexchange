@@ -26,7 +26,11 @@
 
 import { prisma } from '@/lib/prisma'
 import { fetchBeliefById, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
-import { computeArgumentImpactScore } from '@/core/scoring/scoring-engine'
+import {
+  computeArgumentImpactScore,
+  deriveImportanceFromBeliefScore,
+  calculateLinkageFromArguments,
+} from '@/core/scoring/scoring-engine'
 
 // Re-export so callers can import from one place
 export { computeArgumentImpactScore }
@@ -40,6 +44,64 @@ export interface PropagationResult {
   updatedBeliefIds: number[]
   /** Number of recursive levels traversed */
   depth: number
+}
+
+// ─── Internal helpers ─────────────────────────────────────────────
+
+/** Columns needed to recompute an argument edge's impact. */
+const ARGUMENT_EDGE_SELECT = {
+  id: true,
+  parentBeliefId: true,
+  beliefId: true,
+  importanceBeliefId: true,
+  side: true,
+  linkageScore: true,
+  importanceScore: true,
+} as const
+
+interface ArgumentEdge {
+  id: number
+  parentBeliefId: number
+  beliefId: number
+  importanceBeliefId: number | null
+  side: string
+  linkageScore: number
+  importanceScore: number
+}
+
+/**
+ * Resolve a belief's truth score (0–1), memoized per propagation pass so a
+ * belief feeding many arguments is only scored once.
+ */
+async function truthScoreFor(beliefId: number, cache: Map<number, number>): Promise<number> {
+  const cached = cache.get(beliefId)
+  if (cached !== undefined) return cached
+
+  const belief = await fetchBeliefById(beliefId)
+  const score = belief ? computeBeliefScores(belief).importanceWeightedScore : 0
+  cache.set(beliefId, score)
+  return score
+}
+
+/**
+ * Resolve an argument's effective Importance Score (0–1).
+ *
+ * When `importanceBeliefId` is set, importance is DERIVED from that belief's
+ * net score (normalized to 0–1) so it tracks the live sub-debate about whether
+ * the argument matters. When null, the manually-entered `importanceScore` is
+ * used unchanged — keeping every pre-existing argument backward compatible.
+ */
+async function resolveEffectiveImportance(arg: {
+  importanceBeliefId: number | null
+  importanceScore: number
+}): Promise<number> {
+  if (arg.importanceBeliefId == null) return arg.importanceScore
+
+  const importanceBelief = await fetchBeliefById(arg.importanceBeliefId)
+  if (!importanceBelief) return arg.importanceScore
+
+  const { overallScore } = computeBeliefScores(importanceBelief)
+  return deriveImportanceFromBeliefScore(overallScore)
 }
 
 /**
@@ -87,39 +149,58 @@ export async function propagateBeliefScores(
     data: { positivity: childScores.overallScore },
   })
 
-  // ── Step 2: Find all arguments where this belief is the child ───
-  // An argument links: parentBelief (the conclusion) ← belief (the reason).
-  // When the reason's truth changes, the argument's impact changes too.
-  const argumentsAsChild = await prisma.argument.findMany({
+  // ── Step 2: Find every argument edge that draws on this belief ──
+  // A belief can feed a parent argument through THREE distinct edges:
+  //   • Truth edge      (Argument.beliefId)           — the reason itself.
+  //   • Importance edge (Argument.importanceBeliefId) — how much it matters.
+  //   • Linkage edge    (linkage sub-debate)          — handled separately,
+  //     via propagateFromLinkageChange, since it lives below the argument.
+  // When this belief changes we must refresh every argument on the truth OR
+  // importance edge, because both feed impactScore = Truth × Importance × Linkage.
+  const truthEdges = await prisma.argument.findMany({
     where: { beliefId },
-    select: {
-      id: true,
-      parentBeliefId: true,
-      side: true,
-      linkageScore: true,
-      importanceScore: true,
-    },
+    select: ARGUMENT_EDGE_SELECT,
+  })
+  const importanceEdges = await prisma.argument.findMany({
+    where: { importanceBeliefId: beliefId },
+    select: ARGUMENT_EDGE_SELECT,
   })
 
-  if (argumentsAsChild.length === 0) {
+  // Merge by id so an argument that uses this belief as BOTH its truth and
+  // importance source is only recomputed once.
+  const affectedArguments = new Map<number, ArgumentEdge>()
+  for (const arg of [...truthEdges, ...importanceEdges]) {
+    affectedArguments.set(arg.id, arg)
+  }
+
+  if (affectedArguments.size === 0) {
     // This belief is not a child of any other belief — propagation stops here.
     return result
   }
 
-  // ── Step 3: Recompute impactScore for each argument edge ────────
+  // ── Step 3: Recompute impactScore for each affected argument ────
+  // Each argument is recomputed from its OWN three inputs, not from the
+  // triggering belief alone: an importance-edge argument keeps its separate
+  // truth child, and vice versa. truthScoreFor memoizes per-belief lookups.
+  const truthScoreCache = new Map<number, number>([[beliefId, childTruthScore]])
   const parentBeliefIds = new Set<number>()
 
-  for (const arg of argumentsAsChild) {
+  for (const arg of affectedArguments.values()) {
+    const truth = await truthScoreFor(arg.beliefId, truthScoreCache)
+    const importance = await resolveEffectiveImportance(arg)
+
     const newImpactScore = computeArgumentImpactScore(
       arg.side,
-      childTruthScore,
+      truth,
       arg.linkageScore,
-      arg.importanceScore,
+      importance,
     )
 
     await prisma.argument.update({
       where: { id: arg.id },
-      data: { impactScore: newImpactScore },
+      // Persist the derived importance too, so rendered tables and later
+      // truth-edge recomputes read a value consistent with the live debate.
+      data: { impactScore: newImpactScore, importanceScore: importance },
     })
 
     result.updatedArgumentIds.push(arg.id)
@@ -176,5 +257,39 @@ export async function propagateFromArgumentChange(argumentId: number): Promise<P
   }
 
   // Propagate from the child belief upward through this argument to all ancestors.
+  return propagateBeliefScores(arg.beliefId)
+}
+
+/**
+ * Trigger propagation from a change in an argument's LINKAGE sub-debate.
+ *
+ * Mirrors {@link propagateFromArgumentChange}, but for the third score channel:
+ * it first recomputes the argument's `linkageScore` from its current
+ * LinkageArguments (the (A−D)/(A+D)-style sub-debate), persists it, then
+ * propagates from the argument's child belief upward — which recomputes this
+ * argument's impactScore with the fresh linkage and ripples to every ancestor.
+ *
+ * Call this whenever a LinkageArgument is added, edited, or removed.
+ *
+ * @param argumentId - The argument whose linkage sub-debate just changed.
+ */
+export async function propagateFromLinkageChange(argumentId: number): Promise<PropagationResult> {
+  const arg = await prisma.argument.findUnique({
+    where: { id: argumentId },
+    select: { beliefId: true, linkageArguments: { select: { side: true, strength: true } } },
+  })
+
+  if (!arg) {
+    return { updatedArgumentIds: [], updatedBeliefIds: [], depth: 0 }
+  }
+
+  // Recompute linkage from the sub-debate and persist it before propagating,
+  // so the upward recomputation of impactScore reads the up-to-date linkage.
+  const newLinkageScore = calculateLinkageFromArguments(arg.linkageArguments)
+  await prisma.argument.update({
+    where: { id: argumentId },
+    data: { linkageScore: newLinkageScore },
+  })
+
   return propagateBeliefScores(arg.beliefId)
 }

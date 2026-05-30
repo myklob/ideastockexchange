@@ -758,6 +758,30 @@ export function computeArgumentImpactScore(
 }
 
 /**
+ * Derive an argument's Importance Score (0–1) from the net score of a
+ * dedicated "importance" sub-belief (e.g. "The spoiler effect is a major,
+ * solvable problem").
+ *
+ * A belief's net score (`computeBeliefScores().overallScore`) lives on the
+ * [-100, +100] valence axis. Importance, by contrast, is a [0, 1] weight on
+ * how much an argument moves the parent's probability needle. We map the
+ * belief's net score linearly onto that range:
+ *
+ *   importance = (overallScore + 100) / 200   clamped to [0, 1]
+ *
+ * - A fully-supported importance belief (+100) → importance 1.0 (decisive).
+ * - A neutral / unargued importance belief (0) → importance 0.5 (moderate).
+ * - A refuted importance belief (-100)         → importance 0.0 (negligible).
+ *
+ * This keeps Importance on the same "how true is the claim that this matters"
+ * footing as Truth, so an argument's weight tracks the live debate about its
+ * own significance instead of a hand-entered constant.
+ */
+export function deriveImportanceFromBeliefScore(overallScore: number): number {
+  return Math.max(0, Math.min(1, (overallScore + 100) / 200))
+}
+
+/**
  * Get score breakdown for a likelihood estimate.
  */
 export function scoreLikelihoodEstimate(estimate: LikelihoodEstimate): {
