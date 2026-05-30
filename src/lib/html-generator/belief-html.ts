@@ -70,6 +70,83 @@ export interface DefinitionRow {
   definition: string
 }
 
+// ── Values Conflict Analysis ──
+export interface ValuePriorityRow {
+  value: string
+  supportersRank?: string | null // e.g. "#1"
+  opponentsRank?: string | null
+  gap?: string | null
+}
+export interface SharedValueRow {
+  value: string
+  supportersContext?: string | null
+  opponentsContext?: string | null
+}
+export interface CrossContextRow {
+  value: string
+  deprioritizedBy: string // "Supporters" | "Opponents"
+  otherTopic?: string | null
+  whatThisSuggests?: string | null
+}
+export interface AdvertisedActual {
+  supportersAdvertised?: string[]
+  supportersActual?: string[]
+  opponentsAdvertised?: string[]
+  opponentsActual?: string[]
+}
+export interface ValuesSection {
+  priorityRankings?: ValuePriorityRow[]
+  sharedValues?: SharedValueRow[]
+  crossContext?: CrossContextRow[]
+  motivation?: AdvertisedActual
+}
+
+// ── Interests and Motivations ──
+export interface InterestPriorityRow {
+  interest: string
+  supportersRank?: string | null
+  opponentsRank?: string | null
+  gap?: string | null
+}
+export interface SharedConflictingRow {
+  shared?: string | null
+  conflicting?: string | null
+  why?: string | null
+}
+export interface InterestsSection {
+  priorityRankings?: InterestPriorityRow[]
+  sharedVsConflicting?: SharedConflictingRow[]
+}
+
+export interface AssumptionsSection {
+  accept: string[]
+  reject: string[]
+}
+export interface CBASection {
+  benefits: string[]
+  costs: string[]
+  shortTerm?: string[]
+  longTerm?: string[]
+}
+export interface ResolutionSection {
+  compromises: string[]
+  obstacles: string[]
+  supporterBiases?: string[]
+  opponentBiases?: string[]
+}
+export interface MappingSection {
+  upstreamSupport?: string[]
+  upstreamOppose?: string[]
+  downstreamSupport?: string[]
+  downstreamOppose?: string[]
+  moreExtreme?: string[]
+  moreModerate?: string[]
+}
+export interface LegalSection {
+  supporting: string[]
+  contradicting: string[]
+}
+
 export interface BeliefHtmlInput {
   slug: string
   statement: string
@@ -80,6 +157,13 @@ export interface BeliefHtmlInput {
   args: ArgRow[]
   evidence?: EvidenceRow[]
   objectiveCriteria?: CriterionRow[]
+  values?: ValuesSection
+  interests?: InterestsSection
+  assumptions?: AssumptionsSection
+  costBenefit?: CBASection
+  resolution?: ResolutionSection
+  mapping?: MappingSection
+  legal?: LegalSection
   definitions?: DefinitionRow[]
   /** "Supports:" backlinks to the parent argument/belief this page feeds. */
   supports?: SupportsBacklink[]
@@ -270,6 +354,235 @@ ${rows}
 </table>`
 }
 
+// ── Generic helpers for the two-column list sections ──
+
+/** A "Side A | Side B" table whose cells are numbered lists. Empty -> "". */
+function twoColList(
+  heading: string,
+  leftLabel: string,
+  rightLabel: string,
+  left: string[],
+  right: string[],
+): string {
+  if (left.length === 0 && right.length === 0) return ''
+  const cell = (items: string[]) =>
+    items.length === 0
+      ? ''
+      : items.map((it, i) => `${i + 1}. ${esc(it)}`).join('<br />')
+  return `${heading}
+<table style="${TABLE}">
+<thead>
+  <tr><th style="${TH}" width="50%">${leftLabel}</th><th style="${TH}" width="50%">${rightLabel}</th></tr>
+</thead>
+<tbody>
+  <tr><td style="${TD}">${cell(left)}</td><td style="${TD}">${cell(right)}</td></tr>
+</tbody>
+</table>`
+}
+
+function renderValues(v: ValuesSection | undefined): string {
+  if (!v) return ''
+  let out = `<h2>&nbsp;</h2>
+<h1>&#x2696;&#xFE0F; Values Conflict Analysis</h1>
+<p><em>Most disagreements are priority conflicts, not value conflicts. Both sides usually hold the same values but rank them differently on this topic.</em></p>`
+
+  if (v.priorityRankings && v.priorityRankings.length > 0) {
+    const rows = v.priorityRankings
+      .map(
+        (r) => `  <tr>
+    <td style="${TD}">${esc(r.value)}</td>
+    <td style="${TD} ${CENTER}">${esc(r.supportersRank ?? '')}</td>
+    <td style="${TD} ${CENTER}">${esc(r.opponentsRank ?? '')}</td>
+    <td style="${TD} ${CENTER}">${esc(r.gap ?? '')}</td>
+  </tr>`,
+      )
+      .join('\n')
+    out += `
+<h3>Value Priority Rankings on This Topic</h3>
+<table style="${TABLE}">
+<thead>
+  <tr><th style="${TH}" width="40%">Value</th><th style="${TH} ${CENTER}">Supporters' Rank</th><th style="${TH} ${CENTER}">Opponents' Rank</th><th style="${TH} ${CENTER}">Gap</th></tr>
+</thead>
+<tbody>
+${rows}
+</tbody>
+</table>`
+  }
+
+  if (v.sharedValues && v.sharedValues.length > 0) {
+    const rows = v.sharedValues
+      .map(
+        (r) => `  <tr>
+    <td style="${TD}">${esc(r.value)}</td>
+    <td style="${TD}">${esc(r.supportersContext ?? '')}</td>
+    <td style="${TD}">${esc(r.opponentsContext ?? '')}</td>
+  </tr>`,
+      )
+      .join('\n')
+    out += `
+<h3>Shared Values, Different Priorities</h3>
+<table style="${TABLE}">
+<thead>
+  <tr><th style="${TH}" width="20%">Shared Value</th><th style="${TH}" width="40%">Supporters' Priority Context</th><th style="${TH}" width="40%">Opponents' Priority Context</th></tr>
+</thead>
+<tbody>
+${rows}
+</tbody>
+</table>`
+  }
+
+  if (v.crossContext && v.crossContext.length > 0) {
+    const rows = v.crossContext
+      .map(
+        (r) => `  <tr>
+    <td style="${TD}">${esc(r.value)}</td>
+    <td style="${TD}">${esc(r.deprioritizedBy)}</td>
+    <td style="${TD}">${esc(r.otherTopic ?? '')}</td>
+    <td style="${TD}">${esc(r.whatThisSuggests ?? '')}</td>
+  </tr>`,
+      )
+      .join('\n')
+    out += `
+<h3>Cross-Context Consistency Check</h3>
+<table style="${TABLE}">
+<thead>
+  <tr><th style="${TH}" width="20%">Value Deprioritized Here</th><th style="${TH}" width="15%">Deprioritized By</th><th style="${TH}" width="30%">Other Topic Where They Champion It</th><th style="${TH}" width="35%">What This Suggests</th></tr>
+</thead>
+<tbody>
+${rows}
+</tbody>
+</table>`
+  }
+
+  const m = v.motivation
+  if (m) {
+    const block = (advertised: string[] | undefined, actual: string[] | undefined) => {
+      const list = (items: string[] | undefined) =>
+        (items ?? []).map((it, i) => `${i + 1}. ${esc(it)}`).join('<br />')
+      return `<strong>Advertised:</strong><br />${list(advertised)}<br /><strong>Actual (evidence-based):</strong><br />${list(actual)}`
+    }
+    out += `
+<h3>Advertised vs. Actual Motivation</h3>
+<table style="${TABLE}">
+<thead>
+  <tr><th style="${TH}" width="50%">Supporters</th><th style="${TH}" width="50%">Opponents</th></tr>
+</thead>
+<tbody>
+  <tr>
+    <td style="${TD}">${block(m.supportersAdvertised, m.supportersActual)}</td>
+    <td style="${TD}">${block(m.opponentsAdvertised, m.opponentsActual)}</td>
+  </tr>
+</tbody>
+</table>`
+  }
+
+  return out
+}
+
+function renderInterests(it: InterestsSection | undefined): string {
+  if (!it) return ''
+  let out = `<h2>&nbsp;</h2>
+<h1>&#x1F4A1; Interests and Motivations</h1>
+<p><em>Interests are what people actually need or want. Shared interests are where compromise lives; conflicting interests are where honesty about trade-offs is required.</em></p>`
+
+  if (it.priorityRankings && it.priorityRankings.length > 0) {
+    const rows = it.priorityRankings
+      .map(
+        (r) => `  <tr>
+    <td style="${TD}">${esc(r.interest)}</td>
+    <td style="${TD} ${CENTER}">${esc(r.supportersRank ?? '')}</td>
+    <td style="${TD} ${CENTER}">${esc(r.opponentsRank ?? '')}</td>
+    <td style="${TD} ${CENTER}">${esc(r.gap ?? '')}</td>
+  </tr>`,
+      )
+      .join('\n')
+    out += `
+<h3>Interest Priority Rankings</h3>
+<table style="${TABLE}">
+<thead>
+  <tr><th style="${TH}" width="40%">Interest</th><th style="${TH} ${CENTER}">Supporters' Rank</th><th style="${TH} ${CENTER}">Opponents' Rank</th><th style="${TH} ${CENTER}">Gap</th></tr>
+</thead>
+<tbody>
+${rows}
+</tbody>
+</table>`
+  }
+
+  if (it.sharedVsConflicting && it.sharedVsConflicting.length > 0) {
+    const rows = it.sharedVsConflicting
+      .map(
+        (r) => `  <tr>
+    <td style="${TD}">${esc(r.shared ?? '')}</td>
+    <td style="${TD}">${esc(r.conflicting ?? '')}</td>
+    <td style="${TD}">${esc(r.why ?? '')}</td>
+  </tr>`,
+      )
+      .join('\n')
+    out += `
+<h3>Shared vs. Conflicting Interests</h3>
+<table style="${TABLE}">
+<thead>
+  <tr><th style="${TH}" width="30%">Shared Interests</th><th style="${TH}" width="30%">Conflicting Interests</th><th style="${TH}" width="40%">Why the Conflict Exists</th></tr>
+</thead>
+<tbody>
+${rows}
+</tbody>
+</table>`
+  }
+
+  return out
+}
+
+function renderAssumptions(a: AssumptionsSection | undefined): string {
+  if (!a) return ''
+  return `<h2>&nbsp;</h2>
+<h1>&#x1F4DC; Foundational Assumptions</h1>
+${twoColList('', 'Required to Accept This Belief', 'Required to Reject This Belief', a.accept, a.reject)}`
+}
+
+function renderCBA(c: CBASection | undefined): string {
+  if (!c) return ''
+  let out = `<h2>&nbsp;</h2>
+<h1>&#x1F4C9; Cost-Benefit Analysis</h1>
+${twoColList('', '&#x1F514; Potential Benefits', '&#x1F518; Potential Costs', c.benefits, c.costs)}`
+  if ((c.shortTerm && c.shortTerm.length) || (c.longTerm && c.longTerm.length)) {
+    out += `
+${twoColList('<h3>&#x1F3AF; Short vs. Long-Term</h3>', 'Short-Term (0-2 years)', 'Long-Term (5+ years)', c.shortTerm ?? [], c.longTerm ?? [])}`
+  }
+  return out
+}
+
+function renderResolution(r: ResolutionSection | undefined): string {
+  if (!r) return ''
+  let out = `<h2>&nbsp;</h2>
+<h1>&#x1F91D; Resolution</h1>
+${twoColList('', 'Best Compromise Solutions', 'Primary Obstacles', r.compromises, r.obstacles)}`
+  if ((r.supporterBiases && r.supporterBiases.length) || (r.opponentBiases && r.opponentBiases.length)) {
+    out += `
+${twoColList('<h3>&#x1F9E0; Biases</h3>', 'Affecting Supporters', 'Affecting Opponents', r.supporterBiases ?? [], r.opponentBiases ?? [])}`
+  }
+  return out
+}
+
+function renderMapping(m: MappingSection | undefined): string {
+  if (!m) return ''
+  let out = `<h2>&nbsp;</h2>
+<h1>&#x1F9ED; Belief Mapping</h1>`
+  const up = twoColList('<h3>&#x1F539; Upstream (More General)</h3>', 'Support', 'Oppose', m.upstreamSupport ?? [], m.upstreamOppose ?? [])
+  const down = twoColList('<h3>&#x1F539; Downstream (More Specific)</h3>', 'Support', 'Oppose', m.downstreamSupport ?? [], m.downstreamOppose ?? [])
+  const similar = twoColList('<h3>&#x1F504; Similar Beliefs</h3>', 'More Extreme', 'More Moderate', m.moreExtreme ?? [], m.moreModerate ?? [])
+  if (!up && !down && !similar) return ''
+  out += `\n${up}\n${down}\n${similar}`
+  return out
+}
+
+function renderLegal(l: LegalSection | undefined): string {
+  if (!l) return ''
+  return `<h2>&nbsp;</h2>
+<h1>&#x2696;&#xFE0F; Legal Framework</h1>
+${twoColList('', 'Supporting Laws', 'Contradicting Laws', l.supporting, l.contradicting)}`
+}
+
 function renderDefinitions(definitions: DefinitionRow[] | undefined): string {
   // Definitions ALWAYS go last (Rule 1). The scoring-concepts paragraph is the
   // canonical glossary; per-belief term definitions append below it.
@@ -320,7 +633,14 @@ ${renderArgumentTable(proArgs, '&#x2705; Reasons to Agree', '#eafaf0', mode)}
 ${renderArgumentTable(conArgs, '&#x274C; Reasons to Disagree', '#fdeeee', mode)}
 
 ${renderEvidence(input.evidence)}
+${renderValues(input.values)}
+${renderInterests(input.interests)}
+${renderAssumptions(input.assumptions)}
 ${renderCriteria(input.objectiveCriteria)}
+${renderCBA(input.costBenefit)}
+${renderResolution(input.resolution)}
+${renderMapping(input.mapping)}
+${renderLegal(input.legal)}
 ${renderDefinitions(input.definitions)}
 
 <h2>&nbsp;</h2>

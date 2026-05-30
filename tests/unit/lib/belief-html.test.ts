@@ -125,6 +125,53 @@ describe('renderBeliefHtml', () => {
     expect(routed).toContain('href="/beliefs/rcv-eliminates-spoiler-effect"')
     expect(routed).toContain('href="/arguments/1/linkage"')
   })
+
+  it('renders the full canonical section set in order, definitions last', () => {
+    const full = renderBeliefHtml({
+      ...base,
+      objectiveCriteria: [{ criterion: 'majority winner rate', currentStatus: 'plurality common', threshold: '95%+' }],
+      values: {
+        priorityRankings: [{ value: 'Fairness', supportersRank: '#1', opponentsRank: '#3', gap: '2' }],
+        motivation: { supportersAdvertised: ['fairer outcomes'], opponentsAdvertised: ['simplicity'] },
+      },
+      interests: { sharedVsConflicting: [{ shared: 'trust', conflicting: 'who benefits', why: 'marginal seats' }] },
+      assumptions: { accept: ['voters can rank'], reject: ['plurality is fine'] },
+      costBenefit: { benefits: ['fewer spoilers'], costs: ['new equipment'], shortTerm: ['rollout cost'], longTerm: ['competitive races'] },
+      resolution: { compromises: ['pilot locally'], obstacles: ['incumbents'], supporterBiases: ['optimism'], opponentBiases: ['status quo'] },
+      mapping: { upstreamSupport: ['systems matter'], downstreamSupport: ['RCV for primaries'], moreExtreme: ['abolish plurality'] },
+      legal: { supporting: ['Maine 2016'], contradicting: ['state bans'] },
+    })
+
+    const order = [
+      'Argument Trees',
+      'Evidence Ledger',
+      'Values Conflict Analysis',
+      'Interests and Motivations',
+      'Foundational Assumptions',
+      'Objective Criteria',
+      'Cost-Benefit Analysis',
+      'Resolution',
+      'Belief Mapping',
+      'Legal Framework',
+      'Definitions and Scoring Concepts',
+    ]
+    const positions = order.map((s) => full.indexOf(s))
+    positions.forEach((p) => expect(p).toBeGreaterThan(-1))
+    const sorted = [...positions].sort((a, b) => a - b)
+    expect(positions).toEqual(sorted)
+  })
+
+  it('mirrors Supporters and Opponents structure in symmetric sections (Rule 7)', () => {
+    const full = renderBeliefHtml({
+      ...base,
+      assumptions: { accept: ['a1', 'a2'], reject: ['r1', 'r2'] },
+      legal: { supporting: ['s1'], contradicting: ['c1'] },
+    })
+    expect(full).toContain('Required to Accept This Belief')
+    expect(full).toContain('Required to Reject This Belief')
+    expect(full).toContain('Supporting Laws')
+    expect(full).toContain('Contradicting Laws')
+  })
 })
 
 describe('renderLinkageHtml', () => {

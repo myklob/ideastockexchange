@@ -97,6 +97,61 @@ const parent: BeliefHtmlInput = {
       threshold: 'majority winner in 95%+ of RCV races',
     },
   ],
+  values: {
+    priorityRankings: [
+      { value: 'Fair representation', supportersRank: '#1', opponentsRank: '#3', gap: '2' },
+      { value: 'Simplicity', supportersRank: '#3', opponentsRank: '#1', gap: '2' },
+      { value: 'Stability', supportersRank: '#2', opponentsRank: '#2', gap: '0' },
+    ],
+    sharedValues: [
+      { value: 'Legitimacy', supportersContext: 'majority winners feel more legitimate', opponentsContext: 'familiar plurality rules feel more legitimate' },
+    ],
+    crossContext: [
+      { value: 'Simplicity', deprioritizedBy: 'Supporters', otherTopic: 'tax-code reform', whatThisSuggests: 'context-driven, not a fixed principle' },
+    ],
+    motivation: {
+      supportersAdvertised: ['fairer outcomes', 'less negative campaigning'],
+      supportersActual: ['help third parties they favor'],
+      opponentsAdvertised: ['protect simplicity', 'avoid voter confusion'],
+      opponentsActual: ['protect two-party advantage'],
+    },
+  },
+  interests: {
+    priorityRankings: [
+      { interest: 'Electoral influence', supportersRank: '#1', opponentsRank: '#1', gap: '0' },
+      { interest: 'Low admin cost', supportersRank: '#3', opponentsRank: '#2', gap: '1' },
+    ],
+    sharedVsConflicting: [
+      { shared: 'trust in election results', conflicting: 'which party benefits', why: 'RCV shifts marginal seats between coalitions' },
+    ],
+  },
+  assumptions: {
+    accept: ['voters can rank candidates', 'majority support is the goal'],
+    reject: ['plurality winners are legitimate', 'ranking is too complex'],
+  },
+  costBenefit: {
+    benefits: ['fewer spoiled outcomes', 'broader-consensus winners'],
+    costs: ['new tabulation equipment', 'voter education spending'],
+    shortTerm: ['upfront rollout cost', 'some ballot errors'],
+    longTerm: ['more competitive races', 'reduced negative campaigning'],
+  },
+  resolution: {
+    compromises: ['pilot in local races first', 'pair with voter-education funding'],
+    obstacles: ['incumbent resistance', 'vendor certification timelines'],
+    supporterBiases: ['optimism about turnout effects'],
+    opponentBiases: ['status-quo bias'],
+  },
+  mapping: {
+    upstreamSupport: ['Electoral systems shape outcomes'],
+    downstreamSupport: ['Adopt RCV for primaries'],
+    downstreamOppose: ['Adopt RCV for judicial elections'],
+    moreExtreme: ['Abolish plurality voting nationwide'],
+    moreModerate: ['Allow RCV as a local option'],
+  },
+  legal: {
+    supporting: ['Maine RCV statute (2016)', 'Alaska Measure 2 (2020)'],
+    contradicting: ['states banning RCV by statute'],
+  },
   definitions: [
     { term: 'Spoiler effect', definition: 'when a minor candidate draws votes from a similar major candidate, flipping the outcome.' },
     { term: 'Ballot exhaustion', definition: 'a ballot stops counting once all its ranked candidates are eliminated.' },
