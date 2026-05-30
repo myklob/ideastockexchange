@@ -13,7 +13,9 @@
     "db:seed": "npx tsx prisma/seed.ts",
     "db:seed-reviews": "npx tsx prisma/seed-product-reviews.ts",
     "db:migrate": "npx prisma migrate dev",
-    "db:reset": "npx prisma migrate reset --force"
+    "db:reset": "npx prisma migrate reset --force",
+    "html:sample": "npx tsx scripts/generate-sample-belief-pages.ts",
+    "html:generate": "npx tsx scripts/generate-belief-html.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.3.0",
