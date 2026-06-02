@@ -1,5 +1,5 @@
-const { User, Idea, Holding, Transaction } = require('../db/models');
-const db = require('../db/database');
+import { User, Idea, Holding, Transaction } from '../db/models.js';
+import db from '../db/database.js';
 
 class TradingEngine {
   /**
@@ -203,4 +203,4 @@ class TradingEngine {
   }
 }
 
-module.exports = TradingEngine;
+export default TradingEngine;

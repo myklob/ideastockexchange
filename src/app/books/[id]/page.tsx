@@ -119,7 +119,7 @@ export default async function BookAnalysisPage({ params }: { params: Promise<{ i
               </div>
               <ProgressBar value={report.authorCredibility.truthEquityScore} color="green" />
               <p className="text-sm text-gray-600 mt-1">
-                Historical accuracy across author's works
+                Historical accuracy across author&apos;s works
               </p>
             </div>
           </div>
@@ -275,7 +275,7 @@ export default async function BookAnalysisPage({ params }: { params: Promise<{ i
           <div className="bg-white rounded-lg shadow-sm border p-8 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">🎯 Topic Overlap Scores</h2>
             <p className="text-gray-600 mb-6">
-              How central specific beliefs are to this book's thesis:
+              How central specific beliefs are to this book&apos;s thesis:
             </p>
 
             <div className="space-y-4">

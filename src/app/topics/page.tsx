@@ -1,8 +1,29 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
+interface TopicOverlapRecord {
+  topicName: string
+  overlapScore: number
+  book: {
+    id: string
+    title: string
+    author: string
+  }
+}
+
+interface TopicBookEntry {
+  book: TopicOverlapRecord['book']
+  overlapScore: number
+}
+
+interface TopicModelClient {
+  findMany(args: Record<string, unknown>): Promise<TopicOverlapRecord[]>
+}
+type TopicPrismaClient = typeof prisma & { topicOverlap: TopicModelClient }
+const db = prisma as unknown as TopicPrismaClient
+
 async function getTopics() {
-  const topicOverlaps: any[] = await (prisma as any).topicOverlap.findMany({
+  const topicOverlaps: TopicOverlapRecord[] = await db.topicOverlap.findMany({
     include: {
       book: {
         include: {
@@ -16,7 +37,7 @@ async function getTopics() {
   })
 
   // Group by topic name
-  const topicsMap = new Map<string, any[]>()
+  const topicsMap = new Map<string, TopicBookEntry[]>()
 
   topicOverlaps.forEach((overlap) => {
     if (!topicsMap.has(overlap.topicName)) {
@@ -71,7 +92,7 @@ export default async function TopicsPage() {
           <p className="text-lg text-gray-700">
             Books organized by the beliefs they defend or challenge. Each topic shows which books
             address it most centrally, with overlap scores indicating how central that belief is to
-            the book's thesis.
+            the book&apos;s thesis.
           </p>
         </div>
 

@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAllBooksWithScores } from '@/features/books/services/book-service'
 
+interface BookModelClient {
+  create(args: Record<string, unknown>): Promise<Record<string, unknown>>
+}
+type BookPrismaClient = typeof prisma & { book: BookModelClient }
+const db = prisma as unknown as BookPrismaClient
+
 export async function GET() {
   try {
     const books = await getAllBooksWithScores()
@@ -16,7 +22,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
 
-    const book = await (prisma as any).book.create({
+    const book = await db.book.create({
       data: {
         title: body.title,
         author: body.author,

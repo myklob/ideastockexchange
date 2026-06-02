@@ -19,7 +19,7 @@ export default function ISEExampleSection() {
       {/* Setup */}
       <p className="mb-4">
         A user creates a belief page:{' '}
-        <em>"Jane Smith is the most qualified candidate for U.S. Senate in Colorado."</em>{' '}
+        <em>&quot;Jane Smith is the most qualified candidate for U.S. Senate in Colorado.&quot;</em>{' '}
         It is filed at{' '}
         <code className="bg-white/70 px-1 py-0.5 rounded text-sm font-mono">
           Elections → United States → Colorado → Senate

@@ -2,8 +2,14 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 // Note: These routes depend on the Book model which requires PostgreSQL schema.
-// Using 'any' cast for now until schema is fully migrated.
-const db = prisma as any
+// Typed as an extended client until the Book schema is migrated.
+interface BookModelClient {
+  findUnique(args: Record<string, unknown>): Promise<Record<string, unknown> | null>
+  update(args: Record<string, unknown>): Promise<Record<string, unknown>>
+  delete(args: Record<string, unknown>): Promise<void>
+}
+type BookPrismaClient = typeof prisma & { book: BookModelClient }
+const db = prisma as unknown as BookPrismaClient
 
 export async function GET(
   request: Request,
