@@ -56,7 +56,7 @@ export async function GET(
 
   // Compute current linkage score from stored LinkageArguments
   const computedLinkageScore = calculateLinkageFromArguments(
-    arg.linkageArguments.map(la => ({ side: la.side, strength: la.strength }))
+    arg.linkageArguments.map((la: { side: string; strength: number }) => ({ side: la.side, strength: la.strength }))
   )
 
   // Apply depth attenuation for display purposes
@@ -80,8 +80,8 @@ export async function GET(
       attenuatedScore,
       depthFactor: Math.pow(0.5, arg.depth),
       formula: `(A − D) / (A + D)  →  depth-attenuated × 0.5^${arg.depth}`,
-      proCount: arg.linkageArguments.filter(la => la.side === 'agree').length,
-      conCount: arg.linkageArguments.filter(la => la.side === 'disagree').length,
+      proCount: arg.linkageArguments.filter((la: { side: string }) => la.side === 'agree').length,
+      conCount: arg.linkageArguments.filter((la: { side: string }) => la.side === 'disagree').length,
     },
   })
 }
