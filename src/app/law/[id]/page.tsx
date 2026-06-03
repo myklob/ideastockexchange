@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { exampleLaws } from '@/features/legal-framework/data/example-laws';
+import { StakeholderImpact } from '@/core/types/wikilaw';
 import { DiagnosticSection, SubSection, InfoBox, Badge, QualityBar } from '@/features/legal-framework/components/DiagnosticSection';
 import { AssumptionCard } from '@/features/legal-framework/components/AssumptionCard';
 import { EvidenceCard } from '@/features/legal-framework/components/EvidenceCard';
@@ -471,7 +472,7 @@ function StakeholderCard({
   stakeholder,
   type
 }: {
-  stakeholder: any;
+  stakeholder: StakeholderImpact;
   type: 'winner' | 'loser' | 'silent';
 }) {
   const typeColors = {
