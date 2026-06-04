@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 async function getTopics() {
   const topicOverlaps: any[] = await (prisma as any).topicOverlap.findMany({
     include: {
@@ -71,7 +72,7 @@ export default async function TopicsPage() {
           <p className="text-lg text-gray-700">
             Books organized by the beliefs they defend or challenge. Each topic shows which books
             address it most centrally, with overlap scores indicating how central that belief is to
-            the book's thesis.
+            the book&apos;s thesis.
           </p>
         </div>
 

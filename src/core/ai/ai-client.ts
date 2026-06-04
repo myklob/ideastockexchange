@@ -3,6 +3,7 @@
  * Supports Ollama, LM Studio, OpenAI, Anthropic, and custom endpoints
  */
 
+import * as fs from 'fs';
 import { AIProviderConfig, AIRequest, AIResponse } from './types';
 
 // API Response types
@@ -341,9 +342,9 @@ export function createAIClient(configPath?: string): AIClient {
 
   if (configPath) {
     try {
-      const fs = require('fs');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const yaml = require('js-yaml');
-      const configContent = fs.readFileSync(configPath, 'utf8');
+      const configContent = fs.readFileSync(configPath, 'utf-8');
       const config = yaml.load(configContent);
 
       if (config.llm) {

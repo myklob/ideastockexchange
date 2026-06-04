@@ -471,6 +471,7 @@ function StakeholderCard({
   stakeholder,
   type
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   stakeholder: any;
   type: 'winner' | 'loser' | 'silent';
 }) {
