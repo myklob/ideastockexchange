@@ -12,6 +12,13 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Legacy/archived code not part of the active Next.js app:
+    "_archive/**",
+    "server/**",
+    "tools/**",
+    "app/**",
+    "client/**",
+    "frontend/**",
   ]),
 ]);
 
