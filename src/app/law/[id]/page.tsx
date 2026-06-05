@@ -467,11 +467,19 @@ export default async function LawPage({ params }: { params: Promise<{ id: string
   );
 }
 
+interface StakeholderData {
+  group: string;
+  magnitude: string;
+  description: string;
+  size: number;
+  impactType: string;
+}
+
 function StakeholderCard({
   stakeholder,
   type
 }: {
-  stakeholder: any;
+  stakeholder: StakeholderData;
   type: 'winner' | 'loser' | 'silent';
 }) {
   const typeColors = {
