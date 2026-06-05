@@ -1,7 +1,36 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 // This service depends on the Book/Claim/Fallacy schema not yet active in SQLite.
 import { prisma } from '@/lib/prisma'
+
+// Extended prisma client for the book schema not yet in SQLite
+const bookDb = prisma as unknown as {
+  fallacy: {
+    create: (args: unknown) => Promise<{ bookId: string }>
+    findMany: (args: unknown) => Promise<{ impactOnValidity: number }[]>
+  }
+  book: {
+    findUnique: (args: unknown) => Promise<{ id: string; logicalValidityScore: number; beliefImpactWeight: number; socialShares: number; authorProfile: { id: string; totalPredictions: number; accuratePredictions: number } | null } | null>
+    update: (args: unknown) => Promise<unknown>
+    findMany: (args: unknown) => Promise<{ id: string; title: string; author: string; logicalValidityScore: number; beliefImpactWeight: number; socialShares: number }[]>
+  }
+  contradiction: {
+    create: (args: unknown) => Promise<{ bookId: string }>
+    findMany: (args: unknown) => Promise<{ impactOnIntegrity: number }[]>
+  }
+  evidence: {
+    create: (args: unknown) => Promise<unknown>
+    update: (args: unknown) => Promise<unknown>
+  }
+  metaphor: {
+    create: (args: unknown) => Promise<unknown>
+  }
+  prediction: {
+    create: (args: unknown) => Promise<unknown>
+    update: (args: unknown) => Promise<{ bookId: string }>
+  }
+  author: {
+    update: (args: unknown) => Promise<unknown>
+  }
+}
 
 /**
  * Logic Battleground 1: Fallacy Autopsy Theater
@@ -17,7 +46,7 @@ export async function addFallacy(data: {
   flaggedBy: 'ai' | 'crowd' | 'expert'
   confidence: number
 }) {
-  const fallacy = await prisma.fallacy.create({
+  const fallacy = await bookDb.fallacy.create({
     data: {
       bookId: data.bookId,
       claimId: data.claimId,
@@ -38,19 +67,19 @@ export async function addFallacy(data: {
 }
 
 async function recalculateAfterFallacy(bookId: string) {
-  const fallacies = await prisma.fallacy.findMany({
+  const fallacies = await bookDb.fallacy.findMany({
     where: { bookId },
   })
 
   const totalImpact = fallacies.reduce((sum, f) => sum + f.impactOnValidity, 0)
 
-  const book = await prisma.book.findUnique({
+  const book = await bookDb.book.findUnique({
     where: { id: bookId },
   })
 
   if (book) {
     const adjustedValidity = Math.max(0, book.logicalValidityScore + totalImpact)
-    await prisma.book.update({
+    await bookDb.book.update({
       where: { id: bookId },
       data: { logicalValidityScore: adjustedValidity },
     })
@@ -70,7 +99,7 @@ export async function addContradiction(data: {
   contradictionType: 'direct' | 'implicit' | 'context_dependent'
   severity: number
 }) {
-  const contradiction = await prisma.contradiction.create({
+  const contradiction = await bookDb.contradiction.create({
     data: {
       bookId: data.bookId,
       claim1: data.claim1,
@@ -90,19 +119,19 @@ export async function addContradiction(data: {
 }
 
 async function recalculateAfterContradiction(bookId: string) {
-  const contradictions = await prisma.contradiction.findMany({
+  const contradictions = await bookDb.contradiction.findMany({
     where: { bookId },
   })
 
   const totalImpact = contradictions.reduce((sum, c) => sum + c.impactOnIntegrity, 0)
 
-  const book = await prisma.book.findUnique({
+  const book = await bookDb.book.findUnique({
     where: { id: bookId },
   })
 
   if (book) {
     const adjustedValidity = Math.max(0, book.logicalValidityScore + totalImpact)
-    await prisma.book.update({
+    await bookDb.book.update({
       where: { id: bookId },
       data: { logicalValidityScore: adjustedValidity },
     })
@@ -124,7 +153,7 @@ export async function addEvidence(data: {
   validityScore: number
   publishedDate?: Date
 }) {
-  return prisma.evidence.create({
+  return bookDb.evidence.create({
     data: {
       bookId: data.bookId,
       claimId: data.claimId,
@@ -158,7 +187,7 @@ export async function updateReplicationStatus(
     updates.validityScore = newValidityScore
   }
 
-  return prisma.evidence.update({
+  return bookDb.evidence.update({
     where: { id: evidenceId },
     data: updates,
   })
@@ -180,7 +209,7 @@ export async function addMetaphor(data: {
 }) {
   const impactOnValidity = data.isMisleading ? -10 : data.clarityScore * 5
 
-  return prisma.metaphor.create({
+  return bookDb.metaphor.create({
     data: {
       bookId: data.bookId,
       metaphorText: data.metaphorText,
@@ -205,7 +234,7 @@ export async function addPrediction(data: {
   targetDate?: Date
   pageNumber?: number
 }) {
-  return prisma.prediction.create({
+  return bookDb.prediction.create({
     data: {
       bookId: data.bookId,
       predictionText: data.predictionText,
@@ -225,7 +254,7 @@ export async function evaluatePrediction(
   accuracyScore: number,
   status: 'verified' | 'failed' | 'partially_correct'
 ) {
-  const prediction = await prisma.prediction.update({
+  const prediction = await bookDb.prediction.update({
     where: { id: predictionId },
     data: {
       actualOutcome,
@@ -237,7 +266,7 @@ export async function evaluatePrediction(
   })
 
   // Update author's prediction track record
-  const book = await prisma.book.findUnique({
+  const book = await bookDb.book.findUnique({
     where: { id: prediction.bookId },
     include: { authorProfile: true },
   })
@@ -247,7 +276,7 @@ export async function evaluatePrediction(
     const accuratePredictions =
       book.authorProfile.accuratePredictions + (accuracyScore >= 70 ? 1 : 0)
 
-    await prisma.author.update({
+    await bookDb.author.update({
       where: { id: book.authorProfile.id },
       data: {
         totalPredictions,
@@ -273,7 +302,7 @@ export async function updateBeliefTransmission(
   const totalReach = salesCount + citationCount + socialShares
   const beliefImpact = totalReach > 0 ? Math.log10(totalReach) : 0
 
-  return prisma.book.update({
+  return bookDb.book.update({
     where: { id: bookId },
     data: {
       salesCount,
@@ -289,7 +318,7 @@ export async function updateBeliefTransmission(
  * Reveals cases where weak arguments spread faster than strong ones
  */
 export async function getValidityInfluenceGap(topicName: string) {
-  const books = await prisma.book.findMany({
+  const books = await bookDb.book.findMany({
     where: {
       topicOverlaps: {
         some: {
