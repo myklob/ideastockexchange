@@ -12,6 +12,16 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Legacy directories excluded from TS compilation:
+    "_archive/**",
+    "client/**",
+    "frontend/**",
+    "backend/**",
+    "server/**",
+    "tools/**",
+    "app/**",
+    "dist/**",
+    "scripts/**",
   ]),
 ]);
 

@@ -16,7 +16,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
 
-    const book = await (prisma as any).book.create({
+    const db = prisma as unknown as { book: { create: (args: unknown) => Promise<unknown> } }
+    const book = await db.book.create({
       data: {
         title: body.title,
         author: body.author,
