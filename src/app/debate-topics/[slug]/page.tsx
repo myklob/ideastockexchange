@@ -67,9 +67,24 @@ export default async function DebateTopicPage({ params }: Props) {
           controversyRating={topic.controversyRating}
         />
 
+        {/*
+          How this page deduplicates a debate. Every belief gets a coordinate on three
+          independent matching continuums — valence, magnitude, specificity. Engagement and
+          the assumption stack are deliberately NOT matching coordinates.
+        */}
+        <div className="bg-[#f4f9ff] border-l-4 border-[#0055a4] p-3 my-4 text-sm">
+          <strong>How this page deduplicates a debate.</strong> Every belief about this topic gets a coordinate on
+          three independent continuums: <strong>valence</strong> (which direction it runs), <strong>magnitude</strong>{' '}
+          (how absolute the claim is), and <strong>specificity</strong> (how general or concrete it is). Two beliefs
+          that land on the same coordinate are the <em>same claim</em> in different words and get merged. Two that land
+          nearly on top of each other get the redundancy discount: the second one contributes only its non-overlapping
+          fraction, because saying a thing five ways is not five reasons. That is the whole point of one page per topic.
+          The argument gets built once, here, instead of restarting from scratch on every forum.
+        </div>
+
         <hr className="my-6" />
 
-        {/* Spectrum 1: Debate Landscape */}
+        {/* Continuum 1: Valence */}
         {topic.positions.length > 0 && (
           <>
             <Spectrum1Positions positions={topic.positions} />
@@ -77,36 +92,28 @@ export default async function DebateTopicPage({ params }: Props) {
           </>
         )}
 
-        {/* Spectrum 2: Claim Magnitude */}
+        {/* Continuum 2: Claim Magnitude */}
         <Spectrum2Magnitude
           topicTitle={topic.title}
           claimMagnitudeLevels={topic.claimMagnitudeLevels}
         />
         <hr className="my-6" />
 
-        {/* Spectrum 3: Civic Engagement Level */}
-        {topic.escalationLevels.length > 0 && (
+        {/* Continuum 3: Specificity — the Abstraction Ladder */}
+        {topic.abstractionRungs.length > 0 && (
           <>
-            <Spectrum3Escalation escalationLevels={topic.escalationLevels} topicTitle={topic.title} />
+            <Spectrum4AbstractionLadder rungs={topic.abstractionRungs} topicTitle={topic.title} />
             <hr className="my-6" />
           </>
         )}
 
-        {/* Foundational Assumptions */}
+        {/* Assumption Stack Behind Each Position (a dependency map, not a continuum) */}
         {topic.assumptions.length > 0 && (
           <>
             <FoundationalAssumptions
               assumptions={topic.assumptions}
               keyInsight={topic.assumptionKeyInsight}
             />
-            <hr className="my-6" />
-          </>
-        )}
-
-        {/* Spectrum 4: Abstraction Ladder */}
-        {topic.abstractionRungs.length > 0 && (
-          <>
-            <Spectrum4AbstractionLadder rungs={topic.abstractionRungs} topicTitle={topic.title} />
             <hr className="my-6" />
           </>
         )}
@@ -119,7 +126,15 @@ export default async function DebateTopicPage({ params }: Props) {
           </>
         )}
 
-        {/* Common Ground */}
+        {/* The Engagement Landscape (a stakeholder map, not a matching continuum) */}
+        {topic.escalationLevels.length > 0 && (
+          <>
+            <Spectrum3Escalation escalationLevels={topic.escalationLevels} topicTitle={topic.title} />
+            <hr className="my-6" />
+          </>
+        )}
+
+        {/* Common Ground and Compromise */}
         {topic.commonGround && (
           <>
             <CommonGround commonGround={topic.commonGround} />

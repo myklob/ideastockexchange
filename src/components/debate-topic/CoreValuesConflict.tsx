@@ -5,7 +5,7 @@ interface Props {
   topicTitle: string;
 }
 
-export default function CoreValuesConflict({ coreValues, topicTitle }: Props) {
+export default function CoreValuesConflict({ coreValues }: Props) {
   return (
     <div className="mb-8">
       <h2 className="text-xl font-bold mb-3">
@@ -16,10 +16,10 @@ export default function CoreValuesConflict({ coreValues, topicTitle }: Props) {
           <thead>
             <tr className="bg-gray-100">
               <th className="border border-gray-300 px-3 py-2 w-1/2">
-                Values Supporting {topicTitle} as a Privileged Institution
+                Values Supporting This Topic
               </th>
               <th className="border border-gray-300 px-3 py-2 w-1/2">
-                Values Opposing Legal/Policy Privilege for {topicTitle}
+                Values Opposing This Topic
               </th>
             </tr>
           </thead>
@@ -35,7 +35,7 @@ export default function CoreValuesConflict({ coreValues, topicTitle }: Props) {
                 {coreValues.supportingActual.length > 0 && (
                   <>
                     <br />
-                    <strong>Actual (critics say):</strong>
+                    <strong>Critics say the actual motivation is:</strong>
                     <ol className="list-decimal list-inside mt-1 space-y-1">
                       {coreValues.supportingActual.map((v, i) => (
                         <li key={i}>{v}</li>
@@ -54,7 +54,7 @@ export default function CoreValuesConflict({ coreValues, topicTitle }: Props) {
                 {coreValues.opposingActual.length > 0 && (
                   <>
                     <br />
-                    <strong>Actual (critics say):</strong>
+                    <strong>Critics say the actual motivation is:</strong>
                     <ol className="list-decimal list-inside mt-1 space-y-1">
                       {coreValues.opposingActual.map((v, i) => (
                         <li key={i}>{v}</li>

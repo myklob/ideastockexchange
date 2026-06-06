@@ -30,11 +30,11 @@ export default function ObjectiveCriteriaTable({ criteria, topicTitle }: Props) 
         📏 Best Objective Criteria for Measuring Beliefs on {topicTitle}
       </h2>
       <p className="text-xs text-gray-600 mb-3">
-        Before debating whether {topicTitle.toLowerCase()} is good or bad, the ISE asks users to agree on <em>what good measurement looks like</em>. Each criterion below is itself a belief with its own page. Users submit reasons to agree or disagree that it is valid, reliable, and actually linked to the core question. Scores are calculated recursively — no editorial judgment required.
+        Before arguments about this topic can be scored, users first agree on <em>what good measurement looks like</em>. This section lists proposed criteria sorted by their community-assigned Objective Criteria Score. Each criterion is itself a belief with its own page: users submit reasons to agree or disagree that it is a valid, reliable, independent, and relevant measure. The scores below are calculated recursively from those sub-arguments — without manual ranking or editorial judgment.
       </p>
 
       <div className="bg-blue-50 border-l-4 border-blue-600 p-3 mb-3 text-xs">
-        <strong>How each criterion is scored:</strong>
+        <strong>How each criterion is scored across four dimensions:</strong>
         <ul className="mt-1 ml-4 list-disc space-y-1">
           <li><strong>Validity:</strong> Does this measure actually capture what we claim it captures?</li>
           <li><strong>Reliability:</strong> Can different observers measure it consistently?</li>

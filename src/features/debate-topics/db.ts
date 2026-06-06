@@ -109,6 +109,7 @@ function mapTopicFromDb(row: any): DebateTopic {
     const cg = row.commonGround;
     commonGround = {
       agreements: parseJson<string[]>(cg.agreements, []),
+      valueConflicts: parseJson<string[]>(cg.valueConflicts, []),
       compromises: parseJson<string[]>(cg.compromises, []),
     };
   }
@@ -311,6 +312,7 @@ export async function createDebateTopic(data: DebateTopic): Promise<DebateTopic>
             commonGround: {
               create: {
                 agreements: JSON.stringify(data.commonGround.agreements),
+                valueConflicts: JSON.stringify(data.commonGround.valueConflicts ?? []),
                 compromises: JSON.stringify(data.commonGround.compromises),
               },
             },
