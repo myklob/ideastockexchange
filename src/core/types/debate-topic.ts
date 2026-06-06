@@ -67,7 +67,12 @@ export interface DebateCoreValues {
 }
 
 export interface DebateCommonGround {
+  /// "Shared Interests" — impacts both sides actually want
   agreements: string[];
+  /// "Real Value Conflicts" — where one side prices freedom and the other prices safety.
+  /// Optional so topics seeded before this column existed still render.
+  valueConflicts?: string[];
+  /// "Compromise Candidates" — a small likelihood shift would flip a category's net
   compromises: string[];
 }
 

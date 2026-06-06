@@ -1132,8 +1132,9 @@ model DebateCommonGround {
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   /// JSON arrays
-  agreements   String @default("[]")
-  compromises  String @default("[]")
+  agreements     String @default("[]")
+  valueConflicts String @default("[]")
+  compromises    String @default("[]")
 }
 
 /// One row in the Evidence Ledger (supporting or weakening).

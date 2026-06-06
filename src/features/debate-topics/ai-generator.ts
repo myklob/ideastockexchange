@@ -236,8 +236,9 @@ Return a single valid JSON object matching this exact structure (all fields requ
     "opposingActual": ["1. Value name — what critics say", "2. ..."]
   },
   "commonGround": {
-    "agreements": ["1. ...", "2. ...", "3. ...", "4. ..."],
-    "compromises": ["1. ...", "2. ...", "3. ...", "4. ..."]
+    "agreements": ["1. shared interest both sides want", "2. ...", "3. ..."],
+    "valueConflicts": ["1. genuine value tradeoff no negotiation resolves", "2. ...", "3. ..."],
+    "compromises": ["1. winnable change that flips a category's net", "2. ...", "3. ..."]
   },
   "evidenceItems": [
     {

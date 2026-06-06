@@ -19,7 +19,10 @@ export default function EvidenceLedger({ evidenceItems }: Props) {
     <div className="mb-8">
       <h2 className="text-xl font-bold mb-1">⚖️ The Evidence Ledger</h2>
       <p className="text-xs text-gray-600 mb-3">
-        Weighing the raw data. Quality scores based on methodology, sample size, and reproducibility.
+        Evidence formally attaches to specific beliefs, not to the topic as a whole, and is scored on its own page per
+        study. This ledger is the cross-topic highlight reel: the highest-impact evidence appearing anywhere under this
+        topic, so a reader sees the empirical state of play before diving into individual belief pages. Quality scores
+        reflect methodology, sample size, and reproducibility.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">

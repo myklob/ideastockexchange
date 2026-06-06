@@ -21,19 +21,22 @@ export default function Spectrum3Escalation({ escalationLevels, topicTitle }: Pr
   );
 
   return (
-    <div className="mb-8">
+    <div id="engagement" className="mb-8">
       <h2 className="text-xl font-bold mb-1">
-        ⚡ Spectrum 3: Civic Engagement Level{' '}
+        ⚡ The Engagement Landscape{' '}
         <a href="/escalation-spectrum" className="text-base font-normal text-blue-600 hover:underline">
           (Passive ↔ Active)
         </a>
       </h2>
       <p className="text-sm text-gray-600 mb-4">
-        This captures how actively someone is willing to act on their position — not how extreme their
-        belief is (Spectrum 2) or which direction it runs (Spectrum 1). Two people can hold identical
-        beliefs at identical magnitudes and still differ enormously in how much they are willing to
-        sacrifice to advance them. Mapping this dimension separately prevents the ISE from conflating
-        conviction with action, and action with extremism.
+        <strong>This is a stakeholder map, not a matching continuum.</strong> It answers the second half of &ldquo;how
+        extreme is this?&rdquo;: not how absolute the belief is (that is{' '}
+        <a href="#magnitude" className="text-blue-600 hover:underline">Claim Magnitude</a>) but how far a person will go
+        to act on it. That is a fact about the person, not about the belief. A casual supporter and someone willing to
+        go to prison hold the <em>same belief</em> about this topic, so engagement deliberately does <em>not</em> feed
+        the belief-matching coordinates above. Two identical beliefs at different engagement levels stay one belief on
+        this page. Keeping this axis separate is what stops the system from confusing a loud claim with a committed
+        person, or commitment with extremism.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
@@ -102,20 +105,13 @@ export default function Spectrum3Escalation({ escalationLevels, topicTitle }: Pr
         </table>
       </div>
       <p className="text-sm text-gray-600 mt-3">
-        <strong>Key insight:</strong> The three spectrums are fully independent. Someone can hold a
-        moderate-magnitude claim (Spectrum 2 = 50%) about a cause they feel lukewarm about
-        (Spectrum 1 = +40%) and still be willing to go to prison for it (Spectrum 3 = Level 4).
-        Plotting a coordinate on each spectrum is what lets the system match beliefs accurately rather
-        than bundling very different positions together.{' '}
-        {escalationLevels.length > 4 && (
-          <>
-            For engagement beyond Level 4, see:{' '}
-            <a href="/escalation-spectrum" className="text-blue-600 hover:underline">Escalation Spectrum</a>.
-          </>
-        )}
+        <strong>Key insight:</strong> Engagement is fully independent of the three matching continuums. Someone can hold
+        a moderate-magnitude claim (Continuum 2 = 50%) about a cause they feel lukewarm toward (Continuum 1 = +40%) and
+        still be willing to go to prison for it (Engagement Level 4). For engagement beyond Level 4, see:{' '}
+        <a href="/escalation-spectrum" className="text-blue-600 hover:underline">Escalation Spectrum</a>.
       </p>
       <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/escalation-spectrum" className="text-blue-600 hover:underline">Escalation Spectrum Full Explanation</a>
+        <a href="/w/page/21956745/American%20values" className="text-blue-600 hover:underline">Core Values Framework</a>
       </p>
     </div>
   );

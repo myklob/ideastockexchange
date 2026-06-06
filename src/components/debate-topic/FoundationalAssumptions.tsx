@@ -17,19 +17,25 @@ export default function FoundationalAssumptions({ assumptions, keyInsight }: Pro
   return (
     <div className="mb-8">
       <h2 className="text-xl font-bold mb-1">
-        📜 Foundational Assumptions: What You Must Believe at Each Position
+        📜 Assumption Stack Behind Each Position
       </h2>
+      <p className="text-sm text-gray-600 mb-3">
+        This is not a fourth continuum. It is the dependency map sitting under the Continuum 1 positions above. It
+        answers a different question: to land at a given valence, what chain of assumptions do you have to accept, from
+        broadest worldview down to the narrowest topic-specific claim? Surfacing the stack is how a disagreement at the
+        bottom gets traced to its real root higher up, which is usually where the actual fight is.
+      </p>
       {keyInsight && (
         <p className="mb-3 text-sm">
-          <strong>Key Insight:</strong> {keyInsight}
+          <strong>Core split:</strong> {keyInsight}
         </p>
       )}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-3 py-2 w-[18%]">To Hold Position</th>
-              <th className="border border-gray-300 px-3 py-2">You Must Believe These Assumptions (Ordered General → Specific)</th>
+              <th className="border border-gray-300 px-3 py-2 w-[15%]">To Hold Position</th>
+              <th className="border border-gray-300 px-3 py-2">You Must Accept These Assumptions (General to Specific)</th>
             </tr>
           </thead>
           <tbody>

@@ -266,6 +266,11 @@ async function main() {
             'Relationship skills and conflict resolution improve outcomes regardless of legal structure',
             'High-conflict marriages are worse for children than stable single-parent households',
           ]),
+          valueConflicts: JSON.stringify([
+            'Individual autonomy to define family vs. the state privileging one family form for child welfare',
+            'Equal treatment of all household types vs. preserving marriage as a distinct cultural and legal category',
+            'Tradition and continuity vs. adapting institutions to how people actually live now',
+          ]),
           compromises: JSON.stringify([
             'Extend marriage legal benefits to all registered domestic partnerships while maintaining marriage as a distinct cultural category',
             'Focus public investment on relationship quality programs rather than marriage promotion per se',

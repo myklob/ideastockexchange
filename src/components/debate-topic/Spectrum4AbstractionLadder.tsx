@@ -7,21 +7,27 @@ interface Props {
 
 export default function Spectrum4AbstractionLadder({ rungs, topicTitle }: Props) {
   return (
-    <div className="mb-8">
+    <div id="specificity" className="mb-8">
       <h2 className="text-xl font-bold mb-1">
-        🪜 Spectrum 4: The Abstraction Ladder{' '}
-        <span className="text-base font-normal text-gray-600">(General ↔ Specific)</span>
+        🧩 Continuum 3: Specificity, the Abstraction Ladder{' '}
+        <a href="/general-to-specific" className="text-base font-normal text-blue-600 hover:underline">
+          (General ↔ Specific)
+        </a>
       </h2>
       <p className="text-sm text-gray-600 mb-4">
-        Shows how general worldviews cascade into specific positions on {topicTitle.toLowerCase()} policy.
+        How concrete a claim is. The same topic supports claims at very different altitudes, from a sweeping worldview
+        down to a single line-item policy, and these are genuinely different claims that need separate scoring. Two
+        people can agree at the top of the ladder and split at the bottom, or disagree about first principles and still
+        converge on the same specific reform. Mapping the rungs is what lets the engine match a broad principle to a
+        broad principle without falsely merging it with a narrow policy that happens to lean the same direction.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-3 py-2 w-[18%]">Level</th>
-              <th className="border border-gray-300 px-3 py-2 w-[41%]">Pro-{topicTitle} Assumption Chain</th>
-              <th className="border border-gray-300 px-3 py-2 w-[41%]">Skeptical/Anti-{topicTitle} Assumption Chain</th>
+              <th className="border border-gray-300 px-3 py-2 w-[15%]">Rung</th>
+              <th className="border border-gray-300 px-3 py-2 w-[42%]">Pro-{topicTitle} Chain</th>
+              <th className="border border-gray-300 px-3 py-2 w-[43%]">Anti-{topicTitle} Chain</th>
             </tr>
           </thead>
           <tbody>
