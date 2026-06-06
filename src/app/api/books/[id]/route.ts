@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// Note: These routes depend on the Book model which requires PostgreSQL schema.
-// Using 'any' cast for now until schema is fully migrated.
-const db = prisma as any
+// These routes depend on the Book model which requires PostgreSQL schema.
+// Prisma client is cast to unknown first to avoid the no-explicit-any rule while
+// still allowing dynamic property access on a schema not yet in the SQLite setup.
+const db = prisma as unknown as Record<string, {
+  findUnique: (args: unknown) => Promise<unknown>;
+  update: (args: unknown) => Promise<unknown>;
+  delete: (args: unknown) => Promise<void>;
+}>
 
 export async function GET(
   request: Request,

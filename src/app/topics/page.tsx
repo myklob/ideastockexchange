@@ -1,8 +1,15 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
+type BookEntry = { id: string; title: string; author: string }
+type TopicBook = { book: BookEntry; overlapScore: number }
+type TopicOverlapRecord = { topicName: string; overlapScore: number; book: BookEntry }
+
 async function getTopics() {
-  const topicOverlaps: any[] = await (prisma as any).topicOverlap.findMany({
+  const db = prisma as unknown as {
+    topicOverlap: { findMany: (args: unknown) => Promise<TopicOverlapRecord[]> }
+  }
+  const topicOverlaps = await db.topicOverlap.findMany({
     include: {
       book: {
         include: {
@@ -16,7 +23,7 @@ async function getTopics() {
   })
 
   // Group by topic name
-  const topicsMap = new Map<string, any[]>()
+  const topicsMap = new Map<string, TopicBook[]>()
 
   topicOverlaps.forEach((overlap) => {
     if (!topicsMap.has(overlap.topicName)) {

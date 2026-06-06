@@ -12,6 +12,16 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Legacy directories not part of the Next.js app:
+    "_archive/**",
+    "server/**",
+    "tools/**",
+    "generated/**",
+    "scripts/**",
+    "app/**",
+    "client/**",
+    "frontend/**",
+    "src/core/trading-engine.js",
   ]),
 ]);
 
