@@ -148,6 +148,7 @@ export async function updateReplicationStatus(
   status: 'replicated' | 'failed_replication' | 'not_tested',
   newValidityScore?: number
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updates: any = {
     replicationStatus: status,
     lastVerified: new Date(),

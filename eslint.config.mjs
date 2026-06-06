@@ -15,7 +15,20 @@ const eslintConfig = defineConfig([
     // Not part of the Next.js app:
     "_archive/**",
     "tools/**",
+    "client/**",
+    "frontend/**",
+    "server/**",
+    ".claude/**",
   ]),
+  {
+    files: [
+      "src/features/books/services/book-service.ts",
+      "src/features/books/services/logic-battlegrounds.ts",
+    ],
+    rules: {
+      "@typescript-eslint/ban-ts-comment": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
