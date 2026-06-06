@@ -32,8 +32,8 @@ export default function CompromisesSection({ compromises }: CompromisesSectionPr
                   </ol>
                 ) : (
                   <div className="space-y-1 text-[var(--muted-foreground)]">
-                    <p>1. How could we address both sides' core interests?</p>
-                    <p>2. What creative solutions haven't been tried?</p>
+                    <p>1. How could we address both sides&apos; core interests?</p>
+                    <p>2. What creative solutions haven&apos;t been tried?</p>
                     <p>3. What partial implementations could test ideas?</p>
                   </div>
                 )}

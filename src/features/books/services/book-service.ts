@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Book models depend on a schema that is not active in the current SQLite setup.
 // This file is retained for future migration to the full schema.
 import { prisma } from '@/lib/prisma'
@@ -11,11 +10,59 @@ import {
 } from '@/core/scoring/book-scoring'
 import { BookAnalysisReport } from '@/core/types/book'
 
+type EvidenceItem = { qualityTier: string }
+type Metaphor = { structuralSimilarity: number }
+type Prediction = { accuracyScore: number | null }
+type TopicOverlap = { topicName: string; overlapScore: number }
+type AuthorProfile = {
+  truthEquityScore: number
+  totalPredictions: number
+  accuratePredictions: number
+}
+type BookWithIncludes = {
+  id: string
+  title: string
+  author: string
+  publishYear: number | null
+  logicalValidityScore: number
+  qualityScore: number
+  beliefImpactWeight: number
+  claims: { validityScore: number }[]
+  fallacies: unknown[]
+  contradictions: unknown[]
+  evidenceItems: EvidenceItem[]
+  metaphors: Metaphor[]
+  predictions: Prediction[]
+  topicOverlaps: TopicOverlap[]
+  authorProfile: AuthorProfile | null
+}
+type ClaimForValidity = { validityScore: number; centralityWeight: number }
+type AuthorWithBooks = {
+  books: { logicalValidityScore: number }[]
+  accuratePredictions: number
+  totalPredictions: number
+}
+
+const db = prisma as unknown as {
+  book: {
+    findUnique: (args: unknown) => Promise<BookWithIncludes | null>
+    update: (args: unknown) => Promise<Record<string, unknown>>
+    findMany: (args: unknown) => Promise<Record<string, unknown>[]>
+  }
+  claim: {
+    findMany: (args: unknown) => Promise<ClaimForValidity[]>
+  }
+  author: {
+    findUnique: (args: unknown) => Promise<AuthorWithBooks | null>
+    update: (args: unknown) => Promise<Record<string, unknown>>
+  }
+}
+
 /**
  * Get comprehensive book analysis report
  */
 export async function getBookAnalysisReport(bookId: string): Promise<BookAnalysisReport | null> {
-  const book = await prisma.book.findUnique({
+  const book = await db.book.findUnique({
     where: { id: bookId },
     include: {
       claims: true,
@@ -53,7 +100,7 @@ export async function getBookAnalysisReport(bookId: string): Promise<BookAnalysi
   const completedPredictions = book.predictions.filter(p => p.accuracyScore !== null)
   const predictionAccuracy =
     completedPredictions.length > 0
-      ? completedPredictions.reduce((sum, p) => sum + (p.accuracyScore || 0), 0) / completedPredictions.length
+      ? completedPredictions.reduce((sum, p) => sum + (p.accuracyScore ?? 0), 0) / completedPredictions.length
       : null
 
   // Get author credibility
@@ -75,7 +122,7 @@ export async function getBookAnalysisReport(bookId: string): Promise<BookAnalysi
       id: book.id,
       title: book.title,
       author: book.author,
-      publishYear: book.publishYear || undefined,
+      publishYear: book.publishYear ?? undefined,
     },
     scores: {
       logicalValidityScore: book.logicalValidityScore,
@@ -107,7 +154,7 @@ export async function getBookAnalysisReport(bookId: string): Promise<BookAnalysi
  * Recalculate book's logical validity score based on all claims
  */
 export async function recalculateBookValidity(bookId: string): Promise<number> {
-  const claims = await prisma.claim.findMany({
+  const claims = await db.claim.findMany({
     where: { bookId },
     select: {
       validityScore: true,
@@ -117,7 +164,7 @@ export async function recalculateBookValidity(bookId: string): Promise<number> {
 
   const weightedValidity = calculateWeightedValidity(claims)
 
-  await prisma.book.update({
+  await db.book.update({
     where: { id: bookId },
     data: { logicalValidityScore: weightedValidity },
   })
@@ -136,7 +183,7 @@ export async function updateBeliefImpact(
 ): Promise<number> {
   const beliefImpact = calculateBeliefImpact({ sales, citations, socialShares })
 
-  await prisma.book.update({
+  await db.book.update({
     where: { id: bookId },
     data: {
       salesCount: sales,
@@ -153,7 +200,7 @@ export async function updateBeliefImpact(
  * Update author's truth equity score
  */
 export async function updateAuthorTruthEquity(authorId: string): Promise<number> {
-  const author = await prisma.author.findUnique({
+  const author = await db.author.findUnique({
     where: { id: authorId },
     include: {
       books: {
@@ -179,7 +226,7 @@ export async function updateAuthorTruthEquity(authorId: string): Promise<number>
     author.totalPredictions
   )
 
-  await prisma.author.update({
+  await db.author.update({
     where: { id: authorId },
     data: {
       truthEquityScore: truthEquity,
@@ -195,7 +242,7 @@ export async function updateAuthorTruthEquity(authorId: string): Promise<number>
  * Get all books with their analysis scores
  */
 export async function getAllBooksWithScores() {
-  return prisma.book.findMany({
+  return db.book.findMany({
     include: {
       topicOverlaps: true,
       authorProfile: true,
@@ -217,7 +264,7 @@ export async function getAllBooksWithScores() {
  * Get books by topic overlap
  */
 export async function getBooksByTopic(topicName: string, minOverlap: number = 50) {
-  return prisma.book.findMany({
+  return db.book.findMany({
     where: {
       topicOverlaps: {
         some: {
