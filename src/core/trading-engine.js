@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { User, Idea, Holding, Transaction } = require('../db/models');
 const db = require('../db/database');
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 // This service depends on the Book/Claim/Fallacy schema not yet active in SQLite.
 import { prisma } from '@/lib/prisma'
@@ -148,7 +149,7 @@ export async function updateReplicationStatus(
   status: 'replicated' | 'failed_replication' | 'not_tested',
   newValidityScore?: number
 ) {
-  const updates: any = {
+  const updates: Record<string, unknown> = {
     replicationStatus: status,
     lastVerified: new Date(),
   }

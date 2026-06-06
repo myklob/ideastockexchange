@@ -4,6 +4,7 @@ import { exampleLaws } from '@/features/legal-framework/data/example-laws';
 import { DiagnosticSection, SubSection, InfoBox, Badge, QualityBar } from '@/features/legal-framework/components/DiagnosticSection';
 import { AssumptionCard } from '@/features/legal-framework/components/AssumptionCard';
 import { EvidenceCard } from '@/features/legal-framework/components/EvidenceCard';
+import { StakeholderImpact } from '@/core/types/wikilaw';
 
 export async function generateStaticParams() {
   return exampleLaws.map((law) => ({
@@ -471,7 +472,7 @@ function StakeholderCard({
   stakeholder,
   type
 }: {
-  stakeholder: any;
+  stakeholder: StakeholderImpact;
   type: 'winner' | 'loser' | 'silent';
 }) {
   const typeColors = {
