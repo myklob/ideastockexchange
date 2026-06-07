@@ -191,6 +191,93 @@ export interface InterestsAnalysisData {
   sharedVsConflicting?: SharedConflictingInterestItem[]
   /** Maps interests at stake to the values each side elevates / deprioritizes. */
   interestValueLinks?: InterestValueLinkItem[]
+  /**
+   * Per-interest three-scope validity debates, per the Interest Validity Debate
+   * Template. Expanded only when an interest's validity score is itself contested;
+   * the quick two-score read lives in the rankings tables above. Empty array means
+   * "not yet contested" and the section renders the template skeleton.
+   */
+  validityDebates?: InterestValidityDebate[]
+}
+
+/**
+ * A single interest's validity debate across the three scopes (valid at all,
+ * generally more/less valid than other interests, valid within a specific
+ * scenario). Validity traces entirely to the scored reasons below — never to who
+ * holds the interest or how loudly it is asserted. All scores are nullable so
+ * cells render blank until grounded in real sub-arguments (Rule 6).
+ */
+export interface InterestValidityDebate {
+  /** The interest stated as a need, fear, or desire. */
+  interest: string
+  /** Maslow band this interest starts from — a prior, not a verdict. e.g. "Safety 70-85". */
+  maslowPrior?: string | null
+
+  // ── Scope 1: Is this interest valid at all? ───────────────────────────────
+  /** Reasons it IS valid, each tied to a validity criterion. */
+  validReasons?: ValidityReasonItem[]
+  /** Reasons it is NOT valid, each tied to a validity criterion. */
+  invalidReasons?: ValidityReasonItem[]
+  /** Resulting Interest Validity (0-100), traceable to the Scope 1 reasons. */
+  validityScore?: number | null
+
+  // ── Scope 2: More or less valid than other interests, in general? ─────────
+  /** The interest plus competing interests, each with Maslow prior and current validity. */
+  generalComparisons?: InterestComparisonItem[]
+  /** Reasons this interest ranks higher than the comparison, in general. */
+  ranksHigherReasons?: ValidityReasonItem[]
+  /** Reasons the other interest ranks higher, in general. */
+  ranksLowerReasons?: ValidityReasonItem[]
+  /** General ranking verdict, e.g. "above the comparison by 12 points". */
+  generalRanking?: string | null
+
+  // ── Scope 3: Validity within specific conflicts or scenarios ──────────────
+  /** One block per concrete scenario; a scenario fact can flip the general ranking. */
+  scenarios?: InterestScenarioItem[]
+
+  /** Objective, testable criteria a neutral party would use to judge this validity. */
+  objectiveCriteria?: string[]
+}
+
+/**
+ * One scored reason in a validity debate column. The reason is a short label
+ * (named by its opening words, per Rule 3); the criterion is the standard it
+ * leans on (e.g. "passes the universal test", "rests on a false premise").
+ */
+export interface ValidityReasonItem {
+  /** Signed score, e.g. +35 / -20. Null renders blank (Rule 6). */
+  score?: number | null
+  /** The reason, named by its opening words (2-6 word label). */
+  reason: string
+  /** The validity criterion this reason leans on. */
+  criterion?: string | null
+}
+
+/** One interest in the Scope 2 comparison table. */
+export interface InterestComparisonItem {
+  interest: string
+  /** Maslow prior starting band, e.g. "Safety 70-85". */
+  maslowPrior?: string | null
+  /** Current validity (0-100). */
+  currentValidity?: number | null
+  /** True for the interest under analysis, false for a competing interest. */
+  isThisInterest?: boolean
+}
+
+/** One concrete scenario in the Scope 3 contextual validity debate. */
+export interface InterestScenarioItem {
+  /** Describe the specific conflict. */
+  scenario: string
+  /** The interest it collides with in this scenario. */
+  competingInterest?: string | null
+  /** The scenario fact that moves the ranking (imminence, scale, reversibility, who else is affected). */
+  scenarioFact?: string | null
+  /** Reasons it should win here, each tied to a scenario fact. */
+  winReasons?: ValidityReasonItem[]
+  /** Reasons it should yield here, each tied to a scenario fact. */
+  yieldReasons?: ValidityReasonItem[]
+  /** In-scenario ranking verdict and why scenario facts caused it to differ from Scope 2. */
+  inScenarioRanking?: string | null
 }
 
 export interface InterestPriorityRankingItem {

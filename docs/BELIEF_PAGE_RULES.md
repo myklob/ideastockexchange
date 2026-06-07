@@ -153,6 +153,7 @@ Every section with "Supporters" and "Opponents" (Values, Interests, Biases, Moti
    - 6a. Interest Priority Rankings (same column shape as Values)
    - 6b. Shared vs. Conflicting Interests (with "Why the Conflict Exists")
    - 6c. How Interests Drive Value Rankings (Interest at Stake / Side / Value Elevated / Value Deprioritized / Confidence)
+   - 6d. Interest Validity Debate (three scopes: valid at all / more-or-less valid in general / valid within a specific scenario). Expanded only when an interest's validity is itself contested; renders the template skeleton otherwise. Source of truth: `templates/interest-validity-debate-template.html`.
 7. Foundational Assumptions (Required to Accept vs. Required to Reject)
 8. Objective Criteria (Criterion / Current Status / Threshold for Agreement)
 9. Cost-Benefit Analysis (Benefits vs. Costs, then Short-Term vs. Long-Term)
@@ -183,7 +184,7 @@ Before outputting any ISE belief page, verify:
 - [ ] All evidence lives in the Evidence Ledger with tier assigned
 - [ ] Visual/video items live in the Visual and Video Evidence sub-table, not in a separate Media section
 - [ ] Values section has all four sub-tables: Priority Rankings, Shared Values, Cross-Context, Advertised vs. Actual
-- [ ] Interests section has all three sub-tables: Priority Rankings, Shared vs. Conflicting (with Why), Interest -> Value Linkage
+- [ ] Interests section has all four sub-tables: Priority Rankings, Shared vs. Conflicting (with Why), Interest -> Value Linkage, Interest Validity Debate (three scopes)
 - [ ] Resolution section bundles Compromise/Obstacles AND Biases together
 - [ ] Every link points to a page that exists OR is plain text
 - [ ] No `href="#"` anchors anywhere

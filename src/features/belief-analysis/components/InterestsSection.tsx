@@ -5,6 +5,7 @@ import type {
   InterestValueLinkItem,
 } from '../types'
 import SectionHeading from './SectionHeading'
+import InterestValiditySection from './InterestValiditySection'
 
 interface InterestsSectionProps {
   interests: InterestsAnalysisData | null
@@ -169,6 +170,7 @@ export default function InterestsSection({ interests }: InterestsSectionProps) {
   const priorityRankings = interests?.priorityRankings ?? []
   const sharedVsConflicting = interests?.sharedVsConflicting ?? []
   const interestValueLinks = interests?.interestValueLinks ?? []
+  const validityDebates = interests?.validityDebates ?? []
 
   return (
     <section>
@@ -196,7 +198,7 @@ export default function InterestsSection({ interests }: InterestsSectionProps) {
       </div>
 
       {/* 6c. How Interests Drive Value Rankings */}
-      <div>
+      <div className="mb-6">
         <h3 className="text-base font-semibold mb-1">How Interests Drive Value Rankings</h3>
         <p className="text-xs text-[var(--muted-foreground)] italic mb-2">
           When your material interests are at stake, you conveniently deprioritize values
@@ -204,6 +206,9 @@ export default function InterestsSection({ interests }: InterestsSectionProps) {
         </p>
         <InterestValueLinksTable rows={interestValueLinks} />
       </div>
+
+      {/* 6d. Interest Validity Debate (three scopes) — expanded when validity is contested */}
+      <InterestValiditySection debates={validityDebates} />
     </section>
   )
 }
