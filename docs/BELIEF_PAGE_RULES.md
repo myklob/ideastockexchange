@@ -153,7 +153,7 @@ Every section with "Supporters" and "Opponents" (Values, Interests, Biases, Moti
    - 6a. Interest Priority Rankings (same column shape as Values)
    - 6b. Shared vs. Conflicting Interests (with "Why the Conflict Exists")
    - 6c. How Interests Drive Value Rankings (Interest at Stake / Side / Value Elevated / Value Deprioritized / Confidence)
-   - 6d. Interest Validity Debate (three scopes: valid at all / more-or-less valid in general / valid within a specific scenario). Expanded only when an interest's validity is itself contested; renders the template skeleton otherwise. Source of truth: `templates/interest-validity-debate-template.html`.
+   - 6d. Interest Validity Debate (three scopes: valid at all / more-or-less valid in general / valid within a specific scenario). Opens with a summary scorecard (one chip per scope) and a "How this page works" note; Scope 3 uses two contrasting scenario blocks (one where the interest wins, one where it yields). Expanded only when an interest's validity is itself contested; renders the template skeleton otherwise. Source of truth: `templates/interest-validity-debate-template.html`.
 7. Foundational Assumptions (Required to Accept vs. Required to Reject)
 8. Objective Criteria (Criterion / Current Status / Threshold for Agreement)
 9. Cost-Benefit Analysis (Benefits vs. Costs, then Short-Term vs. Long-Term)

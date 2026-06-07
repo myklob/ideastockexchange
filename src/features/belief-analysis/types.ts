@@ -213,6 +213,18 @@ export interface InterestValidityDebate {
   /** Maslow band this interest starts from — a prior, not a verdict. e.g. "Safety 70-85". */
   maslowPrior?: string | null
 
+  // ── Summary scorecard (the three-scope chips at the top) ──────────────────
+  /** One line for the Scope 1 chip: where the interest is strong, where it is weak. */
+  scope1Note?: string | null
+  /** Scope 2 chip verdict, e.g. "higher" / "tied" / "lower". */
+  scope2Verdict?: string | null
+  /** One line for the Scope 2 chip: why, e.g. "both sit in the Safety band". */
+  scope2Note?: string | null
+  /** Scope 3 chip verdict, e.g. "wins" / "yields". */
+  scope3Verdict?: string | null
+  /** One line for the Scope 3 chip: the deciding scenario fact. */
+  scope3Note?: string | null
+
   // ── Scope 1: Is this interest valid at all? ───────────────────────────────
   /** Reasons it IS valid, each tied to a validity criterion. */
   validReasons?: ValidityReasonItem[]
@@ -266,6 +278,8 @@ export interface InterestComparisonItem {
 
 /** One concrete scenario in the Scope 3 contextual validity debate. */
 export interface InterestScenarioItem {
+  /** Optional heading for the scenario block, e.g. "the case where this interest wins". */
+  title?: string | null
   /** Describe the specific conflict. */
   scenario: string
   /** The interest it collides with in this scenario. */
