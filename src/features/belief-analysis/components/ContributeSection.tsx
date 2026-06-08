@@ -3,10 +3,13 @@ import Link from 'next/link'
 export default function ContributeSection() {
   return (
     <section>
-      <h1 className="text-2xl font-bold text-[var(--foreground)] mb-4">Contribute</h1>
+      <h1 className="text-2xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-2">
+        <span>📬</span> Contribute
+      </h1>
 
       <p className="text-sm mb-3">
-        <Link href="/Contact%20Me" className="text-[var(--accent)] hover:underline">Contact us</Link> to contribute to the Idea Stock Exchange.
+        Posted by ~<Link href="/Myclob" className="text-[var(--accent)] hover:underline">Myclob</Link>.{' '}
+        <Link href="/Contact%20Me" className="text-[var(--accent)] hover:underline">Contact me</Link> to contribute to the Idea Stock Exchange.
       </p>
 
       <p className="text-sm mb-4">

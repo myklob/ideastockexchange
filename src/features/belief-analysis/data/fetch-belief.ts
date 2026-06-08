@@ -15,6 +15,10 @@ import { applyStrengthPenalty } from '@/core/scoring/claim-strength'
 const BELIEF_INCLUDE = {
   definitions: { orderBy: { sortOrder: 'asc' as const } },
   testablePredictions: { orderBy: { sortOrder: 'asc' as const } },
+  valueRankings: { orderBy: { sortOrder: 'asc' as const } },
+  interestEntries: { orderBy: { sortOrder: 'asc' as const } },
+  sharedInterests: { orderBy: { sortOrder: 'asc' as const } },
+  disputeTypes: { orderBy: { sortOrder: 'asc' as const } },
   arguments: {
     include: {
       belief: {

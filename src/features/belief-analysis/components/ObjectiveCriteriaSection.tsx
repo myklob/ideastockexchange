@@ -1,72 +1,42 @@
 import Link from 'next/link'
 import type { ObjectiveCriteriaItem } from '../types'
-import SectionHeading from './SectionHeading'
 
 interface ObjectiveCriteriaSectionProps {
   criteria: ObjectiveCriteriaItem[]
 }
 
-function scorePct(score: number): string {
-  return `${Math.round(score * 100)}%`
-}
+const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold'
+const TD = 'border border-gray-300 px-3 py-2 align-top'
+const TDC = 'border border-gray-300 px-3 py-2 align-top text-center'
 
 export default function ObjectiveCriteriaSection({ criteria }: ObjectiveCriteriaSectionProps) {
+  const rows: Array<ObjectiveCriteriaItem | null> = criteria.length > 0 ? criteria : [null]
+
   return (
     <section>
-      <SectionHeading
-        emoji="&#x1F9EA;"
-        title="Objective Criteria"
-        href="/algorithms/objective-criteria"
-        subtitle="How would we know if this belief is true? Measurable tests both sides should agree on before the debate starts."
-      />
-
+      <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-3">
+        <span>&#127919;</span>
+        <Link href="/Objective%20criteria%20scores" className="text-[var(--accent)] hover:underline">Objective Criteria</Link>
+      </h2>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-3 py-2 text-left font-semibold w-[40%]">Criterion</th>
-              <th className="px-3 py-2 text-left font-semibold w-[30%]">Current Status</th>
-              <th className="px-3 py-2 text-left font-semibold w-[30%]">Threshold for Agreement</th>
+              <th className={`${TH} w-[35%]`}>Criterion</th>
+              <th className={`${TH} w-[30%]`}>How to Measure</th>
+              <th className={`${TH} text-center w-[15%]`}>Current Status</th>
+              <th className={`${TH} text-center w-[20%]`}>Target</th>
             </tr>
           </thead>
           <tbody>
-            {criteria.length > 0 ? (
-              criteria.map(c => (
-                <tr key={c.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                  <td className="px-3 py-3 align-top">
-                    <div className="text-sm">{c.description}</div>
-                    {c.totalScore > 0 && (
-                      <div className="text-xs text-[var(--muted-foreground)] mt-1">
-                        Quality: <span className="font-mono">{scorePct(c.totalScore)}</span>
-                        {c.criteriaType && (
-                          <span className="ml-2">
-                            ·{' '}
-                            <Link href="/algorithms/objective-criteria" className="text-[var(--accent)] hover:underline">
-                              {c.criteriaType}
-                            </Link>
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-3 py-3 align-top text-sm">
-                    {c.currentStatus ?? <span className="text-[var(--muted-foreground)] italic">—</span>}
-                  </td>
-                  <td className="px-3 py-3 align-top text-sm">
-                    {c.thresholdForAgreement ?? <span className="text-[var(--muted-foreground)] italic">—</span>}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td className="px-3 py-3 text-sm text-[var(--muted-foreground)] italic" colSpan={3}>
-                  No objective criteria defined yet.{' '}
-                  <Link href="/algorithms/objective-criteria" className="text-[var(--accent)] hover:underline">
-                    Learn how criteria work.
-                  </Link>
-                </td>
+            {rows.map((c, i) => (
+              <tr key={c?.id ?? i}>
+                <td className={TD}>{c?.description ?? <span>&nbsp;</span>}</td>
+                <td className={TD}>{c?.howToMeasure ?? c?.thresholdForAgreement ?? <span>&nbsp;</span>}</td>
+                <td className={TDC}>{c?.currentStatus ?? <span>&nbsp;</span>}</td>
+                <td className={TDC}>{c?.target ?? <span>&nbsp;</span>}</td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
       </div>

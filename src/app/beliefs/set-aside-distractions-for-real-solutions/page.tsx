@@ -171,16 +171,13 @@ export default async function DistractionsBeliefPage() {
             arguments={belief.arguments}
             totalPro={scores.totalPro}
             totalCon={scores.totalCon}
+            netInterpretation={belief.netInterpretation}
           />
 
           <hr className="border-gray-200" />
 
           {/* 2. Evidence */}
-          <EvidenceSection
-            evidence={belief.evidence}
-            totalSupporting={scores.totalSupportingEvidence}
-            totalWeakening={scores.totalWeakeningEvidence}
-          />
+          <EvidenceSection evidence={belief.evidence} />
 
           <hr className="border-gray-200" />
 
@@ -214,7 +211,11 @@ export default async function DistractionsBeliefPage() {
               <AssumptionsSection assumptions={belief.assumptions} />
 
               {/* 7. Cost-Benefit Analysis */}
-              <CostBenefitSection cba={belief.costBenefitAnalysis} />
+              <CostBenefitSection
+                cba={belief.costBenefitAnalysis}
+                impact={belief.impactAnalysis}
+                compromises={belief.compromises}
+              />
 
               {/* 8. Short vs Long-Term Impacts */}
               <ImpactSection impact={belief.impactAnalysis} />
