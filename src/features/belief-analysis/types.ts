@@ -43,7 +43,20 @@ export interface BeliefWithRelations {
 
   definitions: DefinitionItem[]
   falsifiability: string | null
+  falsifiabilityConfirm: string | null
+  falsifiabilityFalsify: string | null
   testablePredictions: TestablePredictionItem[]
+
+  /** One-line interpretation of the Net Belief Score, shown beneath the argument trees. */
+  netInterpretation: string | null
+  /** Header metadata: related belief labels and beliefs this one supports (plain text). */
+  relatedBeliefs: string | null
+  supportsBeliefs: string | null
+
+  valueRankings: ValueRankingItem[]
+  interestEntries: InterestEntryItem[]
+  sharedInterests: SharedInterestItem[]
+  disputeTypes: DisputeTypeItem[]
 
   arguments: ArgumentWithBelief[]
   evidence: EvidenceItem[]
@@ -69,6 +82,16 @@ export interface ArgumentWithBelief {
   side: string
   linkageScore: number
   impactScore: number
+  /** Short 2-6 word label for the Argument Trees cell; falls back to belief.statement. */
+  claim: string | null
+  /** Most famous supporting quote, rendered inline (italic) in the cell. */
+  famousQuote: string | null
+  /** Display name of the person who made the argument (rendered as ~Name). */
+  quoteAuthor: string | null
+  /** Link to that person's page; plain text when null (Rule 5). */
+  quoteAuthorUrl: string | null
+  /** The argument's own displayed score (the "Score" column). Null renders blank (Rule 6). */
+  argumentScore: number | null
   /** Importance Score (0-1): how much this argument moves the probability needle. */
   importanceScore: number
   linkageType: string
@@ -117,11 +140,15 @@ export interface ObjectiveCriteriaItem {
   linkageScore: number
   criteriaType: string | null
   totalScore: number
+  /** How the criterion is measured (new template column). */
+  howToMeasure?: string | null
   /**
    * Where the metric currently sits — e.g., "labor-force participation flat at 62.5%".
    * Optional; renders blank if not provided.
    */
   currentStatus?: string | null
+  /** The target/threshold that would settle the debate (new template column). */
+  target?: string | null
   /**
    * The threshold both sides agreed (or could agree) constitutes resolution —
    * e.g., "+2pp sustained over 3 years would settle the debate".
@@ -129,11 +156,58 @@ export interface ObjectiveCriteriaItem {
   thresholdForAgreement?: string | null
 }
 
+/** One row in the Shared Values, Different Rankings table (new template). */
+export interface ValueRankingItem {
+  id: number
+  value: string
+  supporterRank: number | null
+  opponentRank: number | null
+  whyDiffer: string | null
+  sortOrder: number
+}
+
+/** One row in the Likely Interests of Supporters / Opponents tables (new template). */
+export interface InterestEntryItem {
+  id: number
+  side: string // "supporter" | "opponent"
+  interest: string
+  prevalence: string | null
+  linkageConfidence: string | null
+  validity: string | null
+  evidenceBasis: string | null
+  connectedValue: string | null
+  pretextual: boolean
+  sortOrder: number
+}
+
+/** One row in the Shared Interests table (new template). */
+export interface SharedInterestItem {
+  id: number
+  interest: string
+  validity: string | null
+  compromiseDirection: string | null
+  sortOrder: number
+}
+
+/** One row in the Dispute Types table (new template). */
+export interface DisputeTypeItem {
+  id: number
+  disputeType: string // "Empirical" | "Definitional" | "Values"
+  disagreement: string | null
+  evidenceThatMoves: string | null
+  sortOrder: number
+}
+
 export interface ValuesAnalysisData {
   supportingAdvertised: string | null
   supportingActual: string | null
   opposingAdvertised: string | null
   opposingActual: string | null
+  /** Advertised vs. Actual Motivations: evidence the two diverge, per side. */
+  supportingDivergenceEvidence?: string | null
+  opposingDivergenceEvidence?: string | null
+  /** Answer to "What would shift these rankings?" beneath the Shared Values table. */
+  whatWouldShift?: string | null
   /**
    * Optional structured rankings — top-3 values per side with cross-ranking and gap.
    * Empty array means "not yet collected"; the section renders placeholder rows.
@@ -185,6 +259,15 @@ export interface InterestsAnalysisData {
   opponentInterests: string | null
   sharedInterests: string | null
   conflictingInterests: string | null
+  /** Primary Conflict Pair: the ranking difference that drives the debate. */
+  primaryPairSupporter?: string | null
+  primaryPairSupporterValidity?: number | null
+  primaryPairSupporterClaim?: string | null
+  primaryPairSupporterDrives?: string | null
+  primaryPairOpponent?: string | null
+  primaryPairOpponentValidity?: number | null
+  primaryPairOpponentClaim?: string | null
+  primaryPairOpponentDrives?: string | null
   /** Optional structured rankings — same shape as Value Priority Rankings. */
   priorityRankings?: InterestPriorityRankingItem[]
   /** Per-conflict explanation of why the conflict exists. */
@@ -329,6 +412,10 @@ export interface ImpactData {
 export interface CompromiseItem {
   id: number
   description: string
+  /** Best Compromise Solutions, three-column form (new template). */
+  sharedPremise?: string | null
+  synthesis?: string | null
+  whyDifficult?: string | null
 }
 
 export interface ObstacleItem {

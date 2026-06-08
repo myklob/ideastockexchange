@@ -1,247 +1,161 @@
 import Link from 'next/link'
 import type { ArgumentWithBelief } from '../types'
-import SectionHeading from './SectionHeading'
 
 interface ArgumentTreesSectionProps {
   arguments: ArgumentWithBelief[]
   totalPro: number
   totalCon: number
+  netInterpretation: string | null
 }
 
-function linkageLabel(type: string): string {
-  switch (type) {
-    case 'DEDUCTIVE_PROOF': return 'Proof'
-    case 'STRONG_CAUSAL': return 'Strong'
-    case 'CONTEXTUAL': return 'Context'
-    case 'ANECDOTAL': return 'Anecdotal'
-    case 'IRRELEVANT': return 'Irrelevant'
-    case 'NON_SEQUITUR': return 'Non Seq.'
-    case 'CONTRADICTION': return 'Contradiction'
-    default: return type
-  }
+/** Signed argument score for the "Score" column. Blank until real scoring exists (Rule 6). */
+function scoreCell(arg: ArgumentWithBelief): string {
+  if (arg.argumentScore == null) return ''
+  const v = arg.argumentScore
+  return `${v >= 0 ? '+' : ''}${v.toFixed(0)}`
 }
 
-function LinkageBadge({ arg }: { arg: ArgumentWithBelief }) {
-  const linkage = (arg.linkageScore * 100).toFixed(0)
-  const abs = Math.abs(arg.linkageScore)
+function linkCell(arg: ArgumentWithBelief): string {
+  if (!arg.linkageScore) return ''
+  return `${Math.round(arg.linkageScore * 100)}%`
+}
 
-  let colorClass = 'bg-gray-100 text-gray-700 border-gray-300'
-  if (arg.linkageScore <= -0.5) colorClass = 'bg-red-100 text-red-800 border-red-400'
-  else if (abs < 0.05) colorClass = 'bg-red-50 text-red-500 border-red-200'
-  else if (abs < 0.35) colorClass = 'bg-orange-50 text-orange-700 border-orange-300'
-  else if (abs < 0.65) colorClass = 'bg-gray-50 text-gray-600 border-gray-300'
-  else if (abs < 0.95) colorClass = 'bg-blue-50 text-blue-800 border-blue-400'
-  else colorClass = 'bg-green-50 text-green-800 border-green-500'
+function impactCell(arg: ArgumentWithBelief): string {
+  if (!arg.impactScore) return ''
+  const sign = arg.side === 'agree' ? '+' : '-'
+  return `${sign}${Math.abs(arg.impactScore).toFixed(1)}`
+}
 
+/** The argument cell: claim label, inline famous quote (italic), then ~Author link. */
+function ArgumentCell({ arg }: { arg: ArgumentWithBelief }) {
+  const label = arg.claim ?? arg.belief.statement
   return (
-    <Link
-      href={`/arguments/${arg.id}/linkage`}
-      title="Click to debate this linkage score"
-      className={`inline-flex items-center gap-1 text-xs font-mono px-2 py-0.5 rounded border ${colorClass} hover:opacity-80 transition-opacity`}
-    >
-      <span>{linkage}%</span>
-      <span className="text-[10px] text-[var(--muted-foreground)]">
-        ({linkageLabel(arg.linkageType)})
-      </span>
-      <span className="text-[10px] opacity-60" title="Click to debate this linkage">⚖</span>
-    </Link>
-  )
-}
-
-/**
- * Contribution Score = Linkage Score × Truth Score (per /One Page Per Belief).
- * Since impactScore = sign × childTruth × |linkage| × importance × 100, the
- * linkage×truth product is recovered as |impactScore| / (importance × 100).
- * Returns a 0–1 value, blank when the argument has no impact yet (Rule 6).
- */
-function contributionFraction(arg: ArgumentWithBelief): number | null {
-  if (!arg.impactScore || arg.importanceScore <= 0) return null
-  return Math.min(1, Math.abs(arg.impactScore) / (arg.importanceScore * 100))
-}
-
-function ContributionBadge({ arg }: { arg: ArgumentWithBelief }) {
-  const fraction = contributionFraction(arg)
-  if (fraction === null) {
-    return <span className="text-xs italic text-[var(--muted-foreground)]">[pending]</span>
-  }
-  const pct = (fraction * 100).toFixed(0)
-  let colorClass = 'bg-gray-50 text-gray-600 border-gray-300'
-  if (fraction >= 0.65) colorClass = 'bg-green-50 text-green-800 border-green-500'
-  else if (fraction >= 0.35) colorClass = 'bg-blue-50 text-blue-800 border-blue-300'
-  else if (fraction >= 0.10) colorClass = 'bg-orange-50 text-orange-700 border-orange-300'
-  else colorClass = 'bg-red-50 text-red-600 border-red-200'
-
-  return (
-    <span
-      title="Contribution = Linkage Score × Truth Score"
-      className={`inline-flex items-center text-xs font-mono px-2 py-0.5 rounded border ${colorClass}`}
-    >
-      {pct}%
-    </span>
-  )
-}
-
-/**
- * Importance Score cell. When the argument sources its importance from a
- * dedicated sub-belief, the score links to that belief's page (where the
- * "does this matter?" debate lives). Otherwise it renders as plain text —
- * never a broken link (Rule 5).
- */
-function ImportanceCell({ arg }: { arg: ArgumentWithBelief }) {
-  const pct = `${(arg.importanceScore * 100).toFixed(0)}%`
-
-  if (arg.importanceBelief) {
-    return (
-      <Link
-        href={`/beliefs/${arg.importanceBelief.slug}`}
-        title="Importance is sourced from this belief — click to debate whether it matters"
-        className="text-[var(--accent)] hover:underline text-sm font-mono"
-      >
-        {pct}
+    <>
+      <Link href={`/beliefs/${arg.belief.slug}`} className="text-[var(--accent)] hover:underline">
+        {label}
       </Link>
+      {arg.famousQuote && (
+        <span className="text-xs text-[#555]">
+          {' '}<em>&ldquo;{arg.famousQuote}&rdquo;</em>
+        </span>
+      )}
+      {arg.quoteAuthor && (
+        <span className="text-xs text-[var(--muted-foreground)]">
+          {' '}~
+          {arg.quoteAuthorUrl ? (
+            <a href={arg.quoteAuthorUrl} className="text-[var(--accent)] hover:underline">{arg.quoteAuthor}</a>
+          ) : (
+            arg.quoteAuthor
+          )}
+        </span>
+      )}
+    </>
+  )
+}
+
+function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
+  if (!arg) {
+    return (
+      <>
+        <td className="border border-gray-300 px-3 py-2">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+      </>
     )
   }
-
-  return <span className="text-sm font-mono text-[var(--muted-foreground)]">{pct}</span>
-}
-
-function ArgumentRow({ arg }: { arg: ArgumentWithBelief }) {
-  const argScore = (arg.belief.positivity).toFixed(1)
-  const impact = arg.impactScore.toFixed(1)
-
   return (
-    <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-      <td className="px-3 py-3">
-        <Link
-          href={`/beliefs/${arg.belief.slug}`}
-          className="text-[var(--accent)] hover:underline text-sm"
-        >
-          {arg.belief.statement}
-        </Link>
-      </td>
-      <td className="px-3 py-3 text-center text-sm font-mono">
-        <Link
-          href={`/beliefs/${arg.belief.slug}`}
-          title="Truth — click to see the child belief's full score breakdown"
-          className="text-[var(--accent)] hover:underline"
-        >
-          {Number(argScore) >= 0 ? '+' : ''}{argScore}
-        </Link>
-      </td>
-      <td className="px-3 py-3 text-center">
-        <ImportanceCell arg={arg} />
-      </td>
-      <td className="px-3 py-3 text-center">
-        <LinkageBadge arg={arg} />
-      </td>
-      <td className="px-3 py-3 text-center">
-        <ContributionBadge arg={arg} />
-      </td>
-      <td className="px-3 py-3 text-center text-sm font-bold font-mono">
-        {arg.side === 'agree' ? '+' : '-'}{Math.abs(Number(impact))}
-      </td>
-    </tr>
+    <>
+      <td className="border border-gray-300 px-3 py-2 align-top"><ArgumentCell arg={arg} /></td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{scoreCell(arg)}</td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{linkCell(arg)}</td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs font-semibold">{impactCell(arg)}</td>
+    </>
   )
 }
 
-function EmptyRow() {
-  return (
-    <tr className="border-b border-gray-200">
-      <td className="px-3 py-3 text-sm text-[var(--muted-foreground)] italic" colSpan={5}>
-        No arguments yet. Be the first to contribute.
-      </td>
-    </tr>
-  )
-}
-
-export default function ArgumentTreesSection({ arguments: args, totalPro, totalCon }: ArgumentTreesSectionProps) {
+export default function ArgumentTreesSection({
+  arguments: args,
+  totalPro,
+  totalCon,
+  netInterpretation,
+}: ArgumentTreesSectionProps) {
   const proArgs = args.filter(a => a.side === 'agree')
   const conArgs = args.filter(a => a.side === 'disagree')
+  const rowCount = Math.max(proArgs.length, conArgs.length, 1)
+  const rows = Array.from({ length: rowCount }, (_, i) => i)
+
+  const net = totalPro - totalCon
+  const netLabel = `${net >= 0 ? '+' : ''}${net.toFixed(1)}`
 
   return (
     <section>
-      <SectionHeading
-        emoji="&#x1F50D;"
-        title="Argument Trees"
-        href="/Reasons"
-        subtitle="Each reason is a belief with its own page. Scoring is recursive based on truth, linkage, and importance."
-      />
+      <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
+        <span>&#128269;</span>
+        <Link href="/Reasons" className="text-[var(--accent)] hover:underline">Argument Trees</Link>
+      </h2>
+      <p className="text-sm text-[var(--muted-foreground)] mb-4">
+        Each argument is a belief with its own page. Scores are recursive: Argument Score ×{' '}
+        <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
+        <Link href="/importance%20score" className="text-[var(--accent)] hover:underline">Importance</Link>{' '}
+        = Impact. Pro and con impacts sum to the Net Belief Score.
+      </p>
 
-      {/* Pro Arguments Table */}
-      <div className="mb-6 overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-300 text-sm">
-          <thead>
-            <tr className="bg-green-50">
-              <th className="px-3 py-2 text-left w-[44%] font-semibold">
-                Top <Link href="/Scoring" className="text-[var(--accent)] hover:underline">Scoring</Link> Reasons to Agree
-              </th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Truth — the child belief's net score">Truth</th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Importance — how much this argument moves the needle">Importance</th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
-              </th>
-              <th
-                className="px-3 py-2 text-center w-[11%] font-semibold"
-                title="Linkage Score × Truth Score"
-              >
-                Contribution
-              </th>
-              <th className="px-3 py-2 text-center w-[12%] font-semibold">Impact</th>
-            </tr>
-          </thead>
-          <tbody>
-            {proArgs.length > 0 ? (
-              proArgs.map(arg => <ArgumentRow key={arg.id} arg={arg} />)
-            ) : (
-              <EmptyRow />
-            )}
-            <tr className="bg-gray-100 font-semibold">
-              <td colSpan={5} className="px-3 py-2 text-right text-sm">Total Pro:</td>
-              <td className="px-3 py-2 text-center text-sm font-mono text-green-700">
-                +{totalPro.toFixed(1)}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Con Arguments Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
-            <tr className="bg-red-50">
-              <th className="px-3 py-2 text-left w-[44%] font-semibold">
-                Top <Link href="/Scoring" className="text-[var(--accent)] hover:underline">Scoring</Link> Reasons to Disagree
+            <tr>
+              <th className="border border-gray-300 bg-green-100 text-center font-semibold px-3 py-2" colSpan={4}>
+                ✅ Reasons to Agree
               </th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Truth — the child belief's net score">Truth</th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Importance — how much this argument moves the needle">Importance</th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
+              <th className="border border-gray-300 bg-red-100 text-center font-semibold px-3 py-2" colSpan={4}>
+                ❌ Reasons to Disagree
               </th>
-              <th
-                className="px-3 py-2 text-center w-[11%] font-semibold"
-                title="Linkage Score × Truth Score"
-              >
-                Contribution
+            </tr>
+            <tr className="bg-gray-100 text-xs">
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[25%]">Argument</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Score</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
+                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
-              <th className="px-3 py-2 text-center w-[12%] font-semibold">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[25%]">Argument</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Score</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
+                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Impact</th>
             </tr>
           </thead>
           <tbody>
-            {conArgs.length > 0 ? (
-              conArgs.map(arg => <ArgumentRow key={arg.id} arg={arg} />)
-            ) : (
-              <EmptyRow />
-            )}
-            <tr className="bg-gray-100 font-semibold">
-              <td colSpan={5} className="px-3 py-2 text-right text-sm">Total Con:</td>
-              <td className="px-3 py-2 text-center text-sm font-mono text-red-700">
-                -{totalCon.toFixed(1)}
+            {rows.map(i => (
+              <tr key={i}>
+                <HalfRow arg={proArgs[i]} />
+                <HalfRow arg={conArgs[i]} />
+              </tr>
+            ))}
+            <tr className="bg-gray-100 italic text-[#666]">
+              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={3}>Pro Total:</td>
+              <td className="border border-gray-300 px-2 py-2 text-center font-mono text-green-700">
+                {totalPro > 0 ? `+${totalPro.toFixed(1)}` : ''}
+              </td>
+              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={3}>Con Total:</td>
+              <td className="border border-gray-300 px-2 py-2 text-center font-mono text-red-700">
+                {totalCon > 0 ? `-${totalCon.toFixed(1)}` : ''}
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <p className="text-sm mt-4 p-2 bg-gray-100 border border-gray-300">
+        <strong>Net Belief Score: {totalPro > 0 || totalCon > 0 ? netLabel : '[pending]'}.</strong>{' '}
+        {netInterpretation ?? (
+          <span className="text-[var(--muted-foreground)] italic">
+            Interpretation appears once arguments are scored.
+          </span>
+        )}
+      </p>
     </section>
   )
 }

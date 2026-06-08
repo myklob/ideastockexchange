@@ -237,8 +237,28 @@ model Belief {
 
   // New sections from belief-analysis template v2
   definitions         Definition[]
-  falsifiability      String?           // Falsifiability Test text
+  falsifiability      String?           // Legacy single-field Falsifiability Test text
   testablePredictions TestablePrediction[]
+
+  /// Falsifiability Test, two-sided (new template). Evidence that would confirm /
+  /// falsify this belief. Free text; renders the Falsifiability Test table.
+  falsifiabilityConfirm String?
+  falsifiabilityFalsify String?
+
+  /// One-line interpretation of the Net Belief Score, shown beneath the argument
+  /// trees (e.g. "Pro arguments outweigh con arguments roughly 2:1").
+  netInterpretation String?
+
+  /// Header metadata (new template). Newline- or pipe-separated lists of related
+  /// belief labels and the higher-level beliefs this one supports. Plain text so
+  /// they never render as broken links (Rule 5).
+  relatedBeliefs   String?
+  supportsBeliefs  String?
+
+  valueRankings  ValueRanking[]
+  interestEntries InterestEntry[]
+  sharedInterests SharedInterest[]
+  disputeTypes   DisputeType[]
 
   productReview  ProductReview?
 }
@@ -280,6 +300,19 @@ model Argument {
   side         String // "agree" or "disagree"
   linkageScore Float  @default(0.1)
   impactScore  Float  @default(0)
+
+  /// Short 2-6 word argument label shown in the Argument Trees cell (new template).
+  /// When null, the linked belief's statement is used as the label.
+  claim        String?
+  /// The single most famous supporting quote, shown inline (italic) in the cell.
+  famousQuote  String?
+  /// Display name of the person who made the argument (rendered as ~Name).
+  quoteAuthor    String?
+  /// Optional link to that person's page; plain text when null (Rule 5).
+  quoteAuthorUrl String?
+  /// The argument's own displayed score (the "Score" column), distinct from the
+  /// computed Impact. Null renders blank until real sub-argument scoring exists (Rule 6).
+  argumentScore  Float?
 
   /// Importance Score (0-1): how much this argument moves the probability needle.
   /// 1.0 = decisive, 0.5 = moderate, 0.1 = minor. Weights the argument's contribution
@@ -379,6 +412,12 @@ model ObjectiveCriteria {
   criteriaType     String?
   totalScore       Float  @default(0)
 
+  /// New template columns: how the criterion is measured, where the metric
+  /// currently sits, and the target/threshold that would settle the debate.
+  howToMeasure  String?
+  currentStatus String?
+  target        String?
+
   createdAt DateTime @default(now())
 }
 
@@ -391,6 +430,14 @@ model ValuesAnalysis {
   supportingActual     String?
   opposingAdvertised   String?
   opposingActual       String?
+
+  /// Advertised vs. Actual Motivations (new template): the evidence that the
+  /// advertised reason and the actual driver diverge, per side.
+  supportingDivergenceEvidence String?
+  opposingDivergenceEvidence   String?
+
+  /// "What would shift these rankings?" prompt answer beneath the Shared Values table.
+  whatWouldShift String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -406,8 +453,91 @@ model InterestsAnalysis {
   sharedInterests      String?
   conflictingInterests String?
 
+  /// Primary Conflict Pair (new template): the single ranking difference that
+  /// drives the debate. Two interests, each with a standalone validity score
+  /// (0-100), its claim strength on THIS issue, and what drives that claim here.
+  primaryPairSupporter         String?
+  primaryPairSupporterValidity Int?
+  primaryPairSupporterClaim    String?
+  primaryPairSupporterDrives   String?
+  primaryPairOpponent          String?
+  primaryPairOpponentValidity  Int?
+  primaryPairOpponentClaim     String?
+  primaryPairOpponentDrives    String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// One row in the Shared Values, Different Rankings table (new template).
+model ValueRanking {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  value         String
+  supporterRank Int?
+  opponentRank  Int?
+  whyDiffer     String?
+  sortOrder     Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// One row in the Likely Interests of Supporters / Opponents tables (new template).
+model InterestEntry {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side             String  // "supporter" or "opponent"
+  interest         String
+  prevalence       String?
+  linkageConfidence String?
+  validity         String?
+  evidenceBasis    String?
+  connectedValue   String?
+  /// Pretextual / low-validity interest (renders in the italic low-validity row).
+  pretextual       Boolean @default(false)
+  sortOrder        Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// One row in the Shared Interests table (foundation for compromise, new template).
+model SharedInterest {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  interest           String
+  validity           String?
+  compromiseDirection String?
+  sortOrder          Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// One row in the Dispute Types table (new template): Empirical / Definitional / Values.
+model DisputeType {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  disputeType       String // "Empirical" | "Definitional" | "Values"
+  disagreement      String?
+  evidenceThatMoves String?
+  sortOrder         Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
 }
 
 model Assumption {
@@ -593,6 +723,13 @@ model Compromise {
   belief   Belief @relation(fields: [beliefId], references: [id])
 
   description String
+
+  /// Best Compromise Solutions, three-column form (new template): the premise both
+  /// sides accept, the proposed synthesis, and why the compromise is difficult.
+  sharedPremise String?
+  synthesis     String?
+  whyDifficult  String?
+
   createdAt   DateTime @default(now())
 }
 

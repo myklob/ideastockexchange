@@ -40,18 +40,12 @@ export default async function ProductReviewPage({ params }: ProductReviewPagePro
   // Compute belief-level argument scores for display
   let totalPro = 0
   let totalCon = 0
-  let totalSupportingEvidence = 0
-  let totalWeakeningEvidence = 0
 
   if (belief) {
     const proArgs = belief.arguments.filter(a => a.side === 'agree')
     const conArgs = belief.arguments.filter(a => a.side === 'disagree')
     totalPro = proArgs.reduce((sum, a) => sum + Math.abs(a.impactScore), 0)
     totalCon = conArgs.reduce((sum, a) => sum + Math.abs(a.impactScore), 0)
-    const supportingEvidence = belief.evidence.filter(e => e.side === 'supporting')
-    const weakeningEvidence = belief.evidence.filter(e => e.side === 'weakening')
-    totalSupportingEvidence = supportingEvidence.reduce((sum, e) => sum + Math.abs(e.impactScore), 0)
-    totalWeakeningEvidence = weakeningEvidence.reduce((sum, e) => sum + Math.abs(e.impactScore), 0)
   }
 
   return (
@@ -102,6 +96,7 @@ export default async function ProductReviewPage({ params }: ProductReviewPagePro
                 arguments={belief.arguments}
                 totalPro={totalPro}
                 totalCon={totalCon}
+                netInterpretation={belief.netInterpretation}
               />
               <hr className="border-gray-200" />
             </>
@@ -138,7 +133,11 @@ export default async function ProductReviewPage({ params }: ProductReviewPagePro
           {/* 8. Cost-Benefit Analysis */}
           {belief && (
             <>
-              <CostBenefitSection cba={belief.costBenefitAnalysis} />
+              <CostBenefitSection
+                cba={belief.costBenefitAnalysis}
+                impact={belief.impactAnalysis}
+                compromises={belief.compromises}
+              />
               <hr className="border-gray-200" />
             </>
           )}
@@ -190,11 +189,7 @@ export default async function ProductReviewPage({ params }: ProductReviewPagePro
           {/* 16. Evidence (from belief) */}
           {belief && (
             <>
-              <EvidenceSection
-                evidence={belief.evidence}
-                totalSupporting={totalSupportingEvidence}
-                totalWeakening={totalWeakeningEvidence}
-              />
+              <EvidenceSection evidence={belief.evidence} />
               <hr className="border-gray-200" />
             </>
           )}

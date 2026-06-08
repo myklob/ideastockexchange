@@ -138,38 +138,51 @@ Every section with "Supporters" and "Opponents" (Values, Interests, Biases, Moti
 
 ## Canonical Section Order
 
-1. Belief Statement
-2. Score + Topic line (Score: pro/con from sub-arguments | Topic: Category > Subcategory)
-3. Argument Trees (Reasons to Agree vs. Reasons to Disagree — labels only)
-4. Evidence Ledger
-   - 4a. Text and Data Sources (Tier / Source / Stance / Argument It Bears On / Linkage)
-   - 4b. Visual and Video Evidence (Type / Description / Stance / Source / Tier / Argument It Bears On / Linkage)
-5. Values Conflict Analysis
-   - 5a. Value Priority Rankings (Value / Supporters' Rank / Opponents' Rank / Gap / Self-Reported % / Confidence / Source)
-   - 5b. Shared Values, Different Priorities (Shared Value / Supporters' Priority Context / Opponents' Priority Context)
-   - 5c. Cross-Context Consistency Check (Value / Deprioritized By / Other Topic Where They Champion It / What This Suggests)
-   - 5d. Advertised vs. Actual Motivation (symmetric Supporters/Opponents)
-6. Interests and Motivations
-   - 6a. Interest Priority Rankings (same column shape as Values)
-   - 6b. Shared vs. Conflicting Interests (with "Why the Conflict Exists")
-   - 6c. How Interests Drive Value Rankings (Interest at Stake / Side / Value Elevated / Value Deprioritized / Confidence)
-   - 6d. Interest Validity Debate (three scopes: valid at all / more-or-less valid in general / valid within a specific scenario). Expanded only when an interest's validity is itself contested; renders the template skeleton otherwise. Source of truth: `templates/interest-validity-debate-template.html`.
-7. Foundational Assumptions (Required to Accept vs. Required to Reject)
-8. Objective Criteria (Criterion / Current Status / Threshold for Agreement)
-9. Cost-Benefit Analysis (Benefits vs. Costs, then Short-Term vs. Long-Term)
-10. Resolution
-    - 10a. Best Compromise Solutions vs. Primary Obstacles
-    - 10b. Biases (Affecting Supporters vs. Affecting Opponents)
-11. Belief Mapping (Upstream / Downstream / Similar)
-12. Legal Framework (Supporting Laws vs. Contradicting Laws)
-13. **Definitions and Scoring Concepts (LAST before footer)**
-14. Contribute / footer
+The April 2026 redesign restructures the page around a single **Conflict Resolution
+Framework** and brings back the Falsifiability Test, Testable Predictions, and Media
+Resources sections. The source of truth is `templates/belief-analysis-template.html`.
 
-**Removed from canonical order (intentionally):** Falsifiability Test, Testable
-Predictions, and Media Resources are no longer top-level sections. Falsifiability
-is implicit in the Objective Criteria thresholds. Testable Predictions, when
-relevant, render as objective criteria. Media items move into Visual and Video
-Evidence under the Evidence Ledger, paired with the argument they bear on.
+Header: Belief statement → metadata line (Topic / Dewey / Positivity / Net Belief
+Score / Related) → "Beliefs this supports" line. No summary or background (Rule 2).
+
+1. **Argument Trees** — one two-sided scored table (Reasons to Agree / Reasons to
+   Disagree), each side with `Argument / Score / Link / Impact`. Each argument cell is
+   the claim, the single most famous supporting quote inline (italic, small), then the
+   submitter as `~Name`. Pro Total / Con Total row, then the **Net Belief Score** line.
+2. **Evidence Ledger** — one two-sided table (Supporting / Weakening), each side with
+   `Evidence / Type / Link / Impact`.
+3. **Conflict Resolution Framework**
+   - 3a. Shared Values, Different Rankings (`Value / Supporter Rank / Opponent Rank /
+     Why Rankings Differ`, then a "What would shift these rankings?" row)
+   - 3b. Likely Interests of Supporters (`Interest / Prevalence / Linkage Confidence /
+     Validity / Evidence Basis / Connected Value`, plus a Pretextual/Low-validity row)
+   - 3c. Likely Interests of Opponents (same columns, symmetric)
+   - 3d. Shared and Conflicting Interests — Shared Interests table (`Shared Interest /
+     Validity / Compromise direction`) + Primary Conflict Pair (`Interest in the pair /
+     Standalone Validity / Claim strength on THIS issue / What drives its claim here`)
+   - 3e. Advertised vs. Actual Motivations (rows: Advertised reason / Actual driver /
+     Evidence for divergence, columns Supporters / Opponents)
+   - 3f. Dispute Types (Empirical / Definitional / Values)
+   - 3g. Primary Obstacles to Resolution (Supporters / Opponents)
+4. **Objective Criteria** (`Criterion / How to Measure / Current Status / Target`)
+5. **Falsifiability Test** (Evidence That Would Confirm / Falsify) + **Testable
+   Predictions** (`Prediction / Timeframe / Verification Method`)
+6. **Foundational Assumptions** (Required to Accept / Required to Reject)
+7. **Cost-Benefit Analysis** (Benefits / Costs and Risks), then **Short vs. Long-Term
+   Impacts**, then **Best Compromise Solutions** (`Shared Premise / Proposed Synthesis /
+   Why This Is Difficult`)
+8. **Biases** (Affecting Supporters / Affecting Opponents)
+9. **Media Resources** (Supporting / Challenging or Complicating, with Books)
+10. **Legal Framework** (Supporting / Complicating)
+11. **General to Specific Belief Mapping** (Upstream Support/Oppose, Downstream
+    Support/Oppose)
+12. **Similar Beliefs** (More Extreme / More Moderate)
+13. **Definitions** (`Term / Definition`) — LAST before footer
+14. **Contribute / footer**
+
+**Reintroduced in this redesign:** Falsifiability Test, Testable Predictions, and Media
+Resources are once again top-level sections. (They were folded into other sections in the
+prior revision; the April 2026 template restores them as standalone sections.)
 
 ---
 
@@ -178,15 +191,16 @@ Evidence under the Evidence Ledger, paired with the argument they bear on.
 Before outputting any ISE belief page, verify:
 
 - [ ] No summary or background section at the top
+- [ ] Header has the metadata line (Topic / Dewey / Positivity / Net Belief Score / Related) and "Beliefs this supports"
 - [ ] Definitions section is LAST, not first
-- [ ] Every argument cell is 2-6 words
-- [ ] No citations, percentages, or study names in argument cells
+- [ ] Argument cells are short claim labels with the famous quote inline and `~Name` submitter — no citations, percentages, or study names
+- [ ] Argument Trees and Evidence Ledger each render as a single two-sided table with Pro/Con (or Supporting/Weakening) halves
 - [ ] All evidence lives in the Evidence Ledger with tier assigned
-- [ ] Visual/video items live in the Visual and Video Evidence sub-table, not in a separate Media section
-- [ ] Values section has all four sub-tables: Priority Rankings, Shared Values, Cross-Context, Advertised vs. Actual
-- [ ] Interests section has all four sub-tables: Priority Rankings, Shared vs. Conflicting (with Why), Interest -> Value Linkage, Interest Validity Debate (three scopes)
-- [ ] Resolution section bundles Compromise/Obstacles AND Biases together
+- [ ] Conflict Resolution Framework has all seven sub-sections: Shared Values rankings, Interests of Supporters, Interests of Opponents, Shared+Conflicting (Shared Interests + Primary Conflict Pair), Advertised vs. Actual, Dispute Types, Primary Obstacles
+- [ ] Objective Criteria has Criterion / How to Measure / Current Status / Target
+- [ ] Falsifiability Test, Testable Predictions, and Media Resources are present as standalone sections
+- [ ] Cost-Benefit Analysis bundles Short vs. Long-Term and Best Compromise Solutions (3 columns)
 - [ ] Every link points to a page that exists OR is plain text
 - [ ] No `href="#"` anchors anywhere
-- [ ] Both sides have symmetric structure in Values, Interests, Biases
+- [ ] Both sides have symmetric structure in Interests, Advertised vs. Actual, Biases, Obstacles
 - [ ] Score cells are blank for unpopulated arguments
