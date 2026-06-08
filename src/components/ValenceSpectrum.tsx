@@ -15,9 +15,9 @@ export default function ValenceSpectrum({ beliefs }: ValenceSpectrumProps) {
         Dimension 3: Negative → Positive (The Valence Spectrum)
       </h3>
       <p className="text-gray-700 mb-4">
-        View the full spectrum of positions in one view. Instead of a binary "Pro/Con," we map
+        View the full spectrum of positions in one view. Instead of a binary &ldquo;Pro/Con,&rdquo; we map
         the nuance of the debate, allowing users to find the exact point where they stand.
-      </p>
+</p>
 
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300 bg-white">
