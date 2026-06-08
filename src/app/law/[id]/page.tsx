@@ -471,7 +471,7 @@ function StakeholderCard({
   stakeholder,
   type
 }: {
-  stakeholder: any;
+  stakeholder: import('@/core/types/wikilaw').StakeholderImpact;
   type: 'winner' | 'loser' | 'silent';
 }) {
   const typeColors = {
