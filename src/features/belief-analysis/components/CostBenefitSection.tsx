@@ -12,13 +12,13 @@ interface CostBenefitSectionProps {
 const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold'
 const TD = 'border border-gray-300 px-3 py-2 align-top'
 
-function lines(text: string | null | undefined): React.ReactNode {
+function lines(text: string | null | undefined) {
   if (!text) return <span>&nbsp;</span>
   return text.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)
 }
 
 /** Join two free-text columns into one cell, skipping blanks. */
-function joined(a: string | null | undefined, b: string | null | undefined): React.ReactNode {
+function joined(a: string | null | undefined, b: string | null | undefined) {
   const parts = [a, b].filter(Boolean) as string[]
   if (parts.length === 0) return <span>&nbsp;</span>
   return lines(parts.join('\n'))

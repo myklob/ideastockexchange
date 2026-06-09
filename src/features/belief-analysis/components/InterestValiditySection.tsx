@@ -1,3 +1,4 @@
+import type { Key } from 'react'
 import Link from 'next/link'
 import type {
   InterestValidityDebate,
@@ -13,7 +14,7 @@ interface InterestValiditySectionProps {
 /** A single placeholder debate so the template skeleton renders when no data exists. */
 const PLACEHOLDER_DEBATE: InterestValidityDebate = { interest: '' }
 
-function scoreCell(score: number | null | undefined): React.ReactNode {
+function scoreCell(score: number | null | undefined) {
   if (score == null) {
     return <span className="text-[var(--muted-foreground)] italic">[±XX]</span>
   }
@@ -21,7 +22,7 @@ function scoreCell(score: number | null | undefined): React.ReactNode {
   return <span className="font-mono">{sign}{score}</span>
 }
 
-function validityCell(score: number | null | undefined): React.ReactNode {
+function validityCell(score: number | null | undefined) {
   if (score == null) {
     return <span className="text-[var(--muted-foreground)] italic">[pending]</span>
   }
@@ -142,7 +143,7 @@ function ComparisonTable({ rows }: { rows: InterestComparisonItem[] }) {
   )
 }
 
-function ScenarioBlock({ scenario, index }: { scenario: InterestScenarioItem | null; index: number }) {
+function ScenarioBlock({ scenario, index }: { key?: Key; scenario: InterestScenarioItem | null; index: number }) {
   return (
     <div className="border border-gray-200 rounded p-4 space-y-3">
       <div className="overflow-x-auto">
@@ -206,7 +207,7 @@ function ScenarioBlock({ scenario, index }: { scenario: InterestScenarioItem | n
   )
 }
 
-function DebateBlock({ debate }: { debate: InterestValidityDebate }) {
+function DebateBlock({ debate }: { key?: Key; debate: InterestValidityDebate }) {
   const scenarios: Array<InterestScenarioItem | null> =
     debate.scenarios && debate.scenarios.length > 0 ? debate.scenarios : [null]
   const objectiveCriteria = debate.objectiveCriteria ?? []

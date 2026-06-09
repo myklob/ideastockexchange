@@ -19,7 +19,7 @@ interface ConflictResolutionSectionProps {
   obstacles: ObstacleItem[]
 }
 
-function lines(text: string | null | undefined): React.ReactNode {
+function lines(text: string | null | undefined) {
   if (!text) return <span>&nbsp;</span>
   return text.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)
 }

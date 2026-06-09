@@ -33,9 +33,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
   const { slug } = await params
   const belief = await fetchBeliefBySlug(decodeURIComponent(slug))
 
-  if (!belief) {
-    notFound()
-  }
+  if (!belief) return notFound()
 
   const scores = computeBeliefScores(belief)
   const net = scores.totalPro - scores.totalCon
