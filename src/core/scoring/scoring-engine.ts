@@ -528,7 +528,7 @@ export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
 
   // Score evidence
   let supportingEvidenceScore = 0
-  let weakeningEvidenceScore = 0
+  const weakeningEvidenceScore = 0
 
   for (const ev of belief.evidence) {
     const tierWeight = getEvidenceTypeWeight(ev.tier)
