@@ -3,7 +3,13 @@ import { prisma } from '@/lib/prisma'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getBooks(): Promise<any[]> {
-  return (prisma as any).book.findMany({
+  // Book/Author/TopicOverlap models were retired from the schema; this legacy
+  // route degrades to an empty state instead of throwing a 500.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const bookModel = (prisma as any).book
+  if (!bookModel) return []
+
+  return bookModel.findMany({
     include: {
       topicOverlaps: true,
       authorProfile: true,

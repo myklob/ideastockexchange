@@ -1,233 +1,104 @@
-# Setup Guide - Idea Stock Exchange
+# Setup Guide — Idea Stock Exchange
 
-This guide will help you get the Idea Stock Exchange application up and running.
+Idea Stock Exchange is a **Next.js 16 (App Router) + React 19 + Prisma 7** application.
+Local development uses SQLite via the `better-sqlite3` driver adapter; production uses
+Postgres (see "Deploying" below). Everything runs from a single `npm` project at the
+repo root — there is no separate backend/frontend to start.
+
+> The old Python (`backend/`) + standalone React (`frontend/`, `client/`) + Express
+> (`server/`) stack has been retired and moved to `_archive/`. Ignore any older
+> instructions that reference `uvicorn`, `pip`, or a separate frontend dev server.
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- Node.js 16 or higher
-- npm or yarn
+- **Node.js 20+** (22 recommended) and npm
+- No database server needed for local dev — SQLite is file-based
 
-## Backend Setup
-
-### 1. Navigate to the backend directory
+Check your version:
 
 ```bash
-cd backend
+node --version   # should be >= 20
 ```
 
-### 2. Create a virtual environment
+## Quick start
+
+From the repo root:
 
 ```bash
-python -m venv venv
-```
-
-### 3. Activate the virtual environment
-
-**On macOS/Linux:**
-```bash
-source venv/bin/activate
-```
-
-**On Windows:**
-```bash
-venv\Scripts\activate
-```
-
-### 4. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 5. Initialize the database
-
-The database will be created automatically when you first run the application.
-To seed it with example data:
-
-```bash
-python -m backend.seed_data
-```
-
-This will create example topics including:
-- **Climate Change Severity** with criteria like:
-  - Glacier Mass Balance (92% score)
-  - Average Global Temperature (85% score)
-  - Frequency of Hot Days (60% score)
-  - Twitter Sentiment (15% score)
-
-- **Economic Health** with criteria like:
-  - Median Real Wage Growth
-  - GDP Growth Rate
-  - Stock Market Performance
-
-### 6. Run the backend server
-
-```bash
-uvicorn backend.main:app --reload
-```
-
-The API will be available at: http://localhost:8000
-
-API documentation: http://localhost:8000/docs
-
-## Frontend Setup
-
-### 1. Navigate to the frontend directory
-
-```bash
-cd frontend
-```
-
-### 2. Install dependencies
-
-```bash
+# 1. Install dependencies (also generates the Prisma client via postinstall-free flow below)
 npm install
+
+# 2. Point the app at the local SQLite database
+cp .env.example .env          # DATABASE_URL defaults to file:./prisma/dev.db
+
+# 3. Generate the Prisma client (custom output: src/generated/prisma)
+npm run db:generate
+
+# 4. Create the SQLite schema (~64 tables)
+npx prisma db push
+
+# 5. Seed beliefs, the marriage debate topic, and product reviews
+npm run db:seed
+
+# 6. Start the dev server
+npm run dev
 ```
 
-### 3. Start the development server
+Open **http://localhost:3000**. The key pages once seeded:
 
-```bash
-npm start
-```
+- `/` — homepage
+- `/beliefs` — belief index (the crown-jewel pages)
+- `/beliefs/universal-basic-income-should-be-implemented` — a fully seeded belief page
+- `/debate-topics` and `/debate-topics/marriage`
+- `/product-reviews`
 
-The application will open in your browser at: http://localhost:3000
+## Useful scripts
 
-## Using the Application
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the Next.js dev server on port 3000 |
+| `npm run build` | Production build (run before claiming a task done) |
+| `npm start` | Serve the production build |
+| `npm run db:generate` | Regenerate the Prisma client into `src/generated/prisma` |
+| `npm run db:push` | Sync the schema to the database without a migration |
+| `npm run db:seed` | Seed beliefs, debate topics, and product reviews |
+| `npm run db:reset` | Drop, re-migrate, and re-seed (destructive) |
+| `npm run lint` | ESLint over the repo |
+| `npm test` | Vitest unit tests |
 
-### Creating a Topic
+## Database notes
 
-1. Go to http://localhost:3000
-2. Click "Create New Topic"
-3. Enter a title like "Is Universal Healthcare Effective?"
-4. Add a description (optional)
-5. Click "Create Topic"
+- The **canonical local database path is `file:./prisma/dev.db`**. This value must
+  match in three places — `.env` (copied from `.env.example`), `prisma.config.ts`,
+  and `src/lib/prisma.ts` — and it now does. Do not reintroduce a root-level
+  `./dev.db`; it creates a second, empty database and pages render blank.
+- The generated Prisma client lives at `src/generated/prisma` (custom `output` in
+  `prisma/schema.prisma`), imported through the `@/generated/prisma/client` alias.
+  If you see `@/generated/prisma/client` import errors, run `npm run db:generate`.
+- All code goes through the shared client in `src/lib/prisma.ts`, which wires up the
+  `better-sqlite3` adapter for SQLite and the `pg` adapter for a Postgres
+  `DATABASE_URL`. Seed scripts import this same client.
 
-### Proposing Criteria
+## Deploying (Vercel + Postgres)
 
-1. Open a topic
-2. Click "Propose New Criterion"
-3. Enter a criterion name like "Life Expectancy"
-4. Add a description explaining what it measures
-5. Click "Create Criterion"
+SQLite does not work on serverless, so production uses Postgres (Neon/Supabase/etc.):
 
-### Adding Arguments
+1. Create a Postgres database and copy its connection string.
+2. In the Prisma datasource (`prisma/schema.prisma`), set the provider to
+   `postgresql` for the production database, and set `DATABASE_URL` to the Postgres
+   URL in your host's environment variables (do **not** commit it).
+3. Run `npx prisma migrate deploy` (or `db push`) and `npm run db:seed` against the
+   production database.
+4. On Vercel: import the GitHub repo, set `DATABASE_URL` in Project → Settings →
+   Environment Variables, and deploy.
 
-1. On a criterion card, click "Add Argument for this Criterion"
-2. Select a dimension (Validity, Reliability, Independence, or Linkage)
-3. Choose direction (Supporting or Opposing)
-4. Write your argument content
-5. Adjust the quality scores:
-   - **Evidence Quality**: How well-supported is this argument?
-   - **Logical Validity**: How logically sound is this argument?
-   - **Importance**: How important is this consideration?
-6. Click "Add Argument"
-
-The criterion scores will automatically recalculate!
-
-### Understanding the Scores
-
-Each criterion is scored 0-100% based on four dimensions:
-
-- **Validity** (✓): Does this measure what we think it measures?
-- **Reliability** (⚖): Can different people measure this consistently?
-- **Independence** (◉): Is the data source neutral?
-- **Linkage** (↔): How strongly does this correlate with the goal?
-
-The overall score is calculated from these four dimensions, weighted by the balance of supporting vs. opposing arguments.
-
-### Viewing Score Breakdowns
-
-Click "Show Detailed Breakdown" on any criterion to see:
-- How each dimension was scored
-- All supporting and opposing arguments
-- The weight of each argument
-- How the final score was calculated
-
-## Architecture
-
-### Backend (Python/FastAPI)
-
-- **models.py**: Database models using SQLAlchemy
-- **schemas.py**: Pydantic schemas for API validation
-- **main.py**: FastAPI application with all endpoints
-- **algorithms/scoring.py**: ReasonRank algorithm implementation
-- **database.py**: Database configuration
-- **seed_data.py**: Example data for testing
-
-### Frontend (React/TypeScript)
-
-- **components/HomePage.tsx**: Topic listing and creation
-- **components/TopicPage.tsx**: Criteria display for a topic
-- **components/CriterionCard.tsx**: Individual criterion display
-- **components/ArgumentForm.tsx**: Form for creating arguments
-- **components/DimensionBreakdown.tsx**: Detailed score breakdown
-- **components/ScoreBar.tsx**: Visual score display
-- **services/api.ts**: API client
-- **types/index.ts**: TypeScript type definitions
-
-## API Endpoints
-
-### Topics
-- `POST /topics/` - Create topic
-- `GET /topics/` - List topics
-- `GET /topics/{id}` - Get topic with criteria
-- `DELETE /topics/{id}` - Delete topic
-
-### Criteria
-- `POST /criteria/` - Create criterion
-- `GET /criteria/{id}` - Get criterion with arguments
-- `GET /topics/{id}/criteria/` - List topic's criteria
-- `DELETE /criteria/{id}` - Delete criterion
-- `POST /criteria/{id}/recalculate` - Recalculate scores
-- `GET /criteria/{id}/breakdown` - Get score breakdown
-
-### Arguments
-- `POST /arguments/` - Create argument
-- `PUT /arguments/{id}` - Update argument
-- `GET /criteria/{id}/arguments/` - List criterion's arguments
-- `DELETE /arguments/{id}` - Delete argument
-
-### Evidence
-- `POST /evidence/` - Create evidence
-- `GET /criteria/{id}/evidence/` - List criterion's evidence
+See `docs/` (DEPLOYMENT.md) for the full step-by-step.
 
 ## Troubleshooting
 
-### Backend won't start
-
-- Make sure Python 3.11+ is installed: `python --version`
-- Check that virtual environment is activated
-- Verify all dependencies installed: `pip list`
-
-### Frontend won't start
-
-- Check Node.js version: `node --version` (needs 16+)
-- Delete node_modules and reinstall: `rm -rf node_modules && npm install`
-- Clear npm cache: `npm cache clean --force`
-
-### Database errors
-
-- Delete the database file and recreate: `rm ideastockexchange.db`
-- Run seed script again: `python -m backend.seed_data`
-
-### API connection errors
-
-- Verify backend is running on port 8000
-- Check that CORS is configured in backend/main.py
-- Verify frontend .env file has correct API URL
-
-## Next Steps
-
-- Explore the example data
-- Create your own topics and criteria
-- Add arguments to see scores update in real-time
-- Review the detailed breakdowns to understand the algorithm
-- Read the CONTRIBUTING.md for how to extend the system
-
-## Support
-
-For issues or questions:
-- Check the documentation in docs/
-- Review the code comments
-- Open an issue on GitHub
+- **Blank `/beliefs` or `/debate-topics`** — the database wasn't seeded or the app is
+  reading the wrong file. Confirm `.env` has `DATABASE_URL="file:./prisma/dev.db"`,
+  then re-run `npx prisma db push && npm run db:seed`.
+- **`@/generated/prisma/client` cannot be found** — run `npm run db:generate`.
+- **Type errors in routes you didn't touch** — the repo has some pre-existing
+  implicit-any errors in legacy routes; only your edited files need to be clean.

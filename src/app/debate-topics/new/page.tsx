@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function NewDebateTopicPage() {
+function NewDebateTopicForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isGenerate = searchParams.get('generate') === '1';
@@ -203,5 +203,13 @@ export default function NewDebateTopicPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function NewDebateTopicPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewDebateTopicForm />
+    </Suspense>
   );
 }

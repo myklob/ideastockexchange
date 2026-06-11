@@ -2,7 +2,14 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
 async function getTopics() {
-  const topicOverlaps: any[] = await (prisma as any).topicOverlap.findMany({
+  // The Book/Author/TopicOverlap models were retired from the schema; this
+  // legacy route degrades to an empty state instead of throwing a 500 when
+  // the model is absent.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const topicOverlapModel = (prisma as any).topicOverlap
+  if (!topicOverlapModel) return []
+
+  const topicOverlaps: any[] = await topicOverlapModel.findMany({
     include: {
       book: {
         include: {

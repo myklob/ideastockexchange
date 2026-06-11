@@ -42,7 +42,6 @@
     "frontend",
     "backend",
     "dist",
-    "scripts",
-    "prisma/seed.ts"
+    "scripts"
   ]
 }
