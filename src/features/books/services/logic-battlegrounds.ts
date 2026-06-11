@@ -1,5 +1,7 @@
-// @ts-nocheck
 // This service depends on the Book/Claim/Fallacy schema not yet active in SQLite.
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { prisma } from '@/lib/prisma'
 
 /**
