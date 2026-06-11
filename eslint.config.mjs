@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Archive and generated tool directories — not part of the app:
+    "_archive/**",
+    "tools/**",
   ]),
 ]);
 
