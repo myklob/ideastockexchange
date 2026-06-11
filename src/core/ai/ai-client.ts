@@ -341,7 +341,9 @@ export function createAIClient(configPath?: string): AIClient {
 
   if (configPath) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const fs = require('fs');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const yaml = require('js-yaml');
       const configContent = fs.readFileSync(configPath, 'utf8');
       const config = yaml.load(configContent);
