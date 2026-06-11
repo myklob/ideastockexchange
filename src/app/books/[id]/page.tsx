@@ -1,13 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getBookAnalysisReport } from '@/features/books/services/book-service'
-import { BookAnalysisReport } from '@/core/types/book'
-
-function getScoreColor(score: number): string {
-  if (score >= 80) return 'bg-green-50 border-green-600 text-green-900'
-  if (score >= 60) return 'bg-yellow-50 border-yellow-600 text-yellow-900'
-  return 'bg-red-50 border-red-600 text-red-900'
-}
 
 function ProgressBar({ value, max = 100, color = 'blue' }: { value: number; max?: number; color?: string }) {
   const percentage = Math.min((value / max) * 100, 100)
@@ -119,7 +112,7 @@ export default async function BookAnalysisPage({ params }: { params: Promise<{ i
               </div>
               <ProgressBar value={report.authorCredibility.truthEquityScore} color="green" />
               <p className="text-sm text-gray-600 mt-1">
-                Historical accuracy across author's works
+                Historical accuracy across author&apos;s works
               </p>
             </div>
           </div>
@@ -275,7 +268,7 @@ export default async function BookAnalysisPage({ params }: { params: Promise<{ i
           <div className="bg-white rounded-lg shadow-sm border p-8 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">🎯 Topic Overlap Scores</h2>
             <p className="text-gray-600 mb-6">
-              How central specific beliefs are to this book's thesis:
+              How central specific beliefs are to this book&apos;s thesis:
             </p>
 
             <div className="space-y-4">

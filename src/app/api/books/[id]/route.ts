@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// Note: These routes depend on the Book model which requires PostgreSQL schema.
-// Using 'any' cast for now until schema is fully migrated.
+// The Book model was retired from the SQLite schema; these routes access it
+// dynamically so they degrade gracefully rather than throwing at module load time.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = prisma as any
 
 export async function GET(
