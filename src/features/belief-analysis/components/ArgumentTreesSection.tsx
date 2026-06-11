@@ -92,12 +92,12 @@ export default function ArgumentTreesSection({
     <section>
       <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
         <span>&#128269;</span>
-        <Link href="/Reasons" className="text-[var(--accent)] hover:underline">Argument Trees</Link>
+        <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">Argument Trees</Link>
       </h2>
       <p className="text-sm text-[var(--muted-foreground)] mb-4">
         Each argument is a belief with its own page. Scores are recursive: Argument Score ×{' '}
-        <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
-        <Link href="/importance%20score" className="text-[var(--accent)] hover:underline">Importance</Link>{' '}
+        <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
+        Importance{' '}
         = Impact. Pro and con impacts sum to the Net Belief Score.
       </p>
 

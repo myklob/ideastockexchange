@@ -40,7 +40,7 @@ function SharedValuesTable({ rows, whatWouldShift }: { rows: ValueRankingItem[];
       <thead>
         <tr className="bg-gray-100">
           <th className={`${TH} w-[28%]`}>
-            <Link href="/American%20values" className="text-[var(--accent)] hover:underline">Value</Link>
+            Value
           </th>
           <th className={`${TH} text-center w-[12%]`}>Supporter Rank</th>
           <th className={`${TH} text-center w-[12%]`}>Opponent Rank</th>
