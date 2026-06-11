@@ -83,6 +83,7 @@ export default async function BooksPage() {
           </div>
         ) : (
           <div className="space-y-6">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {books.map((book: any) => (
               <Link
                 key={book.id}
@@ -149,6 +150,7 @@ export default async function BooksPage() {
                         <strong>Topic Overlap:</strong>
                       </p>
                       <div className="flex flex-wrap gap-2">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                         {book.topicOverlaps.slice(0, 5).map((topic: any) => (
                           <span
                             key={topic.id}
