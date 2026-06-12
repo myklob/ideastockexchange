@@ -18,6 +18,7 @@
  *   ise-dev score "ban assault weapons" "prohibit military-style rifles"
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 'use strict'
 
 const { execSync, spawn } = require('child_process')

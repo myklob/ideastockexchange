@@ -5,6 +5,7 @@
  * For a production build with tree-shaking, replace this with esbuild:
  *   npx esbuild src/cli.js --bundle --platform=node --outfile=dist/cli.js
  */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs')
 const path = require('path')
 
