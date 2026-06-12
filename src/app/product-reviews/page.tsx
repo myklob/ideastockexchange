@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { fetchAllProductReviews } from '@/features/product-reviews/data/fetch-product-reviews'
 

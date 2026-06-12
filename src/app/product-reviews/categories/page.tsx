@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { fetchAllProductReviewsFull } from '@/features/product-reviews/data/fetch-product-reviews'
 import { rankProductsInCategory } from '@/core/scoring/product-review-scoring'
