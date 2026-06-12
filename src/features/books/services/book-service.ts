@@ -1,6 +1,7 @@
-// @ts-nocheck
 // Book models depend on a schema that is not active in the current SQLite setup.
 // This file is retained for future migration to the full schema.
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { prisma } from '@/lib/prisma'
 import {
   calculateWeightedValidity,
