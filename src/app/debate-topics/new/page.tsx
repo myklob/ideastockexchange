@@ -9,7 +9,7 @@ function NewDebateTopicForm() {
   const searchParams = useSearchParams();
   const isGenerate = searchParams.get('generate') === '1';
 
-  const [mode, setMode] = useState<'generate' | 'manual'>(isGenerate ? 'generate' : 'generate');
+  const [mode, setMode] = useState<'generate' | 'manual'>(isGenerate ? 'generate' : 'manual');
   const [topicName, setTopicName] = useState('');
   const [categoryPath, setCategoryPath] = useState('');
   const [loading, setLoading] = useState(false);
