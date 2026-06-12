@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Legacy archived code — not part of the active app
+    "_archive/**",
+    "tools/**",
+    // Legacy CJS trading engine — depends on archived db models
+    "src/core/trading-engine.js",
   ]),
 ]);
 
