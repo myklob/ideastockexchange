@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+/* eslint-enable @typescript-eslint/ban-ts-comment */
 // This service depends on the Book/Claim/Fallacy schema not yet active in SQLite.
 import { prisma } from '@/lib/prisma'
 
@@ -148,6 +150,7 @@ export async function updateReplicationStatus(
   status: 'replicated' | 'failed_replication' | 'not_tested',
   newValidityScore?: number
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- schema not active; typed update when migrated
   const updates: any = {
     replicationStatus: status,
     lastVerified: new Date(),

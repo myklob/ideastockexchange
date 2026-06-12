@@ -200,7 +200,7 @@ export default async function EquivalencePage({ params }: EquivalencePageProps) 
               <tbody>
                 {analysis.synonymClaims.map(sc => (
                   <tr key={sc.id}>
-                    <td className="border border-gray-300 px-3 py-2">"{sc.xTerm}" = "{sc.yTerm}"</td>
+                    <td className="border border-gray-300 px-3 py-2">&ldquo;{sc.xTerm}&rdquo; = &ldquo;{sc.yTerm}&rdquo;</td>
                     {[sc.merriamWebster, sc.oxford, sc.wordNet, sc.embeddingModel].map((v, i) => (
                       <td key={i} className="border border-gray-300 px-3 py-2 text-center">
                         {v === null ? '—' : v ? '✅' : '❌'}

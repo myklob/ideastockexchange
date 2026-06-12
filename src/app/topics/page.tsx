@@ -9,6 +9,7 @@ async function getTopics() {
   const topicOverlapModel = (prisma as any).topicOverlap
   if (!topicOverlapModel) return []
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- legacy model not in active schema
   const topicOverlaps: any[] = await topicOverlapModel.findMany({
     include: {
       book: {
@@ -23,6 +24,7 @@ async function getTopics() {
   })
 
   // Group by topic name
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- legacy model not in active schema
   const topicsMap = new Map<string, any[]>()
 
   topicOverlaps.forEach((overlap) => {
@@ -78,7 +80,7 @@ export default async function TopicsPage() {
           <p className="text-lg text-gray-700">
             Books organized by the beliefs they defend or challenge. Each topic shows which books
             address it most centrally, with overlap scores indicating how central that belief is to
-            the book's thesis.
+            the book&apos;s thesis.
           </p>
         </div>
 

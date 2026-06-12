@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- legacy CommonJS module */
 const { User, Idea, Holding, Transaction } = require('../db/models');
 const db = require('../db/database');
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 class TradingEngine {
   /**
