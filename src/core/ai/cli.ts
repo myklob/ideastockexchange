@@ -60,6 +60,7 @@ function loadConfig(configPath?: string): FrameworkConfig {
   const configFile = configPath || path.join(process.cwd(), 'ise-config.yaml');
   if (fs.existsSync(configFile)) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const yaml = require('js-yaml');
       const fileConfig = yaml.load(fs.readFileSync(configFile, 'utf-8'));
       config = mergeConfig(config, fileConfig);

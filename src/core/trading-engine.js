@@ -1,4 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { User, Idea, Holding, Transaction } = require('../db/models');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const db = require('../db/database');
 
 class TradingEngine {
