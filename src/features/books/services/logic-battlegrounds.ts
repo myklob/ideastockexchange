@@ -148,7 +148,7 @@ export async function updateReplicationStatus(
   status: 'replicated' | 'failed_replication' | 'not_tested',
   newValidityScore?: number
 ) {
-  const updates: any = {
+  const updates: { replicationStatus: string; lastVerified: Date; validityScore?: number } = {
     replicationStatus: status,
     lastVerified: new Date(),
   }

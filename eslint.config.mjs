@@ -13,6 +13,14 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Books services use @ts-nocheck because the Book model is not in the current
+  // SQLite schema; these files are retained for future Postgres migration.
+  {
+    files: ["src/features/books/services/*.ts"],
+    rules: {
+      "@typescript-eslint/ban-ts-comment": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

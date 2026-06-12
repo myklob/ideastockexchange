@@ -16,6 +16,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const book = await (prisma as any).book.create({
       data: {
         title: body.title,
