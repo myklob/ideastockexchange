@@ -471,7 +471,7 @@ function StakeholderCard({
   stakeholder,
   type
 }: {
-  stakeholder: any;
+  stakeholder: { group: string; magnitude: string; description: string; size: number; impactType: string };
   type: 'winner' | 'loser' | 'silent';
 }) {
   const typeColors = {
