@@ -13,8 +13,7 @@
 
 import type {
   GraphNode, GraphEdge, ClaimNode, ArgumentNode, EvidenceNode,
-  SupportsEdge, AttacksEdge, HasEvidenceEdge, SimilarToEdge,
-  EdgeType,
+  SupportsEdge, AttacksEdge, SimilarToEdge,
 } from './types'
 
 export class DependencyGraph {
