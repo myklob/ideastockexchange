@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { fetchAllMedia, computeEpistemicImpact, formatReach, getMediaTypeLabel, getMediaTypeEmoji } from '@/features/media/fetch-media'
 
