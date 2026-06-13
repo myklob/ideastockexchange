@@ -18,7 +18,7 @@ const categoryColors: Record<string, string> = {
   Political: 'text-orange-700 bg-orange-50 border-orange-200',
 }
 
-export default function LineItemCard({ item, cbaId, onUpdate }: LineItemCardProps) {
+export default function LineItemCard({ item, cbaId, onUpdate: _onUpdate }: LineItemCardProps) {
   const [expanded, setExpanded] = useState(false)
 
   const isBenefit = item.type === 'benefit'

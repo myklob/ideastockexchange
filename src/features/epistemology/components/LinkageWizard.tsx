@@ -59,8 +59,8 @@ export default function LinkageWizard({
 }: LinkageWizardProps) {
   const [step, setStep] = useState<WizardStep>('direction')
   const [direction, setDirection] = useState<'support' | 'oppose' | null>(null)
-  const [isRelevant, setIsRelevant] = useState<boolean | null>(null)
-  const [strength, setStrength] = useState<'proof' | 'strong' | 'context' | 'weak' | null>(null)
+  const [, setIsRelevant] = useState<boolean | null>(null)
+  const [, setStrength] = useState<'proof' | 'strong' | 'context' | 'weak' | null>(null)
 
   const handleDirectionSelect = (dir: 'support' | 'oppose') => {
     setDirection(dir)
