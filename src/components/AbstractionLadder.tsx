@@ -16,7 +16,7 @@ export default function AbstractionLadder({ beliefs }: AbstractionLadderProps) {
       </h3>
       <p className="text-gray-700 mb-4">
         Navigate up to see the broader principles or down to explore specific policy implementations.
-        This prevents "category errors" where people argue about specific laws when they actually
+        This prevents &ldquo;category errors&rdquo; where people argue about specific laws when they actually
         disagree on fundamental philosophy.
       </p>
 

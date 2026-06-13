@@ -365,8 +365,8 @@ export interface LawComparison {
 
   differences: {
     field: string;
-    current: any;
-    proposed: any;
+    current: string | number | boolean | null;
+    proposed: string | number | boolean | null;
     impact: string;
   }[];
 
