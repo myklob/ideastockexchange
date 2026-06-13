@@ -84,11 +84,12 @@ Open **http://localhost:3000**. The key pages once seeded:
 SQLite does not work on serverless, so production uses Postgres (Neon/Supabase/etc.):
 
 1. Create a Postgres database and copy its connection string.
-2. In the Prisma datasource (`prisma/schema.prisma`), set the provider to
-   `postgresql` for the production database, and set `DATABASE_URL` to the Postgres
-   URL in your host's environment variables (do **not** commit it).
-3. Run `npx prisma migrate deploy` (or `db push`) and `npm run db:seed` against the
-   production database.
+2. Set `DATABASE_URL` to the Postgres URL in your host's environment variables (do
+   **not** commit it). No schema edit is needed — `scripts/set-prisma-provider.mjs`
+   flips the datasource `provider` to `postgresql` automatically whenever
+   `DATABASE_URL` is a `postgres://` URL.
+3. Run `npm run db:push` (or `npx prisma migrate deploy`) and `npm run db:seed`
+   against the production database.
 4. On Vercel: import the GitHub repo, set `DATABASE_URL` in Project → Settings →
    Environment Variables, and deploy.
 
