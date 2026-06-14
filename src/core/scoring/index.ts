@@ -29,6 +29,10 @@ export {
 // Duplication scoring — solves the Redundancy Problem (Topic Overlap Scores)
 export * from './duplication-scoring';
 
+// The Denominator — score a belief against its counterclaims (contrast class).
+// Layer 1 (justification, internal) + Layer 2 (opportunity cost, external).
+export * from './contrast-class';
+
 // All-scores module — remaining ReasonRank score dimensions:
 //   Objective Criteria, Confidence Stability, Media Truth, Media Genre,
 //   Topic Overlap helpers, Belief Equivalency, and combined computeAllBeliefScores
