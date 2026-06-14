@@ -33,16 +33,18 @@ The single most important thing to get right in this codebase is the belief page
 
 If you change the rules doc, update the template and the page. If you change the template or page, update the rules doc. The three must stay in sync.
 
-### Sections that no longer exist as standalones
+### Legacy vs. active section components
 
-Per the new template (April 2026), the page does NOT have separate `Falsifiability`, `Testable Predictions`, `Media Resources`, or `Short vs Long-Term Impact` sections.
+The April 2026 template (confirmed in `docs/BELIEF_PAGE_RULES.md` and `templates/belief-analysis-template.html`) makes **Falsifiability Test**, **Testable Predictions**, and **Media Resources** top-level standalone sections again. **Short vs Long-Term** is a sub-table inside Cost-Benefit Analysis (section 7).
 
-- Falsifiability is implicit in Objective Criteria thresholds.
-- Testable predictions, when relevant, render as objective criteria.
-- Visual/video items live in the Visual and Video Evidence sub-table under Evidence Ledger.
-- Short vs Long-Term renders as a sub-table inside Cost-Benefit Analysis.
+The canonical belief page (`/beliefs/[slug]`) uses:
+- `FalsifiabilityTestSection` — section 5 (combines Falsifiability Test + Testable Predictions)
+- `MediaResourcesSection` — section 9
 
-The legacy `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, and `ImpactSection` components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
+The following legacy components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes:
+- `FalsifiabilitySection`, `TestablePredictionsSection` — superseded by `FalsifiabilityTestSection`
+- `MediaSection` — superseded by `MediaResourcesSection`
+- `ImpactSection` — Short vs Long-Term is now a sub-table in `CostBenefitSection`
 
 ## Conventions
 
