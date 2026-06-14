@@ -149,6 +149,16 @@ Score / Related) → "Beliefs this supports" line. No summary or background (Rul
    Disagree), each side with `Argument / Score / Link / Impact`. Each argument cell is
    the claim, the single most famous supporting quote inline (italic, small), then the
    submitter as `~Name`. Pro Total / Con Total row, then the **Net Belief Score** line.
+   The Net Belief Score is reported as a **share and margin** — the net divided by the
+   belief's own `Pro + Con` total — not as a bare numerator. A bare "+9.2" floats free;
+   "58% of the argument weight, a +15-point margin" is actionable. This is the *internal*
+   denominator (the belief vs. its own rebuttals). See `docs/THE_DENOMINATOR.md`.
+1b. **Contrast Class** *(only when the topic has a rival option set)* — the *external*
+   denominator made visible: the mutually exclusive rivals this belief is priced against,
+   each with its own argument-tree score `S` and an **opportunity-cost value**
+   `OCV = S(this) − max S(rivals)`. Exactly one option (the field winner) has `OCV > 0`.
+   Every option's score must trace to its own belief's tree — never a fabricated constant
+   (Rule 6). Comparative arguments ("rival Y beats X") belong here, not in the con column.
 2. **Evidence Ledger** — one two-sided table (Supporting / Weakening), each side with
    `Evidence / Type / Link / Impact`.
 3. **Conflict Resolution Framework**
