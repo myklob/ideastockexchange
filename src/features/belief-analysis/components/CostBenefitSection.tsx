@@ -73,7 +73,7 @@ export default function CostBenefitSection({ cba, impact, compromises }: CostBen
       <div>
         <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
           <span>&#129309;</span>
-          <Link href="/Compromise" className="text-[var(--accent)] hover:underline">Best Compromise Solutions</Link>
+          Best Compromise Solutions
         </h3>
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
