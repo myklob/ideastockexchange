@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import {
@@ -5,8 +7,6 @@ import {
   type BeliefUnitInput,
 } from '@/lib/battlefield'
 import ArenaGame, { type ArenaEnemy } from './ArenaGame'
-
-export const dynamic = 'force-dynamic'
 
 async function fetchEnemies(): Promise<ArenaEnemy[]> {
   const beliefs = await prisma.belief.findMany({

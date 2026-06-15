@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import {
@@ -5,8 +7,6 @@ import {
   type BeliefUnitInput,
   type BeliefUnitStats,
 } from '@/lib/battlefield'
-
-export const dynamic = 'force-dynamic'
 
 interface UnitRow {
   id: number
