@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { getCBA, addLikelihoodArgument, addLikelihoodEstimate } from '@/features/cost-benefit-analysis/data/cba-data'
 import { SchilchtArgument } from '@/core/types/schlicht'
 import { LikelihoodEstimate } from '@/core/types/cba'
-import { calculateArgumentImpact, scoreLikelihoodEstimate } from '@/core/scoring/scoring-engine'
+import { calculateArgumentImpact } from '@/core/scoring/scoring-engine'
 
 const argumentSchema = z.object({
   estimate_id: z
