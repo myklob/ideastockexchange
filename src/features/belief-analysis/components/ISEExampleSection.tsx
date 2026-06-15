@@ -26,35 +26,22 @@ export default function ISEExampleSection() {
         </code>{' '}
         and instantly inherits the same structural template every belief on the platform
         uses:{' '}
-        <Link href="/Argument%20Trees" className="text-[var(--accent)] hover:underline">
-          Argument Trees
-        </Link>
-        ,{' '}
-        <Link href="/Evidence%20Scoring" className="text-[var(--accent)] hover:underline">
-          Evidence Scoring
-        </Link>
-        ,{' '}
+        Argument Trees,{' '}
+        Evidence Scoring,{' '}
         <Link
-          href="/w/page/159351732/Objective%20criteria%20scores"
+          href="/algorithms/objective-criteria"
           className="text-[var(--accent)] hover:underline"
         >
           Objective Criteria weighting
         </Link>
         ,{' '}
         <Link
-          href="/w/page/156187122/cost-benefit%20analysis"
+          href="/cba"
           className="text-[var(--accent)] hover:underline"
         >
           Cost-Benefit Analysis
         </Link>
-        , and{' '}
-        <Link
-          href="/w/page/156186840/automate%20conflict%20resolution"
-          className="text-[var(--accent)] hover:underline"
-        >
-          Conflict Resolution mapping
-        </Link>
-        .
+        , and Conflict Resolution mapping.
       </p>
       <p className="mb-6">
         No special configuration. No editorial setup. No custom rules for politicians.
@@ -68,7 +55,7 @@ export default function ISEExampleSection() {
         Before Jane Smith&apos;s page existed, the Colorado Senate node already contained
         a scored, community-built set of{' '}
         <Link
-          href="/w/page/159351732/Objective%20criteria%20scores"
+          href="/algorithms/objective-criteria"
           className="text-[var(--accent)] hover:underline"
         >
           Objective Criteria

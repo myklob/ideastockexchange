@@ -24,7 +24,6 @@ export default function AssumptionsSection({ assumptions }: AssumptionsSectionPr
       <SectionHeading
         emoji="&#x1F4DC;"
         title="Foundational Assumptions"
-        href="/Assumptions"
       />
 
       <div className="overflow-x-auto">
