@@ -50,3 +50,6 @@ prisma/dev.db-journal
 __pycache__/
 *.pyc
 pipeline/tests/test_output/
+
+# Claude Code
+.claude/
