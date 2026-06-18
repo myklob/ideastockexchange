@@ -1,13 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getBookAnalysisReport } from '@/features/books/services/book-service'
-import { BookAnalysisReport } from '@/core/types/book'
-
-function getScoreColor(score: number): string {
-  if (score >= 80) return 'bg-green-50 border-green-600 text-green-900'
-  if (score >= 60) return 'bg-yellow-50 border-yellow-600 text-yellow-900'
-  return 'bg-red-50 border-red-600 text-red-900'
-}
 
 function ProgressBar({ value, max = 100, color = 'blue' }: { value: number; max?: number; color?: string }) {
   const percentage = Math.min((value / max) * 100, 100)
