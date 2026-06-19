@@ -16,7 +16,8 @@
     "db:migrate": "npx prisma migrate dev",
     "db:reset": "npx prisma migrate reset --force",
     "html:sample": "npx tsx scripts/generate-sample-belief-pages.ts",
-    "html:generate": "npx tsx scripts/generate-belief-html.ts"
+    "html:generate": "npx tsx scripts/generate-belief-html.ts",
+    "test": "vitest"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.3.0",
