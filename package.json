@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "npx tsx prisma/seed-beliefs.ts && npx tsx prisma/seed-belief-distractions.ts && npx tsx prisma/seed-debate-topics.ts && npx tsx prisma/seed-product-reviews.ts",
