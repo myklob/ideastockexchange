@@ -12,7 +12,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
-import { AIClient, createAIClient, createAIClientFromEnv } from './ai-client';
+import { AIClient } from './ai-client';
 import { AnalysisGenerator } from './analysis-generator';
 import { PageGenerator } from './page-generator';
 import { DistributedTaskQueue, BackgroundDaemon } from './task-queue';
@@ -65,7 +65,7 @@ function loadConfig(configPath?: string): FrameworkConfig {
       const fileConfig = yaml.load(fs.readFileSync(configFile, 'utf-8'));
       config = mergeConfig(config, fileConfig);
       console.log(`[CLI] Loaded config from: ${configFile}`);
-    } catch (error) {
+    } catch {
       console.warn(`[CLI] Could not load config file: ${configFile}`);
     }
   }
