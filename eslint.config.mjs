@@ -15,7 +15,20 @@ const eslintConfig = defineConfig([
     // Legacy/archive code not part of the active app:
     "_archive/**",
     "tools/**",
+    // Claude Code worktree artifacts:
+    ".claude/**",
   ]),
+  // Honor the TypeScript convention of prefixing intentionally-unused
+  // variables/parameters with _ (e.g. `_unused`, `_`).
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["warn", {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+      }],
+    },
+  },
 ]);
 
 export default eslintConfig;

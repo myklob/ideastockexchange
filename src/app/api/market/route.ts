@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { calculateBuy, calculateSell, getPrices } from "@/lib/market-maker";
+import { calculateBuy, calculateSell } from "@/lib/market-maker";
 
 // POST /api/market: Execute a trade (buy or sell shares).
 export async function POST(request: NextRequest) {
