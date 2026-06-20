@@ -25,13 +25,9 @@ export default function DefinitionsSection({ definitions }: DefinitionsSectionPr
       <div className="text-sm text-[var(--foreground)] space-y-3 mb-5">
         <p>
           <strong>Arguments vs. Evidence.</strong>{' '}
-          <Link href="/Reasons" className="text-[var(--accent)] hover:underline">Arguments</Link>{' '}
-          are logical claims — scored by{' '}
-          <Link href="/Logical%20Validity%20Scores" className="text-[var(--accent)] hover:underline">logical validity</Link>{' '}
-          and{' '}
-          <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">linkage strength</Link>.{' '}
-          <Link href="/Evidence" className="text-[var(--accent)] hover:underline">Evidence</Link>{' '}
-          is empirical data — scored by source tier and conclusion relevance. The scoring
+          Arguments are logical claims — scored by logical validity and{' '}
+          <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">linkage strength</Link>.{' '}
+          Evidence is empirical data — scored by source tier and conclusion relevance. The scoring
           formula is <em>Argument Score = Evidence Quality x Logical Validity x Linkage Strength</em>.
           An argument with great evidence but a logical fallacy still scores low. Evidence
           attached to the wrong argument contributes almost nothing even if the data is
@@ -46,14 +42,10 @@ export default function DefinitionsSection({ definitions }: DefinitionsSectionPr
         </p>
         <p>
           <strong>Scoring Concepts.</strong>{' '}
-          <Link href="/Argument%20scores%20from%20sub-argument%20scores" className="text-[var(--accent)] hover:underline">Argument Scores</Link>{' '}
-          are computed recursively — never manually assigned.{' '}
-          <Link href="/truth" className="text-[var(--accent)] hover:underline">Truth Scores</Link>{' '}
-          integrate validity, evidence, and linkage.{' '}
-          <Link href="/Importance%20Score" className="text-[var(--accent)] hover:underline">Importance Scores</Link>{' '}
-          weight arguments by how much they move the needle.{' '}
-          <Link href="/ReasonRank" className="text-[var(--accent)] hover:underline">ReasonRank</Link>{' '}
-          sorts by quality, not volume or recency.
+          Argument Scores are computed recursively — never manually assigned.{' '}
+          Truth Scores integrate validity, evidence, and linkage.{' '}
+          Importance Scores weight arguments by how much they move the needle.{' '}
+          ReasonRank sorts by quality, not volume or recency.
         </p>
       </div>
       <p className="text-sm text-[var(--muted-foreground)] mb-2">Page-specific terminology:</p>
