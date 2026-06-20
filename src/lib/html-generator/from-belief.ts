@@ -67,8 +67,9 @@ export function beliefToHtmlInput(
     })),
     objectiveCriteria: belief.objectiveCriteria.map((c) => ({
       criterion: c.description,
+      howToMeasure: c.howToMeasure ?? null,
       currentStatus: c.currentStatus ?? null,
-      threshold: c.thresholdForAgreement ?? null,
+      target: c.target ?? null,
     })),
     definitions: belief.definitions.map((d) => ({ term: d.term, definition: d.definition })),
     supports,

@@ -53,8 +53,9 @@ export interface EvidenceRow {
 
 export interface CriterionRow {
   criterion: string
+  howToMeasure?: string | null
   currentStatus?: string | null
-  threshold?: string | null
+  target?: string | null
 }
 
 export interface SupportsBacklink {
@@ -252,17 +253,18 @@ function renderCriteria(criteria: CriterionRow[] | undefined): string {
     .map(
       (c) => `  <tr>
     <td style="${TD}">${esc(c.criterion)}</td>
+    <td style="${TD}">${esc(c.howToMeasure ?? '')}</td>
     <td style="${TD}">${esc(c.currentStatus ?? '')}</td>
-    <td style="${TD}">${esc(c.threshold ?? '')}</td>
+    <td style="${TD}">${esc(c.target ?? '')}</td>
   </tr>`,
     )
     .join('\n')
   return `<h2>&nbsp;</h2>
-<h1>&#x1F9EA; Objective Criteria</h1>
+<h1>&#127919; Objective Criteria</h1>
 <p>How would we know if this belief is true? Measurable tests both sides should agree on before the debate starts.</p>
 <table style="${TABLE}">
 <thead>
-  <tr><th style="${TH}">Criterion</th><th style="${TH}">Current Status</th><th style="${TH}">Threshold for Agreement</th></tr>
+  <tr><th style="${TH}">Criterion</th><th style="${TH}">How to Measure</th><th style="${TH}">Current Status</th><th style="${TH}">Target</th></tr>
 </thead>
 <tbody>
 ${rows}

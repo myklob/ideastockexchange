@@ -32,7 +32,7 @@ export default function ObjectiveCriteriaSection({ criteria }: ObjectiveCriteria
             {rows.map((c, i) => (
               <tr key={c?.id ?? i}>
                 <td className={TD}>{c?.description ?? <span>&nbsp;</span>}</td>
-                <td className={TD}>{c?.howToMeasure ?? c?.thresholdForAgreement ?? <span>&nbsp;</span>}</td>
+                <td className={TD}>{c?.howToMeasure ?? <span>&nbsp;</span>}</td>
                 <td className={TDC}>{c?.currentStatus ?? <span>&nbsp;</span>}</td>
                 <td className={TDC}>{c?.target ?? <span>&nbsp;</span>}</td>
               </tr>

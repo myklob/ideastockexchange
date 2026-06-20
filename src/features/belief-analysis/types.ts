@@ -149,11 +149,6 @@ export interface ObjectiveCriteriaItem {
   currentStatus?: string | null
   /** The target/threshold that would settle the debate (new template column). */
   target?: string | null
-  /**
-   * The threshold both sides agreed (or could agree) constitutes resolution —
-   * e.g., "+2pp sustained over 3 years would settle the debate".
-   */
-  thresholdForAgreement?: string | null
 }
 
 /** One row in the Shared Values, Different Rankings table (new template). */
