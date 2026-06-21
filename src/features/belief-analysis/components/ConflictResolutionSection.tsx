@@ -8,6 +8,7 @@ import type {
   DisputeTypeItem,
   ObstacleItem,
 } from '../types'
+import InterestValiditySection from './InterestValiditySection'
 
 interface ConflictResolutionSectionProps {
   values: ValuesAnalysisData | null
@@ -318,6 +319,10 @@ export default function ConflictResolutionSection({
           <span>&#128161;</span> Likely Interests of Opponents
         </h3>
         <InterestTable entries={opponentInterests} headerClass="bg-red-100" />
+      </div>
+
+      <div>
+        <InterestValiditySection debates={interests?.validityDebates ?? []} />
       </div>
 
       <div>
