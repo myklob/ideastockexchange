@@ -65,7 +65,7 @@ function loadConfig(configPath?: string): FrameworkConfig {
       const fileConfig = yaml.load(fs.readFileSync(configFile, 'utf-8'));
       config = mergeConfig(config, fileConfig);
       console.log(`[CLI] Loaded config from: ${configFile}`);
-    } catch (error) {
+    } catch {
       console.warn(`[CLI] Could not load config file: ${configFile}`);
     }
   }

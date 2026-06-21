@@ -33,16 +33,26 @@ The single most important thing to get right in this codebase is the belief page
 
 If you change the rules doc, update the template and the page. If you change the template or page, update the rules doc. The three must stay in sync.
 
-### Sections that no longer exist as standalones
+### Section inventory (April 2026 template, PR #132)
 
-Per the new template (April 2026), the page does NOT have separate `Falsifiability`, `Testable Predictions`, `Media Resources`, or `Short vs Long-Term Impact` sections.
+The canonical 14-section order (from the template and `page.tsx`):
 
-- Falsifiability is implicit in Objective Criteria thresholds.
-- Testable predictions, when relevant, render as objective criteria.
-- Visual/video items live in the Visual and Video Evidence sub-table under Evidence Ledger.
-- Short vs Long-Term renders as a sub-table inside Cost-Benefit Analysis.
+1. Argument Trees
+2. Evidence Ledger
+3. Conflict Resolution Framework
+4. Objective Criteria
+5. **Falsifiability Test** (includes Testable Predictions as a sub-section) — `FalsifiabilityTestSection`
+6. Assumptions
+7. **Cost-Benefit Analysis** (includes Short vs. Long-Term and Best Compromise Solutions sub-tables) — `CostBenefitSection`
+8. Biases
+9. **Media Resources** — `MediaResourcesSection`
+10. Legal Framework
+11. Belief Mapping
+12. Similar Beliefs
+13. Definitions
+14. Contribute
 
-The legacy `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, and `ImpactSection` components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
+The four legacy components (`FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, `ImpactSection`) remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
 
 ## Conventions
 
