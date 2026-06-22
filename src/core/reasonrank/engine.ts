@@ -33,10 +33,9 @@
 import { DependencyGraph } from './graph'
 import type {
   GraphNode, ArgumentNode, EvidenceNode, ClaimNode,
-  SupportsEdge, AttacksEdge,
   ScoreBreakdown, ReasonRankConfig, PropagationEvent,
 } from './types'
-import { DEFAULT_CONFIG, VERIFICATION_SCORES } from './types'
+import { DEFAULT_CONFIG } from './types'
 
 export class ReasonRankEngine {
   private graph: DependencyGraph
@@ -232,7 +231,7 @@ export class ReasonRankEngine {
    */
   private calculateClaimScore(claim: ClaimNode): ScoreBreakdown {
     const PRIOR = 0.5
-    const { extrinsicScore, supportingForce, attackingForce, maxPossibleSupport, isDead } =
+    const { extrinsicScore, supportingForce, attackingForce } =
       this.calculateExtrinsicScore(claim.id)
 
     let finalScore: number

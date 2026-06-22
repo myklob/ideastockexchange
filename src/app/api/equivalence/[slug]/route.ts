@@ -48,6 +48,7 @@ export async function PUT(
     const body = await request.json()
 
     // Remove read-only fields before update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _id, slug: _slug, createdAt: _c, updatedAt: _u, ...updateData } = body
 
     const analysis = await prisma.equivalenceAnalysis.update({
