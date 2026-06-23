@@ -100,23 +100,6 @@ function FormulaBreakdown({
   )
 }
 
-// ─── Linkage argument row ───────────────────────────────────────────────────
-
-function LinkageArgumentRow({
-  la,
-}: {
-  la: { id: number; side: string; statement: string; strength: number; createdAt: Date }
-}) {
-  const isAgree = la.side === 'agree'
-  return (
-    <tr className={`border-b ${isAgree ? 'bg-green-50 hover:bg-green-100' : 'bg-red-50 hover:bg-red-100'}`}>
-      <td className="px-3 py-2 text-sm">{la.statement}</td>
-      <td className="px-3 py-2 text-center text-xs font-mono">
-        {la.strength.toFixed(2)}
-      </td>
-    </tr>
-  )
-}
 
 // ─── Page ──────────────────────────────────────────────────────────────────
 
