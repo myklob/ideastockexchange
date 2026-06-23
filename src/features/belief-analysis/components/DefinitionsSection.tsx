@@ -29,7 +29,7 @@ export default function DefinitionsSection({ definitions }: DefinitionsSectionPr
           are logical claims — scored by{' '}
           <Link href="/Logical%20Validity%20Scores" className="text-[var(--accent)] hover:underline">logical validity</Link>{' '}
           and{' '}
-          <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">linkage strength</Link>.{' '}
+          <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">linkage strength</Link>.{' '}
           <Link href="/Evidence" className="text-[var(--accent)] hover:underline">Evidence</Link>{' '}
           is empirical data — scored by source tier and conclusion relevance. The scoring
           formula is <em>Argument Score = Evidence Quality x Logical Validity x Linkage Strength</em>.
