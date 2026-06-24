@@ -9,7 +9,6 @@ import {
   Interest,
   CostBenefitItem,
   TruthAssessment,
-  LinkageScore
 } from './ise-core';
 
 /**
