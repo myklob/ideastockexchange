@@ -6,6 +6,8 @@ Project-level guidance for Claude Code working in this repo. Keep this short and
 
 - **TypeScript + Next.js 16** (App Router, RSC by default). React 19. Path alias `@/*` -> `./src/*`.
 - **Prisma 7** with SQLite via `@prisma/adapter-better-sqlite3`. Schema lives in `prisma/schema.prisma`. Generated client lives at `src/generated/prisma/client` (run `npm run db:generate` if `@/generated/prisma/client` errors appear).
+  - `scripts/prisma-generate.mjs` wraps `prisma generate` to work around the `binaries.prisma.sh` download in Claude Code remote sessions (sets `PRISMA_SCHEMA_ENGINE_BINARY` to a temp stub; Prisma 7 uses bundled WASM for generation anyway).
+  - If the dev DB is missing after `npm install`, apply the SQL migrations manually (see `prisma/migrations/`), then run `npm run db:sync` (adds schema-drift columns/tables) and `npm run db:seed`.
 - **Tailwind v4** with PostCSS. Belief pages are constrained to `max-w-[960px]`.
 - **Vitest** for unit tests under `tests/`. ESLint via `eslint-config-next` flat config.
 - TypeScript is in `strict` mode. Don't introduce `any` to silence errors — fix the type or narrow with a guard.
@@ -20,7 +22,7 @@ npx eslint <files>    # lint files you edited (`npm run lint` runs the whole rep
 npm test              # vitest, only when changing scoring / core logic
 ```
 
-The repo has ~50 pre-existing implicit-any errors in routes I didn't touch (notably `src/app/algorithms/belief-equivalency/*`, `src/app/equivalence/*`, several API routes, `src/lib/prisma.ts`'s missing generated client). They are not your fault — verify *only* that your edited files are clean, not that the global typecheck count is zero.
+With the generated client present (`npm run db:generate`), `npx tsc --noEmit` should produce 0 errors. If you see errors in files you didn't touch, re-run `npm run db:generate` first — the generated client at `src/generated/prisma` is gitignored and must be regenerated each session.
 
 ## The Belief Page Is the Crown Jewel
 

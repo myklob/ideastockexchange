@@ -11,6 +11,8 @@
     "lint": "eslint",
     "db:generate": "node scripts/prisma-generate.mjs",
     "db:push": "prisma db push",
+    "db:sync": "node scripts/sync-schema-to-db.mjs",
+    "db:setup": "node scripts/sync-schema-to-db.mjs && npm run db:seed",
     "db:seed": "npx tsx prisma/seed-beliefs.ts && npx tsx prisma/seed-belief-distractions.ts && npx tsx prisma/seed-debate-topics.ts && npx tsx prisma/seed-product-reviews.ts",
     "db:seed-reviews": "npx tsx prisma/seed-product-reviews.ts",
     "db:migrate": "npx prisma migrate dev",
