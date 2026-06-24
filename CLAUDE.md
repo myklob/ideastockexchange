@@ -10,6 +10,16 @@ Project-level guidance for Claude Code working in this repo. Keep this short and
 - **Vitest** for unit tests under `tests/`. ESLint via `eslint-config-next` flat config.
 - TypeScript is in `strict` mode. Don't introduce `any` to silence errors — fix the type or narrow with a guard.
 
+## First-time Setup (Remote / Ephemeral Containers)
+
+`binaries.prisma.sh` (Prisma's engine CDN) is blocked in this environment. Use the wrapper instead of bare `npm install`:
+
+```bash
+bash scripts/setup.sh   # sets PRISMA_SCHEMA_ENGINE_BINARY then runs npm install
+```
+
+The stub at `scripts/stub-schema-engine.sh` satisfies Prisma's postinstall without a network download. Migrations (`prisma db push`, `prisma migrate`) still need the real binary — they are not expected to work in this container.
+
 ## Verification Commands
 
 After multi-file edits, run these before declaring work done:
