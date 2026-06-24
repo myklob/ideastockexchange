@@ -81,7 +81,7 @@ function InterestTable({ entries, headerClass }: { entries: InterestEntryItem[];
           </th>
           <th className={`${TH} text-center w-[10%]`}>Prevalence</th>
           <th className={`${TH} text-center w-[12%]`}>
-            <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Confidence</Link>
+            <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage Confidence</Link>
           </th>
           <th className={`${TH} text-center w-[12%]`}>Validity</th>
           <th className={`${TH} w-[18%]`}>Evidence Basis</th>

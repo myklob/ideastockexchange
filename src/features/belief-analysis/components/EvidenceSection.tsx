@@ -81,13 +81,13 @@ export default function EvidenceSection({ evidence }: EvidenceSectionProps) {
               <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Evidence</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Type</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Impact</th>
               <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Evidence</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Type</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Impact</th>
             </tr>

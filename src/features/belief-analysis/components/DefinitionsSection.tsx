@@ -29,7 +29,7 @@ export default function DefinitionsSection({ definitions }: DefinitionsSectionPr
           are logical claims — scored by{' '}
           <Link href="/Logical%20Validity%20Scores" className="text-[var(--accent)] hover:underline">logical validity</Link>{' '}
           and{' '}
-          <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">linkage strength</Link>.{' '}
+          <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">linkage strength</Link>.{' '}
           <Link href="/Evidence" className="text-[var(--accent)] hover:underline">Evidence</Link>{' '}
           is empirical data — scored by source tier and conclusion relevance. The scoring
           formula is <em>Argument Score = Evidence Quality x Logical Validity x Linkage Strength</em>.
@@ -52,7 +52,7 @@ export default function DefinitionsSection({ definitions }: DefinitionsSectionPr
           integrate validity, evidence, and linkage.{' '}
           <Link href="/Importance%20Score" className="text-[var(--accent)] hover:underline">Importance Scores</Link>{' '}
           weight arguments by how much they move the needle.{' '}
-          <Link href="/ReasonRank" className="text-[var(--accent)] hover:underline">ReasonRank</Link>{' '}
+          <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">ReasonRank</Link>{' '}
           sorts by quality, not volume or recency.
         </p>
       </div>
