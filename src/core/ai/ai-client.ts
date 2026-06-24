@@ -359,7 +359,7 @@ export function createAIClient(configPath?: string): AIClient {
           timeout: config.llm.timeout || defaultConfig.timeout,
         });
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn(`Could not load config from ${configPath}, using defaults`);
     }
   }

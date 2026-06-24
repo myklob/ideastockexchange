@@ -4,7 +4,7 @@
   "private": true,
   "description": "Idea Stock Exchange - Computational Epistemology Platform",
   "scripts": {
-    "postinstall": "prisma generate",
+    "postinstall": "NO_PROXY='*' HTTPS_PROXY='' prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

@@ -18,7 +18,7 @@ import { DependencyGraph } from './graph'
 import { ReasonRankEngine } from './engine'
 import type {
   ClaimNode, ArgumentNode, EvidenceNode,
-  SupportsEdge, AttacksEdge, HasEvidenceEdge, SimilarToEdge,
+  SupportsEdge, AttacksEdge, HasEvidenceEdge,
   VerificationStatus, ArgumentType, PropagationEvent,
   ReasonRankConfig,
 } from './types'
