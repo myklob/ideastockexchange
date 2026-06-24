@@ -45,8 +45,8 @@ function MediaList({ items }: { items: MediaItem[] }) {
 }
 
 export default function MediaResourcesSection({ media }: MediaResourcesSectionProps) {
-  const supporting = media.filter(m => m.side === 'supporting' || m.side === 'agree')
-  const challenging = media.filter(m => m.side === 'opposing' || m.side === 'weakening' || m.side === 'disagree')
+  const supporting = media.filter(m => m.side === 'supporting')
+  const challenging = media.filter(m => m.side === 'opposing')
 
   return (
     <section>
