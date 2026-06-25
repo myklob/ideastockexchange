@@ -18,6 +18,10 @@ import path from 'path'
 
 const DB_PATH = path.resolve(__dirname, 'tmp-propagation.test.db')
 
+const prismaClientGenerated = fs.existsSync(
+  path.resolve(__dirname, '../../src/generated/prisma/client')
+)
+
 // Module-level handles populated in beforeAll after DATABASE_URL is set, so the
 // Prisma singleton binds to the temp database rather than the default dev.db.
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -44,6 +48,8 @@ function applyMigrations(file: string) {
   }
   db.close()
 }
+
+describe.skipIf(!prismaClientGenerated)('three-way propagation (requires generated Prisma client)', () => {
 
 beforeAll(async () => {
   if (fs.existsSync(DB_PATH)) fs.unlinkSync(DB_PATH)
@@ -221,3 +227,5 @@ describe('Cycle safety', () => {
     expect(Array.isArray(result.updatedArgumentIds)).toBe(true)
   }, 20_000)
 })
+
+}) // describe.skipIf
