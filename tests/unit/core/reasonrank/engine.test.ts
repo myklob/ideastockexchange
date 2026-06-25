@@ -17,9 +17,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { ReasonRankPipeline } from '../../../../src/core/reasonrank/propagation'
 import { DependencyGraph } from '../../../../src/core/reasonrank/graph'
-import { ReasonRankEngine } from '../../../../src/core/reasonrank/engine'
 import type {
-  ClaimNode, ArgumentNode, EvidenceNode,
+  ClaimNode,
 } from '../../../../src/core/reasonrank/types'
 
 // ─── Test Helpers ─────────────────────────────────────────────────
@@ -326,7 +325,7 @@ describe('I3: Diminishing Returns (Uniqueness)', () => {
       edgeId: 'e2', argumentId: 'arg-2', targetId: 'claim', type: 'SUPPORTS', relevance: 1.0,
     })
 
-    const scoreBefore = pipeline.getScoreValue('claim')
+    const _scoreBefore = pipeline.getScoreValue('claim')
 
     // Mark them as similar (90% similar)
     pipeline.markSimilar('arg-1', 'arg-2', 0.9, 'sim-1')
