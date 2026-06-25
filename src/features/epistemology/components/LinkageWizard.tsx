@@ -59,8 +59,10 @@ export default function LinkageWizard({
 }: LinkageWizardProps) {
   const [step, setStep] = useState<WizardStep>('direction')
   const [direction, setDirection] = useState<'support' | 'oppose' | null>(null)
-  const [isRelevant, setIsRelevant] = useState<boolean | null>(null)
-  const [strength, setStrength] = useState<'proof' | 'strong' | 'context' | 'weak' | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_isRelevant, setIsRelevant] = useState<boolean | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_strength, setStrength] = useState<'proof' | 'strong' | 'context' | 'weak' | null>(null)
 
   const handleDirectionSelect = (dir: 'support' | 'oppose') => {
     setDirection(dir)
