@@ -14,6 +14,35 @@ ALTER TABLE "Argument" ADD COLUMN "quoteAuthor" TEXT;
 ALTER TABLE "Argument" ADD COLUMN "quoteAuthorUrl" TEXT;
 ALTER TABLE "Argument" ADD COLUMN "argumentScore" REAL;
 
+-- AlterTable ObjectiveCriteria
+-- Add new template columns: how measured, current status, and target threshold.
+ALTER TABLE "ObjectiveCriteria" ADD COLUMN "howToMeasure" TEXT;
+ALTER TABLE "ObjectiveCriteria" ADD COLUMN "currentStatus" TEXT;
+ALTER TABLE "ObjectiveCriteria" ADD COLUMN "target" TEXT;
+
+-- AlterTable ValuesAnalysis
+-- Add divergence evidence columns and whatWouldShift prompt answer.
+ALTER TABLE "ValuesAnalysis" ADD COLUMN "supportingDivergenceEvidence" TEXT;
+ALTER TABLE "ValuesAnalysis" ADD COLUMN "opposingDivergenceEvidence" TEXT;
+ALTER TABLE "ValuesAnalysis" ADD COLUMN "whatWouldShift" TEXT;
+
+-- AlterTable InterestsAnalysis
+-- Add Primary Conflict Pair columns (new template).
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporter" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporterValidity" INTEGER;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporterClaim" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporterDrives" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponent" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponentValidity" INTEGER;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponentClaim" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponentDrives" TEXT;
+
+-- AlterTable Compromise
+-- Add three-column Best Compromise Solutions form (new template).
+ALTER TABLE "Compromise" ADD COLUMN "sharedPremise" TEXT;
+ALTER TABLE "Compromise" ADD COLUMN "synthesis" TEXT;
+ALTER TABLE "Compromise" ADD COLUMN "whyDifficult" TEXT;
+
 -- CreateTable ValueRanking
 -- Rows in the Values table (supporter/opponent value rankings, new template).
 CREATE TABLE "ValueRanking" (
