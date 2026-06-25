@@ -48,7 +48,10 @@ export async function PUT(
     const body = await request.json()
 
     // Remove read-only fields before update
-    const { id: _id, slug: _slug, createdAt: _c, updatedAt: _u, ...updateData } = body
+    const omit = new Set(['id', 'slug', 'createdAt', 'updatedAt'])
+    const updateData = Object.fromEntries(
+      Object.entries(body as Record<string, unknown>).filter(([k]) => !omit.has(k))
+    )
 
     const analysis = await prisma.equivalenceAnalysis.update({
       where: { slug },

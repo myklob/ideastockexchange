@@ -207,7 +207,7 @@ export class DistributedTaskQueue extends EventEmitter {
               await this.pageGenerator.generateAllPages(result as IssueAnalysis);
 
               // Queue expansion tasks for high-scoring arguments
-              this.queueArgumentExpansions(result as IssueAnalysis, task.id);
+              this.queueArgumentExpansions(result as IssueAnalysis);
             }
           }
           break;
@@ -282,7 +282,7 @@ export class DistributedTaskQueue extends EventEmitter {
   /**
    * Queue argument expansion tasks for a completed analysis
    */
-  private queueArgumentExpansions(analysis: IssueAnalysis, parentTaskId: string): void {
+  private queueArgumentExpansions(analysis: IssueAnalysis): void {
     const depth = 1; // Arguments from main analysis are at depth 1
 
     // Queue pro arguments

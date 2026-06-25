@@ -19,11 +19,10 @@ import {
   calculateArgumentImpact,
   getEvidenceTypeWeight,
   determineActiveLikelihood,
-  calculateLikelihoodCI,
   recalculateProtocolBelief,
 } from '../../../../src/core/scoring/scoring-engine'
 import { SchilchtArgument, SchilchtBelief } from '../../../../src/core/types/schlicht'
-import { LikelihoodEstimate, LikelihoodBelief } from '../../../../src/core/types/cba'
+import { LikelihoodEstimate } from '../../../../src/core/types/cba'
 
 // ─── Test Helpers ─────────────────────────────────────────────────
 

@@ -59,8 +59,6 @@ export default function LinkageWizard({
 }: LinkageWizardProps) {
   const [step, setStep] = useState<WizardStep>('direction')
   const [direction, setDirection] = useState<'support' | 'oppose' | null>(null)
-  const [isRelevant, setIsRelevant] = useState<boolean | null>(null)
-  const [strength, setStrength] = useState<'proof' | 'strong' | 'context' | 'weak' | null>(null)
 
   const handleDirectionSelect = (dir: 'support' | 'oppose') => {
     setDirection(dir)
@@ -68,7 +66,6 @@ export default function LinkageWizard({
   }
 
   const handleRelevanceSelect = (relevant: boolean) => {
-    setIsRelevant(relevant)
     if (!relevant) {
       // Non sequitur — skip to result
       const diagnostic: LinkageDiagnostic = {
@@ -86,7 +83,6 @@ export default function LinkageWizard({
   }
 
   const handleStrengthSelect = (str: 'proof' | 'strong' | 'context' | 'weak') => {
-    setStrength(str)
     const option = STRENGTH_OPTIONS.find((o) => o.value === str)!
     const sign = direction === 'oppose' ? -1 : 1
     const diagnostic: LinkageDiagnostic = {
@@ -107,7 +103,6 @@ export default function LinkageWizard({
       setDirection(null)
     } else if (step === 'strength') {
       setStep('relevance')
-      setIsRelevant(null)
     }
   }
 
