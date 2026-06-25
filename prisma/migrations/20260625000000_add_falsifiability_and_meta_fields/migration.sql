@@ -82,3 +82,23 @@ CREATE INDEX "DisputeType_beliefId_idx" ON "DisputeType"("beliefId");
 ALTER TABLE "ObjectiveCriteria" ADD COLUMN "howToMeasure" TEXT;
 ALTER TABLE "ObjectiveCriteria" ADD COLUMN "currentStatus" TEXT;
 ALTER TABLE "ObjectiveCriteria" ADD COLUMN "target" TEXT;
+
+-- AlterTable Compromise: add three-column best compromise form fields
+ALTER TABLE "Compromise" ADD COLUMN "sharedPremise" TEXT;
+ALTER TABLE "Compromise" ADD COLUMN "synthesis" TEXT;
+ALTER TABLE "Compromise" ADD COLUMN "whyDifficult" TEXT;
+
+-- AlterTable ValuesAnalysis: add divergence evidence and shift prompt fields
+ALTER TABLE "ValuesAnalysis" ADD COLUMN "supportingDivergenceEvidence" TEXT;
+ALTER TABLE "ValuesAnalysis" ADD COLUMN "opposingDivergenceEvidence" TEXT;
+ALTER TABLE "ValuesAnalysis" ADD COLUMN "whatWouldShift" TEXT;
+
+-- AlterTable InterestsAnalysis: add Primary Conflict Pair fields
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporter" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporterValidity" INTEGER;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporterClaim" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporterDrives" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponent" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponentValidity" INTEGER;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponentClaim" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponentDrives" TEXT;
