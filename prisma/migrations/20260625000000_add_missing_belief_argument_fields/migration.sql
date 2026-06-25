@@ -66,3 +66,28 @@ CREATE TABLE "DisputeType" (
     CONSTRAINT "DisputeType_beliefId_fkey" FOREIGN KEY ("beliefId") REFERENCES "Belief" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 CREATE INDEX "DisputeType_beliefId_idx" ON "DisputeType"("beliefId");
+
+-- Add missing ObjectiveCriteria columns.
+ALTER TABLE "ObjectiveCriteria" ADD COLUMN "howToMeasure" TEXT;
+ALTER TABLE "ObjectiveCriteria" ADD COLUMN "currentStatus" TEXT;
+ALTER TABLE "ObjectiveCriteria" ADD COLUMN "target" TEXT;
+
+-- Add missing ValuesAnalysis columns.
+ALTER TABLE "ValuesAnalysis" ADD COLUMN "supportingDivergenceEvidence" TEXT;
+ALTER TABLE "ValuesAnalysis" ADD COLUMN "opposingDivergenceEvidence" TEXT;
+ALTER TABLE "ValuesAnalysis" ADD COLUMN "whatWouldShift" TEXT;
+
+-- Add missing InterestsAnalysis columns.
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporter" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporterValidity" INTEGER;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporterClaim" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairSupporterDrives" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponent" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponentValidity" INTEGER;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponentClaim" TEXT;
+ALTER TABLE "InterestsAnalysis" ADD COLUMN "primaryPairOpponentDrives" TEXT;
+
+-- Add missing Compromise columns.
+ALTER TABLE "Compromise" ADD COLUMN "sharedPremise" TEXT;
+ALTER TABLE "Compromise" ADD COLUMN "synthesis" TEXT;
+ALTER TABLE "Compromise" ADD COLUMN "whyDifficult" TEXT;
