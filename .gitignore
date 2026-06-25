@@ -40,7 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/src/generated/prisma
+# /src/generated/prisma  — committed so fresh clones don't need prisma generate
 
 # database
 prisma/dev.db

@@ -4,7 +4,7 @@
   "private": true,
   "description": "Idea Stock Exchange - Computational Epistemology Platform",
   "scripts": {
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate || echo 'prisma generate skipped (no network or engine binary missing) — using committed client'",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
