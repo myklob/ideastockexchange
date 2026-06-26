@@ -33,16 +33,16 @@ The single most important thing to get right in this codebase is the belief page
 
 If you change the rules doc, update the template and the page. If you change the template or page, update the rules doc. The three must stay in sync.
 
-### Sections that no longer exist as standalones
+### Legacy components (still on disk, not used by the canonical page)
 
-Per the new template (April 2026), the page does NOT have separate `Falsifiability`, `Testable Predictions`, `Media Resources`, or `Short vs Long-Term Impact` sections.
+The April 2026 redesign **reintroduced** Falsifiability Test, Testable Predictions, and Media Resources as top-level sections (they had been folded into other sections in a prior revision). Short vs Long-Term is a sub-table inside Cost-Benefit Analysis (not standalone). The canonical page now uses:
 
-- Falsifiability is implicit in Objective Criteria thresholds.
-- Testable predictions, when relevant, render as objective criteria.
-- Visual/video items live in the Visual and Video Evidence sub-table under Evidence Ledger.
-- Short vs Long-Term renders as a sub-table inside Cost-Benefit Analysis.
+- `FalsifiabilityTestSection` — section 5 (Falsifiability Test + Testable Predictions combined)
+- `MediaResourcesSection` — section 9
 
-The legacy `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, and `ImpactSection` components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
+The **old** component names below are NOT used by `/beliefs/[slug]`. They remain on disk only because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes:
+
+- `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, `ImpactSection`
 
 ## Conventions
 
