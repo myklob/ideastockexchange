@@ -13,7 +13,7 @@ function MediaList({ items }: { items: MediaItem[] }) {
   const other = items.filter(m => m.mediaType !== 'book')
   return (
     <>
-      <strong><Link href="/Books" className="text-[var(--accent)] hover:underline">Books</Link></strong>
+      <strong><Link href="/books" className="text-[var(--accent)] hover:underline">Books</Link></strong>
       <br />
       {books.length > 0 ? (
         books.map(m => (
