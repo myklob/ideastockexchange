@@ -20,7 +20,7 @@ npx eslint <files>    # lint files you edited (`npm run lint` runs the whole rep
 npm test              # vitest, only when changing scoring / core logic
 ```
 
-The repo has ~50 pre-existing implicit-any errors in routes I didn't touch (notably `src/app/algorithms/belief-equivalency/*`, `src/app/equivalence/*`, several API routes, `src/lib/prisma.ts`'s missing generated client). They are not your fault — verify *only* that your edited files are clean, not that the global typecheck count is zero.
+After running `npm run db:generate` (which generates the Prisma client), `npx tsc --noEmit` should be fully clean. If the generated client is missing, you'll see many implicit-any errors cascade from `src/lib/prisma.ts` — run `npm run db:generate` to fix them. Don't rely on `npm install` alone; the `postinstall` hook can silently skip generation if the Prisma binary download fails.
 
 ## The Belief Page Is the Crown Jewel
 
