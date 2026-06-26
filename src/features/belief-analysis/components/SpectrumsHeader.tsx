@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { getStrengthBand, formatStrength } from '@/core/scoring/claim-strength'
 
 interface SpectrumsHeaderProps {
@@ -80,12 +79,7 @@ export default function SpectrumsHeader({ positivity, specificity, claimStrength
     <div className="border border-[var(--border)] rounded p-3 mb-8 bg-gray-50">
       <div className="text-xs font-semibold text-[var(--muted-foreground)] mb-2 flex items-center gap-2">
         <span>Three Spectrums</span>
-        <Link
-          href="/One%20Page%20Per%20Belief"
-          className="text-[var(--accent)] hover:underline text-[10px] font-normal"
-        >
-          (what is this?)
-        </Link>
+        <span className="text-[var(--muted-foreground)] text-[10px] font-normal">(what is this?)</span>
       </div>
       <div className="space-y-2 text-xs">
         <SpectrumRow

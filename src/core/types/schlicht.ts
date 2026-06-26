@@ -134,6 +134,7 @@ export interface SchilchtEvidence {
   tierLabel: string
   title: string
   linkageScore: number
+  side?: 'supporting' | 'weakening'
 }
 
 export interface ProtocolLogEntry {

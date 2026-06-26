@@ -526,14 +526,18 @@ export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
   const proRank = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
   const conRank = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
 
-  // Score evidence
+  // Score evidence — evidence without a side defaults to supporting
   let supportingEvidenceScore = 0
-  const weakeningEvidenceScore = 0
+  let weakeningEvidenceScore = 0
 
   for (const ev of belief.evidence) {
     const tierWeight = getEvidenceTypeWeight(ev.tier)
     const evidenceImpact = tierWeight * ev.linkageScore
-    supportingEvidenceScore += evidenceImpact
+    if (ev.side === 'weakening') {
+      weakeningEvidenceScore += evidenceImpact
+    } else {
+      supportingEvidenceScore += evidenceImpact
+    }
   }
 
   // PageRank-style belief score: ProRank / (ProRank + ConRank)
