@@ -134,6 +134,7 @@ export default function LineItemCard({ item, cbaId, onUpdate }: LineItemCardProp
             belief={item.likelihoodBelief}
             cbaId={cbaId}
             itemId={item.id}
+            onArgumentSubmitted={onUpdate ? () => onUpdate() : undefined}
           />
         </div>
       )}
