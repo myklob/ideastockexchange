@@ -4,7 +4,7 @@
   "private": true,
   "description": "Idea Stock Exchange - Computational Epistemology Platform",
   "scripts": {
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate || echo 'Warning: prisma generate failed; run npm run db:generate manually if needed'",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
