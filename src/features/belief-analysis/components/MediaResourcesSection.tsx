@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import type { MediaItem } from '../types'
 
 interface MediaResourcesSectionProps {
@@ -13,7 +12,7 @@ function MediaList({ items }: { items: MediaItem[] }) {
   const other = items.filter(m => m.mediaType !== 'book')
   return (
     <>
-      <strong><Link href="/Books" className="text-[var(--accent)] hover:underline">Books</Link></strong>
+      <strong>Books</strong>
       <br />
       {books.length > 0 ? (
         books.map(m => (
@@ -52,7 +51,7 @@ export default function MediaResourcesSection({ media }: MediaResourcesSectionPr
     <section>
       <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-3">
         <span>&#128218;</span>
-        <Link href="/media" className="text-[var(--accent)] hover:underline">Media Resources</Link>
+        Media Resources
       </h2>
       <table className="w-full border-collapse border border-gray-300 text-sm">
         <thead>

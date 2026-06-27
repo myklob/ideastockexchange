@@ -16,7 +16,7 @@ export default function ObjectiveCriteriaSection({ criteria }: ObjectiveCriteria
     <section>
       <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-3">
         <span>&#127919;</span>
-        <Link href="/Objective%20criteria%20scores" className="text-[var(--accent)] hover:underline">Objective Criteria</Link>
+        <Link href="/algorithms/objective-criteria" className="text-[var(--accent)] hover:underline">Objective Criteria</Link>
       </h2>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">

@@ -162,7 +162,6 @@ export default function ValuesSection({ values }: ValuesSectionProps) {
       <SectionHeading
         emoji="&#x2696;&#xFE0F;"
         title="Values Conflict Analysis"
-        href="/American%20values"
         subtitle="Most disagreements are not value conflicts. They are priority conflicts. Both sides usually hold the same values but rank them differently on this topic."
       />
 

@@ -8,8 +8,8 @@ export default function ContributeSection() {
       </h1>
 
       <p className="text-sm mb-3">
-        Posted by ~<Link href="/Myclob" className="text-[var(--accent)] hover:underline">Myclob</Link>.{' '}
-        <Link href="/Contact%20Me" className="text-[var(--accent)] hover:underline">Contact me</Link> to contribute to the Idea Stock Exchange.
+        Posted by ~Myclob.{' '}
+        Contact mike.laub@gmail.com to contribute to the Idea Stock Exchange.
       </p>
 
       <p className="text-sm mb-4">
@@ -26,10 +26,10 @@ export default function ContributeSection() {
 
       <p className="text-sm mb-2">Start by exploring how we:</p>
       <ul className="list-disc list-inside text-sm space-y-1 mb-4 text-[var(--muted-foreground)]">
-        <li>Calculate <Link href="/Argument%20scores%20from%20sub-argument%20scores" className="text-[var(--accent)] hover:underline">argument scores from sub-arguments</Link></li>
-        <li>Measure <Link href="/truth" className="text-[var(--accent)] hover:underline">truth</Link> and <Link href="/Evidence" className="text-[var(--accent)] hover:underline">evidence quality</Link></li>
-        <li>Apply <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">linkage scores</Link> to weight relevance</li>
-        <li>Implement <Link href="/ReasonRank" className="text-[var(--accent)] hover:underline">ReasonRank</Link> for quality-based sorting</li>
+        <li>Calculate <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">argument scores from sub-arguments</Link></li>
+        <li>Measure truth and evidence quality</li>
+        <li>Apply <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">linkage scores</Link> to weight relevance</li>
+        <li>Implement <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">ReasonRank</Link> for quality-based sorting</li>
       </ul>
 
       <p className="text-sm text-[var(--muted-foreground)]">

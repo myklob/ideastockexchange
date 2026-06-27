@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import type { CostBenefitData, ImpactData, CompromiseItem } from '../types'
 
 interface CostBenefitSectionProps {
@@ -32,7 +31,7 @@ export default function CostBenefitSection({ cba, impact, compromises }: CostBen
       <div>
         <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-3">
           <span>&#9878;</span>
-          <Link href="/cost-benefit%20analysis" className="text-[var(--accent)] hover:underline">Cost-Benefit Analysis</Link>
+          Cost-Benefit Analysis
         </h2>
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
@@ -73,7 +72,7 @@ export default function CostBenefitSection({ cba, impact, compromises }: CostBen
       <div>
         <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
           <span>&#129309;</span>
-          <Link href="/Compromise" className="text-[var(--accent)] hover:underline">Best Compromise Solutions</Link>
+          Best Compromise Solutions
         </h3>
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
