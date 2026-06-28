@@ -5,6 +5,7 @@
   "description": "Idea Stock Exchange - Computational Epistemology Platform",
   "scripts": {
     "postinstall": "prisma generate",
+    "test": "vitest",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
