@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { computeReasonRank } from "@/lib/reason-rank";
 
 // GET /api/claims: List all active claims with their market data.
 export async function GET(request: NextRequest) {
