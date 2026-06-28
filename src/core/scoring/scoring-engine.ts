@@ -41,10 +41,9 @@
  */
 
 import {
-  SchilchtArgument, SchilchtEvidence, SchilchtBelief,
+  SchilchtArgument, SchilchtBelief,
   LinkageDebate, LinkageType,
   LinkageClassification, LinkageDiagnostic, LinkageVote,
-  LINKAGE_CLASSIFICATION_SCORES,
 } from '../types/schlicht'
 import { LikelihoodEstimate, LikelihoodBelief, LikelihoodStatus } from '../types/cba'
 

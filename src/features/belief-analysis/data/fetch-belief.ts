@@ -189,7 +189,7 @@ export async function fetchBeliefCategories(): Promise<string[]> {
     distinct: ['category'],
     orderBy: { category: 'asc' },
   })
-  return rows.map(r => r.category).filter((c): c is string => c !== null)
+  return (rows as { category: string | null }[]).map(r => r.category).filter((c): c is string => c !== null)
 }
 
 /** Compute all 12 ReasonRank scores for a belief */
