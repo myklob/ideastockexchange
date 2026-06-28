@@ -40,7 +40,7 @@ function SharedValuesTable({ rows, whatWouldShift }: { rows: ValueRankingItem[];
       <thead>
         <tr className="bg-gray-100">
           <th className={`${TH} w-[28%]`}>
-            <Link href="/American%20values" className="text-[var(--accent)] hover:underline">Value</Link>
+            Value
           </th>
           <th className={`${TH} text-center w-[12%]`}>Supporter Rank</th>
           <th className={`${TH} text-center w-[12%]`}>Opponent Rank</th>
@@ -77,11 +77,11 @@ function InterestTable({ entries, headerClass }: { entries: InterestEntryItem[];
       <thead>
         <tr className={headerClass}>
           <th className={`${TH} w-[30%]`}>
-            <Link href="/Interests" className="text-[var(--accent)] hover:underline">Interest</Link>
+            Interest
           </th>
           <th className={`${TH} text-center w-[10%]`}>Prevalence</th>
           <th className={`${TH} text-center w-[12%]`}>
-            <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Confidence</Link>
+            <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage Confidence</Link>
           </th>
           <th className={`${TH} text-center w-[12%]`}>Validity</th>
           <th className={`${TH} w-[18%]`}>Evidence Basis</th>
@@ -280,14 +280,14 @@ export default function ConflictResolutionSection({
       <div>
         <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
           <span>&#129309;</span>
-          <Link href="/automate%20conflict%20resolution" className="text-[var(--accent)] hover:underline">Conflict Resolution</Link>{' '}Framework
+          Conflict Resolution Framework
         </h2>
         <p className="text-sm text-[var(--muted-foreground)]">
           Both sides of most debates share the same{' '}
-          <Link href="/American%20values" className="text-[var(--accent)] hover:underline">values</Link>. They disagree about how to{' '}
+          values. They disagree about how to{' '}
           <strong>rank</strong> them, and that ranking shifts based on perceived{' '}
-          <Link href="/cost-benefit%20analysis" className="text-[var(--accent)] hover:underline">costs, benefits</Link>, and{' '}
-          <Link href="/Likelihood" className="text-[var(--accent)] hover:underline">likelihood of success</Link>.
+          <Link href="/cba" className="text-[var(--accent)] hover:underline">costs, benefits</Link>, and{' '}
+          likelihood of success.
         </p>
       </div>
 

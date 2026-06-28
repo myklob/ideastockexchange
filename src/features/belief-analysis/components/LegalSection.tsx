@@ -14,7 +14,6 @@ export default function LegalSection({ legal }: LegalSectionProps) {
       <SectionHeading
         emoji="&#x2696;&#xFE0F;"
         title="Legal Framework"
-        href="/Local%2C%20federal%2C%20and%20international%20laws%20that%20agree"
       />
 
       <div className="overflow-x-auto">
