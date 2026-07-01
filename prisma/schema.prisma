@@ -990,10 +990,7 @@ model EquivalenceAnalysis {
 
   synonymClaims        SynonymClaim[]
   semanticMapEntries   SemanticMapEntry[]
-  normalizationReasons EquivalenceReason[] @relation("NormalizationReasons")
-  structuralReasons    EquivalenceReason[] @relation("StructuralReasons")
-  triggerReasons       EquivalenceReason[] @relation("TriggerReasons")
-  verdictReasons       EquivalenceReason[] @relation("VerdictReasons")
+  reasons EquivalenceReason[]
   argumentBattleItems  ArgumentBattleItem[]
   networkPositions     NetworkPosition[]
   previousVersions     EquivalenceAnalysis[] @relation("Revisions")
@@ -1060,10 +1057,7 @@ model EquivalenceReason {
 
   createdAt DateTime @default(now())
 
-  normalizationAnalysis EquivalenceAnalysis? @relation("NormalizationReasons", fields: [analysisId], references: [id], onDelete: Cascade)
-  structuralAnalysis    EquivalenceAnalysis? @relation("StructuralReasons", fields: [analysisId], references: [id], onDelete: Cascade)
-  triggerAnalysis       EquivalenceAnalysis? @relation("TriggerReasons", fields: [analysisId], references: [id], onDelete: Cascade)
-  verdictAnalysis       EquivalenceAnalysis? @relation("VerdictReasons", fields: [analysisId], references: [id], onDelete: Cascade)
+  analysis EquivalenceAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
 
   @@index([analysisId])
   @@index([reasonType])

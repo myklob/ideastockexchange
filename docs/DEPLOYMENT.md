@@ -5,11 +5,15 @@ used on serverless). The code is already deploy-ready:
 
 - `src/lib/prisma.ts` selects the driver adapter by `DATABASE_URL` scheme —
   `better-sqlite3` for `file:` URLs, `@prisma/adapter-pg` for `postgres://` URLs.
-- `vercel.json` runs `prisma generate && next build`, and `postinstall` regenerates
-  the Prisma client (which is gitignored at `src/generated/prisma`).
+- `scripts/set-prisma-provider.mjs` rewrites the schema's datasource provider to
+  match `DATABASE_URL` (`postgresql` for Postgres URLs, `sqlite` otherwise). It runs
+  automatically from `postinstall` and the Vercel build command, so the committed
+  provider stays `sqlite` and Vercel builds against Postgres with no manual edit.
+- `vercel.json` runs the provider sync, `prisma generate`, then `next build`; the
+  generated client is gitignored at `src/generated/prisma`.
 
-The one thing that can't be committed is the Postgres provider line in the schema and
-the live database, so finish the steps below with your own Neon/Vercel accounts.
+Only the live database can't be committed, so finish the steps below with your own
+Neon/Vercel accounts.
 
 ## 1. Create a Postgres database
 
@@ -20,30 +24,26 @@ tiers). Copy the connection string, e.g.:
 postgresql://USER:PASSWORD@HOST/DB?sslmode=require
 ```
 
-## 2. Switch the Prisma datasource to Postgres
+## 2. Create the schema and seed (against Postgres)
 
-In `prisma/schema.prisma`:
-
-```prisma
-datasource db {
-  provider = "postgresql"
-}
-```
-
-> The existing migrations under `prisma/migrations/` were generated for SQLite. For
-> the first Postgres deploy, use `prisma db push` (schema-only sync, no migration
-> history) rather than `prisma migrate deploy`. Once on Postgres you can start a clean
-> migration history with `prisma migrate dev`.
-
-## 3. Create the schema and seed (against Postgres)
+> The migrations under `prisma/migrations/` were generated for SQLite and won't run
+> on Postgres. For the first Postgres deploy, use `prisma db push` (schema-only sync,
+> no migration history) rather than `prisma migrate deploy`. Once on Postgres you can
+> start a clean migration history with `prisma migrate dev`.
 
 ```bash
 export DATABASE_URL="postgresql://...:sslmode=require"
-npx prisma db push          # create ~64 tables
-npm run db:seed             # beliefs, marriage debate topic, product reviews
+node scripts/set-prisma-provider.mjs   # flips schema provider to postgresql
+npx prisma generate                    # regenerate the client for Postgres
+npx prisma db push                     # create ~64 tables
+npm run db:seed                        # beliefs, marriage debate topic, product reviews
 ```
 
-## 4. Connect Vercel
+Afterwards, unset `DATABASE_URL` (or point it back at SQLite) and rerun
+`node scripts/set-prisma-provider.mjs && npx prisma generate` before committing, so
+the schema in git stays on `sqlite`.
+
+## 3. Connect Vercel
 
 1. Push this branch and open https://vercel.com/new.
 2. Import the `myklob/ideastockexchange` GitHub repo.
@@ -52,7 +52,7 @@ npm run db:seed             # beliefs, marriage debate topic, product reviews
    Postgres connection string (Production, and Preview if you want previews to work).
 5. Deploy.
 
-## 5. Verify
+## 4. Verify
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" https://<project>.vercel.app/
@@ -64,9 +64,9 @@ All three should return `200` with seeded content.
 
 ## Notes
 
-- Keep local dev on SQLite: leave `.env` as `DATABASE_URL="file:./prisma/dev.db"` and
-  the schema provider on `sqlite` for committed local work, flipping to `postgresql`
-  only for the production database. (If you'd rather standardize on Postgres for both,
-  point local `.env` at a Neon dev branch and set the provider to `postgresql`
-  permanently.)
+- Keep local dev on SQLite: leave `.env` as `DATABASE_URL="file:./prisma/dev.db"`.
+  The provider-sync script keeps the schema on `sqlite` locally and `postgresql` on
+  Vercel automatically. (If you'd rather standardize on Postgres for both, point
+  local `.env` at a Neon dev branch — the script will keep the provider on
+  `postgresql`, so just commit that.)
 - Never commit a real `DATABASE_URL`; `.env*` is gitignored.

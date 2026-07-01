@@ -4,13 +4,24 @@ import { prisma } from '@/lib/prisma'
 const FULL_INCLUDE = {
   synonymClaims: true,
   semanticMapEntries: { orderBy: { sortOrder: 'asc' as const } },
-  normalizationReasons: true,
-  structuralReasons: true,
-  triggerReasons: true,
-  verdictReasons: true,
+  reasons: true,
   argumentBattleItems: true,
   networkPositions: true,
 } as const
+
+type ReasonRecord = { reasonType: string }
+
+function withReasonGroups<T extends { reasons: ReasonRecord[] }>(analysis: T) {
+  const forStep = (prefix: string) =>
+    analysis.reasons.filter(r => r.reasonType.startsWith(prefix))
+  return {
+    ...analysis,
+    normalizationReasons: forStep('normalization'),
+    structuralReasons: forStep('structural'),
+    triggerReasons: forStep('triggers'),
+    verdictReasons: forStep('verdict'),
+  }
+}
 
 /**
  * GET /api/equivalence/[slug]
@@ -31,7 +42,7 @@ export async function GET(
     return NextResponse.json({ error: 'Analysis not found' }, { status: 404 })
   }
 
-  return NextResponse.json({ analysis })
+  return NextResponse.json({ analysis: withReasonGroups(analysis) })
 }
 
 /**
@@ -56,7 +67,7 @@ export async function PUT(
       include: FULL_INCLUDE,
     })
 
-    return NextResponse.json({ analysis })
+    return NextResponse.json({ analysis: withReasonGroups(analysis) })
   } catch (error) {
     if (error instanceof Error && error.message.includes('Record to update not found')) {
       return NextResponse.json({ error: 'Analysis not found' }, { status: 404 })
