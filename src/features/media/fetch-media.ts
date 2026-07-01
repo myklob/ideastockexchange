@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import type { MediaItem, MediaQualityArgumentItem } from '@/features/belief-analysis/types'
+import type { MediaItem } from '@/features/belief-analysis/types'
 
 export interface MediaWithBelief extends MediaItem {
   belief: {

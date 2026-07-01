@@ -8,8 +8,7 @@ import {
   Assumption,
   Interest,
   CostBenefitItem,
-  TruthAssessment,
-  LinkageScore
+  TruthAssessment
 } from './ise-core';
 
 /**
