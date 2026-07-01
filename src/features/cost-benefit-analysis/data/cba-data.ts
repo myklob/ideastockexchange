@@ -1,9 +1,7 @@
 import { CostBenefitAnalysis, CBALineItem, LikelihoodBelief, LikelihoodEstimate } from '@/core/types/cba'
 import { SchilchtArgument } from '@/core/types/schlicht'
 import { recalculateCBA } from '@/core/scoring/cba-scoring'
-
-// In-memory store for CBA analyses
-const cbaStore: Map<string, CostBenefitAnalysis> = new Map()
+import { prisma } from '@/lib/prisma'
 
 function makeArg(
   id: string,
@@ -878,49 +876,103 @@ const educationCBA: CostBenefitAnalysis = {
   ],
 }
 
-// Initialize store with sample data (recalculated)
-function initializeStore() {
-  cbaStore.set(bridgeCBA.id, recalculateCBA(bridgeCBA))
-  cbaStore.set(educationCBA.id, recalculateCBA(educationCBA))
+// ─── Persistence (Prisma-backed) ─────────────────────────────
+//
+// Analyses are stored in the CBAAnalysis table: the full rich object
+// (items, likelihood beliefs, estimates, argument trees, protocol log)
+// lives in the `payload` JSON column, and the scalar aggregate columns
+// are kept in sync for listings. This replaces the previous in-memory
+// Map, which lost all mutations on every serverless cold start.
+
+export const sampleCBAs: CostBenefitAnalysis[] = [bridgeCBA, educationCBA]
+
+async function saveCBA(cba: CostBenefitAnalysis): Promise<void> {
+  const data = {
+    title: cba.title,
+    description: cba.description,
+    status: cba.status,
+    totalExpectedBenefits: cba.totalExpectedBenefits,
+    totalExpectedCosts: cba.totalExpectedCosts,
+    netExpectedValue: cba.netExpectedValue,
+    verdict: cba.verdict,
+    confidence: cba.confidence,
+    payload: JSON.stringify(cba),
+  }
+  await prisma.cBAAnalysis.upsert({
+    where: { id: cba.id },
+    update: data,
+    create: { id: cba.id, ...data },
+  })
 }
 
-initializeStore()
+function parsePayload(row: { id: string; payload: string }): CostBenefitAnalysis | undefined {
+  if (!row.payload) return undefined
+  try {
+    return JSON.parse(row.payload) as CostBenefitAnalysis
+  } catch {
+    console.error(`CBA ${row.id} has an unparseable payload; skipping`)
+    return undefined
+  }
+}
+
+/** Insert the sample analyses if the table is empty (used by db:seed). */
+export async function ensureSampleCBAs(): Promise<number> {
+  const count = await prisma.cBAAnalysis.count()
+  if (count > 0) return 0
+  for (const sample of sampleCBAs) {
+    await saveCBA(recalculateCBA(sample))
+  }
+  return sampleCBAs.length
+}
 
 // ─── Public API ──────────────────────────────────────────────
 
-export function getAllCBAs(): CostBenefitAnalysis[] {
-  return Array.from(cbaStore.values())
+export async function getAllCBAs(): Promise<CostBenefitAnalysis[]> {
+  const rows = await prisma.cBAAnalysis.findMany({
+    select: { id: true, payload: true },
+    orderBy: { createdAt: 'asc' },
+  })
+  return rows
+    .map(parsePayload)
+    .filter((c): c is CostBenefitAnalysis => c !== undefined)
 }
 
-export function getCBA(id: string): CostBenefitAnalysis | undefined {
-  return cbaStore.get(id)
+export async function getCBA(id: string): Promise<CostBenefitAnalysis | undefined> {
+  const row = await prisma.cBAAnalysis.findUnique({
+    where: { id },
+    select: { id: true, payload: true },
+  })
+  return row ? parsePayload(row) : undefined
 }
 
-export function getLineItem(cbaId: string, itemId: string): CBALineItem | undefined {
-  const cba = cbaStore.get(cbaId)
+export async function getLineItem(
+  cbaId: string,
+  itemId: string
+): Promise<CBALineItem | undefined> {
+  const cba = await getCBA(cbaId)
   if (!cba) return undefined
   return cba.items.find((i) => i.id === itemId)
 }
 
-export function addLineItem(
+export async function addLineItem(
   cbaId: string,
   item: CBALineItem
-): { success: boolean; cba?: CostBenefitAnalysis } {
-  const cba = cbaStore.get(cbaId)
+): Promise<{ success: boolean; cba?: CostBenefitAnalysis }> {
+  const cba = await getCBA(cbaId)
   if (!cba) return { success: false }
 
   cba.items.push(item)
   const updated = recalculateCBA(cba)
-  cbaStore.set(cbaId, updated)
+  await saveCBA(updated)
   return { success: true, cba: updated }
 }
 
-export function addLikelihoodEstimate(
+export async function addLikelihoodEstimate(
   cbaId: string,
   itemId: string,
   estimate: LikelihoodEstimate
-): { success: boolean; cba?: CostBenefitAnalysis } {
-  const cba = cbaStore.get(cbaId)
+): Promise<{ success: boolean; cba?: CostBenefitAnalysis }> {
+  const cba = await getCBA(cbaId)
   if (!cba) return { success: false }
 
   const item = cba.items.find((i) => i.id === itemId)
@@ -928,17 +980,17 @@ export function addLikelihoodEstimate(
 
   item.likelihoodBelief.estimates.push(estimate)
   const updated = recalculateCBA(cba)
-  cbaStore.set(cbaId, updated)
+  await saveCBA(updated)
   return { success: true, cba: updated }
 }
 
-export function addLikelihoodArgument(
+export async function addLikelihoodArgument(
   cbaId: string,
   itemId: string,
   estimateId: string,
   argument: SchilchtArgument
-): { success: boolean; cba?: CostBenefitAnalysis } {
-  const cba = cbaStore.get(cbaId)
+): Promise<{ success: boolean; cba?: CostBenefitAnalysis }> {
+  const cba = await getCBA(cbaId)
   if (!cba) return { success: false }
 
   const item = cba.items.find((i) => i.id === itemId)
@@ -956,6 +1008,6 @@ export function addLikelihoodArgument(
   item.likelihoodBelief.adversarialCycles++
 
   const updated = recalculateCBA(cba)
-  cbaStore.set(cbaId, updated)
+  await saveCBA(updated)
   return { success: true, cba: updated }
 }

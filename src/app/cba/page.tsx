@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { getAllCBAs } from '@/features/cost-benefit-analysis/data/cba-data'
 import { formatDollars } from '@/core/scoring/cba-scoring'
 
-export default function CBAListPage() {
-  const cbas = getAllCBAs()
+export default async function CBAListPage() {
+  const cbas = await getAllCBAs()
 
   return (
     <div className="min-h-screen bg-[var(--muted)]">

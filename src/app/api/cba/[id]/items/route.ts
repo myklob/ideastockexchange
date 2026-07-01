@@ -49,7 +49,7 @@ export async function POST(
 ) {
   const { id } = await params
 
-  const cba = getCBA(id)
+  const cba = await getCBA(id)
   if (!cba) {
     return NextResponse.json(
       { error: 'Cost-benefit analysis not found', id },
@@ -136,7 +136,7 @@ export async function POST(
     },
   }
 
-  const result = addLineItem(id, lineItem)
+  const result = await addLineItem(id, lineItem)
   if (!result.success) {
     return NextResponse.json(
       { error: 'Failed to add line item' },

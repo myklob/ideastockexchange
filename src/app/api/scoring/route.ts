@@ -18,7 +18,7 @@ import {
  */
 export async function GET() {
   const beliefs = getAllSchilchtBeliefs()
-  const cbas = getAllCBAs()
+  const cbas = await getAllCBAs()
 
   const protocolScores = beliefs.map((belief) => {
     const breakdown = getBeliefScoreBreakdown(belief.beliefId)

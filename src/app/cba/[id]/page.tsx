@@ -9,7 +9,7 @@ interface CBAPageProps {
 
 export default async function CBAPage({ params }: CBAPageProps) {
   const { id } = await params
-  const cba = getCBA(id)
+  const cba = await getCBA(id)
 
   if (!cba) {
     notFound()

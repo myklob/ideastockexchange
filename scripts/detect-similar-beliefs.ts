@@ -21,8 +21,10 @@ async function main() {
     throw new Error(`Invalid threshold: ${thresholdArg}. Expected a number in [0, 1].`)
   }
 
-  const summary = await detectSimilarBeliefs(threshold)
+  const semantic = !process.argv.includes('--no-semantic')
+  const summary = await detectSimilarBeliefs({ threshold, semantic })
   console.log('Similar-belief detection complete:')
+  console.log(`  Semantic layer:    ${summary.semanticLayer}`)
   console.log(`  Beliefs scanned:   ${summary.beliefCount}`)
   console.log(`  Pairs examined:    ${summary.pairsExamined}`)
   console.log(`  Edges created:     ${summary.edgesCreated}`)

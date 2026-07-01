@@ -33,11 +33,15 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   let threshold = DEFAULT_SIMILARITY_THRESHOLD
+  // Embeddings are opt-in over HTTP: loading the model can take longer than a
+  // serverless request budget. Batch runs (npm run scores:similar) default on.
+  let semantic = false
   try {
     const body = await request.json()
     if (typeof body?.threshold === 'number') threshold = body.threshold
+    if (typeof body?.semantic === 'boolean') semantic = body.semantic
   } catch {
-    // No/invalid JSON body — use the default threshold.
+    // No/invalid JSON body — use the defaults.
   }
 
   if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1) {
@@ -47,6 +51,6 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const summary = await detectSimilarBeliefs(threshold)
+  const summary = await detectSimilarBeliefs({ threshold, semantic })
   return NextResponse.json({ success: true, threshold, summary })
 }

@@ -584,6 +584,12 @@ model CBAAnalysis {
   verdict    String @default("uncertain")
   confidence Float  @default(0.3)
 
+  /// Full CostBenefitAnalysis object (items, likelihood beliefs, estimates,
+  /// argument trees, protocol log) serialized as JSON. The scalar columns
+  /// above are denormalized aggregates for listings; this payload is the
+  /// source of truth the CBA engine (recalculateCBA) operates on.
+  payload String @default("")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

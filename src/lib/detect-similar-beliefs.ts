@@ -18,6 +18,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { calculateBeliefEquivalencyScore } from '@/core/scoring/all-scores'
+import { getEmbeddingProvider, cosineSimilarity } from '@/lib/semantic-similarity'
 
 export interface SimilarBeliefMatch {
   fromBeliefId: number
@@ -33,18 +34,48 @@ export interface SimilarBeliefDetectionSummary {
   pairsExamined: number
   edgesCreated: number
   edgesUpdated: number
+  /** Whether the L2 embedding layer contributed to the blend this run. */
+  semanticLayer: 'active' | 'unavailable' | 'disabled'
   matches: SimilarBeliefMatch[]
 }
 
-export const DEFAULT_SIMILARITY_THRESHOLD = 0.35
+// With the semantic layer active, structurally-parallel but topically-distinct
+// claims ("Ford makes the best trucks" / "Apple makes the best phones") land
+// around 0.35-0.38; genuinely related debates start at ~0.40.
+export const DEFAULT_SIMILARITY_THRESHOLD = 0.4
+
+export interface DetectSimilarBeliefsOptions {
+  threshold?: number
+  /**
+   * Blend in the local sentence-embedding layer (0.4·lexical + 0.6·semantic).
+   * Default true for CLI/batch use; the API route disables it by default so
+   * serverless requests never wait on a model load.
+   */
+  semantic?: boolean
+}
 
 export async function detectSimilarBeliefs(
-  threshold: number = DEFAULT_SIMILARITY_THRESHOLD,
+  options: DetectSimilarBeliefsOptions = {},
 ): Promise<SimilarBeliefDetectionSummary> {
+  const threshold = options.threshold ?? DEFAULT_SIMILARITY_THRESHOLD
+  const useSemantic = options.semantic ?? true
+
   const beliefs = await prisma.belief.findMany({
     select: { id: true, statement: true, claimStrength: true },
     orderBy: { id: 'asc' },
   })
+
+  let semanticLayer: SimilarBeliefDetectionSummary['semanticLayer'] = 'disabled'
+  let vectors: number[][] | null = null
+  if (useSemantic) {
+    const provider = await getEmbeddingProvider()
+    if (provider) {
+      vectors = await provider.embed(beliefs.map(b => b.statement))
+      semanticLayer = 'active'
+    } else {
+      semanticLayer = 'unavailable'
+    }
+  }
 
   const existingEdges = await prisma.similarBelief.findMany({
     select: { id: true, fromBeliefId: true, toBeliefId: true, equivalencyScore: true },
@@ -59,6 +90,7 @@ export async function detectSimilarBeliefs(
     pairsExamined: 0,
     edgesCreated: 0,
     edgesUpdated: 0,
+    semanticLayer,
     matches: [],
   }
 
@@ -68,12 +100,23 @@ export async function detectSimilarBeliefs(
       const b = beliefs[j]
       summary.pairsExamined++
 
-      const result = calculateBeliefEquivalencyScore(a.statement, b.statement)
+      // Embeddings are normalized; clamp tiny negative cosines to 0 so the
+      // blend stays in [0, 1].
+      const semanticSim = vectors
+        ? Math.max(0, cosineSimilarity(vectors[i], vectors[j]))
+        : null
+      const result = calculateBeliefEquivalencyScore(a.statement, b.statement, semanticSim)
       const existing =
         edgeByPair.get(`${a.id}:${b.id}`) ?? edgeByPair.get(`${b.id}:${a.id}`)
 
       if (existing) {
-        if (Math.abs(existing.equivalencyScore - result.equivalencyScore) > 1e-9) {
+        // Only a full-blend run may rescore existing edges: a lexical-only
+        // pass has strictly less information and would overwrite scores that
+        // were computed with the semantic layer active.
+        if (
+          semanticLayer === 'active' &&
+          Math.abs(existing.equivalencyScore - result.equivalencyScore) > 1e-9
+        ) {
           await prisma.similarBelief.update({
             where: { id: existing.id },
             data: { equivalencyScore: result.equivalencyScore },

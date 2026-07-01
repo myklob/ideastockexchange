@@ -56,7 +56,7 @@ export async function POST(
 ) {
   const { id, itemId } = await params
 
-  const cba = getCBA(id)
+  const cba = await getCBA(id)
   if (!cba) {
     return NextResponse.json(
       { error: 'Cost-benefit analysis not found', id },
@@ -109,7 +109,7 @@ export async function POST(
       },
     }
 
-    const result = addLikelihoodArgument(id, itemId, data.estimate_id, argument)
+    const result = await addLikelihoodArgument(id, itemId, data.estimate_id, argument)
     if (!result.success) {
       return NextResponse.json(
         { error: 'Failed to add argument. Check that the estimate ID is valid.' },
@@ -170,7 +170,7 @@ export async function POST(
       },
     }
 
-    const result = addLikelihoodEstimate(id, itemId, estimate)
+    const result = await addLikelihoodEstimate(id, itemId, estimate)
     if (!result.success) {
       return NextResponse.json(
         { error: 'Failed to add estimate' },
