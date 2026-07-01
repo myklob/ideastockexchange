@@ -33,9 +33,19 @@ export async function GET(
     },
   }))
 
+  // Explicit accounting: how many reasons exist on each side, and the
+  // evidence ledger split. Weighted totals live in scores.totalPro/totalCon.
+  const reasonCounts = {
+    agree: belief.arguments.filter(a => a.side === 'agree').length,
+    disagree: belief.arguments.filter(a => a.side === 'disagree').length,
+    supporting_evidence: belief.evidence.filter(e => e.side === 'supporting').length,
+    weakening_evidence: belief.evidence.filter(e => e.side === 'weakening').length,
+  }
+
   return NextResponse.json({
     belief,
     scores,
+    reason_counts: reasonCounts,
     spec: {
       belief_id: String(belief.id),
       canonical_text: belief.statement,

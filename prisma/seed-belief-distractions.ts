@@ -9,6 +9,7 @@
  */
 
 import { prisma } from '../src/lib/prisma'
+import { resetBeliefChildren } from './seed-helpers'
 
 async function main() {
   console.log('Seeding "set-aside-distractions" belief...')
@@ -183,6 +184,22 @@ async function main() {
       claimStrength: 0.5,
     },
   })
+
+  // Replace (not append) all child rows owned by this seed, so reruns and
+  // mid-failure retries never duplicate argument edges or evidence.
+  await resetBeliefChildren([
+    mainBelief.id,
+    attentionCaptureBelief.id,
+    scandalDisplacesBelief.id,
+    reasonrankImmuneBelief.id,
+    distractionPreventsConsensusBelief.id,
+    scandalsRevealCharacterBelief.id,
+    emotionNeededBelief.id,
+    evidenceShouldDetermineOutcomesBelief.id,
+    candidateCoverageShouldFocusBelief.id,
+    strongerVersionBelief.id,
+    moderateVersionBelief.id,
+  ])
 
   // ── Arguments (reasons for/against main belief) ──────────────────────────
   await prisma.argument.createMany({

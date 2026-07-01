@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 import {
   fetchFilteredBeliefs,
   type BeliefFilterParams,
@@ -75,6 +76,19 @@ export async function GET(request: Request) {
 
   const beliefs = await fetchFilteredBeliefs(filters)
 
+  // Accounting of reasons per belief: one grouped query for the whole list.
+  const argumentCounts = await prisma.argument.groupBy({
+    by: ['parentBeliefId', 'side'],
+    _count: { _all: true },
+  })
+  const countsByBelief = new Map<number, { agree: number; disagree: number }>()
+  for (const row of argumentCounts) {
+    const entry = countsByBelief.get(row.parentBeliefId) ?? { agree: 0, disagree: 0 }
+    if (row.side === 'agree') entry.agree = row._count._all
+    else if (row.side === 'disagree') entry.disagree = row._count._all
+    countsByBelief.set(row.parentBeliefId, entry)
+  }
+
   return NextResponse.json({
     beliefs: beliefs.map(b => ({
       belief_id: String(b.id),
@@ -86,6 +100,7 @@ export async function GET(request: Request) {
       }),
       parent_topic_id: b.category ?? null,
       slug: b.slug,
+      reason_counts: countsByBelief.get(b.id) ?? { agree: 0, disagree: 0 },
     })),
     count: beliefs.length,
   })

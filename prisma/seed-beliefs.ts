@@ -1,4 +1,5 @@
 import { prisma } from '../src/lib/prisma'
+import { resetBeliefChildren } from './seed-helpers'
 
 async function main() {
   console.log('Seeding belief analysis data...')
@@ -219,6 +220,24 @@ async function main() {
       claimStrength: 0.5,
     },
   })
+
+  // Replace (not append) all child rows owned by this seed, so reruns and
+  // mid-failure retries never duplicate argument edges or evidence.
+  await resetBeliefChildren([
+    mainBelief.id,
+    automationBelief.id,
+    povertyBelief.id,
+    bureaucracyBelief.id,
+    inflationBelief.id,
+    workIncentiveBelief.id,
+    fiscalBelief.id,
+    humanDignityBelief.id,
+    marketFreedomBelief.id,
+    ubiFundingBelief.id,
+    ubiAmountBelief.id,
+    extremeBelief.id,
+    moderateBelief.id,
+  ])
 
   // Create arguments (reasons linking beliefs to the main belief)
   await prisma.argument.createMany({

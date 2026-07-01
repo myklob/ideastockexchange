@@ -70,6 +70,26 @@ interface ArgumentEdge {
 }
 
 /**
+ * A belief's effective truth score (0–1) for propagation purposes.
+ *
+ * Beliefs WITH arguments are scored by the argument-weighted truth
+ * (importanceWeightedScore). Leaf beliefs with no arguments but WITH
+ * attached evidence are scored by the evidence balance (aggregateEvidenceScore,
+ * EVS-weighted supporting share) — tying belief strength directly to evidence
+ * strength instead of defaulting to maximum uncertainty. Beliefs with neither
+ * stay at 0.5 (nothing is known either way).
+ */
+function effectiveTruthScore(belief: {
+  arguments: unknown[]
+  evidence: unknown[]
+} & Parameters<typeof computeBeliefScores>[0]): number {
+  const scores = computeBeliefScores(belief)
+  if (belief.arguments.length > 0) return scores.importanceWeightedScore
+  if (belief.evidence.length > 0) return scores.aggregateEvidenceScore
+  return 0.5
+}
+
+/**
  * Resolve a belief's truth score (0–1), memoized per propagation pass so a
  * belief feeding many arguments is only scored once.
  */
@@ -78,7 +98,7 @@ async function truthScoreFor(beliefId: number, cache: Map<number, number>): Prom
   if (cached !== undefined) return cached
 
   const belief = await fetchBeliefById(beliefId)
-  const score = belief ? computeBeliefScores(belief).importanceWeightedScore : 0
+  const score = belief ? effectiveTruthScore(belief) : 0
   cache.set(beliefId, score)
   return score
 }
@@ -138,9 +158,9 @@ export async function propagateBeliefScores(
   if (!childBelief) return result
 
   const childScores = computeBeliefScores(childBelief)
-  // importanceWeightedScore (0–1) is the best single summary of "how true" the
-  // child belief is, weighted by how much each argument moves the needle.
-  const childTruthScore = childScores.importanceWeightedScore
+  // Argument-weighted truth when arguments exist; evidence balance for
+  // evidence-only leaves; 0.5 when nothing is known either way.
+  const childTruthScore = effectiveTruthScore(childBelief)
 
   // Persist the child belief's computed overallScore back to the positivity field
   // so that parent argument-tree tables always display the up-to-date score.
@@ -196,11 +216,20 @@ export async function propagateBeliefScores(
       importance,
     )
 
+    // The displayed "Score" column: how true the underlying reason-belief is
+    // (0–1 truth mapped to 0–100), signed by which side the argument is on.
+    // Distinct from impactScore, which additionally weights linkage/importance.
+    const newArgumentScore = Math.round((arg.side === 'agree' ? 1 : -1) * truth * 100)
+
     await prisma.argument.update({
       where: { id: arg.id },
       // Persist the derived importance too, so rendered tables and later
       // truth-edge recomputes read a value consistent with the live debate.
-      data: { impactScore: newImpactScore, importanceScore: importance },
+      data: {
+        impactScore: newImpactScore,
+        importanceScore: importance,
+        argumentScore: newArgumentScore,
+      },
     })
 
     result.updatedArgumentIds.push(arg.id)
