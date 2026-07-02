@@ -24,9 +24,7 @@ export default function Spectrum3Escalation({ escalationLevels, topicTitle }: Pr
     <div id="engagement" className="mb-8">
       <h2 className="text-xl font-bold mb-1">
         ⚡ The Engagement Landscape{' '}
-        <a href="/escalation-spectrum" className="text-base font-normal text-blue-600 hover:underline">
-          (Passive ↔ Active)
-        </a>
+        (Passive ↔ Active)
       </h2>
       <p className="text-sm text-gray-600 mb-4">
         <strong>This is a stakeholder map, not a matching continuum.</strong> It answers the second half of &ldquo;how
@@ -108,10 +106,10 @@ export default function Spectrum3Escalation({ escalationLevels, topicTitle }: Pr
         <strong>Key insight:</strong> Engagement is fully independent of the three matching continuums. Someone can hold
         a moderate-magnitude claim (Continuum 2 = 50%) about a cause they feel lukewarm toward (Continuum 1 = +40%) and
         still be willing to go to prison for it (Engagement Level 4). For engagement beyond Level 4, see:{' '}
-        <a href="/escalation-spectrum" className="text-blue-600 hover:underline">Escalation Spectrum</a>.
+        Escalation Spectrum.
       </p>
       <p className="text-right text-xs mt-2 text-gray-500">
-        <a href="/w/page/21956745/American%20values" className="text-blue-600 hover:underline">Core Values Framework</a>
+        Core Values Framework
       </p>
     </div>
   );

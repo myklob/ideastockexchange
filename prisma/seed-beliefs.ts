@@ -519,7 +519,6 @@ async function main() {
       claim: 'Automation will displace workers at scale',
       famousQuote: 'The future is already here — it is just not evenly distributed.',
       quoteAuthor: 'Myclob',
-      quoteAuthorUrl: '/Myclob',
       argumentScore: 62,
     },
   })

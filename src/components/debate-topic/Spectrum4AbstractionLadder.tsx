@@ -10,9 +10,7 @@ export default function Spectrum4AbstractionLadder({ rungs, topicTitle }: Props)
     <div id="specificity" className="mb-8">
       <h2 className="text-xl font-bold mb-1">
         🧩 Continuum 3: Specificity, the Abstraction Ladder{' '}
-        <a href="/general-to-specific" className="text-base font-normal text-blue-600 hover:underline">
-          (General ↔ Specific)
-        </a>
+        (General ↔ Specific)
       </h2>
       <p className="text-sm text-gray-600 mb-4">
         How concrete a claim is. The same topic supports claims at very different altitudes, from a sweeping worldview
@@ -59,7 +57,7 @@ export default function Spectrum4AbstractionLadder({ rungs, topicTitle }: Props)
         </table>
       </div>
       <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/general-to-specific" className="text-blue-600 hover:underline">General to Specific Framework</a>
+        See: General to Specific Framework
       </p>
     </div>
   );

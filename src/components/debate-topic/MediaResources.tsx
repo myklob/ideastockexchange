@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { DebateMediaResource } from '@/core/types/debate-topic';
 
 interface Props {
@@ -53,7 +54,7 @@ export default function MediaResources({ mediaResources }: Props) {
         </table>
       </div>
       <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/media-framework" className="text-blue-600 hover:underline">Media Framework</a>
+        See: <Link href="/media/why-pro-con-media" className="text-blue-600 hover:underline">Media Framework</Link>
       </p>
     </div>
   );

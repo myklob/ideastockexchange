@@ -198,26 +198,21 @@ export default function CandidateEvaluationPage() {
               </code>{' '}
               and instantly inherits the same structural template every belief on the platform
               uses:{' '}
-              <Link href="/Argument%20Trees" className="text-[var(--accent)] hover:underline">Argument Trees</Link>,{' '}
-              <Link href="/Evidence%20Scoring" className="text-[var(--accent)] hover:underline">Evidence Scoring</Link>,{' '}
+              Argument Trees,{' '}
+              Evidence Scoring,{' '}
               <Link
-                href="/w/page/159351732/Objective%20criteria%20scores"
+                href="/algorithms/objective-criteria"
                 className="text-[var(--accent)] hover:underline"
               >
                 Objective Criteria weighting
               </Link>,{' '}
               <Link
-                href="/w/page/156187122/cost-benefit%20analysis"
+                href="/cba/about"
                 className="text-[var(--accent)] hover:underline"
               >
                 Cost-Benefit Analysis
               </Link>, and{' '}
-              <Link
-                href="/w/page/156186840/automate%20conflict%20resolution"
-                className="text-[var(--accent)] hover:underline"
-              >
-                Conflict Resolution mapping
-              </Link>.
+              Conflict Resolution mapping.
             </p>
             <p>
               No special configuration. No editorial setup. No custom rules for politicians.
@@ -229,22 +224,31 @@ export default function CandidateEvaluationPage() {
           {/* inherited template blocks */}
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {[
-              { emoji: '🌳', label: 'Argument Trees', href: '/Argument%20Trees' },
-              { emoji: '🔬', label: 'Evidence Scoring', href: '/Evidence%20Scoring' },
-              { emoji: '📏', label: 'Objective Criteria', href: '/w/page/159351732/Objective%20criteria%20scores' },
-              { emoji: '⚖️', label: 'Cost-Benefit Analysis', href: '/w/page/156187122/cost-benefit%20analysis' },
-              { emoji: '🤝', label: 'Conflict Resolution', href: '/w/page/156186840/automate%20conflict%20resolution' },
-              { emoji: '📊', label: 'ReasonRank Scoring', href: '/ReasonRank' },
-            ].map(({ emoji, label, href }) => (
-              <Link
-                key={label}
-                href={href}
-                className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-sm hover:bg-gray-50 transition-colors text-[var(--foreground)]"
-              >
-                <span>{emoji}</span>
-                <span>{label}</span>
-              </Link>
-            ))}
+              { emoji: '🌳', label: 'Argument Trees' },
+              { emoji: '🔬', label: 'Evidence Scoring' },
+              { emoji: '📏', label: 'Objective Criteria', href: '/algorithms/objective-criteria' },
+              { emoji: '⚖️', label: 'Cost-Benefit Analysis', href: '/cba/about' },
+              { emoji: '🤝', label: 'Conflict Resolution' },
+              { emoji: '📊', label: 'ReasonRank Scoring', href: '/algorithms/reason-rank' },
+            ].map(({ emoji, label, href }) => {
+              const chipClass =
+                'flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-sm text-[var(--foreground)]'
+              return href ? (
+                <Link
+                  key={label}
+                  href={href}
+                  className={`${chipClass} hover:bg-gray-50 transition-colors`}
+                >
+                  <span>{emoji}</span>
+                  <span>{label}</span>
+                </Link>
+              ) : (
+                <div key={label} className={chipClass}>
+                  <span>{emoji}</span>
+                  <span>{label}</span>
+                </div>
+              )
+            })}
           </div>
         </section>
 
@@ -260,7 +264,7 @@ export default function CandidateEvaluationPage() {
             Before any candidate&apos;s belief page exists, the office node (e.g.,{' '}
             <em>Colorado → Senate</em>) already contains a scored, community-built set of{' '}
             <Link
-              href="/w/page/159351732/Objective%20criteria%20scores"
+              href="/algorithms/objective-criteria"
               className="text-[var(--accent)] hover:underline"
             >
               Objective Criteria
@@ -298,7 +302,7 @@ export default function CandidateEvaluationPage() {
                   </th>
                   <th className="px-3 py-2 text-center font-semibold w-[16%]">
                     <Link
-                      href="/Linkage%20Scores"
+                      href="/algorithms/linkage-scores"
                       className="text-[var(--accent)] hover:underline"
                     >
                       Linkage
@@ -432,9 +436,7 @@ export default function CandidateEvaluationPage() {
               <li>Sub-arguments adjust the Truth Score of their parent argument — recursively.</li>
               <li>
                 The final{' '}
-                <Link href="/Scoring" className="text-[var(--accent)] hover:underline">
-                  Belief Score
-                </Link>{' '}
+                Belief Score{' '}
                 is the sum of all propagated impacts.
               </li>
             </ol>
@@ -466,12 +468,7 @@ export default function CandidateEvaluationPage() {
             </p>
             <p className="text-sm">
               Belief{' '}
-              <Link
-                href="/beliefs%20grouped%20and%20eventually%20sorted%20along%20the%20the%20positivity%20continuum"
-                className="text-[var(--accent)] hover:underline"
-              >
-                Positivity
-              </Link>{' '}
+              Positivity{' '}
               Towards Topic: <strong>+72%</strong>
             </p>
             <p className="text-sm">
@@ -492,7 +489,7 @@ export default function CandidateEvaluationPage() {
                   </th>
                   <th className="px-3 py-2 text-center w-[14%] font-semibold">Arg Score</th>
                   <th className="px-3 py-2 text-center w-[18%] font-semibold">
-                    <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">
+                    <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">
                       Linkage
                     </Link>
                   </th>
@@ -533,7 +530,7 @@ export default function CandidateEvaluationPage() {
                   </th>
                   <th className="px-3 py-2 text-center w-[14%] font-semibold">Arg Score</th>
                   <th className="px-3 py-2 text-center w-[18%] font-semibold">
-                    <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">
+                    <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">
                       Linkage
                     </Link>
                   </th>
@@ -578,7 +575,7 @@ export default function CandidateEvaluationPage() {
           <div className="mt-6 text-right space-y-1">
             <p className="text-lg font-bold">
               Score:{' '}
-              <Link href="/Argument%20scores%20from%20sub-argument%20scores" className="text-[var(--accent)] hover:underline">
+              <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">
                 {(totalPro + totalCon) >= 0 ? '+' : ''}
                 {(totalPro + totalCon).toFixed(1)}
               </Link>{' '}
@@ -694,12 +691,7 @@ export default function CandidateEvaluationPage() {
             new evidence.
           </p>
           <div className="flex gap-4 flex-wrap">
-            <Link
-              href="/w/page/160433328/Contact%20Me"
-              className="text-[var(--accent)] hover:underline"
-            >
-              Contact the maintainer
-            </Link>
+            Contact the maintainer
             <a
               href="https://github.com/myklob/ideastockexchange"
               target="_blank"
@@ -708,9 +700,7 @@ export default function CandidateEvaluationPage() {
             >
               GitHub repository
             </a>
-            <Link href="/Argument%20Trees" className="text-[var(--accent)] hover:underline">
-              How Argument Trees work
-            </Link>
+            How Argument Trees work
           </div>
         </section>
 

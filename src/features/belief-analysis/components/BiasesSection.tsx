@@ -18,7 +18,6 @@ export default function BiasesSection({ biases }: BiasesSectionProps) {
       <SectionHeading
         emoji="&#x1F9E0;"
         title="Biases"
-        href="/bias"
       />
 
       <div className="overflow-x-auto">

@@ -634,9 +634,7 @@ export default function ObjectiveCriteriaPage() {
         Challenge weak ones. The platform does the math. You provide the reasoning.
       </p>
       <p className="mb-6">
-        <Link href="/contact" className="font-bold text-blue-700 hover:underline">
-          Get involved.
-        </Link>{' '}
+        Get involved.{' '}
         The most important debates in the world are stalled not because we lack data, but because
         we haven&rsquo;t agreed on what the data means. That&rsquo;s a solvable problem.
       </p>
@@ -675,9 +673,7 @@ export default function ObjectiveCriteriaPage() {
       </div>
 
       <p className="mt-8 mb-2">
-        <Link href="/contact" className="font-bold text-blue-700 hover:underline">
-          Contact me
-        </Link>{' '}
+        Contact me{' '}
         to propose new criteria for a contested topic, or to challenge existing criteria that are
         scoring too high.
       </p>

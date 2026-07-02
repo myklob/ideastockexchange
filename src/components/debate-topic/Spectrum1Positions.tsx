@@ -21,9 +21,7 @@ export default function Spectrum1Positions({ positions }: Props) {
     <div id="valence" className="mb-8">
       <h2 className="text-xl font-bold mb-1">
         📊 Continuum 1: Valence{' '}
-        <a href="/positive-to-negative" className="text-base font-normal text-blue-600 hover:underline">
-          (Negative ↔ Positive)
-        </a>
+        (Negative ↔ Positive)
       </h2>
       <p className="text-sm text-gray-600 mb-4">
         Direction only, from total opposition (−100%) to total support (+100%). How extreme the phrasing is and how
@@ -68,9 +66,9 @@ export default function Spectrum1Positions({ positions }: Props) {
         </table>
       </div>
       <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/positive-to-negative" className="text-blue-600 hover:underline">Full Positivity Framework</a>
+        See: Full Positivity Framework
         {' | '}
-        <a href="/positive-to-negative" className="text-blue-600 hover:underline">Why We Need This Continuum</a>
+        Why We Need This Continuum
       </p>
     </div>
   );

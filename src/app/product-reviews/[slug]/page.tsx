@@ -202,7 +202,7 @@ export default async function ProductReviewPage({ params }: ProductReviewPagePro
             <p className="text-lg font-bold">
               Score:{' '}
               <Link
-                href="/Argument%20scores%20from%20sub-argument%20scores"
+                href="/algorithms/reason-rank"
                 className="text-[var(--accent)] hover:underline"
               >
                 {scores.overallScore >= 0 ? '+' : ''}{scores.overallScore.toFixed(1)}

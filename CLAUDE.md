@@ -20,7 +20,7 @@ npx eslint <files>    # lint files you edited (`npm run lint` runs the whole rep
 npm test              # vitest, only when changing scoring / core logic
 ```
 
-The repo has ~50 pre-existing implicit-any errors in routes I didn't touch (notably `src/app/algorithms/belief-equivalency/*`, `src/app/equivalence/*`, several API routes, `src/lib/prisma.ts`'s missing generated client). They are not your fault — verify *only* that your edited files are clean, not that the global typecheck count is zero.
+The global typecheck is clean as of July 2026 — `npx tsc --noEmit` should produce zero errors. If it doesn't, either your edit broke it or `src/generated/prisma` is missing (run `npm run db:generate`). Don't leave new errors behind.
 
 ## The Belief Page Is the Crown Jewel
 
@@ -84,4 +84,5 @@ Or set `CLAUDE_DEBUG_FILE` before launching. File logging cannot be enabled mid-
 - `/beliefs/[slug]` — the canonical belief page (this is the one that matters).
 - `/beliefs/set-aside-distractions-for-real-solutions` — bespoke route, predates the canonical structure. Don't use as a template.
 - `/product-reviews/[slug]` — separate concept that reuses some belief components. Edits to belief sections may affect it; check before refactoring.
-- `/algorithms/strong-to-weak`, `/Linkage Scores`, `/Argument scores from sub-argument scores` — explainer pages linked from the belief page header. If you add a link to a belief page, verify the target exists or use plain text (Rule 5).
+- `/algorithms` — index of the scoring-algorithm explainers (`/algorithms/reason-rank`, `/algorithms/linkage-scores`, `/algorithms/objective-criteria`, `/algorithms/strong-to-weak`, `/algorithms/belief-equivalency`, `/algorithms/combine-similar-beliefs`). These are the pages belief content should link to for scoring concepts. If you add a link to a belief page, verify the target exists or use plain text (Rule 5).
+- `/laws` — index of wikiLaw diagnostics; individual laws live at `/law/[id]` from `src/features/legal-framework/data/example-laws.ts`.

@@ -267,9 +267,7 @@ export default function BeliefEquivalencyPage() {
 
       <p className="mb-3">
         Belief Equivalency Scores work alongside{' '}
-        <Link href="/algorithms/topic-overlap" className="text-blue-700 hover:underline">
-          Topic Overlap Scores
-        </Link>
+        Topic Overlap Scores
         , which catch duplicate arguments within a single page, and the positive-to-negative and
         strong-to-weak spectrums, which organize the full family of related beliefs by direction and
         intensity. Together they solve the three layers of linguistic fragmentation:
@@ -308,9 +306,7 @@ export default function BeliefEquivalencyPage() {
         <p className="font-bold mb-2">Related pages:</p>
         <ul className="list-disc list-inside space-y-1 text-sm">
           <li>
-            <Link href="/algorithms/topic-overlap" className="text-blue-700 hover:underline">
-              Topic Overlap Scores
-            </Link>{' '}
+            Topic Overlap Scores{' '}
             — catching duplicates within a single page
           </li>
           <li>

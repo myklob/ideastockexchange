@@ -178,7 +178,7 @@ export default async function DebateTopicPage({ params }: Props) {
         <div>
           <h2 className="text-xl font-bold mb-2">📬 Contribute</h2>
           <p>
-            <Link href="/contact" className="text-blue-600 hover:underline">Contact us</Link>{' '}
+            Contact us{' '}
             to add beliefs, strengthen arguments, link new evidence, or propose objective criteria.
             <br />
             <a

@@ -295,9 +295,7 @@ export default async function ArgumentLinkageDebatePage({ params }: PageProps) {
             <strong>Missing assumption detected.</strong> This linkage score is in the moderate
             range (40&ndash;60%), which often indicates a hidden bridging assumption. Consider
             adding the unstated premise as a new{' '}
-            <Link href="/algorithms/assumptions" className="text-blue-700 hover:underline">
-              Assumption node
-            </Link>{' '}
+            Assumption node{' '}
             to make the reasoning explicit and testable.
           </div>
         )}

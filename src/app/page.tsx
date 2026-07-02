@@ -229,7 +229,7 @@ export default function Home() {
           </ul>
 
           <Link
-            href="/proposal/new"
+            href="/debate-topics/new"
             className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
             Create a Proposal

@@ -8,7 +8,11 @@ interface Props {
 function TopicLink({ topic }: { topic: DebateRelatedTopic }) {
   const href = topic.relatedSlug
     ? `/debate-topics/${topic.relatedSlug}`
-    : topic.relatedUrl ?? '#';
+    : topic.relatedUrl;
+
+  if (!href) {
+    return <span>{topic.relatedTitle}</span>;
+  }
 
   return (
     <Link href={href} className="text-blue-600 hover:underline">

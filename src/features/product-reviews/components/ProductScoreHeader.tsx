@@ -39,16 +39,14 @@ export default function ProductScoreHeader({
             </span>
             {' '}
             <Link
-              href="/Argument%20scores%20from%20sub-argument%20scores"
+              href="/algorithms/reason-rank"
               className="text-xs text-[var(--accent)] hover:underline"
             >
               (based on argument scores)
             </Link>
           </p>
           <p className="text-sm">
-            <Link href="/One%20Page%20Per%20Topic" className="text-[var(--accent)] hover:underline font-semibold">
-              Category
-            </Link>:{' '}
+            Category:{' '}
             <Link href={`/product-reviews/categories?type=${encodeURIComponent(categoryType)}`} className="text-[var(--accent)] hover:underline">
               {categoryType}
             </Link>
