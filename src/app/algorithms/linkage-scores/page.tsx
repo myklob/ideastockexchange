@@ -266,6 +266,58 @@ export default function LinkageScoresPage() {
 
       <hr className="my-6 border-gray-300" />
 
+      {/* ── Linkage Failure Modes: worked examples ──────────────
+          Canonical home for fully worked failure-mode examples with real
+          names. Every linkage page points here instead of shipping a
+          contested illustration inside the template. */}
+      <h2 className="text-2xl font-bold mb-3">Linkage Failure Modes: Worked Examples</h2>
+      <p className="mb-4">
+        The patterns above become muscle memory fastest through fully worked examples. These live
+        here, once, as the canonical reference — every dedicated linkage page links to this section
+        rather than carrying its own copy. The best examples use evidence that is real and strong
+        and <em>still misfiled</em>, because that is the whole lesson: people rarely invent
+        evidence; they place real evidence under conclusions it does not support.
+      </p>
+      <div className="overflow-x-auto mb-4">
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-3 py-2 text-left w-[22%]">Failure Mode</th>
+              <th className="border border-gray-300 px-3 py-2 text-left w-[30%]">X (evidence or argument)</th>
+              <th className="border border-gray-300 px-3 py-2 text-left w-[30%]">Y (claim it was placed under)</th>
+              <th className="border border-gray-300 px-3 py-2 text-left w-[18%]">Why the linkage fails</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-gray-300 px-3 py-2 align-top">
+                <strong>Parent-mechanism mismatch</strong> (the Schiltz case)
+              </td>
+              <td className="border border-gray-300 px-3 py-2 align-top">
+                Chief Judge Schiltz, January 2026: ICE violated 96 court orders in 74 cases.
+              </td>
+              <td className="border border-gray-300 px-3 py-2 align-top">
+                MAGA broke the norms that constrain the powerful (insider trading, nepotism,
+                financial disclosure).
+              </td>
+              <td className="border border-gray-300 px-3 py-2 align-top">
+                X is about executive defiance of judicial orders, a separation-of-powers argument.
+                Y is about wealthy people evading rules. Different mechanism, different parent.
+                Correct parent for X is &ldquo;MAGA defies judicial constraint,&rdquo; not Y.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="mb-4 text-sm text-gray-600">
+        Note what makes this example instructive: the evidence is real, well-documented, and
+        damning — and the linkage still fails, because the mechanism it demonstrates is not the
+        mechanism the parent claim asserts. High truth, low linkage. The argument belongs in the
+        graph; it just belongs under a different parent.
+      </p>
+
+      <hr className="my-6 border-gray-300" />
+
       {/* ── Section 4 ─────────────────────────────────────────── */}
       <h2 className="text-2xl font-bold mb-3">The Mathematics of Linkage</h2>
 
