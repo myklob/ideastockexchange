@@ -11,14 +11,46 @@ import {
 import { calculateEVS, getEvidenceTypeWeight } from '@/core/scoring/scoring-engine'
 import { applyStrengthPenalty } from '@/core/scoring/claim-strength'
 
+/**
+ * Standard ordering for score-ranked table rows: highest relationship score
+ * first, unscored rows last (their score cells render blank per Rule 6),
+ * then editorial sortOrder as the tiebreak. Mutable arrays (not `as const`)
+ * because Prisma's orderBy input types reject readonly tuples.
+ */
+const SCORE_RANKED = [
+  { score: { sort: 'desc' as const, nulls: 'last' as const } },
+  { sortOrder: 'asc' as const },
+]
+
+/** Same ranking for row models without a sortOrder column (id as tiebreak). */
+const SCORE_RANKED_BY_ID = [
+  { score: { sort: 'desc' as const, nulls: 'last' as const } },
+  { id: 'asc' as const },
+]
+
+/** Cost/benefit rows rank by Expected Value = Magnitude × Likelihood. */
+const EXPECTED_VALUE_RANKED = [
+  { expectedValue: { sort: 'desc' as const, nulls: 'last' as const } },
+  { sortOrder: 'asc' as const },
+]
+
 /** Shared include clause for all belief queries — includes all score-related fields. */
 const BELIEF_INCLUDE = {
-  definitions: { orderBy: { sortOrder: 'asc' as const } },
-  testablePredictions: { orderBy: { sortOrder: 'asc' as const } },
-  valueRankings: { orderBy: { sortOrder: 'asc' as const } },
-  interestEntries: { orderBy: { sortOrder: 'asc' as const } },
-  sharedInterests: { orderBy: { sortOrder: 'asc' as const } },
-  disputeTypes: { orderBy: { sortOrder: 'asc' as const } },
+  definitions: { orderBy: SCORE_RANKED },
+  testablePredictions: { orderBy: SCORE_RANKED },
+  valueRankings: { orderBy: SCORE_RANKED },
+  interestEntries: { orderBy: SCORE_RANKED },
+  sharedInterests: { orderBy: SCORE_RANKED },
+  disputeTypes: { orderBy: SCORE_RANKED },
+  falsifiabilityItems: { orderBy: SCORE_RANKED },
+  componentClaims: { orderBy: SCORE_RANKED },
+  impactEntries: { orderBy: SCORE_RANKED },
+  costBenefitItems: {
+    include: {
+      claimBelief: { select: { id: true, slug: true, statement: true } },
+    },
+    orderBy: EXPECTED_VALUE_RANKED,
+  },
   arguments: {
     include: {
       belief: {
@@ -34,43 +66,48 @@ const BELIEF_INCLUDE = {
   objectiveCriteria: { orderBy: { totalScore: 'desc' as const } },
   valuesAnalysis: true,
   interestsAnalysis: true,
-  assumptions: true,
+  assumptions: { orderBy: SCORE_RANKED_BY_ID },
   costBenefitAnalysis: true,
   impactAnalysis: true,
-  compromises: true,
-  obstacles: true,
-  biases: true,
+  compromises: { orderBy: SCORE_RANKED_BY_ID },
+  obstacles: { orderBy: SCORE_RANKED_BY_ID },
+  biases: { orderBy: SCORE_RANKED_BY_ID },
   mediaResources: {
     include: {
       qualityArguments: {
         orderBy: { impactScore: 'desc' as const },
       },
     },
+    orderBy: { impactScore: 'desc' as const },
   },
-  legalEntries: true,
+  legalEntries: { orderBy: SCORE_RANKED_BY_ID },
   upstreamMappings: {
     include: {
       parentBelief: { select: { id: true, slug: true, statement: true } },
       childBelief: { select: { id: true, slug: true, statement: true } },
     },
+    orderBy: SCORE_RANKED_BY_ID,
   },
   downstreamMappings: {
     include: {
       parentBelief: { select: { id: true, slug: true, statement: true } },
       childBelief: { select: { id: true, slug: true, statement: true } },
     },
+    orderBy: SCORE_RANKED_BY_ID,
   },
   similarTo: {
     include: {
       fromBelief: { select: { id: true, slug: true, statement: true } },
       toBelief: { select: { id: true, slug: true, statement: true } },
     },
+    orderBy: { equivalencyScore: 'desc' as const },
   },
   similarFrom: {
     include: {
       fromBelief: { select: { id: true, slug: true, statement: true } },
       toBelief: { select: { id: true, slug: true, statement: true } },
     },
+    orderBy: { equivalencyScore: 'desc' as const },
   },
 } as const
 

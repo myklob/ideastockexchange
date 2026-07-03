@@ -1,7 +1,7 @@
 <!-- page=Template -->
 <!-- content-type=text/html -->
 <!--
-  ===== ISE BELIEF PAGE MASTER TEMPLATE (April 2026 redesign) =====
+  ===== ISE BELIEF PAGE MASTER TEMPLATE (July 2026 revision) =====
   Canonical rules: see docs/BELIEF_PAGE_RULES.md.
   This template is the source of truth for section order and structure. It is
   mirrored by the React implementation in src/app/beliefs/[slug]/page.tsx and the
@@ -11,7 +11,7 @@
 
   HARD RULES (every generation must follow):
     1. NO summary / background / hook / overview at the top. Header metadata, then
-       straight to Argument Trees.
+       the Scorecard readout, then straight to Argument Trees.
     2. Definitions go LAST, never first.
     3. Argument cells are short claim labels. Each cell = the claim, the single most
        famous supporting quote inline (italic, small), then the submitter as ~Name.
@@ -20,99 +20,349 @@
     5. No broken links. Use plain text if the target page doesn't exist.
     6. Score cells stay blank until real sub-argument scoring exists. No "+0" placeholders.
     7. Supporters and Opponents get symmetric structure everywhere.
+    8. Every table sorts by Score, descending — rows enter and rank only by the
+       performance of their pro/con sub-arguments, never by editorial placement.
+       In the ISE software each table shows its top rows and collapses the rest
+       until expanded.
 
   CANONICAL SECTION ORDER:
     Header (Belief / metadata / Beliefs this supports)
-    1.  Argument Trees (scored two-sided table + Net Belief Score)
-    2.  Evidence Ledger (two-sided: Supporting / Weakening)
-    3.  Conflict Resolution Framework
-        a. Shared Values, Different Rankings
+    0.  Scorecard (Net Belief Score / Bottom line / Strongest pro+con / What would
+        move this score most) + "How to read this page" box
+    1.  Argument Trees (scored two-sided table: Argument/Score/Link/Imp/Impact,
+        Pro+Con totals, Net Belief Score)
+    2.  Evidence Ledger (two-sided: Supporting / Weakening, Type/Link/Impact)
+    3.  Objective Criteria (Criterion / How to Measure / Reading That Would
+        Strengthen / Reading That Would Weaken / Latest Reading / Score)
+    4.  Falsifiability Test (Evidence That Would Strengthen+Score / Weaken+Score)
+        + Testable Predictions (Prediction / Follows If / Timeframe / Verification
+        Method / Result So Far / Score)
+    5.  Logical Anatomy & Foundational Assumptions (logical form, Component
+        Claims table, Assumptions by Side with Scores)
+    6.  Cost-Benefit Analysis (Benefits table + Costs table: Claim / Category /
+        Magnitude / Likelihood % / Expected Value, per-category subtotals), then
+        Short vs. Long-Term Impacts (with Scores)
+    7.  Conflict Resolution Framework
+        a. Shared Values, Different Rankings (with Score)
         b. Likely Interests of Supporters
         c. Likely Interests of Opponents
-        d. Shared and Conflicting Interests (Shared Interests + Primary Conflict Pair)
-        e. Advertised vs. Actual Motivations
-        f. Dispute Types
-        g. Primary Obstacles to Resolution
-    4.  Objective Criteria
-    5.  Falsifiability Test + Testable Predictions
-    6.  Foundational Assumptions
-    7.  Cost-Benefit Analysis (+ Short vs. Long-Term + Best Compromise Solutions)
-    8.  Biases
-    9.  Media Resources
-    10. Legal Framework
-    11. General to Specific Belief Mapping
-    12. Similar Beliefs
-    13. Definitions (LAST before Contribute)
-    14. Contribute / footer
+        d. Shared and Conflicting Interests (Shared Interests with Score +
+           Primary Conflict Pair)
+        e. Best Compromise Solutions (with Score: interests satisfied)
+        f. Advertised vs. Actual Motivations (with Divergence Score)
+        g. Dispute Types (with Score)
+        h. Primary Obstacles to Resolution (with Scores)
+        i. Biases (with Scores)
+    8.  Media Resources (two-sided: Resource / Type / Score)
+    9.  Legal Framework (Supporting+Score / Complicating+Score)
+    10. General to Specific Belief Mapping (Support+Score / Oppose+Score)
+    11. Similar Beliefs (More Extreme+Score / More Moderate+Score)
+    12. Definitions (Term / Definition / Score) — LAST before footer
+    13. Contribute / footer
 -->
 <p style="text-align: right;"><a href="/w/page/21957696/Colorado%20Should">Home</a> &rsaquo;  <a href="/w/page/159323433/One%20Page%20Per%20Topic">Topics</a> &rsaquo;  [Category] &rsaquo;  [This Belief]</p>
 <div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
+<p style="display: none;">AUTHORING RULES (hidden text; leave in place, readers never see this): state the belief in positive form so the page headlines the supported claim. Every argument cell must be a complete, atomic proposition whose pro/con direction is evident from the cell alone. Never fill a score cell for an empty item. All scores stay [bracketed] until the ReasonRank engine computes them. Every table sorts by score, descending; rows enter and rank only by the performance of their pro/con sub-arguments, never by editorial placement. Arguments fail logically and go in the tree; evidence fails empirically and goes in the ledger.</p>
 <h1>Belief: [Insert Belief Statement Here]</h1>
-<p style="text-align: right; font-size: 11px; color: #999; margin: 0 0 12px 0;"><a href="/beliefs%20grouped%20and%20eventually%20sorted%20along%20the%20the%20positivity%20continuum">Topic</a>: [Category] &gt; [Subcategory] &middot; Dewey [Number] &middot; Positivity [Scale -100% to +100%] &middot; Net Belief Score [To be calculated] &middot; Related: [Related belief 1] | [Related belief 2]</p>
-<p style="font-size: 13px;"><strong>&#128279; Beliefs this supports:</strong> [Belief 1] | [Belief 2]</p>
-
-<h1>&#128269; <a href="/Reasons">Argument Trees</a></h1>
-<p style="font-size: 13px;">Each argument is a belief with its own page. Scores are recursive: Argument Score &times; <a href="/w/page/159338766/Linkage%20Scores">Linkage</a> &times; <a href="/importance%20score">Importance</a> = Impact. Pro and con impacts sum to the Net Belief Score.</p>
+<p style="text-align: right; font-size: 11px; color: #999; margin: 0 0 12px 0;"><a href="/beliefs%20grouped%20and%20eventually%20sorted%20along%20the%20the%20positivity%20continuum">Topic</a>: [Category] &gt; [Subcategory] &middot; Dewey [Number] &middot; Positivity [Scale -100% to +100%] &middot; Related: [Related belief 1] | [Related belief 2]</p>
+<p style="font-size: 13px;"><strong>🔗 Beliefs this supports:</strong> [Belief 1] | [Belief 2]</p>
+<h2>📋 Scorecard</h2>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<tbody>
+<tr>
+<td style="background-color: #f0f3f6;" width="25%"><strong>Net Belief Score</strong></td>
+<td width="75%"><strong>[NETSCORE]</strong> &middot; Pro [PROTOTAL] vs. Con [CONTOTAL] &middot; <span style="font-size: 12px; color: #555;">brackets = placeholders until <a href="/w/page/159300543/ReasonRank">ReasonRank</a> computes live scores</span></td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td style="background-color: #f0f3f6;"><strong>Bottom line</strong></td>
+<td>[One-sentence verdict, scoped to what the argument tree below actually supports. No bigger claim than the leaves can carry.]</td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Strongest pro / con</strong></td>
+<td>[Best pro argument] &middot; [Best con argument]</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td style="background-color: #f0f3f6;"><strong>What would move this score most</strong></td>
+<td>[The single piece of evidence that would most change the verdict; see Falsifiability Test below]</td>
+</tr>
+</tbody>
+</table>
+<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>How to read this page:</strong> nothing here is placed by editorial choice. Every row in every table is itself a claim, and its Score is the <a href="/w/page/159300543/ReasonRank">ReasonRank</a> performance of the pro/con sub-debate about that claim, computed recursively down to the evidence. Every table sorts by Score, best content first; in the ISE software each table shows its top rows and collapses the rest until expanded. [Bracketed] numbers are hand-estimated placeholders until the engine ships, and score cells stay blank until real content exists to score. This wiki can&rsquo;t sort tables live; the Score columns are the data contract that lets the software sort, filter, and collapse every table automatically.</p>
+<p>&nbsp;</p>
+<h1>🔍 <a href="/Reasons">Argument Trees</a></h1>
+<p style="font-size: 13px;">Each argument is a belief with its own page. Scores are recursive: Argument Score &times; <a href="/w/page/159338766/Linkage%20Scores">Linkage</a> &times; <a href="/importance%20score">Importance</a> = Impact. Pro and con impacts sum to the Net Belief Score. A true-but-irrelevant argument scores high on truth and near zero on linkage, so it contributes nothing.</p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr>
-<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="4">&#9989; Reasons to Agree</th> <th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="4">&#10060; Reasons to Disagree</th>
+<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="5">✅ Reasons to Agree</th> <th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="5">❌ Reasons to Disagree</th>
 </tr>
 <tr style="background-color: #f0f3f6; font-size: 12px;">
-<th width="25%">Argument</th> <th width="6%">Score</th> <th width="6%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="7%">Impact</th> <th width="25%">Argument</th> <th width="6%">Score</th> <th width="6%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="7%">Impact</th>
+<th width="22%">Argument</th> <th width="5%">Score</th> <th width="5%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="5%"><a href="/importance%20score">Imp</a></th> <th width="6%">Impact</th> <th width="22%">Argument</th> <th width="5%">Score</th> <th width="5%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="5%"><a href="/importance%20score">Imp</a></th> <th width="6%">Impact</th>
 </tr>
 </thead>
 <tbody>
-<!-- CELL CONVENTION: each argument cell = the claim, then the single most famous supporting quote integrated inline (italic, small), then the submitter as ~Name linked to their page. If several people made the same argument, feature the most famous quote as primary and list other names after it. No separate quotes section. -->
-<tr><td>[Claim]. <span style="font-size:12px; color:#555;"><em>"[most famous quote]"</em></span> ~<a href="/w/page/21958819/Myclob">Name</a></td><td align="center">[S]</td><td align="center">[L]</td><td align="center">[I]</td><td>[Claim]. ~<a href="/w/page/21958819/Myclob">Name</a></td><td align="center">[S]</td><td align="center">[L]</td><td align="center">[I]</td></tr>
+<tr>
+<td>[Claim]. <span style="font-size: 12px; color: #555;"><em>"[most famous quote]"</em></span> ~<a href="/w/page/21958819/Myclob">Name</a></td>
+<td align="center">[S]</td>
+<td align="center">[L]</td>
+<td align="center">[M]</td>
+<td align="center">[I]</td>
+<td>[Claim]. ~<a href="/w/page/21958819/Myclob">Name</a></td>
+<td align="center">[S]</td>
+<td align="center">[L]</td>
+<td align="center">[M]</td>
+<td align="center">[I]</td>
+</tr>
 <tr style="background-color: #f0f0f0; font-style: italic; color: #666;">
-<td colspan="3" align="right"><strong>Pro Total:</strong></td>
+<td colspan="4" align="right"><strong>Pro Total:</strong></td>
 <td align="center">[PROTOTAL]</td>
-<td colspan="3" align="right"><strong>Con Total:</strong></td>
+<td colspan="4" align="right"><strong>Con Total:</strong></td>
 <td align="center">[CONTOTAL]</td>
 </tr>
 </tbody>
 </table>
-<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>Net Belief Score: [NETSCORE].</strong> [NETINTERP]</p>
-
+<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>Net Belief Score = Pro Total + Con Total = [NETSCORE].</strong> [NETINTERP]</p>
 <hr />
 <br />
-<h1>&#128202; <a href="/w/page/159353568/Evidence">Evidence Ledger</a></h1>
-<p style="font-size: 13px;"><em>Key: <strong>T1</strong>=Peer-reviewed/Official, <strong>T2</strong>=Expert/Institutional, <strong>T3</strong>=Journalism/Surveys, <strong>T4</strong>=Opinion/Anecdote</em></p>
+<h1>📊 <a href="/w/page/159353568/Evidence">Evidence Ledger</a></h1>
+<p style="font-size: 13px;"><em>Key: <strong>T1</strong>=Peer-reviewed/Official, <strong>T2</strong>=Expert/Institutional, <strong>T3</strong>=Journalism/Surveys, <strong>T4</strong>=Opinion/Anecdote. Format each item as: Finding (Producer, Year). Evidence is data that can fail empirically; a reason that can only fail logically is an argument and belongs in the tree above, not here.</em></p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr>
-<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="4">&#9989; Supporting Evidence</th> <th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="4">&#10060; Weakening Evidence</th>
+<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="4">✅ Supporting Evidence</th> <th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="4">❌ Weakening Evidence</th>
 </tr>
 <tr style="background-color: #f0f3f6; font-size: 12px;">
-<th width="22%">Evidence</th> <th width="7%">Type</th> <th width="7%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="7%">Impact</th> <th width="22%">Evidence</th> <th width="7%">Type</th> <th width="7%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="7%">Impact</th>
+<th width="22%">Evidence (Producer, Year)</th> <th width="7%">Type</th> <th width="7%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="7%">Impact</th> <th width="22%">Evidence (Producer, Year)</th> <th width="7%">Type</th> <th width="7%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="7%">Impact</th>
 </tr>
 </thead>
 <tbody>
-<tr><td>&nbsp;</td><td align="center">T1</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td><td align="center">T1</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+<tr>
+<td>&nbsp;</td>
+<td align="center">T1</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">T1</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
 </tbody>
 </table>
 <br />
-<h1>&#129309; <a href="/w/page/156186840/automate%20conflict%20resolution">Conflict Resolution</a> Framework</h1>
-<p style="font-size: 13px;">Both sides of most debates share the same <a href="/w/page/21956745/American%20values">values</a>. They disagree about how to <strong>rank</strong> them, and that ranking shifts based on perceived <a href="/w/page/156187122/cost-benefit%20analysis">costs, benefits</a>, and <a href="/Likelihood">likelihood of success</a>. See <a href="/w/page/159323067/Brainstorming%20Interests%20for%20Policy%20Debates">Interest Scoring Methodology</a> and <a href="/w/page/159323043/Focusing%20on%20Interests%2C%20Not%20Positions">Focusing on Interests, Not Positions</a>.</p>
-<h2>&#9878; <a href="/w/page/162560400/Values%20of%20those%20who%20agree%20and%20disagree">Shared Values, Different Rankings</a></h2>
+<h1>🎯 <a href="/Objective%20criteria%20scores">Objective Criteria</a></h1>
+<p style="font-size: 13px;">These are the measurements that would settle this debate if both sides committed to them in advance. Pick the standard first, then check the result: that is what keeps the verdict tied to the world instead of to whoever argues loudest. The best criteria are specific enough that supporters and opponents would predict <em>different</em> readings. A criterion both sides expect to come out the same way tests nothing. See <a href="/w/page/159323070/Applying%20%22Getting%20to%20Yes%22%20Principles">Applying "Getting to Yes" Principles</a>.</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="20%">Criterion</th> <th width="24%">How to Measure</th> <th width="17%">Reading That Would Strengthen</th> <th width="17%">Reading That Would Weaken</th> <th width="14%">Latest Reading</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<br />
+<h1>🧪 Falsifiability Test</h1>
+<p style="font-size: 13px;">Evidence rarely proves or disproves anything outright; it strengthens or weakens. List the strongest realistic score-movers in each direction, and be as specific as a bet: what result, from what kind of source, by when? Each row&rsquo;s Score is the performance of its own pro/con sub-debate: if this evidence appeared, would it actually move this belief?</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="42%">Evidence That Would Strengthen</th> <th width="8%">Score</th> <th width="42%">Evidence That Would Weaken</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td style="font-size: 12px; color: #555;" colspan="4"><em>If no realistic evidence could falsify this belief, say so here and note what that implies about the strength of the claim.</em></td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h2>🔮 Testable Predictions</h2>
+<p style="font-size: 13px;">If this belief is true, what should the world show us that it would not show us otherwise? If it is false, what should we see instead? A belief that predicts nothing cannot be evaluated, only asserted. Each prediction that comes true or fails feeds back into the belief score above.</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="30%">Prediction</th> <th width="10%">Follows If&hellip;</th> <th width="12%">Timeframe</th> <th width="26%">Verification Method</th> <th width="14%">Result So Far</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[If this belief is true, we should observe&hellip;]</td>
+<td align="center">True</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td>[If this belief is false, we should observe&hellip;]</td>
+<td align="center">False</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<br />
+<h1>💡 <a href="/Assumptions">Logical Anatomy &amp; Foundational Assumptions</a></h1>
+<p style="font-size: 13px;">A belief statement that reads as one claim is usually several claims wearing one sentence. Split it into its parts, type each part, surface what it silently assumes, and mark which parts are load-bearing. If the belief is a chain of ANDs, it is exactly as strong as its weakest load-bearing part.</p>
+<p style="font-size: 13px;"><strong>Logical form:</strong> [This belief] = [Part 1] AND [Part 2] AND ([Part 3] OR [Part 4])</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6; font-size: 12px;">
+<th width="30%">Component Claim (stated or implied)</th> <th width="14%">Type</th> <th width="12%">Stated?</th> <th width="18%">If this part is false, does the belief survive?</th> <th width="18%">Unstated assumptions this part relies on</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td align="center">[Empirical / Causal / Definitional / Normative]</td>
+<td align="center">[Stated / Implied]</td>
+<td align="center">[No = load-bearing]</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h2>Assumptions by Side</h2>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="42%">Required to Accept This Belief</th> <th width="8%">Score</th> <th width="42%">Required to Reject This Belief</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<br />
+<h1>⚖ <a href="/w/page/156187122/cost-benefit%20analysis">Cost-Benefit Analysis</a></h1>
+<p style="font-size: 13px;">Every cost and benefit is itself a debatable claim with its own argument tree, and every row must survive three questions: compared to what, measured in what units, and how likely? Magnitude is an estimate in explicit units. Likelihood is computed from how that claim&rsquo;s pro and con arguments score, never assigned by gut. Expected Value = Magnitude &times; Likelihood. Keep unlike categories (dollars, life-years, people-hours, freedom) in separate rows and subtotal only within a category; converting across categories is itself a debatable claim, so if you do it, state the conversion out loud (e.g., the value of a statistical life). Method per the canonical <a href="/w/page/156187122/cost-benefit%20analysis">cost-benefit analysis</a> page and Sunstein&rsquo;s <em>The Cost-Benefit Revolution</em>.</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr>
+<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="5">✅ Benefits</th>
+</tr>
+<tr style="background-color: #f0f3f6; font-size: 12px;">
+<th width="34%">Benefit Claim (links to its own page)</th> <th width="16%">Category (Units)</th> <th width="16%">Magnitude</th> <th width="14%">Likelihood %</th> <th width="20%">Expected Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td align="center">[dollars / life-years / hours / freedom]</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+<tr style="background-color: #f0f0f0; font-style: italic; color: #666;">
+<td colspan="4" align="right"><strong>Subtotal (within each category only):</strong></td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr>
+<th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="5">❌ Costs and Risks</th>
+</tr>
+<tr style="background-color: #f0f3f6; font-size: 12px;">
+<th width="34%">Cost Claim (links to its own page)</th> <th width="16%">Category (Units)</th> <th width="16%">Magnitude</th> <th width="14%">Likelihood %</th> <th width="20%">Expected Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td align="center">[dollars / life-years / hours / freedom]</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+<tr style="background-color: #f0f0f0; font-style: italic; color: #666;">
+<td colspan="4" align="right"><strong>Subtotal (within each category only):</strong></td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h2>🎯 Short vs. Long-Term Impacts</h2>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="42%">Short-Term (0-2 Years)</th> <th width="8%">Score</th> <th width="42%">Long-Term (5+ Years)</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<br />
+<h1>🤝 <a href="/w/page/156186840/automate%20conflict%20resolution">Conflict Resolution</a> Framework</h1>
+<p style="font-size: 13px;">Both sides of most debates share the same <a href="/w/page/21956745/American%20values">values</a>. They disagree about how to <strong>rank</strong> them, and that ranking shifts based on perceived <a href="/w/page/156187122/cost-benefit%20analysis">costs, benefits</a>, and <a href="/Likelihood">likelihood of success</a>. The conflict readout below is the scored cost-benefit trees above, read sideways. See <a href="/w/page/159323067/Brainstorming%20Interests%20for%20Policy%20Debates">Interest Scoring Methodology</a> and <a href="/w/page/159323043/Focusing%20on%20Interests%2C%20Not%20Positions">Focusing on Interests, Not Positions</a>.</p>
+<h2>⚖ <a href="/w/page/162560400/Values%20of%20those%20who%20agree%20and%20disagree">Shared Values, Different Rankings</a></h2>
 <p style="font-size: 13px;">Both sides hold these <a href="/w/page/21956745/American%20values">values</a>. The disagreement is about priority order, not whether each value matters. Rankings shift when new <a href="/w/page/159353568/Evidence">evidence</a> changes perceived <a href="/w/page/156187122/cost-benefit%20analysis">costs/benefits</a> or <a href="/Likelihood">likelihood of success</a>. The value the two sides rank most differently usually is the primary conflict pair scored further below.</p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="28%"><a href="/w/page/21956745/American%20values">Value</a></th> <th width="12%">Supporter Rank</th> <th width="12%">Opponent Rank</th> <th width="48%">Why Rankings Differ on This Issue</th>
+<th width="24%"><a href="/w/page/21956745/American%20values">Value</a></th> <th width="10%">Supporter Rank</th> <th width="10%">Opponent Rank</th> <th width="40%">Why Rankings Differ on This Issue</th> <th width="8%">Score</th>
 </tr>
 </thead>
 <tbody>
-<tr><td><a href="/w/page/21956745/American%20values">[Value 1]</a></td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td></tr>
-<tr style="background-color: #f9f9f9;"><td><a href="/w/page/21956745/American%20values">[Value 2]</a></td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td></tr>
-<tr><td><a href="/w/page/21956745/American%20values">[Value 3]</a></td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td></tr>
-<tr style="background-color: #f0f3f6;"><td colspan="4"><strong>What would shift these rankings?</strong> [What evidence, cost-benefit findings, or likelihood changes would cause either side to re-rank?]</td></tr>
+<tr>
+<td><a href="/w/page/21956745/American%20values">[Value 1]</a></td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td><a href="/w/page/21956745/American%20values">[Value 2]</a></td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+<tr>
+<td><a href="/w/page/21956745/American%20values">[Value 3]</a></td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+<tr style="background-color: #f0f3f6;">
+<td colspan="5"><strong>What would shift these rankings?</strong> [What evidence, cost-benefit findings, or likelihood changes would cause either side to re-rank?]</td>
+</tr>
 </tbody>
 </table>
-<h2>&nbsp;</h2>
-<h2>&#128161; <a href="/w/page/159301140/Interests">Likely Interests of Supporters</a></h2>
-<p style="font-size: 13px;">Sorted by estimated prevalence. <a href="/w/page/159338766/Linkage%20Scores">Linkage Confidence</a> measures how sure we are this is actually why they support this belief. <a href="/w/page/159323067/Brainstorming%20Interests%20for%20Policy%20Debates">Validity</a> measures how legitimate the interest is. For the deepest treatment build a dedicated <a href="/w/page/159301140/Interests">Interest Analysis</a> page and link it here.</p>
+<p>&nbsp;</p>
+<h2>💡 <a href="/w/page/159301140/Interests">Likely Interests of Supporters</a></h2>
+<p style="font-size: 13px;">Sorted by estimated prevalence. <a href="/w/page/159338766/Linkage%20Scores">Linkage Confidence</a> measures how sure we are this is actually why they support this belief. <a href="/w/page/159323067/Brainstorming%20Interests%20for%20Policy%20Debates">Validity</a> measures how legitimate the interest is, determined by argument and objective criteria, never by which side has more power. For the deepest treatment build a dedicated <a href="/w/page/159301140/Interests">Interest Analysis</a> page and link it here.</p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #e6ffe6;">
@@ -120,12 +370,26 @@
 </tr>
 </thead>
 <tbody>
-<tr><td>&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr style="background-color: #f9f9f9; font-style: italic;"><td><em>Pretextual / Low-validity (if any)</em></td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td style="color: #c0392b;" align="center"><strong>0-20</strong></td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr style="background-color: #f9f9f9; font-style: italic;">
+<td><em>Pretextual / Low-validity (if any)</em></td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td style="color: #c0392b;" align="center"><strong>0-20</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
 </tbody>
 </table>
-<h2>&nbsp;</h2>
-<h2>&#128161; <a href="/w/page/159301140/Interests">Likely Interests of Opponents</a></h2>
+<p>&nbsp;</p>
+<h2>💡 <a href="/w/page/159301140/Interests">Likely Interests of Opponents</a></h2>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #ffe6e6;">
@@ -133,142 +397,282 @@
 </tr>
 </thead>
 <tbody>
-<tr><td>&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr style="background-color: #f9f9f9; font-style: italic;"><td><em>Pretextual / Low-validity (if any)</em></td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td style="color: #c0392b;" align="center"><strong>0-20</strong></td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr style="background-color: #f9f9f9; font-style: italic;">
+<td><em>Pretextual / Low-validity (if any)</em></td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td style="color: #c0392b;" align="center"><strong>0-20</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
 </tbody>
 </table>
-<h2>&nbsp;</h2>
-<h2>&#128279; <a href="/w/page/159301140/Interests">Shared and Conflicting Interests</a></h2>
+<p>&nbsp;</p>
+<h2>🔗 <a href="/w/page/159301140/Interests">Shared and Conflicting Interests</a></h2>
 <h3>Shared Interests (foundation for <a href="/w/page/162560439/Compromise">compromise</a>)</h3>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #e6ffe6;"><th width="40%">Shared Interest</th> <th width="12%">Validity</th> <th width="48%">Compromise direction it opens</th></tr></thead>
-<tbody><tr><td>&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td></tr></tbody>
-</table>
-<h3>&#9876; Primary Conflict Pair <span style="font-size: 12px; color: #555;">(the ranking difference that drives this debate)</span></h3>
-<p style="font-size: 13px;"><strong>Primary pair:</strong> [Supporter interest] vs [Opponent interest]</p>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="26%">Interest in the pair</th> <th width="18%">Standalone Validity</th> <th width="18%">Claim strength on THIS issue</th> <th width="38%">What drives its claim here</th></tr></thead>
+<thead>
+<tr style="background-color: #e6ffe6;">
+<th width="36%">Shared Interest</th> <th width="12%">Validity</th> <th width="44%">Compromise direction it opens</th> <th width="8%">Score</th>
+</tr>
+</thead>
 <tbody>
-<tr><td><strong>[Supporter interest]</strong></td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td></tr>
-<tr style="background-color: #f9f9f9;"><td><strong>[Opponent interest]</strong></td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td></tr>
+<tr>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
 </tbody>
 </table>
-<h2>&nbsp;</h2>
-<h2>&#127917; <a href="/Obstacles%20to%20Resolution">Advertised vs. Actual Motivations</a></h2>
+<h3>⚔ Primary Conflict Pair <span style="font-size: 12px; color: #555;">(the ranking difference that drives this debate)</span></h3>
+<p style="font-size: 13px;"><strong>Primary pair:</strong> [Supporter interest] vs [Opponent interest]. Standalone Validity (how legitimate the interest is in general) and Claim Strength (how much it supports this position) are different numbers; conflating them is a scoring error.</p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="25%">&nbsp;</th> <th width="37%">Supporters</th> <th width="38%">Opponents</th></tr></thead>
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="26%">Interest in the pair</th> <th width="18%">Standalone Validity</th> <th width="18%">Claim strength on THIS issue</th> <th width="38%">What drives its claim here</th>
+</tr>
+</thead>
 <tbody>
-<tr><td style="background-color: #f0f3f6;"><strong>Advertised reason</strong></td><td valign="top">&nbsp;</td><td valign="top">&nbsp;</td></tr>
-<tr><td style="background-color: #f0f3f6;"><strong>Actual driver (if different)</strong></td><td valign="top">&nbsp;</td><td valign="top">&nbsp;</td></tr>
-<tr><td style="background-color: #f0f3f6;"><strong>Evidence for divergence</strong></td><td valign="top">&nbsp;</td><td valign="top">&nbsp;</td></tr>
+<tr>
+<td><strong>[Supporter interest]</strong></td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td><strong>[Opponent interest]</strong></td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
 </tbody>
 </table>
-<h2>&nbsp;</h2>
-<h2>&#9878; Dispute Types</h2>
+<p>&nbsp;</p>
+<h2>🤝 <a href="/w/page/162560439/Compromise">Best Compromise Solutions</a></h2>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="20%">Dispute Type</th> <th width="40%">The Specific Disagreement</th> <th width="40%">Evidence That Would Move Both Sides</th></tr></thead>
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="28%">Shared Premise Both Sides Accept</th> <th width="30%">Proposed Synthesis</th> <th width="28%">Why This Is Difficult</th> <th width="14%">Score (interests satisfied)</th>
+</tr>
+</thead>
 <tbody>
-<tr><td><strong>Empirical</strong></td><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr style="background-color: #f9f9f9;"><td><strong>Definitional</strong></td><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr><td><strong>Values</strong></td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr>
+<td valign="top">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
 </tbody>
 </table>
-<h2>&nbsp;</h2>
-<h2>&#128683; <a href="/Obstacles%20to%20Resolution">Primary Obstacles to Resolution</a></h2>
+<p>&nbsp;</p>
+<h2>🎭 <a href="/Obstacles%20to%20Resolution">Advertised vs. Actual Motivations</a></h2>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">Obstacles for Supporters</th> <th width="50%">Obstacles for Opponents</th></tr></thead>
-<tbody><tr><td valign="top">&nbsp;</td><td valign="top">&nbsp;</td></tr></tbody>
-</table>
-<br />
-<h1>&#127919; <a href="/Objective%20criteria%20scores">Objective Criteria</a></h1>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="35%">Criterion</th> <th width="30%">How to Measure</th> <th width="15%">Current Status</th> <th width="20%">Target</th></tr></thead>
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="25%">&nbsp;</th> <th width="37%">Supporters</th> <th width="38%">Opponents</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>&nbsp;</td><td>&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Advertised reason</strong></td>
+<td valign="top">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Actual driver (if different)</strong></td>
+<td valign="top">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Evidence for divergence</strong></td>
+<td valign="top">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td style="background-color: #f0f3f6;"><strong>Divergence Score</strong> <span style="font-size: 11px; color: #555;">(performance of the sub-debate that advertised &ne; actual)</span></td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h2>⚖ Dispute Types</h2>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="18%">Dispute Type</th> <th width="37%">The Specific Disagreement</th> <th width="37%">Evidence That Would Move Both Sides</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Empirical</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td><strong>Definitional</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+<tr>
+<td><strong>Values</strong></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h2>🚫 <a href="/Obstacles%20to%20Resolution">Primary Obstacles to Resolution</a></h2>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="42%">Obstacles for Supporters</th> <th width="8%">Score</th> <th width="42%">Obstacles for Opponents</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h2>⚠ <a href="/w/page/21956934/bias">Biases</a></h2>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="42%">Biases Affecting Supporters</th> <th width="8%">Score</th> <th width="42%">Biases Affecting Opponents</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
 </tbody>
 </table>
 <br />
-<h1>&#128269; Falsifiability Test</h1>
+<h1>📚 <a href="/w/page/21958666/media">Media Resources</a></h1>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">Evidence That Would Confirm</th> <th width="50%">Evidence That Would Falsify</th></tr></thead>
-<tbody><tr><td valign="top"><!-- CONFIRM --></td><td valign="top"><!-- FALSIFY --></td></tr></tbody>
-</table>
-<h2>&nbsp;</h2>
-<h2>&#128302; Testable Predictions</h2>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="45%">Prediction</th> <th width="20%">Timeframe</th> <th width="35%">Verification Method</th></tr></thead>
-<tbody><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></tbody>
-</table>
-<br />
-<h1>&#128161; <a href="/Assumptions">Foundational Assumptions</a></h1>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">Required to Accept This Belief</th> <th width="50%">Required to Reject This Belief</th></tr></thead>
-<tbody><tr><td valign="top"><!-- ACCEPT --></td><td valign="top"><!-- REJECT --></td></tr></tbody>
-</table>
-<br />
-<h1>&#9878; <a href="/w/page/156187122/cost-benefit%20analysis">Cost-Benefit Analysis</a></h1>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">Benefits</th> <th width="50%">Costs and Risks</th></tr></thead>
-<tbody><tr><td valign="top">&nbsp;</td><td valign="top">&nbsp;</td></tr></tbody>
-</table>
-<h2>&nbsp;</h2>
-<h2>&#127919; Short vs. Long-Term Impacts</h2>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">Short-Term (0-2 Years)</th> <th width="50%">Long-Term (5+ Years)</th></tr></thead>
-<tbody><tr><td valign="top">&nbsp;</td><td valign="top">&nbsp;</td></tr></tbody>
-</table>
-<h2>&nbsp;</h2>
-<h2>&#129309; <a href="/w/page/162560439/Compromise">Best Compromise Solutions</a></h2>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="33%">Shared Premise Both Sides Accept</th> <th width="34%">Proposed Synthesis</th> <th width="33%">Why This Is Difficult</th></tr></thead>
-<tbody><tr><td valign="top">&nbsp;</td><td valign="top">&nbsp;</td><td valign="top">&nbsp;</td></tr></tbody>
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th style="background-color: #e6ffe6; text-align: center;" colspan="3">Supporting the Belief</th> <th style="background-color: #ffe6e6; text-align: center;" colspan="3">Challenging or Complicating the Belief</th>
+</tr>
+<tr style="background-color: #f0f3f6; font-size: 12px;">
+<th width="30%">Resource (Author, Year)</th> <th width="12%">Type</th> <th width="8%">Score</th> <th width="30%">Resource (Author, Year)</th> <th width="12%">Type</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;</td>
+<td align="center">[Book / Article / Podcast / Film]</td>
+<td align="center">&nbsp;</td>
+<td>&nbsp;</td>
+<td align="center">[Book / Article / Podcast / Film]</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
 </table>
 <br />
-<h1>&#9888; <a href="/w/page/21956934/bias">Biases</a></h1>
+<h1>⚖ <a href="/Local%2C%20federal%2C%20and%20international%20laws%20that%20agree">Legal Framework</a></h1>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">Biases Affecting Supporters</th> <th width="50%">Biases Affecting Opponents</th></tr></thead>
-<tbody><tr><td valign="top"><!-- BIAS_SUP --></td><td valign="top"><!-- BIAS_OPP --></td></tr></tbody>
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="42%">Laws and Frameworks Supporting</th> <th width="8%">Score</th> <th width="42%">Laws and Constraints Complicating</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
 </table>
 <br />
-<h1>&#128218; <a href="/w/page/21958666/media">Media Resources</a></h1>
+<h1>🧮 <a href="/Belief%20Sorting">General to Specific Belief Mapping</a></h1>
+<h3>🔹 Most General (Upstream)</h3>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">Supporting the Belief</th> <th width="50%">Challenging or Complicating the Belief</th></tr></thead>
-<tbody><tr><td valign="top"><strong><a href="/Books">Books</a></strong><br />&nbsp;</td><td valign="top"><strong><a href="/Books">Books</a></strong><br />&nbsp;</td></tr></tbody>
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="42%">Support</th> <th width="8%">Score</th> <th width="42%">Oppose</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h3>🔹 More Specific (Downstream)</h3>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="42%">Support</th> <th width="8%">Score</th> <th width="42%">Oppose</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
 </table>
 <br />
-<h1>&#9878; <a href="/Local%2C%20federal%2C%20and%20international%20laws%20that%20agree">Legal Framework</a></h1>
+<h1>🔄 <a href="/combine%20similar%20beliefs">Similar Beliefs</a></h1>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">Laws and Frameworks Supporting</th> <th width="50%">Laws and Constraints Complicating</th></tr></thead>
-<tbody><tr><td valign="top">&nbsp;</td><td valign="top">&nbsp;</td></tr></tbody>
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="42%">More Extreme Versions</th> <th width="8%">Score</th> <th width="42%">More Moderate Versions</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+<td valign="top">&nbsp;</td>
+<td align="center">&nbsp;</td>
+</tr>
+</tbody>
 </table>
 <br />
-<h1>&#129518; <a href="/Belief%20Sorting">General to Specific Belief Mapping</a></h1>
-<h3>&#128313; Most General (Upstream)</h3>
+<h1>📖 Definitions</h1>
+<p style="font-size: 13px;">Key terms used in this analysis, defined operationally (how would you measure it?), not philosophically. For ISE-wide definitions, see <a href="/w/page/21957511/Explanation">Explanation</a>.</p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">Support</th> <th width="50%">Oppose</th></tr></thead>
-<tbody><tr><td valign="top"><!-- UP_SUP --></td><td valign="top"><!-- UP_OPP --></td></tr></tbody>
-</table>
-<h3>&nbsp;</h3>
-<h3>&#128313; More Specific (Downstream)</h3>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">Support</th> <th width="50%">Oppose</th></tr></thead>
-<tbody><tr><td valign="top"><!-- DOWN_SUP --></td><td valign="top"><!-- DOWN_OPP --></td></tr></tbody>
-</table>
-<br />
-<h1>&#128260; <a href="/combine%20similar%20beliefs">Similar Beliefs</a></h1>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="50%">More Extreme Versions</th> <th width="50%">More Moderate Versions</th></tr></thead>
-<tbody><tr><td valign="top"><!-- EXTREME --></td><td valign="top"><!-- MODERATE --></td></tr></tbody>
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="26%">Term</th> <th width="66%">Definition Used in This Analysis</th> <th width="8%">Score</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
 </table>
 <br />
-<h1>&#128214; Definitions</h1>
-<p style="font-size: 13px;">Key terms used in this analysis. For ISE-wide definitions, see <a href="/w/page/21957511/Explanation">Explanation</a>.</p>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<thead><tr style="background-color: #f0f3f6;"><th width="30%">Term</th> <th width="70%">Definition Used in This Analysis</th></tr></thead>
-<tbody><!-- DEFS --></tbody>
-</table>
-<br />
-<h1>&#128236; Contribute</h1>
+<h1>📬 Contribute</h1>
 <p>Posted by ~<a href="/w/page/21958819/Myclob">Myclob</a>. <a href="/w/page/160433328/Contact%20Me">Contact me</a> to contribute to the Idea Stock Exchange.</p>
 <p><a href="https://github.com/myklob/ideastockexchange">View the full codebase and technical documentation on GitHub</a> to understand the scoring algorithms, contribute to development, or adapt this system for your own use.</p>
 </div>
+<p>&nbsp;</p>

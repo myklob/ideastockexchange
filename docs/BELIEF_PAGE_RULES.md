@@ -136,53 +136,93 @@ Every section with "Supporters" and "Opponents" (Values, Interests, Biases, Moti
 
 ---
 
+## Rule 8: Every Table Ranks by Relationship Score
+
+Every row in every table relates to the belief through a scored relationship: the
+ReasonRank performance of that row's own pro/con sub-debate. Tables sort by that
+Score, descending — highest-scoring content first — and the software shows each
+table's top rows (currently five) and collapses the rest until expanded. Rows enter
+and rank only by how their sub-arguments perform, never by editorial placement.
+
+**Why:** If editors can order rows by hand, the ordering becomes an argument nobody
+can audit. Score-ranked tables make placement itself a claim that traces to scored
+sub-debates, and top-N collapse keeps every table scannable without hiding anything.
+
+**How to apply:**
+
+- Every per-row model carries a nullable `score` (Cost-Benefit rows use
+  `expectedValue = magnitude × likelihood` as their rank key; Media rows use their
+  impact score; Similar Beliefs use the equivalency score).
+- Sort descending with unscored rows last — their score cells render blank (Rule 6),
+  and blanks must never bury real scores.
+- Render the top rows, then a "Show N more lower-scoring rows" toggle for the rest.
+- Never hand-order rows to promote a favorite. If a row deserves to be higher, win
+  its sub-debate.
+
+---
+
 ## Canonical Section Order
 
-The April 2026 redesign restructures the page around a single **Conflict Resolution
-Framework** and brings back the Falsifiability Test, Testable Predictions, and Media
-Resources sections. The source of truth is `templates/belief-analysis-template.html`.
+The July 2026 revision adds the **Scorecard** readout, per-row relationship scores on
+every table, the **Logical Anatomy** decomposition, and row-based Falsifiability and
+Cost-Benefit tables. The source of truth is `templates/belief-analysis-template.html`.
 
 Header: Belief statement → metadata line (Topic / Dewey / Positivity / Net Belief
 Score / Related) → "Beliefs this supports" line. No summary or background (Rule 2).
 
+0. **Scorecard** — a readout of the scored content below, not a prose summary:
+   `Net Belief Score (Pro vs. Con)` / `Bottom line` (one-sentence verdict scoped to
+   what the tree supports) / `Strongest pro / con` (the top-ranked argument from each
+   side) / `What would move this score most` (the top falsifiability score-mover).
+   Followed by the "How to read this page" box explaining score-ranked tables.
 1. **Argument Trees** — one two-sided scored table (Reasons to Agree / Reasons to
-   Disagree), each side with `Argument / Score / Link / Impact`. Each argument cell is
-   the claim, the single most famous supporting quote inline (italic, small), then the
-   submitter as `~Name`. Pro Total / Con Total row, then the **Net Belief Score** line.
+   Disagree), each side with `Argument / Score / Link / Imp / Impact`. Each argument
+   cell is the claim, the single most famous supporting quote inline (italic, small),
+   then the submitter as `~Name`. Pro Total / Con Total row, then the **Net Belief
+   Score** line.
 2. **Evidence Ledger** — one two-sided table (Supporting / Weakening), each side with
    `Evidence / Type / Link / Impact`.
-3. **Conflict Resolution Framework**
-   - 3a. Shared Values, Different Rankings (`Value / Supporter Rank / Opponent Rank /
-     Why Rankings Differ`, then a "What would shift these rankings?" row)
-   - 3b. Likely Interests of Supporters (`Interest / Prevalence / Linkage Confidence /
+3. **Objective Criteria** (`Criterion / How to Measure / Reading That Would Strengthen /
+   Reading That Would Weaken / Latest Reading / Score`) — the best criteria are ones
+   where the two sides predict different readings.
+4. **Falsifiability Test** (`Evidence That Would Strengthen / Score / Evidence That
+   Would Weaken / Score` — each row a realistic, bet-specific score-mover) +
+   **Testable Predictions** (`Prediction / Follows If / Timeframe / Verification
+   Method / Result So Far / Score`)
+5. **Logical Anatomy & Foundational Assumptions** — the belief's logical form
+   (ANDs/ORs), the Component Claims table (`Component Claim / Type / Stated? /
+   If false, does the belief survive? / Unstated assumptions / Score`), then
+   Assumptions by Side (`Required to Accept / Score / Required to Reject / Score`)
+6. **Cost-Benefit Analysis** — Benefits table and Costs and Risks table, each
+   `Claim (links to its own page) / Category (Units) / Magnitude / Likelihood % /
+   Expected Value`, ranked by Expected Value with subtotals only within a category;
+   then **Short vs. Long-Term Impacts** (`Short-Term / Score / Long-Term / Score`)
+7. **Conflict Resolution Framework**
+   - 7a. Shared Values, Different Rankings (`Value / Supporter Rank / Opponent Rank /
+     Why Rankings Differ / Score`, then a "What would shift these rankings?" row)
+   - 7b. Likely Interests of Supporters (`Interest / Prevalence / Linkage Confidence /
      Validity / Evidence Basis / Connected Value`, plus a Pretextual/Low-validity row)
-   - 3c. Likely Interests of Opponents (same columns, symmetric)
-   - 3d. Shared and Conflicting Interests — Shared Interests table (`Shared Interest /
-     Validity / Compromise direction`) + Primary Conflict Pair (`Interest in the pair /
-     Standalone Validity / Claim strength on THIS issue / What drives its claim here`)
-   - 3e. Advertised vs. Actual Motivations (rows: Advertised reason / Actual driver /
-     Evidence for divergence, columns Supporters / Opponents)
-   - 3f. Dispute Types (Empirical / Definitional / Values)
-   - 3g. Primary Obstacles to Resolution (Supporters / Opponents)
-4. **Objective Criteria** (`Criterion / How to Measure / Current Status / Target`)
-5. **Falsifiability Test** (Evidence That Would Confirm / Falsify) + **Testable
-   Predictions** (`Prediction / Timeframe / Verification Method`)
-6. **Foundational Assumptions** (Required to Accept / Required to Reject)
-7. **Cost-Benefit Analysis** (Benefits / Costs and Risks), then **Short vs. Long-Term
-   Impacts**, then **Best Compromise Solutions** (`Shared Premise / Proposed Synthesis /
-   Why This Is Difficult`)
-8. **Biases** (Affecting Supporters / Affecting Opponents)
-9. **Media Resources** (Supporting / Challenging or Complicating, with Books)
-10. **Legal Framework** (Supporting / Complicating)
-11. **General to Specific Belief Mapping** (Upstream Support/Oppose, Downstream
-    Support/Oppose)
-12. **Similar Beliefs** (More Extreme / More Moderate)
-13. **Definitions** (`Term / Definition`) — LAST before footer
-14. **Contribute / footer**
-
-**Reintroduced in this redesign:** Falsifiability Test, Testable Predictions, and Media
-Resources are once again top-level sections. (They were folded into other sections in the
-prior revision; the April 2026 template restores them as standalone sections.)
+   - 7c. Likely Interests of Opponents (same columns, symmetric)
+   - 7d. Shared and Conflicting Interests — Shared Interests table (`Shared Interest /
+     Validity / Compromise direction / Score`) + Primary Conflict Pair (`Interest in
+     the pair / Standalone Validity / Claim strength on THIS issue / What drives its
+     claim here`)
+   - 7e. Best Compromise Solutions (`Shared Premise / Proposed Synthesis / Why This Is
+     Difficult / Score (interests satisfied)`)
+   - 7f. Advertised vs. Actual Motivations (rows: Advertised reason / Actual driver /
+     Evidence for divergence / Divergence Score, columns Supporters / Opponents)
+   - 7g. Dispute Types (Empirical / Definitional / Values, each with Score)
+   - 7h. Primary Obstacles to Resolution (`Obstacles for Supporters / Score /
+     Obstacles for Opponents / Score`)
+   - 7i. Biases (`Affecting Supporters / Score / Affecting Opponents / Score`)
+8. **Media Resources** (two-sided: `Resource (Author, Year) / Type / Score`)
+9. **Legal Framework** (`Supporting / Score / Complicating / Score`)
+10. **General to Specific Belief Mapping** (Upstream and Downstream, each
+    `Support / Score / Oppose / Score`)
+11. **Similar Beliefs** (`More Extreme / Score / More Moderate / Score`, scored by
+    belief equivalency)
+12. **Definitions** (`Term / Definition / Score`) — LAST before footer
+13. **Contribute / footer**
 
 ---
 
@@ -190,16 +230,19 @@ prior revision; the April 2026 template restores them as standalone sections.)
 
 Before outputting any ISE belief page, verify:
 
-- [ ] No summary or background section at the top
-- [ ] Header has the metadata line (Topic / Dewey / Positivity / Net Belief Score / Related) and "Beliefs this supports"
+- [ ] No summary or background section at the top — the Scorecard is a scored readout, not prose
+- [ ] Header has the metadata line (Topic / Dewey / Positivity / Related) and "Beliefs this supports"
+- [ ] Scorecard shows Net Belief Score, Bottom line, Strongest pro/con (top-ranked argument each side), and the top score-mover
 - [ ] Definitions section is LAST, not first
 - [ ] Argument cells are short claim labels with the famous quote inline and `~Name` submitter — no citations, percentages, or study names
 - [ ] Argument Trees and Evidence Ledger each render as a single two-sided table with Pro/Con (or Supporting/Weakening) halves
 - [ ] All evidence lives in the Evidence Ledger with tier assigned
-- [ ] Conflict Resolution Framework has all seven sub-sections: Shared Values rankings, Interests of Supporters, Interests of Opponents, Shared+Conflicting (Shared Interests + Primary Conflict Pair), Advertised vs. Actual, Dispute Types, Primary Obstacles
-- [ ] Objective Criteria has Criterion / How to Measure / Current Status / Target
-- [ ] Falsifiability Test, Testable Predictions, and Media Resources are present as standalone sections
-- [ ] Cost-Benefit Analysis bundles Short vs. Long-Term and Best Compromise Solutions (3 columns)
+- [ ] Every table has its Score column(s), sorts by score descending, and unscored rows sink to the bottom
+- [ ] Objective Criteria has Criterion / How to Measure / Reading That Would Strengthen / Reading That Would Weaken / Latest Reading / Score
+- [ ] Falsifiability Test rows are bet-specific score-movers with per-row Scores; Testable Predictions include Follows If and Result So Far
+- [ ] Logical Anatomy decomposes the belief (logical form + typed, load-bearing-flagged component claims)
+- [ ] Cost-Benefit rows carry Category (Units) / Magnitude / Likelihood % / Expected Value and subtotal only within a category
+- [ ] Conflict Resolution Framework has all sub-sections: Shared Values rankings, Interests of Supporters, Interests of Opponents, Shared+Conflicting (Shared Interests + Primary Conflict Pair), Best Compromise Solutions, Advertised vs. Actual (with Divergence Score), Dispute Types, Primary Obstacles, Biases
 - [ ] Every link points to a page that exists OR is plain text
 - [ ] No `href="#"` anchors anywhere
 - [ ] Both sides have symmetric structure in Interests, Advertised vs. Actual, Biases, Obstacles

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { fetchBeliefBySlug, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
+import ScorecardSection from '@/features/belief-analysis/components/ScorecardSection'
 import ArgumentTreesSection from '@/features/belief-analysis/components/ArgumentTreesSection'
 import EvidenceSection from '@/features/belief-analysis/components/EvidenceSection'
 import ConflictResolutionSection from '@/features/belief-analysis/components/ConflictResolutionSection'
@@ -102,6 +103,18 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
         )}
 
         <div className="space-y-12">
+          {/* 0. Scorecard — a readout of the top-scoring rows below, not a prose summary */}
+          <ScorecardSection
+            arguments={belief.arguments}
+            totalPro={scores.totalPro}
+            totalCon={scores.totalCon}
+            bottomLine={belief.bottomLine ?? null}
+            scoreMover={belief.scoreMover ?? null}
+            falsifiabilityItems={belief.falsifiabilityItems ?? []}
+          />
+
+          <hr className="border-gray-200" />
+
           {/* 1. Argument Trees */}
           <ArgumentTreesSection
             arguments={belief.arguments}
@@ -137,6 +150,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           {/* 5. Falsifiability Test + Testable Predictions */}
           <FalsifiabilityTestSection
+            items={belief.falsifiabilityItems ?? []}
             confirm={belief.falsifiabilityConfirm}
             falsify={belief.falsifiabilityFalsify}
             legacy={belief.falsifiability}
@@ -145,15 +159,21 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 6. Foundational Assumptions */}
-          <AssumptionsSection assumptions={belief.assumptions} />
+          {/* 6. Logical Anatomy & Foundational Assumptions */}
+          <AssumptionsSection
+            assumptions={belief.assumptions}
+            componentClaims={belief.componentClaims ?? []}
+            logicalForm={belief.logicalForm ?? null}
+          />
 
           <hr className="border-gray-200" />
 
           {/* 7. Cost-Benefit Analysis (+ Short/Long-Term + Best Compromise Solutions) */}
           <CostBenefitSection
             cba={belief.costBenefitAnalysis}
+            items={belief.costBenefitItems ?? []}
             impact={belief.impactAnalysis}
+            impactEntries={belief.impactEntries ?? []}
             compromises={belief.compromises}
           />
 

@@ -1,10 +1,18 @@
 // Types for the Belief Analysis template
 // These map to the Prisma models but are used as plain objects in components
 
+/**
+ * Every per-row table on the belief page carries a nullable relationship
+ * score: the ReasonRank performance of that row's own pro/con sub-debate
+ * about its relationship to the belief. Rows enter and rank only by this
+ * score — never by editorial placement. Null renders blank (Rule 6);
+ * tables sort by score descending with the highest-scoring content first.
+ */
 export interface DefinitionItem {
   id: number
   term: string
   definition: string
+  score?: number | null
   sortOrder: number
 }
 
@@ -13,6 +21,60 @@ export interface TestablePredictionItem {
   prediction: string
   timeframe: string | null
   verificationMethod: string | null
+  /** "true" if the prediction follows when the belief is true, "false" otherwise. */
+  followsIf?: string
+  /** What has actually been observed so far, if anything. */
+  resultSoFar?: string | null
+  score?: number | null
+  sortOrder: number
+}
+
+/** One row in the Falsifiability Test table: a realistic score-mover. */
+export interface FalsifiabilityItemRow {
+  id: number
+  side: string // "strengthen" | "weaken"
+  description: string
+  score?: number | null
+  sortOrder: number
+}
+
+/** One row in the Logical Anatomy table: a component claim of the belief. */
+export interface ComponentClaimItem {
+  id: number
+  claim: string
+  claimType: string | null // "Empirical" | "Causal" | "Definitional" | "Normative"
+  stated: boolean
+  /** If this part is false, does the belief survive? false = load-bearing. */
+  survivesWithout: boolean | null
+  unstatedAssumptions: string | null
+  score?: number | null
+  sortOrder: number
+}
+
+/** One row in the Benefits / Costs and Risks tables. */
+export interface CostBenefitItemRow {
+  id: number
+  side: string // "benefit" | "cost"
+  claim: string
+  /** Category (units): dollars / life-years / hours / freedom. */
+  category: string | null
+  /** Magnitude in explicit category units. */
+  magnitude: number | null
+  /** Likelihood (0-1), computed from the claim's own pro/con argument scores. */
+  likelihood: number | null
+  /** Expected Value = Magnitude × Likelihood. Sort key for the table. */
+  expectedValue: number | null
+  sortOrder: number
+  /** The claim's own belief page, when one exists. */
+  claimBelief?: { id: number; slug: string; statement: string } | null
+}
+
+/** One row in the Short vs. Long-Term Impacts sub-table. */
+export interface ImpactEntryItem {
+  id: number
+  term: string // "short" | "long"
+  description: string
+  score?: number | null
   sortOrder: number
 }
 
@@ -49,6 +111,12 @@ export interface BeliefWithRelations {
 
   /** One-line interpretation of the Net Belief Score, shown beneath the argument trees. */
   netInterpretation: string | null
+  /** Scorecard "Bottom line": one-sentence verdict scoped to the argument tree. */
+  bottomLine?: string | null
+  /** Scorecard "What would move this score most". */
+  scoreMover?: string | null
+  /** Logical Anatomy "Logical form" line. */
+  logicalForm?: string | null
   /** Header metadata: related belief labels and beliefs this one supports (plain text). */
   relatedBeliefs: string | null
   supportsBeliefs: string | null
@@ -57,6 +125,11 @@ export interface BeliefWithRelations {
   interestEntries: InterestEntryItem[]
   sharedInterests: SharedInterestItem[]
   disputeTypes: DisputeTypeItem[]
+
+  falsifiabilityItems?: FalsifiabilityItemRow[]
+  componentClaims?: ComponentClaimItem[]
+  costBenefitItems?: CostBenefitItemRow[]
+  impactEntries?: ImpactEntryItem[]
 
   arguments: ArgumentWithBelief[]
   evidence: EvidenceItem[]
@@ -149,6 +222,10 @@ export interface ObjectiveCriteriaItem {
   currentStatus?: string | null
   /** The target/threshold that would settle the debate (new template column). */
   target?: string | null
+  /** Reading supporters predict — falls back to `target` when unset. */
+  strengthenReading?: string | null
+  /** Reading opponents predict; a criterion both sides expect to read the same tests nothing. */
+  weakenReading?: string | null
   /**
    * The threshold both sides agreed (or could agree) constitutes resolution —
    * e.g., "+2pp sustained over 3 years would settle the debate".
@@ -163,6 +240,7 @@ export interface ValueRankingItem {
   supporterRank: number | null
   opponentRank: number | null
   whyDiffer: string | null
+  score?: number | null
   sortOrder: number
 }
 
@@ -177,6 +255,7 @@ export interface InterestEntryItem {
   evidenceBasis: string | null
   connectedValue: string | null
   pretextual: boolean
+  score?: number | null
   sortOrder: number
 }
 
@@ -186,6 +265,7 @@ export interface SharedInterestItem {
   interest: string
   validity: string | null
   compromiseDirection: string | null
+  score?: number | null
   sortOrder: number
 }
 
@@ -195,6 +275,7 @@ export interface DisputeTypeItem {
   disputeType: string // "Empirical" | "Definitional" | "Values"
   disagreement: string | null
   evidenceThatMoves: string | null
+  score?: number | null
   sortOrder: number
 }
 
@@ -206,6 +287,9 @@ export interface ValuesAnalysisData {
   /** Advertised vs. Actual Motivations: evidence the two diverge, per side. */
   supportingDivergenceEvidence?: string | null
   opposingDivergenceEvidence?: string | null
+  /** Divergence Score per side: performance of the sub-debate that advertised ≠ actual. */
+  supportingDivergenceScore?: number | null
+  opposingDivergenceScore?: number | null
   /** Answer to "What would shift these rankings?" beneath the Shared Values table. */
   whatWouldShift?: string | null
   /**
@@ -393,6 +477,7 @@ export interface AssumptionItem {
   side: string
   statement: string
   strength: string
+  score?: number | null
 }
 
 export interface CostBenefitData {
@@ -416,12 +501,15 @@ export interface CompromiseItem {
   sharedPremise?: string | null
   synthesis?: string | null
   whyDifficult?: string | null
+  /** Score: share of both sides' interests this compromise satisfies. */
+  score?: number | null
 }
 
 export interface ObstacleItem {
   id: number
   side: string
   description: string
+  score?: number | null
 }
 
 export interface BiasItem {
@@ -429,6 +517,7 @@ export interface BiasItem {
   side: string
   biasType: string
   description: string | null
+  score?: number | null
 }
 
 export interface MediaItem {
@@ -477,12 +566,14 @@ export interface LegalItem {
   side: string
   description: string
   jurisdiction: string | null
+  score?: number | null
 }
 
 export interface MappingItem {
   id: number
   direction: string
   side: string
+  score?: number | null
   parentBelief: { id: number; slug: string; statement: string }
   childBelief: { id: number; slug: string; statement: string }
 }
