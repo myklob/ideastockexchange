@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import type { DefinitionItem } from '../types'
+import { formatScore, rankByScore } from '../lib/ranking'
+import ExpandableRows from './ExpandableRows'
 
 interface DefinitionsSectionProps {
   definitions: DefinitionItem[]
@@ -60,21 +62,36 @@ export default function DefinitionsSection({ definitions }: DefinitionsSectionPr
       <table className="w-full border-collapse text-sm" style={{ borderColor: '#cccccc' }}>
         <thead>
           <tr>
-            <th className="border border-gray-300 px-3 py-2 text-center bg-gray-50 w-[30%]">Term</th>
-            <th className="border border-gray-300 px-3 py-2 text-center bg-gray-50 w-[70%]">Definition Used in This Analysis</th>
+            <th className="border border-gray-300 px-3 py-2 text-center bg-gray-50 w-[26%]">Term</th>
+            <th className="border border-gray-300 px-3 py-2 text-center bg-gray-50 w-[66%]">Definition Used in This Analysis</th>
+            <th className="border border-gray-300 px-3 py-2 text-center bg-gray-50 w-[8%]">Score</th>
           </tr>
         </thead>
         <tbody>
           {definitions.length > 0 ? (
-            definitions.map(def => (
-              <tr key={def.id}>
-                <td className="border border-gray-300 px-3 py-2 font-medium">{def.term}</td>
-                <td className="border border-gray-300 px-3 py-2">{def.definition}</td>
-              </tr>
-            ))
+            (() => {
+              const { top, rest } = rankByScore(definitions, d => d.score)
+              const row = (def: DefinitionItem) => (
+                <tr key={def.id}>
+                  <td className="border border-gray-300 px-3 py-2 font-medium">{def.term}</td>
+                  <td className="border border-gray-300 px-3 py-2">{def.definition}</td>
+                  <td className="border border-gray-300 px-3 py-2 text-center font-mono">
+                    {formatScore(def.score) ?? <span>&nbsp;</span>}
+                  </td>
+                </tr>
+              )
+              return (
+                <>
+                  {top.map(row)}
+                  <ExpandableRows moreCount={rest.length} colSpan={3}>
+                    {rest.map(row)}
+                  </ExpandableRows>
+                </>
+              )
+            })()
           ) : (
             <tr>
-              <td className="border border-gray-300 px-3 py-2 text-[var(--muted-foreground)] italic" colSpan={2}>
+              <td className="border border-gray-300 px-3 py-2 text-[var(--muted-foreground)] italic" colSpan={3}>
                 No page-specific definitions yet. Contribute to clarify the terms this page uses.
               </td>
             </tr>

@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import type { ArgumentWithBelief } from '../types'
+import { TABLE_TOP_LIMIT } from '../lib/ranking'
+import ExpandableRows from './ExpandableRows'
 
 interface ArgumentTreesSectionProps {
   arguments: ArgumentWithBelief[]
@@ -24,6 +26,12 @@ function impactCell(arg: ArgumentWithBelief): string {
   if (!arg.impactScore) return ''
   const sign = arg.side === 'agree' ? '+' : '-'
   return `${sign}${Math.abs(arg.impactScore).toFixed(1)}`
+}
+
+/** Importance column: blank until the argument itself is scored (Rule 6). */
+function impCell(arg: ArgumentWithBelief): string {
+  if (arg.argumentScore == null && !arg.impactScore) return ''
+  return arg.importanceScore.toFixed(1)
 }
 
 /** The argument cell: claim label, inline famous quote (italic), then ~Author link. */
@@ -61,6 +69,7 @@ function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
         <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
         <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
         <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
       </>
     )
   }
@@ -69,6 +78,7 @@ function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
       <td className="border border-gray-300 px-3 py-2 align-top"><ArgumentCell arg={arg} /></td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{scoreCell(arg)}</td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{linkCell(arg)}</td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{impCell(arg)}</td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs font-semibold">{impactCell(arg)}</td>
     </>
   )
@@ -84,6 +94,8 @@ export default function ArgumentTreesSection({
   const conArgs = args.filter(a => a.side === 'disagree')
   const rowCount = Math.max(proArgs.length, conArgs.length, 1)
   const rows = Array.from({ length: rowCount }, (_, i) => i)
+  const topRows = rows.slice(0, TABLE_TOP_LIMIT)
+  const restRows = rows.slice(TABLE_TOP_LIMIT)
 
   const net = totalPro - totalCon
   const netLabel = `${net >= 0 ? '+' : ''}${net.toFixed(1)}`
@@ -105,41 +117,55 @@ export default function ArgumentTreesSection({
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr>
-              <th className="border border-gray-300 bg-green-100 text-center font-semibold px-3 py-2" colSpan={4}>
+              <th className="border border-gray-300 bg-green-100 text-center font-semibold px-3 py-2" colSpan={5}>
                 ✅ Reasons to Agree
               </th>
-              <th className="border border-gray-300 bg-red-100 text-center font-semibold px-3 py-2" colSpan={4}>
+              <th className="border border-gray-300 bg-red-100 text-center font-semibold px-3 py-2" colSpan={5}>
                 ❌ Reasons to Disagree
               </th>
             </tr>
             <tr className="bg-gray-100 text-xs">
-              <th className="border border-gray-300 px-2 py-1.5 text-left w-[25%]">Argument</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Score</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Argument</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Score</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
                 <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Impact</th>
-              <th className="border border-gray-300 px-2 py-1.5 text-left w-[25%]">Argument</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Score</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
+                <Link href="/importance%20score" className="text-[var(--accent)] hover:underline">Imp</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Argument</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Score</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
                 <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
+                <Link href="/importance%20score" className="text-[var(--accent)] hover:underline">Imp</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Impact</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map(i => (
+            {topRows.map(i => (
               <tr key={i}>
                 <HalfRow arg={proArgs[i]} />
                 <HalfRow arg={conArgs[i]} />
               </tr>
             ))}
+            <ExpandableRows moreCount={restRows.length} colSpan={10}>
+              {restRows.map(i => (
+                <tr key={i}>
+                  <HalfRow arg={proArgs[i]} />
+                  <HalfRow arg={conArgs[i]} />
+                </tr>
+              ))}
+            </ExpandableRows>
             <tr className="bg-gray-100 italic text-[#666]">
-              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={3}>Pro Total:</td>
+              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={4}>Pro Total:</td>
               <td className="border border-gray-300 px-2 py-2 text-center font-mono text-green-700">
                 {totalPro > 0 ? `+${totalPro.toFixed(1)}` : ''}
               </td>
-              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={3}>Con Total:</td>
+              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={4}>Con Total:</td>
               <td className="border border-gray-300 px-2 py-2 text-center font-mono text-red-700">
                 {totalCon > 0 ? `-${totalCon.toFixed(1)}` : ''}
               </td>

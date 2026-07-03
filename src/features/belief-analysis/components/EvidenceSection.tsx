@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import type { EvidenceItem } from '../types'
+import { TABLE_TOP_LIMIT } from '../lib/ranking'
+import ExpandableRows from './ExpandableRows'
 
 interface EvidenceSectionProps {
   evidence: EvidenceItem[]
@@ -54,6 +56,8 @@ export default function EvidenceSection({ evidence }: EvidenceSectionProps) {
   const weakening = evidence.filter(e => e.side === 'weakening')
   const rowCount = Math.max(supporting.length, weakening.length, 1)
   const rows = Array.from({ length: rowCount }, (_, i) => i)
+  const topRows = rows.slice(0, TABLE_TOP_LIMIT)
+  const restRows = rows.slice(TABLE_TOP_LIMIT)
 
   return (
     <section>
@@ -93,12 +97,20 @@ export default function EvidenceSection({ evidence }: EvidenceSectionProps) {
             </tr>
           </thead>
           <tbody>
-            {rows.map(i => (
+            {topRows.map(i => (
               <tr key={i}>
                 <EvidenceHalf item={supporting[i]} />
                 <EvidenceHalf item={weakening[i]} />
               </tr>
             ))}
+            <ExpandableRows moreCount={restRows.length} colSpan={8}>
+              {restRows.map(i => (
+                <tr key={i}>
+                  <EvidenceHalf item={supporting[i]} />
+                  <EvidenceHalf item={weakening[i]} />
+                </tr>
+              ))}
+            </ExpandableRows>
           </tbody>
         </table>
       </div>

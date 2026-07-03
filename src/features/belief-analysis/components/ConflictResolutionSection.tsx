@@ -8,6 +8,8 @@ import type {
   DisputeTypeItem,
   ObstacleItem,
 } from '../types'
+import { byScoreDesc, formatScore, rankByScore, TABLE_TOP_LIMIT } from '../lib/ranking'
+import ExpandableRows from './ExpandableRows'
 
 interface ConflictResolutionSectionProps {
   values: ValuesAnalysisData | null
@@ -33,31 +35,45 @@ const TD = 'border border-gray-300 px-3 py-2 align-top'
 const TDC = 'border border-gray-300 px-3 py-2 align-top text-center'
 
 /* ── Shared Values, Different Rankings ──────────────────────────────────── */
+function ValueRow({ row, striped }: { row: ValueRankingItem | null; striped: boolean }) {
+  return (
+    <tr className={striped ? 'bg-gray-50' : ''}>
+      <td className={TD}>{row?.value ?? <span className="text-[var(--muted-foreground)] italic">[value]</span>}</td>
+      <td className={`${TDC} font-mono`}>{rank(row?.supporterRank ?? null)}</td>
+      <td className={`${TDC} font-mono`}>{rank(row?.opponentRank ?? null)}</td>
+      <td className={TD}>{lines(row?.whyDiffer)}</td>
+      <td className={`${TDC} font-mono`}>{formatScore(row?.score) ?? <span>&nbsp;</span>}</td>
+    </tr>
+  )
+}
+
 function SharedValuesTable({ rows, whatWouldShift }: { rows: ValueRankingItem[]; whatWouldShift: string | null | undefined }) {
-  const data = rows.length > 0 ? rows : [null, null, null]
+  const { top, rest } = rankByScore(rows, r => r.score)
+  const data: Array<ValueRankingItem | null> = top.length > 0 ? top : [null, null, null]
   return (
     <table className="w-full border-collapse border border-gray-300 text-sm mb-2">
       <thead>
         <tr className="bg-gray-100">
-          <th className={`${TH} w-[28%]`}>
+          <th className={`${TH} w-[24%]`}>
             <Link href="/American%20values" className="text-[var(--accent)] hover:underline">Value</Link>
           </th>
-          <th className={`${TH} text-center w-[12%]`}>Supporter Rank</th>
-          <th className={`${TH} text-center w-[12%]`}>Opponent Rank</th>
+          <th className={`${TH} text-center w-[10%]`}>Supporter Rank</th>
+          <th className={`${TH} text-center w-[10%]`}>Opponent Rank</th>
           <th className={`${TH} w-[48%]`}>Why Rankings Differ on This Issue</th>
+          <th className={`${TH} text-center w-[8%]`}>Score</th>
         </tr>
       </thead>
       <tbody>
         {data.map((row, i) => (
-          <tr key={i} className={i % 2 === 1 ? 'bg-gray-50' : ''}>
-            <td className={TD}>{row?.value ?? <span className="text-[var(--muted-foreground)] italic">[value]</span>}</td>
-            <td className={`${TDC} font-mono`}>{rank(row?.supporterRank ?? null)}</td>
-            <td className={`${TDC} font-mono`}>{rank(row?.opponentRank ?? null)}</td>
-            <td className={TD}>{lines(row?.whyDiffer)}</td>
-          </tr>
+          <ValueRow key={row?.id ?? i} row={row} striped={i % 2 === 1} />
         ))}
+        <ExpandableRows moreCount={rest.length} colSpan={5}>
+          {rest.map((row, i) => (
+            <ValueRow key={row.id} row={row} striped={(top.length + i) % 2 === 1} />
+          ))}
+        </ExpandableRows>
         <tr className="bg-gray-100">
-          <td className={TD} colSpan={4}>
+          <td className={TD} colSpan={5}>
             <strong>What would shift these rankings?</strong>{' '}
             {whatWouldShift ?? <span className="text-[var(--muted-foreground)] italic">What evidence, cost-benefit findings, or likelihood changes would cause either side to re-rank?</span>}
           </td>
@@ -68,10 +84,24 @@ function SharedValuesTable({ rows, whatWouldShift }: { rows: ValueRankingItem[];
 }
 
 /* ── Likely Interests of one side ───────────────────────────────────────── */
+function InterestRow({ e }: { e: InterestEntryItem | null }) {
+  return (
+    <tr>
+      <td className={TD}>{e?.interest ?? <span>&nbsp;</span>}</td>
+      <td className={TDC}>{e?.prevalence ?? <span>&nbsp;</span>}</td>
+      <td className={TDC}>{e?.linkageConfidence ?? <span>&nbsp;</span>}</td>
+      <td className={TDC}>{e?.validity ?? <span>&nbsp;</span>}</td>
+      <td className={TD}>{e?.evidenceBasis ?? <span>&nbsp;</span>}</td>
+      <td className={TD}>{e?.connectedValue ?? <span>&nbsp;</span>}</td>
+    </tr>
+  )
+}
+
 function InterestTable({ entries, headerClass }: { entries: InterestEntryItem[]; headerClass: string }) {
   const main = entries.filter(e => !e.pretextual)
   const pretextual = entries.filter(e => e.pretextual)
-  const mainRows: Array<InterestEntryItem | null> = main.length > 0 ? main : [null]
+  const { top, rest } = rankByScore(main, e => e.score)
+  const mainRows: Array<InterestEntryItem | null> = top.length > 0 ? top : [null]
   return (
     <table className="w-full border-collapse border border-gray-300 text-sm">
       <thead>
@@ -90,17 +120,15 @@ function InterestTable({ entries, headerClass }: { entries: InterestEntryItem[];
       </thead>
       <tbody>
         {mainRows.map((e, i) => (
-          <tr key={`m${i}`}>
-            <td className={TD}>{e?.interest ?? <span>&nbsp;</span>}</td>
-            <td className={TDC}>{e?.prevalence ?? <span>&nbsp;</span>}</td>
-            <td className={TDC}>{e?.linkageConfidence ?? <span>&nbsp;</span>}</td>
-            <td className={TDC}>{e?.validity ?? <span>&nbsp;</span>}</td>
-            <td className={TD}>{e?.evidenceBasis ?? <span>&nbsp;</span>}</td>
-            <td className={TD}>{e?.connectedValue ?? <span>&nbsp;</span>}</td>
-          </tr>
+          <InterestRow key={e?.id ?? `m${i}`} e={e} />
         ))}
+        <ExpandableRows moreCount={rest.length} colSpan={6}>
+          {rest.map(e => (
+            <InterestRow key={e.id} e={e} />
+          ))}
+        </ExpandableRows>
         {(pretextual.length > 0 ? pretextual : [null]).map((e, i) => (
-          <tr key={`p${i}`} className="bg-gray-50 italic">
+          <tr key={e?.id ?? `p${i}`} className="bg-gray-50 italic">
             <td className={TD}>{e?.interest ?? <em>Pretextual / Low-validity (if any)</em>}</td>
             <td className={TDC}>{e?.prevalence ?? <span>&nbsp;</span>}</td>
             <td className={TDC}>{e?.linkageConfidence ?? <span>&nbsp;</span>}</td>
@@ -115,25 +143,39 @@ function InterestTable({ entries, headerClass }: { entries: InterestEntryItem[];
 }
 
 /* ── Shared Interests + Primary Conflict Pair ───────────────────────────── */
+function SharedInterestRow({ row }: { row: SharedInterestItem | null }) {
+  return (
+    <tr>
+      <td className={TD}>{row?.interest ?? <span>&nbsp;</span>}</td>
+      <td className={TDC}>{row?.validity ?? <span>&nbsp;</span>}</td>
+      <td className={TD}>{lines(row?.compromiseDirection)}</td>
+      <td className={`${TDC} font-mono`}>{formatScore(row?.score) ?? <span>&nbsp;</span>}</td>
+    </tr>
+  )
+}
+
 function SharedInterestsTable({ rows }: { rows: SharedInterestItem[] }) {
-  const data: Array<SharedInterestItem | null> = rows.length > 0 ? rows : [null]
+  const { top, rest } = rankByScore(rows, r => r.score)
+  const data: Array<SharedInterestItem | null> = top.length > 0 ? top : [null]
   return (
     <table className="w-full border-collapse border border-gray-300 text-sm">
       <thead>
         <tr className="bg-green-100">
-          <th className={`${TH} w-[40%]`}>Shared Interest</th>
+          <th className={`${TH} w-[36%]`}>Shared Interest</th>
           <th className={`${TH} text-center w-[12%]`}>Validity</th>
-          <th className={`${TH} w-[48%]`}>Compromise direction it opens</th>
+          <th className={`${TH} w-[44%]`}>Compromise direction it opens</th>
+          <th className={`${TH} text-center w-[8%]`}>Score</th>
         </tr>
       </thead>
       <tbody>
         {data.map((row, i) => (
-          <tr key={i}>
-            <td className={TD}>{row?.interest ?? <span>&nbsp;</span>}</td>
-            <td className={TDC}>{row?.validity ?? <span>&nbsp;</span>}</td>
-            <td className={TD}>{lines(row?.compromiseDirection)}</td>
-          </tr>
+          <SharedInterestRow key={row?.id ?? i} row={row} />
         ))}
+        <ExpandableRows moreCount={rest.length} colSpan={4}>
+          {rest.map(row => (
+            <SharedInterestRow key={row.id} row={row} />
+          ))}
+        </ExpandableRows>
       </tbody>
     </table>
   )
@@ -204,6 +246,16 @@ function AdvertisedVsActual({ values }: { values: ValuesAnalysisData | null }) {
             <td className={TD}>{lines(o)}</td>
           </tr>
         ))}
+        <tr className="bg-gray-50">
+          <td className={`${TD} bg-gray-100`}>
+            <strong>Divergence Score</strong>{' '}
+            <span className="text-[11px] text-[#555] font-normal">
+              (performance of the sub-debate that advertised &ne; actual)
+            </span>
+          </td>
+          <td className={`${TDC} font-mono`}>{formatScore(values?.supportingDivergenceScore) ?? <span>&nbsp;</span>}</td>
+          <td className={`${TDC} font-mono`}>{formatScore(values?.opposingDivergenceScore) ?? <span>&nbsp;</span>}</td>
+        </tr>
       </tbody>
     </table>
   )
@@ -212,52 +264,71 @@ function AdvertisedVsActual({ values }: { values: ValuesAnalysisData | null }) {
 /* ── Dispute Types ──────────────────────────────────────────────────────── */
 function DisputeTypesTable({ rows }: { rows: DisputeTypeItem[] }) {
   const order = ['Empirical', 'Definitional', 'Values']
-  const byType = (t: string) => rows.find(r => r.disputeType === t)
+  // The three canonical types always render; populated types sort by score.
+  const typed = order.map(t => ({ type: t, row: rows.find(r => r.disputeType === t) ?? null }))
+  typed.sort(byScoreDesc(t => t.row?.score))
   return (
     <table className="w-full border-collapse border border-gray-300 text-sm">
       <thead>
         <tr className="bg-gray-100">
-          <th className={`${TH} w-[20%]`}>Dispute Type</th>
-          <th className={`${TH} w-[40%]`}>The Specific Disagreement</th>
-          <th className={`${TH} w-[40%]`}>Evidence That Would Move Both Sides</th>
+          <th className={`${TH} w-[18%]`}>Dispute Type</th>
+          <th className={`${TH} w-[37%]`}>The Specific Disagreement</th>
+          <th className={`${TH} w-[37%]`}>Evidence That Would Move Both Sides</th>
+          <th className={`${TH} text-center w-[8%]`}>Score</th>
         </tr>
       </thead>
       <tbody>
-        {order.map((t, i) => {
-          const row = byType(t)
-          return (
-            <tr key={t} className={i % 2 === 1 ? 'bg-gray-50' : ''}>
-              <td className={TD}><strong>{t}</strong></td>
-              <td className={TD}>{lines(row?.disagreement)}</td>
-              <td className={TD}>{lines(row?.evidenceThatMoves)}</td>
-            </tr>
-          )
-        })}
+        {typed.map(({ type, row }, i) => (
+          <tr key={type} className={i % 2 === 1 ? 'bg-gray-50' : ''}>
+            <td className={TD}><strong>{type}</strong></td>
+            <td className={TD}>{lines(row?.disagreement)}</td>
+            <td className={TD}>{lines(row?.evidenceThatMoves)}</td>
+            <td className={`${TDC} font-mono`}>{formatScore(row?.score) ?? <span>&nbsp;</span>}</td>
+          </tr>
+        ))}
       </tbody>
     </table>
   )
 }
 
 /* ── Primary Obstacles to Resolution ────────────────────────────────────── */
+function ObstaclePairRow({ sup, opp }: { sup: ObstacleItem | null; opp: ObstacleItem | null }) {
+  return (
+    <tr>
+      <td className={TD}>{sup?.description ?? <span>&nbsp;</span>}</td>
+      <td className={`${TDC} font-mono`}>{formatScore(sup?.score) ?? <span>&nbsp;</span>}</td>
+      <td className={TD}>{opp?.description ?? <span>&nbsp;</span>}</td>
+      <td className={`${TDC} font-mono`}>{formatScore(opp?.score) ?? <span>&nbsp;</span>}</td>
+    </tr>
+  )
+}
+
 function ObstaclesTable({ obstacles }: { obstacles: ObstacleItem[] }) {
-  const sup = obstacles.filter(o => o.side === 'supporter')
-  const opp = obstacles.filter(o => o.side === 'opposition')
+  const sup = [...obstacles.filter(o => o.side === 'supporter')].sort(byScoreDesc(o => o.score))
+  const opp = [...obstacles.filter(o => o.side === 'opposition')].sort(byScoreDesc(o => o.score))
   const n = Math.max(sup.length, opp.length, 1)
+  const rows = Array.from({ length: n }, (_, i) => i)
+  const top = rows.slice(0, TABLE_TOP_LIMIT)
+  const rest = rows.slice(TABLE_TOP_LIMIT)
   return (
     <table className="w-full border-collapse border border-gray-300 text-sm">
       <thead>
         <tr className="bg-gray-100">
-          <th className={`${TH} w-[50%]`}>Obstacles for Supporters</th>
-          <th className={`${TH} w-[50%]`}>Obstacles for Opponents</th>
+          <th className={`${TH} w-[42%]`}>Obstacles for Supporters</th>
+          <th className={`${TH} text-center w-[8%]`}>Score</th>
+          <th className={`${TH} w-[42%]`}>Obstacles for Opponents</th>
+          <th className={`${TH} text-center w-[8%]`}>Score</th>
         </tr>
       </thead>
       <tbody>
-        {Array.from({ length: n }, (_, i) => (
-          <tr key={i}>
-            <td className={TD}>{sup[i]?.description ?? <span>&nbsp;</span>}</td>
-            <td className={TD}>{opp[i]?.description ?? <span>&nbsp;</span>}</td>
-          </tr>
+        {top.map(i => (
+          <ObstaclePairRow key={i} sup={sup[i] ?? null} opp={opp[i] ?? null} />
         ))}
+        <ExpandableRows moreCount={rest.length} colSpan={4}>
+          {rest.map(i => (
+            <ObstaclePairRow key={i} sup={sup[i] ?? null} opp={opp[i] ?? null} />
+          ))}
+        </ExpandableRows>
       </tbody>
     </table>
   )

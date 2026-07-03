@@ -249,6 +249,18 @@ model Belief {
   /// trees (e.g. "Pro arguments outweigh con arguments roughly 2:1").
   netInterpretation String?
 
+  /// Scorecard "Bottom line": one-sentence verdict scoped to what the argument
+  /// tree actually supports — no bigger claim than the leaves can carry.
+  bottomLine String?
+
+  /// Scorecard "What would move this score most": the single piece of evidence
+  /// that would most change the verdict (mirrors the Falsifiability Test).
+  scoreMover String?
+
+  /// Logical Anatomy "Logical form" line, e.g.
+  /// "[This belief] = [Part 1] AND [Part 2] AND ([Part 3] OR [Part 4])".
+  logicalForm String?
+
   /// Header metadata (new template). Newline- or pipe-separated lists of related
   /// belief labels and the higher-level beliefs this one supports. Plain text so
   /// they never render as broken links (Rule 5).
@@ -259,6 +271,14 @@ model Belief {
   interestEntries InterestEntry[]
   sharedInterests SharedInterest[]
   disputeTypes   DisputeType[]
+
+  falsifiabilityItems FalsifiabilityItem[]
+  componentClaims     ComponentClaim[]
+  costBenefitItems    CostBenefitItem[]  @relation("BeliefCostBenefitItems")
+  impactEntries       ImpactEntry[]
+
+  /// Cost/benefit rows on OTHER beliefs whose claim links to this belief's page.
+  costBenefitClaimOf  CostBenefitItem[]  @relation("CostBenefitClaimBelief")
 
   productReview  ProductReview?
 }
@@ -418,6 +438,12 @@ model ObjectiveCriteria {
   currentStatus String?
   target        String?
 
+  /// The readings each side predicts: a good criterion is one where supporters
+  /// and opponents predict DIFFERENT readings. strengthenReading falls back to
+  /// `target` and latest reading to `currentStatus` when unset.
+  strengthenReading String?
+  weakenReading     String?
+
   createdAt DateTime @default(now())
 }
 
@@ -435,6 +461,11 @@ model ValuesAnalysis {
   /// advertised reason and the actual driver diverge, per side.
   supportingDivergenceEvidence String?
   opposingDivergenceEvidence   String?
+
+  /// Divergence Score per side: performance of the sub-debate that
+  /// advertised ≠ actual. Null renders blank (Rule 6).
+  supportingDivergenceScore Float?
+  opposingDivergenceScore   Float?
 
   /// "What would shift these rankings?" prompt answer beneath the Shared Values table.
   whatWouldShift String?
@@ -479,6 +510,9 @@ model ValueRanking {
   supporterRank Int?
   opponentRank  Int?
   whyDiffer     String?
+  /// Row score: ReasonRank performance of this row's own pro/con sub-debate.
+  /// Null renders blank (Rule 6). The table sorts by this, descending.
+  score         Float?
   sortOrder     Int    @default(0)
 
   createdAt DateTime @default(now())
@@ -501,6 +535,9 @@ model InterestEntry {
   connectedValue   String?
   /// Pretextual / low-validity interest (renders in the italic low-validity row).
   pretextual       Boolean @default(false)
+  /// Row score used for ranking (estimated prevalence weighted by linkage
+  /// confidence). Null renders blank (Rule 6); the table sorts by this, descending.
+  score            Float?
   sortOrder        Int     @default(0)
 
   createdAt DateTime @default(now())
@@ -517,6 +554,8 @@ model SharedInterest {
   interest           String
   validity           String?
   compromiseDirection String?
+  /// Row score: performance of this row's pro/con sub-debate. Sorts descending.
+  score              Float?
   sortOrder          Int    @default(0)
 
   createdAt DateTime @default(now())
@@ -533,6 +572,8 @@ model DisputeType {
   disputeType       String // "Empirical" | "Definitional" | "Values"
   disagreement      String?
   evidenceThatMoves String?
+  /// Row score: performance of this row's pro/con sub-debate. Sorts descending.
+  score             Float?
   sortOrder         Int    @default(0)
 
   createdAt DateTime @default(now())
@@ -548,8 +589,54 @@ model Assumption {
   side       String // "accept" or "reject"
   statement  String
   strength   String @default("MODERATE")
+  /// Row score: performance of this assumption's pro/con sub-debate. Sorts descending.
+  score      Float?
 
   createdAt DateTime @default(now())
+}
+
+/// One row in the Logical Anatomy table: a component claim the belief statement
+/// contains (stated or implied), typed and marked load-bearing or not. A belief
+/// that is a chain of ANDs is exactly as strong as its weakest load-bearing part.
+model ComponentClaim {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  claim     String
+  /// "Empirical" | "Causal" | "Definitional" | "Normative"
+  claimType String?
+  /// True when the component is stated outright, false when only implied.
+  stated    Boolean @default(true)
+  /// If this part is false, does the belief survive? false = load-bearing.
+  survivesWithout     Boolean?
+  unstatedAssumptions String?
+  /// Row score: performance of this component's pro/con sub-debate. Sorts descending.
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// One row in the Falsifiability Test table: a realistic score-mover in either
+/// direction, as specific as a bet (what result, from what source, by when).
+model FalsifiabilityItem {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side        String // "strengthen" or "weaken"
+  description String
+  /// Row score: performance of the sub-debate "if this evidence appeared, would
+  /// it actually move this belief?". Sorts descending.
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
 }
 
 model CostBenefitAnalysis {
@@ -564,6 +651,57 @@ model CostBenefitAnalysis {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// One row in the Benefits / Costs and Risks tables. Every cost and benefit is
+/// itself a debatable claim (optionally linked to its own belief page). Keep
+/// unlike categories (dollars, life-years, hours, freedom) in separate rows and
+/// subtotal only within a category.
+model CostBenefitItem {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation("BeliefCostBenefitItems", fields: [beliefId], references: [id])
+
+  side  String // "benefit" or "cost"
+  claim String
+
+  /// The claim's own belief page, when one exists. Likelihood is computed from
+  /// how THAT belief's pro/con arguments score — never assigned by gut.
+  claimBeliefId Int?
+  claimBelief   Belief? @relation("CostBenefitClaimBelief", fields: [claimBeliefId], references: [id])
+
+  /// Category (units): "dollars" | "life-years" | "hours" | "freedom".
+  category   String?
+  /// Magnitude: an estimate in explicit category units.
+  magnitude  Float?
+  /// Likelihood (0-1), computed from the claim's pro/con argument scores.
+  likelihood Float?
+  /// Expected Value = Magnitude × Likelihood. Null renders blank (Rule 6).
+  /// The table sorts by this, descending.
+  expectedValue Float?
+  sortOrder     Int  @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+  @@index([claimBeliefId])
+}
+
+/// One row in the Short vs. Long-Term Impacts sub-table (inside Cost-Benefit).
+model ImpactEntry {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  term        String // "short" (0-2 years) or "long" (5+ years)
+  description String
+  /// Row score: performance of this impact's pro/con sub-debate. Sorts descending.
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
 }
 
 // ─── Automated CBA Skill Models ──────────────────────────────────────────────
@@ -730,6 +868,10 @@ model Compromise {
   synthesis     String?
   whyDifficult  String?
 
+  /// Row score: share of both sides' interests this compromise satisfies,
+  /// per its own pro/con sub-debate. Sorts descending.
+  score Float?
+
   createdAt   DateTime @default(now())
 }
 
@@ -740,6 +882,8 @@ model Obstacle {
 
   side        String // "supporter" or "opposition"
   description String
+  /// Row score: performance of this obstacle's pro/con sub-debate. Sorts descending.
+  score       Float?
   createdAt   DateTime @default(now())
 }
 
@@ -751,6 +895,9 @@ model BiasEntry {
   side     String
   biasType String
   description String?
+  /// Row score: how strongly this bias plausibly operates on this side here,
+  /// per its own pro/con sub-debate. Sorts descending.
+  score    Float?
 
   createdAt DateTime @default(now())
 }
@@ -844,6 +991,9 @@ model LegalEntry {
   side        String // "supporting" or "contradicting"
   description String
   jurisdiction String?
+  /// Row score: how strongly this law bears on the belief, per its own
+  /// pro/con sub-debate. Sorts descending.
+  score       Float?
 
   createdAt DateTime @default(now())
 }
@@ -859,6 +1009,10 @@ model BeliefMapping {
 
   direction String // "upstream" or "downstream"
   side      String // "support" or "oppose"
+
+  /// Row score: strength of the general↔specific relationship, per its own
+  /// pro/con sub-debate. Sorts descending.
+  score Float?
 
   createdAt DateTime @default(now())
 }
@@ -889,6 +1043,9 @@ model Definition {
   belief     Belief @relation(fields: [beliefId], references: [id])
   term       String
   definition String
+  /// Row score: how well this operational definition serves the analysis,
+  /// per its own pro/con sub-debate. Sorts descending.
+  score      Float?
   sortOrder  Int    @default(0)
   createdAt  DateTime @default(now())
 
@@ -902,6 +1059,14 @@ model TestablePrediction {
   prediction         String
   timeframe          String?
   verificationMethod String?
+  /// "true" when the prediction follows if the belief is true, "false" when it
+  /// follows if the belief is false (the template's "Follows If…" column).
+  followsIf          String  @default("true")
+  /// What has actually been observed so far, if anything.
+  resultSoFar        String?
+  /// Row score: how discriminating this prediction is, per its own pro/con
+  /// sub-debate. Sorts descending.
+  score              Float?
   sortOrder          Int    @default(0)
   createdAt          DateTime @default(now())
 

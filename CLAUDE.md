@@ -26,21 +26,21 @@ The repo has ~50 pre-existing implicit-any errors in routes I didn't touch (nota
 
 The single most important thing to get right in this codebase is the belief page (`/beliefs/[slug]`). It is the product. Everything else supports it.
 
-- **Canonical rules:** `docs/BELIEF_PAGE_RULES.md`. Read this before generating, restructuring, or refactoring any belief content. The seven hard rules (no top-of-page summary, definitions go last, arguments are 2-6 word labels, arguments != evidence, no broken links, blank scores until real, symmetric Supporters/Opponents) are non-negotiable.
+- **Canonical rules:** `docs/BELIEF_PAGE_RULES.md`. Read this before generating, restructuring, or refactoring any belief content. The eight hard rules (no top-of-page summary, definitions go last, arguments are 2-6 word labels, arguments != evidence, no broken links, blank scores until real, symmetric Supporters/Opponents, every table score-ranked with top rows shown and the rest collapsed) are non-negotiable.
 - **Canonical template:** `templates/belief-analysis-template.html`. This is the source of truth for the canonical section order. The live page is built around it.
 - **Live implementation:** `src/app/beliefs/[slug]/page.tsx` plus the section components in `src/features/belief-analysis/components/*`.
 - **Types:** `src/features/belief-analysis/types.ts`. New fields on Values/Interests analysis are optional so existing Prisma data still flows; populate via seed scripts as data lands.
 
 If you change the rules doc, update the template and the page. If you change the template or page, update the rules doc. The three must stay in sync.
 
-### Sections that no longer exist as standalones
+### Section layout notes (July 2026 template)
 
-Per the new template (April 2026), the page does NOT have separate `Falsifiability`, `Testable Predictions`, `Media Resources`, or `Short vs Long-Term Impact` sections.
-
-- Falsifiability is implicit in Objective Criteria thresholds.
-- Testable predictions, when relevant, render as objective criteria.
-- Visual/video items live in the Visual and Video Evidence sub-table under Evidence Ledger.
-- Short vs Long-Term renders as a sub-table inside Cost-Benefit Analysis.
+Falsifiability Test, Testable Predictions, and Media Resources ARE standalone sections
+(reintroduced in the April 2026 redesign; the current components are
+`FalsifiabilityTestSection` and `MediaResourcesSection`). Short vs Long-Term still
+renders as a sub-table inside Cost-Benefit Analysis. Every per-row table carries a
+nullable relationship `score`, sorts by it descending (nulls last), and shows its top
+rows with the rest collapsed — see Rule 8 and `src/features/belief-analysis/lib/ranking.ts`.
 
 The legacy `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, and `ImpactSection` components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
 
