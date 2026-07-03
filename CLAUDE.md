@@ -20,7 +20,9 @@ npx eslint <files>    # lint files you edited (`npm run lint` runs the whole rep
 npm test              # vitest, only when changing scoring / core logic
 ```
 
-The repo has ~50 pre-existing implicit-any errors in routes I didn't touch (notably `src/app/algorithms/belief-equivalency/*`, `src/app/equivalence/*`, several API routes, `src/lib/prisma.ts`'s missing generated client). They are not your fault — verify *only* that your edited files are clean, not that the global typecheck count is zero.
+The global typecheck is clean — `npx tsc --noEmit` should report zero errors. If it reports missing `@/generated/prisma/client` or `react` modules, run `npm install` and `npm run db:generate` first; those are setup gaps, not code errors.
+
+On a fresh clone, `npm run build` fails at the prerender step with `The table main.Belief does not exist` — several pages query SQLite at build time. Run `npm run db:push && npm run db:seed` first.
 
 ## The Belief Page Is the Crown Jewel
 
