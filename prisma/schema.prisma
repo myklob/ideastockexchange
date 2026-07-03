@@ -347,11 +347,21 @@ model Argument {
   /// Used for depth attenuation: effective weight = base_weight × 0.5^depth
   depth            Int                   @default(0)
 
+  /// Linkage page header note, used only when this edge is easily confused with
+  /// a different linkage between similar X and Y.
+  scopeNote String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   linkageArguments LinkageArgument[]
   linkageVotes     LinkageVote[]
+
+  linkageRephrasings     LinkageRephrasing[]
+  linkageFiveStepCheck   LinkageFiveStepCheck?
+  linkageAssumptions     LinkageAssumption[]
+  linkageBiasRisks       LinkageBiasRisk[]
+  linkageFailureExamples LinkageFailureExample[]
 
   @@index([importanceBeliefId])
 }
@@ -363,7 +373,124 @@ model LinkageArgument {
   side       String
   statement  String
   strength   Float    @default(0.5)
+
+  /// Named pattern this row instantiates (e.g. "Mechanism", "Necessity",
+  /// "True But Irrelevant", "Parent-mechanism mismatch"). Starter scaffolding —
+  /// rows enter and rank by their own scores, never by pattern order.
+  pattern   String?
+  /// Row score: computed from this row's own sub-debate. Null renders blank
+  /// (Rule 6) and the table ranks by this, descending. `strength` remains the
+  /// legacy manual weight feeding the (A − D)/(A + D) aggregate until every
+  /// row carries a computed score.
+  score     Float?
+  sortOrder Int @default(0)
+
   createdAt  DateTime @default(now())
+}
+
+/// One row in the linkage page's Equivalent Rephrasings tables. If the same
+/// linkage holds across phrasings of X and Y it is logically robust; if it only
+/// holds under one phrasing it is rhetoric. Drift = linkage under this phrasing
+/// minus the canonical linkage, computed at render time — never stored.
+model LinkageRephrasing {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  target String // "x" (the argument or evidence) or "y" (the claim)
+  /// Variant label, e.g. "Filler-stripped, plain language", "Quantified form".
+  label  String?
+  text   String
+  /// Equivalency to the canonical phrasing (0-1), from the Belief Equivalency Engine.
+  equivalencyScore Float?
+  /// Linkage score under this phrasing. Null renders blank (Rule 6).
+  linkageScore Float?
+  sortOrder    Int   @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([argumentId])
+}
+
+/// The Five-Step Linkage Check for one placement. Step 4 is the author's
+/// provisional, bracketed estimate at placement time — the score computed from
+/// the linkage argument tree supersedes it (audit lock: linkage scores are
+/// never hand-assigned as final).
+model LinkageFiveStepCheck {
+  id         Int      @id @default(autoincrement())
+  argumentId Int      @unique
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  /// Step 1: exact wording of the parent claim Y. Verbatim, no paraphrase.
+  parentWording String?
+  /// Step 2: exact wording of the evidence or argument X. Verbatim, no paraphrase.
+  sourceWording String?
+  /// Step 3: the mechanism by which X supports Y, in one sentence.
+  mechanismSentence String?
+  /// Step 4: provisional linkage estimate (0-1). A placement-time bracket only.
+  provisionalEstimate Float?
+  /// Step 4: dominant factor — "relevance" | "network strength" |
+  /// "contextual fit" | "uniqueness".
+  dominantFactor String?
+  /// Step 5: the action if flagged (find better evidence rather than reach).
+  flagNote String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// One row in the linkage page's Hidden Assumptions table: what must also be
+/// true for the linkage to hold (or fail). Each assumption is itself a claim,
+/// scored by its own sub-debate.
+model LinkageAssumption {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  side      String // "hold" or "fail"
+  statement String
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([argumentId])
+}
+
+/// One row in the linkage page's Bias Risks table: a bias plausibly inflating
+/// or deflating THIS linkage score, scored like any other claim.
+model LinkageBiasRisk {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  side        String // "inflate" or "deflate"
+  description String
+  score       Float?
+  sortOrder   Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([argumentId])
+}
+
+/// One row in the Failure Mode Worked Examples table, filled with examples from
+/// this linkage's own domain. Fully worked examples with real names live once,
+/// on the canonical Linkage Scores page — never inside the template.
+model LinkageFailureExample {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  failureMode String // e.g. "Parent-mechanism mismatch", "True But Irrelevant"
+  xText       String?
+  yText       String?
+  whyFails    String?
+  sortOrder   Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([argumentId])
 }
 
 model LinkageVote {

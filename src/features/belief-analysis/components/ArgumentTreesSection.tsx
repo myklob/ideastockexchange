@@ -77,7 +77,21 @@ function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
     <>
       <td className="border border-gray-300 px-3 py-2 align-top"><ArgumentCell arg={arg} /></td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{scoreCell(arg)}</td>
-      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{linkCell(arg)}</td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
+        {/* The linkage value links to the edge's own page: the debate about
+            whether this argument actually bears on this belief. */}
+        {linkCell(arg) ? (
+          <Link
+            href={`/arguments/${arg.id}/linkage`}
+            className="text-[var(--accent)] hover:underline"
+            title="Debate this linkage"
+          >
+            {linkCell(arg)}
+          </Link>
+        ) : (
+          ''
+        )}
+      </td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{impCell(arg)}</td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs font-semibold">{impactCell(arg)}</td>
     </>
