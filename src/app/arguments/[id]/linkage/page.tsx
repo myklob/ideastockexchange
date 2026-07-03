@@ -1,7 +1,11 @@
 /**
- * Linkage Page — scores one edge of the argument graph: the bridge from X
- * (an argument or piece of evidence) to Y (the claim it was placed under).
- * Never the truth of X or Y themselves.
+ * Linkage Page — scores one linkage: whether X (an argument or piece of
+ * evidence) supports or weakens Y (the claim it was placed under). Never
+ * whether X or Y is true on its own.
+ *
+ * The page title IS the linkage question, in full words — no arrow notation
+ * anywhere reader-facing. The question is asked at full strength ("would it
+ * necessarily support Y?") and the Linkage Score is the answer as a degree.
  *
  * Every linkage score badge on belief pages links here. A dedicated page like
  * this exists because the connection is contested or load-bearing; routine
@@ -80,20 +84,20 @@ function FormulaBreakdown({
   depth: number
 }) {
   const attenuated = applyDepthAttenuation(score, depth)
-  const A = proWeight.toFixed(3)
-  const D = conWeight.toFixed(3)
+  const agree = proWeight.toFixed(3)
+  const disagree = conWeight.toFixed(3)
   const S = score.toFixed(3)
   const Att = attenuated.toFixed(3)
 
   return (
     <div className="bg-gray-50 border border-gray-200 rounded p-4 my-4 text-sm font-mono">
       <p className="text-gray-500 mb-1 font-sans text-xs uppercase tracking-wide">
-        Linkage Score formula: (A − D) / (A + D)
+        Linkage Score = (Agree total − Disagree total) / (Agree total + Disagree total)
       </p>
-      <p>A (supporting weight) = {A}</p>
-      <p>D (opposing weight) = {D}</p>
+      <p>Agree total = {agree}</p>
+      <p>Disagree total = {disagree}</p>
       <p>
-        LS = ({A} − {D}) / ({A} + {D}) ={' '}
+        Linkage Score = ({agree} − {disagree}) / ({agree} + {disagree}) ={' '}
         <strong className="text-blue-800">{S}</strong>
       </p>
       {depth > 0 && (
@@ -105,6 +109,24 @@ function FormulaBreakdown({
       )}
     </div>
   )
+}
+
+/**
+ * Render-time alias for pattern names stored under their pre-July-2026
+ * labels, so old rows display the current plain-words canon.
+ */
+const PATTERN_RENAMES: Record<string, string> = {
+  'Parent-mechanism mismatch': 'Wrong parent',
+  'Missing intermediate step': 'Missing step',
+  'Scope or scale mismatch': 'Scope mismatch',
+}
+
+function patternName(pattern: string | null): string | null {
+  if (!pattern) return null
+  // Older seeds stored the pattern with an inline description ("Mechanism: X
+  // causes Y through a named pathway") — keep only the name before the colon.
+  const short = pattern.split(':')[0].trim()
+  return PATTERN_RENAMES[short] ?? short
 }
 
 // ─── Rephrasings table ──────────────────────────────────────────────────────
@@ -316,7 +338,7 @@ function TwoSidedScoredTable({ leftHeader, rightHeader, left, right }: {
 
 const FAILURE_MODE_PATTERNS = [
   {
-    mode: 'Parent-mechanism mismatch',
+    mode: 'Wrong parent',
     x: '[Real, well-documented X showing actor A violating constraint type 1]',
     y: '[Y claiming actor A violates constraint type 2]',
     why: '[X and Y run through different mechanisms and belong under different parents. The fluent reading is misleading; the correct parent for X is the type-1 claim.]',
@@ -334,9 +356,9 @@ const FAILURE_MODE_PATTERNS = [
     why: '[Extrapolation requires an unstated similarity assumption.]',
   },
   {
-    mode: 'Missing intermediate step',
+    mode: 'Missing step',
     x: '[X]',
-    y: '[Y, where the chain X → A → B → Y has uncertain middle links]',
+    y: '[Y, where the chain from X to Y has uncertain middle links]',
     why: '[Each missing step compounds uncertainty. Name the steps.]',
   },
   {
@@ -400,6 +422,7 @@ export default async function LinkagePage({ params }: PageProps) {
 
   const direction = arg.side === 'agree' ? 'Supports' : 'Weakens'
   const directionVerb = arg.side === 'agree' ? 'support' : 'weaken'
+  const directionVerbs = arg.side === 'agree' ? 'supports' : 'weakens'
   const typeLabel = arg.linkageScoreType === 'ECLS'
     ? 'Evidence-to-Conclusion (ECLS)'
     : 'Argument-to-Conclusion (ACLS)'
@@ -421,8 +444,7 @@ export default async function LinkagePage({ params }: PageProps) {
       <td className={TD}>
         {la ? (
           <>
-            {la.pattern && <strong>{la.pattern}</strong>}
-            {la.pattern && <br />}
+            {la.pattern && <strong>{patternName(la.pattern)}: </strong>}
             {la.statement}
           </>
         ) : (
@@ -442,23 +464,24 @@ export default async function LinkagePage({ params }: PageProps) {
           <span className="text-gray-400">/</span>
           <Link href="/algorithms/linkage-scores" className="text-blue-700 hover:underline">Linkage Scores</Link>
           <span className="text-gray-400">/</span>
-          <span className="text-gray-500 truncate max-w-[340px]">{xLabel} → {arg.parentBelief.statement}</span>
+          <span className="text-gray-500 truncate max-w-[340px]">This Linkage</span>
         </div>
       </nav>
 
       <main className="max-w-[960px] mx-auto px-4 py-8 leading-7 text-[#333]">
+        {/* The title IS the linkage question, in full words — never arrow
+            notation. Asked at full strength; the score answers by degree. */}
         <h1 className="text-2xl font-bold leading-tight mb-4">
-          Linkage: {xLabel} → {arg.parentBelief.statement}
+          If {xLabel} were true, would it necessarily {directionVerb}{' '}
+          {arg.parentBelief.statement}?
         </h1>
 
-        {/* Linkage proposition — a degree question, not a deductive test */}
-        <div className="bg-[#f7f9fb] border border-[#b0b8c1] border-l-4 border-l-[#2c5282] px-5 py-4 mb-4">
-          <div className="text-xs text-[#555] uppercase tracking-wider mb-1.5">Linkage proposition</div>
-          <div className="text-base leading-6">
-            If <strong>{xLabel}</strong> were true, how strongly would it{' '}
-            <strong>{directionVerb}</strong>{' '}
-            <strong>{arg.parentBelief.statement}</strong>?
-          </div>
+        <div className="bg-[#f7f9fb] border border-[#b0b8c1] border-l-4 border-l-[#2c5282] px-4 py-3 mb-4 text-sm">
+          That is the only question on this page. The <strong>Linkage Score</strong> is the answer,
+          as a degree: <strong>1.0</strong> means yes, Y must move if X is true. <strong>0</strong>{' '}
+          means no, X can be completely true and Y doesn&apos;t budge. Anything in between means
+          yes, but only if the assumptions named below hold. This page never debates whether X or Y
+          is true; each has its own page for that.
         </div>
 
         <div className="text-sm space-y-1 mb-3">
@@ -508,27 +531,29 @@ export default async function LinkagePage({ params }: PageProps) {
 
         <p className="text-xs text-[#777] mb-8">
           A dedicated page like this exists because the connection is contested or load-bearing;
-          routine linkages live as rows on the belief page. Every score is computed by{' '}
+          routine linkages live as rows on the belief page, and every Linkage cell there links to
+          its linkage page. Every score is computed by{' '}
           <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">ReasonRank</Link>{' '}
-          from the tables below, and every table ranks by its score column.
+          from the tables below; every table ranks by its score column, and each table shows its
+          top five rows and collapses the rest.
         </p>
 
         {/* ── 🔗 Linkage Arguments ─────────────────────────────────── */}
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-2">🔗 Linkage Arguments</h2>
           <p className="text-sm text-[var(--muted-foreground)] mb-3">
-            Each argument below tests the bridge between X and Y, not the truth of X or Y. Reasons
-            to agree explain why the connection is direct, necessary, or unavoidable. Reasons to
-            disagree explain why the connection breaks: missing steps, mismatched scope, alternative
-            explanations, or the True But Irrelevant pattern. Rows enter and rank by their own scores.
+            Every reason below is about whether X {directionVerbs} Y, not about whether X or Y is
+            true. A claim that X is false belongs on X&apos;s page; a claim that Y is false belongs
+            on Y&apos;s page. Each cell must read as a complete statement that makes sense on its
+            own. Rows enter and rank by their own scores.
           </p>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse border border-gray-300 text-sm">
               <thead>
                 <tr>
-                  <th className={`${TH} w-[42%] bg-green-100`}>✅ Reasons the linkage is strong</th>
+                  <th className={`${TH} w-[42%] bg-green-100`}>✅ Reasons to agree that X {directionVerbs} Y</th>
                   <th className={`${TH} w-[8%] text-center bg-green-50`}>Score</th>
-                  <th className={`${TH} w-[42%] bg-red-100`}>❌ Reasons the linkage is weak</th>
+                  <th className={`${TH} w-[42%] bg-red-100`}>❌ Reasons to disagree that X {directionVerbs} Y</th>
                   <th className={`${TH} w-[8%] text-center bg-red-50`}>Score</th>
                 </tr>
               </thead>
@@ -568,7 +593,9 @@ export default async function LinkagePage({ params }: PageProps) {
           />
           <p className="text-sm text-[var(--muted-foreground)] italic">
             Linkage arguments are scored by the same recursive engine as belief arguments. Each row
-            has its own argument score; the linkage score for this page is the net aggregate. See{' '}
+            has its own argument score; the Linkage Score for this page is the net aggregate of the
+            two sides, (Agree total minus Disagree total) divided by (Agree total plus Disagree
+            total), computed by the engine. The engine docs are canonical for the math. See{' '}
             <Link href="/Argument%20scores%20from%20sub-argument%20scores" className="text-[var(--accent)] hover:underline">
               Argument Scores from Sub-Argument Scores
             </Link>.
@@ -603,9 +630,12 @@ export default async function LinkagePage({ params }: PageProps) {
             rows={yRephrasings}
           />
           <p className="text-sm text-[#555]">
-            <strong>Drift</strong> is the difference between the linkage score under the rephrased
-            version and the canonical version. High drift means the linkage depends on specific
-            wording. Low drift means the linkage survives translation, which is what we want.
+            <strong>Drift</strong> is signed and computed by the engine: the linkage score under
+            the rephrased version minus the canonical linkage score. Negative drift means the
+            linkage weakens under that phrasing; positive drift means it strengthens, which is
+            common when a scope-narrowed claim links more tightly than the broad original. High
+            drift in either direction means the linkage depends on specific wording. Low drift
+            means the linkage survives translation, which is what we want.
           </p>
         </section>
 
@@ -638,11 +668,11 @@ export default async function LinkagePage({ params }: PageProps) {
               </tr>
               <tr>
                 <td className={`${TDC} font-bold`}>3</td>
-                <td className={TD}>Mechanism by which X {arg.side === 'agree' ? 'supports' : 'weakens'} Y, in one sentence</td>
+                <td className={TD}>How X {directionVerbs} Y, in one sentence</td>
                 <td className={TD}>
                   {check?.mechanismSentence ?? (
                     <span className="text-[var(--muted-foreground)] italic">
-                      If this sentence cannot be written cleanly, the linkage is probably weak.
+                      If you cannot write this sentence cleanly, X probably doesn&apos;t {directionVerb} Y.
                     </span>
                   )}
                 </td>
@@ -669,8 +699,12 @@ export default async function LinkagePage({ params }: PageProps) {
                 <td className={`${TDC} font-bold`}>5</td>
                 <td className={TD}>Flag if the estimate is below 0.7 (working heuristic)</td>
                 <td className={TD}>
-                  {flagged && (
-                    <strong className="text-red-700">Flagged. </strong>
+                  {check?.provisionalEstimate != null && (
+                    flagged ? (
+                      <strong className="text-red-700">Flagged. </strong>
+                    ) : (
+                      <strong className="text-green-700">Not flagged. </strong>
+                    )
                   )}
                   {check?.flagNote ?? (
                     <span className="text-[var(--muted-foreground)] italic">
@@ -688,9 +722,9 @@ export default async function LinkagePage({ params }: PageProps) {
           <h2 className="text-xl font-bold mb-2">🔍 Failure Mode Worked Examples</h2>
           <p className="text-sm text-[var(--muted-foreground)] mb-3">
             Linkage failures fall into recognizable patterns. Naming them creates muscle memory:
-            once you have seen a parent-mechanism mismatch dissected, you start spotting them
-            everywhere. The rows below hold examples from this linkage&apos;s own domain. Fully
-            worked examples with real names live on the canonical{' '}
+            once you have seen a wrong-parent case dissected, you start spotting them everywhere.
+            The rows below hold examples from this linkage&apos;s own domain. Fully worked examples
+            with real names live on the canonical{' '}
             <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage Scores</Link>{' '}
             page, not here, so that one contested illustration never ships inside every linkage page.
           </p>
@@ -708,7 +742,7 @@ export default async function LinkagePage({ params }: PageProps) {
                 {arg.linkageFailureExamples.length > 0
                   ? arg.linkageFailureExamples.map((f, i) => (
                       <tr key={f.id} className={i % 2 === 1 ? 'bg-gray-50' : ''}>
-                        <td className={TD}><strong>{f.failureMode}</strong></td>
+                        <td className={TD}><strong>{patternName(f.failureMode)}</strong></td>
                         <td className={TD}>{f.xText ?? <span>&nbsp;</span>}</td>
                         <td className={TD}>{f.yText ?? <span>&nbsp;</span>}</td>
                         <td className={TD}>{f.whyFails ?? <span>&nbsp;</span>}</td>
@@ -727,16 +761,18 @@ export default async function LinkagePage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* ── 🧭 Beliefs This Linkage Participates In ──────────────── */}
+        {/* ── 🧭 Where Else X and Y Are Used ───────────────────────── */}
         <section className="mb-10">
-          <h2 className="text-xl font-bold mb-2">🧭 Beliefs This Linkage Participates In</h2>
+          <h2 className="text-xl font-bold mb-2">🧭 Where Else X and Y Are Used</h2>
           <p className="text-sm text-[var(--muted-foreground)] mb-3">
-            A linkage is a single edge, but the graph it lives in matters. The tables below show
-            other places X is used to support claims, and other arguments used to support Y. Both
-            tables rank by{' '}
+            A linkage is a single connection, but the graph it lives in matters. The tables below
+            show other places X is used to support claims, and other arguments used to support Y.
+            Both tables rank by{' '}
             <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">argument score</Link>,
-            descending, which counts evidence quality and logical validity. Vote ratio is a
-            secondary view, never the default and never an input to any score.
+            descending, which counts evidence quality and logical validity. Every row is itself a
+            linkage with its own page like this one; each row links to that page, so the graph is
+            navigable in both directions. Vote ratio is a secondary view, never the default and
+            never an input to any score.
           </p>
           <CrossGraphTable
             header="Other claims X is placed under"
@@ -768,9 +804,10 @@ export default async function LinkagePage({ params }: PageProps) {
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-2">📜 Hidden Assumptions Required</h2>
           <p className="text-sm text-[var(--muted-foreground)] mb-3">
-            If the linkage from X to Y is below 1.0, something must be true in addition to X for Y
-            to follow. Naming those assumptions is half the work of evaluating any linkage. Each
-            assumption is itself a claim, scored by its own sub-debate. See{' '}
+            If the Linkage Score is below 1.0, something must be true in addition to X for Y to
+            follow. Naming those assumptions is half the work of evaluating any linkage: they are
+            the exact distance between this linkage and &ldquo;necessarily.&rdquo; Each assumption
+            is itself a claim, scored by its own sub-debate. See{' '}
             <Link href="/algorithms/assumptions" className="text-[var(--accent)] hover:underline">Assumptions</Link>.
           </p>
           <TwoSidedScoredTable
@@ -787,7 +824,7 @@ export default async function LinkagePage({ params }: PageProps) {
           <p className="text-sm text-[var(--muted-foreground)] mb-3">
             Motivated reasoning expresses itself most clearly through linkage placement, not through
             claims themselves. People rarely invent evidence; they place real evidence under
-            conclusions it does not support. Parent-mechanism mismatch is exactly this pattern.
+            conclusions it does not support. The wrong-parent failure mode is exactly this pattern.
             Each bias risk is a claim about this linkage&apos;s editors and evidence, scored like
             any other. See the{' '}
             <Link href="/bias" className="text-[var(--accent)] hover:underline">Bias page</Link>.
@@ -805,8 +842,13 @@ export default async function LinkagePage({ params }: PageProps) {
           <h2 className="text-xl font-bold mb-2">📖 Definitions and Scoring Concepts</h2>
           <div className="text-sm space-y-3">
             <p>
-              <strong>Linkage Score:</strong> How directly X strengthens or weakens Y. Computed as
-              Relevance × Network Strength × Contextual Fit × Uniqueness. See{' '}
+              <strong>The linkage question:</strong> If X were true, would it necessarily support
+              (or weaken) Y? Asked at full strength; answered by degree.
+            </p>
+            <p>
+              <strong>Linkage Score:</strong> The degree to which the answer to the linkage
+              question is yes. Computed as Relevance × Network Strength × Contextual Fit ×
+              Uniqueness. The engine docs are canonical for the math. See{' '}
               <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage Scores</Link>.
             </p>
             <p>
@@ -827,6 +869,10 @@ export default async function LinkagePage({ params }: PageProps) {
               <strong>Equivalency Score:</strong> How similar two phrasings of the same statement
               are. Used in the rephrasings table to test linkage robustness. See the{' '}
               <Link href="/algorithms/belief-equivalency" className="text-[var(--accent)] hover:underline">Belief Equivalency Engine</Link>.
+            </p>
+            <p>
+              <strong>Drift:</strong> The rephrasing&apos;s linkage score minus the canonical
+              linkage score, computed by the engine. Signed: negative weakens, positive strengthens.
             </p>
             <p>
               <strong>Audit lock:</strong> Linkage scores are computed from sub-arguments, never

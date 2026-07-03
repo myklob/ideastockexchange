@@ -291,7 +291,7 @@ export default function LinkageScoresPage() {
           <tbody>
             <tr>
               <td className="border border-gray-300 px-3 py-2 align-top">
-                <strong>Parent-mechanism mismatch</strong> (the Schiltz case)
+                <strong>Wrong parent</strong> (the Schiltz case)
               </td>
               <td className="border border-gray-300 px-3 py-2 align-top">
                 Chief Judge Schiltz, January 2026: ICE violated 96 court orders in 74 cases.
