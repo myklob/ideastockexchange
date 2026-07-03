@@ -1,99 +1,109 @@
 <!-- page=Linkage Evaluation Template -->
 <!-- content-type=text/html -->
 <!--
-  ===== ISE LINKAGE PAGE MASTER TEMPLATE (July 2026 revision) =====
-  Scores one edge of the argument graph: the bridge from X (an argument or
-  piece of evidence) to Y (the claim it was placed under) — never the truth of
-  X or Y themselves. Mirrored by the React implementation in
+  ===== ISE LINKAGE PAGE MASTER TEMPLATE (July 2026, plain-words revision) =====
+  Scores one linkage: whether X (an argument or piece of evidence) supports or
+  weakens Y (the claim it was placed under) — never whether X or Y is true on
+  its own. Mirrored by the React implementation in
   src/app/arguments/[id]/linkage/page.tsx. If you change this template, update
   that page. The two must stay in sync.
 
   HARD RULES (every generation must follow):
-    1. Build a dedicated linkage page only when the connection is contested or
-       load-bearing; routine linkages stay as rows on the belief page.
-    2. The headline proposition asks DEGREE ("how strongly would it support or
-       weaken Y?"), never necessity. Necessity is one of the four pro-linkage
-       argument patterns, not the definition of the question.
-    3. Audit lock: linkage scores are computed from the linkage argument tree,
-       never hand-assigned as final. The Five-Step Check's provisional estimate
-       is a bracketed placement-time author bracket that the computed score
-       supersedes.
-    4. Every table row is a scored claim that ranks by its score; the linkage
-       arguments table carries Score cells like every other scored-family
-       table. Score cells stay [bracketed]/blank until computed.
-    5. Worked failure-mode examples with real names and real politics live
-       once, on the canonical Linkage Scores page (159338766) — never in this
-       template. Pattern rows here stay generic.
-    6. Spell abbreviations out at first use (Evidence-to-Conclusion (ECLS),
+    1. The page title IS the linkage question, written in full words: "If [X]
+       were true, would it necessarily [support / weaken] [Y]?" Never use arrow
+       notation anywhere on the page; no symbols in place of words.
+    2. The question is asked at full strength ("necessarily"); the Linkage
+       Score answers by degree. 1.0 = Y must move if X is true; 0 = X can be
+       completely true and Y doesn't budge; in between = yes, but only if the
+       named assumptions hold.
+    3. Bridge-framing rule: every reason cell is a complete proposition about
+       whether X supports Y, its direction evident from the cell alone. A cell
+       arguing that X or Y is true or false is misfiled and belongs on X's or
+       Y's own page.
+    4. Audit lock: linkage scores are computed from the linkage argument tree,
+       never hand-assigned as final. The Five-Step Check's provisional
+       estimate is a bracketed placement-time author bracket that the computed
+       score supersedes. The 0.7 flag threshold is a working heuristic.
+    5. Every table row ranks by its score, never by editorial placement; the
+       software shows each table's top five rows and collapses the rest.
+       Score cells stay [bracketed]/blank until computed.
+    6. The bold lead-in on each reason row is that row's pattern name (a
+       stored field, not decoration). The four patterns per side are starter
+       scaffolding, not fixed content or fixed order. Current pattern canon:
+       Mechanism / Necessity / Scope fit / Monotonicity vs. Missing step /
+       True But Irrelevant / Scope mismatch / Wrong parent.
+    7. Drift is signed: the rephrasing's linkage minus the canonical linkage.
+    8. Worked failure-mode examples with real names and real politics live
+       once, on the canonical Linkage Scores page — never in this template.
+    9. Spell abbreviations out at first use (Evidence-to-Conclusion (ECLS),
        Argument-to-Conclusion (ACLS)). Underscored [Bracketed_Tokens] are
        machine-replaceable slots.
-    7. The 0.7 flag threshold in the Five-Step Check is a working heuristic,
-       not canon; if it graduates to canon it moves to the engine docs.
 
   SECTION ORDER:
-    Header (breadcrumb / H1 / proposition box / score-type-direction line /
-    X and Y links / contribution / scope note / when-a-page-is-warranted note)
-    1. Linkage Arguments (two-sided, Score columns, four starter patterns/side)
+    Header (breadcrumb "[This Linkage]" / question-as-title H1 / answer-key
+    box / score-type-direction line / X and Y links / contribution / scope
+    note / when-a-page-is-warranted note)
+    1. Linkage Arguments ("Reasons to agree/disagree that X supports Y",
+       Score columns, four starter patterns per side)
     2. Equivalent Rephrasings (X table + Y table: equivalency, linkage under
-       phrasing, drift; low drift = survives translation)
-    3. Five-Step Linkage Check (verbatim Y, verbatim X, mechanism sentence,
-       provisional bracketed estimate + dominant factor, sub-0.7 flag)
+       phrasing, signed drift)
+    3. Five-Step Linkage Check (verbatim Y, verbatim X, how-X-supports-Y
+       sentence, provisional bracketed estimate + dominant factor,
+       Flagged / Not flagged)
     4. Failure Mode Worked Examples (generic pattern rows; real examples live
        on the Linkage Scores hub)
-    5. Beliefs This Linkage Participates In (other Ys for this X; other Xs for
-       this Y; both rank by argument score, vote ratio never the default)
-    6. Hidden Assumptions Required (hold / fail, scored)
+    5. Where Else X and Y Are Used (other Ys for this X; other Xs for this Y;
+       rank by argument score; every row links to its own linkage page)
+    6. Hidden Assumptions Required (hold / fail, scored — the exact distance
+       between this linkage and "necessarily")
     7. Bias Risks Specific to This Linkage (inflate / deflate, scored)
-    8. Definitions and Scoring Concepts (incl. audit lock)
+    8. Definitions and Scoring Concepts (the linkage question, drift, audit lock)
     9. Contribute
 -->
-<p style="text-align: right; font-size: 13px;"><a href="/w/page/21957696/Colorado%20Should">Home</a> &rsaquo; <a href="/w/page/159338766/Linkage%20Scores">Linkage Scores</a> &rsaquo; <strong>[X] &rarr; [Y]</strong></p>
+<p style="text-align: right; font-size: 13px;"><a href="/w/page/21957696/Colorado%20Should">Home</a> &rsaquo; <a href="/w/page/159338766/Linkage%20Scores">Linkage Scores</a> &rsaquo; <strong>[This Linkage]</strong></p>
 <div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
-<p style="display: none;">AUTHORING RULES (hidden; readers never see this). This page scores one edge: the bridge from X to Y, never the truth of X or Y themselves. Build a dedicated linkage page only when the connection is contested or load-bearing; routine linkages stay as rows on the belief page. All scores stay [bracketed] until the ReasonRank engine computes them; never fill a score cell for an empty row. Every table row is a scored claim that ranks by its score, never by editorial placement; the numbered pattern rows in the arguments table are starter scaffolding, not fixed content or fixed order. The provisional estimate in the Five-Step Check is an author's bracket that the computed score supersedes; linkage scores are never hand-assigned as final (audit lock). Worked failure-mode examples with real names and real politics live on the canonical Linkage Scores page, never in this template; keep the pattern rows here generic. Underscored [Bracketed_Tokens] are machine-replaceable slots; spell all words out, no abbreviations in column headers.</p>
-<h1>Linkage: [X] &rarr; [Y]</h1>
-<div style="background-color: #f7f9fb; border: 1px solid #b0b8c1; border-left: 4px solid #2c5282; padding: 14px 18px; margin-bottom: 16px;">
-<div style="font-size: 85%; color: #555; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;">Linkage proposition</div>
-<div style="font-size: 110%; line-height: 1.5;">If <strong>[X: short-form argument or evidence statement]</strong> were true, how strongly would it <strong>[support / weaken]</strong> <strong>[Y: short-form claim statement]</strong>?</div>
-</div>
-<p><strong>Linkage Score:</strong> <span style="padding: 2px 10px; background: #e8eef5; border: 1px solid #b0b8c1; font-size: 90%; font-weight: 600;">[0.00&ndash;1.00]</span> &nbsp;|&nbsp; <strong>Type:</strong> <a href="/w/page/159338766/Linkage%20Scores">[Evidence-to-Conclusion (ECLS) / Argument-to-Conclusion (ACLS)]</a> &nbsp;|&nbsp; <strong>Direction:</strong> [Supports / Weakens]<br /><strong>Argument or Evidence X:</strong> [link to X's page once it exists] &mdash; [X full statement]<br /><strong>Claim Y:</strong> [link to Y's page once it exists] &mdash; [Y full statement]<br /><strong>Contribution to Y:</strong> [X argument score] &times; [linkage score] = [computed from <a href="/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">sub-argument scores</a>]<br /><strong>Scope note:</strong> [Optional. Use only when the linkage is easily confused with a different one between similar X and Y.]</p>
-<p style="font-size: 12px; color: #777;">A dedicated page like this exists because the connection is contested or load-bearing; routine linkages live as rows on the belief page. Every bracketed number is a placeholder until <a href="/w/page/159300543/ReasonRank">ReasonRank</a> computes live scores, and every table ranks by its score column.</p>
+<p style="display: none;">AUTHORING RULES (hidden; readers never see this). This page scores one linkage: whether X supports (or weakens) Y, never whether X or Y is true on its own. The page title IS the linkage question, written in full words; never use arrow notation anywhere on the page. The linkage question is asked at full strength: if X were true, would it necessarily [support / weaken] Y? The Linkage Score is the answer as a degree: 1.0 means yes, Y must move if X is true; 0 means no, X's truth leaves Y untouched; in between means yes, but only if the assumptions named on this page hold. BRIDGE-FRAMING RULE: every reason cell is a complete proposition about whether X supports Y, its direction evident from the cell alone; a cell arguing that X or Y is true or false is misfiled and belongs on X's or Y's own page. Build a dedicated linkage page only when the connection is contested or load-bearing; routine linkages stay as rows on the belief page, and each Linkage cell on a belief page links to its linkage page like this one. All scores stay [bracketed] until the ReasonRank engine computes them; never fill a score cell for an empty row. Every table row ranks by its score, never by editorial placement; the software shows each table's top five rows and collapses the rest. The bold lead-in on each reason row is that row's pattern name (a stored field, not decoration); the four patterns per side are starter scaffolding, not fixed content or fixed order. The provisional estimate in the Five-Step Check is an author's bracket that the computed score supersedes; linkage scores are never hand-assigned as final (audit lock). Drift is signed: the rephrasing's linkage minus the canonical linkage. Worked failure-mode examples with real names and real politics live on the canonical Linkage Scores page, never in this template; keep the pattern rows here generic. Underscored [Bracketed_Tokens] are machine-replaceable slots; spell all words out, no abbreviations and no symbols in place of words.</p>
+<h1>If [X: short-form argument or evidence statement] were true, would it necessarily [support / weaken] [Y: short-form claim statement]?</h1>
+<div style="background-color: #f7f9fb; border: 1px solid #b0b8c1; border-left: 4px solid #2c5282; padding: 10px 14px; margin-bottom: 16px; font-size: 13px;">That is the only question on this page. The <strong>Linkage Score</strong> is the answer, as a degree: <strong>1.0</strong> means yes, Y must move if X is true. <strong>0</strong> means no, X can be completely true and Y doesn't budge. Anything in between means yes, but only if the assumptions named below hold. This page never debates whether X or Y is true; each has its own page for that.</div>
+<p><strong>Linkage Score:</strong> <span style="padding: 2px 10px; background: #e8eef5; border: 1px solid #b0b8c1; font-size: 90%; font-weight: 600;">[0.00&ndash;1.00]</span> &nbsp;|&nbsp; <strong>Type:</strong> <a href="/w/page/159338766/Linkage%20Scores">[Evidence-to-Conclusion (ECLS) / Argument-to-Conclusion (ACLS)]</a> &nbsp;|&nbsp; <strong>Direction:</strong> [Supports / Weakens]<br /><strong>Argument or Evidence X:</strong> [link to X's page once it exists] &mdash; [X full statement]<br /><strong>Claim Y:</strong> [link to Y's page once it exists] &mdash; [Y full statement]<br /><strong>Contribution to Y:</strong> [X argument score] &times; [linkage score] = [computed from <a href="/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">sub-argument scores</a>]<br /><strong>Scope note:</strong> [Optional. Use only when this linkage is easily confused with a different one between similar X and Y.]</p>
+<p style="font-size: 12px; color: #777;">A dedicated page like this exists because the connection is contested or load-bearing; routine linkages live as rows on the belief page, and every Linkage cell there links to its linkage page. Every bracketed number is a placeholder until <a href="/w/page/159300543/ReasonRank">ReasonRank</a> computes live scores; every table ranks by its score column, and the software shows each table's top five rows and collapses the rest.</p>
 <p>&nbsp;</p>
 <h1>🔗 Linkage Arguments</h1>
-<p>Each argument below tests the bridge between X and Y, not the truth of X or Y. Reasons to agree explain why the connection is direct, necessary, or unavoidable. Reasons to disagree explain why the connection breaks: missing steps, mismatched scope, alternative explanations, or the True But Irrelevant pattern. The four rows per side are starter patterns; rows enter and rank by their own scores.</p>
+<p>Every reason below is about whether X supports Y, not about whether X or Y is true. A claim that X is false belongs on X's page; a claim that Y is false belongs on Y's page. Each cell must read as a complete statement that makes sense on its own. The four rows per side are starter patterns; rows enter and rank by their own scores.</p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="0">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: left; width: 42%;">✅ Reasons the linkage is strong</th> <th style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center; width: 8%;">Score</th> <th style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: left; width: 42%;">❌ Reasons the linkage is weak</th> <th style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center; width: 8%;">Score</th>
+<th style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: left; width: 42%;">✅ Reasons to agree that X [supports / weakens] Y</th> <th style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center; width: 8%;">Score</th> <th style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: left; width: 42%;">❌ Reasons to disagree that X [supports / weakens] Y</th> <th style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center; width: 8%;">Score</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Mechanism: X causes Y through a named pathway</strong><br /> [1-3 sentences naming the causal or logical mechanism. The bridge from X to Y is direct, with few intermediate steps.]</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Mechanism:</strong> X leads to Y through a named pathway: [state the causal or logical mechanism in 1-3 sentences]. The bridge is direct, with few steps in between.</td>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center;">&nbsp;</td>
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Missing intermediate step</strong><br /> [1-3 sentences identifying what hidden assumption must be true for X to support Y.]</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Missing step:</strong> X only reaches Y if [hidden assumption] is also true. Without that step, X doesn't get there.</td>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center;">&nbsp;</td>
 </tr>
 <tr style="background-color: #fafbfc;">
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Necessity: if X is true, Y must be strengthened</strong><br /> [Explain why no plausible scenario allows X to be true while Y stays unchanged.]</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Necessity:</strong> There is no realistic way for X to be true without Y getting stronger: [explain why every route from X ends at Y].</td>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center;">&nbsp;</td>
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>True But Irrelevant: X is true but does not bear on Y</strong><br /> [Identify why X, even granted as fact, does not move the needle on Y. This is the most common linkage failure mode.]</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>True But Irrelevant:</strong> X can be completely true and Y doesn't budge: [why X has nothing to do with Y]. The most common linkage failure.</td>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center;">&nbsp;</td>
 </tr>
 <tr>
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Scope fit: X's domain matches Y's domain</strong><br /> [Population, timeframe, and context align between X and Y.]</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Scope fit:</strong> X and Y cover the same people, place, and time, so nothing has to be stretched: [show the match].</td>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center;">&nbsp;</td>
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Scope or scale mismatch</strong><br /> [X is from a different population, scale, or time period than Y. Extrapolation fails.]</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Scope mismatch:</strong> X is about a different population, scale, or time than Y. Stretching it across that gap requires an assumption nobody has stated.</td>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center;">&nbsp;</td>
 </tr>
 <tr style="background-color: #fafbfc;">
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Monotonicity: more X means more Y, consistently</strong><br /> [The relationship doesn't reverse direction at any plausible value of X.]</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Monotonicity:</strong> More X consistently means more Y: [the relationship holds across the whole range and never flips].</td>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center;">&nbsp;</td>
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Parent-mechanism mismatch</strong><br /> [X belongs under a different parent claim than Y. The fluent reading is misleading. See Failure Mode Worked Examples below.]</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>Wrong parent:</strong> X really supports a different claim than Y: [name the claim it actually supports]. It sounds like it fits here, but it doesn't. See Failure Mode Worked Examples below.</td>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; text-align: center;">&nbsp;</td>
 </tr>
 </tbody>
 </table>
-<p><em>Linkage arguments are scored by the same recursive engine as belief arguments. Each row above has its own argument score; the linkage score for this page is the net aggregate. See <a href="/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">Argument Scores from Sub-Argument Scores</a>.</em></p>
+<p><em>Linkage arguments are scored by the same recursive engine as belief arguments. Each row above has its own argument score; the Linkage Score for this page is the net aggregate of the two sides, (Agree total minus Disagree total) divided by (Agree total plus Disagree total), computed by the engine. The engine docs are canonical for the math. See <a href="/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">Argument Scores from Sub-Argument Scores</a>.</em></p>
 <p>&nbsp;</p>
 <h1>📝 Equivalent Rephrasings</h1>
 <p>If the same linkage holds across multiple phrasings of X and Y, it is logically robust. If it only holds under one phrasing, the linkage is rhetorical, not logical. Equivalency scores come from the <a href="/w/page/21956921/Beliefs">Belief Equivalency Engine</a>; if a rephrasing produces a substantially different linkage score, the linkage is fragile and that fragility itself is informative.</p>
@@ -201,7 +211,7 @@
 </tr>
 </tbody>
 </table>
-<p style="font-size: 90%; color: #555;"><strong>Drift</strong> is the difference between the linkage score under the rephrased version and the canonical version. High drift means the linkage depends on specific wording. Low drift means the linkage survives translation, which is what we want.</p>
+<p style="font-size: 90%; color: #555;"><strong>Drift</strong> is signed and computed by the engine: the linkage score under the rephrased version minus the canonical linkage score. Negative drift means the linkage weakens under that phrasing; positive drift means it strengthens, which is common when a scope-narrowed claim links more tightly than the broad original. High drift in either direction means the linkage depends on specific wording. Low drift means the linkage survives translation, which is what we want.</p>
 <p>&nbsp;</p>
 <h1>✅ Five-Step Linkage Check</h1>
 <p>Every placement of evidence under a claim, or argument under a parent argument, should pass through these five steps. This forces transparency: a linkage score is only as defensible as the check that produced it. The user-facing forcing function is the prompt "linkage check before placing," which interrupts fluent restructuring and demands an explicit walk-through.</p>
@@ -224,8 +234,8 @@
 </tr>
 <tr>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>3</strong></td>
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;">Mechanism by which X supports Y, in one sentence</td>
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;">[If you cannot write this sentence cleanly, the linkage is probably weak.]</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;">How X supports Y, in one sentence</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;">[If you cannot write this sentence cleanly, X probably doesn't support Y.]</td>
 </tr>
 <tr style="background-color: #fafbfc;">
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>4</strong></td>
@@ -235,13 +245,13 @@
 <tr>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>5</strong></td>
 <td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;">Flag if the estimate is below 0.7 (working heuristic)</td>
-<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;">[If flagged, the action is to find better evidence rather than reach with what is at hand.]</td>
+<td style="border: 1px solid #b0b8c1; padding: 8px 10px; vertical-align: top;"><strong>[Flagged / Not flagged]</strong>. [If flagged, the action is to find better evidence rather than reach with what is at hand.]</td>
 </tr>
 </tbody>
 </table>
 <p>&nbsp;</p>
 <h1>🔍 Failure Mode Worked Examples</h1>
-<p>Linkage failures fall into recognizable patterns. Naming them creates muscle memory: once you have seen a parent-mechanism mismatch dissected, you start spotting them everywhere. The rows below define the pattern shapes; fill them with examples from this linkage's own domain. Fully worked examples with real names live on the canonical <a href="/w/page/159338766/Linkage%20Scores">Linkage Scores</a> page, not in this template, so that one contested illustration never ships inside every page built from it.</p>
+<p>Linkage failures fall into recognizable patterns. Naming them creates muscle memory: once you have seen a wrong-parent case dissected, you start spotting them everywhere. The rows below define the pattern shapes; fill them with examples from this linkage's own domain. Fully worked examples with real names live on the canonical <a href="/w/page/159338766/Linkage%20Scores">Linkage Scores</a> page, not in this template, so that one contested illustration never ships inside every page built from it.</p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="0">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -250,7 +260,7 @@
 </thead>
 <tbody>
 <tr>
-<td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;"><strong>Parent-mechanism mismatch</strong></td>
+<td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;"><strong>Wrong parent</strong></td>
 <td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;">[Real, well-documented X showing actor A violating constraint type 1]</td>
 <td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;">[Y claiming actor A violates constraint type 2]</td>
 <td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;">[X and Y run through different mechanisms and belong under different parents. The fluent reading is misleading; the correct parent for X is the type-1 claim.]</td>
@@ -268,9 +278,9 @@
 <td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;">[Extrapolation requires an unstated similarity assumption.]</td>
 </tr>
 <tr style="background-color: #fafbfc;">
-<td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;"><strong>Missing intermediate step</strong></td>
+<td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;"><strong>Missing step</strong></td>
 <td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;">[X]</td>
-<td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;">[Y, where the chain X &rarr; A &rarr; B &rarr; Y has uncertain middle links]</td>
+<td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;">[Y, where the chain from X to Y has uncertain middle links]</td>
 <td style="border: 1px solid #b0b8c1; padding: 6px 8px; vertical-align: top;">[Each missing step compounds uncertainty. Name the steps.]</td>
 </tr>
 <tr>
@@ -282,8 +292,8 @@
 </tbody>
 </table>
 <p>&nbsp;</p>
-<h1>🧭 Beliefs This Linkage Participates In</h1>
-<p>A linkage is a single edge, but the graph it lives in matters. The tables below show other places X is used to support claims, and other arguments used to support Y. Both tables rank by <a href="/w/page/159300543/ReasonRank">argument score</a>, descending, which counts evidence quality and logical validity. Vote ratio is a secondary view, never the default and never an input to any score.</p>
+<h1>🧭 Where Else X and Y Are Used</h1>
+<p>A linkage is a single connection, but the graph it lives in matters. The tables below show other places X is used to support claims, and other arguments used to support Y. Both tables rank by <a href="/w/page/159300543/ReasonRank">argument score</a>, descending, which counts evidence quality and logical validity. Every row is itself a linkage with its own page like this one; in the software each row links to that page, so the graph is navigable in both directions. Vote ratio is a secondary view, never the default and never an input to any score.</p>
 <h3>Other claims X is placed under</h3>
 <p><em>Same X, different Y. Useful for spotting whether X is being applied consistently or stretched into places it does not belong.</em></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="0">
@@ -294,7 +304,7 @@
 </thead>
 <tbody>
 <tr>
-<td style="border: 1px solid #b0b8c1; padding: 6px 8px;">[Other Y]</td>
+<td style="border: 1px solid #b0b8c1; padding: 6px 8px;">[Other Y, linked to that linkage's page]</td>
 <td style="border: 1px solid #b0b8c1; padding: 6px 8px;">&nbsp;</td>
 <td style="border: 1px solid #b0b8c1; padding: 6px 8px;">&nbsp;</td>
 </tr>
@@ -320,7 +330,7 @@
 </thead>
 <tbody>
 <tr>
-<td style="border: 1px solid #b0b8c1; padding: 6px 8px;">[Other X]</td>
+<td style="border: 1px solid #b0b8c1; padding: 6px 8px;">[Other X, linked to that linkage's page]</td>
 <td style="border: 1px solid #b0b8c1; padding: 6px 8px;">&nbsp;</td>
 <td style="border: 1px solid #b0b8c1; padding: 6px 8px;">&nbsp;</td>
 </tr>
@@ -338,7 +348,7 @@
 </table>
 <p>&nbsp;</p>
 <h1>📜 Hidden Assumptions Required</h1>
-<p>If the linkage from X to Y is below 1.0, something must be true in addition to X for Y to follow. Naming those assumptions is half the work of evaluating any linkage. Each assumption is itself a claim, scored by its own sub-debate. See the <a href="/Assumptions">Assumptions page</a>.</p>
+<p>If the Linkage Score is below 1.0, something must be true in addition to X for Y to follow. Naming those assumptions is half the work of evaluating any linkage: they are the exact distance between this linkage and "necessarily." Each assumption is itself a claim, scored by its own sub-debate. See the <a href="/Assumptions">Assumptions page</a>.</p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="0">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -362,7 +372,7 @@
 </table>
 <p>&nbsp;</p>
 <h1>🧠 Bias Risks Specific to This Linkage</h1>
-<p>Motivated reasoning expresses itself most clearly through linkage placement, not through claims themselves. People rarely invent evidence; they place real evidence under conclusions it does not support. Parent-mechanism mismatch is exactly this pattern. Each bias risk is a claim about this linkage's editors and evidence, scored like any other. See the <a href="/w/page/21956934/bias">Bias page</a>.</p>
+<p>Motivated reasoning expresses itself most clearly through linkage placement, not through claims themselves. People rarely invent evidence; they place real evidence under conclusions it does not support. The wrong-parent failure mode is exactly this pattern. Each bias risk is a claim about this linkage's editors and evidence, scored like any other. See the <a href="/w/page/21956934/bias">Bias page</a>.</p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="0">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -386,10 +396,12 @@
 </table>
 <p>&nbsp;</p>
 <h1>📖 Definitions and Scoring Concepts</h1>
-<p><strong>Linkage Score:</strong> How directly X strengthens or weakens Y. Computed as Relevance &times; Network Strength &times; Contextual Fit &times; Uniqueness. See <a href="/w/page/159338766/Linkage%20Scores">Linkage Scores</a>.</p>
+<p><strong>The linkage question:</strong> If X were true, would it necessarily support (or weaken) Y? Asked at full strength; answered by degree.</p>
+<p><strong>Linkage Score:</strong> The degree to which the answer to the linkage question is yes. Computed as Relevance &times; Network Strength &times; Contextual Fit &times; Uniqueness. The engine docs are canonical for the math. See <a href="/w/page/159338766/Linkage%20Scores">Linkage Scores</a>.</p>
 <p><strong>Evidence-to-Conclusion (ECLS) vs. Argument-to-Conclusion (ACLS):</strong> Evidence-to-Conclusion Linkage connects a study or data point to a conclusion. Argument-to-Conclusion Linkage connects a logical claim to a conclusion. The five-step check applies to both.</p>
 <p><strong>Contribution to parent:</strong> An argument's effect on its parent claim equals Argument Score &times; Linkage Score. A perfect argument with a 0.3 linkage contributes less than a moderate argument with a 0.9 linkage. See <a href="/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">Argument scores from sub-argument scores</a>.</p>
 <p><strong>Equivalency Score:</strong> How similar two phrasings of the same statement are. Used in the rephrasings table to test linkage robustness. See the <a href="/w/page/21956921/Beliefs">Belief Equivalency Engine</a>.</p>
+<p><strong>Drift:</strong> The rephrasing's linkage score minus the canonical linkage score, computed by the engine. Signed: negative weakens, positive strengthens.</p>
 <p><strong>Audit lock:</strong> Linkage scores are computed from sub-arguments, never assigned by hand. The provisional estimate in the Five-Step Check is a placement-time bracket, not a score. If the score on this page changes, the change traces to a specific edit in the linkage argument tree above.</p>
 <p>&nbsp;</p>
 <h1>🔬 Contribute</h1>

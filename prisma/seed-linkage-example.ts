@@ -44,36 +44,36 @@ async function main() {
         create: [
           {
             side: 'agree',
-            pattern: 'Mechanism: X causes Y through a named pathway',
+            pattern: 'Mechanism',
             statement:
-              'Cash floors directly remove the failure mode Y predicts UBI fixes: income falling below subsistence between jobs.',
+              'X leads to Y through a named pathway: cash floors directly remove the failure mode Y predicts UBI fixes, income falling below subsistence between jobs.',
             strength: 0.8,
             score: 62,
             sortOrder: 0,
           },
           {
             side: 'agree',
-            pattern: 'Scope fit: X’s domain matches Y’s domain',
+            pattern: 'Scope fit',
             statement:
-              'The pilot populations span employed, unemployed, and gig workers — the same populations the policy targets.',
+              'X and Y cover the same people: the pilot populations span employed, unemployed, and gig workers, the same populations the policy targets.',
             strength: 0.6,
             score: 41,
             sortOrder: 1,
           },
           {
             side: 'disagree',
-            pattern: 'Scope or scale mismatch',
+            pattern: 'Scope mismatch',
             statement:
-              'Pilots are temporary and non-universal; labor-supply responses to a permanent universal payment can differ in kind, not just degree.',
+              'X is about temporary, non-universal payments; labor-supply responses to a permanent universal payment can differ in kind, not just degree.',
             strength: 0.7,
             score: 55,
             sortOrder: 0,
           },
           {
             side: 'disagree',
-            pattern: 'Missing intermediate step',
+            pattern: 'Missing step',
             statement:
-              'Scaling from pilot to national program assumes financing effects (taxes or inflation) leave the measured benefits intact.',
+              'X only reaches Y if financing effects (taxes or inflation) leave the measured benefits intact. Without that step, pilot results do not get there.',
             strength: 0.5,
             score: 38,
             sortOrder: 1,
