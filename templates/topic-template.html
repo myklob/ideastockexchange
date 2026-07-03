@@ -1,114 +1,57 @@
+<!-- page=Template -->
+<!-- content-type=text/html -->
+<!--
+  ===== ISE TOPIC PAGE MASTER TEMPLATE (July 2026 revision) =====
+  The wiki template for topic pages ("One Page Per Topic"). Mirrored by the
+  React implementation in src/app/debate-topics/[slug]/page.tsx and the section
+  components in src/components/debate-topic/*. If you change this template,
+  update the React implementation. The two must stay in sync.
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-	<head>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  
-  <link rel="stylesheet" type="text/css" href="http://vs1.pbworks.com/shared/statics/packed-m-prod-v07998121.css" />
+  CORE IDEA — the three-part address:
+  Every belief about the topic gets one fixed address: a Direction (-100% to
+  +100%), a Magnitude band (Modest / Moderate / Strong / Total), and a node on
+  the general-to-specific tree (which branch, which rung). Two beliefs at the
+  same address are duplicates and merge; nearly the same address gets the
+  redundancy discount. The Engagement Landscape and the Assumption Stack are
+  deliberately NOT matching coordinates — they describe people and
+  dependencies, not the belief's address.
 
-  
-		<!--[if lte IE 6]><link rel="stylesheet" type="text/css" href="http://vs1.pbworks.com/shared/statics/ie6-m-prod-v85351277.css" /><![endif]-->
-      
-      
-  
-  <link rel="canonical" href="http://myclob.pbworks.com/w/page/162490623/Beliefs_on_topic_organized_by_Spectrum_Positions" />
-            <link rel="alternate" title="The Idea Stock Exchange Recent Changes" href="/rss.xml" type="application/rss+xml" />
-      	<title>The Idea Stock Exchange / Beliefs_on_topic_organized_by_Spectrum_Positions</title>
-</head>
-<body class=" has-ws-nav wikipage chrome chrome146">
-<!-- network bar -->
-<div id="network-bar" class="network-bar clearfix standalone">
-  <ul id="network-bar-breadcrumbs">
-        <li class="last" id="network-crumb-wiki"><a href="/" id="network-crumb-wiki-link">The Idea Stock Exchange</a></li>
-  </ul>
-
-      <!-- user bar -->
-    <div id="user-bar" class="user-bar "><div class="user-bar-left"><div class="user-bar-right"><p><a href="http://myclob.pbworks.com/w/session/login">log in</a><a id="network-bar-help" class="network-bar-help" href="mailto:support@pbworks.com">help</a></p></div></div></div>
-  
-  
-      <div id="network-bar-signup" class="network-bar-section">
-      <span class="iconbutton upgrade">
-        <a class="network-bar-signup-link" href="https://plans.pbworks.com/signup/basic20?utm_campaign=mcgetyourown&utm_source=personal" class="iconbutton upgrade">Get a free wiki</a>
-        &nbsp;|&nbsp;
-        <a class="network-bar-signup-link" href="http://pbworks.com/signup?utm_campaign=freebiz&utm_source=personal" class="iconbutton upgrade">Try our free business product</a>
-      </span>
-    </div>
-  
-</div>
-
-      <div id="workspace-header">
-      <a href="/" id="workspace-header-logo"><img border="0"  src="/f/1356991507/myclob_logo.png" /></a>
-    </div>
-    <div id="ws-nav" class="chrome-content">
-          <ul class="nav-tabs active-tab-wiki first-tab-active">
-        <li id="ws-nav-wiki" class="active"><a href="http://myclob.pbworks.com/w/page/21957696/Colorado%20Should">Wiki</a></li><li id="ws-nav-browse" class="last"><a href="http://myclob.pbworks.com/w/browse/">Pages &amp; Files</a></li>      </ul>
-    
-    <div id="ws-nav-search">
-      <input type="search" autosave="com.pbworks..search" results="5" placeholder="Search this workspace" class="inputtext text" name="SearchFor" id="input-search"  tabindex="1" title="Search" autocomplete="off"/>
-    </div>
-  </div>
-<div id="wrapper">
-<table id="container" cellspacing="0">
-<tr>
-  <td id="main-content">
-        
-    <div id="page">
-      <div id="page-toolbar">
-        <div id="page-toolbar-inner">
-          <div id="view-tab" class="active">View</div>
-                      <div id="edit-tab" class="logintoedit"><a href="javascript:void(0);">Edit</a></div>
-          					<div id="expand-collapse-page"><a id="expand-collapse-page-link" href="javascript:void(0);"></a></div>
-        </div>
-      </div>
-            <div id="edit-button-bubble" style="display:none" class="bubble">
-        <div id="edit-button-arrow"></div>
-        <a class="close" href="#"></a>
-        <table cellspacing="0"><tr class="header"><td class="left"></td><td class="right"></td></tr><tr class="content"><td class="left"></td><td class="right">
-              <div class="inner-content">
-                              <div class="top">
-                                  To edit this page,<br/>
-                  <a href="/request_access.php">request access</a> to the workspace.                </div>
-                <p>Already have an account? <a href="http://myclob.pbworks.com/w/session/login?edit=1">Log in</a>!</p>
-                                            </div>
-            </td></tr></table>
-      </div>
-      
-      <table cellspacing="0" id="inner-page">
-        <tr>
-          <td id="page-col-1" width="4">&nbsp;</td>
-          <td id="page-col-2">
-                          <div id="wikicontent">
-  <h1 class="pagetitle box">
-      Beliefs_on_topic_organized_by_Spectrum_Positions
-  </h1>
-    <div class="page-history">
-      <a href="http://myclob.pbworks.com/w/page-revisions/162490623/Beliefs_on_topic_organized_by_Spectrum_Positions" class="iconbutton historyicon">
-      Page history
-    </a>
-        last edited
-    by <span id="page-editor"><a href="javascript:alert('Please join this workspace to see more details about this user.');" class="iconbutton usericon usercard_trigger">Mike</a></span> <span id="page-history-ago">1 week, 4 days ago</span>
-    <div id="new-revision-available"></div>
-  </div>
-  
-  <div id="lockinfo">
-    </div>
-
-    <div id="wikipage" class="box wikistyle">
-
-    <div style="" id="wikipage-inner">
+  SECTION ORDER:
+    Header (breadcrumb / Topic name / Definition + Scope / Topic Metrics box)
+    "What this page does" box (the three-part address, with anchors)
+    1. Continuum 1: Direction (Oppose <-> Support) — Position / Core Belief /
+       Top Underlying Argument / Belief Score
+    2. Continuum 2: Claim Magnitude (Modest <-> Total) — band / pro belief /
+       anti belief / scope & telltale words + key insight (engage the best
+       version, not the loudest)
+    3. Continuum 3: General to Specific, with Branching Subcategories —
+       worldview row branches into subcategories, each holding specific rows;
+       a subcategory that outgrows its row graduates to a child page
+    4. Assumption Stack Behind Each Position (not a fourth axis; Core split)
+    5. Core Values Conflict (advertised vs. attributed, both sides)
+    6. The Engagement Landscape (Passive <-> Active) — a stakeholder map, not
+       a matching axis
+    7. Common Ground and Compromise (Shared Interests / Real Value Conflicts /
+       Compromise Candidates)
+    8. The Evidence Ledger (cross-topic highlight reel, quality-ranked)
+    9. Best Objective Criteria (Criteria Score / Validity / Reliability /
+       Linkage / Importance)
+    10. Best Media and Resources (sorted by positivity)
+    11. Related Topics (Parents / Children / Siblings / Opposing)
+    12. Contribute
+-->
 <h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold; text-align: right;"><a style="font-size: 13px;" href="/w/page/21957696/Colorado%20Should">Home</a><span style="font-size: 13px;"> &rsaquo; </span><a style="font-size: 13px;" href="/w/page/159323433/One%20Page%20Per%20Topic">Topics</a><span style="font-size: 13px;"> &rsaquo; </span><strong style="font-family: inherit; font-style: inherit;">[Category] &gt; [Topic Name]</strong></h2>
 <div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
+<p style="display: none;">AUTHORING RULES (hidden; readers never see this). Place every belief about this topic at one address: a Direction (-100% to +100%), a Magnitude band, and a node on the general-to-specific tree (which branch, which rung). Two beliefs at the same address are duplicates: merge them. Nearly the same address gets the redundancy discount. Every argument cell must be a complete proposition whose pro/con direction is evident from the cell alone, with no insider knowledge needed (standalone-claim rule); name cells by their opening words. All scores stay [bracketed] until the ReasonRank engine computes them; never fill a score cell for an empty row. The three continuums describe the belief, never the believer: how far a person will fight (engagement) is a separate section and never a matching coordinate. Keep on-page prose to one caption line per section and link the canonical page for the full logic; do not restate a definition that already has a home.</p>
 <h1>Topic: [Topic Name]</h1>
-<p style="font-size: 13px;"><strong>Definition:</strong> [Neutral, objective definition of the topic].<br /><strong>Scope:</strong> [What is included in this topic vs. what belongs in related topics].</p>
+<p style="font-size: 13px;"><strong>Definition:</strong> [Neutral, objective definition of the topic].<br /><strong>Scope:</strong> [What is included here vs. what belongs in related topics].</p>
 <div style="border: 1px solid #ccc; padding: 10px; background-color: #f9f9f9;">
 <p style="text-align: center; margin: 0;"><strong>Topic Metrics</strong><br /><a href="/w/page/162731388/Importance%20Score">Importance</a>: <strong>[0-100]</strong> | <a href="/w/page/159353568/Evidence%20Scores">Evidence Depth</a>: <strong>[Low/Med/High]</strong> | <a href="/w/page/159300543/ReasonRank">Controversy</a>: <strong>[0-100]</strong></p>
+<p style="text-align: center; margin: 6px 0 0 0; font-size: 11px; color: #777;">Every bracketed number on this page is a placeholder until the <a href="/w/page/159300543/ReasonRank">ReasonRank</a> engine computes live scores.</p>
 </div>
-<hr />
-
-<div style="background-color: #f4f9ff; padding: 12px; border-left: 4px solid #0055a4; margin: 15px 0; font-size: 13px;"><strong>How this page deduplicates a debate.</strong> Every belief about this topic gets a coordinate on three independent continuums: <strong>valence</strong> (which direction it runs), <strong>magnitude</strong> (how absolute the claim is), and <strong>specificity</strong> (how general or concrete it is). Two beliefs that land on the same coordinate are the <em>same claim</em> in different words and get merged. Two that land nearly on top of each other get the <a href="/w/page/159300543/ReasonRank">redundancy discount</a>: the second one contributes only its non-overlapping fraction, because saying a thing five ways is not five reasons. That is the whole point of one page per topic. The argument gets built once, here, instead of restarting from scratch on every forum.</div>
-
-<h2 id="valence" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128202; Continuum 1: Valence (<a href="/positive%20to%20negative">Negative &harr; Positive</a>)</h2>
-<p style="font-size: 13px;">Direction only, from total opposition (-100%) to total support (+100%). How extreme the phrasing is and how concrete the claim is are separate dimensions, handled in Continuums 2 and 3. The <strong>Belief Score</strong> in the last column is calculated from the linked pro and con sub-arguments. It is not the same thing as the valence. A claim can sit at +100% (maximally supportive) and still score badly if its arguments are weak.</p>
+<div style="border-left: 5px solid #0055a4; padding: 10px 14px; background-color: #f4f9ff; margin: 15px 0; font-size: 13px;"><strong>What this page does.</strong> It gives every belief about this topic one fixed address, so the thousand ways of saying the same thing collapse into a single entry and the real reasons to agree or disagree can be counted and weighed by evidence instead of by how often they get repeated. The address has three parts, one per table below: <a href="#direction">Direction</a> (which way it runs), <a href="#magnitude">Magnitude</a> (how absolute), and <a href="#specificity">Specificity</a> (where it sits on the general-to-specific tree). Same address means the same claim, so it merges; nearly the same address gets the <a href="/w/page/159300543/ReasonRank">redundancy discount</a>. Full logic lives on <a href="/w/page/159323433/One%20Page%20Per%20Topic">One Page Per Topic</a>.</div>
+<h2 id="direction" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">📊 Continuum 1: Direction (<a href="/positive%20to%20negative">Oppose &harr; Support</a>)</h2>
+<p style="font-size: 13px;">Which way the belief runs, from total opposition (-100%) to total support (+100%). The <strong>Belief Score</strong> column is a separate thing: how well the belief holds up once its arguments are scored, not which way it points. A claim can sit at +100% and still score badly. <span style="color: #666;">See: <a href="/w/page/162417909/beliefs%20grouped">Full Positivity Framework</a> | <a href="/positive%20to%20negative">Why We Need This Continuum</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -148,11 +91,8 @@
 </tr>
 </tbody>
 </table>
-<p style="text-align: right; font-style: italic;">See: <a href="/w/page/162417909/beliefs%20grouped">Full Positivity Framework</a> | <a href="/positive%20to%20negative">Why We Need This Continuum</a></p>
-<hr />
-
-<h2 id="magnitude" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128170; Continuum 2: Claim Magnitude (<a href="/strong%20to%20weak">Weak &harr; Strong</a>)</h2>
-<p style="font-size: 13px;">How absolute a belief is, independent of its truth and independent of which direction it runs. Magnitude is not a new list of beliefs. It is a property carried by each belief already sitting in <a href="#valence">Continuum 1</a>. This table defines the strength scale and shows what a belief <em>sounds like</em> at each level, so any belief on the page can be placed and so two beliefs at the same strength can be matched. A weak pro belief and a weak anti belief are both modest, they just point in opposite directions. This axis measures the extremity of the <em>claim</em>, not the extremity of anyone's commitment to acting on it. Those are two different questions: how absolute is the belief (here) versus how hard will a person fight for it (the <a href="#engagement">Engagement Landscape</a>, further down, which is a fact about the person and is kept off the matching coordinates). The <strong>Belief Score</strong> separately tells you how well-supported any given belief actually is.</p>
+<h2 id="magnitude" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">💪 Continuum 2: Claim Magnitude, How Absolute the Claim Is (<a href="/strong%20to%20weak">Modest &harr; Total</a>)</h2>
+<p style="font-size: 13px;">How absolute the claim is, from a hedged "sometimes" to a flat "always," independent of which way it runs and of whether it is true. Two beliefs match on this axis when they are equally bold. <span style="color: #666;">See: <a href="/strong%20to%20weak">Why We Need This Continuum</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -161,87 +101,88 @@
 </thead>
 <tbody>
 <tr>
-<td align="center"><strong>Weak (20%)</strong><br />Modest</td>
-<td>[A belief that the topic is somewhat good, that openly admits real flaws and exceptions]</td>
-<td>[A belief that the topic is somewhat bad, that concedes it works acceptably much of the time]</td>
-<td>Narrow. Hedged with <em>"some," "tends to," "in certain cases."</em></td>
+<td align="center"><strong>Modest (20%)</strong><br />Hedged</td>
+<td>[Somewhat good, openly admits real flaws and exceptions]</td>
+<td>[Somewhat bad, concedes it works acceptably much of the time]</td>
+<td>Narrow. <em>"Some," "tends to," "in certain cases."</em></td>
 </tr>
 <tr>
 <td align="center"><strong>Moderate (50%)</strong><br />Standard</td>
-<td>[A belief that the topic is clearly better than the alternatives in most cases]</td>
-<td>[A belief that the topic is clearly worse than the alternatives in most cases]</td>
-<td>Definite but bounded. <em>"Clearly," "generally," "in most cases."</em> Where most serious arguments live.</td>
+<td>[Clearly better than the alternatives in most cases]</td>
+<td>[Clearly worse than the alternatives in most cases]</td>
+<td>Definite but bounded. <em>"Clearly," "generally."</em> Where most serious arguments live.</td>
 </tr>
 <tr>
 <td align="center"><strong>Strong (80%)</strong><br />Broad</td>
-<td>[A belief that the topic is right across the board and the alternatives reliably fail]</td>
-<td>[A belief that the topic is wrong across the board and fails wherever it is tried]</td>
-<td>Near-universal. <em>"Across the board," "fundamentally."</em> Little room for exceptions.</td>
+<td>[Right across the board; the alternatives reliably fail]</td>
+<td>[Wrong across the board; fails wherever it is tried]</td>
+<td>Near-universal. <em>"Across the board," "fundamentally."</em></td>
 </tr>
 <tr>
-<td align="center"><strong>Extreme (100%)</strong><br />Maximal</td>
-<td>[A belief that the topic is always right, everywhere, with no legitimate exception]</td>
-<td>[A belief that the topic is always wrong, has never once worked and never will]</td>
-<td>Total, zero limiting conditions. <em>"Always," "never," "no exception."</em> One counterexample sinks it.</td>
+<td align="center"><strong>Total (100%)</strong><br />Maximal</td>
+<td>[Always right, everywhere, no legitimate exception]</td>
+<td>[Always wrong, has never once worked and never will]</td>
+<td>Total, zero limits. <em>"Always," "never."</em> One counterexample sinks it.</td>
 </tr>
 </tbody>
 </table>
-<p style="font-size: 13px; background-color: #f4f9ff; padding: 10px; border-left: 4px solid #0055a4;"><strong>Key insight:</strong> The strongest arguments on either side typically operate at Moderate (50%) magnitude, not Extreme (100%). Dismissing opposition by attacking only the Extreme (100%) versions is a straw man. The ISE requires engaging with the best version of the opposing argument, not the loudest one.</p>
-<p style="text-align: right; font-style: italic;">See: <a href="/strong%20to%20weak">Why We Need This Continuum</a></p>
-<hr />
-
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#129513; Continuum 3: Specificity, the Abstraction Ladder (<a href="/w/page/21957696/General%20to%20Specific">General &harr; Specific</a>)</h2>
-<p style="font-size: 13px;">How concrete a claim is. The same topic supports claims at very different altitudes, from a sweeping worldview down to a single line-item policy, and these are genuinely different claims that need separate scoring. Two people can agree at the top of the ladder and split at the bottom, or disagree about first principles and still converge on the same specific reform. Mapping the rungs is what lets the engine match "[broad principle]" to "[broad principle]" without falsely merging it with "[narrow policy]" that happens to lean the same direction.</p>
+<p style="font-size: 13px; background-color: #f4f9ff; padding: 10px; border-left: 4px solid #0055a4;"><strong>Key insight:</strong> The strongest arguments on either side usually live at Moderate (50%), not Total (100%). Attacking only the Total versions is a straw man. Engage the best version of the opposing argument, not the loudest.</p>
+<h2 id="specificity" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">🌳 Continuum 3: General to Specific, with Branching Subcategories (<a href="/w/page/21957696/General%20to%20Specific">General &harr; Specific</a>)</h2>
+<p style="font-size: 13px;">The same topic holds claims at every altitude, from a sweeping worldview down to one line-item policy. A general belief <strong>branches</strong> into subcategories, and each subcategory holds the specific beliefs beneath it. A belief only merges with another that shares its branch <em>and</em> its rung, so a worldview never gets double-counted with the policy it implies. A subcategory that outgrows a row graduates to its own child page (see <a href="#related">Related Topics</a>). <span style="color: #666;">See: <a href="/w/page/21957696/General%20to%20Specific">General to Specific Framework</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="15%">Rung</th> <th width="42%">Pro-Topic Chain</th> <th width="43%">Anti-Topic Chain</th>
+<th width="24%">Rung / Branch</th> <th width="38%">Pro-Topic Belief</th> <th width="38%">Anti-Topic Belief</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center"><strong>Most General</strong><br />(Worldview)</td>
-<td>"[Fundamental belief about human nature, society, or reality that supports this topic]"</td>
-<td>"[Fundamental belief about human nature, society, or reality that opposes this topic]"</td>
+<td style="background-color: #eef3f8;"><strong>Most General</strong><br />(Worldview)</td>
+<td>"[Broad belief about human nature or society that supports this topic]"</td>
+<td>"[Broad belief about human nature or society that opposes this topic]"</td>
 </tr>
 <tr>
-<td align="center">&darr;</td>
-<td align="center">&darr;</td>
-<td align="center">&darr;</td>
+<td style="font-size: 12px; color: #666;" colspan="3" align="center">the general belief branches into subcategories &darr;</td>
 </tr>
 <tr>
-<td align="center"><strong>Political / Ethical Philosophy</strong></td>
-<td>"[Political principle that follows from the worldview]"</td>
-<td>"[Political principle that follows from the worldview]"</td>
+<td style="background-color: #f4f9ff;"><strong>&#9500;&#9472; Subcategory A</strong><br />[name of sub-issue]</td>
+<td>"[Mid-level pro claim inside A]"</td>
+<td>"[Mid-level anti claim inside A]"</td>
 </tr>
 <tr>
-<td align="center">&darr;</td>
-<td align="center">&darr;</td>
-<td align="center">&darr;</td>
+<td>&nbsp;&nbsp;&nbsp;&#9492;&#9472; <em>Specific</em></td>
+<td>"[Specific pro policy or action under A]"</td>
+<td>"[Specific anti policy or action under A]"</td>
 </tr>
 <tr>
-<td align="center"><strong>This Topic</strong></td>
-<td>"[Position on this specific topic: +50% to +100%]"</td>
-<td>"[Position on this specific topic: -50% to -100%]"</td>
+<td>&nbsp;&nbsp;&nbsp;&#9492;&#9472; <em>Specific</em></td>
+<td>"[Another specific pro claim under A]"</td>
+<td>"[Another specific anti claim under A]"</td>
 </tr>
 <tr>
-<td align="center">&darr;</td>
-<td align="center">&darr;</td>
-<td align="center">&darr;</td>
+<td style="background-color: #f4f9ff;"><strong>&#9500;&#9472; Subcategory B</strong><br />[name of sub-issue]</td>
+<td>"[Mid-level pro claim inside B]"</td>
+<td>"[Mid-level anti claim inside B]"</td>
 </tr>
 <tr>
-<td align="center"><strong>Most Specific</strong><br />(Policy / Action)</td>
-<td>"[Specific policy or action that follows from supporting this topic]"</td>
-<td>"[Specific policy or action that follows from opposing this topic]"</td>
+<td>&nbsp;&nbsp;&nbsp;&#9492;&#9472; <em>Specific</em></td>
+<td>"[Specific pro claim under B]"</td>
+<td>"[Specific anti claim under B]"</td>
+</tr>
+<tr>
+<td style="background-color: #f4f9ff;"><strong>&#9492;&#9472; Subcategory C</strong><br />[name of sub-issue]</td>
+<td>"[Mid-level pro claim inside C]"</td>
+<td>"[Mid-level anti claim inside C]"</td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp;&nbsp;&#9492;&#9472; <em>Specific</em></td>
+<td>"[Specific pro claim under C]"</td>
+<td>"[Specific anti claim under C]"</td>
 </tr>
 </tbody>
 </table>
-<p style="text-align: right; font-style: italic;">See: <a href="/w/page/21957696/General%20to%20Specific">General to Specific Framework</a></p>
-<hr />
-
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128220; <a href="/Assumptions">Assumption Stack Behind Each Position</a></h2>
-<p style="font-size: 13px;">This is not a fourth continuum. It is the dependency map sitting under the <strong>Continuum 1</strong> positions above. It answers a different question: to land at a given valence, what chain of assumptions do you have to accept, from broadest worldview down to the narrowest topic-specific claim? Surfacing the stack is how a disagreement at the bottom gets traced to its real root higher up, which is usually where the actual fight is.</p>
-<p style="font-size: 13px;"><strong>Core split:</strong> [State the single assumption that most cleanly divides the two sides.]</p>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">📜 <a href="/Assumptions">Assumption Stack Behind Each Position</a></h2>
+<p style="font-size: 13px;">Not a fourth axis. Continuum 3 sorts beliefs by altitude; this takes each stance and lists the assumptions a person must accept to hold it, which is how a fight at the bottom gets traced to its real root higher up. <strong>Core split:</strong> [the single assumption that most cleanly divides the two sides]. <span style="color: #666;">See: <a href="/Assumptions">Assumptions</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -251,29 +192,20 @@
 <tbody>
 <tr>
 <td style="background-color: #ffcccc; text-align: center;"><strong>-100% to -50%</strong><br />(Strongly Oppose)</td>
-<td style="font-size: 13px;"><strong>1. [Worldview]:</strong> [Description]<br /><strong>2. [Political/philosophical]:</strong> [Description]<br /><strong>3. [Causal claim about this domain]:</strong> [Description]<br /><strong>4. [Topic-specific]:</strong> [Description]<br /><strong>5. [Most specific claim]:</strong> [Description]</td>
-</tr>
-<tr>
-<td style="background-color: #ffe6e6; text-align: center;"><strong>-50% to -20%</strong><br />(Skeptical)</td>
-<td style="font-size: 13px;"><strong>1. [Worldview]:</strong> [Description]<br /><strong>2. [Values]:</strong> [Description]<br /><strong>3. [Causal beliefs]:</strong> [Description]<br /><strong>4. [Topic-specific]:</strong> [Description]</td>
+<td style="font-size: 13px;"><strong>1. [Worldview]:</strong> [Description]<br /><strong>2. [Political/philosophical]:</strong> [Description]<br /><strong>3. [Causal claim]:</strong> [Description]<br /><strong>4. [Topic-specific]:</strong> [Description]</td>
 </tr>
 <tr>
 <td style="background-color: #ffffcc; text-align: center;"><strong>-20% to +20%</strong><br />(Nuanced/Mixed)</td>
 <td style="font-size: 13px;"><strong>1. [Acknowledges complexity]:</strong> [Description]<br /><strong>2. [Both sides have valid points]:</strong> [Description]<br /><strong>3. [Context matters]:</strong> [Description]<br /><strong>4. [Implementation determines outcome]:</strong> [Description]</td>
 </tr>
 <tr>
-<td style="background-color: #e6ffe6; text-align: center;"><strong>+20% to +50%</strong><br />(Supportive)</td>
-<td style="font-size: 13px;"><strong>1. [Worldview]:</strong> [Description]<br /><strong>2. [Values]:</strong> [Description]<br /><strong>3. [Causal beliefs]:</strong> [Description]<br /><strong>4. [Topic-specific]:</strong> [Description]</td>
-</tr>
-<tr>
 <td style="background-color: #ccffcc; text-align: center;"><strong>+50% to +100%</strong><br />(Strongly Support)</td>
-<td style="font-size: 13px;"><strong>1. [Worldview]:</strong> [Description]<br /><strong>2. [Political/philosophical]:</strong> [Description]<br /><strong>3. [Causal claim about this domain]:</strong> [Description]<br /><strong>4. [Topic-specific]:</strong> [Description]<br /><strong>5. [Most specific claim]:</strong> [Description]</td>
+<td style="font-size: 13px;"><strong>1. [Worldview]:</strong> [Description]<br /><strong>2. [Political/philosophical]:</strong> [Description]<br /><strong>3. [Causal claim]:</strong> [Description]<br /><strong>4. [Topic-specific]:</strong> [Description]</td>
 </tr>
 </tbody>
 </table>
-<hr />
-
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#9878;&#65039; <a href="/Core%20Values%20Conflict" target="_blank">Core Values Conflict</a></h2>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">⚖️ <a href="/Core%20Values%20Conflict" target="_blank">Core Values Conflict</a></h2>
+<p style="font-size: 13px;">Advertised values each side claims, and the motivation critics attribute. <span style="color: #666;">See: <a href="/w/page/21956745/American%20values">American Values</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -282,62 +214,57 @@
 </thead>
 <tbody>
 <tr>
-<td style="font-size: 13px;" valign="top"><strong>Advertised:</strong><br /> 1. [Value supporters claim to uphold]<br /> 2. [Value supporters claim to uphold]<br /> 3. [Value supporters claim to uphold]<br /><br /><strong>Critics say the actual motivation is:</strong><br /> 1. [Hidden motivation critics attribute]<br /> 2. [Hidden motivation critics attribute]</td>
-<td style="font-size: 13px;" valign="top"><strong>Advertised:</strong><br /> 1. [Value opponents claim to uphold]<br /> 2. [Value opponents claim to uphold]<br /> 3. [Value opponents claim to uphold]<br /><br /><strong>Critics say the actual motivation is:</strong><br /> 1. [Hidden motivation critics attribute]<br /> 2. [Hidden motivation critics attribute]</td>
+<td style="font-size: 13px;" valign="top"><strong>Advertised:</strong><br /> 1. [Value supporters claim to uphold]<br /> 2. [Value supporters claim to uphold]<br /><br /><strong>Critics say the actual motivation is:</strong><br /> 1. [Hidden motivation critics attribute]<br /> 2. [Hidden motivation critics attribute]</td>
+<td style="font-size: 13px;" valign="top"><strong>Advertised:</strong><br /> 1. [Value opponents claim to uphold]<br /> 2. [Value opponents claim to uphold]<br /><br /><strong>Critics say the actual motivation is:</strong><br /> 1. [Hidden motivation critics attribute]<br /> 2. [Hidden motivation critics attribute]</td>
 </tr>
 </tbody>
 </table>
-<hr />
-
-<h2 id="engagement" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#9889; The Engagement Landscape (<a href="/escalation%20spectrum">Passive &harr; Active</a>)</h2>
-<p style="font-size: 13px;"><strong>This is a stakeholder map, not a matching continuum.</strong> It answers the second half of "how extreme is this?": not how absolute the belief is (that is <a href="#magnitude">Claim Magnitude</a>) but how far a person will go to act on it. That is a fact about the person, not about the belief. A casual supporter and someone willing to go to prison hold the <em>same belief</em> about this topic, so engagement deliberately does <em>not</em> feed the belief-matching coordinates above. Two identical beliefs at different engagement levels stay one belief on this page. Keeping this axis separate is what stops the system from confusing a loud claim with a committed person, or commitment with extremism.</p>
+<h2 id="engagement" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">⚡ The Engagement Landscape (<a href="/escalation%20spectrum">Passive &harr; Active</a>)</h2>
+<p style="font-size: 13px;"><strong>A stakeholder map, not a matching axis.</strong> It measures how far a person will go to act on a belief, which is a fact about the person, not the belief, so it never feeds the three-part address above. A casual supporter and someone willing to go to prison hold the same belief. <span style="color: #666;">See: <a href="/escalation%20spectrum">Escalation Spectrum</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="18%">Engagement Level</th><th width="27%">Pro-Topic: What It Looks Like</th><th width="27%">Anti-Topic: What It Looks Like</th><th width="14%">Pro-Topic Example</th><th width="14%">Anti-Topic Example</th>
+<th width="18%">Engagement Level</th><th width="27%">Pro-Topic: What It Looks Like</th><th width="27%">Anti-Topic: What It Looks Like</th><th width="14%">Pro Example</th><th width="14%">Anti Example</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="background-color: #e8f5e9;"><strong>1. Preference</strong><br />Passive lean</td>
-<td>Would support the topic if convenient. Would not prioritize it over other concerns.</td>
-<td>Mildly skeptical. Would prefer alternatives in certain contexts. Would not act on this preference.</td>
-<td>[Pro example: typical casual supporter]</td>
-<td>[Anti example: typical casual skeptic]</td>
+<td>Would support if convenient. Would not prioritize it.</td>
+<td>Mildly skeptical. Prefers alternatives in some contexts. Would not act.</td>
+<td>[Casual supporter]</td>
+<td>[Casual skeptic]</td>
 </tr>
 <tr>
 <td style="background-color: #c8e6c9;"><strong>2. Active Advocacy</strong><br />Engaged participant</td>
-<td>Votes, donates, signs petitions, argues publicly in favor of the topic.</td>
-<td>Votes, donates, lobbies, and argues publicly against the topic or for alternatives.</td>
-<td>[Pro example: standard civic participation in support]</td>
-<td>[Anti example: standard civic participation in opposition]</td>
+<td>Votes, donates, signs petitions, argues publicly in favor.</td>
+<td>Votes, donates, lobbies, argues publicly against or for alternatives.</td>
+<td>[Standard civic support]</td>
+<td>[Standard civic opposition]</td>
 </tr>
 <tr>
 <td style="background-color: #fff9c4;"><strong>3. Principled Non-Compliance</strong><br />Conscientious objector</td>
-<td>Refuses personal participation in what they consider unjust opposition to this topic, even at personal cost. Does not obstruct others.</td>
-<td>Refuses to implement or participate in this topic even when required. Does not obstruct others.</td>
-<td>[Pro example: accepts personal cost rather than act against conscience, Thomas More pattern]</td>
-<td>[Anti example: official who resigns rather than implement a policy they consider unjust]</td>
+<td>Refuses to act against conscience even at personal cost. Does not obstruct others.</td>
+<td>Refuses to implement or participate even when required. Does not obstruct others.</td>
+<td>[Thomas More pattern]</td>
+<td>[Official who resigns rather than implement]</td>
 </tr>
 <tr>
 <td style="background-color: #ffe082;"><strong>4. Civil Disobedience</strong><br />Principled lawbreaking</td>
-<td>Openly breaks specific unjust laws considered obstacles to this topic. Accepts legal consequences and uses prosecution as moral leverage.</td>
-<td>Openly defies specific laws or mandates related to this topic. Accepts legal consequences and uses prosecution as moral leverage.</td>
-<td>[Pro example: MLK / Gandhi equivalent for this topic's pro side]</td>
-<td>[Anti example: conscientious objectors who accepted imprisonment rather than comply]</td>
+<td>Openly breaks laws seen as unjust obstacles. Accepts consequences as moral leverage.</td>
+<td>Openly defies related laws or mandates. Accepts consequences as moral leverage.</td>
+<td>[MLK / Gandhi equivalent]</td>
+<td>[Objectors who accepted imprisonment]</td>
 </tr>
 </tbody>
 </table>
-<p style="font-size: 13px;"><strong>Key insight:</strong> Engagement is fully independent of the three matching continuums. Someone can hold a moderate-magnitude claim (Continuum 2 = 50%) about a cause they feel lukewarm toward (Continuum 1 = +40%) and still be willing to go to prison for it (Engagement Level 4). For engagement beyond Level 4, see: <a href="/escalation%20spectrum">Escalation Spectrum</a>.</p>
-<p style="text-align: right; font-style: italic;"><a href="/w/page/21956745/American%20values">Core Values Framework</a></p>
-<hr />
-
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#129309; <a href="/w/page/162560439/Compromise">Common Ground and Compromise</a></h2>
-<p style="font-size: 13px;">Once both sides' costs and benefits are scored under <a href="/w/page/156187122/cost-benefit%20analysis">Cost-Benefit Analysis</a>, the same scored trees read sideways and three things fall out automatically. This is the conflict readout, not an editor's guess at where people might get along.</p>
+<p style="font-size: 13px;"><strong>Key insight:</strong> Engagement is independent of the three matching axes. Someone can hold a moderate claim (50%) about a cause they feel lukewarm toward (+40%) and still go to prison for it (Level 4).</p>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">🤝 <a href="/w/page/162560439/Compromise">Common Ground and Compromise</a></h2>
+<p style="font-size: 13px;">The scored <a href="/w/page/156187122/cost-benefit%20analysis">cost-benefit</a> trees read sideways. Compromise Candidates are the winnable disagreements, the ones a small likelihood shift can flip, as opposed to the symbolic value conflicts no negotiation resolves. That is the payoff of scoring both sides with equal rigor.</p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="33%">Shared Interests<br /><span style="font-size: 85%; font-weight: normal;">Impacts both sides actually want</span></th> <th width="33%">Real Value Conflicts<br /><span style="font-size: 85%; font-weight: normal;">Where one side prices freedom and the other prices safety</span></th> <th width="34%">Compromise Candidates<br /><span style="font-size: 85%; font-weight: normal;">A small, achievable likelihood shift would flip a category's net</span></th>
+<th width="33%">Shared Interests<br /><span style="font-size: 85%; font-weight: normal;">Impacts both sides want</span></th> <th width="33%">Real Value Conflicts<br /><span style="font-size: 85%; font-weight: normal;">One side prices freedom, the other safety</span></th> <th width="34%">Compromise Candidates<br /><span style="font-size: 85%; font-weight: normal;">A small likelihood shift flips a category's net</span></th>
 </tr>
 </thead>
 <tbody>
@@ -348,11 +275,8 @@
 </tr>
 </tbody>
 </table>
-<p style="font-size: 13px; background-color: #f4f9ff; padding: 10px; border-left: 4px solid #0055a4;"><strong>Why this column matters:</strong> The Compromise Candidates are the winnable disagreements, the ones a small shift in likelihood can actually flip, as opposed to the symbolic value conflicts that no negotiation resolves. Pointing people at the tractable fights instead of the eternal ones is the payoff of scoring both sides with equal rigor.</p>
-<hr />
-
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#9878;&#65039; The Evidence Ledger</h2>
-<p style="font-size: 13px;">Evidence formally attaches to specific beliefs, not to the topic as a whole, and is scored on its own <a href="/w/page/159353568/Evidence%20Scores">page per study</a>. This ledger is the cross-topic highlight reel: the highest-impact evidence appearing anywhere under this topic, so a reader sees the empirical state of play before diving into individual belief pages. Quality scores reflect methodology, sample size, and reproducibility.</p>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">⚖️ The Evidence Ledger</h2>
+<p style="font-size: 13px;">A highlight reel of the highest-impact evidence appearing anywhere under this topic. Evidence formally attaches to specific beliefs and is scored on its own study page; this is the cross-topic view. <span style="color: #666;">See: <a href="/w/page/159353568/Evidence%20Scores">Evidence Scoring Methodology</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -361,32 +285,21 @@
 </thead>
 <tbody>
 <tr>
-<td>[Study/Data Title]<br /><span style="font-size: 85%;">Source: [Institution/Author] (Year)</span><br /><span style="font-size: 85%;">Finding: [Brief summary]</span></td>
+<td>[Study/Data Title]<br /><span style="font-size: 85%;">[Institution/Author] (Year). Finding: [brief]</span></td>
 <td align="center"><strong>[95%]</strong><br /><span style="font-size: 75%;">(Peer Reviewed)</span></td>
-<td>[Study/Data Title]<br /><span style="font-size: 85%;">Source: [Institution/Author] (Year)</span><br /><span style="font-size: 85%;">Finding: [Brief summary]</span></td>
+<td>[Study/Data Title]<br /><span style="font-size: 85%;">[Institution/Author] (Year). Finding: [brief]</span></td>
 <td align="center"><strong>[80%]</strong><br /><span style="font-size: 75%;">(Meta-analysis)</span></td>
 </tr>
 <tr>
-<td>[Historical Precedent/Statistic]<br /><span style="font-size: 85%;">Source: [Institution/Author] (Year)</span><br /><span style="font-size: 85%;">Finding: [Brief summary]</span></td>
+<td>[Historical Precedent/Statistic]<br /><span style="font-size: 85%;">[Institution/Author] (Year). Finding: [brief]</span></td>
 <td align="center"><strong>[XX%]</strong></td>
-<td>[Counter-Statistic]<br /><span style="font-size: 85%;">Source: [Institution/Author] (Year)</span><br /><span style="font-size: 85%;">Finding: [Brief summary]</span></td>
+<td>[Counter-Statistic]<br /><span style="font-size: 85%;">[Institution/Author] (Year). Finding: [brief]</span></td>
 <td align="center"><strong>[XX%]</strong></td>
 </tr>
 </tbody>
 </table>
-<p style="text-align: right; font-style: italic;">See: <a href="/w/page/159353568/Evidence%20Scores">Evidence Scoring Methodology</a></p>
-<hr />
-
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128207; <a href="/w/page/159351732/Objective%20criteria%20scores">Best Objective Criteria</a> for Measuring Beliefs on This Topic</h2>
-<p style="font-size: 13px;">Before arguments about this topic can be scored, users first agree on <em>what good measurement looks like</em>. This section lists proposed criteria sorted by their community-assigned <a href="/w/page/159351732/Objective%20criteria%20scores">Objective Criteria Score</a>. Each criterion is itself a belief with its own page: users submit reasons to agree or disagree that it is a valid, reliable, independent, and relevant measure. The scores below are calculated recursively from those sub-arguments without manual ranking or editorial judgment.</p>
-<div style="background-color: #f4f9ff; padding: 12px; border-left: 4px solid #0055a4; margin-bottom: 15px; font-size: 13px;"><strong>How each criterion is scored across four dimensions:</strong>
-<ul style="margin: 8px 0 0 0;">
-<li><strong><a href="/w/page/21960078/truth">Validity</a>:</strong> Does this measure actually capture what we claim it captures?</li>
-<li><strong>Reliability:</strong> Can different observers measure it consistently without subjective manipulation?</li>
-<li><strong><a href="/w/page/159338766/Linkage%20Scores">Linkage</a>:</strong> How directly does this metric connect to the core claim being evaluated?</li>
-<li><strong><a href="/w/page/162731388/Importance%20Score">Importance</a>:</strong> If valid and linked, how significant is this metric relative to others available?</li>
-</ul>
-</div>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">📏 <a href="/w/page/159351732/Objective%20criteria%20scores">Best Objective Criteria</a> for This Topic</h2>
+<p style="font-size: 13px;">Agree on the yardstick before measuring. Each proposed criterion is a belief with its own page, scored on four dimensions: <strong>Validity</strong> (does it capture what we claim?), <strong>Reliability</strong> (do different observers get the same reading?), <strong><a href="/w/page/159338766/Linkage%20Scores">Linkage</a></strong> (how directly it connects to the claim), and <strong><a href="/w/page/162731388/Importance%20Score">Importance</a></strong>. Arguments that connect to high-scoring criteria carry more weight. <span style="color: #666;">See: <a href="/w/page/159351732/Objective%20criteria%20scores">Objective Criteria Scoring</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -395,7 +308,7 @@
 </thead>
 <tbody>
 <tr>
-<td>[Criterion 1]<br /><span style="font-size: 85%; color: #666;">[One-line description of what it measures and how]</span></td>
+<td>[Criterion 1]<br /><span style="font-size: 85%; color: #666;">[what it measures and how]</span></td>
 <td align="center"><strong><span style="color: #2e7d32;">[92%]</span></strong></td>
 <td align="center">High</td>
 <td align="center">High</td>
@@ -403,15 +316,7 @@
 <td align="center">High</td>
 </tr>
 <tr>
-<td>[Criterion 2]<br /><span style="font-size: 85%; color: #666;">[One-line description]</span></td>
-<td align="center"><strong><span style="color: #2e7d32;">[85%]</span></strong></td>
-<td align="center">High</td>
-<td align="center">High</td>
-<td align="center">High</td>
-<td align="center">Med</td>
-</tr>
-<tr>
-<td>[Criterion 3]<br /><span style="font-size: 85%; color: #666;">[One-line description]</span></td>
+<td>[Criterion 2]<br /><span style="font-size: 85%; color: #666;">[one-line description]</span></td>
 <td align="center"><strong><span style="color: #f57c00;">[60%]</span></strong></td>
 <td align="center">Med</td>
 <td align="center">Low</td>
@@ -419,7 +324,7 @@
 <td align="center">Med</td>
 </tr>
 <tr>
-<td>[Criterion 4]<br /><span style="font-size: 85%; color: #666;">[One-line description]</span></td>
+<td>[Criterion 3]<br /><span style="font-size: 85%; color: #666;">[one-line description]</span></td>
 <td align="center"><strong><span style="color: #d32f2f;">[15%]</span></strong></td>
 <td align="center">Low</td>
 <td align="center">Low</td>
@@ -427,16 +332,12 @@
 <td align="center">Low</td>
 </tr>
 <tr>
-<td style="font-size: 85%; font-style: italic; color: #555;" colspan="6">Don't see a criterion that belongs here? <a href="/w/page/160433328/Contact%20Me">Submit a proposal</a> with reasons to support its validity, reliability, linkage, and importance. The community will score it.</td>
+<td style="font-size: 85%; font-style: italic; color: #555;" colspan="6">Missing a criterion? <a href="/w/page/160433328/Contact%20Me">Submit a proposal</a> with reasons for its validity, reliability, linkage, and importance. The community scores it.</td>
 </tr>
 </tbody>
 </table>
-<div style="background-color: #fff0f0; padding: 10px; border-left: 4px solid #cc0000; margin: 15px 0; font-size: 13px;"><strong>Why this matters:</strong> Arguments submitted anywhere on this topic page are automatically weighted by how well they connect to high-scoring criteria. A claim supported by a criterion scoring 92% carries far more evidential weight than one supported by a criterion scoring 15%, regardless of how confidently either claim is stated. The yardstick is agreed upon before the measurements begin.</div>
-<p style="text-align: right; font-style: italic;">See: <a href="/w/page/159351732/Objective%20criteria%20scores">Full Objective Criteria Scoring Methodology</a></p>
-<hr />
-
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128218; Best Media and Resources</h2>
-<p style="font-size: 13px;">Curated resources sorted by positivity score and informational value.</p>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">📚 Best Media and Resources</h2>
+<p style="font-size: 13px;">Sorted by positivity and informational value. <span style="color: #666;">See: <a href="/w/page/21958666/media">Media Framework</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -464,14 +365,12 @@
 </tr>
 </tbody>
 </table>
-<p style="text-align: right; font-style: italic;">See: <a href="/w/page/21958666/media">Media Framework</a></p>
-<hr />
-
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128279; Related Topics</h2>
+<h2 id="related" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">🔗 Related Topics</h2>
+<p style="font-size: 13px;">The <strong>Children</strong> column is where full subcategories from Continuum 3 go once they outgrow a row and earn their own page.</p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="10">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="25%">Broader Categories (Parents)</th> <th width="25%">Specific Sub-Issues (Children)</th> <th width="25%">Related Concepts (Siblings)</th> <th width="25%">Opposing / Critical Views</th>
+<th width="25%">Broader (Parents)</th> <th width="25%">Sub-Issues (Children)</th> <th width="25%">Related (Siblings)</th> <th width="25%">Opposing / Critical Views</th>
 </tr>
 </thead>
 <tbody>
@@ -483,268 +382,7 @@
 </tr>
 </tbody>
 </table>
-<hr />
-
-<h2 style="font-size: 20px;">&#128236; Contribute</h2>
-<p><a href="/w/page/160433328/Contact%20Me">Contact me</a> to add beliefs, strengthen arguments, link new evidence, or propose objective criteria.<br /><a href="https://github.com/myklob/ideastockexchange">GitHub</a> for technical implementation and scoring algorithms.</p>
+<h2 style="font-size: 20px;">📬 Contribute</h2>
+<p><a href="/w/page/160433328/Contact%20Me">Contact me</a> to add beliefs, strengthen arguments, link evidence, or propose criteria.<br /><a href="https://github.com/myklob/ideastockexchange">GitHub</a> for the code and scoring algorithms.</p>
 </div>
 <p>&nbsp;</p>
-<p>&nbsp;</p>
-    </div>
-  
-  </div>
-
-  </div>
-
-  <div id="wikiedit" style="display:none;">
-        	<div id="editor-panel" class="box">
-  <h1 id="editTitle" class="pagetitle ellipses">Beliefs_on_topic_organized_by_Spectrum_Positions</h1>
-      
-    <table style="table-layout:fixed; width:100%" id="edit-panel">
-      <col/>
-      <col style="width:240px"/>
-      <tr><td>
-      <form method="post" action="/Beliefs_on_topic_organized_by_Spectrum_Positions" id="editwikipage"><input type="hidden" name="process" value="edit_page" /><div id="editframe"></div></form>
-      </td>
-      <td>
-      <div id="editor-column" style="margin-left:12px;" class="thingbar">
-			  <div id="edit-tools">
-					     <h4>Page Tools</h4>
-                    <div class="editor-module">
-      <div class="header">
-        <h3>Insert links</h3>
-        <p class="aux">Insert links to other pages or uploaded files.</p>
-      </div>
-      <div class="editor-module-tabs">
-        <a href="#" class="active" id="linkselectab-pages">Pages</a>
-        <a href="#" id="linkselectab-images">Images and files</a>
-      </div>
-  
-      <div class="content">
-          <div style="display:none" id="thingbar-pages">
-            <div style="border-bottom:1px dotted #bbb; font-size: 10px; padding-bottom: 0.5em; margin-bottom: 0.5em;"><a href="javascript:void(0);" onmousedown="insert_newlink_into_editor(); return false">Insert a link to a new page</a></div>
-            <ol id="thingbarpages"><li><div align="center"><span id="thingbarLoadIcon"></span> Loading...</div></li></ol>
-          </div>
-          <div style="display:none;" id="thingbar-images">
-                            <ol id="thingbarfiles"> <li id="thingbar-images-noimages">No images or files uploaded yet.</li>
-</ol>
-			        <div style="border-top:1px dotted #bbb; font-size: 10px; padding-top: 0.5em; margin-top: 0.5em;"><a href="javascript:void(0);" id="thingbar-url-link">Insert image from URL</a></div>
-          </div>
-	    </div>
-    </div>
-			  </div>
-        <p id="editor-tip" class="aux">
-            <strong>Tip:</strong> To turn text into a link, highlight the text, then click on a page or file from the list above.
-        </p>
-		  </div>
-
-	</td>
-</tr>
-</table> 
-</div>
-  </div>
-
-  <style> div#comments .comment { margin-bottom:5px; } div#comments .content p { margin-bottom:5px; }  </style><div id="comments" class="box nocomments">
-<div class="comments-header">
-  <div class="corner4px top"><div class="right"></div><div class="left"></div></div>
-  <h3>
-    Comments (<span id="comments-count">0</span>)
-      </h3>
-  <a name="comments"></a>
-  <div class="corner4px bot"><div class="right"></div><div class="left"></div></div>
-</div>
-<p id="comments-nopermission">You don't have permission to comment on this page.</p>
-</div>
-</div>
-
-  <div id="page-bottom-toolbar">
-  <div class="content box">
-    <a href="/w/page/162490623/Beliefs_on_topic_organized_by_Spectrum_Positions?mode=embedded" rel="nofollow" class="iconbutton print" id="print_link">Printable version</a>
-  </div>
-</div>
-
-<!--[if IE]>
-  <style type="text/css" media="screen">
-    div#sendalink_to_container div.accontainer { left: 122px; margin-top: 20px; }
-    input#sendalink_to { margin-bottom: 7px; }
-    div#sendalink_to_container div#header, div#sendalink_to_container ul, div#sendalink_to_container div#footer { display: inline-block; }
-  </style>
-<![endif]-->
-                      </td>
-          <td id="page-col-3" width="4">&nbsp;</td>
-        </tr>
-      </table>
-      <div id="page-footer">
-        <div class="header">
-          <div class="rt"></div>
-          <div class="lt"></div>
-        </div>
-        <div class="content"><div id="footer-logo" ><a href="http://pbworks.com/?utm_campaign=wiki-link" title=""></a></div>
-
-<div id="footer-pbwiki">
-  <p>
-    <strong><a href="https://pbworks.com/?utm_campaign=wiki-link">PBworks</a> </strong> / <a target="_new" href="mailto:support@pbworks.com">Help</a><br/>
-    <a href="http://pbworks.com/content/termsofservice?utm_campaign=wiki-link">Terms of use</a> / <a href="http://pbworks.com/content/privacypolicy?utm_campaign=wiki-link">Privacy policy</a> / <a href="http://www.pbworks.com/gdpr.html">GDPR</a>
-  </p>
-</div>
-<div id="footer-about">
-  <p>
-        <strong>About this workspace</strong>
-            <br/>
-    <a href="/w/contact-owner">Contact the owner</a> /         <a href="/rss.xml">RSS feed</a> /     This workspace is <strong>public</strong>
-  </p>
-</div>
-</div>        <div class="footer">
-          <div class="lt"></div>
-          <div class="rt"></div>
-        </div>
-      </div>
-    </div><!--- /#page -->
-
-  </td>
-  <td id="side-content">
-      <div id="sidebar">
-    <div id="side-toolbar" class="sidebox">
-      <ul id="main-tools" class="empty">
-                              </ul>
-      
-    </div><!-- /#side-toolbar -->
-      <div id="sidebarModules">
-                        <div id="module__login" class="wikicontext-module sidebox" style="position: relative; z-index: 0;">
-      <div class="header"><h3>Join this workspace</h3><a class="close togglemodule" href="#"></a></div>
-      <div class="content">
-        <div class="inner-content">
-
-                     <div class="top">
-                          To join this workspace,
-              <a href="/w/request-access">request access</a>.            </div>
-            <p>Already have an account? <a href="http://myclob.pbworks.com/w/session/login">Log in</a>!</p>
-                              </div>
-      </div>
-      <div class="footer"></div>
-      </div>
-    
-
-      
-              <div class="wikicontext-module sidebox folders" id="module-folders">
-  <div class="header"><h3 id="module-title-folders">Navigator</h3><a href="javascript:void(0);" class="close togglemodule">&nbsp;</a></div>  <div class="content wikistyle" style="height: 200px;">
-    <div class="loading" id="navigator_loading_message">Loading&hellip;</div>
-  </div>
-<div class="footer resizeable">&nbsp;</div>
-</div>                <div class="wikicontext-module sidebox sidebar" id="module-sidebar">
-  <div class="header"><h3 id="module-title-sidebar">SideBar</h3><a href="javascript:void(0);" class="close togglemodule">&nbsp;</a></div>    <div class="content wikistyle">
-      <h3>🎯 The Idea Stock Exchange</h3>
-<p style="font-size:13px;">Every debate starts from scratch. Every rebuttal gets reinvented. <a href="/w/page/159323619/Scattered%20Arguments">Nothing accumulates</a>. The ISE fixes that by giving every <a href="/w/page/21956921/Beliefs">belief</a> a permanent home, linking it to all its <a href="/Reasons">arguments</a> and <a href="/w/page/159353568/Evidence">evidence</a>. <a href="/w/page/21958819/Myclob">Learn more →</a></p>
-<hr /><h3 style="margin:10px 0 5px 0;">📂 <a href="/w/page/162490623/Beliefs_on_topic_organized_by_Spectrum_Positions">Browse Topics</a></h3>
-<p style="line-height:2;text-align:center;margin-top:4px;font-size:15px;"><a href="/A">A</a> <a href="/B">B</a> <a href="/C">C</a> <a href="/D">D</a> <a href="/E">E</a> <a href="/F">F</a> <a href="/G">G</a> <a href="/H">H</a> <a href="/I">I</a> <a href="/J">J</a> <a href="/K">K</a> <a href="/L">L</a> <a href="/M">M</a> <a href="/N">N</a> <a href="/O">O</a> <a href="/P">P</a> <a href="/Q">Q</a> <a href="/R">R</a> <a href="/S">S</a> <a href="/T">T</a> <a href="/U">U</a> <a href="/V">V</a> <a href="/W">W</a> <a href="/X">X</a> <a href="/Y">Y</a> <a href="/Z">Z</a></p>
-<hr /><h3 style="margin:10px 0 2px 0;">🌟 Core Principles</h3>
-<p style="font-size:11px;color:#666;margin:0 0 6px 0;font-style:italic;">Positions I hold and defend with evidence. Click any belief to see the full pro/con analysis.</p>
-<p style="font-size:11px;color:#666;margin:0 0 6px 0;font-style:italic;"><a href="/w/page/21957455/ends%20do%20not%20justify%20the%20means">The ends do not justify the means</a></p>
-<p style="margin:8px 0 3px 0;"><strong>Democracy &amp; Rule of Law</strong></p>
-<ul style="padding-left:15px;margin-top:0;"><li><a href="/We%20should%20defend%20our%20constitution">Defend the Constitution</a></li>
-<li><a href="/Support%20and%20strengthen%20democracy%20to%20restore%20the%20voter's%20voice">Strengthen Democracy</a></li>
-<li><a href="/ranked%20choice%20voting">Ranked Choice Voting</a></li>
-<li><a href="/w/page/147427356/Term%20Limits">Term Limits</a></li>
-<li><a href="/w/page/147427506/Online%20Civic%20Juries%20or%20Citizen%20Assemblies">Civic Juries</a></li>
-</ul><p style="margin:8px 0 3px 0;"><strong>Rights &amp; Liberty</strong></p>
-<ul style="padding-left:15px;margin-top:0;"><li><a href="/and%20our%20fundamental%20freedoms%2C%20including%20freedom%20of%20speech">Free Speech</a></li>
-<li><a href="/freedom%20of%20religion">Freedom of Religion</a></li>
-<li><a href="/Individual%20liberty%2C%20Personal%20Responsibility%2C%20and%20Civic%20engagement">Liberty &amp; Responsibility</a></li>
-<li><a href="/Treat%20everyone%20with%20respect%20%20dignity">Respect &amp; Dignity</a></li>
-</ul><p style="margin:8px 0 3px 0;"><strong>Evidence &amp; Process</strong></p>
-<ul style="padding-left:15px;margin-top:0;"><li><a href="/Use%20data%20to%20drive%20collaborative%20and%20effective%20solutions%2C%20regardless%20of%20their%20ideological%20source">Data-Driven Solutions</a></li>
-<li><a href="/w/page/147427350/AmericanScoreCard">American Scorecard</a></li>
-<li><a href="/American%20Leadership">Global Leadership</a></li>
-</ul><hr /><h3 style="margin:10px 0 2px 0;">⚖️ Contested Beliefs</h3>
-<p style="font-size:11px;color:#666;margin:0 0 6px 0;font-style:italic;">These beliefs are widely held and politically charged. They are listed here because they <em>need</em> rigorous pro/con analysis — not because I endorse them. Click to see both sides scored by evidence.</p>
-<p style="margin:8px 0 3px 0;"><strong>Economy &amp; Taxes</strong></p>
-<ul style="padding-left:15px;margin-top:0;"><li><a href="/We%20should%20tax%20property%20by%20the%20value%20of%20the%20land%20itself%2C%20independent%20of%20what%20is%20or%20isn't%20built%20on%20it">Land Value Tax</a></li>
-<li><a href="/We%20should%20provide%20tax%20cuts%20for%20workers%20and%20not%20tax%20tips">No Tax on Tips</a></li>
-<li><a href="/We%20should%20make%20America%20the%20dominant%20energy%20producder%20in%20the%20world%2C%20by%20far">Energy Dominance</a></li>
-<li><a href="/We%20should%20stop%20outsourcing%2C%20and%20turn%20the%20United%20States%20int%20a%20manufacturing%20superpower">Manufacturing Power</a></li>
-</ul><p style="margin:8px 0 3px 0;"><strong>Foreign Policy</strong></p>
-<ul style="padding-left:15px;margin-top:0;"><li><a href="/We%20should%20give%20our%20out-dated%20weapons%20to%20democratic%20allies%20trying%20to%20defend%20their%20territory">Arm Democratic Allies</a></li>
-<li><a href="/w/page/159386784/We%20Can't%20Stand%20By%20While%20Cultures%20Are%20Genocided%2C%20Such%20as%20Russia's%20Attempt%20to%20Destroy%20Ukraine">Stop Genocide (Ukraine)</a></li>
-</ul><p style="margin:8px 0 3px 0;"><strong>Culture &amp; Education</strong></p>
-<ul style="padding-left:15px;margin-top:0;"><li><a href="/We%20need%20to%20rebuild%20our%20cities%2C%20and%20make%20them%20safe%2C%20clean%2C%20and%20beautiful%20again">Safe &amp; Clean Cities</a></li>
-<li><a href="/w/page/21957146/Competition%20in%20Educational%20opportunities%20makes%20traditional%20public%20schools%20better">School Competition</a></li>
-<li><a href="/w/page/21959803/Students%20in%20failing%20schools%20should%20be%20able%20to%20exercise%20school%20choice">School Choice</a></li>
-<li><a href="/We%20should%20keep%20men%20out%20of%20women's%20sports">Protect Women's Sports</a></li>
-</ul><hr /><h3 style="margin:10px 0 3px 0;">📚 <a href="/w/page/21958666/media">Rate &amp; Debate Media</a></h3>
-<p style="font-size:12px;margin:0 0 4px 0;color:#555;">Not into politics? The ISE scores <a href="/w/page/21958666/media">books, films, music</a> the same way — pro/con arguments, evidence, linkage scores. Browse, debate, and find what to read next.</p>
-<p style="font-size:12px;margin:4px 0 6px 0;"><strong>Templates:</strong> <a href="/w/page/21959883/Template">Belief Analysis</a> &nbsp;|&nbsp; <a href="/w/page/162496863/Product%20Review%20Template">Product Review</a></p>
-<p><style>
-.ise-book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;font-family:'Segoe UI',sans-serif;}
-.ise-book-card{border:1px solid #e0e0e0;border-radius:6px;padding:8px;background:#fff;text-align:center;}
-.ise-book-title{font-weight:700;color:#0056b3;font-size:12px;margin-bottom:2px;min-height:30px;display:flex;align-items:center;justify-content:center;}
-.ise-book-author{color:#888;font-size:10px;margin-bottom:6px;font-style:italic;}
-.ise-buy-btn{display:inline-block;background-color:#FF9900;color:#111;padding:4px 8px;border-radius:4px;text-decoration:none;font-weight:bold;font-size:11px;width:90%;}
-.ise-buy-btn:hover{background-color:#e68a00;}
-.ise-disclaimer{grid-column:1 -1;font-size:10px;color:#aaa;text-align:center;margin-top:4px;font-style:italic;}
-</style>
-<div class="ise-book-grid">
-<div class="ise-book-card"><div class="ise-book-title">Getting to Yes</div><div class="ise-book-author">Fisher & Ury</div><a href="https://www.amazon.com/s?k=Getting+to+Yes+Fisher+Ury&tag=myklob-20" target="_blank" rel="nofollow noopener" class="ise-buy-btn">Check Price</a></div>
-<div class="ise-book-card"><div class="ise-book-title">Factfulness</div><div class="ise-book-author">Hans Rosling</div><a href="https://www.amazon.com/s?k=Factfulness+Hans+Rosling&tag=myklob-20" target="_blank" rel="nofollow noopener" class="ise-buy-btn">Check Price</a></div>
-<div class="ise-book-card"><div class="ise-book-title">Rationality</div><div class="ise-book-author">Steven Pinker</div><a href="https://www.amazon.com/s?k=Rationality+Steven+Pinker&tag=myklob-20" target="_blank" rel="nofollow noopener" class="ise-buy-btn">Check Price</a></div>
-<div class="ise-book-card"><div class="ise-book-title">David's Sling</div><div class="ise-book-author">Marc Stiegler</div><a href="https://www.amazon.com/s?k=Davids+Sling+Marc+Stiegler&tag=myklob-20" target="_blank" rel="nofollow noopener" class="ise-buy-btn">Check Price</a></div>
-<div class="ise-book-card"><div class="ise-book-title">The Cost-Benefit Revolution</div><div class="ise-book-author">Cass Sunstein</div><a href="https://www.amazon.com/s?k=Cost+Benefit+Revolution+Sunstein&tag=myklob-20" target="_blank" rel="nofollow noopener" class="ise-buy-btn">Check Price</a></div>
-<div class="ise-book-card"><div class="ise-book-title">Circe</div><div class="ise-book-author">Madeline Miller</div><a href="https://www.amazon.com/s?k=Circe+Madeline+Miller&tag=myklob-20" target="_blank" rel="nofollow noopener" class="ise-buy-btn">Check Price</a></div>
-<div class="ise-disclaimer">*Amazon Associate — ISE earns from qualifying purchases.</div>
-</div></p>
-<hr /><h3 style="margin:10px 0 5px 0;">🌍 Connect</h3>
-<p style="text-align:center;font-size:16px;margin:5px 0;"><a href="https://twitter.com/myclob" target="_blank">🐦</a>&nbsp; <a href="https://www.youtube.com/c/MikeLaub" target="_blank">▶️</a>&nbsp; <a href="https://www.instagram.com/my_klob/" target="_blank">📷</a></p>
-<ul style="padding-left:15px;margin-top:4px;font-size:13px;"><li><a href="https://www.facebook.com/groups/opensourcecostbenefitanalysispoliticalparty" target="_blank">Open-Source CBA Group</a></li>
-<li><a href="https://www.facebook.com/groups/onlinecivicjury" target="_blank">Civic Juries Group</a></li>
-<li><a href="/w/page/160433328/Contact%20Me">📬 Contact Me</a></li>
-</ul><p>&nbsp;</p>
-          </div>
-  <div class="footer">&nbsp;</div>
-</div>                            <div class="wikicontext-module sidebox recentactivity" id="module-recentactivity">
-  <div class="header"><h3 id="module-title-recentactivity">Recent Activity</h3><a href="javascript:void(0);" class="close togglemodule">&nbsp;</a></div>  <div id="new-recent-activity" style="display: none;">
-    <a id="new-recent-activity-refresh" href="#">
-      Show <span id="new-recent-activity-count">0</span> new item<span id="new-recent-activity-plural">s</span>
-    </a>
-  </div>
-  <div class="content" style="height: 364px;">
-    <div class="loading" id="recentactivity_loading_message">Loading&hellip;</div>
-  </div>
-<div class="footer resizeable">&nbsp;</div>
-</div>            </div>
-    </div>
-  </td>
-  </tr>
-
-</table>
-</div>
-      <script>
-  PBinfo = {"CurrentPage":{"is_dev":false,"sessCookie":"ds3","requesttime":"1773974195","page":"Beliefs_on_topic_organized_by_Spectrum_Positions","editor_v3":true,"security":"default"},"CurrentWiki":{"front_page":"Colorado Should","isPublic":true,"is_archived":false,"debug":false,"usercount":1,"filecount":162,"pagecount":4670,"foldercount":36,"name":"myclob","title":"The Idea Stock Exchange","cat":"dif","readonly":null,"comments_disabled":null,"comments_newest_first":null,"network_groups":[],"requestaccess":true},"CheckPermissions":{"uid":false,"personal_wiki":false},"GetFeatures":{"fliqz_upsell":true,"lockpages":true,"page_security":true,"folder_security":true},"GetTimes":{"_valid_as_of":"1773974195","commenttime":1755082671,"filetime":1755082671,"foldertime":1763335566,"page_list_time":1773324958,"pagetime":1773973672,"permtime":1772502844,"tagtime":1756759978,"_args":{"op":"GetTimes"}},"GetUserPrefs":{"sidebar":{"folders":[],"sidebar":[],"addusers":[],"recentactivity":[]},"sidebar_collapsed":false,"show_rev_comment":"context-error"},"BuildTime":1599696004,"CurrentObject":162490623,"GetPage":{"_perm_cache_times":{"pagetime":1773973672,"foldertime":1763335566,"permtime":1772502844},"_valid_as_of":"1773974195","author":{"perm":"admin","name":"Mike","first_name":"Mike","email":"mike.laub@gmail.com","image":"http:\/\/files.pbworks.com\/userimage\/0036d941ecdbf3c0d8adbf9c2bb52f56f0e05f42\/yes\/48x48\/1547313694\/","verified":"1224808306","email_verified":"1224808306","im_yim":"myclob","lastview":1773973500,"lastviewtext":"11 minutes","initials":"M","large_image":"http:\/\/files.pbworks.com\/userimage\/0036d941ecdbf3c0d8adbf9c2bb52f56f0e05f42\/yes\/48x48\/1547313694\/","uid":"4208529aae9620765f88de94577abda04f59cf87"},"current_revision":1772979891,"hasPlugins":false,"has_custom_perms":false,"hidden":false,"locked":false,"mtime":1772979891,"name":"Beliefs_on_topic_organized_by_Spectrum_Positions","oid":162490623,"perms":{"r":true},"revcount":44,"revurl":"http:\/\/myclob.pbworks.com\/w\/page\/162490623\/Beliefs_on_topic_organized_by_Spectrum_Positions","size":26760,"wikistyle":false,"_args":{"oid":162490623,"revision":false,"op":"GetPage"}}};
-</script>
-<script type="text/javascript" src="http://vs1.pbworks.com/shared/statics/libraries-v78145716.js"></script>
-<script type="text/javascript" src="http://vs1.pbworks.com/shared/statics/packed-v65464171.js"></script>
-<script type="text/javascript" src="http://vs1.pbworks.com/shared/statics/extras-v46757463.js"></script><!--[if lte IE 6]>
-  <script type="text/javascript">function ie6minwidth(){var size = (document.documentElement.clientWidth<960 ? '960px' : '100%'); $(document.body).setStyle({'width':size});} document.observe("dom:loaded", ie6minwidth); Event.observe(window, 'resize', ie6minwidth); 
-</script>
-<![endif]-->
-    <script type="text/javascript">
-  var _qevents = [{ qacct : "p-16CGFkiSpdTEU" }];
-  (function() {
-   var elem = document.createElement('script');
-   elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge")
-               + ".quantserve.com/quant.js";
-   elem.async = true;
-   elem.type = "text/javascript";
-   var scpt = document.getElementsByTagName('script')[0];
-   scpt.parentNode.insertBefore(elem, scpt);
-  })();
-</script>
-<noscript><div style="display: none;"><img src="http://pixel.quantserve.com/pixel/p-16CGFkiSpdTEU.gif" height="1" width="1" alt="Quantcast"/></div></noscript><!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-54LYVM2Y0K"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-54LYVM2Y0K');
-</script>
-</body>
-</html><!-- v=2,utz=x,ssl=0,ua=Win-Chrome-146,uid=0,sn=3da5f115e86dd26c83ea11d30ed39d9a,pid=1607,hn=appserver003,nw=0,w=myclob,pv=pub,pkg=p20,perm=none,crea=1145409732,mt=1773973672,sc=7753,cl=1,cat=dif,mpu=33,NQsid=1,Ncd=0.0301,Nkb=679,Nct=0.3707,Ncl=1773970971.5808,Nwc=3,Nwt=1773973672.6091,sid=21955785,pn=Beliefs_on_topic_organized_by_Spectrum_Positions,Ncif=1,oid=162490623,Ncih=7,te=0.135 -->

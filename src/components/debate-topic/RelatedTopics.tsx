@@ -39,15 +39,19 @@ export default function RelatedTopics({ relatedTopics }: Props) {
   const opposing = relatedTopics.filter((t) => t.relationType === 'opposingView');
 
   return (
-    <div className="mb-8">
-      <h2 className="text-xl font-bold mb-3">🔗 Related Topics</h2>
+    <div id="related" className="mb-8">
+      <h2 className="text-xl font-bold mb-1">🔗 Related Topics</h2>
+      <p className="text-sm text-gray-600 mb-3">
+        The <strong>Children</strong> column is where full subcategories from Continuum 3 go once they
+        outgrow a row and earn their own page.
+      </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-3 py-2 w-1/4">Broader Categories (Parents)</th>
-              <th className="border border-gray-300 px-3 py-2 w-1/4">Specific Sub-Issues (Children)</th>
-              <th className="border border-gray-300 px-3 py-2 w-1/4">Related Concepts (Siblings)</th>
+              <th className="border border-gray-300 px-3 py-2 w-1/4">Broader (Parents)</th>
+              <th className="border border-gray-300 px-3 py-2 w-1/4">Sub-Issues (Children)</th>
+              <th className="border border-gray-300 px-3 py-2 w-1/4">Related (Siblings)</th>
               <th className="border border-gray-300 px-3 py-2 w-1/4">Opposing / Critical Views</th>
             </tr>
           </thead>

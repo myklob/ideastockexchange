@@ -18,16 +18,16 @@ export interface DebatePosition {
   mediaUrl?: string;
 }
 
-/// One row in Spectrum 2 (Claim Magnitude) — topic-specific pro and anti examples.
+/// One row in Continuum 2 (Claim Magnitude) — topic-specific pro and anti examples.
 export interface DebateClaimMagnitude {
   id?: number;
   sortOrder: number;
-  magnitudeLevel: string;  // "Weak (20%)", "Moderate (50%)", "Strong (80%)", "Extreme (100%)"
+  magnitudeLevel: string;  // "Modest (20%)", "Moderate (50%)", "Strong (80%)", "Total (100%)"
   magnitudePercent: number; // 20, 50, 80, 100
-  sublabel: string;         // "Modest Assertion", "Standard Assertion", etc.
+  sublabel: string;         // "Hedged", "Standard", "Broad", "Maximal"
   proExample: string;       // topic-specific pro-topic claim at this magnitude
   antiExample: string;      // topic-specific anti-topic claim at this magnitude
-  scopeDescription: string; // what this level of assertion implies
+  scopeDescription: string; // scope and telltale words at this strength
 }
 
 export interface DebateEscalation {
@@ -57,6 +57,12 @@ export interface DebateAbstractionRung {
   rungLabel: string; // "Most General (Worldview)", "Political/Ethical Philosophy", etc.
   proChain: string;
   conChain: string;
+  /// Tree position on the general-to-specific tree: "general" | "subcategory" |
+  /// "specific". Legacy flat-ladder rows use "rung" and render as the old ladder.
+  rungType?: string;
+  /// Branch name for subcategory rows (the sub-issue) and optionally the branch
+  /// a specific row belongs to.
+  branchName?: string;
 }
 
 export interface DebateCoreValues {

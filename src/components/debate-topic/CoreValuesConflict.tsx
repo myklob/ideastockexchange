@@ -8,9 +8,15 @@ interface Props {
 export default function CoreValuesConflict({ coreValues }: Props) {
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-bold mb-3">
+      <h2 className="text-xl font-bold mb-1">
         ⚖️ Core Values Conflict
       </h2>
+      <p className="text-sm text-gray-600 mb-3">
+        Advertised values each side claims, and the motivation critics attribute.{' '}
+        <span className="text-gray-500">
+          See: <a href="/w/page/21956745/American%20values" className="text-blue-600 hover:underline">American Values</a>.
+        </span>
+      </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>

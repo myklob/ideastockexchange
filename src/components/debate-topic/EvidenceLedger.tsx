@@ -11,18 +11,22 @@ function qualityColor(score: number): string {
 }
 
 export default function EvidenceLedger({ evidenceItems }: Props) {
-  const supporting = evidenceItems.filter((e) => e.side === 'supporting');
-  const weakening = evidenceItems.filter((e) => e.side === 'weakening');
+  // A highlight reel: highest-quality evidence first on each side.
+  const byQuality = (a: DebateEvidence, b: DebateEvidence) => b.qualityScore - a.qualityScore;
+  const supporting = evidenceItems.filter((e) => e.side === 'supporting').sort(byQuality);
+  const weakening = evidenceItems.filter((e) => e.side === 'weakening').sort(byQuality);
   const maxRows = Math.max(supporting.length, weakening.length);
 
   return (
     <div className="mb-8">
       <h2 className="text-xl font-bold mb-1">⚖️ The Evidence Ledger</h2>
       <p className="text-xs text-gray-600 mb-3">
-        Evidence formally attaches to specific beliefs, not to the topic as a whole, and is scored on its own page per
-        study. This ledger is the cross-topic highlight reel: the highest-impact evidence appearing anywhere under this
-        topic, so a reader sees the empirical state of play before diving into individual belief pages. Quality scores
-        reflect methodology, sample size, and reproducibility.
+        A highlight reel of the highest-impact evidence appearing anywhere under this topic. Evidence
+        formally attaches to specific beliefs and is scored on its own study page; this is the cross-topic
+        view.{' '}
+        <span className="text-gray-500">
+          See: <a href="/evidence-scoring" className="text-blue-600 hover:underline">Evidence Scoring Methodology</a>.
+        </span>
       </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
@@ -30,7 +34,7 @@ export default function EvidenceLedger({ evidenceItems }: Props) {
             <tr className="bg-gray-100">
               <th className="border border-gray-300 px-3 py-2 w-[40%]">Supporting Evidence (Pro)</th>
               <th className="border border-gray-300 px-3 py-2 w-[10%] text-center">Quality</th>
-              <th className="border border-gray-300 px-3 py-2 w-[40%]">Weakening Evidence (Skeptical)</th>
+              <th className="border border-gray-300 px-3 py-2 w-[40%]">Weakening Evidence (Con)</th>
               <th className="border border-gray-300 px-3 py-2 w-[10%] text-center">Quality</th>
             </tr>
           </thead>

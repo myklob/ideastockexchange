@@ -91,6 +91,8 @@ function mapTopicFromDb(row: any): DebateTopic {
     rungLabel: r.rungLabel,
     proChain: r.proChain,
     conChain: r.conChain,
+    rungType: r.rungType ?? 'rung',
+    branchName: r.branchName ?? undefined,
   }));
 
   let coreValues: DebateCoreValues | undefined;
@@ -293,6 +295,8 @@ export async function createDebateTopic(data: DebateTopic): Promise<DebateTopic>
           rungLabel: r.rungLabel,
           proChain: r.proChain,
           conChain: r.conChain,
+          rungType: r.rungType ?? 'rung',
+          branchName: r.branchName ?? null,
         })),
       },
       ...(data.coreValues

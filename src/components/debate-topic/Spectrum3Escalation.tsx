@@ -29,14 +29,12 @@ export default function Spectrum3Escalation({ escalationLevels, topicTitle }: Pr
         </a>
       </h2>
       <p className="text-sm text-gray-600 mb-4">
-        <strong>This is a stakeholder map, not a matching continuum.</strong> It answers the second half of &ldquo;how
-        extreme is this?&rdquo;: not how absolute the belief is (that is{' '}
-        <a href="#magnitude" className="text-blue-600 hover:underline">Claim Magnitude</a>) but how far a person will go
-        to act on it. That is a fact about the person, not about the belief. A casual supporter and someone willing to
-        go to prison hold the <em>same belief</em> about this topic, so engagement deliberately does <em>not</em> feed
-        the belief-matching coordinates above. Two identical beliefs at different engagement levels stay one belief on
-        this page. Keeping this axis separate is what stops the system from confusing a loud claim with a committed
-        person, or commitment with extremism.
+        <strong>A stakeholder map, not a matching axis.</strong> It measures how far a person will go to act
+        on a belief, which is a fact about the person, not the belief, so it never feeds the three-part
+        address above. A casual supporter and someone willing to go to prison hold the <em>same belief</em>.{' '}
+        <span className="text-gray-500">
+          See: <a href="/escalation-spectrum" className="text-blue-600 hover:underline">Escalation Spectrum</a>.
+        </span>
       </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
@@ -45,17 +43,17 @@ export default function Spectrum3Escalation({ escalationLevels, topicTitle }: Pr
               <th className="border border-gray-300 px-3 py-2 w-[18%]">Engagement Level</th>
               {hasPerSideData ? (
                 <>
-                  <th className="border border-gray-300 px-3 py-2 w-[22%]">
+                  <th className="border border-gray-300 px-3 py-2 w-[27%]">
                     Pro-{topicTitle}: What It Looks Like
                   </th>
-                  <th className="border border-gray-300 px-3 py-2 w-[22%]">
+                  <th className="border border-gray-300 px-3 py-2 w-[27%]">
                     Anti-{topicTitle}: What It Looks Like
                   </th>
-                  <th className="border border-gray-300 px-3 py-2 w-[19%]">
-                    Pro-Topic Example
+                  <th className="border border-gray-300 px-3 py-2 w-[14%]">
+                    Pro Example
                   </th>
-                  <th className="border border-gray-300 px-3 py-2 w-[19%]">
-                    Anti-Topic Example
+                  <th className="border border-gray-300 px-3 py-2 w-[14%]">
+                    Anti Example
                   </th>
                 </>
               ) : (
@@ -105,9 +103,9 @@ export default function Spectrum3Escalation({ escalationLevels, topicTitle }: Pr
         </table>
       </div>
       <p className="text-sm text-gray-600 mt-3">
-        <strong>Key insight:</strong> Engagement is fully independent of the three matching continuums. Someone can hold
-        a moderate-magnitude claim (Continuum 2 = 50%) about a cause they feel lukewarm toward (Continuum 1 = +40%) and
-        still be willing to go to prison for it (Engagement Level 4). For engagement beyond Level 4, see:{' '}
+        <strong>Key insight:</strong> Engagement is independent of the three matching axes. Someone can hold
+        a moderate claim (50%) about a cause they feel lukewarm toward (+40%) and still go to prison for it
+        (Level 4). For engagement beyond Level 4, see:{' '}
         <a href="/escalation-spectrum" className="text-blue-600 hover:underline">Escalation Spectrum</a>.
       </p>
       <p className="text-right text-xs mt-2 text-gray-500">

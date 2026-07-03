@@ -68,23 +68,26 @@ export default async function DebateTopicPage({ params }: Props) {
         />
 
         {/*
-          How this page deduplicates a debate. Every belief gets a coordinate on three
-          independent matching continuums — valence, magnitude, specificity. Engagement and
+          The three-part address. Every belief about this topic gets one fixed address:
+          Direction, Magnitude, and a node on the general-to-specific tree. Engagement and
           the assumption stack are deliberately NOT matching coordinates.
         */}
         <div className="bg-[#f4f9ff] border-l-4 border-[#0055a4] p-3 my-4 text-sm">
-          <strong>How this page deduplicates a debate.</strong> Every belief about this topic gets a coordinate on
-          three independent continuums: <strong>valence</strong> (which direction it runs), <strong>magnitude</strong>{' '}
-          (how absolute the claim is), and <strong>specificity</strong> (how general or concrete it is). Two beliefs
-          that land on the same coordinate are the <em>same claim</em> in different words and get merged. Two that land
-          nearly on top of each other get the redundancy discount: the second one contributes only its non-overlapping
-          fraction, because saying a thing five ways is not five reasons. That is the whole point of one page per topic.
-          The argument gets built once, here, instead of restarting from scratch on every forum.
+          <strong>What this page does.</strong> It gives every belief about this topic one fixed address, so
+          the thousand ways of saying the same thing collapse into a single entry and the real reasons to
+          agree or disagree can be counted and weighed by evidence instead of by how often they get repeated.
+          The address has three parts, one per table below:{' '}
+          <a href="#direction" className="text-blue-600 hover:underline">Direction</a> (which way it runs),{' '}
+          <a href="#magnitude" className="text-blue-600 hover:underline">Magnitude</a> (how absolute), and{' '}
+          <a href="#specificity" className="text-blue-600 hover:underline">Specificity</a> (where it sits on
+          the general-to-specific tree). Same address means the same claim, so it merges; nearly the same
+          address gets the redundancy discount. Full logic lives on{' '}
+          <a href="/one-page-per-topic" className="text-blue-600 hover:underline">One Page Per Topic</a>.
         </div>
 
         <hr className="my-6" />
 
-        {/* Continuum 1: Valence */}
+        {/* Continuum 1: Direction */}
         {topic.positions.length > 0 && (
           <>
             <Spectrum1Positions positions={topic.positions} />
@@ -99,7 +102,7 @@ export default async function DebateTopicPage({ params }: Props) {
         />
         <hr className="my-6" />
 
-        {/* Continuum 3: Specificity — the Abstraction Ladder */}
+        {/* Continuum 3: General to Specific, with Branching Subcategories */}
         {topic.abstractionRungs.length > 0 && (
           <>
             <Spectrum4AbstractionLadder rungs={topic.abstractionRungs} topicTitle={topic.title} />
@@ -153,7 +156,7 @@ export default async function DebateTopicPage({ params }: Props) {
         {/* Objective Criteria */}
         {topic.objectiveCriteria.length > 0 && (
           <>
-            <ObjectiveCriteriaTable criteria={topic.objectiveCriteria} topicTitle={topic.title} />
+            <ObjectiveCriteriaTable criteria={topic.objectiveCriteria} />
             <hr className="my-6" />
           </>
         )}
@@ -179,7 +182,7 @@ export default async function DebateTopicPage({ params }: Props) {
           <h2 className="text-xl font-bold mb-2">📬 Contribute</h2>
           <p>
             <Link href="/contact" className="text-blue-600 hover:underline">Contact us</Link>{' '}
-            to add beliefs, strengthen arguments, link new evidence, or propose objective criteria.
+            to add beliefs, strengthen arguments, link evidence, or propose criteria.
             <br />
             <a
               href="https://github.com/myklob/ideastockexchange"
@@ -189,7 +192,7 @@ export default async function DebateTopicPage({ params }: Props) {
             >
               GitHub
             </a>{' '}
-            for technical implementation and scoring algorithms.
+            for the code and scoring algorithms.
           </p>
         </div>
 
