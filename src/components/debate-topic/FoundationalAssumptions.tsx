@@ -20,16 +20,18 @@ export default function FoundationalAssumptions({ assumptions, keyInsight }: Pro
         📜 Assumption Stack Behind Each Position
       </h2>
       <p className="text-sm text-gray-600 mb-3">
-        This is not a fourth continuum. It is the dependency map sitting under the Continuum 1 positions above. It
-        answers a different question: to land at a given valence, what chain of assumptions do you have to accept, from
-        broadest worldview down to the narrowest topic-specific claim? Surfacing the stack is how a disagreement at the
-        bottom gets traced to its real root higher up, which is usually where the actual fight is.
+        Not a fourth axis. Continuum 3 sorts beliefs by altitude; this takes each stance and lists the
+        assumptions a person must accept to hold it, which is how a fight at the bottom gets traced to its
+        real root higher up.
+        {keyInsight && (
+          <>
+            {' '}<strong className="text-gray-800">Core split:</strong> {keyInsight}
+          </>
+        )}
+        {' '}<span className="text-gray-500">
+          See: <a href="/Assumptions" className="text-blue-600 hover:underline">Assumptions</a>.
+        </span>
       </p>
-      {keyInsight && (
-        <p className="mb-3 text-sm">
-          <strong>Core split:</strong> {keyInsight}
-        </p>
-      )}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>

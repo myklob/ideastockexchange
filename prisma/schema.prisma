@@ -1394,7 +1394,10 @@ model DebateAssumption {
   @@index([topicId])
 }
 
-/// One rung of Spectrum 4 (Abstraction Ladder).
+/// One node of Continuum 3 (General to Specific, with Branching Subcategories).
+/// A general belief branches into subcategories; each subcategory holds the
+/// specific beliefs beneath it. A belief only merges with another that shares
+/// its branch AND its rung.
 model DebateAbstractionRung {
   id      Int         @id @default(autoincrement())
   topicId Int
@@ -1404,6 +1407,14 @@ model DebateAbstractionRung {
   rungLabel  String /// "Most General (Worldview)", "Political/Ethical Philosophy", "This Topic", "Most Specific (Policy/Action)"
   proChain   String
   conChain   String
+
+  /// Tree position: "general" (worldview root), "subcategory" (a branch), or
+  /// "specific" (a leaf under the preceding subcategory). Legacy flat-ladder
+  /// rows keep the default "rung" and render as the old ladder.
+  rungType   String @default("rung")
+  /// Branch name for "subcategory" rows (the sub-issue) and, optionally, the
+  /// branch a "specific" row belongs to.
+  branchName String?
 
   @@index([topicId])
 }

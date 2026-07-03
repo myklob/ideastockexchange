@@ -200,6 +200,7 @@ async function main() {
         create: [
           {
             sortOrder: 0,
+            rungType: 'general',
             rungLabel: 'Most General (Worldview)',
             proChain:
               'Human beings are social and sexual creatures who flourish best within stable, committed, complementary partnerships.',
@@ -208,7 +209,9 @@ async function main() {
           },
           {
             sortOrder: 1,
-            rungLabel: 'Political/Ethical Philosophy',
+            rungType: 'subcategory',
+            branchName: 'Role of the State',
+            rungLabel: 'political/ethical philosophy',
             proChain:
               'Society has a legitimate interest in structuring family formation to protect children and reduce dependence on the state.',
             conChain:
@@ -216,7 +219,9 @@ async function main() {
           },
           {
             sortOrder: 2,
-            rungLabel: 'This Topic',
+            rungType: 'subcategory',
+            branchName: 'Marriage and Child-Rearing',
+            rungLabel: 'this topic',
             proChain:
               'Marriage between committed partners is the best available structure for raising children and should be culturally promoted and legally supported.',
             conChain:
@@ -224,7 +229,9 @@ async function main() {
           },
           {
             sortOrder: 3,
-            rungLabel: 'Most Specific (Policy/Action)',
+            rungType: 'specific',
+            branchName: 'Marriage and Child-Rearing',
+            rungLabel: '',
             proChain:
               'Eliminate the marriage penalty in the tax code; fund relationship skills programs; restore marriage rates in low-income communities as a poverty-reduction strategy.',
             conChain:

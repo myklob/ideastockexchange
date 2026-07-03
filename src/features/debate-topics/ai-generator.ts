@@ -115,9 +115,9 @@ Return a single valid JSON object matching this exact structure (all fields requ
   "claimMagnitudeLevels": [
     {
       "sortOrder": 0,
-      "magnitudeLevel": "Weak (20%)",
+      "magnitudeLevel": "Modest (20%)",
       "magnitudePercent": 20,
-      "sublabel": "Modest Assertion",
+      "sublabel": "Hedged",
       "proExample": "A modest pro-${topicName} claim that acknowledges real flaws and leaves room for exceptions.",
       "antiExample": "A modest anti-${topicName} claim that acknowledges some advantages while noting specific inefficiencies.",
       "scopeDescription": "Narrow scope. Leaves room for exceptions and context-dependence."
@@ -126,7 +126,7 @@ Return a single valid JSON object matching this exact structure (all fields requ
       "sortOrder": 1,
       "magnitudeLevel": "Moderate (50%)",
       "magnitudePercent": 50,
-      "sublabel": "Standard Assertion",
+      "sublabel": "Standard",
       "proExample": "${topicName}, when functioning well, produces significantly better outcomes than the available alternatives.",
       "antiExample": "${topicName} is significantly compromised by [specific flaw], producing reliably suboptimal outcomes.",
       "scopeDescription": "Clear claim without overstating. The level at which most serious academic arguments operate."
@@ -135,16 +135,16 @@ Return a single valid JSON object matching this exact structure (all fields requ
       "sortOrder": 2,
       "magnitudeLevel": "Strong (80%)",
       "magnitudePercent": 80,
-      "sublabel": "Broad Assertion",
+      "sublabel": "Broad",
       "proExample": "${topicName} is the only approach that provides [key benefit], and any alternative is fundamentally unjust or ineffective.",
       "antiExample": "${topicName} is fundamentally broken and cannot produce good outcomes without changes so drastic it would cease to be recognizable.",
       "scopeDescription": "Wide scope, absolute framing. Leaves little room for alternatives or incremental improvement."
     },
     {
       "sortOrder": 3,
-      "magnitudeLevel": "Extreme (100%)",
+      "magnitudeLevel": "Total (100%)",
       "magnitudePercent": 100,
-      "sublabel": "Maximal Assertion",
+      "sublabel": "Maximal",
       "proExample": "${topicName} is the pinnacle of human achievement in this domain and any deviation from it, however small, must be resisted by any means necessary.",
       "antiExample": "${topicName} is a total fraud that has never served its intended beneficiaries and never will.",
       "scopeDescription": "Catastrophic framing with no limiting conditions. The hardest to defend and the easiest to dismiss without engaging the moderate arguments."
@@ -224,10 +224,11 @@ Return a single valid JSON object matching this exact structure (all fields requ
     }
   ],
   "abstractionRungs": [
-    {"sortOrder": 0, "rungLabel": "Most General (Worldview)", "proChain": "...", "conChain": "..."},
-    {"sortOrder": 1, "rungLabel": "Political/Ethical Philosophy", "proChain": "...", "conChain": "..."},
-    {"sortOrder": 2, "rungLabel": "This Topic", "proChain": "...", "conChain": "..."},
-    {"sortOrder": 3, "rungLabel": "Most Specific (Policy/Action)", "proChain": "...", "conChain": "..."}
+    {"sortOrder": 0, "rungType": "general", "rungLabel": "Most General (Worldview)", "proChain": "Broad belief about human nature or society that supports this topic", "conChain": "Broad belief about human nature or society that opposes this topic"},
+    {"sortOrder": 1, "rungType": "subcategory", "branchName": "Subcategory A", "rungLabel": "name of sub-issue", "proChain": "Mid-level pro claim inside A", "conChain": "Mid-level anti claim inside A"},
+    {"sortOrder": 2, "rungType": "specific", "branchName": "Subcategory A", "rungLabel": "", "proChain": "Specific pro policy or action under A", "conChain": "Specific anti policy or action under A"},
+    {"sortOrder": 3, "rungType": "subcategory", "branchName": "Subcategory B", "rungLabel": "name of sub-issue", "proChain": "Mid-level pro claim inside B", "conChain": "Mid-level anti claim inside B"},
+    {"sortOrder": 4, "rungType": "specific", "branchName": "Subcategory B", "rungLabel": "", "proChain": "Specific pro claim under B", "conChain": "Specific anti claim under B"}
   ],
   "coreValues": {
     "supportingAdvertised": ["1. Value name — brief description", "2. ...", "3. ..."],

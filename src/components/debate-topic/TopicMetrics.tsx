@@ -34,10 +34,15 @@ export default function TopicMetrics({ importanceScore, evidenceDepth, controver
       <strong className={depthColor(evidenceDepth)}>{evidenceDepth}</strong>
       {' | '}
       <a href="/w/page/159300543/ReasonRank" className="text-blue-600 hover:underline">
-        Controversy Rating
+        Controversy
       </a>
       :{' '}
       <strong className={scoreColor(controversyRating)}>{controversyRating}</strong>
+      <p className="mt-1.5 mb-0 text-[11px] text-gray-500">
+        Every bracketed number on this page is a placeholder until the{' '}
+        <a href="/w/page/159300543/ReasonRank" className="text-blue-600 hover:underline">ReasonRank</a>{' '}
+        engine computes live scores.
+      </p>
     </div>
   );
 }

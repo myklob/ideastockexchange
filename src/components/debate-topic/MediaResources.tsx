@@ -10,11 +10,16 @@ function positivityLabel(p: number): string {
 }
 
 export default function MediaResources({ mediaResources }: Props) {
+  const sorted = [...mediaResources].sort((a, b) => b.positivity - a.positivity);
+
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-bold mb-1">📚 Best Media &amp; Resources</h2>
+      <h2 className="text-xl font-bold mb-1">📚 Best Media and Resources</h2>
       <p className="text-xs text-gray-600 mb-3">
-        Curated resources sorted by positivity score and informational value.
+        Sorted by positivity and informational value.{' '}
+        <span className="text-gray-500">
+          See: <a href="/media-framework" className="text-blue-600 hover:underline">Media Framework</a>.
+        </span>
       </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
@@ -30,7 +35,7 @@ export default function MediaResources({ mediaResources }: Props) {
             </tr>
           </thead>
           <tbody>
-            {mediaResources.map((m, i) => (
+            {sorted.map((m, i) => (
               <tr key={i} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-3 py-2">
                   {m.url ? (
@@ -52,9 +57,6 @@ export default function MediaResources({ mediaResources }: Props) {
           </tbody>
         </table>
       </div>
-      <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/media-framework" className="text-blue-600 hover:underline">Media Framework</a>
-      </p>
     </div>
   );
 }
