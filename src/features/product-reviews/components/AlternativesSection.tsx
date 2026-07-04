@@ -1,94 +1,64 @@
 import Link from 'next/link'
 import type { AlternativeItem } from '../types'
-import SectionHeading from '@/features/belief-analysis/components/SectionHeading'
+import { formatScore, rankByScore } from '../../belief-analysis/lib/ranking'
+import ExpandableRows from '../../belief-analysis/components/ExpandableRows'
 
 interface AlternativesSectionProps {
   alternatives: AlternativeItem[]
 }
 
+const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold bg-gray-100'
+const TD = 'border border-gray-300 px-3 py-2 align-top'
+const TDC = 'border border-gray-300 px-3 py-2 align-top text-center'
+
+function relationshipLabel(tier: string): string {
+  return tier.charAt(0).toUpperCase() + tier.slice(1)
+}
+
 export default function AlternativesSection({ alternatives }: AlternativesSectionProps) {
-  const premium = alternatives.filter(a => a.tier === 'premium')
-  const budget = alternatives.filter(a => a.tier === 'budget')
-  const lateral = alternatives.filter(a => a.tier === 'lateral')
+  const { top, rest } = rankByScore(alternatives, a => a.score)
+  const rows: Array<AlternativeItem | null> = top.length > 0 ? top : [null]
+
+  const row = (a: AlternativeItem | null, key: React.Key) => (
+    <tr key={key}>
+      <td className={TD}>
+        {a ? (
+          a.linkSlug ? (
+            <Link href={`/product-reviews/${a.linkSlug}`} className="text-[var(--accent)] hover:underline">
+              {a.alternativeName}
+            </Link>
+          ) : (
+            a.alternativeName
+          )
+        ) : (
+          <span>&nbsp;</span>
+        )}
+      </td>
+      <td className={TDC}>{a ? relationshipLabel(a.tier) : <span>&nbsp;</span>}</td>
+      <td className={TD}>{a?.keyAdvantage ?? <span>&nbsp;</span>}</td>
+      <td className={`${TDC} font-mono`}>{formatScore(a?.score) ?? <span>&nbsp;</span>}</td>
+    </tr>
+  )
 
   return (
-    <div>
-      <SectionHeading
-        emoji="🔄"
-        title="Similar Products & Alternatives"
-        subtitle="Grouping similar products prevents fragmented debates and ensures comprehensive analysis."
-      />
-
-      {alternatives.length > 0 ? (
-        <>
-          <div className="overflow-x-auto mb-6">
-            <table className="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="text-left px-4 py-3 font-semibold">Premium Alternatives (Higher Cost/Performance)</th>
-                  <th className="text-left px-4 py-3 font-semibold">Budget Alternatives (Lower Cost/Performance)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.from({ length: Math.max(premium.length, budget.length, 1) }).map((_, i) => (
-                  <tr key={i} className="border-t border-gray-200">
-                    <td className="px-4 py-3">
-                      {premium[i] ? (
-                        <>
-                          {premium[i].linkSlug ? (
-                            <Link href={`/product-reviews/${premium[i].linkSlug}`} className="text-[var(--accent)] hover:underline font-medium">
-                              {premium[i].alternativeName}
-                            </Link>
-                          ) : (
-                            <span className="font-medium">{premium[i].alternativeName}</span>
-                          )}
-                          <span className="text-gray-600"> — {premium[i].keyAdvantage}</span>
-                        </>
-                      ) : ''}
-                    </td>
-                    <td className="px-4 py-3">
-                      {budget[i] ? (
-                        <>
-                          {budget[i].linkSlug ? (
-                            <Link href={`/product-reviews/${budget[i].linkSlug}`} className="text-[var(--accent)] hover:underline font-medium">
-                              {budget[i].alternativeName}
-                            </Link>
-                          ) : (
-                            <span className="font-medium">{budget[i].alternativeName}</span>
-                          )}
-                          <span className="text-gray-600"> — {budget[i].keyAdvantage}</span>
-                        </>
-                      ) : ''}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {lateral.length > 0 && (
-            <div>
-              <p className="text-sm font-semibold mb-2">Lateral Alternatives (Different Trade-offs, Similar Price):</p>
-              <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
-                {lateral.map((alt) => (
-                  <li key={alt.id}>
-                    {alt.linkSlug ? (
-                      <Link href={`/product-reviews/${alt.linkSlug}`} className="text-[var(--accent)] hover:underline font-medium">
-                        {alt.alternativeName}
-                      </Link>
-                    ) : (
-                      <span className="font-medium">{alt.alternativeName}</span>
-                    )}
-                    <span className="text-gray-600"> — {alt.keyAdvantage}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )}
-        </>
-      ) : (
-        <p className="text-sm text-gray-500 italic">No alternative products have been listed yet.</p>
-      )}
-    </div>
+    <section>
+      <h2 className="text-xl font-bold mb-2">🔄 Alternatives</h2>
+      <table className="w-full border-collapse border border-gray-300 text-sm">
+        <thead>
+          <tr>
+            <th className={`${TH} w-[26%]`}>Alternative</th>
+            <th className={`${TH} w-[18%] text-center`}>Relationship</th>
+            <th className={`${TH} w-[44%]`}>Key difference from this product</th>
+            <th className={`${TH} w-[12%] text-center`}>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((a, i) => row(a, a?.id ?? i))}
+          <ExpandableRows moreCount={rest.length} colSpan={4}>
+            {rest.map(a => row(a, a.id))}
+          </ExpandableRows>
+        </tbody>
+      </table>
+    </section>
   )
 }

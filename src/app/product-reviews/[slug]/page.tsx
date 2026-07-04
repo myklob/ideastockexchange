@@ -1,26 +1,37 @@
+/**
+ * Product Review Page — the consumer-market sibling of the belief page. This
+ * IS a belief page for one product claim, and the title carries a scope:
+ * "[Product] is the best [Product Type] for [use case]" — bare "best" fails
+ * the costability test (compared to what, measured in what, for whom).
+ *
+ * CRITERIA BEFORE BRANDS: the Category Criteria table renders before
+ * performance or arguments; the criteria apply to every product in the
+ * category and are the yardstick the rest of the page measures against.
+ *
+ * Route: /product-reviews/[slug]
+ */
+
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { fetchProductReviewBySlug } from '@/features/product-reviews/data/fetch-product-reviews'
+import { fetchProductReviewBySlug, fetchCategoryCriteria } from '@/features/product-reviews/data/fetch-product-reviews'
 import { scoreProductReview } from '@/core/scoring/product-review-scoring'
 import ProductScoreHeader from '@/features/product-reviews/components/ProductScoreHeader'
+import ProductScorecardSection from '@/features/product-reviews/components/ProductScorecardSection'
+import CategoryCriteriaSection from '@/features/product-reviews/components/CategoryCriteriaSection'
 import PerformanceSection from '@/features/product-reviews/components/PerformanceSection'
 import TradeoffsSection from '@/features/product-reviews/components/TradeoffsSection'
+import RecommenderInterestsSection from '@/features/product-reviews/components/RecommenderInterestsSection'
 import AlternativesSection from '@/features/product-reviews/components/AlternativesSection'
+import OwnershipSection from '@/features/product-reviews/components/OwnershipSection'
 import UserProfilesSection from '@/features/product-reviews/components/UserProfilesSection'
+import DecisionObstaclesSection from '@/features/product-reviews/components/DecisionObstaclesSection'
 import AwardsSection from '@/features/product-reviews/components/AwardsSection'
 import EcosystemSection from '@/features/product-reviews/components/EcosystemSection'
 // Reuse belief analysis components for shared sections
 import ArgumentTreesSection from '@/features/belief-analysis/components/ArgumentTreesSection'
-import EvidenceSection from '@/features/belief-analysis/components/EvidenceSection'
-import ObjectiveCriteriaSection from '@/features/belief-analysis/components/ObjectiveCriteriaSection'
-import InterestsSection from '@/features/belief-analysis/components/InterestsSection'
 import AssumptionsSection from '@/features/belief-analysis/components/AssumptionsSection'
-import CostBenefitSection from '@/features/belief-analysis/components/CostBenefitSection'
-import ImpactSection from '@/features/belief-analysis/components/ImpactSection'
-import ObstaclesSection from '@/features/belief-analysis/components/ObstaclesSection'
 import BiasesSection from '@/features/belief-analysis/components/BiasesSection'
-import MediaSection from '@/features/belief-analysis/components/MediaSection'
-import ContributeSection from '@/features/belief-analysis/components/ContributeSection'
+import MediaResourcesSection from '@/features/belief-analysis/components/MediaResourcesSection'
 
 interface ProductReviewPageProps {
   params: Promise<{ slug: string }>
@@ -34,18 +45,17 @@ export default async function ProductReviewPage({ params }: ProductReviewPagePro
     notFound()
   }
 
-  const scores = scoreProductReview(review)
+  const [scores, categoryCriteria] = await Promise.all([
+    Promise.resolve(scoreProductReview(review)),
+    fetchCategoryCriteria(review.categoryType),
+  ])
   const belief = review.belief
 
-  // Compute belief-level argument scores for display
   let totalPro = 0
   let totalCon = 0
-
   if (belief) {
-    const proArgs = belief.arguments.filter(a => a.side === 'agree')
-    const conArgs = belief.arguments.filter(a => a.side === 'disagree')
-    totalPro = proArgs.reduce((sum, a) => sum + Math.abs(a.impactScore), 0)
-    totalCon = conArgs.reduce((sum, a) => sum + Math.abs(a.impactScore), 0)
+    totalPro = belief.arguments.filter(a => a.side === 'agree').reduce((s, a) => s + Math.abs(a.impactScore), 0)
+    totalCon = belief.arguments.filter(a => a.side === 'disagree').reduce((s, a) => s + Math.abs(a.impactScore), 0)
   }
 
   return (
@@ -69,27 +79,29 @@ export default async function ProductReviewPage({ params }: ProductReviewPagePro
         </div>
       </nav>
 
-      <main className="max-w-[960px] mx-auto px-4 py-8">
-        {/* Score Header */}
+      <main className="max-w-[960px] mx-auto px-4 py-8 leading-7 text-[#333]">
+        {/* Header: scoped title, net belief score, category, price segment */}
         <ProductScoreHeader
           productName={review.productName}
           brand={review.brand}
           claim={review.claim}
+          useCase={review.useCase ?? null}
+          priceSegment={review.priceSegment ?? null}
           categoryType={review.categoryType}
           categorySubtype={review.categorySubtype}
           scores={scores}
         />
 
         <div className="space-y-12">
-          {/* 1. Category Objective Criteria */}
-          {belief && (
-            <>
-              <ObjectiveCriteriaSection criteria={belief.objectiveCriteria} />
-              <hr className="border-gray-200" />
-            </>
-          )}
+          {/* 1. Scorecard — auto-derived from the tables below */}
+          <ProductScorecardSection review={review} />
+          <hr className="border-gray-200" />
 
-          {/* 2. Argument Trees */}
+          {/* 2. Category Criteria — CRITERIA BEFORE BRANDS */}
+          <CategoryCriteriaSection categoryType={review.categoryType} criteria={categoryCriteria} />
+          <hr className="border-gray-200" />
+
+          {/* 3. Argument Trees */}
           {belief && (
             <>
               <ArgumentTreesSection
@@ -102,23 +114,23 @@ export default async function ProductReviewPage({ params }: ProductReviewPagePro
             </>
           )}
 
-          {/* 3. Product Performance: Evidence Quality Assessment */}
+          {/* 4. Performance Against the Criteria */}
           <PerformanceSection performance={review.performanceData} />
           <hr className="border-gray-200" />
 
-          {/* 4. Core Design Trade-offs */}
-          <TradeoffsSection tradeoffs={review.tradeoffs} />
+          {/* 5. Design Trade-offs (advertised vs. actual, with Divergence Score) */}
+          <TradeoffsSection
+            tradeoffs={review.tradeoffs}
+            divergenceNote={review.divergenceNote}
+            divergenceScore={review.divergenceScore}
+          />
           <hr className="border-gray-200" />
 
-          {/* 5. Interests & Motivations */}
-          {belief && (
-            <>
-              <InterestsSection interests={belief.interestsAnalysis} />
-              <hr className="border-gray-200" />
-            </>
-          )}
+          {/* 6. Interests Behind the Recommendations */}
+          <RecommenderInterestsSection interests={review.recommenderInterests ?? []} />
+          <hr className="border-gray-200" />
 
-          {/* 6. Foundational Assumptions */}
+          {/* 7. Assumptions Required */}
           {belief && (
             <>
               <AssumptionsSection assumptions={belief.assumptions} />
@@ -126,93 +138,68 @@ export default async function ProductReviewPage({ params }: ProductReviewPagePro
             </>
           )}
 
-          {/* 7. Similar Products & Alternatives */}
+          {/* 8. Alternatives */}
           <AlternativesSection alternatives={review.alternatives} />
           <hr className="border-gray-200" />
 
-          {/* 8. Cost-Benefit Analysis */}
+          {/* 9. Cost-Benefit: total cost of ownership + total value delivered */}
+          <OwnershipSection costs={review.ownershipCosts ?? []} values={review.valueItems ?? []} />
+          <hr className="border-gray-200" />
+
+          {/* 10. Who Should Buy This + Decision rules */}
+          <UserProfilesSection profiles={review.userProfiles} decisionRules={review.decisionRules ?? []} />
+          <hr className="border-gray-200" />
+
+          {/* 11. Decision Obstacles */}
+          <DecisionObstaclesSection obstacles={review.decisionObstacles ?? []} />
+          <hr className="border-gray-200" />
+
+          {/* 12. Biases in the Reviews */}
           {belief && (
             <>
-              <CostBenefitSection
-                cba={belief.costBenefitAnalysis}
-                impact={belief.impactAnalysis}
-                compromises={belief.compromises}
+              <BiasesSection
+                biases={belief.biases}
+                leftHeader="Distorting the positive reviews"
+                rightHeader="Distorting the negative reviews"
               />
               <hr className="border-gray-200" />
             </>
           )}
 
-          {/* 9. Short vs Long-Term Value */}
+          {/* 13. Media */}
           {belief && (
             <>
-              <ImpactSection impact={belief.impactAnalysis} />
+              <MediaResourcesSection
+                media={belief.mediaResources}
+                leftHeader="Reviews supporting the verdict"
+                rightHeader="Reviews challenging the verdict"
+              />
               <hr className="border-gray-200" />
             </>
           )}
 
-          {/* 10. Best Fit User Profiles */}
-          <UserProfilesSection profiles={review.userProfiles} />
-          <hr className="border-gray-200" />
-
-          {/* 11. Common Decision Obstacles */}
-          {belief && (
-            <>
-              <ObstaclesSection obstacles={belief.obstacles} />
-              <hr className="border-gray-200" />
-            </>
-          )}
-
-          {/* 12. Cognitive Biases in Reviews */}
-          {belief && (
-            <>
-              <BiasesSection biases={belief.biases} />
-              <hr className="border-gray-200" />
-            </>
-          )}
-
-          {/* 13. Media Resources */}
-          {belief && (
-            <>
-              <MediaSection media={belief.mediaResources} />
-              <hr className="border-gray-200" />
-            </>
-          )}
-
-          {/* 14. Awards & Certifications */}
+          {/* 14. Recognition */}
           <AwardsSection awards={review.awards} />
           <hr className="border-gray-200" />
 
-          {/* 15. Product Ecosystem */}
+          {/* 15. Ecosystem and Lock-in */}
           <EcosystemSection items={review.ecosystemItems} />
           <hr className="border-gray-200" />
 
-          {/* 16. Evidence (from belief) */}
-          {belief && (
-            <>
-              <EvidenceSection evidence={belief.evidence} />
-              <hr className="border-gray-200" />
-            </>
-          )}
-
-          {/* 17. Contribute */}
-          <ContributeSection />
-
-          {/* Overall Score (bottom) */}
-          <div className="text-right">
-            <p className="text-lg font-bold">
-              Score:{' '}
-              <Link
-                href="/Argument%20scores%20from%20sub-argument%20scores"
-                className="text-[var(--accent)] hover:underline"
-              >
-                {scores.overallScore >= 0 ? '+' : ''}{scores.overallScore.toFixed(1)}
-              </Link>
-              {' '}
-              <span className="text-sm font-normal text-[var(--muted-foreground)]">
-                (based on argument scores)
-              </span>
-            </p>
-          </div>
+          {/* 16. Contribute */}
+          <p className="text-xs text-[#555]">
+            Contribute reviews, evidence, criteria, or alternatives:{' '}
+            <Link href="/contact" className="text-[var(--accent)] hover:underline">Contact me</Link>
+            {' '}·{' '}
+            <a
+              href="https://github.com/myklob/ideastockexchange"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--accent)] hover:underline"
+            >
+              GitHub
+            </a>
+          </p>
         </div>
       </main>
     </div>

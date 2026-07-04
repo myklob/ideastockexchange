@@ -1739,6 +1739,25 @@ model ProductReview {
   brand       String   // e.g., "Ford"
   claim       String   // e.g., "Ford makes the best trucks"
 
+  /// THE TITLE MUST CARRY A SCOPE: bare "best" fails the costability test
+  /// (compared to what, measured in what, for whom). The page headline is
+  /// "[Product] is the best [Product Type] for [useCase]".
+  useCase      String?
+  /// "Budget" | "Mid-range" | "Premium"
+  priceSegment String?
+
+  /// Scorecard fields. Bottom line is the one-sentence verdict scoped to the
+  /// use case in the title; verdictChanger is the measurement or price change
+  /// that would flip the net score. The other scorecard cells are auto-derived
+  /// from the tables, never hand-picked.
+  bottomLine     String?
+  verdictChanger String?
+
+  /// Design Trade-offs: how far the advertised optimization differs from the
+  /// actual one, scored by its own sub-debate.
+  divergenceNote  String?
+  divergenceScore Float?
+
   // Category hierarchy: Product Type > Subcategory > Brand/Model
   categoryType    String   // e.g., "Trucks"
   categorySubtype String?  // e.g., "Full-size Pickup"
@@ -1762,9 +1781,38 @@ model ProductReview {
   awards           ProductAward[]
   ecosystemItems   ProductEcosystem[]
 
+  recommenderInterests ProductRecommenderInterest[]
+  ownershipCosts       ProductOwnershipCost[]
+  valueItems           ProductValueItem[]
+  decisionRules        ProductDecisionRule[]
+  decisionObstacles    ProductDecisionObstacle[]
+
   @@index([categoryType])
   @@index([overallScore])
   @@index([brand])
+}
+
+/// CRITERIA BEFORE BRANDS: the criteria that make a good [Product Type],
+/// keyed by category so they apply to every product in it and are filled
+/// before any brand is discussed. The yardstick the rest of a product page
+/// measures against.
+model CategoryCriterion {
+  id Int @id @default(autoincrement())
+
+  /// Matches ProductReview.categoryType (e.g. "Trucks").
+  categoryType String
+  criterion    String
+  howToMeasure String?
+  /// How much this criterion matters for the category (0-100).
+  importance Float?
+  /// Row score: performance of the sub-debate that this criterion belongs
+  /// on the list. Sorts descending.
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([categoryType])
 }
 
 // Per-criterion performance data with evidence quality tiers
@@ -1778,6 +1826,13 @@ model ProductPerformance {
   evidenceTier    Int      @default(3) // 1-4 (T1=lab tested, T4=anecdotal)
   comparisonToAvg String   @default("Same") // "Better", "Worse", "Same"
   sourceUrl       String?
+
+  /// Category average or best rival, with units — "compared to what".
+  benchmark String?
+  /// Named evidence source (the tier badge's owner).
+  source    String?
+  /// Row impact on the verdict. Sorts descending.
+  impact    Float?
 
   createdAt DateTime @default(now())
 
@@ -1793,6 +1848,104 @@ model ProductTradeoff {
   side            String  // "optimizes" or "sacrifices"
   category        String  // "advertised" or "actual"
   description     String
+  /// Row score: performance of this claim's own sub-debate. Sorts descending.
+  score           Float?
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+/// Interests Behind the Recommendations: who recommends this product (or its
+/// alternatives), what they gain, what they optimize for. Hidden-interest
+/// attributions (affiliate money, ecosystem lock-in) are scored claims
+/// requiring evidence, applied with equal suspicion to both sides.
+model ProductRecommenderInterest {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  side        String  // "product" (recommends this product) or "alternatives"
+  description String
+  /// Candidate hidden interest (renders as the italic row). Requires evidence.
+  hidden   Boolean @default(false)
+  evidence String?
+  score    Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+/// Total cost of ownership row: costs keep their units and never collapse
+/// across categories unless the conversion is stated.
+model ProductOwnershipCost {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  item     String
+  estimate String? // with units
+  costType String  @default("initial") // "initial" | "ongoing" | "hidden" | "opportunity"
+  source   String?
+  evidenceTier Int?
+  score    Float?
+  sortOrder Int   @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+/// Total value delivered row.
+model ProductValueItem {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  item      String
+  measure   String? // with units
+  timeframe String  @default("short") // "short" (0-2 years) | "long" (3+ years) | "both"
+  source    String?
+  evidenceTier Int?
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+/// Decision rule: "If you prioritize [criterion], buy [option], because [evidence]".
+model ProductDecisionRule {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  /// The bold lead-in, e.g. "If you prioritize towing capacity".
+  condition String
+  /// The recommendation with its evidence, e.g. "buy the F-150 because …".
+  advice    String
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+/// Decision Obstacles: category-specific patterns for why buyers overpay or
+/// underinvest.
+model ProductDecisionObstacle {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  side        String // "overpay" or "underinvest"
+  description String
+  score       Float?
+  sortOrder   Int    @default(0)
 
   createdAt DateTime @default(now())
 
@@ -1809,6 +1962,8 @@ model ProductAlternative {
   tier            String  // "premium", "budget", or "lateral"
   keyAdvantage    String
   linkSlug        String? // Optional link to that product's review
+  /// Row score: strength of this alternative's case. Sorts descending.
+  score           Float?
 
   createdAt DateTime @default(now())
 
@@ -1823,6 +1978,9 @@ model ProductUserProfile {
 
   side            String  // "ideal" or "not_ideal"
   description     String
+  /// Row score: how well this profile fits (or misfits). Sorts descending;
+  /// the Scorecard's Best for / Not for derive from the top rows.
+  score           Float?
 
   createdAt DateTime @default(now())
 
@@ -1838,6 +1996,7 @@ model ProductAward {
   side            String  // "independent" or "manufacturer"
   title           String
   details         String?
+  score           Float?
 
   createdAt DateTime @default(now())
 
@@ -1852,6 +2011,9 @@ model ProductEcosystem {
 
   category        String  // "upstream", "downstream", or "lockin"
   description     String
+  /// Cost or commitment, with units (dollars, hours, switching cost).
+  cost            String?
+  score           Float?
 
   createdAt DateTime @default(now())
 

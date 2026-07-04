@@ -1,62 +1,60 @@
 import type { AwardItem } from '../types'
-import SectionHeading from '@/features/belief-analysis/components/SectionHeading'
+import { formatScore, pairBySide, rankByScore, TABLE_TOP_LIMIT } from '../../belief-analysis/lib/ranking'
+import ExpandableRows from '../../belief-analysis/components/ExpandableRows'
 
 interface AwardsSectionProps {
   awards: AwardItem[]
 }
 
+const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold bg-gray-100'
+const TD = 'border border-gray-300 px-3 py-2 align-top'
+const TDC = 'border border-gray-300 px-3 py-2 align-top text-center'
+
+function AwardCell({ a }: { a: AwardItem | null }) {
+  if (!a) return <span>&nbsp;</span>
+  return (
+    <>
+      {a.title}
+      {a.details && <span className="text-xs text-[var(--muted-foreground)]"> — {a.details}</span>}
+    </>
+  )
+}
+
 export default function AwardsSection({ awards }: AwardsSectionProps) {
-  const independent = awards.filter(a => a.side === 'independent')
-  const manufacturer = awards.filter(a => a.side === 'manufacturer')
+  const independent = rankByScore(awards.filter(a => a.side === 'independent'), a => a.score, Infinity).top
+  const manufacturer = rankByScore(awards.filter(a => a.side === 'manufacturer'), a => a.score, Infinity).top
+  const pairs = pairBySide(independent, manufacturer)
+  const topPairs = pairs.length > 0 ? pairs.slice(0, TABLE_TOP_LIMIT) : [[null, null] as [AwardItem | null, AwardItem | null]]
+  const restPairs = pairs.slice(TABLE_TOP_LIMIT)
+
+  const row = ([ind, man]: [AwardItem | null, AwardItem | null], key: React.Key) => (
+    <tr key={key}>
+      <td className={TD}><AwardCell a={ind} /></td>
+      <td className={`${TDC} font-mono`}>{formatScore(ind?.score) ?? <span>&nbsp;</span>}</td>
+      <td className={TD}><AwardCell a={man} /></td>
+      <td className={`${TDC} font-mono`}>{formatScore(man?.score) ?? <span>&nbsp;</span>}</td>
+    </tr>
+  )
 
   return (
-    <div>
-      <SectionHeading
-        emoji="🏆"
-        title="Awards & Certifications"
-        subtitle="Independent recognition carries more weight than manufacturer marketing. Track the difference."
-      />
-
-      {awards.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left px-4 py-3 font-semibold">Independent Recognition</th>
-                <th className="text-left px-4 py-3 font-semibold">Manufacturer Claims</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.from({ length: Math.max(independent.length, manufacturer.length, 1) }).map((_, i) => (
-                <tr key={i} className="border-t border-gray-200">
-                  <td className="px-4 py-3">
-                    {independent[i] && (
-                      <>
-                        <span className="font-medium">{independent[i].title}</span>
-                        {independent[i].details && (
-                          <span className="text-gray-600"> — {independent[i].details}</span>
-                        )}
-                      </>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {manufacturer[i] && (
-                      <>
-                        <span className="font-medium">{manufacturer[i].title}</span>
-                        {manufacturer[i].details && (
-                          <span className="text-gray-600"> — {manufacturer[i].details}</span>
-                        )}
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-sm text-gray-500 italic">No awards or certifications have been recorded yet.</p>
-      )}
-    </div>
+    <section>
+      <h2 className="text-xl font-bold mb-2">🏆 Recognition</h2>
+      <table className="w-full border-collapse border border-gray-300 text-sm">
+        <thead>
+          <tr>
+            <th className={`${TH} w-[42%]`}>Independent recognition (award, certifier, criteria)</th>
+            <th className={`${TH} w-[8%] text-center`}>Score</th>
+            <th className={`${TH} w-[42%]`}>Manufacturer claims (marketing awards, self-selected statistics)</th>
+            <th className={`${TH} w-[8%] text-center`}>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {topPairs.map((pair, i) => row(pair, pair[0]?.id ?? pair[1]?.id ?? i))}
+          <ExpandableRows moreCount={restPairs.length} colSpan={4}>
+            {restPairs.map((pair, i) => row(pair, pair[0]?.id ?? pair[1]?.id ?? i))}
+          </ExpandableRows>
+        </tbody>
+      </table>
+    </section>
   )
 }
