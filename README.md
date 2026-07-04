@@ -2,6 +2,8 @@
 
 > A prediction market for ideas, where arguments are scored, not just shouted.
 
+**Stack:** Next.js (App Router) + TypeScript + React 19, Prisma 7 — SQLite for local dev, PostgreSQL in production — Tailwind CSS v4, Vitest. Not Astro, not MongoDB/Express; if you are pointing an AI tool at this repo, tell it that.
+
 The Idea Stock Exchange is a long-term project to build systematic reasoning infrastructure for public discourse. It treats arguments like financial instruments: each claim has both an intrinsic value derived from logic and evidence (**ReasonRank**) and a market value determined by crowd conviction (**Market Price**). When the two diverge, an arbitrage opportunity exists. The goal is replacing the chronological chaos of social media with structured, evidence-scored debate that accumulates progress instead of relitigating the same questions forever.
 
 > *We do not need more civic engagement. We need better organization of the engagement that already exists.*
@@ -77,6 +79,53 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) and head to `/beliefs/[slug]` to see the canonical belief page — the heart of the product.
+
+### Run a mock AI agent in ten minutes
+
+The ISE is a show-your-work substrate for autonomous agents: an agent does not
+publish conclusions, it files decomposed claims with linkage checks, evidence
+provenance, and a rationale for every move ([the contract](docs/AI_AGENT_INTEGRATION_SPEC.md)).
+
+```bash
+# 1. Start the app (see Getting Started above), then mint an agent key:
+npx tsx scripts/create-agent.ts --name demo-agent --operator "you"
+
+# 2. Write a batch payload (shape documented in docs/AI_AGENT_INTEGRATION_SPEC.md):
+cat > /tmp/batch.json <<'EOF'
+{
+  "batchTitle": "Demo: negative income tax",
+  "claims": [{
+    "statement": "A negative income tax reduces administrative overhead relative to categorical welfare programs",
+    "direction": "pro",
+    "parentBeliefSlug": "universal-basic-income-should-be-implemented",
+    "rationale": "Consolidating categorical programs cuts caseworker cost",
+    "fiveStepCheck": {
+      "parentWording": "Universal basic income should be implemented",
+      "claimWording": "A negative income tax reduces administrative overhead relative to categorical welfare programs",
+      "howItSupports": "Lower administrative cost removes a standard objection to implementation",
+      "provisionalEstimate": 0.8,
+      "flaggedBelowThreshold": false
+    },
+    "evidence": [{
+      "title": "Administrative costs of means-tested transfers",
+      "doi": "10.1000/demo",
+      "tierClaim": "T1"
+    }]
+  }]
+}
+EOF
+
+# 3. File it through the audited ingestion API:
+ISE_AGENT_KEY=<key from step 1> npx tsx scripts/ingest-batch.ts /tmp/batch.json
+```
+
+Then open [/audit](http://localhost:3000/audit): an AI asserted something, and
+every part of its work — the placement, the five-step linkage check, the
+evidence provenance, the rationale — is inspectable there and on the batch
+page the API links back. Try submitting a score field or a bare topic label
+and the API rejects it with the named failure mode. Scores stay bracketed
+placeholders until the ReasonRank engine (not built yet) computes them;
+nothing here pretends otherwise.
 
 ## Related Projects
 

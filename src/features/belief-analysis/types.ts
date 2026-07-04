@@ -177,6 +177,9 @@ export interface ArgumentWithBelief {
     slug: string
     statement: string
     positivity: number
+    /** Evidence provenance for the "show the work" trace. Optional so
+     *  existing Prisma data still flows. */
+    evidence?: AgentProvenanceEvidence[]
   }
   /** The belief sourcing this argument's Importance Score, if any. */
   importanceBeliefId: number | null
@@ -186,6 +189,34 @@ export interface ArgumentWithBelief {
     statement: string
     positivity: number
   } | null
+
+  /** Agent-ingestion provenance (all optional so existing data still flows).
+   *  Display and audit only — never a scoring input. */
+  rationale?: string | null
+  submittedByAgent?: { id: string; name: string; operator: string | null } | null
+  linkageFiveStepCheck?: {
+    parentWording: string | null
+    sourceWording: string | null
+    mechanismSentence: string | null
+    /** The placement-time author bracket; the engine supersedes it. */
+    provisionalEstimate: number | null
+    dominantFactor: string | null
+    flagNote: string | null
+  } | null
+}
+
+/** Evidence provenance shown in an agent-submitted argument's work trace. */
+export interface AgentProvenanceEvidence {
+  id: number
+  description: string
+  sourceUrl: string | null
+  doi: string | null
+  pmid: string | null
+  isbn: string | null
+  /** The submitting agent's tier assertion; verified separately. */
+  tierClaim: string | null
+  tierVerified: string | null
+  retrievedByAgentId: string | null
 }
 
 export interface EvidenceItem {

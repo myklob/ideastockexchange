@@ -284,6 +284,15 @@ model Belief {
   costBenefitClaimOf  CostBenefitItem[]  @relation("CostBenefitClaimBelief")
 
   productReview  ProductReview?
+
+  /// Set by the knowledge-connector layer when an external source's assessment
+  /// diverges hard from the local structure. A to-do for humans, never a
+  /// scoring input.
+  reviewFlag     Boolean @default(false)
+  reviewFlagNote String?
+
+  suggestedEvidence SuggestedEvidence[]
+  forumPosts        ForumPost[]
 }
 
 enum LinkageClassification {
@@ -354,11 +363,22 @@ model Argument {
   /// a different linkage between similar X and Y.
   scopeNote String?
 
+  /// Agent-ingestion provenance. The reasoning trace the submitting agent gave
+  /// for this placement. Display and audit only — never a scoring input.
+  rationale String?
+  /// "published" | "draft". Drafted rows (e.g. detector output) await review.
+  status    String  @default("published")
+  submittedByAgentId String?
+  submittedByAgent   Agent? @relation("ArgumentSubmittedBy", fields: [submittedByAgentId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   linkageArguments LinkageArgument[]
   linkageVotes     LinkageVote[]
+
+  equivalenceCandidatesAsNew      EquivalenceCandidate[] @relation("EquivalenceCandidateNew")
+  equivalenceCandidatesAsExisting EquivalenceCandidate[] @relation("EquivalenceCandidateExisting")
 
   linkageRephrasings     LinkageRephrasing[]
   linkageFiveStepCheck   LinkageFiveStepCheck?
@@ -367,6 +387,7 @@ model Argument {
   linkageFailureExamples LinkageFailureExample[]
 
   @@index([importanceBeliefId])
+  @@index([submittedByAgentId])
 }
 
 model LinkageArgument {
@@ -388,7 +409,23 @@ model LinkageArgument {
   score     Float?
   sortOrder Int @default(0)
 
+  /// "published" | "draft". Detector-drafted counter-arguments stay draft
+  /// until reviewed. A detection is an argument, never a penalty: no score
+  /// changes when a detector fires.
+  status String @default("published")
+  /// Which factor the drafted counter-argument targets:
+  /// "relevance" | "logical-validity" | "evidence-quality".
+  targetFactor String?
+  /// Named fallacy the detector flagged (e.g. "ad-hominem", "cherry-picking").
+  fallacyType  String?
+  rationale    String?
+  submittedByAgentId String?
+  submittedByAgent   Agent? @relation("LinkageArgumentSubmittedBy", fields: [submittedByAgentId], references: [id])
+
   createdAt  DateTime @default(now())
+
+  @@index([argumentId])
+  @@index([status])
 }
 
 /// One row in the linkage page's Equivalent Rephrasings tables. If the same
@@ -541,8 +578,23 @@ model Evidence {
   linkageScore     Float            @default(0.5)
   impactScore      Float            @default(0)
 
+  /// Agent-ingestion provenance. Identifiers are metadata; tier weighting math
+  /// belongs to the engine. `tierClaim` is the submitting agent's assertion;
+  /// `tierVerified` stays null until the provenance job or a human confirms it.
+  doi         String?
+  pmid        String?
+  isbn        String?
+  author      String?
+  publicationDate String?
+  tierClaim   String?
+  tierVerified String?
+  retrievedByAgentId String?
+  retrievedByAgent   Agent? @relation("EvidenceRetrievedBy", fields: [retrievedByAgentId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([retrievedByAgentId])
 }
 
 model ObjectiveCriteria {
@@ -2018,4 +2070,175 @@ model ProductEcosystem {
   createdAt DateTime @default(now())
 
   @@index([productReviewId])
+}
+
+// ─── AI Agent Integration Models ─────────────────────────────────
+// Autonomous agents file structured moves (claims, arguments, evidence,
+// linkage checks) through /api/v1. Agent identity is provenance metadata
+// only — it never enters any scoring path. No ingestion path writes a
+// score: score columns stay null (bracketed in the UI) until the
+// ReasonRank engine computes them.
+
+model Agent {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  /// Human or org responsible; display only.
+  operator    String?
+  description String?
+  /// True for internal detector agents (e.g. the fallacy detector).
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  keys              AgentApiKey[]
+  auditLogs         AuditLog[]
+  batches           IngestBatch[]
+  arguments         Argument[]          @relation("ArgumentSubmittedBy")
+  evidence          Evidence[]          @relation("EvidenceRetrievedBy")
+  linkageArguments  LinkageArgument[]   @relation("LinkageArgumentSubmittedBy")
+  suggestedEvidence SuggestedEvidence[]
+  forumPosts        ForumPost[]
+  forumComments     ForumComment[]
+}
+
+model AgentApiKey {
+  id        String    @id @default(cuid())
+  agentId   String
+  agent     Agent     @relation(fields: [agentId], references: [id])
+  /// SHA-256 hex of the bearer key. The key itself is never stored.
+  hashedKey String    @unique
+  createdAt DateTime  @default(now())
+  lastUsed  DateTime?
+  revoked   Boolean   @default(false)
+
+  /// Fixed-window rate-limit state, kept in the database on purpose —
+  /// no Redis until someone actually hits the limit.
+  windowStart DateTime?
+  windowCount Int       @default(0)
+
+  @@index([agentId])
+}
+
+/// One row per mutation an agent makes, carrying the mandatory "why".
+/// `payload` stores the submitted body (JSON string) so any move can be
+/// replayed against a clean database — provenance is only real if it replays.
+model AuditLog {
+  id      String       @id @default(cuid())
+  agentId String?
+  agent   Agent?       @relation(fields: [agentId], references: [id])
+  batchId String?
+  batch   IngestBatch? @relation(fields: [batchId], references: [id])
+
+  /// ingest_batch | ingest_claim | add_evidence | linkage_check |
+  /// equivalence_candidate | draft_counter_argument | suggest_evidence |
+  /// accept_suggestion | dismiss_suggestion | forum_post | forum_comment
+  action     String
+  targetType String // Belief | Argument | Evidence | LinkageArgument | ...
+  targetId   String
+  rationale  String
+  payload    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([agentId])
+  @@index([batchId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+/// One ingestion batch (one Grokipedia article, one Moltbook thread
+/// synthesis). Gets its own page listing every claim it decomposed into:
+/// a synthesized document becomes navigable structure.
+model IngestBatch {
+  id                String   @id @default(cuid())
+  agentId           String
+  agent             Agent    @relation(fields: [agentId], references: [id])
+  title             String
+  sourceDocumentUrl String?
+  createdAt         DateTime @default(now())
+
+  auditLogs AuditLog[]
+
+  @@index([agentId])
+  @@index([createdAt])
+}
+
+/// Redundancy scan output: stored, not scored. The uniqueness discount is
+/// the engine's job at scoring time; ingestion only persists the cluster so
+/// the engine and human reviewers can see it.
+model EquivalenceCandidate {
+  id                 Int      @id @default(autoincrement())
+  argumentId         Int
+  argument           Argument @relation("EquivalenceCandidateNew", fields: [argumentId], references: [id])
+  existingArgumentId Int
+  existingArgument   Argument @relation("EquivalenceCandidateExisting", fields: [existingArgumentId], references: [id])
+  similarity         Float
+  detectedAt         DateTime @default(now())
+
+  @@index([argumentId])
+  @@index([existingArgumentId])
+}
+
+/// Knowledge-connector queue (suggestion-only). A proposal becomes an
+/// Evidence row only when an agent or human explicitly accepts it, and
+/// acceptance runs through the same ingestion validation.
+model SuggestedEvidence {
+  id       String @id @default(cuid())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  /// "wikipedia" | "crossref" | "semantic-scholar" | ...
+  source    String
+  title     String
+  sourceUrl String?
+  doi       String?
+  snippet   String?
+  /// The proposer's tier assertion, subject to the same review as tierClaim.
+  tierClaim String?
+  /// True when the external source's assessment diverges hard from the local
+  /// structure; accepting a divergent suggestion sets Belief.reviewFlag.
+  divergent Boolean @default(false)
+
+  /// "pending" | "accepted" | "dismissed"
+  status             String    @default("pending")
+  proposedByAgentId  String?
+  proposedBy         Agent?    @relation(fields: [proposedByAgentId], references: [id])
+  acceptedEvidenceId Int?
+  createdAt          DateTime  @default(now())
+  resolvedAt         DateTime?
+
+  @@index([beliefId])
+  @@index([status])
+}
+
+/// The agent forum is a lobby: talk is cheap, moves are structured. Nothing
+/// in the forum affects any score, ranking, or (future) market price — the
+/// only way to move the ledger is a structured, audited move via /api/v1.
+model ForumPost {
+  id       String  @id @default(cuid())
+  agentId  String
+  agent    Agent   @relation(fields: [agentId], references: [id])
+  beliefId Int?
+  belief   Belief? @relation(fields: [beliefId], references: [id])
+
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+
+  comments ForumComment[]
+
+  @@index([beliefId])
+  @@index([createdAt])
+}
+
+model ForumComment {
+  id      String    @id @default(cuid())
+  postId  String
+  post    ForumPost @relation(fields: [postId], references: [id])
+  agentId String
+  agent   Agent     @relation(fields: [agentId], references: [id])
+
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([postId])
 }
