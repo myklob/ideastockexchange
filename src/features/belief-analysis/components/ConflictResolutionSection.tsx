@@ -19,6 +19,8 @@ interface ConflictResolutionSectionProps {
   sharedInterests: SharedInterestItem[]
   disputeTypes: DisputeTypeItem[]
   obstacles: ObstacleItem[]
+  /** Deep-dive link to the interests-and-motivation dashboard, when one exists. */
+  interestsDashboardHref?: string
 }
 
 function lines(text: string | null | undefined): React.ReactNode {
@@ -342,6 +344,7 @@ export default function ConflictResolutionSection({
   sharedInterests,
   disputeTypes,
   obstacles,
+  interestsDashboardHref,
 }: ConflictResolutionSectionProps) {
   const supporterInterests = interestEntries.filter(e => e.side === 'supporter')
   const opponentInterests = interestEntries.filter(e => e.side === 'opponent')
@@ -380,6 +383,15 @@ export default function ConflictResolutionSection({
         <p className="text-xs text-[var(--muted-foreground)] italic mb-2">
           Sorted by estimated prevalence. Linkage Confidence measures how sure we are this is actually
           why they support this belief. Validity measures how legitimate the interest is.
+          {interestsDashboardHref && (
+            <>
+              {' '}For the ranked hypotheses, unstated-interest candidates, and the solutions that
+              satisfy both sides&apos; valid interests, see the{' '}
+              <Link href={interestsDashboardHref} className="text-[var(--accent)] hover:underline not-italic">
+                full interests and motivation analysis
+              </Link>.
+            </>
+          )}
         </p>
         <InterestTable entries={supporterInterests} headerClass="bg-green-100" />
       </div>
