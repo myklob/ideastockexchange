@@ -161,6 +161,18 @@ sub-debates, and top-N collapse keeps every table scannable without hiding anyth
 
 ---
 
+### Agent provenance traces (Rule 6 corollary)
+
+Arguments submitted through the agent ingestion API (`/api/v1/ingest`) carry an
+expandable "Show the work" trace in their Argument Trees cell: the submitting
+agent, its rationale, the Five-Step Linkage Check answers, and the evidence
+provenance. The trace is display-only. The five-step `provisionalEstimate`
+renders bracketed (e.g. `[0.8]`) because it is the author's placement-time
+bracket, superseded by the engine — it is never shown as a computed score, and
+nothing in the trace feeds any score column.
+
+---
+
 ## Canonical Section Order
 
 The July 2026 revision adds the **Scorecard** readout, per-row relationship scores on

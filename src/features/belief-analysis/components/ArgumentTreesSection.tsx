@@ -34,6 +34,67 @@ function impCell(arg: ArgumentWithBelief): string {
   return arg.importanceScore.toFixed(1)
 }
 
+/**
+ * "Show the work" trace for agent-submitted arguments: the submitting agent,
+ * its rationale, the five-step check answers, and the evidence provenance.
+ * Provenance display only — none of this feeds any score.
+ */
+function AgentWorkTrace({ arg }: { arg: ArgumentWithBelief }) {
+  const agent = arg.submittedByAgent
+  if (!agent) return null
+  const check = arg.linkageFiveStepCheck
+  const evidence = (arg.belief.evidence ?? []).filter(e => e.retrievedByAgentId)
+  return (
+    <details className="mt-1 text-xs not-italic">
+      <summary className="cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--accent)]">
+        &#129302; Show the work
+      </summary>
+      <div className="mt-1 space-y-1 border-l-2 border-gray-200 pl-2 text-[#555]">
+        <p>
+          <strong>Agent:</strong> {agent.name}
+          {agent.operator && <> (operator: {agent.operator})</>}
+        </p>
+        {arg.rationale && <p><strong>Rationale:</strong> {arg.rationale}</p>}
+        {check && (
+          <div>
+            <p className="font-semibold">Five-Step Linkage Check</p>
+            {check.parentWording && <p>1. Parent wording: &ldquo;{check.parentWording}&rdquo;</p>}
+            {check.sourceWording && <p>2. Claim wording: &ldquo;{check.sourceWording}&rdquo;</p>}
+            {check.mechanismSentence && <p>3. Mechanism: {check.mechanismSentence}</p>}
+            {check.provisionalEstimate != null && (
+              <p>4. Author bracket: [{check.provisionalEstimate}] &mdash; superseded by the engine</p>
+            )}
+            {check.flagNote && <p>5. Flag: {check.flagNote}</p>}
+          </div>
+        )}
+        {evidence.length > 0 && (
+          <div>
+            <p className="font-semibold">Evidence provenance</p>
+            <ul className="list-disc ml-4">
+              {evidence.map(e => (
+                <li key={e.id}>
+                  {e.sourceUrl ? (
+                    <a href={e.sourceUrl} className="text-[var(--accent)] hover:underline">{e.description}</a>
+                  ) : (
+                    e.description
+                  )}
+                  {e.doi && <span className="font-mono"> doi:{e.doi}</span>}
+                  {e.tierClaim && (
+                    <span>
+                      {' '}&mdash; claimed {e.tierClaim}
+                      {e.tierVerified ? `, verified ${e.tierVerified}` : ', unverified'}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </details>
+  )
+}
+
 /** The argument cell: claim label, inline famous quote (italic), then ~Author link. */
 function ArgumentCell({ arg }: { arg: ArgumentWithBelief }) {
   const label = arg.claim ?? arg.belief.statement
@@ -57,6 +118,7 @@ function ArgumentCell({ arg }: { arg: ArgumentWithBelief }) {
           )}
         </span>
       )}
+      <AgentWorkTrace arg={arg} />
     </>
   )
 }

@@ -54,11 +54,34 @@ const BELIEF_INCLUDE = {
   arguments: {
     include: {
       belief: {
-        select: { id: true, slug: true, statement: true, positivity: true },
+        select: {
+          id: true,
+          slug: true,
+          statement: true,
+          positivity: true,
+          // Provenance for the "show the work" trace on agent-submitted rows.
+          evidence: {
+            select: {
+              id: true,
+              description: true,
+              sourceUrl: true,
+              doi: true,
+              pmid: true,
+              isbn: true,
+              tierClaim: true,
+              tierVerified: true,
+              retrievedByAgentId: true,
+            },
+          },
+        },
       },
       importanceBelief: {
         select: { id: true, slug: true, statement: true, positivity: true },
       },
+      submittedByAgent: {
+        select: { id: true, name: true, operator: true },
+      },
+      linkageFiveStepCheck: true,
     },
     orderBy: { impactScore: 'desc' as const },
   },
