@@ -1,0 +1,488 @@
+<!-- page=Product Review Template -->
+<!-- content-type=text/html -->
+<!--
+  ===== ISE PRODUCT REVIEW MASTER TEMPLATE (July 2026) =====
+  The consumer-market sibling of the Belief Analysis template: the page is a
+  belief page for one product claim. Mirrored by the React implementation in
+  src/app/product-reviews/[slug]/page.tsx and the section components in
+  src/features/product-reviews/components/*. If you change this template,
+  update that page. The two must stay in sync.
+
+  HARD RULES (every generation must follow):
+    1. THE TITLE MUST CARRY A SCOPE: bare "best" fails the costability test
+       (compared to what, measured in what, for whom). The claim is always
+       "[Product] is the best [Product Type] for [use case or user profile]".
+    2. CRITERIA BEFORE BRANDS: fill the Category Criteria table before
+       touching performance or arguments. The criteria apply to every product
+       in the category and are the yardstick the rest of the page measures
+       against.
+    3. Every table row is a scored relationship and ranks by its score column,
+       never by editorial placement; the software shows each table's top five
+       rows and collapses the rest.
+    4. All scores stay [bracketed] until the ReasonRank engine computes them;
+       never fill a score cell for an empty row; never present a placeholder
+       as computed output. Scorecard cells are auto-derived from the tables
+       below, never hand-picked.
+    5. Hidden-interest attributions (affiliate money, ecosystem lock-in) are
+       scored claims requiring evidence, applied with equal suspicion to
+       recommenders of this product and recommenders of alternatives.
+    6. The Divergence Score on the trade-offs table is the score of the
+       sub-debate that the advertised optimization differs from the actual one.
+    7. Costs and benefits keep their units and never collapse across
+       categories unless the conversion is stated.
+    8. Worked examples (Ford trucks, Apple phones) live on hub pages and
+       instance lists, never inside this template.
+    9. Emoji section headers are this template's established convention;
+       table header rows use #f0f3f6; spell words out, no abbreviations,
+       no symbols in place of words.
+
+  SECTION ORDER:
+    Header (breadcrumb / scoped-claim H1 / net score, category, price segment /
+    method line) → Scorecard → Category Criteria → Argument Trees →
+    Performance Against the Criteria → Design Trade-offs → Interests Behind
+    the Recommendations → Assumptions Required → Alternatives → Cost-Benefit
+    (total cost of ownership + total value delivered) → Who Should Buy This
+    (+ Decision rules) → Decision Obstacles → Biases in the Reviews → Media →
+    Recognition → Ecosystem and Lock-in → Contribute
+-->
+<p style="text-align: right; font-size: 12px;"><a href="/w/page/21957696/Colorado%20Should">Home</a> &rsaquo; <a href="/w/page/159323433/One%20Page%20Per%20Topic">Topics</a> &rsaquo; [Product Category] &rsaquo; <strong>[This Product]</strong></p>
+<div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
+<p style="display: none;">AUTHORING RULES (hidden; readers never see this). This is the consumer-market sibling of the Belief Analysis template; the page is a belief page for one product claim. THE TITLE MUST CARRY A SCOPE: bare "best" fails the costability test (compared to what, measured in what, for whom), so the claim is always "[Product] is the best [Product Type] for [use case or user profile]". CRITERIA BEFORE BRANDS is this template's law: fill the Category Criteria table before touching performance or arguments; the criteria apply to every product in the category and are the yardstick the rest of the page measures against. Every table row is a scored relationship and ranks by its score column, never by editorial placement; the software shows each table's top five rows and collapses the rest. All scores stay [bracketed] until the ReasonRank engine computes them; never fill a score cell for an empty row; never present a placeholder as computed output. Scorecard cells are auto-derived from the tables below, never hand-picked. Argument cells follow the standalone-claim rule and the opening-words naming convention. Hidden-interest attributions (affiliate money, ecosystem lock-in) are scored claims requiring evidence, applied with equal suspicion to recommenders of this product and recommenders of alternatives. The Divergence Score on the trade-offs table is the score of the sub-debate that the advertised optimization differs from the actual one. Costs and benefits keep their units and never collapse across categories unless the conversion is stated. Worked examples (Ford trucks, Apple phones) live on hub pages and instance lists, never inside this template. This page maps to the /product-reviews/[slug] route in the repo; keep new sections backward-compatible with it. Emoji section headers are this template's established convention; table header rows use #f0f3f6; spell words out, no abbreviations, no symbols in place of words.</p>
+<h1>[Product] is the best [Product Type] for [use case or user profile]</h1>
+<p><strong>Net Belief Score:</strong> <span style="padding: 2px 10px; background: #e8eef5; border: 1px solid #b0b8c1; font-size: 90%; font-weight: 600;">[Computed from argument scores]</span> &nbsp;|&nbsp; <strong><a href="/w/page/159323433/One%20Page%20Per%20Topic">Category</a>:</strong> [Product Type] &gt; [Subcategory] &gt; [Specific Brand / Model] &nbsp;|&nbsp; <strong>Price segment:</strong> [Budget / Mid-range / Premium]</p>
+<p style="font-size: 12px; color: #555;">Method: <a href="/w/page/159300543/ReasonRank">ReasonRank</a> &middot; <a href="/w/page/159353568/Evidence">Evidence Tiers</a> &middot; <a href="/w/page/159338766/Linkage%20Scores">Linkage Scores</a> &middot; <a href="/w/page/156187122/cost-benefit%20analysis">Cost-Benefit Analysis</a>. All [bracketed] scores are placeholders until the engine computes them.</p>
+<h1>📊 Scorecard</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<tbody>
+<tr>
+<td style="background-color: #f0f3f6; width: 30%;"><strong>Bottom line</strong></td>
+<td style="width: 70%;">[One-sentence verdict scoped to the use case in the title]</td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Strongest reason to agree</strong></td>
+<td>[Argument] &middot; Impact [XX] <span style="font-size: 11px; color: #999;">(auto-derived: top pro row in Argument Trees)</span></td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Strongest reason to disagree</strong></td>
+<td>[Argument] &middot; Impact [XX] <span style="font-size: 11px; color: #999;">(auto-derived: top con row in Argument Trees)</span></td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Best for</strong></td>
+<td>[User profile] <span style="font-size: 11px; color: #999;">(auto-derived: top row of Who Should Buy This)</span></td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Not for</strong></td>
+<td>[User profile] <span style="font-size: 11px; color: #999;">(auto-derived: top "not ideal" row of Who Should Buy This)</span></td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>What would change this verdict</strong></td>
+<td>[The measurement or price change that would flip the net score]</td>
+</tr>
+</tbody>
+</table>
+<h1>🧪 Category Criteria: What Makes a Good [Product Type]?</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 34%;">Criterion (applies to every product in the category)</th><th style="width: 34%;">How to measure it</th><th style="width: 16%;">Importance</th><th style="width: 16%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Performance standard]</td>
+<td>[Test, rating, or unit]</td>
+<td style="text-align: center;">[XX]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td>[Reliability / durability metric]</td>
+<td>[Failure-rate data, warranty claims, long-term tests]</td>
+<td style="text-align: center;">[XX]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr>
+<td>[Cost-effectiveness measure]</td>
+<td>[Total cost of ownership per year or per unit of output]</td>
+<td style="text-align: center;">[XX]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td>[Safety / quality standard]</td>
+<td>[Certification, crash test, compliance rating]</td>
+<td style="text-align: center;">[XX]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>🔍 <a href="/Reasons">Argument Trees</a></h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 8px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 30%;">✅ Reasons to Agree</th><th style="width: 5%;">Score</th><th style="width: 5%;">Linkage</th><th style="width: 5%;">Importance</th><th style="width: 5%;">Impact</th><th style="width: 30%;">❌ Reasons to Disagree</th><th style="width: 5%;">Score</th><th style="width: 5%;">Linkage</th><th style="width: 5%;">Importance</th><th style="width: 5%;">Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Complete claim, e.g. superior measured performance on [criterion], linked to its own belief page]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[Complete claim, e.g. inferior performance on [criterion], linked to its own belief page]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td>[Better total cost of ownership than [named rival], with units]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[Worse total cost of ownership than [named rival], with units]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr>
+<td>[Higher reliability shown by [data source]]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[Lower reliability shown by [data source]]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p style="font-size: 12px; color: #555;">Net Belief Score = (sum of pro Impacts &minus; sum of con Impacts), Impact = Score &times; Linkage &times; Importance, computed by <a href="/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">the engine</a>.</p>
+<h1>📂 Performance Against the Criteria</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 8px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 20%;">Criterion (from the table above)</th><th style="width: 22%;">This product's measured performance</th><th style="width: 22%;">Category average / best rival</th><th style="width: 22%;">Evidence (source + tier)</th><th style="width: 14%;">Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Criterion]</td>
+<td>[Specific data, with units]</td>
+<td>[Specific data, with units]</td>
+<td>[Source] <span style="background: #1e7e34; color: #fff; font-size: 11px; padding: 0 5px;">Tier 1</span></td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td>[Criterion]</td>
+<td>[Specific data, with units]</td>
+<td>[Specific data, with units]</td>
+<td>[Source] <span style="background: #b8860b; color: #fff; font-size: 11px; padding: 0 5px;">Tier 2</span></td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p style="font-size: 12px; color: #555;">Tier key: <strong>Tier 1</strong> independent lab tests and certified ratings &middot; <strong>Tier 2</strong> professional reviewer consensus, third-party-verified manufacturer data &middot; <strong>Tier 3</strong> aggregated user reviews, investigative journalism &middot; <strong>Tier 4</strong> individual testimonials, unverified manufacturer claims. See <a href="/w/page/159353568/Evidence">Evidence</a>.</p>
+<h1>⚖️ Design Trade-offs</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 20%;">&nbsp;</th><th style="width: 34%;">Optimizes for</th><th style="width: 34%;">Sacrifices</th><th style="width: 12%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Advertised</strong> (what the manufacturer says)</td>
+<td>[Emphasized capability]</td>
+<td>[Acknowledged trade-off, e.g. higher price]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Actual</strong> (what the design choices and evidence show)</td>
+<td>[What the engineering actually prioritizes]</td>
+<td>[The compromise the design actually requires]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Divergence Score</strong></td>
+<td colspan="2">[How far the advertised optimization differs from the actual one; scored by its own sub-debate]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>💡 <a href="/w/page/159301140/Interests">Interests</a> Behind the Recommendations</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 42%;">Those who recommend this product</th><th style="width: 8%;">Score</th><th style="width: 42%;">Those who recommend alternatives</th><th style="width: 8%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Who they are, what they gain, what they optimize for]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[Who they are, what they gain, what they optimize for]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="font-style: italic; background-color: #fdf6ec;">
+<td>[Candidate hidden interest, e.g. affiliate revenue or ecosystem lock-in, with the evidence that supports the attribution]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[Candidate hidden interest, with the evidence that supports the attribution]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>📜 <a href="/Assumptions">Assumptions</a> Required</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 42%;">Required to believe this is the best [Product Type] for [use case]</th><th style="width: 8%;">Score</th><th style="width: 42%;">Required to believe an alternative is better</th><th style="width: 8%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[The priority or weighting you must hold]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[The priority or weighting you must hold]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td>[The trade-off you must accept]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[The trade-off you must accept]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>🔄 Alternatives</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 26%;">Alternative</th><th style="width: 18%;">Relationship</th><th style="width: 44%;">Key difference from this product</th><th style="width: 12%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Product, linked to its own review page]</td>
+<td style="text-align: center;">[Premium / Budget / Lateral]</td>
+<td>[What it does better or differently, with units where possible]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td>[Product, linked to its own review page]</td>
+<td style="text-align: center;">[Premium / Budget / Lateral]</td>
+<td>[What it does better or differently]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>💰 <a href="/w/page/156187122/cost-benefit%20analysis">Cost-Benefit Analysis</a></h1>
+<h3>Total cost of ownership</h3>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 30%;">Cost item</th><th style="width: 18%;">Estimate (with units)</th><th style="width: 20%;">Type</th><th style="width: 20%;">Evidence (source + tier)</th><th style="width: 12%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Purchase price]</td>
+<td>[$X]</td>
+<td style="text-align: center;">[Initial]</td>
+<td>[Source] <span style="background: #1e7e34; color: #fff; font-size: 11px; padding: 0 5px;">Tier 1</span></td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td>[Maintenance, consumables, energy]</td>
+<td>[$X per year]</td>
+<td style="text-align: center;">[Ongoing]</td>
+<td>[Source] <span style="background: #b8860b; color: #fff; font-size: 11px; padding: 0 5px;">Tier 2</span></td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr>
+<td>[Learning curve, switching costs, lock-in]</td>
+<td>[Hours or $X]</td>
+<td style="text-align: center;">[Hidden]</td>
+<td>[Source]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td>[What the same money buys elsewhere]</td>
+<td>[$X]</td>
+<td style="text-align: center;">[Opportunity]</td>
+<td>[Source]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h3>Total value delivered</h3>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 30%;">Value item</th><th style="width: 18%;">Measure (with units)</th><th style="width: 20%;">Timeframe</th><th style="width: 20%;">Evidence (source + tier)</th><th style="width: 12%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Performance on the key criteria]</td>
+<td>[Measured result]</td>
+<td style="text-align: center;">[Short-term (0-2 years)]</td>
+<td>[Source] <span style="background: #1e7e34; color: #fff; font-size: 11px; padding: 0 5px;">Tier 1</span></td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td>[Durability, retained resale value]</td>
+<td>[Expected lifespan, resale percentage]</td>
+<td style="text-align: center;">[Long-term (3+ years)]</td>
+<td>[Source] <span style="background: #7f8c8d; color: #fff; font-size: 11px; padding: 0 5px;">Tier 3</span></td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr>
+<td>[User satisfaction]</td>
+<td>[Rating data]</td>
+<td style="text-align: center;">[Short-term / Long-term]</td>
+<td>[Source]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>👥 Who Should Buy This</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 42%;">Ideal for</th><th style="width: 8%;">Score</th><th style="width: 42%;">Not ideal for</th><th style="width: 8%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[User type, need, budget profile]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[User type whose priorities point elsewhere]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h3>Decision rules</h3>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 88%;">If you prioritize [criterion], buy [this product / named alternative], because [evidence]</th><th style="width: 12%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If you prioritize [criterion A]:</strong> buy [option] because [evidence]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td><strong>If you prioritize [criterion B]:</strong> buy [option] because [evidence]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr>
+<td><strong>If you need both [A] and [B]:</strong> consider [compromise option] because [how it balances the trade-off]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td><strong>If budget is the primary concern:</strong> [budget option] sacrifices [X] but delivers [Y]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>🚧 Decision Obstacles</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 42%;">Why buyers overpay in this category</th><th style="width: 8%;">Score</th><th style="width: 42%;">Why buyers underinvest in this category</th><th style="width: 8%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Category-specific pattern, e.g. brand loyalty outweighing measured value]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[Category-specific pattern, e.g. shopping on sticker price while ignoring total cost of ownership]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>🧠 <a href="/w/page/21956934/bias">Biases</a> in the Reviews</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 42%;">Distorting the positive reviews</th><th style="width: 8%;">Score</th><th style="width: 42%;">Distorting the negative reviews</th><th style="width: 8%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[e.g. post-purchase rationalization, affiliate incentives, brand halo]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[e.g. negativity bias, unrealistic expectations, user error blamed on the product]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>📚 <a href="/w/page/21958666/media">Media</a></h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 42%;">Reviews supporting the verdict</th><th style="width: 8%;">Score</th><th style="width: 42%;">Reviews challenging the verdict</th><th style="width: 8%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Resource (author / channel, year), type: video, written, head-to-head comparison, long-term user report]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[Resource (author / channel, year), type]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>🏆 Recognition</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 42%;">Independent recognition (award, certifier, criteria)</th><th style="width: 8%;">Score</th><th style="width: 42%;">Manufacturer claims (marketing awards, self-selected statistics)</th><th style="width: 8%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Third-party award with the criteria it used]</td>
+<td style="text-align: center;">&nbsp;</td>
+<td>[Claim, and what it cherry-picks]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<h1>🧭 Ecosystem and Lock-in</h1>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;" border="1" cellpadding="8">
+<thead style="background-color: #f0f3f6;">
+<tr>
+<th style="width: 30%;">Item</th><th style="width: 24%;">Type</th><th style="width: 34%;">Cost or commitment</th><th style="width: 12%;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Prerequisite or compatible system]</td>
+<td style="text-align: center;">[Upstream: needed first]</td>
+<td>[$X or commitment]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr style="background-color: #fafbfc;">
+<td>[Accessory or upgrade]</td>
+<td style="text-align: center;">[Downstream: wanted after]</td>
+<td>[$X]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+<tr>
+<td>[Future purchase this commits you to, difficulty of switching later]</td>
+<td style="text-align: center;">[Lock-in]</td>
+<td>[Switching cost]</td>
+<td style="text-align: center;">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p style="font-size: 12px; color: #555;">Contribute reviews, evidence, criteria, or alternatives: <a href="/w/page/160433328/Contact%20Me">Contact me</a> &middot; <a href="https://github.com/myklob/ideastockexchange">GitHub</a></p>
+</div>
+<p>&nbsp;</p>

@@ -1,68 +1,72 @@
 import type { TradeoffItem } from '../types'
-import SectionHeading from '@/features/belief-analysis/components/SectionHeading'
+import { formatScore } from '../../belief-analysis/lib/ranking'
 
 interface TradeoffsSectionProps {
   tradeoffs: TradeoffItem[]
+  /** How far the advertised optimization differs from the actual one. */
+  divergenceNote?: string | null
+  /** Score of the sub-debate that advertised differs from actual. */
+  divergenceScore?: number | null
 }
 
-export default function TradeoffsSection({ tradeoffs }: TradeoffsSectionProps) {
-  const advertisedOptimizes = tradeoffs.filter(t => t.side === 'optimizes' && t.category === 'advertised')
-  const advertisedSacrifices = tradeoffs.filter(t => t.side === 'sacrifices' && t.category === 'advertised')
-  const actualOptimizes = tradeoffs.filter(t => t.side === 'optimizes' && t.category === 'actual')
-  const actualSacrifices = tradeoffs.filter(t => t.side === 'sacrifices' && t.category === 'actual')
+const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold bg-gray-100'
+const TD = 'border border-gray-300 px-3 py-2 align-top'
+const TDC = 'border border-gray-300 px-3 py-2 align-top text-center'
+
+function cell(items: TradeoffItem[]): React.ReactNode {
+  if (items.length === 0) return <span>&nbsp;</span>
+  return items.map((t, i) => <span key={t.id}>{i > 0 && <br />}{t.description}</span>)
+}
+
+/** Best row score across a category's records, blank when none are scored. */
+function rowScore(items: TradeoffItem[]): number | null {
+  const scored = items.map(t => t.score).filter((s): s is number => s != null)
+  return scored.length > 0 ? Math.max(...scored) : null
+}
+
+export default function TradeoffsSection({ tradeoffs, divergenceNote, divergenceScore }: TradeoffsSectionProps) {
+  const advertised = tradeoffs.filter(t => t.category === 'advertised')
+  const actual = tradeoffs.filter(t => t.category === 'actual')
+
+  const row = (label: string, sub: string, items: TradeoffItem[], striped: boolean) => (
+    <tr className={striped ? 'bg-gray-50' : ''}>
+      <td className={`${TD} bg-[#f0f3f6]`}>
+        <strong>{label}</strong> <span className="text-xs text-[#555]">({sub})</span>
+      </td>
+      <td className={TD}>{cell(items.filter(t => t.side === 'optimizes'))}</td>
+      <td className={TD}>{cell(items.filter(t => t.side === 'sacrifices'))}</td>
+      <td className={`${TDC} font-mono`}>{formatScore(rowScore(items)) ?? <span>&nbsp;</span>}</td>
+    </tr>
+  )
 
   return (
-    <div>
-      <SectionHeading
-        emoji="⚖️"
-        title="Core Design Trade-offs"
-        subtitle="Every product design involves trade-offs. Understanding these helps users determine if this product's specific balance matches their priorities."
-      />
-
-      {tradeoffs.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left px-4 py-3 font-semibold">What This Product Optimizes For</th>
-                <th className="text-left px-4 py-3 font-semibold">What This Product Sacrifices</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(advertisedOptimizes.length > 0 || advertisedSacrifices.length > 0) && (
-                <>
-                  <tr className="border-t border-gray-200 bg-gray-50/50">
-                    <td className="px-4 py-2 font-semibold text-xs uppercase text-gray-500">Advertised</td>
-                    <td className="px-4 py-2 font-semibold text-xs uppercase text-gray-500">Advertised</td>
-                  </tr>
-                  {Array.from({ length: Math.max(advertisedOptimizes.length, advertisedSacrifices.length) }).map((_, i) => (
-                    <tr key={`adv-${i}`} className="border-t border-gray-200">
-                      <td className="px-4 py-3">{advertisedOptimizes[i]?.description ?? ''}</td>
-                      <td className="px-4 py-3">{advertisedSacrifices[i]?.description ?? ''}</td>
-                    </tr>
-                  ))}
-                </>
+    <section>
+      <h2 className="text-xl font-bold mb-2">⚖️ Design Trade-offs</h2>
+      <table className="w-full border-collapse border border-gray-300 text-sm">
+        <thead>
+          <tr>
+            <th className={`${TH} w-[20%]`}>&nbsp;</th>
+            <th className={`${TH} w-[34%]`}>Optimizes for</th>
+            <th className={`${TH} w-[34%]`}>Sacrifices</th>
+            <th className={`${TH} w-[12%] text-center`}>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {row('Advertised', 'what the manufacturer says', advertised, false)}
+          {row('Actual', 'what the design choices and evidence show', actual, true)}
+          <tr>
+            <td className={`${TD} bg-[#f0f3f6]`}><strong>Divergence Score</strong></td>
+            <td className={TD} colSpan={2}>
+              {divergenceNote ?? (
+                <span className="text-[var(--muted-foreground)] italic">
+                  How far the advertised optimization differs from the actual one; scored by its own sub-debate.
+                </span>
               )}
-              {(actualOptimizes.length > 0 || actualSacrifices.length > 0) && (
-                <>
-                  <tr className="border-t border-gray-200 bg-gray-50/50">
-                    <td className="px-4 py-2 font-semibold text-xs uppercase text-gray-500">Actual (what evidence shows)</td>
-                    <td className="px-4 py-2 font-semibold text-xs uppercase text-gray-500">Actual (what evidence shows)</td>
-                  </tr>
-                  {Array.from({ length: Math.max(actualOptimizes.length, actualSacrifices.length) }).map((_, i) => (
-                    <tr key={`act-${i}`} className="border-t border-gray-200">
-                      <td className="px-4 py-3">{actualOptimizes[i]?.description ?? ''}</td>
-                      <td className="px-4 py-3">{actualSacrifices[i]?.description ?? ''}</td>
-                    </tr>
-                  ))}
-                </>
-              )}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-sm text-gray-500 italic">No trade-off analysis has been recorded yet.</p>
-      )}
-    </div>
+            </td>
+            <td className={`${TDC} font-mono`}>{formatScore(divergenceScore) ?? <span>&nbsp;</span>}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
   )
 }

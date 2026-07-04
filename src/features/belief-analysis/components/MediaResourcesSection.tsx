@@ -5,6 +5,9 @@ import ExpandableRows from './ExpandableRows'
 
 interface MediaResourcesSectionProps {
   media: MediaItem[]
+  /** Side header overrides (e.g. the product template's verdict wording). */
+  leftHeader?: string
+  rightHeader?: string
 }
 
 const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold'
@@ -48,7 +51,11 @@ function MediaPairRow({ s, c }: { s: MediaItem | null; c: MediaItem | null }) {
   )
 }
 
-export default function MediaResourcesSection({ media }: MediaResourcesSectionProps) {
+export default function MediaResourcesSection({
+  media,
+  leftHeader = 'Supporting the Belief',
+  rightHeader = 'Challenging or Complicating the Belief',
+}: MediaResourcesSectionProps) {
   const supporting = rankByScore(
     media.filter(m => m.side === 'supporting' || m.side === 'agree'),
     m => m.impactScore,
@@ -73,10 +80,10 @@ export default function MediaResourcesSection({ media }: MediaResourcesSectionPr
         <thead>
           <tr>
             <th className="border border-gray-300 bg-green-100 text-center font-semibold px-3 py-2" colSpan={3}>
-              Supporting the Belief
+              {leftHeader}
             </th>
             <th className="border border-gray-300 bg-red-100 text-center font-semibold px-3 py-2" colSpan={3}>
-              Challenging or Complicating the Belief
+              {rightHeader}
             </th>
           </tr>
           <tr className="bg-gray-100 text-xs">

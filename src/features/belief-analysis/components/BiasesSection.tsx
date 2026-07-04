@@ -5,6 +5,9 @@ import ExpandableRows from './ExpandableRows'
 
 interface BiasesSectionProps {
   biases: BiasItem[]
+  /** Column header overrides (e.g. the product template's review-distortion wording). */
+  leftHeader?: string
+  rightHeader?: string
 }
 
 const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold'
@@ -36,7 +39,11 @@ function BiasPairRow({ s, o }: { s: BiasItem | null; o: BiasItem | null }) {
   )
 }
 
-export default function BiasesSection({ biases }: BiasesSectionProps) {
+export default function BiasesSection({
+  biases,
+  leftHeader = 'Biases Affecting Supporters',
+  rightHeader = 'Biases Affecting Opponents',
+}: BiasesSectionProps) {
   const supporters = rankByScore(biases.filter(b => b.side === 'supporter'), b => b.score, Infinity).top
   const opponents = rankByScore(biases.filter(b => b.side === 'opponent'), b => b.score, Infinity).top
   const pairs = pairBySide(supporters, opponents)
@@ -55,9 +62,9 @@ export default function BiasesSection({ biases }: BiasesSectionProps) {
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr className="bg-gray-100">
-              <th className={`${TH} w-[42%]`}>Biases Affecting Supporters</th>
+              <th className={`${TH} w-[42%]`}>{leftHeader}</th>
               <th className={`${TH} text-center w-[8%]`}>Score</th>
-              <th className={`${TH} w-[42%]`}>Biases Affecting Opponents</th>
+              <th className={`${TH} w-[42%]`}>{rightHeader}</th>
               <th className={`${TH} text-center w-[8%]`}>Score</th>
             </tr>
           </thead>
