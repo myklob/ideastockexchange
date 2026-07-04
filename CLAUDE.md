@@ -20,7 +20,9 @@ npx eslint <files>    # lint files you edited (`npm run lint` runs the whole rep
 npm test              # vitest, only when changing scoring / core logic
 ```
 
-The repo has ~50 pre-existing implicit-any errors in routes I didn't touch (notably `src/app/algorithms/belief-equivalency/*`, `src/app/equivalence/*`, several API routes, `src/lib/prisma.ts`'s missing generated client). They are not your fault — verify *only* that your edited files are clean, not that the global typecheck count is zero.
+The global typecheck is clean (the old batch of ~50 implicit-any errors has been fixed) — keep it that way. If `@/generated/prisma/client` errors appear, run `npm run db:generate` first.
+
+`npm run build` must succeed without a database file: `prisma/dev.db` is gitignored, so pages that query Prisma can't be statically prerendered. Any new DB-backed route needs `export const dynamic = 'force-dynamic'` (or `searchParams`/an on-demand dynamic segment) — otherwise fresh-clone and CI builds break with Prisma P2021. Local data setup is `npx prisma db push && npm run db:seed`.
 
 ## The Belief Page Is the Crown Jewel
 

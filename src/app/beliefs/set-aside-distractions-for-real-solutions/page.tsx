@@ -22,6 +22,10 @@ import StrengthSpectrumBar, { TwoAxisCoordinate } from '@/components/StrengthSpe
 
 const SLUG = 'set-aside-distractions-for-real-solutions'
 
+// Render on request like /beliefs/[slug]; as a static route this page would
+// otherwise prerender at build time and fail any build without a seeded DB.
+export const dynamic = 'force-dynamic'
+
 export default async function DistractionsBeliefPage() {
   const belief = await fetchBeliefBySlug(SLUG)
 
