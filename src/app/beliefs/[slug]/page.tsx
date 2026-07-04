@@ -139,6 +139,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             sharedInterests={belief.sharedInterests}
             disputeTypes={belief.disputeTypes}
             obstacles={belief.obstacles}
+            interestsDashboardHref={`/beliefs/${belief.slug}/interests`}
           />
 
           <hr className="border-gray-200" />

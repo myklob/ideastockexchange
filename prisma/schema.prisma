@@ -277,6 +277,9 @@ model Belief {
   costBenefitItems    CostBenefitItem[]  @relation("BeliefCostBenefitItems")
   impactEntries       ImpactEntry[]
 
+  unstatedInterestCandidates UnstatedInterestCandidate[]
+  interestSolutions          InterestSolution[]
+
   /// Cost/benefit rows on OTHER beliefs whose claim links to this belief's page.
   costBenefitClaimOf  CostBenefitItem[]  @relation("CostBenefitClaimBelief")
 
@@ -667,9 +670,92 @@ model InterestEntry {
   score            Float?
   sortOrder        Int     @default(0)
 
+  /// Interests-and-motivation dashboard: each interest is a competing
+  /// hypothesis about what actually drives its side. Numeric twins of the
+  /// legacy string columns; the dashboard ranks by linkageAccuracy.
+  /// Estimated share of this side actually driven by this interest (0-100).
+  prevalenceScore Float?
+  /// How well this interest explains the side's actual behavior — votes,
+  /// spending, sacrifices, what it tolerates (0-100). Talk is cheap evidence
+  /// of motive; costly action is strong evidence.
+  linkageAccuracy Float?
+  /// How legitimate the interest is, judged by objective criteria, never by
+  /// who holds it or how much power they have (0-100). The Resolution Floor
+  /// admits interests scoring >= 70.
+  validityScore   Float?
+
+  satisfactions InterestSatisfaction[]
+
   createdAt DateTime @default(now())
 
   @@index([beliefId])
+}
+
+/// One hidden-motive hypothesis on the interests dashboard. "Your real reason
+/// is X" is only sayable when X out-predicts the stated interests: each row
+/// must name the specific behavior the stated interests fail to predict,
+/// bring evidence, and take a score — applied with equal suspicion to both
+/// sides. A candidate that earns its score gets promoted into the ranked
+/// interest list.
+model UnstatedInterestCandidate {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side     String // "supporter" or "opponent"
+  interest String
+  /// The specific behavior (votes, spending, sacrifices) the side's stated
+  /// interests fail to predict — the gap this hypothesis exists to explain.
+  behaviorExplained String
+  evidence          String?
+  /// Performance of the hypothesis's own pro/con sub-debate. Sorts descending.
+  score     Float?
+  /// True once the hypothesis out-predicts the alternatives and joins the
+  /// ranked interest list (rendered italic there as an unstated interest).
+  promoted  Boolean @default(false)
+  sortOrder Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// A candidate solution on the interests dashboard, ranked by how well it
+/// satisfies the VALID interests of both sides. Two hard rules: a solution
+/// earns nothing for satisfying an interest that failed validity, and no
+/// interest counts extra because its holders are powerful.
+model InterestSolution {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  solution    String
+  description String?
+  /// Overall rank: computed from the valid interests satisfied on both sides.
+  score     Float?
+  sortOrder Int    @default(0)
+
+  satisfactions InterestSatisfaction[]
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// Maps a solution to one interest it satisfies, per side (the side lives on
+/// the InterestEntry). Satisfaction is the fraction of the interest the
+/// solution actually meets (0-1).
+model InterestSatisfaction {
+  id         Int              @id @default(autoincrement())
+  solutionId Int
+  solution   InterestSolution @relation(fields: [solutionId], references: [id])
+  interestId Int
+  interest   InterestEntry    @relation(fields: [interestId], references: [id])
+
+  satisfaction Float @default(1)
+
+  @@unique([solutionId, interestId])
+  @@index([interestId])
 }
 
 /// One row in the Shared Interests table (foundation for compromise, new template).
@@ -683,6 +769,9 @@ model SharedInterest {
   compromiseDirection String?
   /// Row score: performance of this row's pro/con sub-debate. Sorts descending.
   score              Float?
+  /// Numeric validity (0-100). The Resolution Floor builds solutions on shared
+  /// interests scoring >= 70 on both sides.
+  validityScore      Float?
   sortOrder          Int    @default(0)
 
   createdAt DateTime @default(now())
