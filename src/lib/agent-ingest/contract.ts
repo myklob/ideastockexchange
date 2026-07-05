@@ -40,6 +40,9 @@ export const FAILURE_MODES = {
   INVALID_EVIDENCE: 'invalid-evidence',
   INVALID_TIER_CLAIM: 'invalid-tier-claim',
   MALFORMED_BATCH: 'malformed-batch',
+  /** Score-affecting writes rejected in the 23:50–00:10 UTC window around
+   *  each monthly epoch boundary, while the snapshot locks the closing price. */
+  GRAPH_FREEZE: 'graph-freeze',
 } as const
 
 export type FailureMode = (typeof FAILURE_MODES)[keyof typeof FAILURE_MODES]

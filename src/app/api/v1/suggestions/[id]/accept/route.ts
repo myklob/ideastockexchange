@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { agentJson } from '@/lib/agent-api'
 import { authenticateAgentKey } from '@/lib/agent-auth'
 import { validateEvidenceInput } from '@/lib/agent-ingest/validate-claim'
+import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
 
 /**
  * Explicit acceptance turns a suggestion into an Evidence row, through the
@@ -15,6 +16,12 @@ export async function POST(
 ) {
   const auth = await authenticateAgentKey(request.headers.get('authorization'))
   if (!auth.ok) return agentJson({ error: auth.error }, { status: auth.status })
+
+  // Accepting a suggestion creates an Evidence row — a score-affecting graph
+  // write, rejected during the epoch freeze window.
+  if (isGraphFrozen(new Date())) {
+    return agentJson({ error: GRAPH_FREEZE_MESSAGE }, { status: 423 })
+  }
 
   let body: { rationale?: string }
   try {

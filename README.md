@@ -24,6 +24,8 @@ An argument's contribution to its parent equals **Truth × Relevance × Importan
 
 Independent of the logic score, users invest virtual currency (**IdeaCredits**) in claims via a constant-product market maker. Buying YES shares pushes the price up; buying NO pushes it down. Prices reflect the crowd's collective probability estimate, separately from whether the claim is logically sound.
 
+The belief-score market layer at [`/markets`](docs/MARKET_LAYER_SPEC.md) goes further: binary contracts on where a belief page's engine score will land at the next monthly snapshot — LMSR makers that graduate to an order book, atomic spreads, play-money leverage, meta-markets on algorithm changes, and a signed oracle endpoint external markets can settle against. One absolute rule: prices never feed back into scores.
+
 ### The arbitrage
 
 When ReasonRank and Market Price diverge, rational actors profit:
@@ -124,7 +126,8 @@ every part of its work — the placement, the five-step linkage check, the
 evidence provenance, the rationale — is inspectable there and on the batch
 page the API links back. Try submitting a score field or a bare topic label
 and the API rejects it with the named failure mode. Scores stay bracketed
-placeholders until the ReasonRank engine (not built yet) computes them;
+placeholders until the full ReasonRank engine computes them (market epoch
+snapshots run a versioned provisional engine and are labeled as such);
 nothing here pretends otherwise.
 
 ## Related Projects

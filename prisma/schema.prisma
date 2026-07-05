@@ -118,6 +118,14 @@ model User {
 
   shares         Share[]
   trades         Trade[]
+
+  marketContracts MarketContract[]
+  marketPositions MarketPosition[]
+  marketOrders    MarketOrder[]
+  marketBuys      MarketTrade[]    @relation("MarketTradeBuyer")
+  marketSells     MarketTrade[]    @relation("MarketTradeSeller")
+  marginLoans     MarginLoan[]
+  marketBundles   MarketBundle[]
 }
 
 model SubArgument {
@@ -293,6 +301,10 @@ model Belief {
 
   suggestedEvidence SuggestedEvidence[]
   forumPosts        ForumPost[]
+
+  epochSnapshots  EpochSnapshot[]
+  marketContracts MarketContract[]
+  externalMarkets ExternalMarketLink[]
 }
 
 enum LinkageClassification {
@@ -2241,4 +2253,273 @@ model ForumComment {
   createdAt DateTime @default(now())
 
   @@index([postId])
+}
+
+// ─── Prediction Market Layer (belief-score contracts) ────────────
+// See docs/MARKET_LAYER_SPEC.md. The one absolute rule: market prices and
+// volume NEVER feed back into the scoring engine. Data flows one way — the
+// engine publishes EpochSnapshots, the market settles against them.
+
+/// Immutable per-epoch scoring record. Settlement is pure arithmetic against
+/// this row: no judgment calls, no administrator discretion. `graphArchive`
+/// stores the exact scoring inputs so any third party can rerun the versioned
+/// algorithm and reproduce `truthScore` to the decimal.
+model EpochSnapshot {
+  id       String @id @default(cuid())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  /// Epoch label, "YYYY-MM". The snapshot captures the graph at that month's
+  /// final boundary (23:59:59 on the last day, UTC).
+  epoch String
+
+  truthScore Float
+  /// Scoring-algorithm version that produced this score. Algorithm changes
+  /// never invalidate old snapshots — each references its own version.
+  algorithmVersion String
+  /// JSON of the exact inputs the algorithm read (arguments, evidence,
+  /// claim strength), archived so historical settlements re-verify.
+  graphArchive String
+
+  createdAt DateTime @default(now())
+
+  @@unique([beliefId, epoch])
+  @@index([epoch])
+}
+
+/// A binary claim about a belief's score at a future epoch. `contractType`
+/// SCORE is the standard case. ALGORITHM_DELTA is a meta-market on algorithm
+/// governance ("will next month's algorithm raise the score of X?") — built
+/// against the explicit design warning, so its governance risk is stated in
+/// the spec. PLATFORM_FAILURE settles YES if the snapshot job for the epoch
+/// never ran (or ran past the 72h grace window) — shorting the platform.
+model MarketContract {
+  id       String  @id @default(cuid())
+  beliefId Int?
+  belief   Belief? @relation(fields: [beliefId], references: [id])
+
+  /// "SCORE" | "ALGORITHM_DELTA" | "PLATFORM_FAILURE"
+  contractType String @default("SCORE")
+
+  /// Score threshold in [0,1]. Unused (0) for ALGORITHM_DELTA / PLATFORM_FAILURE.
+  thresholdValue Float
+  /// "ABOVE" | "BELOW". Strict inequality: score == threshold resolves NO.
+  direction String
+  /// "YYYY-MM": settles against that epoch's snapshot.
+  resolutionEpoch String
+
+  creatorId String?
+  creator   User?   @relation(fields: [creatorId], references: [id])
+
+  /// LMSR state. b = liquidity parameter; max maker loss = b × ln(2).
+  qYes       Float @default(0)
+  qNo        Float @default(0)
+  bParameter Float @default(100)
+  /// Funds backing the LMSR subsidy (play money), topped up by fees.
+  liquidityPool Float @default(0)
+  /// Transaction fee in basis points, charged on trade value.
+  feeRate       Float @default(100)
+  feesCollected Float @default(0)
+
+  /// "LMSR" | "ORDER_BOOK". Graduates to the order book once total traded
+  /// volume clears GRADUATION_VOLUME shares (the hybrid approach).
+  pricingMode String @default("LMSR")
+  /// Total shares traded across both sides, for graduation.
+  volume Float @default(0)
+
+  /// "OPEN" | "FROZEN" | "SETTLED" | "CANCELLED"
+  status       String  @default("OPEN")
+  finalScore   Float?
+  finalOutcome String? // "YES" | "NO"
+  settledAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  positions  MarketPosition[]
+  orders     MarketOrder[]
+  marketTrades MarketTrade[]
+  priceTicks PriceTick[]
+  bundleLegs MarketBundleLeg[]
+  flags      ManipulationFlag[]
+
+  @@index([beliefId])
+  @@index([resolutionEpoch])
+  @@index([status])
+}
+
+/// A user's holding in one contract. Prices are probability units; at
+/// settlement winning shares pay $1.00 and losing shares pay $0.00.
+model MarketPosition {
+  id         String         @id @default(cuid())
+  userId     String
+  user       User           @relation(fields: [userId], references: [id])
+  contractId String
+  contract   MarketContract @relation(fields: [contractId], references: [id])
+
+  sharesYes   Float @default(0)
+  sharesNo    Float @default(0)
+  avgCostYes  Float @default(0)
+  avgCostNo   Float @default(0)
+  realizedPnl Float @default(0)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([userId, contractId])
+  @@index([contractId])
+}
+
+/// Order-book limit order (mature markets only). Price-time priority;
+/// self-crossing is rejected outright as the first wash-trading defense.
+model MarketOrder {
+  id         String         @id @default(cuid())
+  contractId String
+  contract   MarketContract @relation(fields: [contractId], references: [id])
+  userId     String
+  user       User           @relation(fields: [userId], references: [id])
+
+  /// "BUY" | "SELL"
+  side String
+  /// "YES" | "NO"
+  outcome String
+  /// Limit price in (0,1), probability units.
+  limitPrice Float
+  quantity       Float
+  filledQuantity Float @default(0)
+  /// "OPEN" | "PARTIAL" | "FILLED" | "CANCELLED"
+  status String @default("OPEN")
+
+  createdAt DateTime @default(now())
+
+  @@index([contractId, status])
+  @@index([userId])
+}
+
+/// One execution: against the LMSR maker (buyer or seller null) or between
+/// two order-book users. The raw material for wash-trade pattern analysis.
+model MarketTrade {
+  id         String         @id @default(cuid())
+  contractId String
+  contract   MarketContract @relation(fields: [contractId], references: [id])
+
+  buyerId  String?
+  buyer    User?   @relation("MarketTradeBuyer", fields: [buyerId], references: [id])
+  sellerId String?
+  seller   User?   @relation("MarketTradeSeller", fields: [sellerId], references: [id])
+
+  /// "LMSR" | "BOOK" | "SETTLEMENT"
+  source  String
+  outcome String // "YES" | "NO"
+  quantity Float
+  price    Float
+  fee      Float @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([contractId])
+  @@index([buyerId])
+  @@index([sellerId])
+}
+
+/// Continuous price feed: one tick per price-changing event, plus the
+/// model-based forecast probability at that moment (score vs threshold with
+/// time decay). Serves GET /api/v1/market/contracts/[id]/feed.
+model PriceTick {
+  id         String         @id @default(cuid())
+  contractId String
+  contract   MarketContract @relation(fields: [contractId], references: [id])
+
+  priceYes Float
+  /// Probabilistic forecast from the current provisional score, for the
+  /// divergence display. Never feeds scoring; display and feed only.
+  forecastYes Float?
+
+  createdAt DateTime @default(now())
+
+  @@index([contractId, createdAt])
+}
+
+/// A structured product: multiple binary legs executed atomically (spreads,
+/// combinations). E.g. "score lands in (0.55, 0.65]" = YES on >0.55 + NO on >0.65.
+model MarketBundle {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  label     String
+  createdAt DateTime @default(now())
+
+  legs MarketBundleLeg[]
+}
+
+model MarketBundleLeg {
+  id       String       @id @default(cuid())
+  bundleId String
+  bundle   MarketBundle @relation(fields: [bundleId], references: [id])
+
+  contractId String
+  contract   MarketContract @relation(fields: [contractId], references: [id])
+  outcome    String // "YES" | "NO"
+  shares     Float
+  cost       Float
+
+  @@index([bundleId])
+  @@index([contractId])
+}
+
+/// Play-money leverage: borrowed IdeaCredits against portfolio equity
+/// (max total outstanding = equity, i.e. 2x buying power). Repaid first out
+/// of settlement payouts; shortfalls default and are logged, never hidden.
+model MarginLoan {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  amount      Float
+  outstanding Float
+  /// "OPEN" | "REPAID" | "DEFAULTED"
+  status String @default("OPEN")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+}
+
+/// Monitoring output. A flag is a to-do for humans — never a settlement
+/// input, never a scoring input.
+model ManipulationFlag {
+  id         String          @id @default(cuid())
+  contractId String?
+  contract   MarketContract? @relation(fields: [contractId], references: [id])
+
+  /// "NEAR_THRESHOLD_EDITOR_POSITION" | "WASH_TRADING_PATTERN"
+  reason  String
+  details String
+
+  createdAt DateTime @default(now())
+
+  @@index([contractId])
+  @@index([reason])
+}
+
+/// Mapping from a belief to a related external market (Kalshi ticker,
+/// Polymarket condition id). One-way data plumbing: we export signed
+/// snapshots and import external settlement facts only through the
+/// suggestion queue. External prices never touch scores.
+model ExternalMarketLink {
+  id       String @id @default(cuid())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  /// "KALSHI" | "POLYMARKET" | "OTHER"
+  venue      String
+  externalId String
+  url        String?
+  notes      String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([venue, externalId])
+  @@index([beliefId])
 }
