@@ -20,7 +20,8 @@ import { validateIngestPayload } from './validate-claim'
 import { textSimilarity, EQUIVALENCE_CANDIDATE_THRESHOLD } from './similarity'
 import { detectFallacies } from './fallacy-detector'
 import { slugify, deSlug } from './slug'
-import type { IngestClaimInput, ValidationIssue } from './contract'
+import { FAILURE_MODES, type IngestClaimInput, type ValidationIssue } from './contract'
+import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
 
 type Tx = Prisma.TransactionClient
 
@@ -279,8 +280,19 @@ async function ingestClaim(
  * Validate and ingest one batch. All-or-nothing: any named failure rejects
  * the whole batch so nothing partial persists, and the stored batch payload
  * can be replayed against a clean database to reproduce the same structure.
+ *
+ * Ingestion is a score-affecting graph write, so it honors the market
+ * layer's epoch freeze window (reads stay open; see settlement docs).
  */
-export async function runIngest(agentId: string, rawPayload: unknown): Promise<IngestOutcome> {
+export async function runIngest(agentId: string, rawPayload: unknown, now = new Date()): Promise<IngestOutcome> {
+  if (isGraphFrozen(now)) {
+    return {
+      ok: false,
+      status: 423,
+      issues: [{ mode: FAILURE_MODES.GRAPH_FREEZE, path: '', message: GRAPH_FREEZE_MESSAGE }],
+    }
+  }
+
   const validation = validateIngestPayload(rawPayload)
   if (!validation.ok) {
     return { ok: false, status: 422, issues: validation.issues, auditLock: validation.auditLock }

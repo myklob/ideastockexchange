@@ -451,35 +451,45 @@ export default function PredictionMarketsComparisonPage() {
 
       <hr className="my-6 border-gray-300" />
 
-      <h2 className="text-2xl font-bold mb-3">What we are not building in Phase 2</h2>
+      <h2 className="text-2xl font-bold mb-3">Formerly deferred, now built (play money)</h2>
       <p className="mb-3">
-        These are viable ideas that belong to later phases. Don&apos;t implement them in the MVP.
+        These five were originally deferred or rejected outright. They are now implemented in the
+        play-money exchange — with the original warnings preserved where they still apply. Canonical
+        mechanics: <code>docs/MARKET_LAYER_SPEC.md</code>.
       </p>
       <ul className="list-disc list-outside ml-6 space-y-3 mb-4">
         <li>
           <strong>Meta-markets on algorithm changes.</strong> (&ldquo;Will next month&apos;s
-          algorithm increase the score of X?&rdquo;) Proposed by outside commentators. Rejected
-          because it creates pressure on algorithm design from market positions. Algorithm
-          governance must stay insulated from trading incentives.
+          algorithm raise the score of X?&rdquo;) Built as <code>ALGORITHM_DELTA</code> contracts:
+          YES only if the resolution snapshot carries a different algorithm version than the prior
+          epoch&apos;s AND the score moved in the bet direction. The original objection stands as a
+          live governance warning: these markets create pressure on algorithm design from trading
+          positions, so algorithm changes remain announced in advance, versioned, and never
+          retroactive — and this contract type is the first to cut if that pressure materializes.
         </li>
         <li>
-          <strong>Continuous price feeds based on probabilistic score forecasts.</strong>{' '}
-          Nice-to-have. Not needed for MVP. Simple LMSR based on current shares outstanding is
-          sufficient.
+          <strong>Continuous price feeds from probabilistic score forecasts.</strong> Built: every
+          price-changing event records a tick with a model-based forecast (score drift vs threshold
+          with time decay), served at{' '}
+          <code className="text-sm">/api/v1/market/contracts/[id]/feed</code>. Feed only — never a
+          settlement or scoring input.
         </li>
         <li>
-          <strong>Complex derivatives (spreads, combinations, structured products).</strong> Users
-          can construct these manually from binary positions. Platform support for them is a
-          Phase 5 problem at earliest.
+          <strong>Complex derivatives (spreads, combinations, structured products).</strong> Built
+          as bundles: multiple binary legs executed atomically via{' '}
+          <code className="text-sm">/api/v1/market/bundles</code> (e.g. YES on &gt;0.55 plus NO on
+          &gt;0.65 for a range bet). All-or-nothing execution against LMSR makers.
         </li>
         <li>
-          <strong>Leveraged positions.</strong> No margin trading. No borrowing. Users bet with
-          what they have. This eliminates an entire class of cascade-failure risks and is the
-          right default for a platform still proving the mechanics work.
+          <strong>Leveraged positions.</strong> Built, deliberately tame: play-money credit capped
+          at portfolio equity (2x buying power), no interest, loans repaid first out of settlement
+          payouts, shortfalls logged as explicit defaults. The cascade-failure worry is why the cap
+          is conservative and why real-money leverage stays off the table.
         </li>
         <li>
-          <strong>Shorting the market itself.</strong> We don&apos;t offer shorts on &ldquo;this
-          whole project will fail.&rdquo; The recursion is too cute to be useful.
+          <strong>Shorting the platform itself.</strong> Built as <code>PLATFORM_FAILURE</code>{' '}
+          contracts with a concrete, programmatic definition: YES iff the epoch snapshot job misses
+          its 72-hour grace window. The recursion is still cute; now it is at least falsifiable.
         </li>
       </ul>
 
