@@ -220,7 +220,12 @@ async function main() {
     },
   })
 
-  // Create arguments (reasons linking beliefs to the main belief)
+  // Create arguments (reasons linking beliefs to the main belief).
+  // Wipe this seed's edges first so re-running never double-counts a side
+  // (duplicated rows would silently inflate every net and OCV verdict).
+  await prisma.argument.deleteMany({
+    where: { parentBeliefId: { in: [mainBelief.id, moderateBelief.id, extremeBelief.id] } },
+  })
   await prisma.argument.createMany({
     data: [
       {
@@ -271,6 +276,28 @@ async function main() {
         impactScore: 15.8,
         linkageType: 'STRONG_CAUSAL',
       },
+    ],
+  })
+
+  // Argument trees for the RIVAL options in the income-floor contrast class.
+  // The denominator framework (docs/THE_DENOMINATOR.md) prices UBI against its
+  // rivals, so each rival needs its own scored tree for OCV to be real and
+  // traceable rather than a fabricated constant. Negative income tax reuses the
+  // shared pro-beliefs (poverty reduction, lower bureaucracy) and is weakened by
+  // the same fiscal worry; automated luxury communism shares the automation
+  // premise but is dragged down by the fiscal-sustainability and work-incentive cons.
+  await prisma.argument.createMany({
+    data: [
+      // Negative income tax (moderateBelief) — a strong, well-supported rival.
+      { parentBeliefId: moderateBelief.id, beliefId: povertyBelief.id, side: 'agree', linkageScore: 0.8, impactScore: 21.0, linkageType: 'STRONG_CAUSAL' },
+      { parentBeliefId: moderateBelief.id, beliefId: bureaucracyBelief.id, side: 'agree', linkageScore: 0.6, impactScore: 14.0, linkageType: 'CONTEXTUAL' },
+      { parentBeliefId: moderateBelief.id, beliefId: marketFreedomBelief.id, side: 'agree', linkageScore: 0.55, impactScore: 11.0, linkageType: 'CONTEXTUAL' },
+      { parentBeliefId: moderateBelief.id, beliefId: fiscalBelief.id, side: 'disagree', linkageScore: 0.5, impactScore: 9.0, linkageType: 'STRONG_CAUSAL' },
+      // Fully automated luxury communism (extremeBelief) — a weak rival: shares
+      // the automation premise but loses badly on fiscal and work-incentive cons.
+      { parentBeliefId: extremeBelief.id, beliefId: automationBelief.id, side: 'agree', linkageScore: 0.7, impactScore: 16.0, linkageType: 'STRONG_CAUSAL' },
+      { parentBeliefId: extremeBelief.id, beliefId: fiscalBelief.id, side: 'disagree', linkageScore: 0.8, impactScore: 24.0, linkageType: 'STRONG_CAUSAL' },
+      { parentBeliefId: extremeBelief.id, beliefId: workIncentiveBelief.id, side: 'disagree', linkageScore: 0.65, impactScore: 18.0, linkageType: 'STRONG_CAUSAL' },
     ],
   })
 

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { ArgumentWithBelief } from '../types'
 import { TABLE_TOP_LIMIT } from '../lib/ranking'
 import ExpandableRows from './ExpandableRows'
+import { justificationScore, truthShare, argumentMass } from '@/core/scoring/contrast-class'
 
 interface ArgumentTreesSectionProps {
   arguments: ArgumentWithBelief[]
@@ -176,6 +177,14 @@ export default function ArgumentTreesSection({
   const net = totalPro - totalCon
   const netLabel = `${net >= 0 ? '+' : ''}${net.toFixed(1)}`
 
+  // §4 of THE_DENOMINATOR: a bare net "+9.2" floats free. Divide it by the
+  // belief's own total argument weight to get the justification score — the
+  // share (implied probability) and margin a reader can actually act on.
+  const hasArgs = totalPro > 0 || totalCon > 0
+  const share = truthShare(totalPro, totalCon)
+  const margin = justificationScore(totalPro, totalCon)
+  const mass = argumentMass(totalPro, totalCon)
+
   return (
     <section>
       <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
@@ -251,10 +260,24 @@ export default function ArgumentTreesSection({
       </div>
 
       <p className="text-sm mt-4 p-2 bg-gray-100 border border-gray-300">
-        <strong>Net Belief Score: {totalPro > 0 || totalCon > 0 ? netLabel : '[pending]'}.</strong>{' '}
+        <strong>Net Belief Score: {hasArgs ? netLabel : '[pending]'}.</strong>{' '}
+        {hasArgs && share != null && (
+          <span>
+            The agree-case holds{' '}
+            <strong>{Math.round(share * 100)}%</strong> of the argument weight, a{' '}
+            <strong>{margin >= 0 ? '+' : ''}{Math.round(margin * 100)}-point</strong>{' '}
+            margin{' '}
+            <span className="text-[var(--muted-foreground)]">
+              (mass {mass.toFixed(1)})
+            </span>
+            .{' '}
+          </span>
+        )}
         {netInterpretation ?? (
           <span className="text-[var(--muted-foreground)] italic">
-            Interpretation appears once arguments are scored.
+            {hasArgs
+              ? 'This is the internal denominator only — how lopsided the belief is versus its own rebuttals, not whether it beats its rivals.'
+              : 'Interpretation appears once arguments are scored.'}
           </span>
         )}
       </p>

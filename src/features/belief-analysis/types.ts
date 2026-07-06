@@ -131,6 +131,14 @@ export interface BeliefWithRelations {
   costBenefitItems?: CostBenefitItemRow[]
   impactEntries?: ImpactEntryItem[]
 
+  /**
+   * The contrast class — the mutually exclusive rivals this belief is priced
+   * against (the denominator made visible). Optional so existing beliefs keep
+   * flowing; populate via seed as topic option sets land. See
+   * docs/THE_DENOMINATOR.md and src/core/scoring/contrast-class.ts.
+   */
+  contrastClass?: ContrastClassData | null
+
   arguments: ArgumentWithBelief[]
   evidence: EvidenceItem[]
   objectiveCriteria: ObjectiveCriteriaItem[]
@@ -262,6 +270,36 @@ export interface ObjectiveCriteriaItem {
    * e.g., "+2pp sustained over 3 years would settle the debate".
    */
   thresholdForAgreement?: string | null
+}
+
+/**
+ * One mutually exclusive option in a belief's contrast class — a rival answer
+ * to the same topic question, competing for the same slot. The denominator for
+ * the focal belief is the rest of this set (its best rival, in particular).
+ */
+export interface ContrastClassOption {
+  /** Stable id, unique within the class. */
+  id: string
+  /** Short label for the option ("Targeted sanctions"). */
+  label: string
+  /** One-line description of the lever/option. */
+  oneLine?: string | null
+  /**
+   * S(o): the option's argument-tree score on a common scale. May be signed.
+   * Null renders blank (Rule 6) — the class is still shown, just without OCV.
+   */
+  score: number | null
+  /** Slug to the option's own belief page; plain text when null (Rule 5). */
+  slug?: string | null
+  /** True for the focal belief — the page this contrast class lives on. */
+  isFocal?: boolean
+}
+
+/** A belief's contrast class: the shared question plus the rival options. */
+export interface ContrastClassData {
+  /** The question the options compete to answer (lives on the topic). */
+  question: string
+  options: ContrastClassOption[]
 }
 
 /** One row in the Shared Values, Different Rankings table (new template). */

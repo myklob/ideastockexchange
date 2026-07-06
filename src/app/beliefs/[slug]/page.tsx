@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { fetchBeliefBySlug, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
 import ScorecardSection from '@/features/belief-analysis/components/ScorecardSection'
 import ArgumentTreesSection from '@/features/belief-analysis/components/ArgumentTreesSection'
+import ContrastClassSection from '@/features/belief-analysis/components/ContrastClassSection'
 import EvidenceSection from '@/features/belief-analysis/components/EvidenceSection'
 import ConflictResolutionSection from '@/features/belief-analysis/components/ConflictResolutionSection'
 import ObjectiveCriteriaSection from '@/features/belief-analysis/components/ObjectiveCriteriaSection'
@@ -122,6 +123,14 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             totalCon={scores.totalCon}
             netInterpretation={belief.netInterpretation}
           />
+
+          {belief.contrastClass && belief.contrastClass.options.length > 0 && (
+            <>
+              <hr className="border-gray-200" />
+              {/* The denominator, made visible — rivals this belief is priced against. */}
+              <ContrastClassSection contrastClass={belief.contrastClass} />
+            </>
+          )}
 
           <hr className="border-gray-200" />
 
