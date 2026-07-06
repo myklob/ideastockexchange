@@ -175,6 +175,10 @@ export interface ArgumentWithBelief {
   argumentScore: number | null
   /** Importance Score (0-1): how much this argument moves the probability needle. */
   importanceScore: number
+  /** Uniqueness factor (0-1): signal added versus earlier same-side siblings.
+   *  Null until the engine computes it at scoring time (Rule 6). Optional so
+   *  existing Prisma data still flows. */
+  uniquenessScore?: number | null
   linkageType: string
   /** ECLS = Evidence-to-Conclusion, ACLS = Argument-to-Conclusion */
   linkageScoreType: string

@@ -22,7 +22,7 @@
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
+import { propagateAllBeliefScores } from '@/lib/propagate-belief-scores'
 
 // ─── GET (status check) ─────────────────────────────────────────────────────
 
@@ -41,55 +41,15 @@ export async function GET() {
 // ─── POST (run full propagation) ────────────────────────────────────────────
 
 export async function POST() {
-  // Find all beliefs that are never used as a reason (i.e., leaf beliefs).
-  // These have no outgoing "beliefId" references in the Argument table.
-  const allBeliefIds = await prisma.belief.findMany({ select: { id: true } })
-  const beliefIdsUsedAsChild = await prisma.argument.findMany({
-    select: { beliefId: true },
-    distinct: ['beliefId'],
-  })
-
-  const usedAsChildSet = new Set(beliefIdsUsedAsChild.map(a => a.beliefId))
-  const leafBeliefIds = allBeliefIds
-    .map(b => b.id)
-    .filter(id => !usedAsChildSet.has(id))
-
-  // Also include beliefs that have no children themselves — every belief
-  // that isn't a parent of another, so they won't be visited through a leaf.
-  const beliefIdsUsedAsParent = await prisma.argument.findMany({
-    select: { parentBeliefId: true },
-    distinct: ['parentBeliefId'],
-  })
-  const usedAsParentSet = new Set(beliefIdsUsedAsParent.map(a => a.parentBeliefId))
-
-  // True isolated beliefs (no arguments at all) — still need positivity updated
-  const isolatedBeliefIds = allBeliefIds
-    .map(b => b.id)
-    .filter(id => !usedAsChildSet.has(id) && !usedAsParentSet.has(id))
-
-  // Combine: start from leaves (propagates upward) + isolated beliefs
-  const startBeliefIds = Array.from(new Set([...leafBeliefIds, ...isolatedBeliefIds]))
-
-  const visited = new Set<number>()
-  let totalUpdatedArguments = 0
-  let totalUpdatedBeliefs = 0
-  let maxDepth = 0
-
-  for (const id of startBeliefIds) {
-    if (visited.has(id)) continue
-    const result = await propagateBeliefScores(id, visited)
-    totalUpdatedArguments += result.updatedArgumentIds.length
-    totalUpdatedBeliefs += result.updatedBeliefIds.length
-    maxDepth = Math.max(maxDepth, result.depth)
-  }
+  const result = await propagateAllBeliefScores()
 
   return NextResponse.json({
     success: true,
     summary: {
-      startBeliefCount: startBeliefIds.length,
-      totalUpdatedArguments,
-      totalUpdatedBeliefs,
-      maxDepth,
+      startBeliefCount: result.startedFrom,
+      totalUpdatedArguments: result.updatedArguments,
+      totalUpdatedBeliefs: result.updatedBeliefs,
+      maxDepth: result.maxDepth,
     },
     description:
       'Full score propagation complete. All belief positivity and stabilityScore ' +

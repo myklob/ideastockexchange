@@ -3,6 +3,7 @@ import { agentJson } from '@/lib/agent-api'
 import { authenticateAgentKey } from '@/lib/agent-auth'
 import { validateEvidenceInput } from '@/lib/agent-ingest/validate-claim'
 import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
+import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
 
 /**
  * Explicit acceptance turns a suggestion into an Evidence row, through the
@@ -94,6 +95,10 @@ export async function POST(
     })
     return created
   })
+
+  // New evidence changed the belief's ledger — recompute its score and every
+  // conclusion upstream of it. The acceptance wrote no scores; the engine does.
+  await propagateBeliefScores(suggestion.beliefId)
 
   return agentJson({ evidence, beliefSlug: suggestion.belief.slug }, { status: 201 })
 }

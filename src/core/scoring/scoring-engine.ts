@@ -736,12 +736,19 @@ export function calculateArgumentImpact(
  * Used by the recursive propagation system when a child belief's truth score
  * changes and its contribution to parent beliefs must be updated.
  *
- * Formula: sign × childTruthScore × |linkageScore| × importanceScore × 100
+ * Formula: sign × childTruthScore × |linkageScore| × importanceScore × uniqueness × 100
+ *
+ * This is the conclusion-score core: Σ(agree × linkage × uniqueness) −
+ * Σ(disagree × linkage × uniqueness), one term at a time.
  *
  * - sign is +1 for 'agree' arguments, -1 for 'disagree' arguments.
  * - childTruthScore (0–1): how well-supported the child belief is by its own arguments.
  * - |linkageScore| (0–1): abs value used so the side alone controls direction.
  * - importanceScore (0–1): how much this argument moves the probability needle.
+ * - uniquenessScore (0–1): how much new signal the argument adds versus its
+ *   earlier same-side siblings. A 90% restatement contributes ~10% of its
+ *   weight — nobody wins by making one point five different ways. Defaults to
+ *   1 so callers without sibling context (and pre-uniqueness data) are unchanged.
  * - Multiplied by 100 to match the stored scale (e.g. 18.5, 22.1, 12.4).
  * - Rounded to one decimal place to limit floating-point noise.
  */
@@ -750,9 +757,11 @@ export function computeArgumentImpactScore(
   childTruthScore: number,
   linkageScore: number,
   importanceScore: number,
+  uniquenessScore: number = 1,
 ): number {
   const sign = side === 'agree' ? 1 : -1
-  const raw = sign * childTruthScore * Math.abs(linkageScore) * importanceScore * 100
+  const raw =
+    sign * childTruthScore * Math.abs(linkageScore) * importanceScore * uniquenessScore * 100
   return Math.round(raw * 10) / 10
 }
 

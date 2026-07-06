@@ -11,8 +11,12 @@
  * 2. Compute B's current truth score from its arguments and evidence.
  * 3. Find all Arguments where B is the child (i.e., B is the reason for
  *    some parent belief P). Each such argument A has a stored impactScore.
- * 4. Recompute A.impactScore = sign × B.truthScore × |A.linkageScore| × A.importanceScore × 100
- * 5. Update A.impactScore in the database.
+ * 4. Recompute A.impactScore = sign × B.truthScore × |A.linkageScore| ×
+ *    A.importanceScore × A.uniquenessScore × 100, where uniqueness discounts
+ *    restatements of earlier same-side siblings (the redundancy scan applied
+ *    at scoring time).
+ * 5. Update A.impactScore (plus the derived importance, uniqueness, and the
+ *    child's own tree score as argumentScore) in the database.
  * 6. For each parent belief P whose argument was just updated:
  *    a. Recompute P's stability score from all its arguments' impactScores.
  *    b. Persist P's new stabilityScore.
@@ -31,6 +35,10 @@ import {
   deriveImportanceFromBeliefScore,
   calculateLinkageFromArguments,
 } from '@/core/scoring/scoring-engine'
+import {
+  mechanicalSimilarity,
+  uniquenessFromSimilarities,
+} from '@/core/scoring/duplication-scoring'
 
 // Re-export so callers can import from one place
 export { computeArgumentImpactScore }
@@ -81,6 +89,50 @@ async function truthScoreFor(beliefId: number, cache: Map<number, number>): Prom
   const score = belief ? computeBeliefScores(belief).importanceWeightedScore : 0
   cache.set(beliefId, score)
   return score
+}
+
+/**
+ * Compute the uniqueness factor for every argument edge attached to a parent
+ * belief, memoized per propagation pass.
+ *
+ * Uniqueness is a property of an argument WITHIN its parent's tree: how much
+ * new signal it adds versus the same-side arguments that were there first.
+ * Oldest-first, so the original statement of a point keeps full credit and
+ * each later restatement is discounted by its similarity to what already
+ * stands (uniqueness = 1 − max similarity, per duplication-scoring). This is
+ * the "stored, not scored" redundancy scan finally applied at scoring time.
+ */
+async function siblingUniquenessFor(
+  parentBeliefId: number,
+  cache: Map<number, Map<number, number>>,
+): Promise<Map<number, number>> {
+  const cached = cache.get(parentBeliefId)
+  if (cached) return cached
+
+  const siblings = await prisma.argument.findMany({
+    where: { parentBeliefId, status: 'published' },
+    orderBy: { createdAt: 'asc' },
+    select: {
+      id: true,
+      side: true,
+      claim: true,
+      belief: { select: { statement: true } },
+    },
+  })
+
+  const uniqueness = new Map<number, number>()
+  const earlierTextsBySide = new Map<string, string[]>()
+
+  for (const sibling of siblings) {
+    const text = sibling.claim ?? sibling.belief.statement
+    const earlier = earlierTextsBySide.get(sibling.side) ?? []
+    const similarities = earlier.map((prior) => mechanicalSimilarity(text, prior))
+    uniqueness.set(sibling.id, uniquenessFromSimilarities(similarities))
+    earlierTextsBySide.set(sibling.side, [...earlier, text])
+  }
+
+  cache.set(parentBeliefId, uniqueness)
+  return uniqueness
 }
 
 /**
@@ -144,10 +196,16 @@ export async function propagateBeliefScores(
 
   // Persist the child belief's computed overallScore back to the positivity field
   // so that parent argument-tree tables always display the up-to-date score.
-  await prisma.belief.update({
-    where: { id: beliefId },
-    data: { positivity: childScores.overallScore },
-  })
+  // Only when the belief has scored content of its own (arguments or evidence):
+  // a leaf with nothing under it has no computed score, and stamping a 0 over
+  // its editorial valence would fake a verdict that was never computed (Rule 6).
+  const hasScoredContent = childBelief.arguments.length > 0 || childBelief.evidence.length > 0
+  if (hasScoredContent) {
+    await prisma.belief.update({
+      where: { id: beliefId },
+      data: { positivity: childScores.overallScore },
+    })
+  }
 
   // ── Step 2: Find every argument edge that draws on this belief ──
   // A belief can feed a parent argument through THREE distinct edges:
@@ -179,28 +237,41 @@ export async function propagateBeliefScores(
   }
 
   // ── Step 3: Recompute impactScore for each affected argument ────
-  // Each argument is recomputed from its OWN three inputs, not from the
+  // Each argument is recomputed from its OWN four inputs, not from the
   // triggering belief alone: an importance-edge argument keeps its separate
-  // truth child, and vice versa. truthScoreFor memoizes per-belief lookups.
+  // truth child, and vice versa. truthScoreFor memoizes per-belief lookups;
+  // siblingUniquenessFor memoizes the per-parent redundancy scan.
   const truthScoreCache = new Map<number, number>([[beliefId, childTruthScore]])
+  const uniquenessCache = new Map<number, Map<number, number>>()
   const parentBeliefIds = new Set<number>()
 
   for (const arg of affectedArguments.values()) {
     const truth = await truthScoreFor(arg.beliefId, truthScoreCache)
     const importance = await resolveEffectiveImportance(arg)
+    const siblingUniqueness = await siblingUniquenessFor(arg.parentBeliefId, uniquenessCache)
+    const uniqueness = siblingUniqueness.get(arg.id) ?? 1
 
     const newImpactScore = computeArgumentImpactScore(
       arg.side,
       truth,
       arg.linkageScore,
       importance,
+      uniqueness,
     )
 
     await prisma.argument.update({
       where: { id: arg.id },
-      // Persist the derived importance too, so rendered tables and later
-      // truth-edge recomputes read a value consistent with the live debate.
-      data: { impactScore: newImpactScore, importanceScore: importance },
+      // Persist the derived importance and uniqueness too, so rendered tables,
+      // the score-provenance page, and later truth-edge recomputes all read
+      // values consistent with the live debate. argumentScore is the child
+      // belief's own tree score (0–100) — the recursive "Score" column made
+      // real (Rule 6: computed, never hand-assigned).
+      data: {
+        impactScore: newImpactScore,
+        importanceScore: importance,
+        uniquenessScore: uniqueness,
+        argumentScore: Math.round(truth * 1000) / 10,
+      },
     })
 
     result.updatedArgumentIds.push(arg.id)
@@ -232,6 +303,64 @@ export async function propagateBeliefScores(
     result.updatedArgumentIds.push(...childResult.updatedArgumentIds)
     result.updatedBeliefIds.push(...childResult.updatedBeliefIds)
     result.depth = Math.max(result.depth, childResult.depth)
+  }
+
+  return result
+}
+
+export interface FullPropagationResult {
+  startedFrom: number
+  updatedArguments: number
+  updatedBeliefs: number
+  maxDepth: number
+}
+
+/**
+ * Recompute scores for every belief in the database, bottom-up.
+ *
+ * Finds every leaf belief (never used as a reason) plus isolated beliefs, and
+ * propagates each upward; the shared visited-set prevents redundant work when
+ * leaves share ancestors. Used by POST /api/scoring/propagate-all and by the
+ * seed chain, so a fresh dev database starts with engine-computed scores
+ * rather than hand-typed placeholders.
+ */
+export async function propagateAllBeliefScores(): Promise<FullPropagationResult> {
+  const allBeliefIds = await prisma.belief.findMany({ select: { id: true } })
+  const beliefIdsUsedAsChild = await prisma.argument.findMany({
+    select: { beliefId: true },
+    distinct: ['beliefId'],
+  })
+
+  const usedAsChildSet = new Set(beliefIdsUsedAsChild.map((a) => a.beliefId))
+  const startBeliefIds = allBeliefIds
+    .map((b) => b.id)
+    .filter((id) => !usedAsChildSet.has(id))
+
+  const visited = new Set<number>()
+  const result: FullPropagationResult = {
+    startedFrom: startBeliefIds.length,
+    updatedArguments: 0,
+    updatedBeliefs: 0,
+    maxDepth: 0,
+  }
+
+  for (const id of startBeliefIds) {
+    if (visited.has(id)) continue
+    const pass = await propagateBeliefScores(id, visited)
+    result.updatedArguments += pass.updatedArgumentIds.length
+    result.updatedBeliefs += pass.updatedBeliefIds.length
+    result.maxDepth = Math.max(result.maxDepth, pass.depth)
+  }
+
+  // Leaves reach their ancestors through recursion, but a mid-graph belief
+  // whose leaf children carry no arguments of their own can be missed when
+  // every leaf under it was already visited. Sweep any belief not yet visited.
+  for (const { id } of allBeliefIds) {
+    if (visited.has(id)) continue
+    const pass = await propagateBeliefScores(id, visited)
+    result.updatedArguments += pass.updatedArgumentIds.length
+    result.updatedBeliefs += pass.updatedBeliefIds.length
+    result.maxDepth = Math.max(result.maxDepth, pass.depth)
   }
 
   return result

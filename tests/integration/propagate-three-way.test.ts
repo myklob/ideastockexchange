@@ -202,6 +202,76 @@ describe('Linkage edge: editing the linkage sub-debate', () => {
   })
 })
 
+describe('Uniqueness edge: restatements are discounted at scoring time', () => {
+  it('persists uniqueness 1.0 and the child tree score for a lone argument', async () => {
+    const arg = await prisma.argument.findUnique({ where: { id: mainArgId } })
+    // Recomputed several times above; the only same-side sibling context is itself.
+    expect(arg.uniquenessScore).toBeCloseTo(1.0, 5)
+    // argumentScore = truthChild's own tree score (1.0 → 100), computed not hand-set.
+    expect(arg.argumentScore).toBeCloseTo(100, 5)
+  })
+
+  it('discounts a near-duplicate same-side sibling and keeps the original whole', async () => {
+    // A second reason under gp whose claim restates the first one nearly verbatim.
+    const dupChild = await prisma.belief.create({
+      data: { slug: 'rcv-truth-dup', statement: 'RCV eliminates the spoiler effect entirely' },
+    })
+    await prisma.argument.create({
+      data: {
+        parentBeliefId: gpId,
+        beliefId: dupChild.id,
+        side: 'agree',
+        claim: 'RCV eliminates the spoiler effect',
+        linkageScore: 0.8,
+        importanceScore: 0.75,
+        impactScore: 0,
+      },
+    })
+
+    await propagateBeliefScores(dupChild.id)
+
+    const args = await prisma.argument.findMany({
+      where: { parentBeliefId: gpId, side: 'agree' },
+      orderBy: { createdAt: 'asc' },
+    })
+    const original = args.find((a: { id: number }) => a.id === mainArgId)
+    const duplicate = args.find((a: { id: number }) => a.id !== mainArgId)
+
+    // The restatement is heavily discounted; the first statement keeps credit.
+    expect(duplicate.uniquenessScore).toBeLessThan(0.5)
+    expect(Math.abs(duplicate.impactScore)).toBeLessThan(
+      Math.abs(duplicate.linkageScore) * duplicate.importanceScore * 100,
+    )
+    // Propagating the duplicate's child does not re-touch the original edge,
+    // and the original's stored uniqueness stays undiscounted.
+    expect(original.uniquenessScore).toBeCloseTo(1.0, 5)
+  }, 20_000)
+
+  it('a genuinely novel argument keeps ~full uniqueness', async () => {
+    const novelChild = await prisma.belief.create({
+      data: { slug: 'rcv-novel', statement: 'Ranked ballots raise turnout among independents' },
+    })
+    await prisma.argument.create({
+      data: {
+        parentBeliefId: gpId,
+        beliefId: novelChild.id,
+        side: 'agree',
+        claim: 'Ranked ballots raise turnout among independents',
+        linkageScore: 0.6,
+        importanceScore: 1.0,
+        impactScore: 0,
+      },
+    })
+
+    await propagateBeliefScores(novelChild.id)
+
+    const novel = await prisma.argument.findFirst({
+      where: { parentBeliefId: gpId, beliefId: novelChild.id },
+    })
+    expect(novel.uniquenessScore).toBeGreaterThan(0.7)
+  }, 20_000)
+})
+
 describe('Cycle safety', () => {
   it('terminates when beliefs reference each other in a cycle', async () => {
     const a = await prisma.belief.create({ data: { slug: 'cycle-a', statement: 'Belief A' } })

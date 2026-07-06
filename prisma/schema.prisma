@@ -299,6 +299,11 @@ model Belief {
   reviewFlag     Boolean @default(false)
   reviewFlagNote String?
 
+  /// High-stakes flag: posting to this belief goes through the speed-bump flow
+  /// (acknowledge the strongest opposing point + moral-principle consistency
+  /// check) before the API accepts the submission. Editorial, set per topic.
+  highStakes Boolean @default(false)
+
   suggestedEvidence SuggestedEvidence[]
   forumPosts        ForumPost[]
 
@@ -356,7 +361,15 @@ model Argument {
   quoteAuthorUrl String?
   /// The argument's own displayed score (the "Score" column), distinct from the
   /// computed Impact. Null renders blank until real sub-argument scoring exists (Rule 6).
+  /// Populated by score propagation as the child belief's own tree score (0-100).
   argumentScore  Float?
+
+  /// Uniqueness factor (0-1): how much new signal this argument adds versus its
+  /// earlier same-side siblings (1 − max mechanical similarity, oldest keeps
+  /// credit). Null until the engine computes it at scoring time (Rule 6) — the
+  /// uniqueness discount promised by the redundancy scan. Multiplies into
+  /// impactScore so restatements never double-count.
+  uniquenessScore Float?
 
   /// Importance Score (0-1): how much this argument moves the probability needle.
   /// 1.0 = decisive, 0.5 = moderate, 0.1 = minor. Weights the argument's contribution
