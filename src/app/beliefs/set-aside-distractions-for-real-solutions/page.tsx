@@ -20,6 +20,8 @@ import ContributeSection from '@/features/belief-analysis/components/ContributeS
 import ISEExampleSection from '@/features/belief-analysis/components/ISEExampleSection'
 import StrengthSpectrumBar, { TwoAxisCoordinate } from '@/components/StrengthSpectrumBar'
 
+export const dynamic = 'force-dynamic'
+
 const SLUG = 'set-aside-distractions-for-real-solutions'
 
 export default async function DistractionsBeliefPage() {

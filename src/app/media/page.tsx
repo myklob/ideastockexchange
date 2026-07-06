@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { fetchAllMedia, computeEpistemicImpact, formatReach, getMediaTypeLabel, getMediaTypeEmoji } from '@/features/media/fetch-media'
 
+export const dynamic = 'force-dynamic'
+
 function scoreColor(score: number): string {
   if (score >= 0.7) return 'text-green-700'
   if (score >= 0.4) return 'text-orange-600'

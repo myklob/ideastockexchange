@@ -6,6 +6,8 @@ import {
 } from '@/features/belief-analysis/data/fetch-belief'
 import { getStrengthBand, formatStrength } from '@/core/scoring/claim-strength'
 
+export const dynamic = 'force-dynamic'
+
 interface BeliefsPageSearchParams {
   valence?: string       // 'all' | 'extreme-neg' | 'mild-neg' | 'neutral' | 'mild-pos' | 'extreme-pos'
   specificity?: string   // 'all' | 'general' | 'case-level' | 'specific'
