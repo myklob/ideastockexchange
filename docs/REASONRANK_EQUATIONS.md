@@ -91,8 +91,17 @@ when the edge names an importance sub-belief (`Argument.importanceBeliefId`)
 — "does this matter?" is itself a scored debate. Otherwise the manual
 placement-time weight is used unchanged.
 
+Attaching the sub-belief is one call (`POST /api/arguments/[id]/importance`,
+or the *Make importance debatable* affordance on the impact-provenance
+page): it opens neutral (0.5) until reasons land, seeded with the four
+anchor criteria as its falsifiability tests — scale of impact, decision
+relevance, causal proximity, testability. Because each edge's sub-belief is
+its own tree, importance is context-specific: the same claim can carry high
+importance in one debate and low in another.
+
 **Implementation:** `deriveImportanceFromBeliefScore`,
-`src/core/scoring/scoring-engine.ts`.
+`src/core/scoring/scoring-engine.ts`;
+`src/app/api/arguments/[id]/importance/route.ts`.
 
 ## 6. Uniqueness (the restatement discount)
 

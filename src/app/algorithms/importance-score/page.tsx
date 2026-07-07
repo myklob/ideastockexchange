@@ -213,22 +213,53 @@ export default function ImportanceScorePage() {
         <strong>+62.0</strong>. Every number in that chain has a page where you can argue it down.
       </p>
 
-      <h3 className="text-xl font-bold mt-5 mb-2">The Fallback: Manual Weights</h3>
+      <h3 className="text-xl font-bold mt-5 mb-2">Making a Manual Weight Debatable</h3>
       <p className="mb-3">
         Not every argument has an importance sub-belief yet. When the edge is absent, the
         importance score is a manual value set when the argument is placed, defaulting to 1.0
-        (full weight). This is the honest current state: derived importance is computed and
-        auto-propagates wherever an importance belief exists; everywhere else, a placement-time
-        number stands in until someone creates the sub-belief and starts the debate.
+        (full weight) &mdash; and every impact-provenance page for such an edge carries a
+        one-click <em>Make importance debatable</em> affordance
+        (<code>POST /api/arguments/[id]/importance</code>). Attaching creates the dedicated
+        sub-belief; the multiplier opens neutral (0.5) until reasons land and tracks the
+        sub-debate from then on. Think a point is being overweighted? You don&apos;t lobby a
+        moderator &mdash; you post the counter-argument in the importance sub-debate, and if it
+        holds up, the multiplier falls.
       </p>
+
+      <h3 className="text-xl font-bold mt-5 mb-2">The Four Criteria That Anchor the Sub-Debate</h3>
+      <p className="mb-3">
+        Every attached importance sub-belief is seeded with these criteria as its
+        falsifiability tests &mdash; the evidence that would move the multiplier, named in
+        advance:
+      </p>
+      <ul className="list-disc ml-6 mb-3 space-y-1">
+        <li>
+          <strong>Scale of impact</strong> &mdash; how many people are affected, how severe the
+          consequences, whether they are reversible. &ldquo;Raises taxes 0.01%&rdquo; and
+          &ldquo;raises taxes 15%&rdquo; can both be true; magnitude is the difference.
+        </li>
+        <li>
+          <strong>Decision relevance</strong> &mdash; does this change what action to take, or
+          is it background? A treatment&apos;s success rate is decision-relevant; its discovery
+          year is not.
+        </li>
+        <li>
+          <strong>Causal proximity</strong> &mdash; root cause or distant side effect? In a
+          homelessness debate, housing supply outranks edge-case shelter refusals because the
+          first addresses scale.
+        </li>
+        <li>
+          <strong>Testability</strong> &mdash; can &ldquo;this matters&rdquo; actually be
+          verified (&ldquo;costs $500M annually&rdquo;), or is it speculation about
+          hypotheticals (&ldquo;might set a bad precedent&rdquo;)?
+        </li>
+      </ul>
       <p className="mb-4">
-        For setting those manual weights &mdash; and eventually for structuring importance
-        debates themselves &mdash; the design rubric weighs four factors: <strong>scope</strong>{' '}
-        (how many people are affected, 30%), <strong>magnitude</strong> (effect size per person,
-        30%), <strong>reversibility</strong> (irreversible harms matter more, 20%), and{' '}
-        <strong>urgency</strong> (time-sensitive issues matter more, 20%). Today that rubric is
-        guidance for humans, not an automated calculation. The computed paths are the linear map
-        above and the manual default.
+        The older design rubric &mdash; <strong>scope</strong> (30%), <strong>magnitude</strong>{' '}
+        (30%), <strong>reversibility</strong> (20%), <strong>urgency</strong> (20%) &mdash;
+        remains guidance for placing manual weights. The computed paths are the linear map
+        above and the manual default; the criteria are anchors for the sub-debates, not an
+        automated formula.
       </p>
 
       <hr className="my-6 border-gray-300" />
