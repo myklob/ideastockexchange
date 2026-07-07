@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { DebateCommonGround } from '@/core/types/debate-topic';
 
 interface Props {
@@ -13,7 +14,7 @@ export default function CommonGround({ commonGround }: Props) {
         🤝 Common Ground and Compromise
       </h2>
       <p className="text-sm text-gray-600 mb-3">
-        The scored <a href="/cba/about" className="text-blue-600 hover:underline">cost-benefit</a>{' '}
+        The scored <Link href="/cba/about" className="text-blue-600 hover:underline">cost-benefit</Link>{' '}
         trees read sideways. Compromise Candidates are the winnable disagreements, the ones a small
         likelihood shift can flip, as opposed to the symbolic value conflicts no negotiation resolves. That
         is the payoff of scoring both sides with equal rigor.
