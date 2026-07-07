@@ -32,7 +32,7 @@ For every evidence row on a belief:
 
 ```
 EVS    = ESIW × log2(ERQ + 1) × ECRS × ERP
-impact = sign × EVS × |linkage| × verificationFactor × 100
+impact = sign × EVS × |linkage| × verificationFactor × criterionQuality × 100
 ```
 
 - `ESIW` — source-independence weight by tier (T1 > T2 > T3 > T4)
@@ -41,12 +41,34 @@ impact = sign × EVS × |linkage| × verificationFactor × 100
 - `verificationFactor` — VERIFIED 1.0, UNVERIFIED/DISPUTED 0.5, FALSIFIED 0.
   Falsified evidence is a circuit breaker: it contributes nothing, and
   propagation lowers every conclusion that leaned on it.
+- `criterionQuality` — the yardstick factor (§2b): the quality of the
+  objective criterion the row is measured by (`Evidence.criterionId`);
+  1 when unlinked. Data measured by a weak yardstick is filtered down.
 
 **Implementation:** `calculateEVS`, `computeEvidenceImpactScore`,
 `VERIFICATION_FACTORS` in `src/core/scoring/scoring-engine.ts`; recomputed on
 every propagation pass by `recomputeEvidenceImpacts` in
 `src/lib/propagate-belief-scores.ts`. Status changes via
 `PATCH /api/evidence/[id]`.
+
+## 2b. Objective criteria (the recursive yardstick)
+
+```
+quality = (criterionDebateNet + 100) / 200      when a sub-belief sources it
+quality = mean(validity, reliability, independence, linkage)   otherwise
+```
+
+A criterion's quality is the score of its dedicated sub-belief ("X is a good
+measure of Y") when one is attached (`ObjectiveCriteria.criterionBeliefId`) —
+argued across the four quality dimensions, which anchor the sub-debate as its
+falsifiability tests. Attach via `POST /api/criteria/[id]/debate` or argue an
+existing one from the criterion's Score cell. Propagation traverses the edge
+both ways: criterion sub-debate → criterion quality → every evidence row
+measured by that yardstick → the page's net.
+
+**Implementation:** `recomputeCriterionScores` in
+`src/lib/propagate-belief-scores.ts`;
+`src/app/api/criteria/[id]/debate/route.ts`.
 
 ## 3. Belief truth (the recursion)
 

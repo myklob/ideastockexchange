@@ -382,31 +382,55 @@ async function main() {
   })
 
   // Create objective criteria
+  // Criteria quality lives on a 0-1 scale (it multiplies into the impact of
+  // evidence measured by the yardstick). Wipe-then-create so re-running never
+  // duplicates rows; evidence for this belief was wiped above, so no
+  // measured-by references dangle.
+  await prisma.objectiveCriteria.deleteMany({ where: { beliefId: mainBelief.id } })
   await prisma.objectiveCriteria.createMany({
     data: [
       {
         beliefId: mainBelief.id,
         description: 'Randomized controlled trial results from UBI pilots in multiple countries',
+        validityScore: 0.8,
+        reliabilityScore: 0.7,
         independenceScore: 0.9,
         linkageScore: 0.7,
         criteriaType: 'scientific judgment',
-        totalScore: 6.3,
+        totalScore: 0.78,
       },
       {
         beliefId: mainBelief.id,
         description: 'Cost projections from independent fiscal analysis organizations (CBO, IFS)',
+        validityScore: 0.75,
+        reliabilityScore: 0.8,
         independenceScore: 0.85,
         linkageScore: 0.8,
         criteriaType: 'market value',
-        totalScore: 6.8,
+        totalScore: 0.8,
       },
       {
         beliefId: mainBelief.id,
         description: 'Labor market participation data from existing cash transfer programs',
+        validityScore: 0.7,
+        reliabilityScore: 0.75,
         independenceScore: 0.8,
         linkageScore: 0.65,
         criteriaType: 'scientific judgment',
-        totalScore: 5.2,
+        totalScore: 0.72,
+      },
+      // The weak yardstick, on purpose: sentiment measures perception, not
+      // outcomes. Its quality sub-debate (seed-criterion-debates.ts) argues it
+      // further down, and the survey evidence row linked to it gets filtered.
+      {
+        beliefId: mainBelief.id,
+        description: 'Public opinion surveys on UBI satisfaction',
+        validityScore: 0.3,
+        reliabilityScore: 0.4,
+        independenceScore: 0.5,
+        linkageScore: 0.35,
+        criteriaType: 'public sentiment',
+        totalScore: 0.39,
       },
     ],
   })

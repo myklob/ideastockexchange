@@ -467,25 +467,25 @@ export default function ObjectiveCriteriaPage() {
       <hr className="my-6 border-gray-300" />
 
       {/* ── Scoring Formula ─────────────────────────────────────────────── */}
-      <h2 className="text-2xl font-bold mb-3">How Criteria Get Scored</h2>
+      <h2 className="text-2xl font-bold mb-3">How Criteria Get Scored (The Recursive Part)</h2>
       <p className="mb-3">
         Criteria scores are determined by arguments — the same recursive logic that governs the
-        rest of the platform. For each of the four dimensions, the community debates its quality
-        and the{' '}
-        <Link href="/algorithms/reason-rank" className="text-blue-700 hover:underline">
-          ReasonRank algorithm
-        </Link>{' '}
-        synthesizes the competing arguments into a dimension score using the sigmoid balance formula:
+        rest of the platform, and it runs live. Each criterion can carry a dedicated quality
+        sub-belief (&ldquo;X is a good measure for this question&rdquo;) with its own reasons to
+        agree and disagree; when one is attached, the criterion&apos;s quality is whatever that
+        sub-debate earns:
       </p>
 
       <FormulaBox>
-        Dimension Score = sigmoid((SupportWeight &minus; OpposeWeight) / 100) &times; 100
+        Quality = (sub-debate net + 100) / 200 &nbsp;&nbsp;&isin; [0, 1]
       </FormulaBox>
 
       <p className="mb-3">
-        Where <strong>SupportWeight</strong> and <strong>OpposeWeight</strong> are the
-        geometric-mean-weighted sums of all arguments for and against that dimension. The four
-        dimension scores are then averaged:
+        The four dimensions — validity, reliability, independence, linkage — anchor that
+        sub-debate as its falsifiability tests: the evidence that would move the score, named in
+        advance. Attaching the sub-debate is one call
+        (<code>POST /api/criteria/[id]/debate</code>); until one exists, the fallback is the
+        dimension mean:
       </p>
 
       <FormulaBox>
@@ -493,9 +493,13 @@ export default function ObjectiveCriteriaPage() {
       </FormulaBox>
 
       <p className="mb-4">
-        This means a criterion that is highly reliable (easy to measure consistently) but invalid
-        (measures the wrong thing) gets a moderate score, accurately reflecting its mixed quality.
-        No single dimension can hide a weakness in another.
+        And the score does real work: every evidence row records the yardstick that measured it,
+        and the engine multiplies the evidence impact by that criterion&apos;s quality. Establish
+        once that sentiment polling is a weak yardstick and every poll-based argument is
+        downweighted automatically, permanently — no re-litigating the yardstick per argument.
+        On the seeded UBI page this is live: pilot-study evidence rides the randomized-trial
+        criterion&apos;s quality while the survey row is filtered by its argued-down yardstick, and
+        each criterion&apos;s Score cell links into the sub-debate that produced it.
       </p>
 
       <div className="overflow-x-auto mb-6">
