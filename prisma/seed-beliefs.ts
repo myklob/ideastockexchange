@@ -6,7 +6,7 @@ async function main() {
   // Create main belief
   const mainBelief = await prisma.belief.upsert({
     where: { slug: 'universal-basic-income-should-be-implemented' },
-    update: {},
+    update: { highStakes: true },
     create: {
       slug: 'universal-basic-income-should-be-implemented',
       statement: 'Universal Basic Income should be implemented in developed nations',
@@ -16,6 +16,8 @@ async function main() {
       positivity: 25,
       specificity: 0.55,
       claimStrength: 0.6,
+      // Posting here goes through the speed-bump flow (steelman + principle).
+      highStakes: true,
     },
   })
 

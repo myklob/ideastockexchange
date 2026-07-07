@@ -122,6 +122,10 @@ export interface BeliefWithRelations {
   relatedBeliefs: string | null
   supportsBeliefs: string | null
 
+  /** High-stakes flag: posting goes through the speed-bump flow (steelman
+   *  acknowledgment + principle consistency). Optional so existing data flows. */
+  highStakes?: boolean
+
   valueRankings: ValueRankingItem[]
   interestEntries: InterestEntryItem[]
   sharedInterests: SharedInterestItem[]

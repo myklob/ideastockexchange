@@ -238,8 +238,13 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 14. Contribute / footer */}
-          <ContributeSection />
+          {/* 14. Contribute / footer — the add-a-row move, with speed bumps on
+              high-stakes beliefs (steelman acknowledgment + principle check). */}
+          <ContributeSection
+            beliefId={belief.id}
+            highStakes={belief.highStakes ?? false}
+            arguments={belief.arguments}
+          />
         </div>
       </main>
     </div>
