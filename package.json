@@ -12,7 +12,7 @@
     "test": "vitest run",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "npx tsx prisma/seed-beliefs.ts && npx tsx prisma/seed-belief-distractions.ts && npx tsx prisma/seed-debate-topics.ts && npx tsx prisma/seed-product-reviews.ts && npx tsx prisma/seed-linkage-example.ts && npx tsx prisma/seed-interests-example.ts && npx tsx prisma/seed-product-review-extras.ts && npx tsx prisma/seed-markets.ts && npx tsx prisma/seed-reason-rank-belief.ts && npx tsx prisma/seed-propagate.ts",
+    "db:seed": "npx tsx prisma/seed-beliefs.ts && npx tsx prisma/seed-belief-distractions.ts && npx tsx prisma/seed-debate-topics.ts && npx tsx prisma/seed-product-reviews.ts && npx tsx prisma/seed-linkage-example.ts && npx tsx prisma/seed-interests-example.ts && npx tsx prisma/seed-product-review-extras.ts && npx tsx prisma/seed-markets.ts && npx tsx prisma/seed-reason-rank-belief.ts && npx tsx prisma/seed-importance-debates.ts && npx tsx prisma/seed-propagate.ts",
     "db:seed-reviews": "npx tsx prisma/seed-product-reviews.ts",
     "db:seed-markets": "npx tsx prisma/seed-markets.ts",
     "epoch:run": "npx tsx scripts/run-epoch.ts",

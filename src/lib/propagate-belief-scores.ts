@@ -56,6 +56,9 @@ export interface PropagationResult {
   updatedBeliefIds: number[]
   /** Number of recursive levels traversed */
   depth: number
+  /** Arguments whose impact actually MOVED (beyond rounding noise). Batch
+   *  passes iterate until this reaches zero, settling ordering artifacts. */
+  changedArgumentIds: number[]
 }
 
 // ─── Internal helpers ─────────────────────────────────────────────
@@ -69,6 +72,7 @@ const ARGUMENT_EDGE_SELECT = {
   side: true,
   linkageScore: true,
   importanceScore: true,
+  impactScore: true,
 } as const
 
 interface ArgumentEdge {
@@ -79,6 +83,7 @@ interface ArgumentEdge {
   side: string
   linkageScore: number
   importanceScore: number
+  impactScore: number
 }
 
 /**
@@ -229,7 +234,7 @@ export async function propagateBeliefScores(
   depth: number = 0,
 ): Promise<PropagationResult> {
   if (visited.has(beliefId)) {
-    return { updatedArgumentIds: [], updatedBeliefIds: [], depth }
+    return { updatedArgumentIds: [], updatedBeliefIds: [], depth, changedArgumentIds: [] }
   }
   visited.add(beliefId)
 
@@ -237,6 +242,7 @@ export async function propagateBeliefScores(
     updatedArgumentIds: [],
     updatedBeliefIds: [],
     depth,
+    changedArgumentIds: [],
   }
 
   // ── Step 0: Refresh the belief's own evidence impacts ───────────
@@ -334,6 +340,9 @@ export async function propagateBeliefScores(
     })
 
     result.updatedArgumentIds.push(arg.id)
+    if (Math.abs(newImpactScore - arg.impactScore) > 0.05) {
+      result.changedArgumentIds.push(arg.id)
+    }
     parentBeliefIds.add(arg.parentBeliefId)
   }
 
@@ -361,6 +370,7 @@ export async function propagateBeliefScores(
     const childResult = await propagateBeliefScores(parentBeliefId, visited, depth + 1)
     result.updatedArgumentIds.push(...childResult.updatedArgumentIds)
     result.updatedBeliefIds.push(...childResult.updatedBeliefIds)
+    result.changedArgumentIds.push(...childResult.changedArgumentIds)
     result.depth = Math.max(result.depth, childResult.depth)
   }
 
@@ -395,7 +405,6 @@ export async function propagateAllBeliefScores(): Promise<FullPropagationResult>
     .map((b) => b.id)
     .filter((id) => !usedAsChildSet.has(id))
 
-  const visited = new Set<number>()
   const result: FullPropagationResult = {
     startedFrom: startBeliefIds.length,
     updatedArguments: 0,
@@ -403,23 +412,37 @@ export async function propagateAllBeliefScores(): Promise<FullPropagationResult>
     maxDepth: 0,
   }
 
-  for (const id of startBeliefIds) {
-    if (visited.has(id)) continue
-    const pass = await propagateBeliefScores(id, visited)
-    result.updatedArguments += pass.updatedArgumentIds.length
-    result.updatedBeliefs += pass.updatedBeliefIds.length
-    result.maxDepth = Math.max(result.maxDepth, pass.depth)
-  }
+  // A single leaf-up sweep can recompute an edge before a sub-debate it
+  // depends on (e.g. an importance sub-belief on a cross-branch) has itself
+  // settled — the visited-set skips the re-entry. Iterate whole passes until
+  // no impact moves (bounded; each pass settles at least one more layer).
+  const MAX_PASSES = 4
+  for (let passIndex = 0; passIndex < MAX_PASSES; passIndex++) {
+    const visited = new Set<number>()
+    let changed = 0
 
-  // Leaves reach their ancestors through recursion, but a mid-graph belief
-  // whose leaf children carry no arguments of their own can be missed when
-  // every leaf under it was already visited. Sweep any belief not yet visited.
-  for (const { id } of allBeliefIds) {
-    if (visited.has(id)) continue
-    const pass = await propagateBeliefScores(id, visited)
-    result.updatedArguments += pass.updatedArgumentIds.length
-    result.updatedBeliefs += pass.updatedBeliefIds.length
-    result.maxDepth = Math.max(result.maxDepth, pass.depth)
+    for (const id of startBeliefIds) {
+      if (visited.has(id)) continue
+      const pass = await propagateBeliefScores(id, visited)
+      result.updatedArguments += pass.updatedArgumentIds.length
+      result.updatedBeliefs += pass.updatedBeliefIds.length
+      result.maxDepth = Math.max(result.maxDepth, pass.depth)
+      changed += pass.changedArgumentIds.length
+    }
+
+    // Leaves reach their ancestors through recursion, but a mid-graph belief
+    // whose leaf children carry no arguments of their own can be missed when
+    // every leaf under it was already visited. Sweep any belief not yet visited.
+    for (const { id } of allBeliefIds) {
+      if (visited.has(id)) continue
+      const pass = await propagateBeliefScores(id, visited)
+      result.updatedArguments += pass.updatedArgumentIds.length
+      result.updatedBeliefs += pass.updatedBeliefIds.length
+      result.maxDepth = Math.max(result.maxDepth, pass.depth)
+      changed += pass.changedArgumentIds.length
+    }
+
+    if (changed === 0) break
   }
 
   return result
@@ -441,7 +464,7 @@ export async function propagateFromArgumentChange(argumentId: number): Promise<P
   })
 
   if (!arg) {
-    return { updatedArgumentIds: [], updatedBeliefIds: [], depth: 0 }
+    return { updatedArgumentIds: [], updatedBeliefIds: [], depth: 0, changedArgumentIds: [] }
   }
 
   // Propagate from the child belief upward through this argument to all ancestors.
@@ -468,7 +491,7 @@ export async function propagateFromLinkageChange(argumentId: number): Promise<Pr
   })
 
   if (!arg) {
-    return { updatedArgumentIds: [], updatedBeliefIds: [], depth: 0 }
+    return { updatedArgumentIds: [], updatedBeliefIds: [], depth: 0, changedArgumentIds: [] }
   }
 
   // Recompute linkage from the sub-debate and persist it before propagating,
