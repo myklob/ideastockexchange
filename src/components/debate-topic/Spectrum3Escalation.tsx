@@ -109,7 +109,7 @@ export default function Spectrum3Escalation({ escalationLevels, topicTitle }: Pr
         <a href="/escalation-spectrum" className="text-blue-600 hover:underline">Escalation Spectrum</a>.
       </p>
       <p className="text-right text-xs mt-2 text-gray-500">
-        <a href="/w/page/21956745/American%20values" className="text-blue-600 hover:underline">Core Values Framework</a>
+        <a href="/how-it-works" className="text-blue-600 hover:underline">Core Values Framework</a>
       </p>
     </div>
   );

@@ -28,7 +28,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
       <h2 className="text-2xl font-bold mb-2">
         📏{' '}
         <Link
-          href="/w/page/159351732/Objective%20criteria%20scores"
+          href="/algorithms/objective-criteria"
           className="text-blue-700 hover:underline"
         >
           Best Objective Criteria
@@ -40,7 +40,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
         <em>what good measurement looks like</em>. This section lists proposed criteria,
         sorted by their community-assigned{' '}
         <Link
-          href="/w/page/159351732/Objective%20criteria%20scores"
+          href="/algorithms/objective-criteria"
           className="text-blue-600 hover:underline"
         >
           Objective Criteria Score
@@ -70,7 +70,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
           <li>
             <strong>
               <Link
-                href="/w/page/159338766/Linkage%20Scores"
+                href="/algorithms/linkage-scores"
                 className="text-blue-600 hover:underline"
               >
                 Linkage
@@ -82,7 +82,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
           <li>
             <strong>
               <Link
-                href="/w/page/162731388/Importance%20Score"
+                href="/algorithms/importance-score"
                 className="text-blue-600 hover:underline"
               >
                 Importance
@@ -101,7 +101,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
               <th className="px-3 py-2 text-left font-semibold w-[28%]">Proposed Criterion</th>
               <th className="px-3 py-2 text-center font-semibold w-[12%]">
                 <Link
-                  href="/w/page/159351732/Objective%20criteria%20scores"
+                  href="/algorithms/objective-criteria"
                   className="text-blue-700 hover:underline"
                 >
                   Criteria Score
@@ -115,7 +115,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
               <th className="px-3 py-2 text-center font-semibold w-[15%]">Reliability</th>
               <th className="px-3 py-2 text-center font-semibold w-[15%]">
                 <Link
-                  href="/w/page/159338766/Linkage%20Scores"
+                  href="/algorithms/linkage-scores"
                   className="text-blue-700 hover:underline"
                 >
                   Linkage
@@ -123,7 +123,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
               </th>
               <th className="px-3 py-2 text-center font-semibold w-[15%]">
                 <Link
-                  href="/w/page/162731388/Importance%20Score"
+                  href="/algorithms/importance-score"
                   className="text-blue-700 hover:underline"
                 >
                   Importance
@@ -162,7 +162,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
             <tr className="bg-gray-50">
               <td colSpan={6} className="px-3 py-2 text-xs text-gray-500 italic">
                 Don&apos;t see a criterion that belongs here?{' '}
-                <Link href="/Contact%20Me" className="text-blue-600 hover:underline">
+                <Link href="/contact" className="text-blue-600 hover:underline">
                   Submit a proposal
                 </Link>{' '}
                 with reasons to support its validity, reliability, linkage, and importance. The
@@ -184,7 +184,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
       <p className="text-right text-sm mt-2">
         See:{' '}
         <Link
-          href="/w/page/159351732/Objective%20criteria%20scores"
+          href="/algorithms/objective-criteria"
           className="text-blue-600 hover:underline"
         >
           Full Objective Criteria Scoring Methodology

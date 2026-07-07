@@ -11,7 +11,7 @@ export default function CompromisesSection({ compromises }: CompromisesSectionPr
       <SectionHeading
         emoji="&#x1F91D;"
         title="Best Compromise Solutions"
-        href="/Compromise"
+        href="/how-it-works"
       />
 
       <div className="overflow-x-auto">

@@ -54,7 +54,7 @@ export default function ProductScoreHeader({
         </span>{' '}
         <span className="text-xs text-[var(--muted-foreground)]">(computed from argument scores)</span>
         {' '}|{' '}
-        <Link href="/One%20Page%20Per%20Topic" className="text-[var(--accent)] hover:underline font-semibold">
+        <Link href="/how-it-works" className="text-[var(--accent)] hover:underline font-semibold">
           Category
         </Link>:{' '}
         <Link
@@ -82,11 +82,11 @@ export default function ProductScoreHeader({
         Method:{' '}
         <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage Scores</Link>
         {' '}·{' '}
-        <Link href="/Argument%20scores%20from%20sub-argument%20scores" className="text-[var(--accent)] hover:underline">
+        <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">
           Argument scores from sub-argument scores
         </Link>
         {' '}·{' '}
-        <Link href="/cost-benefit%20analysis" className="text-[var(--accent)] hover:underline">Cost-Benefit Analysis</Link>
+        <Link href="/cba/about" className="text-[var(--accent)] hover:underline">Cost-Benefit Analysis</Link>
         . Unscored cells stay blank until the engine computes them.
       </p>
     </div>

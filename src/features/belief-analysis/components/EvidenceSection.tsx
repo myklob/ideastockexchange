@@ -63,7 +63,7 @@ export default function EvidenceSection({ evidence }: EvidenceSectionProps) {
     <section>
       <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
         <span>&#128202;</span>
-        <Link href="/Evidence" className="text-[var(--accent)] hover:underline">Evidence Ledger</Link>
+        <Link href="/algorithms/evidence-scores" className="text-[var(--accent)] hover:underline">Evidence Ledger</Link>
       </h2>
       <p className="text-sm text-[var(--muted-foreground)] mb-4 italic">
         Key: <strong>T1</strong>=Peer-reviewed/Official, <strong>T2</strong>=Expert/Institutional,{' '}
@@ -85,13 +85,13 @@ export default function EvidenceSection({ evidence }: EvidenceSectionProps) {
               <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Evidence</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Type</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Impact</th>
               <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Evidence</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Type</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Impact</th>
             </tr>

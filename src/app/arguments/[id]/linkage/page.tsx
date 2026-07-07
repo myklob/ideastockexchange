@@ -520,7 +520,7 @@ export default async function LinkagePage({ params }: PageProps) {
                 [X argument score] × [linkage score] — computed from{' '}
               </span>
             )}
-            {' '}<Link href="/Argument%20scores%20from%20sub-argument%20scores" className="text-[var(--accent)] hover:underline text-xs">
+            {' '}<Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline text-xs">
               sub-argument scores
             </Link>
           </p>
@@ -596,7 +596,7 @@ export default async function LinkagePage({ params }: PageProps) {
             has its own argument score; the Linkage Score for this page is the net aggregate of the
             two sides, (Agree total minus Disagree total) divided by (Agree total plus Disagree
             total), computed by the engine. The engine docs are canonical for the math. See{' '}
-            <Link href="/Argument%20scores%20from%20sub-argument%20scores" className="text-[var(--accent)] hover:underline">
+            <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">
               Argument Scores from Sub-Argument Scores
             </Link>.
           </p>
@@ -827,7 +827,7 @@ export default async function LinkagePage({ params }: PageProps) {
             conclusions it does not support. The wrong-parent failure mode is exactly this pattern.
             Each bias risk is a claim about this linkage&apos;s editors and evidence, scored like
             any other. See the{' '}
-            <Link href="/bias" className="text-[var(--accent)] hover:underline">Bias page</Link>.
+            Bias page.
           </p>
           <TwoSidedScoredTable
             leftHeader="Biases that inflate this linkage score"
@@ -861,7 +861,7 @@ export default async function LinkagePage({ params }: PageProps) {
               <strong>Contribution to parent:</strong> An argument&apos;s effect on its parent claim
               equals Argument Score × Linkage Score. A perfect argument with a 0.3 linkage
               contributes less than a moderate argument with a 0.9 linkage. See{' '}
-              <Link href="/Argument%20scores%20from%20sub-argument%20scores" className="text-[var(--accent)] hover:underline">
+              <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">
                 Argument scores from sub-argument scores
               </Link>.
             </p>

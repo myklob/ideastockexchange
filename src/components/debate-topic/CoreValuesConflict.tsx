@@ -14,7 +14,7 @@ export default function CoreValuesConflict({ coreValues }: Props) {
       <p className="text-sm text-gray-600 mb-3">
         Advertised values each side claims, and the motivation critics attribute.{' '}
         <span className="text-gray-500">
-          See: <a href="/w/page/21956745/American%20values" className="text-blue-600 hover:underline">American Values</a>.
+          See: <a href="/how-it-works" className="text-blue-600 hover:underline">American Values</a>.
         </span>
       </p>
       <div className="overflow-x-auto">
