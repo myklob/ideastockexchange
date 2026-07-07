@@ -766,6 +766,34 @@ export function computeArgumentImpactScore(
 }
 
 /**
+ * Compute the impactScore for an evidence row during score propagation.
+ *
+ * Evidence carries weight by quality, never by hand-tuning: the engine
+ * derives it from the row's own verification inputs (EVS) and its
+ * evidence-to-conclusion linkage.
+ *
+ * Formula: sign × EVS × |linkageScore| × verificationFactor × 100
+ *
+ * - sign is +1 for 'supporting' evidence, -1 for 'weakening'.
+ * - evsScore: EVS = ESIW × log2(ERQ+1) × ECRS × ERP (see calculateEVS).
+ * - |linkageScore| (0–1): the ECLS — how much this data bears on THIS belief.
+ * - verificationFactor (0–1): the zombie-killer. 1 for verified, neutral for
+ *   unverified/disputed, 0 for falsified — a retracted study contributes
+ *   nothing, and propagation quietly lowers every score that leaned on it.
+ * - Rounded to one decimal place, same scale as argument impacts.
+ */
+export function computeEvidenceImpactScore(
+  side: string,
+  evsScore: number,
+  linkageScore: number,
+  verificationFactor: number = 1,
+): number {
+  const sign = side === 'supporting' ? 1 : -1
+  const raw = sign * evsScore * Math.abs(linkageScore) * verificationFactor * 100
+  return Math.round(raw * 10) / 10
+}
+
+/**
  * Derive an argument's Importance Score (0–1) from the net score of a
  * dedicated "importance" sub-belief (e.g. "The spoiler effect is a major,
  * solvable problem").

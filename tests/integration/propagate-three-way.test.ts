@@ -272,6 +272,53 @@ describe('Uniqueness edge: restatements are discounted at scoring time', () => {
   }, 20_000)
 })
 
+describe('Evidence edge: quality-weighted impacts, engine-derived', () => {
+  it('recomputes EVS and impact from the row inputs, replacing hand-set values', async () => {
+    // A T1 study with 3 replications on the truth child; hand-set impact is wrong on purpose.
+    const ev = await prisma.evidence.create({
+      data: {
+        beliefId: truthChildId,
+        side: 'supporting',
+        description: 'Peer-reviewed study, replicated three times',
+        evidenceType: 'T1',
+        replicationQuantity: 3,
+        conclusionRelevance: 0.7,
+        replicationPercentage: 1.0,
+        linkageScore: 0.5,
+        impactScore: 999,
+      },
+    })
+
+    await propagateBeliefScores(truthChildId)
+
+    const fresh = await prisma.evidence.findUnique({ where: { id: ev.id } })
+    // EVS = 1.0 × log2(4) × 0.7 × 1.0 = 1.4; impact = 1.4 × 0.5 × 100 = 70.0
+    expect(fresh.evsScore).toBeCloseTo(1.4, 5)
+    expect(fresh.impactScore).toBeCloseTo(70, 5)
+  }, 20_000)
+
+  it('weakening evidence lowers the belief net through the same channel', async () => {
+    const before = await prisma.belief.findUnique({ where: { id: truthChildId } })
+    await prisma.evidence.create({
+      data: {
+        beliefId: truthChildId,
+        side: 'weakening',
+        description: 'Contradicting official dataset',
+        evidenceType: 'T1',
+        replicationQuantity: 1,
+        conclusionRelevance: 0.9,
+        replicationPercentage: 1.0,
+        linkageScore: 0.8,
+      },
+    })
+
+    await propagateBeliefScores(truthChildId)
+
+    const after = await prisma.belief.findUnique({ where: { id: truthChildId } })
+    expect(after.positivity).toBeLessThan(before.positivity)
+  }, 20_000)
+})
+
 describe('Cycle safety', () => {
   it('terminates when beliefs reference each other in a cycle', async () => {
     const a = await prisma.belief.create({ data: { slug: 'cycle-a', statement: 'Belief A' } })

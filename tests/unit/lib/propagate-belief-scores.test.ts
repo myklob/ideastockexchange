@@ -18,7 +18,11 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { computeArgumentImpactScore } from '../../../src/core/scoring/scoring-engine'
+import {
+  computeArgumentImpactScore,
+  computeEvidenceImpactScore,
+  calculateEVS,
+} from '../../../src/core/scoring/scoring-engine'
 
 describe('computeArgumentImpactScore', () => {
   // ── Sign from side ──────────────────────────────────────────────
@@ -196,5 +200,57 @@ describe('computeArgumentImpactScore', () => {
       const highLinkage = computeArgumentImpactScore('agree', 0.7, 0.9, 1.0)
       expect(highLinkage).toBeGreaterThan(lowLinkage)
     })
+  })
+})
+
+describe('computeEvidenceImpactScore', () => {
+  it('signs supporting evidence positive and weakening negative', () => {
+    expect(computeEvidenceImpactScore('supporting', 0.8, 0.5)).toBeGreaterThan(0)
+    expect(computeEvidenceImpactScore('weakening', 0.8, 0.5)).toBeLessThan(0)
+  })
+
+  it('computes sign × EVS × |linkage| × 100, rounded to one decimal', () => {
+    // 1 × 0.8 × 0.5 × 100 = 40.0
+    expect(computeEvidenceImpactScore('supporting', 0.8, 0.5)).toBe(40.0)
+    // -1 × 0.6 × 0.7 × 100 = -42.0
+    expect(computeEvidenceImpactScore('weakening', 0.6, 0.7)).toBe(-42.0)
+  })
+
+  it('takes the absolute value of linkage; side alone controls direction', () => {
+    expect(computeEvidenceImpactScore('supporting', 0.8, -0.5)).toBe(
+      computeEvidenceImpactScore('supporting', 0.8, 0.5),
+    )
+  })
+
+  it('contributes nothing at zero EVS or zero linkage', () => {
+    expect(computeEvidenceImpactScore('supporting', 0, 0.9)).toBe(0)
+    expect(computeEvidenceImpactScore('supporting', 0.9, 0)).toBe(0)
+  })
+
+  it('the verification factor is a circuit breaker: falsified evidence scores 0', () => {
+    const live = computeEvidenceImpactScore('supporting', 0.8, 0.5, 1)
+    const falsified = computeEvidenceImpactScore('supporting', 0.8, 0.5, 0)
+    const disputed = computeEvidenceImpactScore('supporting', 0.8, 0.5, 0.5)
+    expect(live).toBe(40.0)
+    expect(falsified).toBe(0)
+    expect(disputed).toBe(20.0)
+  })
+
+  it('composes with calculateEVS: better replication carries more weight', () => {
+    const weak = calculateEVS({
+      sourceIndependenceWeight: 1.0,
+      replicationQuantity: 1,
+      conclusionRelevance: 0.7,
+      replicationPercentage: 1.0,
+    })
+    const strong = calculateEVS({
+      sourceIndependenceWeight: 1.0,
+      replicationQuantity: 3,
+      conclusionRelevance: 0.7,
+      replicationPercentage: 1.0,
+    })
+    expect(computeEvidenceImpactScore('supporting', strong, 0.5)).toBeGreaterThan(
+      computeEvidenceImpactScore('supporting', weak, 0.5),
+    )
   })
 })

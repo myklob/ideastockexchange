@@ -32,8 +32,11 @@ import { prisma } from '@/lib/prisma'
 import { fetchBeliefById, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
 import {
   computeArgumentImpactScore,
+  computeEvidenceImpactScore,
   deriveImportanceFromBeliefScore,
   calculateLinkageFromArguments,
+  calculateEVS,
+  getEvidenceTypeWeight,
 } from '@/core/scoring/scoring-engine'
 import {
   mechanicalSimilarity,
@@ -136,6 +139,50 @@ async function siblingUniquenessFor(
 }
 
 /**
+ * Recompute the engine-derived EVS and impact for every evidence row on a
+ * belief, persisting changed values. Evidence carries weight by quality —
+ * EVS from its own verification inputs, times its evidence-to-conclusion
+ * linkage — never by a hand-tuned number. Runs before the belief's own score
+ * is computed so the fresh impacts feed the totals.
+ */
+async function recomputeEvidenceImpacts(beliefId: number): Promise<number[]> {
+  const rows = await prisma.evidence.findMany({
+    where: { beliefId },
+    select: {
+      id: true,
+      side: true,
+      evidenceType: true,
+      replicationQuantity: true,
+      conclusionRelevance: true,
+      replicationPercentage: true,
+      evsScore: true,
+      linkageScore: true,
+      impactScore: true,
+    },
+  })
+
+  const updated: number[] = []
+  for (const row of rows) {
+    const evs = calculateEVS({
+      sourceIndependenceWeight: getEvidenceTypeWeight(row.evidenceType),
+      replicationQuantity: row.replicationQuantity,
+      conclusionRelevance: row.conclusionRelevance,
+      replicationPercentage: row.replicationPercentage,
+    })
+    const impact = computeEvidenceImpactScore(row.side, evs, row.linkageScore)
+
+    if (Math.abs(impact - row.impactScore) > 1e-9 || Math.abs(evs - row.evsScore) > 1e-9) {
+      await prisma.evidence.update({
+        where: { id: row.id },
+        data: { evsScore: evs, impactScore: impact },
+      })
+      updated.push(row.id)
+    }
+  }
+  return updated
+}
+
+/**
  * Resolve an argument's effective Importance Score (0–1).
  *
  * When `importanceBeliefId` is set, importance is DERIVED from that belief's
@@ -184,6 +231,11 @@ export async function propagateBeliefScores(
     updatedBeliefIds: [],
     depth,
   }
+
+  // ── Step 0: Refresh the belief's own evidence impacts ───────────
+  // EVS × linkage, engine-derived — so the truth computed below already
+  // reflects the current quality and status of every evidence row.
+  await recomputeEvidenceImpacts(beliefId)
 
   // ── Step 1: Compute the child belief's current truth score ──────
   const childBelief = await fetchBeliefById(beliefId)
