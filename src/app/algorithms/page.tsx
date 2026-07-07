@@ -265,6 +265,17 @@ export default function AlgorithmsIndexPage() {
           </Link>{' '}
           &mdash; common questions about how scoring, voting, and merging work.
         </li>
+        <li>
+          <a
+            href="https://github.com/myklob/ideastockexchange/blob/master/docs/REASONRANK_EQUATIONS.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-700 hover:underline"
+          >
+            Read the canonical equations
+          </a>{' '}
+          &mdash; the exact math the engine runs, with file references (REASONRANK_EQUATIONS.md).
+        </li>
       </ul>
     </main>
   )
