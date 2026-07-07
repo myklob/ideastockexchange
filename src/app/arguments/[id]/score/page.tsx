@@ -20,6 +20,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { computeArgumentImpactScore } from '@/core/scoring/scoring-engine'
 import { mechanicalSimilarity } from '@/core/scoring/duplication-scoring'
+import AttachImportanceButton from './AttachImportanceButton'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -178,13 +179,14 @@ export default async function ArgumentScorePage({ params }: PageProps) {
                   <>
                     Derived from the net score of the dedicated importance sub-belief
                     &ldquo;{argument.importanceBelief.statement}&rdquo; — the live debate
-                    about whether this argument matters.
+                    about whether this argument matters. Think it is overweighted? Post
+                    the counter-argument there and the multiplier falls.
                   </>
                 ) : (
                   <>
                     Placement-time weight. No importance sub-belief is attached yet, so
                     this factor is not yet debatable — attaching one turns it into a
-                    live sub-debate.
+                    live sub-debate that starts neutral (0.5) until reasons land.
                   </>
                 )}
               </td>
@@ -194,9 +196,12 @@ export default async function ArgumentScorePage({ params }: PageProps) {
                     Open the importance debate
                   </Link>
                 ) : (
-                  <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">
-                    How importance works
-                  </Link>
+                  <>
+                    <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">
+                      How importance works
+                    </Link>
+                    <AttachImportanceButton argumentId={argument.id} />
+                  </>
                 )}
               </td>
             </tr>
