@@ -250,6 +250,9 @@ export interface EvidenceItem {
   evsScore: number
   linkageScore: number
   impactScore: number
+  /** Empirical standing (VERIFIED / UNVERIFIED / DISPUTED / FALSIFIED); factors
+   *  into the engine-computed impact. Optional so existing data flows. */
+  verificationStatus?: string | null
 }
 
 export interface ObjectiveCriteriaItem {

@@ -309,7 +309,9 @@ async function main() {
   })
   }
 
-  // Create evidence
+  // Create evidence. Wipe this seed's rows first so re-running never
+  // duplicates them (duplicates silently multiply the evidence totals).
+  await prisma.evidence.deleteMany({ where: { beliefId: mainBelief.id } })
   await prisma.evidence.createMany({
     data: [
       {
@@ -318,6 +320,7 @@ async function main() {
         description: 'Finland UBI pilot (2017-2018): Recipients showed improved well-being and modest employment effects',
         sourceUrl: 'https://julkaisut.valtioneuvosto.fi/handle/10024/161361',
         evidenceType: 'T1',
+        verificationStatus: 'VERIFIED',
         sourceIndependenceWeight: 1.0,
         replicationQuantity: 3,
         conclusionRelevance: 0.7,
@@ -331,6 +334,7 @@ async function main() {
         description: 'GiveDirectly long-term study in Kenya: Cash transfers led to sustained economic gains',
         sourceUrl: 'https://www.givedirectly.org/research-on-cash-transfers/',
         evidenceType: 'T1',
+        verificationStatus: 'VERIFIED',
         sourceIndependenceWeight: 1.0,
         replicationQuantity: 5,
         conclusionRelevance: 0.6,

@@ -273,8 +273,10 @@ describe('Uniqueness edge: restatements are discounted at scoring time', () => {
 })
 
 describe('Evidence edge: quality-weighted impacts, engine-derived', () => {
+  let studyId: number
+
   it('recomputes EVS and impact from the row inputs, replacing hand-set values', async () => {
-    // A T1 study with 3 replications on the truth child; hand-set impact is wrong on purpose.
+    // A verified T1 study with 3 replications; hand-set impact is wrong on purpose.
     const ev = await prisma.evidence.create({
       data: {
         beliefId: truthChildId,
@@ -286,15 +288,75 @@ describe('Evidence edge: quality-weighted impacts, engine-derived', () => {
         replicationPercentage: 1.0,
         linkageScore: 0.5,
         impactScore: 999,
+        verificationStatus: 'VERIFIED',
+      },
+    })
+    studyId = ev.id
+
+    await propagateBeliefScores(truthChildId)
+
+    const fresh = await prisma.evidence.findUnique({ where: { id: ev.id } })
+    // EVS = 1.0 × log2(4) × 0.7 × 1.0 = 1.4; impact = 1.4 × 0.5 × 1.0 × 100 = 70.0
+    expect(fresh.evsScore).toBeCloseTo(1.4, 5)
+    expect(fresh.impactScore).toBeCloseTo(70, 5)
+  }, 20_000)
+
+  it('unverified evidence carries half weight until settled', async () => {
+    const ev = await prisma.evidence.create({
+      data: {
+        beliefId: truthChildId,
+        side: 'supporting',
+        description: 'Same-quality study, not yet verified',
+        evidenceType: 'T1',
+        replicationQuantity: 3,
+        conclusionRelevance: 0.7,
+        replicationPercentage: 1.0,
+        linkageScore: 0.5,
       },
     })
 
     await propagateBeliefScores(truthChildId)
 
     const fresh = await prisma.evidence.findUnique({ where: { id: ev.id } })
-    // EVS = 1.0 × log2(4) × 0.7 × 1.0 = 1.4; impact = 1.4 × 0.5 × 100 = 70.0
-    expect(fresh.evsScore).toBeCloseTo(1.4, 5)
-    expect(fresh.impactScore).toBeCloseTo(70, 5)
+    // Same EVS 1.4, but UNVERIFIED factor 0.5 → 35.0
+    expect(fresh.impactScore).toBeCloseTo(35, 5)
+  }, 20_000)
+
+  it('a retraction zeroes the impact and degrades every dependent conclusion', async () => {
+    // Opposing mass must exist for the falsification to move the net ratio.
+    await prisma.evidence.create({
+      data: {
+        beliefId: truthChildId,
+        side: 'weakening',
+        description: 'Countervailing dataset',
+        evidenceType: 'T2',
+        replicationQuantity: 1,
+        conclusionRelevance: 0.8,
+        replicationPercentage: 1.0,
+        linkageScore: 0.7,
+        verificationStatus: 'VERIFIED',
+      },
+    })
+    await propagateBeliefScores(truthChildId)
+
+    const beliefBefore = await prisma.belief.findUnique({ where: { id: truthChildId } })
+    const parentBefore = await prisma.argument.findUnique({ where: { id: mainArgId } })
+
+    await prisma.evidence.update({
+      where: { id: studyId },
+      data: { verificationStatus: 'FALSIFIED' },
+    })
+    await propagateBeliefScores(truthChildId)
+
+    const study = await prisma.evidence.findUnique({ where: { id: studyId } })
+    expect(study.impactScore).toBe(0)
+
+    const beliefAfter = await prisma.belief.findUnique({ where: { id: truthChildId } })
+    expect(beliefAfter.positivity).toBeLessThan(beliefBefore.positivity)
+
+    // The upstream edge that leaned on this belief degrades too.
+    const parentAfter = await prisma.argument.findUnique({ where: { id: mainArgId } })
+    expect(parentAfter.impactScore).toBeLessThanOrEqual(parentBefore.impactScore)
   }, 20_000)
 
   it('weakening evidence lowers the belief net through the same channel', async () => {

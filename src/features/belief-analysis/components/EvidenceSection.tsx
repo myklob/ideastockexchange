@@ -22,6 +22,21 @@ function impactCell(item: EvidenceItem): string {
   return `${sign}${Math.abs(item.impactScore).toFixed(1)}`
 }
 
+/** Verification standing, shown only when it moves the weight: verified
+ *  (full), disputed (half), falsified (zero — the row is dead weight). */
+function StatusBadge({ status }: { status: string | null | undefined }) {
+  if (status === 'VERIFIED') {
+    return <span className="ml-1 text-[10px] uppercase tracking-wide text-green-700" title="Verified — full weight">✓ verified</span>
+  }
+  if (status === 'DISPUTED') {
+    return <span className="ml-1 text-[10px] uppercase tracking-wide text-amber-700" title="Disputed — half weight until settled">? disputed</span>
+  }
+  if (status === 'FALSIFIED') {
+    return <span className="ml-1 text-[10px] uppercase tracking-wide text-red-700 font-semibold" title="Falsified — contributes nothing">✗ falsified</span>
+  }
+  return null
+}
+
 function EvidenceHalf({ item }: { item: EvidenceItem | undefined }) {
   if (!item) {
     return (
@@ -36,13 +51,16 @@ function EvidenceHalf({ item }: { item: EvidenceItem | undefined }) {
   return (
     <>
       <td className="border border-gray-300 px-3 py-2 align-top">
-        {item.sourceUrl ? (
-          <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">
-            {item.description}
-          </a>
-        ) : (
-          item.description
-        )}
+        <span className={item.verificationStatus === 'FALSIFIED' ? 'line-through text-[var(--muted-foreground)]' : ''}>
+          {item.sourceUrl ? (
+            <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">
+              {item.description}
+            </a>
+          ) : (
+            item.description
+          )}
+        </span>
+        <StatusBadge status={item.verificationStatus} />
       </td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top text-xs font-semibold">{tierLabel(item.evidenceType)}</td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{linkPct(item.linkageScore)}</td>

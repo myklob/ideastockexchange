@@ -37,6 +37,7 @@ import {
   calculateLinkageFromArguments,
   calculateEVS,
   getEvidenceTypeWeight,
+  verificationFactorFor,
 } from '@/core/scoring/scoring-engine'
 import {
   mechanicalSimilarity,
@@ -158,6 +159,7 @@ async function recomputeEvidenceImpacts(beliefId: number): Promise<number[]> {
       evsScore: true,
       linkageScore: true,
       impactScore: true,
+      verificationStatus: true,
     },
   })
 
@@ -169,7 +171,12 @@ async function recomputeEvidenceImpacts(beliefId: number): Promise<number[]> {
       conclusionRelevance: row.conclusionRelevance,
       replicationPercentage: row.replicationPercentage,
     })
-    const impact = computeEvidenceImpactScore(row.side, evs, row.linkageScore)
+    const impact = computeEvidenceImpactScore(
+      row.side,
+      evs,
+      row.linkageScore,
+      verificationFactorFor(row.verificationStatus),
+    )
 
     if (Math.abs(impact - row.impactScore) > 1e-9 || Math.abs(evs - row.evsScore) > 1e-9) {
       await prisma.evidence.update({

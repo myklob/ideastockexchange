@@ -330,6 +330,17 @@ enum LinkageScoreType {
   ACLS
 }
 
+/// Lifecycle of an evidence row's empirical standing. The engine multiplies
+/// each evidence impact by a status factor (VERIFIED 1.0, UNVERIFIED and
+/// DISPUTED 0.5, FALSIFIED 0), so a retraction quietly lowers every score
+/// that leaned on the evidence — the zombie-argument killer.
+enum EvidenceVerificationStatus {
+  VERIFIED
+  UNVERIFIED
+  DISPUTED
+  FALSIFIED
+}
+
 model Argument {
   id Int @id @default(autoincrement())
 
@@ -602,6 +613,10 @@ model Evidence {
   linkageScoreType LinkageScoreType @default(ECLS)
   linkageScore     Float            @default(0.5)
   impactScore      Float            @default(0)
+
+  /// Empirical standing; factors into the engine-computed impact
+  /// (VERIFIED 1.0 / UNVERIFIED, DISPUTED 0.5 / FALSIFIED 0).
+  verificationStatus EvidenceVerificationStatus @default(UNVERIFIED)
 
   /// Agent-ingestion provenance. Identifiers are metadata; tier weighting math
   /// belongs to the engine. `tierClaim` is the submitting agent's assertion;

@@ -766,6 +766,25 @@ export function computeArgumentImpactScore(
 }
 
 /**
+ * Verification-status factor for evidence impacts. Verified evidence carries
+ * full weight; unverified and actively disputed evidence carries half until
+ * settled; falsified evidence is a circuit breaker — it contributes nothing,
+ * and every conclusion that leaned on it degrades on the next propagation.
+ */
+export const VERIFICATION_FACTORS: Record<string, number> = {
+  VERIFIED: 1.0,
+  UNVERIFIED: 0.5,
+  DISPUTED: 0.5,
+  FALSIFIED: 0.0,
+}
+
+/** Resolve a status string to its factor; unknown statuses stay neutral. */
+export function verificationFactorFor(status: string | null | undefined): number {
+  if (status == null) return 0.5
+  return VERIFICATION_FACTORS[status] ?? 0.5
+}
+
+/**
  * Compute the impactScore for an evidence row during score propagation.
  *
  * Evidence carries weight by quality, never by hand-tuning: the engine
