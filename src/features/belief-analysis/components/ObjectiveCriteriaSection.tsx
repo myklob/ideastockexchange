@@ -18,6 +18,7 @@ function criterionScore(c: ObjectiveCriteriaItem | null): number | null {
 }
 
 function CriterionRow({ c }: { c: ObjectiveCriteriaItem | null }) {
+  const score = formatScore(criterionScore(c))
   return (
     <tr>
       <td className={TD}>{c?.description ?? <span>&nbsp;</span>}</td>
@@ -25,7 +26,21 @@ function CriterionRow({ c }: { c: ObjectiveCriteriaItem | null }) {
       <td className={TDC}>{c?.strengthenReading ?? c?.target ?? <span>&nbsp;</span>}</td>
       <td className={TDC}>{c?.weakenReading ?? <span>&nbsp;</span>}</td>
       <td className={TDC}>{c?.currentStatus ?? <span>&nbsp;</span>}</td>
-      <td className={`${TDC} font-mono`}>{formatScore(criterionScore(c)) ?? <span>&nbsp;</span>}</td>
+      <td className={`${TDC} font-mono`}>
+        {/* The yardstick's quality is itself a doorway when a sub-debate
+            sources it (a blank cell is never a link, per Rule 6). */}
+        {score && c?.criterionBelief ? (
+          <Link
+            href={`/beliefs/${c.criterionBelief.slug}`}
+            className="text-[var(--accent)] hover:underline"
+            title="The sub-debate that produced this quality score"
+          >
+            {score}
+          </Link>
+        ) : (
+          score ?? <span>&nbsp;</span>
+        )}
+      </td>
     </tr>
   )
 }

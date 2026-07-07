@@ -61,6 +61,17 @@ function EvidenceHalf({ item }: { item: EvidenceItem | undefined }) {
           )}
         </span>
         <StatusBadge status={item.verificationStatus} />
+        {item.criterion && (
+          <span
+            className="block text-[10px] text-[var(--muted-foreground)]"
+            title="The yardstick this evidence is measured by; its quality multiplies into the impact"
+          >
+            via {item.criterion.description}
+            {item.criterion.totalScore > 0 && (
+              <span className="font-mono"> (quality {item.criterion.totalScore.toFixed(2)})</span>
+            )}
+          </span>
+        )}
       </td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top text-xs font-semibold">{tierLabel(item.evidenceType)}</td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{linkPct(item.linkageScore)}</td>

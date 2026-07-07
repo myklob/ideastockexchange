@@ -86,8 +86,18 @@ const BELIEF_INCLUDE = {
     },
     orderBy: { impactScore: 'desc' as const },
   },
-  evidence: { orderBy: { impactScore: 'desc' as const } },
-  objectiveCriteria: { orderBy: { totalScore: 'desc' as const } },
+  evidence: {
+    include: {
+      criterion: { select: { id: true, description: true, totalScore: true } },
+    },
+    orderBy: { impactScore: 'desc' as const },
+  },
+  objectiveCriteria: {
+    include: {
+      criterionBelief: { select: { id: true, slug: true, statement: true } },
+    },
+    orderBy: { totalScore: 'desc' as const },
+  },
   valuesAnalysis: true,
   interestsAnalysis: true,
   assumptions: { orderBy: SCORE_RANKED_BY_ID },

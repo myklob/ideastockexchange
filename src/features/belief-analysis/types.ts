@@ -253,6 +253,9 @@ export interface EvidenceItem {
   /** Empirical standing (VERIFIED / UNVERIFIED / DISPUTED / FALSIFIED); factors
    *  into the engine-computed impact. Optional so existing data flows. */
   verificationStatus?: string | null
+  /** The yardstick this row is measured by; its quality multiplies into the
+   *  impact. Optional so existing data flows. */
+  criterion?: { id: number; description: string; totalScore: number } | null
 }
 
 export interface ObjectiveCriteriaItem {
@@ -264,6 +267,10 @@ export interface ObjectiveCriteriaItem {
   linkageScore: number
   criteriaType: string | null
   totalScore: number
+  /** The dedicated quality sub-belief when quality is derived from a debate.
+   *  Optional so existing data flows. */
+  criterionBeliefId?: number | null
+  criterionBelief?: { id: number; slug: string; statement: string } | null
   /** How the criterion is measured (new template column). */
   howToMeasure?: string | null
   /**
