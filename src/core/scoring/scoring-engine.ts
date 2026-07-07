@@ -791,7 +791,7 @@ export function verificationFactorFor(status: string | null | undefined): number
  * derives it from the row's own verification inputs (EVS) and its
  * evidence-to-conclusion linkage.
  *
- * Formula: sign × EVS × |linkageScore| × verificationFactor × 100
+ * Formula: sign × EVS × |linkageScore| × verificationFactor × criterionQuality × 100
  *
  * - sign is +1 for 'supporting' evidence, -1 for 'weakening'.
  * - evsScore: EVS = ESIW × log2(ERQ+1) × ECRS × ERP (see calculateEVS).
@@ -799,6 +799,11 @@ export function verificationFactorFor(status: string | null | undefined): number
  * - verificationFactor (0–1): the zombie-killer. 1 for verified, neutral for
  *   unverified/disputed, 0 for falsified — a retracted study contributes
  *   nothing, and propagation quietly lowers every score that leaned on it.
+ * - criterionQuality (0–1): the yardstick factor. When the evidence is
+ *   measured by a scored objective criterion, its quality multiplies in —
+ *   data measured by a weak yardstick (sentiment polls) is filtered down,
+ *   data measured by a strong one (glacier mass) carries. Defaults to 1 for
+ *   evidence with no criterion link.
  * - Rounded to one decimal place, same scale as argument impacts.
  */
 export function computeEvidenceImpactScore(
@@ -806,9 +811,11 @@ export function computeEvidenceImpactScore(
   evsScore: number,
   linkageScore: number,
   verificationFactor: number = 1,
+  criterionQuality: number = 1,
 ): number {
   const sign = side === 'supporting' ? 1 : -1
-  const raw = sign * evsScore * Math.abs(linkageScore) * verificationFactor * 100
+  const raw =
+    sign * evsScore * Math.abs(linkageScore) * verificationFactor * criterionQuality * 100
   return Math.round(raw * 10) / 10
 }
 

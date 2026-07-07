@@ -381,6 +381,109 @@ describe('Evidence edge: quality-weighted impacts, engine-derived', () => {
   }, 20_000)
 })
 
+describe('Criterion edge: yardsticks are scored sub-debates that weigh evidence', () => {
+  let criterionId: number
+  let criterionBeliefId: number
+  let measuredEvidenceId: number
+
+  it('derives a criterion quality from its sub-debate and weighs linked evidence by it', async () => {
+    // The criterion sub-belief: "survey sentiment is a good measure" — argued
+    // down hard (net −60 → quality 0.2).
+    const criterionBelief = await prisma.belief.create({
+      data: { slug: 'sentiment-is-a-good-measure', statement: 'Survey sentiment is a good measure of this question' },
+    })
+    criterionBeliefId = criterionBelief.id
+    const refuter = await prisma.belief.create({
+      data: { slug: 'sentiment-measures-perception', statement: 'Sentiment measures perception, not reality' },
+    })
+    await prisma.argument.create({
+      data: {
+        parentBeliefId: criterionBelief.id,
+        beliefId: refuter.id,
+        side: 'disagree',
+        linkageScore: 0.8,
+        importanceScore: 1.0,
+        impactScore: -30,
+      },
+    })
+    await prisma.argument.create({
+      data: {
+        parentBeliefId: criterionBelief.id,
+        beliefId: refuter.id,
+        side: 'agree',
+        claim: 'cheap to collect at scale',
+        linkageScore: 0.5,
+        importanceScore: 1.0,
+        impactScore: 7.5,
+      },
+    })
+
+    const criterion = await prisma.objectiveCriteria.create({
+      data: {
+        beliefId: truthChildId,
+        description: 'Survey sentiment about the topic',
+        criterionBeliefId: criterionBelief.id,
+        totalScore: 0.9, // wrong on purpose; the sub-debate supersedes it
+      },
+    })
+    criterionId = criterion.id
+
+    const measured = await prisma.evidence.create({
+      data: {
+        beliefId: truthChildId,
+        side: 'supporting',
+        description: 'Sentiment poll favoring the claim',
+        evidenceType: 'T3',
+        replicationQuantity: 1,
+        conclusionRelevance: 0.8,
+        replicationPercentage: 1.0,
+        linkageScore: 0.8,
+        verificationStatus: 'VERIFIED',
+        criterionId: criterion.id,
+      },
+    })
+    measuredEvidenceId = measured.id
+
+    // Settle the criterion sub-belief first, then the page that uses it.
+    await propagateBeliefScores(criterionBeliefId)
+    await propagateBeliefScores(truthChildId)
+
+    const freshCriterion = await prisma.objectiveCriteria.findUnique({ where: { id: criterionId } })
+    // Sub-debate net: (7.5 − 30) / 37.5 × 100 = −60 → quality (−60+100)/200 = 0.2
+    expect(freshCriterion.totalScore).toBeCloseTo(0.2, 2)
+
+    const freshEvidence = await prisma.evidence.findUnique({ where: { id: measuredEvidenceId } })
+    // EVS = 0.5(T3) × log2(2) × 0.8 × 1.0 = 0.4; unweighted impact would be
+    // 0.4 × 0.8 × 100 = 32; the weak yardstick filters it to 32 × 0.2 = 6.4
+    expect(freshEvidence.impactScore).toBeCloseTo(6.4, 1)
+  }, 20_000)
+
+  it('re-arguing the yardstick re-weighs the evidence and the page that uses it', async () => {
+    // The criterion sub-debate improves: a strong agree argument lands.
+    const support = await prisma.belief.create({
+      data: { slug: 'sentiment-correlates-outcomes', statement: 'Sentiment correlates with measured outcomes here' },
+    })
+    await prisma.argument.create({
+      data: {
+        parentBeliefId: criterionBeliefId,
+        beliefId: support.id,
+        side: 'agree',
+        linkageScore: 0.9,
+        importanceScore: 1.0,
+        impactScore: 45,
+      },
+    })
+
+    await propagateBeliefScores(criterionBeliefId)
+
+    const freshCriterion = await prisma.objectiveCriteria.findUnique({ where: { id: criterionId } })
+    expect(freshCriterion.totalScore).toBeGreaterThan(0.2)
+
+    const freshEvidence = await prisma.evidence.findUnique({ where: { id: measuredEvidenceId } })
+    expect(freshEvidence.impactScore).toBeGreaterThan(6.5)
+  }, 20_000)
+})
+
 describe('Cycle safety', () => {
   it('terminates when beliefs reference each other in a cycle', async () => {
     const a = await prisma.belief.create({ data: { slug: 'cycle-a', statement: 'Belief A' } })

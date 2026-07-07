@@ -226,6 +226,10 @@ model Belief {
 
   evidence          Evidence[]
   objectiveCriteria ObjectiveCriteria[]
+
+  /// Criteria (on any belief's page) whose quality score derives from THIS
+  /// belief's tree ("X is a good measure of Y" as its own scored debate).
+  asCriterionDebate ObjectiveCriteria[] @relation("CriterionBelief")
   valuesAnalysis    ValuesAnalysis?
   interestsAnalysis InterestsAnalysis?
   assumptions       Assumption[]
@@ -618,6 +622,14 @@ model Evidence {
   /// (VERIFIED 1.0 / UNVERIFIED, DISPUTED 0.5 / FALSIFIED 0).
   verificationStatus EvidenceVerificationStatus @default(UNVERIFIED)
 
+  /// The yardstick this evidence is measured by. When set, the engine
+  /// multiplies the evidence impact by the criterion's quality score, so
+  /// data measured by a weak yardstick (sentiment polls) is filtered down
+  /// and data measured by a strong one (glacier mass) carries — permanently,
+  /// without re-litigating the yardstick per argument.
+  criterionId Int?
+  criterion   ObjectiveCriteria? @relation("EvidenceMeasuredBy", fields: [criterionId], references: [id])
+
   /// Agent-ingestion provenance. Identifiers are metadata; tier weighting math
   /// belongs to the engine. `tierClaim` is the submitting agent's assertion;
   /// `tierVerified` stays null until the provenance job or a human confirms it.
@@ -654,6 +666,14 @@ model ObjectiveCriteria {
   criteriaType     String?
   totalScore       Float  @default(0)
 
+  /// The dedicated sub-belief "this criterion is a good measure for this
+  /// question". When set, totalScore is DERIVED from that belief's net score
+  /// at propagation time — the recursive part: criteria scores are themselves
+  /// determined by arguments, never by a hand-set constant. The four quality
+  /// dimensions above anchor the sub-debate as its falsifiability tests.
+  criterionBeliefId Int?
+  criterionBelief   Belief? @relation("CriterionBelief", fields: [criterionBeliefId], references: [id])
+
   /// New template columns: how the criterion is measured, where the metric
   /// currently sits, and the target/threshold that would settle the debate.
   howToMeasure  String?
@@ -666,7 +686,13 @@ model ObjectiveCriteria {
   strengthenReading String?
   weakenReading     String?
 
+  /// Evidence rows measured by this yardstick (their impact carries this
+  /// criterion's quality factor).
+  measuredEvidence Evidence[] @relation("EvidenceMeasuredBy")
+
   createdAt DateTime @default(now())
+
+  @@index([criterionBeliefId])
 }
 
 model ValuesAnalysis {

@@ -254,3 +254,26 @@ describe('computeEvidenceImpactScore', () => {
     )
   })
 })
+
+describe('criterion quality factor (the yardstick)', () => {
+  it('defaults to 1 for evidence with no criterion link', () => {
+    expect(computeEvidenceImpactScore('supporting', 0.8, 0.5, 1)).toBe(
+      computeEvidenceImpactScore('supporting', 0.8, 0.5, 1, 1),
+    )
+  })
+
+  it('filters evidence measured by a weak yardstick', () => {
+    // Same data: glacier-mass-grade criterion vs sentiment-poll-grade criterion.
+    const strongYardstick = computeEvidenceImpactScore('supporting', 0.8, 0.5, 1, 0.92)
+    const weakYardstick = computeEvidenceImpactScore('supporting', 0.8, 0.5, 1, 0.15)
+    expect(strongYardstick).toBeCloseTo(36.8, 1)
+    expect(weakYardstick).toBeCloseTo(6, 1)
+    expect(weakYardstick).toBeLessThan(strongYardstick / 5)
+  })
+
+  it('composes with the verification factor', () => {
+    // Disputed data measured by a mediocre yardstick: both discounts apply.
+    // 1 × 0.8 × 0.5 × 0.5 × 0.6 × 100 = 12.0
+    expect(computeEvidenceImpactScore('supporting', 0.8, 0.5, 0.5, 0.6)).toBe(12.0)
+  })
+})

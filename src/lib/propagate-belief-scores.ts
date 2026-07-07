@@ -145,11 +145,45 @@ async function siblingUniquenessFor(
 }
 
 /**
+ * Recompute the derived quality score for every criterion on a belief's page
+ * whose quality is sourced from a dedicated sub-belief ("X is a good measure
+ * of Y"). The recursive part of the criteria layer: totalScore is whatever
+ * that sub-debate earns, mapped from its net (−100..+100) onto [0, 1] — never
+ * a hand-set constant. Runs before evidence recomputation, because linked
+ * evidence impacts carry the criterion's quality factor.
+ */
+async function recomputeCriterionScores(beliefId: number): Promise<number[]> {
+  const rows = await prisma.objectiveCriteria.findMany({
+    where: { beliefId, criterionBeliefId: { not: null } },
+    select: {
+      id: true,
+      totalScore: true,
+      criterionBelief: { select: { positivity: true } },
+    },
+  })
+
+  const updated: number[] = []
+  for (const row of rows) {
+    if (!row.criterionBelief) continue
+    const derived = deriveImportanceFromBeliefScore(row.criterionBelief.positivity)
+    if (Math.abs(derived - row.totalScore) > 1e-9) {
+      await prisma.objectiveCriteria.update({
+        where: { id: row.id },
+        data: { totalScore: derived },
+      })
+      updated.push(row.id)
+    }
+  }
+  return updated
+}
+
+/**
  * Recompute the engine-derived EVS and impact for every evidence row on a
  * belief, persisting changed values. Evidence carries weight by quality —
  * EVS from its own verification inputs, times its evidence-to-conclusion
- * linkage — never by a hand-tuned number. Runs before the belief's own score
- * is computed so the fresh impacts feed the totals.
+ * linkage, times the quality of the yardstick that measured it — never a
+ * hand-tuned number. Runs before the belief's own score is computed so the
+ * fresh impacts feed the totals.
  */
 async function recomputeEvidenceImpacts(beliefId: number): Promise<number[]> {
   const rows = await prisma.evidence.findMany({
@@ -165,6 +199,9 @@ async function recomputeEvidenceImpacts(beliefId: number): Promise<number[]> {
       linkageScore: true,
       impactScore: true,
       verificationStatus: true,
+      criterion: {
+        select: { totalScore: true, criterionBeliefId: true },
+      },
     },
   })
 
@@ -176,11 +213,15 @@ async function recomputeEvidenceImpacts(beliefId: number): Promise<number[]> {
       conclusionRelevance: row.conclusionRelevance,
       replicationPercentage: row.replicationPercentage,
     })
+    // The yardstick factor: evidence measured by a scored criterion carries
+    // that criterion's quality; unlinked evidence is unpenalized.
+    const criterionQuality = row.criterion ? row.criterion.totalScore : 1
     const impact = computeEvidenceImpactScore(
       row.side,
       evs,
       row.linkageScore,
       verificationFactorFor(row.verificationStatus),
+      criterionQuality,
     )
 
     if (Math.abs(impact - row.impactScore) > 1e-9 || Math.abs(evs - row.evsScore) > 1e-9) {
@@ -245,9 +286,12 @@ export async function propagateBeliefScores(
     changedArgumentIds: [],
   }
 
-  // ── Step 0: Refresh the belief's own evidence impacts ───────────
-  // EVS × linkage, engine-derived — so the truth computed below already
-  // reflects the current quality and status of every evidence row.
+  // ── Step 0: Refresh the belief's own criteria and evidence ──────
+  // Criterion quality first (derived from criterion sub-debates), then
+  // evidence impacts (EVS × linkage × verification × criterion quality) —
+  // so the truth computed below already reflects the current quality,
+  // standing, and yardstick of every row.
+  await recomputeCriterionScores(beliefId)
   await recomputeEvidenceImpacts(beliefId)
 
   // ── Step 1: Compute the child belief's current truth score ──────
@@ -296,8 +340,17 @@ export async function propagateBeliefScores(
     affectedArguments.set(arg.id, arg)
   }
 
-  if (affectedArguments.size === 0) {
-    // This belief is not a child of any other belief — propagation stops here.
+  // A belief can also feed a parent page through a CRITERION edge: this
+  // belief may be the sub-debate that sources a criterion's quality score on
+  // some other belief's page. Those pages must recompute too (their criterion
+  // quality, their measured evidence, and their own net).
+  const criterionParents = await prisma.objectiveCriteria.findMany({
+    where: { criterionBeliefId: beliefId },
+    select: { beliefId: true },
+  })
+
+  if (affectedArguments.size === 0 && criterionParents.length === 0) {
+    // This belief feeds no other belief — propagation stops here.
     return result
   }
 
@@ -344,6 +397,10 @@ export async function propagateBeliefScores(
       result.changedArgumentIds.push(arg.id)
     }
     parentBeliefIds.add(arg.parentBeliefId)
+  }
+
+  for (const cp of criterionParents) {
+    parentBeliefIds.add(cp.beliefId)
   }
 
   // ── Step 4: Recompute each parent belief's stability score ──────
