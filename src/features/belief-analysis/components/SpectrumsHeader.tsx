@@ -81,7 +81,7 @@ export default function SpectrumsHeader({ positivity, specificity, claimStrength
       <div className="text-xs font-semibold text-[var(--muted-foreground)] mb-2 flex items-center gap-2">
         <span>Three Spectrums</span>
         <Link
-          href="/One%20Page%20Per%20Belief"
+          href="/how-it-works"
           className="text-[var(--accent)] hover:underline text-[10px] font-normal"
         >
           (what is this?)

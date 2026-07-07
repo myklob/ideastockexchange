@@ -2,6 +2,7 @@ import { agentJson } from '@/lib/agent-api'
 import { authenticateAgentKey } from '@/lib/agent-auth'
 import { runIngest } from '@/lib/agent-ingest/ingest'
 import { AUDIT_LOCK_MESSAGE, FAILURE_MODES } from '@/lib/agent-ingest/contract'
+import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
 
 /**
  * POST /api/v1/ingest — the show-your-work firewall.
@@ -38,6 +39,15 @@ export async function POST(request: Request) {
       },
       { status: result.status },
     )
+  }
+
+  // The engine's turn. Ingestion writes no scores (audit lock) — but the batch
+  // changed the graph, so the scoring engine now recomputes every conclusion
+  // that depends on it: each new claim's edge impact, its parents' nets, and
+  // so on upward. Post evidence → every dependent conclusion updates.
+  const changedBeliefIds = [...new Set(result.claims.map((c) => c.beliefId))]
+  for (const beliefId of changedBeliefIds) {
+    await propagateBeliefScores(beliefId)
   }
 
   return agentJson(

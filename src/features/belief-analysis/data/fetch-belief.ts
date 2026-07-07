@@ -10,6 +10,7 @@ import {
 } from '@/core/scoring/all-scores'
 import { calculateEVS, getEvidenceTypeWeight } from '@/core/scoring/scoring-engine'
 import { applyStrengthPenalty } from '@/core/scoring/claim-strength'
+import { resolveContrastClass } from './contrast-classes'
 
 /**
  * Standard ordering for score-ranked table rows: highest relationship score
@@ -47,7 +48,7 @@ const BELIEF_INCLUDE = {
   impactEntries: { orderBy: SCORE_RANKED },
   costBenefitItems: {
     include: {
-      claimBelief: { select: { id: true, slug: true, statement: true } },
+      claimBelief: { select: { id: true, slug: true, statement: true, positivity: true } },
     },
     orderBy: EXPECTED_VALUE_RANKED,
   },
@@ -141,7 +142,14 @@ export async function fetchBeliefBySlug(slug: string): Promise<BeliefWithRelatio
     include: BELIEF_INCLUDE,
   })
 
-  return belief as BeliefWithRelations | null
+  if (!belief) return null
+
+  // Resolve the contrast class (the denominator): each rival option's score is
+  // computed from its own argument tree, so OCV stays traceable. Null when no
+  // contrast class is defined for this belief.
+  const contrastClass = await resolveContrastClass(slug)
+
+  return { ...belief, contrastClass } as BeliefWithRelations | null
 }
 
 /** Fetch a belief by numeric ID */

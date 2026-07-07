@@ -20,7 +20,7 @@ npx eslint <files>    # lint files you edited (`npm run lint` runs the whole rep
 npm test              # vitest, only when changing scoring / core logic
 ```
 
-The repo has ~50 pre-existing implicit-any errors in routes I didn't touch (notably `src/app/algorithms/belief-equivalency/*`, `src/app/equivalence/*`, several API routes, `src/lib/prisma.ts`'s missing generated client). They are not your fault — verify *only* that your edited files are clean, not that the global typecheck count is zero.
+The global typecheck is currently clean (0 errors) — keep it that way. If `@/generated/prisma/client` import errors appear, run `npm run db:generate` first; that is a missing-artifact problem, not a code problem.
 
 ## The Belief Page Is the Crown Jewel
 
@@ -84,4 +84,7 @@ Or set `CLAUDE_DEBUG_FILE` before launching. File logging cannot be enabled mid-
 - `/beliefs/[slug]` — the canonical belief page (this is the one that matters).
 - `/beliefs/set-aside-distractions-for-real-solutions` — bespoke route, predates the canonical structure. Don't use as a template.
 - `/product-reviews/[slug]` — separate concept that reuses some belief components. Edits to belief sections may affect it; check before refactoring.
-- `/algorithms/strong-to-weak`, `/Linkage Scores`, `/Argument scores from sub-argument scores` — explainer pages linked from the belief page header. If you add a link to a belief page, verify the target exists or use plain text (Rule 5).
+- `/algorithms` — index of every score explainer; subpages include `reason-rank`, `linkage-scores`, `importance-score`, `truth-scores`, `evidence-scores`, `unique-scores`, `assumptions`, `topic-overlap`, `objective-criteria`, `strong-to-weak`, `belief-equivalency`, `combine-similar-beliefs`. Belief-page components link these — if you add a link, verify the target exists or use plain text (Rule 5). Wiki-style space-URL routes (`/Linkage Scores` etc.) do NOT exist; never link them.
+- `/how-it-works` — the Engine of Reason explainer, with a live engine readout.
+- `/arguments/[id]/linkage` — an edge's linkage sub-debate; `/arguments/[id]/score` — the edge's impact-provenance page (factor-by-factor derivation).
+- `/contact` — contact/contribution pointers (target for all former Contact Me links).

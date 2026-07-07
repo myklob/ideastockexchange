@@ -65,8 +65,9 @@ export interface CostBenefitItemRow {
   /** Expected Value = Magnitude × Likelihood. Sort key for the table. */
   expectedValue: number | null
   sortOrder: number
-  /** The claim's own belief page, when one exists. */
-  claimBelief?: { id: number; slug: string; statement: string } | null
+  /** The claim's own belief page, when one exists. Its positivity is the
+   *  engine-computed net that sources this row's derived likelihood. */
+  claimBelief?: { id: number; slug: string; statement: string; positivity?: number } | null
 }
 
 /** One row in the Short vs. Long-Term Impacts sub-table. */
@@ -121,6 +122,10 @@ export interface BeliefWithRelations {
   relatedBeliefs: string | null
   supportsBeliefs: string | null
 
+  /** High-stakes flag: posting goes through the speed-bump flow (steelman
+   *  acknowledgment + principle consistency). Optional so existing data flows. */
+  highStakes?: boolean
+
   valueRankings: ValueRankingItem[]
   interestEntries: InterestEntryItem[]
   sharedInterests: SharedInterestItem[]
@@ -130,6 +135,14 @@ export interface BeliefWithRelations {
   componentClaims?: ComponentClaimItem[]
   costBenefitItems?: CostBenefitItemRow[]
   impactEntries?: ImpactEntryItem[]
+
+  /**
+   * The contrast class — the mutually exclusive rivals this belief is priced
+   * against (the denominator made visible). Optional so existing beliefs keep
+   * flowing; populate via seed as topic option sets land. See
+   * docs/THE_DENOMINATOR.md and src/core/scoring/contrast-class.ts.
+   */
+  contrastClass?: ContrastClassData | null
 
   arguments: ArgumentWithBelief[]
   evidence: EvidenceItem[]
@@ -167,6 +180,10 @@ export interface ArgumentWithBelief {
   argumentScore: number | null
   /** Importance Score (0-1): how much this argument moves the probability needle. */
   importanceScore: number
+  /** Uniqueness factor (0-1): signal added versus earlier same-side siblings.
+   *  Null until the engine computes it at scoring time (Rule 6). Optional so
+   *  existing Prisma data still flows. */
+  uniquenessScore?: number | null
   linkageType: string
   /** ECLS = Evidence-to-Conclusion, ACLS = Argument-to-Conclusion */
   linkageScoreType: string
@@ -264,6 +281,36 @@ export interface ObjectiveCriteriaItem {
   thresholdForAgreement?: string | null
 }
 
+/**
+ * One mutually exclusive option in a belief's contrast class — a rival answer
+ * to the same topic question, competing for the same slot. The denominator for
+ * the focal belief is the rest of this set (its best rival, in particular).
+ */
+export interface ContrastClassOption {
+  /** Stable id, unique within the class. */
+  id: string
+  /** Short label for the option ("Targeted sanctions"). */
+  label: string
+  /** One-line description of the lever/option. */
+  oneLine?: string | null
+  /**
+   * S(o): the option's argument-tree score on a common scale. May be signed.
+   * Null renders blank (Rule 6) — the class is still shown, just without OCV.
+   */
+  score: number | null
+  /** Slug to the option's own belief page; plain text when null (Rule 5). */
+  slug?: string | null
+  /** True for the focal belief — the page this contrast class lives on. */
+  isFocal?: boolean
+}
+
+/** A belief's contrast class: the shared question plus the rival options. */
+export interface ContrastClassData {
+  /** The question the options compete to answer (lives on the topic). */
+  question: string
+  options: ContrastClassOption[]
+}
+
 /** One row in the Shared Values, Different Rankings table (new template). */
 export interface ValueRankingItem {
   id: number
@@ -288,6 +335,11 @@ export interface InterestEntryItem {
   pretextual: boolean
   score?: number | null
   sortOrder: number
+  /** Numeric twins (0-100) feeding the conflict-resolution pipeline. Optional
+   *  so existing Prisma data still flows. */
+  prevalenceScore?: number | null
+  linkageAccuracy?: number | null
+  validityScore?: number | null
 }
 
 /** One row in the Shared Interests table (new template). */

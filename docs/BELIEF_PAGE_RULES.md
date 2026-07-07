@@ -185,13 +185,30 @@ Score / Related) → "Beliefs this supports" line. No summary or background (Rul
 0. **Scorecard** — a readout of the scored content below, not a prose summary:
    `Net Belief Score (Pro vs. Con)` / `Bottom line` (one-sentence verdict scoped to
    what the tree supports) / `Strongest pro / con` (the top-ranked argument from each
-   side) / `What would move this score most` (the top falsifiability score-mover).
+   side) / `What would move this score most` (the top falsifiability score-mover),
+   plus a collapsed **twelve-dimension engine readout** (each dimension links to its
+   `/algorithms/*` explainer; null dimensions render blank per Rule 6).
    Followed by the "How to read this page" box explaining score-ranked tables.
 1. **Argument Trees** — one two-sided scored table (Reasons to Agree / Reasons to
    Disagree), each side with `Argument / Score / Link / Imp / Impact`. Each argument
    cell is the claim, the single most famous supporting quote inline (italic, small),
-   then the submitter as `~Name`. Pro Total / Con Total row, then the **Net Belief
-   Score** line.
+   then the submitter as `~Name`. **Every score cell is a doorway** (a blank cell is
+   never a link, per Rule 6): Score opens the child belief's own page, Link opens the
+   edge's linkage debate, Imp opens the importance sub-belief when one sources it,
+   and Impact opens the score-provenance page (`/arguments/[id]/score`) showing the
+   full sign × truth × |linkage| × importance × uniqueness derivation with a live
+   uniqueness trace. Pro Total / Con Total row, then the **Net Belief Score** line.
+   The Net Belief Score is reported as a **share and margin** — the net divided by the
+   belief's own `Pro + Con` total — not as a bare numerator. A bare "+9.2" floats free;
+   "58% of the argument weight, a +15-point margin" is actionable. This is the *internal*
+   denominator (the belief vs. its own rebuttals). See `docs/THE_DENOMINATOR.md`.
+1b. **Contrast Class** *(only when the topic has a rival option set)* — the *external*
+   denominator made visible: the mutually exclusive rivals this belief is priced against,
+   each with its own argument-tree score `S` and an **opportunity-cost value**
+   `OCV = S(this) − max S(rivals)`. Exactly one option (the field winner) has `OCV > 0`.
+   Every option's score must trace to its own belief's tree — never a fabricated constant
+   (Rule 6). Options rank by score descending, nulls last (Rule 8). Comparative arguments
+   ("rival Y beats X") belong here, not in the con column.
 2. **Evidence Ledger** — one two-sided table (Supporting / Weakening), each side with
    `Evidence / Type / Link / Impact`.
 3. **Objective Criteria** (`Criterion / How to Measure / Reading That Would Strengthen /
@@ -209,7 +226,13 @@ Score / Related) → "Beliefs this supports" line. No summary or background (Rul
    `Claim (links to its own page) / Category (Units) / Magnitude / Likelihood % /
    Expected Value`, ranked by Expected Value with subtotals only within a category;
    then **Short vs. Long-Term Impacts** (`Short-Term / Score / Long-Term / Score`)
-7. **Conflict Resolution Framework**
+7. **Conflict Resolution Framework** — opens with the **Pipeline readout**, computed
+   from the scored rows below (never hand-authored): interests both sides actually
+   share (cross-side similarity, both clearing the Resolution Floor), the primary
+   conflict pair (highest validity-weighted linkage-accuracy unshared interest per
+   side), genuine value conflicts (shared values ranked far apart), and compromise
+   candidates (cost/benefit items where a likelihood shift ≤ 15 points flips their
+   category's net — the winnable disagreements).
    - 7a. Shared Values, Different Rankings (`Value / Supporter Rank / Opponent Rank /
      Why Rankings Differ / Score`, then a "What would shift these rankings?" row)
    - 7b. Likely Interests of Supporters (`Interest / Prevalence / Linkage Confidence /
@@ -234,7 +257,13 @@ Score / Related) → "Beliefs this supports" line. No summary or background (Rul
 11. **Similar Beliefs** (`More Extreme / Score / More Moderate / Score`, scored by
     belief equivalency)
 12. **Definitions** (`Term / Definition / Score`) — LAST before footer
-13. **Contribute / footer**
+13. **Contribute / footer** — the two moves, stated and usable: an add-a-reason form
+    (the new reason becomes a belief page of its own; no score field is ever
+    submitted — the audit lock rejects them and the engine computes scores on
+    propagation), and the reminder that every score above is a clickable doorway.
+    On high-stakes beliefs the form and API walk the speed bumps: acknowledge the
+    strongest current opposing argument (verified server-side) and affirm the moral
+    principle the post rests on.
 
 ---
 

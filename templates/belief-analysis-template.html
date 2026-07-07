@@ -28,9 +28,18 @@
   CANONICAL SECTION ORDER:
     Header (Belief / metadata / Beliefs this supports)
     0.  Scorecard (Net Belief Score / Bottom line / Strongest pro+con / What would
-        move this score most) + "How to read this page" box
+        move this score most, plus the collapsed twelve-dimension engine
+        readout, each dimension linking to its explainer) + "How to read this
+        page" box
     1.  Argument Trees (scored two-sided table: Argument/Score/Link/Imp/Impact,
-        Pro+Con totals, Net Belief Score)
+        Pro+Con totals, Net Belief Score reported as share/margin: the net
+        divided by the belief's own Pro+Con total). In the software every score
+        cell is a doorway: Score opens the child belief, Link the linkage
+        debate, Imp the importance sub-belief, Impact the provenance page with
+        the sign x truth x |linkage| x importance x uniqueness derivation.
+    1b. Contrast Class (the denominator: mutually exclusive rivals this belief is
+        priced against, each with its tree score S and opportunity-cost value
+        OCV = S(this) - max S(rivals)). Only when the topic has a rival option set.
     2.  Evidence Ledger (two-sided: Supporting / Weakening, Type/Link/Impact)
     3.  Objective Criteria (Criterion / How to Measure / Reading That Would
         Strengthen / Reading That Would Weaken / Latest Reading / Score)
@@ -42,7 +51,10 @@
     6.  Cost-Benefit Analysis (Benefits table + Costs table: Claim / Category /
         Magnitude / Likelihood % / Expected Value, per-category subtotals), then
         Short vs. Long-Term Impacts (with Scores)
-    7.  Conflict Resolution Framework
+    7.  Conflict Resolution Framework (opens with the computed Pipeline
+        readout: shared interests, primary conflict pair, genuine value
+        conflicts, compromise candidates where a small likelihood shift flips
+        a category's net)
         a. Shared Values, Different Rankings (with Score)
         b. Likely Interests of Supporters
         c. Likely Interests of Opponents
@@ -58,7 +70,11 @@
     10. General to Specific Belief Mapping (Support+Score / Oppose+Score)
     11. Similar Beliefs (More Extreme+Score / More Moderate+Score)
     12. Definitions (Term / Definition / Score) — LAST before footer
-    13. Contribute / footer
+    13. Contribute / footer (the two moves: an add-a-reason form — no score is
+        ever submitted, the engine computes them — and "challenge a number" via
+        the clickable scores above; high-stakes beliefs walk the speed bumps:
+        acknowledge the strongest opposing argument + affirm the claimed
+        principle)
 -->
 <p style="text-align: right;"><a href="/w/page/21957696/Colorado%20Should">Home</a> &rsaquo;  <a href="/w/page/159323433/One%20Page%20Per%20Topic">Topics</a> &rsaquo;  [Category] &rsaquo;  [This Belief]</p>
 <div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -121,7 +137,28 @@
 </tr>
 </tbody>
 </table>
-<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>Net Belief Score = Pro Total + Con Total = [NETSCORE].</strong> [NETINTERP]</p>
+<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>Net Belief Score = Pro Total + Con Total = [NETSCORE].</strong> The agree-case holds [SHARE]% of the argument weight, a [MARGIN]-point margin (mass [MASS]). This is the internal denominator only &mdash; how lopsided the belief is versus its own rebuttals, not whether it beats its rivals (see Contrast Class). [NETINTERP]</p>
+
+<hr />
+<br />
+<!-- CONTRAST CLASS: the denominator made visible. Include ONLY when the topic
+     has a set of mutually exclusive rival options. Each option points at its own
+     belief; its Score is that belief's own tree score, and OCV = Score - best
+     rival's Score. Exactly one option (the field winner) has OCV > 0. Omit this
+     whole block for beliefs with no rival option set. See docs/THE_DENOMINATOR.md. -->
+<h1>&#9878;&#65039; Contrast Class</h1>
+<p style="font-size: 13px;">The denominator, made visible. A score is always <em>compared to what</em> &mdash; these are the mutually exclusive rivals answering the same question. <strong>Question:</strong> [Topic question the options compete to answer].</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6; font-size: 12px;"><th width="28%">Option</th> <th width="40%">One-line</th> <th width="16%">Score</th> <th width="16%">vs. best rival</th></tr>
+</thead>
+<tbody>
+<tr style="background-color: #fffbe6;"><td>[This belief] (this belief)</td><td>[One-line]</td><td align="center">[S]</td><td align="center">[OCV]</td></tr>
+<tr><td>[Rival option]</td><td>[One-line]</td><td align="center">[S]</td><td align="center">[OCV] &#9733;</td></tr>
+</tbody>
+</table>
+<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>Opportunity-cost value: [OCV] vs. [best rival].</strong> [Win/lose reading, stating the denominator next to the verdict.]</p>
+
 <hr />
 <br />
 <h1>📊 <a href="/w/page/159353568/Evidence">Evidence Ledger</a></h1>

@@ -69,7 +69,7 @@ export default function OwnershipSection({ costs, values }: OwnershipSectionProp
     <section className="space-y-5">
       <h2 className="text-xl font-bold mb-2">
         💰{' '}
-        <Link href="/cost-benefit%20analysis" className="text-[var(--accent)] hover:underline">
+        <Link href="/cba/about" className="text-[var(--accent)] hover:underline">
           Cost-Benefit Analysis
         </Link>
       </h2>

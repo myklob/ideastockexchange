@@ -164,7 +164,7 @@ export default function CostBenefitSection({
       <div>
         <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
           <span>&#9878;</span>
-          <Link href="/cost-benefit%20analysis" className="text-[var(--accent)] hover:underline">Cost-Benefit Analysis</Link>
+          <Link href="/cba/about" className="text-[var(--accent)] hover:underline">Cost-Benefit Analysis</Link>
         </h2>
         <p className="text-sm text-[var(--muted-foreground)] mb-3">
           Every cost and benefit is itself a debatable claim with its own argument tree. Magnitude is
@@ -244,7 +244,7 @@ export default function CostBenefitSection({
       <div>
         <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
           <span>&#129309;</span>
-          <Link href="/Compromise" className="text-[var(--accent)] hover:underline">Best Compromise Solutions</Link>
+          <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">Best Compromise Solutions</Link>
         </h3>
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>

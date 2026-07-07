@@ -6,7 +6,7 @@ async function main() {
   // Create main belief
   const mainBelief = await prisma.belief.upsert({
     where: { slug: 'universal-basic-income-should-be-implemented' },
-    update: {},
+    update: { highStakes: true },
     create: {
       slug: 'universal-basic-income-should-be-implemented',
       statement: 'Universal Basic Income should be implemented in developed nations',
@@ -16,6 +16,8 @@ async function main() {
       positivity: 25,
       specificity: 0.55,
       claimStrength: 0.6,
+      // Posting here goes through the speed-bump flow (steelman + principle).
+      highStakes: true,
     },
   })
 
@@ -220,7 +222,17 @@ async function main() {
     },
   })
 
-  // Create arguments (reasons linking beliefs to the main belief)
+  // Create arguments (reasons linking beliefs to the main belief).
+  // Skip when edges already exist so re-running never double-counts a side
+  // (duplicated rows would silently inflate every net and OCV verdict).
+  // A delete-first guard would trip the FK constraints of linkage sub-debate
+  // rows seeded later in the chain.
+  const existingEdges = await prisma.argument.count({
+    where: { parentBeliefId: { in: [mainBelief.id, moderateBelief.id, extremeBelief.id] } },
+  })
+  if (existingEdges > 0) {
+    console.log('Argument edges already seeded; skipping edge creation.')
+  } else {
   await prisma.argument.createMany({
     data: [
       {
@@ -273,6 +285,29 @@ async function main() {
       },
     ],
   })
+
+  // Argument trees for the RIVAL options in the income-floor contrast class.
+  // The denominator framework (docs/THE_DENOMINATOR.md) prices UBI against its
+  // rivals, so each rival needs its own scored tree for OCV to be real and
+  // traceable rather than a fabricated constant. Negative income tax reuses the
+  // shared pro-beliefs (poverty reduction, lower bureaucracy) and is weakened by
+  // the same fiscal worry; automated luxury communism shares the automation
+  // premise but is dragged down by the fiscal-sustainability and work-incentive cons.
+  await prisma.argument.createMany({
+    data: [
+      // Negative income tax (moderateBelief) — a strong, well-supported rival.
+      { parentBeliefId: moderateBelief.id, beliefId: povertyBelief.id, side: 'agree', linkageScore: 0.8, impactScore: 21.0, linkageType: 'STRONG_CAUSAL' },
+      { parentBeliefId: moderateBelief.id, beliefId: bureaucracyBelief.id, side: 'agree', linkageScore: 0.6, impactScore: 14.0, linkageType: 'CONTEXTUAL' },
+      { parentBeliefId: moderateBelief.id, beliefId: marketFreedomBelief.id, side: 'agree', linkageScore: 0.55, impactScore: 11.0, linkageType: 'CONTEXTUAL' },
+      { parentBeliefId: moderateBelief.id, beliefId: fiscalBelief.id, side: 'disagree', linkageScore: 0.5, impactScore: 9.0, linkageType: 'STRONG_CAUSAL' },
+      // Fully automated luxury communism (extremeBelief) — a weak rival: shares
+      // the automation premise but loses badly on fiscal and work-incentive cons.
+      { parentBeliefId: extremeBelief.id, beliefId: automationBelief.id, side: 'agree', linkageScore: 0.7, impactScore: 16.0, linkageType: 'STRONG_CAUSAL' },
+      { parentBeliefId: extremeBelief.id, beliefId: fiscalBelief.id, side: 'disagree', linkageScore: 0.8, impactScore: 24.0, linkageType: 'STRONG_CAUSAL' },
+      { parentBeliefId: extremeBelief.id, beliefId: workIncentiveBelief.id, side: 'disagree', linkageScore: 0.65, impactScore: 18.0, linkageType: 'STRONG_CAUSAL' },
+    ],
+  })
+  }
 
   // Create evidence
   await prisma.evidence.createMany({
@@ -421,6 +456,23 @@ async function main() {
       costs: '1. Problems created: Massive fiscal cost ($2-4T annually in US), potential inflation\n2. Who loses: High earners via taxation, existing welfare administrators\n3. Negative externalities: Possible reduction in labor supply, dependency concerns',
       costLikelihood: 0.7,
     },
+  })
+
+  // Row-based cost/benefit items feeding the conflict-resolution pipeline.
+  // Categories keep unlike units apart; the dollars category is deliberately
+  // close (net +$20B) so the compromise-candidate detector has a real, small,
+  // achievable likelihood shift to surface, while hours is deliberately far
+  // apart (a symbolic disagreement no small shift can flip).
+  await prisma.costBenefitItem.deleteMany({ where: { beliefId: mainBelief.id } })
+  await prisma.costBenefitItem.createMany({
+    data: [
+      { beliefId: mainBelief.id, side: 'benefit', claim: 'Cuts welfare administration overhead', category: 'dollars ($B/yr)', magnitude: 150, likelihood: 0.8, expectedValue: 120 },
+      { beliefId: mainBelief.id, side: 'benefit', claim: 'Consumption boost to local economies', category: 'dollars ($B/yr)', magnitude: 300, likelihood: 0.6, expectedValue: 180 },
+      { beliefId: mainBelief.id, side: 'cost', claim: 'Net fiscal outlay after replaced programs', category: 'dollars ($B/yr)', magnitude: 400, likelihood: 0.7, expectedValue: 280 },
+      { beliefId: mainBelief.id, side: 'benefit', claim: 'Time returned to caregivers and students', category: 'hours (B/yr)', magnitude: 120, likelihood: 0.75, expectedValue: 90 },
+      { beliefId: mainBelief.id, side: 'cost', claim: 'Reduced labor-force participation hours', category: 'hours (B/yr)', magnitude: 500, likelihood: 0.4, expectedValue: 200 },
+      { beliefId: mainBelief.id, side: 'benefit', claim: 'Ends means-test surveillance and paperwork', category: 'freedom (index)', magnitude: 80, likelihood: 0.7, expectedValue: 56, claimBeliefId: bureaucracyBelief.id },
+    ],
   })
 
   // Create impact analysis
@@ -602,6 +654,11 @@ async function main() {
     ],
   })
 
+  // Clear dependent satisfaction rows first (seeded later in the chain by
+  // seed-interests-example.ts) so re-running the chain never FK-fails here.
+  await prisma.interestSatisfaction.deleteMany({
+    where: { interest: { beliefId: mainBelief.id } },
+  })
   await prisma.interestEntry.deleteMany({ where: { beliefId: mainBelief.id } })
   await prisma.interestEntry.createMany({
     data: [

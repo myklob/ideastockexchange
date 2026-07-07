@@ -229,7 +229,7 @@ export default function Home() {
           </ul>
 
           <Link
-            href="/proposal/new"
+            href="/beliefs"
             className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
             Create a Proposal
@@ -621,10 +621,10 @@ export default function Home() {
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link
-              href="/laws"
+              href="/beliefs"
               className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-8 py-3 rounded-lg font-medium transition-colors"
             >
-              Browse Laws
+              Browse Beliefs
             </Link>
             <Link
               href="/product-reviews"
@@ -661,11 +661,11 @@ export default function Home() {
             <div>
               <h3 className="font-bold mb-4">Resources</h3>
               <ul className="space-y-2 text-sm">
+                <li><Link href="/how-it-works" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">How It Works</Link></li>
                 <li><Link href="/protocol" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Schlicht Protocol</Link></li>
                 <li><Link href="/product-reviews" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Product Reviews</Link></li>
                 <li><Link href="/cba" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Cost-Benefit Analysis</Link></li>
-                <li><Link href="/laws" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Browse Laws</Link></li>
-                <li><Link href="/markets" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Prediction Markets</Link></li>
+                                <li><Link href="/markets" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Prediction Markets</Link></li>
                 <li><Link href="/prediction-markets-comparison" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Idea Stock Exchange vs Polymarket</Link></li>
                 <li><Link href="/faq" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">FAQ &amp; Criticisms</Link></li>
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Framework Wiki</a></li>
@@ -674,11 +674,12 @@ export default function Home() {
             <div>
               <h3 className="font-bold mb-4">Framework</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="https://github.com/myklob/ideastockexchange/wiki/Truth-Score" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Truth</a></li>
+                <li><Link href="/algorithms/truth-scores" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Truth</Link></li>
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Interests</a></li>
-                <li><a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS)" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Evidence</a></li>
-                <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Assumptions</a></li>
+                <li><Link href="/algorithms/evidence-scores" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Evidence</Link></li>
+                <li><Link href="/algorithms/assumptions" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Assumptions</Link></li>
                 <li><Link href="/algorithms/strong-to-weak" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Strong-to-Weak Spectrum</Link></li>
+                <li><Link href="/algorithms" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">All Scoring Algorithms</Link></li>
               </ul>
             </div>
           </div>
