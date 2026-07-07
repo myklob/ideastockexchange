@@ -56,6 +56,8 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
     belief.interestEntries,
     belief.valueRankings,
     belief.costBenefitItems ?? [],
+    belief.evidence,
+    belief.arguments,
   )
 
   return (

@@ -295,6 +295,107 @@ export function findCompromiseCandidates(
   return candidates.sort((a, b) => a.requiredShift - b.requiredShift)
 }
 
+// ─── Dispute-type classification ───────────────────────────────────────────
+
+export interface DisputeEvidenceInput {
+  side: 'supporting' | 'weakening'
+  /** Impact magnitude (any consistent scale). */
+  impact: number
+}
+
+export interface DisputeClassification {
+  /** The dominant driver, or 'mixed' when no signal clearly leads. */
+  primary: 'factual' | 'linkage' | 'values' | 'mixed' | null
+  /** Each signal in [0, 1]. */
+  factual: number
+  linkage: number
+  values: number
+  /** One-sentence reading of what kind of fight this is. */
+  diagnosis: string
+}
+
+/**
+ * Classify what a disagreement is actually about, from the scored data —
+ * the difference between a fight you can resolve and one you can only name.
+ *
+ *   - FACTUAL: the evidence ledger itself is contested — both sides carry
+ *     real empirical weight, so the dispute can move with data.
+ *   - LINKAGE: the relevance links are unsettled — linkage scores hover
+ *     around the middle instead of resolving toward proof or irrelevance,
+ *     so the fight is about whether the facts bear on the conclusion.
+ *   - VALUES: the two sides rank shared values far apart — no amount of
+ *     data resolves a price difference on freedom vs. safety.
+ */
+export function classifyDispute(
+  evidence: DisputeEvidenceInput[],
+  argumentLinkages: number[],
+  rankings: ValueRankingInput[],
+): DisputeClassification {
+  // Factual: how two-sided the evidence weight is (1 = perfectly split).
+  const supporting = evidence
+    .filter((e) => e.side === 'supporting')
+    .reduce((s, e) => s + Math.abs(e.impact), 0)
+  const weakening = evidence
+    .filter((e) => e.side === 'weakening')
+    .reduce((s, e) => s + Math.abs(e.impact), 0)
+  const evidenceTotal = supporting + weakening
+  const factual = evidenceTotal > 0 ? (2 * Math.min(supporting, weakening)) / evidenceTotal : 0
+
+  // Linkage: how unsettled the relevance links are. |2L−1| is 1 when a link
+  // has resolved toward proof (1) or irrelevance (0) and 0 at the contested
+  // middle, so the mean distance from resolution is the dispute signal.
+  const linkage =
+    argumentLinkages.length > 0
+      ? 1 -
+        argumentLinkages.reduce((s, l) => s + Math.abs(2 * Math.max(0, Math.min(1, l)) - 1), 0) /
+          argumentLinkages.length
+      : 0
+
+  // Values: the widest ranking gap, normalized by the widest possible gap.
+  const ranked = rankings.filter((r) => r.supporterRank != null && r.opponentRank != null)
+  const maxGap = ranked.reduce(
+    (m, r) => Math.max(m, Math.abs((r.supporterRank as number) - (r.opponentRank as number))),
+    0,
+  )
+  const values = ranked.length > 1 ? Math.min(1, maxGap / (ranked.length - 1)) : 0
+
+  const signals: Array<['factual' | 'linkage' | 'values', number]> = [
+    ['factual', factual],
+    ['linkage', linkage],
+    ['values', values],
+  ]
+  signals.sort((a, b) => b[1] - a[1])
+
+  const [leadName, leadValue] = signals[0]
+  const runnerUp = signals[1][1]
+
+  let primary: DisputeClassification['primary']
+  if (leadValue <= 0) primary = null
+  else if (leadValue - runnerUp >= 0.15) primary = leadName
+  else primary = 'mixed'
+
+  const diagnoses: Record<string, string> = {
+    factual:
+      'This is primarily a factual dispute — the evidence ledger itself is contested, so new data can move it.',
+    linkage:
+      'This is primarily a linkage dispute — the fight is over whether the facts bear on the conclusion, so it resolves in the linkage sub-debates.',
+    values:
+      'This is primarily a values conflict — the sides price shared values differently, so it calls for compromise design, not more data.',
+    mixed:
+      'No single driver dominates — the disagreement mixes factual, linkage, and values components.',
+  }
+
+  return {
+    primary,
+    factual,
+    linkage,
+    values,
+    diagnosis: primary
+      ? diagnoses[primary]
+      : 'Not enough scored content to classify this disagreement yet.',
+  }
+}
+
 // ─── Combined readout ──────────────────────────────────────────────────────
 
 export interface ConflictResolutionReadout {
@@ -303,6 +404,8 @@ export interface ConflictResolutionReadout {
   valueConflicts: ValueConflict[]
   categoryNets: CategoryNet[]
   compromiseCandidates: CompromiseCandidate[]
+  /** What kind of fight this is: factual, linkage, or values. */
+  dispute: DisputeClassification
 }
 
 /** Run the whole pipeline over one belief's scored rows. */
@@ -310,6 +413,8 @@ export function analyzeConflict(
   interests: InterestInput[],
   rankings: ValueRankingInput[],
   cbaItems: CbaItemInput[],
+  evidence: DisputeEvidenceInput[] = [],
+  argumentLinkages: number[] = [],
 ): ConflictResolutionReadout {
   const sharedInterests = findSharedInterests(interests)
   return {
@@ -318,5 +423,6 @@ export function analyzeConflict(
     valueConflicts: findValueConflicts(rankings),
     categoryNets: categoryNets(cbaItems),
     compromiseCandidates: findCompromiseCandidates(cbaItems),
+    dispute: classifyDispute(evidence, argumentLinkages, rankings),
   }
 }

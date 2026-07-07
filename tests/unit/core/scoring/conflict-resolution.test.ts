@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  classifyDispute,
   findSharedInterests,
   derivePrimaryConflictPair,
   findValueConflicts,
@@ -239,5 +240,76 @@ describe('analyzeConflict', () => {
     expect(readout.primaryConflictPair!.opponent.id).toBe(4)
     expect(readout.valueConflicts).toHaveLength(1)
     expect(readout.compromiseCandidates.length).toBeGreaterThan(0)
+  })
+})
+
+describe('classifyDispute', () => {
+  const ev = (side: 'supporting' | 'weakening', impact: number) => ({ side, impact })
+
+  it('reads a contested evidence ledger as a factual dispute', () => {
+    const result = classifyDispute(
+      [ev('supporting', 50), ev('weakening', 45)],
+      [0.95, 0.9, 0.05], // settled linkages
+      [
+        { id: 1, value: 'Safety', supporterRank: 1, opponentRank: 1 },
+        { id: 2, value: 'Freedom', supporterRank: 2, opponentRank: 2 },
+      ], // aligned values
+    )
+    expect(result.primary).toBe('factual')
+    expect(result.factual).toBeGreaterThan(0.9)
+    expect(result.diagnosis).toContain('factual')
+  })
+
+  it('reads unsettled relevance links as a linkage dispute', () => {
+    const result = classifyDispute(
+      [ev('supporting', 80)], // one-sided evidence
+      [0.5, 0.45, 0.55], // everything hovering at the contested middle
+      [
+        { id: 1, value: 'Safety', supporterRank: 1, opponentRank: 1 },
+        { id: 2, value: 'Freedom', supporterRank: 2, opponentRank: 2 },
+      ],
+    )
+    expect(result.primary).toBe('linkage')
+    expect(result.linkage).toBeGreaterThan(0.8)
+  })
+
+  it('reads wide ranking gaps as a values conflict', () => {
+    const result = classifyDispute(
+      [ev('supporting', 80)],
+      [0.9, 0.95],
+      [
+        { id: 1, value: 'Freedom', supporterRank: 4, opponentRank: 1 },
+        { id: 2, value: 'Safety', supporterRank: 1, opponentRank: 4 },
+        { id: 3, value: 'Fairness', supporterRank: 2, opponentRank: 2 },
+        { id: 4, value: 'Prosperity', supporterRank: 3, opponentRank: 3 },
+      ],
+    )
+    expect(result.primary).toBe('values')
+    expect(result.values).toBeCloseTo(1, 5)
+  })
+
+  it('calls close races mixed rather than fabricating a winner', () => {
+    const result = classifyDispute(
+      [ev('supporting', 50), ev('weakening', 40)], // fairly contested
+      [0.4, 0.6], // fairly unsettled
+      [
+        { id: 1, value: 'Freedom', supporterRank: 3, opponentRank: 1 },
+        { id: 2, value: 'Safety', supporterRank: 1, opponentRank: 3 },
+        { id: 3, value: 'Fairness', supporterRank: 2, opponentRank: 2 },
+      ],
+    )
+    expect(result.primary).toBe('mixed')
+  })
+
+  it('returns null with no scored content', () => {
+    const result = classifyDispute([], [], [])
+    expect(result.primary).toBeNull()
+    expect(result.diagnosis).toContain('Not enough')
+  })
+
+  it('clamps out-of-range linkage inputs instead of producing garbage', () => {
+    const result = classifyDispute([], [-0.5, 1.5], [])
+    expect(result.linkage).toBeGreaterThanOrEqual(0)
+    expect(result.linkage).toBeLessThanOrEqual(1)
   })
 })

@@ -348,6 +348,7 @@ function PipelineReadout({ readout }: { readout: ConflictResolutionReadout }) {
     primaryConflictPair: pair,
     valueConflicts,
     compromiseCandidates,
+    dispute,
   } = readout
   const hasAny =
     shared.length > 0 || pair != null || valueConflicts.length > 0 || compromiseCandidates.length > 0
@@ -365,6 +366,18 @@ function PipelineReadout({ readout }: { readout: ConflictResolutionReadout }) {
           Appears once this page carries scored interests, value rankings, and
           cost/benefit rows for the pipeline to read.
         </p>
+      )}
+      {dispute.primary && (
+        <div>
+          <p className="font-medium">What kind of disagreement is this?</p>
+          <p>
+            {dispute.diagnosis}{' '}
+            <span className="font-mono text-xs text-[var(--muted-foreground)]">
+              (factual {Math.round(dispute.factual * 100)}% · linkage{' '}
+              {Math.round(dispute.linkage * 100)}% · values {Math.round(dispute.values * 100)}%)
+            </span>
+          </p>
+        </div>
       )}
       {shared.length > 0 && (
         <div>

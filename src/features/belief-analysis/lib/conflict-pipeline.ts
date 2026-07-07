@@ -8,10 +8,13 @@ import {
   analyzeConflict,
   type CbaItemInput,
   type ConflictResolutionReadout,
+  type DisputeEvidenceInput,
   type InterestInput,
 } from '@/core/scoring/conflict-resolution'
 import type {
+  ArgumentWithBelief,
   CostBenefitItemRow,
+  EvidenceItem,
   InterestEntryItem,
   ValueRankingItem,
 } from '../types'
@@ -49,6 +52,8 @@ export function computeConflictReadout(
   interestEntries: InterestEntryItem[],
   valueRankings: ValueRankingItem[],
   costBenefitItems: CostBenefitItemRow[],
+  evidence: EvidenceItem[] = [],
+  argumentRows: ArgumentWithBelief[] = [],
 ): ConflictResolutionReadout {
   const interests: InterestInput[] = interestEntries
     .filter((e) => e.side === 'supporter' || e.side === 'opponent')
@@ -79,5 +84,13 @@ export function computeConflictReadout(
       likelihood: i.likelihood,
     }))
 
-  return analyzeConflict(interests, rankings, cbaItems)
+  const disputeEvidence: DisputeEvidenceInput[] = evidence
+    .filter((e) => e.side === 'supporting' || e.side === 'weakening')
+    .map((e) => ({
+      side: e.side as 'supporting' | 'weakening',
+      impact: e.impactScore,
+    }))
+  const argumentLinkages = argumentRows.map((a) => a.linkageScore)
+
+  return analyzeConflict(interests, rankings, cbaItems, disputeEvidence, argumentLinkages)
 }
