@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { fetchAllProductReviewsFull } from '@/features/product-reviews/data/fetch-product-reviews'
 import { rankProductsInCategory } from '@/core/scoring/product-review-scoring'
 
+export const dynamic = 'force-dynamic'
+
 export default async function CategoryRankingsPage() {
   const reviews = await fetchAllProductReviewsFull()
   const rankings = rankProductsInCategory(reviews)

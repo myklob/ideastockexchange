@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 const VERDICT_LABELS: Record<string, { label: string; color: string }> = {
   merge:           { label: 'MERGE',           color: 'bg-red-100 text-red-800 border-red-300' },
   merge_with_note: { label: 'MERGE WITH NOTE', color: 'bg-orange-100 text-orange-800 border-orange-300' },

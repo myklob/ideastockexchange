@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { fetchAllProductReviews } from '@/features/product-reviews/data/fetch-product-reviews'
 
+export const dynamic = 'force-dynamic'
+
 export default async function ProductReviewsPage() {
   const reviews = await fetchAllProductReviews()
 

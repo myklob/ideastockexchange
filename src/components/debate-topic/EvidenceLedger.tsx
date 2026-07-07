@@ -25,7 +25,7 @@ export default function EvidenceLedger({ evidenceItems }: Props) {
         formally attaches to specific beliefs and is scored on its own study page; this is the cross-topic
         view.{' '}
         <span className="text-gray-500">
-          See: <a href="/evidence-scoring" className="text-blue-600 hover:underline">Evidence Scoring Methodology</a>.
+          See: <a href="/algorithms/evidence-scores" className="text-blue-600 hover:underline">Evidence Scoring Methodology</a>.
         </span>
       </p>
       <div className="overflow-x-auto">
@@ -99,7 +99,7 @@ export default function EvidenceLedger({ evidenceItems }: Props) {
         </table>
       </div>
       <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/evidence-scoring" className="text-blue-600 hover:underline">Evidence Scoring Methodology</a>
+        See: <a href="/algorithms/evidence-scores" className="text-blue-600 hover:underline">Evidence Scoring Methodology</a>
       </p>
     </div>
   );

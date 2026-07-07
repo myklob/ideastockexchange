@@ -82,7 +82,7 @@ export default async function DebateTopicPage({ params }: Props) {
           <a href="#specificity" className="text-blue-600 hover:underline">Specificity</a> (where it sits on
           the general-to-specific tree). Same address means the same claim, so it merges; nearly the same
           address gets the redundancy discount. Full logic lives on{' '}
-          <a href="/one-page-per-topic" className="text-blue-600 hover:underline">One Page Per Topic</a>.
+          <a href="/algorithms/combine-similar-beliefs" className="text-blue-600 hover:underline">Combine Similar Beliefs</a>.
         </div>
 
         <hr className="my-6" />
