@@ -8,6 +8,7 @@ import type {
   DisputeTypeItem,
   ObstacleItem,
 } from '../types'
+import type { ConflictResolutionReadout } from '@/core/scoring/conflict-resolution'
 import { byScoreDesc, formatScore, rankByScore, TABLE_TOP_LIMIT } from '../lib/ranking'
 import ExpandableRows from './ExpandableRows'
 
@@ -21,6 +22,10 @@ interface ConflictResolutionSectionProps {
   obstacles: ObstacleItem[]
   /** Deep-dive link to the interests-and-motivation dashboard, when one exists. */
   interestsDashboardHref?: string
+  /** The computed pipeline readout (shared interests, primary conflict pair,
+   *  value conflicts, compromise candidates). Optional so reuse sites keep
+   *  working without it. */
+  readout?: ConflictResolutionReadout | null
 }
 
 function lines(text: string | null | undefined): React.ReactNode {
@@ -57,7 +62,7 @@ function SharedValuesTable({ rows, whatWouldShift }: { rows: ValueRankingItem[];
       <thead>
         <tr className="bg-gray-100">
           <th className={`${TH} w-[24%]`}>
-            <Link href="/American%20values" className="text-[var(--accent)] hover:underline">Value</Link>
+            Value
           </th>
           <th className={`${TH} text-center w-[10%]`}>Supporter Rank</th>
           <th className={`${TH} text-center w-[10%]`}>Opponent Rank</th>
@@ -109,11 +114,11 @@ function InterestTable({ entries, headerClass }: { entries: InterestEntryItem[];
       <thead>
         <tr className={headerClass}>
           <th className={`${TH} w-[30%]`}>
-            <Link href="/Interests" className="text-[var(--accent)] hover:underline">Interest</Link>
+            Interest
           </th>
           <th className={`${TH} text-center w-[10%]`}>Prevalence</th>
           <th className={`${TH} text-center w-[12%]`}>
-            <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Confidence</Link>
+            <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage Confidence</Link>
           </th>
           <th className={`${TH} text-center w-[12%]`}>Validity</th>
           <th className={`${TH} w-[18%]`}>Evidence Basis</th>
@@ -336,6 +341,95 @@ function ObstaclesTable({ obstacles }: { obstacles: ObstacleItem[] }) {
   )
 }
 
+/* ── The computed pipeline readout ──────────────────────────────────────── */
+function PipelineReadout({ readout }: { readout: ConflictResolutionReadout }) {
+  const {
+    sharedInterests: shared,
+    primaryConflictPair: pair,
+    valueConflicts,
+    compromiseCandidates,
+  } = readout
+  const hasAny =
+    shared.length > 0 || pair != null || valueConflicts.length > 0 || compromiseCandidates.length > 0
+
+  return (
+    <div className="border border-gray-300 bg-gray-50 p-3 text-sm space-y-3">
+      <p className="font-semibold">
+        Pipeline readout{' '}
+        <span className="font-normal text-xs text-[var(--muted-foreground)]">
+          — computed from the scored rows below, never hand-authored
+        </span>
+      </p>
+      {!hasAny && (
+        <p className="text-[var(--muted-foreground)] italic">
+          Appears once this page carries scored interests, value rankings, and
+          cost/benefit rows for the pipeline to read.
+        </p>
+      )}
+      {shared.length > 0 && (
+        <div>
+          <p className="font-medium">Interests both sides actually share</p>
+          <ul className="list-disc ml-5">
+            {shared.slice(0, TABLE_TOP_LIMIT).map(s => (
+              <li key={`${s.supporterId}-${s.opponentId}`}>
+                &ldquo;{s.supporterInterest}&rdquo; ↔ &ldquo;{s.opponentInterest}&rdquo;{' '}
+                <span className="font-mono text-xs">
+                  (similarity {Math.round(s.similarity * 100)}%, paired validity{' '}
+                  {s.pairedValidity.toFixed(0)})
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {pair && (
+        <div>
+          <p className="font-medium">Primary conflict pair (what actually drives the disagreement)</p>
+          <p>
+            Supporters: &ldquo;{pair.supporter.interest}&rdquo;{' '}
+            <span className="font-mono text-xs">(drive {pair.supporterDrive.toFixed(0)})</span>{' '}
+            vs. opponents: &ldquo;{pair.opponent.interest}&rdquo;{' '}
+            <span className="font-mono text-xs">(drive {pair.opponentDrive.toFixed(0)})</span>.
+            Drive = how well the interest explains the side&apos;s actual behavior, weighted by
+            its standalone validity.
+          </p>
+        </div>
+      )}
+      {valueConflicts.length > 0 && (
+        <div>
+          <p className="font-medium">Genuine value conflicts (same values, priced apart)</p>
+          <ul className="list-disc ml-5">
+            {valueConflicts.slice(0, TABLE_TOP_LIMIT).map(v => (
+              <li key={v.id}>
+                {v.value}: supporters rank it #{v.supporterRank}, opponents #{v.opponentRank}{' '}
+                <span className="font-mono text-xs">(gap {v.gap})</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {compromiseCandidates.length > 0 && (
+        <div>
+          <p className="font-medium">
+            Compromise candidates — a small likelihood shift flips a category&apos;s net
+          </p>
+          <ul className="list-disc ml-5">
+            {compromiseCandidates.slice(0, TABLE_TOP_LIMIT).map(c => (
+              <li key={c.itemId}>
+                In <strong>{c.category}</strong> (net {c.net >= 0 ? '+' : ''}
+                {c.net.toFixed(1)}): {c.direction === 'raise' ? 'raising' : 'lowering'} the
+                likelihood of &ldquo;{c.claim}&rdquo; by just{' '}
+                <span className="font-mono">{(c.requiredShift * 100).toFixed(0)}%</span> flips the
+                category. This is a winnable, evidence-resolvable disagreement.
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function ConflictResolutionSection({
   values,
   interests,
@@ -345,6 +439,7 @@ export default function ConflictResolutionSection({
   disputeTypes,
   obstacles,
   interestsDashboardHref,
+  readout,
 }: ConflictResolutionSectionProps) {
   const supporterInterests = interestEntries.filter(e => e.side === 'supporter')
   const opponentInterests = interestEntries.filter(e => e.side === 'opponent')
@@ -354,16 +449,17 @@ export default function ConflictResolutionSection({
       <div>
         <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
           <span>&#129309;</span>
-          <Link href="/automate%20conflict%20resolution" className="text-[var(--accent)] hover:underline">Conflict Resolution</Link>{' '}Framework
+          Conflict Resolution Framework
         </h2>
         <p className="text-sm text-[var(--muted-foreground)]">
-          Both sides of most debates share the same{' '}
-          <Link href="/American%20values" className="text-[var(--accent)] hover:underline">values</Link>. They disagree about how to{' '}
+          Both sides of most debates share the same values. They disagree about how to{' '}
           <strong>rank</strong> them, and that ranking shifts based on perceived{' '}
-          <Link href="/cost-benefit%20analysis" className="text-[var(--accent)] hover:underline">costs, benefits</Link>, and{' '}
-          <Link href="/Likelihood" className="text-[var(--accent)] hover:underline">likelihood of success</Link>.
+          <Link href="/cba/about" className="text-[var(--accent)] hover:underline">costs, benefits</Link>, and{' '}
+          <Link href="/cba/about" className="text-[var(--accent)] hover:underline">likelihood of success</Link>.
         </p>
       </div>
+
+      {readout && <PipelineReadout readout={readout} />}
 
       <div>
         <h3 className="text-base font-semibold mb-1 flex items-center gap-2">

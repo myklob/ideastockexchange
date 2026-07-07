@@ -33,6 +33,11 @@ export * from './duplication-scoring';
 // Layer 1 (justification, internal) + Layer 2 (opportunity cost, external).
 export * from './contrast-class';
 
+// Conflict Resolution Pipeline — read the scored trees sideways: shared
+// interests, the primary conflict pair, genuine value conflicts, and
+// compromise candidates (a small likelihood shift flips a category's net).
+export * from './conflict-resolution';
+
 // All-scores module — remaining ReasonRank score dimensions:
 //   Objective Criteria, Confidence Stability, Media Truth, Media Genre,
 //   Topic Overlap helpers, Belief Equivalency, and combined computeAllBeliefScores

@@ -48,7 +48,7 @@ const BELIEF_INCLUDE = {
   impactEntries: { orderBy: SCORE_RANKED },
   costBenefitItems: {
     include: {
-      claimBelief: { select: { id: true, slug: true, statement: true } },
+      claimBelief: { select: { id: true, slug: true, statement: true, positivity: true } },
     },
     orderBy: EXPECTED_VALUE_RANKED,
   },

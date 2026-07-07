@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { fetchBeliefBySlug, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
+import { computeConflictReadout, deriveCbaItems } from '@/features/belief-analysis/lib/conflict-pipeline'
 import ScorecardSection from '@/features/belief-analysis/components/ScorecardSection'
 import ArgumentTreesSection from '@/features/belief-analysis/components/ArgumentTreesSection'
 import ContrastClassSection from '@/features/belief-analysis/components/ContrastClassSection'
@@ -47,6 +48,15 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
   const related = splitList(belief.relatedBeliefs)
   const supports = splitList(belief.supportsBeliefs)
   const category = belief.category || 'Uncategorized'
+
+  // The conflict-resolution pipeline reads the scored rows sideways; the CBA
+  // rows get their likelihood derived from each claim's own belief tree.
+  const derivedCbaItems = deriveCbaItems(belief.costBenefitItems ?? [])
+  const conflictReadout = computeConflictReadout(
+    belief.interestEntries,
+    belief.valueRankings,
+    belief.costBenefitItems ?? [],
+  )
 
   return (
     <div className="min-h-screen bg-white">
@@ -112,6 +122,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             bottomLine={belief.bottomLine ?? null}
             scoreMover={belief.scoreMover ?? null}
             falsifiabilityItems={belief.falsifiabilityItems ?? []}
+            scores={scores}
           />
 
           <hr className="border-gray-200" />
@@ -149,6 +160,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             disputeTypes={belief.disputeTypes}
             obstacles={belief.obstacles}
             interestsDashboardHref={`/beliefs/${belief.slug}/interests`}
+            readout={conflictReadout}
           />
 
           <hr className="border-gray-200" />
@@ -181,7 +193,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
           {/* 7. Cost-Benefit Analysis (+ Short/Long-Term + Best Compromise Solutions) */}
           <CostBenefitSection
             cba={belief.costBenefitAnalysis}
-            items={belief.costBenefitItems ?? []}
+            items={derivedCbaItems}
             impact={belief.impactAnalysis}
             impactEntries={belief.impactEntries ?? []}
             compromises={belief.compromises}

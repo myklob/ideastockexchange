@@ -65,8 +65,9 @@ export interface CostBenefitItemRow {
   /** Expected Value = Magnitude × Likelihood. Sort key for the table. */
   expectedValue: number | null
   sortOrder: number
-  /** The claim's own belief page, when one exists. */
-  claimBelief?: { id: number; slug: string; statement: string } | null
+  /** The claim's own belief page, when one exists. Its positivity is the
+   *  engine-computed net that sources this row's derived likelihood. */
+  claimBelief?: { id: number; slug: string; statement: string; positivity?: number } | null
 }
 
 /** One row in the Short vs. Long-Term Impacts sub-table. */
@@ -330,6 +331,11 @@ export interface InterestEntryItem {
   pretextual: boolean
   score?: number | null
   sortOrder: number
+  /** Numeric twins (0-100) feeding the conflict-resolution pipeline. Optional
+   *  so existing Prisma data still flows. */
+  prevalenceScore?: number | null
+  linkageAccuracy?: number | null
+  validityScore?: number | null
 }
 
 /** One row in the Shared Interests table (new template). */

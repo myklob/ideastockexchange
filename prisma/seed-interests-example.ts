@@ -53,6 +53,16 @@ async function main() {
       'Stated often, but the same voters back universal programs like Social Security — words and votes diverge.'),
   ])
 
+  // A genuinely shared interest, stated by each side in its own words. The
+  // conflict-resolution pipeline pairs these by cross-side similarity — both
+  // clear the Resolution Floor, so compromise gets built on them.
+  await Promise.all([
+    mk('supporter', 'Ending extreme poverty and homelessness', 35, 56, 90,
+      'Supporters fund anti-poverty pilots even in designs with no universal payment.'),
+    mk('opponent', 'Ending extreme poverty and homelessness', 30, 50, 82,
+      'Opponents back targeted anti-poverty spending at similar rates; the fight is the mechanism, not the goal.'),
+  ])
+
   await prisma.unstatedInterestCandidate.createMany({
     data: [
       {

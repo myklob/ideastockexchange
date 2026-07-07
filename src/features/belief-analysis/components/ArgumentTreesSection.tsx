@@ -139,7 +139,22 @@ function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
   return (
     <>
       <td className="border border-gray-300 px-3 py-2 align-top"><ArgumentCell arg={arg} /></td>
-      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{scoreCell(arg)}</td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
+        {/* Every score is a doorway (Rule 6 keeps unscored cells blank, so a
+            blank is never a link). The Score is the child belief's own tree
+            score — clicking it drops into the sub-debate that produced it. */}
+        {scoreCell(arg) ? (
+          <Link
+            href={`/beliefs/${arg.belief.slug}`}
+            className="text-[var(--accent)] hover:underline"
+            title="The sub-debate that produced this score"
+          >
+            {scoreCell(arg)}
+          </Link>
+        ) : (
+          ''
+        )}
+      </td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
         {/* The linkage value links to the edge's own page: the debate about
             whether this argument actually bears on this belief. */}
@@ -155,8 +170,35 @@ function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
           ''
         )}
       </td>
-      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{impCell(arg)}</td>
-      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs font-semibold">{impactCell(arg)}</td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
+        {/* Importance links to the sub-belief that sources it, when one exists. */}
+        {impCell(arg) && arg.importanceBelief ? (
+          <Link
+            href={`/beliefs/${arg.importanceBelief.slug}`}
+            className="text-[var(--accent)] hover:underline"
+            title="The sub-debate about whether this argument matters"
+          >
+            {impCell(arg)}
+          </Link>
+        ) : (
+          impCell(arg)
+        )}
+      </td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs font-semibold">
+        {/* Impact links to the score-provenance page: the full derivation of
+            this edge's contribution, factor by factor. */}
+        {impactCell(arg) ? (
+          <Link
+            href={`/arguments/${arg.id}/score`}
+            className="text-[var(--accent)] hover:underline"
+            title="How this impact was computed"
+          >
+            {impactCell(arg)}
+          </Link>
+        ) : (
+          ''
+        )}
+      </td>
     </>
   )
 }
@@ -189,13 +231,15 @@ export default function ArgumentTreesSection({
     <section>
       <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
         <span>&#128269;</span>
-        <Link href="/Reasons" className="text-[var(--accent)] hover:underline">Argument Trees</Link>
+        Argument Trees
       </h2>
       <p className="text-sm text-[var(--muted-foreground)] mb-4">
         Each argument is a belief with its own page. Scores are recursive: Argument Score ×{' '}
-        <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
-        <Link href="/importance%20score" className="text-[var(--accent)] hover:underline">Importance</Link>{' '}
-        = Impact. Pro and con impacts sum to the Net Belief Score.
+        <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
+        <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link> ×{' '}
+        <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>{' '}
+        = Impact. Every score is a doorway — click it to enter the sub-debate that
+        produced it. Pro and con impacts sum to the Net Belief Score.
       </p>
 
       <div className="overflow-x-auto">
@@ -213,19 +257,19 @@ export default function ArgumentTreesSection({
               <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Argument</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Score</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/importance%20score" className="text-[var(--accent)] hover:underline">Imp</Link>
+                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Imp</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Impact</th>
               <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Argument</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Score</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/importance%20score" className="text-[var(--accent)] hover:underline">Imp</Link>
+                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Imp</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Impact</th>
             </tr>
