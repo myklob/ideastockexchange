@@ -21,19 +21,13 @@ export default function TopicMetrics({ importanceScore, evidenceDepth, controver
     <div className="border border-gray-300 p-3 bg-gray-50 mb-6 text-center text-sm">
       <strong>Topic Metrics</strong>
       <br />
-      <a href="/w/page/162731388/Importance%20Score" className="text-blue-600 hover:underline">
-        Importance
-      </a>
-      :{' '}
+      Importance:{' '}
       <strong className={scoreColor(importanceScore)}>{importanceScore}</strong>
       {' | '}
-      <a href="/w/page/159353568/Evidence%20Scores" className="text-blue-600 hover:underline">
-        Evidence Depth
-      </a>
-      :{' '}
+      Evidence Depth:{' '}
       <strong className={depthColor(evidenceDepth)}>{evidenceDepth}</strong>
       {' | '}
-      <a href="/w/page/159300543/ReasonRank" className="text-blue-600 hover:underline">
+      <a href="/algorithms/reason-rank" className="text-blue-600 hover:underline">
         Controversy Rating
       </a>
       :{' '}

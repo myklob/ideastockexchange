@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getDebateTopic } from '@/features/debate-topics/db';
+import { getDebateTopic, findExistingDebateTopicSlugs } from '@/features/debate-topics/db';
 import ExternalReferences from '@/components/debate-topic/ExternalReferences';
 import TopicMetrics from '@/components/debate-topic/TopicMetrics';
 import Spectrum1Positions from '@/components/debate-topic/Spectrum1Positions';
@@ -26,6 +26,11 @@ export default async function DebateTopicPage({ params }: Props) {
   const topic = await getDebateTopic(slug);
 
   if (!topic) notFound();
+
+  const relatedSlugs = topic.relatedTopics
+    .map((t) => t.relatedSlug)
+    .filter((s): s is string => Boolean(s));
+  const existingSlugs = await findExistingDebateTopicSlugs(relatedSlugs);
 
   const categoryPath = topic.categoryPath ?? [];
 
@@ -169,7 +174,7 @@ export default async function DebateTopicPage({ params }: Props) {
         {/* Related Topics */}
         {topic.relatedTopics.length > 0 && (
           <>
-            <RelatedTopics relatedTopics={topic.relatedTopics} />
+            <RelatedTopics relatedTopics={topic.relatedTopics} existingSlugs={existingSlugs} />
             <hr className="my-6" />
           </>
         )}
@@ -178,8 +183,7 @@ export default async function DebateTopicPage({ params }: Props) {
         <div>
           <h2 className="text-xl font-bold mb-2">📬 Contribute</h2>
           <p>
-            <Link href="/contact" className="text-blue-600 hover:underline">Contact us</Link>{' '}
-            to add beliefs, strengthen arguments, link new evidence, or propose objective criteria.
+            Contact us to add beliefs, strengthen arguments, link new evidence, or propose objective criteria.
             <br />
             <a
               href="https://github.com/myklob/ideastockexchange"

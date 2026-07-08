@@ -228,12 +228,14 @@ export default function Home() {
             />
           </ul>
 
-          <Link
-            href="/proposal/new"
+          <a
+            href="https://github.com/myklob/ideastockexchange/issues/new"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
             Create a Proposal
-          </Link>
+          </a>
         </section>
 
         {/* The Vision */}

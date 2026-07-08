@@ -60,7 +60,7 @@ export default async function EquivalencePage({ params }: EquivalencePageProps) 
           <h1 className="text-2xl font-bold mb-1">Belief Equivalence Scorecard</h1>
           <p className="text-sm text-[var(--muted-foreground)]">
             This scorecard determines whether two beliefs should be merged, linked, or kept separate
-            using the 17-step <Link href="/Belief%20Equivalence%20Engine" className="text-[var(--accent)] hover:underline">Belief Equivalence Engine</Link> pipeline.
+            using the 17-step <Link href="/equivalence" className="text-[var(--accent)] hover:underline">Belief Equivalence Engine</Link> pipeline.
           </p>
         </div>
 

@@ -92,12 +92,12 @@ export default function ArgumentTreesSection({
     <section>
       <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
         <span>&#128269;</span>
-        <Link href="/Reasons" className="text-[var(--accent)] hover:underline">Argument Trees</Link>
+        Argument Trees
       </h2>
       <p className="text-sm text-[var(--muted-foreground)] mb-4">
         Each argument is a belief with its own page. Scores are recursive: Argument Score ×{' '}
-        <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
-        <Link href="/importance%20score" className="text-[var(--accent)] hover:underline">Importance</Link>{' '}
+        <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
+        Importance{' '}
         = Impact. Pro and con impacts sum to the Net Belief Score.
       </p>
 
@@ -116,13 +116,13 @@ export default function ArgumentTreesSection({
               <th className="border border-gray-300 px-2 py-1.5 text-left w-[25%]">Argument</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Score</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Impact</th>
               <th className="border border-gray-300 px-2 py-1.5 text-left w-[25%]">Argument</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Score</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Impact</th>
             </tr>

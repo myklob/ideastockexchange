@@ -121,11 +121,7 @@ export default function LinkageScoresPage() {
       <ol className="list-decimal list-inside mb-5 space-y-1">
         <li>
           <strong>Is this argument true?</strong>{' '}
-          (Measured by the{' '}
-          <Link href="/algorithms/truth-scores" className="text-blue-700 hover:underline">
-            Truth Score
-          </Link>
-          )
+          (Measured by the Truth Score)
         </li>
         <li>
           <strong>Does this argument actually connect to the conclusion?</strong>{' '}
@@ -255,11 +251,7 @@ export default function LinkageScoresPage() {
           &ldquo;Taxes change behavior, therefore a carbon tax will reduce emissions.&rdquo;
         </em>{' '}
         General principles need specific application. Moving from general to specific requires
-        unstated{' '}
-        <Link href="/algorithms/assumptions" className="text-blue-700 hover:underline">
-          Assumptions
-        </Link>
-        . When the platform detects a moderate linkage score (40&ndash;60%), it prompts users to
+        unstated Assumptions. When the platform detects a moderate linkage score (40&ndash;60%), it prompts users to
         add the missing assumption as a bridge node, making the hidden reasoning explicit and
         testable.
       </p>
@@ -456,38 +448,15 @@ export default function LinkageScoresPage() {
             </Link>{' '}
             &mdash; How linkage fits into overall scoring.
           </li>
-          <li>
-            <Link href="/algorithms/truth-scores" className="text-blue-700 hover:underline">
-              Truth Scores
-            </Link>{' '}
-            &mdash; Measuring factual accuracy, independent of relevance.
-          </li>
-          <li>
-            <Link href="/algorithms/importance-score" className="text-blue-700 hover:underline">
-              Importance Score
-            </Link>{' '}
-            &mdash; The third dimension of argument impact.
-          </li>
-          <li>
-            <Link href="/algorithms/assumptions" className="text-blue-700 hover:underline">
-              Assumptions
-            </Link>{' '}
-            &mdash; Bridging the gap in low-linkage arguments.
-          </li>
-          <li>
-            <Link href="/algorithms/evidence-scores" className="text-blue-700 hover:underline">
-              Evidence Scores
-            </Link>{' '}
-            &mdash; Quality assessment framework for data sources.
-          </li>
+          <li>Truth Scores &mdash; Measuring factual accuracy, independent of relevance.</li>
+          <li>Importance Score &mdash; The third dimension of argument impact.</li>
+          <li>Assumptions &mdash; Bridging the gap in low-linkage arguments.</li>
+          <li>Evidence Scores &mdash; Quality assessment framework for data sources.</li>
         </ul>
       </div>
 
       <p className="mt-8 mb-2">
-        <Link href="/contact" className="font-bold text-blue-700 hover:underline">
-          Contact me
-        </Link>{' '}
-        to help test the linkage calculator or propose improvements to the scoring algorithms.
+        Contact me to help test the linkage calculator or propose improvements to the scoring algorithms.
       </p>
     </main>
   )

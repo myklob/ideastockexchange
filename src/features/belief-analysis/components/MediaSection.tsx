@@ -20,10 +20,7 @@ const TYPE_LABELS: Record<string, string> = {
 }
 
 const TYPE_LINKS: Record<string, string> = {
-  book: '/Books',
-  podcast: '/Podcasts',
-  movie: '/Movies',
-  song: '/Songs%20that%20agree',
+  book: '/books',
 }
 
 function formatReach(reach: number): string {

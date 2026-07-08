@@ -289,11 +289,7 @@ export default function ACBAAboutPage() {
                 Live ACBA Ledger &mdash; browse all analyses
               </Link>
             </li>
-            <li>
-              <Link href="/arguments" className="text-[var(--accent)] hover:underline">
-                How Linkage Scores propagate argument strength
-              </Link>
-            </li>
+            <li>How Linkage Scores propagate argument strength</li>
             <li>
               <Link href="/beliefs" className="text-[var(--accent)] hover:underline">
                 Stakeholder Interest Mapping

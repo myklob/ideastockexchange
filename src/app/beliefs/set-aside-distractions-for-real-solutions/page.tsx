@@ -64,27 +64,14 @@ export default async function DistractionsBeliefPage() {
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8">
           <div className="text-right space-y-1">
             <p className="text-sm">
-              <Link
-                href="/One%20Page%20Per%20Topic"
-                className="text-[var(--accent)] hover:underline"
-              >
-                Topic
-              </Link>
-              : {belief.category || 'Uncategorized'}
+              Topic: {belief.category || 'Uncategorized'}
               {belief.subcategory && <> &gt; {belief.subcategory}</>}
             </p>
             {belief.deweyNumber && (
               <p className="text-sm">Topic IDs: Dewey: {belief.deweyNumber}</p>
             )}
             <p className="text-sm">
-              Belief{' '}
-              <Link
-                href="/beliefs%20grouped%20and%20eventually%20sorted%20along%20the%20the%20positivity%20continuum"
-                className="text-[var(--accent)] hover:underline"
-              >
-                Positivity
-              </Link>{' '}
-              Towards Topic:{' '}
+              Belief Positivity Towards Topic:{' '}
               <strong>
                 {belief.positivity >= 0 ? '+' : ''}
                 {belief.positivity.toFixed(0)}%
@@ -138,18 +125,18 @@ export default async function DistractionsBeliefPage() {
           </p>
           <p>
             Distraction isn&apos;t just inefficient here. It&apos;s structurally blocked.{' '}
-            <Link href="/Scoring" className="text-[var(--accent)] hover:underline">
+            <Link href="/algorithms" className="text-[var(--accent)] hover:underline">
               Truth Scores
             </Link>{' '}
             don&apos;t respond to charisma.{' '}
             <Link
-              href="/cost-benefit%20analysis"
+              href="/cba/about"
               className="text-[var(--accent)] hover:underline"
             >
               Cost-Benefit Analysis
             </Link>{' '}
             doesn&apos;t care who&apos;s more entertaining.{' '}
-            <Link href="/ReasonRank" className="text-[var(--accent)] hover:underline">
+            <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">
               ReasonRank
             </Link>{' '}
             rewards evidence, not outrage.
@@ -194,13 +181,7 @@ export default async function DistractionsBeliefPage() {
           {/* Conflict Resolution Framework */}
           <div>
             <h1 className="text-2xl font-bold text-[var(--foreground)] mb-6">
-              <Link
-                href="/automate%20conflict%20resolution"
-                className="text-[var(--accent)] hover:underline"
-              >
-                Conflict Resolution
-              </Link>{' '}
-              Framework
+              Conflict Resolution Framework
             </h1>
 
             <div className="space-y-10">
@@ -266,7 +247,7 @@ export default async function DistractionsBeliefPage() {
             <p className="text-lg font-bold">
               Score:{' '}
               <Link
-                href="/Argument%20scores%20from%20sub-argument%20scores"
+                href="/algorithms/reason-rank"
                 className="text-[var(--accent)] hover:underline"
               >
                 {scores.overallScore >= 0 ? '+' : ''}

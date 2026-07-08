@@ -53,7 +53,7 @@ export default function MediaResources({ mediaResources }: Props) {
         </table>
       </div>
       <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/media-framework" className="text-blue-600 hover:underline">Media Framework</a>
+        See: Media Framework
       </p>
     </div>
   );

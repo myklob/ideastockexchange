@@ -95,7 +95,7 @@ export default function EvidenceLedger({ evidenceItems }: Props) {
         </table>
       </div>
       <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/evidence-scoring" className="text-blue-600 hover:underline">Evidence Scoring Methodology</a>
+        See: Evidence Scoring Methodology
       </p>
     </div>
   );

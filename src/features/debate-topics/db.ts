@@ -212,6 +212,15 @@ export async function getDebateTopic(slug: string): Promise<DebateTopic | null> 
   return mapTopicFromDb(row);
 }
 
+export async function findExistingDebateTopicSlugs(slugs: string[]): Promise<string[]> {
+  if (slugs.length === 0) return [];
+  const rows = await db.debateTopic.findMany({
+    where: { slug: { in: slugs } },
+    select: { slug: true },
+  });
+  return rows.map((r: { slug: string }) => r.slug);
+}
+
 export async function listDebateTopics(): Promise<
   Array<{ id: number; slug: string; title: string; categoryPath: string[]; createdAt: Date }>
 > {

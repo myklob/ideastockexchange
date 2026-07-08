@@ -20,7 +20,7 @@ npx eslint <files>    # lint files you edited (`npm run lint` runs the whole rep
 npm test              # vitest, only when changing scoring / core logic
 ```
 
-The repo has ~50 pre-existing implicit-any errors in routes I didn't touch (notably `src/app/algorithms/belief-equivalency/*`, `src/app/equivalence/*`, several API routes, `src/lib/prisma.ts`'s missing generated client). They are not your fault — verify *only* that your edited files are clean, not that the global typecheck count is zero.
+The global typecheck is clean (the old batch of ~50 implicit-any errors was fixed in the rollout-prep cleanup). Keep it that way: `npx tsc --noEmit` should exit with zero errors after your changes.
 
 ## The Belief Page Is the Crown Jewel
 
@@ -84,4 +84,5 @@ Or set `CLAUDE_DEBUG_FILE` before launching. File logging cannot be enabled mid-
 - `/beliefs/[slug]` — the canonical belief page (this is the one that matters).
 - `/beliefs/set-aside-distractions-for-real-solutions` — bespoke route, predates the canonical structure. Don't use as a template.
 - `/product-reviews/[slug]` — separate concept that reuses some belief components. Edits to belief sections may affect it; check before refactoring.
-- `/algorithms/strong-to-weak`, `/Linkage Scores`, `/Argument scores from sub-argument scores` — explainer pages linked from the belief page header. If you add a link to a belief page, verify the target exists or use plain text (Rule 5).
+- `/algorithms` — index of the scoring explainer pages (`reason-rank`, `linkage-scores`, `objective-criteria`, `strong-to-weak`, `belief-equivalency`, `combine-similar-beliefs`). These are the only explainer routes that exist; the old PBworks-style paths (`/Linkage Scores`, `/ReasonRank`, `/w/page/...`) do not resolve. If you add a link to a belief page, verify the target exists or use plain text (Rule 5).
+- `/laws` — index of wikiLaw diagnostic audits; individual laws live at `/law/[id]`.

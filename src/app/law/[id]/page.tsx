@@ -455,12 +455,14 @@ export default async function LawPage({ params }: { params: Promise<{ id: string
           <p className="text-[var(--muted-foreground)] mb-6">
             Submit a structured proposal with evidence, mechanism, and trade-off analysis.
           </p>
-          <Link
-            href={`/proposal/new?lawId=${law.id}`}
+          <a
+            href="https://github.com/myklob/ideastockexchange/issues/new"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
             Suggest a Change
-          </Link>
+          </a>
         </div>
       </main>
     </div>

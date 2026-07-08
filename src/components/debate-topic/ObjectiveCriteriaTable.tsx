@@ -87,7 +87,7 @@ export default function ObjectiveCriteriaTable({ criteria, topicTitle }: Props) 
             <tr className="bg-gray-50">
               <td colSpan={6} className="px-3 py-2 text-xs text-gray-500 italic">
                 Don&apos;t see a criterion that belongs here?{' '}
-                <a href="/contact" className="text-blue-600 hover:underline">Submit a proposal</a>{' '}
+                Submit a proposal{' '}
                 with reasons supporting its validity, reliability, linkage, and importance.
               </td>
             </tr>

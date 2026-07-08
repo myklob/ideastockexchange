@@ -65,7 +65,7 @@ export default function Spectrum2Magnitude({ topicTitle, claimMagnitudeLevels }:
     <div id="magnitude" className="mb-8">
       <h2 className="text-xl font-bold mb-1">
         💪 Continuum 2: Claim Magnitude{' '}
-        <a href="/strong-to-weak" className="text-base font-normal text-blue-600 hover:underline">
+        <a href="/algorithms/strong-to-weak" className="text-base font-normal text-blue-600 hover:underline">
           (Weak ↔ Strong)
         </a>
       </h2>
@@ -136,7 +136,7 @@ export default function Spectrum2Magnitude({ topicTitle, claimMagnitudeLevels }:
         man. The ISE requires engaging with the best version of the opposing argument, not the loudest one.
       </div>
       <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/strong-to-weak" className="text-blue-600 hover:underline">Why We Need This Continuum</a>
+        See: <a href="/algorithms/strong-to-weak" className="text-blue-600 hover:underline">Why We Need This Continuum</a>
       </p>
     </div>
   );
