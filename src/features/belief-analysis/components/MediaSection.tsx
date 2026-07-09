@@ -19,13 +19,6 @@ const TYPE_LABELS: Record<string, string> = {
   scientific_paper: 'Scientific Papers',
 }
 
-const TYPE_LINKS: Record<string, string> = {
-  book: '/Books',
-  podcast: '/Podcasts',
-  movie: '/Movies',
-  song: '/Songs%20that%20agree',
-}
-
 function formatReach(reach: number): string {
   if (reach >= 1_000_000_000) return `${(reach / 1_000_000_000).toFixed(1)}B`
   if (reach >= 1_000_000) return `${(reach / 1_000_000).toFixed(1)}M`
@@ -48,17 +41,10 @@ function MediaList({ items, side }: { items: MediaItem[]; side: string }) {
       {MEDIA_TYPES.map(type => {
         const typeItems = filtered.filter(m => m.mediaType === type)
         const label = TYPE_LABELS[type]
-        const link = TYPE_LINKS[type]
 
         return (
           <div key={type}>
-            <strong>
-              {link ? (
-                <Link href={link} className="text-[var(--accent)] hover:underline">{label}</Link>
-              ) : (
-                label
-              )}
-            </strong>
+            <strong>{label}</strong>
             <br />
             {typeItems.length > 0 ? (
               <ol className="list-decimal list-inside">

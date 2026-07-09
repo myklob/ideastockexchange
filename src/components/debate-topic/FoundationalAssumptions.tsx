@@ -29,7 +29,7 @@ export default function FoundationalAssumptions({ assumptions, keyInsight }: Pro
           </>
         )}
         {' '}<span className="text-gray-500">
-          See: <a href="/Assumptions" className="text-blue-600 hover:underline">Assumptions</a>.
+          See: <a href="/algorithms/assumptions" className="text-blue-600 hover:underline">Assumptions</a>.
         </span>
       </p>
       <div className="overflow-x-auto">

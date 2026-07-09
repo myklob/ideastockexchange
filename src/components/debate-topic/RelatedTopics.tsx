@@ -3,13 +3,18 @@ import type { DebateRelatedTopic } from '@/core/types/debate-topic';
 
 interface Props {
   relatedTopics: DebateRelatedTopic[];
+  existingSlugs: ReadonlySet<string>;
 }
 
-function TopicLink({ topic }: { topic: DebateRelatedTopic }) {
-  const href = topic.relatedSlug
-    ? `/debate-topics/${topic.relatedSlug}`
-    : topic.relatedUrl ?? '#';
+function TopicLink({ topic, existingSlugs }: { topic: DebateRelatedTopic; existingSlugs: ReadonlySet<string> }) {
+  const href =
+    topic.relatedSlug && existingSlugs.has(topic.relatedSlug)
+      ? `/debate-topics/${topic.relatedSlug}`
+      : topic.relatedUrl;
 
+  if (!href) {
+    return <span className="text-gray-700">{topic.relatedTitle}</span>;
+  }
   return (
     <Link href={href} className="text-blue-600 hover:underline">
       {topic.relatedTitle}
@@ -17,7 +22,7 @@ function TopicLink({ topic }: { topic: DebateRelatedTopic }) {
   );
 }
 
-function TopicList({ topics }: { topics: DebateRelatedTopic[] }) {
+function TopicList({ topics, existingSlugs }: { topics: DebateRelatedTopic[]; existingSlugs: ReadonlySet<string> }) {
   if (topics.length === 0) {
     return <span className="text-gray-400 text-xs">None listed</span>;
   }
@@ -25,14 +30,14 @@ function TopicList({ topics }: { topics: DebateRelatedTopic[] }) {
     <ul className="list-none m-0 p-0 space-y-1">
       {topics.map((t, i) => (
         <li key={i}>
-          <TopicLink topic={t} />
+          <TopicLink topic={t} existingSlugs={existingSlugs} />
         </li>
       ))}
     </ul>
   );
 }
 
-export default function RelatedTopics({ relatedTopics }: Props) {
+export default function RelatedTopics({ relatedTopics, existingSlugs }: Props) {
   const parents = relatedTopics.filter((t) => t.relationType === 'parent');
   const children = relatedTopics.filter((t) => t.relationType === 'child');
   const siblings = relatedTopics.filter((t) => t.relationType === 'sibling');
@@ -58,16 +63,16 @@ export default function RelatedTopics({ relatedTopics }: Props) {
           <tbody>
             <tr>
               <td className="border border-gray-300 px-3 py-3 align-top">
-                <TopicList topics={parents} />
+                <TopicList topics={parents} existingSlugs={existingSlugs} />
               </td>
               <td className="border border-gray-300 px-3 py-3 align-top">
-                <TopicList topics={children} />
+                <TopicList topics={children} existingSlugs={existingSlugs} />
               </td>
               <td className="border border-gray-300 px-3 py-3 align-top">
-                <TopicList topics={siblings} />
+                <TopicList topics={siblings} existingSlugs={existingSlugs} />
               </td>
               <td className="border border-gray-300 px-3 py-3 align-top">
-                <TopicList topics={opposing} />
+                <TopicList topics={opposing} existingSlugs={existingSlugs} />
               </td>
             </tr>
           </tbody>

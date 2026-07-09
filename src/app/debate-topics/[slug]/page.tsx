@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getDebateTopic } from '@/features/debate-topics/db';
+import { getDebateTopic, listExistingTopicSlugs } from '@/features/debate-topics/db';
 import ExternalReferences from '@/components/debate-topic/ExternalReferences';
 import TopicMetrics from '@/components/debate-topic/TopicMetrics';
 import Spectrum1Positions from '@/components/debate-topic/Spectrum1Positions';
@@ -28,6 +28,8 @@ export default async function DebateTopicPage({ params }: Props) {
   if (!topic) notFound();
 
   const categoryPath = topic.categoryPath ?? [];
+  const relatedSlugs = topic.relatedTopics.flatMap((t) => (t.relatedSlug ? [t.relatedSlug] : []));
+  const existingSlugs = await listExistingTopicSlugs(relatedSlugs);
 
   return (
     <div className="min-h-screen bg-white">
@@ -82,7 +84,7 @@ export default async function DebateTopicPage({ params }: Props) {
           <a href="#specificity" className="text-blue-600 hover:underline">Specificity</a> (where it sits on
           the general-to-specific tree). Same address means the same claim, so it merges; nearly the same
           address gets the redundancy discount. Full logic lives on{' '}
-          <a href="/one-page-per-topic" className="text-blue-600 hover:underline">One Page Per Topic</a>.
+          <a href="/algorithms/belief-equivalency" className="text-blue-600 hover:underline">Belief Equivalency</a>.
         </div>
 
         <hr className="my-6" />
@@ -172,7 +174,7 @@ export default async function DebateTopicPage({ params }: Props) {
         {/* Related Topics */}
         {topic.relatedTopics.length > 0 && (
           <>
-            <RelatedTopics relatedTopics={topic.relatedTopics} />
+            <RelatedTopics relatedTopics={topic.relatedTopics} existingSlugs={existingSlugs} />
             <hr className="my-6" />
           </>
         )}
