@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { EvidenceItem } from '../types'
-import { TABLE_TOP_LIMIT } from '../lib/ranking'
+import { TABLE_TOP_LIMIT, byScoreDesc } from '../lib/ranking'
 import ExpandableRows from './ExpandableRows'
 
 interface EvidenceSectionProps {
@@ -52,8 +52,11 @@ function EvidenceHalf({ item }: { item: EvidenceItem | undefined }) {
 }
 
 export default function EvidenceSection({ evidence }: EvidenceSectionProps) {
-  const supporting = evidence.filter(e => e.side === 'supporting')
-  const weakening = evidence.filter(e => e.side === 'weakening')
+  // impactScore is signed (negative on the weakening side), so the DB's
+  // signed-desc order puts the weakest weakening rows first; rank by magnitude.
+  const byImpactMagnitude = byScoreDesc<EvidenceItem>(e => Math.abs(e.impactScore))
+  const supporting = evidence.filter(e => e.side === 'supporting').sort(byImpactMagnitude)
+  const weakening = evidence.filter(e => e.side === 'weakening').sort(byImpactMagnitude)
   const rowCount = Math.max(supporting.length, weakening.length, 1)
   const rows = Array.from({ length: rowCount }, (_, i) => i)
   const topRows = rows.slice(0, TABLE_TOP_LIMIT)

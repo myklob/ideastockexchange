@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { ArgumentWithBelief } from '../types'
-import { TABLE_TOP_LIMIT } from '../lib/ranking'
+import { TABLE_TOP_LIMIT, byScoreDesc } from '../lib/ranking'
 import ExpandableRows from './ExpandableRows'
 import { justificationScore, truthShare, argumentMass } from '@/core/scoring/contrast-class'
 
@@ -209,8 +209,11 @@ export default function ArgumentTreesSection({
   totalCon,
   netInterpretation,
 }: ArgumentTreesSectionProps) {
-  const proArgs = args.filter(a => a.side === 'agree')
-  const conArgs = args.filter(a => a.side === 'disagree')
+  // impactScore is signed (negative on the con side), so the DB's signed-desc
+  // order puts the weakest cons first; rank each column by magnitude instead.
+  const byImpactMagnitude = byScoreDesc<ArgumentWithBelief>(a => Math.abs(a.impactScore))
+  const proArgs = args.filter(a => a.side === 'agree').sort(byImpactMagnitude)
+  const conArgs = args.filter(a => a.side === 'disagree').sort(byImpactMagnitude)
   const rowCount = Math.max(proArgs.length, conArgs.length, 1)
   const rows = Array.from({ length: rowCount }, (_, i) => i)
   const topRows = rows.slice(0, TABLE_TOP_LIMIT)

@@ -142,9 +142,11 @@ async function payOut(tx: Tx, contract: MarketContract, outcome: 'YES' | 'NO') {
     const unfilled = order.quantity - order.filledQuantity
     if (order.side === 'BUY' && unfilled > 0) {
       const refund = order.limitPrice * (1 + contract.feeRate / 10_000) * unfilled
+      // increment, not an absolute set: a user with several open buy orders
+      // appears here repeatedly with the same stale `order.user` snapshot.
       await tx.user.update({
         where: { id: order.userId },
-        data: { currentBalance: order.user.currentBalance + refund },
+        data: { currentBalance: { increment: refund } },
       })
     }
     await tx.marketOrder.update({ where: { id: order.id }, data: { status: 'CANCELLED' } })
