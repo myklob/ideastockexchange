@@ -13,12 +13,15 @@ function qualityColor(score: number): string {
 
 function standingBadge(standing: string) {
   if (standing === 'FALSIFIED') {
-    return <span className="font-semibold text-red-600">FALSIFIED</span>;
+    return <span className="font-semibold text-red-600 line-through">FALSIFIED</span>;
   }
   if (standing === 'DISPUTED') {
     return <span className="font-semibold text-[#b58900]">DISPUTED</span>;
   }
-  return <span className="font-semibold text-gray-700">VERIFIED</span>;
+  if (standing === 'VERIFIED') {
+    return <span className="font-semibold text-gray-700">VERIFIED</span>;
+  }
+  return <span className="font-semibold text-gray-400">UNVERIFIED</span>;
 }
 
 function tierRank(tier: string | undefined): number {
@@ -84,7 +87,7 @@ export default function EvidenceLedger({ evidenceItems }: Props) {
                   {e.linkage !== undefined ? `+${e.linkage.toFixed(2)}` : '—'}
                 </td>
                 <td className="border border-gray-300 px-2 py-2 text-center">
-                  {standingBadge(e.standing ?? 'VERIFIED')}
+                  {standingBadge(e.standing ?? 'UNVERIFIED')}
                 </td>
               </tr>
             ))}
@@ -98,8 +101,9 @@ export default function EvidenceLedger({ evidenceItems }: Props) {
         <strong>Linkage</strong> = how directly this evidence bears on the specific argument it&apos;s
         attached to (see{' '}
         <Link href="/algorithms/linkage-scores" className="text-blue-600 hover:underline">Linkage Scores</Link>).{' '}
-        <strong>Standing</strong> = where the evidence sits in the verification lifecycle: VERIFIED counts
-        at full weight, DISPUTED at half weight while the challenge is open, FALSIFIED at zero, with the
+        <strong>Standing</strong> = where the evidence sits in the verification lifecycle: rows are born
+        UNVERIFIED and count at half weight until the provenance check confirms them; VERIFIED counts at
+        full weight, DISPUTED at half weight while the challenge is open, FALSIFIED at zero, with the
         retraction propagating to every score built on it. See{' '}
         <Link href="/algorithms/evidence-scores" className="text-blue-600 hover:underline">Evidence Scores</Link>.
       </p>

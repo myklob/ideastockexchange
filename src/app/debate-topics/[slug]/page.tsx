@@ -3,12 +3,12 @@ import Link from 'next/link';
 import { getDebateTopic } from '@/features/debate-topics/db';
 import ExternalReferences from '@/components/debate-topic/ExternalReferences';
 import TopicMetrics from '@/components/debate-topic/TopicMetrics';
-import Spectrum1Positions from '@/components/debate-topic/Spectrum1Positions';
+import PositionSpectrum from '@/components/debate-topic/PositionSpectrum';
 import EvidenceLedger from '@/components/debate-topic/EvidenceLedger';
-import Spectrum2Magnitude from '@/components/debate-topic/Spectrum2Magnitude';
-import Spectrum3Escalation from '@/components/debate-topic/Spectrum3Escalation';
+import ClaimMagnitude from '@/components/debate-topic/ClaimMagnitude';
+import CivicEscalation from '@/components/debate-topic/CivicEscalation';
 import FoundationalAssumptions from '@/components/debate-topic/FoundationalAssumptions';
-import Spectrum4AbstractionLadder from '@/components/debate-topic/Spectrum4AbstractionLadder';
+import AbstractionLadder from '@/components/debate-topic/AbstractionLadder';
 import CoreValuesConflict from '@/components/debate-topic/CoreValuesConflict';
 import CommonGround from '@/components/debate-topic/CommonGround';
 import MediaResources from '@/components/debate-topic/MediaResources';
@@ -91,7 +91,7 @@ export default async function DebateTopicPage({ params }: Props) {
         {/* 1. The Position Spectrum */}
         {topic.positions.length > 0 && (
           <>
-            <Spectrum1Positions positions={topic.positions} />
+            <PositionSpectrum positions={topic.positions} />
             <hr className="my-6" />
           </>
         )}
@@ -105,7 +105,7 @@ export default async function DebateTopicPage({ params }: Props) {
         )}
 
         {/* 3. Claim Magnitude */}
-        <Spectrum2Magnitude
+        <ClaimMagnitude
           topicTitle={topic.title}
           claimMagnitudeLevels={topic.claimMagnitudeLevels}
         />
@@ -114,7 +114,7 @@ export default async function DebateTopicPage({ params }: Props) {
         {/* 4. The Engagement Landscape: Civic Escalation */}
         {topic.escalationLevels.length > 0 && (
           <>
-            <Spectrum3Escalation escalationLevels={topic.escalationLevels} />
+            <CivicEscalation escalationLevels={topic.escalationLevels} />
             <hr className="my-6" />
           </>
         )}
@@ -133,7 +133,7 @@ export default async function DebateTopicPage({ params }: Props) {
         {/* 6. The Abstraction Ladder */}
         {topic.abstractionRungs.length > 0 && (
           <>
-            <Spectrum4AbstractionLadder rungs={topic.abstractionRungs} topicTitle={topic.title} />
+            <AbstractionLadder rungs={topic.abstractionRungs} topicTitle={topic.title} />
             <hr className="my-6" />
           </>
         )}

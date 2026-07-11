@@ -340,7 +340,7 @@ export async function createDebateTopic(data: DebateTopic): Promise<DebateTopic>
           tier: e.tier ?? 'T2',
           argument: e.argument ?? '',
           linkage: e.linkage ?? null,
-          standing: e.standing ?? 'VERIFIED',
+          standing: e.standing ?? 'UNVERIFIED',
         })),
       },
       objectiveCriteria: {

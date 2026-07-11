@@ -64,7 +64,7 @@ interface Props {
   claimMagnitudeLevels?: DebateClaimMagnitude[];
 }
 
-export default function Spectrum2Magnitude({ topicTitle, claimMagnitudeLevels }: Props) {
+export default function ClaimMagnitude({ topicTitle, claimMagnitudeLevels }: Props) {
   const lower = topicTitle.charAt(0).toUpperCase() + topicTitle.slice(1).toLowerCase();
 
   // Use DB-backed data if available, otherwise fall back to generic templates

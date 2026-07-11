@@ -1607,7 +1607,7 @@ model DebateTopic {
   @@index([slug])
 }
 
-/// One row in Spectrum 2 (Claim Magnitude — topic-specific pro and anti examples).
+/// One row in section 3 (Claim Magnitude — topic-specific pro and anti examples).
 /// Replaces the generic static component with per-topic AI-generated content.
 model DebateClaimMagnitude {
   id      Int         @id @default(autoincrement())
@@ -1618,7 +1618,7 @@ model DebateClaimMagnitude {
   /// "Weak (20%)", "Moderate (50%)", "Strong (80%)", "Extreme (100%)"
   magnitudeLevel  String
   magnitudePercent Int   @default(50)
-  sublabel        String /// "Modest Assertion", "Standard Assertion", "Broad Assertion", "Maximal Assertion"
+  sublabel        String /// "Hedged", "Standard", "Categorical", "Maximal"
   /// Topic-specific example of a pro-topic claim at this magnitude
   proExample      String
   /// Topic-specific example of an anti-topic claim at this magnitude
@@ -1629,7 +1629,7 @@ model DebateClaimMagnitude {
   @@index([topicId])
 }
 
-/// One row in Spectrum 1 (The Debate Landscape, -100 to +100).
+/// One row in section 1 (The Position Spectrum, -100 to +100).
 model DebatePosition {
   id      Int         @id @default(autoincrement())
   topicId Int
@@ -1650,29 +1650,29 @@ model DebatePosition {
   @@index([topicId])
 }
 
-/// One row in Spectrum 3 (Civic Engagement Level, 4 core levels + optional extended).
-/// The template distinguishes pro-topic and anti-topic behaviour at each level.
+/// One row in section 4 (Civic Escalation, six levels from Preference to Any
+/// Means Necessary). Single-perspective: what acting at this level looks like,
+/// a historical example, and which principles are still honored. Describes
+/// believers, not beliefs — never a belief-matching coordinate.
 model DebateEscalation {
   id      Int         @id @default(autoincrement())
   topicId Int
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-  level       Int    /// 1–4 (core civic engagement) or up to 6 (extended escalation)
-  levelLabel  String /// "Preference", "Active Advocacy", "Principled Non-Compliance", "Civil Disobedience", …
-  /// Generic description of what this level means (used as fallback)
+  level       Int    /// 1–6
+  levelLabel  String /// "Preference", "Active Advocacy", "Principled Non-Compliance", "Civil Disobedience", "Resistance", "Any Means Necessary"
+  /// What acting at this level looks like
   description String
-  /// Generic example (used when pro/anti split is not populated)
+  /// Historical example
   example     String
   /// Which principles are still honored at this level
   principles  String
 
-  /// Pro-topic: what engagement at this level looks like for supporters
+  /// Legacy fields from the retired pro/anti-split design; kept so older rows
+  /// still round-trip. The current template renders the single-column form.
   proDescription String @default("")
-  /// Anti-topic: what engagement at this level looks like for opponents
   antiDescription String @default("")
-  /// Concrete pro-topic example (real historical parallel or hypothetical)
   proExample  String @default("")
-  /// Concrete anti-topic example
   antiExample String @default("")
 
   @@index([topicId])
@@ -1692,26 +1692,24 @@ model DebateAssumption {
   @@index([topicId])
 }
 
-/// One node of Continuum 3 (General to Specific, with Branching Subcategories).
-/// A general belief branches into subcategories; each subcategory holds the
-/// specific beliefs beneath it. A belief only merges with another that shares
-/// its branch AND its rung.
+/// One rung of section 6 (The Abstraction Ladder, General ↔ Specific).
+/// Canonical chain: Worldview → Political principle → Position on this topic
+/// → Specific policy. A belief only merges with another on the same rung, so
+/// a worldview never gets double-counted with the policy it implies.
 model DebateAbstractionRung {
   id      Int         @id @default(autoincrement())
   topicId Int
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   sortOrder  Int    @default(0)
-  rungLabel  String /// "Most General (Worldview)", "Political/Ethical Philosophy", "This Topic", "Most Specific (Policy/Action)"
+  rungLabel  String /// "Worldview", "Political principle", "Position on this topic", "Specific policy"
   proChain   String
   conChain   String
 
-  /// Tree position: "general" (worldview root), "subcategory" (a branch), or
-  /// "specific" (a leaf under the preceding subcategory). Legacy flat-ladder
-  /// rows keep the default "rung" and render as the old ladder.
+  /// Legacy fields from the retired branching-tree design ("general" /
+  /// "subcategory" / "specific" plus a branch name); the flat ladder ignores
+  /// them apart from branchName as a rungLabel fallback.
   rungType   String @default("rung")
-  /// Branch name for "subcategory" rows (the sub-issue) and, optionally, the
-  /// branch a "specific" row belongs to.
   branchName String?
 
   @@index([topicId])
@@ -1764,9 +1762,12 @@ model DebateEvidence {
   argument     String @default("")
   /// How directly the evidence bears on its argument, 0.0–1.0
   linkage      Float?
-  /// Verification lifecycle: "VERIFIED" counts at full weight, "DISPUTED" at
-  /// half while the challenge is open, "FALSIFIED" at zero
-  standing     String @default("VERIFIED")
+  /// Verification lifecycle, matching the engine's VerificationStatus
+  /// (src/core/reasonrank/types.ts): "UNVERIFIED" (half weight until the
+  /// provenance check confirms it), "VERIFIED" (full), "DISPUTED" (half while
+  /// the challenge is open), "FALSIFIED" (zero). Rows are born UNVERIFIED and
+  /// earn standing.
+  standing     String @default("UNVERIFIED")
 
   positions DebatePosition[]
 

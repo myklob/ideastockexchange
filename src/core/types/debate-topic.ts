@@ -105,7 +105,10 @@ export interface DebateEvidence {
   argument?: string;
   /// How directly the evidence bears on its argument, 0.0–1.0
   linkage?: number;
-  /// "VERIFIED" (full weight) | "DISPUTED" (half weight) | "FALSIFIED" (zero)
+  /// Verification lifecycle, matching the engine's VerificationStatus:
+  /// "UNVERIFIED" (half weight until confirmed) | "VERIFIED" (full) |
+  /// "DISPUTED" (half while the challenge is open) | "FALSIFIED" (zero).
+  /// Rows are born UNVERIFIED and earn standing.
   standing?: string;
 }
 

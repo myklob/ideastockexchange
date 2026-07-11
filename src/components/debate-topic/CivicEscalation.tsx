@@ -22,7 +22,7 @@ const LEVEL_SUBLABELS: Record<number, string> = {
   6: 'No limiting principles',
 };
 
-export default function Spectrum3Escalation({ escalationLevels }: Props) {
+export default function CivicEscalation({ escalationLevels }: Props) {
   return (
     <div id="engagement" className="mb-8">
       <h2 className="text-xl font-bold mb-1">
