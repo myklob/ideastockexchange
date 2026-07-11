@@ -80,47 +80,52 @@ Return a single valid JSON object matching this exact structure (all fields requ
       "positionScore": -100,
       "positionLabel": "Strongly Oppose",
       "coreBelief": "The most extreme negative belief about ${topicName}.",
-      "topArgument": "The strongest argument for this extreme position.",
-      "beliefScore": "[-XX]"
+      "topArgument": "Atomic argument label driving the score (a standalone claim).",
+      "beliefScore": "[-XX]",
+      "evidenceIndex": 0
     },
     {
       "positionScore": -50,
       "positionLabel": "Skeptical",
       "coreBelief": "A moderately negative belief.",
-      "topArgument": "Key argument.",
-      "beliefScore": "[-XX]"
+      "topArgument": "Atomic argument label.",
+      "beliefScore": "[-XX]",
+      "evidenceIndex": 1
     },
     {
       "positionScore": 0,
-      "positionLabel": "Neutral/Nuanced",
-      "coreBelief": "A balanced, nuanced position.",
-      "topArgument": "Key nuancing argument.",
-      "beliefScore": "[0]"
+      "positionLabel": "Mixed / Conditional",
+      "coreBelief": "A balanced, conditional position.",
+      "topArgument": "Atomic argument label.",
+      "beliefScore": "[0]",
+      "evidenceIndex": 2
     },
     {
       "positionScore": 50,
       "positionLabel": "Supportive",
       "coreBelief": "A moderately positive belief.",
-      "topArgument": "Key supporting argument.",
-      "beliefScore": "[+XX]"
+      "topArgument": "Atomic argument label.",
+      "beliefScore": "[+XX]",
+      "evidenceIndex": 3
     },
     {
       "positionScore": 100,
       "positionLabel": "Strongly Support",
       "coreBelief": "The most strongly positive belief.",
-      "topArgument": "The strongest pro argument.",
-      "beliefScore": "[+XX]"
+      "topArgument": "Atomic argument label.",
+      "beliefScore": "[+XX]",
+      "evidenceIndex": 0
     }
   ],
   "claimMagnitudeLevels": [
     {
       "sortOrder": 0,
-      "magnitudeLevel": "Modest (20%)",
+      "magnitudeLevel": "Weak (20%)",
       "magnitudePercent": 20,
       "sublabel": "Hedged",
-      "proExample": "A modest pro-${topicName} claim that acknowledges real flaws and leaves room for exceptions.",
-      "antiExample": "A modest anti-${topicName} claim that acknowledges some advantages while noting specific inefficiencies.",
-      "scopeDescription": "Narrow scope. Leaves room for exceptions and context-dependence."
+      "proExample": "A hedged pro-${topicName} claim that acknowledges real flaws and leaves room for exceptions.",
+      "antiExample": "A hedged anti-${topicName} claim that acknowledges some advantages while noting specific inefficiencies.",
+      "scopeDescription": "Narrow. Acknowledges exceptions."
     },
     {
       "sortOrder": 1,
@@ -129,71 +134,69 @@ Return a single valid JSON object matching this exact structure (all fields requ
       "sublabel": "Standard",
       "proExample": "${topicName}, when functioning well, produces significantly better outcomes than the available alternatives.",
       "antiExample": "${topicName} is significantly compromised by [specific flaw], producing reliably suboptimal outcomes.",
-      "scopeDescription": "Clear claim without overstating. The level at which most serious academic arguments operate."
+      "scopeDescription": "Definite but bounded. Most defensible level."
     },
     {
       "sortOrder": 2,
       "magnitudeLevel": "Strong (80%)",
       "magnitudePercent": 80,
-      "sublabel": "Broad",
-      "proExample": "${topicName} is the only approach that provides [key benefit], and any alternative is fundamentally unjust or ineffective.",
-      "antiExample": "${topicName} is fundamentally broken and cannot produce good outcomes without changes so drastic it would cease to be recognizable.",
-      "scopeDescription": "Wide scope, absolute framing. Leaves little room for alternatives or incremental improvement."
+      "sublabel": "Categorical",
+      "proExample": "${topicName} is fundamentally the right approach, and the alternatives reliably fail.",
+      "antiExample": "${topicName} is fundamentally the wrong approach and fails wherever it is tried.",
+      "scopeDescription": "Wide. Little room for exceptions."
     },
     {
       "sortOrder": 3,
-      "magnitudeLevel": "Total (100%)",
+      "magnitudeLevel": "Extreme (100%)",
       "magnitudePercent": 100,
       "sublabel": "Maximal",
-      "proExample": "${topicName} is the pinnacle of human achievement in this domain and any deviation from it, however small, must be resisted by any means necessary.",
+      "proExample": "${topicName} is the only acceptable option, everywhere, always, and any deviation must be resisted.",
       "antiExample": "${topicName} is a total fraud that has never served its intended beneficiaries and never will.",
-      "scopeDescription": "Catastrophic framing with no limiting conditions. The hardest to defend and the easiest to dismiss without engaging the moderate arguments."
+      "scopeDescription": "Catastrophic framing, no limits. Easy to dismiss."
     }
   ],
   "escalationLevels": [
     {
       "level": 1,
       "levelLabel": "Preference",
-      "description": "Passive lean — would support or oppose if convenient but won't prioritize over other concerns.",
-      "example": "A typical casual participant in the ${topicName} debate.",
-      "principles": "All other principles intact.",
-      "proDescription": "Would support ${topicName} if convenient. Would not prioritize it over other concerns.",
-      "antiDescription": "Mildly skeptical of ${topicName}. Would prefer alternatives in certain contexts. Would not act on this preference.",
-      "proExample": "A typical casual supporter of ${topicName} — votes accordingly when it aligns with other priorities.",
-      "antiExample": "A typical casual skeptic — expresses reservations in conversation but takes no active steps."
+      "description": "Would vote for it if convenient. Won't reorder priorities to advance it.",
+      "example": "Most voters on most issues most of the time.",
+      "principles": "All other principles intact."
     },
     {
       "level": 2,
       "levelLabel": "Active Advocacy",
-      "description": "Engaged participant — votes, donates, signs petitions, argues publicly.",
+      "description": "Votes, donates, signs petitions, argues publicly.",
       "example": "Standard civic participation for or against ${topicName}.",
-      "principles": "Works fully within legal and social norms.",
-      "proDescription": "Votes, donates, signs petitions, argues publicly in favor of ${topicName}.",
-      "antiDescription": "Votes, donates, lobbies, and argues publicly against ${topicName} or for alternatives.",
-      "proExample": "Canvasses for candidates who support ${topicName}; writes op-eds; donates to advocacy organizations.",
-      "antiExample": "Lobbies legislators; organizes community opposition; funds legal challenges."
+      "principles": "Operates fully within legal and social norms."
     },
     {
       "level": 3,
       "levelLabel": "Principled Non-Compliance",
-      "description": "Conscientious objector — refuses personal participation even at personal cost. Does not obstruct others.",
-      "example": "Accepts personal cost rather than act against conscience on ${topicName}.",
-      "principles": "Willing to sacrifice self. Will not obstruct others.",
-      "proDescription": "Refuses personal participation in what they consider unjust opposition to ${topicName}, even at personal cost. Does not obstruct others.",
-      "antiDescription": "Refuses to implement or participate in ${topicName} even when required. Does not obstruct others.",
-      "proExample": "Resigns from a position rather than implement policies hostile to ${topicName}; accepts professional consequences.",
-      "antiExample": "An official who resigns rather than implement ${topicName}-related policy they consider unjust."
+      "description": "Refuses personal participation in what they see as unjust, at cost to themselves. Does not obstruct others.",
+      "example": "A Thomas More pattern applied to the ${topicName} debate — resignation or refusal at personal cost.",
+      "principles": "Sacrifices self. Will not act against others."
     },
     {
       "level": 4,
       "levelLabel": "Civil Disobedience",
-      "description": "Principled lawbreaking — openly breaks specific unjust laws. Accepts legal consequences.",
-      "example": "MLK/Gandhi equivalent applied to the ${topicName} debate.",
-      "principles": "Violates specific laws. Accepts the legal system's authority to respond.",
-      "proDescription": "Openly breaks specific unjust laws considered obstacles to ${topicName}. Accepts legal consequences and uses prosecution as moral leverage.",
-      "antiDescription": "Openly defies specific laws or mandates related to ${topicName}. Accepts legal consequences and uses prosecution as moral leverage.",
-      "proExample": "Participates in civil disobedience to advance ${topicName} — sit-ins, blockades — while accepting arrest.",
-      "antiExample": "Conscientious objectors who accepted imprisonment rather than comply with ${topicName}-related mandates."
+      "description": "Openly breaks specific laws judged unjust. Accepts legal consequences. Uses trial as moral leverage.",
+      "example": "An MLK/Gandhi equivalent applied to the ${topicName} debate.",
+      "principles": "Violates specific laws. Accepts the legal system's authority to punish."
+    },
+    {
+      "level": 5,
+      "levelLabel": "Resistance",
+      "description": "Breaks laws and rejects the legitimacy of the resulting punishment. Distinguishes legality from justice.",
+      "example": "A historical resistance parallel relevant to ${topicName}.",
+      "principles": "Rejects specific laws as illegitimate. Avoids harm to uninvolved parties."
+    },
+    {
+      "level": 6,
+      "levelLabel": "Any Means Necessary",
+      "description": "Willing to harm others, violate any norm, or destroy any institution to advance the cause.",
+      "example": "Documented extremism connected to the ${topicName} debate, if any exists; otherwise a generic description.",
+      "principles": "No other principle outranks this belief."
     }
   ],
   "assumptions": [
@@ -224,11 +227,10 @@ Return a single valid JSON object matching this exact structure (all fields requ
     }
   ],
   "abstractionRungs": [
-    {"sortOrder": 0, "rungType": "general", "rungLabel": "Most General (Worldview)", "proChain": "Broad belief about human nature or society that supports this topic", "conChain": "Broad belief about human nature or society that opposes this topic"},
-    {"sortOrder": 1, "rungType": "subcategory", "branchName": "Subcategory A", "rungLabel": "name of sub-issue", "proChain": "Mid-level pro claim inside A", "conChain": "Mid-level anti claim inside A"},
-    {"sortOrder": 2, "rungType": "specific", "branchName": "Subcategory A", "rungLabel": "", "proChain": "Specific pro policy or action under A", "conChain": "Specific anti policy or action under A"},
-    {"sortOrder": 3, "rungType": "subcategory", "branchName": "Subcategory B", "rungLabel": "name of sub-issue", "proChain": "Mid-level pro claim inside B", "conChain": "Mid-level anti claim inside B"},
-    {"sortOrder": 4, "rungType": "specific", "branchName": "Subcategory B", "rungLabel": "", "proChain": "Specific pro claim under B", "conChain": "Specific anti claim under B"}
+    {"sortOrder": 0, "rungLabel": "Worldview", "proChain": "Broad belief about human nature or society that supports this topic", "conChain": "Broad belief about human nature or society that opposes this topic"},
+    {"sortOrder": 1, "rungLabel": "Political principle", "proChain": "Mid-level principle that supports this topic", "conChain": "Mid-level principle that opposes this topic"},
+    {"sortOrder": 2, "rungLabel": "Position on this topic", "proChain": "The pro position on ${topicName}, with its direction range, e.g. (+50% to +100%)", "conChain": "The anti position on ${topicName}, with its direction range, e.g. (-50% to -100%)"},
+    {"sortOrder": 3, "rungLabel": "Specific policy", "proChain": "A concrete pro policy or action", "conChain": "A concrete anti policy or action"}
   ],
   "coreValues": {
     "supportingAdvertised": ["1. Value name — brief description", "2. ...", "3. ..."],
@@ -247,39 +249,49 @@ Return a single valid JSON object matching this exact structure (all fields requ
       "title": "Author, 'Title' (Year)",
       "source": "Journal/Publisher",
       "finding": "Key finding in one sentence.",
-      "qualityScore": 80,
-      "qualityLabel": "Peer Reviewed"
+      "qualityScore": 95,
+      "qualityLabel": "Peer Reviewed",
+      "tier": "T1",
+      "argument": "The standalone argument this evidence supports.",
+      "linkage": 0.9,
+      "standing": "VERIFIED"
     },
     {
       "side": "supporting",
-      "title": "Author, 'Title' (Year)",
-      "source": "Source",
+      "title": "Institution report (Year)",
+      "source": "Institution",
       "finding": "Key finding.",
       "qualityScore": 85,
-      "qualityLabel": "Longitudinal"
+      "qualityLabel": "Institutional",
+      "tier": "T2",
+      "argument": "The standalone argument this evidence supports.",
+      "linkage": 0.7,
+      "standing": "VERIFIED"
     },
     {
       "side": "weakening",
       "title": "Author, 'Title' (Year)",
       "source": "Journal",
       "finding": "Key finding.",
-      "qualityScore": 85,
-      "qualityLabel": "Peer Reviewed"
+      "qualityScore": 80,
+      "qualityLabel": "Peer Reviewed",
+      "tier": "T1",
+      "argument": "The standalone argument this evidence weakens.",
+      "linkage": 0.85,
+      "standing": "VERIFIED"
     },
     {
       "side": "weakening",
-      "title": "Author, 'Title' (Year)",
+      "title": "Secondary source (Year)",
       "source": "Source",
       "finding": "Key finding.",
-      "qualityScore": 75,
-      "qualityLabel": "Cross-national"
+      "qualityScore": 45,
+      "qualityLabel": "Secondary",
+      "tier": "T3",
+      "argument": "The standalone argument this evidence weakens.",
+      "linkage": 0.55,
+      "standing": "DISPUTED"
     }
-  ],
-  "objectiveCriteria": [
-    {"name": "Best criterion", "description": "Why it's the best measure.", "criteriaScore": 90, "validity": "High", "reliability": "High", "linkage": "High", "importance": "High"},
-    {"name": "Second criterion", "description": "...", "criteriaScore": 85, "validity": "High", "reliability": "High", "linkage": "High", "importance": "High"},
-    {"name": "Third criterion", "description": "...", "criteriaScore": 75, "validity": "High", "reliability": "High", "linkage": "Med", "importance": "High"},
-    {"name": "Weaker criterion", "description": "Why it's less reliable.", "criteriaScore": 45, "validity": "Low", "reliability": "High", "linkage": "Low", "importance": "Low"}
   ],
   "mediaResources": [
     {"title": "Book/Article Title — Author", "medium": "Book", "biasOrTone": "Academic/Advocacy", "positivity": 70, "magnitude": 60, "escalation": 2, "keyInsight": "..."},
@@ -291,11 +303,11 @@ Return a single valid JSON object matching this exact structure (all fields requ
     {"relationType": "child", "relatedTitle": "Sub-issue 1", "relatedSlug": "sub-issue-1"},
     {"relationType": "child", "relatedTitle": "Sub-issue 2", "relatedSlug": "sub-issue-2"},
     {"relationType": "sibling", "relatedTitle": "Related concept", "relatedSlug": "related-concept"},
-    {"relationType": "opposingView", "relatedTitle": "Critical perspective on ${topicName}", "relatedSlug": "critical-perspective"}
+    {"relationType": "sibling", "relatedTitle": "Another adjacent topic", "relatedSlug": "adjacent-topic"}
   ]
 }
 
-Fill in all "..." placeholders with substantive, accurate content for "${topicName}". Use real research, real book/study titles where possible. Return ONLY the JSON object, no other text.`;
+Fill in all "..." placeholders with substantive, accurate content for "${topicName}". Use real research, real book/study titles where possible. Each position's "evidenceIndex" is a 0-based index into "evidenceItems" pointing at the ledger row that best backs that position's top sub-argument; omit it where no row fits. Evidence "tier" is T1 peer-reviewed, T2 reputable institution, T3 secondary, T4 anecdotal; "linkage" (0.0-1.0) is how directly the evidence bears on its argument; "standing" is VERIFIED, DISPUTED, or FALSIFIED. Keep every beliefScore bracketed ("[+XX]", "[-XX]", "[0]") — scores are computed by the engine, never hand-entered. Return ONLY the JSON object, no other text.`;
 
   const raw = await callAI(prompt, 7000);
   const parsed = safeParseJson<Partial<DebateTopic>>(raw, {});

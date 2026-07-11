@@ -1636,11 +1636,16 @@ model DebatePosition {
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   positionScore Int    /// -100, -50, 0, 50, 100
-  positionLabel String /// "Strongly Oppose", "Skeptical", "Neutral", "Supportive", "Strongly Support"
+  positionLabel String /// "Strongly Oppose", "Skeptical", "Mixed / Conditional", "Supportive", "Strongly Support"
   coreBelief    String
   topArgument   String
   beliefScore   String @default("[0]")
   mediaUrl      String?
+
+  /// Evidence Ledger row backing the top sub-argument (renders as the
+  /// Evidence column link in the Position Spectrum table)
+  evidenceId Int?
+  evidence   DebateEvidence? @relation(fields: [evidenceId], references: [id])
 
   @@index([topicId])
 }
@@ -1750,6 +1755,20 @@ model DebateEvidence {
   qualityScore Int    @default(75)
   qualityLabel String @default("Peer Reviewed")
   url          String?
+
+  /// Evidence tier: "T1" peer-reviewed, "T2" reputable institution,
+  /// "T3" secondary, "T4" anecdotal
+  tier         String @default("T2")
+  /// The specific argument this evidence bears on, as a standalone claim.
+  /// Empty rows fall back to `finding` at render time.
+  argument     String @default("")
+  /// How directly the evidence bears on its argument, 0.0–1.0
+  linkage      Float?
+  /// Verification lifecycle: "VERIFIED" counts at full weight, "DISPUTED" at
+  /// half while the challenge is open, "FALSIFIED" at zero
+  standing     String @default("VERIFIED")
+
+  positions DebatePosition[]
 
   @@index([topicId])
 }

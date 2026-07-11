@@ -13,6 +13,14 @@ async function main() {
     debateTopic: {
       deleteMany: (args: unknown) => Promise<unknown>;
       create: (args: unknown) => Promise<{ id: number; slug: string }>;
+      findUnique: (args: unknown) => Promise<{
+        id: number;
+        positions: Array<{ id: number; positionScore: number }>;
+        evidenceItems: Array<{ id: number }>;
+      } | null>;
+    };
+    debatePosition: {
+      update: (args: unknown) => Promise<unknown>;
     };
   };
 
@@ -55,7 +63,7 @@ async function main() {
           },
           {
             positionScore: 0,
-            positionLabel: 'Neutral/Nuanced',
+            positionLabel: 'Mixed / Conditional',
             coreBelief:
               'Marriage is valuable for some but not universally superior to other relationship structures.',
             topArgument:
@@ -200,8 +208,7 @@ async function main() {
         create: [
           {
             sortOrder: 0,
-            rungType: 'general',
-            rungLabel: 'Most General (Worldview)',
+            rungLabel: 'Worldview',
             proChain:
               'Human beings are social and sexual creatures who flourish best within stable, committed, complementary partnerships.',
             conChain:
@@ -209,9 +216,7 @@ async function main() {
           },
           {
             sortOrder: 1,
-            rungType: 'subcategory',
-            branchName: 'Role of the State',
-            rungLabel: 'political/ethical philosophy',
+            rungLabel: 'Political principle',
             proChain:
               'Society has a legitimate interest in structuring family formation to protect children and reduce dependence on the state.',
             conChain:
@@ -219,19 +224,15 @@ async function main() {
           },
           {
             sortOrder: 2,
-            rungType: 'subcategory',
-            branchName: 'Marriage and Child-Rearing',
-            rungLabel: 'this topic',
+            rungLabel: 'Position on this topic',
             proChain:
-              'Marriage between committed partners is the best available structure for raising children and should be culturally promoted and legally supported.',
+              'Marriage between committed partners is the best available structure for raising children and should be culturally promoted and legally supported. (+50% to +100%)',
             conChain:
-              'Marriage should be available to all who want it, but policy should not privilege it over other stable family structures.',
+              'Marriage should be available to all who want it, but policy should not privilege it over other stable family structures. (−20% to −50%)',
           },
           {
             sortOrder: 3,
-            rungType: 'specific',
-            branchName: 'Marriage and Child-Rearing',
-            rungLabel: '',
+            rungLabel: 'Specific policy',
             proChain:
               'Eliminate the marriage penalty in the tax code; fund relationship skills programs; restore marriage rates in low-income communities as a poverty-reduction strategy.',
             conChain:
@@ -292,6 +293,11 @@ async function main() {
               'Married individuals report better health, wealth, and life satisfaction across longitudinal data.',
             qualityScore: 80,
             qualityLabel: 'Peer Reviewed',
+            tier: 'T2',
+            argument:
+              'Married individuals do better on health, wealth, and life satisfaction than unmarried peers.',
+            linkage: 0.85,
+            standing: 'VERIFIED',
           },
           {
             side: 'supporting',
@@ -301,6 +307,11 @@ async function main() {
               'Children raised by single parents face significantly worse outcomes on education, income, and family stability.',
             qualityScore: 85,
             qualityLabel: 'Longitudinal',
+            tier: 'T1',
+            argument:
+              'Children raised outside two-parent homes face worse outcomes on education, income, and family stability.',
+            linkage: 0.8,
+            standing: 'VERIFIED',
           },
           {
             side: 'weakening',
@@ -310,6 +321,11 @@ async function main() {
               'Much of the marriage benefit disappears when controlling for pre-existing wellbeing and selection effects.',
             qualityScore: 85,
             qualityLabel: 'Peer Reviewed',
+            tier: 'T1',
+            argument:
+              'The observed marriage benefit is largely a selection effect, not a causal effect of marriage.',
+            linkage: 0.85,
+            standing: 'VERIFIED',
           },
           {
             side: 'weakening',
@@ -319,80 +335,25 @@ async function main() {
               'Legal marriage adds little independent benefit over stable cohabitation in countries with strong cohabitation norms.',
             qualityScore: 75,
             qualityLabel: 'Cross-national',
-          },
-        ],
-      },
-      objectiveCriteria: {
-        create: [
-          {
-            name: 'Long-term life satisfaction at 50, 65, and 80',
-            description:
-              'Longitudinal survey data across relationship structures — not snapshot happiness measures',
-            criteriaScore: 90,
-            validity: 'High',
-            reliability: 'High',
-            linkage: 'High',
-            importance: 'High',
+            tier: 'T1',
+            argument:
+              'Legal marriage adds little independent benefit over stable cohabitation where cohabitation norms are strong.',
+            linkage: 0.7,
+            standing: 'VERIFIED',
           },
           {
-            name: 'Child outcomes by family structure',
-            description:
-              'Educational attainment, income at 30, incarceration rates, and family formation patterns of adult children',
-            criteriaScore: 88,
-            validity: 'High',
-            reliability: 'High',
-            linkage: 'High',
-            importance: 'High',
-          },
-          {
-            name: 'Health outcomes controlling for socioeconomic status',
-            description:
-              'Mortality rates, cardiovascular health, and mental health outcomes across relationship structures, adjusted for income and selection',
-            criteriaScore: 82,
-            validity: 'High',
-            reliability: 'High',
-            linkage: 'Med',
-            importance: 'High',
-          },
-          {
-            name: '30-year wealth accumulation and bankruptcy rates',
-            description:
-              'Comparative financial outcomes across marriage, cohabitation, and single-person households',
-            criteriaScore: 78,
-            validity: 'High',
-            reliability: 'High',
-            linkage: 'Med',
-            importance: 'Med',
-          },
-          {
-            name: 'Divorce and dissolution rates',
-            description:
-              'Measures stability of the institution itself — but not quality of intact marriages',
-            criteriaScore: 55,
-            validity: 'High',
-            reliability: 'High',
-            linkage: 'Low',
-            importance: 'Med',
-          },
-          {
-            name: 'Marriage rates and trends over time',
-            description:
-              'Measures popularity, not quality — high marriage rates in a society do not indicate good outcomes',
-            criteriaScore: 40,
-            validity: 'Low',
-            reliability: 'High',
-            linkage: 'Low',
-            importance: 'Low',
-          },
-          {
-            name: 'Alignment with religious teaching',
-            description:
-              'Not independently verifiable or universally applicable; functions as a values claim, not an empirical criterion',
-            criteriaScore: 20,
-            validity: 'Low',
-            reliability: 'Low',
-            linkage: 'Low',
-            importance: 'Low',
+            side: 'supporting',
+            title: 'Advocacy white paper on marriage decline (2012)',
+            source: 'Advocacy organization report',
+            finding:
+              'Attributes a wide range of social ills primarily to declining marriage rates.',
+            qualityScore: 45,
+            qualityLabel: 'Secondary',
+            tier: 'T3',
+            argument:
+              'Declining marriage rates are the primary driver of poverty and social dysfunction.',
+            linkage: 0.55,
+            standing: 'DISPUTED',
           },
         ],
       },
@@ -491,6 +452,31 @@ async function main() {
       },
     } as unknown as never,
   });
+
+  // Wire Position Spectrum rows to the Evidence Ledger rows that back their
+  // top sub-argument (indexes into the evidenceItems create array above).
+  const full = await db.debateTopic.findUnique({
+    where: { slug: 'marriage' },
+    include: { positions: true, evidenceItems: { orderBy: { id: 'asc' } } },
+  } as unknown as never);
+
+  if (full) {
+    const links: Array<[positionScore: number, evidenceIndex: number]> = [
+      [-50, 2], // Skeptical → Musick & Bumpass (selection effects)
+      [50, 0],  // Supportive → Waite & Gallagher
+      [100, 1], // Strongly Support → McLanahan & Sandefur
+    ];
+    for (const [score, evidenceIndex] of links) {
+      const position = full.positions.find((p) => p.positionScore === score);
+      const evidence = full.evidenceItems[evidenceIndex];
+      if (position && evidence) {
+        await db.debatePosition.update({
+          where: { id: position.id },
+          data: { evidenceId: evidence.id },
+        } as unknown as never);
+      }
+    }
+  }
 
   console.log(`✅ Created debate topic: Marriage (id=${topic.id}, slug=${topic.slug})`);
 }

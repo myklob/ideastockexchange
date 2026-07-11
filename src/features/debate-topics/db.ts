@@ -48,6 +48,7 @@ function mapTopicFromDb(row: any): DebateTopic {
     topArgument: p.topArgument,
     beliefScore: p.beliefScore,
     mediaUrl: p.mediaUrl ?? undefined,
+    evidenceId: p.evidenceId ?? undefined,
   }));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -126,6 +127,10 @@ function mapTopicFromDb(row: any): DebateTopic {
     qualityScore: e.qualityScore,
     qualityLabel: e.qualityLabel,
     url: e.url ?? undefined,
+    tier: e.tier ?? undefined,
+    argument: e.argument || undefined,
+    linkage: e.linkage ?? undefined,
+    standing: e.standing ?? undefined,
   }));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -199,7 +204,8 @@ const FULL_INCLUDE = {
   abstractionRungs: true,
   coreValues: true,
   commonGround: true,
-  evidenceItems: true,
+  // id order keeps evidenceIndex → row mapping stable after nested creates
+  evidenceItems: { orderBy: { id: 'asc' } },
   objectiveCriteria: true,
   mediaResources: true,
   relatedTopics: true,
@@ -331,6 +337,10 @@ export async function createDebateTopic(data: DebateTopic): Promise<DebateTopic>
           qualityScore: e.qualityScore,
           qualityLabel: e.qualityLabel,
           url: e.url ?? null,
+          tier: e.tier ?? 'T2',
+          argument: e.argument ?? '',
+          linkage: e.linkage ?? null,
+          standing: e.standing ?? 'VERIFIED',
         })),
       },
       objectiveCriteria: {
@@ -368,10 +378,31 @@ export async function createDebateTopic(data: DebateTopic): Promise<DebateTopic>
     },
   });
 
-  const full = await db.debateTopic.findUnique({
+  let full = await db.debateTopic.findUnique({
     where: { slug: created.slug },
     include: FULL_INCLUDE,
   });
+
+  // Resolve authoring-time evidenceIndex pointers now that ledger rows have ids.
+  const links = data.positions.flatMap((p) => {
+    if (p.evidenceIndex === undefined) return [];
+    const target = full.evidenceItems[p.evidenceIndex];
+    return target ? [{ positionScore: p.positionScore, evidenceId: target.id }] : [];
+  });
+  if (links.length > 0) {
+    await Promise.all(
+      links.map((link) =>
+        db.debatePosition.updateMany({
+          where: { topicId: full.id, positionScore: link.positionScore },
+          data: { evidenceId: link.evidenceId },
+        })
+      )
+    );
+    full = await db.debateTopic.findUnique({
+      where: { slug: created.slug },
+      include: FULL_INCLUDE,
+    });
+  }
 
   return mapTopicFromDb(full);
 }

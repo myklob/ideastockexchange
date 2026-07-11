@@ -11,20 +11,25 @@ export interface DebateTopicExternal {
 export interface DebatePosition {
   id?: number;
   positionScore: number; // -100, -50, 0, 50, 100
-  positionLabel: string; // "Strongly Oppose", "Skeptical", "Neutral/Nuanced", "Supportive", "Strongly Support"
+  positionLabel: string; // "Strongly Oppose", "Skeptical", "Mixed / Conditional", "Supportive", "Strongly Support"
   coreBelief: string;
   topArgument: string;
   beliefScore: string; // e.g. "[+XX]", "[-XX]", "[0]"
   mediaUrl?: string;
+  /// Evidence Ledger row backing the top sub-argument (Evidence column link)
+  evidenceId?: number;
+  /// Authoring-time pointer into the evidenceItems array, resolved to
+  /// evidenceId when rows are persisted (used by seeds and the AI generator)
+  evidenceIndex?: number;
 }
 
-/// One row in Continuum 2 (Claim Magnitude) — topic-specific pro and anti examples.
+/// One row in section 3 (Claim Magnitude) — topic-specific pro and anti examples.
 export interface DebateClaimMagnitude {
   id?: number;
   sortOrder: number;
-  magnitudeLevel: string;  // "Modest (20%)", "Moderate (50%)", "Strong (80%)", "Total (100%)"
+  magnitudeLevel: string;  // "Weak (20%)", "Moderate (50%)", "Strong (80%)", "Extreme (100%)"
   magnitudePercent: number; // 20, 50, 80, 100
-  sublabel: string;         // "Hedged", "Standard", "Broad", "Maximal"
+  sublabel: string;         // "Hedged", "Standard", "Categorical", "Maximal"
   proExample: string;       // topic-specific pro-topic claim at this magnitude
   antiExample: string;      // topic-specific anti-topic claim at this magnitude
   scopeDescription: string; // scope and telltale words at this strength
@@ -34,14 +39,15 @@ export interface DebateEscalation {
   id?: number;
   level: number; // 1–6
   levelLabel: string;
-  description: string;
-  example: string;
-  principles: string;
-  // Per-side fields (Spectrum 3 civic engagement model)
-  proDescription: string;
-  antiDescription: string;
-  proExample: string;
-  antiExample: string;
+  description: string; // what acting at this level looks like
+  example: string;     // historical example
+  principles: string;  // which principles are still honored
+  /// Per-side fields from the retired pro/anti split — kept so older rows
+  /// still round-trip; the current template renders the single-column form.
+  proDescription?: string;
+  antiDescription?: string;
+  proExample?: string;
+  antiExample?: string;
 }
 
 export interface DebateAssumption {
@@ -91,6 +97,16 @@ export interface DebateEvidence {
   qualityScore: number; // 0–100
   qualityLabel: string; // "Peer Reviewed", "Longitudinal", "Cross-national", etc.
   url?: string;
+  /// Evidence tier: "T1" peer-reviewed, "T2" reputable institution,
+  /// "T3" secondary, "T4" anecdotal
+  tier?: string;
+  /// The specific argument this evidence bears on, as a standalone claim.
+  /// Falls back to `finding` at render time.
+  argument?: string;
+  /// How directly the evidence bears on its argument, 0.0–1.0
+  linkage?: number;
+  /// "VERIFIED" (full weight) | "DISPUTED" (half weight) | "FALSIFIED" (zero)
+  standing?: string;
 }
 
 export interface DebateObjectiveCriteria {
