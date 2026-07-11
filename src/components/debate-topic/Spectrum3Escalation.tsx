@@ -24,16 +24,14 @@ export default function Spectrum3Escalation({ escalationLevels, topicTitle }: Pr
     <div id="engagement" className="mb-8">
       <h2 className="text-xl font-bold mb-1">
         ⚡ The Engagement Landscape{' '}
-        <a href="/escalation-spectrum" className="text-base font-normal text-blue-600 hover:underline">
-          (Passive ↔ Active)
-        </a>
+        <span className="text-base font-normal text-gray-500">(Passive ↔ Active)</span>
       </h2>
       <p className="text-sm text-gray-600 mb-4">
         <strong>A stakeholder map, not a matching axis.</strong> It measures how far a person will go to act
         on a belief, which is a fact about the person, not the belief, so it never feeds the three-part
         address above. A casual supporter and someone willing to go to prison hold the <em>same belief</em>.{' '}
         <span className="text-gray-500">
-          See: <a href="/escalation-spectrum" className="text-blue-600 hover:underline">Escalation Spectrum</a>.
+          See: Escalation Spectrum.
         </span>
       </p>
       <div className="overflow-x-auto">
@@ -105,8 +103,7 @@ export default function Spectrum3Escalation({ escalationLevels, topicTitle }: Pr
       <p className="text-sm text-gray-600 mt-3">
         <strong>Key insight:</strong> Engagement is independent of the three matching axes. Someone can hold
         a moderate claim (50%) about a cause they feel lukewarm toward (+40%) and still go to prison for it
-        (Level 4). For engagement beyond Level 4, see:{' '}
-        <a href="/escalation-spectrum" className="text-blue-600 hover:underline">Escalation Spectrum</a>.
+        (Level 4). For engagement beyond Level 4, see: Escalation Spectrum.
       </p>
       <p className="text-right text-xs mt-2 text-gray-500">
         <a href="/how-it-works" className="text-blue-600 hover:underline">Core Values Framework</a>

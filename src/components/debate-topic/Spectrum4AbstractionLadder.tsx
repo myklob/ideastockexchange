@@ -100,9 +100,7 @@ export default function Spectrum4AbstractionLadder({ rungs, topicTitle }: Props)
     <div id="specificity" className="mb-8">
       <h2 className="text-xl font-bold mb-1">
         🌳 Continuum 3: General to Specific, with Branching Subcategories{' '}
-        <a href="/general-to-specific" className="text-base font-normal text-blue-600 hover:underline">
-          (General ↔ Specific)
-        </a>
+        <span className="text-base font-normal text-gray-500">(General ↔ Specific)</span>
       </h2>
       <p className="text-sm text-gray-600 mb-4">
         The same topic holds claims at every altitude, from a sweeping worldview down to one line-item
@@ -127,7 +125,7 @@ export default function Spectrum4AbstractionLadder({ rungs, topicTitle }: Props)
         </table>
       </div>
       <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/general-to-specific" className="text-blue-600 hover:underline">General to Specific Framework</a>
+        See: General to Specific Framework
       </p>
     </div>
   );
