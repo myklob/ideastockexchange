@@ -1,18 +1,20 @@
+import Link from 'next/link';
 import type { DebateClaimMagnitude } from '@/core/types/debate-topic';
 
-// Canonical band names per the topic template: Modest / Moderate / Strong / Total.
-// Older rows were stored as "Weak (20%)" … "Extreme (100%)" with "X Assertion"
+// Canonical band names per the topic template: Weak / Moderate / Strong / Extreme.
+// Older rows were stored as "Modest (20%)" … "Total (100%)" with "X Assertion"
 // sublabels; normalize at render so every topic shows the current canon.
 const LEVEL_RENAMES: Record<string, string> = {
-  'Weak (20%)': 'Modest (20%)',
-  'Extreme (100%)': 'Total (100%)',
+  'Modest (20%)': 'Weak (20%)',
+  'Total (100%)': 'Extreme (100%)',
 };
 
 const SUBLABEL_RENAMES: Record<string, string> = {
   'Modest Assertion': 'Hedged',
   Modest: 'Hedged',
   'Standard Assertion': 'Standard',
-  'Broad Assertion': 'Broad',
+  'Broad Assertion': 'Categorical',
+  Broad: 'Categorical',
   'Maximal Assertion': 'Maximal',
 };
 
@@ -25,52 +27,35 @@ function canonicalSublabel(sublabel: string): string {
 }
 
 // Generic fallback rows used when no DB-backed data is available for a topic.
-// Each row describes what a belief *sounds like* at that strength, on either side,
-// plus the telltale words that place it there.
+// Each row describes what a belief *sounds like* at that strength, on either side.
 const GENERIC_MAGNITUDE_ROWS = [
   {
-    sortOrder: 0,
-    magnitudeLevel: 'Modest (20%)',
-    magnitudePercent: 20,
+    magnitudeLevel: 'Weak (20%)',
     sublabel: 'Hedged',
-    proExample: (topic: string) =>
-      `${topic} is somewhat good, openly admitting real flaws and exceptions.`,
-    antiExample: (topic: string) =>
-      `${topic} is somewhat bad, while conceding it works acceptably much of the time.`,
-    scopeDescription: 'Narrow. Hedged with “some,” “tends to,” “in certain cases.”',
+    proExample: (topic: string) => `${topic} can be a useful tool in some cases.`,
+    antiExample: (topic: string) => `${topic} may not be the best tool here.`,
+    scopeDescription: 'Narrow. Acknowledges exceptions.',
   },
   {
-    sortOrder: 1,
     magnitudeLevel: 'Moderate (50%)',
-    magnitudePercent: 50,
     sublabel: 'Standard',
-    proExample: (topic: string) =>
-      `${topic} is clearly better than the alternatives in most cases.`,
-    antiExample: (topic: string) =>
-      `${topic} is clearly worse than the alternatives in most cases.`,
-    scopeDescription: 'Definite but bounded. “Clearly,” “generally.” Where most serious arguments live.',
+    proExample: (topic: string) => `${topic} is clearly better than the alternatives in most cases.`,
+    antiExample: (topic: string) => `${topic} fails to deliver what its supporters claim.`,
+    scopeDescription: 'Definite but bounded. Most defensible level.',
   },
   {
-    sortOrder: 2,
     magnitudeLevel: 'Strong (80%)',
-    magnitudePercent: 80,
-    sublabel: 'Broad',
-    proExample: (topic: string) =>
-      `${topic} is right across the board and the alternatives reliably fail.`,
-    antiExample: (topic: string) =>
-      `${topic} is wrong across the board and fails wherever it is tried.`,
-    scopeDescription: 'Near-universal. “Across the board,” “fundamentally.” Little room for exceptions.',
+    sublabel: 'Categorical',
+    proExample: (topic: string) => `${topic} is fundamentally the right approach.`,
+    antiExample: (topic: string) => `${topic} is fundamentally the wrong approach.`,
+    scopeDescription: 'Wide. Little room for exceptions.',
   },
   {
-    sortOrder: 3,
-    magnitudeLevel: 'Total (100%)',
-    magnitudePercent: 100,
+    magnitudeLevel: 'Extreme (100%)',
     sublabel: 'Maximal',
-    proExample: (topic: string) =>
-      `${topic} is always right, everywhere, with no legitimate exception.`,
-    antiExample: (topic: string) =>
-      `${topic} is always wrong, has never once worked and never will.`,
-    scopeDescription: 'Total, zero limits. “Always,” “never.” One counterexample sinks it.',
+    proExample: (topic: string) => `${topic} is the only acceptable option, everywhere, always.`,
+    antiExample: (topic: string) => `${topic} has never once worked and never will.`,
+    scopeDescription: 'Catastrophic framing, no limits. Easy to dismiss.',
   },
 ];
 
@@ -87,25 +72,24 @@ export default function Spectrum2Magnitude({ topicTitle, claimMagnitudeLevels }:
 
   return (
     <div id="magnitude" className="mb-8">
-      <h2 className="text-xl font-bold mb-1">
-        💪 Continuum 2: Claim Magnitude, How Absolute the Claim Is{' '}
-        <a href="/strong-to-weak" className="text-base font-normal text-blue-600 hover:underline">
-          (Modest ↔ Total)
-        </a>
-      </h2>
+      <h2 className="text-xl font-bold mb-1">3. Claim Magnitude (Weak ↔ Strong)</h2>
       <p className="text-sm text-gray-600 mb-4">
-        How absolute the claim is, from a hedged &ldquo;sometimes&rdquo; to a flat &ldquo;always,&rdquo;
-        independent of which way it runs and of whether it is true. Two beliefs match on this axis when
-        they are equally bold.
+        How extreme is the phrasing of a claim, independent of which direction it runs and independent of
+        whether it&apos;s true? A weak pro claim and a weak anti claim are both modest assertions. The
+        Belief Score, computed elsewhere, tells you how well-supported a claim is. This dimension just
+        identifies its structural reach so equivalent claims can be matched and grouped. See{' '}
+        <Link href="/algorithms/strong-to-weak" className="text-blue-600 hover:underline">
+          Magnitude Spectrum
+        </Link>.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-3 py-2 w-[16%]">Claim Magnitude</th>
-              <th className="border border-gray-300 px-3 py-2 w-[32%]">Pro Belief at This Strength</th>
-              <th className="border border-gray-300 px-3 py-2 w-[32%]">Anti Belief at This Strength</th>
-              <th className="border border-gray-300 px-3 py-2 w-[20%]">Scope &amp; Telltale Words</th>
+            <tr className="bg-[#f0f3f6]">
+              <th className="border border-gray-300 px-3 py-2 w-[18%]">Magnitude</th>
+              <th className="border border-gray-300 px-3 py-2 w-[33%]">Pro-Topic Example</th>
+              <th className="border border-gray-300 px-3 py-2 w-[33%]">Anti-Topic Example</th>
+              <th className="border border-gray-300 px-3 py-2 w-[16%]">Scope</th>
             </tr>
           </thead>
           <tbody>
@@ -149,14 +133,11 @@ export default function Spectrum2Magnitude({ topicTitle, claimMagnitudeLevels }:
           </tbody>
         </table>
       </div>
-      <div className="bg-blue-50 p-3 border-l-4 border-blue-700 mt-3 text-xs">
-        <strong>Key insight:</strong> The strongest arguments on either side usually live at Moderate (50%),
-        not Total (100%). Attacking only the Total versions is a straw man. Engage the best version of the
-        opposing argument, not the loudest.
+      <div className="bg-[#eef5ff] p-3 border-l-4 border-[#36c] mt-3 text-sm">
+        <strong>Why this matters.</strong> The strongest real arguments on either side typically operate
+        at Moderate magnitude. Engaging only with the Extreme version of an opposing claim is a straw man.
+        The platform requires engaging the best version of the opposing argument, not the loudest.
       </div>
-      <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/strong-to-weak" className="text-blue-600 hover:underline">Why We Need This Continuum</a>
-      </p>
     </div>
   );
 }

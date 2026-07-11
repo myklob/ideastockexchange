@@ -35,24 +35,22 @@ function TopicList({ topics }: { topics: DebateRelatedTopic[] }) {
 export default function RelatedTopics({ relatedTopics }: Props) {
   const parents = relatedTopics.filter((t) => t.relationType === 'parent');
   const children = relatedTopics.filter((t) => t.relationType === 'child');
-  const siblings = relatedTopics.filter((t) => t.relationType === 'sibling');
-  const opposing = relatedTopics.filter((t) => t.relationType === 'opposingView');
+  // Legacy "opposingView" rows render under Adjacent — the template has no
+  // separate opposing column.
+  const siblings = relatedTopics.filter(
+    (t) => t.relationType === 'sibling' || t.relationType === 'opposingView'
+  );
 
   return (
     <div id="related" className="mb-8">
-      <h2 className="text-xl font-bold mb-1">🔗 Related Topics</h2>
-      <p className="text-sm text-gray-600 mb-3">
-        The <strong>Children</strong> column is where full subcategories from Continuum 3 go once they
-        outgrow a row and earn their own page.
-      </p>
+      <h2 className="text-xl font-bold mb-3">10. Related Topics</h2>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-3 py-2 w-1/4">Broader (Parents)</th>
-              <th className="border border-gray-300 px-3 py-2 w-1/4">Sub-Issues (Children)</th>
-              <th className="border border-gray-300 px-3 py-2 w-1/4">Related (Siblings)</th>
-              <th className="border border-gray-300 px-3 py-2 w-1/4">Opposing / Critical Views</th>
+            <tr className="bg-[#f0f3f6]">
+              <th className="border border-gray-300 px-3 py-2 w-1/3">Broader (Parents)</th>
+              <th className="border border-gray-300 px-3 py-2 w-1/3">Narrower (Children)</th>
+              <th className="border border-gray-300 px-3 py-2 w-1/3">Adjacent (Siblings)</th>
             </tr>
           </thead>
           <tbody>
@@ -65,9 +63,6 @@ export default function RelatedTopics({ relatedTopics }: Props) {
               </td>
               <td className="border border-gray-300 px-3 py-3 align-top">
                 <TopicList topics={siblings} />
-              </td>
-              <td className="border border-gray-300 px-3 py-3 align-top">
-                <TopicList topics={opposing} />
               </td>
             </tr>
           </tbody>

@@ -1,212 +1,325 @@
 <!-- page=Template -->
 <!-- content-type=text/html -->
 <!--
-  ===== ISE TOPIC PAGE MASTER TEMPLATE (July 2026 revision) =====
-  The wiki template for topic pages ("One Page Per Topic"). Mirrored by the
-  React implementation in src/app/debate-topics/[slug]/page.tsx and the section
-  components in src/components/debate-topic/*. If you change this template,
-  update the React implementation. The two must stay in sync.
+  ===== ISE TOPIC PAGE MASTER TEMPLATE (July 2026 "Page Design" revision) =====
+  The wiki template for topic pages. Mirrored by the React implementation in
+  src/app/debate-topics/[slug]/page.tsx and the section components in
+  src/components/debate-topic/*. If you change this template, update the React
+  implementation. The two must stay in sync.
 
-  CORE IDEA — the three-part address:
-  Every belief about the topic gets one fixed address: a Direction (-100% to
-  +100%), a Magnitude band (Modest / Moderate / Strong / Total), and a node on
-  the general-to-specific tree (which branch, which rung). Two beliefs at the
-  same address are duplicates and merge; nearly the same address gets the
-  redundancy discount. The Engagement Landscape and the Assumption Stack are
-  deliberately NOT matching coordinates — they describe people and
-  dependencies, not the belief's address.
+  CORE IDEA — one canonical home per topic:
+  Every argument anyone has made about the topic lives here, scored by evidence
+  quality, linked to the claims it supports or undermines, and updated
+  automatically when new data arrives. Beliefs are matched and grouped on three
+  properties of the claim itself: Direction (section 1), Magnitude (section 3),
+  and level of abstraction (section 6). Civic Escalation (section 4) describes
+  believers, not beliefs — it is an overlay for the conflict-resolution
+  pipeline, never a matching coordinate.
+
+  AUDIT LOCK: every numeric score on the page is computed from linked argument
+  and evidence nodes. Nothing is hand-entered. Scores stay [bracketed] until
+  the engine computes them; a wrong-looking score is fixed at the underlying
+  node, not the display.
 
   SECTION ORDER:
-    Header (breadcrumb / Topic name / Definition + Scope / Topic Metrics box)
-    "What this page does" box (the three-part address, with anchors)
-    1. Continuum 1: Direction (Oppose <-> Support) — Position / Core Belief /
-       Top Underlying Argument / Belief Score
-    2. Continuum 2: Claim Magnitude (Modest <-> Total) — band / pro belief /
-       anti belief / scope & telltale words + key insight (engage the best
-       version, not the loudest)
-    3. Continuum 3: General to Specific, with Branching Subcategories —
-       worldview row branches into subcategories, each holding specific rows;
-       a subcategory that outgrows its row graduates to a child page
-    4. Assumption Stack Behind Each Position (not a fourth axis; Core split)
-    5. Core Values Conflict (advertised vs. attributed, both sides)
-    6. The Engagement Landscape (Passive <-> Active) — a stakeholder map, not
-       a matching axis
-    7. Common Ground and Compromise (Shared Interests / Real Value Conflicts /
-       Compromise Candidates)
-    8. The Evidence Ledger (cross-topic highlight reel, quality-ranked)
-    9. Best Objective Criteria (Criteria Score / Validity / Reliability /
-       Linkage / Importance)
-    10. Best Media and Resources (sorted by positivity)
-    11. Related Topics (Parents / Children / Siblings / Opposing)
-    12. Contribute
+    Header (breadcrumb / Topic name / Definition + Scope / Topic Metrics /
+      Audit lock notice)
+    What This Page Is For
+    1.  The Position Spectrum (Negative <-> Positive) — Position / Belief /
+        Top Sub-Argument / Belief Score / Evidence link
+    2.  The Evidence Ledger — Tier / Source / supports-weakens / Argument It
+        Bears On / Quality / Linkage / Standing (VERIFIED, DISPUTED, FALSIFIED)
+    3.  Claim Magnitude (Weak <-> Strong) — Weak / Moderate / Strong / Extreme
+        + "engage the best version, not the loudest"
+    4.  The Engagement Landscape: Civic Escalation (Preference <-> Any Means) —
+        six levels, believers not beliefs, never enters matching
+    5.  Foundational Assumptions at Each Position — five bands, Key Insight
+    6.  The Abstraction Ladder (General <-> Specific) — Worldview -> Political
+        principle -> Position on this topic -> Specific policy
+    7.  Core Values Conflict (advertised vs. actual per critics, both sides)
+    8.  Common Ground and Compromise (agreements / compromise positions)
+    9.  Best Media and Resources (Direction / Magnitude / Escalation applied
+        to what the source argues)
+    10. Related Topics (Parents / Children / Siblings)
+    Contribute + related design pages
 -->
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold; text-align: right;"><a style="font-size: 13px;" href="/w/page/21957696/Colorado%20Should">Home</a><span style="font-size: 13px;"> &rsaquo; </span><a style="font-size: 13px;" href="/w/page/159323433/One%20Page%20Per%20Topic">Topics</a><span style="font-size: 13px;"> &rsaquo; </span><strong style="font-family: inherit; font-style: inherit;">[Category] &gt; [Topic Name]</strong></h2>
-<div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
-<p style="display: none;">AUTHORING RULES (hidden; readers never see this). Place every belief about this topic at one address: a Direction (-100% to +100%), a Magnitude band, and a node on the general-to-specific tree (which branch, which rung). Two beliefs at the same address are duplicates: merge them. Nearly the same address gets the redundancy discount. Every argument cell must be a complete proposition whose pro/con direction is evident from the cell alone, with no insider knowledge needed (standalone-claim rule); name cells by their opening words. All scores stay [bracketed] until the ReasonRank engine computes them; never fill a score cell for an empty row. The three continuums describe the belief, never the believer: how far a person will fight (engagement) is a separate section and never a matching coordinate. Keep on-page prose to one caption line per section and link the canonical page for the full logic; do not restate a definition that already has a home.</p>
+<p style="text-align: right;"><em><a href="/w/page/21957696/Colorado%20Should">Home</a> &gt; <a href="/w/page/159323361/Page%20Design">Page Design</a> &gt; <strong>Topic Template</strong></em></p>
 <h1>Topic: [Topic Name]</h1>
-<p style="font-size: 13px;"><strong>Definition:</strong> [Neutral, objective definition of the topic].<br /><strong>Scope:</strong> [What is included here vs. what belongs in related topics].</p>
-<div style="border: 1px solid #ccc; padding: 10px; background-color: #f9f9f9;">
-<p style="text-align: center; margin: 0;"><strong>Topic Metrics</strong><br /><a href="/w/page/162731388/Importance%20Score">Importance</a>: <strong>[0-100]</strong> | <a href="/w/page/159353568/Evidence%20Scores">Evidence Depth</a>: <strong>[Low/Med/High]</strong> | <a href="/w/page/159300543/ReasonRank">Controversy</a>: <strong>[0-100]</strong></p>
-<p style="text-align: center; margin: 6px 0 0 0; font-size: 11px; color: #777;">Every bracketed number on this page is a placeholder until the <a href="/w/page/159300543/ReasonRank">ReasonRank</a> engine computes live scores.</p>
+<p style="font-size: 13px;"><strong>Definition:</strong> [One neutral sentence. No advocacy. Example: "A carbon tax is a fee imposed on the burning of carbon-based fuels."]<br /><strong>Scope:</strong> [What lives here vs. neighboring topics. Example: "Covers economy-wide carbon pricing. Sector-specific schemes (EV mandates, methane fees) live on their own pages."]</p>
+<div style="border: 1px solid #ccc; padding: 10px; background-color: #f0f3f6;">
+<p style="text-align: center; margin: 0;"><strong>Topic Metrics</strong> &nbsp;|&nbsp; <a href="/w/page/162731388/Importance%20Score">Importance</a>: <strong>[0&ndash;100]</strong> &nbsp;|&nbsp; <a href="/w/page/159353568/Evidence%20Scores">Evidence Depth</a>: <strong>[Low / Med / High]</strong> &nbsp;|&nbsp; <a href="/w/page/159300543/ReasonRank">Controversy</a>: <strong>[0&ndash;100]</strong></p>
 </div>
-<div style="border-left: 5px solid #0055a4; padding: 10px 14px; background-color: #f4f9ff; margin: 15px 0; font-size: 13px;"><strong>What this page does.</strong> It gives every belief about this topic one fixed address, so the thousand ways of saying the same thing collapse into a single entry and the real reasons to agree or disagree can be counted and weighed by evidence instead of by how often they get repeated. The address has three parts, one per table below: <a href="#direction">Direction</a> (which way it runs), <a href="#magnitude">Magnitude</a> (how absolute), and <a href="#specificity">Specificity</a> (where it sits on the general-to-specific tree). Same address means the same claim, so it merges; nearly the same address gets the <a href="/w/page/159300543/ReasonRank">redundancy discount</a>. Full logic lives on <a href="/w/page/159323433/One%20Page%20Per%20Topic">One Page Per Topic</a>.</div>
-<h2 id="direction" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">📊 Continuum 1: Direction (<a href="/positive%20to%20negative">Oppose &harr; Support</a>)</h2>
-<p style="font-size: 13px;">Which way the belief runs, from total opposition (-100%) to total support (+100%). The <strong>Belief Score</strong> column is a separate thing: how well the belief holds up once its arguments are scored, not which way it points. A claim can sit at +100% and still score badly. <span style="color: #666;">See: <a href="/w/page/162417909/beliefs%20grouped">Full Positivity Framework</a> | <a href="/positive%20to%20negative">Why We Need This Continuum</a>.</span></p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
+<div style="background-color: #fffbe6; padding: 8px 12px; border-left: 3px solid #b58900; margin: 12px 0; font-size: 12px;"><strong>Audit lock.</strong> Every numeric score on this page is computed from linked argument and evidence nodes. Nothing here is hand-entered. If a score looks wrong, fix the underlying node, not the display. See <a href="/w/page/21960078/truth">Truth</a> and <a href="/w/page/159300543/ReasonRank">ReasonRank</a>.</div>
+<h2>&nbsp;</h2>
+<h2>What This Page Is For</h2>
+<p>One canonical home for everything anyone has argued about this topic. Arguments are scored by evidence quality, linked to the claims they support or undermine, and updated automatically when new data arrives. The rebuttal to any bad argument on this page is always one click away. See <a href="/w/page/159323925/One%20Page%20Per%20Belief">One Page Per Belief</a> for the single-claim version of this design.</p>
+<hr />
+<h1>1. The Position Spectrum (Negative &harr; Positive)</h1>
+<p style="font-size: 13px;">Where do beliefs about this topic sit on the direction of support? This dimension captures direction <em>only</em>. How extreme the phrasing is, and how far someone is willing to go to act on the belief, are tracked in sections 3 and 4. See <a href="/w/page/163411251/positive%20to%20negative">Positivity Spectrum</a>.</p>
+<table style="border-collapse: collapse;" border="1" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="12%">Position</th> <th width="55%">Core Belief / Claim</th> <th width="25%">Top Underlying Argument</th> <th width="8%">Belief Score</th>
+<th width="10%">Position</th> <th width="38%">Belief Held at This Position</th> <th width="28%">Top Sub-Argument Driving the Score</th> <th width="12%"><a href="/w/page/21956921/Beliefs">Belief Score</a></th> <th width="12%">Evidence</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="background-color: #ffcccc; text-align: center;"><strong>-100%</strong><br />(Strongly Oppose)</td>
-<td>[Belief that the topic is fundamentally harmful or false]</td>
-<td>[Primary reason, e.g., "Violates human rights"]</td>
-<td align="center"><span style="color: #d32f2f; font-weight: bold;">[-XX]</span></td>
+<td style="background-color: #ffcccc;" align="center"><strong>&minus;100%</strong><br />Strongly Oppose</td>
+<td>[Belief at this position. Example: "A carbon tax is regressive and crushes working families."]</td>
+<td>[Atomic argument label. Example: "disproportionate burden on low-income households"]</td>
+<td align="center"><span style="color: #c00;">[&minus;XX]</span></td>
+<td align="center">[link to Evidence Ledger row]</td>
 </tr>
 <tr>
-<td style="background-color: #ffe6e6; text-align: center;"><strong>-50%</strong><br />(Skeptical)</td>
-<td>[Belief that the topic has significant flaws or costs]</td>
-<td>[Primary reason, e.g., "Too expensive"]</td>
-<td align="center"><span style="color: #d32f2f; font-weight: bold;">[-XX]</span></td>
+<td style="background-color: #ffe6e6;" align="center"><strong>&minus;50%</strong><br />Skeptical</td>
+<td>[Belief at this position. Example: "A carbon tax might work in theory but won't survive political capture."]</td>
+<td>[Atomic argument label. Example: "exemption-riddled in practice"]</td>
+<td align="center"><span style="color: #c00;">[&minus;XX]</span></td>
+<td align="center">[link]</td>
 </tr>
 <tr>
-<td style="background-color: #ffffcc; text-align: center;"><strong>0%</strong><br />(Neutral/Nuanced)</td>
-<td>[Belief that the topic is complex or context-dependent]</td>
-<td>[Primary reason, e.g., "Depends on implementation"]</td>
-<td align="center"><strong>[0]</strong></td>
+<td style="background-color: #ffffcc;" align="center"><strong>0%</strong><br />Mixed / Conditional</td>
+<td>[Belief at this position. Example: "A carbon tax works only if revenue is rebated and borders are adjusted."]</td>
+<td>[Atomic argument label. Example: "depends on revenue recycling design"]</td>
+<td align="center">[0]</td>
+<td align="center">[link]</td>
 </tr>
 <tr>
-<td style="background-color: #e6ffe6; text-align: center;"><strong>+50%</strong><br />(Supportive)</td>
-<td>[Belief that the topic is generally beneficial]</td>
-<td>[Primary reason, e.g., "Solves specific problem"]</td>
-<td align="center"><span style="color: #2e7d32; font-weight: bold;">[+XX]</span></td>
+<td style="background-color: #e6ffe6;" align="center"><strong>+50%</strong><br />Supportive</td>
+<td>[Belief at this position. Example: "A carbon tax is the cheapest way to cut emissions at scale."]</td>
+<td>[Atomic argument label. Example: "lower abatement cost than mandates"]</td>
+<td align="center"><span style="color: #060;">[+XX]</span></td>
+<td align="center">[link]</td>
 </tr>
 <tr>
-<td style="background-color: #ccffcc; text-align: center;"><strong>+100%</strong><br />(Strongly Support)</td>
-<td>[Belief that the topic is essential or a moral imperative]</td>
-<td>[Primary reason, e.g., "Saves lives"]</td>
-<td align="center"><span style="color: #2e7d32; font-weight: bold;">[+XX]</span></td>
+<td style="background-color: #ccffcc;" align="center"><strong>+100%</strong><br />Strongly Support</td>
+<td>[Belief at this position. Example: "A carbon tax is a moral necessity given the cost of inaction."]</td>
+<td>[Atomic argument label. Example: "intergenerational duty to limit warming"]</td>
+<td align="center"><span style="color: #060;">[+XX]</span></td>
+<td align="center">[link]</td>
 </tr>
 </tbody>
 </table>
-<h2 id="magnitude" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">💪 Continuum 2: Claim Magnitude, How Absolute the Claim Is (<a href="/strong%20to%20weak">Modest &harr; Total</a>)</h2>
-<p style="font-size: 13px;">How absolute the claim is, from a hedged "sometimes" to a flat "always," independent of which way it runs and of whether it is true. Two beliefs match on this axis when they are equally bold. <span style="color: #666;">See: <a href="/strong%20to%20weak">Why We Need This Continuum</a>.</span></p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
+<p style="font-size: 12px; color: #555;"><strong>Reading the table.</strong> The Position column is a coordinate, not a verdict. The Belief Score is the verdict, computed from linked sub-arguments. A position can be widely held (lots of people sit at +50%) and still have a low Belief Score, because what people believe and what survives evidence are different questions.</p>
+<hr />
+<h1>2. The Evidence Ledger</h1>
+<p style="font-size: 13px;">The raw inputs every Belief Score on this page traces back to. Quality scores reflect methodology, sample size, and reproducibility. Ten independent sources confirming one finding raise that finding's <a href="/w/page/21960078/truth">Truth Score</a>; they do not create ten arguments. Corroboration is rewarded. Repetition is not. See <a href="/w/page/163478577/Duplication%20Scores">Duplication Scores</a>.</p>
+<table style="border-collapse: collapse;" border="1" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="16%">Claim Magnitude</th> <th width="32%">Pro Belief at This Strength</th> <th width="32%">Anti Belief at This Strength</th> <th width="20%">Scope &amp; Telltale Words</th>
+<th width="6%">T</th> <th width="20%">Source</th> <th width="5%">&uarr;&darr;</th> <th width="37%">Argument It Bears On</th> <th width="10%">Quality</th> <th width="10%"><a href="/w/page/159338766/Linkage%20Scores">Linkage</a></th> <th width="12%">Standing</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center"><strong>Modest (20%)</strong><br />Hedged</td>
-<td>[Somewhat good, openly admits real flaws and exceptions]</td>
-<td>[Somewhat bad, concedes it works acceptably much of the time]</td>
-<td>Narrow. <em>"Some," "tends to," "in certain cases."</em></td>
+<td align="center">T1</td>
+<td>[Source. Example: "Metcalf &amp; Stock (2020), <em>AER</em>"]</td>
+<td align="center"><span style="color: #060;">+</span></td>
+<td>[Argument supported. Example: "carbon taxes reduce emissions in countries that implement them"]</td>
+<td align="center"><strong>95%</strong></td>
+<td align="center">+0.90</td>
+<td align="center">VERIFIED</td>
+</tr>
+<tr>
+<td align="center">T2</td>
+<td>[Source. Example: "World Bank Carbon Pricing Dashboard (2024)"]</td>
+<td align="center"><span style="color: #060;">+</span></td>
+<td>[Argument supported. Example: "carbon pricing is now in force across 25% of global emissions"]</td>
+<td align="center"><strong>85%</strong></td>
+<td align="center">+0.70</td>
+<td align="center">VERIFIED</td>
+</tr>
+<tr>
+<td align="center">T2</td>
+<td>[Source. Example: "CBO distributional analysis (2023)"]</td>
+<td align="center"><span style="color: #c00;">&minus;</span></td>
+<td>[Argument weakened. Example: "carbon tax is regressive without rebate"]</td>
+<td align="center"><strong>80%</strong></td>
+<td align="center">+0.85</td>
+<td align="center">VERIFIED</td>
+</tr>
+<tr>
+<td align="center">T3</td>
+<td>[Source. Example: "Industry trade group white paper"]</td>
+<td align="center"><span style="color: #c00;">&minus;</span></td>
+<td>[Argument weakened. Example: "carbon tax causes leakage to non-pricing jurisdictions"]</td>
+<td align="center"><strong>45%</strong></td>
+<td align="center">+0.55</td>
+<td align="center"><span style="color: #b58900;">DISPUTED</span></td>
+</tr>
+</tbody>
+</table>
+<p style="font-size: 12px; color: #555;"><strong>Legend.</strong> <strong>T</strong> = evidence tier (T1 peer-reviewed, T2 reputable institution, T3 secondary, T4 anecdotal). <strong>&uarr;&darr;</strong> = supports (+) or weakens (&minus;) the linked argument. <strong>Quality</strong> = methodological strength of the evidence itself. <strong>Linkage</strong> = how directly this evidence bears on the specific argument it's attached to (see <a href="/w/page/159338766/Linkage%20Scores">Linkage Scores</a>). <strong>Standing</strong> = where the evidence sits in the verification lifecycle: VERIFIED counts at full weight, DISPUTED at half weight while the challenge is open, FALSIFIED at zero, with the retraction propagating to every score built on it. See <a href="/w/page/159353568/Evidence%20Scores">Evidence Scores</a>.</p>
+<hr />
+<h1>3. Claim Magnitude (Weak &harr; Strong)</h1>
+<p style="font-size: 13px;">How extreme is the phrasing of a claim, independent of which direction it runs and independent of whether it's true? A weak pro claim and a weak anti claim are both modest assertions. The Belief Score, computed elsewhere, tells you how well-supported a claim is. This dimension just identifies its structural reach so equivalent claims can be matched and grouped. See <a href="/w/page/163411296/strong%20to%20weak">Magnitude Spectrum</a>.</p>
+<table style="border-collapse: collapse;" border="1" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="18%">Magnitude</th> <th width="33%">Pro-Topic Example</th> <th width="33%">Anti-Topic Example</th> <th width="16%">Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><strong>Weak (20%)</strong><br />Hedged</td>
+<td>"A carbon tax can be a useful tool in some cases."</td>
+<td>"A carbon tax may not be the best tool here."</td>
+<td>Narrow. Acknowledges exceptions.</td>
 </tr>
 <tr>
 <td align="center"><strong>Moderate (50%)</strong><br />Standard</td>
-<td>[Clearly better than the alternatives in most cases]</td>
-<td>[Clearly worse than the alternatives in most cases]</td>
-<td>Definite but bounded. <em>"Clearly," "generally."</em> Where most serious arguments live.</td>
+<td>"A carbon tax is the most cost-effective way to cut emissions."</td>
+<td>"A carbon tax fails to deliver the cuts its supporters claim."</td>
+<td>Definite but bounded. Most defensible level.</td>
 </tr>
 <tr>
-<td align="center"><strong>Strong (80%)</strong><br />Broad</td>
-<td>[Right across the board; the alternatives reliably fail]</td>
-<td>[Wrong across the board; fails wherever it is tried]</td>
-<td>Near-universal. <em>"Across the board," "fundamentally."</em></td>
+<td align="center"><strong>Strong (80%)</strong><br />Categorical</td>
+<td>"A carbon tax is fundamentally the right approach to climate policy."</td>
+<td>"A carbon tax is fundamentally the wrong approach to climate policy."</td>
+<td>Wide. Little room for exceptions.</td>
 </tr>
 <tr>
-<td align="center"><strong>Total (100%)</strong><br />Maximal</td>
-<td>[Always right, everywhere, no legitimate exception]</td>
-<td>[Always wrong, has never once worked and never will]</td>
-<td>Total, zero limits. <em>"Always," "never."</em> One counterexample sinks it.</td>
+<td align="center"><strong>Extreme (100%)</strong><br />Maximal</td>
+<td>"A carbon tax is the only way to save the planet."</td>
+<td>"A carbon tax is a totalitarian power grab dressed up as climate policy."</td>
+<td>Catastrophic framing, no limits. Easy to dismiss.</td>
 </tr>
 </tbody>
 </table>
-<p style="font-size: 13px; background-color: #f4f9ff; padding: 10px; border-left: 4px solid #0055a4;"><strong>Key insight:</strong> The strongest arguments on either side usually live at Moderate (50%), not Total (100%). Attacking only the Total versions is a straw man. Engage the best version of the opposing argument, not the loudest.</p>
-<h2 id="specificity" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">🌳 Continuum 3: General to Specific, with Branching Subcategories (<a href="/w/page/21957696/General%20to%20Specific">General &harr; Specific</a>)</h2>
-<p style="font-size: 13px;">The same topic holds claims at every altitude, from a sweeping worldview down to one line-item policy. A general belief <strong>branches</strong> into subcategories, and each subcategory holds the specific beliefs beneath it. A belief only merges with another that shares its branch <em>and</em> its rung, so a worldview never gets double-counted with the policy it implies. A subcategory that outgrows a row graduates to its own child page (see <a href="#related">Related Topics</a>). <span style="color: #666;">See: <a href="/w/page/21957696/General%20to%20Specific">General to Specific Framework</a>.</span></p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
+<div style="background-color: #eef5ff; padding: 10px; border-left: 4px solid #36c; margin: 10px 0; font-size: 13px;"><strong>Why this matters.</strong> The strongest real arguments on either side typically operate at Moderate magnitude. Engaging only with the Extreme version of an opposing claim is a straw man. The platform requires engaging the best version of the opposing argument, not the loudest.</div>
+<hr />
+<h1>4. The Engagement Landscape: Civic Escalation (Preference &harr; Any Means)</h1>
+<p style="font-size: 13px;">How many other principles is someone willing to violate to advance this belief? This is the other meaning of "strength of conviction": not <em>how extreme is the claim</em> (section 3), but <em>what limits does the believer accept on acting</em>. Thomas More held the most absolute possible conviction Henry VIII was wrong and chose silent execution rather than act outside legal process. Martin Luther King held an equally total conviction and chose to openly violate unjust laws while accepting the consequences. Both are coherent positions. Unlike sections 1, 3, and 6, this ladder describes believers rather than beliefs, so it never enters belief matching; see the note below the table.</p>
+<table style="border-collapse: collapse;" border="1" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="24%">Rung / Branch</th> <th width="38%">Pro-Topic Belief</th> <th width="38%">Anti-Topic Belief</th>
+<th width="22%">Level</th> <th width="28%">What It Looks Like</th> <th width="30%">Historical Example</th> <th width="20%">Principles Still Honored</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="background-color: #eef3f8;"><strong>Most General</strong><br />(Worldview)</td>
-<td>"[Broad belief about human nature or society that supports this topic]"</td>
-<td>"[Broad belief about human nature or society that opposes this topic]"</td>
+<td style="background-color: #e8f5e9;" align="center"><strong>1. Preference</strong><br />Slight lean</td>
+<td>Would vote for it if convenient. Won't reorder priorities to advance it.</td>
+<td>Most voters on most issues most of the time.</td>
+<td>All other principles intact.</td>
 </tr>
 <tr>
-<td style="font-size: 12px; color: #666;" colspan="3" align="center">the general belief branches into subcategories &darr;</td>
+<td style="background-color: #c8e6c9;" align="center"><strong>2. Active Advocacy</strong><br />Engaged supporter</td>
+<td>Votes, donates, signs petitions, argues publicly.</td>
+<td>Standard civic participation.</td>
+<td>Operates fully within legal and social norms.</td>
 </tr>
 <tr>
-<td style="background-color: #f4f9ff;"><strong>&#9500;&#9472; Subcategory A</strong><br />[name of sub-issue]</td>
-<td>"[Mid-level pro claim inside A]"</td>
-<td>"[Mid-level anti claim inside A]"</td>
+<td style="background-color: #fff9c4;" align="center"><strong>3. Principled Non-Compliance</strong><br />Conscientious objector</td>
+<td>Refuses personal participation in what they see as unjust, at cost to themselves. Does not obstruct others.</td>
+<td>Thomas More refused to endorse Henry VIII's break with Rome and accepted execution rather than act outside legal process.</td>
+<td>Sacrifices self. Will not act against others.</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp;&nbsp;&#9492;&#9472; <em>Specific</em></td>
-<td>"[Specific pro policy or action under A]"</td>
-<td>"[Specific anti policy or action under A]"</td>
+<td style="background-color: #ffe082;" align="center"><strong>4. Civil Disobedience</strong><br />Principled lawbreaking</td>
+<td>Openly breaks specific laws judged unjust. Accepts legal consequences. Uses trial as moral leverage.</td>
+<td>Martin Luther King and the Civil Rights Movement; Gandhi's Salt March; Thoreau's tax refusal.</td>
+<td>Violates specific laws. Accepts the legal system's authority to punish.</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp;&nbsp;&#9492;&#9472; <em>Specific</em></td>
-<td>"[Another specific pro claim under A]"</td>
-<td>"[Another specific anti claim under A]"</td>
+<td style="background-color: #ffb74d;" align="center"><strong>5. Resistance</strong><br />Active disruption</td>
+<td>Breaks laws and rejects the legitimacy of the resulting punishment. Distinguishes legality from justice.</td>
+<td>Underground Railroad operators; resistance movements in occupied Europe.</td>
+<td>Rejects specific laws as illegitimate. Avoids harm to uninvolved parties.</td>
 </tr>
 <tr>
-<td style="background-color: #f4f9ff;"><strong>&#9500;&#9472; Subcategory B</strong><br />[name of sub-issue]</td>
-<td>"[Mid-level pro claim inside B]"</td>
-<td>"[Mid-level anti claim inside B]"</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp;&nbsp;&#9492;&#9472; <em>Specific</em></td>
-<td>"[Specific pro claim under B]"</td>
-<td>"[Specific anti claim under B]"</td>
-</tr>
-<tr>
-<td style="background-color: #f4f9ff;"><strong>&#9492;&#9472; Subcategory C</strong><br />[name of sub-issue]</td>
-<td>"[Mid-level pro claim inside C]"</td>
-<td>"[Mid-level anti claim inside C]"</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp;&nbsp;&#9492;&#9472; <em>Specific</em></td>
-<td>"[Specific pro claim under C]"</td>
-<td>"[Specific anti claim under C]"</td>
+<td style="background-color: #ef9a9a;" align="center"><strong>6. Any Means Necessary</strong><br />No limiting principles</td>
+<td>Willing to harm others, violate any norm, or destroy any institution to advance the cause.</td>
+<td>Revolutionary violence and political terrorism, found across the entire political spectrum.</td>
+<td>No other principle outranks this belief.</td>
 </tr>
 </tbody>
 </table>
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">📜 <a href="/Assumptions">Assumption Stack Behind Each Position</a></h2>
-<p style="font-size: 13px;">Not a fourth axis. Continuum 3 sorts beliefs by altitude; this takes each stance and lists the assumptions a person must accept to hold it, which is how a fight at the bottom gets traced to its real root higher up. <strong>Core split:</strong> [the single assumption that most cleanly divides the two sides]. <span style="color: #666;">See: <a href="/Assumptions">Assumptions</a>.</span></p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
+<div style="background-color: #fff0f0; padding: 10px; border-left: 4px solid #c00; margin: 10px 0; font-size: 13px;"><strong>Escalation is an overlay, not a matching coordinate.</strong> The system matches and groups beliefs on properties of the claim itself: direction (section 1), magnitude (section 3), and level of abstraction (section 6). Escalation describes the believer. Two people can assert the identical claim, same direction, same magnitude, same rung on the abstraction ladder, and sit four levels apart on this ladder: one holds a moderate claim (section 3 = 50%) he barely leans into (section 1 = +40%) and goes to prison for it (Level 4); another holds an extreme claim (100%) she cares about totally (+100%) and never steps outside the law (Level 2). If escalation entered matching, the system would file one claim on two pages because its holders differ. The ladder earns its place on the page anyway, because a debate's temperature is a property of the conflict worth tracking: when a topic's believers start climbing it, the <a href="/w/page/164190102/Conflict%20Resolution%20Scoring">conflict resolution pipeline</a> wants to know.</div>
+<hr />
+<h1>5. <a href="/w/page/162523572/Assumptions">Foundational Assumptions</a> at Each Position</h1>
+<p>Your position on the spectrum in section 1 depends on deeper assumptions about reality, values, and causation. This table maps those dependencies from worldview down to topic-specific claim.</p>
+<p><strong>Key Insight:</strong> [One sentence naming the real disagreement under the visible disagreement. Example: "Most disagreements about carbon taxes are really disagreements about whether markets or regulation are more trustworthy."]</p>
+<table border="1" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="15%">To Hold Position</th> <th width="85%">You Must Accept These Assumptions (General to Specific)</th>
+<th width="15%">To Hold Position</th> <th width="85%">You Must Believe These Assumptions (General &rarr; Specific)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="background-color: #ffcccc; text-align: center;"><strong>-100% to -50%</strong><br />(Strongly Oppose)</td>
-<td style="font-size: 13px;"><strong>1. [Worldview]:</strong> [Description]<br /><strong>2. [Political/philosophical]:</strong> [Description]<br /><strong>3. [Causal claim]:</strong> [Description]<br /><strong>4. [Topic-specific]:</strong> [Description]</td>
+<td style="background-color: #ffcccc;" align="center"><strong>&minus;100% to &minus;50%</strong></td>
+<td><strong>1. Worldview:</strong> [Example: "Government action causes more problems than it solves."]<br /><strong>2. Political philosophy:</strong> [Example: "Markets self-correct better than regulators do."]<br /><strong>3. Causal model:</strong> [Example: "Pricing carbon shifts costs without changing behavior."]<br /><strong>4. Topic-specific:</strong> [Example: "A carbon tax will be captured by lobbyists and riddled with exemptions."]<br /><strong>5. Specific claim:</strong> [Example: "The 2018 French gilets jaunes protests prove carbon taxes are politically unworkable."]</td>
 </tr>
 <tr>
-<td style="background-color: #ffffcc; text-align: center;"><strong>-20% to +20%</strong><br />(Nuanced/Mixed)</td>
-<td style="font-size: 13px;"><strong>1. [Acknowledges complexity]:</strong> [Description]<br /><strong>2. [Both sides have valid points]:</strong> [Description]<br /><strong>3. [Context matters]:</strong> [Description]<br /><strong>4. [Implementation determines outcome]:</strong> [Description]</td>
+<td style="background-color: #ffe6e6;" align="center"><strong>&minus;50% to &minus;20%</strong></td>
+<td><strong>1. Worldview:</strong> [Example]<br /><strong>2. Values:</strong> [Example]<br /><strong>3. Causal beliefs:</strong> [Example]<br /><strong>4. Topic-specific:</strong> [Example]</td>
 </tr>
 <tr>
-<td style="background-color: #ccffcc; text-align: center;"><strong>+50% to +100%</strong><br />(Strongly Support)</td>
-<td style="font-size: 13px;"><strong>1. [Worldview]:</strong> [Description]<br /><strong>2. [Political/philosophical]:</strong> [Description]<br /><strong>3. [Causal claim]:</strong> [Description]<br /><strong>4. [Topic-specific]:</strong> [Description]</td>
+<td style="background-color: #ffffcc;" align="center"><strong>&minus;20% to +20%</strong></td>
+<td><strong>1. Acknowledges complexity:</strong> [Example]<br /><strong>2. Both sides have valid points:</strong> [Example]<br /><strong>3. Context matters:</strong> [Example]<br /><strong>4. Implementation determines outcome:</strong> [Example]</td>
+</tr>
+<tr>
+<td style="background-color: #e6ffe6;" align="center"><strong>+20% to +50%</strong></td>
+<td><strong>1. Worldview:</strong> [Example]<br /><strong>2. Values:</strong> [Example]<br /><strong>3. Causal beliefs:</strong> [Example]<br /><strong>4. Topic-specific:</strong> [Example]</td>
+</tr>
+<tr>
+<td style="background-color: #ccffcc;" align="center"><strong>+50% to +100%</strong></td>
+<td><strong>1. Worldview:</strong> [Example: "Markets fail to price externalities and need correction."]<br /><strong>2. Political philosophy:</strong> [Example: "Pigovian taxes are the textbook fix for negative externalities."]<br /><strong>3. Causal model:</strong> [Example: "Higher prices reduce consumption."]<br /><strong>4. Topic-specific:</strong> [Example: "A carbon tax cuts emissions at lower cost than mandates."]<br /><strong>5. Specific claim:</strong> [Example: "British Columbia's revenue-neutral carbon tax cut emissions without slowing growth."]</td>
 </tr>
 </tbody>
 </table>
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">⚖️ <a href="/Core%20Values%20Conflict" target="_blank">Core Values Conflict</a></h2>
-<p style="font-size: 13px;">Advertised values each side claims, and the motivation critics attribute. <span style="color: #666;">See: <a href="/w/page/21956745/American%20values">American Values</a>.</span></p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
+<hr />
+<h1>6. The Abstraction Ladder (General &harr; Specific)</h1>
+<p>The same upstream worldview can generate dozens of downstream policy positions. Tracing the chain makes explicit what is actually being argued about. See <a href="/w/page/160861572/General%20to%20Specific">General to Specific</a>.</p>
+<table border="1" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th width="15%">Level</th> <th width="42%">Pro-Topic Chain</th> <th width="43%">Anti-Topic Chain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><strong>Worldview</strong></td>
+<td>[Example: "Markets fail to price externalities."]</td>
+<td>[Example: "Government intervention distorts more than it fixes."]</td>
+</tr>
+<tr>
+<td align="center">&darr;</td>
+<td align="center">&darr;</td>
+<td align="center">&darr;</td>
+</tr>
+<tr>
+<td align="center"><strong>Political principle</strong></td>
+<td>[Example: "Negative externalities should be priced in."]</td>
+<td>[Example: "Tax policy should not be used as social engineering."]</td>
+</tr>
+<tr>
+<td align="center">&darr;</td>
+<td align="center">&darr;</td>
+<td align="center">&darr;</td>
+</tr>
+<tr>
+<td align="center"><strong>Position on this topic</strong></td>
+<td>[Example: "A carbon tax is the right tool here." (+50% to +100%)]</td>
+<td>[Example: "A carbon tax is the wrong tool here." (&minus;50% to &minus;100%)]</td>
+</tr>
+<tr>
+<td align="center">&darr;</td>
+<td align="center">&darr;</td>
+<td align="center">&darr;</td>
+</tr>
+<tr>
+<td align="center"><strong>Specific policy</strong></td>
+<td>[Example: "Pass a $50/ton federal carbon tax with full revenue rebate."]</td>
+<td>[Example: "Block any federal carbon pricing legislation."]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>7. Core Values Conflict</h1>
+<p style="font-size: 13px;">Most policy disagreements are not disagreements about facts. They are disagreements about which values take priority when values conflict. This table makes the priorities on both sides explicit, including the gap between advertised values and motivations critics attribute.</p>
+<table border="1" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;">
 <th width="50%">Values Supporting This Topic</th> <th width="50%">Values Opposing This Topic</th>
@@ -214,175 +327,75 @@
 </thead>
 <tbody>
 <tr>
-<td style="font-size: 13px;" valign="top"><strong>Advertised:</strong><br /> 1. [Value supporters claim to uphold]<br /> 2. [Value supporters claim to uphold]<br /><br /><strong>Critics say the actual motivation is:</strong><br /> 1. [Hidden motivation critics attribute]<br /> 2. [Hidden motivation critics attribute]</td>
-<td style="font-size: 13px;" valign="top"><strong>Advertised:</strong><br /> 1. [Value opponents claim to uphold]<br /> 2. [Value opponents claim to uphold]<br /><br /><strong>Critics say the actual motivation is:</strong><br /> 1. [Hidden motivation critics attribute]<br /> 2. [Hidden motivation critics attribute]</td>
+<td valign="top"><strong>Advertised:</strong><br /> 1. [Example: "Stewardship of future generations."]<br /> 2. [Example: "Economic efficiency."]<br /><br /><strong>Actual (per critics):</strong><br /> 1. [Example: "Expansion of federal taxing authority."]<br /> 2. [Example: "Subsidies for politically favored industries."]</td>
+<td valign="top"><strong>Advertised:</strong><br /> 1. [Example: "Protection of working-class household budgets."]<br /> 2. [Example: "Limited government."]<br /><br /><strong>Actual (per critics):</strong><br /> 1. [Example: "Protection of fossil fuel industry profits."]<br /> 2. [Example: "Denial of climate science."]</td>
 </tr>
 </tbody>
 </table>
-<h2 id="engagement" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">⚡ The Engagement Landscape (<a href="/escalation%20spectrum">Passive &harr; Active</a>)</h2>
-<p style="font-size: 13px;"><strong>A stakeholder map, not a matching axis.</strong> It measures how far a person will go to act on a belief, which is a fact about the person, not the belief, so it never feeds the three-part address above. A casual supporter and someone willing to go to prison hold the same belief. <span style="color: #666;">See: <a href="/escalation%20spectrum">Escalation Spectrum</a>.</span></p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
+<hr />
+<h1>8. <a href="/w/page/162560439/Compromise">Common Ground and Compromise</a></h1>
+<p style="font-size: 13px;">Solutions that address both sides' core concerns are more durable than victories. Compromise positions belong here.</p>
+<table border="1" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="18%">Engagement Level</th><th width="27%">Pro-Topic: What It Looks Like</th><th width="27%">Anti-Topic: What It Looks Like</th><th width="14%">Pro Example</th><th width="14%">Anti Example</th>
+<th width="50%">What Both Sides Might Agree On</th> <th width="50%">Possible Compromise Positions</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="background-color: #e8f5e9;"><strong>1. Preference</strong><br />Passive lean</td>
-<td>Would support if convenient. Would not prioritize it.</td>
-<td>Mildly skeptical. Prefers alternatives in some contexts. Would not act.</td>
-<td>[Casual supporter]</td>
-<td>[Casual skeptic]</td>
-</tr>
-<tr>
-<td style="background-color: #c8e6c9;"><strong>2. Active Advocacy</strong><br />Engaged participant</td>
-<td>Votes, donates, signs petitions, argues publicly in favor.</td>
-<td>Votes, donates, lobbies, argues publicly against or for alternatives.</td>
-<td>[Standard civic support]</td>
-<td>[Standard civic opposition]</td>
-</tr>
-<tr>
-<td style="background-color: #fff9c4;"><strong>3. Principled Non-Compliance</strong><br />Conscientious objector</td>
-<td>Refuses to act against conscience even at personal cost. Does not obstruct others.</td>
-<td>Refuses to implement or participate even when required. Does not obstruct others.</td>
-<td>[Thomas More pattern]</td>
-<td>[Official who resigns rather than implement]</td>
-</tr>
-<tr>
-<td style="background-color: #ffe082;"><strong>4. Civil Disobedience</strong><br />Principled lawbreaking</td>
-<td>Openly breaks laws seen as unjust obstacles. Accepts consequences as moral leverage.</td>
-<td>Openly defies related laws or mandates. Accepts consequences as moral leverage.</td>
-<td>[MLK / Gandhi equivalent]</td>
-<td>[Objectors who accepted imprisonment]</td>
+<td valign="top">1. [Example: "Climate change is real and warrants response."]<br /> 2. [Example: "Working families should not bear the cost of climate policy."]<br /> 3. [Example: "Energy reliability matters."]</td>
+<td valign="top">1. [Example: "Revenue-neutral carbon tax with full rebate to households."]<br /> 2. [Example: "Border carbon adjustment to prevent leakage."]<br /> 3. [Example: "Five-year pilot in one region with sunset clause."]</td>
 </tr>
 </tbody>
 </table>
-<p style="font-size: 13px;"><strong>Key insight:</strong> Engagement is independent of the three matching axes. Someone can hold a moderate claim (50%) about a cause they feel lukewarm toward (+40%) and still go to prison for it (Level 4).</p>
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">🤝 <a href="/w/page/162560439/Compromise">Common Ground and Compromise</a></h2>
-<p style="font-size: 13px;">The scored <a href="/w/page/156187122/cost-benefit%20analysis">cost-benefit</a> trees read sideways. Compromise Candidates are the winnable disagreements, the ones a small likelihood shift can flip, as opposed to the symbolic value conflicts no negotiation resolves. That is the payoff of scoring both sides with equal rigor.</p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
+<hr />
+<h1>9. Best Media and Resources</h1>
+<p style="font-size: 13px;">Curated sources sorted by direction and informational value. Direction and Magnitude are the same belief coordinates from sections 1 and 3, applied to what the source argues. The Escalation column applies section 4's ladder to the content itself: what level of action does this source advocate? A book can call for civil disobedience regardless of what any reader does. See <a href="/w/page/21958666/media">Media Framework</a>.</p>
+<table style="border-collapse: collapse;" border="1" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="33%">Shared Interests<br /><span style="font-size: 85%; font-weight: normal;">Impacts both sides want</span></th> <th width="33%">Real Value Conflicts<br /><span style="font-size: 85%; font-weight: normal;">One side prices freedom, the other safety</span></th> <th width="34%">Compromise Candidates<br /><span style="font-size: 85%; font-weight: normal;">A small likelihood shift flips a category's net</span></th>
-</tr>
-</thead>
-<tbody>
-<tr style="font-size: 13px;" valign="top">
-<td>1. [Impact both sides score as a benefit]<br />2. [Shared concern or common problem]<br />3. [Goal neither side disputes]</td>
-<td>1. [Value A vs Value B, genuinely traded off]<br />2. [The irreducible disagreement]<br />3. [Where no likelihood shift resolves it]</td>
-<td>1. [Impact where a feasible change flips the sign]<br />2. [Pilot or scoped version that wins both columns]<br />3. [Incremental step with a tractable likelihood gap]</td>
-</tr>
-</tbody>
-</table>
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">⚖️ The Evidence Ledger</h2>
-<p style="font-size: 13px;">A highlight reel of the highest-impact evidence appearing anywhere under this topic. Evidence formally attaches to specific beliefs and is scored on its own study page; this is the cross-topic view. <span style="color: #666;">See: <a href="/w/page/159353568/Evidence%20Scores">Evidence Scoring Methodology</a>.</span></p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
-<thead>
-<tr style="background-color: #f0f3f6;">
-<th width="40%">Supporting Evidence (Pro)</th> <th width="10%">Quality</th> <th width="40%">Weakening Evidence (Con)</th> <th width="10%">Quality</th>
+<th width="28%">Title</th> <th width="12%">Medium</th> <th width="12%">Bias / Tone</th> <th width="10%">Direction</th> <th width="10%">Magnitude</th> <th width="10%">Escalation</th> <th width="18%">Key Insight</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>[Study/Data Title]<br /><span style="font-size: 85%;">[Institution/Author] (Year). Finding: [brief]</span></td>
-<td align="center"><strong>[95%]</strong><br /><span style="font-size: 75%;">(Peer Reviewed)</span></td>
-<td>[Study/Data Title]<br /><span style="font-size: 85%;">[Institution/Author] (Year). Finding: [brief]</span></td>
-<td align="center"><strong>[80%]</strong><br /><span style="font-size: 75%;">(Meta-analysis)</span></td>
+<td>[Example: "<em>Climate Shock</em> by Wagner &amp; Weitzman"]</td>
+<td>Book</td>
+<td>Academic</td>
+<td align="center">+70%</td>
+<td align="center">60%</td>
+<td align="center">2</td>
+<td>[One sentence. Example: "Frames climate policy as insurance against tail risk, not point-estimate cost-benefit."]</td>
 </tr>
 <tr>
-<td>[Historical Precedent/Statistic]<br /><span style="font-size: 85%;">[Institution/Author] (Year). Finding: [brief]</span></td>
-<td align="center"><strong>[XX%]</strong></td>
-<td>[Counter-Statistic]<br /><span style="font-size: 85%;">[Institution/Author] (Year). Finding: [brief]</span></td>
-<td align="center"><strong>[XX%]</strong></td>
+<td>[Example: "<em>Apocalypse Never</em> by Michael Shellenberger"]</td>
+<td>Book</td>
+<td>Polemic</td>
+<td align="center">&minus;60%</td>
+<td align="center">80%</td>
+<td align="center">2</td>
+<td>[One sentence. Example: "Argues climate response has been hijacked by anti-growth ideology."]</td>
 </tr>
 </tbody>
 </table>
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">📏 <a href="/w/page/159351732/Objective%20criteria%20scores">Best Objective Criteria</a> for This Topic</h2>
-<p style="font-size: 13px;">Agree on the yardstick before measuring. Each proposed criterion is a belief with its own page, scored on four dimensions: <strong>Validity</strong> (does it capture what we claim?), <strong>Reliability</strong> (do different observers get the same reading?), <strong><a href="/w/page/159338766/Linkage%20Scores">Linkage</a></strong> (how directly it connects to the claim), and <strong><a href="/w/page/162731388/Importance%20Score">Importance</a></strong>. Arguments that connect to high-scoring criteria carry more weight. <span style="color: #666;">See: <a href="/w/page/159351732/Objective%20criteria%20scores">Objective Criteria Scoring</a>.</span></p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
+<hr />
+<h1>10. Related Topics</h1>
+<table border="1" cellpadding="10" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="28%">Proposed Criterion</th> <th width="12%" align="center"><a href="/w/page/159351732/Objective%20criteria%20scores">Criteria Score</a></th> <th width="15%" align="center">Validity</th> <th width="15%" align="center">Reliability</th> <th width="15%" align="center"><a href="/w/page/159338766/Linkage%20Scores">Linkage</a></th> <th width="15%" align="center"><a href="/w/page/162731388/Importance%20Score">Importance</a></th>
+<th>Broader (Parents)</th> <th>Narrower (Children)</th> <th>Adjacent (Siblings)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>[Criterion 1]<br /><span style="font-size: 85%; color: #666;">[what it measures and how]</span></td>
-<td align="center"><strong><span style="color: #2e7d32;">[92%]</span></strong></td>
-<td align="center">High</td>
-<td align="center">High</td>
-<td align="center">High</td>
-<td align="center">High</td>
-</tr>
-<tr>
-<td>[Criterion 2]<br /><span style="font-size: 85%; color: #666;">[one-line description]</span></td>
-<td align="center"><strong><span style="color: #f57c00;">[60%]</span></strong></td>
-<td align="center">Med</td>
-<td align="center">Low</td>
-<td align="center">Med</td>
-<td align="center">Med</td>
-</tr>
-<tr>
-<td>[Criterion 3]<br /><span style="font-size: 85%; color: #666;">[one-line description]</span></td>
-<td align="center"><strong><span style="color: #d32f2f;">[15%]</span></strong></td>
-<td align="center">Low</td>
-<td align="center">Low</td>
-<td align="center">Low</td>
-<td align="center">Low</td>
-</tr>
-<tr>
-<td style="font-size: 85%; font-style: italic; color: #555;" colspan="6">Missing a criterion? <a href="/w/page/160433328/Contact%20Me">Submit a proposal</a> with reasons for its validity, reliability, linkage, and importance. The community scores it.</td>
+<td>[Parent topic 1], [Parent topic 2]</td>
+<td>[Child topic 1], [Child topic 2]</td>
+<td>[Sibling topic 1], [Sibling topic 2]</td>
 </tr>
 </tbody>
 </table>
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">📚 Best Media and Resources</h2>
-<p style="font-size: 13px;">Sorted by positivity and informational value. <span style="color: #666;">See: <a href="/w/page/21958666/media">Media Framework</a>.</span></p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
-<thead>
-<tr style="background-color: #f0f3f6;">
-<th width="28%">Title</th> <th width="12%">Medium</th> <th width="12%">Bias/Tone</th> <th width="10%">Positivity</th> <th width="10%">Magnitude</th> <th width="10%">Escalation</th> <th width="18%">Key Insight</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[Title]</td>
-<td>[Book/Doc/Article]</td>
-<td>[Academic/Polemic]</td>
-<td align="center">[+XX%]</td>
-<td align="center">[XX%]</td>
-<td align="center">[1-6]</td>
-<td>[One sentence summary]</td>
-</tr>
-<tr>
-<td>[Title]</td>
-<td>[Book/Doc/Article]</td>
-<td>[Critical/Satire]</td>
-<td align="center">[-XX%]</td>
-<td align="center">[XX%]</td>
-<td align="center">[1-6]</td>
-<td>[One sentence summary]</td>
-</tr>
-</tbody>
-</table>
-<h2 id="related" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">🔗 Related Topics</h2>
-<p style="font-size: 13px;">The <strong>Children</strong> column is where full subcategories from Continuum 3 go once they outgrow a row and earn their own page.</p>
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="10">
-<thead>
-<tr style="background-color: #f0f3f6;">
-<th width="25%">Broader (Parents)</th> <th width="25%">Sub-Issues (Children)</th> <th width="25%">Related (Siblings)</th> <th width="25%">Opposing / Critical Views</th>
-</tr>
-</thead>
-<tbody>
-<tr style="font-size: 13px;" valign="top">
-<td>[Link to Parent 1]<br />[Link to Parent 2]</td>
-<td>[Link to Child 1]<br />[Link to Child 2]</td>
-<td>[Link to Sibling 1]<br />[Link to Sibling 2]</td>
-<td>[Link to Opposing View 1]<br />[Link to Opposing View 2]</td>
-</tr>
-</tbody>
-</table>
-<h2 style="font-size: 20px;">📬 Contribute</h2>
-<p><a href="/w/page/160433328/Contact%20Me">Contact me</a> to add beliefs, strengthen arguments, link evidence, or propose criteria.<br /><a href="https://github.com/myklob/ideastockexchange">GitHub</a> for the code and scoring algorithms.</p>
-</div>
+<hr />
+<h2>Contribute</h2>
+<p><a href="/w/page/160433328/Contact%20Me">Contact me</a> to add beliefs, strengthen arguments, or link new evidence. <a href="https://github.com/myklob/ideastockexchange">GitHub</a> for technical implementation and scoring algorithms.</p>
+<p style="font-size: 12px; color: #555;"><strong>Related design pages:</strong> <a href="/w/page/159323925/One%20Page%20Per%20Belief">One Page Per Belief</a>, <a href="/w/page/163478577/Duplication%20Scores">Duplication Scores</a>, <a href="/w/page/163478616/Independence%20Scores">Independence Scores</a>, Grouping Similar Phrasings, Grouping by Sub-Topic.</p>
 <p>&nbsp;</p>

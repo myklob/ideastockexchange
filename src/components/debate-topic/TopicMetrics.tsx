@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 interface Props {
   importanceScore: number;   // 0–100
   evidenceDepth: string;     // "Low" | "Med" | "High"
@@ -18,31 +20,26 @@ function depthColor(depth: string): string {
 
 export default function TopicMetrics({ importanceScore, evidenceDepth, controversyRating }: Props) {
   return (
-    <div className="border border-gray-300 p-3 bg-gray-50 mb-6 text-center text-sm">
+    <div className="border border-gray-300 p-3 bg-[#f0f3f6] mb-3 text-center text-sm">
       <strong>Topic Metrics</strong>
-      <br />
-      <a href="/algorithms/importance-score" className="text-blue-600 hover:underline">
+      {' | '}
+      <Link href="/algorithms/importance-score" className="text-blue-600 hover:underline">
         Importance
-      </a>
+      </Link>
       :{' '}
       <strong className={scoreColor(importanceScore)}>{importanceScore}</strong>
       {' | '}
-      <a href="/algorithms/evidence-scores" className="text-blue-600 hover:underline">
+      <Link href="/algorithms/evidence-scores" className="text-blue-600 hover:underline">
         Evidence Depth
-      </a>
+      </Link>
       :{' '}
       <strong className={depthColor(evidenceDepth)}>{evidenceDepth}</strong>
       {' | '}
-      <a href="/w/page/159300543/ReasonRank" className="text-blue-600 hover:underline">
+      <Link href="/algorithms/reason-rank" className="text-blue-600 hover:underline">
         Controversy
-      </a>
+      </Link>
       :{' '}
       <strong className={scoreColor(controversyRating)}>{controversyRating}</strong>
-      <p className="mt-1.5 mb-0 text-[11px] text-gray-500">
-        Every bracketed number on this page is a placeholder until the{' '}
-        <a href="/w/page/159300543/ReasonRank" className="text-blue-600 hover:underline">ReasonRank</a>{' '}
-        engine computes live scores.
-      </p>
     </div>
   );
 }

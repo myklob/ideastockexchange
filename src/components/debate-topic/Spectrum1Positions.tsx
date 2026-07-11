@@ -19,25 +19,21 @@ function scoreColor(score: number): string {
 export default function Spectrum1Positions({ positions }: Props) {
   return (
     <div id="direction" className="mb-8">
-      <h2 className="text-xl font-bold mb-1">
-        📊 Continuum 1: Direction{' '}
-        <a href="/positive-to-negative" className="text-base font-normal text-blue-600 hover:underline">
-          (Oppose ↔ Support)
-        </a>
-      </h2>
+      <h2 className="text-xl font-bold mb-1">1. The Position Spectrum (Negative ↔ Positive)</h2>
       <p className="text-sm text-gray-600 mb-4">
-        Which way the belief runs, from total opposition (−100%) to total support (+100%). The{' '}
-        <strong>Belief Score</strong> column is a separate thing: how well the belief holds up once its
-        arguments are scored, not which way it points. A claim can sit at +100% and still score badly.
+        Where do beliefs about this topic sit on the direction of support? This dimension captures
+        direction <em>only</em>. How extreme the phrasing is, and how far someone is willing to go to act
+        on the belief, are tracked in sections 3 and 4.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-3 py-2 w-[12%]">Position</th>
-              <th className="border border-gray-300 px-3 py-2 w-[55%]">Core Belief / Claim</th>
-              <th className="border border-gray-300 px-3 py-2 w-[25%]">Top Underlying Argument</th>
-              <th className="border border-gray-300 px-3 py-2 w-[8%] text-center">Belief Score</th>
+            <tr className="bg-[#f0f3f6]">
+              <th className="border border-gray-300 px-3 py-2 w-[10%]">Position</th>
+              <th className="border border-gray-300 px-3 py-2 w-[38%]">Belief Held at This Position</th>
+              <th className="border border-gray-300 px-3 py-2 w-[28%]">Top Sub-Argument Driving the Score</th>
+              <th className="border border-gray-300 px-3 py-2 w-[12%] text-center">Belief Score</th>
+              <th className="border border-gray-300 px-3 py-2 w-[12%] text-center">Evidence</th>
             </tr>
           </thead>
           <tbody>
@@ -46,7 +42,7 @@ export default function Spectrum1Positions({ positions }: Props) {
                 <td className="border border-gray-300 px-3 py-2 text-center font-semibold">
                   <strong>{pos.positionScore > 0 ? '+' : ''}{pos.positionScore}%</strong>
                   <br />
-                  <span className="text-xs font-normal">({pos.positionLabel})</span>
+                  <span className="text-xs font-normal">{pos.positionLabel}</span>
                 </td>
                 <td className="border border-gray-300 px-3 py-2">
                   {pos.mediaUrl ? (
@@ -59,15 +55,25 @@ export default function Spectrum1Positions({ positions }: Props) {
                 <td className={`border border-gray-300 px-3 py-2 text-center font-mono font-bold ${scoreColor(pos.positionScore)}`}>
                   {pos.beliefScore}
                 </td>
+                <td className="border border-gray-300 px-3 py-2 text-center">
+                  {pos.evidenceId !== undefined ? (
+                    <a href={`#evidence-${pos.evidenceId}`} className="text-blue-600 hover:underline">
+                      ledger
+                    </a>
+                  ) : (
+                    <span className="text-gray-400">—</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/positive-to-negative" className="text-blue-600 hover:underline">Full Positivity Framework</a>
-        {' | '}
-        <a href="/positive-to-negative" className="text-blue-600 hover:underline">Why We Need This Continuum</a>
+      <p className="text-xs text-gray-600 mt-2">
+        <strong>Reading the table.</strong> The Position column is a coordinate, not a verdict. The Belief
+        Score is the verdict, computed from linked sub-arguments. A position can be widely held (lots of
+        people sit at +50%) and still have a low Belief Score, because what people believe and what
+        survives evidence are different questions.
       </p>
     </div>
   );

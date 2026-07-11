@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import type { DebateAbstractionRung } from '@/core/types/debate-topic';
 
 interface Props {
@@ -5,130 +6,54 @@ interface Props {
   topicTitle: string;
 }
 
-/**
- * Continuum 3: the general-to-specific tree. A general (worldview) belief
- * branches into subcategories, and each subcategory holds the specific beliefs
- * beneath it. A belief only merges with another that shares its branch AND its
- * rung. Rows seeded before branching existed carry rungType "rung" and render
- * as the old flat ladder.
- */
-function TreeRows({ rungs }: { rungs: DebateAbstractionRung[] }) {
-  const generals = rungs.filter((r) => r.rungType === 'general');
-  const rest = rungs.filter((r) => r.rungType !== 'general');
-
-  // Subcategory rows use ├─ except the last branch, which uses └─.
-  const lastSubcategoryIndex = rest.reduce(
-    (last, r, i) => (r.rungType === 'subcategory' ? i : last),
-    -1,
-  );
-
-  return (
-    <>
-      {generals.map((rung) => (
-        <tr key={rung.sortOrder} className="hover:bg-gray-50">
-          <td className="border border-gray-300 px-3 py-2 bg-[#eef3f8]">
-            <strong>Most General</strong>
-            <br />
-            <span className="text-xs font-normal text-gray-600">(Worldview)</span>
-          </td>
-          <td className="border border-gray-300 px-3 py-2 text-gray-700 italic">&ldquo;{rung.proChain}&rdquo;</td>
-          <td className="border border-gray-300 px-3 py-2 text-gray-700 italic">&ldquo;{rung.conChain}&rdquo;</td>
-        </tr>
-      ))}
-      {generals.length > 0 && rest.length > 0 && (
-        <tr>
-          <td className="border border-gray-300 px-3 py-1.5 text-center text-xs text-gray-500" colSpan={3}>
-            the general belief branches into subcategories ↓
-          </td>
-        </tr>
-      )}
-      {rest.map((rung, i) => {
-        if (rung.rungType === 'subcategory') {
-          const connector = i === lastSubcategoryIndex ? '└─' : '├─';
-          return (
-            <tr key={rung.sortOrder} className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-3 py-2 bg-[#f4f9ff]">
-                <strong>{connector} {rung.branchName ?? 'Subcategory'}</strong>
-                {rung.rungLabel && (
-                  <>
-                    <br />
-                    <span className="text-xs font-normal text-gray-600">{rung.rungLabel}</span>
-                  </>
-                )}
-              </td>
-              <td className="border border-gray-300 px-3 py-2 text-gray-700 italic">&ldquo;{rung.proChain}&rdquo;</td>
-              <td className="border border-gray-300 px-3 py-2 text-gray-700 italic">&ldquo;{rung.conChain}&rdquo;</td>
-            </tr>
-          );
-        }
-        return (
-          <tr key={rung.sortOrder} className="hover:bg-gray-50">
-            <td className="border border-gray-300 px-3 py-2 pl-8 text-gray-600">
-              └─ <em>Specific</em>
-            </td>
-            <td className="border border-gray-300 px-3 py-2 text-gray-700 italic">&ldquo;{rung.proChain}&rdquo;</td>
-            <td className="border border-gray-300 px-3 py-2 text-gray-700 italic">&ldquo;{rung.conChain}&rdquo;</td>
-          </tr>
-        );
-      })}
-    </>
-  );
-}
-
-function LadderRows({ rungs }: { rungs: DebateAbstractionRung[] }) {
-  return (
-    <>
-      {rungs.map((rung, i) => (
-        <tr key={rung.sortOrder} className="hover:bg-gray-50">
-          <td className="border border-gray-300 px-3 py-2 text-center font-semibold">
-            {i === 0 ? <strong>Most General</strong> : i === rungs.length - 1 ? <strong>Most Specific</strong> : ''}
-            <br />
-            <span className="text-xs font-normal text-gray-600">{rung.rungLabel}</span>
-          </td>
-          <td className="border border-gray-300 px-3 py-2 text-gray-700 italic">&ldquo;{rung.proChain}&rdquo;</td>
-          <td className="border border-gray-300 px-3 py-2 text-gray-700 italic">&ldquo;{rung.conChain}&rdquo;</td>
-        </tr>
-      ))}
-    </>
-  );
+// Section 6: the abstraction ladder. The same upstream worldview generates many
+// downstream policy positions; each rung renders as a row with a ↓ connector to
+// the next. Rows keep whatever rungLabel they were authored with (canonical
+// chain: Worldview → Political principle → Position on this topic → Specific
+// policy); rows from the retired branching-tree era fall back to branchName.
+function rungDisplayLabel(rung: DebateAbstractionRung): string {
+  return rung.rungLabel || rung.branchName || 'Specific policy';
 }
 
 export default function Spectrum4AbstractionLadder({ rungs, topicTitle }: Props) {
-  const hasTree = rungs.some((r) => r.rungType && r.rungType !== 'rung');
-
   return (
     <div id="specificity" className="mb-8">
-      <h2 className="text-xl font-bold mb-1">
-        🌳 Continuum 3: General to Specific, with Branching Subcategories{' '}
-        <a href="/general-to-specific" className="text-base font-normal text-blue-600 hover:underline">
-          (General ↔ Specific)
-        </a>
-      </h2>
+      <h2 className="text-xl font-bold mb-1">6. The Abstraction Ladder (General ↔ Specific)</h2>
       <p className="text-sm text-gray-600 mb-4">
-        The same topic holds claims at every altitude, from a sweeping worldview down to one line-item
-        policy. A general belief <strong>branches</strong> into subcategories, and each subcategory holds
-        the specific beliefs beneath it. A belief only merges with another that shares its branch{' '}
-        <em>and</em> its rung, so a worldview never gets double-counted with the policy it implies. A
-        subcategory that outgrows a row graduates to its own child page (see{' '}
-        <a href="#related" className="text-blue-600 hover:underline">Related Topics</a>).
+        The same upstream worldview can generate dozens of downstream policy positions. Tracing the chain
+        makes explicit what is actually being argued about.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-3 py-2 w-[24%]">Rung / Branch</th>
-              <th className="border border-gray-300 px-3 py-2 w-[38%]">Pro-{topicTitle} Belief</th>
-              <th className="border border-gray-300 px-3 py-2 w-[38%]">Anti-{topicTitle} Belief</th>
+            <tr className="bg-[#f0f3f6]">
+              <th className="border border-gray-300 px-3 py-2 w-[15%]">Level</th>
+              <th className="border border-gray-300 px-3 py-2 w-[42%]">Pro-{topicTitle} Chain</th>
+              <th className="border border-gray-300 px-3 py-2 w-[43%]">Anti-{topicTitle} Chain</th>
             </tr>
           </thead>
           <tbody>
-            {hasTree ? <TreeRows rungs={rungs} /> : <LadderRows rungs={rungs} />}
+            {rungs.map((rung, i) => (
+              <Fragment key={rung.sortOrder}>
+                {i > 0 && (
+                  <tr>
+                    <td className="border border-gray-300 px-3 py-1 text-center text-gray-500">↓</td>
+                    <td className="border border-gray-300 px-3 py-1 text-center text-gray-500">↓</td>
+                    <td className="border border-gray-300 px-3 py-1 text-center text-gray-500">↓</td>
+                  </tr>
+                )}
+                <tr className="hover:bg-gray-50">
+                  <td className="border border-gray-300 px-3 py-2 text-center">
+                    <strong>{rungDisplayLabel(rung)}</strong>
+                  </td>
+                  <td className="border border-gray-300 px-3 py-2 text-gray-700 italic">&ldquo;{rung.proChain}&rdquo;</td>
+                  <td className="border border-gray-300 px-3 py-2 text-gray-700 italic">&ldquo;{rung.conChain}&rdquo;</td>
+                </tr>
+              </Fragment>
+            ))}
           </tbody>
         </table>
       </div>
-      <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/general-to-specific" className="text-blue-600 hover:underline">General to Specific Framework</a>
-      </p>
     </div>
   );
 }
