@@ -15,6 +15,13 @@
  * word — and (2) a moral-principle consistency statement: name the principle
  * the post rests on and affirm the proposal is consistent with it. GET this
  * route to fetch what the speed bumps currently require.
+ *
+ * DRIFT GUARD (every belief): restating stops counting as contributing. The
+ * new statement is scanned against the arguments already on this belief;
+ * moderate overlap is stored as EquivalenceCandidate rows for the uniqueness
+ * discount to price, and a near-identical match trips a speed bump that
+ * requires acknowledging the existing row (restatementAcknowledgedId) before
+ * the post is accepted. Drift is scored away, not moderated away.
  */
 
 import { NextResponse } from 'next/server'
@@ -22,6 +29,7 @@ import { prisma } from '@/lib/prisma'
 import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
 import { slugify } from '@/lib/agent-ingest/slug'
 import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
+import { scanForRestatements } from '@/lib/posting/drift-guard'
 
 interface PostBody {
   side?: string
@@ -33,6 +41,9 @@ interface PostBody {
   /** Speed bump 2: the moral principle claimed, plus explicit consistency. */
   principle?: string
   principleConsistent?: boolean
+  /** Drift guard: the id of the near-identical existing argument, as
+   *  acknowledgment that this post genuinely adds something beyond it. */
+  restatementAcknowledgedId?: number
 }
 
 /** The strongest published argument on a side, by current impact magnitude. */
@@ -86,6 +97,10 @@ export async function GET(
           },
         }
       : null,
+    driftGuard:
+      'Every post is scanned against the arguments already here. Near-identical restatements ' +
+      'require acknowledging the existing row (restatementAcknowledgedId); lesser overlap is ' +
+      'stored for the uniqueness discount to price.',
     auditLock: 'No score field is accepted. Scores are computed by the engine, never submitted.',
   })
 }
@@ -138,6 +153,36 @@ export async function POST(
     select: { id: true, slug: true, highStakes: true },
   })
   if (!belief) return NextResponse.json({ error: 'Belief not found.' }, { status: 404 })
+
+  // ── Drift guard: restating stops counting as contributing ──────────────
+  const siblings = await prisma.argument.findMany({
+    where: { parentBeliefId: belief.id },
+    include: { belief: { select: { statement: true } } },
+  })
+  const driftScan = scanForRestatements(
+    statement,
+    siblings.map((s) => ({ id: s.id, text: s.claim ?? s.belief.statement })),
+  )
+  if (
+    driftScan.nearDuplicate &&
+    body.restatementAcknowledgedId !== driftScan.nearDuplicate.existingArgumentId
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          'Drift guard: this reads as a restatement of an argument already on this page. The ' +
+          'conversation moves only when someone adds something new. If your point genuinely ' +
+          'differs, acknowledge the existing row by passing its id as restatementAcknowledgedId ' +
+          'and post again — the uniqueness discount will price whatever overlap remains.',
+        nearDuplicate: {
+          id: driftScan.nearDuplicate.existingArgumentId,
+          claim: driftScan.nearDuplicate.text,
+          similarity: Number(driftScan.nearDuplicate.similarity.toFixed(2)),
+        },
+      },
+      { status: 422 },
+    )
+  }
 
   // ── Speed bumps for high-stakes beliefs ─────────────────────────────────
   if (belief.highStakes) {
@@ -208,6 +253,28 @@ export async function POST(
       },
     })
 
+    // Redundancy stored, not scored — same rule as agent ingestion. The
+    // uniqueness discount prices these clusters at scoring time.
+    for (const match of driftScan.candidates) {
+      await tx.equivalenceCandidate.create({
+        data: {
+          argumentId: argument.id,
+          existingArgumentId: match.existingArgumentId,
+          similarity: match.similarity,
+        },
+      })
+      await tx.auditLog.create({
+        data: {
+          action: 'equivalence_candidate',
+          targetType: 'Argument',
+          targetId: String(argument.id),
+          rationale:
+            `Drift guard: new argument resembles existing argument #${match.existingArgumentId} ` +
+            `(similarity ${match.similarity.toFixed(2)}). Stored for the engine; not scored at posting.`,
+        },
+      })
+    }
+
     return { argument, childBelief }
   })
 
@@ -219,7 +286,15 @@ export async function POST(
     {
       argumentId: created.argument.id,
       childBeliefSlug: created.childBelief.slug,
-      note: 'Scores are computed by the engine and will appear once propagation lands.',
+      equivalenceCandidates: driftScan.candidates.map((m) => ({
+        existingArgumentId: m.existingArgumentId,
+        similarity: Number(m.similarity.toFixed(2)),
+      })),
+      note:
+        driftScan.candidates.length > 0
+          ? 'Scores are computed by the engine and will appear once propagation lands. Your ' +
+            'point overlaps existing arguments; the uniqueness discount prices that overlap.'
+          : 'Scores are computed by the engine and will appear once propagation lands.',
     },
     { status: 201 },
   )

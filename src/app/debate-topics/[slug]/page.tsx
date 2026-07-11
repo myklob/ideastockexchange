@@ -13,6 +13,7 @@ import CoreValuesConflict from '@/components/debate-topic/CoreValuesConflict';
 import CommonGround from '@/components/debate-topic/CommonGround';
 import MediaResources from '@/components/debate-topic/MediaResources';
 import RelatedTopics from '@/components/debate-topic/RelatedTopics';
+import NeighborhoodNav from '@/components/debate-topic/NeighborhoodNav';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,10 +82,15 @@ export default async function DebateTopicPage({ params }: Props) {
         <p className="text-sm mb-4">
           One canonical home for everything anyone has argued about this topic. Arguments are scored by
           evidence quality, linked to the claims they support or undermine, and updated automatically when
-          new data arrives. The rebuttal to any bad argument on this page is always one click away. See{' '}
-          <Link href="/beliefs" className="text-blue-600 hover:underline">One Page Per Belief</Link> for
-          the single-claim version of this design.
+          new data arrives. The rebuttal to any bad argument on this page is always one click away. A
+          permanent home the debate returns to is the structural answer to{' '}
+          <Link href="/problems/topic-drift" className="text-blue-600 hover:underline">topic drift</Link>.
+          See <Link href="/beliefs" className="text-blue-600 hover:underline">One Page Per Belief</Link>{' '}
+          for the single-claim version of this design.
         </p>
+
+        {/* Neighborhood navigation: explicit moves along the page's dimensions */}
+        <NeighborhoodNav relatedTopics={topic.relatedTopics} />
 
         <hr className="my-6" />
 
