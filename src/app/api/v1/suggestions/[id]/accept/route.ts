@@ -98,7 +98,7 @@ export async function POST(
 
   // New evidence changed the belief's ledger — recompute its score and every
   // conclusion upstream of it. The acceptance wrote no scores; the engine does.
-  await propagateBeliefScores(suggestion.beliefId)
+  await propagateBeliefScores(suggestion.beliefId, new Set(), 0, `evidence suggestion #${id} accepted`)
 
   return agentJson({ evidence, beliefSlug: suggestion.belief.slug }, { status: 201 })
 }

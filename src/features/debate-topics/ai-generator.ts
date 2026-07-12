@@ -266,7 +266,7 @@ Return a single valid JSON object matching this exact structure (all fields requ
       "tier": "T2",
       "argument": "The standalone argument this evidence supports.",
       "linkage": 0.7,
-      "standing": "VERIFIED"
+      "standing": "UNVERIFIED"
     },
     {
       "side": "weakening",
@@ -307,7 +307,7 @@ Return a single valid JSON object matching this exact structure (all fields requ
   ]
 }
 
-Fill in all "..." placeholders with substantive, accurate content for "${topicName}". Use real research, real book/study titles where possible. Each position's "evidenceIndex" is a 0-based index into "evidenceItems" pointing at the ledger row that best backs that position's top sub-argument; omit it where no row fits. Evidence "tier" is T1 peer-reviewed, T2 reputable institution, T3 secondary, T4 anecdotal; "linkage" (0.0-1.0) is how directly the evidence bears on its argument; "standing" is VERIFIED, DISPUTED, or FALSIFIED. Keep every beliefScore bracketed ("[+XX]", "[-XX]", "[0]") — scores are computed by the engine, never hand-entered. Return ONLY the JSON object, no other text.`;
+Fill in all "..." placeholders with substantive, accurate content for "${topicName}". Use real research, real book/study titles where possible. Each position's "evidenceIndex" is a 0-based index into "evidenceItems" pointing at the ledger row that best backs that position's top sub-argument; omit it where no row fits. Evidence "tier" is T1 peer-reviewed, T2 reputable institution, T3 secondary, T4 anecdotal; "linkage" (0.0-1.0) is how directly the evidence bears on its argument; "standing" is UNVERIFIED, VERIFIED, DISPUTED, or FALSIFIED — claims start UNVERIFIED and earn standing, so only mark VERIFIED where the source is well-established. Keep every beliefScore bracketed ("[+XX]", "[-XX]", "[0]") — scores are computed by the engine, never hand-entered. Return ONLY the JSON object, no other text.`;
 
   const raw = await callAI(prompt, 7000);
   const parsed = safeParseJson<Partial<DebateTopic>>(raw, {});

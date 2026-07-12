@@ -56,3 +56,10 @@ export function textSimilarity(a: string, b: string): number {
 /** Above this, ingestion persists an EquivalenceCandidate row for the engine
  *  and human reviewers to see the cluster. */
 export const EQUIVALENCE_CANDIDATE_THRESHOLD = 0.5
+
+/** Above this, the human posting flow treats the submission as a restatement
+ *  of an existing argument and requires acknowledging that row before it
+ *  posts (a speed bump, not a block — the uniqueness discount prices whatever
+ *  overlap remains). Anti-topic-drift: restating stops counting as
+ *  contributing. */
+export const RESTATEMENT_SPEEDBUMP_THRESHOLD = 0.8

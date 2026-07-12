@@ -15,7 +15,7 @@ function rungDisplayLabel(rung: DebateAbstractionRung): string {
   return rung.rungLabel || rung.branchName || 'Specific policy';
 }
 
-export default function Spectrum4AbstractionLadder({ rungs, topicTitle }: Props) {
+export default function AbstractionLadder({ rungs, topicTitle }: Props) {
   return (
     <div id="specificity" className="mb-8">
       <h2 className="text-xl font-bold mb-1">6. The Abstraction Ladder (General ↔ Specific)</h2>

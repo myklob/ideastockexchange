@@ -3,16 +3,17 @@ import Link from 'next/link';
 import { getDebateTopic } from '@/features/debate-topics/db';
 import ExternalReferences from '@/components/debate-topic/ExternalReferences';
 import TopicMetrics from '@/components/debate-topic/TopicMetrics';
-import Spectrum1Positions from '@/components/debate-topic/Spectrum1Positions';
+import PositionSpectrum from '@/components/debate-topic/PositionSpectrum';
 import EvidenceLedger from '@/components/debate-topic/EvidenceLedger';
-import Spectrum2Magnitude from '@/components/debate-topic/Spectrum2Magnitude';
-import Spectrum3Escalation from '@/components/debate-topic/Spectrum3Escalation';
+import ClaimMagnitude from '@/components/debate-topic/ClaimMagnitude';
+import CivicEscalation from '@/components/debate-topic/CivicEscalation';
 import FoundationalAssumptions from '@/components/debate-topic/FoundationalAssumptions';
-import Spectrum4AbstractionLadder from '@/components/debate-topic/Spectrum4AbstractionLadder';
+import AbstractionLadder from '@/components/debate-topic/AbstractionLadder';
 import CoreValuesConflict from '@/components/debate-topic/CoreValuesConflict';
 import CommonGround from '@/components/debate-topic/CommonGround';
 import MediaResources from '@/components/debate-topic/MediaResources';
 import RelatedTopics from '@/components/debate-topic/RelatedTopics';
+import NeighborhoodNav from '@/components/debate-topic/NeighborhoodNav';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,17 +82,22 @@ export default async function DebateTopicPage({ params }: Props) {
         <p className="text-sm mb-4">
           One canonical home for everything anyone has argued about this topic. Arguments are scored by
           evidence quality, linked to the claims they support or undermine, and updated automatically when
-          new data arrives. The rebuttal to any bad argument on this page is always one click away. See{' '}
-          <Link href="/beliefs" className="text-blue-600 hover:underline">One Page Per Belief</Link> for
-          the single-claim version of this design.
+          new data arrives. The rebuttal to any bad argument on this page is always one click away. A
+          permanent home the debate returns to is the structural answer to{' '}
+          <Link href="/problems/topic-drift" className="text-blue-600 hover:underline">topic drift</Link>.
+          See <Link href="/beliefs" className="text-blue-600 hover:underline">One Page Per Belief</Link>{' '}
+          for the single-claim version of this design.
         </p>
+
+        {/* Neighborhood navigation: explicit moves along the page's dimensions */}
+        <NeighborhoodNav relatedTopics={topic.relatedTopics} />
 
         <hr className="my-6" />
 
         {/* 1. The Position Spectrum */}
         {topic.positions.length > 0 && (
           <>
-            <Spectrum1Positions positions={topic.positions} />
+            <PositionSpectrum positions={topic.positions} />
             <hr className="my-6" />
           </>
         )}
@@ -105,7 +111,7 @@ export default async function DebateTopicPage({ params }: Props) {
         )}
 
         {/* 3. Claim Magnitude */}
-        <Spectrum2Magnitude
+        <ClaimMagnitude
           topicTitle={topic.title}
           claimMagnitudeLevels={topic.claimMagnitudeLevels}
         />
@@ -114,7 +120,7 @@ export default async function DebateTopicPage({ params }: Props) {
         {/* 4. The Engagement Landscape: Civic Escalation */}
         {topic.escalationLevels.length > 0 && (
           <>
-            <Spectrum3Escalation escalationLevels={topic.escalationLevels} />
+            <CivicEscalation escalationLevels={topic.escalationLevels} />
             <hr className="my-6" />
           </>
         )}
@@ -133,7 +139,7 @@ export default async function DebateTopicPage({ params }: Props) {
         {/* 6. The Abstraction Ladder */}
         {topic.abstractionRungs.length > 0 && (
           <>
-            <Spectrum4AbstractionLadder rungs={topic.abstractionRungs} topicTitle={topic.title} />
+            <AbstractionLadder rungs={topic.abstractionRungs} topicTitle={topic.title} />
             <hr className="my-6" />
           </>
         )}

@@ -661,6 +661,10 @@ export default function Home() {
             <div>
               <h3 className="font-bold mb-4">Resources</h3>
               <ul className="space-y-2 text-sm">
+                <li><Link href="/problems" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">The Problem</Link></li>
+                <li><Link href="/solutions" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Solutions</Link></li>
+                <li><Link href="/contribute" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Contribute</Link></li>
+                <li><Link href="/search" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Search</Link></li>
                 <li><Link href="/how-it-works" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">How It Works</Link></li>
                 <li><Link href="/protocol" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Schlicht Protocol</Link></li>
                 <li><Link href="/product-reviews" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Product Reviews</Link></li>

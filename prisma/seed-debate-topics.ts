@@ -339,7 +339,7 @@ async function main() {
             argument:
               'Legal marriage adds little independent benefit over stable cohabitation where cohabitation norms are strong.',
             linkage: 0.7,
-            standing: 'VERIFIED',
+            standing: 'UNVERIFIED',
           },
           {
             side: 'supporting',

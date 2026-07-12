@@ -2,5 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "node scripts/set-prisma-provider.mjs && prisma generate && next build",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "crons": [
+    {
+      "path": "/api/v1/epoch/run",
+      "schedule": "15 0 * * *"
+    }
+  ]
 }

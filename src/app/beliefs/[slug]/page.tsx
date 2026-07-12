@@ -16,8 +16,12 @@ import MediaResourcesSection from '@/features/belief-analysis/components/MediaRe
 import LegalSection from '@/features/belief-analysis/components/LegalSection'
 import BeliefMappingSection from '@/features/belief-analysis/components/BeliefMappingSection'
 import SimilarBeliefsSection from '@/features/belief-analysis/components/SimilarBeliefsSection'
+import UsedAsReasonSection from '@/features/belief-analysis/components/UsedAsReasonSection'
+import ScoreHistorySection from '@/features/belief-analysis/components/ScoreHistorySection'
+import MarketPointer from '@/features/belief-analysis/components/MarketPointer'
 import ContributeSection from '@/features/belief-analysis/components/ContributeSection'
 import DefinitionsSection from '@/features/belief-analysis/components/DefinitionsSection'
+import { openContractsForBelief } from '@/lib/markets/belief-pointer'
 
 interface BeliefPageProps {
   params: Promise<{ slug: string }>
@@ -57,6 +61,10 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
     belief.valueRankings,
     belief.costBenefitItems ?? [],
   )
+
+  // The belief→market half of the engagement loop (display only; the market
+  // firewall guarantees nothing flows the other way).
+  const openContracts = await openContractsForBelief(belief.id)
 
   return (
     <div className="min-h-screen bg-white">
@@ -112,6 +120,9 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             <strong>🔗 Beliefs this supports:</strong> {supports.join(' | ')}
           </p>
         )}
+
+        {/* Belief→market pointer — an affordance, not a summary (Rule 2 intact) */}
+        <MarketPointer contracts={openContracts} />
 
         <div className="space-y-12">
           {/* 0. Scorecard — a readout of the top-scoring rows below, not a prose summary */}
@@ -230,6 +241,22 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             similarFrom={belief.similarFrom}
             currentBeliefId={belief.id}
           />
+
+          {/* 12b. Where This Belief Is Used — what-links-here (renders only when used) */}
+          {(belief.usedIn?.length ?? 0) > 0 && (
+            <>
+              <hr className="border-gray-200" />
+              <UsedAsReasonSection usedIn={belief.usedIn ?? []} />
+            </>
+          )}
+
+          {/* 12c. Score History — the accumulation ledger (renders only when events exist) */}
+          {(belief.scoreEvents?.length ?? 0) > 0 && (
+            <>
+              <hr className="border-gray-200" />
+              <ScoreHistorySection events={belief.scoreEvents ?? []} />
+            </>
+          )}
 
           <hr className="border-gray-200" />
 

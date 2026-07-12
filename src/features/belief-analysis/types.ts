@@ -144,6 +144,20 @@ export interface BeliefWithRelations {
    */
   contrastClass?: ContrastClassData | null
 
+  /**
+   * Recorded movements of this belief's engine-computed scores, latest first —
+   * the accumulation ledger rendered as Score History. Optional so existing
+   * callers keep flowing; populated by fetchBeliefBySlug for the page.
+   */
+  scoreEvents?: ScoreEventItem[]
+
+  /**
+   * Argument edges where THIS belief is the reason (what-links-here): every
+   * parent debate that uses it, with side and impact. Optional; populated by
+   * fetchBeliefBySlug for the page.
+   */
+  usedIn?: UsedInArgumentItem[]
+
   arguments: ArgumentWithBelief[]
   evidence: EvidenceItem[]
   objectiveCriteria: ObjectiveCriteriaItem[]
@@ -161,6 +175,26 @@ export interface BeliefWithRelations {
   downstreamMappings: MappingItem[]
   similarTo: SimilarBeliefItem[]
   similarFrom: SimilarBeliefItem[]
+}
+
+/** One recorded score movement (see prisma BeliefScoreEvent). */
+export interface ScoreEventItem {
+  id: number
+  scoreBefore: number
+  scoreAfter: number
+  stabilityBefore: number | null
+  stabilityAfter: number | null
+  trigger: string
+  createdAt: Date
+}
+
+/** One parent debate that uses this belief as a reason. */
+export interface UsedInArgumentItem {
+  id: number
+  side: string
+  impactScore: number
+  claim: string | null
+  parentBelief: { id: number; slug: string; statement: string }
 }
 
 export interface ArgumentWithBelief {

@@ -16,7 +16,7 @@ function scoreColor(score: number): string {
   return score < 0 ? 'text-red-600' : score === 0 ? 'text-gray-700' : 'text-green-700';
 }
 
-export default function Spectrum1Positions({ positions }: Props) {
+export default function PositionSpectrum({ positions }: Props) {
   return (
     <div id="direction" className="mb-8">
       <h2 className="text-xl font-bold mb-1">1. The Position Spectrum (Negative ↔ Positive)</h2>

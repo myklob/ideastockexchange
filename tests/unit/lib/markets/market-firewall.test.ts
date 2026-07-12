@@ -36,8 +36,10 @@ const MARKET_DIRS = [
 // Graph writes look like prisma.<graphModel>.<mutating verb>.
 const GRAPH_WRITE = /\.(belief|argument|evidence|linkageArgument|linkageFiveStepCheck|linkageAssumption|linkageVote)\.(create|update|upsert|delete|createMany|updateMany|deleteMany)\b/
 
-// Market reads inside scoring code look like references to market models.
-const MARKET_REFERENCE = /marketContract|marketPosition|marketOrder|marketTrade|priceTick|marketBundle|marginLoan|epochSnapshot/i
+// Market reads inside scoring code look like references to market models —
+// including the legacy sim layer (LiquidityPool/Share price fields), so the
+// older prototype can't leak into scoring unnoticed either.
+const MARKET_REFERENCE = /marketContract|marketPosition|marketOrder|marketTrade|priceTick|marketBundle|marginLoan|epochSnapshot|liquidityPool|pricePerShare|yesShares|noShares/i
 
 describe('market firewall: markets read scores, never write them', () => {
   it('no market-layer file writes to a graph model', () => {
