@@ -284,6 +284,13 @@ export interface EvidenceItem {
   evsScore: number
   linkageScore: number
   impactScore: number
+  /**
+   * Verification lifecycle: "UNVERIFIED" | "VERIFIED" | "DISPUTED" |
+   * "FALSIFIED". Null = legacy row predating the lifecycle (full weight).
+   * FALSIFIED zeroes this evidence's contribution in computeBeliefScores.
+   * Optional so existing fixtures keep flowing.
+   */
+  verificationStatus?: string | null
 }
 
 export interface ObjectiveCriteriaItem {

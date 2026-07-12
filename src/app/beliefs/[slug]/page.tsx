@@ -269,6 +269,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
               high-stakes beliefs (steelman acknowledgment + principle check). */}
           <ContributeSection
             beliefId={belief.id}
+            beliefSlug={belief.slug}
             highStakes={belief.highStakes ?? false}
             arguments={belief.arguments}
           />

@@ -110,6 +110,13 @@ export interface DebateEvidence {
   /// "DISPUTED" (half while the challenge is open) | "FALSIFIED" (zero).
   /// Rows are born UNVERIFIED and earn standing.
   standing?: string;
+  /// The bridge: engine Evidence node this ledger row mirrors. When set,
+  /// qualityScore/linkage/standing above are DERIVED from the engine at
+  /// read time (see mapTopicFromDb); when absent the row is a seed
+  /// illustration with hand-entered example values.
+  engineEvidenceId?: number;
+  /// True when the values on this row were derived from the engine node.
+  derivedFromEngine?: boolean;
 }
 
 export interface DebateObjectiveCriteria {

@@ -283,6 +283,20 @@ export async function fetchBeliefCategories(): Promise<string[]> {
 }
 
 /** Compute all 12 ReasonRank scores for a belief */
+/**
+ * Verification lifecycle weight, mirroring the reasonrank engine's
+ * VERIFICATION_WEIGHTS: FALSIFIED evidence contributes nothing (the
+ * retraction propagates to every score built on it), UNVERIFIED and
+ * DISPUTED count at half weight, VERIFIED at full. Legacy rows (null
+ * status) predate the lifecycle and keep full weight, so existing seeded
+ * scores are unchanged until a row's status is actually set.
+ */
+function verificationWeight(status: string | null | undefined): number {
+  if (status === 'FALSIFIED') return 0
+  if (status === 'DISPUTED' || status === 'UNVERIFIED') return 0.5
+  return 1
+}
+
 export function computeBeliefScores(belief: BeliefWithRelations): BeliefScores {
   const proArgs = belief.arguments.filter(a => a.side === 'agree')
   const conArgs = belief.arguments.filter(a => a.side === 'disagree')
@@ -294,8 +308,10 @@ export function computeBeliefScores(belief: BeliefWithRelations): BeliefScores {
   const supportingEvidence = belief.evidence.filter(e => e.side === 'supporting')
   const weakeningEvidence = belief.evidence.filter(e => e.side === 'weakening')
 
-  const totalSupportingEvidence = supportingEvidence.reduce((sum, e) => sum + Math.abs(e.impactScore), 0)
-  const totalWeakeningEvidence = weakeningEvidence.reduce((sum, e) => sum + Math.abs(e.impactScore), 0)
+  const totalSupportingEvidence = supportingEvidence.reduce(
+    (sum, e) => sum + Math.abs(e.impactScore) * verificationWeight(e.verificationStatus), 0)
+  const totalWeakeningEvidence = weakeningEvidence.reduce(
+    (sum, e) => sum + Math.abs(e.impactScore) * verificationWeight(e.verificationStatus), 0)
 
   const totalPositive = totalPro + totalSupportingEvidence
   const totalNegative = totalCon + totalWeakeningEvidence
@@ -312,7 +328,11 @@ export function computeBeliefScores(belief: BeliefWithRelations): BeliefScores {
       conclusionRelevance: ev.conclusionRelevance,
       replicationPercentage: ev.replicationPercentage,
     })
-    return { side: ev.side, evsScore: computedEVS, linkageScore: ev.linkageScore }
+    return {
+      side: ev.side,
+      evsScore: computedEVS * verificationWeight(ev.verificationStatus),
+      linkageScore: ev.linkageScore,
+    }
   })
 
   const truthBreakdown = calculateTruthScoreBreakdown(

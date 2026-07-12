@@ -606,6 +606,14 @@ model Evidence {
   linkageScore     Float            @default(0.5)
   impactScore      Float            @default(0)
 
+  /// Verification lifecycle, matching the engine's VerificationStatus
+  /// (src/core/reasonrank/types.ts): "UNVERIFIED" | "VERIFIED" | "DISPUTED" |
+  /// "FALSIFIED". Nullable: legacy rows predate the lifecycle and count at
+  /// full weight; new rows should be born "UNVERIFIED" and earn standing.
+  /// FALSIFIED zeroes this evidence's contribution and the retraction
+  /// propagates to every score built on it.
+  verificationStatus String?
+
   /// Agent-ingestion provenance. Identifiers are metadata; tier weighting math
   /// belongs to the engine. `tierClaim` is the submitting agent's assertion;
   /// `tierVerified` stays null until the provenance job or a human confirms it.
@@ -618,6 +626,10 @@ model Evidence {
   tierVerified String?
   retrievedByAgentId String?
   retrievedByAgent   Agent? @relation("EvidenceRetrievedBy", fields: [retrievedByAgentId], references: [id])
+
+  /// Topic-page ledger rows that mirror this engine node (the bridge: linked
+  /// rows derive quality/linkage/standing from here at render time)
+  ledgerRows DebateEvidence[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1794,6 +1806,13 @@ model DebateEvidence {
   /// the challenge is open), "FALSIFIED" (zero). Rows are born UNVERIFIED and
   /// earn standing.
   standing     String @default("UNVERIFIED")
+
+  /// The bridge to the scoring engine: when set, quality/linkage/standing are
+  /// DERIVED from the engine Evidence node at render time and the stored
+  /// copies above are ignored. Rows without a link are seed illustrations —
+  /// hand-entered examples, not computed values.
+  engineEvidenceId Int?
+  engineEvidence   Evidence? @relation(fields: [engineEvidenceId], references: [id], onDelete: SetNull)
 
   positions DebatePosition[]
 

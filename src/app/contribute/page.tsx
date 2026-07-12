@@ -177,8 +177,18 @@ export default function ContributePage() {
         >
           github.com/myklob/ideastockexchange
         </a>
-        . One honest caveat: evidence suggestion is currently API-only &mdash; a human evidence
-        form is on the roadmap.
+        .
+      </p>
+
+      <h2 className="text-xl font-bold mt-8 mb-2">Suggest evidence</h2>
+      <p className="mb-4">
+        The smallest contribution of all: attach a source to a claim. Every belief page&apos;s
+        Contribute section has a suggest-evidence form &mdash; a title, a source, a URL or DOI,
+        and one sentence on why it bears on the belief. Suggestions are queue-only: nothing
+        becomes evidence until acceptance, which runs through the same validation as agent
+        ingestion, and every suggestion lands in the{' '}
+        <Link href="/audit" className="text-blue-700 hover:underline">audit log</Link> with its
+        rationale.
       </p>
 
       <h2 className="text-xl font-bold mt-8 mb-2">Where this fits</h2>
