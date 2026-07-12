@@ -181,6 +181,10 @@ Cost-Benefit tables. The source of truth is `templates/belief-analysis-template.
 
 Header: Belief statement → metadata line (Topic / Dewey / Positivity / Net Belief
 Score / Related) → "Beliefs this supports" line. No summary or background (Rule 2).
+When an open prediction-market contract exists on this belief's score, a one-line
+**market pointer** follows the header (an affordance, not a summary): it links the
+contract on `/markets` and restates the firewall — prices predict the engine, never
+feed it. Renders nothing when no open contract exists.
 
 0. **Scorecard** — a readout of the scored content below, not a prose summary:
    `Net Belief Score (Pro vs. Con)` / `Bottom line` (one-sentence verdict scoped to
@@ -256,6 +260,17 @@ Score / Related) → "Beliefs this supports" line. No summary or background (Rul
     `Support / Score / Oppose / Score`)
 11. **Similar Beliefs** (`More Extreme / Score / More Moderate / Score`, scored by
     belief equivalency)
+11b. **Where This Belief Is Used** *(renders only when the belief serves as a
+    reason somewhere)* — what-links-here: every parent debate using this belief
+    as a reason (`Used as a reason in / Side / Impact`), ranked by impact
+    magnitude (Rule 8), impact 0 rendering blank (Rule 6). One argument, one
+    home, every use visible.
+11c. **Score History** *(renders only when score events exist)* — the
+    accumulation ledger: every engine-computed movement of this belief's score
+    (`When / Score / Change / What moved it`), latest first, written exclusively
+    by score propagation. The visible answer to the clean-slate problem; nothing
+    here is hand-entered, so history rows are never authored (Rule 6 by
+    construction). Also served by `GET /api/beliefs/[id]/history`.
 12. **Definitions** (`Term / Definition / Score`) — LAST before footer
 13. **Contribute / footer** — the two moves, stated and usable: an add-a-reason form
     (the new reason becomes a belief page of its own; no score field is ever
@@ -284,6 +299,7 @@ Before outputting any ISE belief page, verify:
 - [ ] Logical Anatomy decomposes the belief (logical form + typed, load-bearing-flagged component claims)
 - [ ] Cost-Benefit rows carry Category (Units) / Magnitude / Likelihood % / Expected Value and subtotal only within a category
 - [ ] Conflict Resolution Framework has all sub-sections: Shared Values rankings, Interests of Supporters, Interests of Opponents, Shared+Conflicting (Shared Interests + Primary Conflict Pair), Best Compromise Solutions, Advertised vs. Actual (with Divergence Score), Dispute Types, Primary Obstacles, Biases
+- [ ] Where This Belief Is Used and Score History render only when they have rows; neither is ever hand-authored
 - [ ] Every link points to a page that exists OR is plain text
 - [ ] No `href="#"` anchors anywhere
 - [ ] Both sides have symmetric structure in Interests, Advertised vs. Actual, Biases, Obstacles

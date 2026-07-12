@@ -119,7 +119,11 @@ export default async function HowItWorksPage() {
         arguments are never actually defeated, they just move to a new thread. Because every
         discussion lives on its own disconnected page, humanity has no long-term memory for
         debate. We refute the same nonsense every morning, forever, like a civilization with
-        amnesia.
+        amnesia. The full diagnosis — why attention-funded platforms select for exactly these
+        failures — lives on{' '}
+        <Link href="/problems" className="text-blue-700 hover:underline">The Problem</Link>, with
+        the mechanism map on{' '}
+        <Link href="/solutions" className="text-blue-700 hover:underline">Solutions</Link>.
       </p>
       <div className="overflow-x-auto mb-4">
         <table className="w-full border-collapse border border-gray-300 text-sm">

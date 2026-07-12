@@ -165,19 +165,27 @@ export default function TopicDriftPage() {
       <h2 className="text-xl font-bold mt-8 mb-2">Related</h2>
       <ul className="list-disc ml-6 mb-4 space-y-1">
         <li>
-          <Link href="/problems" className="text-blue-700 hover:underline">Problems hub</Link>:
-          where this failure sits in the larger diagnosis.
+          <Link href="/problems" className="text-blue-700 hover:underline">The Problem</Link>:
+          where this failure sits in the larger diagnosis of attention-funded media.
         </li>
         <li>
-          <strong>Scattered and redundant arguments</strong>: the related failure of unfindability
-          across cycles.
+          <Link
+            href="/problems/media-cannot-organize-a-good-debate"
+            className="text-blue-700 hover:underline"
+          >
+            The media cannot organize a good debate
+          </Link>
+          : the parent failure — drift plus scattered, redundant arguments.
         </li>
         <li>
-          <strong>Repetition without progress</strong>: the sibling failure this page&apos;s costs
-          section links in context.
+          <Link href="/problems/clean-slate" className="text-blue-700 hover:underline">
+            For-profit media does not accumulate progress
+          </Link>
+          : topic drift over time, across whole news cycles.
         </li>
         <li>
-          <strong>The clean-slate problem</strong>: topic drift over time, across whole news cycles.
+          <Link href="/solutions" className="text-blue-700 hover:underline">Solutions</Link>: the
+          full mechanism map, including the Order mechanism this page describes.
         </li>
       </ul>
     </div>

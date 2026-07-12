@@ -14,7 +14,6 @@
 export * from './scoring-engine';
 
 // Domain-specific scoring
-export * from './book-scoring';
 
 // CBA scoring - exclude calculateArgumentImpact which is already in scoring-engine
 export {

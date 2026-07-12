@@ -1,4 +1,4 @@
-import { CENTRALITY_WEIGHTS, ReachMetrics, QualityFactors } from '../types/book'
+import { CENTRALITY_WEIGHTS, ReachMetrics, QualityFactors } from '../types'
 
 /**
  * Calculate weighted logical validity score based on claims

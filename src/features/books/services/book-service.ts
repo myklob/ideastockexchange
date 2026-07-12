@@ -9,8 +9,8 @@ import {
   calculateAverageValidity,
   getValidityDistribution,
   calculateTruthEquity,
-} from '@/core/scoring/book-scoring'
-import { BookAnalysisReport } from '@/core/types/book'
+} from './book-scoring'
+import { BookAnalysisReport } from '../types'
 
 /**
  * Get comprehensive book analysis report

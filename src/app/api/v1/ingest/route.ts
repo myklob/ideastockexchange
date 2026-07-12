@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   // so on upward. Post evidence → every dependent conclusion updates.
   const changedBeliefIds = [...new Set(result.claims.map((c) => c.beliefId))]
   for (const beliefId of changedBeliefIds) {
-    await propagateBeliefScores(beliefId)
+    await propagateBeliefScores(beliefId, new Set(), 0, `agent ingestion on belief #${beliefId}`)
   }
 
   return agentJson(

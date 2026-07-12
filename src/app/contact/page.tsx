@@ -55,6 +55,11 @@ export default function ContactPage() {
           <Link href="/beliefs" className="text-blue-700 hover:underline">belief page</Link> —
           well-formed pro and con arguments are the contribution the project needs most.
         </li>
+        <li>
+          Not sure where to start? The{' '}
+          <Link href="/contribute" className="text-blue-700 hover:underline">contribution ladder</Link>{' '}
+          lists every pathway, smallest piece first.
+        </li>
       </ul>
       <p className="text-sm text-gray-600">
         New here? Start with{' '}

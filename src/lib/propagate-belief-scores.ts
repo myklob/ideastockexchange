@@ -56,6 +56,49 @@ export interface PropagationResult {
 
 // ─── Internal helpers ─────────────────────────────────────────────
 
+/** Below this, a recomputed value counts as unchanged (float noise, not news). */
+const SCORE_EVENT_EPSILON = 1e-6
+
+/**
+ * Record a belief score movement in the accumulation ledger. The belief page
+ * renders these as Score History — the visible proof that the debate
+ * accumulates instead of restarting. Only real movements are recorded;
+ * a propagation pass that lands on the same value writes nothing.
+ */
+async function recordScoreEvent(
+  beliefId: number,
+  before: { positivity: number; stabilityScore: number },
+  after: { positivity: number; stabilityScore?: number },
+  trigger: string,
+): Promise<void> {
+  const scoreChanged = Math.abs(after.positivity - before.positivity) > SCORE_EVENT_EPSILON
+  const stabilityChanged =
+    after.stabilityScore !== undefined &&
+    Math.abs(after.stabilityScore - before.stabilityScore) > SCORE_EVENT_EPSILON
+  if (!scoreChanged && !stabilityChanged) return
+
+  await prisma.beliefScoreEvent.create({
+    data: {
+      beliefId,
+      scoreBefore: before.positivity,
+      scoreAfter: after.positivity,
+      stabilityBefore: stabilityChanged ? before.stabilityScore : null,
+      stabilityAfter: stabilityChanged ? (after.stabilityScore as number) : null,
+      trigger,
+    },
+  })
+}
+
+/** Current persisted score fields, read just before an update overwrites them. */
+async function persistedScoresFor(
+  beliefId: number,
+): Promise<{ positivity: number; stabilityScore: number } | null> {
+  return prisma.belief.findUnique({
+    where: { id: beliefId },
+    select: { positivity: true, stabilityScore: true },
+  })
+}
+
 /** Columns needed to recompute an argument edge's impact. */
 const ARGUMENT_EDGE_SELECT = {
   id: true,
@@ -168,11 +211,14 @@ async function resolveEffectiveImportance(arg: {
  * @param beliefId - The belief whose scores should propagate upward.
  * @param visited  - Set of already-visited belief IDs (prevents cycles).
  * @param depth    - Current recursion depth (for result reporting).
+ * @param trigger  - Human-readable cause, recorded on every score event this
+ *                   pass produces (e.g. "argument #12 posted").
  */
 export async function propagateBeliefScores(
   beliefId: number,
   visited: Set<number> = new Set(),
   depth: number = 0,
+  trigger: string = 'propagation',
 ): Promise<PropagationResult> {
   if (visited.has(beliefId)) {
     return { updatedArgumentIds: [], updatedBeliefIds: [], depth }
@@ -201,10 +247,14 @@ export async function propagateBeliefScores(
   // its editorial valence would fake a verdict that was never computed (Rule 6).
   const hasScoredContent = childBelief.arguments.length > 0 || childBelief.evidence.length > 0
   if (hasScoredContent) {
+    const before = await persistedScoresFor(beliefId)
     await prisma.belief.update({
       where: { id: beliefId },
       data: { positivity: childScores.overallScore },
     })
+    if (before) {
+      await recordScoreEvent(beliefId, before, { positivity: childScores.overallScore }, trigger)
+    }
   }
 
   // ── Step 2: Find every argument edge that draws on this belief ──
@@ -286,6 +336,7 @@ export async function propagateBeliefScores(
 
     const parentScores = computeBeliefScores(parentBelief)
 
+    const parentBefore = await persistedScoresFor(parentBeliefId)
     await prisma.belief.update({
       where: { id: parentBeliefId },
       data: {
@@ -295,11 +346,19 @@ export async function propagateBeliefScores(
         positivity: parentScores.overallScore,
       },
     })
+    if (parentBefore) {
+      await recordScoreEvent(
+        parentBeliefId,
+        parentBefore,
+        { positivity: parentScores.overallScore, stabilityScore: parentScores.stabilityScore },
+        trigger,
+      )
+    }
 
     result.updatedBeliefIds.push(parentBeliefId)
 
     // ── Step 5: Recurse to each parent's own ancestors ────────────
-    const childResult = await propagateBeliefScores(parentBeliefId, visited, depth + 1)
+    const childResult = await propagateBeliefScores(parentBeliefId, visited, depth + 1, trigger)
     result.updatedArgumentIds.push(...childResult.updatedArgumentIds)
     result.updatedBeliefIds.push(...childResult.updatedBeliefIds)
     result.depth = Math.max(result.depth, childResult.depth)
@@ -346,7 +405,7 @@ export async function propagateAllBeliefScores(): Promise<FullPropagationResult>
 
   for (const id of startBeliefIds) {
     if (visited.has(id)) continue
-    const pass = await propagateBeliefScores(id, visited)
+    const pass = await propagateBeliefScores(id, visited, 0, 'full recompute')
     result.updatedArguments += pass.updatedArgumentIds.length
     result.updatedBeliefs += pass.updatedBeliefIds.length
     result.maxDepth = Math.max(result.maxDepth, pass.depth)
@@ -357,7 +416,7 @@ export async function propagateAllBeliefScores(): Promise<FullPropagationResult>
   // every leaf under it was already visited. Sweep any belief not yet visited.
   for (const { id } of allBeliefIds) {
     if (visited.has(id)) continue
-    const pass = await propagateBeliefScores(id, visited)
+    const pass = await propagateBeliefScores(id, visited, 0, 'full recompute')
     result.updatedArguments += pass.updatedArgumentIds.length
     result.updatedBeliefs += pass.updatedBeliefIds.length
     result.maxDepth = Math.max(result.maxDepth, pass.depth)

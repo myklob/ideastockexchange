@@ -280,7 +280,12 @@ export async function POST(
 
   // The engine's turn: the new edge changes the graph, so recompute the new
   // claim's impact and everything upstream of it.
-  await propagateBeliefScores(created.childBelief.id)
+  await propagateBeliefScores(
+    created.childBelief.id,
+    new Set(),
+    0,
+    `argument #${created.argument.id} posted`,
+  )
 
   return NextResponse.json(
     {

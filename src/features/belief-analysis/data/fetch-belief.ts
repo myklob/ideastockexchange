@@ -149,7 +149,29 @@ export async function fetchBeliefBySlug(slug: string): Promise<BeliefWithRelatio
   // contrast class is defined for this belief.
   const contrastClass = await resolveContrastClass(slug)
 
-  return { ...belief, contrastClass } as BeliefWithRelations | null
+  // Page-only extras, fetched here rather than in BELIEF_INCLUDE so score
+  // propagation (which reuses the include) stays lean:
+  //   scoreEvents — the accumulation ledger behind Score History.
+  //   usedIn      — every parent debate using this belief as a reason.
+  const [scoreEvents, usedIn] = await Promise.all([
+    prisma.beliefScoreEvent.findMany({
+      where: { beliefId: belief.id },
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+    }),
+    prisma.argument.findMany({
+      where: { beliefId: belief.id, status: 'published' },
+      select: {
+        id: true,
+        side: true,
+        impactScore: true,
+        claim: true,
+        parentBelief: { select: { id: true, slug: true, statement: true } },
+      },
+    }),
+  ])
+
+  return { ...belief, contrastClass, scoreEvents, usedIn } as BeliefWithRelations | null
 }
 
 /** Fetch a belief by numeric ID */

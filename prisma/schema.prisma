@@ -218,6 +218,9 @@ model Belief {
   // Arguments where this belief IS the reason (child)
   asArgument Argument[] @relation("ArgumentBelief")
 
+  // Recorded movements of this belief's engine-computed scores (accumulation ledger)
+  scoreEvents BeliefScoreEvent[]
+
   // Arguments whose Importance Score is sourced from this belief's net score
   asImportanceArgument Argument[] @relation("ArgumentImportanceBelief")
 
@@ -1738,6 +1741,29 @@ model DebateCommonGround {
   agreements     String @default("[]")
   valueConflicts String @default("[]")
   compromises    String @default("[]")
+}
+
+/// One recorded movement of a belief's engine-computed scores — the
+/// accumulation ledger behind the belief page's Score History section
+/// ("the debate accumulates instead of restarting"). Written only by score
+/// propagation when a persisted value actually changes; never hand-entered.
+model BeliefScoreEvent {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id], onDelete: Cascade)
+
+  /// Engine-computed overall score (persisted as Belief.positivity, -100..+100)
+  scoreBefore Float
+  scoreAfter  Float
+  /// Confidence stability (0-1), when the pass recomputed it
+  stabilityBefore Float?
+  stabilityAfter  Float?
+  /// What caused the recomputation, e.g. "argument #12 posted", "full recompute"
+  trigger String @default("propagation")
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId, createdAt])
 }
 
 /// One row in the Evidence Ledger (supporting or weakening).
