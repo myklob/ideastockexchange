@@ -26,6 +26,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { calculateLinkageFromArguments, applyDepthAttenuation } from '@/core/scoring/scoring-engine'
 import { propagateFromLinkageChange } from '@/lib/propagate-belief-scores'
+import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
 
 // ─── GET ───────────────────────────────────────────────────────────────────
 
@@ -54,9 +55,12 @@ export async function GET(
     return NextResponse.json({ error: 'Argument not found' }, { status: 404 })
   }
 
-  // Compute current linkage score from stored LinkageArguments
+  // Compute current linkage score from stored LinkageArguments. Drafts
+  // (unreviewed detector output) are listed in the payload but never counted:
+  // a detection is an argument, never a penalty.
+  const published = arg.linkageArguments.filter(la => la.status === 'published')
   const computedLinkageScore = calculateLinkageFromArguments(
-    arg.linkageArguments.map(la => ({ side: la.side, strength: la.strength }))
+    published.map(la => ({ side: la.side, strength: la.strength }))
   )
 
   // Apply depth attenuation for display purposes
@@ -80,8 +84,8 @@ export async function GET(
       attenuatedScore,
       depthFactor: Math.pow(0.5, arg.depth),
       formula: `(A − D) / (A + D)  →  depth-attenuated × 0.5^${arg.depth}`,
-      proCount: arg.linkageArguments.filter(la => la.side === 'agree').length,
-      conCount: arg.linkageArguments.filter(la => la.side === 'disagree').length,
+      proCount: published.filter(la => la.side === 'agree').length,
+      conCount: published.filter(la => la.side === 'disagree').length,
     },
   })
 }
@@ -97,6 +101,10 @@ export async function POST(
 
   if (Number.isNaN(argumentId)) {
     return NextResponse.json({ error: 'Invalid argument id' }, { status: 400 })
+  }
+
+  if (isGraphFrozen(new Date())) {
+    return NextResponse.json({ error: GRAPH_FREEZE_MESSAGE }, { status: 423 })
   }
 
   const body = await req.json().catch(() => null)
@@ -173,6 +181,10 @@ export async function PATCH(
 
   if (Number.isNaN(argumentId)) {
     return NextResponse.json({ error: 'Invalid argument id' }, { status: 400 })
+  }
+
+  if (isGraphFrozen(new Date())) {
+    return NextResponse.json({ error: GRAPH_FREEZE_MESSAGE }, { status: 423 })
   }
 
   const arg = await prisma.argument.findUnique({

@@ -470,7 +470,10 @@ export async function placeOrder(params: PlaceOrderParams) {
       const sellerId = side === 'BUY' ? fill.makerUserId : user.id
 
       // Shares move seller → buyer; cash moves buyer → seller (taker pays fee).
-      await applyPositionSell(tx, sellerId, contractId, outcome, fill.quantity, fill.price)
+      // A taker-seller's realized P&L books net-of-fee proceeds, matching the
+      // LMSR sell path; maker-sellers pay no fee so gross price is right.
+      const sellerProceedsPerShare = side === 'SELL' ? fill.price - fee / fill.quantity : fill.price
+      await applyPositionSell(tx, sellerId, contractId, outcome, fill.quantity, sellerProceedsPerShare)
       await upsertPositionBuy(tx, buyerId, contractId, outcome, fill.quantity, fill.price)
 
       if (side === 'BUY') {

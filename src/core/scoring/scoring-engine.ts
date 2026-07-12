@@ -165,8 +165,21 @@ export function scoreLinkageDebate(debate: LinkageDebate): number {
   const proBreakdowns = debate.proArguments.map(scoreArgument)
   const conBreakdowns = debate.conArguments.map(scoreArgument)
 
-  const A = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
-  const D = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+  // rawImpact can be negative (an argument whose own linkage sub-debate
+  // resolved against it argues for the OTHER side). Redistribute negative
+  // mass instead of summing signed values: signed sums would make
+  // (A − D) / (A + D) flip sign when the denominator goes negative — a
+  // purely link-opposing debate must score −1, not +1.
+  let A = 0
+  let D = 0
+  for (const b of proBreakdowns) {
+    if (b.rawImpact >= 0) A += b.rawImpact
+    else D += -b.rawImpact
+  }
+  for (const b of conBreakdowns) {
+    if (b.rawImpact >= 0) D += b.rawImpact
+    else A += -b.rawImpact
+  }
 
   const total = A + D
   if (total === 0) return 0.0
@@ -521,9 +534,20 @@ export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
   const conBreakdowns = belief.conTree.map(scoreArgument)
   const allBreakdowns = [...proBreakdowns, ...conBreakdowns]
 
-  // Sum ReasonRank-weighted contributions (rawImpact = RR × linkage × importance × uniqueness)
-  const proRank = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
-  const conRank = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
+  // Sum ReasonRank-weighted contributions (rawImpact = RR × linkage × importance
+  // × uniqueness). Negative rawImpact (linkage resolved against the argument)
+  // counts for the opposite side, keeping both ranks non-negative so
+  // proRank / totalRank stays a valid share.
+  let proRank = 0
+  let conRank = 0
+  for (const b of proBreakdowns) {
+    if (b.rawImpact >= 0) proRank += b.rawImpact
+    else conRank += -b.rawImpact
+  }
+  for (const b of conBreakdowns) {
+    if (b.rawImpact >= 0) conRank += b.rawImpact
+    else proRank += -b.rawImpact
+  }
 
   // Score evidence
   let supportingEvidenceScore = 0

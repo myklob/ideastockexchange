@@ -214,7 +214,6 @@ export default async function DistractionsBeliefPage() {
               <CostBenefitSection
                 cba={belief.costBenefitAnalysis}
                 impact={belief.impactAnalysis}
-                compromises={belief.compromises}
               />
 
               {/* 8. Short vs Long-Term Impacts */}

@@ -13,6 +13,7 @@ import { describe, it, expect } from 'vitest'
 import {
   scoreArgument,
   scoreProtocolBelief,
+  scoreLinkageDebate,
   calculateReasonRankScore,
   calculateEVS,
   calculateLinkageFromArguments,
@@ -21,7 +22,7 @@ import {
   determineActiveLikelihood,
   recalculateProtocolBelief,
 } from '../../../../src/core/scoring/scoring-engine'
-import { SchilchtArgument, SchilchtBelief } from '../../../../src/core/types/schlicht'
+import { LinkageDebate, SchilchtArgument, SchilchtBelief } from '../../../../src/core/types/schlicht'
 import { LikelihoodEstimate } from '../../../../src/core/types/cba'
 
 // ─── Test Helpers ─────────────────────────────────────────────────
@@ -311,6 +312,54 @@ describe('scoreArgument', () => {
   })
 })
 
+// ─── scoreLinkageDebate Tests ───────────────────────────────────
+
+function makeLinkageDebate(overrides: Partial<LinkageDebate> = {}): LinkageDebate {
+  return {
+    id: 'ld-1',
+    subClaim: 'Evidence A supports Claim B',
+    evidenceId: 'ev-1',
+    parentClaimId: 'claim-1',
+    linkageType: 'strengthener',
+    proArguments: [],
+    conArguments: [],
+    linkageScore: 0,
+    status: 'emerging',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    ...overrides,
+  }
+}
+
+describe('scoreLinkageDebate', () => {
+  it('returns 0 for an empty debate', () => {
+    expect(scoreLinkageDebate(makeLinkageDebate())).toBe(0)
+  })
+
+  it('does not invert when the only pro argument has negative effective linkage', () => {
+    // The pro argument's own linkage resolved against it (static -0.5): the
+    // debate as a whole opposes the link. A signed-sum (A − D)/(A + D) with a
+    // negative denominator used to flip this to +1.0 ("deductive proof").
+    const debate = makeLinkageDebate({
+      proArguments: [
+        makeArg({ id: 'pro-1', side: 'pro', truthScore: 0.8, linkageScore: -0.5 }),
+      ],
+    })
+    expect(scoreLinkageDebate(debate)).toBeLessThanOrEqual(0)
+  })
+
+  it('scores a supportive debate positive and an opposing debate negative', () => {
+    const supportive = makeLinkageDebate({
+      proArguments: [makeArg({ id: 'pro-1', side: 'pro', truthScore: 0.8, linkageScore: 0.8 })],
+    })
+    const opposing = makeLinkageDebate({
+      conArguments: [makeArg({ id: 'con-1', side: 'con', truthScore: 0.8, linkageScore: 0.8 })],
+    })
+    expect(scoreLinkageDebate(supportive)).toBeGreaterThan(0)
+    expect(scoreLinkageDebate(opposing)).toBeLessThan(0)
+  })
+})
+
 // ─── scoreProtocolBelief Tests ──────────────────────────────────
 
 describe('scoreProtocolBelief', () => {
@@ -368,6 +417,21 @@ describe('scoreProtocolBelief', () => {
 
     // Equal pro and con: ProRank / (ProRank + ConRank) = 0.5
     expect(result.truthScore).toBeCloseTo(0.5, 1)
+  })
+
+  it('counts a pro argument with negative effective linkage toward the con side', () => {
+    const belief = makeBelief({
+      proTree: [
+        makeArg({ id: 'pro-1', side: 'pro', truthScore: 0.8, linkageScore: -0.5 }),
+      ],
+      conTree: [
+        makeArg({ id: 'con-1', side: 'con', truthScore: 0.5, linkageScore: 0.5 }),
+      ],
+    })
+    const result = scoreProtocolBelief(belief)
+
+    // Negative pro mass must weaken the belief, not zero out the denominator.
+    expect(result.truthScore).toBeLessThan(0.5)
   })
 
   it('should include evidence contribution', () => {

@@ -22,7 +22,7 @@
  *    b. Persist P's new stabilityScore.
  *    c. Recurse: propagate from P upward to P's own parent beliefs.
  *
- * A visited-set prevents infinite loops in case of cyclic belief graphs.
+ * A per-belief pass cap prevents infinite loops in case of cyclic belief graphs.
  *
  * This module is intentionally separated from the API layer so it can be
  * called from any mutation point: evidence added, linkage vote cast, etc.
@@ -58,6 +58,9 @@ export interface PropagationResult {
 
 /** Below this, a recomputed value counts as unchanged (float noise, not news). */
 const SCORE_EVENT_EPSILON = 1e-6
+
+/** Cycle guard: how many times one belief may be reprocessed per propagation. */
+const MAX_PASSES_PER_BELIEF = 10
 
 /**
  * Record a belief score movement in the accumulation ledger. The belief page
@@ -208,9 +211,17 @@ async function resolveEffectiveImportance(arg: {
  * 3. Recomputes each parent belief's stability score.
  * 4. Recurses to each parent belief.
  *
+ * Traversal is an iterative worklist rather than a visited-set recursion: a
+ * belief reached through two converging paths (diamond) must be recomputed
+ * after BOTH incoming edges are fresh, and its own ancestors refreshed again —
+ * a visited-set would prune the second pass and leave ancestors stale. The
+ * worklist dedups pending entries (a belief already queued is not queued
+ * twice) and caps how many times any one belief can be processed, so cyclic
+ * graphs still terminate.
+ *
  * @param beliefId - The belief whose scores should propagate upward.
- * @param visited  - Set of already-visited belief IDs (prevents cycles).
- * @param depth    - Current recursion depth (for result reporting).
+ * @param visited  - Out-param: every belief ID this call processed.
+ * @param depth    - Starting depth (for result reporting).
  * @param trigger  - Human-readable cause, recorded on every score event this
  *                   pass produces (e.g. "argument #12 posted").
  */
@@ -220,20 +231,46 @@ export async function propagateBeliefScores(
   depth: number = 0,
   trigger: string = 'propagation',
 ): Promise<PropagationResult> {
-  if (visited.has(beliefId)) {
-    return { updatedArgumentIds: [], updatedBeliefIds: [], depth }
-  }
-  visited.add(beliefId)
-
   const result: PropagationResult = {
     updatedArgumentIds: [],
     updatedBeliefIds: [],
     depth,
   }
 
+  const queue: Array<{ id: number; depth: number }> = [{ id: beliefId, depth }]
+  const pending = new Set<number>([beliefId])
+  const passes = new Map<number, number>()
+  // Uniqueness depends on sibling text, which propagation never edits, so the
+  // per-parent redundancy scan is cacheable across the whole traversal.
+  const uniquenessCache = new Map<number, Map<number, number>>()
+
+  while (queue.length > 0) {
+    const item = queue.shift()!
+    pending.delete(item.id)
+    passes.set(item.id, (passes.get(item.id) ?? 0) + 1)
+    visited.add(item.id)
+    result.depth = Math.max(result.depth, item.depth)
+
+    await propagateOneBelief(item, queue, pending, passes, uniquenessCache, result, trigger)
+  }
+
+  return result
+}
+
+async function propagateOneBelief(
+  item: { id: number; depth: number },
+  queue: Array<{ id: number; depth: number }>,
+  pending: Set<number>,
+  passes: Map<number, number>,
+  uniquenessCache: Map<number, Map<number, number>>,
+  result: PropagationResult,
+  trigger: string,
+): Promise<void> {
+  const beliefId = item.id
+
   // ── Step 1: Compute the child belief's current truth score ──────
   const childBelief = await fetchBeliefById(beliefId)
-  if (!childBelief) return result
+  if (!childBelief) return
 
   const childScores = computeBeliefScores(childBelief)
   // importanceWeightedScore (0–1) is the best single summary of "how true" the
@@ -283,7 +320,7 @@ export async function propagateBeliefScores(
 
   if (affectedArguments.size === 0) {
     // This belief is not a child of any other belief — propagation stops here.
-    return result
+    return
   }
 
   // ── Step 3: Recompute impactScore for each affected argument ────
@@ -292,7 +329,6 @@ export async function propagateBeliefScores(
   // truth child, and vice versa. truthScoreFor memoizes per-belief lookups;
   // siblingUniquenessFor memoizes the per-parent redundancy scan.
   const truthScoreCache = new Map<number, number>([[beliefId, childTruthScore]])
-  const uniquenessCache = new Map<number, Map<number, number>>()
   const parentBeliefIds = new Set<number>()
 
   for (const arg of affectedArguments.values()) {
@@ -357,14 +393,14 @@ export async function propagateBeliefScores(
 
     result.updatedBeliefIds.push(parentBeliefId)
 
-    // ── Step 5: Recurse to each parent's own ancestors ────────────
-    const childResult = await propagateBeliefScores(parentBeliefId, visited, depth + 1, trigger)
-    result.updatedArgumentIds.push(...childResult.updatedArgumentIds)
-    result.updatedBeliefIds.push(...childResult.updatedBeliefIds)
-    result.depth = Math.max(result.depth, childResult.depth)
+    // ── Step 5: Continue to each parent's own ancestors ───────────
+    // Skip only if the parent is already queued (it will run after every
+    // in-flight edge update lands) or has hit the cycle cap.
+    if (!pending.has(parentBeliefId) && (passes.get(parentBeliefId) ?? 0) < MAX_PASSES_PER_BELIEF) {
+      pending.add(parentBeliefId)
+      queue.push({ id: parentBeliefId, depth: item.depth + 1 })
+    }
   }
-
-  return result
 }
 
 export interface FullPropagationResult {
@@ -377,23 +413,24 @@ export interface FullPropagationResult {
 /**
  * Recompute scores for every belief in the database, bottom-up.
  *
- * Finds every leaf belief (never used as a reason) plus isolated beliefs, and
- * propagates each upward; the shared visited-set prevents redundant work when
- * leaves share ancestors. Used by POST /api/scoring/propagate-all and by the
- * seed chain, so a fresh dev database starts with engine-computed scores
- * rather than hand-typed placeholders.
+ * Starts from every true leaf — beliefs with no argument tree of their own
+ * (which includes isolated beliefs) — and propagates each upward; ancestors,
+ * converging paths included, are reached by the worklist. Used by
+ * POST /api/scoring/propagate-all and by the seed chain, so a fresh dev
+ * database starts with engine-computed scores rather than hand-typed
+ * placeholders.
  */
 export async function propagateAllBeliefScores(): Promise<FullPropagationResult> {
   const allBeliefIds = await prisma.belief.findMany({ select: { id: true } })
-  const beliefIdsUsedAsChild = await prisma.argument.findMany({
-    select: { beliefId: true },
-    distinct: ['beliefId'],
+  const beliefIdsWithChildren = await prisma.argument.findMany({
+    select: { parentBeliefId: true },
+    distinct: ['parentBeliefId'],
   })
 
-  const usedAsChildSet = new Set(beliefIdsUsedAsChild.map((a) => a.beliefId))
+  const hasChildrenSet = new Set(beliefIdsWithChildren.map((a) => a.parentBeliefId))
   const startBeliefIds = allBeliefIds
     .map((b) => b.id)
-    .filter((id) => !usedAsChildSet.has(id))
+    .filter((id) => !hasChildrenSet.has(id))
 
   const visited = new Set<number>()
   const result: FullPropagationResult = {
@@ -411,9 +448,8 @@ export async function propagateAllBeliefScores(): Promise<FullPropagationResult>
     result.maxDepth = Math.max(result.maxDepth, pass.depth)
   }
 
-  // Leaves reach their ancestors through recursion, but a mid-graph belief
-  // whose leaf children carry no arguments of their own can be missed when
-  // every leaf under it was already visited. Sweep any belief not yet visited.
+  // Every belief above a leaf is reached by the worklist, but cycle members
+  // with no leaf beneath them are not. Sweep any belief not yet visited.
   for (const { id } of allBeliefIds) {
     if (visited.has(id)) continue
     const pass = await propagateBeliefScores(id, visited, 0, 'full recompute')
@@ -464,7 +500,15 @@ export async function propagateFromArgumentChange(argumentId: number): Promise<P
 export async function propagateFromLinkageChange(argumentId: number): Promise<PropagationResult> {
   const arg = await prisma.argument.findUnique({
     where: { id: argumentId },
-    select: { beliefId: true, linkageArguments: { select: { side: true, strength: true } } },
+    select: {
+      beliefId: true,
+      // Drafts are unreviewed detector output — "a detection is an argument,
+      // never a penalty" (LinkageArgument.status): they must not move scores.
+      linkageArguments: {
+        where: { status: 'published' },
+        select: { side: true, strength: true },
+      },
+    },
   })
 
   if (!arg) {

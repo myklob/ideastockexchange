@@ -161,27 +161,12 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 3. Conflict Resolution Framework (values rankings, interests, dispute types, obstacles) */}
-          <ConflictResolutionSection
-            values={belief.valuesAnalysis}
-            interests={belief.interestsAnalysis}
-            valueRankings={belief.valueRankings}
-            interestEntries={belief.interestEntries}
-            sharedInterests={belief.sharedInterests}
-            disputeTypes={belief.disputeTypes}
-            obstacles={belief.obstacles}
-            interestsDashboardHref={`/beliefs/${belief.slug}/interests`}
-            readout={conflictReadout}
-          />
-
-          <hr className="border-gray-200" />
-
-          {/* 4. Objective Criteria */}
+          {/* 3. Objective Criteria */}
           <ObjectiveCriteriaSection criteria={belief.objectiveCriteria} />
 
           <hr className="border-gray-200" />
 
-          {/* 5. Falsifiability Test + Testable Predictions */}
+          {/* 4. Falsifiability Test + Testable Predictions */}
           <FalsifiabilityTestSection
             items={belief.falsifiabilityItems ?? []}
             confirm={belief.falsifiabilityConfirm}
@@ -192,7 +177,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 6. Logical Anatomy & Foundational Assumptions */}
+          {/* 5. Logical Anatomy & Foundational Assumptions */}
           <AssumptionsSection
             assumptions={belief.assumptions}
             componentClaims={belief.componentClaims ?? []}
@@ -201,33 +186,48 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 7. Cost-Benefit Analysis (+ Short/Long-Term + Best Compromise Solutions) */}
+          {/* 6. Cost-Benefit Analysis (+ Short/Long-Term) */}
           <CostBenefitSection
             cba={belief.costBenefitAnalysis}
             items={derivedCbaItems}
             impact={belief.impactAnalysis}
             impactEntries={belief.impactEntries ?? []}
-            compromises={belief.compromises}
           />
 
           <hr className="border-gray-200" />
 
-          {/* 8. Biases */}
+          {/* 7. Conflict Resolution Framework (values rankings, interests, compromises, dispute types, obstacles) */}
+          <ConflictResolutionSection
+            values={belief.valuesAnalysis}
+            interests={belief.interestsAnalysis}
+            valueRankings={belief.valueRankings}
+            interestEntries={belief.interestEntries}
+            sharedInterests={belief.sharedInterests}
+            disputeTypes={belief.disputeTypes}
+            obstacles={belief.obstacles}
+            compromises={belief.compromises}
+            interestsDashboardHref={`/beliefs/${belief.slug}/interests`}
+            readout={conflictReadout}
+          />
+
+          <hr className="border-gray-200" />
+
+          {/* 7i. Biases — the tail of the Conflict Resolution cluster */}
           <BiasesSection biases={belief.biases} />
 
           <hr className="border-gray-200" />
 
-          {/* 9. Media Resources */}
+          {/* 8. Media Resources */}
           <MediaResourcesSection media={belief.mediaResources} />
 
           <hr className="border-gray-200" />
 
-          {/* 10. Legal Framework */}
+          {/* 9. Legal Framework */}
           <LegalSection legal={belief.legalEntries} />
 
           <hr className="border-gray-200" />
 
-          {/* 11. General to Specific Belief Mapping */}
+          {/* 10. General to Specific Belief Mapping */}
           <BeliefMappingSection
             upstreamMappings={belief.upstreamMappings}
             downstreamMappings={belief.downstreamMappings}
@@ -235,7 +235,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 12. Similar Beliefs */}
+          {/* 11. Similar Beliefs */}
           <SimilarBeliefsSection
             similarTo={belief.similarTo}
             similarFrom={belief.similarFrom}

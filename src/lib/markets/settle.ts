@@ -142,9 +142,12 @@ async function payOut(tx: Tx, contract: MarketContract, outcome: 'YES' | 'NO') {
     const unfilled = order.quantity - order.filledQuantity
     if (order.side === 'BUY' && unfilled > 0) {
       const refund = order.limitPrice * (1 + contract.feeRate / 10_000) * unfilled
+      // Atomic increment: `order.user.currentBalance` is a pre-loop snapshot,
+      // and a user with several resting buys would have all but the last
+      // refund overwritten by the stale read.
       await tx.user.update({
         where: { id: order.userId },
-        data: { currentBalance: order.user.currentBalance + refund },
+        data: { currentBalance: { increment: refund } },
       })
     }
     await tx.marketOrder.update({ where: { id: order.id }, data: { status: 'CANCELLED' } })
@@ -168,15 +171,15 @@ async function payOut(tx: Tx, contract: MarketContract, outcome: 'YES' | 'NO') {
       await tx.user.update({
         where: { id: position.userId },
         data: {
-          currentBalance: position.user.currentBalance + payout,
-          realizedPnl: position.user.realizedPnl + pnl,
+          currentBalance: { increment: payout },
+          realizedPnl: { increment: pnl },
         },
       })
       payoutsTotal += payout
     } else {
       await tx.user.update({
         where: { id: position.userId },
-        data: { realizedPnl: position.user.realizedPnl + pnl },
+        data: { realizedPnl: { increment: pnl } },
       })
     }
     await tx.marketPosition.update({

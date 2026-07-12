@@ -285,9 +285,48 @@ describe('Cycle safety', () => {
       data: { parentBeliefId: b.id, beliefId: a.id, side: 'agree', linkageScore: 0.5, importanceScore: 1.0, impactScore: 0 },
     })
 
-    // Should return (the visited-set breaks the cycle) rather than hang.
+    // Should return (the per-belief pass cap breaks the cycle) rather than hang.
     const result = await propagateBeliefScores(a.id)
     expect(result).toHaveProperty('updatedBeliefIds')
     expect(Array.isArray(result.updatedArgumentIds)).toBe(true)
+  }, 20_000)
+})
+
+describe('Converging paths (diamond)', () => {
+  it('recomputes the far ancestor after BOTH incoming edges are fresh', async () => {
+    // X feeds P1 and P2; P1 (agree) and P2 (disagree) both feed M; M feeds T.
+    // M's truth must be computed with both edges refreshed (share 0.5), and
+    // that value must reach the M→T edge. A visited-set traversal computed
+    // the M→T edge on the P1 path while the P2→M edge was still stale zero,
+    // stamping argumentScore 100 and never returning.
+    const belief = (statement: string, slug: string) =>
+      prisma.belief.create({ data: { slug, statement } })
+    const x = await belief('Diamond leaf', 'diamond-x')
+    const p1 = await belief('Diamond left parent', 'diamond-p1')
+    const p2 = await belief('Diamond right parent', 'diamond-p2')
+    const m = await belief('Diamond merge', 'diamond-m')
+    const t = await belief('Diamond top', 'diamond-t')
+
+    const edge = (parentBeliefId: number, beliefId: number, side: string) =>
+      prisma.argument.create({
+        data: { parentBeliefId, beliefId, side, linkageScore: 1.0, importanceScore: 1.0, impactScore: 0 },
+      })
+
+    await edge(p1.id, x.id, 'agree')
+    await edge(p2.id, x.id, 'agree')
+    await edge(m.id, p1.id, 'agree')
+    await edge(m.id, p2.id, 'disagree')
+    const topEdge = await edge(t.id, m.id, 'agree')
+
+    await propagateBeliefScores(x.id)
+
+    // P1 and P2 each end at truth 1.0 (a single agree child), so M's edges
+    // land at +100 / −100 → M's importance-weighted truth is 0.5.
+    const top = await prisma.argument.findUnique({ where: { id: topEdge.id } })
+    expect(top.argumentScore).toBeCloseTo(50, 5)
+    expect(top.impactScore).toBeCloseTo(50, 5)
+
+    const mRow = await prisma.belief.findUnique({ where: { id: m.id } })
+    expect(mRow.positivity).toBeCloseTo(0, 5)
   }, 20_000)
 })

@@ -9,6 +9,12 @@ interface StrongestOpposing {
   impactScore: number
 }
 
+interface NearDuplicate {
+  id: number
+  claim: string
+  similarity: number
+}
+
 interface AddArgumentFormProps {
   beliefId: number
   /** High-stakes beliefs route the post through the speed-bump flow. */
@@ -43,6 +49,8 @@ export default function AddArgumentForm({
   const [principleConsistent, setPrincipleConsistent] = useState(false)
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error' | 'done'>('idle')
   const [error, setError] = useState<string | null>(null)
+  const [nearDuplicate, setNearDuplicate] = useState<NearDuplicate | null>(null)
+  const [restatementAcknowledged, setRestatementAcknowledged] = useState(false)
 
   const strongestOpposing = side === 'agree' ? strongestDisagree : strongestAgree
   const bumpsRequired = highStakes
@@ -65,6 +73,9 @@ export default function AddArgumentForm({
           statement,
           claim: claim || undefined,
           rationale: rationale || undefined,
+          ...(nearDuplicate && restatementAcknowledged
+            ? { restatementAcknowledgedId: nearDuplicate.id }
+            : {}),
           ...(bumpsRequired
             ? {
                 steelmanArgumentId: strongestOpposing?.id,
@@ -78,12 +89,20 @@ export default function AddArgumentForm({
       if (!res.ok) {
         setStatus('error')
         setError(data.error ?? 'Submission failed.')
+        // Drift guard: keep the flagged row so the user can acknowledge it
+        // and post again — the documented recovery path.
+        if (data.nearDuplicate) {
+          setNearDuplicate(data.nearDuplicate)
+          setRestatementAcknowledged(false)
+        }
         return
       }
       setStatus('done')
       setStatement('')
       setClaim('')
       setRationale('')
+      setNearDuplicate(null)
+      setRestatementAcknowledged(false)
       router.refresh()
     } catch {
       setStatus('error')
@@ -204,6 +223,27 @@ export default function AddArgumentForm({
       )}
 
       {error && <p className="text-red-700">{error}</p>}
+      {nearDuplicate && (
+        <div className="border-l-4 border-amber-400 bg-amber-50 p-3 space-y-2">
+          <p className="text-xs">
+            Flagged as a restatement of:{' '}
+            <em>&ldquo;{nearDuplicate.claim}&rdquo;</em>{' '}
+            ({Math.round(nearDuplicate.similarity * 100)}% similar)
+          </p>
+          <label className="flex items-start gap-2">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={restatementAcknowledged}
+              onChange={(e) => setRestatementAcknowledged(e.target.checked)}
+            />
+            <span className="text-xs">
+              I have read that row and my point genuinely differs — post anyway. The uniqueness
+              discount will price whatever overlap remains.
+            </span>
+          </label>
+        </div>
+      )}
       {status === 'done' && (
         <p className="text-green-700">
           Posted. The engine has scored it and updated every dependent conclusion.

@@ -7,6 +7,7 @@ import type {
   SharedInterestItem,
   DisputeTypeItem,
   ObstacleItem,
+  CompromiseItem,
 } from '../types'
 import type { ConflictResolutionReadout } from '@/core/scoring/conflict-resolution'
 import { byScoreDesc, formatScore, rankByScore, TABLE_TOP_LIMIT } from '../lib/ranking'
@@ -20,6 +21,8 @@ interface ConflictResolutionSectionProps {
   sharedInterests: SharedInterestItem[]
   disputeTypes: DisputeTypeItem[]
   obstacles: ObstacleItem[]
+  /** Best Compromise Solutions — canonical position 7e, inside this framework. */
+  compromises?: CompromiseItem[]
   /** Deep-dive link to the interests-and-motivation dashboard, when one exists. */
   interestsDashboardHref?: string
   /** The computed pipeline readout (shared interests, primary conflict pair,
@@ -438,11 +441,13 @@ export default function ConflictResolutionSection({
   sharedInterests,
   disputeTypes,
   obstacles,
+  compromises = [],
   interestsDashboardHref,
   readout,
 }: ConflictResolutionSectionProps) {
   const supporterInterests = interestEntries.filter(e => e.side === 'supporter')
   const opponentInterests = interestEntries.filter(e => e.side === 'opponent')
+  const rankedCompromises = rankByScore(compromises, c => c.score)
 
   return (
     <section className="space-y-8">
@@ -510,6 +515,43 @@ export default function ConflictResolutionSection({
           <span className="text-xs text-[#555] font-normal">(the ranking difference that drives this debate)</span>
         </h4>
         <PrimaryConflictPair interests={interests} />
+      </div>
+
+      <div>
+        <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
+          <span>&#129309;</span>
+          <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">Best Compromise Solutions</Link>
+        </h3>
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className={`${TH} w-[28%]`}>Shared Premise Both Sides Accept</th>
+              <th className={`${TH} w-[30%]`}>Proposed Synthesis</th>
+              <th className={`${TH} w-[28%]`}>Why This Is Difficult</th>
+              <th className={`${TH} text-center w-[14%]`}>Score (interests satisfied)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(rankedCompromises.top.length > 0 ? rankedCompromises.top : [null]).map((c, i) => (
+              <tr key={c?.id ?? i}>
+                <td className={TD}>{lines(c?.sharedPremise)}</td>
+                <td className={TD}>{lines(c?.synthesis ?? c?.description)}</td>
+                <td className={TD}>{lines(c?.whyDifficult)}</td>
+                <td className={`${TDC} font-mono`}>{formatScore(c?.score) ?? <span>&nbsp;</span>}</td>
+              </tr>
+            ))}
+            <ExpandableRows moreCount={rankedCompromises.rest.length} colSpan={4}>
+              {rankedCompromises.rest.map(c => (
+                <tr key={c.id}>
+                  <td className={TD}>{lines(c.sharedPremise)}</td>
+                  <td className={TD}>{lines(c.synthesis ?? c.description)}</td>
+                  <td className={TD}>{lines(c.whyDifficult)}</td>
+                  <td className={`${TDC} font-mono`}>{formatScore(c.score) ?? <span>&nbsp;</span>}</td>
+                </tr>
+              ))}
+            </ExpandableRows>
+          </tbody>
+        </table>
       </div>
 
       <div>
