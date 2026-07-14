@@ -13,7 +13,11 @@ import {
 
 export interface SiblingClaim {
   id: number
+  /** Display text — the claim label when one exists. */
   text: string
+  /** Full statement when `text` is a short label, scanned too so a verbatim
+   *  restatement can't slip past a 2–6 word label. */
+  altText?: string
 }
 
 export interface RestatementMatch {
@@ -33,7 +37,10 @@ export function scanForRestatements(statement: string, siblings: SiblingClaim[])
   const candidates = siblings
     .map((s) => ({
       existingArgumentId: s.id,
-      similarity: textSimilarity(statement, s.text),
+      similarity: Math.max(
+        textSimilarity(statement, s.text),
+        s.altText ? textSimilarity(statement, s.altText) : 0,
+      ),
       text: s.text,
     }))
     .filter((m) => m.similarity >= EQUIVALENCE_CANDIDATE_THRESHOLD)

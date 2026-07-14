@@ -47,6 +47,16 @@ describe('drift guard: restating stops counting as contributing', () => {
     expect(scan.nearDuplicate).toBeNull()
   })
 
+  it('a verbatim restatement cannot slip past a short claim label', () => {
+    const statement = 'Ranked choice voting eliminates the spoiler effect in elections.'
+    const scan = scanForRestatements(statement, [
+      { id: 9, text: 'Eliminates the spoiler effect', altText: statement },
+    ])
+    expect(scan.nearDuplicate).not.toBeNull()
+    expect(scan.nearDuplicate!.existingArgumentId).toBe(9)
+    expect(scan.nearDuplicate!.similarity).toBe(1)
+  })
+
   it('candidates come back strongest overlap first', () => {
     const target = 'A carbon tax cuts emissions faster than regulation.'
     const scan = scanForRestatements(target, [

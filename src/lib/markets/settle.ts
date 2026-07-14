@@ -33,8 +33,18 @@ export interface EpochRunSummary {
  * Write immutable snapshots for every belief referenced by a live contract.
  * Idempotent: existing (beliefId, epoch) rows are never touched — a snapshot
  * is written once and referenced forever.
+ *
+ * Creation is confined to the snapshot grace window. Beyond it the current
+ * graph no longer resembles the boundary state, so a late run must not
+ * fabricate a "closing" snapshot from live data (e.g. a contract created
+ * mid-month would otherwise get a baseline stamped with today's score) —
+ * missing rows stay missing and PLATFORM_FAILURE prices the gap.
  */
-export async function snapshotEpoch(epoch: string): Promise<{ created: number; existing: number }> {
+export async function snapshotEpoch(
+  epoch: string,
+  now = new Date(),
+): Promise<{ created: number; existing: number }> {
+  const graceDeadline = epochBoundary(epoch).getTime() + SNAPSHOT_GRACE_MS
   const liveContracts = await prisma.marketContract.findMany({
     where: { status: { in: ['OPEN', 'FROZEN'] }, beliefId: { not: null } },
     select: { beliefId: true },
@@ -51,6 +61,7 @@ export async function snapshotEpoch(epoch: string): Promise<{ created: number; e
       existing++
       continue
     }
+    if (now.getTime() > graceDeadline) continue
     const belief = await prisma.belief.findUnique({
       where: { id: beliefId },
       include: { arguments: { select: { side: true, impactScore: true, importanceScore: true } } },
@@ -323,7 +334,7 @@ export async function runEpoch(epoch: string, now = new Date()): Promise<EpochRu
     throw new MarketError(`Epoch ${epoch} has not reached its boundary yet`, 409)
   }
 
-  const snapshots = await snapshotEpoch(epoch)
+  const snapshots = await snapshotEpoch(epoch, now)
 
   const due = await prisma.marketContract.findMany({
     where: { resolutionEpoch: epoch, status: { in: ['OPEN', 'FROZEN'] } },

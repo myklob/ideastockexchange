@@ -17,7 +17,8 @@
  * route to fetch what the speed bumps currently require.
  *
  * DRIFT GUARD (every belief): restating stops counting as contributing. The
- * new statement is scanned against the arguments already on this belief;
+ * new statement is scanned against the same-side arguments already on this
+ * belief (rebutting the other side is contribution, not drift);
  * moderate overlap is stored as EquivalenceCandidate rows for the uniqueness
  * discount to price, and a near-identical match trips a speed bump that
  * requires acknowledging the existing row (restatementAcknowledgedId) before
@@ -98,7 +99,7 @@ export async function GET(
         }
       : null,
     driftGuard:
-      'Every post is scanned against the arguments already here. Near-identical restatements ' +
+      'Every post is scanned against the arguments already on its side. Near-identical restatements ' +
       'require acknowledging the existing row (restatementAcknowledgedId); lesser overlap is ' +
       'stored for the uniqueness discount to price.',
     auditLock: 'No score field is accepted. Scores are computed by the engine, never submitted.',
@@ -155,13 +156,20 @@ export async function POST(
   if (!belief) return NextResponse.json({ error: 'Belief not found.' }, { status: 404 })
 
   // ── Drift guard: restating stops counting as contributing ──────────────
+  // Same-side only: the token scan can't see negation, so an opposing post
+  // ("X" vs "not X") would false-positive as a restatement — and rebutting
+  // the other side is the page's core move, never drift.
   const siblings = await prisma.argument.findMany({
-    where: { parentBeliefId: belief.id },
+    where: { parentBeliefId: belief.id, side },
     include: { belief: { select: { statement: true } } },
   })
   const driftScan = scanForRestatements(
     statement,
-    siblings.map((s) => ({ id: s.id, text: s.claim ?? s.belief.statement })),
+    siblings.map((s) => ({
+      id: s.id,
+      text: s.claim ?? s.belief.statement,
+      altText: s.claim ? s.belief.statement : undefined,
+    })),
   )
   if (
     driftScan.nearDuplicate &&
