@@ -290,7 +290,7 @@ export default function ACBAAboutPage() {
               </Link>
             </li>
             <li>
-              <Link href="/arguments" className="text-[var(--accent)] hover:underline">
+              <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">
                 How Linkage Scores propagate argument strength
               </Link>
             </li>

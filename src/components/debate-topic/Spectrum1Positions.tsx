@@ -21,9 +21,9 @@ export default function Spectrum1Positions({ positions }: Props) {
     <div id="direction" className="mb-8">
       <h2 className="text-xl font-bold mb-1">
         📊 Continuum 1: Direction{' '}
-        <a href="/positive-to-negative" className="text-base font-normal text-blue-600 hover:underline">
+        <span className="text-base font-normal text-gray-500">
           (Oppose ↔ Support)
-        </a>
+        </span>
       </h2>
       <p className="text-sm text-gray-600 mb-4">
         Which way the belief runs, from total opposition (−100%) to total support (+100%). The{' '}
@@ -64,11 +64,6 @@ export default function Spectrum1Positions({ positions }: Props) {
           </tbody>
         </table>
       </div>
-      <p className="text-right text-xs mt-2 text-gray-500">
-        See: <a href="/positive-to-negative" className="text-blue-600 hover:underline">Full Positivity Framework</a>
-        {' | '}
-        <a href="/positive-to-negative" className="text-blue-600 hover:underline">Why We Need This Continuum</a>
-      </p>
     </div>
   );
 }

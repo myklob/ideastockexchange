@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { DebateMediaResource } from '@/core/types/debate-topic';
 
 interface Props {
@@ -18,7 +19,7 @@ export default function MediaResources({ mediaResources }: Props) {
       <p className="text-xs text-gray-600 mb-3">
         Sorted by positivity and informational value.{' '}
         <span className="text-gray-500">
-          See: <a href="/media-framework" className="text-blue-600 hover:underline">Media Framework</a>.
+          See: <Link href="/media/why-pro-con-media" className="text-blue-600 hover:underline">Why Pro/Con Media</Link>.
         </span>
       </p>
       <div className="overflow-x-auto">

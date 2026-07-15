@@ -379,7 +379,6 @@ export default function FAQPage() {
               <p className="font-medium text-gray-700 mb-2">Related</p>
               <ul className="space-y-1">
                 <li><Link href="/beliefs" className="text-blue-600 hover:underline">Beliefs</Link></li>
-                <li><Link href="/arguments" className="text-blue-600 hover:underline">Arguments</Link></li>
                 <li><a href="https://github.com/myklob/ideastockexchange" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">View the Vision on GitHub</a></li>
               </ul>
             </div>
