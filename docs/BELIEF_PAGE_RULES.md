@@ -272,7 +272,10 @@ feed it. Renders nothing when no open contract exists.
     here is hand-entered, so history rows are never authored (Rule 6 by
     construction). Also served by `GET /api/beliefs/[id]/history`.
 12. **Definitions** (`Term / Definition / Score`) — LAST before footer
-13. **Contribute / footer** — the two moves, stated and usable: an add-a-reason form
+13. **Contribute / footer** — the three moves, stated and usable: a
+    suggest-evidence form (queue-only; a suggestion becomes evidence only on
+    acceptance, which runs the same validation as agent ingestion),
+    challenge-a-number, and an add-a-reason form
     (the new reason becomes a belief page of its own; no score field is ever
     submitted — the audit lock rejects them and the engine computes scores on
     propagation), and the reminder that every score above is a clickable doorway.

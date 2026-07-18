@@ -2,6 +2,8 @@ import type { DebatePosition } from '@/core/types/debate-topic';
 
 interface Props {
   positions: DebatePosition[];
+  /** Ledger row ids whose evidence has been FALSIFIED — their links render struck. */
+  falsifiedEvidenceIds?: Set<number>;
 }
 
 function rowBg(score: number): string {
@@ -16,7 +18,7 @@ function scoreColor(score: number): string {
   return score < 0 ? 'text-red-600' : score === 0 ? 'text-gray-700' : 'text-green-700';
 }
 
-export default function PositionSpectrum({ positions }: Props) {
+export default function PositionSpectrum({ positions, falsifiedEvidenceIds }: Props) {
   return (
     <div id="direction" className="mb-8">
       <h2 className="text-xl font-bold mb-1">1. The Position Spectrum (Negative ↔ Positive)</h2>
@@ -57,9 +59,18 @@ export default function PositionSpectrum({ positions }: Props) {
                 </td>
                 <td className="border border-gray-300 px-3 py-2 text-center">
                   {pos.evidenceId !== undefined ? (
-                    <a href={`#evidence-${pos.evidenceId}`} className="text-blue-600 hover:underline">
-                      ledger
-                    </a>
+                    falsifiedEvidenceIds?.has(pos.evidenceId) ? (
+                      <a
+                        href={`#evidence-${pos.evidenceId}`}
+                        className="text-gray-400 line-through hover:underline"
+                      >
+                        ledger (falsified)
+                      </a>
+                    ) : (
+                      <a href={`#evidence-${pos.evidenceId}`} className="text-blue-600 hover:underline">
+                        ledger
+                      </a>
+                    )
                   ) : (
                     <span className="text-gray-400">—</span>
                   )}
