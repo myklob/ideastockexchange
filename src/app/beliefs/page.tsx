@@ -5,13 +5,14 @@ import {
   type BeliefFilterParams,
 } from '@/features/belief-analysis/data/fetch-belief'
 import { getStrengthBand, formatStrength } from '@/core/scoring/claim-strength'
+import { getGroundingBand, formatGrounding } from '@/core/scoring/grounding'
 
 interface BeliefsPageSearchParams {
   valence?: string       // 'all' | 'extreme-neg' | 'mild-neg' | 'neutral' | 'mild-pos' | 'extreme-pos'
   specificity?: string   // 'all' | 'general' | 'case-level' | 'specific'
   intensity?: string     // 'all' | 'weak' | 'moderate' | 'strong' | 'extreme'
   category?: string      // 'all' | <category name>
-  sort?: string          // 'valence' | 'specificity' | 'intensity' | 'statement'
+  sort?: string          // 'valence' | 'specificity' | 'intensity' | 'statement' | 'grounding'
   dir?: string           // 'asc' | 'desc'
 }
 
@@ -74,9 +75,12 @@ function paramsToFilters(p: BeliefsPageSearchParams): BeliefFilterParams {
     intensity: 'claimStrength',
     statement: 'statement',
     updated: 'updatedAt',
+    grounding: 'groundingScore',
   }
   filters.sortBy = sortMap[p.sort ?? ''] ?? 'positivity'
-  filters.sortDir = p.dir === 'desc' ? 'desc' : 'asc'
+  // Evidence-based ranking reads best-first unless the user says otherwise.
+  const defaultDir = p.sort === 'grounding' ? 'desc' : 'asc'
+  filters.sortDir = p.dir === 'desc' ? 'desc' : p.dir === 'asc' ? 'asc' : defaultDir
 
   return filters
 }
@@ -108,7 +112,10 @@ export default async function BeliefsIndexPage({ searchParams }: BeliefsIndexPro
   const activeIntensity = params.intensity ?? 'all'
   const activeCategory = params.category ?? 'all'
   const activeSort = params.sort ?? 'valence'
-  const activeDir = params.dir === 'desc' ? 'desc' : 'asc'
+  const activeDir =
+    params.dir === 'desc' || params.dir === 'asc'
+      ? params.dir
+      : activeSort === 'grounding' ? 'desc' : 'asc'
 
   return (
     <div className="min-h-screen bg-white">
@@ -127,6 +134,8 @@ export default async function BeliefsIndexPage({ searchParams }: BeliefsIndexPro
           <strong>Valence</strong> (negative ↔ positive),{' '}
           <strong>Specificity</strong> (general ↔ specific), and{' '}
           <strong>Intensity</strong> (weak ↔ extreme). Filter or re-sort below to navigate the space.
+          Sorting by <strong>Evidence grounding</strong> ranks by engine-computed contact with
+          tiered evidence — clicks, shares, and outrage are never ranking inputs here.
         </p>
 
         <form
@@ -177,6 +186,7 @@ export default async function BeliefsIndexPage({ searchParams }: BeliefsIndexPro
               <option value="intensity">Intensity</option>
               <option value="statement">Statement</option>
               <option value="updated">Recently updated</option>
+              <option value="grounding">Evidence grounding</option>
             </select>
           </label>
           <label className="flex flex-col gap-1">
@@ -216,6 +226,7 @@ export default async function BeliefsIndexPage({ searchParams }: BeliefsIndexPro
           <div className="space-y-3">
             {beliefs.map(belief => {
               const band = getStrengthBand(belief.claimStrength)
+              const grounding = getGroundingBand(belief.groundingScore)
               return (
                 <Link
                   key={belief.id}
@@ -245,6 +256,13 @@ export default async function BeliefsIndexPage({ searchParams }: BeliefsIndexPro
                           style={{ backgroundColor: band.hexColor }}
                         >
                           Intensity: <strong>{band.label}</strong> ({formatStrength(belief.claimStrength)})
+                        </span>
+                        <span
+                          className="px-1.5 py-0.5 rounded border border-gray-300 font-mono"
+                          style={{ backgroundColor: grounding.hexColor }}
+                          title={grounding.descriptor}
+                        >
+                          Grounding: <strong>{grounding.label}</strong> ({formatGrounding(belief.groundingScore)})
                         </span>
                       </div>
                     </div>

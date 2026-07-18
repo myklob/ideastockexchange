@@ -202,6 +202,17 @@ model Belief {
   /// An extreme claim must earn its score through extraordinary evidence — or it scores near zero.
   claimStrength Float @default(0.5)
 
+  /// Evidence Grounding Score (0-1): how much of this belief's support
+  /// bottoms out in tiered evidence records rather than free-floating claims.
+  /// Engine-computed during propagation (src/lib/grounding.ts):
+  ///   raw = Σ tierWeight × |linkage| over own evidence
+  ///       + Σ |linkage| × childGrounding over published argument edges
+  ///   groundingScore = raw / (raw + 1)
+  /// Exactly 0 means no evidence anywhere in the tree ("Unfounded"); a
+  /// citation ring contributes nothing. This is the evidence-based ranking
+  /// input — engagement is never a ranking input.
+  groundingScore Float @default(0)
+
   /// Specificity (0-1): position on the abstraction ladder.
   ///   0.0 = Highly general principle (e.g. "Corruption undermines government")
   ///   0.33 = Moderately general       (e.g. "U.S. Presidents are often corrupt")

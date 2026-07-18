@@ -7,9 +7,12 @@
 -- RENDER of the data in these tables. The JSON-LD block embedded in
 -- each page is the on-the-wire serialization of these rows.
 --
--- Schema version: 1.2.0 (adds evidence records, the tier-event ledger,
---   the recompute queue, and the evidence-asymmetry view — the tables that
---   make "when evidence changes, every dependent conclusion updates" real)
+-- Schema version: 1.3.0 (adds the grounding score column, the direct-
+--   grounding and front-page ranking views, and the contributor track-record
+--   view — evidence-based ranking made queryable: there is no engagement
+--   column anywhere in this schema, so there is nothing else to rank by)
+-- Previous: 1.2.0 (evidence records, tier-event ledger, recompute queue,
+--   evidence-asymmetry view)
 -- Previous: 1.1.0 (fallacy claims, claim votes, grouping votes)
 -- Engine: MariaDB 10.4+ / MySQL 8.0+ (uses CHECK constraints, JSON type)
 -- Companion: src/core/scoring/scoring-engine.ts in the GitHub repo
@@ -42,6 +45,13 @@
 --    event and enqueues the recompute; the engine drains the queue and
 --    every dependent conclusion recalculates. Arguments citing dead
 --    evidence never quietly keep their scores.
+--
+-- 7. Evidence-based ranking, by construction: this schema stores NO
+--    engagement signals — no view counts, click-through rates, share
+--    counts, or dwell times. Ranking queries (v_front_page) can only
+--    order by engine-computed columns, so the only way up the ranking
+--    is better evidence, not better outrage. If you are tempted to add
+--    a clicks column, add an evidence table instead.
 -- =================================================================
 
 
@@ -60,6 +70,15 @@ CREATE TABLE IF NOT EXISTS `nodes` (
   -- Cached scores. Source of truth is the recursive engine, not these.
   `argument_score`      DECIMAL(5,4)  DEFAULT NULL,
   `truth_score`         DECIMAL(5,4)  DEFAULT NULL,
+  -- Evidence Grounding Score: how much of this node's support bottoms out
+  -- in tiered evidence (0 = unfounded — no evidence anywhere below it).
+  --   raw = Σ tier_weight × |linkage| over its evidence
+  --       + Σ |linkage| × child grounding over its argument edges
+  --   grounding_score = raw / (raw + 1)
+  -- Recursive, so the engine writes it (a citation ring grounds nothing);
+  -- v_direct_grounding below computes the one-hop term for inspection.
+  -- This is the ranking column — see v_front_page.
+  `grounding_score`     DECIMAL(5,4)  DEFAULT NULL,
   `score_computed_at`   TIMESTAMP     NULL DEFAULT NULL,
 
   -- Lifecycle
@@ -71,7 +90,8 @@ CREATE TABLE IF NOT EXISTS `nodes` (
 
   PRIMARY KEY (`node_id`),
   INDEX `idx_node_type` (`node_type`),
-  INDEX `idx_node_score` (`argument_score` DESC)
+  INDEX `idx_node_score` (`argument_score` DESC),
+  INDEX `idx_node_grounding` (`grounding_score` DESC)
 );
 
 
@@ -653,6 +673,96 @@ WHERE l.deleted_at IS NULL
 GROUP BY l.y_node_id;
 
 
+-- -- Direct grounding view (the one-hop term) ---------------------
+-- For each conclusion, the evidence mass linked DIRECTLY to it:
+-- Σ tier_weight × |linkage|. The engine adds the recursive term
+-- (Σ |linkage| × child grounding over argument edges, a citation ring
+-- contributing zero — the query twin of the circular-citation guard in
+-- note 9) and caches the saturated result raw/(raw+1) on
+-- nodes.grounding_score. This view exists so anyone can audit the
+-- engine's direct term with one SELECT.
+
+CREATE OR REPLACE VIEW `v_direct_grounding` AS
+SELECT
+  l.y_node_id AS conclusion_node_id,
+  SUM(
+    CASE e.tier
+      WHEN 'T1' THEN 1.00
+      WHEN 'T2' THEN 0.75
+      WHEN 'T3' THEN 0.50
+      WHEN 'T4' THEN 0.25
+      WHEN 'T0' THEN 0.05
+    END * ABS(l.linkage_score)
+  )                        AS direct_grounding_raw,
+  COUNT(*)                 AS evidence_edge_count,
+  SUM(e.tier = 'T0')       AS retracted_edge_count
+FROM linkages l
+JOIN evidence_records e ON e.node_id = l.x_node_id
+WHERE l.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+  AND l.linkage_score IS NOT NULL
+GROUP BY l.y_node_id;
+
+
+-- -- The front page (evidence-based ranking) ----------------------
+-- The query engagement platforms cannot run. Google orders by clicks,
+-- Facebook by outrage, Twitter by retweets; this table has none of
+-- those columns. Beliefs rank by engine-computed grounding, then truth.
+-- A claim with no evidence anywhere below it is labeled 'unfounded' and
+-- sits at the bottom no matter how viral its phrasing would be.
+
+CREATE OR REPLACE VIEW `v_front_page` AS
+SELECT
+  n.node_id,
+  n.canonical_statement,
+  n.canonical_url,
+  n.grounding_score,
+  CASE
+    WHEN n.grounding_score IS NULL OR n.grounding_score = 0 THEN 'unfounded'
+    WHEN n.grounding_score < 0.35 THEN 'thin'
+    WHEN n.grounding_score < 0.70 THEN 'grounded'
+    ELSE 'well-grounded'
+  END                   AS grounding_band,
+  n.truth_score,
+  n.score_computed_at
+FROM nodes n
+WHERE n.node_type = 'belief'
+  AND n.deleted_at IS NULL
+ORDER BY
+  COALESCE(n.grounding_score, 0) DESC,
+  COALESCE(n.truth_score, 0) DESC;
+
+
+-- -- Contributor track record (behavioral accountability) ---------
+-- The SQL twin of callerRecordFor() + callerCredibility(): accuracy
+-- (did the community uphold your fallacy claims?) and side balance
+-- (do you flag supporting AND weakening edges, or only the side you
+-- dislike?). The application computes the clamped vote weight
+-- (2 × accuracy) × (0.4 + 0.9 × balance), clamped to [0.3, 1.4], from
+-- these counts at vote time. Filing volume appears nowhere: only being
+-- right and being even-handed move the multiplier. Anyone can run this
+-- view on themselves — the weight math is public, unlike a feed
+-- algorithm.
+
+CREATE OR REPLACE VIEW `v_contributor_track_record` AS
+SELECT
+  c.created_by                                          AS user_id,
+  SUM(c.status = 'confirmed')                           AS upheld,
+  SUM(c.status = 'rejected')                            AS rejected,
+  SUM(l.direction = 'supports')                         AS flagged_supporting_side,
+  SUM(l.direction IN ('weakens','refutes'))             AS flagged_weakening_side,
+  SUM(c.status = 'confirmed')
+    / NULLIF(SUM(c.status IN ('confirmed','rejected')), 0) AS accuracy,
+  (LEAST(SUM(l.direction = 'supports'),
+         SUM(l.direction IN ('weakens','refutes'))) + 1)
+    / (GREATEST(SUM(l.direction = 'supports'),
+                SUM(l.direction IN ('weakens','refutes'))) + 1) AS side_balance
+FROM fallacy_claims c
+JOIN linkages l ON l.linkage_id = c.linkage_id
+WHERE c.created_by IS NOT NULL
+GROUP BY c.created_by;
+
+
 -- -- Consensus tally view ---------------------------------------
 -- How the application resolves a claim: weighted agree share across the
 -- votes, settled at >= 0.6 either way once at least 3 votes exist. The
@@ -820,3 +930,21 @@ CREATE TABLE IF NOT EXISTS `score_audit_log` (
 --    edge's y_node appears, the pair has no independent foundation —
 --    reject the INSERT. The application twin is
 --    wouldCreateCircularCitation() in the arguments POST route.
+--
+-- 10. Grounding recomputation: whenever the engine worker recomputes a
+--    node (draining score_recompute_queue), it also recomputes
+--    grounding_score bottom-up: the direct term from v_direct_grounding,
+--    plus Σ |linkage| × child grounding over argument edges, saturated
+--    as raw / (raw + 1). A node re-entered while still on the walk
+--    stack contributes zero (a ring of claims propping each other up
+--    has no foundation — the scoring twin of note 9). The application
+--    twin is groundingForBelief() in src/lib/grounding.ts, called from
+--    propagateBeliefScores(), so a retraction (note 8) collapses
+--    grounding in the same cascade that collapses EVS: the Wakefield
+--    row falls out of v_front_page's top ranks in the same pass that
+--    zeroes its evidence weight.
+--
+-- 11. Ranking surfaces read v_front_page (or ORDER BY grounding_score
+--    on nodes). Never add engagement columns to make a ranking "work";
+--    principle 7 is load-bearing. The application twin is
+--    GET /api/beliefs?sortBy=grounding.

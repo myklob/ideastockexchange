@@ -93,6 +93,17 @@
       <xs:element name="UniquenessScore" type="xs:decimal" minOccurs="0"/>
       <xs:element name="ReasonRank"      type="xs:decimal" minOccurs="0"/>
       <xs:element name="PropagatedScore" type="xs:decimal" minOccurs="0"/>
+      <!-- Evidence Grounding Score: does this belief's tree bottom out in
+           evidence? Engine-computed (audit-locked):
+             raw = Σ tierWeight × |linkage| over own EvidenceRecords
+                 + Σ |linkage| × childGrounding over argument edges
+             GroundingScore = raw / (raw + 1)
+           Exactly 0 = no evidence anywhere in the subtree ("unfounded");
+           a ring of claims citing each other contributes nothing. This is
+           the ranking input — engagement never is. -->
+      <xs:element name="GroundingScore" type="xs:decimal" minOccurs="0"/>
+      <!-- unfounded | thin | grounded | well-grounded -->
+      <xs:element name="GroundingBand"  type="xs:string"  minOccurs="0"/>
       <xs:element name="SourceUrl"    type="xs:string" minOccurs="0"/>
       <!-- T0..T4 evidence tier (T0 = retracted/fraudulent) -->
       <xs:element name="EvidenceType" type="xs:string" minOccurs="0"/>

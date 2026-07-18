@@ -39,6 +39,7 @@ import {
   mechanicalSimilarity,
   uniquenessFromSimilarities,
 } from '@/core/scoring/duplication-scoring'
+import { persistBeliefGrounding } from '@/lib/grounding'
 
 // Re-export so callers can import from one place
 export { computeArgumentImpactScore }
@@ -213,12 +214,15 @@ async function resolveEffectiveImportance(arg: {
  * @param depth    - Current recursion depth (for result reporting).
  * @param trigger  - Human-readable cause, recorded on every score event this
  *                   pass produces (e.g. "argument #12 posted").
+ * @param groundingMemo - Per-pass cache for the grounding walk, so a belief
+ *                   feeding many ancestors is only walked once.
  */
 export async function propagateBeliefScores(
   beliefId: number,
   visited: Set<number> = new Set(),
   depth: number = 0,
   trigger: string = 'propagation',
+  groundingMemo: Map<number, number> = new Map(),
 ): Promise<PropagationResult> {
   if (visited.has(beliefId)) {
     return { updatedArgumentIds: [], updatedBeliefIds: [], depth }
@@ -256,6 +260,12 @@ export async function propagateBeliefScores(
       await recordScoreEvent(beliefId, before, { positivity: childScores.overallScore }, trigger)
     }
   }
+
+  // Grounding rides the same cascade. Unlike positivity, it is persisted even
+  // for bare leaves: exactly 0 — no evidence anywhere in the subtree — is a
+  // real verdict ("Unfounded"), not a fake score. The evidence-based ranking
+  // on /beliefs reads this column; engagement is never a ranking input.
+  await persistBeliefGrounding(beliefId, groundingMemo)
 
   // ── Step 2: Find every argument edge that draws on this belief ──
   // A belief can feed a parent argument through THREE distinct edges:
@@ -358,7 +368,13 @@ export async function propagateBeliefScores(
     result.updatedBeliefIds.push(parentBeliefId)
 
     // ── Step 5: Recurse to each parent's own ancestors ────────────
-    const childResult = await propagateBeliefScores(parentBeliefId, visited, depth + 1, trigger)
+    const childResult = await propagateBeliefScores(
+      parentBeliefId,
+      visited,
+      depth + 1,
+      trigger,
+      groundingMemo,
+    )
     result.updatedArgumentIds.push(...childResult.updatedArgumentIds)
     result.updatedBeliefIds.push(...childResult.updatedBeliefIds)
     result.depth = Math.max(result.depth, childResult.depth)
