@@ -30,7 +30,7 @@ The database tables that back the JSON-LD when the platform graduates from "wiki
 
 The schema enforces the audit-lock principle: scores have read-only-from-application semantics, with all changes logged to `score_audit_log`. The five-step check is its own table because the check IS the audit trail.
 
-The Prisma schema in `prisma/schema.prisma` already models the same domain on SQLite (`LinkageArgument`, `LinkageVote`, `LinkageScoreType`, etc.). The MariaDB schema in this folder is the target shape when the project graduates beyond SQLite.
+The Prisma schema in `prisma/schema.prisma` already models the same domain on SQLite (`LinkageArgument`, `LinkageVote`, `LinkageScoreType`, and the accountability tables `FallacyClaim`, `FallacyClaimVote`, `EquivalenceCandidate`, `GroupingVote`). The MariaDB schema in this folder is the target shape when the project graduates beyond SQLite. Schema 1.1.0 adds the structured fallacy-claim tables (the six-field accusation template, weighted claim votes, and the `v_fallacy_claim_tally` consensus view — the SQL twin of `resolveConsensus()` in `src/lib/consensus.ts`) plus the grouping-vote tables that settle same-claim pairs at the same 60% weighted bar.
 
 ## How they interact today
 

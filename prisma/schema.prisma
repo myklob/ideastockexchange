@@ -404,6 +404,7 @@ model Argument {
 
   linkageArguments LinkageArgument[]
   linkageVotes     LinkageVote[]
+  fallacyClaims    FallacyClaim[]
 
   equivalenceCandidatesAsNew      EquivalenceCandidate[] @relation("EquivalenceCandidateNew")
   equivalenceCandidatesAsExisting EquivalenceCandidate[] @relation("EquivalenceCandidateExisting")
@@ -579,6 +580,89 @@ model LinkageVote {
 
   @@unique([argumentId, userId])
   @@index([argumentId])
+}
+
+/// A structured fallacy accusation against an argument edge. You can't just
+/// yell "FALLACY!": every template field below is required before the claim
+/// exists, and the claim is itself an argument — it enters the linkage
+/// sub-debate as a draft counter-argument and changes nothing until the
+/// community confirms it (weighted consensus ≥ 60%, see src/lib/consensus.ts).
+/// Confirmation publishes the counter-argument; rejection retires it. No
+/// score is ever docked by the act of accusing.
+model FallacyClaim {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  /// Canonical type slug from FALLACY_CATALOG (e.g. "false-dilemma").
+  fallacyType String
+  /// Factor a confirmed claim damages: "relevance" | "logical-validity" | "evidence-quality".
+  /// Denormalized from the catalog at filing time so history survives catalog edits.
+  targetFactor String
+  /// "minor" | "major" — from the catalog at filing time; drives the
+  /// logical-validity ladder once confirmed.
+  severity String
+
+  // ── The accusation template (all required; validateFallacyClaimInput) ──
+  /// Exact text of the target that commits the fallacy.
+  quotedText      String
+  /// Why the quote qualifies as this fallacy type.
+  explanation     String
+  /// What is being excluded, misrepresented, or left unsupported.
+  missingElements String
+  /// JSON array of {label, url?, beliefSlug?} — the evidence the accusation
+  /// rests on (excluded alternatives, the opponent's actual position, the
+  /// contradicting studies). Types that need evidence reject an empty array.
+  evidenceLinks   String
+  /// How the fallacy affects the argument's validity if confirmed.
+  consequences    String
+
+  /// "open" | "confirmed" | "rejected" — moved only by community consensus,
+  /// never by filing.
+  status String @default("open")
+  /// Weighted agreement share (0-1) at last resolution check. Null until quorum.
+  consensus  Float?
+  resolvedAt DateTime?
+
+  /// The draft counter-argument this claim placed in the linkage sub-debate.
+  /// Published on confirmation, retired ("rejected") on rejection.
+  counterLinkageArgumentId Int? @unique
+
+  submittedById      String?
+  submittedByAgentId String?
+  submittedByAgent   Agent?  @relation("FallacyClaimSubmittedBy", fields: [submittedByAgentId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  votes FallacyClaimVote[]
+
+  @@index([argumentId])
+  @@index([status])
+  @@index([submittedById])
+  @@index([submittedByAgentId])
+}
+
+/// One community evaluation of a fallacy claim. `weight` is the voter's
+/// caller-credibility multiplier (src/lib/fallacy/calibration.ts) frozen at
+/// vote time: accurate, cross-partisan callers count more; tribal or
+/// inaccurate callers count less.
+model FallacyClaimVote {
+  id             Int          @id @default(autoincrement())
+  fallacyClaimId Int
+  fallacyClaim   FallacyClaim @relation(fields: [fallacyClaimId], references: [id])
+
+  userId    String
+  /// true = the fallacy claim is correct; false = the accusation fails.
+  agree     Boolean
+  reasoning String?
+  weight    Float   @default(1.0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([fallacyClaimId, userId])
+  @@index([fallacyClaimId])
+  @@index([userId])
 }
 
 model Evidence {
@@ -2166,6 +2250,7 @@ model Agent {
   arguments         Argument[]          @relation("ArgumentSubmittedBy")
   evidence          Evidence[]          @relation("EvidenceRetrievedBy")
   linkageArguments  LinkageArgument[]   @relation("LinkageArgumentSubmittedBy")
+  fallacyClaims     FallacyClaim[]      @relation("FallacyClaimSubmittedBy")
   suggestedEvidence SuggestedEvidence[]
   forumPosts        ForumPost[]
   forumComments     ForumComment[]
@@ -2245,8 +2330,39 @@ model EquivalenceCandidate {
   similarity         Float
   detectedAt         DateTime @default(now())
 
+  /// "open" | "grouped" | "kept-separate" — moved only by community consensus
+  /// (weighted ≥ 60%, src/lib/consensus.ts), mirroring how Wikipedia settles
+  /// merge proposals. Grouping is a community verdict, not an algorithm's.
+  status     String    @default("open")
+  /// Weighted agreement share (0-1) at last resolution check. Null until quorum.
+  consensus  Float?
+  resolvedAt DateTime?
+
+  votes GroupingVote[]
+
   @@index([argumentId])
   @@index([existingArgumentId])
+  @@index([status])
+}
+
+/// One community vote on whether an EquivalenceCandidate pair really is the
+/// same claim said differently. "This is the same as [existing claim]" plus
+/// reasoning; 60% weighted agreement groups the pair.
+model GroupingVote {
+  id          Int                  @id @default(autoincrement())
+  candidateId Int
+  candidate   EquivalenceCandidate @relation(fields: [candidateId], references: [id])
+
+  userId    String
+  /// true = same claim, group them; false = genuinely different, keep separate.
+  agree     Boolean
+  reasoning String?
+  weight    Float   @default(1.0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([candidateId, userId])
+  @@index([candidateId])
 }
 
 /// Knowledge-connector queue (suggestion-only). A proposal becomes an

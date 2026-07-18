@@ -108,6 +108,12 @@ const groups: AlgorithmGroup[] = [
         description:
           'Surfacing the unstated premises that bridge low-linkage arguments, so each one becomes its own debatable node.',
       },
+      {
+        name: 'Fallacy Detection',
+        href: '/algorithms/fallacy-detection',
+        description:
+          'Fallacy accusations as scored arguments: a required template, a 60% consensus bar, and a credibility multiplier that punishes tribal calling.',
+      },
     ],
   },
   {

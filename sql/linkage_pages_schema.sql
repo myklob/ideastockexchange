@@ -7,7 +7,7 @@
 -- RENDER of the data in these tables. The JSON-LD block embedded in
 -- each page is the on-the-wire serialization of these rows.
 --
--- Schema version: 1.0.0
+-- Schema version: 1.1.0 (adds fallacy claims, claim votes, grouping votes)
 -- Engine: MariaDB 10.4+ / MySQL 8.0+ (uses CHECK constraints, JSON type)
 -- Companion: src/core/scoring/scoring-engine.ts in the GitHub repo
 --   https://github.com/myklob/ideastockexchange
@@ -348,6 +348,152 @@ CREATE TABLE IF NOT EXISTS `linkage_bias_risks` (
 );
 
 
+-- -- Structured fallacy claims ----------------------------------
+-- An accusation is an argument. Filing requires every template field
+-- (the application rejects anything less) and changes NO score: the
+-- claim's counter-argument enters linkage_arguments as a draft. Only
+-- weighted community consensus (>= 60%, quorum 3) confirms the claim,
+-- publishes the counter-argument, and triggers the engine recompute.
+-- Mirrors the Prisma models FallacyClaim / FallacyClaimVote.
+
+CREATE TABLE IF NOT EXISTS `fallacy_claims` (
+  `claim_id`            VARCHAR(64)   NOT NULL,
+  `linkage_id`          VARCHAR(64)   NOT NULL,  -- the accused edge
+
+  -- Catalog classification (denormalized at filing time)
+  `fallacy_type`        VARCHAR(64)   NOT NULL,  -- e.g., 'false-dilemma'
+  `target_factor`       ENUM('relevance', 'logical-validity', 'evidence-quality') NOT NULL,
+  `severity`            ENUM('minor', 'major') NOT NULL,
+
+  -- The six-field accusation template (all NOT NULL: no bare "FALLACY!")
+  `quoted_text`         TEXT          NOT NULL,
+  `explanation`         TEXT          NOT NULL,
+  `missing_elements`    TEXT          NOT NULL,
+  `evidence_links`      JSON          NOT NULL,  -- [{label, url?, belief_slug?}]
+  `consequences`        TEXT          NOT NULL,
+
+  -- Resolution state. AUDIT-LOCKED: moved only by the consensus query
+  -- below, never by the accuser.
+  `status`              ENUM('open', 'confirmed', 'rejected') NOT NULL DEFAULT 'open',
+  `consensus`           DECIMAL(5,4)  DEFAULT NULL,  -- weighted agree share
+  `resolved_at`         TIMESTAMP     NULL DEFAULT NULL,
+
+  -- The draft counter-argument this claim placed in the sub-debate.
+  -- Published on confirmation; retired on rejection.
+  `counter_arg_id`      VARCHAR(64)   DEFAULT NULL,
+
+  -- Provenance
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+  `created_by`          VARCHAR(128)  DEFAULT NULL,
+
+  PRIMARY KEY (`claim_id`),
+  INDEX `idx_claim_linkage` (`linkage_id`),
+  INDEX `idx_claim_status` (`status`),
+  INDEX `idx_claim_creator` (`created_by`),
+
+  CONSTRAINT `fk_claim_linkage` FOREIGN KEY (`linkage_id`) REFERENCES `linkages`(`linkage_id`),
+  CONSTRAINT `fk_claim_counter` FOREIGN KEY (`counter_arg_id`) REFERENCES `linkage_arguments`(`arg_id`),
+  CONSTRAINT `chk_claim_consensus` CHECK (`consensus` IS NULL OR (`consensus` >= 0 AND `consensus` <= 1))
+);
+
+
+-- -- Fallacy claim votes ----------------------------------------
+-- One row per user per claim. `weight` is the voter's caller-credibility
+-- multiplier (accuracy x cross-partisan balance, clamped to [0.3, 1.4]),
+-- computed by the application from fallacy_claims history at vote time —
+-- NEVER submitted by the voter.
+
+CREATE TABLE IF NOT EXISTS `fallacy_claim_votes` (
+  `vote_id`             VARCHAR(64)   NOT NULL,
+  `claim_id`            VARCHAR(64)   NOT NULL,
+  `user_id`             VARCHAR(128)  NOT NULL,
+  `agree`               BOOLEAN       NOT NULL,
+  `reasoning`           TEXT          DEFAULT NULL,
+  `weight`              DECIMAL(5,4)  NOT NULL DEFAULT 1.0,
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`vote_id`),
+  UNIQUE KEY `unique_vote_per_user` (`claim_id`, `user_id`),
+  INDEX `idx_vote_claim` (`claim_id`),
+  INDEX `idx_vote_user` (`user_id`),
+
+  CONSTRAINT `fk_vote_claim` FOREIGN KEY (`claim_id`) REFERENCES `fallacy_claims`(`claim_id`),
+  CONSTRAINT `chk_vote_weight` CHECK (`weight` >= 0.3 AND `weight` <= 1.4)
+);
+
+
+-- -- Grouping votes (same claim, different words) ----------------
+-- The redundancy scan proposes candidate pairs; the community settles
+-- them at the same 60% weighted bar. Mirrors EquivalenceCandidate /
+-- GroupingVote in the Prisma schema. Candidate pairs reference nodes
+-- because the pair is about the claims, not one particular edge.
+
+CREATE TABLE IF NOT EXISTS `grouping_candidates` (
+  `candidate_id`        VARCHAR(64)   NOT NULL,
+  `new_node_id`         VARCHAR(64)   NOT NULL,
+  `existing_node_id`    VARCHAR(64)   NOT NULL,
+  `similarity`          DECIMAL(5,4)  NOT NULL,
+  -- same-claim (>= 0.95) | probable-group (>= 0.8) | related-link (>= 0.5)
+  `band`                VARCHAR(32)   DEFAULT NULL,
+  `status`              ENUM('open', 'grouped', 'kept-separate') NOT NULL DEFAULT 'open',
+  `consensus`           DECIMAL(5,4)  DEFAULT NULL,
+  `resolved_at`         TIMESTAMP     NULL DEFAULT NULL,
+  `detected_at`         TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`candidate_id`),
+  INDEX `idx_candidate_new` (`new_node_id`),
+  INDEX `idx_candidate_existing` (`existing_node_id`),
+  INDEX `idx_candidate_status` (`status`),
+
+  CONSTRAINT `fk_candidate_new` FOREIGN KEY (`new_node_id`) REFERENCES `nodes`(`node_id`),
+  CONSTRAINT `fk_candidate_existing` FOREIGN KEY (`existing_node_id`) REFERENCES `nodes`(`node_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `grouping_votes` (
+  `vote_id`             VARCHAR(64)   NOT NULL,
+  `candidate_id`        VARCHAR(64)   NOT NULL,
+  `user_id`             VARCHAR(128)  NOT NULL,
+  `agree`               BOOLEAN       NOT NULL,  -- true = same claim, group
+  `reasoning`           TEXT          DEFAULT NULL,
+  `weight`              DECIMAL(5,4)  NOT NULL DEFAULT 1.0,
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`vote_id`),
+  UNIQUE KEY `unique_grouping_vote_per_user` (`candidate_id`, `user_id`),
+  INDEX `idx_grouping_vote_candidate` (`candidate_id`),
+
+  CONSTRAINT `fk_grouping_vote_candidate` FOREIGN KEY (`candidate_id`) REFERENCES `grouping_candidates`(`candidate_id`)
+);
+
+
+-- -- Consensus tally view ---------------------------------------
+-- How the application resolves a claim: weighted agree share across the
+-- votes, settled at >= 0.6 either way once at least 3 votes exist. The
+-- same query shape runs for grouping_votes. This is the SQL twin of
+-- resolveConsensus() in src/lib/consensus.ts.
+
+CREATE OR REPLACE VIEW `v_fallacy_claim_tally` AS
+SELECT
+  c.claim_id,
+  c.fallacy_type,
+  c.status,
+  COUNT(v.vote_id)                                    AS vote_count,
+  COALESCE(SUM(v.weight), 0)                          AS total_weight,
+  COALESCE(SUM(CASE WHEN v.agree THEN v.weight END), 0)
+    / NULLIF(SUM(v.weight), 0)                        AS agree_share,
+  CASE
+    WHEN COUNT(v.vote_id) < 3 THEN 'open'
+    WHEN COALESCE(SUM(CASE WHEN v.agree THEN v.weight END), 0)
+      / NULLIF(SUM(v.weight), 0) >= 0.6 THEN 'confirmed'
+    WHEN COALESCE(SUM(CASE WHEN NOT v.agree THEN v.weight END), 0)
+      / NULLIF(SUM(v.weight), 0) >= 0.6 THEN 'rejected'
+    ELSE 'open'
+  END                                                 AS computed_outcome
+FROM fallacy_claims c
+LEFT JOIN fallacy_claim_votes v ON v.claim_id = c.claim_id
+GROUP BY c.claim_id, c.fallacy_type, c.status;
+
+
 -- =================================================================
 -- READ VIEW: full linkage page in a single query
 -- =================================================================
@@ -453,5 +599,13 @@ CREATE TABLE IF NOT EXISTS `score_audit_log` (
 -- 6. Note for SQLite parity: this schema uses MariaDB/MySQL ENUMs
 --    and CHECK constraints. The companion Prisma schema in
 --    prisma/schema.prisma already models the same domain on SQLite
---    (LinkageArgument, LinkageVote, LinkageScoreType). When
---    promoting from SQLite to MariaDB, this file is the target.
+--    (LinkageArgument, LinkageVote, FallacyClaim, FallacyClaimVote,
+--    EquivalenceCandidate, GroupingVote). When promoting from SQLite
+--    to MariaDB, this file is the target.
+--
+-- 7. Fallacy claims never dock a score at filing. The counter-argument
+--    row referenced by counter_arg_id stays in DRAFT until
+--    v_fallacy_claim_tally computes 'confirmed'; only then does the
+--    application publish it and rerun the linkage recompute. Draft and
+--    rejected linkage_arguments rows are excluded from every score
+--    aggregate.

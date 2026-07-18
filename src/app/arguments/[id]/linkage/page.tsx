@@ -409,15 +409,19 @@ export default async function LinkagePage({ params }: PageProps) {
     }),
   ])
 
+  // Draft rows (e.g. detector or fallacy-claim counter-arguments awaiting
+  // review) are displayed but never counted: an accusation is an argument,
+  // and it moves nothing until published.
+  const publishedLinkageArgs = arg.linkageArguments.filter(la => la.status === 'published')
   const proArgs = arg.linkageArguments.filter(la => la.side === 'agree')
   const conArgs = arg.linkageArguments.filter(la => la.side === 'disagree')
-  const proWeight = proArgs.reduce((s, la) => s + la.strength, 0)
-  const conWeight = conArgs.reduce((s, la) => s + la.strength, 0)
+  const proWeight = publishedLinkageArgs.filter(la => la.side === 'agree').reduce((s, la) => s + la.strength, 0)
+  const conWeight = publishedLinkageArgs.filter(la => la.side === 'disagree').reduce((s, la) => s + la.strength, 0)
 
   const linkageScore = calculateLinkageFromArguments(
-    arg.linkageArguments.map(la => ({ side: la.side, strength: la.strength }))
+    publishedLinkageArgs.map(la => ({ side: la.side, strength: la.strength }))
   )
-  const hasLinkageDebate = arg.linkageArguments.length > 0
+  const hasLinkageDebate = publishedLinkageArgs.length > 0
   const canonicalLinkage = hasLinkageDebate ? linkageScore : null
 
   const direction = arg.side === 'agree' ? 'Supports' : 'Weakens'
@@ -446,6 +450,9 @@ export default async function LinkagePage({ params }: PageProps) {
           <>
             {la.pattern && <strong>{patternName(la.pattern)}: </strong>}
             {la.statement}
+            {la.status !== 'published' && (
+              <span className="ml-2 text-xs italic text-gray-500">({la.status} &mdash; not counted)</span>
+            )}
           </>
         ) : (
           <span>&nbsp;</span>

@@ -1,64 +1,268 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="belief-html.converter.xslt"?>
+<!--
+  Worked example of the belief-analysis data model (belief-data.schema.xsd).
+
+  This is the same normalized graph the live app stores via Prisma
+  (prisma/schema.prisma) and the pipeline emits (pipeline/generators/
+  xml_generator.py): Belief NODES carry engine-computed scores; Argument
+  EDGES join a reason to its conclusion with linkage / importance /
+  uniqueness weights; FallacyClaims are structured accusations against an
+  edge; GroupingCandidates are same-claim pairs settled by community vote.
+
+  How the code interacts with this data:
+    - POST /api/beliefs/[id]/arguments        adds a node + edge (no scores
+      accepted: the engine computes them and propagates upward)
+    - POST /api/arguments/[id]/fallacy-claims files a FallacyClaim (all six
+      template fields required; filing changes no score)
+    - POST /api/fallacy-claims/[id]/votes     weighted community vote; at
+      >= 60% agreement the claim is confirmed and its counter-argument is
+      published into the linkage sub-debate, then scores propagate
+    - POST /api/equivalence-candidates/[id]/votes settles a grouping pair
+      the same way (grouped / kept-separate)
+
+  Every score below is engine output (audit-locked): edit the graph, never
+  the numbers. The worked numbers mirror the fallacy ladder: the same
+  evidence argued WITH a confirmed false dilemma propagates 0.80 x 0.45 x
+  0.85 = 0.306; repaired without it, 0.80 x 0.90 x 0.85 = 0.612.
+-->
 <BeliefAnalysis>
   <Beliefs>
     <Belief>
       <BeliefID>1</BeliefID>
-      <Statement>Global Warming is largely caused by humans</Statement>
-      <!--"Score" is calculated in the xslt. It is the supporting sub-scores minus the weakening sub-scores (e.g., reasons, evidnece, up-votes,etc) -->
+      <Statement>Climate change requires an urgent, significant policy response</Statement>
+      <Category>Environment</Category>
+      <Subcategory>Climate policy</Subcategory>
+      <Side>root</Side>
+      <TruthScore>0.7200</TruthScore>
+      <ReasonRank>0.681000</ReasonRank>
+      <PropagatedScore>0.681000</PropagatedScore>
+      <EvidenceType>T1</EvidenceType>
     </Belief>
     <Belief>
       <BeliefID>2</BeliefID>
-      <Statement>We Should Tax the production of carbon</Statement>
+      <Statement>Either we drastically reduce emissions immediately or we face catastrophic climate change</Statement>
+      <Category>Environment</Category>
+      <Subcategory>Climate policy</Subcategory>
+      <ParentID>1</ParentID>
+      <Side>supporting</Side>
+      <TruthScore>0.8000</TruthScore>
+      <LinkageScore>0.8500</LinkageScore>
+      <ImportanceScore>1.0000</ImportanceScore>
+      <UniquenessScore>1.0000</UniquenessScore>
+      <ReasonRank>0.360000</ReasonRank>
+      <!-- 0.80 truth x 0.45 validity (confirmed major fallacy) x 0.85 linkage -->
+      <PropagatedScore>0.306000</PropagatedScore>
+      <EvidenceType>T1</EvidenceType>
     </Belief>
     <Belief>
       <BeliefID>3</BeliefID>
-      <Statement>We should tax the use of carbon</Statement>
+      <Statement>Urgent, significant emissions reductions are needed to avoid the worst climate outcomes</Statement>
+      <Category>Environment</Category>
+      <Subcategory>Climate policy</Subcategory>
+      <ParentID>1</ParentID>
+      <Side>supporting</Side>
+      <TruthScore>0.8000</TruthScore>
+      <LinkageScore>0.8500</LinkageScore>
+      <ImportanceScore>1.0000</ImportanceScore>
+      <UniquenessScore>0.9000</UniquenessScore>
+      <ReasonRank>0.720000</ReasonRank>
+      <!-- Same evidence, fallacy removed: 0.80 x 0.90 x 0.85 -->
+      <PropagatedScore>0.612000</PropagatedScore>
+      <EvidenceType>T1</EvidenceType>
     </Belief>
     <Belief>
       <BeliefID>4</BeliefID>
-      <Statement>Global warming is a problem</Statement>
+      <Statement>IPCC AR6 outlines multiple emission pathways with materially different outcomes</Statement>
+      <Category>Environment</Category>
+      <Subcategory>Climate science</Subcategory>
+      <ParentID>3</ParentID>
+      <Side>supporting</Side>
+      <TruthScore>0.9500</TruthScore>
+      <LinkageScore>0.9000</LinkageScore>
+      <ImportanceScore>0.8000</ImportanceScore>
+      <UniquenessScore>1.0000</UniquenessScore>
+      <ReasonRank>0.950000</ReasonRank>
+      <PropagatedScore>0.684000</PropagatedScore>
+      <SourceUrl>https://www.ipcc.ch/report/ar6/syr/</SourceUrl>
+      <EvidenceType>T1</EvidenceType>
     </Belief>
     <Belief>
       <BeliefID>5</BeliefID>
-      <Statement>We can address global warming with more benefits and fewer costs than ignoring it</Statement>
+      <Statement>Natural variability accounts for most of the recent observed warming</Statement>
+      <Category>Environment</Category>
+      <Subcategory>Climate science</Subcategory>
+      <ParentID>1</ParentID>
+      <Side>weakening</Side>
+      <TruthScore>0.2000</TruthScore>
+      <LinkageScore>0.6000</LinkageScore>
+      <ImportanceScore>0.7000</ImportanceScore>
+      <UniquenessScore>1.0000</UniquenessScore>
+      <ReasonRank>0.200000</ReasonRank>
+      <PropagatedScore>0.084000</PropagatedScore>
+      <EvidenceType>T3</EvidenceType>
     </Belief>
     <Belief>
       <BeliefID>6</BeliefID>
-        <Statement>Taxing things, such as carbon, usually reduces its production. The market is usually rational; if carbon is more expensive, people and companies will avoid producing it.</Statement>
+      <Statement>We must cut emissions right away or face climate disaster</Statement>
+      <Category>Environment</Category>
+      <Subcategory>Climate policy</Subcategory>
+      <ParentID>1</ParentID>
+      <Side>supporting</Side>
+      <TruthScore>0.8000</TruthScore>
+      <LinkageScore>0.8500</LinkageScore>
+      <ImportanceScore>1.0000</ImportanceScore>
+      <!-- Restatement of belief 2: grouped by community vote, so the
+           uniqueness discount prices away nearly all of its weight. -->
+      <UniquenessScore>0.1300</UniquenessScore>
+      <ReasonRank>0.360000</ReasonRank>
+      <PropagatedScore>0.039780</PropagatedScore>
+      <EvidenceType>T1</EvidenceType>
     </Belief>
-    <Belief>
-      <BeliefID>7</BeliefID>
-      <Statement>Scientific studies show a significant correlation between human activities and global temperature rise.</Statement>
-      <Score>8.5</Score>
-    </Belief>
-      <BeliefID>8</BeliefID>
-      <Statement>Some climatologists argue that natural factors play a more significant role in global warming.</Statement>
-     <Score>8.5</Score>
-    <!-- Additional beliefs... -->
   </Beliefs>
-<Arguments>
-  <SupportingArgument>
-    <ConclusionID>1</ConclusionID>
-    <SupportingArgumentID>7</SupportingArgumentID>
-    <LinkageScore>50</LinkageScore>
-  </SupportingArgument>
-  <WeakeningArgument>
-     <ConclusionID>1</ConclusionID>
-     <WeakeningArgumentID>8</WeakeningArgumentID>
-     <LinkageScore>40</LinkageScore>
-  </WeakeningArgument>
-</Arguments>
-<Links>
-  <Link>
-    <LinkID>1</LinkID>
-    <IfThisBeliefWereTrueID>1</IfThisBeliefWereTrueID>
-    <AffectedBeliefID>2</AffectedBeliefID>
-    <LinkType>Supporting</LinkType>
-    <JustificationText>Taxing things, such as carbon, usually reduces its production. The market is usually rational; if carbon is more expensive, people and companies will avoid producing it.</JustificationText>
-    <OtherNecessaryLinkBeliefIDs>
-      <BeliefID>4</BeliefID>
-      <BeliefID>5</BeliefID>
-    </OtherNecessaryLinkBeliefIDs>
-   </Link>
+
+  <Arguments>
+    <SupportingArgument>
+      <ArgumentID>A1</ArgumentID>
+      <ConclusionID>1</ConclusionID>
+      <SupportingArgumentID>2</SupportingArgumentID>
+      <LinkageScore>0.8500</LinkageScore>
+      <ImportanceScore>1.0000</ImportanceScore>
+      <UniquenessScore>1.0000</UniquenessScore>
+      <PropagatedScore>0.306000</PropagatedScore>
+    </SupportingArgument>
+    <SupportingArgument>
+      <ArgumentID>A2</ArgumentID>
+      <ConclusionID>1</ConclusionID>
+      <SupportingArgumentID>3</SupportingArgumentID>
+      <LinkageScore>0.8500</LinkageScore>
+      <ImportanceScore>1.0000</ImportanceScore>
+      <UniquenessScore>0.9000</UniquenessScore>
+      <PropagatedScore>0.612000</PropagatedScore>
+    </SupportingArgument>
+    <SupportingArgument>
+      <ArgumentID>A3</ArgumentID>
+      <ConclusionID>3</ConclusionID>
+      <SupportingArgumentID>4</SupportingArgumentID>
+      <LinkageScore>0.9000</LinkageScore>
+      <ImportanceScore>0.8000</ImportanceScore>
+      <UniquenessScore>1.0000</UniquenessScore>
+      <PropagatedScore>0.684000</PropagatedScore>
+    </SupportingArgument>
+    <WeakeningArgument>
+      <ArgumentID>A4</ArgumentID>
+      <ConclusionID>1</ConclusionID>
+      <WeakeningArgumentID>5</WeakeningArgumentID>
+      <LinkageScore>0.6000</LinkageScore>
+      <ImportanceScore>0.7000</ImportanceScore>
+      <UniquenessScore>1.0000</UniquenessScore>
+      <PropagatedScore>0.084000</PropagatedScore>
+    </WeakeningArgument>
+    <SupportingArgument>
+      <ArgumentID>A5</ArgumentID>
+      <ConclusionID>1</ConclusionID>
+      <SupportingArgumentID>6</SupportingArgumentID>
+      <LinkageScore>0.8500</LinkageScore>
+      <ImportanceScore>1.0000</ImportanceScore>
+      <UniquenessScore>0.1300</UniquenessScore>
+      <PropagatedScore>0.039780</PropagatedScore>
+    </SupportingArgument>
+  </Arguments>
+
+  <Links>
+    <Link>
+      <LinkID>1</LinkID>
+      <IfThisBeliefWereTrueID>4</IfThisBeliefWereTrueID>
+      <AffectedBeliefID>2</AffectedBeliefID>
+      <LinkType>Weakening</LinkType>
+      <JustificationText>If IPCC AR6 outlines multiple pathways with different outcomes, then "either drastic action or catastrophe" excludes real alternatives.</JustificationText>
+      <OtherNecessaryLinkBeliefIDs>
+        <BeliefID>1</BeliefID>
+      </OtherNecessaryLinkBeliefIDs>
+    </Link>
   </Links>
+
+  <FallacyClaims>
+    <FallacyClaim>
+      <FallacyClaimID>FC1</FallacyClaimID>
+      <TargetConclusionID>1</TargetConclusionID>
+      <TargetArgumentID>A1</TargetArgumentID>
+      <FallacyType>false-dilemma</FallacyType>
+      <TargetFactor>logical-validity</TargetFactor>
+      <Severity>major</Severity>
+      <QuotedText>Either we drastically reduce emissions immediately or we face catastrophic climate change</QuotedText>
+      <Explanation>Presents two extreme options when many intermediate paths exist: gradual reduction over decades, adaptation alongside mitigation, technological options such as carbon capture, and policy mixes rather than all-or-nothing.</Explanation>
+      <MissingElements>Gradual emission-reduction pathways; adaptation strategies; carbon capture scale-up; hybrid policy portfolios.</MissingElements>
+      <EvidenceLinks>
+        <EvidenceLink>
+          <Label>IPCC AR6 emission scenarios (T1)</Label>
+          <Url>https://www.ipcc.ch/report/ar6/syr/</Url>
+          <BeliefSlug>ipcc-ar6-outlines-multiple-emission-pathways</BeliefSlug>
+        </EvidenceLink>
+        <EvidenceLink>
+          <Label>National adaptation programs in progress (T2)</Label>
+        </EvidenceLink>
+      </EvidenceLinks>
+      <Consequences>Polarizes the debate and excludes middle-ground solutions that may be more feasible; if confirmed, logical validity falls to the major-fallacy rung (0.45).</Consequences>
+      <Status>confirmed</Status>
+      <Consensus>0.7800</Consensus>
+      <Votes>
+        <Vote>
+          <UserID>user-a</UserID>
+          <Agree>true</Agree>
+          <Weight>1.31</Weight>
+          <Reasoning>AR6 lists multiple pathways between "drastic now" and "catastrophe"; the binary is false.</Reasoning>
+        </Vote>
+        <Vote>
+          <UserID>user-b</UserID>
+          <Agree>true</Agree>
+          <Weight>1.05</Weight>
+          <Reasoning>Adaptation programs are a real excluded alternative.</Reasoning>
+        </Vote>
+        <Vote>
+          <UserID>user-c</UserID>
+          <Agree>false</Agree>
+          <!-- Tribal track record (one-sided flags, 40% accuracy): weight reduced. -->
+          <Weight>0.34</Weight>
+          <Reasoning>The science says act now; urgency justifies the framing.</Reasoning>
+        </Vote>
+        <Vote>
+          <UserID>user-d</UserID>
+          <Agree>true</Agree>
+          <Weight>1.00</Weight>
+        </Vote>
+      </Votes>
+    </FallacyClaim>
+  </FallacyClaims>
+
+  <GroupingCandidates>
+    <Candidate>
+      <CandidateID>GC1</CandidateID>
+      <NewArgumentID>A5</NewArgumentID>
+      <ExistingArgumentID>A1</ExistingArgumentID>
+      <Similarity>0.8700</Similarity>
+      <Band>probable-group</Band>
+      <Status>grouped</Status>
+      <Consensus>0.8300</Consensus>
+      <Votes>
+        <Vote>
+          <UserID>user-a</UserID>
+          <Agree>true</Agree>
+          <Weight>1.31</Weight>
+          <Reasoning>Same claim, same evidence, different words. One page per claim.</Reasoning>
+        </Vote>
+        <Vote>
+          <UserID>user-d</UserID>
+          <Agree>true</Agree>
+          <Weight>1.00</Weight>
+        </Vote>
+        <Vote>
+          <UserID>user-e</UserID>
+          <Agree>false</Agree>
+          <Weight>1.00</Weight>
+          <Reasoning>"Right away" is a timing claim, not just a restatement.</Reasoning>
+        </Vote>
+      </Votes>
+    </Candidate>
+  </GroupingCandidates>
 </BeliefAnalysis>
