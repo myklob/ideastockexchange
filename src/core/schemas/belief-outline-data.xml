@@ -28,6 +28,13 @@
       published into the linkage sub-debate, then scores propagate
     - POST /api/equivalence-candidates/[id]/votes settles a grouping pair
       the same way (grouped / kept-separate)
+    - GET  /api/beliefs?sortBy=grounding     the evidence-based ranking:
+      ordered by GroundingScore, the engine-computed measure of whether a
+      belief's tree bottoms out in evidence. There is no engagement input
+      to rank by — no clicks, shares, or outrage anywhere in this file
+    - GET  /api/contributors/[userId]/track-record shows exactly how any
+      voter's weight is derived (accuracy x side balance, clamped) — the
+      ranking math is public, the opposite of a hidden feed algorithm
 
   Every score below is engine output (audit-locked): edit the graph, never
   the numbers. The worked numbers mirror the fallacy ladder: the same
@@ -39,6 +46,22 @@
   EVS collapsed 0.80 -> 0.01, belief 5's truth score fell 0.62 -> 0.20,
   and the A4 edge's propagated impact fell 0.26 -> 0.084 — automatically,
   because the evidence is LINKED to the conclusions resting on it.
+
+  GroundingScore is the ranking column, worked through the same graph
+  (raw = evidence tierWeight x |linkage| + argument |linkage| x child
+  grounding; score = raw / (raw + 1)):
+    Belief 4: 1.0 x 0.9 = 0.90            -> 0.4737 (grounded)
+    Belief 3: 0.9 x 0.4737 = 0.4263       -> 0.2989 (thin: one hop from
+              the evidence — distance attenuates honestly)
+    Belief 5: 0.05 x 0.6 = 0.03           -> 0.0291 (thin; was 0.375
+              before the retraction — grounding collapsed with the EVS)
+    Beliefs 2 and 6: no evidence anywhere -> 0.0000 (unfounded; volume
+              of restatement cannot buy grounding)
+    Belief 1: 0.85x0 + 0.85x0.2989 + 0.6x0.0291 + 0.85x0 = 0.2715
+                                          -> 0.2135 (thin)
+  An engagement feed would rank belief 2 (the punchy false dilemma)
+  first; the evidence-based ranking puts belief 4 first and marks 2 and
+  6 unfounded.
 -->
 <BeliefAnalysis>
   <Beliefs>
@@ -51,6 +74,10 @@
       <TruthScore>0.7200</TruthScore>
       <ReasonRank>0.681000</ReasonRank>
       <PropagatedScore>0.681000</PropagatedScore>
+      <!-- No direct evidence; grounding inherited through A2 and A4:
+           0.85 x 0.2989 + 0.6 x 0.0291 = 0.2715 -> 0.2715/1.2715. -->
+      <GroundingScore>0.2135</GroundingScore>
+      <GroundingBand>thin</GroundingBand>
       <EvidenceType>T1</EvidenceType>
     </Belief>
     <Belief>
@@ -67,6 +94,10 @@
       <ReasonRank>0.360000</ReasonRank>
       <!-- 0.80 truth x 0.45 validity (confirmed major fallacy) x 0.85 linkage -->
       <PropagatedScore>0.306000</PropagatedScore>
+      <!-- No evidence anywhere under this claim: unfounded. An engagement
+           feed would rank this punchy binary first; this ranking sinks it. -->
+      <GroundingScore>0.0000</GroundingScore>
+      <GroundingBand>unfounded</GroundingBand>
       <EvidenceType>T1</EvidenceType>
     </Belief>
     <Belief>
@@ -83,6 +114,9 @@
       <ReasonRank>0.720000</ReasonRank>
       <!-- Same evidence, fallacy removed: 0.80 x 0.90 x 0.85 -->
       <PropagatedScore>0.612000</PropagatedScore>
+      <!-- Inherited from belief 4 through A3: 0.9 x 0.4737 = 0.4263. -->
+      <GroundingScore>0.2989</GroundingScore>
+      <GroundingBand>thin</GroundingBand>
       <EvidenceType>T1</EvidenceType>
     </Belief>
     <Belief>
@@ -98,6 +132,10 @@
       <UniquenessScore>1.0000</UniquenessScore>
       <ReasonRank>0.950000</ReasonRank>
       <PropagatedScore>0.684000</PropagatedScore>
+      <!-- Direct T1 evidence (E1): 1.0 x 0.9 = 0.9 -> 0.9/1.9. The top of
+           the evidence-based ranking. -->
+      <GroundingScore>0.4737</GroundingScore>
+      <GroundingBand>grounded</GroundingBand>
       <SourceUrl>https://www.ipcc.ch/report/ar6/syr/</SourceUrl>
       <EvidenceType>T1</EvidenceType>
     </Belief>
@@ -114,7 +152,11 @@
       <UniquenessScore>1.0000</UniquenessScore>
       <ReasonRank>0.200000</ReasonRank>
       <PropagatedScore>0.084000</PropagatedScore>
-      <!-- Foundation retracted: see EvidenceRecord E2 (tier T1 -> T0). -->
+      <!-- Foundation retracted: see EvidenceRecord E2 (tier T1 -> T0).
+           Grounding collapsed with it: 0.05 x 0.6 = 0.03 -> 0.0291
+           (was 1.0 x 0.6 = 0.6 -> 0.375 before the retraction). -->
+      <GroundingScore>0.0291</GroundingScore>
+      <GroundingBand>thin</GroundingBand>
       <EvidenceType>T0</EvidenceType>
     </Belief>
     <Belief>
@@ -132,6 +174,9 @@
       <UniquenessScore>0.1300</UniquenessScore>
       <ReasonRank>0.360000</ReasonRank>
       <PropagatedScore>0.039780</PropagatedScore>
+      <!-- Restating belief 2 louder buys no grounding either. -->
+      <GroundingScore>0.0000</GroundingScore>
+      <GroundingBand>unfounded</GroundingBand>
       <EvidenceType>T1</EvidenceType>
     </Belief>
   </Beliefs>

@@ -34,6 +34,8 @@ The Prisma schema in `prisma/schema.prisma` already models the same domain on SQ
 
 Schema 1.2.0 adds the evidence-to-conclusion machinery: `evidence_records` (tier classification T0–T4, where T0 = retracted/fraudulent, plus the EVS verification inputs), `evidence_tier_events` (the retraction ledger — every tier movement with its mandatory reason), `score_recompute_queue` (the propagation work list the engine drains after any change), the `trg_evidence_tier_change` trigger that makes a tier UPDATE automatically write the ledger and enqueue the cascade, and the `v_evidence_asymmetry` view (the cherry-picking detector: how each conclusion's evidence splits by direction and tier). The SQLite twin of the cascade is `PATCH /api/evidence/[id]` → `propagateBeliefScores()` in `src/lib/propagate-belief-scores.ts`.
 
+Schema 1.3.0 adds evidence-based ranking: `nodes.grounding_score` (engine-computed — how much of a node's support bottoms out in tiered evidence; a citation ring grounds nothing), `v_direct_grounding` (the auditable one-hop term), `v_front_page` (the ranking query — the schema stores no engagement columns, so better evidence is the only way up), and `v_contributor_track_record` (accuracy × side-balance inputs behind every vote weight, public by design). The SQLite twins are `groundingForBelief()` in `src/lib/grounding.ts`, `GET /api/beliefs?sortBy=grounding`, and `GET /api/contributors/[userId]/track-record`.
+
 ## How they interact today
 
 Right now, you're a human (or AI assistant) editing PBworks pages or the React belief pages directly. The flow is:

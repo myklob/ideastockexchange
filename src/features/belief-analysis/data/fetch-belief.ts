@@ -216,8 +216,10 @@ export interface BeliefFilterParams {
   claimStrengthMin?: number
   claimStrengthMax?: number
   category?: string
-  /** Field to sort on. Defaults to positivity (the "valence spectrum" surface). */
-  sortBy?: 'positivity' | 'specificity' | 'claimStrength' | 'statement' | 'updatedAt'
+  /** Field to sort on. Defaults to positivity (the "valence spectrum" surface).
+   *  'groundingScore' is the evidence-based ranking: engine-computed contact
+   *  with tiered evidence, never engagement. */
+  sortBy?: 'positivity' | 'specificity' | 'claimStrength' | 'statement' | 'updatedAt' | 'groundingScore'
   /** Sort direction. Defaults to 'asc' so the page reads negative → positive. */
   sortDir?: 'asc' | 'desc'
   limit?: number
@@ -265,6 +267,7 @@ export async function fetchFilteredBeliefs(params: BeliefFilterParams = {}) {
       positivity: true,
       specificity: true,
       claimStrength: true,
+      groundingScore: true,
     },
     orderBy: { [sortBy]: sortDir },
     ...(params.limit !== undefined ? { take: params.limit } : {}),

@@ -31,12 +31,66 @@
                 .status-open { color: #92400e; }
                 .tier-T0 { color: #7f1d1d; font-weight: bold; text-decoration: line-through; }
                 .tier-history { font-size: 0.85em; color: #6b7280; }
+                .grounding-chip { display: inline-block; padding: 2px 8px; border: 1px solid #9ca3af; border-radius: 4px; font-size: 0.85em; }
+                .grounding-unfounded { background: #f8d7da; }
+                .grounding-thin { background: #fff3cd; }
+                .grounding-grounded { background: #d9f0d1; }
+                .grounding-well-grounded { background: #d4edda; }
+                .ranking-note { font-size: 0.9em; color: #374151; max-width: 60em; }
             </style>
         </head>
         <body>
+            <!-- Evidence-Based Ranking: the front page of this document.
+                 Ordered by GroundingScore — engine-computed contact with
+                 tiered evidence. There is no engagement column in the data,
+                 so there is nothing else to rank by: the only way up this
+                 table is better evidence. -->
+            <h4>🏛️ Evidence-Based Ranking</h4>
+            <p class="ranking-note">
+                Ranked by how much each claim&#8217;s argument tree bottoms out in
+                tiered evidence (grounding = raw / (raw + 1)). Unfounded claims sit
+                at the bottom no matter how engaging their phrasing is; a citation
+                ring grounds nothing.
+            </p>
+            <table class="belief-table" style="width:100%">
+                <tr>
+                    <th>#</th>
+                    <th>Belief</th>
+                    <th>Grounding</th>
+                    <th>Band</th>
+                    <th>Truth</th>
+                </tr>
+                <xsl:for-each select="Beliefs/Belief">
+                    <xsl:sort select="GroundingScore" data-type="number" order="descending"/>
+                    <xsl:sort select="TruthScore" data-type="number" order="descending"/>
+                    <tr>
+                        <td><xsl:value-of select="position()"/></td>
+                        <td><xsl:value-of select="Statement"/></td>
+                        <td><xsl:value-of select="GroundingScore"/></td>
+                        <td>
+                            <span class="grounding-chip grounding-{GroundingBand}">
+                                <xsl:value-of select="GroundingBand"/>
+                            </span>
+                        </td>
+                        <td><xsl:value-of select="TruthScore"/></td>
+                    </tr>
+                </xsl:for-each>
+            </table>
+
             <xsl:for-each select="Beliefs/Belief">
                 <div class="belief">
                     <h3><xsl:value-of select="Statement"/></h3>
+                    <xsl:if test="GroundingScore">
+                        <p>
+                            <span class="grounding-chip grounding-{GroundingBand}">
+                                <xsl:text>Grounding: </xsl:text>
+                                <xsl:value-of select="GroundingScore"/>
+                                <xsl:text> (</xsl:text>
+                                <xsl:value-of select="GroundingBand"/>
+                                <xsl:text>)</xsl:text>
+                            </span>
+                        </p>
+                    </xsl:if>
 
                     <!-- Definitions Table -->
                     <xsl:if test="Definitions/Definition">
