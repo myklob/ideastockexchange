@@ -229,12 +229,12 @@ export default function CandidateEvaluationPage() {
           {/* inherited template blocks */}
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {[
-              { emoji: '🌳', label: 'Argument Trees', href: '/Argument%20Trees' },
-              { emoji: '🔬', label: 'Evidence Scoring', href: '/Evidence%20Scoring' },
-              { emoji: '📏', label: 'Objective Criteria', href: '/w/page/159351732/Objective%20criteria%20scores' },
-              { emoji: '⚖️', label: 'Cost-Benefit Analysis', href: '/w/page/156187122/cost-benefit%20analysis' },
-              { emoji: '🤝', label: 'Conflict Resolution', href: '/w/page/156186840/automate%20conflict%20resolution' },
-              { emoji: '📊', label: 'ReasonRank Scoring', href: '/ReasonRank' },
+              { emoji: '🌳', label: 'Argument Trees', href: '/how-it-works' },
+              { emoji: '🔬', label: 'Evidence Scoring', href: '/algorithms/evidence-scores' },
+              { emoji: '📏', label: 'Objective Criteria', href: '/algorithms/objective-criteria' },
+              { emoji: '⚖️', label: 'Cost-Benefit Analysis', href: '/cba/about' },
+              { emoji: '🤝', label: 'Conflict Resolution', href: 'https://myclob.pbworks.com/w/page/156186840/automate%20conflict%20resolution' },
+              { emoji: '📊', label: 'ReasonRank Scoring', href: '/algorithms/reason-rank' },
             ].map(({ emoji, label, href }) => (
               <Link
                 key={label}
