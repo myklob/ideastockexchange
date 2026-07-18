@@ -4,7 +4,10 @@
   <!-- ═══ Belief Analysis Document ═══
        The normalized graph shape the pipeline emits and the Prisma schema
        stores: Belief NODES carry scores; Arguments are EDGES joining a
-       reason to its conclusion; FallacyClaims are structured accusations
+       reason to its conclusion; EvidenceRecords tie sources to the
+       conclusions they support or weaken (the link that makes automatic
+       updating possible: when a source's tier changes, every dependent
+       conclusion recomputes); FallacyClaims are structured accusations
        against an edge; GroupingCandidates are same-claim pairs awaiting the
        community grouping vote. belief-outline-data.xml is the worked
        example; belief-html.converter.xslt renders this shape. -->
@@ -34,6 +37,16 @@
           <xs:complexType>
             <xs:sequence>
               <xs:element name="Link" minOccurs="0" maxOccurs="unbounded" type="LinkType"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <!-- Evidence linked to the conclusions it supports or weakens.
+             Mirrors the Prisma Evidence model and the evidence API routes. -->
+        <xs:element name="EvidenceRecords" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="EvidenceRecord" minOccurs="0" maxOccurs="unbounded" type="EvidenceRecordType"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -81,7 +94,7 @@
       <xs:element name="ReasonRank"      type="xs:decimal" minOccurs="0"/>
       <xs:element name="PropagatedScore" type="xs:decimal" minOccurs="0"/>
       <xs:element name="SourceUrl"    type="xs:string" minOccurs="0"/>
-      <!-- T1..T4 evidence tier -->
+      <!-- T0..T4 evidence tier (T0 = retracted/fraudulent) -->
       <xs:element name="EvidenceType" type="xs:string" minOccurs="0"/>
       <xs:element name="Falsifiability" type="xs:string" minOccurs="0"/>
 
@@ -189,6 +202,56 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element name="BeliefID" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ═══ Evidence records (evidence → conclusion links) ═══
+       One row per source per conclusion. The Tier is a CLASSIFICATION
+       (community-correctable: a retraction reclassifies T1 → T0); EVS and
+       ImpactScore are ENGINE OUTPUTS (audit-locked, never hand-edited):
+         EVS    = ESIW × log2(ERQ + 1) × ECRS × ERP
+         Impact = EVS × LinkageScore × 10
+       TierHistory is the retraction ledger: every tier movement, with the
+       reason, stays on the record so readers see why scores moved. -->
+  <xs:complexType name="EvidenceRecordType">
+    <xs:sequence>
+      <xs:element name="EvidenceID" type="xs:string" minOccurs="0"/>
+      <!-- The conclusion this evidence is linked to. -->
+      <xs:element name="BeliefID"   type="xs:string"/>
+      <!-- supporting | weakening -->
+      <xs:element name="Side"        type="xs:string"/>
+      <xs:element name="Description" type="xs:string"/>
+      <xs:element name="SourceUrl"   type="xs:string" minOccurs="0"/>
+      <xs:element name="DOI"         type="xs:string" minOccurs="0"/>
+      <!-- T1 peer-reviewed | T2 expert | T3 journalism | T4 opinion |
+           T0 retracted/fraudulent -->
+      <xs:element name="Tier"        type="xs:string"/>
+      <!-- Classification inputs (ESIW is derived from Tier by the engine). -->
+      <xs:element name="SourceIndependenceWeight" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ReplicationQuantity"      type="xs:integer" minOccurs="0"/>
+      <xs:element name="ConclusionRelevance"      type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ReplicationPercentage"    type="xs:decimal" minOccurs="0"/>
+      <xs:element name="LinkageScore"             type="xs:decimal" minOccurs="0"/>
+      <!-- Engine outputs (audit-locked). -->
+      <xs:element name="EVS"         type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ImpactScore" type="xs:decimal" minOccurs="0"/>
+      <!-- The retraction ledger. -->
+      <xs:element name="TierHistory" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="TierChange" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="FromTier"  type="xs:string"/>
+                  <xs:element name="ToTier"    type="xs:string"/>
+                  <xs:element name="Reason"    type="xs:string"/>
+                  <xs:element name="ChangedAt" type="xs:date" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

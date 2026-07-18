@@ -106,6 +106,7 @@ export interface ArgumentScoreBreakdown {
 // ─── Evidence Verification Score ────────────────────────────────
 
 const EVIDENCE_TYPE_WEIGHTS: Record<string, number> = {
+  T0: 0.05,  // Retracted / Fraudulent — the foundation is gone, so is the weight
   T1: 1.0,   // Peer-reviewed / Official
   T2: 0.75,  // Expert / Institutional
   T3: 0.5,   // Journalism / Surveys
@@ -132,6 +133,19 @@ export function calculateEVS(input: {
     input.conclusionRelevance *
     input.replicationPercentage
   )
+}
+
+/**
+ * An evidence row's contribution to its belief, on the same 0–100 magnitude
+ * scale as Argument.impactScore: EVS × linkage × 10, clamped to [0, 100].
+ *
+ * A single well-replicated T1 study (EVS ≈ 1–2, linkage ≈ 0.7–0.9) lands in
+ * the 7–18 range, comparable to a solid argument edge; a retracted T0 source
+ * collapses to ≈ 0. Sign is applied by the evidence `side` at aggregation
+ * time, so this stays unsigned.
+ */
+export function computeEvidenceImpactScore(evsScore: number, linkageScore: number): number {
+  return Math.max(0, Math.min(100, evsScore * linkageScore * 10))
 }
 
 // ─── Linkage Score ──────────────────────────────────────────────
@@ -525,14 +539,19 @@ export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
   const proRank = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
   const conRank = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
 
-  // Score evidence
+  // Score evidence. Evidence can weaken as well as support (side defaults to
+  // supporting for legacy items that predate the field).
   let supportingEvidenceScore = 0
-  const weakeningEvidenceScore = 0
+  let weakeningEvidenceScore = 0
 
   for (const ev of belief.evidence) {
     const tierWeight = getEvidenceTypeWeight(ev.tier)
     const evidenceImpact = tierWeight * ev.linkageScore
-    supportingEvidenceScore += evidenceImpact
+    if (ev.side === 'weakening') {
+      weakeningEvidenceScore += evidenceImpact
+    } else {
+      supportingEvidenceScore += evidenceImpact
+    }
   }
 
   // PageRank-style belief score: ProRank / (ProRank + ConRank)

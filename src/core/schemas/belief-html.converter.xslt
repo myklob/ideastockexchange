@@ -29,6 +29,8 @@
                 .status-confirmed { color: #7f1d1d; font-weight: bold; }
                 .status-rejected { color: #4b5563; }
                 .status-open { color: #92400e; }
+                .tier-T0 { color: #7f1d1d; font-weight: bold; text-decoration: line-through; }
+                .tier-history { font-size: 0.85em; color: #6b7280; }
             </style>
         </head>
         <body>
@@ -127,6 +129,47 @@
                             </table>
                         </xsl:if>
                     </div>
+
+                    <!-- Evidence Ledger: the sources this conclusion rests
+                         on, score-ranked. A retracted source (tier T0)
+                         stays visible with its tier history, so readers
+                         see why dependent scores moved. -->
+                    <xsl:if test="/BeliefAnalysis/EvidenceRecords/EvidenceRecord[BeliefID=current()/BeliefID]">
+                        <h4>📊 Evidence Ledger</h4>
+                        <table class="belief-table" style="width:100%">
+                            <tr>
+                                <th>Evidence</th>
+                                <th>Side</th>
+                                <th>Tier</th>
+                                <th>EVS</th>
+                                <th>Linkage</th>
+                                <th>Impact</th>
+                                <th>Tier History</th>
+                            </tr>
+                            <xsl:for-each select="/BeliefAnalysis/EvidenceRecords/EvidenceRecord[BeliefID=current()/BeliefID]">
+                                <xsl:sort select="ImpactScore" data-type="number" order="descending"/>
+                                <tr>
+                                    <td><xsl:value-of select="Description"/></td>
+                                    <td><xsl:value-of select="Side"/></td>
+                                    <td>
+                                        <span class="tier-{Tier}"><xsl:value-of select="Tier"/></span>
+                                    </td>
+                                    <td><xsl:value-of select="EVS"/></td>
+                                    <td><xsl:value-of select="LinkageScore"/></td>
+                                    <td><xsl:value-of select="ImpactScore"/></td>
+                                    <td class="tier-history">
+                                        <xsl:for-each select="TierHistory/TierChange">
+                                            <xsl:value-of select="FromTier"/>
+                                            <xsl:text> &#8594; </xsl:text>
+                                            <xsl:value-of select="ToTier"/>
+                                            <xsl:text>: </xsl:text>
+                                            <xsl:value-of select="Reason"/>
+                                        </xsl:for-each>
+                                    </td>
+                                </tr>
+                            </xsl:for-each>
+                        </table>
+                    </xsl:if>
 
                     <!-- Fallacy Claims against this belief's argument edges.
                          An accusation is an argument: it shows its full
