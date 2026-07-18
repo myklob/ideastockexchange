@@ -12,7 +12,15 @@
 
   How the code interacts with this data:
     - POST /api/beliefs/[id]/arguments        adds a node + edge (no scores
-      accepted: the engine computes them and propagates upward)
+      accepted: the engine computes them and propagates upward; an edge that
+      would close a citation loop is rejected as a circular citation)
+    - POST /api/beliefs/[id]/evidence         links a source to a conclusion
+      (tier is a classification input; the engine computes EVS and impact,
+      then propagates)
+    - PATCH /api/evidence/[id]                reclassifies a source — a
+      retraction is tier T1 -> T0 with a required reason; the engine
+      recomputes EVS and every dependent conclusion updates, each with a
+      score event naming this change as the trigger
     - POST /api/arguments/[id]/fallacy-claims files a FallacyClaim (all six
       template fields required; filing changes no score)
     - POST /api/fallacy-claims/[id]/votes     weighted community vote; at
@@ -25,6 +33,12 @@
   the numbers. The worked numbers mirror the fallacy ladder: the same
   evidence argued WITH a confirmed false dilemma propagates 0.80 x 0.45 x
   0.85 = 0.306; repaired without it, 0.80 x 0.90 x 0.85 = 0.612.
+
+  The EvidenceRecords section works the retraction cascade: evidence E2
+  (belief 5's foundation) was retracted, so its tier moved T1 -> T0, its
+  EVS collapsed 0.80 -> 0.01, belief 5's truth score fell 0.62 -> 0.20,
+  and the A4 edge's propagated impact fell 0.26 -> 0.084 — automatically,
+  because the evidence is LINKED to the conclusions resting on it.
 -->
 <BeliefAnalysis>
   <Beliefs>
@@ -100,7 +114,8 @@
       <UniquenessScore>1.0000</UniquenessScore>
       <ReasonRank>0.200000</ReasonRank>
       <PropagatedScore>0.084000</PropagatedScore>
-      <EvidenceType>T3</EvidenceType>
+      <!-- Foundation retracted: see EvidenceRecord E2 (tier T1 -> T0). -->
+      <EvidenceType>T0</EvidenceType>
     </Belief>
     <Belief>
       <BeliefID>6</BeliefID>
@@ -181,6 +196,57 @@
       </OtherNecessaryLinkBeliefIDs>
     </Link>
   </Links>
+
+  <EvidenceRecords>
+    <!-- E1: healthy T1 evidence. EVS = 1.0 x log2(3+1) x 0.9 x 1.0 = 1.8;
+         Impact = 1.8 x 0.9 x 10 = 16.2. -->
+    <EvidenceRecord>
+      <EvidenceID>E1</EvidenceID>
+      <BeliefID>4</BeliefID>
+      <Side>supporting</Side>
+      <Description>IPCC AR6 Synthesis Report: multiple emission pathways with materially different outcomes</Description>
+      <SourceUrl>https://www.ipcc.ch/report/ar6/syr/</SourceUrl>
+      <Tier>T1</Tier>
+      <SourceIndependenceWeight>1.0000</SourceIndependenceWeight>
+      <ReplicationQuantity>3</ReplicationQuantity>
+      <ConclusionRelevance>0.9000</ConclusionRelevance>
+      <ReplicationPercentage>1.0000</ReplicationPercentage>
+      <LinkageScore>0.9000</LinkageScore>
+      <EVS>1.8000</EVS>
+      <ImpactScore>16.2000</ImpactScore>
+    </EvidenceRecord>
+
+    <!-- E2: the zombie-argument kill switch at work. Before retraction:
+         T1, EVS = 1.0 x log2(1+1) x 0.8 x 1.0 = 0.80, Impact = 4.8, and
+         belief 5 stood at truth 0.62 (A4 propagated 0.62 x 0.6 x 0.7 =
+         0.26). The retraction reclassified the tier T1 -> T0 and failed
+         replications cut ERP to 0.25, so now:
+         EVS = 0.05 x log2(1+1) x 0.8 x 0.25 = 0.01, Impact = 0.06.
+         The cascade recomputed belief 5 to truth 0.20 and the A4 edge to
+         0.20 x 0.6 x 0.7 = 0.084 — the values shown in this file. -->
+    <EvidenceRecord>
+      <EvidenceID>E2</EvidenceID>
+      <BeliefID>5</BeliefID>
+      <Side>supporting</Side>
+      <Description>Journal study attributing recent warming to natural variability (RETRACTED 2024: data manipulation)</Description>
+      <Tier>T0</Tier>
+      <SourceIndependenceWeight>0.0500</SourceIndependenceWeight>
+      <ReplicationQuantity>1</ReplicationQuantity>
+      <ConclusionRelevance>0.8000</ConclusionRelevance>
+      <ReplicationPercentage>0.2500</ReplicationPercentage>
+      <LinkageScore>0.6000</LinkageScore>
+      <EVS>0.0100</EVS>
+      <ImpactScore>0.0600</ImpactScore>
+      <TierHistory>
+        <TierChange>
+          <FromTier>T1</FromTier>
+          <ToTier>T0</ToTier>
+          <Reason>Journal retraction: data manipulation confirmed by the publisher; three independent replication attempts failed (ERP 1.0 -> 0.25). Filed via PATCH /api/evidence/E2.</Reason>
+          <ChangedAt>2024-11-04</ChangedAt>
+        </TierChange>
+      </TierHistory>
+    </EvidenceRecord>
+  </EvidenceRecords>
 
   <FallacyClaims>
     <FallacyClaim>

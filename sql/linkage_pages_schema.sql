@@ -7,7 +7,10 @@
 -- RENDER of the data in these tables. The JSON-LD block embedded in
 -- each page is the on-the-wire serialization of these rows.
 --
--- Schema version: 1.1.0 (adds fallacy claims, claim votes, grouping votes)
+-- Schema version: 1.2.0 (adds evidence records, the tier-event ledger,
+--   the recompute queue, and the evidence-asymmetry view — the tables that
+--   make "when evidence changes, every dependent conclusion updates" real)
+-- Previous: 1.1.0 (fallacy claims, claim votes, grouping votes)
 -- Engine: MariaDB 10.4+ / MySQL 8.0+ (uses CHECK constraints, JSON type)
 -- Companion: src/core/scoring/scoring-engine.ts in the GitHub repo
 --   https://github.com/myklob/ideastockexchange
@@ -32,6 +35,13 @@
 --
 -- 5. Provenance columns track who created / last edited each row,
 --    including AI assistant sessions. Required for the audit trail.
+--
+-- 6. Zombie-argument kill switch: evidence is LINKED to the conclusions
+--    that rest on it (via linkages), so a retraction or reclassification
+--    is one UPDATE on evidence_records.tier. The trigger writes the tier
+--    event and enqueues the recompute; the engine drains the queue and
+--    every dependent conclusion recalculates. Arguments citing dead
+--    evidence never quietly keep their scores.
 -- =================================================================
 
 
@@ -466,6 +476,183 @@ CREATE TABLE IF NOT EXISTS `grouping_votes` (
 );
 
 
+-- =================================================================
+-- EVIDENCE RECORDS & THE AUTOMATIC-UPDATE CASCADE
+-- =================================================================
+-- The structural fix for zombie arguments. An evidence node (nodes row
+-- with node_type = 'evidence') gets one evidence_records row carrying its
+-- tier classification and verification inputs. The evidence reaches its
+-- conclusions through ordinary `linkages` rows (x_node = the evidence,
+-- y_node = the conclusion, linkage_type = 'ECLS'), so the dependency
+-- graph is explicit and walkable.
+--
+-- Tier scale (matches EVIDENCE_TYPE_WEIGHTS in scoring-engine.ts):
+--   T1 = peer-reviewed / official   (weight 1.00)
+--   T2 = expert / institutional     (weight 0.75)
+--   T3 = journalism / surveys       (weight 0.50)
+--   T4 = opinion / anecdote         (weight 0.25)
+--   T0 = RETRACTED / FRAUDULENT     (weight 0.05) — the Wakefield rung
+--
+-- The engine computes (audit-locked):
+--   EVS    = tier_weight × log2(replication_quantity + 1)
+--            × conclusion_relevance × replication_percentage
+--   impact = EVS × linkage_score × 10
+
+CREATE TABLE IF NOT EXISTS `evidence_records` (
+  `evidence_id`         VARCHAR(64)   NOT NULL,
+  `node_id`             VARCHAR(64)   NOT NULL,  -- the evidence node
+
+  -- Classification (community-correctable — a retraction is an UPDATE
+  -- here, never a hand-edit of a score column)
+  `tier`                ENUM('T0','T1','T2','T3','T4') NOT NULL DEFAULT 'T3',
+  `tier_verified_at`    TIMESTAMP     NULL DEFAULT NULL,
+
+  -- Identifiers / provenance of the source itself
+  `doi`                 VARCHAR(128)  DEFAULT NULL,
+  `pmid`                VARCHAR(64)   DEFAULT NULL,
+  `source_url`          VARCHAR(500)  DEFAULT NULL,
+  `author`              VARCHAR(256)  DEFAULT NULL,
+  `publication_date`    VARCHAR(32)   DEFAULT NULL,
+
+  -- Verification inputs (the EVS formula's ERQ / ECRS / ERP terms)
+  `replication_quantity`   INT          NOT NULL DEFAULT 1,
+  `replication_percentage` DECIMAL(5,4) NOT NULL DEFAULT 1.0,
+  `conclusion_relevance`   DECIMAL(5,4) NOT NULL DEFAULT 0.5,
+
+  -- Retraction state (set alongside tier = 'T0')
+  `retracted_at`        TIMESTAMP     NULL DEFAULT NULL,
+  `retraction_reason`   TEXT          DEFAULT NULL,
+  `last_verified_at`    TIMESTAMP     NULL DEFAULT NULL,
+
+  -- Cached engine output. AUDIT-LOCKED: recomputed, never hand-set.
+  `evs_score`           DECIMAL(8,4)  DEFAULT NULL,
+  `score_computed_at`   TIMESTAMP     NULL DEFAULT NULL,
+
+  -- Provenance
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+  `created_by`          VARCHAR(128)  DEFAULT NULL,
+  `last_edited_at`      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_edited_by`      VARCHAR(128)  DEFAULT NULL,
+  `deleted_at`          TIMESTAMP     NULL DEFAULT NULL,
+
+  PRIMARY KEY (`evidence_id`),
+  UNIQUE KEY `unique_evidence_node` (`node_id`),
+  INDEX `idx_evidence_tier` (`tier`),
+  INDEX `idx_evidence_doi` (`doi`),
+
+  CONSTRAINT `fk_evidence_node` FOREIGN KEY (`node_id`) REFERENCES `nodes`(`node_id`),
+  CONSTRAINT `chk_replication_pct` CHECK (`replication_percentage` >= 0 AND `replication_percentage` <= 1),
+  CONSTRAINT `chk_conclusion_rel` CHECK (`conclusion_relevance` >= 0 AND `conclusion_relevance` <= 1)
+);
+
+
+-- -- Evidence tier events (the retraction ledger) -----------------
+-- One row per tier movement, with the reason. This is what readers see
+-- when they ask WHY a conclusion's score fell: "the study it rested on
+-- moved T1 → T0 on 2010-02-02 (Lancet retraction)". Reasons are
+-- mandatory: reclassifying evidence without saying why is how zombie
+-- arguments get made in the other direction.
+
+CREATE TABLE IF NOT EXISTS `evidence_tier_events` (
+  `event_id`            BIGINT        NOT NULL AUTO_INCREMENT,
+  `evidence_id`         VARCHAR(64)   NOT NULL,
+  `old_tier`            ENUM('T0','T1','T2','T3','T4') NOT NULL,
+  `new_tier`            ENUM('T0','T1','T2','T3','T4') NOT NULL,
+  `reason`              TEXT          NOT NULL,  -- retraction notice, critique, correction
+  `source_url`          VARCHAR(500)  DEFAULT NULL,  -- link to the retraction / critique
+  `triggered_by`        VARCHAR(128)  DEFAULT NULL,
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`event_id`),
+  INDEX `idx_tier_event_evidence` (`evidence_id`, `created_at` DESC),
+
+  CONSTRAINT `fk_tier_event_evidence` FOREIGN KEY (`evidence_id`) REFERENCES `evidence_records`(`evidence_id`)
+);
+
+
+-- -- Score recompute queue ----------------------------------------
+-- The propagation work list. Any change that invalidates cached scores
+-- (tier movement, new linkage, confirmed fallacy claim) enqueues the
+-- affected node here; the engine worker drains the queue by recomputing
+-- the node and walking UP the linkage graph (x_node → y_node) until no
+-- dependent score moves. Rows are kept after processing: the queue
+-- doubles as the cascade's history.
+
+CREATE TABLE IF NOT EXISTS `score_recompute_queue` (
+  `queue_id`            BIGINT        NOT NULL AUTO_INCREMENT,
+  `node_id`             VARCHAR(64)   NOT NULL,
+  `reason`              VARCHAR(500)  NOT NULL,  -- e.g. 'evidence ev-wakefield-1998 tier T1 → T0'
+  `enqueued_at`         TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+  `processed_at`        TIMESTAMP     NULL DEFAULT NULL,
+
+  PRIMARY KEY (`queue_id`),
+  INDEX `idx_queue_pending` (`processed_at`, `enqueued_at`),
+  INDEX `idx_queue_node` (`node_id`),
+
+  CONSTRAINT `fk_queue_node` FOREIGN KEY (`node_id`) REFERENCES `nodes`(`node_id`)
+);
+
+
+-- -- The cascade trigger ------------------------------------------
+-- A tier change is the ONLY hand-touchable input on evidence_records
+-- that moves scores, and it cannot move them silently: the trigger
+-- writes the ledger row and enqueues the recompute in the same
+-- statement. The engine takes it from there — this is the "when the
+-- foundation crumbles, the building falls" mechanism.
+
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS `trg_evidence_tier_change`
+AFTER UPDATE ON `evidence_records`
+FOR EACH ROW
+BEGIN
+  IF NEW.tier <> OLD.tier THEN
+    INSERT INTO `evidence_tier_events`
+      (`evidence_id`, `old_tier`, `new_tier`, `reason`, `triggered_by`)
+    VALUES
+      (NEW.evidence_id, OLD.tier, NEW.tier,
+       COALESCE(NEW.retraction_reason, 'tier reclassification'),
+       NEW.last_edited_by);
+
+    INSERT INTO `score_recompute_queue` (`node_id`, `reason`)
+    VALUES (NEW.node_id,
+            CONCAT('evidence ', NEW.evidence_id, ' tier ', OLD.tier, ' → ', NEW.tier));
+  END IF;
+END//
+DELIMITER ;
+
+
+-- -- Evidence asymmetry view (cherry-picking detector) -------------
+-- For every conclusion, how the evidence splits by direction and tier.
+-- An argument citing 2 weak supporting sources while 50 strong
+-- contradicting sources sit unaddressed shows up here as a row like
+-- supporting_strong=0, supporting_weak=2, contradicting_strong=50 —
+-- the asymmetry the page renders as a cherry-picking flag.
+
+CREATE OR REPLACE VIEW `v_evidence_asymmetry` AS
+SELECT
+  l.y_node_id                                            AS conclusion_node_id,
+  SUM(CASE WHEN l.direction = 'supports'
+            AND e.tier IN ('T1','T2') THEN 1 ELSE 0 END) AS supporting_strong,
+  SUM(CASE WHEN l.direction = 'supports'
+            AND e.tier IN ('T3','T4') THEN 1 ELSE 0 END) AS supporting_weak,
+  SUM(CASE WHEN l.direction = 'supports'
+            AND e.tier = 'T0' THEN 1 ELSE 0 END)         AS supporting_retracted,
+  SUM(CASE WHEN l.direction IN ('weakens','refutes')
+            AND e.tier IN ('T1','T2') THEN 1 ELSE 0 END) AS contradicting_strong,
+  SUM(CASE WHEN l.direction IN ('weakens','refutes')
+            AND e.tier IN ('T3','T4') THEN 1 ELSE 0 END) AS contradicting_weak,
+  -- Cherry-picking flag: no strong support, but strong contradiction exists.
+  (SUM(CASE WHEN l.direction = 'supports'
+             AND e.tier IN ('T1','T2') THEN 1 ELSE 0 END) = 0
+   AND SUM(CASE WHEN l.direction IN ('weakens','refutes')
+                 AND e.tier IN ('T1','T2') THEN 1 ELSE 0 END) >= 3) AS cherry_picking_risk
+FROM linkages l
+JOIN evidence_records e ON e.node_id = l.x_node_id
+WHERE l.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+GROUP BY l.y_node_id;
+
+
 -- -- Consensus tally view ---------------------------------------
 -- How the application resolves a claim: weighted agree share across the
 -- votes, settled at >= 0.6 either way once at least 3 votes exist. The
@@ -609,3 +796,27 @@ CREATE TABLE IF NOT EXISTS `score_audit_log` (
 --    application publish it and rerun the linkage recompute. Draft and
 --    rejected linkage_arguments rows are excluded from every score
 --    aggregate.
+--
+-- 8. The retraction cascade, end to end (the Wakefield sequence):
+--      UPDATE evidence_records
+--         SET tier = 'T0',
+--             retracted_at = NOW(),
+--             retraction_reason = 'Lancet full retraction: data manipulation',
+--             last_edited_by = 'editor:...'
+--       WHERE evidence_id = 'ev-wakefield-1998';
+--    The trigger writes the evidence_tier_events row and enqueues the
+--    node in score_recompute_queue. The engine worker recomputes the
+--    evidence node's EVS (weight 1.00 → 0.05), then walks every linkage
+--    where it is x_node, recomputes each y_node, and re-enqueues those
+--    nodes' own dependents until the frontier is quiet. Every score
+--    column it touches logs to score_audit_log with the queue reason,
+--    so the answer to "why did this conclusion drop?" is one JOIN away.
+--    The SQLite twin of this flow is PATCH /api/evidence/[id] →
+--    propagateBeliefScores() in src/lib/propagate-belief-scores.ts.
+--
+-- 9. Circular-citation guard: before inserting a linkage where both
+--    endpoints are argument/belief nodes, walk x_node's dependency
+--    chain (linkages where it is the y_node, recursively). If the new
+--    edge's y_node appears, the pair has no independent foundation —
+--    reject the INSERT. The application twin is
+--    wouldCreateCircularCitation() in the arguments POST route.

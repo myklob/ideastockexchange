@@ -32,6 +32,8 @@ The schema enforces the audit-lock principle: scores have read-only-from-applica
 
 The Prisma schema in `prisma/schema.prisma` already models the same domain on SQLite (`LinkageArgument`, `LinkageVote`, `LinkageScoreType`, and the accountability tables `FallacyClaim`, `FallacyClaimVote`, `EquivalenceCandidate`, `GroupingVote`). The MariaDB schema in this folder is the target shape when the project graduates beyond SQLite. Schema 1.1.0 adds the structured fallacy-claim tables (the six-field accusation template, weighted claim votes, and the `v_fallacy_claim_tally` consensus view — the SQL twin of `resolveConsensus()` in `src/lib/consensus.ts`) plus the grouping-vote tables that settle same-claim pairs at the same 60% weighted bar.
 
+Schema 1.2.0 adds the evidence-to-conclusion machinery: `evidence_records` (tier classification T0–T4, where T0 = retracted/fraudulent, plus the EVS verification inputs), `evidence_tier_events` (the retraction ledger — every tier movement with its mandatory reason), `score_recompute_queue` (the propagation work list the engine drains after any change), the `trg_evidence_tier_change` trigger that makes a tier UPDATE automatically write the ledger and enqueue the cascade, and the `v_evidence_asymmetry` view (the cherry-picking detector: how each conclusion's evidence splits by direction and tier). The SQLite twin of the cascade is `PATCH /api/evidence/[id]` → `propagateBeliefScores()` in `src/lib/propagate-belief-scores.ts`.
+
 ## How they interact today
 
 Right now, you're a human (or AI assistant) editing PBworks pages or the React belief pages directly. The flow is:

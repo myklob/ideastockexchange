@@ -4,7 +4,7 @@
 export type BeliefStatus = 'calibrated' | 'contested' | 'emerging' | 'archived'
 export type Volatility = 'low' | 'medium' | 'high'
 export type ArgumentSide = 'pro' | 'con'
-export type EvidenceQualityTier = 'T1' | 'T2' | 'T3' | 'T4'
+export type EvidenceQualityTier = 'T0' | 'T1' | 'T2' | 'T3' | 'T4'
 export type AgentRole =
   | 'logic_check'
   | 'evidence_curation'
@@ -134,6 +134,8 @@ export interface SchilchtEvidence {
   tierLabel: string
   title: string
   linkageScore: number
+  /** Which way the evidence cuts. Absent = supporting (legacy items). */
+  side?: 'supporting' | 'weakening'
 }
 
 export interface ProtocolLogEntry {
