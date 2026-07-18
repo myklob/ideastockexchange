@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Renders a BeliefAnalysis document (belief-data.schema.xsd) to HTML.
+     The XML is the source of truth; this output is a render, never edited.
+     Worked example input: belief-outline-data.xml. -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <xsl:template match="/BeliefAnalysis">
@@ -23,6 +26,9 @@
                     border: 1px solid black;
                     padding: 5px;
                 }
+                .status-confirmed { color: #7f1d1d; font-weight: bold; }
+                .status-rejected { color: #4b5563; }
+                .status-open { color: #92400e; }
             </style>
         </head>
         <body>
@@ -74,49 +80,117 @@
 
                     <div class="table-container">
                         <!-- Reasons to Agree Table -->
-                        <xsl:if test="/BeliefAnalysis/Arguments/Argument[ConclusionID=current()/BeliefID and ArgumentType='Supporting']">
+                        <xsl:if test="/BeliefAnalysis/Arguments/SupportingArgument[ConclusionID=current()/BeliefID]">
                             <table class="belief-table">
                                 <caption>Reasons to Agree</caption>
                                 <tr>
                                     <th>Statement</th>
-                                    <th>Score</th>
+                                    <th>Impact</th>
                                     <th>Linkage</th>
+                                    <th>Uniqueness</th>
                                 </tr>
-                                <xsl:for-each select="/BeliefAnalysis/Arguments/Argument[ConclusionID=current()/BeliefID and ArgumentType='Supporting']">
-                                    <xsl:variable name="argID" select="ArgumentID"/>
+                                <xsl:for-each select="/BeliefAnalysis/Arguments/SupportingArgument[ConclusionID=current()/BeliefID]">
+                                    <xsl:sort select="PropagatedScore" data-type="number" order="descending"/>
+                                    <xsl:variable name="argID" select="SupportingArgumentID"/>
                                     <xsl:variable name="linkedBelief" select="/BeliefAnalysis/Beliefs/Belief[BeliefID = $argID]"/>
                                     <tr>
                                         <td><xsl:value-of select="$linkedBelief/Statement"/></td>
-                                        <td><xsl:value-of select="$linkedBelief/Score"/></td>
+                                        <td><xsl:value-of select="PropagatedScore"/></td>
                                         <td><xsl:value-of select="LinkageScore"/></td>
+                                        <td><xsl:value-of select="UniquenessScore"/></td>
                                     </tr>
                                 </xsl:for-each>
                             </table>
                         </xsl:if>
 
                         <!-- Reasons to Disagree Table -->
-                        <xsl:if test="/BeliefAnalysis/Arguments/Argument[ConclusionID=current()/BeliefID and ArgumentType='Weakening']">
+                        <xsl:if test="/BeliefAnalysis/Arguments/WeakeningArgument[ConclusionID=current()/BeliefID]">
                             <table class="belief-table">
                                 <caption>Reasons to Disagree</caption>
                                 <tr>
                                     <th>Statement</th>
-                                    <th>Score</th>
+                                    <th>Impact</th>
                                     <th>Linkage</th>
+                                    <th>Uniqueness</th>
                                 </tr>
-                                <xsl:for-each select="/BeliefAnalysis/Arguments/Argument[ConclusionID=current()/BeliefID and ArgumentType='Weakening']">
-                                    <xsl:variable name="argID" select="ArgumentID"/>
+                                <xsl:for-each select="/BeliefAnalysis/Arguments/WeakeningArgument[ConclusionID=current()/BeliefID]">
+                                    <xsl:sort select="PropagatedScore" data-type="number" order="descending"/>
+                                    <xsl:variable name="argID" select="WeakeningArgumentID"/>
                                     <xsl:variable name="linkedBelief" select="/BeliefAnalysis/Beliefs/Belief[BeliefID = $argID]"/>
                                     <tr>
                                         <td><xsl:value-of select="$linkedBelief/Statement"/></td>
-                                        <td><xsl:value-of select="$linkedBelief/Score"/></td>
+                                        <td><xsl:value-of select="PropagatedScore"/></td>
                                         <td><xsl:value-of select="LinkageScore"/></td>
+                                        <td><xsl:value-of select="UniquenessScore"/></td>
                                     </tr>
                                 </xsl:for-each>
                             </table>
                         </xsl:if>
                     </div>
+
+                    <!-- Fallacy Claims against this belief's argument edges.
+                         An accusation is an argument: it shows its full
+                         template and its consensus state. Only "confirmed"
+                         claims have touched any score. -->
+                    <xsl:if test="/BeliefAnalysis/FallacyClaims/FallacyClaim[TargetConclusionID=current()/BeliefID]">
+                        <h4>⚖️ Fallacy Claims</h4>
+                        <table class="belief-table" style="width:100%">
+                            <tr>
+                                <th>Type</th>
+                                <th>Quoted Text</th>
+                                <th>What&#8217;s Missing</th>
+                                <th>Status</th>
+                                <th>Consensus</th>
+                            </tr>
+                            <xsl:for-each select="/BeliefAnalysis/FallacyClaims/FallacyClaim[TargetConclusionID=current()/BeliefID]">
+                                <tr>
+                                    <td>
+                                        <xsl:value-of select="FallacyType"/>
+                                        <xsl:text> (</xsl:text>
+                                        <xsl:value-of select="Severity"/>
+                                        <xsl:text> &#8594; </xsl:text>
+                                        <xsl:value-of select="TargetFactor"/>
+                                        <xsl:text>)</xsl:text>
+                                    </td>
+                                    <td><xsl:value-of select="QuotedText"/></td>
+                                    <td><xsl:value-of select="MissingElements"/></td>
+                                    <td>
+                                        <span class="status-{Status}"><xsl:value-of select="Status"/></span>
+                                    </td>
+                                    <td><xsl:value-of select="Consensus"/></td>
+                                </tr>
+                            </xsl:for-each>
+                        </table>
+                    </xsl:if>
                 </div>
             </xsl:for-each>
+
+            <!-- Grouped restatements: same claim, different words, settled
+                 by community vote. Grouped rows are priced by the
+                 uniqueness discount instead of counting twice. -->
+            <xsl:if test="GroupingCandidates/Candidate">
+                <h4>🔗 Grouping Candidates</h4>
+                <table class="belief-table" style="width:100%">
+                    <tr>
+                        <th>New Argument</th>
+                        <th>Existing Argument</th>
+                        <th>Similarity</th>
+                        <th>Band</th>
+                        <th>Status</th>
+                        <th>Consensus</th>
+                    </tr>
+                    <xsl:for-each select="GroupingCandidates/Candidate">
+                        <tr>
+                            <td><xsl:value-of select="NewArgumentID"/></td>
+                            <td><xsl:value-of select="ExistingArgumentID"/></td>
+                            <td><xsl:value-of select="Similarity"/></td>
+                            <td><xsl:value-of select="Band"/></td>
+                            <td><xsl:value-of select="Status"/></td>
+                            <td><xsl:value-of select="Consensus"/></td>
+                        </tr>
+                    </xsl:for-each>
+                </table>
+            </xsl:if>
         </body>
     </html>
 </xsl:template>

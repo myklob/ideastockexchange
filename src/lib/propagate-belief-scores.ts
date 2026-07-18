@@ -462,9 +462,18 @@ export async function propagateFromArgumentChange(argumentId: number): Promise<P
  * @param argumentId - The argument whose linkage sub-debate just changed.
  */
 export async function propagateFromLinkageChange(argumentId: number): Promise<PropagationResult> {
+  // Published rows only: draft counter-arguments (detector output, pending
+  // fallacy claims) are stored, not scored — they enter this aggregate the
+  // moment they are published, and never before.
   const arg = await prisma.argument.findUnique({
     where: { id: argumentId },
-    select: { beliefId: true, linkageArguments: { select: { side: true, strength: true } } },
+    select: {
+      beliefId: true,
+      linkageArguments: {
+        where: { status: 'published' },
+        select: { side: true, strength: true },
+      },
+    },
   })
 
   if (!arg) {

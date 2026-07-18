@@ -1,93 +1,286 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <!-- ═══ Belief Analysis Document ═══ -->
+  <!-- ═══ Belief Analysis Document ═══
+       The normalized graph shape the pipeline emits and the Prisma schema
+       stores: Belief NODES carry scores; Arguments are EDGES joining a
+       reason to its conclusion; FallacyClaims are structured accusations
+       against an edge; GroupingCandidates are same-claim pairs awaiting the
+       community grouping vote. belief-outline-data.xml is the worked
+       example; belief-html.converter.xslt renders this shape. -->
   <xs:element name="BeliefAnalysis">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Belief" minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Beliefs">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="BeliefID"  type="xs:string"  minOccurs="0"/>
-              <xs:element name="Statement" type="xs:string"/>
-              <xs:element name="Category"  type="xs:string"  minOccurs="0"/>
-              <xs:element name="Subcategory" type="xs:string" minOccurs="0"/>
-              <xs:element name="DeweyNumber" type="xs:string" minOccurs="0"/>
-              <xs:element name="Positivity" type="xs:decimal" minOccurs="0"/>
-              <xs:element name="Score"     type="xs:decimal" minOccurs="0"/>
-              <xs:element name="ClaimStrength" type="xs:decimal" minOccurs="0"/>
-              <xs:element name="Falsifiability" type="xs:string" minOccurs="0"/>
+              <xs:element name="Belief" minOccurs="1" maxOccurs="unbounded" type="BeliefType"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
 
-              <!-- Definitions section (template v2) -->
-              <xs:element name="Definitions" minOccurs="0">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="Definition" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="Term"       type="xs:string"/>
-                          <xs:element name="Definition" type="xs:string"/>
-                          <xs:element name="SortOrder"  type="xs:integer" minOccurs="0"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+        <xs:element name="Arguments" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="SupportingArgument" type="SupportingArgumentType"/>
+                <xs:element name="WeakeningArgument"  type="WeakeningArgumentType"/>
+              </xs:choice>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
 
-              <!-- Testable Predictions section (template v2) -->
-              <xs:element name="TestablePredictions" minOccurs="0">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="Prediction" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="Statement"          type="xs:string"/>
-                          <xs:element name="Timeframe"          type="xs:string" minOccurs="0"/>
-                          <xs:element name="VerificationMethod" type="xs:string" minOccurs="0"/>
-                          <xs:element name="SortOrder"          type="xs:integer" minOccurs="0"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+        <xs:element name="Links" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Link" minOccurs="0" maxOccurs="unbounded" type="LinkType"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
 
-              <xs:element name="Impact" minOccurs="0">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="StrengthenPercentage" type="xs:string"/>
-                    <xs:element name="WeakenPercentage"     type="xs:string"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+        <!-- Structured fallacy accusations against argument edges. -->
+        <xs:element name="FallacyClaims" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="FallacyClaim" minOccurs="0" maxOccurs="unbounded" type="FallacyClaimType"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
 
-              <xs:element name="Reasons" minOccurs="0">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="Agree" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="Reason" minOccurs="1" maxOccurs="unbounded" type="ReasonType"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-                    <xs:element name="Disagree" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="Reason" minOccurs="1" maxOccurs="unbounded" type="ReasonType"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+        <!-- Same-claim pairs awaiting (or settled by) the grouping vote. -->
+        <xs:element name="GroupingCandidates" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Candidate" minOccurs="0" maxOccurs="unbounded" type="GroupingCandidateType"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+  <!-- ═══ Belief node ═══ -->
+  <xs:complexType name="BeliefType">
+    <xs:sequence>
+      <xs:element name="BeliefID"  type="xs:string"  minOccurs="0"/>
+      <xs:element name="Statement" type="xs:string"/>
+      <xs:element name="Category"  type="xs:string"  minOccurs="0"/>
+      <xs:element name="Subcategory" type="xs:string" minOccurs="0"/>
+      <xs:element name="DeweyNumber" type="xs:string" minOccurs="0"/>
+      <xs:element name="ParentID"  type="xs:string"  minOccurs="0"/>
+      <!-- supporting | weakening | root -->
+      <xs:element name="Side"      type="xs:string"  minOccurs="0"/>
+      <xs:element name="Positivity" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="Score"     type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ClaimStrength" type="xs:decimal" minOccurs="0"/>
+      <!-- Engine-computed node scores (audit-locked: never hand-edited). -->
+      <xs:element name="TruthScore"      type="xs:decimal" minOccurs="0"/>
+      <xs:element name="LinkageScore"    type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ImportanceScore" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="UniquenessScore" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ReasonRank"      type="xs:decimal" minOccurs="0"/>
+      <xs:element name="PropagatedScore" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="SourceUrl"    type="xs:string" minOccurs="0"/>
+      <!-- T1..T4 evidence tier -->
+      <xs:element name="EvidenceType" type="xs:string" minOccurs="0"/>
+      <xs:element name="Falsifiability" type="xs:string" minOccurs="0"/>
+
+      <!-- Definitions section (template v2) -->
+      <xs:element name="Definitions" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Definition" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="Term"       type="xs:string"/>
+                  <xs:element name="Definition" type="xs:string"/>
+                  <xs:element name="SortOrder"  type="xs:integer" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <!-- Testable Predictions section (template v2) -->
+      <xs:element name="TestablePredictions" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Prediction" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="Statement"          type="xs:string"/>
+                  <xs:element name="Timeframe"          type="xs:string" minOccurs="0"/>
+                  <xs:element name="VerificationMethod" type="xs:string" minOccurs="0"/>
+                  <xs:element name="SortOrder"          type="xs:integer" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="Impact" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="StrengthenPercentage" type="xs:string"/>
+            <xs:element name="WeakenPercentage"     type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="Reasons" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Agree" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="Reason" minOccurs="1" maxOccurs="unbounded" type="ReasonType"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="Disagree" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="Reason" minOccurs="1" maxOccurs="unbounded" type="ReasonType"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ═══ Argument edges (reason → conclusion) ═══ -->
+  <xs:complexType name="SupportingArgumentType">
+    <xs:sequence>
+      <xs:element name="ArgumentID"           type="xs:string" minOccurs="0"/>
+      <xs:element name="ConclusionID"         type="xs:string"/>
+      <xs:element name="SupportingArgumentID" type="xs:string"/>
+      <xs:element name="LinkageScore"    type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ImportanceScore" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="UniquenessScore" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="PropagatedScore" type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WeakeningArgumentType">
+    <xs:sequence>
+      <xs:element name="ArgumentID"          type="xs:string" minOccurs="0"/>
+      <xs:element name="ConclusionID"        type="xs:string"/>
+      <xs:element name="WeakeningArgumentID" type="xs:string"/>
+      <xs:element name="LinkageScore"    type="xs:decimal" minOccurs="0"/>
+      <xs:element name="ImportanceScore" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="UniquenessScore" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="PropagatedScore" type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LinkType">
+    <xs:sequence>
+      <xs:element name="LinkID"               type="xs:string"/>
+      <xs:element name="IfThisBeliefWereTrueID" type="xs:string"/>
+      <xs:element name="AffectedBeliefID"     type="xs:string"/>
+      <!-- Supporting | Weakening -->
+      <xs:element name="LinkType"             type="xs:string"/>
+      <xs:element name="JustificationText"    type="xs:string" minOccurs="0"/>
+      <xs:element name="OtherNecessaryLinkBeliefIDs" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="BeliefID" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ═══ Structured fallacy claims ═══
+       Mirrors the FallacyClaim / FallacyClaimVote tables: the six required
+       template fields, the consensus state, and the weighted votes. Filing
+       never changes a score; Status moves only by weighted community
+       consensus (>= 60%, quorum 3). -->
+  <xs:complexType name="FallacyClaimType">
+    <xs:sequence>
+      <xs:element name="FallacyClaimID"   type="xs:string" minOccurs="0"/>
+      <!-- The accused edge: ConclusionID + ArgumentID identify it. -->
+      <xs:element name="TargetConclusionID" type="xs:string"/>
+      <xs:element name="TargetArgumentID"   type="xs:string"/>
+      <!-- Catalog slug, e.g. false-dilemma, straw-man, cherry-picking. -->
+      <xs:element name="FallacyType"  type="xs:string"/>
+      <!-- relevance | logical-validity | evidence-quality -->
+      <xs:element name="TargetFactor" type="xs:string"/>
+      <!-- minor | major -->
+      <xs:element name="Severity"     type="xs:string"/>
+      <!-- The six-field accusation template (all required to file). -->
+      <xs:element name="QuotedText"      type="xs:string"/>
+      <xs:element name="Explanation"     type="xs:string"/>
+      <xs:element name="MissingElements" type="xs:string"/>
+      <xs:element name="EvidenceLinks" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="EvidenceLink" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="Label"      type="xs:string"/>
+                  <xs:element name="Url"        type="xs:string" minOccurs="0"/>
+                  <xs:element name="BeliefSlug" type="xs:string" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Consequences" type="xs:string"/>
+      <!-- open | confirmed | rejected -->
+      <xs:element name="Status"    type="xs:string"/>
+      <!-- Weighted agreement share at last resolution (0-1). -->
+      <xs:element name="Consensus" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="Votes" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Vote" minOccurs="0" maxOccurs="unbounded" type="WeightedVoteType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ═══ Grouping candidates (same claim, different words) ═══
+       Mirrors EquivalenceCandidate / GroupingVote: the redundancy scan
+       proposes the pair; the community vote settles it. -->
+  <xs:complexType name="GroupingCandidateType">
+    <xs:sequence>
+      <xs:element name="CandidateID"        type="xs:string" minOccurs="0"/>
+      <xs:element name="NewArgumentID"      type="xs:string"/>
+      <xs:element name="ExistingArgumentID" type="xs:string"/>
+      <xs:element name="Similarity"         type="xs:decimal"/>
+      <!-- same-claim | probable-group | related-link | distinct -->
+      <xs:element name="Band"               type="xs:string" minOccurs="0"/>
+      <!-- open | grouped | kept-separate -->
+      <xs:element name="Status"             type="xs:string"/>
+      <xs:element name="Consensus"          type="xs:decimal" minOccurs="0"/>
+      <xs:element name="Votes" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Vote" minOccurs="0" maxOccurs="unbounded" type="WeightedVoteType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- One weighted community vote. Weight is the voter's caller-credibility
+       multiplier (accuracy × cross-partisan balance, clamped to [0.3, 1.4]),
+       computed from their track record — never submitted. -->
+  <xs:complexType name="WeightedVoteType">
+    <xs:sequence>
+      <xs:element name="UserID"    type="xs:string"/>
+      <xs:element name="Agree"     type="xs:boolean"/>
+      <xs:element name="Weight"    type="xs:decimal" minOccurs="0"/>
+      <xs:element name="Reasoning" type="xs:string"  minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
 
   <!-- ═══ Equivalence Analysis Document ═══ -->
   <xs:element name="EquivalenceAnalysisDocument">
