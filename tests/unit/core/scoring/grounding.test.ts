@@ -136,6 +136,37 @@ describe('scoreGroundingTree', () => {
     b.argumentEdges.push({ linkageScore: 1, child: a })
     expect(scoreGroundingTree(a)).toBeGreaterThan(0)
   })
+
+  it('ring scores are independent of which member is walked first', () => {
+    const build = () => {
+      const a: GroundingNode = {
+        id: 'a',
+        evidence: [{ tier: 'T1', linkageScore: 0.9 }],
+        argumentEdges: [],
+      }
+      const b: GroundingNode = {
+        id: 'b',
+        evidence: [{ tier: 'T2', linkageScore: 0.8 }],
+        argumentEdges: [],
+      }
+      a.argumentEdges.push({ linkageScore: 1, child: b })
+      b.argumentEdges.push({ linkageScore: 1, child: a })
+      return { a, b }
+    }
+
+    const first = build()
+    const memoAFirst = new Map<string, number>()
+    const aFirstA = scoreGroundingTree(first.a, memoAFirst)
+    const aFirstB = scoreGroundingTree(first.b, memoAFirst)
+
+    const second = build()
+    const memoBFirst = new Map<string, number>()
+    const bFirstB = scoreGroundingTree(second.b, memoBFirst)
+    const bFirstA = scoreGroundingTree(second.a, memoBFirst)
+
+    expect(aFirstA).toBe(bFirstA)
+    expect(aFirstB).toBe(bFirstB)
+  })
 })
 
 describe('getGroundingBand', () => {

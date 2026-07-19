@@ -19,9 +19,20 @@ export async function groundingForBelief(
   memo: Map<number, number> = new Map(),
   walking: Set<number> = new Set(),
 ): Promise<number> {
+  const result = await walkGrounding(beliefId, memo, walking)
+  return result.score
+}
+
+// Scores computed while a ring edge was cut are context-dependent, so they
+// are never memoized — a shared memo must only ever hold root scores.
+async function walkGrounding(
+  beliefId: number,
+  memo: Map<number, number>,
+  walking: Set<number>,
+): Promise<{ score: number; tainted: boolean }> {
   const cached = memo.get(beliefId)
-  if (cached !== undefined) return cached
-  if (walking.has(beliefId)) return 0 // ring of claims: no foundation
+  if (cached !== undefined) return { score: cached, tainted: false }
+  if (walking.has(beliefId)) return { score: 0, tainted: true } // ring of claims: no foundation
 
   walking.add(beliefId)
 
@@ -36,11 +47,14 @@ export async function groundingForBelief(
     }),
   ])
 
+  let tainted = false
   const edges = []
   for (const edge of argumentEdges) {
+    const child = await walkGrounding(edge.beliefId, memo, walking)
+    tainted = tainted || child.tainted
     edges.push({
       linkageScore: edge.linkageScore,
-      childGrounding: await groundingForBelief(edge.beliefId, memo, walking),
+      childGrounding: child.score,
     })
   }
 
@@ -50,8 +64,8 @@ export async function groundingForBelief(
     evidence.map((e) => ({ tier: e.evidenceType, linkageScore: e.linkageScore })),
     edges,
   )
-  memo.set(beliefId, score)
-  return score
+  if (!tainted) memo.set(beliefId, score)
+  return { score, tainted }
 }
 
 /**

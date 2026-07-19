@@ -99,27 +99,40 @@ export interface GroundingNode {
 
 /**
  * Score a whole in-memory belief tree. A node re-entered while still on the
- * walk stack is a citation ring and contributes zero grounding.
+ * walk stack is a citation ring and contributes zero grounding. Scores
+ * computed while a ring edge was cut are context-dependent, so they are
+ * never memoized — every node's stored score is its score as a root,
+ * independent of evaluation order.
  */
 export function scoreGroundingTree(
   node: GroundingNode,
   memo: Map<string, number> = new Map(),
   walking: Set<string> = new Set(),
 ): number {
+  return walkGroundingTree(node, memo, walking).score
+}
+
+function walkGroundingTree(
+  node: GroundingNode,
+  memo: Map<string, number>,
+  walking: Set<string>,
+): { score: number; tainted: boolean } {
   const cached = memo.get(node.id)
-  if (cached !== undefined) return cached
-  if (walking.has(node.id)) return 0 // ring of claims: no foundation
+  if (cached !== undefined) return { score: cached, tainted: false }
+  if (walking.has(node.id)) return { score: 0, tainted: true } // ring of claims: no foundation
 
   walking.add(node.id)
-  const edges = node.argumentEdges.map((edge) => ({
-    linkageScore: edge.linkageScore,
-    childGrounding: scoreGroundingTree(edge.child, memo, walking),
-  }))
+  let tainted = false
+  const edges = node.argumentEdges.map((edge) => {
+    const child = walkGroundingTree(edge.child, memo, walking)
+    tainted = tainted || child.tainted
+    return { linkageScore: edge.linkageScore, childGrounding: child.score }
+  })
   walking.delete(node.id)
 
   const score = computeGroundingScore(node.evidence, edges)
-  memo.set(node.id, score)
-  return score
+  if (!tainted) memo.set(node.id, score)
+  return { score, tainted }
 }
 
 // ─── Bands ────────────────────────────────────────────────────────

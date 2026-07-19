@@ -106,8 +106,10 @@ function iseFetchEdges(PDO $db): array
 
 /**
  * The same recursion in PHP, returning a full breakdown per node:
- * counts, sub-totals, and one contribution row per edge. Results
- * computed under a cycle cut are not reused, so every node's score is
+ * counts, sub-totals, and one contribution row per edge. An edge back
+ * into the current path is pruned entirely — count and recursion — the
+ * way the CTE's path column blocks cyclic paths, and results computed
+ * under a cycle cut are not reused, so every node's score is
  * independent of evaluation order (mirrors computeConclusionScores in
  * src/lib/conclusion-score.ts).
  *
@@ -147,6 +149,10 @@ function iseComputeScoresInPhp(array $edges, float $multiplier): array
         $contributions = [];
 
         foreach ($childrenOf[$nodeId] ?? [] as $edge) {
+            if (isset($stack[(string) $edge['child_id']])) {
+                $tainted = true;
+                continue;
+            }
             $child = $evaluate((string) $edge['child_id'], $stack);
             $tainted = $tainted || $child['tainted'];
             $linkage = (float) $edge['linkage_score'];

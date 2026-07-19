@@ -100,11 +100,13 @@ export interface ConclusionScoreOptions {
  * Score every node reachable through `edges`. Returns a breakdown per node so
  * a page can show the full derivation, not just the total.
  *
- * Cycles: a reason found supporting its own ancestry contributes 0 through
- * that back-edge, so a ring of claims can never amplify itself — each member
- * keeps only the structural one-point counts of its listed reasons. Each node
- * is evaluated as its own root (results computed under a cycle cut are not
- * reused), which keeps every node's score independent of evaluation order.
+ * Cycles: an edge back into the current path is pruned entirely — neither its
+ * one-point count nor a recursive term — exactly as the SQL twin's path
+ * column blocks cyclic paths, so a ring of claims can never amplify itself;
+ * each member keeps only the structural one-point counts of its listed
+ * reasons. Each node is evaluated as its own root (results computed under a
+ * cycle cut are not reused), which keeps every node's score independent of
+ * evaluation order.
  */
 export function computeConclusionScores(
   nodes: ConclusionNode[],
@@ -138,6 +140,10 @@ export function computeConclusionScores(
     const contributions: EdgeContribution[] = [];
 
     for (const edge of childrenOf.get(nodeId) ?? []) {
+      if (stack.has(edge.childId)) {
+        tainted = true;
+        continue;
+      }
       const linkageScore = linkageRatio(
         edge.linkageAgree ?? 0,
         edge.linkageDisagree ?? 0

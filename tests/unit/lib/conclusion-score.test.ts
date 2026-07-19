@@ -197,11 +197,12 @@ describe("edge cases", () => {
     const nodes = [node(1), node(2)];
     const edges = [edge(1, 2, "agree"), edge(2, 1, "agree")];
     const scores = computeConclusionScores(nodes, edges, { multiplier: 1 });
-    // Each node sees one listed reason (+1) plus that reason's own one-point
-    // count, once — the back-edge is cut, so the ring never compounds, and
-    // both members score identically regardless of evaluation order.
-    expect(scores.get("1")?.score).toBe(2);
-    expect(scores.get("2")?.score).toBe(2);
+    // Each node keeps only its own listed reason (+1); the back-edge is
+    // pruned entirely, matching the SQL twin's path blocking, so nothing
+    // from the ring lifts and both members score identically regardless of
+    // evaluation order.
+    expect(scores.get("1")?.score).toBe(1);
+    expect(scores.get("2")?.score).toBe(1);
   });
 
   it("negative linkage lets a true-but-backfiring reason subtract", () => {
