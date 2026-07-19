@@ -54,6 +54,12 @@ const groups: AlgorithmGroup[] = [
           'The master algorithm: how pro and con argument trees recursively roll up into a belief score, PageRank-style.',
       },
       {
+        name: 'ReasonRank vs PageRank',
+        href: '/algorithms/reason-rank-vs-pagerank',
+        description:
+          'The direct comparison, plus a worked cascade where every score — truth, linkage, importance, uniqueness, EVS, impact, grounding — is computed live by the engine.',
+      },
+      {
         name: 'Truth Scores',
         href: '/algorithms/truth-scores',
         description:
