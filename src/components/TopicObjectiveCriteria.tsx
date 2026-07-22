@@ -55,12 +55,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
         <strong>How each criterion is scored across four dimensions:</strong>
         <ul className="mt-2 ml-4 list-disc space-y-1">
           <li>
-            <strong>
-              <Link href="/w/page/21960078/truth" className="text-blue-600 hover:underline">
-                Validity
-              </Link>
-              :
-            </strong>{' '}
+            <strong>Validity:</strong>{' '}
             Does this measure actually capture what we claim it captures?
           </li>
           <li>
@@ -107,11 +102,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
                   Criteria Score
                 </Link>
               </th>
-              <th className="px-3 py-2 text-center font-semibold w-[15%]">
-                <Link href="/w/page/21960078/truth" className="text-blue-700 hover:underline">
-                  Validity
-                </Link>
-              </th>
+              <th className="px-3 py-2 text-center font-semibold w-[15%]">Validity</th>
               <th className="px-3 py-2 text-center font-semibold w-[15%]">Reliability</th>
               <th className="px-3 py-2 text-center font-semibold w-[15%]">
                 <Link
