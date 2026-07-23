@@ -56,7 +56,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
         <ul className="mt-2 ml-4 list-disc space-y-1">
           <li>
             <strong>
-              <Link href="/w/page/21960078/truth" className="text-blue-600 hover:underline">
+              <Link href="/algorithms/truth-scores" className="text-blue-600 hover:underline">
                 Validity
               </Link>
               :
@@ -108,7 +108,7 @@ export default function TopicObjectiveCriteria({ criteria }: TopicObjectiveCrite
                 </Link>
               </th>
               <th className="px-3 py-2 text-center font-semibold w-[15%]">
-                <Link href="/w/page/21960078/truth" className="text-blue-700 hover:underline">
+                <Link href="/algorithms/truth-scores" className="text-blue-700 hover:underline">
                   Validity
                 </Link>
               </th>
