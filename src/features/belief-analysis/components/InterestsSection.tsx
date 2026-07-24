@@ -177,7 +177,7 @@ export default function InterestsSection({ interests }: InterestsSectionProps) {
       <SectionHeading
         emoji="&#x1F4A1;"
         title="Interests and Motivations"
-        href="/Interests"
+        href="/how-it-works"
         subtitle="Interests are what people actually need or want. Positions are what they demand. Shared interests are where compromise lives. Conflicting interests are where honesty about trade-offs is required."
       />
 
