@@ -6,8 +6,12 @@ import { computeDivergence } from "@/lib/market-maker";
 // These are the profit opportunities.
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const minDivergence = parseFloat(searchParams.get("minDivergence") || "0.05");
-  const limit = parseInt(searchParams.get("limit") || "20", 10);
+  // Fall back to defaults on non-numeric params: NaN would silently empty
+  // the result (slice(0, NaN)) or disable the divergence filter entirely.
+  const minDivergenceRaw = parseFloat(searchParams.get("minDivergence") || "0.05");
+  const minDivergence = Number.isFinite(minDivergenceRaw) && minDivergenceRaw >= 0 ? minDivergenceRaw : 0.05;
+  const limitRaw = parseInt(searchParams.get("limit") || "20", 10);
+  const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? limitRaw : 20;
 
   const claims = await prisma.claim.findMany({
     where: { status: "ACTIVE" },
@@ -18,6 +22,7 @@ export async function GET(request: NextRequest) {
     .map((claim) => {
       const pool = claim.liquidityPool;
       if (!pool) return null;
+      if (pool.yesShares + pool.noShares <= 0) return null;
 
       const yesPrice = pool.noShares / (pool.yesShares + pool.noShares);
       const { divergence, direction, magnitude } = computeDivergence(
@@ -37,7 +42,7 @@ export async function GET(request: NextRequest) {
         divergence,
         direction,
         magnitude,
-        potentialReturn: magnitude / yesPrice,
+        potentialReturn: yesPrice > 0 ? magnitude / yesPrice : null,
         volume: pool.totalVolume,
       };
     })

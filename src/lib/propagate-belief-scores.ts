@@ -393,46 +393,73 @@ export interface FullPropagationResult {
 /**
  * Recompute scores for every belief in the database, bottom-up.
  *
- * Finds every leaf belief (never used as a reason) plus isolated beliefs, and
- * propagates each upward; the shared visited-set prevents redundant work when
- * leaves share ancestors. Used by POST /api/scoring/propagate-all and by the
- * seed chain, so a fresh dev database starts with engine-computed scores
- * rather than hand-typed placeholders.
+ * Processes beliefs in topological order (children before parents) so each
+ * argument edge is refreshed only after the child belief feeding it has its
+ * final score. Used by POST /api/scoring/propagate-all and by the seed chain,
+ * so a fresh dev database starts with engine-computed scores rather than
+ * hand-typed placeholders.
  */
 export async function propagateAllBeliefScores(): Promise<FullPropagationResult> {
-  const allBeliefIds = await prisma.belief.findMany({ select: { id: true } })
-  const beliefIdsUsedAsChild = await prisma.argument.findMany({
-    select: { beliefId: true },
-    distinct: ['beliefId'],
+  const allBeliefIds = (await prisma.belief.findMany({ select: { id: true } })).map((b) => b.id)
+  const edgeRows = await prisma.argument.findMany({
+    select: { beliefId: true, importanceBeliefId: true, parentBeliefId: true },
   })
 
-  const usedAsChildSet = new Set(beliefIdsUsedAsChild.map((a) => a.beliefId))
-  const startBeliefIds = allBeliefIds
-    .map((b) => b.id)
-    .filter((id) => !usedAsChildSet.has(id))
+  // Child → parent adjacency over both edge kinds that feed impactScore.
+  const parentsOf = new Map<number, Set<number>>()
+  const inDegree = new Map<number, number>(allBeliefIds.map((id) => [id, 0]))
+  const addEdge = (child: number | null, parent: number) => {
+    if (child === null || child === parent) return
+    if (!inDegree.has(child) || !inDegree.has(parent)) return
+    let set = parentsOf.get(child)
+    if (!set) parentsOf.set(child, (set = new Set()))
+    if (!set.has(parent)) {
+      set.add(parent)
+      inDegree.set(parent, (inDegree.get(parent) ?? 0) + 1)
+    }
+  }
+  for (const e of edgeRows) {
+    addEdge(e.beliefId, e.parentBeliefId)
+    addEdge(e.importanceBeliefId, e.parentBeliefId)
+  }
 
-  const visited = new Set<number>()
+  // Kahn topological order, children before parents, so every belief's
+  // outgoing edges are refreshed only after ALL of its children have been
+  // recomputed. Starting from roots (or sweeping in id order) lets a shared
+  // visited-set freeze a parent's outgoing edge at whatever truth score the
+  // first-processed child produced. Cycle members keep nonzero in-degree and
+  // are appended afterwards — same best-effort handling as before.
+  const order: number[] = []
+  const queue = allBeliefIds.filter((id) => (inDegree.get(id) ?? 0) === 0)
+  while (queue.length > 0) {
+    const id = queue.shift()!
+    order.push(id)
+    for (const parent of parentsOf.get(id) ?? []) {
+      const remaining = (inDegree.get(parent) ?? 0) - 1
+      inDegree.set(parent, remaining)
+      if (remaining === 0) queue.push(parent)
+    }
+  }
+  const ordered = new Set(order)
+  for (const id of allBeliefIds) {
+    if (!ordered.has(id)) order.push(id)
+  }
+
   const result: FullPropagationResult = {
-    startedFrom: startBeliefIds.length,
+    startedFrom: order.length,
     updatedArguments: 0,
     updatedBeliefs: 0,
     maxDepth: 0,
   }
 
-  for (const id of startBeliefIds) {
-    if (visited.has(id)) continue
-    const pass = await propagateBeliefScores(id, visited, 0, 'full recompute')
-    result.updatedArguments += pass.updatedArgumentIds.length
-    result.updatedBeliefs += pass.updatedBeliefIds.length
-    result.maxDepth = Math.max(result.maxDepth, pass.depth)
-  }
-
-  // Leaves reach their ancestors through recursion, but a mid-graph belief
-  // whose leaf children carry no arguments of their own can be missed when
-  // every leaf under it was already visited. Sweep any belief not yet visited.
-  for (const { id } of allBeliefIds) {
-    if (visited.has(id)) continue
-    const pass = await propagateBeliefScores(id, visited, 0, 'full recompute')
+  // Every id except the one being processed is pre-marked visited: the topo
+  // order already sequences the work, so the upward recursion (step 5) is
+  // redundant here and only the per-belief refresh (steps 1-4) should run.
+  const groundingMemo = new Map<number, number>()
+  const blocked = new Set(allBeliefIds)
+  for (const id of order) {
+    blocked.delete(id)
+    const pass = await propagateBeliefScores(id, blocked, 0, 'full recompute', groundingMemo)
     result.updatedArguments += pass.updatedArgumentIds.length
     result.updatedBeliefs += pass.updatedBeliefIds.length
     result.maxDepth = Math.max(result.maxDepth, pass.depth)

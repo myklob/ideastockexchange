@@ -599,7 +599,15 @@ export async function executeBundle(username: string, label: string, legs: Bundl
     })
     let totalCost = 0
     for (const leg of legs) {
-      if (!(leg.shares > 0)) throw new MarketError('Every leg needs positive shares')
+      if (!leg || typeof leg.contractId !== 'string' || !leg.contractId) {
+        throw new MarketError('Every leg needs a contractId')
+      }
+      if (leg.outcome !== 'YES' && leg.outcome !== 'NO') {
+        throw new MarketError('Every leg outcome must be YES or NO')
+      }
+      if (typeof leg.shares !== 'number' || !Number.isFinite(leg.shares) || !(leg.shares > 0)) {
+        throw new MarketError('Every leg needs positive shares')
+      }
       const contract = await tx.marketContract.findUnique({ where: { id: leg.contractId } })
       if (!contract) throw new MarketError(`Leg contract ${leg.contractId} not found`, 404)
       assertTradable(contract)

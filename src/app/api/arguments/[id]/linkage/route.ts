@@ -26,6 +26,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { calculateLinkageFromArguments, applyDepthAttenuation } from '@/core/scoring/scoring-engine'
 import { propagateFromLinkageChange } from '@/lib/propagate-belief-scores'
+import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
 
 // ─── GET ───────────────────────────────────────────────────────────────────
 
@@ -94,6 +95,10 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (isGraphFrozen(new Date())) {
+    return NextResponse.json({ error: GRAPH_FREEZE_MESSAGE }, { status: 423 })
+  }
+
   const { id } = await params
   const argumentId = Number(id)
 
@@ -170,6 +175,10 @@ export async function PATCH(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (isGraphFrozen(new Date())) {
+    return NextResponse.json({ error: GRAPH_FREEZE_MESSAGE }, { status: 423 })
+  }
+
   const { id } = await params
   const argumentId = Number(id)
 

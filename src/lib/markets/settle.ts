@@ -51,9 +51,17 @@ export async function snapshotEpoch(epoch: string): Promise<{ created: number; e
       existing++
       continue
     }
+    // Only arguments that existed at the epoch boundary count: the cron runs
+    // after the freeze window ends, and post-boundary edits must not leak
+    // into the closing snapshot.
     const belief = await prisma.belief.findUnique({
       where: { id: beliefId },
-      include: { arguments: { select: { side: true, impactScore: true, importanceScore: true } } },
+      include: {
+        arguments: {
+          where: { createdAt: { lte: epochBoundary(epoch) } },
+          select: { side: true, impactScore: true, importanceScore: true },
+        },
+      },
     })
     if (!belief) continue
     const inputs = extractGraphInputs(belief)
@@ -142,9 +150,11 @@ async function payOut(tx: Tx, contract: MarketContract, outcome: 'YES' | 'NO') {
     const unfilled = order.quantity - order.filledQuantity
     if (order.side === 'BUY' && unfilled > 0) {
       const refund = order.limitPrice * (1 + contract.feeRate / 10_000) * unfilled
+      // Atomic increment: a user with several resting orders appears once per
+      // order with the same pre-loop balance, so absolute writes lose refunds.
       await tx.user.update({
         where: { id: order.userId },
-        data: { currentBalance: order.user.currentBalance + refund },
+        data: { currentBalance: { increment: refund } },
       })
     }
     await tx.marketOrder.update({ where: { id: order.id }, data: { status: 'CANCELLED' } })
@@ -168,15 +178,15 @@ async function payOut(tx: Tx, contract: MarketContract, outcome: 'YES' | 'NO') {
       await tx.user.update({
         where: { id: position.userId },
         data: {
-          currentBalance: position.user.currentBalance + payout,
-          realizedPnl: position.user.realizedPnl + pnl,
+          currentBalance: { increment: payout },
+          realizedPnl: { increment: pnl },
         },
       })
       payoutsTotal += payout
     } else {
       await tx.user.update({
         where: { id: position.userId },
-        data: { realizedPnl: position.user.realizedPnl + pnl },
+        data: { realizedPnl: { increment: pnl } },
       })
     }
     await tx.marketPosition.update({
@@ -359,7 +369,13 @@ export async function runEpoch(epoch: string, now = new Date()): Promise<EpochRu
     flagsCreated += await flagWashTrading(contract)
   }
 
-  const loans = await settleLoans()
+  // Square the margin book only on the run that actually did boundary work.
+  // The cron re-invokes runEpoch daily; sweeping borrower balances on every
+  // no-op re-run would force-repay loans within a day of borrowing.
+  const loans =
+    contractsSettled > 0 || snapshots.created > 0
+      ? await settleLoans()
+      : { repaid: 0, defaulted: 0 }
 
   return {
     epoch,

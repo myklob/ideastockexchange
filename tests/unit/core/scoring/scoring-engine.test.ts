@@ -12,6 +12,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   scoreArgument,
+  scoreLinkageDebate,
   scoreProtocolBelief,
   calculateReasonRankScore,
   calculateEVS,
@@ -22,7 +23,7 @@ import {
   determineActiveLikelihood,
   recalculateProtocolBelief,
 } from '../../../../src/core/scoring/scoring-engine'
-import { SchilchtArgument, SchilchtBelief } from '../../../../src/core/types/schlicht'
+import { LinkageDebate, SchilchtArgument, SchilchtBelief } from '../../../../src/core/types/schlicht'
 import { LikelihoodEstimate } from '../../../../src/core/types/cba'
 
 // ─── Test Helpers ─────────────────────────────────────────────────
@@ -726,5 +727,47 @@ describe('uniqueness score impact', () => {
     // Two unique sub-args should result in higher parent score
     // than one unique + one redundant
     expect(redundantResult.reasonRank).toBeLessThan(uniqueResult.reasonRank)
+  })
+})
+
+// ─── scoreLinkageDebate sign handling ───────────────────────────
+
+describe('scoreLinkageDebate', () => {
+  function makeDebate(
+    proArguments: SchilchtArgument[],
+    conArguments: SchilchtArgument[],
+  ): LinkageDebate {
+    return {
+      id: 'ld-1',
+      subClaim: 'A supports B',
+      evidenceId: 'arg-1',
+      parentClaimId: 'belief-1',
+      linkageType: 'causal',
+      proArguments,
+      conArguments,
+      linkageScore: 0,
+    }
+  }
+
+  it('returns 0 with no arguments', () => {
+    expect(scoreLinkageDebate(makeDebate([], []))).toBe(0)
+  })
+
+  it('scores a one-sided pro debate positive', () => {
+    const debate = makeDebate(
+      [makeArg({ side: 'pro', truthScore: 0.9, linkageScore: 0.8 })],
+      [],
+    )
+    expect(scoreLinkageDebate(debate)).toBeGreaterThan(0)
+  })
+
+  it('does not score a negatively-linked pro argument as proof of the link', () => {
+    // The sole "pro" argument has a linkage that OPPOSES: its rawImpact is
+    // negative, so the debate must not come out at +1 (deductive proof).
+    const debate = makeDebate(
+      [makeArg({ side: 'pro', truthScore: 1.0, linkageScore: -0.8 })],
+      [],
+    )
+    expect(scoreLinkageDebate(debate)).toBeLessThanOrEqual(0)
   })
 })

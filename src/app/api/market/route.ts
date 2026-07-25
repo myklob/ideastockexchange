@@ -4,12 +4,22 @@ import { calculateBuy, calculateSell } from "@/lib/market-maker";
 
 // POST /api/market: Execute a trade (buy or sell shares).
 export async function POST(request: NextRequest) {
-  const body = await request.json();
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
   const { userId, claimId, shareType, direction, amount } = body;
 
   if (!userId || !claimId || !shareType || !direction || !amount) {
     return NextResponse.json(
       { error: "Missing required fields: userId, claimId, shareType, direction, amount." },
+      { status: 400 }
+    );
+  }
+
+  if (typeof amount !== "number" || !Number.isFinite(amount)) {
+    return NextResponse.json(
+      { error: "Amount must be a finite number." },
       { status: 400 }
     );
   }
@@ -62,27 +72,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const transaction = calculateBuy(
-      {
-        yesShares: pool.yesShares,
-        noShares: pool.noShares,
-        constantProduct: pool.constantProduct,
-      },
-      shareType as "YES" | "NO",
-      amount
-    );
-
-    // Execute the trade atomically.
+    // Execute the trade atomically. The pool is re-read inside the
+    // transaction: pricing from a pre-transaction snapshot lets two
+    // concurrent trades both price against the same pool state and the
+    // second write clobber the first, breaking the x·y=k invariant.
     const result = await prisma.$transaction(async (tx) => {
+      const freshPool = await tx.liquidityPool.findUniqueOrThrow({
+        where: { claimId },
+      });
+      const transaction = calculateBuy(
+        {
+          yesShares: freshPool.yesShares,
+          noShares: freshPool.noShares,
+          constantProduct: freshPool.constantProduct,
+        },
+        shareType as "YES" | "NO",
+        amount
+      );
+
       // Update pool state.
       const newYesShares =
         shareType === "YES"
-          ? pool.yesShares - transaction.sharesReceived
-          : pool.yesShares + amount;
+          ? freshPool.yesShares - transaction.sharesReceived
+          : freshPool.yesShares + amount;
       const newNoShares =
         shareType === "NO"
-          ? pool.noShares - transaction.sharesReceived
-          : pool.noShares + amount;
+          ? freshPool.noShares - transaction.sharesReceived
+          : freshPool.noShares + amount;
 
       await tx.liquidityPool.update({
         where: { claimId },
@@ -175,25 +191,40 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const transaction = calculateSell(
-    {
-      yesShares: pool.yesShares,
-      noShares: pool.noShares,
-      constantProduct: pool.constantProduct,
-    },
-    shareType as "YES" | "NO",
-    amount
-  );
-
   const result = await prisma.$transaction(async (tx) => {
+    const freshPool = await tx.liquidityPool.findUniqueOrThrow({
+      where: { claimId },
+    });
+    const freshShare = await tx.share.findUniqueOrThrow({
+      where: {
+        userId_claimId_shareType: {
+          userId,
+          claimId,
+          shareType: shareType as "YES" | "NO",
+        },
+      },
+    });
+    if (freshShare.quantity < amount) {
+      throw new Error("Insufficient shares to sell.");
+    }
+    const transaction = calculateSell(
+      {
+        yesShares: freshPool.yesShares,
+        noShares: freshPool.noShares,
+        constantProduct: freshPool.constantProduct,
+      },
+      shareType as "YES" | "NO",
+      amount
+    );
+
     const newYesShares =
       shareType === "YES"
-        ? pool.yesShares + amount
-        : pool.yesShares - transaction.sharesReceived;
+        ? freshPool.yesShares + amount
+        : freshPool.yesShares - transaction.sharesReceived;
     const newNoShares =
       shareType === "NO"
-        ? pool.noShares + amount
-        : pool.noShares - transaction.sharesReceived;
+        ? freshPool.noShares + amount
+        : freshPool.noShares - transaction.sharesReceived;
 
     await tx.liquidityPool.update({
       where: { claimId },
@@ -211,12 +242,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const newQuantity = existingShare.quantity - amount;
+    const newQuantity = freshShare.quantity - amount;
     if (newQuantity <= 0) {
-      await tx.share.delete({ where: { id: existingShare.id } });
+      await tx.share.delete({ where: { id: freshShare.id } });
     } else {
       await tx.share.update({
-        where: { id: existingShare.id },
+        where: { id: freshShare.id },
         data: { quantity: newQuantity },
       });
     }

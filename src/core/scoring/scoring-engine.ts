@@ -182,7 +182,10 @@ export function scoreLinkageDebate(debate: LinkageDebate): number {
   const A = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
   const D = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
 
-  const total = A + D
+  // rawImpact can be negative (an argument whose own linkage opposes),
+  // so normalize by total magnitude — a signed denominator flips the sign
+  // of the result, scoring a contradicting argument as deductive proof.
+  const total = Math.abs(A) + Math.abs(D)
   if (total === 0) return 0.0
 
   // ISE canonical formula: (A − D) / (A + D) → [-1, 1]
