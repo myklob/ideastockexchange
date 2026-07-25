@@ -115,7 +115,7 @@
   <!-- Breadcrumb -->
   <p class="breadcrumb">
     <a href="/">Home</a> ›
-    <a href="/Topics">Topics</a> ›
+    <a href="/topics">Topics</a> ›
     <a href="/[ParentTopic]">[Parent Topic]</a> ›
     <strong>[Conflict Name]</strong>
   </p>
@@ -123,11 +123,11 @@
   <!-- ── PAGE HEADER ── -->
   <div class="meta-box">
     <div>
-      <p style="margin:0;"><strong><a href="/Taxonomy">Topic</a>:</strong> [Category] &gt; [Subcategory]</p>
+      <p style="margin:0;"><strong><a href="/topics">Topic</a>:</strong> [Category] &gt; [Subcategory]</p>
       <p style="margin:2px 0 0; font-size:12px; color:#666;">Dewey: [number] &nbsp;|&nbsp; ISE ID: [CFL-XXX]</p>
     </div>
     <div class="right">
-      <a href="/Interests">ISE Interest Analysis Framework</a><br />
+      ISE Interest Analysis Framework<br />
       <a href="https://github.com/myklob/ideastockexchange">GitHub</a>
     </div>
   </div>
@@ -160,7 +160,7 @@
        SECTION 1 — INVOLVED STAKEHOLDERS
        One row per stakeholder. Link name to /stk/[id].
        ════════════════════════════════════════════════════════════ -->
-  <h2>👥 <a href="/Stakeholders">Involved Stakeholders</a></h2>
+  <h2>👥 Involved Stakeholders</h2>
   <p style="font-size:13px; color:#555;">
     Representation and power overview. Click any stakeholder to view their full profile.
     Power = average of 5 dimensions (Political / Economic / Military / Narrative / Institutional).
@@ -227,10 +227,10 @@
        Default sort: Composite (Validity×0.6 + Linkage×0.4) descending.
        Supporter interests grouped first (green header), then Opponents (red).
        ════════════════════════════════════════════════════════════ -->
-  <h2>🎯 <a href="/Interests">Ranked Interest Profiles</a> — The "Why"</h2>
+  <h2>🎯 Ranked Interest Profiles — The "Why"</h2>
   <p style="font-size:13px; color:#555;">
-    Extracted motivations scored by ethical legitimacy (<a href="/Validity">Validity</a>)
-    and confidence they actually drive behavior (<a href="/Linkage">Linkage Accuracy</a>).
+    Extracted motivations scored by ethical legitimacy (Validity)
+    and confidence they actually drive behavior (<a href="/algorithms/linkage-scores">Linkage Accuracy</a>).
     Composite = Validity × 0.6 + Linkage × 0.4.<br />
     <em>Sort by:
       <a href="?sort=composite"><strong>Composite ▼</strong></a> &nbsp;|&nbsp;
@@ -366,7 +366,7 @@
        One row per claim. Left column = evidence supporting the claim.
        Right column = evidence or arguments challenging it.
        ════════════════════════════════════════════════════════════ -->
-  <h2>🔍 <a href="/Evidence">Evidence Ledger — Testing Linkage Accuracy</a></h2>
+  <h2>🔍 <a href="/algorithms/evidence-scores">Evidence Ledger — Testing Linkage Accuracy</a></h2>
   <p style="font-size:13px; color:#555;">
     <em>Prove they actually want this.</em> Speculative mind-reading is de-weighted.
     If you claim a motive, you need evidence. Tier key:
@@ -432,7 +432,7 @@
        SECTION 4 — VALIDITY TEST
        Not "is this motive real?" but "is it legitimate?"
        ════════════════════════════════════════════════════════════ -->
-  <h2>⚖️ <a href="/Objective%20criteria%20scores">Judging the Interests — Validity Test</a></h2>
+  <h2>⚖️ <a href="/algorithms/objective-criteria">Judging the Interests — Validity Test</a></h2>
   <p style="font-size:13px; color:#555;">
     Even if a motive is accurately identified, is it ethical and legitimate?
     Interests fail the validity test when they require others to lose, cannot survive
@@ -475,7 +475,7 @@
        SECTION 5 — COMPROMISE ENGINE
        Shared high-validity interests + bridging proposals + trade-offs.
        ════════════════════════════════════════════════════════════ -->
-  <h2>🤝 <a href="/Compromise">Compromise Engine — Shared Interests &amp; Bridging Proposals</a></h2>
+  <h2>🤝 <a href="/how-it-works">Compromise Engine — Shared Interests &amp; Bridging Proposals</a></h2>
   <p style="font-size:13px; color:#555;">
     The system surfaces interests with <strong>Validity ≥ 70</strong> that appear on
     <em>both</em> sides of the conflict. These are the foundation for compromise.
@@ -560,7 +560,7 @@
        SECTION 6 — SEMANTIC CLUSTERING
        Shows how raw brainstorm submissions were de-duplicated.
        ════════════════════════════════════════════════════════════ -->
-  <h2>🔗 <a href="/Similarity%20Scores">Semantic Clustering — Duplicate Reduction Log</a></h2>
+  <h2>🔗 <a href="/algorithms/combine-similar-beliefs">Semantic Clustering — Duplicate Reduction Log</a></h2>
   <p style="font-size:13px; color:#555;">
     Raw interests submitted by crowd and AI are compared against the canonical registry.
     Submissions scoring ≥ 45 similarity are auto-merged; those below go to manual review.
@@ -626,7 +626,7 @@
     <li><strong>Add a stakeholder</strong> — map a group not yet represented here</li>
   </ul>
   <p style="font-size:13px;">
-    <a href="/Contact">Contact us</a> &nbsp;|&nbsp;
+    <a href="/contact">Contact us</a> &nbsp;|&nbsp;
     <a href="https://github.com/myklob/ideastockexchange">GitHub — full codebase and technical documentation</a>
   </p>
 
