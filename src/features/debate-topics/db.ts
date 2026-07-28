@@ -217,7 +217,21 @@ export async function getDebateTopic(slug: string): Promise<DebateTopic | null> 
     include: FULL_INCLUDE,
   });
   if (!row) return null;
-  return mapTopicFromDb(row);
+  const topic = mapTopicFromDb(row);
+  // Related rows may name topics that have no page yet; drop those slugs so
+  // the components render plain text instead of a 404 link (Rule 5).
+  const slugs = topic.relatedTopics.flatMap((r) => (r.relatedSlug ? [r.relatedSlug] : []));
+  if (slugs.length > 0) {
+    const existing = await db.debateTopic.findMany({
+      where: { slug: { in: slugs } },
+      select: { slug: true },
+    });
+    const known = new Set(existing.map((e: { slug: string }) => e.slug));
+    topic.relatedTopics = topic.relatedTopics.map((r) =>
+      r.relatedSlug && !known.has(r.relatedSlug) ? { ...r, relatedSlug: undefined } : r
+    );
+  }
+  return topic;
 }
 
 export async function listDebateTopics(): Promise<
