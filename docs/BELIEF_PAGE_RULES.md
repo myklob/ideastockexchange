@@ -19,7 +19,7 @@ Definitions, scoring concept explanations, and terminology glossaries live at th
 
 **Why:** The page is a navigation tool into a scored argument network, not a tutorial. Readers come to see the structured argument, not to be taught what a Linkage Score is. Anyone who needs a definition clicks the link to that concept's own page. Definitions at the top are friction; they push the scored content below the fold.
 
-**How to apply:** If a page has a Definitions section, Scoring Concepts section, or anything labeled "What this is" — it goes AFTER arguments, evidence, values, interests, assumptions, CBA, resolution, and belief mapping. The last section before Contribute/footer, not the first.
+**How to apply:** If a page has a Definitions section, Scoring Concepts section, or anything labeled "What this is" — it goes AFTER arguments, evidence, values, interests, assumptions, CBA, resolution, and belief mapping. It is the last *analysis* section; only People on the Record (history, not analysis), the Contribute footer, and Related Topics may follow it. Definitions are operational (how would you measure it?), not philosophical.
 
 ---
 
@@ -38,32 +38,28 @@ Do NOT write a "Background," "Summary," "Context," "Overview," or "Hook" section
 
 ---
 
-## Rule 3: Arguments Are SHORT LABELS, Not Sentences
+## Rule 3: Arguments Are ATOMIC PROPOSITIONS, Not Essays
 
-Every cell in the Reasons-to-Agree / Reasons-to-Disagree tables is a 2 to 6 word LABEL, not a sentence, not a paragraph, not a claim with evidence attached.
+Every cell in the Reasons-to-Agree / Reasons-to-Disagree tables is a complete, atomic proposition whose pro/con direction is evident from the cell alone — one short claim, not a paragraph, not a claim with evidence attached.
 
-**Why:** The pro/con column header provides context. If the column says "Reasons to Agree with Public Banking," the stance is already implied. Writing "Public banking would reduce the poverty tax on unbanked households because..." re-states the context and then dumps evidence into the wrong place. That turns every cell into a mini-essay, making the page a wall of text instead of a scannable network. ISE only works if each argument is atomic, linkable to its own page, and scannable at a glance.
+**Why:** Each argument is a belief with its own page, so its cell must stand alone as a claim someone could agree or disagree with — a bare topic fragment ("long-term cost") can't anchor a sub-debate, and a mini-essay dumps evidence into the wrong place and turns the page into a wall of text. ISE only works if each argument is atomic, linkable to its own page, and scannable at a glance.
 
 **How to apply:**
 
-GOOD argument labels:
+GOOD argument cells (atomic, direction evident, one clause):
 
-- "poverty tax on unbanked"
-- "postal infrastructure already exists"
-- "captures political influence"
-- "crowding out private banks"
-- "long-term cost"
-- "spoiler effect"
-- "ballot exhaustion"
-- "voter confusion"
+- "Financial exclusion imposes a poverty tax on the unbanked"
+- "Postal infrastructure already reaches every zip code"
+- "Public banks capture political influence"
+- "RCV eliminates the spoiler effect"
 
-BAD argument labels (too long, re-states context, embeds evidence):
+BAD argument cells:
 
-- "Financial exclusion imposes a documented poverty tax on low-income households through check cashing fees, payday loans, and money orders..."
-- "The EITC, which requires earned income, raised single mothers' employment by 6 to 10 percent after the 1993 expansion..."
-- "RCV eliminates the spoiler effect — voters can rank their genuine first choice without wasting their vote on a non-viable candidate"
+- Too fragmentary to be a proposition: "long-term cost", "voter confusion"
+- Embeds the evidence: "The EITC, which requires earned income, raised single mothers' employment by 6 to 10 percent after the 1993 expansion..."
+- Chains reasoning: "RCV eliminates the spoiler effect — voters can rank their genuine first choice without wasting their vote on a non-viable candidate"
 
-Test: If the label contains a percentage, a citation, the word "because," or more than one clause, it's wrong. Strip it to the subject.
+Test: If the cell contains a percentage, a citation, the word "because," or more than one clause, it's wrong. If it couldn't headline its own belief page as a claim, it's too fragmentary. State the single proposition and stop.
 
 ---
 
@@ -90,10 +86,12 @@ A meme visualizing a T1 study is T1. A pundit asserting a claim on video is T4 a
 
 **How to apply:**
 
-- Argument cell: a label naming a reason. No citations, no percentages, no study names.
-- Evidence Ledger row: Tier, Source, Stance, Which-Argument-It-Bears-On, Linkage. Data lives HERE.
+- Argument cell: an atomic proposition naming a reason. No citations, no percentages, no study names.
+- Evidence Ledger row: `Evidence (Producer, Year) / Bears On / Tier / Linkage / Impact`. Data lives HERE, formatted as Finding (Producer, Year).
+- Every evidence item must name what it **bears on**: a specific argument above, identified by its opening words, or this belief directly. Evidence that bears on nothing contributes nothing, no matter how true it is. (In the software this is the `bearsOnArgumentId` edge; null means the belief itself.)
 - Visual and video evidence (charts, photos, memes, documentaries, book imagery) belongs in the Evidence Ledger too, tiered by the underlying source, and paired with the argument it bears on.
-- If a cell in the Argument Tree contains "FDIC data," "Pew research shows," or a number, it's misfiled. Move the data to the Evidence Ledger and keep the label in the argument tree.
+- If a cell in the Argument Tree contains "FDIC data," "Pew research shows," or a number, it's misfiled. Move the data to the Evidence Ledger and keep the proposition in the argument tree.
+- Confirmed fallacy claims bridge the two: a community-confirmed fallacy damages exactly the factor its type targets (relevance fallacies hit Linkage, formal fallacies hit the validity component of the Argument Score, evidence fallacies hit Evidence Quality) and is noted inline in the argument cell. An unconfirmed accusation changes nothing.
 
 ---
 
@@ -136,17 +134,21 @@ Every section with "Supporters" and "Opponents" (Values, Interests, Biases, Moti
 
 ---
 
-## Rule 8: Every Table Ranks by Relationship Score
+## Rule 8: Every Table Ranks by Its Rank Key
 
 Every row in every table relates to the belief through a scored relationship: the
-ReasonRank performance of that row's own pro/con sub-debate. Tables sort by that
-Score, descending — highest-scoring content first — and the software shows each
-table's top rows (currently five) and collapses the rest until expanded. Rows enter
-and rank only by how their sub-arguments perform, never by editorial placement.
+ReasonRank performance of that row's own pro/con sub-debate. Tables sort by their
+rank key, descending — highest-scoring content first — and the software shows each
+table's top five rows and collapses the rest until expanded. The rank key is the
+rightmost score column: **Impact** for arguments and evidence, **Expected Value**
+for costs and benefits, **Claim Strength** for the Primary Conflict Pair, and
+**Score** everywhere else. Rows enter and rank only by how their sub-arguments
+perform, never by editorial placement.
 
 **Why:** If editors can order rows by hand, the ordering becomes an argument nobody
 can audit. Score-ranked tables make placement itself a claim that traces to scored
-sub-debates, and top-N collapse keeps every table scannable without hiding anything.
+sub-debates, and top-five collapse keeps every table scannable without hiding
+anything — a row's position always traces to its score.
 
 **How to apply:**
 
@@ -154,10 +156,29 @@ sub-debates, and top-N collapse keeps every table scannable without hiding anyth
   `expectedValue = magnitude × likelihood` as their rank key; Media rows use their
   impact score; Similar Beliefs use the equivalency score).
 - Sort descending with unscored rows last — their score cells render blank (Rule 6),
-  and blanks must never bury real scores.
-- Render the top rows, then a "Show N more lower-scoring rows" toggle for the rest.
+  and blanks must never bury real scores. Until scores exist, Interests rows sort by
+  estimated prevalence.
+- Render the top five rows, then a "Show N more lower-scoring rows" toggle for the
+  rest (`TABLE_TOP_LIMIT` in `src/features/belief-analysis/lib/ranking.ts`).
 - Never hand-order rows to promote a favorite. If a row deserves to be higher, win
   its sub-debate.
+
+### Presentation conventions (Rule 8 corollary)
+
+- **Spell words out.** No abbreviated column headers ("Linkage" and "Importance",
+  never "Link" / "Imp") and no cryptic placeholder tokens.
+- **Underscored [Bracketed_Tokens]** in the wiki template are machine-replaceable
+  substitution slots: keep the underscores so a script can find them, but keep
+  every word readable.
+- **An Importance of 100% is a default** meaning "not yet differentiated," never a
+  claim of maximal importance; differentiate it whenever the material supports it.
+- **Delete empty scaffolding.** When publishing an instance of the template, drop
+  any section that would ship with nothing but blank cells — a short correct page
+  beats a long blank one. (The software equivalent: sections like People on the
+  Record and Related Topics render only when they have rows.)
+- **Migrations preserve content.** When migrating an old page, keep its filled
+  content somewhere on the new page (People lists → People on the Record;
+  equivalent phrasings → Similar Beliefs prose) rather than deleting it.
 
 ---
 
@@ -177,10 +198,15 @@ nothing in the trace feeds any score column.
 
 The July 2026 revision adds the **Scorecard** readout, per-row relationship scores on
 every table, the **Logical Anatomy** decomposition, and row-based Falsifiability and
-Cost-Benefit tables. The source of truth is `templates/belief-analysis-template.html`.
+Cost-Benefit tables. The second layout update adds the Evidence Ledger's **Bears On**
+column, spelled-out column headers, inline confirmed-fallacy notes, **People on the
+Record**, and the **Related Topics** footer. The source of truth is
+`templates/belief-analysis-template.html`.
 
-Header: Belief statement → metadata line (Topic / Dewey / Positivity / Net Belief
-Score / Related) → "Beliefs this supports" line. No summary or background (Rule 2).
+Breadcrumb (`Home › Topics › Category › This Belief`), then the header: Belief
+statement → metadata line (Topic > Subcategory / Dewey / Positivity / Related — the
+Net Belief Score lives in the Scorecard, not here) → "Beliefs this supports" line.
+No summary or background (Rule 2).
 When an open prediction-market contract exists on this belief's score, a one-line
 **market pointer** follows the header (an affordance, not a summary): it links the
 contract on `/markets` and restates the firewall — prices predict the engine, never
@@ -188,19 +214,25 @@ feed it. Renders nothing when no open contract exists.
 
 0. **Scorecard** — a readout of the scored content below, not a prose summary:
    `Net Belief Score (Pro vs. Con)` / `Bottom line` (one-sentence verdict scoped to
-   what the tree supports) / `Strongest pro / con` (the top-ranked argument from each
-   side) / `What would move this score most` (the top falsifiability score-mover),
-   plus a collapsed **twelve-dimension engine readout** (each dimension links to its
-   `/algorithms/*` explainer; null dimensions render blank per Rule 6).
-   Followed by the "How to read this page" box explaining score-ranked tables.
+   what the tree supports) / `Strongest pro / con` (**auto-derived**: the top-ranked
+   row from each side of the Argument Trees) / `What would move this score most`
+   (**auto-derived**: the top-scoring row of the Falsifiability Test), plus a
+   collapsed **twelve-dimension engine readout** (each dimension links to its
+   `/algorithms/*` explainer; null dimensions render blank per Rule 6). Cells marked
+   auto-derived are computed from the tables below, never hand-picked.
+   Followed by the "How to read this page" box explaining score-ranked tables and
+   naming the rank key (Rule 8).
 1. **Argument Trees** — one two-sided scored table (Reasons to Agree / Reasons to
-   Disagree), each side with `Argument / Score / Link / Imp / Impact`. Each argument
-   cell is the claim, the single most famous supporting quote inline (italic, small),
-   then the submitter as `~Name`. **Every score cell is a doorway** (a blank cell is
-   never a link, per Rule 6): Score opens the child belief's own page, Link opens the
-   edge's linkage debate, Imp opens the importance sub-belief when one sources it,
-   and Impact opens the score-provenance page (`/arguments/[id]/score`) showing the
-   full sign × truth × |linkage| × importance × uniqueness derivation with a live
+   Disagree), each side with `Argument / Score / Linkage / Importance / Impact`
+   (spelled out — no abbreviated headers). Each argument cell is the claim (a
+   complete atomic proposition), the single most famous supporting quote inline
+   (italic, small), then the submitter as `~Name`; community-confirmed fallacy
+   claims render an inline note naming the factor they dent (Rule 4). **Every score
+   cell is a doorway** (a blank cell is never a link, per Rule 6): Score opens the
+   child belief's own page, Linkage opens the edge's linkage debate, Importance
+   opens the importance sub-belief when one sources it, and Impact opens the
+   score-provenance page (`/arguments/[id]/score`) showing the full
+   sign × truth × |linkage| × importance × uniqueness derivation with a live
    uniqueness trace. Pro Total / Con Total row, then the **Net Belief Score** line.
    The Net Belief Score is reported as a **share and margin** — the net divided by the
    belief's own `Pro + Con` total — not as a bare numerator. A bare "+9.2" floats free;
@@ -214,7 +246,10 @@ feed it. Renders nothing when no open contract exists.
    (Rule 6). Options rank by score descending, nulls last (Rule 8). Comparative arguments
    ("rival Y beats X") belong here, not in the con column.
 2. **Evidence Ledger** — one two-sided table (Supporting / Weakening), each side with
-   `Evidence / Type / Link / Impact`.
+   `Evidence (Producer, Year) / Bears On / Tier / Linkage / Impact`. Items are
+   formatted as Finding (Producer, Year); tiers spell out as "Tier 1"…"Tier 4"; the
+   Bears On cell names the argument the item bears on by its opening words (linking
+   into that argument's sub-debate) or reads "this belief".
 3. **Objective Criteria** (`Criterion / How to Measure / Reading That Would Strengthen /
    Reading That Would Weaken / Latest Reading / Score`) — the best criteria are ones
    where the two sides predict different readings.
@@ -259,7 +294,8 @@ feed it. Renders nothing when no open contract exists.
 10. **General to Specific Belief Mapping** (Upstream and Downstream, each
     `Support / Score / Oppose / Score`)
 11. **Similar Beliefs** (`More Extreme / Score / More Moderate / Score`, scored by
-    belief equivalency)
+    belief equivalency). Same-strength paraphrases (equivalency near 100%) render
+    as prose merge candidates above the table, not as table rows.
 11b. **Where This Belief Is Used** *(renders only when the belief serves as a
     reason somewhere)* — what-links-here: every parent debate using this belief
     as a reason (`Used as a reason in / Side / Impact`), ranked by impact
@@ -271,7 +307,15 @@ feed it. Renders nothing when no open contract exists.
     by score propagation. The visible answer to the clean-slate problem; nothing
     here is hand-entered, so history rows are never authored (Rule 6 by
     construction). Also served by `GET /api/beliefs/[id]/history`.
-12. **Definitions** (`Term / Definition / Score`) — LAST before footer
+12. **Definitions** (`Term / Definition / Score`, defined operationally — how would
+    you measure it? — not philosophically) — last analysis section (Rule 1)
+12b. **People on the Record** *(renders only when notable positions are on
+    record)* — recorded public positions, preserved for tracing the debate
+    (`On record agreeing / On record disagreeing`, each entry a name linking to
+    the statement or source). Who holds a belief never changes its score: author
+    identity is orthogonal to the final score, so these names carry history, not
+    weight. Each listing is itself a debatable claim that the person holds the
+    position; contested listings are annotated.
 13. **Contribute / footer** — the two moves, stated and usable: an add-a-reason form
     (the new reason becomes a belief page of its own; no score field is ever
     submitted — the audit lock rejects them and the engine computes scores on
@@ -279,6 +323,10 @@ feed it. Renders nothing when no open contract exists.
     On high-stakes beliefs the form and API walk the speed bumps: acknowledge the
     strongest current opposing argument (verified server-side) and affirm the moral
     principle the post rests on.
+14. **Related Topics** *(renders only when the belief has category siblings)* —
+    the category cluster: a link to the topic hub (the category-filtered belief
+    index) and the sibling beliefs in this cluster, each linked, with the current
+    page appearing as plain text, unlinked.
 
 ---
 
@@ -287,20 +335,24 @@ feed it. Renders nothing when no open contract exists.
 Before outputting any ISE belief page, verify:
 
 - [ ] No summary or background section at the top — the Scorecard is a scored readout, not prose
-- [ ] Header has the metadata line (Topic / Dewey / Positivity / Related) and "Beliefs this supports"
-- [ ] Scorecard shows Net Belief Score, Bottom line, Strongest pro/con (top-ranked argument each side), and the top score-mover
-- [ ] Definitions section is LAST, not first
-- [ ] Argument cells are short claim labels with the famous quote inline and `~Name` submitter — no citations, percentages, or study names
+- [ ] Breadcrumb reads Home › Topics › Category › This Belief
+- [ ] Header has the metadata line (Topic > Subcategory / Dewey / Positivity / Related) and "Beliefs this supports"; the Net Belief Score appears in the Scorecard, not the metadata line
+- [ ] Belief is stated in positive form so the page headlines the supported claim
+- [ ] Scorecard shows Net Belief Score (Pro vs. Con), Bottom line, and the auto-derived Strongest pro/con and top score-mover — auto-derived cells computed from the tables, never hand-picked
+- [ ] Definitions section is the last analysis section; only People on the Record, Contribute, and Related Topics follow
+- [ ] Argument cells are complete atomic propositions with the famous quote inline and `~Name` submitter — no citations, percentages, or study names; confirmed fallacies noted inline
 - [ ] Argument Trees and Evidence Ledger each render as a single two-sided table with Pro/Con (or Supporting/Weakening) halves
-- [ ] All evidence lives in the Evidence Ledger with tier assigned
-- [ ] Every table has its Score column(s), sorts by score descending, and unscored rows sink to the bottom
+- [ ] Column headers are spelled out (Linkage, Importance) — no abbreviations
+- [ ] All evidence lives in the Evidence Ledger as Finding (Producer, Year) with tier assigned and a Bears On target (an argument's opening words or "this belief")
+- [ ] Every table sorts by its rank key descending (Impact / Expected Value / Claim Strength / Score), unscored rows sink to the bottom, and the software shows the top five rows
 - [ ] Objective Criteria has Criterion / How to Measure / Reading That Would Strengthen / Reading That Would Weaken / Latest Reading / Score
-- [ ] Falsifiability Test rows are bet-specific score-movers with per-row Scores; Testable Predictions include Follows If and Result So Far
+- [ ] Falsifiability Test rows are bet-specific score-movers with per-row Scores (plus the nothing-could-falsify note row); Testable Predictions include Follows If and Result So Far
 - [ ] Logical Anatomy decomposes the belief (logical form + typed, load-bearing-flagged component claims)
-- [ ] Cost-Benefit rows carry Category (Units) / Magnitude / Likelihood % / Expected Value and subtotal only within a category
-- [ ] Conflict Resolution Framework has all sub-sections: Shared Values rankings, Interests of Supporters, Interests of Opponents, Shared+Conflicting (Shared Interests + Primary Conflict Pair), Best Compromise Solutions, Advertised vs. Actual (with Divergence Score), Dispute Types, Primary Obstacles, Biases
-- [ ] Where This Belief Is Used and Score History render only when they have rows; neither is ever hand-authored
+- [ ] Cost-Benefit rows carry Category (Units) / Magnitude / Likelihood % / Expected Value and subtotal only within a category; cross-category conversions are stated out loud
+- [ ] Conflict Resolution Framework has all sub-sections in order: Shared Values rankings, Interests of Supporters, Interests of Opponents, Shared+Conflicting (Shared Interests + Primary Conflict Pair), Best Compromise Solutions, Advertised vs. Actual (with Divergence Score), Dispute Types, Primary Obstacles, Biases
+- [ ] Where This Belief Is Used, Score History, People on the Record, and Related Topics render only when they have rows; sections that would ship all-blank are deleted (wiki) or self-suppressed (software)
+- [ ] Similar Beliefs puts near-100% paraphrases in prose as merge candidates, not in the table
 - [ ] Every link points to a page that exists OR is plain text
 - [ ] No `href="#"` anchors anywhere
 - [ ] Both sides have symmetric structure in Interests, Advertised vs. Actual, Biases, Obstacles
-- [ ] Score cells are blank for unpopulated arguments
+- [ ] Score cells are blank for unpopulated arguments; Importance 100% is treated as "not yet differentiated"

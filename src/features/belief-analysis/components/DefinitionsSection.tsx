@@ -40,11 +40,11 @@ export default function DefinitionsSection({ definitions }: DefinitionsSectionPr
           impeccable. Both layers are required.
         </p>
         <p>
-          <strong>Evidence Tiers.</strong> T1 = peer-reviewed / official data.
-          T2 = expert analysis / institutional reports. T3 = investigative journalism / surveys.
-          T4 = opinion / anecdotal. Tier is set by the underlying source, not the format — a
-          meme visualizing a T1 study is T1. A pundit asserting a claim is T4 at best, and is
-          an argument, not evidence.
+          <strong>Evidence Tiers.</strong> Tier 1 = peer-reviewed / official data.
+          Tier 2 = expert analysis / institutional reports. Tier 3 = investigative journalism /
+          surveys. Tier 4 = opinion / anecdotal. Tier is set by the underlying source, not the
+          format — a meme visualizing a Tier 1 study is Tier 1. A pundit asserting a claim is
+          Tier 4 at best, and is an argument, not evidence.
         </p>
         <p>
           <strong>Scoring Concepts.</strong>{' '}
@@ -58,7 +58,10 @@ export default function DefinitionsSection({ definitions }: DefinitionsSectionPr
           sorts by quality, not volume or recency.
         </p>
       </div>
-      <p className="text-sm text-[var(--muted-foreground)] mb-2">Page-specific terminology:</p>
+      <p className="text-sm text-[var(--muted-foreground)] mb-2">
+        Key terms used in this analysis, defined operationally (how would you measure it?), not
+        philosophically:
+      </p>
       <table className="w-full border-collapse text-sm" style={{ borderColor: '#cccccc' }}>
         <thead>
           <tr>

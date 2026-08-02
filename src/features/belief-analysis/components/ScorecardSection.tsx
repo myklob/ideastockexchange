@@ -68,7 +68,11 @@ export default function ScorecardSection({
   const net = totalPro - totalCon
   const netLabel = hasArgs ? `${net >= 0 ? '+' : ''}${net.toFixed(1)}` : '[pending]'
 
-  const topMover = scoreMover ?? falsifiabilityItems[0]?.description ?? null
+  // Auto-derived, never hand-picked: the top-scoring Falsifiability Test row
+  // wins whenever one exists; the hand-authored scoreMover is only a fallback
+  // for beliefs with no falsifiability rows yet.
+  const topFalsifiability = [...falsifiabilityItems].sort(byScoreDesc(f => f.score))[0] ?? null
+  const topMover = topFalsifiability?.description ?? scoreMover ?? null
 
   // The twelve score dimensions, straight from the engine (computeBeliefScores).
   // Null values render blank (Rule 6); dimensions with an explainer route link
@@ -124,7 +128,10 @@ export default function ScorecardSection({
           <tr>
             <td className={LABEL}>Strongest pro / con</td>
             <td className={TD}>
-              <ArgumentLink arg={bestPro} /> · <ArgumentLink arg={bestCon} />
+              <ArgumentLink arg={bestPro} /> · <ArgumentLink arg={bestCon} />{' '}
+              <span className="text-[11px] text-[#999]">
+                (auto-derived: the top-ranked row from each side of the Argument Trees)
+              </span>
             </td>
           </tr>
           <tr className="bg-gray-50">
@@ -134,7 +141,10 @@ export default function ScorecardSection({
                 <span className="text-[var(--muted-foreground)] italic">
                   The single piece of evidence that would most change the verdict; see the Falsifiability Test below.
                 </span>
-              )}
+              )}{' '}
+              <span className="text-[11px] text-[#999]">
+                (auto-derived: the top-scoring row of the Falsifiability Test below)
+              </span>
             </td>
           </tr>
         </tbody>
@@ -170,8 +180,11 @@ export default function ScorecardSection({
         in every table is itself a claim, and its Score is the{' '}
         <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">ReasonRank</Link>{' '}
         performance of the pro/con sub-debate about that claim, computed recursively down to the
-        evidence. Every table sorts by Score, best content first; each table shows its top rows and
-        collapses the rest until expanded. Score cells stay blank until real content exists to score.
+        evidence. Every table sorts by its rank key, best content first; the rank key is the
+        rightmost score column: Impact for arguments and evidence, Expected Value for costs and
+        benefits, Claim Strength for the Primary Conflict Pair, and Score everywhere else. Each
+        table shows its top five rows and collapses the rest until expanded. Score cells stay blank
+        until real content exists to score.
       </p>
     </section>
   )

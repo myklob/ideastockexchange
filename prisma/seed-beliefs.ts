@@ -317,6 +317,8 @@ async function main() {
         side: 'supporting',
         description: 'Finland UBI pilot (2017-2018): Recipients showed improved well-being and modest employment effects',
         sourceUrl: 'https://julkaisut.valtioneuvosto.fi/handle/10024/161361',
+        producer: 'Kela',
+        year: 2019,
         evidenceType: 'T1',
         sourceIndependenceWeight: 1.0,
         replicationQuantity: 3,
@@ -330,6 +332,8 @@ async function main() {
         side: 'supporting',
         description: 'GiveDirectly long-term study in Kenya: Cash transfers led to sustained economic gains',
         sourceUrl: 'https://www.givedirectly.org/research-on-cash-transfers/',
+        producer: 'GiveDirectly',
+        year: 2022,
         evidenceType: 'T1',
         sourceIndependenceWeight: 1.0,
         replicationQuantity: 5,
@@ -342,6 +346,8 @@ async function main() {
         beliefId: mainBelief.id,
         side: 'supporting',
         description: 'Stockton SEED program: Recipients found full-time employment at twice the rate of control group',
+        producer: 'Stockton SEED',
+        year: 2021,
         evidenceType: 'T2',
         sourceIndependenceWeight: 0.75,
         replicationQuantity: 1,
@@ -354,6 +360,8 @@ async function main() {
         beliefId: mainBelief.id,
         side: 'weakening',
         description: 'Alaska Permanent Fund Dividend: No measurable reduction in poverty rates despite 40+ years of payments',
+        producer: 'University of Alaska ISER',
+        year: 2016,
         evidenceType: 'T2',
         sourceIndependenceWeight: 0.75,
         replicationQuantity: 2,
@@ -376,6 +384,92 @@ async function main() {
       },
     ],
   })
+
+  // Name what each evidence item bears on (the ledger's Bears On column): a
+  // specific argument edge on this belief, identified in the UI by its opening
+  // words. Rows left null bear on the belief directly.
+  const mainEdges = await prisma.argument.findMany({
+    where: { parentBeliefId: mainBelief.id },
+    select: { id: true, beliefId: true },
+  })
+  const edgeByChild = new Map(mainEdges.map(e => [e.beliefId, e.id]))
+  const bearsOnByPrefix: Array<[string, number | undefined]> = [
+    ['Finland UBI pilot', edgeByChild.get(workIncentiveBelief.id)],
+    ['GiveDirectly long-term study', edgeByChild.get(povertyBelief.id)],
+    ['Stockton SEED program', edgeByChild.get(workIncentiveBelief.id)],
+    ['Alaska Permanent Fund Dividend', edgeByChild.get(povertyBelief.id)],
+  ]
+  for (const [prefix, argumentId] of bearsOnByPrefix) {
+    if (argumentId == null) continue
+    await prisma.evidence.updateMany({
+      where: { beliefId: mainBelief.id, description: { startsWith: prefix } },
+      data: { bearsOnArgumentId: argumentId },
+    })
+  }
+
+  // People on the Record: history, never weight. One contested listing shows
+  // the annotation path; unlinked names render as plain text (Rule 5).
+  const peopleCount = await prisma.personOnRecord.count({ where: { beliefId: mainBelief.id } })
+  if (peopleCount === 0) {
+    await prisma.personOnRecord.createMany({
+      data: [
+        {
+          beliefId: mainBelief.id,
+          side: 'agree',
+          name: 'Andrew Yang',
+          sourceUrl: 'https://en.wikipedia.org/wiki/Freedom_Dividend',
+          sortOrder: 0,
+        },
+        {
+          beliefId: mainBelief.id,
+          side: 'agree',
+          name: 'Milton Friedman',
+          contested: true,
+          contestedNote: 'advocated a negative income tax, not a universal payment',
+          sortOrder: 1,
+        },
+        {
+          beliefId: mainBelief.id,
+          side: 'disagree',
+          name: 'Oren Cass',
+          sortOrder: 0,
+        },
+      ],
+    })
+  }
+
+  // One community-confirmed fallacy claim, so the inline argument-cell note
+  // renders: the work-incentive argument cherry-picks by ignoring the
+  // higher-tier employment findings already in this ledger.
+  const workIncentiveEdgeId = edgeByChild.get(workIncentiveBelief.id)
+  if (workIncentiveEdgeId != null) {
+    const fallacyCount = await prisma.fallacyClaim.count({
+      where: { argumentId: workIncentiveEdgeId, status: 'confirmed' },
+    })
+    if (fallacyCount === 0) {
+      await prisma.fallacyClaim.create({
+        data: {
+          argumentId: workIncentiveEdgeId,
+          fallacyType: 'cherry-picking',
+          targetFactor: 'evidence-quality',
+          severity: 'major',
+          quotedText: 'UBI could reduce work incentives across the labor market',
+          explanation:
+            'States the labor-supply worry while ignoring the Tier 1/Tier 2 employment findings (Finland pilot, Stockton SEED) already on this page.',
+          missingElements: 'The contradicting employment results from the pilot programs.',
+          evidenceLinks: JSON.stringify([
+            { label: 'Finland UBI pilot final report (Kela, 2019)' },
+            { label: 'Stockton SEED first-year findings (2021)' },
+          ]),
+          consequences:
+            'If confirmed, the argument keeps its logical form but its Evidence Quality factor is damaged until it engages the contrary results.',
+          status: 'confirmed',
+          consensus: 0.82,
+          resolvedAt: new Date(),
+        },
+      })
+    }
+  }
 
   // Create objective criteria
   await prisma.objectiveCriteria.createMany({

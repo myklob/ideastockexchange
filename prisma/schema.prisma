@@ -324,6 +324,33 @@ model Belief {
   epochSnapshots  EpochSnapshot[]
   marketContracts MarketContract[]
   externalMarkets ExternalMarketLink[]
+
+  peopleOnRecord PersonOnRecord[]
+}
+
+/// One recorded public position on a belief, preserved for tracing the debate.
+/// Who holds a belief never changes its score — author identity is orthogonal
+/// to the final score, so these rows carry history, not weight, and nothing
+/// here is a scoring input. Each listing is itself a debatable claim that the
+/// person actually holds the position; `contested` annotates listings whose
+/// accuracy is disputed. The section renders only when rows exist.
+model PersonOnRecord {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side String // "agree" or "disagree"
+  name String
+  /// Link to the statement or source; the name renders as plain text when null (Rule 5).
+  sourceUrl String?
+  /// Set when the accuracy of this listing is contested, with the note saying why.
+  contested     Boolean @default(false)
+  contestedNote String?
+  sortOrder     Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
 }
 
 enum LinkageClassification {
@@ -416,6 +443,10 @@ model Argument {
   linkageArguments LinkageArgument[]
   linkageVotes     LinkageVote[]
   fallacyClaims    FallacyClaim[]
+
+  /// Evidence Ledger rows (on the parent belief) that name this argument as
+  /// the thing they bear on.
+  evidenceBearingOn Evidence[] @relation("EvidenceBearsOn")
 
   equivalenceCandidatesAsNew      EquivalenceCandidate[] @relation("EquivalenceCandidateNew")
   equivalenceCandidatesAsExisting EquivalenceCandidate[] @relation("EquivalenceCandidateExisting")
@@ -685,6 +716,18 @@ model Evidence {
   description String
   sourceUrl   String?
   evidenceType String @default("T3")
+
+  /// Ledger display: "Finding (Producer, Year)". Producer is the org or author
+  /// that produced the finding; both stay null when unknown.
+  producer String?
+  year     Int?
+
+  /// What this evidence bears on: a specific argument on the same belief,
+  /// identified in the ledger by that argument's opening words. Null means it
+  /// bears on the belief directly. Evidence that bears on nothing contributes
+  /// nothing, no matter how true it is.
+  bearsOnArgumentId Int?
+  bearsOnArgument   Argument? @relation("EvidenceBearsOn", fields: [bearsOnArgumentId], references: [id])
 
   sourceIndependenceWeight Float @default(0.5)
   replicationQuantity      Int   @default(1)
