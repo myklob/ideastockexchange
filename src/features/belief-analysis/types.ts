@@ -158,6 +158,20 @@ export interface BeliefWithRelations {
    */
   usedIn?: UsedInArgumentItem[]
 
+  /**
+   * People on the Record: recorded public positions, preserved for tracing the
+   * debate. Optional so existing callers keep flowing; the section renders
+   * only when rows exist.
+   */
+  peopleOnRecord?: PersonOnRecordItem[]
+
+  /**
+   * Sibling beliefs in the same category cluster (Related Topics footer).
+   * Includes this belief itself, which renders as plain text, unlinked.
+   * Optional; populated by fetchBeliefBySlug for the page.
+   */
+  siblingBeliefs?: SiblingBeliefItem[]
+
   arguments: ArgumentWithBelief[]
   evidence: EvidenceItem[]
   objectiveCriteria: ObjectiveCriteriaItem[]
@@ -241,6 +255,16 @@ export interface ArgumentWithBelief {
     positivity: number
   } | null
 
+  /**
+   * Community-confirmed fallacy claims on this argument, noted inline in the
+   * argument cell. A confirmed fallacy damages exactly the factor its type
+   * targets (relevance → Linkage, formal → the validity component of the
+   * Argument Score, evidence → Evidence Quality) via the linkage sub-debate;
+   * an unconfirmed accusation changes nothing and is not fetched. Optional so
+   * existing data still flows.
+   */
+  fallacyClaims?: ConfirmedFallacyNote[]
+
   /** Agent-ingestion provenance (all optional so existing data still flows).
    *  Display and audit only — never a scoring input. */
   rationale?: string | null
@@ -254,6 +278,16 @@ export interface ArgumentWithBelief {
     dominantFactor: string | null
     flagNote: string | null
   } | null
+}
+
+/** A confirmed fallacy claim rendered as an inline note in the argument cell. */
+export interface ConfirmedFallacyNote {
+  id: number
+  /** Canonical type slug from the fallacy catalog (e.g. "straw-man"). */
+  fallacyType: string
+  /** Factor the confirmation damages: "relevance" | "logical-validity" | "evidence-quality". */
+  targetFactor: string
+  severity: string
 }
 
 /** Evidence provenance shown in an agent-submitted argument's work trace. */
@@ -284,6 +318,40 @@ export interface EvidenceItem {
   evsScore: number
   linkageScore: number
   impactScore: number
+  /** Ledger display "Finding (Producer, Year)". Optional so existing data flows. */
+  producer?: string | null
+  year?: number | null
+  /**
+   * The argument this evidence bears on, named in the ledger by that
+   * argument's opening words. Null/undefined renders as "this belief".
+   * Evidence that bears on nothing contributes nothing, no matter how true.
+   */
+  bearsOnArgument?: {
+    id: number
+    claim: string | null
+    side: string
+    belief: { slug: string; statement: string }
+  } | null
+}
+
+/** One row in the People on the Record table. History, never weight: who holds
+ *  a belief never changes its score, so nothing here is a scoring input. */
+export interface PersonOnRecordItem {
+  id: number
+  side: string // "agree" | "disagree"
+  name: string
+  sourceUrl: string | null
+  /** The listing itself is a debatable claim; contested rows carry the dispute note. */
+  contested: boolean
+  contestedNote: string | null
+  sortOrder: number
+}
+
+/** A sibling belief in the same topic cluster, for the Related Topics footer. */
+export interface SiblingBeliefItem {
+  id: number
+  slug: string
+  statement: string
 }
 
 export interface ObjectiveCriteriaItem {

@@ -1,5 +1,14 @@
 import Link from 'next/link'
-import { fetchAllMedia, computeEpistemicImpact, formatReach, getMediaTypeLabel, getMediaTypeEmoji } from '@/features/media/fetch-media'
+import {
+  fetchAllMedia,
+  computeEpistemicImpact,
+  resolveMediaTruth,
+  formatReach,
+  formatEpistemicImpact,
+  formatSignedScore,
+  getMediaTypeLabel,
+  getMediaTypeEmoji,
+} from '@/features/media/fetch-media'
 
 function scoreColor(score: number): string {
   if (score >= 0.7) return 'text-green-700'
@@ -7,13 +16,24 @@ function scoreColor(score: number): string {
   return 'text-red-700'
 }
 
+/** Signed -1..+1 scale: positive green, balanced orange, negative red. */
+function signedScoreColor(score: number): string {
+  if (score >= 0.2) return 'text-green-700'
+  if (score > -0.2) return 'text-orange-600'
+  return 'text-red-700'
+}
+
 export default async function MediaIndexPage() {
   const allMedia = await fetchAllMedia()
 
-  // Sort by epistemic impact (descending)
-  const byEpistemicImpact = [...allMedia].sort(
-    (a, b) => computeEpistemicImpact(b) - computeEpistemicImpact(a)
-  )
+  // Signed Media Truth Score and epistemic impact per work, best impact first.
+  const byEpistemicImpact = allMedia
+    .map(media => ({
+      media,
+      truth: resolveMediaTruth(media),
+      impact: computeEpistemicImpact(media),
+    }))
+    .sort((a, b) => b.impact - a.impact)
 
   // Group by media type for summary counts
   const typeCounts = allMedia.reduce<Record<string, number>>((acc, m) => {
@@ -80,7 +100,13 @@ export default async function MediaIndexPage() {
             <span>&#x1F4CA;</span> Top Media by Epistemic Impact
           </h2>
           <p className="text-sm text-[var(--muted-foreground)] mb-4">
-            Epistemic Impact = Truth Score &times; Reach. How much this media is actually shaping public belief.
+            Epistemic Impact ={' '}
+            <Link href="/algorithms/media-truth-score" className="text-[var(--accent)] hover:underline">
+              Media Truth Score
+            </Link>{' '}
+            &times; Reach — signed, so wrong-and-viral shows up as a large negative number. Truth is
+            the centrality-weighted average of the work&apos;s extracted claims; works with no claims
+            yet sit at their genre prior (marked *).
           </p>
 
           {byEpistemicImpact.length === 0 ? (
@@ -103,7 +129,7 @@ export default async function MediaIndexPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {byEpistemicImpact.map((m, i) => (
+                  {byEpistemicImpact.map(({ media: m, truth, impact }, i) => (
                     <tr key={m.id} className={i % 2 === 1 ? 'bg-gray-50' : ''}>
                       <td className="px-3 py-2 border border-gray-300">{i + 1}</td>
                       <td className="px-3 py-2 border border-gray-300">
@@ -130,14 +156,22 @@ export default async function MediaIndexPage() {
                       <td className={`px-3 py-2 border border-gray-300 text-center font-semibold ${scoreColor(m.qualityScore)}`}>
                         {m.qualityScore.toFixed(2)}
                       </td>
-                      <td className={`px-3 py-2 border border-gray-300 text-center font-semibold ${scoreColor(m.truthScore)}`}>
-                        {m.truthScore.toFixed(2)}
+                      <td
+                        className={`px-3 py-2 border border-gray-300 text-center font-semibold ${signedScoreColor(truth.score)}`}
+                        title={
+                          truth.basis === 'claims'
+                            ? `Centrality-weighted average of ${truth.scoredClaimCount} scored claim(s)`
+                            : 'Genre prior — no claims extracted yet'
+                        }
+                      >
+                        {formatSignedScore(truth.score)}
+                        {truth.basis === 'genre-prior' && '*'}
                       </td>
                       <td className="px-3 py-2 border border-gray-300 text-center">
                         {formatReach(m.reach)}
                       </td>
-                      <td className={`px-3 py-2 border border-gray-300 text-center font-semibold ${scoreColor(m.truthScore)}`}>
-                        {formatReach(computeEpistemicImpact(m))}
+                      <td className={`px-3 py-2 border border-gray-300 text-center font-semibold ${signedScoreColor(truth.score)}`}>
+                        {formatEpistemicImpact(impact)}
                       </td>
                       <td className="px-3 py-2 border border-gray-300 text-center">
                         {m.directnessOfAdvocacy}%

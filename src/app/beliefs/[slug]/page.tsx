@@ -11,7 +11,6 @@ import ObjectiveCriteriaSection from '@/features/belief-analysis/components/Obje
 import FalsifiabilityTestSection from '@/features/belief-analysis/components/FalsifiabilityTestSection'
 import AssumptionsSection from '@/features/belief-analysis/components/AssumptionsSection'
 import CostBenefitSection from '@/features/belief-analysis/components/CostBenefitSection'
-import BiasesSection from '@/features/belief-analysis/components/BiasesSection'
 import MediaResourcesSection from '@/features/belief-analysis/components/MediaResourcesSection'
 import LegalSection from '@/features/belief-analysis/components/LegalSection'
 import BeliefMappingSection from '@/features/belief-analysis/components/BeliefMappingSection'
@@ -21,6 +20,8 @@ import ScoreHistorySection from '@/features/belief-analysis/components/ScoreHist
 import MarketPointer from '@/features/belief-analysis/components/MarketPointer'
 import ContributeSection from '@/features/belief-analysis/components/ContributeSection'
 import DefinitionsSection from '@/features/belief-analysis/components/DefinitionsSection'
+import PeopleOnRecordSection from '@/features/belief-analysis/components/PeopleOnRecordSection'
+import RelatedTopicsSection from '@/features/belief-analysis/components/RelatedTopicsSection'
 import { openContractsForBelief } from '@/lib/markets/belief-pointer'
 
 interface BeliefPageProps {
@@ -45,10 +46,6 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
   }
 
   const scores = computeBeliefScores(belief)
-  const net = scores.totalPro - scores.totalCon
-  const hasArgs = scores.totalPro > 0 || scores.totalCon > 0
-  const netLabel = hasArgs ? `${net >= 0 ? '+' : ''}${net.toFixed(1)}` : 'To be calculated'
-
   const related = splitList(belief.relatedBeliefs)
   const supports = splitList(belief.supportsBeliefs)
   const category = belief.category || 'Uncategorized'
@@ -88,11 +85,21 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
       </nav>
 
       <main className="max-w-[960px] mx-auto px-4 py-8 leading-7 text-[#333]">
-        {/* Breadcrumb (new template) */}
+        {/* Breadcrumb (new template): Home › Topics › Category › This Belief */}
         <p className="text-right text-xs text-[var(--muted-foreground)] mb-2">
           <Link href="/" className="text-[var(--accent)] hover:underline">Home</Link> ›{' '}
           <Link href="/beliefs" className="text-[var(--accent)] hover:underline">Topics</Link> ›{' '}
-          {category} › {belief.statement}
+          {belief.category ? (
+            <Link
+              href={`/beliefs?category=${encodeURIComponent(belief.category)}`}
+              className="text-[var(--accent)] hover:underline"
+            >
+              {category}
+            </Link>
+          ) : (
+            category
+          )}{' '}
+          › {belief.statement}
         </p>
 
         {/*
@@ -104,13 +111,14 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
         <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2 leading-tight">
           Belief: {belief.statement}
         </h1>
+        {/* Net Belief Score lives in the Scorecard below, not here — the
+            metadata line carries only Topic / Dewey / Positivity / Related. */}
         <p className="text-xs text-[var(--muted-foreground)] mb-3">
           <Link href="/beliefs" className="text-[var(--accent)] hover:underline">Topic</Link>:{' '}
           {category}
           {belief.subcategory && <> &gt; {belief.subcategory}</>}
           {belief.deweyNumber && <> · Dewey {belief.deweyNumber}</>}
           {' '}· Positivity {belief.positivity > 0 ? '+' : ''}{belief.positivity}%
-          {' '}· Net Belief Score {netLabel}
           {related.length > 0 && (
             <> · Related: {related.join(' | ')}</>
           )}
@@ -161,27 +169,12 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 3. Conflict Resolution Framework (values rankings, interests, dispute types, obstacles) */}
-          <ConflictResolutionSection
-            values={belief.valuesAnalysis}
-            interests={belief.interestsAnalysis}
-            valueRankings={belief.valueRankings}
-            interestEntries={belief.interestEntries}
-            sharedInterests={belief.sharedInterests}
-            disputeTypes={belief.disputeTypes}
-            obstacles={belief.obstacles}
-            interestsDashboardHref={`/beliefs/${belief.slug}/interests`}
-            readout={conflictReadout}
-          />
-
-          <hr className="border-gray-200" />
-
-          {/* 4. Objective Criteria */}
+          {/* 3. Objective Criteria */}
           <ObjectiveCriteriaSection criteria={belief.objectiveCriteria} />
 
           <hr className="border-gray-200" />
 
-          {/* 5. Falsifiability Test + Testable Predictions */}
+          {/* 4. Falsifiability Test + Testable Predictions */}
           <FalsifiabilityTestSection
             items={belief.falsifiabilityItems ?? []}
             confirm={belief.falsifiabilityConfirm}
@@ -192,7 +185,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 6. Logical Anatomy & Foundational Assumptions */}
+          {/* 5. Logical Anatomy & Foundational Assumptions */}
           <AssumptionsSection
             assumptions={belief.assumptions}
             componentClaims={belief.componentClaims ?? []}
@@ -201,33 +194,47 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 7. Cost-Benefit Analysis (+ Short/Long-Term + Best Compromise Solutions) */}
+          {/* 6. Cost-Benefit Analysis (+ Short vs. Long-Term Impacts) */}
           <CostBenefitSection
             cba={belief.costBenefitAnalysis}
             items={derivedCbaItems}
             impact={belief.impactAnalysis}
             impactEntries={belief.impactEntries ?? []}
-            compromises={belief.compromises}
           />
 
           <hr className="border-gray-200" />
 
-          {/* 8. Biases */}
-          <BiasesSection biases={belief.biases} />
+          {/* 7. Conflict Resolution Framework — the scored cost-benefit trees
+              read sideways: values rankings, interests, shared/conflicting,
+              compromises, advertised vs. actual, dispute types, obstacles,
+              biases. */}
+          <ConflictResolutionSection
+            values={belief.valuesAnalysis}
+            interests={belief.interestsAnalysis}
+            valueRankings={belief.valueRankings}
+            interestEntries={belief.interestEntries}
+            sharedInterests={belief.sharedInterests}
+            disputeTypes={belief.disputeTypes}
+            obstacles={belief.obstacles}
+            compromises={belief.compromises}
+            biases={belief.biases}
+            interestsDashboardHref={`/beliefs/${belief.slug}/interests`}
+            readout={conflictReadout}
+          />
 
           <hr className="border-gray-200" />
 
-          {/* 9. Media Resources */}
+          {/* 8. Media Resources */}
           <MediaResourcesSection media={belief.mediaResources} />
 
           <hr className="border-gray-200" />
 
-          {/* 10. Legal Framework */}
+          {/* 9. Legal Framework */}
           <LegalSection legal={belief.legalEntries} />
 
           <hr className="border-gray-200" />
 
-          {/* 11. General to Specific Belief Mapping */}
+          {/* 10. General to Specific Belief Mapping */}
           <BeliefMappingSection
             upstreamMappings={belief.upstreamMappings}
             downstreamMappings={belief.downstreamMappings}
@@ -235,14 +242,14 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 12. Similar Beliefs */}
+          {/* 11. Similar Beliefs */}
           <SimilarBeliefsSection
             similarTo={belief.similarTo}
             similarFrom={belief.similarFrom}
             currentBeliefId={belief.id}
           />
 
-          {/* 12b. Where This Belief Is Used — what-links-here (renders only when used) */}
+          {/* 11b. Where This Belief Is Used — what-links-here (renders only when used) */}
           {(belief.usedIn?.length ?? 0) > 0 && (
             <>
               <hr className="border-gray-200" />
@@ -250,7 +257,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             </>
           )}
 
-          {/* 12c. Score History — the accumulation ledger (renders only when events exist) */}
+          {/* 11c. Score History — the accumulation ledger (renders only when events exist) */}
           {(belief.scoreEvents?.length ?? 0) > 0 && (
             <>
               <hr className="border-gray-200" />
@@ -260,17 +267,34 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 13. Definitions — LAST before footer (Rule 1) */}
+          {/* 12. Definitions — last analysis section (Rule 1) */}
           <DefinitionsSection definitions={belief.definitions} />
+
+          {/* 12b. People on the Record — history, never weight (renders only
+              when positions are on record). */}
+          {(belief.peopleOnRecord?.length ?? 0) > 0 && (
+            <>
+              <hr className="border-gray-200" />
+              <PeopleOnRecordSection people={belief.peopleOnRecord ?? []} />
+            </>
+          )}
 
           <hr className="border-gray-200" />
 
-          {/* 14. Contribute / footer — the add-a-row move, with speed bumps on
+          {/* 13. Contribute / footer — the add-a-row move, with speed bumps on
               high-stakes beliefs (steelman acknowledgment + principle check). */}
           <ContributeSection
             beliefId={belief.id}
             highStakes={belief.highStakes ?? false}
             arguments={belief.arguments}
+          />
+
+          {/* 14. Related Topics — the category cluster, current page unlinked
+              (renders only when siblings exist). */}
+          <RelatedTopicsSection
+            category={belief.category}
+            siblings={belief.siblingBeliefs ?? []}
+            currentBeliefId={belief.id}
           />
         </div>
       </main>

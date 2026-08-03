@@ -11,8 +11,10 @@ interface CostBenefitSectionProps {
   impact?: ImpactData | null
   /** Row-based short/long-term impacts, ranked by score. */
   impactEntries?: ImpactEntryItem[]
-  /** Best Compromise Solutions render as a sub-table inside the CBA section. */
-  compromises: CompromiseItem[]
+  /** Legacy placement only: the canonical page renders Best Compromise
+   *  Solutions inside the Conflict Resolution Framework (July 2026 template).
+   *  Callers that still pass compromises here get the old sub-table. */
+  compromises?: CompromiseItem[]
 }
 
 const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold'
@@ -157,7 +159,7 @@ export default function CostBenefitSection({
   const topImpactPairs = impactPairs.slice(0, TABLE_TOP_LIMIT)
   const restImpactPairs = impactPairs.slice(TABLE_TOP_LIMIT)
 
-  const rankedCompromises = rankByScore(compromises, c => c.score)
+  const rankedCompromises = compromises ? rankByScore(compromises, c => c.score) : null
 
   return (
     <section className="space-y-6">
@@ -167,9 +169,16 @@ export default function CostBenefitSection({
           <Link href="/cba/about" className="text-[var(--accent)] hover:underline">Cost-Benefit Analysis</Link>
         </h2>
         <p className="text-sm text-[var(--muted-foreground)] mb-3">
-          Every cost and benefit is itself a debatable claim with its own argument tree. Magnitude is
-          an estimate in explicit units. Likelihood is computed from how that claim&apos;s pro and con
-          arguments score, never assigned by gut. Expected Value = Magnitude &times; Likelihood.
+          Every cost and benefit is itself a debatable claim with its own argument tree, and every
+          row must survive three questions: compared to what, measured in what units, and how
+          likely? Magnitude is an estimate in explicit units. Likelihood is computed from how that
+          claim&apos;s pro and con arguments score, never assigned by gut. Expected Value = Magnitude
+          &times; Likelihood. Keep unlike categories (dollars, life-years, people-hours, freedom) in
+          separate rows and subtotal only within a category; converting across categories is itself
+          a debatable claim, so if you do it, state the conversion out loud (e.g., the value of a
+          statistical life). Method per the{' '}
+          <Link href="/cba/about" className="text-[var(--accent)] hover:underline">canonical cost-benefit analysis</Link>{' '}
+          page and Sunstein&apos;s <em>The Cost-Benefit Revolution</em>.
         </p>
         {items.length > 0 ? (
           <div className="space-y-4">
@@ -241,42 +250,44 @@ export default function CostBenefitSection({
         </table>
       </div>
 
-      <div>
-        <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
-          <span>&#129309;</span>
-          <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">Best Compromise Solutions</Link>
-        </h3>
-        <table className="w-full border-collapse border border-gray-300 text-sm">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className={`${TH} w-[28%]`}>Shared Premise Both Sides Accept</th>
-              <th className={`${TH} w-[30%]`}>Proposed Synthesis</th>
-              <th className={`${TH} w-[28%]`}>Why This Is Difficult</th>
-              <th className={`${TH} text-center w-[14%]`}>Score (interests satisfied)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(rankedCompromises.top.length > 0 ? rankedCompromises.top : [null]).map((c, i) => (
-              <tr key={c?.id ?? i}>
-                <td className={TD}>{lines(c?.sharedPremise)}</td>
-                <td className={TD}>{lines(c?.synthesis ?? c?.description)}</td>
-                <td className={TD}>{lines(c?.whyDifficult)}</td>
-                <td className={`${TDC} font-mono`}>{formatScore(c?.score) ?? <span>&nbsp;</span>}</td>
+      {rankedCompromises && (
+        <div>
+          <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
+            <span>&#129309;</span>
+            <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">Best Compromise Solutions</Link>
+          </h3>
+          <table className="w-full border-collapse border border-gray-300 text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className={`${TH} w-[28%]`}>Shared Premise Both Sides Accept</th>
+                <th className={`${TH} w-[30%]`}>Proposed Synthesis</th>
+                <th className={`${TH} w-[28%]`}>Why This Is Difficult</th>
+                <th className={`${TH} text-center w-[14%]`}>Score (interests satisfied)</th>
               </tr>
-            ))}
-            <ExpandableRows moreCount={rankedCompromises.rest.length} colSpan={4}>
-              {rankedCompromises.rest.map(c => (
-                <tr key={c.id}>
-                  <td className={TD}>{lines(c.sharedPremise)}</td>
-                  <td className={TD}>{lines(c.synthesis ?? c.description)}</td>
-                  <td className={TD}>{lines(c.whyDifficult)}</td>
-                  <td className={`${TDC} font-mono`}>{formatScore(c.score) ?? <span>&nbsp;</span>}</td>
+            </thead>
+            <tbody>
+              {(rankedCompromises.top.length > 0 ? rankedCompromises.top : [null]).map((c, i) => (
+                <tr key={c?.id ?? i}>
+                  <td className={TD}>{lines(c?.sharedPremise)}</td>
+                  <td className={TD}>{lines(c?.synthesis ?? c?.description)}</td>
+                  <td className={TD}>{lines(c?.whyDifficult)}</td>
+                  <td className={`${TDC} font-mono`}>{formatScore(c?.score) ?? <span>&nbsp;</span>}</td>
                 </tr>
               ))}
-            </ExpandableRows>
-          </tbody>
-        </table>
-      </div>
+              <ExpandableRows moreCount={rankedCompromises.rest.length} colSpan={4}>
+                {rankedCompromises.rest.map(c => (
+                  <tr key={c.id}>
+                    <td className={TD}>{lines(c.sharedPremise)}</td>
+                    <td className={TD}>{lines(c.synthesis ?? c.description)}</td>
+                    <td className={TD}>{lines(c.whyDifficult)}</td>
+                    <td className={`${TDC} font-mono`}>{formatScore(c.score) ?? <span>&nbsp;</span>}</td>
+                  </tr>
+                ))}
+              </ExpandableRows>
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   )
 }
