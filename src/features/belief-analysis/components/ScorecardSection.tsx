@@ -87,7 +87,7 @@ export default function ScorecardSection({
         { name: 'CBA likelihood', value: scores.cbaLikelihoodScore, format: 'ratio', href: '/cba/about', note: 'benefit-vs-cost likelihood balance' },
         { name: 'Objective criteria', value: scores.objectiveCriteriaScore, format: 'ratio', href: '/algorithms/objective-criteria', note: 'pre-committed measurements, scored' },
         { name: 'Confidence stability', value: hasArgs ? scores.stabilityScore : null, format: 'ratio', href: null, note: `how settled the score is under scrutiny (${scores.stabilityStatus})` },
-        { name: 'Media truth', value: scores.mediaTruthScore, format: 'ratio', href: null, note: 'average truth score of linked media' },
+        { name: 'Media truth', value: scores.mediaTruthScore, format: 'ratio', href: '/algorithms/media-truth-score', note: 'average truth score of linked media' },
         { name: 'Media genre', value: scores.mediaGenreScore, format: 'ratio', href: null, note: 'reporting-vs-opinion mix of linked media' },
         { name: 'Uniqueness (avg)', value: hasArgs ? scores.topicOverlapScore : null, format: 'ratio', href: '/algorithms/unique-scores', note: 'how little the arguments restate each other' },
         { name: 'Strength-adjusted', value: hasArgs ? scores.strengthAdjustedScore : null, format: 'ratio', href: '/algorithms/strong-to-weak', note: `truth after the claim-strength penalty (claims ${scores.claimStrength.toFixed(1)})` },

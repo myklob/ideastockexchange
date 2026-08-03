@@ -624,6 +624,58 @@ async function main() {
     ],
   })
 
+  // Genre priors and reach per work (updateMany keyed on title so re-runs are
+  // idempotent). The genre prior is where each work's Media Truth Score
+  // starts; the claim ledgers below are how two of them earn a computed,
+  // signed score instead. The podcasts stay claim-less on purpose, so the
+  // genre-prior fallback is visible in the live readout.
+  const mediaMeta: Array<[string, string, number]> = [
+    ['Utopia for Realists', 'investigative', 1_200_000],
+    ['Give People Money', 'investigative', 250_000],
+    ['The Case for Universal Basic Income', 'institutional', 300_000],
+    ['The Ezra Klein Show: Andrew Yang on UBI', 'opinion', 500_000],
+    ['The War on Normal People (critique sections)', 'investigative', 400_000],
+    ['Why Universal Basic Income Is a Bad Idea', 'editorial', 2_000_000],
+    ['EconTalk: The Costs of Universal Basic Income', 'opinion', 350_000],
+  ]
+  for (const [title, genreType, reach] of mediaMeta) {
+    await prisma.mediaResource.updateMany({
+      where: { beliefId: mainBelief.id, title },
+      data: { genreType, reach },
+    })
+  }
+
+  // Claim ledgers: each claim links to the belief page where it is evaluated
+  // across all sources; its signed truth is that belief's engine net.
+  const claimLedgers: Array<[string, Array<{ claimText: string; beliefId: number; linkageScore: number }>]> = [
+    [
+      'Utopia for Realists',
+      [
+        { claimText: 'A universal basic income should be implemented', beliefId: mainBelief.id, linkageScore: 0.95 },
+        { claimText: 'Direct cash transfers reduce poverty and improve outcomes', beliefId: povertyBelief.id, linkageScore: 0.85 },
+        { claimText: 'Automation will displace a large share of existing jobs', beliefId: automationBelief.id, linkageScore: 0.55 },
+      ],
+    ],
+    [
+      'Why Universal Basic Income Is a Bad Idea',
+      [
+        { claimText: 'A universal basic income is fiscally unsustainable at scale', beliefId: fiscalBelief.id, linkageScore: 0.9 },
+        { claimText: 'Unconditional payments weaken the incentive to work', beliefId: workIncentiveBelief.id, linkageScore: 0.7 },
+      ],
+    ],
+  ]
+  for (const [title, claims] of claimLedgers) {
+    const work = await prisma.mediaResource.findFirst({
+      where: { beliefId: mainBelief.id, title },
+    })
+    if (!work) continue
+    const existing = await prisma.mediaClaim.count({ where: { mediaResourceId: work.id } })
+    if (existing > 0) continue
+    await prisma.mediaClaim.createMany({
+      data: claims.map((c, i) => ({ ...c, mediaResourceId: work.id, sortOrder: i })),
+    })
+  }
+
   // Create legal entries
   await prisma.legalEntry.createMany({
     data: [
