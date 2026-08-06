@@ -5,7 +5,7 @@ Demo script showing Idea Stock Exchange features
 
 import asyncio
 from database import SessionLocal, init_db
-from services import StatementService
+from statement_services import StatementService
 
 
 def print_section(title):
