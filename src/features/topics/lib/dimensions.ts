@@ -20,8 +20,17 @@ export interface TopicBeliefRow {
   groundingScore: number
 }
 
-export type TopicSortKey = 'direction' | 'magnitude' | 'abstraction' | 'score' | 'grounding'
+export const TOPIC_SORT_KEYS = ['direction', 'magnitude', 'abstraction', 'score', 'grounding'] as const
+export type TopicSortKey = (typeof TOPIC_SORT_KEYS)[number]
 export type SortDir = 'asc' | 'desc'
+
+export function parseTopicSortKey(raw: string | null | undefined): TopicSortKey {
+  return TOPIC_SORT_KEYS.includes(raw as TopicSortKey) ? (raw as TopicSortKey) : 'score'
+}
+
+export function parseSortDir(raw: string | null | undefined): SortDir | undefined {
+  return raw === 'asc' || raw === 'desc' ? raw : undefined
+}
 
 export interface DirectionBand {
   label: string
@@ -29,7 +38,7 @@ export interface DirectionBand {
   className: string
 }
 
-/** Same five buckets the /beliefs index uses for its valence filter. */
+/** Thresholds match the /beliefs index valence filter buckets (±60 / ±20). */
 export function getDirectionBand(positivity: number): DirectionBand {
   if (positivity >= 60) return { label: 'Strongly Positive', className: 'bg-green-200 text-green-900' }
   if (positivity >= 20) return { label: 'Moderately Positive', className: 'bg-green-100 text-green-800' }
@@ -38,7 +47,7 @@ export function getDirectionBand(positivity: number): DirectionBand {
   return { label: 'Strongly Negative', className: 'bg-red-200 text-red-900' }
 }
 
-/** Same three buckets the /beliefs index uses for its specificity filter. */
+/** Thresholds match the /beliefs index specificity filter buckets (0.33 / 0.66). */
 export function getAbstractionLabel(specificity: number): string {
   if (specificity < 0.33) return 'General Principle'
   if (specificity < 0.66) return 'Case-Level'
@@ -55,6 +64,10 @@ export function formatSignedScore(positivity: number): string {
  * direction and abstraction read low → high (negative → positive, general →
  * specific), magnitude reads weak → extreme, and the two score sorts read
  * best-first. `dir` flips the natural order when set.
+ *
+ * 'score' ranks by |positivity|: support strength independent of stance, so
+ * on a negative-direction topic the strongest-supported (most negative)
+ * claim still rises to the top. The signed value stays the direction axis.
  */
 export function sortTopicBeliefs(
   rows: TopicBeliefRow[],
@@ -73,7 +86,7 @@ export function sortTopicBeliefs(
       case 'abstraction':
         return row.specificity
       case 'score':
-        return row.positivity
+        return Math.abs(row.positivity)
       case 'grounding':
         return row.groundingScore
     }

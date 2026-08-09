@@ -5,8 +5,7 @@ Topic hubs: the "One Page Per Topic" surface. Each topic groups every belief tha
 ## What This Module Does
 
 - `data/fetch-topics.ts` — Prisma queries for the topic index, a single hub (beliefs, parent/child topics, equivalency-grouped duplicates, matching debate-topic template), and a belief's topic memberships.
-- `lib/dimensions.ts` — pure dimension helpers: direction/abstraction band labels and the per-axis sort used by both the pages and `/api/topics/[slug]`.
-- `data/sample-data.ts` — legacy hardcoded prototype data; the old `/topic/[id]` route that used it now redirects to `/topics/[slug]`.
+- `lib/dimensions.ts` — pure dimension helpers: direction/abstraction band labels, sort-param parsing, and the per-axis sort used by both the pages and `/api/topics/[slug]`.
 
 ## Data Model
 

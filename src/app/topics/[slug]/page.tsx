@@ -5,10 +5,10 @@ import {
   getDirectionBand,
   getAbstractionLabel,
   formatSignedScore,
+  parseSortDir,
+  parseTopicSortKey,
   sortTopicBeliefs,
-  type SortDir,
   type TopicBeliefRow,
-  type TopicSortKey,
 } from '@/features/topics/lib/dimensions'
 import { getStrengthBand, formatStrength } from '@/core/scoring/claim-strength'
 import { getGroundingBand } from '@/core/scoring/grounding'
@@ -16,12 +16,6 @@ import { getGroundingBand } from '@/core/scoring/grounding'
 interface TopicPageProps {
   params: Promise<{ slug: string }>
   searchParams: Promise<{ sort?: string; dir?: string }>
-}
-
-const MASTER_SORT_KEYS: TopicSortKey[] = ['abstraction', 'magnitude', 'direction', 'score', 'grounding']
-
-function parseSortKey(raw: string | undefined): TopicSortKey {
-  return MASTER_SORT_KEYS.includes(raw as TopicSortKey) ? (raw as TopicSortKey) : 'score'
 }
 
 function StatementLink({ belief }: { belief: TopicBeliefRow }) {
@@ -42,12 +36,11 @@ function ScoreCell({ belief }: { belief: TopicBeliefRow }) {
 
 export default async function TopicPage({ params, searchParams }: TopicPageProps) {
   const [{ slug }, sp] = await Promise.all([params, searchParams])
-  const topic = await fetchTopicBySlug(decodeURIComponent(slug))
+  const topic = await fetchTopicBySlug(slug)
   if (!topic) notFound()
 
-  const masterSort = parseSortKey(sp.sort)
-  const masterDir: SortDir | undefined =
-    sp.dir === 'asc' || sp.dir === 'desc' ? sp.dir : undefined
+  const masterSort = parseTopicSortKey(sp.sort)
+  const masterDir = parseSortDir(sp.dir)
 
   const byDirection = sortTopicBeliefs(topic.beliefs, 'direction')
   const byMagnitude = sortTopicBeliefs(topic.beliefs, 'magnitude')
@@ -55,11 +48,17 @@ export default async function TopicPage({ params, searchParams }: TopicPageProps
   const masterRows = sortTopicBeliefs(topic.beliefs, masterSort, masterDir)
 
   // |positivity| rather than the signed value: on a negative-direction topic
-  // the strongest-supported claim is the most negative one.
+  // the strongest-supported claim is the most negative one. Only meaningful
+  // when magnitude actually varies — with all claims equally bold there is
+  // no "boldest claim" to point at.
+  const strengths = topic.beliefs.map(b => b.claimStrength)
+  const maxStrength = Math.max(...strengths)
+  const boldestBestSupport = Math.max(
+    ...topic.beliefs.filter(b => b.claimStrength === maxStrength).map(b => Math.abs(b.positivity)),
+  )
   const boldestNotBest =
-    byMagnitude.length > 1 &&
-    Math.abs(byMagnitude[byMagnitude.length - 1].positivity) <
-      Math.max(...topic.beliefs.map(b => Math.abs(b.positivity)))
+    maxStrength > Math.min(...strengths) &&
+    boldestBestSupport < Math.max(...topic.beliefs.map(b => Math.abs(b.positivity)))
 
   return (
     <div className="min-h-screen bg-white">

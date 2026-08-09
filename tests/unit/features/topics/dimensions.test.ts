@@ -3,6 +3,8 @@ import {
   getDirectionBand,
   getAbstractionLabel,
   formatSignedScore,
+  parseSortDir,
+  parseTopicSortKey,
   sortTopicBeliefs,
   type TopicBeliefRow,
 } from '@/features/topics/lib/dimensions'
@@ -82,6 +84,15 @@ describe('sortTopicBeliefs', () => {
     expect(sortTopicBeliefs(rows, 'score').map(b => b.id)).toEqual([2, 1, 3])
   })
 
+  it('score ranks by |positivity| so a negative-direction topic reads strongest-first', () => {
+    const negative = [
+      belief(1, { positivity: -25 }),
+      belief(2, { positivity: -52 }),
+      belief(3, { positivity: 10 }),
+    ]
+    expect(sortTopicBeliefs(negative, 'score').map(b => b.id)).toEqual([2, 1, 3])
+  })
+
   it('grounding reads most-evidence-grounded first', () => {
     expect(sortTopicBeliefs(rows, 'grounding').map(b => b.id)).toEqual([3, 1, 2])
   })
@@ -104,5 +115,26 @@ describe('sortTopicBeliefs', () => {
       belief(1, { positivity: 10 }),
     ]
     expect(sortTopicBeliefs(tied, 'score').map(b => b.id)).toEqual([1, 2])
+  })
+})
+
+describe('parseTopicSortKey', () => {
+  it('accepts every valid key and falls back to score otherwise', () => {
+    expect(parseTopicSortKey('direction')).toBe('direction')
+    expect(parseTopicSortKey('magnitude')).toBe('magnitude')
+    expect(parseTopicSortKey('abstraction')).toBe('abstraction')
+    expect(parseTopicSortKey('grounding')).toBe('grounding')
+    expect(parseTopicSortKey('bogus')).toBe('score')
+    expect(parseTopicSortKey(null)).toBe('score')
+    expect(parseTopicSortKey(undefined)).toBe('score')
+  })
+})
+
+describe('parseSortDir', () => {
+  it('accepts asc/desc and treats anything else as unset', () => {
+    expect(parseSortDir('asc')).toBe('asc')
+    expect(parseSortDir('desc')).toBe('desc')
+    expect(parseSortDir('sideways')).toBeUndefined()
+    expect(parseSortDir(null)).toBeUndefined()
   })
 })

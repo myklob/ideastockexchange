@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server'
 import { fetchTopicBySlug } from '@/features/topics/data/fetch-topics'
 import {
+  parseSortDir,
+  parseTopicSortKey,
   sortTopicBeliefs,
-  type SortDir,
-  type TopicSortKey,
 } from '@/features/topics/lib/dimensions'
-
-const SORT_KEYS: TopicSortKey[] = ['direction', 'magnitude', 'abstraction', 'score', 'grounding']
 
 /**
  * GET /api/topics/[slug]
@@ -17,7 +15,9 @@ const SORT_KEYS: TopicSortKey[] = ['direction', 'magnitude', 'abstraction', 'sco
  *
  * Query params:
  *   sortBy  — 'direction' | 'magnitude' | 'abstraction' | 'score' | 'grounding'
- *             (default 'score': best-supported first)
+ *             (default 'score': best-supported first, ranked by |score| so a
+ *             strongly supported negative claim outranks a weakly supported
+ *             positive one; the signed value is the direction axis)
  *   sortDir — 'asc' | 'desc' (default: the dimension's natural reading order)
  */
 export async function GET(
@@ -25,19 +25,14 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params
-  const topic = await fetchTopicBySlug(decodeURIComponent(slug))
+  const topic = await fetchTopicBySlug(slug)
   if (!topic) {
     return NextResponse.json({ error: 'Topic not found' }, { status: 404 })
   }
 
   const sp = new URL(request.url).searchParams
-  const rawSort = sp.get('sortBy')
-  const sortBy: TopicSortKey = SORT_KEYS.includes(rawSort as TopicSortKey)
-    ? (rawSort as TopicSortKey)
-    : 'score'
-  const rawDir = sp.get('sortDir')
-  const sortDir: SortDir | undefined =
-    rawDir === 'asc' || rawDir === 'desc' ? rawDir : undefined
+  const sortBy = parseTopicSortKey(sp.get('sortBy'))
+  const sortDir = parseSortDir(sp.get('sortDir'))
 
   const beliefs = sortTopicBeliefs(topic.beliefs, sortBy, sortDir)
 

@@ -32,9 +32,6 @@ CREATE TABLE "TopicRelation" (
 CREATE UNIQUE INDEX "Topic_slug_key" ON "Topic"("slug");
 
 -- CreateIndex
-CREATE INDEX "Topic_slug_idx" ON "Topic"("slug");
-
--- CreateIndex
 CREATE INDEX "TopicBelief_beliefId_idx" ON "TopicBelief"("beliefId");
 
 -- CreateIndex

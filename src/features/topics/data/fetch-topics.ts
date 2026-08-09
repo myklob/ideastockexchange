@@ -80,7 +80,16 @@ export async function fetchAllTopics(): Promise<TopicSummary[]> {
   })
 }
 
-export async function fetchTopicBySlug(slug: string): Promise<TopicWithBeliefs | null> {
+export async function fetchTopicBySlug(rawSlug: string): Promise<TopicWithBeliefs | null> {
+  // Route params arrive percent-encoded; a malformed encoding should read as
+  // "no such topic", not throw.
+  let slug: string
+  try {
+    slug = decodeURIComponent(rawSlug)
+  } catch {
+    return null
+  }
+
   const topic = await prisma.topic.findUnique({
     where: { slug },
     include: {

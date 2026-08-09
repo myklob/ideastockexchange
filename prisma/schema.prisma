@@ -1656,10 +1656,6 @@ model NetworkPosition {
   @@index([analysisId])
 }
 
-// ─── Debate Topic Models ─────────────────────────────────────────
-
-/// A full Wikipedia-for-debates topic page (e.g. "Marriage", "Immigration", "Climate Change").
-/// Stores all structured sections: positions, spectra, evidence, criteria, values, etc.
 // ─── Topic Hub Models (One Page Per Topic) ──────────────────────
 
 /// A topic hub: the "one page per topic" surface. Groups every belief that
@@ -1685,8 +1681,6 @@ model Topic {
   /// Edges where this topic is the child (its parents) / the parent (its children).
   parentLinks TopicRelation[] @relation("RelationChild")
   childLinks  TopicRelation[] @relation("RelationParent")
-
-  @@index([slug])
 }
 
 /// Membership of a belief on a topic page. A belief can appear on many topic
@@ -1721,6 +1715,10 @@ model TopicRelation {
   @@index([childId])
 }
 
+// ─── Debate Topic Models ─────────────────────────────────────────
+
+/// A full Wikipedia-for-debates topic page (e.g. "Marriage", "Immigration", "Climate Change").
+/// Stores all structured sections: positions, spectra, evidence, criteria, values, etc.
 model DebateTopic {
   id    Int    @id @default(autoincrement())
   slug  String @unique
