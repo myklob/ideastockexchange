@@ -7,6 +7,3 @@
 
 // Prisma database client
 export { prisma } from './prisma';
-
-// Utility functions
-export * from './utils';
