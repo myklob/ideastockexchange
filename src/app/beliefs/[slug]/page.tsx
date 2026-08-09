@@ -22,6 +22,7 @@ import MarketPointer from '@/features/belief-analysis/components/MarketPointer'
 import ContributeSection from '@/features/belief-analysis/components/ContributeSection'
 import DefinitionsSection from '@/features/belief-analysis/components/DefinitionsSection'
 import { openContractsForBelief } from '@/lib/markets/belief-pointer'
+import { fetchTopicsForBelief } from '@/features/topics/data/fetch-topics'
 
 interface BeliefPageProps {
   params: Promise<{ slug: string }>
@@ -64,7 +65,10 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
   // The belief→market half of the engagement loop (display only; the market
   // firewall guarantees nothing flows the other way).
-  const openContracts = await openContractsForBelief(belief.id)
+  const [openContracts, topicHubs] = await Promise.all([
+    openContractsForBelief(belief.id),
+    fetchTopicsForBelief(belief.id),
+  ])
 
   return (
     <div className="min-h-screen bg-white">
@@ -113,6 +117,19 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
           {' '}· Net Belief Score {netLabel}
           {related.length > 0 && (
             <> · Related: {related.join(' | ')}</>
+          )}
+          {topicHubs.length > 0 && (
+            <>
+              {' '}· Topic pages:{' '}
+              {topicHubs.map((t, i) => (
+                <span key={t.slug}>
+                  {i > 0 && ', '}
+                  <Link href={`/topics/${t.slug}`} className="text-[var(--accent)] hover:underline">
+                    {t.title}
+                  </Link>
+                </span>
+              ))}
+            </>
           )}
         </p>
         {supports.length > 0 && (

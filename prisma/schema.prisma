@@ -324,6 +324,9 @@ model Belief {
   epochSnapshots  EpochSnapshot[]
   marketContracts MarketContract[]
   externalMarkets ExternalMarketLink[]
+
+  /// Topic hub pages this belief appears on (One Page Per Topic).
+  topics TopicBelief[]
 }
 
 enum LinkageClassification {
@@ -1657,6 +1660,67 @@ model NetworkPosition {
 
 /// A full Wikipedia-for-debates topic page (e.g. "Marriage", "Immigration", "Climate Change").
 /// Stores all structured sections: positions, spectra, evidence, criteria, values, etc.
+// ─── Topic Hub Models (One Page Per Topic) ──────────────────────
+
+/// A topic hub: the "one page per topic" surface. Groups every belief that
+/// takes a position on the same underlying question so they can be sorted
+/// across the three dimensions each Belief already carries — direction
+/// (positivity, -100..+100), claim magnitude (claimStrength, 0-1), and
+/// abstraction (specificity, 0-1) — plus the engine-computed score.
+model Topic {
+  id    Int    @id @default(autoincrement())
+  slug  String @unique
+  title String
+
+  /// The neutral question this page answers, e.g. "What is the overall
+  /// impact of social media?" Phrased so no position is baked into the hub.
+  question    String?
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  beliefs TopicBelief[]
+
+  /// Edges where this topic is the child (its parents) / the parent (its children).
+  parentLinks TopicRelation[] @relation("RelationChild")
+  childLinks  TopicRelation[] @relation("RelationParent")
+
+  @@index([slug])
+}
+
+/// Membership of a belief on a topic page. A belief can appear on many topic
+/// pages (e.g. "Trump isn't very smart" belongs to both "Trump's Intelligence"
+/// and "Politicians' Intelligence"). Dimension coordinates live on Belief —
+/// this row records membership only, so a belief's coordinates are identical
+/// on every page it appears on.
+model TopicBelief {
+  id       Int    @id @default(autoincrement())
+  topicId  Int
+  topic    Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([topicId, beliefId])
+  @@index([beliefId])
+}
+
+/// Parent/child edge between topics — the topic-level abstraction ladder
+/// ("Debate Reform" is a parent of "One Page Per Topic"). Distinct from the
+/// belief-level ladder inside a single topic, which sorts by specificity.
+model TopicRelation {
+  id       Int   @id @default(autoincrement())
+  parentId Int
+  parent   Topic @relation("RelationParent", fields: [parentId], references: [id], onDelete: Cascade)
+  childId  Int
+  child    Topic @relation("RelationChild", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
+  @@index([childId])
+}
+
 model DebateTopic {
   id    Int    @id @default(autoincrement())
   slug  String @unique
