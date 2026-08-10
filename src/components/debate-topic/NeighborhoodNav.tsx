@@ -5,21 +5,28 @@ interface Props {
   relatedTopics: DebateRelatedTopic[];
 }
 
-function topicHref(topic: DebateRelatedTopic): string {
-  return topic.relatedSlug ? `/debate-topics/${topic.relatedSlug}` : topic.relatedUrl ?? '#related';
+function topicHref(topic: DebateRelatedTopic): string | undefined {
+  return topic.relatedSlug ? `/debate-topics/${topic.relatedSlug}` : topic.relatedUrl;
 }
 
 function TopicLinks({ topics }: { topics: DebateRelatedTopic[] }) {
   return (
     <>
-      {topics.map((t, i) => (
-        <span key={i}>
-          {i > 0 && ', '}
-          <Link href={topicHref(t)} className="text-blue-600 hover:underline">
-            {t.relatedTitle}
-          </Link>
-        </span>
-      ))}
+      {topics.map((t, i) => {
+        const href = topicHref(t);
+        return (
+          <span key={i}>
+            {i > 0 && ', '}
+            {href ? (
+              <Link href={href} className="text-blue-600 hover:underline">
+                {t.relatedTitle}
+              </Link>
+            ) : (
+              t.relatedTitle
+            )}
+          </span>
+        );
+      })}
     </>
   );
 }
