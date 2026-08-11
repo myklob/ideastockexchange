@@ -92,10 +92,10 @@ export function sortTopicBeliefs(
     }
   }
 
-  const sorted = [...rows].sort((a, b) => {
-    const diff = naturalDesc ? value(b) - value(a) : value(a) - value(b)
+  const descending = naturalDesc !== flip
+  return [...rows].sort((a, b) => {
+    const diff = descending ? value(b) - value(a) : value(a) - value(b)
     if (diff !== 0) return diff
     return a.statement.localeCompare(b.statement)
   })
-  return flip ? sorted.reverse() : sorted
 }

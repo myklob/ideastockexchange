@@ -116,6 +116,16 @@ describe('sortTopicBeliefs', () => {
     ]
     expect(sortTopicBeliefs(tied, 'score').map(b => b.id)).toEqual([1, 2])
   })
+
+  it('keeps the statement tie-break alphabetical when dir flips the order', () => {
+    const tied = [
+      belief(2, { positivity: 10 }),
+      belief(1, { positivity: 10 }),
+      belief(3, { positivity: 40 }),
+    ]
+    expect(sortTopicBeliefs(tied, 'score', 'asc').map(b => b.id)).toEqual([1, 2, 3])
+    expect(sortTopicBeliefs(tied, 'direction', 'desc').map(b => b.id)).toEqual([3, 1, 2])
+  })
 })
 
 describe('parseTopicSortKey', () => {
