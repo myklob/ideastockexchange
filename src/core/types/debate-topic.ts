@@ -144,6 +144,9 @@ export interface DebateRelatedTopic {
   relatedTitle: string;
   relatedSlug?: string;
   relatedUrl?: string;
+  /// Whether a DebateTopic row exists for relatedSlug. Set by getDebateTopic;
+  /// components render plain text when false (Rule 5: no broken links).
+  targetExists?: boolean;
 }
 
 export interface DebateTopic {

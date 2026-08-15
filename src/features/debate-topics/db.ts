@@ -217,7 +217,24 @@ export async function getDebateTopic(slug: string): Promise<DebateTopic | null> 
     include: FULL_INCLUDE,
   });
   if (!row) return null;
-  return mapTopicFromDb(row);
+  const topic = mapTopicFromDb(row);
+
+  const relatedSlugs = topic.relatedTopics
+    .map((r) => r.relatedSlug)
+    .filter((s): s is string => Boolean(s));
+  if (relatedSlugs.length > 0) {
+    const existing = await db.debateTopic.findMany({
+      where: { slug: { in: relatedSlugs } },
+      select: { slug: true },
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const existingSlugs = new Set(existing.map((e: any) => e.slug));
+    for (const related of topic.relatedTopics) {
+      related.targetExists = related.relatedSlug ? existingSlugs.has(related.relatedSlug) : false;
+    }
+  }
+
+  return topic;
 }
 
 export async function listDebateTopics(): Promise<

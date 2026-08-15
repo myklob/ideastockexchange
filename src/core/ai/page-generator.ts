@@ -403,7 +403,7 @@ ${analysis.objectiveCriteria.map(c => `
 <hr/>
 
 <!-- ASSUMPTIONS -->
-<h2>📜 <a href="${this.config.baseUrl}/Assumptions">Foundational Assumptions</a></h2>
+<h2>📜 <a href="${this.config.baseUrl}/algorithms/assumptions">Foundational Assumptions</a></h2>
 
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
@@ -493,7 +493,7 @@ ${analysis.obstacles.map(o => `<li>${this.escapeHtml(o.description)}</li>`).join
 <hr/>
 
 <!-- INTERESTS -->
-<h2>💡 <a href="${this.config.baseUrl}/Interests">Interests & Motivations</a></h2>
+<h2>💡 Interests & Motivations</h2>
 
 <table style="border-color: #cccccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
