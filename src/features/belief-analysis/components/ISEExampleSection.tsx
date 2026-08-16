@@ -76,7 +76,7 @@ export default function ISEExampleSection() {
         : which qualifications matter most for this office, which policy domains carry
         the highest{' '}
         <a
-          href="https://myclob.pbworks.com/importance%20score"
+          href="/algorithms/importance-score"
           className="text-[var(--accent)] hover:underline"
         >
           Importance Scores
@@ -126,7 +126,7 @@ export default function ISEExampleSection() {
         <li>
           <strong>
             <a
-              href="https://myclob.pbworks.com/importance%20score"
+              href="/algorithms/importance-score"
               className="text-[var(--accent)] hover:underline"
             >
               Importance Score
