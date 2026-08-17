@@ -9,8 +9,17 @@
 // pushes a candidate through.
 
 import { prisma } from '@/lib/prisma'
+import type { Prisma } from '@/generated/prisma/client'
 import { runIngest, type IngestedClaimResult } from '@/lib/agent-ingest/ingest'
 import { FAILURE_MODES, type IngestClaimInput, type ValidationIssue } from '@/lib/agent-ingest/contract'
+
+type Tx = Prisma.TransactionClient
+
+class CandidateResolvedElsewhereError extends Error {
+  constructor(public readonly candidateId: string) {
+    super(`Candidate "${candidateId}" was resolved by a concurrent request.`)
+  }
+}
 
 export interface CandidateIntegration {
   candidateId: string
@@ -100,6 +109,15 @@ export async function integrateCandidates(
   const byId = new Map(candidates.map(c => [c.id, c]))
 
   const issues: ValidationIssue[] = []
+  const seen = new Set<string>()
+  const duplicated = new Set<string>()
+  for (const id of referencedIds) {
+    if (seen.has(id)) duplicated.add(id)
+    seen.add(id)
+  }
+  duplicated.forEach(id =>
+    issues.push(issue(id, `Candidate "${id}" is referenced more than once in this request.`)),
+  )
   referencedIds.forEach(id => {
     const c = byId.get(id)
     if (!c) issues.push(issue(id, `Candidate "${id}" not found in this thread.`))
@@ -159,7 +177,8 @@ export async function integrateCandidates(
             ? s.howItSupports.trim()
             : `Offered in conversation as a ${s.direction ?? c.direction} point on the parent claim: "${quote}"`,
           provisionalEstimate: s.provisionalEstimate ?? 0.5,
-          flaggedBelowThreshold: autoDrafted || (s.provisionalEstimate ?? 0.5) < 0.5,
+          flaggedBelowThreshold:
+            autoDrafted || s.provisionalEstimate === undefined || s.provisionalEstimate < 0.5,
           flagNote: autoDrafted
             ? 'Mechanism auto-drafted from conversation context; review the linkage before trusting it.'
             : undefined,
@@ -182,69 +201,91 @@ export async function integrateCandidates(
   }
 
   const now = new Date()
-  await prisma.$transaction(async tx => {
-    for (let i = 0; i < integrations.length; i++) {
-      const s = integrations[i]
-      const claim = ingestClaims[i]
-      await tx.argumentCandidate.update({
-        where: { id: s.candidateId },
-        data: {
+  // Every status flip is guarded on `status: 'pending'` so a candidate
+  // resolved by a concurrent request can't be flipped twice; a zero-count
+  // update aborts the whole transaction.
+  const flipPending = async (
+    tx: Tx,
+    id: string,
+    data: Prisma.ArgumentCandidateUncheckedUpdateManyInput,
+  ) => {
+    const res = await tx.argumentCandidate.updateMany({
+      where: { id, status: 'pending' },
+      data,
+    })
+    if (res.count === 0) throw new CandidateResolvedElsewhereError(id)
+  }
+
+  try {
+    await prisma.$transaction(async tx => {
+      for (let i = 0; i < integrations.length; i++) {
+        const s = integrations[i]
+        const claim = ingestClaims[i]
+        await flipPending(tx, s.candidateId, {
           status: 'integrated',
           integratedArgumentId: claim.argumentId,
           integratedBatchId: batchId,
           resolvedAt: now,
-        },
-      })
-      integrated.push({
-        candidateId: s.candidateId,
-        argumentId: claim.argumentId,
-        beliefSlug: claim.parentBeliefSlug,
-      })
-      await tx.auditLog.create({
-        data: {
-          agentId,
-          batchId,
-          action: 'integrate_candidate',
-          targetType: 'ArgumentCandidate',
-          targetId: s.candidateId,
-          rationale: `Candidate integrated as argument #${claim.argumentId} under "${claim.parentBeliefSlug}" via the ingestion firewall.`,
-        },
-      })
+        })
+        integrated.push({
+          candidateId: s.candidateId,
+          argumentId: claim.argumentId,
+          beliefSlug: claim.parentBeliefSlug,
+        })
+        await tx.auditLog.create({
+          data: {
+            agentId,
+            batchId,
+            action: 'integrate_candidate',
+            targetType: 'ArgumentCandidate',
+            targetId: s.candidateId,
+            rationale: `Candidate integrated as argument #${claim.argumentId} under "${claim.parentBeliefSlug}" via the ingestion firewall.`,
+          },
+        })
+      }
+      for (const id of foldIds) {
+        const c = byId.get(id)!
+        await flipPending(tx, id, { status: 'duplicate', resolvedAt: now })
+        await tx.auditLog.create({
+          data: {
+            agentId,
+            action: 'fold_candidate',
+            targetType: 'ArgumentCandidate',
+            targetId: id,
+            rationale:
+              `Candidate folded as a restatement of existing argument #${c.nearestArgumentId} ` +
+              `(similarity ${c.similarity?.toFixed(2) ?? '?'}). The conversation point is already on the page.`,
+          },
+        })
+      }
+      for (const id of dismissIds) {
+        await flipPending(tx, id, { status: 'dismissed', resolvedAt: now })
+        await tx.auditLog.create({
+          data: {
+            agentId,
+            action: 'dismiss_candidate',
+            targetType: 'ArgumentCandidate',
+            targetId: id,
+            rationale: 'Candidate dismissed at review: not a usable standalone argument.',
+          },
+        })
+      }
+    }, { timeout: 60_000 })
+  } catch (e) {
+    if (e instanceof CandidateResolvedElsewhereError) {
+      return {
+        ok: false,
+        status: 409,
+        issues: [
+          issue(
+            e.candidateId,
+            `Candidate "${e.candidateId}" was resolved by a concurrent request; re-check its status before retrying.`,
+          ),
+        ],
+      }
     }
-    for (const id of foldIds) {
-      const c = byId.get(id)!
-      await tx.argumentCandidate.update({
-        where: { id },
-        data: { status: 'duplicate', resolvedAt: now },
-      })
-      await tx.auditLog.create({
-        data: {
-          agentId,
-          action: 'fold_candidate',
-          targetType: 'ArgumentCandidate',
-          targetId: id,
-          rationale:
-            `Candidate folded as a restatement of existing argument #${c.nearestArgumentId} ` +
-            `(similarity ${c.similarity?.toFixed(2) ?? '?'}). The conversation point is already on the page.`,
-        },
-      })
-    }
-    for (const id of dismissIds) {
-      await tx.argumentCandidate.update({
-        where: { id },
-        data: { status: 'dismissed', resolvedAt: now },
-      })
-      await tx.auditLog.create({
-        data: {
-          agentId,
-          action: 'dismiss_candidate',
-          targetType: 'ArgumentCandidate',
-          targetId: id,
-          rationale: 'Candidate dismissed at review: not a usable standalone argument.',
-        },
-      })
-    }
-  }, { timeout: 60_000 })
+    throw e
+  }
 
   return {
     ok: true,

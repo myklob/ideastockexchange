@@ -199,8 +199,15 @@ export function extractCandidates(
       }
       // Fold near-duplicates within the thread: the first voicing keeps the
       // candidacy; later restatements are the exact repetition problem this
-      // pipeline exists to end.
-      if (candidates.some(c => textSimilarity(statement, c.statement) >= SAME_CLAIM_THRESHOLD)) {
+      // pipeline exists to end. Same side only — similarity is stance-blind
+      // (negators are stopwords), so a denial of an earlier claim scores as
+      // its duplicate but is a distinct con candidate, not a repetition.
+      const direction = sentenceStance(statement, focalStatement, base)
+      if (
+        candidates.some(
+          c => c.direction === direction && textSimilarity(statement, c.statement) >= SAME_CLAIM_THRESHOLD,
+        )
+      ) {
         skipped.push({ messageIndex, text: sentence, reason: 'duplicate-in-thread' })
         continue
       }
@@ -208,7 +215,7 @@ export function extractCandidates(
       candidates.push({
         messageIndex,
         statement,
-        direction: sentenceStance(statement, focalStatement, base),
+        direction,
         contextQuote: text.length <= 280 ? text : sentence,
         evidenceUrls: urls,
         markers: matchedMarkers(sentence),

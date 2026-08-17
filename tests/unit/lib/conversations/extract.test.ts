@@ -37,6 +37,19 @@ describe('extractCandidates (find arguments in chat noise)', () => {
     expect(candidates[0].direction).toBe('con')
   })
 
+  it('keeps a denial of an earlier claim as a con candidate instead of folding it', () => {
+    const { candidates } = extractCandidates(
+      [
+        msg('ada', 'Nuclear plants reduce total emissions dramatically'),
+        msg('bob', 'No, nuclear plants do not reduce total emissions dramatically'),
+      ],
+      null,
+    )
+    expect(candidates).toHaveLength(2)
+    expect(candidates[0].direction).toBe('pro')
+    expect(candidates[1].direction).toBe('con')
+  })
+
   it('skips questions, fragments, and social noise with named reasons', () => {
     const { candidates, skipped } = extractCandidates(
       [

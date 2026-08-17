@@ -72,6 +72,20 @@ export function validateConversationImport(raw: unknown): ImportValidation {
   if (typeof p.title !== 'string' || !p.title.trim()) {
     issues.push({ mode: FAILURE_MODES.MALFORMED_BATCH, path: 'title', message: 'title is required.' })
   }
+  if (p.sourceUrl !== undefined && typeof p.sourceUrl !== 'string') {
+    issues.push({
+      mode: FAILURE_MODES.MALFORMED_BATCH,
+      path: 'sourceUrl',
+      message: 'sourceUrl must be a string when present.',
+    })
+  }
+  if (p.beliefSlug !== undefined && (typeof p.beliefSlug !== 'string' || !p.beliefSlug.trim())) {
+    issues.push({
+      mode: FAILURE_MODES.MALFORMED_BATCH,
+      path: 'beliefSlug',
+      message: 'beliefSlug must be a non-empty string when present.',
+    })
+  }
   if (!Array.isArray(p.messages) || p.messages.length === 0) {
     issues.push({
       mode: FAILURE_MODES.MALFORMED_BATCH,
@@ -99,6 +113,16 @@ export function validateConversationImport(raw: unknown): ImportValidation {
           mode: FAILURE_MODES.MALFORMED_BATCH,
           path: `messages[${i}].body`,
           message: 'Each message needs a body.',
+        })
+      }
+      if (
+        mm?.postedAt !== undefined &&
+        (typeof mm.postedAt !== 'string' || Number.isNaN(Date.parse(mm.postedAt)))
+      ) {
+        issues.push({
+          mode: FAILURE_MODES.MALFORMED_BATCH,
+          path: `messages[${i}].postedAt`,
+          message: 'postedAt must be an ISO date-time string when present.',
         })
       }
     })
