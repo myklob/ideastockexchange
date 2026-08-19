@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listDebateTopics, createDebateTopic } from '@/features/debate-topics/db';
 import type { DebateTopic } from '@/core/types/debate-topic';
+import { badRequest, readJsonBody } from '@/lib/api-params';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,8 +16,13 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const parsed = await readJsonBody(request);
+  if (!parsed.ok) {
+    return badRequest('Request body must be a JSON object');
+  }
+
   try {
-    const body: DebateTopic = await request.json();
+    const body = parsed.body as unknown as DebateTopic;
 
     if (!body.slug || !body.title || !body.definition) {
       return NextResponse.json({ error: 'slug, title, and definition are required' }, { status: 400 });

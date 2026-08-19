@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { parseIdParam } from '@/lib/api-params'
 import { fetchBeliefById, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
 import { toSpectrumCoordinates } from '@/features/belief-analysis/spectrum-coordinates'
 
@@ -7,9 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const beliefId = parseInt(id, 10)
+  const beliefId = parseIdParam(id)
 
-  if (isNaN(beliefId)) {
+  if (beliefId === null) {
     return NextResponse.json({ error: 'Invalid belief ID' }, { status: 400 })
   }
 

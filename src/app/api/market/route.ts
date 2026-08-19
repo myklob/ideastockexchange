@@ -1,27 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateBuy, calculateSell } from "@/lib/market-maker";
+import { badRequest, readJsonBody } from "@/lib/api-params";
 
 // POST /api/market: Execute a trade (buy or sell shares).
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { userId, claimId, shareType, direction, amount } = body;
+  const parsed = await readJsonBody(request);
+  if (!parsed.ok) {
+    return badRequest("Request body must be a JSON object");
+  }
+  const { userId, claimId, shareType, direction } = parsed.body;
+  const amount = Number(parsed.body.amount);
 
-  if (!userId || !claimId || !shareType || !direction || !amount) {
+  if (!userId || !claimId || !shareType || !direction || parsed.body.amount === undefined) {
     return NextResponse.json(
       { error: "Missing required fields: userId, claimId, shareType, direction, amount." },
       { status: 400 }
     );
   }
 
-  if (!["YES", "NO"].includes(shareType)) {
+  // A string amount would concatenate rather than add when updating pool shares.
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return badRequest("amount must be a positive number");
+  }
+  if (typeof userId !== "string" || typeof claimId !== "string") {
+    return badRequest("userId and claimId must be strings");
+  }
+
+  if (shareType !== "YES" && shareType !== "NO") {
     return NextResponse.json(
       { error: "shareType must be YES or NO." },
       { status: 400 }
     );
   }
 
-  if (!["BUY", "SELL"].includes(direction)) {
+  if (direction !== "BUY" && direction !== "SELL") {
     return NextResponse.json(
       { error: "direction must be BUY or SELL." },
       { status: 400 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { computeBeliefUnitStats, type BeliefUnitInput } from '@/lib/battlefield'
+import { parseIdParam } from '@/lib/api-params'
 
 /**
  * GET /api/battlefield/units/[id]
@@ -13,10 +14,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params
-  const numericId = parseInt(id, 10)
+  const numericId = parseIdParam(id)
 
   const belief = await prisma.belief.findFirst({
-    where: Number.isFinite(numericId) ? { OR: [{ id: numericId }, { slug: id }] } : { slug: id },
+    where: numericId !== null ? { OR: [{ id: numericId }, { slug: id }] } : { slug: id },
     select: {
       id: true,
       slug: true,

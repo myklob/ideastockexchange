@@ -1,12 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { badRequest, parseEnumParam, readJsonBody } from "@/lib/api-params";
+
+const SORTABLE_CLAIM_FIELDS = [
+  "reasonRank",
+  "truthScore",
+  "logicalValidity",
+  "evidenceQuality",
+  "createdAt",
+  "updatedAt",
+] as const;
 
 // GET /api/claims: List all active claims with their market data.
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status") || "ACTIVE";
   const category = searchParams.get("category");
-  const sortBy = searchParams.get("sortBy") || "reasonRank";
+  const sortBy = parseEnumParam(
+    searchParams.get("sortBy"),
+    SORTABLE_CLAIM_FIELDS,
+    "reasonRank"
+  );
+  if (sortBy === null) {
+    return badRequest(
+      `sortBy must be one of: ${SORTABLE_CLAIM_FIELDS.join(", ")}`
+    );
+  }
 
   const where: Record<string, unknown> = { status };
   if (category) {
@@ -48,17 +67,26 @@ export async function GET(request: NextRequest) {
 
 // POST /api/claims: Create a new claim with initial liquidity pool.
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { title, description, category, initialLiquidity } = body;
+  const parsed = await readJsonBody(request);
+  if (!parsed.ok) {
+    return badRequest("Request body must be a JSON object");
+  }
+  const { title, description, category, initialLiquidity } = parsed.body;
 
-  if (!title || !description) {
+  if (typeof title !== "string" || !title || typeof description !== "string" || !description) {
     return NextResponse.json(
       { error: "Title and description are required." },
       { status: 400 }
     );
   }
+  if (category !== undefined && typeof category !== "string") {
+    return badRequest("category must be a string");
+  }
 
-  const liquidity = initialLiquidity || 1000;
+  const liquidity = initialLiquidity === undefined ? 1000 : Number(initialLiquidity);
+  if (!Number.isFinite(liquidity) || liquidity <= 0) {
+    return badRequest("initialLiquidity must be a positive number");
+  }
 
   const claim = await prisma.claim.create({
     data: {

@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import {
+  badRequest,
+  isPrismaValidationError,
+  isRecordNotFound,
+  readJsonBody,
+} from '@/lib/api-params'
 
 const FULL_INCLUDE = {
   synonymClaims: true,
@@ -55,11 +61,14 @@ export async function PUT(
 ) {
   const { slug } = await params
 
-  try {
-    const body = await request.json()
+  const parsed = await readJsonBody(request)
+  if (!parsed.ok) {
+    return badRequest('Request body must be a JSON object')
+  }
 
+  try {
     // Remove read-only fields before update
-    const { id: _id, slug: _slug, createdAt: _c, updatedAt: _u, ...updateData } = body
+    const { id: _id, slug: _slug, createdAt: _c, updatedAt: _u, ...updateData } = parsed.body
 
     const analysis = await prisma.equivalenceAnalysis.update({
       where: { slug },
@@ -69,8 +78,11 @@ export async function PUT(
 
     return NextResponse.json({ analysis: withReasonGroups(analysis) })
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Record to update not found')) {
+    if (isRecordNotFound(error)) {
       return NextResponse.json({ error: 'Analysis not found' }, { status: 404 })
+    }
+    if (isPrismaValidationError(error)) {
+      return badRequest('Request body contains unknown or wrongly-typed fields')
     }
     console.error('PUT /api/equivalence/[slug] error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -91,7 +103,7 @@ export async function DELETE(
     await prisma.equivalenceAnalysis.delete({ where: { slug } })
     return NextResponse.json({ success: true })
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Record to delete does not exist')) {
+    if (isRecordNotFound(error)) {
       return NextResponse.json({ error: 'Analysis not found' }, { status: 404 })
     }
     console.error('DELETE /api/equivalence/[slug] error:', error)

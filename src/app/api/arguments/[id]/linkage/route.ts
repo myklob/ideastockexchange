@@ -26,6 +26,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { calculateLinkageFromArguments, applyDepthAttenuation } from '@/core/scoring/scoring-engine'
 import { propagateFromLinkageChange } from '@/lib/propagate-belief-scores'
+import { parseIdParam } from '@/lib/api-params'
 
 // ─── GET ───────────────────────────────────────────────────────────────────
 
@@ -34,9 +35,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const argumentId = Number(id)
+  const argumentId = parseIdParam(id)
 
-  if (Number.isNaN(argumentId)) {
+  if (argumentId === null) {
     return NextResponse.json({ error: 'Invalid argument id' }, { status: 400 })
   }
 
@@ -95,9 +96,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const argumentId = Number(id)
+  const argumentId = parseIdParam(id)
 
-  if (Number.isNaN(argumentId)) {
+  if (argumentId === null) {
     return NextResponse.json({ error: 'Invalid argument id' }, { status: 400 })
   }
 
@@ -171,9 +172,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const argumentId = Number(id)
+  const argumentId = parseIdParam(id)
 
-  if (Number.isNaN(argumentId)) {
+  if (argumentId === null) {
     return NextResponse.json({ error: 'Invalid argument id' }, { status: 400 })
   }
 

@@ -27,6 +27,7 @@ import { prisma } from '@/lib/prisma'
 import { fetchBeliefById, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
 import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
 import { computeArgumentImpactScore } from '@/core/scoring/scoring-engine'
+import { parseIdParam } from '@/lib/api-params'
 
 // ─── GET (dry-run preview) ──────────────────────────────────────────────────
 
@@ -35,9 +36,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params
-  const beliefId = Number(id)
+  const beliefId = parseIdParam(id)
 
-  if (Number.isNaN(beliefId)) {
+  if (beliefId === null) {
     return NextResponse.json({ error: 'Invalid belief id' }, { status: 400 })
   }
 
@@ -96,9 +97,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params
-  const beliefId = Number(id)
+  const beliefId = parseIdParam(id)
 
-  if (Number.isNaN(beliefId)) {
+  if (beliefId === null) {
     return NextResponse.json({ error: 'Invalid belief id' }, { status: 400 })
   }
 

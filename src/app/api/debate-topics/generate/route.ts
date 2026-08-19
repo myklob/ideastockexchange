@@ -2,12 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createDebateTopic } from '@/features/debate-topics/db';
 import { generateDebateTopicData } from '@/features/debate-topics/ai-generator';
 import type { GenerateDebateTopicRequest } from '@/core/types/debate-topic';
+import { badRequest, readJsonBody } from '@/lib/api-params';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+  const parsed = await readJsonBody(request);
+  if (!parsed.ok) {
+    return badRequest('Request body must be a JSON object');
+  }
+
   try {
-    const body: GenerateDebateTopicRequest = await request.json();
+    const body = parsed.body as unknown as GenerateDebateTopicRequest;
 
     if (!body.topicName?.trim()) {
       return NextResponse.json({ error: 'topicName is required' }, { status: 400 });

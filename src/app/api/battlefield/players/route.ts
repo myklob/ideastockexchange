@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { computePlayerStats, type PlayerCharacterInput } from '@/lib/battlefield'
+import { badRequest, parseEnumParam } from '@/lib/api-params'
+
+const PLAYER_SORT_FIELDS = ['overall', 'prowess', 'research', 'persuasion', 'wisdom', 'experience', 'level'] as const
 
 /**
  * GET /api/battlefield/players
@@ -18,8 +21,10 @@ export async function GET(request: Request) {
   const limitRaw = parseInt(sp.get('limit') ?? '', 10)
   const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 500) : 100
 
-  const sortBy = (sp.get('sortBy') ?? 'overall') as
-    | 'overall' | 'prowess' | 'research' | 'persuasion' | 'wisdom' | 'experience' | 'level'
+  const sortBy = parseEnumParam(sp.get('sortBy'), PLAYER_SORT_FIELDS, 'overall')
+  if (sortBy === null) {
+    return badRequest(`sortBy must be one of: ${PLAYER_SORT_FIELDS.join(', ')}`)
+  }
   const sortDir = sp.get('sortDir') === 'asc' ? 'asc' : 'desc'
 
   const users = await prisma.user.findMany({

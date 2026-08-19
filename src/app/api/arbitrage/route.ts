@@ -1,13 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { computeDivergence } from "@/lib/market-maker";
+import { badRequest, parseBoundedFloat, parseBoundedInt } from "@/lib/api-params";
 
 // GET /api/arbitrage: Surface claims where ReasonRank and Market Price diverge.
 // These are the profit opportunities.
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const minDivergence = parseFloat(searchParams.get("minDivergence") || "0.05");
-  const limit = parseInt(searchParams.get("limit") || "20", 10);
+  const minDivergence = parseBoundedFloat(searchParams.get("minDivergence"), {
+    fallback: 0.05,
+    min: 0,
+    max: 1,
+  });
+  const limit = parseBoundedInt(searchParams.get("limit"), {
+    fallback: 20,
+    min: 1,
+    max: 200,
+  });
+  if (minDivergence === null) {
+    return badRequest("minDivergence must be a number between 0 and 1");
+  }
+  if (limit === null) {
+    return badRequest("limit must be an integer between 1 and 200");
+  }
 
   const claims = await prisma.claim.findMany({
     where: { status: "ACTIVE" },

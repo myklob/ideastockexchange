@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { badRequest, parseBoundedInt } from '@/lib/api-params'
 
 /**
  * GET /api/equivalence
@@ -8,8 +9,14 @@ import { prisma } from '@/lib/prisma'
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const verdict = searchParams.get('verdict')
-  const limit = parseInt(searchParams.get('limit') ?? '50', 10)
-  const offset = parseInt(searchParams.get('offset') ?? '0', 10)
+  const limit = parseBoundedInt(searchParams.get('limit'), { fallback: 50, min: 1, max: 200 })
+  const offset = parseBoundedInt(searchParams.get('offset'), {
+    fallback: 0,
+    min: 0,
+    max: Number.MAX_SAFE_INTEGER,
+  })
+  if (limit === null) return badRequest('limit must be an integer between 1 and 200')
+  if (offset === null) return badRequest('offset must be a non-negative integer')
 
   const where = verdict ? { verdict } : {}
 
@@ -17,7 +24,7 @@ export async function GET(request: NextRequest) {
     prisma.equivalenceAnalysis.findMany({
       where,
       orderBy: { finalEquivalenceScore: 'desc' },
-      take: Math.min(limit, 200),
+      take: limit,
       skip: offset,
       select: {
         id: true,

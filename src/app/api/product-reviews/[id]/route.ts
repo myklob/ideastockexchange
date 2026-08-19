@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { parseIdParam } from '@/lib/api-params'
 import { fetchProductReviewById } from '@/features/product-reviews/data/fetch-product-reviews'
 import { scoreProductReview } from '@/core/scoring/product-review-scoring'
 
@@ -7,9 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const reviewId = parseInt(id, 10)
+  const reviewId = parseIdParam(id)
 
-  if (isNaN(reviewId)) {
+  if (reviewId === null) {
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
   }
 

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { parseIdParam } from '@/lib/api-params'
 import { buildBeliefOutline } from '@/lib/conversations/outline'
 
 /**
@@ -10,8 +11,8 @@ import { buildBeliefOutline } from '@/lib/conversations/outline'
  */
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const beliefId = parseInt(id, 10)
-  if (isNaN(beliefId)) {
+  const beliefId = parseIdParam(id)
+  if (beliefId === null) {
     return NextResponse.json({ error: 'Invalid belief ID' }, { status: 400 })
   }
 
