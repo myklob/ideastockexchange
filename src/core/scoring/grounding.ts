@@ -106,20 +106,35 @@ export function scoreGroundingTree(
   memo: Map<string, number> = new Map(),
   walking: Set<string> = new Set(),
 ): number {
+  return walkGrounding(node, memo, walking).score
+}
+
+/**
+ * A score computed under a ring cut depends on where the walk started, so it
+ * is returned but never memoized — otherwise the first walk to reach a node in
+ * a citation ring would pin everyone else's answer to its own entry point.
+ */
+function walkGrounding(
+  node: GroundingNode,
+  memo: Map<string, number>,
+  walking: Set<string>,
+): { score: number; tainted: boolean } {
   const cached = memo.get(node.id)
-  if (cached !== undefined) return cached
-  if (walking.has(node.id)) return 0 // ring of claims: no foundation
+  if (cached !== undefined) return { score: cached, tainted: false }
+  if (walking.has(node.id)) return { score: 0, tainted: true } // ring of claims: no foundation
 
   walking.add(node.id)
-  const edges = node.argumentEdges.map((edge) => ({
-    linkageScore: edge.linkageScore,
-    childGrounding: scoreGroundingTree(edge.child, memo, walking),
-  }))
+  let tainted = false
+  const edges = node.argumentEdges.map((edge) => {
+    const child = walkGrounding(edge.child, memo, walking)
+    tainted = tainted || child.tainted
+    return { linkageScore: edge.linkageScore, childGrounding: child.score }
+  })
   walking.delete(node.id)
 
   const score = computeGroundingScore(node.evidence, edges)
-  memo.set(node.id, score)
-  return score
+  if (!tainted) memo.set(node.id, score)
+  return { score, tainted }
 }
 
 // ─── Bands ────────────────────────────────────────────────────────

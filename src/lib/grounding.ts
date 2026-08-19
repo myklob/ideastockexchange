@@ -19,9 +19,23 @@ export async function groundingForBelief(
   memo: Map<number, number> = new Map(),
   walking: Set<number> = new Set(),
 ): Promise<number> {
+  return (await walkGrounding(beliefId, memo, walking)).score
+}
+
+/**
+ * Mirrors the pure walker: a score computed under a ring cut depends on the
+ * walk's entry point, so it is returned but never memoized. The memo is shared
+ * across a whole propagation pass, and persistBeliefGrounding writes what it
+ * returns, so caching a cut value would persist an order-dependent score.
+ */
+async function walkGrounding(
+  beliefId: number,
+  memo: Map<number, number>,
+  walking: Set<number>,
+): Promise<{ score: number; tainted: boolean }> {
   const cached = memo.get(beliefId)
-  if (cached !== undefined) return cached
-  if (walking.has(beliefId)) return 0 // ring of claims: no foundation
+  if (cached !== undefined) return { score: cached, tainted: false }
+  if (walking.has(beliefId)) return { score: 0, tainted: true } // ring of claims: no foundation
 
   walking.add(beliefId)
 
@@ -37,10 +51,13 @@ export async function groundingForBelief(
   ])
 
   const edges = []
+  let tainted = false
   for (const edge of argumentEdges) {
+    const child = await walkGrounding(edge.beliefId, memo, walking)
+    tainted = tainted || child.tainted
     edges.push({
       linkageScore: edge.linkageScore,
-      childGrounding: await groundingForBelief(edge.beliefId, memo, walking),
+      childGrounding: child.score,
     })
   }
 
@@ -50,8 +67,8 @@ export async function groundingForBelief(
     evidence.map((e) => ({ tier: e.evidenceType, linkageScore: e.linkageScore })),
     edges,
   )
-  memo.set(beliefId, score)
-  return score
+  if (!tainted) memo.set(beliefId, score)
+  return { score, tainted }
 }
 
 /**

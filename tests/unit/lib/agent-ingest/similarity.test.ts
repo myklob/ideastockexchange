@@ -45,4 +45,15 @@ describe('similarityBand (routes pairs; the community vote decides)', () => {
     expect(SAME_CLAIM_THRESHOLD).toBeGreaterThan(RESTATEMENT_SPEEDBUMP_THRESHOLD)
     expect(RESTATEMENT_SPEEDBUMP_THRESHOLD).toBeGreaterThan(EQUIVALENCE_CANDIDATE_THRESHOLD)
   })
+
+  it('never routes a denial as a restatement of what it denies', () => {
+    // A rebuttal is related to the claim it rebuts, but posting it must not be
+    // refused as a near-duplicate of that claim.
+    const claim = 'Nuclear power plants cause cancer'
+    const denial = 'Nuclear power plants do not cause cancer'
+
+    expect(normalizeTokens(claim)).not.toEqual(normalizeTokens(denial))
+    expect(textSimilarity(claim, denial)).toBeLessThan(RESTATEMENT_SPEEDBUMP_THRESHOLD)
+    expect(similarityBand(textSimilarity(claim, denial))).not.toBe('same-claim')
+  })
 })

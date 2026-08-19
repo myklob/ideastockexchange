@@ -136,6 +136,36 @@ describe('scoreGroundingTree', () => {
     b.argumentEdges.push({ linkageScore: 1, child: a })
     expect(scoreGroundingTree(a)).toBeGreaterThan(0)
   })
+
+  it('gives a ring member the same score whichever end the shared walk starts from', () => {
+    const build = () => {
+      const a: GroundingNode = {
+        id: 'a',
+        evidence: [{ tier: 'T1', linkageScore: 1 }],
+        argumentEdges: [],
+      }
+      const b: GroundingNode = { id: 'b', evidence: [], argumentEdges: [] }
+      a.argumentEdges.push({ linkageScore: 1, child: b })
+      b.argumentEdges.push({ linkageScore: 1, child: a })
+      return { a, b }
+    }
+
+    // One memo is shared across a whole propagation pass, so a score computed
+    // under a ring cut must never be cached: it depends on the entry point.
+    const first = build()
+    const memoFromA = new Map<string, number>()
+    const aFirst = scoreGroundingTree(first.a, memoFromA)
+    const bAfterA = scoreGroundingTree(first.b, memoFromA)
+
+    const second = build()
+    const memoFromB = new Map<string, number>()
+    const bFirst = scoreGroundingTree(second.b, memoFromB)
+    const aAfterB = scoreGroundingTree(second.a, memoFromB)
+
+    expect(aFirst).toBe(aAfterB)
+    expect(bAfterA).toBe(bFirst)
+    expect(bAfterA).toBeGreaterThan(0)
+  })
 })
 
 describe('getGroundingBand', () => {

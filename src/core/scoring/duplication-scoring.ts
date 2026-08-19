@@ -146,6 +146,9 @@ const NEGATION_WORDS = new Set([
   'not', 'no', 'never', 'neither', 'nor', 'without',
 ])
 
+/** Prefix marking a token as negated; never a substring of a real token. */
+const NEGATION_MARKER = 'not-'
+
 /** Antonym pairs for negated-antonym detection. */
 const ANTONYM_PAIRS: [string, string][] = [
   ['intelligent', 'unintelligent'],
@@ -189,6 +192,8 @@ for (const [word, opposite] of ANTONYM_PAIRS) {
  *   4. Remove stopwords
  *   5. Canonicalize synonyms ("reduce" → "lower")
  *   6. Collapse negated antonyms ("not unintelligent" → "intelligent")
+ *   7. Bind any remaining negation to the word it modifies ("does not cause"
+ *      → "not-cause"), so a claim never matches its own denial
  *
  * Sorting the result means word-order differences ("taxes lower" vs
  * "lower taxes") do not produce false negatives.
@@ -217,6 +222,26 @@ export function normalizeClaim(text: string): string[] {
         i += 2
         continue
       }
+    }
+
+    // Any other negation binds to the word it modifies, so "does not cause
+    // cancer" cannot normalize to the same tokens as "causes cancer". Dropping
+    // it as a stopword would score a claim and its denial as identical.
+    if (NEGATION_WORDS.has(tok)) {
+      let j = i + 1
+      while (j < rawTokens.length && STOPWORDS.has(rawTokens[j]) && !NEGATION_WORDS.has(rawTokens[j])) {
+        j++
+      }
+      if (j < rawTokens.length) {
+        const target = rawTokens[j]
+        const canonical = CANONICAL_MAP.get(target) ?? target
+        cleaned.push(`${NEGATION_MARKER}${canonical}`)
+        i = j + 1
+      } else {
+        cleaned.push(NEGATION_MARKER)
+        i++
+      }
+      continue
     }
 
     if (!STOPWORDS.has(tok)) {

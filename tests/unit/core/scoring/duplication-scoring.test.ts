@@ -86,6 +86,17 @@ describe('normalizeClaim', () => {
     expect(tokens).not.toContain('not')
   })
 
+  it('keeps a claim distinct from its denial', () => {
+    const claim = 'Nuclear power plants cause cancer'
+    const denial = 'Nuclear power plants do not cause cancer'
+
+    expect(normalizeClaim(claim)).not.toEqual(normalizeClaim(denial))
+    expect(mechanicalSimilarity(claim, denial)).toBeLessThan(
+      MECHANICAL_EQUIVALENCE_THRESHOLD,
+    )
+    expect(isMechanicalDuplicate(claim, denial)).toBe(false)
+  })
+
   it('returns a sorted array (word order does not matter)', () => {
     const tokensA = normalizeClaim('lower taxes')
     const tokensB = normalizeClaim('taxes lower')

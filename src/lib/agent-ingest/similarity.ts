@@ -18,13 +18,31 @@ function stem(token: string): string {
   return token.replace(/(ing|ed|es|s)$/, '')
 }
 
+/** Checked before STOPWORDS, which also lists some of these. */
+const NEGATIONS = new Set(['not', 'no', 'nor', 'never', 'without'])
+
 export function normalizeTokens(text: string): string[] {
-  return text
+  const raw = text
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, ' ')
     .split(/\s+/)
-    .filter(t => t.length > 1 && !STOPWORDS.has(t))
-    .map(stem)
+    .filter(Boolean)
+
+  // A negation binds to the next surviving token. Dropping it as a stopword
+  // would make a claim and its denial score as the same statement, so the
+  // drift guard would refuse a rebuttal as a restatement of what it rebuts.
+  const out: string[] = []
+  let negated = false
+  for (const token of raw) {
+    if (NEGATIONS.has(token)) {
+      negated = true
+      continue
+    }
+    if (token.length <= 1 || STOPWORDS.has(token)) continue
+    out.push(negated ? `not-${stem(token)}` : stem(token))
+    negated = false
+  }
+  return out
 }
 
 function jaccard<T>(a: Set<T>, b: Set<T>): number {

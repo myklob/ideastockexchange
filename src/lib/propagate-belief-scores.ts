@@ -391,54 +391,110 @@ export interface FullPropagationResult {
 }
 
 /**
+ * Beliefs in dependency order: a belief appears only after every belief it
+ * draws on, so recomputing along this order always reads finished children.
+ * Kahn's algorithm over child → parent edges; beliefs left inside a citation
+ * ring never reach zero remaining children and are appended in id order, which
+ * keeps the result deterministic rather than dependent on row order.
+ */
+function dependencyOrder(
+  allIds: number[],
+  edges: { parentBeliefId: number; beliefId: number; importanceBeliefId: number | null }[],
+): { order: number[]; depth: Map<number, number> } {
+  const known = new Set(allIds)
+  const parentsOf = new Map<number, Set<number>>()
+  const remainingChildren = new Map<number, number>()
+  for (const id of allIds) {
+    parentsOf.set(id, new Set())
+    remainingChildren.set(id, 0)
+  }
+
+  const counted = new Set<string>()
+  for (const edge of edges) {
+    for (const childId of [edge.beliefId, edge.importanceBeliefId]) {
+      if (childId === null) continue
+      if (!known.has(childId) || !known.has(edge.parentBeliefId)) continue
+      if (childId === edge.parentBeliefId) continue
+      const key = `${childId}->${edge.parentBeliefId}`
+      if (counted.has(key)) continue
+      counted.add(key)
+      parentsOf.get(childId)!.add(edge.parentBeliefId)
+      remainingChildren.set(edge.parentBeliefId, remainingChildren.get(edge.parentBeliefId)! + 1)
+    }
+  }
+
+  const depth = new Map<number, number>()
+  const queue = allIds.filter((id) => remainingChildren.get(id) === 0).sort((a, b) => a - b)
+  for (const id of queue) depth.set(id, 0)
+
+  const order: number[] = []
+  const placed = new Set<number>()
+  while (queue.length > 0) {
+    const id = queue.shift()!
+    order.push(id)
+    placed.add(id)
+    for (const parentId of parentsOf.get(id)!) {
+      depth.set(parentId, Math.max(depth.get(parentId) ?? 0, (depth.get(id) ?? 0) + 1))
+      const remaining = remainingChildren.get(parentId)! - 1
+      remainingChildren.set(parentId, remaining)
+      if (remaining === 0) queue.push(parentId)
+    }
+  }
+  for (const id of allIds) {
+    if (!placed.has(id)) order.push(id)
+  }
+
+  return { order, depth }
+}
+
+/**
  * Recompute scores for every belief in the database, bottom-up.
  *
- * Finds every leaf belief (never used as a reason) plus isolated beliefs, and
- * propagates each upward; the shared visited-set prevents redundant work when
- * leaves share ancestors. Used by POST /api/scoring/propagate-all and by the
- * seed chain, so a fresh dev database starts with engine-computed scores
- * rather than hand-typed placeholders.
+ * Walks beliefs in dependency order and recomputes each exactly once, after
+ * the beliefs it draws on. The upward recursion is deliberately blocked here:
+ * letting one belief's pass run all the way to the roots would mark those
+ * ancestors visited before their other children had been recomputed, so the
+ * scores a full pass produced depended on the order rows came back in. Used by
+ * POST /api/scoring/propagate-all and by the seed chain, so a fresh dev
+ * database starts with engine-computed scores rather than hand-typed
+ * placeholders.
  */
 export async function propagateAllBeliefScores(): Promise<FullPropagationResult> {
-  const allBeliefIds = await prisma.belief.findMany({ select: { id: true } })
-  const beliefIdsUsedAsChild = await prisma.argument.findMany({
-    select: { beliefId: true },
-    distinct: ['beliefId'],
+  const allBeliefs = await prisma.belief.findMany({
+    select: { id: true },
+    orderBy: { id: 'asc' },
+  })
+  const allIds = allBeliefs.map((b) => b.id)
+
+  const edges = await prisma.argument.findMany({
+    select: { parentBeliefId: true, beliefId: true, importanceBeliefId: true },
   })
 
-  const usedAsChildSet = new Set(beliefIdsUsedAsChild.map((a) => a.beliefId))
-  const startBeliefIds = allBeliefIds
-    .map((b) => b.id)
-    .filter((id) => !usedAsChildSet.has(id))
+  const { order, depth } = dependencyOrder(allIds, edges)
 
-  const visited = new Set<number>()
-  const result: FullPropagationResult = {
-    startedFrom: startBeliefIds.length,
-    updatedArguments: 0,
-    updatedBeliefs: 0,
-    maxDepth: 0,
+  // Grounding reads evidence and linkage scores, neither of which this pass
+  // writes, so one memo stays valid for the whole sweep.
+  const groundingMemo = new Map<number, number>()
+  const updatedArguments = new Set<number>()
+  const updatedBeliefs = new Set<number>()
+
+  // Every belief except the one being recomputed is marked visited, which
+  // stops the recursion at this node; propagateBeliefScores adds it back.
+  const blocked = new Set(allIds)
+
+  for (const id of order) {
+    blocked.delete(id)
+    const pass = await propagateBeliefScores(id, blocked, 0, 'full recompute', groundingMemo)
+    for (const argumentId of pass.updatedArgumentIds) updatedArguments.add(argumentId)
+    for (const beliefId of pass.updatedBeliefIds) updatedBeliefs.add(beliefId)
   }
 
-  for (const id of startBeliefIds) {
-    if (visited.has(id)) continue
-    const pass = await propagateBeliefScores(id, visited, 0, 'full recompute')
-    result.updatedArguments += pass.updatedArgumentIds.length
-    result.updatedBeliefs += pass.updatedBeliefIds.length
-    result.maxDepth = Math.max(result.maxDepth, pass.depth)
+  return {
+    startedFrom: order.length,
+    updatedArguments: updatedArguments.size,
+    updatedBeliefs: updatedBeliefs.size,
+    maxDepth: order.length === 0 ? 0 : Math.max(0, ...depth.values()),
   }
-
-  // Leaves reach their ancestors through recursion, but a mid-graph belief
-  // whose leaf children carry no arguments of their own can be missed when
-  // every leaf under it was already visited. Sweep any belief not yet visited.
-  for (const { id } of allBeliefIds) {
-    if (visited.has(id)) continue
-    const pass = await propagateBeliefScores(id, visited, 0, 'full recompute')
-    result.updatedArguments += pass.updatedArgumentIds.length
-    result.updatedBeliefs += pass.updatedBeliefIds.length
-    result.maxDepth = Math.max(result.maxDepth, pass.depth)
-  }
-
-  return result
 }
 
 /**

@@ -278,7 +278,12 @@ export function applyImpactDeduplication(
           adjustmentApplied: 0, // flag for review; not automatically zeroed
         })
       } else if (similarity > 0.3) {
-        const weaker = adjustedItems[i].predictedImpact <= adjustedItems[j].predictedImpact ? i : j
+        // Magnitude, not signed value: costs are negative by contract, so
+        // comparing signed impacts would call the larger cost the weaker item.
+        const weaker =
+          Math.abs(adjustedItems[i].predictedImpact) <= Math.abs(adjustedItems[j].predictedImpact)
+            ? i
+            : j
         const adjustmentFactor = 1 - similarity
         adjustedItems[weaker].predictedImpact *= adjustmentFactor
         adjustedItems[weaker].overlapAdjustments.push({
@@ -319,8 +324,10 @@ export function calculateSensitivity(items: CBALineItem[]): SensitivityItem[] {
       const scores = estimates.map((e) => e.reasonRankScore)
       const maxScore = Math.max(...scores)
       const minScore = Math.min(...scores)
-      const argAgreement = maxScore > 0 ? 1 - minScore / maxScore : 0
-      uncertainty = (1 - argAgreement) * 0.5
+      // 0 when the estimates agree, approaching 1 as they diverge — the
+      // contested item is the uncertain one, so this drives the band directly.
+      const argDisagreement = maxScore > 0 ? 1 - minScore / maxScore : 0
+      uncertainty = argDisagreement * 0.5
     }
 
     const likelihoodHigh = Math.min(1.0, likelihood + uncertainty)

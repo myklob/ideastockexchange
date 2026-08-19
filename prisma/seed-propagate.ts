@@ -14,7 +14,7 @@ async function main() {
   const result = await propagateAllBeliefScores()
   console.log(
     `Engine pass complete: ${result.updatedArguments} argument edges and ` +
-      `${result.updatedBeliefs} beliefs recomputed from ${result.startedFrom} leaves ` +
+      `${result.updatedBeliefs} beliefs recomputed across ${result.startedFrom} beliefs ` +
       `(max depth ${result.maxDepth}).`,
   )
 }
