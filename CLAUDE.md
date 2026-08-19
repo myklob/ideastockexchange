@@ -42,7 +42,7 @@ renders as a sub-table inside Cost-Benefit Analysis. Every per-row table carries
 nullable relationship `score`, sorts by it descending (nulls last), and shows its top
 rows with the rest collapsed — see Rule 8 and `src/features/belief-analysis/lib/ranking.ts`.
 
-The legacy `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, and `ImpactSection` components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
+The legacy `MediaSection` and `ImpactSection` components remain on disk because `/beliefs/set-aside-distractions-for-real-solutions` still imports them. Don't delete them without migrating that route.
 
 ## Conventions
 
