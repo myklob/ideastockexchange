@@ -217,7 +217,32 @@ export async function getDebateTopic(slug: string): Promise<DebateTopic | null> 
     include: FULL_INCLUDE,
   });
   if (!row) return null;
-  return mapTopicFromDb(row);
+  const topic = mapTopicFromDb(row);
+  topic.relatedTopics = await resolveRelatedSlugs(topic.relatedTopics);
+  return topic;
+}
+
+/**
+ * Related topics are authored ahead of the pages they point at, so a slug here
+ * often names a topic nobody has written yet. Dropping the slug on those keeps
+ * the page from linking to a 404 (belief page rule 5); the title still renders.
+ */
+async function resolveRelatedSlugs(
+  relatedTopics: DebateRelatedTopic[]
+): Promise<DebateRelatedTopic[]> {
+  const slugs = [...new Set(relatedTopics.map(t => t.relatedSlug).filter((s): s is string => !!s))];
+  if (slugs.length === 0) return relatedTopics;
+
+  const existing = await db.debateTopic.findMany({
+    where: { slug: { in: slugs } },
+    select: { slug: true },
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const live = new Set(existing.map((r: any) => r.slug as string));
+
+  return relatedTopics.map(t =>
+    t.relatedSlug && !live.has(t.relatedSlug) ? { ...t, relatedSlug: undefined } : t
+  );
 }
 
 export async function listDebateTopics(): Promise<
