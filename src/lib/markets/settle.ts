@@ -133,10 +133,13 @@ async function resolveOutcome(
 }
 
 async function payOut(tx: Tx, contract: MarketContract, outcome: 'YES' | 'NO') {
-  // Cancel resting orders first, refunding buy-side escrow.
+  // Cancel resting orders first, refunding buy-side escrow. Use an atomic
+  // increment rather than reading a balance snapshot and writing back an
+  // absolute value: a user with two open BUY orders would otherwise have both
+  // refunds computed from the same pre-loop balance, and the second write would
+  // clobber the first — silently destroying escrow.
   const openOrders = await tx.marketOrder.findMany({
     where: { contractId: contract.id, status: { in: ['OPEN', 'PARTIAL'] } },
-    include: { user: true },
   })
   for (const order of openOrders) {
     const unfilled = order.quantity - order.filledQuantity
@@ -144,7 +147,7 @@ async function payOut(tx: Tx, contract: MarketContract, outcome: 'YES' | 'NO') {
       const refund = order.limitPrice * (1 + contract.feeRate / 10_000) * unfilled
       await tx.user.update({
         where: { id: order.userId },
-        data: { currentBalance: order.user.currentBalance + refund },
+        data: { currentBalance: { increment: refund } },
       })
     }
     await tx.marketOrder.update({ where: { id: order.id }, data: { status: 'CANCELLED' } })
@@ -168,15 +171,15 @@ async function payOut(tx: Tx, contract: MarketContract, outcome: 'YES' | 'NO') {
       await tx.user.update({
         where: { id: position.userId },
         data: {
-          currentBalance: position.user.currentBalance + payout,
-          realizedPnl: position.user.realizedPnl + pnl,
+          currentBalance: { increment: payout },
+          realizedPnl: { increment: pnl },
         },
       })
       payoutsTotal += payout
     } else {
       await tx.user.update({
         where: { id: position.userId },
-        data: { realizedPnl: position.user.realizedPnl + pnl },
+        data: { realizedPnl: { increment: pnl } },
       })
     }
     await tx.marketPosition.update({

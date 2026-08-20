@@ -517,6 +517,33 @@ describe('settlement at the epoch boundary', () => {
     expect(settledContract.finalOutcome).toBe('YES')
     expect(await balanceOf('jack')).toBeCloseTo(before + 10, 6)
   })
+
+  it('refunds every open order at settlement, including two from the same user', async () => {
+    // Regression: payOut read one balance snapshot and wrote absolute values,
+    // so a user holding two open BUY orders had the second refund clobber the
+    // first. Both escrows must be returned in full.
+    const EPOCH_C = epochLib.nextEpoch(EPOCH_B)
+    const contract = await service.createContract({
+      beliefSlug: 'carbon-pricing-reduces-emissions',
+      thresholdValue: 0.5, direction: 'ABOVE', resolutionEpoch: EPOCH_C,
+    })
+    await prisma.marketContract.update({
+      where: { id: contract.id }, data: { pricingMode: 'ORDER_BOOK' },
+    })
+
+    await service.resolveUser(prisma, 'zoe')
+    const before = await balanceOf('zoe')
+    // Two non-crossing BUY orders that rest open (no sell-side liquidity).
+    await service.placeOrder({ contractId: contract.id, username: 'zoe', side: 'BUY', outcome: 'YES', limitPrice: 0.4, quantity: 10 })
+    await service.placeOrder({ contractId: contract.id, username: 'zoe', side: 'BUY', outcome: 'YES', limitPrice: 0.3, quantity: 10 })
+    expect(await balanceOf('zoe')).toBeLessThan(before) // escrow debited
+
+    const now = new Date(epochLib.epochBoundary(EPOCH_C).getTime() + 60_000)
+    await settle.runEpoch(EPOCH_C, now)
+
+    // Full restoration proves both refunds landed; the old path returned only one.
+    expect(await balanceOf('zoe')).toBeCloseTo(before, 6)
+  })
 })
 
 describe('the firewall and the freeze', () => {

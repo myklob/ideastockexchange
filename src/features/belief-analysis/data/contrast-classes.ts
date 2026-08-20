@@ -53,18 +53,23 @@ const CONTRAST_CLASSES: Record<string, ContrastClassTemplate> = {
   },
 }
 
-/** Net score (−100..+100) of a belief computed from its own argument + evidence tree. */
+/**
+ * Net score (−100..+100) of a belief computed from its own argument + evidence
+ * tree, or null when the belief has nothing scored under it. An existing-but-
+ * unargued rival must stay blank (Rule 6), never collapse to a fabricated 0 —
+ * a 0 would let the option nobody has argued tie or win the contrast class.
+ */
 function netScore(
   args: Array<{ side: string; impactScore: number }>,
   evidence: Array<{ side: string; impactScore: number }>,
-): number {
+): number | null {
   const sum = (items: Array<{ side: string; impactScore: number }>, side: string) =>
     items.filter(i => i.side === side).reduce((s, i) => s + Math.abs(i.impactScore), 0)
 
   const pos = sum(args, 'agree') + sum(evidence, 'supporting')
   const neg = sum(args, 'disagree') + sum(evidence, 'weakening')
   const total = pos + neg
-  return total > 0 ? ((pos - neg) / total) * 100 : 0
+  return total > 0 ? ((pos - neg) / total) * 100 : null
 }
 
 /**
@@ -93,7 +98,7 @@ export async function resolveContrastClass(
     },
   })
 
-  const scoreBySlug = new Map<string, number>()
+  const scoreBySlug = new Map<string, number | null>()
   for (const b of beliefs) {
     scoreBySlug.set(b.slug, netScore(b.arguments, b.evidence))
   }
@@ -104,7 +109,7 @@ export async function resolveContrastClass(
     oneLine: o.oneLine ?? null,
     slug: o.slug ?? null,
     isFocal: o.isFocal ?? false,
-    score: o.slug && scoreBySlug.has(o.slug) ? scoreBySlug.get(o.slug)! : null,
+    score: o.slug ? scoreBySlug.get(o.slug) ?? null : null,
   }))
 
   return { question: template.question, options }

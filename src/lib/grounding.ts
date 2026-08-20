@@ -19,9 +19,25 @@ export async function groundingForBelief(
   memo: Map<number, number> = new Map(),
   walking: Set<number> = new Set(),
 ): Promise<number> {
+  return (await groundingWithTaint(beliefId, memo, walking)).score
+}
+
+/**
+ * A belief whose subtree hit the ring cut gets a 0 that is an artifact of the
+ * entry point, so it must not be memoized and reused from another path — that
+ * would make the persisted groundingScore (and the /beliefs ranking that sorts
+ * on it) depend on which belief a propagation pass happened to walk first.
+ * Track taint up the recursion and only cache scores no cut touched, mirroring
+ * the pure walker in core/scoring/grounding.ts and computeConclusionScores.
+ */
+async function groundingWithTaint(
+  beliefId: number,
+  memo: Map<number, number>,
+  walking: Set<number>,
+): Promise<{ score: number; tainted: boolean }> {
   const cached = memo.get(beliefId)
-  if (cached !== undefined) return cached
-  if (walking.has(beliefId)) return 0 // ring of claims: no foundation
+  if (cached !== undefined) return { score: cached, tainted: false }
+  if (walking.has(beliefId)) return { score: 0, tainted: true } // ring: no foundation
 
   walking.add(beliefId)
 
@@ -36,12 +52,12 @@ export async function groundingForBelief(
     }),
   ])
 
+  let tainted = false
   const edges = []
   for (const edge of argumentEdges) {
-    edges.push({
-      linkageScore: edge.linkageScore,
-      childGrounding: await groundingForBelief(edge.beliefId, memo, walking),
-    })
+    const child = await groundingWithTaint(edge.beliefId, memo, walking)
+    tainted = tainted || child.tainted
+    edges.push({ linkageScore: edge.linkageScore, childGrounding: child.score })
   }
 
   walking.delete(beliefId)
@@ -50,8 +66,8 @@ export async function groundingForBelief(
     evidence.map((e) => ({ tier: e.evidenceType, linkageScore: e.linkageScore })),
     edges,
   )
-  memo.set(beliefId, score)
-  return score
+  if (!tainted) memo.set(beliefId, score)
+  return { score, tainted }
 }
 
 /**

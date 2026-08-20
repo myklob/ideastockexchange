@@ -106,9 +106,9 @@ const SYNONYM_GROUPS: string[][] = [
   ['end', 'stop', 'terminate'],      // canonical: 'end'
   ['fix', 'repair', 'resolve'],      // canonical: 'fix'
   ['beneficial', 'good'],            // canonical: 'beneficial'
-  ['bad', 'detrimental', 'harmful'], // canonical: 'bad'
+  ['bad', 'detrimental', 'evil', 'harmful'], // canonical: 'bad'
   ['clever', 'intelligent', 'smart'],// canonical: 'clever'
-  ['foolish', 'stupid', 'unintelligent'], // canonical: 'foolish'
+  ['dumb', 'foolish', 'stupid', 'unintelligent'], // canonical: 'dumb'
   ['fast', 'quick', 'rapid'],        // canonical: 'fast'
   ['slow', 'sluggish'],              // canonical: 'slow'
   ['rich', 'wealthy'],               // canonical: 'rich'
@@ -146,35 +146,44 @@ const NEGATION_WORDS = new Set([
   'not', 'no', 'never', 'neither', 'nor', 'without',
 ])
 
-/** Antonym pairs for negated-antonym detection. */
-const ANTONYM_PAIRS: [string, string][] = [
-  ['intelligent', 'unintelligent'],
-  ['intelligent', 'stupid'],
-  ['smart', 'dumb'],
-  ['good', 'bad'],
-  ['good', 'evil'],
-  ['true', 'false'],
-  ['correct', 'incorrect'],
-  ['honest', 'dishonest'],
-  ['legal', 'illegal'],
-  ['moral', 'immoral'],
-  ['possible', 'impossible'],
-  ['responsible', 'irresponsible'],
-  ['relevant', 'irrelevant'],
-  ['effective', 'ineffective'],
-  ['efficient', 'inefficient'],
-  ['logical', 'illogical'],
-  ['rational', 'irrational'],
-  ['agree', 'disagree'],
-  ['like', 'dislike'],
-  ['trust', 'distrust'],
-  ['approve', 'disapprove'],
+/**
+ * Antonym pole-pairs for negated-antonym detection. Each entry is a
+ * [positivePole, negativePole] pair of synonym lists.
+ *
+ * Built as GROUPS, not word→word pairs, for the same reason SYNONYM_GROUPS is:
+ * a word with more than one listed opposite (e.g. "good" opposed by both "bad"
+ * and "evil") silently overwrote itself under the old pair-by-pair `.set()`,
+ * so which antonym survived depended on listing order — and "not good"
+ * collapsed to "evil" while a plain "bad" collapsed to "bad", making two
+ * identical claims look distinct. Mapping every member of a pole to the
+ * OPPOSITE pole's canonical token removes the order dependence.
+ */
+const ANTONYM_POLE_PAIRS: [string[], string[]][] = [
+  [['intelligent', 'smart', 'clever'], ['unintelligent', 'stupid', 'dumb', 'foolish']],
+  [['good', 'beneficial'], ['bad', 'evil', 'harmful', 'detrimental']],
+  [['true', 'accurate', 'correct'], ['false', 'inaccurate', 'incorrect']],
+  [['honest'], ['dishonest']],
+  [['legal'], ['illegal']],
+  [['moral'], ['immoral']],
+  [['possible'], ['impossible']],
+  [['responsible'], ['irresponsible']],
+  [['relevant'], ['irrelevant']],
+  [['effective'], ['ineffective']],
+  [['efficient'], ['inefficient']],
+  [['logical'], ['illogical']],
+  [['rational'], ['irrational']],
+  [['agree'], ['disagree']],
+  [['like'], ['dislike']],
+  [['trust'], ['distrust']],
+  [['approve'], ['disapprove']],
 ]
 
 const ANTONYM_MAP: Map<string, string> = new Map()
-for (const [word, opposite] of ANTONYM_PAIRS) {
-  ANTONYM_MAP.set(word, opposite)
-  ANTONYM_MAP.set(opposite, word)
+for (const [poleA, poleB] of ANTONYM_POLE_PAIRS) {
+  const canonA = CANONICAL_MAP.get(poleA[0]) ?? poleA[0]
+  const canonB = CANONICAL_MAP.get(poleB[0]) ?? poleB[0]
+  for (const word of poleA) ANTONYM_MAP.set(word, canonB)
+  for (const word of poleB) ANTONYM_MAP.set(word, canonA)
 }
 
 // ─── Layer 1: Mechanical Equivalence ─────────────────────────────────────

@@ -24,6 +24,7 @@ const DB_PATH = path.resolve(__dirname, 'tmp-propagation.test.db')
 let prisma: any
 let propagateBeliefScores: any
 let propagateFromLinkageChange: any
+let propagateAllBeliefScores: any
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 // Seeded ids, filled during setup.
@@ -53,7 +54,7 @@ beforeAll(async () => {
 
   // Dynamic imports AFTER DATABASE_URL is set so the singleton binds correctly.
   ;({ prisma } = await import('@/lib/prisma'))
-  ;({ propagateBeliefScores, propagateFromLinkageChange } = await import(
+  ;({ propagateBeliefScores, propagateFromLinkageChange, propagateAllBeliefScores } = await import(
     '@/lib/propagate-belief-scores'
   ))
 
@@ -270,6 +271,69 @@ describe('Uniqueness edge: restatements are discounted at scoring time', () => {
     })
     expect(novel.uniquenessScore).toBeGreaterThan(0.7)
   }, 20_000)
+})
+
+describe('Bare child edge (Finding #5): impact from the prior, but no fabricated score', () => {
+  it('leaves argumentScore blank for a child with no arguments or evidence', async () => {
+    const parent = await prisma.belief.create({ data: { slug: 'bare-parent', statement: 'Parent of a bare reason' } })
+    const bareChild = await prisma.belief.create({ data: { slug: 'bare-child', statement: 'An unargued, unevidenced leaf' } })
+    const edge = await prisma.argument.create({
+      data: {
+        parentBeliefId: parent.id, beliefId: bareChild.id, side: 'agree',
+        linkageScore: 0.8, importanceScore: 1.0, impactScore: 0,
+      },
+    })
+
+    await propagateBeliefScores(bareChild.id)
+
+    const refreshed = await prisma.argument.findUnique({ where: { id: edge.id } })
+    // The leaf still contributes as a reason at the 0.5 prior...
+    expect(refreshed.impactScore).not.toBe(0)
+    // ...but its own "Score" column stays blank rather than showing a fabricated
+    // 50 for a point nobody has argued (Rule 6 / the schema comment).
+    expect(refreshed.argumentScore).toBeNull()
+  }, 20_000)
+})
+
+describe('Full recompute reaches a fixpoint (Finding #1)', () => {
+  it('refreshes an ancestor whose grandchildren are finalized elsewhere in the sweep', async () => {
+    // G ←agree– P, G ←disagree– X(bare); P ←agree– L1, P ←agree– L2 (both bare).
+    // L1, L2 sit at the 0.5 prior → each L→P edge impact 50 → P truth 1.0 →
+    // P→G impact 100. X at the prior → X→G impact −50. So G nets
+    // (100 − 50)/(100 + 50) × 100 = 33.3 — the exact value Finding #1 reported
+    // as wrongly landing on 0 when one shared visited-set cut the sweep short.
+    const g = await prisma.belief.create({ data: { slug: 'fp-g', statement: 'Grandparent conclusion' } })
+    const p = await prisma.belief.create({ data: { slug: 'fp-p', statement: 'Parent reason' } })
+    const x = await prisma.belief.create({ data: { slug: 'fp-x', statement: 'Bare opposing leaf' } })
+    const l1 = await prisma.belief.create({ data: { slug: 'fp-l1', statement: 'Leaf one' } })
+    const l2 = await prisma.belief.create({ data: { slug: 'fp-l2', statement: 'Leaf two' } })
+
+    const pToG = await prisma.argument.create({
+      data: { parentBeliefId: g.id, beliefId: p.id, side: 'agree', linkageScore: 1.0, importanceScore: 1.0, impactScore: 0 },
+    })
+    await prisma.argument.create({
+      data: { parentBeliefId: g.id, beliefId: x.id, side: 'disagree', linkageScore: 1.0, importanceScore: 1.0, impactScore: 0 },
+    })
+    await prisma.argument.create({
+      data: { parentBeliefId: p.id, beliefId: l1.id, side: 'agree', linkageScore: 1.0, importanceScore: 1.0, impactScore: 0 },
+    })
+    await prisma.argument.create({
+      data: { parentBeliefId: p.id, beliefId: l2.id, side: 'agree', linkageScore: 1.0, importanceScore: 1.0, impactScore: 0 },
+    })
+
+    await propagateAllBeliefScores()
+
+    const refreshedPtoG = await prisma.argument.findUnique({ where: { id: pToG.id } })
+    expect(refreshedPtoG.impactScore).toBeCloseTo(100, 5)
+
+    const gAfter = await prisma.belief.findUnique({ where: { id: g.id } })
+    expect(gAfter.positivity).toBeCloseTo(100 / 3, 4)
+
+    // A second sweep changes nothing — the first pass was already a fixpoint.
+    await propagateAllBeliefScores()
+    const gAgain = await prisma.belief.findUnique({ where: { id: g.id } })
+    expect(gAgain.positivity).toBeCloseTo(gAfter.positivity, 10)
+  }, 30_000)
 })
 
 describe('Cycle safety', () => {

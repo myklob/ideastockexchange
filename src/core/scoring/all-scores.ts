@@ -763,6 +763,10 @@ export function computeAllBeliefScores(belief: {
     impactScore: number
     importanceScore: number
     linkageScore: number
+    /** The argument's claim text (or its child belief's statement), used to
+     *  score topic overlap. Optional for backward compatibility; when absent,
+     *  overlap falls back to treating each argument as distinct. */
+    claim?: string | null
   }>
   evidence: Array<{
     side: string
@@ -869,9 +873,13 @@ export function computeAllBeliefScores(belief: {
   const mediaGenreScore = mediaAgg.avgGenreScore
 
   // 10. Topic Overlap Score (uniqueness of arguments)
+  // Compare real claim text when the caller supplies it. When it doesn't, use a
+  // per-argument-unique token — NOT a numeric proxy like impactScore+side, which
+  // made any two unrelated arguments that happened to share an impact score look
+  // like exact duplicates and wrongly discounted their uniqueness.
   const argTexts = args.map((a, i) => ({
     id: String(i),
-    text: String(a.impactScore) + String(a.side),  // use available fields as proxy
+    text: a.claim ? `${a.claim} ${a.side}` : `arg-${i} ${a.side}`,
   }))
   // Only compute if we have sibling arguments to compare
   const topicOverlapScore = argTexts.length > 1

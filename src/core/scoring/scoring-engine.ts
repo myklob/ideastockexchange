@@ -656,9 +656,12 @@ export function calculateReasonRankScore(estimate: LikelihoodEstimate): number {
   const totalArgs = estimate.proArguments.length + estimate.conArguments.length
   if (totalArgs === 0) return 0.5 // No arguments = maximum uncertainty
 
-  // PageRank probability: pro / (pro + con)
+  // PageRank probability: pro / (pro + con). Linkage is signed, so rawImpact
+  // and hence either rank can be negative; a non-positive total has no
+  // meaningful ratio and means maximum uncertainty — matching
+  // scoreProtocolBelief, which guards the same expression with `> 0`.
   const totalRank = proRank + conRank
-  if (totalRank === 0) return 0.5
+  if (totalRank <= 0) return 0.5
 
   return Math.max(0.01, Math.min(0.99, proRank / totalRank))
 }

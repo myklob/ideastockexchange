@@ -86,6 +86,15 @@ describe('normalizeClaim', () => {
     expect(tokens).not.toContain('not')
   })
 
+  it('collapses "not <word>" to the same token regardless of which antonym synonym is used', () => {
+    // Regression: a word with more than one listed antonym ("good" vs both
+    // "bad" and "evil") must not depend on listing order. "not good" and a
+    // plain "bad" must land on the same canonical.
+    expect(normalizeClaim('not good policy')).toEqual(normalizeClaim('bad policy'))
+    expect(normalizeClaim('not good policy')).toEqual(normalizeClaim('evil policy'))
+    expect(normalizeClaim('not smart plan')).toEqual(normalizeClaim('dumb plan'))
+  })
+
   it('returns a sorted array (word order does not matter)', () => {
     const tokensA = normalizeClaim('lower taxes')
     const tokensB = normalizeClaim('taxes lower')

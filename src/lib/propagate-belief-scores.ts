@@ -123,7 +123,10 @@ interface ArgumentEdge {
 
 /**
  * Resolve a belief's truth score (0–1), memoized per propagation pass so a
- * belief feeding many arguments is only scored once.
+ * belief feeding many arguments is only scored once. A bare belief (no
+ * arguments, no evidence) resolves to computeBeliefScores' uninformative prior
+ * (0.5): a leaf reason still contributes to its parent at the prior until it is
+ * argued, which is what the seed graph and the argument tree render against.
  */
 async function truthScoreFor(beliefId: number, cache: Map<number, number>): Promise<number> {
   const cached = cache.get(beliefId)
@@ -133,6 +136,27 @@ async function truthScoreFor(beliefId: number, cache: Map<number, number>): Prom
   const score = belief ? computeBeliefScores(belief).importanceWeightedScore : 0
   cache.set(beliefId, score)
   return score
+}
+
+/**
+ * Whether a belief has any scored content of its own — arguments or evidence.
+ * Determines whether the argument edge that USES this belief may carry an
+ * `argumentScore` (the child's own tree score, shown in the "Score" column) or
+ * must leave it blank: persisting a number for a belief nobody has argued or
+ * evidenced would fabricate a verdict, exactly what the schema comment and
+ * Rule 6 forbid. Memoized per pass.
+ */
+async function childHasScoredContent(
+  beliefId: number,
+  cache: Map<number, boolean>,
+): Promise<boolean> {
+  const cached = cache.get(beliefId)
+  if (cached !== undefined) return cached
+
+  const belief = await fetchBeliefById(beliefId)
+  const hasContent = belief ? belief.arguments.length > 0 || belief.evidence.length > 0 : false
+  cache.set(beliefId, hasContent)
+  return hasContent
 }
 
 /**
@@ -224,11 +248,30 @@ export async function propagateBeliefScores(
   trigger: string = 'propagation',
   groundingMemo: Map<number, number> = new Map(),
 ): Promise<PropagationResult> {
+  // `visited` is a DFS PATH guard, not an "already recomputed" memo: a belief
+  // is marked only while it sits on the current recursion stack, and unmarked
+  // on the way back out (the finally below). That catches real cycles (a belief
+  // re-entered while still on the stack) without permanently blocking a belief
+  // that two different paths both legitimately pass through — the bug that let
+  // one propagation pass stop short of a fixpoint, leaving ancestors stale.
   if (visited.has(beliefId)) {
     return { updatedArgumentIds: [], updatedBeliefIds: [], depth }
   }
   visited.add(beliefId)
+  try {
+    return await propagateBeliefScoresInner(beliefId, visited, depth, trigger, groundingMemo)
+  } finally {
+    visited.delete(beliefId)
+  }
+}
 
+async function propagateBeliefScoresInner(
+  beliefId: number,
+  visited: Set<number>,
+  depth: number,
+  trigger: string,
+  groundingMemo: Map<number, number>,
+): Promise<PropagationResult> {
   const result: PropagationResult = {
     updatedArgumentIds: [],
     updatedBeliefIds: [],
@@ -302,6 +345,7 @@ export async function propagateBeliefScores(
   // truth child, and vice versa. truthScoreFor memoizes per-belief lookups;
   // siblingUniquenessFor memoizes the per-parent redundancy scan.
   const truthScoreCache = new Map<number, number>([[beliefId, childTruthScore]])
+  const contentCache = new Map<number, boolean>([[beliefId, hasScoredContent]])
   const uniquenessCache = new Map<number, Map<number, number>>()
   const parentBeliefIds = new Set<number>()
 
@@ -310,6 +354,7 @@ export async function propagateBeliefScores(
     const importance = await resolveEffectiveImportance(arg)
     const siblingUniqueness = await siblingUniquenessFor(arg.parentBeliefId, uniquenessCache)
     const uniqueness = siblingUniqueness.get(arg.id) ?? 1
+    const hasContent = await childHasScoredContent(arg.beliefId, contentCache)
 
     const newImpactScore = computeArgumentImpactScore(
       arg.side,
@@ -324,13 +369,15 @@ export async function propagateBeliefScores(
       // Persist the derived importance and uniqueness too, so rendered tables,
       // the score-provenance page, and later truth-edge recomputes all read
       // values consistent with the live debate. argumentScore is the child
-      // belief's own tree score (0–100) — the recursive "Score" column made
-      // real (Rule 6: computed, never hand-assigned).
+      // belief's own tree score (0–100) — but only once the child actually has
+      // arguments or evidence of its own; a bare child leaves it blank rather
+      // than stamping the 0.5 prior as a fabricated 50 (Rule 6, and the schema
+      // comment on this column).
       data: {
         impactScore: newImpactScore,
         importanceScore: importance,
         uniquenessScore: uniqueness,
-        argumentScore: Math.round(truth * 1000) / 10,
+        argumentScore: hasContent ? Math.round(truth * 1000) / 10 : null,
       },
     })
 
@@ -411,7 +458,6 @@ export async function propagateAllBeliefScores(): Promise<FullPropagationResult>
     .map((b) => b.id)
     .filter((id) => !usedAsChildSet.has(id))
 
-  const visited = new Set<number>()
   const result: FullPropagationResult = {
     startedFrom: startBeliefIds.length,
     updatedArguments: 0,
@@ -419,20 +465,16 @@ export async function propagateAllBeliefScores(): Promise<FullPropagationResult>
     maxDepth: 0,
   }
 
-  for (const id of startBeliefIds) {
-    if (visited.has(id)) continue
-    const pass = await propagateBeliefScores(id, visited, 0, 'full recompute')
-    result.updatedArguments += pass.updatedArgumentIds.length
-    result.updatedBeliefs += pass.updatedBeliefIds.length
-    result.maxDepth = Math.max(result.maxDepth, pass.depth)
-  }
-
-  // Leaves reach their ancestors through recursion, but a mid-graph belief
-  // whose leaf children carry no arguments of their own can be missed when
-  // every leaf under it was already visited. Sweep any belief not yet visited.
+  // Propagate from EVERY belief, each with its OWN fresh path-guard. Sharing a
+  // single visited-set across starts (the old approach) permanently cut a
+  // start's upward walk at any ancestor an earlier start had already touched,
+  // so an ancestor whose child was finalized later never got refreshed — one
+  // sweep was not a fixpoint. Because each belief's start refreshes the edges
+  // where it is the child and cascades to the top, and every belief is a start,
+  // the last-finalized child under any parent re-pushes the parent's final
+  // value upward — so a single ordered-independent pass converges.
   for (const { id } of allBeliefIds) {
-    if (visited.has(id)) continue
-    const pass = await propagateBeliefScores(id, visited, 0, 'full recompute')
+    const pass = await propagateBeliefScores(id, new Set(), 0, 'full recompute')
     result.updatedArguments += pass.updatedArgumentIds.length
     result.updatedBeliefs += pass.updatedBeliefIds.length
     result.maxDepth = Math.max(result.maxDepth, pass.depth)

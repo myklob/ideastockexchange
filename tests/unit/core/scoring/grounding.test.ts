@@ -136,6 +136,39 @@ describe('scoreGroundingTree', () => {
     b.argumentEdges.push({ linkageScore: 1, child: a })
     expect(scoreGroundingTree(a)).toBeGreaterThan(0)
   })
+
+  it('is walk-order independent when a shared memo crosses a ring', () => {
+    // Ring a↔b with real evidence on b, plus c→b. b's score when reached via
+    // a (which is on the stack, so a's back-edge is cut) must not be memoized
+    // and reused when b is reached fresh via c. A shared memo mimics one
+    // propagation pass; entering from a-first vs c-first must agree.
+    const build = () => {
+      const a: GroundingNode = { id: 'a', evidence: [], argumentEdges: [] }
+      const b: GroundingNode = {
+        id: 'b',
+        evidence: [{ tier: 'T1', linkageScore: 1.0 }],
+        argumentEdges: [],
+      }
+      const c: GroundingNode = { id: 'c', evidence: [], argumentEdges: [] }
+      a.argumentEdges.push({ linkageScore: 0.9, child: b })
+      b.argumentEdges.push({ linkageScore: 0.9, child: a })
+      c.argumentEdges.push({ linkageScore: 0.9, child: b })
+      return { a, b, c }
+    }
+
+    const fromA = build()
+    const memoA = new Map<string, number>()
+    const aFirst = scoreGroundingTree(fromA.a, memoA)
+    const aThenC = scoreGroundingTree(fromA.c, memoA)
+
+    const fromC = build()
+    const memoC = new Map<string, number>()
+    const cFirst = scoreGroundingTree(fromC.c, memoC)
+    const cThenA = scoreGroundingTree(fromC.a, memoC)
+
+    expect(aFirst).toBeCloseTo(cThenA, 10)
+    expect(cFirst).toBeCloseTo(aThenC, 10)
+  })
 })
 
 describe('getGroundingBand', () => {
