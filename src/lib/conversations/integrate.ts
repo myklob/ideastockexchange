@@ -57,6 +57,9 @@ export async function integrateCandidates(
   threadId: string,
   request: IntegrateRequest,
 ): Promise<IntegrateOutcome> {
+  if (typeof request !== 'object' || request === null || Array.isArray(request)) {
+    return { ok: false, status: 422, issues: [issue('', 'Body must be a JSON object with integrate, fold, or dismiss.')] }
+  }
   if (
     (request.integrate !== undefined && !Array.isArray(request.integrate)) ||
     (request.fold !== undefined && !Array.isArray(request.fold)) ||
@@ -100,6 +103,13 @@ export async function integrateCandidates(
   const byId = new Map(candidates.map(c => [c.id, c]))
 
   const issues: ValidationIssue[] = []
+  const seen = new Set<string>()
+  referencedIds.forEach(id => {
+    if (seen.has(id)) {
+      issues.push(issue(id, `Candidate "${id}" is referenced more than once; each candidate takes one action.`))
+    }
+    seen.add(id)
+  })
   referencedIds.forEach(id => {
     const c = byId.get(id)
     if (!c) issues.push(issue(id, `Candidate "${id}" not found in this thread.`))
@@ -133,6 +143,38 @@ export async function integrateCandidates(
   })
   if (issues.length > 0) return { ok: false, status: 422, issues }
 
+  // Claim the candidates before the ingest batch runs. Two review passes
+  // racing on the same candidate would otherwise both read `pending` and
+  // double-integrate it; the atomic claim makes exactly one pass win. A claim
+  // stranded by a crash after ingest stays `integrating` — visible in review
+  // and rejected on retry — rather than inviting duplicate arguments.
+  try {
+    await prisma.$transaction(async tx => {
+      for (const id of referencedIds) {
+        const claimed = await tx.argumentCandidate.updateMany({
+          where: { id, threadId, status: 'pending' },
+          data: { status: 'integrating' },
+        })
+        if (claimed.count === 0) throw new Error(`claim-conflict:${id}`)
+      }
+    })
+  } catch (e) {
+    if (e instanceof Error && e.message.startsWith('claim-conflict:')) {
+      const id = e.message.slice('claim-conflict:'.length)
+      return {
+        ok: false,
+        status: 409,
+        issues: [issue(id, `Candidate "${id}" was claimed by another review pass; reload and retry.`)],
+      }
+    }
+    throw e
+  }
+  const releaseClaims = () =>
+    prisma.argumentCandidate.updateMany({
+      where: { id: { in: referencedIds }, threadId, status: 'integrating' },
+      data: { status: 'pending' },
+    })
+
   // Build the ingest batch. The firewall re-validates everything: standalone
   // claims, five-step completeness, evidence provenance, no score fields.
   let batchId: string | null = null
@@ -159,10 +201,13 @@ export async function integrateCandidates(
             ? s.howItSupports.trim()
             : `Offered in conversation as a ${s.direction ?? c.direction} point on the parent claim: "${quote}"`,
           provisionalEstimate: s.provisionalEstimate ?? 0.5,
-          flaggedBelowThreshold: autoDrafted || (s.provisionalEstimate ?? 0.5) < 0.5,
+          flaggedBelowThreshold:
+            autoDrafted || s.provisionalEstimate === undefined || s.provisionalEstimate < 0.5,
           flagNote: autoDrafted
             ? 'Mechanism auto-drafted from conversation context; review the linkage before trusting it.'
-            : undefined,
+            : s.provisionalEstimate === undefined
+              ? 'Estimate defaulted to 0.5, not authored; review the linkage before trusting it.'
+              : undefined,
         },
         evidence: (c.evidenceUrls?.split('\n').filter(Boolean) ?? []).map(url => ({
           title: `Source shared by ${c.message.authorHandle} in "${thread.title}"`,
@@ -171,12 +216,21 @@ export async function integrateCandidates(
       }
     })
 
-    const outcome = await runIngest(agentId, {
-      batchTitle: `Conversation integration: ${thread.title}`,
-      sourceDocumentUrl: thread.sourceUrl ?? undefined,
-      claims,
-    })
-    if (!outcome.ok) return outcome
+    let outcome: Awaited<ReturnType<typeof runIngest>>
+    try {
+      outcome = await runIngest(agentId, {
+        batchTitle: `Conversation integration: ${thread.title}`,
+        sourceDocumentUrl: thread.sourceUrl ?? undefined,
+        claims,
+      })
+    } catch (e) {
+      await releaseClaims()
+      throw e
+    }
+    if (!outcome.ok) {
+      await releaseClaims()
+      return outcome
+    }
     batchId = outcome.batchId
     ingestClaims = outcome.claims
   }

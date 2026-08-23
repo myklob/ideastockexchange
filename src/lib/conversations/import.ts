@@ -64,20 +64,19 @@ export async function runConversationImport(agentId: string, rawPayload: unknown
   if (!validation.ok) return { ok: false, status: 422, issues: validation.issues }
   const payload = validation.payload
 
-  // Resolve the permanent page this conversation plugs into.
+  // Resolve the permanent page this conversation plugs into. A named slug
+  // with no page yet gets a stub page (same posture as ingestion's parent
+  // resolution) — but the stub is created inside the import transaction, so
+  // a failed import never leaves an orphaned Belief with no audit row.
   let focal: { id: number; slug: string; statement: string } | null = null
-  let createdStub = false
+  let stub: { slug: string; statement: string } | null = null
   if (payload.beliefSlug) {
     const slug = slugify(payload.beliefSlug.trim())
     const existing = await prisma.belief.findUnique({ where: { slug } })
     if (existing) {
       focal = { id: existing.id, slug: existing.slug, statement: existing.statement }
     } else {
-      // Same posture as ingestion's parent resolution: a named slug with no
-      // page yet gets a stub page, so the conversation still has a home.
-      const created = await prisma.belief.create({ data: { slug, statement: payload.beliefSlug.trim() } })
-      focal = { id: created.id, slug: created.slug, statement: created.statement }
-      createdStub = true
+      stub = { slug, statement: payload.beliefSlug.trim() }
     }
   } else {
     const firstPass = extractCandidates(payload.messages, null)
@@ -86,7 +85,7 @@ export async function runConversationImport(agentId: string, rawPayload: unknown
     if (match) focal = match.belief
   }
 
-  const extraction = extractCandidates(payload.messages, focal?.statement ?? null)
+  const extraction = extractCandidates(payload.messages, focal?.statement ?? stub?.statement ?? null)
 
   // Redundancy scan targets: the focal page's existing arguments, labeled by
   // their claim label or their belief's statement.
@@ -100,6 +99,10 @@ export async function runConversationImport(agentId: string, rawPayload: unknown
   }
 
   const result = await prisma.$transaction(async tx => {
+    if (stub) {
+      const created = await tx.belief.create({ data: stub })
+      focal = { id: created.id, slug: created.slug, statement: created.statement }
+    }
     const thread = await tx.conversationThread.create({
       data: {
         platform: payload.platform,
@@ -109,7 +112,7 @@ export async function runConversationImport(agentId: string, rawPayload: unknown
         submittedByAgentId: agentId,
       },
     })
-    if (createdStub && focal) {
+    if (stub && focal) {
       await audit(tx, {
         agentId,
         action: 'create_belief',

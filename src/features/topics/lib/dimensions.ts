@@ -75,7 +75,7 @@ export function sortTopicBeliefs(
   dir?: SortDir,
 ): TopicBeliefRow[] {
   const naturalDesc = key === 'score' || key === 'grounding'
-  const flip = dir === undefined ? false : (dir === 'desc') !== naturalDesc
+  const desc = dir === undefined ? naturalDesc : dir === 'desc'
 
   const value = (row: TopicBeliefRow): number => {
     switch (key) {
@@ -92,10 +92,10 @@ export function sortTopicBeliefs(
     }
   }
 
-  const sorted = [...rows].sort((a, b) => {
-    const diff = naturalDesc ? value(b) - value(a) : value(a) - value(b)
+  // Flip applies to the axis only; the statement tie-break stays A→Z.
+  return [...rows].sort((a, b) => {
+    const diff = desc ? value(b) - value(a) : value(a) - value(b)
     if (diff !== 0) return diff
     return a.statement.localeCompare(b.statement)
   })
-  return flip ? sorted.reverse() : sorted
 }

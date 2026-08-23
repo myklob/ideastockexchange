@@ -101,6 +101,13 @@ export function validateConversationImport(raw: unknown): ImportValidation {
           message: 'Each message needs a body.',
         })
       }
+      if (mm?.postedAt !== undefined && (typeof mm.postedAt !== 'string' || Number.isNaN(Date.parse(mm.postedAt)))) {
+        issues.push({
+          mode: FAILURE_MODES.MALFORMED_BATCH,
+          path: `messages[${i}].postedAt`,
+          message: 'postedAt must be a parseable ISO timestamp when present.',
+        })
+      }
     })
   }
 
@@ -108,4 +115,6 @@ export function validateConversationImport(raw: unknown): ImportValidation {
   return { ok: true, payload: p as ConversationImportInput }
 }
 
-export type CandidateStatus = 'pending' | 'integrated' | 'duplicate' | 'dismissed'
+/** 'integrating' is the claim a review pass holds while its ingest batch runs;
+ *  it blocks a concurrent pass from double-integrating the same candidate. */
+export type CandidateStatus = 'pending' | 'integrating' | 'integrated' | 'duplicate' | 'dismissed'
