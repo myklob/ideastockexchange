@@ -11,7 +11,12 @@ import type { Prisma } from '@/generated/prisma/client'
 import { validateConversationImport } from './contract'
 import type { ValidationIssue } from '@/lib/agent-ingest/contract'
 import { extractCandidates, type ExtractionResult } from './extract'
-import { pickFocalBelief, scanNearestArgument, type SiblingArgumentRow } from './match'
+import {
+  pickFocalBelief,
+  scanNearestArgument,
+  correctStanceByRestatement,
+  type SiblingArgumentRow,
+} from './match'
 import { slugify } from '@/lib/agent-ingest/slug'
 
 type Tx = Prisma.TransactionClient
@@ -147,13 +152,17 @@ export async function runConversationImport(agentId: string, rawPayload: unknown
 
     const candidates: ImportedCandidate[] = []
     for (const c of extraction.candidates) {
-      const nearest = scanNearestArgument(c.statement, c.direction, siblings)
+      // Restating an opposite-side argument corrects the stance read: the
+      // candidate lands on the side of the argument it restates.
+      const correction = correctStanceByRestatement(c.statement, c.direction, siblings)
+      const direction = correction?.direction ?? c.direction
+      const nearest = correction?.nearest ?? scanNearestArgument(c.statement, direction, siblings)
       const row = await tx.argumentCandidate.create({
         data: {
           threadId: thread.id,
           messageId: messages[c.messageIndex].id,
           statement: c.statement,
-          direction: c.direction,
+          direction,
           contextQuote: c.contextQuote,
           evidenceUrls: c.evidenceUrls.length > 0 ? c.evidenceUrls.join('\n') : null,
           beliefId: focal?.id ?? null,
@@ -166,7 +175,7 @@ export async function runConversationImport(agentId: string, rawPayload: unknown
         id: row.id,
         messageIndex: c.messageIndex,
         statement: c.statement,
-        direction: c.direction,
+        direction,
         band: row.band,
         similarity: row.similarity,
         nearestArgumentId: row.nearestArgumentId,
@@ -178,7 +187,8 @@ export async function runConversationImport(agentId: string, rawPayload: unknown
         targetType: 'ArgumentCandidate',
         targetId: row.id,
         rationale:
-          `Mined ${c.direction} candidate from message #${c.messageIndex}` +
+          `Mined ${direction} candidate from message #${c.messageIndex}` +
+          (correction ? ` (stance corrected: restates opposite-side argument #${correction.nearest.argumentId}).` : '') +
           (nearest ? ` (nearest existing argument #${nearest.argumentId}, band ${nearest.band}).` : ' (no similar existing argument).'),
       })
     }

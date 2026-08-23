@@ -73,6 +73,7 @@ export async function GET(request: Request) {
           messages: `[{ author, body, postedAt? }] — up to ${MAX_MESSAGES_PER_IMPORT}`,
         },
         rules: [
+          'GET /api/v1/conversations/lookup?statement=... resolves a statement made mid-conversation to its permanent page and outline — check there before importing, so the conversation plugs in where the last one left off.',
           'The transcript is stored verbatim and mined for candidate pro/con claims.',
           'Candidates are matched against the belief page’s existing arguments: same-claim candidates fold, distinct ones extend the outline.',
           'Nothing is written to the belief graph at import. Integration is a separate, audited move through the ingestion firewall.',
