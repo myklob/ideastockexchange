@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import type {
   InterestValidityDebate,
   ValidityReasonItem,
@@ -328,9 +327,7 @@ export default function InterestValiditySection({ debates }: InterestValiditySec
       <p className="text-xs text-[var(--muted-foreground)] italic mb-3">
         When an interest&apos;s validity is itself the fight, it gets its own pro/con tree at three
         scopes — valid at all, more or less valid than other interests in general, and valid within a
-        specific conflict. Validity is set by the scored reasons, nothing else. See the{' '}
-        <Link href="/Interests" className="text-[var(--accent)] hover:underline">Interest</Link>{' '}
-        two-score model.
+        specific conflict. Validity is set by the scored reasons, nothing else. See the Interest two-score model.
       </p>
       <div className="space-y-8">
         {data.map((debate, i) => (
