@@ -143,7 +143,7 @@ export default async function HowItWorksPage() {
             <tr>
               <td className={TD}>Chat rooms</td>
               <td className={TD}>Amnesia. The discussion resets to zero every time someone new walks in.</td>
-              <td className={TD}>The same arguments, repeated forever.</td>
+              <td className={TD}>The same arguments, repeated forever. See the fix in the <Link href="/demo" className="text-blue-700 hover:underline">live demo</Link>.</td>
             </tr>
             <tr>
               <td className={TD}>News media</td>

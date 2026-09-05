@@ -718,6 +718,7 @@ export default function Home() {
                 <li><Link href="/contribute" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Contribute</Link></li>
                 <li><Link href="/search" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Search</Link></li>
                 <li><Link href="/how-it-works" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">How It Works</Link></li>
+                <li><Link href="/demo" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Live Demo: Chat to Belief Page</Link></li>
                 <li><Link href="/protocol" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Schlicht Protocol</Link></li>
                 <li><Link href="/product-reviews" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Product Reviews</Link></li>
                 <li><Link href="/cba" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Cost-Benefit Analysis</Link></li>

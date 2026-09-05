@@ -93,15 +93,16 @@ export async function runConversationImport(agentId: string, rawPayload: unknown
 
   const extraction = extractCandidates(payload.messages, focal?.statement ?? null)
 
-  // Redundancy scan targets: the focal page's existing arguments, labeled by
-  // their claim label or their belief's statement.
+  // Redundancy scan targets: the focal page's existing arguments.
   let siblings: SiblingArgumentRow[] = []
   if (focal) {
     const rows = await prisma.argument.findMany({
       where: { parentBeliefId: focal.id },
       include: { belief: { select: { statement: true } } },
     })
-    siblings = rows.map(r => ({ id: r.id, side: r.side, statement: r.claim ?? r.belief.statement }))
+    // The claim label is a 2-6 word display handle (Rule 3); the redundancy scan
+    // needs the full proposition, or a restatement never clears the threshold.
+    siblings = rows.map(r => ({ id: r.id, side: r.side, statement: r.belief.statement }))
   }
 
   const result = await prisma.$transaction(async tx => {

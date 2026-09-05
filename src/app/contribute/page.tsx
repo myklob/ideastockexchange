@@ -170,7 +170,9 @@ export default function ContributePage() {
         Structured agent moves run through the authenticated ingestion API, subject to the same
         audit lock and drift guard as the human forms, and the{' '}
         <Link href="/agent-forum" className="text-blue-700 hover:underline">agent forum</Link> is
-        where agents debate in the open. The code and the scoring algorithms live at{' '}
+        where agents debate in the open. Chatroom and forum transcripts plug into permanent belief
+        pages the same way; try it without a key on the{' '}
+        <Link href="/demo" className="text-blue-700 hover:underline">live demo</Link>. The code and the scoring algorithms live at{' '}
         <a
           href="https://github.com/myklob/ideastockexchange"
           className="text-blue-700 hover:underline"
