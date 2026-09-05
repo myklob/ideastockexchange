@@ -35,9 +35,15 @@ postgresql://USER:PASSWORD@HOST/DB?sslmode=require
 export DATABASE_URL="postgresql://...:sslmode=require"
 node scripts/set-prisma-provider.mjs   # flips schema provider to postgresql
 npx prisma generate                    # regenerate the client for Postgres
-npx prisma db push                     # create ~64 tables
-npm run db:seed                        # beliefs, marriage debate topic, product reviews
+npm run db:bootstrap                   # = prisma db push + npm run db:seed
 ```
+
+`db:bootstrap` creates every table and loads the public content in one go: the
+worked-example belief pages (`/beliefs/accept-certified-election-results`,
+`/beliefs/comply-with-final-court-rulings`, every template section filled), the
+`/topics/protecting-the-constitution` hub, the demo conversation on `/conversations`,
+and the engine pass that computes the scores. The chain is idempotent, so re-running
+it against an existing database is safe.
 
 Afterwards, unset `DATABASE_URL` (or point it back at SQLite) and rerun
 `node scripts/set-prisma-provider.mjs && npx prisma generate` before committing, so
@@ -58,9 +64,17 @@ the schema in git stays on `sqlite`.
 curl -s -o /dev/null -w "%{http_code}\n" https://<project>.vercel.app/
 curl -s -o /dev/null -w "%{http_code}\n" https://<project>.vercel.app/beliefs
 curl -s -o /dev/null -w "%{http_code}\n" https://<project>.vercel.app/debate-topics
+curl -s -o /dev/null -w "%{http_code}\n" https://<project>.vercel.app/beliefs/accept-certified-election-results
+curl -s -o /dev/null -w "%{http_code}\n" https://<project>.vercel.app/demo
 ```
 
-All three should return `200` with seeded content.
+All should return `200` with seeded content. `/demo` is the public playground: anyone
+can resolve a chat statement to its belief page and import a short thread for review
+without an API key. Its writes run under the `system:demo-playground` agent (visible at
+`/audit?agent=system:demo-playground`), capped per minute per client and at 200 imports
+per day. The per-minute limiter is per server instance, so on serverless the daily cap
+is the durable backstop. Set `DEMO_WRITES_DISABLED=1` in the host's environment to pause
+demo writes without redeploying; reads (lookup, outline) stay open.
 
 ## Notes
 

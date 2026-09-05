@@ -88,7 +88,7 @@ SQLite does not work on serverless, so production uses Postgres (Neon/Supabase/e
    **not** commit it). Builds run `scripts/set-prisma-provider.mjs`, which flips the
    schema's datasource provider to `postgresql` automatically when `DATABASE_URL`
    is a Postgres URL — no manual schema edit needed.
-3. Run `npx prisma db push` and `npm run db:seed` against the production database
+3. Run `npm run db:bootstrap` (`prisma db push` + `npm run db:seed`) against the production database
    (the committed migrations are SQLite-dialect and won't run on Postgres).
 4. On Vercel: import the GitHub repo, set `DATABASE_URL` in Project → Settings →
    Environment Variables, and deploy.
