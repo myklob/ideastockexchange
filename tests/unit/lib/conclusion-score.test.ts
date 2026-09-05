@@ -204,6 +204,21 @@ describe("edge cases", () => {
     expect(scores.get("2")?.score).toBe(2);
   });
 
+  it("matches the SQL and PHP twins on the church subtree with a back edge", () => {
+    // Closing the ring 46 -> 47 -> 45 -> 30 -> 46 gives every member the
+    // full ring's counts exactly once: all four score 17 at m = 1. The
+    // PHP demo and the recursive SQL views are verified against this
+    // same vector — the back-edge's one-point count is kept, only the
+    // recursion through it is cut.
+    const edges = [...churchEdges, edge(30, 46, "agree")];
+    const scores = computeConclusionScores(churchNodes, edges, {
+      multiplier: 1,
+    });
+    for (const id of ["46", "47", "45", "30"]) {
+      expect(scores.get(id)?.score, `node ${id}`).toBeCloseTo(17, 10);
+    }
+  });
+
   it("negative linkage lets a true-but-backfiring reason subtract", () => {
     // A reason whose linkage debate concluded it actually undermines the
     // conclusion it was filed under.

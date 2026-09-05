@@ -49,7 +49,11 @@ CREATE TABLE IF NOT EXISTS `cs_conclusions` (
   `example_set`    VARCHAR(32)  DEFAULT NULL,  -- groups seed datasets
   `created_at`     TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
 
-  PRIMARY KEY (`conclusion_id`)
+  PRIMARY KEY (`conclusion_id`),
+  -- No commas: the recursive scoring view tracks visited nodes in a
+  -- comma-delimited path string (FIND_IN_SET), so the delimiter cannot
+  -- appear in IDs.
+  CONSTRAINT `chk_cs_id_no_comma` CHECK (INSTR(`conclusion_id`, ',') = 0)
 );
 
 
@@ -137,9 +141,15 @@ GROUP BY r.reason_id, r.conclusion_id, r.child_id, r.side;
 -- to score(C): the final edge contributes its one-point count (no LS),
 -- and every edge a score is lifted through contributes its LS and one
 -- factor of m. Summing path weights per root reproduces the workbook's
--- recursive A1 exactly. The path column blocks cycles, so a ring of
--- claims can never amplify itself (each member keeps only structural
--- counts) — MySQL's CYCLE clause doesn't exist, hence FIND_IN_SET.
+-- recursive A1 exactly.
+--
+-- Cycle handling (matches src/lib/conclusion-score.ts and the PHP
+-- demo): a path that lands on an already-visited node IS emitted — the
+-- listed reason keeps its one-point count — but is never extended, so
+-- a ring of claims cannot compound its own scores. The is_cycle flag
+-- carries that distinction (MySQL's CYCLE clause doesn't exist, hence
+-- FIND_IN_SET over the path string); suppressing the row instead would
+-- silently drop the count and diverge from the reference engines.
 
 CREATE OR REPLACE VIEW `v_cs_conclusion_scores` AS
 WITH RECURSIVE score_paths AS (
@@ -149,7 +159,9 @@ WITH RECURSIVE score_paths AS (
     el.child_id                                        AS node_id,
     CAST(CONCAT(el.conclusion_id, ',', el.child_id) AS CHAR(4000)) AS path,
     CASE el.side WHEN 'agree' THEN 1.0 ELSE -1.0 END   AS weight,
-    el.linkage_score                                   AS last_linkage
+    el.linkage_score                                   AS last_linkage,
+    CASE WHEN el.child_id = el.conclusion_id
+         THEN 1 ELSE 0 END                             AS is_cycle
   FROM v_cs_edge_linkage el
 
   UNION ALL
@@ -164,10 +176,11 @@ WITH RECURSIVE score_paths AS (
       * (SELECT `value` FROM cs_settings WHERE setting_key = 'sub_argument_multiplier')
       * p.last_linkage
       * CASE el.side WHEN 'agree' THEN 1.0 ELSE -1.0 END,
-    el.linkage_score
+    el.linkage_score,
+    CASE WHEN FIND_IN_SET(el.child_id, p.path) > 0 THEN 1 ELSE 0 END
   FROM score_paths p
   JOIN v_cs_edge_linkage el ON el.conclusion_id = p.node_id
-  WHERE FIND_IN_SET(el.child_id, p.path) = 0
+  WHERE p.is_cycle = 0
 )
 SELECT
   c.conclusion_id,

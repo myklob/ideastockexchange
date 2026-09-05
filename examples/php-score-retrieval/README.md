@@ -50,7 +50,8 @@ ISE_DB_DSN="mysql:host=localhost;dbname=ise;charset=utf8mb4" \
 ISE_DB_USER=you ISE_DB_PASS=secret php -S localhost:8080
 ```
 
-The queries are dialect-portable; only the schema files differ.
+The score query is assembled per driver (string concatenation is the one
+dialect difference); everything else runs unchanged.
 
 ## The same process, elsewhere
 

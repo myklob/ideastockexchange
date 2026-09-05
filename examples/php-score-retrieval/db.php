@@ -12,7 +12,9 @@
  *   ISE_DB_USER=...
  *   ISE_DB_PASS=...
  *
- * The queries in scoring.php run unchanged on either engine.
+ * scoring.php assembles its one dialect difference — string
+ * concatenation (SQLite's || is logical OR under MySQL's default
+ * sql_mode) — per driver; everything else runs unchanged.
  */
 
 declare(strict_types=1);

@@ -92,6 +92,6 @@ isePageOpen('Conclusion scores — Idea Stock Exchange demo');
   <code>m<sup>k&minus;1</sup> &middot; &Pi;&nbsp;linkage &middot; &Pi;&nbsp;sign</code>,
   and the sum of path weights per conclusion is its score.
 </p>
-<pre class="sql"><?= e(ISE_SCORE_SQL) ?></pre>
+<pre class="sql"><?= e(iseScoreSql($db)) ?></pre>
 <?php
 isePageClose();

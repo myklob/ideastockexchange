@@ -6,7 +6,9 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS cs_conclusions (
-  conclusion_id  TEXT PRIMARY KEY,
+  -- No commas: the recursive scoring views track visited nodes in a
+  -- comma-delimited path string, so the delimiter cannot appear in IDs.
+  conclusion_id  TEXT PRIMARY KEY CHECK (instr(conclusion_id, ',') = 0),
   statement      TEXT NOT NULL,
   example_set    TEXT,
   created_at     TEXT DEFAULT CURRENT_TIMESTAMP
@@ -66,6 +68,13 @@ GROUP BY r.reason_id, r.conclusion_id, r.child_id, r.side, r.position;
 -- The recursive score with the multiplier taken from cs_settings.
 -- scoring.php runs the same CTE with a bound :multiplier instead, so
 -- the demo pages can show different multipliers side by side.
+--
+-- Cycle handling (matches the PHP and TypeScript engines): a path that
+-- lands on an already-visited node IS emitted — the listed reason
+-- keeps its one-point count — but is never extended, so a ring of
+-- claims cannot compound its own scores. The is_cycle flag carries
+-- that distinction; suppressing the row instead would silently drop
+-- the count and diverge from the reference implementations.
 CREATE VIEW IF NOT EXISTS v_cs_conclusion_scores AS
 WITH RECURSIVE score_paths AS (
   SELECT
@@ -73,7 +82,9 @@ WITH RECURSIVE score_paths AS (
     el.child_id                                        AS node_id,
     el.conclusion_id || ',' || el.child_id             AS path,
     CASE el.side WHEN 'agree' THEN 1.0 ELSE -1.0 END   AS weight,
-    el.linkage_score                                   AS last_linkage
+    el.linkage_score                                   AS last_linkage,
+    CASE WHEN el.child_id = el.conclusion_id
+         THEN 1 ELSE 0 END                             AS is_cycle
   FROM v_cs_edge_linkage el
 
   UNION ALL
@@ -86,10 +97,12 @@ WITH RECURSIVE score_paths AS (
       * (SELECT value FROM cs_settings WHERE setting_key = 'sub_argument_multiplier')
       * p.last_linkage
       * CASE el.side WHEN 'agree' THEN 1.0 ELSE -1.0 END,
-    el.linkage_score
+    el.linkage_score,
+    CASE WHEN instr(',' || p.path || ',', ',' || el.child_id || ',') > 0
+         THEN 1 ELSE 0 END
   FROM score_paths p
   JOIN v_cs_edge_linkage el ON el.conclusion_id = p.node_id
-  WHERE instr(',' || p.path || ',', ',' || el.child_id || ',') = 0
+  WHERE p.is_cycle = 0
 )
 SELECT
   c.conclusion_id,

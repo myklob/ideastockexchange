@@ -33,16 +33,45 @@ const ISE_DEFAULT_MULTIPLIER = 0.7;
  * C → X1 → … → Xk through the reason graph contributes
  * m^(k−1) · (Π linkage over the first k−1 edges) · (Π sign) to
  * score(C); summing path weights per root is the workbook's recursive
- * A1 score. The path column blocks cycles.
+ * A1 score.
+ *
+ * Cycle handling matches iseComputeScoresInPhp and the TypeScript
+ * engine exactly: a path that lands on a node already visited IS
+ * emitted (the listed reason keeps its one-point count) but is never
+ * extended (the ring's sub-scores cannot compound). That is what the
+ * is_cycle flag does — suppressing the row instead, as an earlier
+ * version did, made SQL and PHP disagree on any cyclic graph.
+ *
+ * The visited set rides along as a comma-delimited path string, which
+ * is why both schemas CHECK that conclusion IDs contain no comma.
+ *
+ * Dialect: only string concatenation differs between SQLite (||) and
+ * MySQL/MariaDB (CONCAT; || is logical OR under the default sql_mode).
+ * INSTR works identically in both, so the query is assembled per
+ * driver here and everything else runs unchanged.
  */
-const ISE_SCORE_SQL = <<<'SQL'
+function iseScoreSql(PDO $db): string
+{
+    $sqlite = $db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+    $concat = fn (string ...$parts): string => $sqlite
+        ? '(' . implode(' || ', $parts) . ')'
+        : 'CONCAT(' . implode(', ', $parts) . ')';
+
+    $anchorPath = $concat('el.conclusion_id', "','", 'el.child_id');
+    $extendedPath = $concat('p.path', "','", 'el.child_id');
+    $revisit = 'INSTR(' . $concat("','", 'p.path', "','") . ', '
+        . $concat("','", 'el.child_id', "','") . ') > 0';
+
+    return <<<SQL
 WITH RECURSIVE score_paths AS (
   SELECT
     el.conclusion_id                                   AS root_id,
     el.child_id                                        AS node_id,
-    el.conclusion_id || ',' || el.child_id             AS path,
+    {$anchorPath}                                      AS path,
     CASE el.side WHEN 'agree' THEN 1.0 ELSE -1.0 END   AS weight,
-    el.linkage_score                                   AS last_linkage
+    el.linkage_score                                   AS last_linkage,
+    CASE WHEN el.child_id = el.conclusion_id
+         THEN 1 ELSE 0 END                             AS is_cycle
   FROM v_cs_edge_linkage el
 
   UNION ALL
@@ -50,13 +79,14 @@ WITH RECURSIVE score_paths AS (
   SELECT
     p.root_id,
     el.child_id,
-    p.path || ',' || el.child_id,
+    {$extendedPath},
     p.weight * :multiplier * p.last_linkage
              * CASE el.side WHEN 'agree' THEN 1.0 ELSE -1.0 END,
-    el.linkage_score
+    el.linkage_score,
+    CASE WHEN {$revisit} THEN 1 ELSE 0 END
   FROM score_paths p
   JOIN v_cs_edge_linkage el ON el.conclusion_id = p.node_id
-  WHERE instr(',' || p.path || ',', ',' || el.child_id || ',') = 0
+  WHERE p.is_cycle = 0
 )
 SELECT
   c.conclusion_id,
@@ -67,11 +97,12 @@ FROM cs_conclusions c
 LEFT JOIN score_paths p ON p.root_id = c.conclusion_id
 GROUP BY c.conclusion_id, c.statement, c.example_set
 SQL;
+}
 
 /** @return array<string, float> conclusion_id => score */
 function iseFetchScoresViaSql(PDO $db, float $multiplier): array
 {
-    $stmt = $db->prepare(ISE_SCORE_SQL);
+    $stmt = $db->prepare(iseScoreSql($db));
     $stmt->execute([':multiplier' => $multiplier]);
     $scores = [];
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
