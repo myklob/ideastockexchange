@@ -330,8 +330,38 @@ model Belief {
   marketContracts MarketContract[]
   externalMarkets ExternalMarketLink[]
 
+  peopleOnRecord PersonOnRecord[]
+
+  /// Media claims evaluated at this belief page (the claim's truth source).
+  mediaClaims MediaClaim[]
+
   /// Topic hub pages this belief appears on (One Page Per Topic).
   topics TopicBelief[]
+}
+
+/// One recorded public position on a belief, preserved for tracing the debate.
+/// Who holds a belief never changes its score — author identity is orthogonal
+/// to the final score, so these rows carry history, not weight, and nothing
+/// here is a scoring input. Each listing is itself a debatable claim that the
+/// person actually holds the position; `contested` annotates listings whose
+/// accuracy is disputed. The section renders only when rows exist.
+model PersonOnRecord {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side String // "agree" or "disagree"
+  name String
+  /// Link to the statement or source; the name renders as plain text when null (Rule 5).
+  sourceUrl String?
+  /// Set when the accuracy of this listing is contested, with the note saying why.
+  contested     Boolean @default(false)
+  contestedNote String?
+  sortOrder     Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
 }
 
 enum LinkageClassification {
@@ -424,6 +454,10 @@ model Argument {
   linkageArguments LinkageArgument[]
   linkageVotes     LinkageVote[]
   fallacyClaims    FallacyClaim[]
+
+  /// Evidence Ledger rows (on the parent belief) that name this argument as
+  /// the thing they bear on.
+  evidenceBearingOn Evidence[] @relation("EvidenceBearsOn")
 
   equivalenceCandidatesAsNew      EquivalenceCandidate[] @relation("EquivalenceCandidateNew")
   equivalenceCandidatesAsExisting EquivalenceCandidate[] @relation("EquivalenceCandidateExisting")
@@ -696,6 +730,18 @@ model Evidence {
   description String
   sourceUrl   String?
   evidenceType String @default("T3")
+
+  /// Ledger display: "Finding (Producer, Year)". Producer is the org or author
+  /// that produced the finding; both stay null when unknown.
+  producer String?
+  year     Int?
+
+  /// What this evidence bears on: a specific argument on the same belief,
+  /// identified in the ledger by that argument's opening words. Null means it
+  /// bears on the belief directly. Evidence that bears on nothing contributes
+  /// nothing, no matter how true it is.
+  bearsOnArgumentId Int?
+  bearsOnArgument   Argument? @relation("EvidenceBearsOn", fields: [bearsOnArgumentId], references: [id])
 
   sourceIndependenceWeight Float @default(0.5)
   replicationQuantity      Int   @default(1)
@@ -1358,12 +1404,53 @@ model MediaResource {
 
   qualityArguments MediaQualityArgument[]
 
+  /// The claims this work makes, extracted from its content. The work's signed
+  /// Media Truth Score is the centrality-weighted average of these claims'
+  /// signed truths (src/core/scoring/media-truth.ts); until claims exist the
+  /// score sits at the genre prior.
+  claims MediaClaim[]
+
   createdAt DateTime @default(now())
 
   @@index([beliefId])
   @@index([mediaType])
   @@index([qualityScore])
   @@index([reach])
+}
+
+/// One claim a media work makes — extracted from dialogue, narration, or
+/// visual argument and linked to the belief page where that claim is
+/// evaluated. The claim's signed truth (-1..+1) comes from that belief's own
+/// engine-computed net (positivity / 100), evaluated across ALL sources that
+/// make the claim, never just this work. linkageScore is centrality: how
+/// central the claim is to THIS work's message, itself debatable. The work's
+/// Media Truth Score aggregates Σ(signed truth × linkage) / Σ(linkage) —
+/// see src/core/scoring/media-truth.ts, which is canonical when prose and
+/// code disagree.
+model MediaClaim {
+  id              Int           @id @default(autoincrement())
+  mediaResourceId Int
+  mediaResource   MediaResource @relation(fields: [mediaResourceId], references: [id], onDelete: Cascade)
+
+  /// The claim as this work asserts it.
+  claimText String
+
+  /// The belief page where the claim is evaluated. Null while the claim awaits
+  /// linking — an unlinked claim has no truth source and contributes nothing
+  /// to the score (Rule 6), no matter how central it is.
+  beliefId Int?
+  belief   Belief? @relation(fields: [beliefId], references: [id])
+
+  /// Centrality (0-1): 0.95 = the work's entire thesis, 0.15 = peripheral
+  /// detail. Central-and-false drags the score down hard; peripheral-and-true
+  /// barely lifts it.
+  linkageScore Float @default(0.5)
+
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([mediaResourceId])
+  @@index([beliefId])
 }
 
 /// Arguments about the quality of a media resource itself (separate from the beliefs it spreads).

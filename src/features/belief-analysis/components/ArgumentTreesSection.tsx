@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { ArgumentWithBelief } from '../types'
+import type { ArgumentWithBelief, ConfirmedFallacyNote } from '../types'
 import { TABLE_TOP_LIMIT } from '../lib/ranking'
 import ExpandableRows from './ExpandableRows'
 import { justificationScore, truthShare, argumentMass } from '@/core/scoring/contrast-class'
@@ -96,6 +96,43 @@ function AgentWorkTrace({ arg }: { arg: ArgumentWithBelief }) {
   )
 }
 
+/** Which factor a confirmed fallacy of this kind damages, for the inline note. */
+function fallacyTargetLabel(targetFactor: string): string {
+  switch (targetFactor) {
+    case 'relevance': return 'Linkage'
+    case 'logical-validity': return 'Argument Score (validity)'
+    case 'evidence-quality': return 'Evidence Quality'
+    default: return targetFactor
+  }
+}
+
+function fallacyTypeLabel(slug: string): string {
+  return slug.replace(/-/g, ' ')
+}
+
+/**
+ * Inline note for community-confirmed fallacy claims. A confirmed fallacy
+ * damages exactly the factor its type targets — the damage itself flows
+ * through the linkage sub-debate's published counter-argument; this note just
+ * makes it visible in the cell. Unconfirmed accusations are never rendered.
+ */
+function ConfirmedFallacyNotes({ notes }: { notes: ConfirmedFallacyNote[] | undefined }) {
+  if (!notes || notes.length === 0) return null
+  return (
+    <span className="block text-xs text-[#c0392b] not-italic">
+      {notes.map(n => (
+        <span key={n.id} className="mr-2">
+          ⚠{' '}
+          <Link href="/algorithms/fallacy-detection" className="text-[#c0392b] underline decoration-dotted hover:decoration-solid">
+            {fallacyTypeLabel(n.fallacyType)}
+          </Link>{' '}
+          confirmed — dents {fallacyTargetLabel(n.targetFactor)}
+        </span>
+      ))}
+    </span>
+  )
+}
+
 /** The argument cell: claim label, inline famous quote (italic), then ~Author link. */
 function ArgumentCell({ arg }: { arg: ArgumentWithBelief }) {
   const label = arg.claim ?? arg.belief.statement
@@ -119,6 +156,7 @@ function ArgumentCell({ arg }: { arg: ArgumentWithBelief }) {
           )}
         </span>
       )}
+      <ConfirmedFallacyNotes notes={arg.fallacyClaims} />
       <AgentWorkTrace arg={arg} />
     </>
   )
@@ -239,7 +277,15 @@ export default function ArgumentTreesSection({
         <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link> ×{' '}
         <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>{' '}
         = Impact. Every score is a doorway — click it to enter the sub-debate that
-        produced it. Pro and con impacts sum to the Net Belief Score.
+        produced it. Pro and con impacts sum to the Net Belief Score. A true-but-irrelevant
+        argument scores high on truth and near zero on linkage, so it contributes nothing.{' '}
+        <Link href="/algorithms/fallacy-detection" className="text-[var(--accent)] hover:underline">
+          Confirmed fallacy claims
+        </Link>{' '}
+        feed these factors too: a community-confirmed fallacy damages exactly the factor its type
+        targets (relevance fallacies hit Linkage, formal fallacies hit the validity component of
+        the Argument Score, evidence fallacies hit Evidence Quality) and is noted inline in the
+        argument cell. A fallacy accusation that has not been confirmed changes nothing.
       </p>
 
       <div className="overflow-x-auto">
@@ -253,25 +299,26 @@ export default function ArgumentTreesSection({
                 ❌ Reasons to Disagree
               </th>
             </tr>
+            {/* Spelled-out headers: no abbreviated column names. */}
             <tr className="bg-gray-100 text-xs">
-              <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Argument</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Score</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[24%]">Argument</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Score</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link>
               </th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Imp</Link>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
+                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link>
               </th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Impact</th>
-              <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Argument</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Score</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
+              <th className="border border-gray-300 px-2 py-1.5 w-[8%]">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[24%]">Argument</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Score</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link>
               </th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Imp</Link>
+              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
+                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link>
               </th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[8%]">Impact</th>
             </tr>
           </thead>
           <tbody>

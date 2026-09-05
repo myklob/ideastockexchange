@@ -20,10 +20,19 @@ function equivalency(item: SimilarBeliefItem | null): number | null {
   return item.equivalencyScore
 }
 
+/** Same-strength paraphrases (equivalency near 100%) go in prose, not the table. */
+const PARAPHRASE_THRESHOLD = 0.95
+
 export default function SimilarBeliefsSection({ similarTo, similarFrom, currentBeliefId }: SimilarBeliefsSectionProps) {
   const allSimilar = [...similarTo, ...similarFrom]
-  const extreme = rankByScore(allSimilar.filter(s => s.variant === 'extreme'), equivalency, Infinity).top
-  const moderate = rankByScore(allSimilar.filter(s => s.variant === 'moderate'), equivalency, Infinity).top
+  const paraphrases = rankByScore(
+    allSimilar.filter(s => s.equivalencyScore >= PARAPHRASE_THRESHOLD),
+    equivalency,
+    Infinity,
+  ).top
+  const tabular = allSimilar.filter(s => s.equivalencyScore < PARAPHRASE_THRESHOLD)
+  const extreme = rankByScore(tabular.filter(s => s.variant === 'extreme'), equivalency, Infinity).top
+  const moderate = rankByScore(tabular.filter(s => s.variant === 'moderate'), equivalency, Infinity).top
   const pairs = pairBySide(extreme, moderate)
   const topPairs = pairs.slice(0, TABLE_TOP_LIMIT)
   const restPairs = pairs.slice(TABLE_TOP_LIMIT)
@@ -60,6 +69,38 @@ export default function SimilarBeliefsSection({ similarTo, similarFrom, currentB
         title="Similar Beliefs"
         href="/algorithms/combine-similar-beliefs"
       />
+      <p className="text-sm text-[var(--muted-foreground)] mb-3">
+        Score here is the{' '}
+        <Link href="/algorithms/belief-equivalency" className="text-[var(--accent)] hover:underline">
+          equivalency score
+        </Link>
+        : how close each version sits to this belief. High-equivalency pairs are merge candidates;
+        see{' '}
+        <Link href="/algorithms/combine-similar-beliefs" className="text-[var(--accent)] hover:underline">
+          combining similar beliefs
+        </Link>
+        .
+      </p>
+      {paraphrases.length > 0 && (
+        <p className="text-sm mb-3">
+          Equivalent phrasings of this belief include{' '}
+          {paraphrases.map((p, i) => {
+            const linked = getLinkedBelief(p)
+            return (
+              <span key={p.id}>
+                {i > 0 && (i === paraphrases.length - 1 ? ' and ' : ', ')}
+                <Link href={`/beliefs/${linked.slug}`} className="text-[var(--accent)] hover:underline">
+                  &ldquo;{linked.statement}&rdquo;
+                </Link>{' '}
+                <span className="font-mono text-xs">
+                  ({Math.round(p.equivalencyScore * 100)}%)
+                </span>
+              </span>
+            )
+          })}
+          , all merge candidates.
+        </p>
+      )}
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">

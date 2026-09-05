@@ -148,6 +148,19 @@ const groups: AlgorithmGroup[] = [
       },
     ],
   },
+  {
+    heading: 'The Narrative Layer',
+    blurb:
+      'Stories make claims too. These scores run the same pipeline over media — books, films, articles, podcasts — so genre never protects a work from evaluation.',
+    entries: [
+      {
+        name: 'Media Truth Score',
+        href: '/algorithms/media-truth-score',
+        description:
+          'A work’s signed score (-1 to +1): the centrality-weighted average of its extracted claims’ truth, starting from a genre prior. Epistemic Impact = truth × reach.',
+      },
+    ],
+  },
 ]
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
