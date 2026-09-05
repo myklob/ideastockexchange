@@ -1,138 +1,74 @@
 import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
-
-async function getTopics() {
-  // The Book/Author/TopicOverlap models were retired from the schema; this
-  // legacy route degrades to an empty state instead of throwing a 500 when
-  // the model is absent.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const topicOverlapModel = (prisma as any).topicOverlap
-  if (!topicOverlapModel) return []
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const topicOverlaps: any[] = await topicOverlapModel.findMany({
-    include: {
-      book: {
-        include: {
-          authorProfile: true,
-        },
-      },
-    },
-    orderBy: {
-      overlapScore: 'desc',
-    },
-  })
-
-  // Group by topic name
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const topicsMap = new Map<string, any[]>()
-
-  topicOverlaps.forEach((overlap) => {
-    if (!topicsMap.has(overlap.topicName)) {
-      topicsMap.set(overlap.topicName, [])
-    }
-    topicsMap.get(overlap.topicName)!.push({
-      book: overlap.book,
-      overlapScore: overlap.overlapScore,
-    })
-  })
-
-  return Array.from(topicsMap.entries()).map(([name, books]) => ({
-    name,
-    bookCount: books.length,
-    books: books.sort((a, b) => b.overlapScore - a.overlapScore),
-  }))
-}
+import { fetchAllTopics } from '@/features/topics/data/fetch-topics'
+import { formatSignedScore } from '@/features/topics/lib/dimensions'
 
 export const dynamic = 'force-dynamic'
 
-export default async function TopicsPage() {
-  const topics = await getTopics()
+export default async function TopicsIndexPage() {
+  const topics = await fetchAllTopics()
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-blue-900">Idea Stock Exchange</h1>
-            <nav className="flex gap-6">
-              <Link href="/" className="text-blue-600 hover:text-blue-800">
-                Home
-              </Link>
-              <Link href="/books" className="text-blue-600 hover:text-blue-800">
-                Books
-              </Link>
-              <Link
-                href="/topics"
-                className="text-blue-600 hover:text-blue-800 font-semibold"
-              >
-                Topics
-              </Link>
-            </nav>
-          </div>
+    <div className="min-h-screen bg-white">
+      <nav className="bg-white border-b border-[var(--border)] sticky top-0 z-50">
+        <div className="max-w-[960px] mx-auto px-4 py-3 flex items-center gap-3">
+          <Link href="/" className="text-lg font-bold text-[var(--foreground)]">ISE</Link>
+          <span className="text-[var(--muted-foreground)]">/</span>
+          <span className="text-sm font-medium text-[var(--foreground)]">Topics</span>
         </div>
-      </header>
+      </nav>
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">🎯 Topics & Beliefs</h1>
-          <p className="text-lg text-gray-700">
-            Books organized by the beliefs they defend or challenge. Each topic shows which books
-            address it most centrally, with overlap scores indicating how central that belief is to
-            the book&apos;s thesis.
-          </p>
-        </div>
+      <main className="max-w-[960px] mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">One Page Per Topic</h1>
+        <p className="text-sm text-[var(--muted-foreground)] mb-6">
+          Every topic gets one page where all beliefs about it converge, organized across three
+          dimensions — <strong>direction</strong> (negative ↔ positive), <strong>magnitude</strong>{' '}
+          (weak ↔ extreme), and <strong>abstraction</strong> (general ↔ specific) — and sorted by
+          engine-computed scores, so the best-supported version of any claim rises to the top.
+          Individual claims live on their own pages under{' '}
+          <Link href="/beliefs" className="text-[var(--accent)] hover:underline">Beliefs</Link>.
+        </p>
 
         {topics.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
-            <p className="text-gray-600 mb-4">No topics available yet.</p>
-            <p className="text-gray-500 text-sm">
-              Run the seed script to populate sample data with books and their topic overlaps.
+          <div className="text-center py-16 text-[var(--muted-foreground)]">
+            <p className="text-lg mb-2">No topics yet.</p>
+            <p className="text-sm">
+              Run <code className="bg-gray-100 px-1 rounded">npm run db:seed</code> to populate the
+              sample topics, or browse{' '}
+              <Link href="/beliefs" className="text-[var(--accent)] hover:underline">all beliefs</Link>.
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-6">
-            {topics.map((topic) => (
-              <div key={topic.name} className="bg-white rounded-lg shadow-sm border p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">{topic.name}</h2>
-                <p className="text-sm text-gray-600 mb-4">
-                  {topic.bookCount} {topic.bookCount === 1 ? 'book' : 'books'} address this topic
-                </p>
-
-                <div className="space-y-3">
-                  {topic.books.map((item) => (
-                    <Link
-                      key={item.book.id}
-                      href={`/books/${item.book.id}`}
-                      className="block border-l-4 border-blue-600 pl-4 py-2 hover:bg-blue-50 transition-colors"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="font-semibold text-gray-900">{item.book.title}</p>
-                          <p className="text-sm text-gray-600">{item.book.author}</p>
-                        </div>
-                        <div className="text-right ml-4">
-                          <p className="text-lg font-bold text-blue-900">
-                            {item.overlapScore.toFixed(0)}%
-                          </p>
-                          <p className="text-xs text-gray-600">overlap</p>
-                        </div>
+          <div className="space-y-3">
+            {topics.map(topic => (
+              <Link
+                key={topic.id}
+                href={`/topics/${topic.slug}`}
+                className="block bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 hover:border-gray-300 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-semibold text-[var(--foreground)] mb-1">{topic.title}</h2>
+                    {topic.question && (
+                      <p className="text-sm text-[var(--muted-foreground)]">{topic.question}</p>
+                    )}
+                  </div>
+                  <div className="flex-shrink-0 text-right text-xs text-[var(--muted-foreground)]">
+                    <div className="text-sm font-bold text-[var(--foreground)]">
+                      {topic.beliefCount}
+                    </div>
+                    <div>{topic.beliefCount === 1 ? 'belief' : 'beliefs'}</div>
+                    {topic.minPositivity !== null && topic.maxPositivity !== null && (
+                      <div className="mt-1 font-mono">
+                        {formatSignedScore(topic.minPositivity)} … {formatSignedScore(topic.maxPositivity)}
                       </div>
-                      <div className="mt-2 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full transition-all"
-                          style={{ width: `${item.overlapScore}%` }}
-                        />
-                      </div>
-                    </Link>
-                  ))}
+                    )}
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
-      </div>
+      </main>
     </div>
   )
 }
