@@ -97,7 +97,16 @@ export default async function DebateTopicPage({ params }: Props) {
         {/* 1. The Position Spectrum */}
         {topic.positions.length > 0 && (
           <>
-            <PositionSpectrum positions={topic.positions} />
+            <PositionSpectrum
+              positions={topic.positions}
+              falsifiedEvidenceIds={
+                new Set(
+                  topic.evidenceItems
+                    .filter((e) => e.standing === 'FALSIFIED' && e.id !== undefined)
+                    .map((e) => e.id as number),
+                )
+              }
+            />
             <hr className="my-6" />
           </>
         )}

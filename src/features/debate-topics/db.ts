@@ -118,20 +118,30 @@ function mapTopicFromDb(row: any): DebateTopic {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const evidenceItems: DebateEvidence[] = (row.evidenceItems ?? []).map((e: any): DebateEvidence => ({
-    id: e.id,
-    side: e.side,
-    title: e.title,
-    source: e.source,
-    finding: e.finding,
-    qualityScore: e.qualityScore,
-    qualityLabel: e.qualityLabel,
-    url: e.url ?? undefined,
-    tier: e.tier ?? undefined,
-    argument: e.argument || undefined,
-    linkage: e.linkage ?? undefined,
-    standing: e.standing ?? undefined,
-  }));
+  const evidenceItems: DebateEvidence[] = (row.evidenceItems ?? []).map((e: any): DebateEvidence => {
+    const engine = e.engineEvidence ?? null;
+    return {
+      id: e.id,
+      side: e.side,
+      title: e.title,
+      source: e.source,
+      finding: e.finding,
+      // Bridged rows derive from the engine node (audit lock made real for
+      // the ledger); unlinked rows keep their stored copies and render as
+      // seed illustrations. EVS is ~0–1; quality displays as 0–100.
+      qualityScore: engine
+        ? Math.max(0, Math.min(100, Math.round(engine.evsScore * 100)))
+        : e.qualityScore,
+      qualityLabel: e.qualityLabel,
+      url: e.url ?? undefined,
+      tier: e.tier ?? undefined,
+      argument: e.argument || undefined,
+      linkage: engine ? engine.linkageScore : e.linkage ?? undefined,
+      standing: engine ? engine.verificationStatus ?? 'UNVERIFIED' : e.standing ?? undefined,
+      engineEvidenceId: e.engineEvidenceId ?? undefined,
+      derivedFromEngine: Boolean(engine),
+    };
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const objectiveCriteria: DebateObjectiveCriteria[] = (row.objectiveCriteria ?? []).map((c: any): DebateObjectiveCriteria => ({
@@ -204,8 +214,17 @@ const FULL_INCLUDE = {
   abstractionRungs: true,
   coreValues: true,
   commonGround: true,
-  // id order keeps evidenceIndex → row mapping stable after nested creates
-  evidenceItems: { orderBy: { id: 'asc' } },
+  // id order keeps evidenceIndex → row mapping stable after nested creates.
+  // engineEvidence is the bridge: linked rows derive quality/linkage/standing
+  // from the engine node instead of trusting stored copies.
+  evidenceItems: {
+    orderBy: { id: 'asc' },
+    include: {
+      engineEvidence: {
+        select: { id: true, evsScore: true, linkageScore: true, verificationStatus: true },
+      },
+    },
+  },
   objectiveCriteria: true,
   mediaResources: true,
   relatedTopics: true,

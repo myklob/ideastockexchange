@@ -38,7 +38,7 @@ export default function Home() {
           </p>
           <div className="flex gap-3 mt-8 flex-wrap">
             <Link href="/beliefs" className="ise-btn ise-btn--primary">Browse Beliefs</Link>
-            <Link href="/arbitrage" className="ise-btn ise-btn--ghost">View Arbitrage</Link>
+            <Link href="/markets" className="ise-btn ise-btn--ghost">Browse Markets</Link>
           </div>
         </div>
       </header>

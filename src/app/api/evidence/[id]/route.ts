@@ -14,6 +14,13 @@
  * T1 → T0 → EVS collapses → the belief it propped up drops → every
  * conclusion citing that belief drops. No manual cleanup, no persistent myth.
  *
+ * Alongside the tier inputs, `verificationStatus` tracks the finding's own
+ * lifecycle (UNVERIFIED / VERIFIED / DISPUTED / FALSIFIED): tier classifies
+ * the SOURCE, status tracks whether the FINDING held up. FALSIFIED zeroes
+ * the row's contribution in computeBeliefScores, and any topic-page ledger
+ * row bridged via DebateEvidence.engineEvidenceId derives its standing from
+ * this status at render time.
+ *
  * A `reason` is required on every change: reclassifying evidence without
  * saying why is how zombie arguments get made in the other direction.
  */
@@ -29,12 +36,15 @@ import {
 import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
 
 const VALID_TIERS = ['T0', 'T1', 'T2', 'T3', 'T4'] as const
+const VALID_STATUSES = ['UNVERIFIED', 'VERIFIED', 'DISPUTED', 'FALSIFIED'] as const
 
 interface PatchBody {
   /** Why this change is being made (retraction notice, critique, correction). Required. */
   reason?: string
   /** Reclassify the tier — 'T0' marks the source retracted/fraudulent. */
   evidenceType?: string
+  /** Lifecycle of the finding itself — 'FALSIFIED' zeroes its contribution. */
+  verificationStatus?: string
   side?: string
   description?: string
   sourceUrl?: string
@@ -72,6 +82,11 @@ export async function GET(
       tierWeight,
       evsScore: evidence.evsScore,
       impactScore: evidence.impactScore,
+    },
+    lifecycle: {
+      states: VALID_STATUSES,
+      weights: { VERIFIED: 1, DISPUTED: 0.5, UNVERIFIED: 0.5, FALSIFIED: 0 },
+      note: 'Null status = legacy row predating the lifecycle; counts at full weight.',
     },
     changeLog: await prisma.auditLog.findMany({
       where: { targetType: 'Evidence', targetId: String(evidenceId) },
@@ -132,6 +147,15 @@ export async function PATCH(
       { status: 422 },
     )
   }
+  if (
+    body.verificationStatus !== undefined &&
+    !VALID_STATUSES.includes(body.verificationStatus as (typeof VALID_STATUSES)[number])
+  ) {
+    return NextResponse.json(
+      { error: `verificationStatus must be one of ${VALID_STATUSES.join(', ')}.` },
+      { status: 422 },
+    )
+  }
   if (body.side !== undefined && body.side !== 'supporting' && body.side !== 'weakening') {
     return NextResponse.json({ error: "side must be 'supporting' or 'weakening'." }, { status: 422 })
   }
@@ -154,6 +178,7 @@ export async function PATCH(
   // Merge the classification inputs, then let the engine recompute the scores.
   const next = {
     evidenceType: body.evidenceType ?? existing.evidenceType,
+    verificationStatus: body.verificationStatus ?? existing.verificationStatus,
     side: body.side ?? existing.side,
     description: body.description?.trim() || existing.description,
     sourceUrl: body.sourceUrl !== undefined ? body.sourceUrl.trim() || null : existing.sourceUrl,
@@ -173,9 +198,12 @@ export async function PATCH(
   const impactScore = computeEvidenceImpactScore(evsScore, next.linkageScore)
 
   const tierChanged = next.evidenceType !== existing.evidenceType
+  const statusChanged = next.verificationStatus !== existing.verificationStatus
   const changeSummary = tierChanged
     ? `retier ${existing.evidenceType} → ${next.evidenceType}`
-    : 'reclassified'
+    : statusChanged
+      ? `marked ${next.verificationStatus}`
+      : 'reclassified'
 
   await prisma.$transaction(async (tx) => {
     await tx.evidence.update({
@@ -192,6 +220,7 @@ export async function PATCH(
         payload: JSON.stringify({
           before: {
             evidenceType: existing.evidenceType,
+            verificationStatus: existing.verificationStatus,
             side: existing.side,
             replicationQuantity: existing.replicationQuantity,
             conclusionRelevance: existing.conclusionRelevance,
@@ -217,6 +246,7 @@ export async function PATCH(
 
   return NextResponse.json({
     evidenceId,
+    verificationStatus: next.verificationStatus,
     evsScore: { before: existing.evsScore, after: evsScore },
     impactScore: { before: existing.impactScore, after: impactScore },
     cascade: {
@@ -227,6 +257,9 @@ export async function PATCH(
     note: tierChanged
       ? `Tier ${existing.evidenceType} → ${next.evidenceType}. Every conclusion resting on this ` +
         'evidence has been recalculated; score histories name this change as the trigger.'
-      : 'Evidence reclassified and all dependent scores recalculated.',
+      : statusChanged
+        ? `Verification status ${existing.verificationStatus ?? 'unset'} → ${next.verificationStatus}. ` +
+          'Dependent scores recalculated.'
+        : 'Evidence reclassified and all dependent scores recalculated.',
   })
 }

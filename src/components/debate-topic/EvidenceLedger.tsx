@@ -62,7 +62,11 @@ export default function EvidenceLedger({ evidenceItems }: Props) {
           </thead>
           <tbody>
             {rows.map((e, i) => (
-              <tr key={e.id ?? i} id={e.id !== undefined ? `evidence-${e.id}` : undefined} className="align-top scroll-mt-4">
+              <tr
+                key={e.id ?? i}
+                id={e.id !== undefined ? `evidence-${e.id}` : undefined}
+                className={`align-top scroll-mt-4 ${e.standing === 'FALSIFIED' ? 'line-through text-gray-400 bg-gray-50' : ''}`}
+              >
                 <td className="border border-gray-300 px-2 py-2 text-center">{e.tier ?? 'T2'}</td>
                 <td className="border border-gray-300 px-3 py-2">
                   {e.url ? (
@@ -106,6 +110,13 @@ export default function EvidenceLedger({ evidenceItems }: Props) {
         full weight, DISPUTED at half weight while the challenge is open, FALSIFIED at zero, with the
         retraction propagating to every score built on it. See{' '}
         <Link href="/algorithms/evidence-scores" className="text-blue-600 hover:underline">Evidence Scores</Link>.
+        {' '}Rows linked to an engine evidence node derive Quality, Linkage, and Standing from it live.
+        {rows.some((r) => !r.derivedFromEngine) && (
+          <em>
+            {' '}Rows not yet linked are seed illustrations — hand-entered examples, not computed
+            values.
+          </em>
+        )}
       </p>
     </div>
   );
