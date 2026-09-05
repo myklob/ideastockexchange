@@ -16,6 +16,12 @@ describe('parseTranscript (pasted chat log → messages)', () => {
     expect(messages[0].body).toBe('First line.\nStill alice talking.')
   })
 
+  it('does not split a continuation line that merely contains a colon', () => {
+    const messages = parseTranscript('alice: First point.\nSecond thought: it also binds winners.\nbob: ok')
+    expect(messages).toHaveLength(2)
+    expect(messages[0].body).toBe('First point.\nSecond thought: it also binds winners.')
+  })
+
   it('strips leading [timestamps] and ignores blank lines', () => {
     const messages = parseTranscript('[10:42] alice: Hello there\n\n[10:43] bob: Hi')
     expect(messages.map(m => m.author)).toEqual(['alice', 'bob'])

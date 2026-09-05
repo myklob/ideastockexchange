@@ -73,8 +73,13 @@ export async function runConversationImport(agentId: string, rawPayload: unknown
   let focal: { id: number; slug: string; statement: string } | null = null
   let createdStub = false
   if (payload.beliefSlug) {
-    const slug = slugify(payload.beliefSlug.trim())
-    const existing = await prisma.belief.findUnique({ where: { slug } })
+    // Exact slug first (slugify can shorten a long existing slug into a
+    // different one), then the normalized form for free-text names.
+    const named = payload.beliefSlug.trim()
+    const slug = slugify(named)
+    const existing =
+      (await prisma.belief.findUnique({ where: { slug: named } })) ??
+      (await prisma.belief.findUnique({ where: { slug } }))
     if (existing) {
       focal = { id: existing.id, slug: existing.slug, statement: existing.statement }
     } else {

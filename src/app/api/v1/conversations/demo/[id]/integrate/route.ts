@@ -8,6 +8,7 @@ import {
   demoClientKey,
   demoWritesDisabled,
   ensureDemoAgent,
+  verifyDemoReviewToken,
 } from '@/lib/conversations/demo-agent'
 import { AUDIT_LOCK_MESSAGE, FAILURE_MODES } from '@/lib/agent-ingest/contract'
 import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
@@ -16,7 +17,8 @@ import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
  * POST /api/v1/conversations/demo/[id]/integrate — the playground's review
  * move. Byte-for-byte the agent route's behavior (five-step check, mandatory
  * rationale, audit rows, no scores, then the engine recomputes), restricted
- * to threads the demo agent imported and capped per request.
+ * to threads the demo agent imported, gated by the review token the import
+ * handed back, and capped per request.
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   if (demoWritesDisabled()) {
@@ -27,7 +29,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params
-  let body: IntegrateRequest
+  let body: IntegrateRequest & { reviewToken?: unknown }
   try {
     body = await request.json()
   } catch {
@@ -43,6 +45,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (thread.submittedByAgentId !== agent.id) {
     return agentJson({ error: 'The demo can only review threads it imported itself.' }, { status: 403 })
   }
+  if (!verifyDemoReviewToken(id, agent.id, body.reviewToken)) {
+    return agentJson({ error: 'Missing or invalid review token. Only the visitor who imported a thread can review it.' }, { status: 403 })
+  }
 
   const actionCount =
     (Array.isArray(body.integrate) ? body.integrate.length : 0) +
@@ -52,10 +57,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return agentJson({ error: `At most ${DEMO_MAX_ACTIONS_PER_REQUEST} review moves per request in the demo.` }, { status: 422 })
   }
 
-  const result = await integrateCandidates(agent.id, id, body)
+  const { reviewToken: _token, ...moves } = body
+  const result = await integrateCandidates(agent.id, id, moves)
   if (!result.ok) {
+    const firstIssue = result.issues[0]?.message
     return agentJson(
-      { error: result.auditLock ? AUDIT_LOCK_MESSAGE : 'Integration rejected. Fix the named issues and resubmit.', issues: result.issues },
+      {
+        error: result.auditLock
+          ? AUDIT_LOCK_MESSAGE
+          : firstIssue ?? 'Integration rejected. Fix the named issues and resubmit.',
+        issues: result.issues,
+      },
       { status: result.status },
     )
   }

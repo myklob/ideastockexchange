@@ -15,6 +15,7 @@ import type { ImportedCandidate } from '@/lib/conversations/import'
 import type { BeliefOutline, OutlineCluster } from '@/lib/conversations/outline'
 import type { ExtractionResult } from '@/lib/conversations/extract'
 import { CONVERSATION_PLATFORMS, type ConversationPlatform } from '@/lib/conversations/contract'
+import { DEMO_MAX_ACTIONS_PER_REQUEST } from '@/lib/conversations/demo-caps'
 
 interface BeliefOption {
   id: number
@@ -37,6 +38,7 @@ interface Issue {
 
 interface ImportResponse {
   threadId: string
+  reviewToken: string
   belief: BeliefOption | null
   beliefUrl: string | null
   candidates: ImportedCandidate[]
@@ -77,6 +79,21 @@ const SKIP_LABEL: Record<string, string> = {
 
 async function readJson<T>(response: Response): Promise<T & { error?: string; issues?: Issue[] }> {
   return (await response.json()) as T & { error?: string; issues?: Issue[] }
+}
+
+function describeError(data: { error?: string; issues?: Issue[] }, fallback: string): string {
+  const issue = data.issues?.[0]?.message
+  if (data.error && issue && data.error !== issue) return `${data.error} ${issue}`
+  return data.error ?? issue ?? fallback
+}
+
+type Move = { candidateId: string; howItSupports?: string; direction: 'pro' | 'con' } | { fold: string } | { dismiss: string }
+
+/** Split moves into requests the demo route accepts (capped per request). */
+function chunkMoves(moves: Move[], size: number): Move[][] {
+  const chunks: Move[][] = []
+  for (let i = 0; i < moves.length; i += size) chunks.push(moves.slice(i, i + size))
+  return chunks
 }
 
 function ClusterList({ clusters, side }: { clusters: OutlineCluster[]; side: 'pro' | 'con' }) {
@@ -183,6 +200,8 @@ export default function DemoPlayground({ beliefs, sampleTranscript }: DemoPlaygr
     setImportError(null)
     setImported(null)
     setReviewed(null)
+    setReviewStatus('idle')
+    setReviewError(null)
     setOutlineAfter(null)
     setDecisions({})
     try {
@@ -194,7 +213,7 @@ export default function DemoPlayground({ beliefs, sampleTranscript }: DemoPlaygr
       const data = await readJson<ImportResponse>(res)
       if (!res.ok) {
         setImportStatus('error')
-        setImportError(data.error ?? data.issues?.map(i => i.message).join(' ') ?? 'Import failed.')
+        setImportError(describeError(data, 'Import failed.'))
         return
       }
       setImported(data)
@@ -221,21 +240,19 @@ export default function DemoPlayground({ beliefs, sampleTranscript }: DemoPlaygr
 
   async function runReview() {
     if (!imported) return
-    const integrate: { candidateId: string; howItSupports?: string; direction: 'pro' | 'con' }[] = []
-    const fold: string[] = []
-    const dismiss: string[] = []
+    const moves: Move[] = []
     for (const c of imported.candidates) {
       const d = decisions[c.id]
       if (!d || d.action === 'skip') continue
       if (d.action === 'integrate') {
-        integrate.push({ candidateId: c.id, howItSupports: d.mechanism.trim() || undefined, direction: d.direction })
+        moves.push({ candidateId: c.id, howItSupports: d.mechanism.trim() || undefined, direction: d.direction })
       } else if (d.action === 'fold') {
-        fold.push(c.id)
+        moves.push({ fold: c.id })
       } else {
-        dismiss.push(c.id)
+        moves.push({ dismiss: c.id })
       }
     }
-    if (integrate.length + fold.length + dismiss.length === 0) {
+    if (moves.length === 0) {
       setReviewStatus('error')
       setReviewError('Choose at least one move: integrate, fold, or dismiss.')
       return
@@ -244,18 +261,34 @@ export default function DemoPlayground({ beliefs, sampleTranscript }: DemoPlaygr
     setReviewStatus('submitting')
     setReviewError(null)
     try {
-      const res = await fetch(`/api/v1/conversations/demo/${imported.threadId}/integrate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ integrate, fold, dismiss }),
-      })
-      const data = await readJson<ReviewResponse>(res)
-      if (!res.ok) {
-        setReviewStatus('error')
-        setReviewError(data.error ?? data.issues?.map(i => i.message).join(' ') ?? 'Review failed.')
-        return
+      // The demo route caps moves per request; larger reviews go in batches.
+      const merged: ReviewResponse = { batchId: null, batchUrl: null, integrated: [], folded: [], dismissed: [] }
+      for (const chunk of chunkMoves(moves, DEMO_MAX_ACTIONS_PER_REQUEST)) {
+        const payload = {
+          reviewToken: imported.reviewToken,
+          integrate: chunk.filter((m): m is Extract<Move, { candidateId: string }> => 'candidateId' in m),
+          fold: chunk.filter((m): m is { fold: string } => 'fold' in m).map(m => m.fold),
+          dismiss: chunk.filter((m): m is { dismiss: string } => 'dismiss' in m).map(m => m.dismiss),
+        }
+        const res = await fetch(`/api/v1/conversations/demo/${imported.threadId}/integrate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        const data = await readJson<ReviewResponse>(res)
+        if (!res.ok) {
+          setReviewStatus('error')
+          setReviewError(describeError(data, 'Review failed.'))
+          if (merged.integrated.length + merged.folded.length + merged.dismissed.length > 0) setReviewed(merged)
+          return
+        }
+        merged.batchId = data.batchId ?? merged.batchId
+        merged.batchUrl = data.batchUrl ?? merged.batchUrl
+        merged.integrated.push(...data.integrated)
+        merged.folded.push(...data.folded)
+        merged.dismissed.push(...data.dismissed)
       }
-      setReviewed(data)
+      setReviewed(merged)
       setReviewStatus('done')
       if (imported.belief) {
         const outlineRes = await fetch(`/api/beliefs/${imported.belief.id}/outline`)
