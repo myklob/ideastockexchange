@@ -17,6 +17,7 @@ import {
   calculateEVS,
   calculateLinkageFromArguments,
   calculateArgumentImpact,
+  computeEvidenceImpactScore,
   getEvidenceTypeWeight,
   determineActiveLikelihood,
   recalculateProtocolBelief,
@@ -400,6 +401,55 @@ describe('scoreProtocolBelief', () => {
     expect(result.truthScore).toBeLessThanOrEqual(0.99)
     expect(result.truthScore).toBeGreaterThanOrEqual(0.01)
   })
+
+  it('should count weakening evidence against the belief, not for it', () => {
+    const base = {
+      proTree: [makeArg({ id: 'pro-1', side: 'pro', truthScore: 0.7, linkageScore: 0.7 })],
+      conTree: [makeArg({ id: 'con-1', side: 'con', truthScore: 0.7, linkageScore: 0.7 })],
+    }
+    const supported = scoreProtocolBelief(makeBelief({
+      ...base,
+      evidence: [
+        { id: 'ev-1', tier: 'T1', tierLabel: 'Peer-reviewed', title: 'Study', linkageScore: 0.9, side: 'supporting' },
+      ],
+    }))
+    const weakened = scoreProtocolBelief(makeBelief({
+      ...base,
+      evidence: [
+        { id: 'ev-1', tier: 'T1', tierLabel: 'Peer-reviewed', title: 'Study', linkageScore: 0.9, side: 'weakening' },
+      ],
+    }))
+
+    expect(weakened.weakeningEvidenceScore).toBeGreaterThan(0)
+    expect(weakened.supportingEvidenceScore).toBe(0)
+    expect(weakened.truthScore).toBeLessThan(supported.truthScore)
+    expect(weakened.truthScore).toBeLessThan(0.5)
+  })
+
+  it('should collapse a retracted (T0) source to near-zero contribution', () => {
+    const base = {
+      proTree: [makeArg({ id: 'pro-1', side: 'pro', truthScore: 0.7, linkageScore: 0.7 })],
+      conTree: [makeArg({ id: 'con-1', side: 'con', truthScore: 0.7, linkageScore: 0.7 })],
+    }
+    const beforeRetraction = scoreProtocolBelief(makeBelief({
+      ...base,
+      evidence: [
+        { id: 'ev-1', tier: 'T1', tierLabel: 'Peer-reviewed', title: 'Study', linkageScore: 0.9, side: 'supporting' },
+      ],
+    }))
+    const afterRetraction = scoreProtocolBelief(makeBelief({
+      ...base,
+      evidence: [
+        { id: 'ev-1', tier: 'T0', tierLabel: 'Retracted', title: 'Study', linkageScore: 0.9, side: 'supporting' },
+      ],
+    }))
+
+    // The retraction cascade: same graph, dead foundation, lower score.
+    expect(afterRetraction.supportingEvidenceScore).toBeLessThan(
+      beforeRetraction.supportingEvidenceScore * 0.1,
+    )
+    expect(afterRetraction.truthScore).toBeLessThan(beforeRetraction.truthScore)
+  })
 })
 
 // ─── calculateReasonRankScore Tests ──────────────────────────────
@@ -513,8 +563,30 @@ describe('getEvidenceTypeWeight', () => {
     expect(getEvidenceTypeWeight('T4')).toBe(0.25)
   })
 
+  it('should weight retracted/fraudulent (T0) sources below every live tier', () => {
+    expect(getEvidenceTypeWeight('T0')).toBe(0.05)
+    expect(getEvidenceTypeWeight('T0')).toBeLessThan(getEvidenceTypeWeight('T4'))
+  })
+
   it('should default to 0.5 for unknown tiers', () => {
     expect(getEvidenceTypeWeight('unknown')).toBe(0.5)
+  })
+})
+
+describe('computeEvidenceImpactScore', () => {
+  it('should compute EVS × linkage × 10', () => {
+    expect(computeEvidenceImpactScore(1.8, 0.9)).toBeCloseTo(16.2)
+    expect(computeEvidenceImpactScore(0.8, 0.6)).toBeCloseTo(4.8)
+  })
+
+  it('should collapse when the EVS collapses (retraction)', () => {
+    // T1 → T0 with failed replications: EVS 0.8 → 0.01
+    expect(computeEvidenceImpactScore(0.01, 0.6)).toBeCloseTo(0.06)
+  })
+
+  it('should clamp to [0, 100]', () => {
+    expect(computeEvidenceImpactScore(1000, 1)).toBe(100)
+    expect(computeEvidenceImpactScore(-5, 0.5)).toBe(0)
   })
 })
 

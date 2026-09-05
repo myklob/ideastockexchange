@@ -7,8 +7,15 @@
 //
 // Deliberately returns NO numeric fields: the invariant "fallacy detection
 // changes zero score fields" is enforced by this module's shape.
+//
+// Every fallacyType here is a slug in the canonical catalog
+// (src/lib/fallacy/catalog.ts), which also backs the structured accusation
+// template humans file. targetFactor is resolved from the catalog so the
+// two paths can never disagree about what a given fallacy damages.
 
-export type FallacyTargetFactor = 'relevance' | 'logical-validity' | 'evidence-quality'
+import { catalogEntry, type FallacyTargetFactor } from '@/lib/fallacy/catalog'
+
+export type { FallacyTargetFactor }
 
 export interface FallacyDetection {
   fallacyType: string
@@ -21,7 +28,6 @@ export interface FallacyDetection {
 
 interface DetectorRule {
   fallacyType: string
-  targetFactor: FallacyTargetFactor
   pattern: RegExp
   counter: (match: string) => string
 }
@@ -29,7 +35,6 @@ interface DetectorRule {
 const RULES: DetectorRule[] = [
   {
     fallacyType: 'ad-hominem',
-    targetFactor: 'relevance',
     pattern: /\b(liar|liars|idiot|idiots|stupid|corrupt|dishonest|evil|fraud|frauds|shill|shills|crook|crooks)\b/i,
     counter: match =>
       `This argument attacks the source's character ("${match}") rather than the claim. ` +
@@ -37,7 +42,6 @@ const RULES: DetectorRule[] = [
   },
   {
     fallacyType: 'appeal-to-popularity',
-    targetFactor: 'relevance',
     pattern: /\b(everyone knows|everybody knows|most people (?:agree|believe|think)|nobody (?:believes|thinks|doubts)|it is widely believed)\b/i,
     counter: match =>
       `This argument appeals to popularity ("${match}"). How many people hold a belief is not ` +
@@ -45,7 +49,6 @@ const RULES: DetectorRule[] = [
   },
   {
     fallacyType: 'false-cause',
-    targetFactor: 'logical-validity',
     pattern: /\bcorrelat\w+\b[^.]*\b(caus\w+|proves?|proof)\b|\b(caus\w+|proves?|proof)\b[^.]*\bcorrelat\w+\b/i,
     counter: match =>
       `This argument treats correlation as causation ("${match.trim()}"). The stated relationship ` +
@@ -53,7 +56,6 @@ const RULES: DetectorRule[] = [
   },
   {
     fallacyType: 'overgeneralization',
-    targetFactor: 'logical-validity',
     pattern: /\b(always|never|without exception|in every case)\b/i,
     counter: match =>
       `This argument asserts a universal ("${match}"). A single counterexample falsifies a ` +
@@ -61,7 +63,6 @@ const RULES: DetectorRule[] = [
   },
   {
     fallacyType: 'cherry-picking',
-    targetFactor: 'evidence-quality',
     pattern: /\b(one study|a single (?:study|case|example)|the only (?:study|evidence)|one survey)\b/i,
     counter: match =>
       `This argument rests on an isolated source ("${match}"). Evidence quality depends on the ` +
@@ -69,7 +70,6 @@ const RULES: DetectorRule[] = [
   },
   {
     fallacyType: 'anecdotal-evidence',
-    targetFactor: 'evidence-quality',
     pattern: /\b(i know (?:a|someone)|my (?:friend|uncle|aunt|neighbor|cousin)|personal experience)\b/i,
     counter: match =>
       `This argument offers an anecdote ("${match}") as evidence. Anecdotes are T4 sources; ` +
@@ -89,9 +89,11 @@ export function detectFallacies(text: string): FallacyDetection[] {
     const match = text.match(rule.pattern)
     if (match) {
       const matched = match[0]
+      const entry = catalogEntry(rule.fallacyType)
+      if (!entry) continue
       detections.push({
         fallacyType: rule.fallacyType,
-        targetFactor: rule.targetFactor,
+        targetFactor: entry.targetFactor,
         counterStatement: rule.counter(matched),
         matchedText: matched,
       })

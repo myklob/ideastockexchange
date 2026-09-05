@@ -46,6 +46,38 @@ interface PostBody {
   restatementAcknowledgedId?: number
 }
 
+/**
+ * True when `parentBeliefId` is already reachable downward from
+ * `childBeliefId` through reason edges — meaning the new edge would close a
+ * citation loop (A cites B, B cites A). Circular citations have no external
+ * foundation, so they are rejected at posting rather than silently scored;
+ * the propagation engine's visited-set is a safety net, not a verdict.
+ */
+async function wouldCreateCircularCitation(
+  parentBeliefId: number,
+  childBeliefId: number,
+): Promise<boolean> {
+  if (parentBeliefId === childBeliefId) return true
+
+  let frontier = [childBeliefId]
+  const seen = new Set<number>(frontier)
+  while (frontier.length > 0) {
+    const edges = await prisma.argument.findMany({
+      where: { parentBeliefId: { in: frontier } },
+      select: { beliefId: true },
+    })
+    frontier = []
+    for (const edge of edges) {
+      if (edge.beliefId === parentBeliefId) return true
+      if (!seen.has(edge.beliefId)) {
+        seen.add(edge.beliefId)
+        frontier.push(edge.beliefId)
+      }
+    }
+  }
+  return false
+}
+
 /** The strongest published argument on a side, by current impact magnitude. */
 async function strongestOnSide(beliefId: number, side: 'agree' | 'disagree') {
   const args = await prisma.argument.findMany({
@@ -217,8 +249,30 @@ export async function POST(
     }
   }
 
-  // ── Create the child belief + edge (no scores), then let the engine run ─
+  // ── Circular-citation guard ─────────────────────────────────────────────
+  // Only an existing belief can close a loop; a brand-new statement has no
+  // descendants yet. If the reason (or anything beneath it) already cites
+  // this belief as its own reason, the graph would have no external
+  // foundation — reject with the loop named.
   const slug = slugify(statement)
+  const existingChild = await prisma.belief.findUnique({
+    where: { slug },
+    select: { id: true, statement: true },
+  })
+  if (existingChild && (await wouldCreateCircularCitation(belief.id, existingChild.id))) {
+    return NextResponse.json(
+      {
+        error:
+          'Circular citation detected: this claim (or a claim beneath it) already rests on the ' +
+          'belief you are posting to. Arguments must bottom out in independent evidence, not in ' +
+          'each other. Add evidence to the existing claim instead.',
+        circularWith: { id: existingChild.id, statement: existingChild.statement },
+      },
+      { status: 422 },
+    )
+  }
+
+  // ── Create the child belief + edge (no scores), then let the engine run ─
   const rationale = [
     body.rationale?.trim() || null,
     belief.highStakes && body.principle

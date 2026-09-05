@@ -1,25 +1,62 @@
 /**
- * Evidence verification lifecycle: the retraction flow.
+ * Evidence update endpoint: when the evidence changes, everything built on
+ * it changes too.
  *
- * PATCH sets an engine Evidence node's verificationStatus (UNVERIFIED /
- * VERIFIED / DISPUTED / FALSIFIED). FALSIFIED zeroes the node's contribution
- * in computeBeliefScores and the change propagates to every score built on
- * it — including any topic-page ledger row bridged via
- * DebateEvidence.engineEvidenceId, which derives its standing from this
- * node at render time.
+ * This is the zombie-argument kill switch. A retraction, a failed
+ * replication, or a tier reclassification is submitted here as a change to
+ * the evidence row's CLASSIFICATION inputs (never its scores); the engine
+ * recomputes EVS and impact, then propagates through every argument and
+ * conclusion that rests on this evidence. Each belief the cascade touches
+ * gets a BeliefScoreEvent naming this change as the trigger, so readers see
+ * WHY a score moved, not just that it did.
  *
- * Audit lock: the status is a lifecycle state, not a score; scores stay
- * engine-computed. Every transition is audit-logged with a mandatory
- * rationale, and the graph freeze applies (a retraction is a score-moving
- * graph edit like any other).
+ * The canonical example: a fraudulent study is retracted → evidenceType
+ * T1 → T0 → EVS collapses → the belief it propped up drops → every
+ * conclusion citing that belief drops. No manual cleanup, no persistent myth.
+ *
+ * Alongside the tier inputs, `verificationStatus` tracks the finding's own
+ * lifecycle (UNVERIFIED / VERIFIED / DISPUTED / FALSIFIED): tier classifies
+ * the SOURCE, status tracks whether the FINDING held up. FALSIFIED zeroes
+ * the row's contribution in computeBeliefScores, and any topic-page ledger
+ * row bridged via DebateEvidence.engineEvidenceId derives its standing from
+ * this status at render time.
+ *
+ * A `reason` is required on every change: reclassifying evidence without
+ * saying why is how zombie arguments get made in the other direction.
  */
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
+import {
+  calculateEVS,
+  computeEvidenceImpactScore,
+  getEvidenceTypeWeight,
+} from '@/core/scoring/scoring-engine'
 import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
 
+const VALID_TIERS = ['T0', 'T1', 'T2', 'T3', 'T4'] as const
 const VALID_STATUSES = ['UNVERIFIED', 'VERIFIED', 'DISPUTED', 'FALSIFIED'] as const
+
+interface PatchBody {
+  /** Why this change is being made (retraction notice, critique, correction). Required. */
+  reason?: string
+  /** Reclassify the tier — 'T0' marks the source retracted/fraudulent. */
+  evidenceType?: string
+  /** Lifecycle of the finding itself — 'FALSIFIED' zeroes its contribution. */
+  verificationStatus?: string
+  side?: string
+  description?: string
+  sourceUrl?: string
+  replicationQuantity?: number
+  conclusionRelevance?: number
+  replicationPercentage?: number
+  linkageScore?: number
+}
+
+function inRange01(value: number): boolean {
+  return Number.isFinite(value) && value >= 0 && value <= 1
+}
 
 export async function GET(
   _request: Request,
@@ -30,26 +67,32 @@ export async function GET(
   if (!Number.isInteger(evidenceId)) {
     return NextResponse.json({ error: 'Invalid evidence id.' }, { status: 400 })
   }
+
   const evidence = await prisma.evidence.findUnique({
     where: { id: evidenceId },
-    select: {
-      id: true,
-      beliefId: true,
-      side: true,
-      description: true,
-      verificationStatus: true,
-      evsScore: true,
-      linkageScore: true,
-    },
+    include: { belief: { select: { id: true, slug: true, statement: true } } },
   })
   if (!evidence) return NextResponse.json({ error: 'Evidence not found.' }, { status: 404 })
+
+  const tierWeight = getEvidenceTypeWeight(evidence.evidenceType)
   return NextResponse.json({
     evidence,
+    derivation: {
+      formula: 'EVS = ESIW × log2(ERQ + 1) × ECRS × ERP; impact = EVS × linkage × 10',
+      tierWeight,
+      evsScore: evidence.evsScore,
+      impactScore: evidence.impactScore,
+    },
     lifecycle: {
       states: VALID_STATUSES,
       weights: { VERIFIED: 1, DISPUTED: 0.5, UNVERIFIED: 0.5, FALSIFIED: 0 },
       note: 'Null status = legacy row predating the lifecycle; counts at full weight.',
     },
+    changeLog: await prisma.auditLog.findMany({
+      where: { targetType: 'Evidence', targetId: String(evidenceId) },
+      orderBy: { createdAt: 'desc' },
+      select: { action: true, rationale: true, payload: true, createdAt: true },
+    }),
   })
 }
 
@@ -67,69 +110,156 @@ export async function PATCH(
     return NextResponse.json({ error: GRAPH_FREEZE_MESSAGE }, { status: 423 })
   }
 
-  let body: { verificationStatus?: string; rationale?: string }
+  let body: PatchBody
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Body must be valid JSON.' }, { status: 400 })
   }
 
-  const status = body.verificationStatus
-  if (!status || !VALID_STATUSES.includes(status as (typeof VALID_STATUSES)[number])) {
+  const forbidden = ['evsScore', 'impactScore', 'sourceIndependenceWeight']
+  const submitted = Object.keys(body as Record<string, unknown>).filter((k) => forbidden.includes(k))
+  if (submitted.length > 0) {
+    return NextResponse.json(
+      { error: `Score fields are never accepted (${submitted.join(', ')}). The engine computes scores.` },
+      { status: 422 },
+    )
+  }
+
+  const reason = body.reason?.trim()
+  if (!reason || reason.length < 10) {
+    return NextResponse.json(
+      {
+        error:
+          'reason is required (min 10 chars): cite the retraction notice, critique, or ' +
+          'correction that justifies changing this evidence.',
+      },
+      { status: 422 },
+    )
+  }
+
+  const existing = await prisma.evidence.findUnique({ where: { id: evidenceId } })
+  if (!existing) return NextResponse.json({ error: 'Evidence not found.' }, { status: 404 })
+
+  if (body.evidenceType !== undefined && !VALID_TIERS.includes(body.evidenceType as (typeof VALID_TIERS)[number])) {
+    return NextResponse.json(
+      { error: `evidenceType must be one of ${VALID_TIERS.join(', ')}.` },
+      { status: 422 },
+    )
+  }
+  if (
+    body.verificationStatus !== undefined &&
+    !VALID_STATUSES.includes(body.verificationStatus as (typeof VALID_STATUSES)[number])
+  ) {
     return NextResponse.json(
       { error: `verificationStatus must be one of ${VALID_STATUSES.join(', ')}.` },
       { status: 422 },
     )
   }
-  const rationale = body.rationale?.trim()
-  if (!rationale || rationale.length < 10) {
+  if (body.side !== undefined && body.side !== 'supporting' && body.side !== 'weakening') {
+    return NextResponse.json({ error: "side must be 'supporting' or 'weakening'." }, { status: 422 })
+  }
+  if (
+    body.replicationQuantity !== undefined &&
+    (!Number.isInteger(body.replicationQuantity) || body.replicationQuantity < 0)
+  ) {
     return NextResponse.json(
-      { error: 'rationale is required (min 10 chars) — every lifecycle transition is audited.' },
+      { error: 'replicationQuantity must be a non-negative integer.' },
       { status: 422 },
     )
   }
+  for (const name of ['conclusionRelevance', 'replicationPercentage', 'linkageScore'] as const) {
+    const value = body[name]
+    if (value !== undefined && !inRange01(value)) {
+      return NextResponse.json({ error: `${name} must be between 0 and 1.` }, { status: 422 })
+    }
+  }
 
-  const evidence = await prisma.evidence.findUnique({
-    where: { id: evidenceId },
-    select: { id: true, beliefId: true, verificationStatus: true, description: true },
+  // Merge the classification inputs, then let the engine recompute the scores.
+  const next = {
+    evidenceType: body.evidenceType ?? existing.evidenceType,
+    verificationStatus: body.verificationStatus ?? existing.verificationStatus,
+    side: body.side ?? existing.side,
+    description: body.description?.trim() || existing.description,
+    sourceUrl: body.sourceUrl !== undefined ? body.sourceUrl.trim() || null : existing.sourceUrl,
+    replicationQuantity: body.replicationQuantity ?? existing.replicationQuantity,
+    conclusionRelevance: body.conclusionRelevance ?? existing.conclusionRelevance,
+    replicationPercentage: body.replicationPercentage ?? existing.replicationPercentage,
+    linkageScore: body.linkageScore ?? existing.linkageScore,
+  }
+
+  const sourceIndependenceWeight = getEvidenceTypeWeight(next.evidenceType)
+  const evsScore = calculateEVS({
+    sourceIndependenceWeight,
+    replicationQuantity: next.replicationQuantity,
+    conclusionRelevance: next.conclusionRelevance,
+    replicationPercentage: next.replicationPercentage,
   })
-  if (!evidence) return NextResponse.json({ error: 'Evidence not found.' }, { status: 404 })
+  const impactScore = computeEvidenceImpactScore(evsScore, next.linkageScore)
+
+  const tierChanged = next.evidenceType !== existing.evidenceType
+  const statusChanged = next.verificationStatus !== existing.verificationStatus
+  const changeSummary = tierChanged
+    ? `retier ${existing.evidenceType} → ${next.evidenceType}`
+    : statusChanged
+      ? `marked ${next.verificationStatus}`
+      : 'reclassified'
 
   await prisma.$transaction(async (tx) => {
     await tx.evidence.update({
       where: { id: evidenceId },
-      data: { verificationStatus: status },
+      data: { ...next, sourceIndependenceWeight, evsScore, impactScore },
     })
+
     await tx.auditLog.create({
       data: {
-        action: 'evidence_status_change',
+        action: 'update_evidence',
         targetType: 'Evidence',
         targetId: String(evidenceId),
-        rationale,
+        rationale: reason,
         payload: JSON.stringify({
-          from: evidence.verificationStatus,
-          to: status,
-          beliefId: evidence.beliefId,
+          before: {
+            evidenceType: existing.evidenceType,
+            verificationStatus: existing.verificationStatus,
+            side: existing.side,
+            replicationQuantity: existing.replicationQuantity,
+            conclusionRelevance: existing.conclusionRelevance,
+            replicationPercentage: existing.replicationPercentage,
+            linkageScore: existing.linkageScore,
+            evsScore: existing.evsScore,
+            impactScore: existing.impactScore,
+          },
+          after: { ...next, evsScore, impactScore },
         }),
       },
     })
   })
 
-  // The retraction (or confirmation) changes this belief's evidence weight,
-  // so recompute it and everything upstream.
+  // The cascade: this belief, then every argument and conclusion above it.
+  // Each score movement lands as a BeliefScoreEvent naming this change.
   const propagation = await propagateBeliefScores(
-    evidence.beliefId,
+    existing.beliefId,
     new Set(),
     0,
-    `evidence #${evidenceId} marked ${status}`,
+    `evidence #${evidenceId} ${changeSummary}: ${reason}`,
   )
 
   return NextResponse.json({
     evidenceId,
-    verificationStatus: status,
-    propagated: {
-      beliefsUpdated: propagation.updatedBeliefIds.length,
-      argumentsUpdated: propagation.updatedArgumentIds.length,
+    verificationStatus: next.verificationStatus,
+    evsScore: { before: existing.evsScore, after: evsScore },
+    impactScore: { before: existing.impactScore, after: impactScore },
+    cascade: {
+      updatedBeliefs: propagation.updatedBeliefIds.length,
+      updatedArguments: propagation.updatedArgumentIds.length,
+      depth: propagation.depth,
     },
+    note: tierChanged
+      ? `Tier ${existing.evidenceType} → ${next.evidenceType}. Every conclusion resting on this ` +
+        'evidence has been recalculated; score histories name this change as the trigger.'
+      : statusChanged
+        ? `Verification status ${existing.verificationStatus ?? 'unset'} → ${next.verificationStatus}. ` +
+          'Dependent scores recalculated.'
+        : 'Evidence reclassified and all dependent scores recalculated.',
   })
 }

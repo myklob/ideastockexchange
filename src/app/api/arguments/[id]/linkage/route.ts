@@ -54,9 +54,11 @@ export async function GET(
     return NextResponse.json({ error: 'Argument not found' }, { status: 404 })
   }
 
-  // Compute current linkage score from stored LinkageArguments
+  // Compute current linkage score from stored LinkageArguments. Published
+  // rows only: drafts are visible in the response but never counted.
+  const publishedLinkageArgs = arg.linkageArguments.filter(la => la.status === 'published')
   const computedLinkageScore = calculateLinkageFromArguments(
-    arg.linkageArguments.map(la => ({ side: la.side, strength: la.strength }))
+    publishedLinkageArgs.map(la => ({ side: la.side, strength: la.strength }))
   )
 
   // Apply depth attenuation for display purposes
@@ -80,8 +82,8 @@ export async function GET(
       attenuatedScore,
       depthFactor: Math.pow(0.5, arg.depth),
       formula: `(A − D) / (A + D)  →  depth-attenuated × 0.5^${arg.depth}`,
-      proCount: arg.linkageArguments.filter(la => la.side === 'agree').length,
-      conCount: arg.linkageArguments.filter(la => la.side === 'disagree').length,
+      proCount: publishedLinkageArgs.filter(la => la.side === 'agree').length,
+      conCount: publishedLinkageArgs.filter(la => la.side === 'disagree').length,
     },
   })
 }

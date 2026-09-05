@@ -8,7 +8,7 @@ interface EvidenceSectionProps {
 }
 
 function tierLabel(type: string): string {
-  return ['T1', 'T2', 'T3', 'T4'].includes(type) ? type : 'T?'
+  return ['T0', 'T1', 'T2', 'T3', 'T4'].includes(type) ? type : 'T?'
 }
 
 function linkPct(score: number | null | undefined): string {
@@ -67,7 +67,8 @@ export default function EvidenceSection({ evidence }: EvidenceSectionProps) {
       </h2>
       <p className="text-sm text-[var(--muted-foreground)] mb-4 italic">
         Key: <strong>T1</strong>=Peer-reviewed/Official, <strong>T2</strong>=Expert/Institutional,{' '}
-        <strong>T3</strong>=Journalism/Surveys, <strong>T4</strong>=Opinion/Anecdote
+        <strong>T3</strong>=Journalism/Surveys, <strong>T4</strong>=Opinion/Anecdote,{' '}
+        <strong>T0</strong>=Retracted/Fraudulent
       </p>
 
       <div className="overflow-x-auto">

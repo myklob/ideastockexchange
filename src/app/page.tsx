@@ -352,6 +352,58 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Topic Hubs (One Page Per Topic) */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6">
+            One Page Per Topic: Multi-Dimensional Belief Mapping
+          </h2>
+          <p className="text-lg text-[var(--muted-foreground)] mb-8">
+            Every topic gets one hub page where all beliefs about it converge, organized across three
+            dimensions — direction (negative ↔ positive), claim magnitude (weak ↔ extreme), and
+            abstraction (general ↔ specific) — and sorted by engine-computed scores, so the
+            best-supported version of any claim rises to the top instead of the loudest.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">The Position Spectrum</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                See every stance from −100 to +100 in one sorted view — nuance instead of a
+                binary pro/con shouting match.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Bolder Claims, Higher Burden</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Sort the same topic by how much each phrasing asserts. The boldest claim
+                doesn&apos;t win by default — it has to earn its score with stronger evidence.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">The Abstraction Ladder</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Zoom out to the general principle or down to the concrete proposal, with parent
+                and child topics one click away — and duplicates merged, not repeated.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <Link
+              href="/topics"
+              className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Browse Topics
+            </Link>
+            <Link
+              href="/topics/trump-capability"
+              className="inline-block border border-[var(--border)] hover:border-[var(--accent)] px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Example: Trump&apos;s Intelligence
+            </Link>
+          </div>
+        </section>
+
         {/* Debate Topic Pages */}
         <section className="mb-16">
           <h2 className="text-3xl font-bold mb-6">

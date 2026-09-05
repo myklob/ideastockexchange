@@ -202,6 +202,17 @@ model Belief {
   /// An extreme claim must earn its score through extraordinary evidence — or it scores near zero.
   claimStrength Float @default(0.5)
 
+  /// Evidence Grounding Score (0-1): how much of this belief's support
+  /// bottoms out in tiered evidence records rather than free-floating claims.
+  /// Engine-computed during propagation (src/lib/grounding.ts):
+  ///   raw = Σ tierWeight × |linkage| over own evidence
+  ///       + Σ |linkage| × childGrounding over published argument edges
+  ///   groundingScore = raw / (raw + 1)
+  /// Exactly 0 means no evidence anywhere in the tree ("Unfounded"); a
+  /// citation ring contributes nothing. This is the evidence-based ranking
+  /// input — engagement is never a ranking input.
+  groundingScore Float @default(0)
+
   /// Specificity (0-1): position on the abstraction ladder.
   ///   0.0 = Highly general principle (e.g. "Corruption undermines government")
   ///   0.33 = Moderately general       (e.g. "U.S. Presidents are often corrupt")
@@ -310,9 +321,17 @@ model Belief {
   suggestedEvidence SuggestedEvidence[]
   forumPosts        ForumPost[]
 
+  /// External conversations (chatrooms, web forums) plugged into this
+  /// belief's permanent page, and the candidate arguments mined from them.
+  conversationThreads ConversationThread[]
+  argumentCandidates  ArgumentCandidate[]
+
   epochSnapshots  EpochSnapshot[]
   marketContracts MarketContract[]
   externalMarkets ExternalMarketLink[]
+
+  /// Topic hub pages this belief appears on (One Page Per Topic).
+  topics TopicBelief[]
 }
 
 enum LinkageClassification {
@@ -404,9 +423,13 @@ model Argument {
 
   linkageArguments LinkageArgument[]
   linkageVotes     LinkageVote[]
+  fallacyClaims    FallacyClaim[]
 
   equivalenceCandidatesAsNew      EquivalenceCandidate[] @relation("EquivalenceCandidateNew")
   equivalenceCandidatesAsExisting EquivalenceCandidate[] @relation("EquivalenceCandidateExisting")
+
+  candidatesNearest    ArgumentCandidate[] @relation("CandidateNearestArgument")
+  candidatesIntegrated ArgumentCandidate[] @relation("CandidateIntegratedArgument")
 
   linkageRephrasings     LinkageRephrasing[]
   linkageFiveStepCheck   LinkageFiveStepCheck?
@@ -579,6 +602,89 @@ model LinkageVote {
 
   @@unique([argumentId, userId])
   @@index([argumentId])
+}
+
+/// A structured fallacy accusation against an argument edge. You can't just
+/// yell "FALLACY!": every template field below is required before the claim
+/// exists, and the claim is itself an argument — it enters the linkage
+/// sub-debate as a draft counter-argument and changes nothing until the
+/// community confirms it (weighted consensus ≥ 60%, see src/lib/consensus.ts).
+/// Confirmation publishes the counter-argument; rejection retires it. No
+/// score is ever docked by the act of accusing.
+model FallacyClaim {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  /// Canonical type slug from FALLACY_CATALOG (e.g. "false-dilemma").
+  fallacyType String
+  /// Factor a confirmed claim damages: "relevance" | "logical-validity" | "evidence-quality".
+  /// Denormalized from the catalog at filing time so history survives catalog edits.
+  targetFactor String
+  /// "minor" | "major" — from the catalog at filing time; drives the
+  /// logical-validity ladder once confirmed.
+  severity String
+
+  // ── The accusation template (all required; validateFallacyClaimInput) ──
+  /// Exact text of the target that commits the fallacy.
+  quotedText      String
+  /// Why the quote qualifies as this fallacy type.
+  explanation     String
+  /// What is being excluded, misrepresented, or left unsupported.
+  missingElements String
+  /// JSON array of {label, url?, beliefSlug?} — the evidence the accusation
+  /// rests on (excluded alternatives, the opponent's actual position, the
+  /// contradicting studies). Types that need evidence reject an empty array.
+  evidenceLinks   String
+  /// How the fallacy affects the argument's validity if confirmed.
+  consequences    String
+
+  /// "open" | "confirmed" | "rejected" — moved only by community consensus,
+  /// never by filing.
+  status String @default("open")
+  /// Weighted agreement share (0-1) at last resolution check. Null until quorum.
+  consensus  Float?
+  resolvedAt DateTime?
+
+  /// The draft counter-argument this claim placed in the linkage sub-debate.
+  /// Published on confirmation, retired ("rejected") on rejection.
+  counterLinkageArgumentId Int? @unique
+
+  submittedById      String?
+  submittedByAgentId String?
+  submittedByAgent   Agent?  @relation("FallacyClaimSubmittedBy", fields: [submittedByAgentId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  votes FallacyClaimVote[]
+
+  @@index([argumentId])
+  @@index([status])
+  @@index([submittedById])
+  @@index([submittedByAgentId])
+}
+
+/// One community evaluation of a fallacy claim. `weight` is the voter's
+/// caller-credibility multiplier (src/lib/fallacy/calibration.ts) frozen at
+/// vote time: accurate, cross-partisan callers count more; tribal or
+/// inaccurate callers count less.
+model FallacyClaimVote {
+  id             Int          @id @default(autoincrement())
+  fallacyClaimId Int
+  fallacyClaim   FallacyClaim @relation(fields: [fallacyClaimId], references: [id])
+
+  userId    String
+  /// true = the fallacy claim is correct; false = the accusation fails.
+  agree     Boolean
+  reasoning String?
+  weight    Float   @default(1.0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([fallacyClaimId, userId])
+  @@index([fallacyClaimId])
+  @@index([userId])
 }
 
 model Evidence {
@@ -1570,6 +1676,65 @@ model NetworkPosition {
   @@index([analysisId])
 }
 
+// ─── Topic Hub Models (One Page Per Topic) ──────────────────────
+
+/// A topic hub: the "one page per topic" surface. Groups every belief that
+/// takes a position on the same underlying question so they can be sorted
+/// across the three dimensions each Belief already carries — direction
+/// (positivity, -100..+100), claim magnitude (claimStrength, 0-1), and
+/// abstraction (specificity, 0-1) — plus the engine-computed score.
+model Topic {
+  id    Int    @id @default(autoincrement())
+  slug  String @unique
+  title String
+
+  /// The neutral question this page answers, e.g. "What is the overall
+  /// impact of social media?" Phrased so no position is baked into the hub.
+  question    String?
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  beliefs TopicBelief[]
+
+  /// Edges where this topic is the child (its parents) / the parent (its children).
+  parentLinks TopicRelation[] @relation("RelationChild")
+  childLinks  TopicRelation[] @relation("RelationParent")
+}
+
+/// Membership of a belief on a topic page. A belief can appear on many topic
+/// pages (e.g. "Trump isn't very smart" belongs to both "Trump's Intelligence"
+/// and "Politicians' Intelligence"). Dimension coordinates live on Belief —
+/// this row records membership only, so a belief's coordinates are identical
+/// on every page it appears on.
+model TopicBelief {
+  id       Int    @id @default(autoincrement())
+  topicId  Int
+  topic    Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([topicId, beliefId])
+  @@index([beliefId])
+}
+
+/// Parent/child edge between topics — the topic-level abstraction ladder
+/// ("Debate Reform" is a parent of "One Page Per Topic"). Distinct from the
+/// belief-level ladder inside a single topic, which sorts by specificity.
+model TopicRelation {
+  id       Int   @id @default(autoincrement())
+  parentId Int
+  parent   Topic @relation("RelationParent", fields: [parentId], references: [id], onDelete: Cascade)
+  childId  Int
+  child    Topic @relation("RelationChild", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
+  @@index([childId])
+}
+
 // ─── Debate Topic Models ─────────────────────────────────────────
 
 /// A full Wikipedia-for-debates topic page (e.g. "Marriage", "Immigration", "Climate Change").
@@ -2185,9 +2350,11 @@ model Agent {
   arguments         Argument[]          @relation("ArgumentSubmittedBy")
   evidence          Evidence[]          @relation("EvidenceRetrievedBy")
   linkageArguments  LinkageArgument[]   @relation("LinkageArgumentSubmittedBy")
+  fallacyClaims     FallacyClaim[]      @relation("FallacyClaimSubmittedBy")
   suggestedEvidence SuggestedEvidence[]
   forumPosts        ForumPost[]
   forumComments     ForumComment[]
+  conversationThreads ConversationThread[]
 }
 
 model AgentApiKey {
@@ -2264,8 +2431,39 @@ model EquivalenceCandidate {
   similarity         Float
   detectedAt         DateTime @default(now())
 
+  /// "open" | "grouped" | "kept-separate" — moved only by community consensus
+  /// (weighted ≥ 60%, src/lib/consensus.ts), mirroring how Wikipedia settles
+  /// merge proposals. Grouping is a community verdict, not an algorithm's.
+  status     String    @default("open")
+  /// Weighted agreement share (0-1) at last resolution check. Null until quorum.
+  consensus  Float?
+  resolvedAt DateTime?
+
+  votes GroupingVote[]
+
   @@index([argumentId])
   @@index([existingArgumentId])
+  @@index([status])
+}
+
+/// One community vote on whether an EquivalenceCandidate pair really is the
+/// same claim said differently. "This is the same as [existing claim]" plus
+/// reasoning; 60% weighted agreement groups the pair.
+model GroupingVote {
+  id          Int                  @id @default(autoincrement())
+  candidateId Int
+  candidate   EquivalenceCandidate @relation(fields: [candidateId], references: [id])
+
+  userId    String
+  /// true = same claim, group them; false = genuinely different, keep separate.
+  agree     Boolean
+  reasoning String?
+  weight    Float   @default(1.0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([candidateId, userId])
+  @@index([candidateId])
 }
 
 /// Knowledge-connector queue (suggestion-only). A proposal becomes an
@@ -2331,6 +2529,106 @@ model ForumComment {
   createdAt DateTime @default(now())
 
   @@index([postId])
+}
+
+// ─── Conversation Integration (chatrooms & web forums) ───────────
+// Every conversation plugs into a permanent belief page. A thread transcript
+// is imported verbatim, candidate pro/con claims are mined from it and
+// matched to the belief graph, and a human or agent review turns accepted
+// candidates into Arguments — through the same ingestion firewall as any
+// other move. The transcript itself never affects a score.
+
+/// One imported external conversation (a Discord/Reddit/X thread, a chat-room
+/// log, a web-forum topic). Raw source material: extraction mines it, the
+/// firewall integrates it, and the belief page is where the result lives.
+model ConversationThread {
+  id        String  @id @default(cuid())
+  /// "discord" | "reddit" | "twitter" | "forum" | "chat" | "other"
+  platform  String
+  title     String
+  sourceUrl String?
+
+  /// The permanent page this conversation plugs into. Named at import or
+  /// resolved by matching; null only when no belief matched at all.
+  beliefId Int?
+  belief   Belief? @relation(fields: [beliefId], references: [id])
+
+  submittedByAgentId String
+  submittedByAgent   Agent  @relation(fields: [submittedByAgentId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  messages   ConversationMessage[]
+  candidates ArgumentCandidate[]
+
+  @@index([beliefId])
+  @@index([createdAt])
+}
+
+/// One verbatim message from the transcript. Immutable after import so every
+/// candidate can point back at exactly what was said.
+model ConversationMessage {
+  id       String             @id @default(cuid())
+  threadId String
+  thread   ConversationThread @relation(fields: [threadId], references: [id])
+
+  /// Zero-based position in the thread.
+  index        Int
+  authorHandle String
+  body         String
+  postedAt     DateTime?
+
+  candidates ArgumentCandidate[]
+
+  @@unique([threadId, index])
+  @@index([threadId])
+}
+
+/// One candidate pro/con claim mined from a conversation message. Stored, not
+/// scored: a candidate becomes an Argument only when integration runs it
+/// through the ingestion firewall (five-step check, audit log, no scores).
+model ArgumentCandidate {
+  id        String              @id @default(cuid())
+  threadId  String
+  thread    ConversationThread  @relation(fields: [threadId], references: [id])
+  messageId String
+  message   ConversationMessage @relation(fields: [messageId], references: [id])
+
+  /// Normalized standalone claim extracted from the message.
+  statement String
+  /// "pro" | "con" relative to the matched belief. A heuristic stance read,
+  /// correctable at review — candidates are pending until integrated.
+  direction String
+  /// The sentence in its surrounding message text, kept for the five-step
+  /// mechanism draft and for reviewers to check the stance read.
+  contextQuote String?
+  /// Newline-separated URLs shared alongside the claim, offered as evidence
+  /// provenance at integration time.
+  evidenceUrls String?
+
+  beliefId Int?
+  belief   Belief? @relation(fields: [beliefId], references: [id])
+
+  /// Closest existing same-side argument under the belief, from the
+  /// redundancy scan. Bands route (combine vs extend); nothing auto-merges.
+  nearestArgumentId Int?
+  nearestArgument   Argument? @relation("CandidateNearestArgument", fields: [nearestArgumentId], references: [id])
+  similarity        Float?
+  /// "same-claim" | "probable-group" | "related-link" | "distinct"
+  band              String?
+
+  /// "pending" | "integrated" | "duplicate" | "dismissed"
+  status               String    @default("pending")
+  integratedArgumentId Int?
+  integratedArgument   Argument? @relation("CandidateIntegratedArgument", fields: [integratedArgumentId], references: [id])
+  integratedBatchId    String?
+
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  @@index([threadId])
+  @@index([beliefId])
+  @@index([status])
 }
 
 // ─── Prediction Market Layer (belief-score contracts) ────────────

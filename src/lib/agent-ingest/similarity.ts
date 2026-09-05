@@ -63,3 +63,26 @@ export const EQUIVALENCE_CANDIDATE_THRESHOLD = 0.5
  *  overlap remains). Anti-topic-drift: restating stops counting as
  *  contributing. */
 export const RESTATEMENT_SPEEDBUMP_THRESHOLD = 0.8
+
+/** At or above this, two statements read as the same claim in different
+ *  words: the pair goes straight to the community grouping vote as the
+ *  presumptive merge. */
+export const SAME_CLAIM_THRESHOLD = 0.95
+
+// ── Similarity bands ──────────────────────────────────────────────────────
+// What each range of textSimilarity means for the one-page-per-claim rule.
+// The bands route; the community vote (GroupingVote, 60% weighted consensus)
+// decides. No band auto-merges anything.
+
+export type SimilarityBand =
+  | 'same-claim' // ≥ 0.95: same claim, propose grouping
+  | 'probable-group' // ≥ 0.8: restatement speed bump + grouping vote
+  | 'related-link' // ≥ 0.5: candidate row — link the cluster, don't group
+  | 'distinct' // below: different claims
+
+export function similarityBand(similarity: number): SimilarityBand {
+  if (similarity >= SAME_CLAIM_THRESHOLD) return 'same-claim'
+  if (similarity >= RESTATEMENT_SPEEDBUMP_THRESHOLD) return 'probable-group'
+  if (similarity >= EQUIVALENCE_CANDIDATE_THRESHOLD) return 'related-link'
+  return 'distinct'
+}

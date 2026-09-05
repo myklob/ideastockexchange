@@ -28,6 +28,10 @@ export {
 // Duplication scoring — solves the Redundancy Problem (Topic Overlap Scores)
 export * from './duplication-scoring';
 
+// Evidence Grounding — does the argument tree bottom out in evidence?
+// The evidence-based ranking input (engagement is never a ranking input).
+export * from './grounding';
+
 // The Denominator — score a belief against its counterclaims (contrast class).
 // Layer 1 (justification, internal) + Layer 2 (opportunity cost, external).
 export * from './contrast-class';
