@@ -77,7 +77,7 @@ export default function AssumptionsSection({
         <SectionHeading
           emoji="&#x1F4A1;"
           title="Logical Anatomy and Foundational Assumptions"
-          href="/Assumptions"
+          href="/algorithms/assumptions"
         />
         <p className="text-sm text-[var(--muted-foreground)] mb-2">
           A belief statement that reads as one claim is usually several claims wearing one sentence.

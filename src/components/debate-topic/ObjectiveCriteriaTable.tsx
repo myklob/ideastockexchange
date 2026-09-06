@@ -35,7 +35,7 @@ export default function ObjectiveCriteriaTable({ criteria }: Props) {
         (how directly it connects to the claim), and <strong>Importance</strong>. Arguments that connect to
         high-scoring criteria carry more weight.{' '}
         <span className="text-gray-500">
-          See: <a href="/objective-criteria" className="text-blue-600 hover:underline">Objective Criteria Scoring</a>.
+          See: <a href="/algorithms/objective-criteria" className="text-blue-600 hover:underline">Objective Criteria Scoring</a>.
         </span>
       </p>
 
