@@ -332,6 +332,13 @@ export interface EvidenceItem {
     side: string
     belief: { slug: string; statement: string }
   } | null
+  /**
+   * Verification lifecycle: "UNVERIFIED" | "VERIFIED" | "DISPUTED" |
+   * "FALSIFIED". Null = legacy row predating the lifecycle (full weight).
+   * FALSIFIED zeroes this evidence's contribution in computeBeliefScores.
+   * Optional so existing fixtures keep flowing.
+   */
+  verificationStatus?: string | null
 }
 
 /** One row in the People on the Record table. History, never weight: who holds
