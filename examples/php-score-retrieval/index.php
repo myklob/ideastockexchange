@@ -21,7 +21,7 @@ foreach ($sets as &$ids) {
 unset($ids);
 
 $setTitles = [
-    'church' => 'From the original workbook (belief 46 and its sub-arguments)',
+    'zoning' => 'The zoning example (belief z1 and its sub-arguments)',
     'trees' => 'Synthetic example (exercises linkage scores)',
 ];
 

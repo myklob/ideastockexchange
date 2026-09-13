@@ -1,0 +1,6808 @@
+{
+ "constants": [
+  {
+   "name": "K",
+   "value": 1,
+   "meaning": "A page starts as one neutral vote (0.5) with this weight. Truth = (positive + k x 0.5) / (positive + negative + k). With k = 1 an unargued page reads 0.5, a page with one unrebutted reason moves part of the way, not all the way, to certainty."
+  },
+  {
+   "name": "UNARG",
+   "value": 0.5,
+   "meaning": "What a row reads for Truth when it has no page yet: a coin flip. Give it a page and the page decides."
+  },
+  {
+   "name": "DEFLINK",
+   "value": 1,
+   "meaning": "A reason placed under a conclusion is presumed relevant until a linkage page says otherwise; the burden is on the challenger. Open the linkage page (\"If it were true that X, it would necessarily strengthen Y\") and argue it down. The scorecard counts how many rows still rest on this presumption."
+  },
+  {
+   "name": "DEFIMP",
+   "value": 0.5,
+   "meaning": "The neutral start for importance, the wiki's own rule: an importance nobody has argued opens at 0.5, neither trivial nor decisive, until an importance page names the issues the row addresses and their argued importance takes over. Not a penalty; the absence of a claim either way."
+  },
+  {
+   "name": "DEFUNIQ",
+   "value": 1,
+   "meaning": "A reason is presumed distinct until a uniqueness page shows the overlap."
+  }
+ ],
+ "pages": [
+  {
+   "id": 1,
+   "kind": "belief",
+   "text": "Ending single-family-only zoning lowers housing costs in the cities that do it.",
+   "topic": "Housing",
+   "bottom_line": "The agree side leads on evidence from Auckland, Minneapolis and the spillover studies; the honest con is that upzoning without cheaper construction produces little where land is dearest.",
+   "positivity": 55,
+   "logical_form": "(Zoning is the binding constraint on supply in high-cost cities) AND (more supply lowers prices). The normative component (lower prices are the right goal) is separable."
+  },
+  {
+   "id": 2,
+   "kind": "claim",
+   "text": "Where cities have allowed more homes per lot, permits rose and rents grew more slowly than in comparable cities that did not.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Three cities point the same way; the open question is how much of each divergence the single-family change itself explains."
+  },
+  {
+   "id": 3,
+   "kind": "claim",
+   "text": "Housing prices track the gap between demand and the number of homes; zoning that caps homes per lot is the binding constraint on supply in high-cost metros.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The premium evidence is strong for coastal metros; construction cost is a serious rival explanation in the 2020s."
+  },
+  {
+   "id": 4,
+   "kind": "claim",
+   "text": "New market-rate homes lower rents in nearby existing buildings by pulling higher-income renters out of older housing.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The replicated finding is a small local rent decrease; the contested part is what happens to the very cheapest nearby buildings."
+  },
+  {
+   "id": 5,
+   "kind": "claim",
+   "text": "Allowing duplexes and small apartments on single-family lots adds homes without public subsidy, so it is the cheapest affordability tool available.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "True on public cost per unit; the disagree side is right that it is a slow tool for the poorest renters."
+  },
+  {
+   "id": 6,
+   "kind": "claim",
+   "text": "Upzoning alone produces few homes where land is expensive and construction costs are high; California's 2021 lot-split law produced only a few hundred units in its first two years.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Right about SB 9 and about the cost environment; weaker as a general claim, since better-designed reforms are producing rising counts."
+  },
+  {
+   "id": 7,
+   "kind": "claim",
+   "text": "Allowing more units raises land values, which can raise the price of existing homes and displace lower-income owners and renters through redevelopment.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The land-value effect is real; the displacement claim runs against the better evidence."
+  },
+  {
+   "id": 8,
+   "kind": "claim",
+   "text": "Neighborhood character, parking, school crowding and infrastructure capacity are real costs that fall on existing residents while the benefits go to newcomers.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Some costs are real and mostly unpriced; whether they bear on housing costs is decided on the linkage page (tab 14)."
+  },
+  {
+   "id": 9,
+   "kind": "claim",
+   "text": "Rents in Minneapolis and Austin also fell because of a building boom financed by cheap money in 2021-2022, which is not repeatable.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Right about Austin's timing, weak on Minneapolis; the two causes are not exclusive."
+  },
+  {
+   "id": 10,
+   "kind": "claim",
+   "text": "Minneapolis rents grew far more slowly than the rest of Minnesota from 2017 to 2023 because of its 2019 zoning and parking reforms.",
+   "topic": "Housing",
+   "parent_id": 2,
+   "bottom_line": "The divergence is real; how much of it the single-family change explains is open, and the 2017 start is the strongest objection."
+  },
+  {
+   "id": 11,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 4,
+   "y_id": 1,
+   "rowkind": "reason to agree",
+   "bridge": "Renters in existing buildings, whose rents the new homes pull down."
+  },
+  {
+   "id": 12,
+   "kind": "uniqueness",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 5,
+   "y_id": 3,
+   "bridge": "X adds a comparison of public cost per home against subsidy programs; Z says nothing about what the reform costs the public.",
+   "bottom_line": "The cost comparison is new, the mechanism is shared."
+  },
+  {
+   "id": 13,
+   "kind": "claim",
+   "text": "Upzoning along Chicago transit corridors in 2013 and 2015 raised land values and prices without increasing construction, which shows upzoning can raise housing costs.",
+   "topic": "Housing",
+   "parent_id": 7,
+   "bottom_line": "A solid finding about small corridor upzonings; it says little about citywide reform."
+  },
+  {
+   "id": 14,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 8,
+   "y_id": 1,
+   "type": "Argument",
+   "direction": "Weakens",
+   "bridge": "Costs to existing residents would weaken the belief only if they raised housing costs or got the reform repealed; on their own they are a separate cost.",
+   "bottom_line": "Low linkage: a true argument aimed at a different question. It counts fully in the cost-benefit table."
+  },
+  {
+   "id": 15,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 8,
+   "y_id": 1,
+   "rowkind": "reason to disagree",
+   "bridge": "Existing residents, who bear the parking, school and infrastructure costs."
+  },
+  {
+   "id": 16,
+   "kind": "interest",
+   "text": "Some homeowners want to keep lower-income households out of their neighborhood.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "value": "Status",
+   "measured_by": "Income mix of new residents in reformed neighborhoods against the existing residents",
+   "if_true": "Lower-income households move in as costs fall",
+   "if_false": "Income mix unchanged",
+   "latest": "Not yet measured for reformed single-family neighborhoods",
+   "bottom_line": "Held by some, valid by almost no standard; kept on the page so the scoring is visible."
+  },
+  {
+   "id": 17,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 56,
+   "y_id": 1,
+   "type": "Media",
+   "direction": "Supports",
+   "bridge": "The work measures the price of permission; the belief is about removing one kind of permission.",
+   "bottom_line": "Bearing: does the work speak to this belief at all?"
+  },
+  {
+   "id": 18,
+   "kind": "claim",
+   "text": "Ending single-family-only zoning leaves rents in reform cities about 5 percent below the counterfactual after five years.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Plausible where building follows; the magnitude is an estimate, not a measurement."
+  },
+  {
+   "id": 19,
+   "kind": "claim",
+   "text": "Ending single-family-only zoning adds about 3 homes per 1,000 residents per year without public subsidy.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Auckland-scale reforms reach the number; timid ones do not."
+  },
+  {
+   "id": 20,
+   "kind": "claim",
+   "text": "Infill housing from zoning reform cuts vehicle miles per new resident by about 20 percent compared with the same growth at the urban edge.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Well supported for the residents who would otherwise live at the edge; the counterfactual is the soft spot."
+  },
+  {
+   "id": 21,
+   "kind": "claim",
+   "text": "Ending single-family-only zoning reduces the value of existing single-family homes by about 3 percent where new homes compete with them.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Runs against the evidence: upzoning has raised, not lowered, existing values in the cases studied."
+  },
+  {
+   "id": 22,
+   "kind": "claim",
+   "text": "Redevelopment under zoning reform displaces about 50 households per 1,000 new units built.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Direct demolition displacement is real but small for middle housing; the net effect may be negative."
+  },
+  {
+   "id": 23,
+   "kind": "claim",
+   "text": "Each new unit from zoning reform imposes about 20,000 dollars of school, parking and utility costs on built-out neighborhoods.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Some cost is real; the figure is high against what cost-of-service studies show."
+  },
+  {
+   "id": 24,
+   "kind": "interest",
+   "text": "Renters and first-time buyers need housing prices they can afford.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "value": "Opportunity",
+   "measured_by": "Share of renters paying more than 30 percent of income on housing, reform cities against matched cities",
+   "if_true": "Falls in reform cities against matched cities",
+   "if_false": "No difference from matched cities",
+   "latest": "About half of renters nationally (Census ACS); not yet compared for reform cities",
+   "bottom_line": "Near the top of any hierarchy of needs; validity is not seriously contested."
+  },
+  {
+   "id": 25,
+   "kind": "interest",
+   "text": "Current homeowners need to protect the value of their homes.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "value": "Security",
+   "measured_by": "Resale price of existing single-family homes near new multiplexes, against comparable homes with no new neighbors",
+   "if_true": "Slightly lower where new homes compete",
+   "if_false": "Unchanged or higher",
+   "latest": "Mixed: land value up on upzoned lots, resale effects on neighbors small so far (Freemark 2020; Sightline 2023)",
+   "bottom_line": "Valid as security, weaker as a claim to control what neighbors build."
+  },
+  {
+   "id": 26,
+   "kind": "claim",
+   "text": "Allowing up to four units on every residential lot by right, with design standards and no parking minimums, with infrastructure funded from the added tax base, would satisfy the main interests of both sides.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The most-adopted middle ground; parking is where it succeeds or fails."
+  },
+  {
+   "id": 27,
+   "kind": "claim",
+   "text": "More housing supply lowers prices and rents relative to the counterfactual.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The basic economics holds up; induced demand slows the effect without erasing it."
+  },
+  {
+   "id": 28,
+   "kind": "claim",
+   "text": "Lower housing costs are the right goal even where current owners lose value.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "A values ranking, not a fact; the page scores the arguments for each ranking."
+  },
+  {
+   "id": 29,
+   "kind": "claim",
+   "text": "Builders respond to permission with construction at prices below current rents.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "True in most reform cities; false so far in California's narrow reform."
+  },
+  {
+   "id": 30,
+   "kind": "claim",
+   "text": "New supply mainly serves higher-income newcomers rather than filtering down.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "True about first occupants, false about where the vacancy chain ends."
+  },
+  {
+   "id": 31,
+   "kind": "claim",
+   "text": "Supporters' advertised reason (more homes, lower rents) differs from their actual driver (developer returns).",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Partly true for some funders, not for the movement."
+  },
+  {
+   "id": 32,
+   "kind": "claim",
+   "text": "Opponents' advertised reason (neighborhood character) differs from their actual driver (home equity and exclusion).",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Well supported as a tendency; not true of every opponent."
+  },
+  {
+   "id": 33,
+   "kind": "claim",
+   "text": "The benefits of zoning reform arrive years after the political fight, which makes the reform hard to sustain.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "A real obstacle: the costs are immediate and the benefits are slow."
+  },
+  {
+   "id": 34,
+   "kind": "claim",
+   "text": "Opponents cannot point to a high-cost city that fixed affordability without adding supply, which weakens their position.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Holds, with Vienna as the exception that added supply by other means."
+  },
+  {
+   "id": 35,
+   "kind": "claim",
+   "text": "Abolishing zoning entirely would lower housing costs.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The more extreme cousin of the belief; it inherits the supply evidence and adds costs the parent does not."
+  },
+  {
+   "id": 36,
+   "kind": "claim",
+   "text": "Ending single-family-only zoning slows rent growth modestly in high-demand cities and changes little elsewhere.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The version of the belief most of the evidence supports directly."
+  },
+  {
+   "id": 37,
+   "kind": "claim",
+   "text": "After Auckland upzoned about three quarters of its residential land in 2016, dwelling consents in upzoned areas rose sharply relative to trend, adding an estimated 20,000-plus homes in five years.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "A peer-reviewed finding with a clear design; the completions caveat is the main open point."
+  },
+  {
+   "id": 38,
+   "kind": "claim",
+   "text": "Austin permitted more apartments per resident than any large U.S. metro in 2021-2023, and asking rents fell more than 15 percent from their 2023 peak by 2025.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The permit ranking and the rent decline are both well documented; the size of the sitting-tenant effect is not."
+  },
+  {
+   "id": 39,
+   "kind": "claim",
+   "text": "New apartment buildings in New York, San Francisco and Helsinki lowered rents in buildings within a few hundred meters by 1 to 6 percent relative to controls.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Replicated across cities; the lowest-rent tier is the contested corner."
+  },
+  {
+   "id": 40,
+   "kind": "claim",
+   "text": "A UC Berkeley Terner Center review found fewer than 500 SB 9 applications statewide in the law's first year, concentrated in a handful of cities.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Well documented; the number is low by any count."
+  },
+  {
+   "id": 41,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 57,
+   "y_id": 1,
+   "type": "Media",
+   "direction": "Supports",
+   "bridge": "The work describes the belief's outcome in the best-known reform city.",
+   "bottom_line": "Bearing: does the work speak to this belief at all?"
+  },
+  {
+   "id": 42,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 58,
+   "y_id": 1,
+   "type": "Media",
+   "direction": "Weakens",
+   "bridge": "The work is the belief's outcome reversed, in a setting that may not compare.",
+   "bottom_line": "Bearing: does the work speak to this belief at all?"
+  },
+  {
+   "id": 43,
+   "kind": "claim",
+   "text": "Land values rise on upzoned lots before construction starts.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Well established."
+  },
+  {
+   "id": 44,
+   "kind": "claim",
+   "text": "Permit applications rise within a year of reform where the rules are simple.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "True conditional on simple rules."
+  },
+  {
+   "id": 45,
+   "kind": "claim",
+   "text": "Rents settle below the counterfactual as supply accumulates over a decade.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The central long-run prediction; the data will arrive around 2030."
+  },
+  {
+   "id": 46,
+   "kind": "claim",
+   "text": "Neighborhoods gain small apartment buildings and lose some detached homes over a decade.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Directionally certain, small in magnitude."
+  },
+  {
+   "id": 47,
+   "kind": "interest",
+   "text": "Builders need permission to build what the market will buy.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "value": "Free enterprise",
+   "measured_by": "Homes permitted per 1,000 residents per year in reform cities against matched cities",
+   "if_true": "Rises after reform",
+   "if_false": "No difference from matched cities",
+   "latest": "Auckland: consents roughly doubled in upzoned areas, 2016-2021 (Greenaway-McGrevy and Phillips 2023)",
+   "bottom_line": "Valid as an economic interest; weaker as a claim on policy priority."
+  },
+  {
+   "id": 48,
+   "kind": "interest",
+   "text": "Residents of older neighborhoods need protection from displacement by redevelopment.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "value": "Stability",
+   "measured_by": "Households moving out within 500 meters of redevelopment, per 1,000 new units, against control blocks",
+   "if_true": "No higher than controls as rents ease",
+   "if_false": "Higher than controls",
+   "latest": "Lower near new construction in San Francisco (Pennington 2021); not measured for middle housing",
+   "bottom_line": "A valid need whose size is contested."
+  },
+  {
+   "id": 49,
+   "kind": "claim",
+   "text": "Both sides want their children able to afford to live in the city they grew up in.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "About as shared as interests get."
+  },
+  {
+   "id": 50,
+   "kind": "claim",
+   "text": "Supply optimism (assuming permission alone produces homes) biases supporters of zoning reform.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Real, and easy to see in California."
+  },
+  {
+   "id": 51,
+   "kind": "claim",
+   "text": "Status-quo bias and loss aversion about home values bias opponents of zoning reform.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Well supported as a tendency."
+  },
+  {
+   "id": 52,
+   "kind": "claim",
+   "text": "Cities that reformed in 2019-2023 will show slower rent growth than matched cities through 2030.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The central pending test of the belief."
+  },
+  {
+   "id": 53,
+   "kind": "claim",
+   "text": "Reform and non-reform cities will show the same rent trajectories once interest rates and migration are controlled for.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The rival's prediction; the controlled comparison will decide it."
+  },
+  {
+   "id": 54,
+   "kind": "claim",
+   "text": "Minneapolis rents will grow more slowly than the Minnesota average in the five years after the 2019 reform.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Confirmed as stated; attribution remains partly open."
+  },
+  {
+   "id": 55,
+   "kind": "claim",
+   "text": "California's SB 9 lot splits will add thousands of homes within two years of taking effect.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Disconfirmed; the failed prediction counts against the belief."
+  },
+  {
+   "id": 56,
+   "kind": "media",
+   "text": "Glaeser and Gyourko, The Economic Implications of Housing Supply (2018)",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "type": "Study",
+   "where_found": "Journal of Economic Perspectives 32(1), 3-30",
+   "bridge": "Zoning and other rules keep prices far above construction cost in coastal metros.",
+   "bottom_line": "Foundational for the supply argument."
+  },
+  {
+   "id": 57,
+   "kind": "media",
+   "text": "Pew Charitable Trusts, Minneapolis housing analysis (2024)",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "type": "Article",
+   "where_found": "pewtrusts.org, housing policy initiative, 2024",
+   "bridge": "Minneapolis rents lagged the state after 2019 while its housing stock grew faster.",
+   "bottom_line": "The best-known case, descriptively strong, causally open."
+  },
+  {
+   "id": 58,
+   "kind": "media",
+   "text": "Freemark, Upzoning Chicago (2020)",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "type": "Study",
+   "where_found": "Urban Affairs Review 56(3), 758-789",
+   "bridge": "Small corridor upzonings raised land prices without adding construction within five years.",
+   "bottom_line": "A real caution about small upzonings."
+  },
+  {
+   "id": 59,
+   "kind": "claim",
+   "text": "Minneapolis 2040 (2019), Oregon HB 2001 (2019) and California SB 9 (2021) and SB 79 (2025) assume that ending single-family-only zoning lowers housing costs.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Institutional agreement, documented; not proof."
+  },
+  {
+   "id": 60,
+   "kind": "claim",
+   "text": "Local zoning authority under state enabling acts and environmental review statutes complicate the belief that ending single-family-only zoning lowers housing costs.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The legal machinery cuts both ways and is moving."
+  },
+  {
+   "id": 61,
+   "kind": "claim",
+   "text": "Prices fall when supply is allowed to meet demand.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "The upstream principle the belief inherits from."
+  },
+  {
+   "id": 62,
+   "kind": "claim",
+   "text": "Local communities should control what gets built near them.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "A values claim; the outcomes evidence leans against it."
+  },
+  {
+   "id": 63,
+   "kind": "claim",
+   "text": "Parking minimums should be abolished near transit.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "A downstream belief that inherits most of this page's logic."
+  },
+  {
+   "id": 64,
+   "kind": "claim",
+   "text": "Historic districts should be exempt from upzoning.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Defensible for buildings, abused for neighborhoods."
+  },
+  {
+   "id": 65,
+   "kind": "claim",
+   "text": "Edward Glaeser is on record that regulation, including zoning, raises housing prices.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Documented."
+  },
+  {
+   "id": 66,
+   "kind": "claim",
+   "text": "The Pew Charitable Trusts housing policy initiative is on record that zoning reform lowers housing costs.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Documented."
+  },
+  {
+   "id": 67,
+   "kind": "claim",
+   "text": "Livable California is on record opposing SB 9 and SB 50.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Documented."
+  },
+  {
+   "id": 68,
+   "kind": "claim",
+   "text": "Yonah Freemark is on record that upzoning can raise prices without adding housing.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "On record for the narrow finding, not against reform in general."
+  },
+  {
+   "id": 69,
+   "kind": "claim",
+   "text": "A multi-city study shows rents falling relative to matched controls after zoning reform, with the effect growing over time.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Pending: the study that would settle the belief has not been done."
+  },
+  {
+   "id": 70,
+   "kind": "claim",
+   "text": "Reform cities' price-to-construction-cost premium shrinks in the years after reform.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Pending, and ambiguous unless construction costs are held constant."
+  },
+  {
+   "id": 71,
+   "kind": "claim",
+   "text": "Reform cities' rents tracked non-reform cities once the 2021-2022 construction boom is controlled for.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Pending; the Austin and Minneapolis cases pull in opposite directions."
+  },
+  {
+   "id": 72,
+   "kind": "claim",
+   "text": "Upzoned single-family lots were redeveloped mainly into larger single homes rather than into more units.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "bottom_line": "Pending; early permit data lean against it."
+  },
+  {
+   "id": 73,
+   "kind": "interest",
+   "text": "Newcomers and young families need somewhere to live in the city.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "value": "Opportunity",
+   "measured_by": "Homes added per 1,000 residents per year and the rental vacancy rate, reform cities against matched cities",
+   "if_true": "Homes added rise and vacancy loosens",
+   "if_false": "No difference from matched cities",
+   "latest": "Minneapolis added housing faster than the rest of Minnesota, 2017-2023 (Pew 2024)",
+   "bottom_line": "As basic as needs get; contested only on who gets a say."
+  },
+  {
+   "id": 74,
+   "kind": "interest",
+   "text": "Commuters and the climate need homes near jobs rather than at the urban edge.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "value": "Sustainability",
+   "measured_by": "Vehicle miles per new resident, infill homes against homes at the urban edge",
+   "if_true": "Lower for infill",
+   "if_false": "No difference",
+   "latest": "Infill households drive less than edge households in every study cited on the benefit page; the margin varies",
+   "bottom_line": "Real and diffuse; it rarely drives anyone to a hearing."
+  },
+  {
+   "id": 75,
+   "kind": "interest",
+   "text": "Existing residents need to keep the neighborhood character, parking and school capacity they have.",
+   "topic": "Housing",
+   "parent_id": 1,
+   "y_id": 1,
+   "value": "Community",
+   "measured_by": "Street parking occupancy and school enrollment against capacity in reformed neighborhoods",
+   "if_true": "Within capacity, funded by the added tax base",
+   "if_false": "Over capacity, with infrastructure bills following",
+   "latest": "Mixed; few systematic measurements",
+   "bottom_line": "Real costs, mostly unpriced; weaker as a claim on others' lots."
+  },
+  {
+   "id": 76,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 2,
+   "y_id": 1,
+   "rowkind": "reason to agree",
+   "bridge": "Renters, whose rents grew more slowly, and builders, who got permits."
+  },
+  {
+   "id": 77,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 3,
+   "y_id": 1,
+   "rowkind": "reason to agree",
+   "bridge": "Everyone priced out by the gap between demand and the number of homes: renters and newcomers."
+  },
+  {
+   "id": 78,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 5,
+   "y_id": 1,
+   "rowkind": "reason to agree",
+   "bridge": "Renters and newcomers, who get homes without a subsidy anyone has to fund."
+  },
+  {
+   "id": 79,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 6,
+   "y_id": 1,
+   "rowkind": "reason to disagree",
+   "bridge": "Renters and newcomers, who get no relief if the reformed lots produce few homes."
+  },
+  {
+   "id": 80,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 7,
+   "y_id": 1,
+   "rowkind": "reason to disagree",
+   "bridge": "Owners whose land values change and residents who could be displaced by redevelopment."
+  },
+  {
+   "id": 81,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 9,
+   "y_id": 1,
+   "rowkind": "reason to disagree",
+   "bridge": "Renters, whose relief would not repeat if cheap money rather than zoning produced it."
+  },
+  {
+   "id": 82,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 37,
+   "y_id": 1,
+   "rowkind": "supporting finding",
+   "bridge": "Builders, who got consents, and renters, if the consents became homes."
+  },
+  {
+   "id": 83,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 10,
+   "y_id": 1,
+   "rowkind": "supporting finding",
+   "bridge": "Minneapolis renters, whose rents lagged the state."
+  },
+  {
+   "id": 84,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 38,
+   "y_id": 1,
+   "rowkind": "supporting finding",
+   "bridge": "Austin renters, whose asking rents fell after the permitting boom."
+  },
+  {
+   "id": 85,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 39,
+   "y_id": 1,
+   "rowkind": "supporting finding",
+   "bridge": "Renters in buildings near new construction."
+  },
+  {
+   "id": 86,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 40,
+   "y_id": 1,
+   "rowkind": "weakening finding",
+   "bridge": "Newcomers and renters, who got almost no homes from California's lot-split law."
+  },
+  {
+   "id": 87,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 13,
+   "y_id": 1,
+   "rowkind": "weakening finding",
+   "bridge": "Owners of upzoned parcels, whose land rose in value, and renters, who got no homes."
+  },
+  {
+   "id": 88,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 52,
+   "y_id": 1,
+   "rowkind": "prediction if the belief is true",
+   "bridge": "Renters in reform cities through 2030."
+  },
+  {
+   "id": 89,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 54,
+   "y_id": 1,
+   "rowkind": "prediction if the belief is true",
+   "bridge": "Minneapolis renters against the state average."
+  },
+  {
+   "id": 90,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 55,
+   "y_id": 1,
+   "rowkind": "prediction if the belief is true",
+   "bridge": "Newcomers who would live in homes from California lot splits."
+  },
+  {
+   "id": 91,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 69,
+   "y_id": 1,
+   "rowkind": "prediction if the belief is true",
+   "bridge": "Renters across many reform cities, over time."
+  },
+  {
+   "id": 92,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 70,
+   "y_id": 1,
+   "rowkind": "prediction if the belief is true",
+   "bridge": "Buyers priced out by the gap between home prices and construction cost."
+  },
+  {
+   "id": 93,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 53,
+   "y_id": 1,
+   "rowkind": "prediction if the belief is false",
+   "bridge": "Renters, if reform cities turn out no different from others."
+  },
+  {
+   "id": 94,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 71,
+   "y_id": 1,
+   "rowkind": "prediction if the belief is false",
+   "bridge": "Renters, if the 2021-2022 boom explains the whole effect."
+  },
+  {
+   "id": 95,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 72,
+   "y_id": 1,
+   "rowkind": "prediction if the belief is false",
+   "bridge": "Newcomers, if redeveloped lots added no homes."
+  },
+  {
+   "id": 96,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 2,
+   "y_id": 47,
+   "type": "Interest",
+   "direction": "Supports",
+   "bridge": "The reason mentions permits as the path to slower rents; whether it is about builders or only about renters is the question.",
+   "bottom_line": "Bearing: how far the row is really about this interest."
+  },
+  {
+   "id": 97,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 7,
+   "y_id": 48,
+   "type": "Interest",
+   "direction": "Supports",
+   "bridge": "Land values and displacement are related but not the same harm.",
+   "bottom_line": "Bearing: how far the row is really about this interest."
+  },
+  {
+   "id": 98,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 2,
+   "y_id": 1,
+   "type": "Argument",
+   "direction": "Supports",
+   "bridge": "Slower rent growth after reform, against matched cities, is the outcome the belief predicts, so the reason supports the belief to the extent the matching holds.",
+   "bottom_line": "Linkage: does the reason bear on the belief at all, if it is true?"
+  },
+  {
+   "id": 99,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 3,
+   "y_id": 1,
+   "type": "Argument",
+   "direction": "Supports",
+   "bridge": "If zoning binds supply, ending single-family-only zoning relaxes the constraint and prices should fall by however much the constraint bound.",
+   "bottom_line": "Linkage: does the reason bear on the belief at all, if it is true?"
+  },
+  {
+   "id": 100,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 4,
+   "y_id": 1,
+   "type": "Argument",
+   "direction": "Supports",
+   "bridge": "If each new building lowers nearby rents, a reform that produces many buildings lowers rents across the city.",
+   "bottom_line": "Linkage: does the reason bear on the belief at all, if it is true?"
+  },
+  {
+   "id": 101,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 5,
+   "y_id": 1,
+   "type": "Argument",
+   "direction": "Supports",
+   "bridge": "A tool that adds homes cheaply is more likely to be used at scale, and homes added at scale lower costs.",
+   "bottom_line": "Linkage: does the reason bear on the belief at all, if it is true?"
+  },
+  {
+   "id": 102,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 6,
+   "y_id": 1,
+   "type": "Argument",
+   "direction": "Weakens",
+   "bridge": "If upzoning produces few homes where land is dear, there is no supply to lower costs there.",
+   "bottom_line": "Linkage: does the reason bear on the belief at all, if it is true?"
+  },
+  {
+   "id": 103,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 7,
+   "y_id": 1,
+   "type": "Argument",
+   "direction": "Weakens",
+   "bridge": "If upzoning raises land values and displaces residents, housing costs rise for some people even if average rents fall.",
+   "bottom_line": "Linkage: does the reason bear on the belief at all, if it is true?"
+  },
+  {
+   "id": 104,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 9,
+   "y_id": 1,
+   "type": "Argument",
+   "direction": "Weakens",
+   "bridge": "If cheap money caused the building boom, the rent declines in reform cities do not show that zoning did.",
+   "bottom_line": "Linkage: does the reason bear on the belief at all, if it is true?"
+  },
+  {
+   "id": 105,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 37,
+   "y_id": 1,
+   "type": "Evidence",
+   "direction": "Supports",
+   "bridge": "More consents in upzoned areas is the first link of the chain from permission to lower costs.",
+   "bottom_line": "Linkage: does the finding bear on the belief, if it is accurate?"
+  },
+  {
+   "id": 106,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 10,
+   "y_id": 1,
+   "type": "Evidence",
+   "direction": "Supports",
+   "bridge": "A reform city whose rents lag its state after reform is what the belief predicts.",
+   "bottom_line": "Linkage: does the finding bear on the belief, if it is accurate?"
+  },
+  {
+   "id": 107,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 38,
+   "y_id": 1,
+   "type": "Evidence",
+   "direction": "Supports",
+   "bridge": "Permits led rents down in Austin, which is the chain the belief describes.",
+   "bottom_line": "Linkage: does the finding bear on the belief, if it is accurate?"
+  },
+  {
+   "id": 108,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 39,
+   "y_id": 1,
+   "type": "Evidence",
+   "direction": "Supports",
+   "bridge": "New buildings lowering nearby rents is how reform reaches existing tenants.",
+   "bottom_line": "Linkage: does the finding bear on the belief, if it is accurate?"
+  },
+  {
+   "id": 109,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 40,
+   "y_id": 1,
+   "type": "Evidence",
+   "direction": "Weakens",
+   "bridge": "If a reform adds almost no homes, it cannot lower costs through supply.",
+   "bottom_line": "Linkage: does the finding bear on the belief, if it is accurate?"
+  },
+  {
+   "id": 110,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 13,
+   "y_id": 1,
+   "type": "Evidence",
+   "direction": "Weakens",
+   "bridge": "Upzoning that raised prices without adding homes is the belief's outcome reversed, if the setting is comparable.",
+   "bottom_line": "Linkage: does the finding bear on the belief, if it is accurate?"
+  },
+  {
+   "id": 111,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 52,
+   "y_id": 1,
+   "type": "Prediction",
+   "direction": "Supports",
+   "bridge": "Would this observation tell the two sides apart, or do both expect it?",
+   "bottom_line": "Diagnosticity: a result both sides expect scores low here."
+  },
+  {
+   "id": 112,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 54,
+   "y_id": 1,
+   "type": "Prediction",
+   "direction": "Supports",
+   "bridge": "Would this observation tell the two sides apart, or do both expect it?",
+   "bottom_line": "Diagnosticity: a result both sides expect scores low here."
+  },
+  {
+   "id": 113,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 55,
+   "y_id": 1,
+   "type": "Prediction",
+   "direction": "Supports",
+   "bridge": "Would this observation tell the two sides apart, or do both expect it?",
+   "bottom_line": "Diagnosticity: a result both sides expect scores low here."
+  },
+  {
+   "id": 114,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 69,
+   "y_id": 1,
+   "type": "Prediction",
+   "direction": "Supports",
+   "bridge": "Would this observation tell the two sides apart, or do both expect it?",
+   "bottom_line": "Diagnosticity: a result both sides expect scores low here."
+  },
+  {
+   "id": 115,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 70,
+   "y_id": 1,
+   "type": "Prediction",
+   "direction": "Supports",
+   "bridge": "Would this observation tell the two sides apart, or do both expect it?",
+   "bottom_line": "Diagnosticity: a result both sides expect scores low here."
+  },
+  {
+   "id": 116,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 53,
+   "y_id": 1,
+   "type": "Prediction",
+   "direction": "Weakens",
+   "bridge": "Would this observation tell the two sides apart, or do both expect it?",
+   "bottom_line": "Diagnosticity: a result both sides expect scores low here."
+  },
+  {
+   "id": 117,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 71,
+   "y_id": 1,
+   "type": "Prediction",
+   "direction": "Weakens",
+   "bridge": "Would this observation tell the two sides apart, or do both expect it?",
+   "bottom_line": "Diagnosticity: a result both sides expect scores low here."
+  },
+  {
+   "id": 118,
+   "kind": "linkage",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 72,
+   "y_id": 1,
+   "type": "Prediction",
+   "direction": "Weakens",
+   "bridge": "Would this observation tell the two sides apart, or do both expect it?",
+   "bottom_line": "Diagnosticity: a result both sides expect scores low here."
+  },
+  {
+   "id": 119,
+   "kind": "driver",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 24,
+   "y_id": 1,
+   "direction": "Support",
+   "bridge": "Support that tracked land ownership rather than rent burden would point to a different driver.",
+   "bottom_line": "Does this interest actually drive the position, or only decorate it?"
+  },
+  {
+   "id": 120,
+   "kind": "driver",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 47,
+   "y_id": 1,
+   "direction": "Support",
+   "bridge": "A coalition that kept its size and intensity with builder money removed would show builders are not the driver.",
+   "bottom_line": "Does this interest actually drive the position, or only decorate it?"
+  },
+  {
+   "id": 121,
+   "kind": "driver",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 73,
+   "y_id": 1,
+   "direction": "Support",
+   "bridge": "Support that tracked age and tenure rather than housing status would point elsewhere.",
+   "bottom_line": "Does this interest actually drive the position, or only decorate it?"
+  },
+  {
+   "id": 122,
+   "kind": "driver",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 74,
+   "y_id": 1,
+   "direction": "Support",
+   "bridge": "Turnout that tracked commute length would show this interest driving support; it does not so far.",
+   "bottom_line": "Does this interest actually drive the position, or only decorate it?"
+  },
+  {
+   "id": 123,
+   "kind": "driver",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 25,
+   "y_id": 1,
+   "direction": "Opposition",
+   "bridge": "Opposition as strong among renters as among owners would point to attachment rather than equity.",
+   "bottom_line": "Does this interest actually drive the position, or only decorate it?"
+  },
+  {
+   "id": 124,
+   "kind": "driver",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 48,
+   "y_id": 1,
+   "direction": "Opposition",
+   "bridge": "Opposition concentrated where displacement risk is lowest would show another driver at work.",
+   "bottom_line": "Does this interest actually drive the position, or only decorate it?"
+  },
+  {
+   "id": 125,
+   "kind": "driver",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 75,
+   "y_id": 1,
+   "direction": "Opposition",
+   "bridge": "Opposition that disappeared when parking and school capacity were guaranteed would show this interest drives it.",
+   "bottom_line": "Does this interest actually drive the position, or only decorate it?"
+  },
+  {
+   "id": 126,
+   "kind": "driver",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 16,
+   "y_id": 1,
+   "direction": "Opposition",
+   "bridge": "Equal opposition to luxury and subsidized housing would show the driver is change, not income.",
+   "bottom_line": "Does this interest actually drive the position, or only decorate it?"
+  },
+  {
+   "id": 127,
+   "kind": "equivalence",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 1,
+   "y_id": 35,
+   "bridge": "Abolition removes all use and density rules; the belief removes one rule.",
+   "bottom_line": "Same direction, different policy: not a merge candidate."
+  },
+  {
+   "id": 128,
+   "kind": "equivalence",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 1,
+   "y_id": 36,
+   "bridge": "The moderate version adds \"modestly\" and restricts the claim to high-demand cities.",
+   "bottom_line": "Close cousins; the moderate version is the belief with its scope stated."
+  },
+  {
+   "id": 129,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 56,
+   "y_id": 1,
+   "rowkind": "work",
+   "bridge": "Everyone priced out by the regulatory premium: renters and newcomers."
+  },
+  {
+   "id": 130,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 57,
+   "y_id": 1,
+   "rowkind": "work",
+   "bridge": "Minneapolis renters."
+  },
+  {
+   "id": 131,
+   "kind": "importance",
+   "text": null,
+   "topic": "Housing",
+   "parent_id": 1,
+   "x_id": 58,
+   "y_id": 1,
+   "rowkind": "work",
+   "bridge": "Owners of upzoned parcels, whose land rose, and newcomers, who got no homes."
+  }
+ ],
+ "edges": [
+  {
+   "id": 1,
+   "page_id": 1,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 2,
+   "link_id": 98,
+   "imp_id": 76
+  },
+  {
+   "id": 2,
+   "page_id": 1,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "claim_id": 3,
+   "link_id": 99,
+   "imp_id": 77
+  },
+  {
+   "id": 3,
+   "page_id": 1,
+   "section": "argument",
+   "side": "agree",
+   "position": 3,
+   "claim_id": 4,
+   "link_id": 100,
+   "imp_id": 11
+  },
+  {
+   "id": 4,
+   "page_id": 1,
+   "section": "argument",
+   "side": "agree",
+   "position": 4,
+   "claim_id": 5,
+   "link_id": 101,
+   "imp_id": 78,
+   "uniq_id": 12
+  },
+  {
+   "id": 5,
+   "page_id": 1,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 6,
+   "link_id": 102,
+   "imp_id": 79
+  },
+  {
+   "id": 6,
+   "page_id": 1,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "claim_id": 7,
+   "link_id": 103,
+   "imp_id": 80
+  },
+  {
+   "id": 7,
+   "page_id": 1,
+   "section": "argument",
+   "side": "disagree",
+   "position": 3,
+   "claim_id": 8,
+   "link_id": 14,
+   "imp_id": 15
+  },
+  {
+   "id": 8,
+   "page_id": 1,
+   "section": "argument",
+   "side": "disagree",
+   "position": 4,
+   "claim_id": 9,
+   "link_id": 104,
+   "imp_id": 81
+  },
+  {
+   "id": 9,
+   "page_id": 1,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 37,
+   "link_id": 105,
+   "imp_id": 82
+  },
+  {
+   "id": 10,
+   "page_id": 1,
+   "section": "evidence",
+   "side": "agree",
+   "position": 2,
+   "claim_id": 10,
+   "link_id": 106,
+   "imp_id": 83
+  },
+  {
+   "id": 11,
+   "page_id": 1,
+   "section": "evidence",
+   "side": "agree",
+   "position": 3,
+   "claim_id": 38,
+   "link_id": 107,
+   "imp_id": 84
+  },
+  {
+   "id": 12,
+   "page_id": 1,
+   "section": "evidence",
+   "side": "agree",
+   "position": 4,
+   "claim_id": 39,
+   "link_id": 108,
+   "imp_id": 85
+  },
+  {
+   "id": 13,
+   "page_id": 1,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 40,
+   "link_id": 109,
+   "imp_id": 86
+  },
+  {
+   "id": 14,
+   "page_id": 1,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 2,
+   "claim_id": 13,
+   "link_id": 110,
+   "imp_id": 87
+  },
+  {
+   "id": 15,
+   "page_id": 1,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 52,
+   "link_id": 111,
+   "imp_id": 88,
+   "deadline": "By 2030; Zillow and Census data by metro"
+  },
+  {
+   "id": 16,
+   "page_id": 1,
+   "section": "prediction",
+   "side": "agree",
+   "position": 2,
+   "claim_id": 54,
+   "link_id": 112,
+   "imp_id": 89,
+   "deadline": "By 2024; Zillow rent index Confirmed: Minneapolis rents rose about 1 percent 2017-2023 against about 14 percent statewide (Pew 2024)"
+  },
+  {
+   "id": 17,
+   "page_id": 1,
+   "section": "prediction",
+   "side": "agree",
+   "position": 3,
+   "claim_id": 55,
+   "link_id": 113,
+   "imp_id": 90,
+   "deadline": "By 2024; Terner Center permit counts Disconfirmed: a few hundred applications statewide (Terner Center 2023)"
+  },
+  {
+   "id": 18,
+   "page_id": 1,
+   "section": "prediction",
+   "side": "agree",
+   "position": 4,
+   "claim_id": 69,
+   "link_id": 114,
+   "imp_id": 91,
+   "deadline": "By 2028; peer-reviewed multi-city study with matched controls"
+  },
+  {
+   "id": 19,
+   "page_id": 1,
+   "section": "prediction",
+   "side": "agree",
+   "position": 5,
+   "claim_id": 70,
+   "link_id": 115,
+   "imp_id": 92,
+   "deadline": "By 2030; replicate the Glaeser and Gyourko (2018) method for reform metros"
+  },
+  {
+   "id": 20,
+   "page_id": 1,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 53,
+   "link_id": 116,
+   "imp_id": 93,
+   "deadline": "By 2030; same data, controlled comparison"
+  },
+  {
+   "id": 21,
+   "page_id": 1,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 2,
+   "claim_id": 71,
+   "link_id": 117,
+   "imp_id": 94,
+   "deadline": "By 2028; controlled comparison of reform and non-reform Sun Belt cities"
+  },
+  {
+   "id": 22,
+   "page_id": 1,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 3,
+   "claim_id": 72,
+   "link_id": 118,
+   "imp_id": 95,
+   "deadline": "By 2028; parcel-level permit data in reform cities"
+  },
+  {
+   "id": 23,
+   "page_id": 1,
+   "section": "cba",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 18,
+   "who_id": 24,
+   "category": "percent below counterfactual rent after five years",
+   "magnitude": 5
+  },
+  {
+   "id": 24,
+   "page_id": 1,
+   "section": "cba",
+   "side": "agree",
+   "position": 2,
+   "claim_id": 19,
+   "who_id": 73,
+   "category": "homes per 1,000 residents per year",
+   "magnitude": 3
+  },
+  {
+   "id": 25,
+   "page_id": 1,
+   "section": "cba",
+   "side": "agree",
+   "position": 3,
+   "claim_id": 20,
+   "who_id": 74,
+   "category": "percent reduction in vehicle miles per new resident",
+   "magnitude": 20
+  },
+  {
+   "id": 26,
+   "page_id": 1,
+   "section": "cba",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 21,
+   "who_id": 25,
+   "category": "percent of home value",
+   "magnitude": 3
+  },
+  {
+   "id": 27,
+   "page_id": 1,
+   "section": "cba",
+   "side": "disagree",
+   "position": 2,
+   "claim_id": 22,
+   "who_id": 48,
+   "category": "households displaced per 1,000 new units",
+   "magnitude": 50
+  },
+  {
+   "id": 28,
+   "page_id": 1,
+   "section": "cba",
+   "side": "disagree",
+   "position": 3,
+   "claim_id": 23,
+   "who_id": 75,
+   "category": "dollars of infrastructure per new unit",
+   "magnitude": 20000
+  },
+  {
+   "id": 29,
+   "page_id": 1,
+   "section": "short_term",
+   "side": null,
+   "position": 1,
+   "claim_id": 43
+  },
+  {
+   "id": 30,
+   "page_id": 1,
+   "section": "short_term",
+   "side": null,
+   "position": 2,
+   "claim_id": 44
+  },
+  {
+   "id": 31,
+   "page_id": 1,
+   "section": "long_term",
+   "side": null,
+   "position": 1,
+   "claim_id": 45
+  },
+  {
+   "id": 32,
+   "page_id": 1,
+   "section": "long_term",
+   "side": null,
+   "position": 2,
+   "claim_id": 46
+  },
+  {
+   "id": 33,
+   "page_id": 1,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "claim_id": 3,
+   "attrs": {
+    "type": "Empirical",
+    "stated": "N",
+    "lb": "Y",
+    "assumes": "Assumes construction costs and financing are not the larger constraint"
+   }
+  },
+  {
+   "id": 34,
+   "page_id": 1,
+   "section": "component",
+   "side": null,
+   "position": 2,
+   "claim_id": 27,
+   "attrs": {
+    "type": "Causal",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes demand does not rise one-for-one with new supply (induced demand)"
+   }
+  },
+  {
+   "id": 35,
+   "page_id": 1,
+   "section": "component",
+   "side": null,
+   "position": 3,
+   "claim_id": 28,
+   "attrs": {
+    "type": "Normative",
+    "stated": "N",
+    "lb": "N",
+    "assumes": "Assumes affordability outranks asset protection"
+   }
+  },
+  {
+   "id": 36,
+   "page_id": 1,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 29
+  },
+  {
+   "id": 37,
+   "page_id": 1,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 30
+  },
+  {
+   "id": 38,
+   "page_id": 1,
+   "section": "interest",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 24,
+   "drives_id": 119
+  },
+  {
+   "id": 39,
+   "page_id": 1,
+   "section": "interest",
+   "side": "agree",
+   "position": 2,
+   "claim_id": 47,
+   "drives_id": 120
+  },
+  {
+   "id": 40,
+   "page_id": 1,
+   "section": "interest",
+   "side": "agree",
+   "position": 3,
+   "claim_id": 73,
+   "drives_id": 121
+  },
+  {
+   "id": 41,
+   "page_id": 1,
+   "section": "interest",
+   "side": "agree",
+   "position": 4,
+   "claim_id": 74,
+   "drives_id": 122
+  },
+  {
+   "id": 42,
+   "page_id": 1,
+   "section": "interest",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 25,
+   "drives_id": 123
+  },
+  {
+   "id": 43,
+   "page_id": 1,
+   "section": "interest",
+   "side": "disagree",
+   "position": 2,
+   "claim_id": 48,
+   "drives_id": 124
+  },
+  {
+   "id": 44,
+   "page_id": 1,
+   "section": "interest",
+   "side": "disagree",
+   "position": 3,
+   "claim_id": 75,
+   "drives_id": 125
+  },
+  {
+   "id": 45,
+   "page_id": 1,
+   "section": "interest",
+   "side": "disagree",
+   "position": 4,
+   "claim_id": 16,
+   "drives_id": 126
+  },
+  {
+   "id": 46,
+   "page_id": 1,
+   "section": "shared_interest",
+   "side": null,
+   "position": 1,
+   "claim_id": 49,
+   "attrs": {
+    "direction": "Legalize gentle density citywide rather than towers in a few neighborhoods."
+   }
+  },
+  {
+   "id": 47,
+   "page_id": 1,
+   "section": "compromise",
+   "side": null,
+   "position": 1,
+   "claim_id": 26,
+   "attrs": {
+    "premise": "Both sides accept that current rents are unsustainable.",
+    "difficult": "Homeowner majorities on city councils and the slow arrival of benefits."
+   }
+  },
+  {
+   "id": 48,
+   "page_id": 1,
+   "section": "motive",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 31,
+   "attrs": {
+    "actual": "For some developers, higher land values and returns. Evidence: developer funding of pro-housing campaigns."
+   }
+  },
+  {
+   "id": 49,
+   "page_id": 1,
+   "section": "motive",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 32,
+   "attrs": {
+    "actual": "Protecting home equity and excluding lower-income neighbors. Evidence: opposition tracks property values more closely than stated concerns about traffic."
+   }
+  },
+  {
+   "id": 50,
+   "page_id": 1,
+   "section": "obstacle",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 33
+  },
+  {
+   "id": 51,
+   "page_id": 1,
+   "section": "obstacle",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 34
+  },
+  {
+   "id": 52,
+   "page_id": 1,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 50
+  },
+  {
+   "id": 53,
+   "page_id": 1,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 51
+  },
+  {
+   "id": 54,
+   "page_id": 1,
+   "section": "media",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 56,
+   "link_id": 17,
+   "imp_id": 129,
+   "attrs": {
+    "type": "Study"
+   }
+  },
+  {
+   "id": 55,
+   "page_id": 1,
+   "section": "media",
+   "side": "agree",
+   "position": 2,
+   "claim_id": 57,
+   "link_id": 41,
+   "imp_id": 130,
+   "attrs": {
+    "type": "Article"
+   }
+  },
+  {
+   "id": 56,
+   "page_id": 1,
+   "section": "media",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 58,
+   "link_id": 42,
+   "imp_id": 131,
+   "attrs": {
+    "type": "Study"
+   }
+  },
+  {
+   "id": 57,
+   "page_id": 1,
+   "section": "law",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 59
+  },
+  {
+   "id": 58,
+   "page_id": 1,
+   "section": "law",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 60
+  },
+  {
+   "id": 59,
+   "page_id": 1,
+   "section": "upstream",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 61
+  },
+  {
+   "id": 60,
+   "page_id": 1,
+   "section": "upstream",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 62
+  },
+  {
+   "id": 61,
+   "page_id": 1,
+   "section": "downstream",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 63
+  },
+  {
+   "id": 62,
+   "page_id": 1,
+   "section": "downstream",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 64
+  },
+  {
+   "id": 63,
+   "page_id": 1,
+   "section": "similar",
+   "side": "extreme",
+   "position": 1,
+   "claim_id": 35,
+   "equiv_id": 127
+  },
+  {
+   "id": 64,
+   "page_id": 1,
+   "section": "similar",
+   "side": "moderate",
+   "position": 1,
+   "claim_id": 36,
+   "equiv_id": 128
+  },
+  {
+   "id": 65,
+   "page_id": 1,
+   "section": "person",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 65
+  },
+  {
+   "id": 66,
+   "page_id": 1,
+   "section": "person",
+   "side": "agree",
+   "position": 2,
+   "claim_id": 66
+  },
+  {
+   "id": 67,
+   "page_id": 1,
+   "section": "person",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 67
+  },
+  {
+   "id": 68,
+   "page_id": 1,
+   "section": "person",
+   "side": "disagree",
+   "position": 2,
+   "claim_id": 68
+  },
+  {
+   "id": 69,
+   "page_id": 1,
+   "section": "value",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "value": "Opportunity",
+    "srank": 1,
+    "orank": 3,
+    "why": "Reformers rank newcomers' access first; opponents rank incumbents' stability first."
+   }
+  },
+  {
+   "id": 70,
+   "page_id": 1,
+   "section": "value",
+   "side": null,
+   "position": 2,
+   "attrs": {
+    "value": "Property rights",
+    "srank": 2,
+    "orank": 2,
+    "why": "Both claim it: owners' right to build versus owners' right to the neighborhood they bought."
+   }
+  },
+  {
+   "id": 71,
+   "page_id": 1,
+   "section": "value",
+   "side": null,
+   "position": 3,
+   "attrs": {
+    "value": "Community stability",
+    "srank": 3,
+    "orank": 1,
+    "why": "Opponents rank keeping neighborhoods as they are above adding residents."
+   }
+  },
+  {
+   "id": 72,
+   "page_id": 1,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Housing costs",
+    "definition": "Median asking rent and median home price, adjusted for unit size, compared with the trend in matched cities."
+   }
+  },
+  {
+   "id": 73,
+   "page_id": 1,
+   "section": "definition",
+   "side": null,
+   "position": 2,
+   "attrs": {
+    "term": "Single-family-only zoning",
+    "definition": "Zoning that permits one detached dwelling per lot and prohibits duplexes or apartments."
+   }
+  },
+  {
+   "id": 74,
+   "page_id": 1,
+   "section": "dispute",
+   "side": null,
+   "position": 1,
+   "text": "Empirical",
+   "attrs": {
+    "what": "How much new supply lowers rents and how fast.",
+    "move": "Multi-city natural experiments with controls."
+   }
+  },
+  {
+   "id": 75,
+   "page_id": 1,
+   "section": "dispute",
+   "side": null,
+   "position": 2,
+   "text": "Definitional",
+   "attrs": {
+    "what": "Whether \"housing costs\" means rents, prices, or the cost of a first home.",
+    "move": "Agree to score rents and prices separately."
+   }
+  },
+  {
+   "id": 76,
+   "page_id": 1,
+   "section": "dispute",
+   "side": null,
+   "position": 3,
+   "text": "Values",
+   "attrs": {
+    "what": "Whether newcomers' access outranks incumbents' stability.",
+    "move": "A values ranking, not more data."
+   }
+  },
+  {
+   "id": 77,
+   "page_id": 1,
+   "section": "dispute",
+   "side": null,
+   "position": 4,
+   "text": "Linkage",
+   "attrs": {
+    "what": "Whether costs to existing residents bear on whether housing costs fall.",
+    "move": "The linkage page for the neighborhood-costs argument (tab 14)."
+   }
+  },
+  {
+   "id": 78,
+   "page_id": 1,
+   "section": "category",
+   "side": null,
+   "position": 1,
+   "text": "percent below counterfactual rent after five years"
+  },
+  {
+   "id": 79,
+   "page_id": 1,
+   "section": "category",
+   "side": null,
+   "position": 2,
+   "text": "percent of home value"
+  },
+  {
+   "id": 80,
+   "page_id": 1,
+   "section": "category",
+   "side": null,
+   "position": 3,
+   "text": "homes per 1,000 residents per year"
+  },
+  {
+   "id": 81,
+   "page_id": 1,
+   "section": "category",
+   "side": null,
+   "position": 4,
+   "text": "households displaced per 1,000 new units"
+  },
+  {
+   "id": 82,
+   "page_id": 1,
+   "section": "category",
+   "side": null,
+   "position": 5,
+   "text": "percent reduction in vehicle miles per new resident"
+  },
+  {
+   "id": 83,
+   "page_id": 1,
+   "section": "category",
+   "side": null,
+   "position": 6,
+   "text": "dollars of infrastructure per new unit"
+  },
+  {
+   "id": 84,
+   "page_id": 2,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Auckland's 2016 upzoning was followed by a permit surge concentrated in the upzoned areas, which is what a zoning effect looks like and a demand shock does not."
+  },
+  {
+   "id": 85,
+   "page_id": 2,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Minneapolis diverged from the rest of Minnesota on both permits and rents after 2019, while sharing the state's interest rates and economy."
+  },
+  {
+   "id": 86,
+   "page_id": 2,
+   "section": "argument",
+   "side": "agree",
+   "position": 3,
+   "text": "The pattern repeats across cities with different demand conditions (Auckland, Minneapolis, Austin, Houston), which is hard to explain by local booms alone."
+  },
+  {
+   "id": 87,
+   "page_id": 2,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The comparison cities differ in demand growth and land availability, so a matched-city design cannot fully separate zoning from growth."
+  },
+  {
+   "id": 88,
+   "page_id": 2,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Minneapolis also loosened rules on large apartment buildings along corridors, so the rent effect cannot be attributed to the single-family change alone."
+  },
+  {
+   "id": 89,
+   "page_id": 2,
+   "section": "argument",
+   "side": "disagree",
+   "position": 3,
+   "text": "Austin's supply came from apartments on commercial land, not from single-family lots, so it tests a different reform."
+  },
+  {
+   "id": 90,
+   "page_id": 2,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Dwelling consents in Auckland's upzoned areas rose sharply relative to trend after 2016; the study attributes an estimated 20,000-plus additional homes in five years to the reform.\nGreenaway-McGrevy and Phillips, Journal of Urban Economics (2023)"
+  },
+  {
+   "id": 91,
+   "page_id": 2,
+   "section": "evidence",
+   "side": "agree",
+   "position": 2,
+   "claim_id": 10
+  },
+  {
+   "id": 92,
+   "page_id": 2,
+   "section": "evidence",
+   "side": "agree",
+   "position": 3,
+   "text": "Austin-area asking rents fell more than 15 percent from their 2023 peak by 2025 after the metro led the nation in apartments permitted per resident.\nApartment List and Zillow rent indexes; Census Building Permits Survey"
+  },
+  {
+   "id": 93,
+   "page_id": 2,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 13
+  },
+  {
+   "id": 94,
+   "page_id": 2,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "Minneapolis rents keep growing more slowly than the Minnesota average through 2028.",
+   "deadline": "By 2028; Zillow rent index"
+  },
+  {
+   "id": 95,
+   "page_id": 2,
+   "section": "prediction",
+   "side": "agree",
+   "position": 2,
+   "text": "A difference-in-differences study across ten or more U.S. reform cities showing lower rent growth than matched controls."
+  },
+  {
+   "id": 96,
+   "page_id": 2,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "A reanalysis showing Minneapolis's rent divergence began before 2019 or is explained by corridor apartments alone."
+  },
+  {
+   "id": 97,
+   "page_id": 2,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "Permits rose after reform in the reform cities.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes permit counts reflect homes actually built"
+   }
+  },
+  {
+   "id": 98,
+   "page_id": 2,
+   "section": "component",
+   "side": null,
+   "position": 2,
+   "text": "Rents grew more slowly than in comparable cities.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes the comparison cities are comparable"
+   }
+  },
+  {
+   "id": 99,
+   "page_id": 2,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "The comparison cities would have followed the same path without reform."
+  },
+  {
+   "id": 100,
+   "page_id": 2,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "Local demand shocks happened to coincide with each reform."
+  },
+  {
+   "id": 101,
+   "page_id": 2,
+   "section": "obstacle",
+   "side": "agree",
+   "position": 1,
+   "text": "Few reforms are old enough to show a five-year record."
+  },
+  {
+   "id": 102,
+   "page_id": 2,
+   "section": "obstacle",
+   "side": "disagree",
+   "position": 1,
+   "text": "Every additional reform city that diverges from trend makes the coincidence story harder."
+  },
+  {
+   "id": 103,
+   "page_id": 2,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Selecting the reform cities that worked."
+  },
+  {
+   "id": 104,
+   "page_id": 2,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Demanding a randomized trial for a policy that cannot be randomized."
+  },
+  {
+   "id": 105,
+   "page_id": 2,
+   "section": "media",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 57,
+   "attrs": {
+    "type": "Article"
+   }
+  },
+  {
+   "id": 106,
+   "page_id": 2,
+   "section": "media",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 58,
+   "attrs": {
+    "type": "Study"
+   }
+  },
+  {
+   "id": 107,
+   "page_id": 2,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Comparable cities",
+    "definition": "Cities in the same state or region with similar income and population growth that did not reform in the period."
+   }
+  },
+  {
+   "id": 108,
+   "page_id": 3,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "In the most regulated metros the price of a home exceeds its construction cost by a large regulatory premium, while in lightly regulated metros price tracks construction cost."
+  },
+  {
+   "id": 109,
+   "page_id": 3,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Metros that allow building (Houston, Atlanta, Dallas) absorbed large demand booms with prices near construction cost, which a demand-only story cannot explain."
+  },
+  {
+   "id": 110,
+   "page_id": 3,
+   "section": "argument",
+   "side": "agree",
+   "position": 3,
+   "text": "Where lots allow only one home, the land price per home is the whole lot, so the cap on units is what makes the land unaffordable."
+  },
+  {
+   "id": 111,
+   "page_id": 3,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Construction costs and financing, not zoning, are the binding constraint in many cities: hard costs rose faster than rents in 2015-2023."
+  },
+  {
+   "id": 112,
+   "page_id": 3,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "In cities with weak demand, upzoning changes nothing because nobody wants to build; zoning binds only where demand already outruns supply."
+  },
+  {
+   "id": 113,
+   "page_id": 3,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Glaeser and Gyourko estimate that in the most regulated metros home prices exceed minimum profitable production cost by a large margin, while in lightly regulated metros the two are close.\nGlaeser and Gyourko, Journal of Economic Perspectives (2018)"
+  },
+  {
+   "id": 114,
+   "page_id": 3,
+   "section": "evidence",
+   "side": "agree",
+   "position": 2,
+   "text": "Metros with elastic housing supply saw smaller price booms and smaller busts in the 2000s cycle.\nGlaeser, Gyourko and Saiz, Journal of Urban Economics (2008)"
+  },
+  {
+   "id": 115,
+   "page_id": 3,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "Multifamily hard construction costs in California rose by roughly a third to a half between 2015 and 2023, outpacing rents in most markets.\nTerner Center for Housing Innovation, construction cost reports (2020-2024)"
+  },
+  {
+   "id": 116,
+   "page_id": 3,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "Metros that upzone broadly will show falling price-to-construction-cost ratios by 2030.",
+   "deadline": "By 2030; replicate the 2018 method"
+  },
+  {
+   "id": 117,
+   "page_id": 3,
+   "section": "prediction",
+   "side": "agree",
+   "position": 2,
+   "text": "Price-to-construction-cost premiums shrinking in metros that upzoned."
+  },
+  {
+   "id": 118,
+   "page_id": 3,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "Upzoned metros with unchanged premiums after five years."
+  },
+  {
+   "id": 119,
+   "page_id": 3,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "Prices in high-cost metros exceed construction cost by a regulatory premium.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes the premium is regulation, not land scarcity alone"
+   }
+  },
+  {
+   "id": 120,
+   "page_id": 3,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "Land would be used more intensively if the rules allowed it."
+  },
+  {
+   "id": 121,
+   "page_id": 3,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "Construction capacity, not permission, limits building."
+  },
+  {
+   "id": 122,
+   "page_id": 3,
+   "section": "obstacle",
+   "side": "agree",
+   "position": 1,
+   "text": "The premium is an estimate, not a measurement."
+  },
+  {
+   "id": 123,
+   "page_id": 3,
+   "section": "obstacle",
+   "side": "disagree",
+   "position": 1,
+   "text": "The elastic-supply metros are a standing counterexample."
+  },
+  {
+   "id": 124,
+   "page_id": 3,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Treating every cost gap as regulation."
+  },
+  {
+   "id": 125,
+   "page_id": 3,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Treating construction cost as fixed rather than responsive to volume."
+  },
+  {
+   "id": 126,
+   "page_id": 3,
+   "section": "media",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 56,
+   "attrs": {
+    "type": "Study"
+   }
+  },
+  {
+   "id": 127,
+   "page_id": 3,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Binding constraint",
+    "definition": "The limit that, if relaxed, would increase supply; other limits would not bind until it is relaxed."
+   }
+  },
+  {
+   "id": 128,
+   "page_id": 4,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Studies of new buildings in several cities find rents in nearby existing buildings fall relative to controls after completion."
+  },
+  {
+   "id": 129,
+   "page_id": 4,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Each new unit starts a chain of moves that reaches lower-income neighborhoods within a few steps."
+  },
+  {
+   "id": 130,
+   "page_id": 4,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "New buildings can raise nearby rents through amenity effects, and some studies find increases in the lowest-rent buildings nearby."
+  },
+  {
+   "id": 131,
+   "page_id": 4,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "The effects are local and small; they do not add up to citywide affordability."
+  },
+  {
+   "id": 132,
+   "page_id": 4,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "New apartment buildings lowered rents in buildings within a few hundred meters by 1 to 6 percent relative to controls in New York, San Francisco and Helsinki.\nAsquith, Mast and Reed (2023); Pennington (2021); Bratu, Harjunen and Saarimaa (2023)"
+  },
+  {
+   "id": 133,
+   "page_id": 4,
+   "section": "evidence",
+   "side": "agree",
+   "position": 2,
+   "text": "Migration chains from new market-rate buildings reach below-median-income neighborhoods within about three moves.\nMast, Journal of Urban Economics (2023)"
+  },
+  {
+   "id": 134,
+   "page_id": 4,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "In Minneapolis, new market-rate buildings were followed by rent increases in the lowest-rent nearby buildings and decreases in higher-rent ones.\nDamiano and Frenier, working paper (2020)"
+  },
+  {
+   "id": 135,
+   "page_id": 4,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "New multi-city studies published by 2028 will find nearby rents falling relative to controls.",
+   "deadline": "By 2028; peer-reviewed literature"
+  },
+  {
+   "id": 136,
+   "page_id": 4,
+   "section": "prediction",
+   "side": "agree",
+   "position": 2,
+   "text": "Replication of the nearby-rent effect in Sun Belt metros."
+  },
+  {
+   "id": 137,
+   "page_id": 4,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "A multi-city study finding rent increases in the lowest-rent nearby buildings."
+  },
+  {
+   "id": 138,
+   "page_id": 4,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "Higher-income renters move into new buildings.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes new buildings are not filled from outside the city"
+   }
+  },
+  {
+   "id": 139,
+   "page_id": 4,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "Renters move up when a better unit becomes available."
+  },
+  {
+   "id": 140,
+   "page_id": 4,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "New buildings attract residents who would otherwise not have moved to the city."
+  },
+  {
+   "id": 141,
+   "page_id": 4,
+   "section": "obstacle",
+   "side": "agree",
+   "position": 1,
+   "text": "The effect is small per building and hard to see without careful controls."
+  },
+  {
+   "id": 142,
+   "page_id": 4,
+   "section": "obstacle",
+   "side": "disagree",
+   "position": 1,
+   "text": "The amenity-effect studies are fewer and less replicated."
+  },
+  {
+   "id": 143,
+   "page_id": 4,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Generalizing from dense coastal cities."
+  },
+  {
+   "id": 144,
+   "page_id": 4,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Reading local rent increases as caused by the building rather than by the neighborhood's trend."
+  },
+  {
+   "id": 145,
+   "page_id": 4,
+   "section": "media",
+   "side": "agree",
+   "position": 1,
+   "text": "Asquith, Mast and Reed, Review of Economics and Statistics (2023)",
+   "attrs": {
+    "type": "Study"
+   }
+  },
+  {
+   "id": 146,
+   "page_id": 4,
+   "section": "media",
+   "side": "disagree",
+   "position": 1,
+   "text": "Damiano and Frenier (2020)",
+   "attrs": {
+    "type": "Working paper"
+   }
+  },
+  {
+   "id": 147,
+   "page_id": 4,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Filtering",
+    "definition": "The process by which housing passes to lower-income occupants as higher-income households move to newer units."
+   }
+  },
+  {
+   "id": 148,
+   "page_id": 5,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Subsidized affordable units cost several hundred thousand dollars each in high-cost states; a zoning change costs staff time."
+  },
+  {
+   "id": 149,
+   "page_id": 5,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Private capital builds the homes, so the tool scales with demand rather than with the budget."
+  },
+  {
+   "id": 150,
+   "page_id": 5,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Cheap for the city is not cheap for tenants displaced by redevelopment; the cost is shifted, not removed."
+  },
+  {
+   "id": 151,
+   "page_id": 5,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Without subsidy, new units rent at market rates and reach low-income households only slowly through filtering."
+  },
+  {
+   "id": 152,
+   "page_id": 5,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Publicly subsidized affordable apartments in California cost well over half a million dollars per unit in recent years.\nCalifornia Legislative Analyst's Office; Terner Center cost studies (2020-2023)"
+  },
+  {
+   "id": 153,
+   "page_id": 5,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "Filtering to low-income households takes decades in tight markets.\nRosenthal, American Economic Review (2014)"
+  },
+  {
+   "id": 154,
+   "page_id": 5,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "Reform cities will add homes at a lower public cost per unit than subsidy-led cities through 2030.",
+   "deadline": "By 2030; budget and permit data"
+  },
+  {
+   "id": 155,
+   "page_id": 5,
+   "section": "prediction",
+   "side": "agree",
+   "position": 2,
+   "text": "Cost-per-unit comparisons across reform cities and subsidy programs."
+  },
+  {
+   "id": 156,
+   "page_id": 5,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "Evidence that reform cities spent heavily on infrastructure or displacement relief per new unit."
+  },
+  {
+   "id": 157,
+   "page_id": 5,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "Zoning reform costs the public little.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes no large infrastructure bills follow"
+   }
+  },
+  {
+   "id": 158,
+   "page_id": 5,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "Affordability is measured by public cost per home added."
+  },
+  {
+   "id": 159,
+   "page_id": 5,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "Affordability is measured by homes reaching low-income households now."
+  },
+  {
+   "id": 160,
+   "page_id": 5,
+   "section": "obstacle",
+   "side": "agree",
+   "position": 1,
+   "text": "Market-rate units are a hard sell as an affordability tool."
+  },
+  {
+   "id": 161,
+   "page_id": 5,
+   "section": "obstacle",
+   "side": "disagree",
+   "position": 1,
+   "text": "Subsidy programs cannot reach the scale of the shortage."
+  },
+  {
+   "id": 162,
+   "page_id": 5,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Counting only public cost."
+  },
+  {
+   "id": 163,
+   "page_id": 5,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Counting only immediate affordability."
+  },
+  {
+   "id": 164,
+   "page_id": 5,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Cheapest affordability tool",
+    "definition": "Lowest public cost per additional home, holding quality constant."
+   }
+  },
+  {
+   "id": 165,
+   "page_id": 6,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "SB 9 produced a few hundred applications statewide in its first year, in a state that needs millions of homes."
+  },
+  {
+   "id": 166,
+   "page_id": 6,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Small projects on single lots cannot spread fixed costs, so at 2022-2024 interest rates most did not pencil out."
+  },
+  {
+   "id": 167,
+   "page_id": 6,
+   "section": "argument",
+   "side": "agree",
+   "position": 3,
+   "text": "Where land is expensive, the existing house is worth more than the redevelopment margin, so owners do not sell."
+  },
+  {
+   "id": 168,
+   "page_id": 6,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Slow uptake in the first years is typical of zoning changes; Auckland's permit surge built over three to five years."
+  },
+  {
+   "id": 169,
+   "page_id": 6,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "SB 9 carried restrictions (owner-occupancy, local design rules) that other reforms avoid, so it tests a weak version of the policy."
+  },
+  {
+   "id": 170,
+   "page_id": 6,
+   "section": "argument",
+   "side": "disagree",
+   "position": 3,
+   "text": "Oregon's and Minneapolis's reforms produced steady middle-housing permits within two years."
+  },
+  {
+   "id": 171,
+   "page_id": 6,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Fewer than 500 SB 9 applications were filed statewide in the law's first year, concentrated in a handful of cities.\nTerner Center for Housing Innovation (2023)"
+  },
+  {
+   "id": 172,
+   "page_id": 6,
+   "section": "evidence",
+   "side": "agree",
+   "position": 2,
+   "text": "Multifamily construction starts fell by roughly half nationally from 2022 to 2024 as financing costs rose.\nCensus Bureau housing starts (2022-2024)"
+  },
+  {
+   "id": 173,
+   "page_id": 6,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "Auckland's consent surge grew over three to five years after the 2016 change rather than appearing at once.\nGreenaway-McGrevy and Phillips (2023)"
+  },
+  {
+   "id": 174,
+   "page_id": 6,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 2,
+   "text": "Portland permitted several hundred middle-housing units within two years of its 2021 Residential Infill Project, rising each year.\nCity of Portland permit data; Sightline Institute analyses (2022-2024)"
+  },
+  {
+   "id": 175,
+   "page_id": 6,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "California lot-split permits stay below 2,000 per year through 2027.",
+   "deadline": "By 2027; Terner Center counts"
+  },
+  {
+   "id": 176,
+   "page_id": 6,
+   "section": "prediction",
+   "side": "agree",
+   "position": 2,
+   "text": "SB 9 counts still in the hundreds per year in 2026-2027."
+  },
+  {
+   "id": 177,
+   "page_id": 6,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "Portland middle-housing permits keep rising year over year through 2027.",
+   "deadline": "By 2027; city permit data"
+  },
+  {
+   "id": 178,
+   "page_id": 6,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 2,
+   "text": "SB 9 counts in the thousands per year after the 2024 amendments or a rate decline."
+  },
+  {
+   "id": 179,
+   "page_id": 6,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "Construction cost, not permission, decides whether a lot is redeveloped where land is expensive.",
+   "attrs": {
+    "type": "Causal",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes rents do not rise enough to cover costs"
+   }
+  },
+  {
+   "id": 180,
+   "page_id": 6,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "Early-year counts predict long-run counts."
+  },
+  {
+   "id": 181,
+   "page_id": 6,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "Uptake follows an adoption curve and the first years understate it."
+  },
+  {
+   "id": 182,
+   "page_id": 6,
+   "section": "obstacle",
+   "side": "agree",
+   "position": 1,
+   "text": "Every reform is different, so a failed one is easy to dismiss as badly designed."
+  },
+  {
+   "id": 183,
+   "page_id": 6,
+   "section": "obstacle",
+   "side": "disagree",
+   "position": 1,
+   "text": "California is the test everyone watches."
+  },
+  {
+   "id": 184,
+   "page_id": 6,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Judging a ten-year policy by its second year."
+  },
+  {
+   "id": 185,
+   "page_id": 6,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Explaining away every disappointing count as a design flaw."
+  },
+  {
+   "id": 186,
+   "page_id": 6,
+   "section": "media",
+   "side": "agree",
+   "position": 1,
+   "text": "Terner Center, SB 9 implementation reports (2023)",
+   "attrs": {
+    "type": "Report"
+   }
+  },
+  {
+   "id": 187,
+   "page_id": 6,
+   "section": "media",
+   "side": "disagree",
+   "position": 1,
+   "text": "Sightline Institute, middle housing permit trackers (2022-2024)",
+   "attrs": {
+    "type": "Analysis"
+   }
+  },
+  {
+   "id": 188,
+   "page_id": 6,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Upzoning alone",
+    "definition": "Changing what may be built without changing construction cost, financing, or the permitting process."
+   }
+  },
+  {
+   "id": 189,
+   "page_id": 7,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Upzoning raises the value of land because the land can now hold more homes; that shows up in existing home prices before anything is built."
+  },
+  {
+   "id": 190,
+   "page_id": 7,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Redevelopment of older rental buildings evicts the tenants in them, whatever happens to average rents."
+  },
+  {
+   "id": 191,
+   "page_id": 7,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Studies of new construction find it lowers displacement risk for nearby low-income renters rather than raising it."
+  },
+  {
+   "id": 192,
+   "page_id": 7,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "A higher land value is a gain to the existing owner, the opposite of a cost to them; the cost falls on buyers."
+  },
+  {
+   "id": 193,
+   "page_id": 7,
+   "section": "argument",
+   "side": "disagree",
+   "position": 3,
+   "text": "Displacement is worst where nothing gets built and rents rise across the board."
+  },
+  {
+   "id": 194,
+   "page_id": 7,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 13
+  },
+  {
+   "id": 195,
+   "page_id": 7,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "New market-rate construction in San Francisco reduced the probability of displacement for nearby renters.\nPennington, working paper (2021)"
+  },
+  {
+   "id": 196,
+   "page_id": 7,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 2,
+   "text": "In Auckland, rents in upzoned areas grew more slowly than elsewhere after consents rose.\nGreenaway-McGrevy, Pacheco and Sorensen, Economic Policy Centre working paper (2021)"
+  },
+  {
+   "id": 197,
+   "page_id": 7,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "Renters near new middle-housing projects in reform cities will show higher move-out rates than controls by 2028.",
+   "deadline": "By 2028; address-history data"
+  },
+  {
+   "id": 198,
+   "page_id": 7,
+   "section": "prediction",
+   "side": "agree",
+   "position": 2,
+   "text": "Multi-city evidence of higher displacement rates near redevelopment of older rentals."
+  },
+  {
+   "id": 199,
+   "page_id": 7,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "Replication of the San Francisco displacement result in other cities."
+  },
+  {
+   "id": 200,
+   "page_id": 7,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "Upzoning raises land values.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes the option to build is priced in"
+   }
+  },
+  {
+   "id": 201,
+   "page_id": 7,
+   "section": "component",
+   "side": null,
+   "position": 2,
+   "text": "Higher land values displace lower-income residents.",
+   "attrs": {
+    "type": "Causal",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes redevelopment outpaces filtering"
+   }
+  },
+  {
+   "id": 202,
+   "page_id": 7,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "Redevelopment happens fastest in the cheapest older buildings."
+  },
+  {
+   "id": 203,
+   "page_id": 7,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "New supply lowers rents enough to offset redevelopment losses."
+  },
+  {
+   "id": 204,
+   "page_id": 7,
+   "section": "obstacle",
+   "side": "agree",
+   "position": 1,
+   "text": "The best displacement studies point the other way."
+  },
+  {
+   "id": 205,
+   "page_id": 7,
+   "section": "obstacle",
+   "side": "disagree",
+   "position": 1,
+   "text": "Every redevelopment eviction is visible and every averted rent increase is not."
+  },
+  {
+   "id": 206,
+   "page_id": 7,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Availability: evictions make the news, filtering does not."
+  },
+  {
+   "id": 207,
+   "page_id": 7,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Averaging away the people who lose their homes."
+  },
+  {
+   "id": 208,
+   "page_id": 7,
+   "section": "media",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 58,
+   "attrs": {
+    "type": "Study"
+   }
+  },
+  {
+   "id": 209,
+   "page_id": 7,
+   "section": "media",
+   "side": "disagree",
+   "position": 1,
+   "text": "Pennington, Does Building New Housing Cause Displacement? (2021)",
+   "attrs": {
+    "type": "Working paper"
+   }
+  },
+  {
+   "id": 210,
+   "page_id": 7,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Displacement",
+    "definition": "A move out of a neighborhood caused by rent increase, eviction or redevelopment rather than by choice."
+   }
+  },
+  {
+   "id": 211,
+   "page_id": 8,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Street parking gets scarcer when parking minimums are dropped and more households share a block."
+  },
+  {
+   "id": 212,
+   "page_id": 8,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Fast-growing districts see school crowding before new schools are funded."
+  },
+  {
+   "id": 213,
+   "page_id": 8,
+   "section": "argument",
+   "side": "agree",
+   "position": 3,
+   "text": "Residents chose a neighborhood with a particular form and did not consent to its change."
+  },
+  {
+   "id": 214,
+   "page_id": 8,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Most older neighborhoods have lost population since 1970 as households shrank, so their schools and pipes have spare capacity."
+  },
+  {
+   "id": 215,
+   "page_id": 8,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "New residents pay taxes that fund the infrastructure they use; infill is cheaper to serve than sprawl."
+  },
+  {
+   "id": 216,
+   "page_id": 8,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Surveys in neighborhoods where parking minimums were removed report more on-street parking competition.\nLocal parking studies, various cities (2019-2023)"
+  },
+  {
+   "id": 217,
+   "page_id": 8,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "Household size in the United States fell from about 3.1 in 1970 to about 2.5 by 2020, leaving many older neighborhoods with fewer residents than they were built for.\nCensus Bureau, decennial counts"
+  },
+  {
+   "id": 218,
+   "page_id": 8,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 2,
+   "text": "Infrastructure costs per home are lower for infill than for greenfield development.\nSmart Growth America and municipal cost-of-service studies (2013-2020)"
+  },
+  {
+   "id": 219,
+   "page_id": 8,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "Upzoned neighborhoods in reform cities will need new school construction within ten years.",
+   "deadline": "By 2032; district capital plans"
+  },
+  {
+   "id": 220,
+   "page_id": 8,
+   "section": "prediction",
+   "side": "agree",
+   "position": 2,
+   "text": "Systematic measurement of parking and school capacity before and after upzoning."
+  },
+  {
+   "id": 221,
+   "page_id": 8,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "Evidence that upzoned neighborhoods stayed within school and utility capacity."
+  },
+  {
+   "id": 222,
+   "page_id": 8,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "New residents impose net costs on existing residents.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes newcomers do not pay for what they use"
+   }
+  },
+  {
+   "id": 223,
+   "page_id": 8,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "Existing residents have a claim on the neighborhood's current form."
+  },
+  {
+   "id": 224,
+   "page_id": 8,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "Cities exist to be shared with people who arrive later."
+  },
+  {
+   "id": 225,
+   "page_id": 8,
+   "section": "obstacle",
+   "side": "agree",
+   "position": 1,
+   "text": "The costs are diffuse and hard to price."
+  },
+  {
+   "id": 226,
+   "page_id": 8,
+   "section": "obstacle",
+   "side": "disagree",
+   "position": 1,
+   "text": "Nobody likes circling for parking."
+  },
+  {
+   "id": 227,
+   "page_id": 8,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Endowment effect over the neighborhood as it is."
+  },
+  {
+   "id": 228,
+   "page_id": 8,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Dismissing quality-of-life costs because they are hard to price."
+  },
+  {
+   "id": 229,
+   "page_id": 8,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Neighborhood character",
+    "definition": "The built form, density and appearance of a neighborhood as experienced by its residents."
+   }
+  },
+  {
+   "id": 230,
+   "page_id": 9,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Austin's record permits were financed at 3 percent rates; permits fell by about half in 2024 when rates rose."
+  },
+  {
+   "id": 231,
+   "page_id": 9,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Rents fell across many Sun Belt metros in 2023-2025, including ones that did not reform zoning."
+  },
+  {
+   "id": 232,
+   "page_id": 9,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Minneapolis's rent divergence from the state began around 2017, before the boom and before the 2019 reform took effect."
+  },
+  {
+   "id": 233,
+   "page_id": 9,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Cheap money was national; only the cities that allowed building turned it into supply, which is the point."
+  },
+  {
+   "id": 234,
+   "page_id": 9,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Austin metro multifamily permits fell by roughly half from 2022 to 2024 as interest rates rose.\nCensus Building Permits Survey (2022-2024)"
+  },
+  {
+   "id": 235,
+   "page_id": 9,
+   "section": "evidence",
+   "side": "agree",
+   "position": 2,
+   "text": "Asking rents fell year over year in most large Sun Belt metros in 2024, reform or not.\nApartment List national rent report (2024)"
+  },
+  {
+   "id": 236,
+   "page_id": 9,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 10
+  },
+  {
+   "id": 237,
+   "page_id": 9,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "Austin permits per resident will fall back to the national average by 2027.",
+   "deadline": "By 2027; Census permits"
+  },
+  {
+   "id": 238,
+   "page_id": 9,
+   "section": "prediction",
+   "side": "agree",
+   "position": 2,
+   "text": "Evidence that reform-city rents track non-reform Sun Belt cities once permits are controlled for."
+  },
+  {
+   "id": 239,
+   "page_id": 9,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "Evidence that reform cities kept outbuilding peers after rates rose."
+  },
+  {
+   "id": 240,
+   "page_id": 9,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "The 2021-2022 boom was financed by low rates.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes rates were the main driver of the boom"
+   }
+  },
+  {
+   "id": 241,
+   "page_id": 9,
+   "section": "component",
+   "side": null,
+   "position": 2,
+   "text": "Low rates will not return.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "N",
+    "lb": "Y",
+    "assumes": "Assumes 2020-2021 rates were a one-off"
+   }
+  },
+  {
+   "id": 242,
+   "page_id": 9,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "Rents would have fallen in these cities regardless of zoning."
+  },
+  {
+   "id": 243,
+   "page_id": 9,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "Permission was necessary for the boom to become homes."
+  },
+  {
+   "id": 244,
+   "page_id": 9,
+   "section": "obstacle",
+   "side": "agree",
+   "position": 1,
+   "text": "Minneapolis timing does not fit the story."
+  },
+  {
+   "id": 245,
+   "page_id": 9,
+   "section": "obstacle",
+   "side": "disagree",
+   "position": 1,
+   "text": "Austin timing fits it well."
+  },
+  {
+   "id": 246,
+   "page_id": 9,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Attributing everything to the macro cycle."
+  },
+  {
+   "id": 247,
+   "page_id": 9,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Attributing everything to zoning."
+  },
+  {
+   "id": 248,
+   "page_id": 9,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Repeatable",
+    "definition": "Achievable again under ordinary financing conditions."
+   }
+  },
+  {
+   "id": 249,
+   "page_id": 10,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "The divergence coincides with the city's reforms and with a permitting rate well above the state's."
+  },
+  {
+   "id": 250,
+   "page_id": 10,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "No other Minnesota city with similar demand diverged from the state trend in the same period."
+  },
+  {
+   "id": 251,
+   "page_id": 10,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Minneapolis also loosened rules on large apartment buildings along corridors, so the rent effect cannot be attributed to the single-family change alone."
+  },
+  {
+   "id": 252,
+   "page_id": 10,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "The divergence began around 2017, two years before the reform took effect, which points to causes that predate it."
+  },
+  {
+   "id": 253,
+   "page_id": 10,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Minneapolis rents rose about 1 percent from 2017 to 2023 against about 14 percent statewide, while housing stock grew about 12 percent against about 4 percent statewide.\nPew Charitable Trusts (2024)"
+  },
+  {
+   "id": 254,
+   "page_id": 10,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "Most of Minneapolis's new units in 2019-2023 were in large corridor buildings, not on single-family lots.\nCity of Minneapolis permit data (2019-2023)"
+  },
+  {
+   "id": 255,
+   "page_id": 10,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "A peer-reviewed synthetic-control study of Minneapolis will find a rent effect of the 2019 reforms by 2027.",
+   "deadline": "By 2027; published literature"
+  },
+  {
+   "id": 256,
+   "page_id": 10,
+   "section": "prediction",
+   "side": "agree",
+   "position": 2,
+   "text": "A synthetic-control study attributing the rent gap to the 2019 package."
+  },
+  {
+   "id": 257,
+   "page_id": 10,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "Evidence that the 2017-2019 gap was as large as the post-2019 gap."
+  },
+  {
+   "id": 258,
+   "page_id": 10,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "Minneapolis rents diverged from the state.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes the Zillow index tracks the rental stock"
+   }
+  },
+  {
+   "id": 259,
+   "page_id": 10,
+   "section": "component",
+   "side": null,
+   "position": 2,
+   "text": "The 2019 reforms caused the divergence.",
+   "attrs": {
+    "type": "Causal",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes no other 2017-2019 change explains it"
+   }
+  },
+  {
+   "id": 260,
+   "page_id": 10,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "The rest of Minnesota is a fair counterfactual for Minneapolis."
+  },
+  {
+   "id": 261,
+   "page_id": 10,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "A 2017 start rules out a 2019 cause."
+  },
+  {
+   "id": 262,
+   "page_id": 10,
+   "section": "obstacle",
+   "side": "agree",
+   "position": 1,
+   "text": "One city, one policy package, no randomization."
+  },
+  {
+   "id": 263,
+   "page_id": 10,
+   "section": "obstacle",
+   "side": "disagree",
+   "position": 1,
+   "text": "The permitting numbers are hard to explain without the reforms."
+  },
+  {
+   "id": 264,
+   "page_id": 10,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Crediting the famous reform for everything."
+  },
+  {
+   "id": 265,
+   "page_id": 10,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Requiring a single cause."
+  },
+  {
+   "id": 266,
+   "page_id": 10,
+   "section": "media",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 57,
+   "attrs": {
+    "type": "Article"
+   }
+  },
+  {
+   "id": 267,
+   "page_id": 10,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Corridor reforms",
+    "definition": "Rules allowing larger apartment buildings along transit and commercial corridors, passed alongside the single-family change."
+   }
+  },
+  {
+   "id": 268,
+   "page_id": 11,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 269,
+   "page_id": 12,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Comparing the cost of reform against subsidy programs is a separate claim that the supply argument does not make.",
+   "pattern": "Different conclusion"
+  },
+  {
+   "id": 270,
+   "page_id": 12,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "One argument is settled by price data; the other by public budgets per home added.",
+   "pattern": "Different evidence"
+  },
+  {
+   "id": 271,
+   "page_id": 12,
+   "section": "argument",
+   "side": "agree",
+   "position": 3,
+   "text": "The cost comparison could hold (reform is cheap per home) even if the supply effect turned out small; a restatement could not.",
+   "pattern": "Independent failure"
+  },
+  {
+   "id": 272,
+   "page_id": 12,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The cheapest-tool claim rests on the same supply mechanism as the binding-constraint argument; only the cost comparison is new.",
+   "pattern": "Shared premise"
+  },
+  {
+   "id": 273,
+   "page_id": 12,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "If the supply mechanism fails, both arguments fail together, which is the mark of a restatement.",
+   "pattern": "Stand or fall together"
+  },
+  {
+   "id": 274,
+   "page_id": 12,
+   "section": "related",
+   "side": "x",
+   "position": 1,
+   "claim_id": 2
+  },
+  {
+   "id": 275,
+   "page_id": 12,
+   "section": "related",
+   "side": "x",
+   "position": 2,
+   "claim_id": 4
+  },
+  {
+   "id": 276,
+   "page_id": 13,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Transaction prices rose in the upzoned parcels relative to controls within five years while permits did not."
+  },
+  {
+   "id": 277,
+   "page_id": 13,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "The result is what economic theory predicts for a small upzoning: the option value is priced in before anyone builds."
+  },
+  {
+   "id": 278,
+   "page_id": 13,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The Chicago changes were small and confined to narrow corridors, which limits what they show about citywide reform."
+  },
+  {
+   "id": 279,
+   "page_id": 13,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Five years is short for construction to respond, and the parcels were already among the most expensive in the city."
+  },
+  {
+   "id": 280,
+   "page_id": 13,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Parcels upzoned in 2013 and 2015 showed higher transaction prices than controls and no measurable increase in permits through 2018.\nFreemark, Urban Affairs Review (2020)"
+  },
+  {
+   "id": 281,
+   "page_id": 13,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "Citywide reforms (Auckland, Minneapolis) that changed rules on most residential land were followed by permit surges that Chicago's corridor changes were not.\nGreenaway-McGrevy and Phillips (2023); Pew (2024)"
+  },
+  {
+   "id": 282,
+   "page_id": 13,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "Replication of the price-without-construction result in other small upzonings."
+  },
+  {
+   "id": 283,
+   "page_id": 13,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "Chicago's 2013-2015 corridor parcels will show more construction than controls by 2028.",
+   "deadline": "By 2028; parcel permit data"
+  },
+  {
+   "id": 284,
+   "page_id": 13,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 2,
+   "text": "Later Chicago data showing construction catching up after 2018."
+  },
+  {
+   "id": 285,
+   "page_id": 13,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "Prices rose in upzoned parcels.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes controls were comparable"
+   }
+  },
+  {
+   "id": 286,
+   "page_id": 13,
+   "section": "component",
+   "side": null,
+   "position": 2,
+   "text": "Construction did not rise.",
+   "attrs": {
+    "type": "Empirical",
+    "stated": "Y",
+    "lb": "Y",
+    "assumes": "Assumes five years is long enough to see it"
+   }
+  },
+  {
+   "id": 287,
+   "page_id": 13,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Corridor upzoning",
+    "definition": "A zoning change limited to parcels along particular streets or transit lines."
+   }
+  },
+  {
+   "id": 288,
+   "page_id": 14,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "If neighborhood costs get reforms repealed, the policy never lowers anything, so the costs bear on the outcome through politics.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 289,
+   "page_id": 14,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Infrastructure charges get passed into the price of new homes, so capacity costs are housing costs.",
+   "pattern": "Scope fit"
+  },
+  {
+   "id": 290,
+   "page_id": 14,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Whether existing residents bear costs does not bear on whether housing costs fall, which is the claim on the parent page; it belongs on the cost side of the cost-benefit table.",
+   "pattern": "Wrong parent"
+  },
+  {
+   "id": 291,
+   "page_id": 14,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "The argument answers a different question (is the reform worth it?) than the parent asks (does it lower costs?).",
+   "pattern": "True but irrelevant"
+  },
+  {
+   "id": 292,
+   "page_id": 14,
+   "section": "argument",
+   "side": "disagree",
+   "position": 3,
+   "text": "The costs listed fall on existing residents of particular blocks; the belief is about housing costs across a city.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 293,
+   "page_id": 14,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "Infrastructure charges are passed through into home prices rather than absorbed by the added tax base."
+  },
+  {
+   "id": 294,
+   "page_id": 14,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "Housing costs means rents and prices, not total welfare of existing residents."
+  },
+  {
+   "id": 295,
+   "page_id": 14,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Loss aversion among current residents makes every local cost feel like a citywide one."
+  },
+  {
+   "id": 296,
+   "page_id": 14,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Pro-housing editors dismiss any cost they cannot price."
+  },
+  {
+   "id": 297,
+   "page_id": 15,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 75
+  },
+  {
+   "id": 298,
+   "page_id": 16,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Preferring neighbors like oneself is a common feeling, stated openly in some testimony and implied in more.",
+   "pattern": "Widely held"
+  },
+  {
+   "id": 299,
+   "page_id": 16,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Keeping people out by income is a claim to control who may live where, which nobody is entitled to.",
+   "pattern": "Claim on others' property or choices"
+  },
+  {
+   "id": 300,
+   "page_id": 16,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Fair housing law forbids exclusion by race and, in several states, by source of income; the need has no legal standing.",
+   "pattern": "Forbidden by law"
+  },
+  {
+   "id": 301,
+   "page_id": 16,
+   "section": "argument",
+   "side": "disagree",
+   "position": 3,
+   "text": "The stated concerns (traffic, parking, character) often stand in for this one, which is why it rarely appears in testimony under its own name.",
+   "pattern": "Pretext for another aim"
+  },
+  {
+   "id": 302,
+   "page_id": 17,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "The regulatory premium it measures is what ending single-family-only zoning would cut.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 303,
+   "page_id": 17,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "It is about regulation in general, not single-family zoning in particular.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 304,
+   "page_id": 18,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Minneapolis and Auckland both show rent gaps against their regions of that order or larger within five years."
+  },
+  {
+   "id": 305,
+   "page_id": 18,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Spillover studies find 1 to 6 percent local effects per building, which accumulate as buildings accumulate."
+  },
+  {
+   "id": 306,
+   "page_id": 18,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The effect appears only where building follows; in cities with weak demand or high costs the number is near zero."
+  },
+  {
+   "id": 307,
+   "page_id": 18,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Five years is early; most of the gap in Auckland opened after year three."
+  },
+  {
+   "id": 308,
+   "page_id": 18,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 10
+  },
+  {
+   "id": 309,
+   "page_id": 18,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "SB 9 added too few homes to move any rent index.\nTerner Center (2023)"
+  },
+  {
+   "id": 310,
+   "page_id": 18,
+   "section": "prediction",
+   "side": "agree",
+   "position": 1,
+   "text": "A multi-city estimate at or above 5 percent."
+  },
+  {
+   "id": 311,
+   "page_id": 18,
+   "section": "prediction",
+   "side": "disagree",
+   "position": 1,
+   "text": "A multi-city estimate near zero."
+  },
+  {
+   "id": 312,
+   "page_id": 18,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Counterfactual rent",
+    "definition": "The rent the city would have had without the reform, estimated from matched cities."
+   }
+  },
+  {
+   "id": 313,
+   "page_id": 19,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Auckland added on the order of 4,000 extra homes a year in a city of 1.6 million, about 2.5 per 1,000."
+  },
+  {
+   "id": 314,
+   "page_id": 19,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Minneapolis outbuilt the state by several units per 1,000 residents per year after 2019."
+  },
+  {
+   "id": 315,
+   "page_id": 19,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "California's lot-split law added a small fraction of a home per 1,000 residents."
+  },
+  {
+   "id": 316,
+   "page_id": 19,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "An estimated 20,000-plus additional homes over five years in Auckland.\nGreenaway-McGrevy and Phillips (2023)"
+  },
+  {
+   "id": 317,
+   "page_id": 19,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "Fewer than 500 SB 9 applications statewide in year one, in a state of 39 million.\nTerner Center (2023)"
+  },
+  {
+   "id": 318,
+   "page_id": 19,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Additional homes",
+    "definition": "Homes built beyond the matched-city trend, not total homes built."
+   }
+  },
+  {
+   "id": 319,
+   "page_id": 20,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Households in central, walkable neighborhoods drive substantially less than households at the urban edge."
+  },
+  {
+   "id": 320,
+   "page_id": 20,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The comparison assumes the new residents would otherwise have lived at the edge rather than not moving at all."
+  },
+  {
+   "id": 321,
+   "page_id": 20,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Household vehicle miles fall with density and centrality; central households drive roughly 20 to 40 percent less than edge households in the same metro.\nNational Household Travel Survey analyses; Ewing and Cervero (2010)"
+  },
+  {
+   "id": 322,
+   "page_id": 20,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Infill",
+    "definition": "Housing built within the existing urban footprint rather than at its edge."
+   }
+  },
+  {
+   "id": 323,
+   "page_id": 21,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "More competing homes lower the price of existing ones, all else equal."
+  },
+  {
+   "id": 324,
+   "page_id": 21,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Upzoning raises the land value under existing homes, and in most studies the net effect on existing owners is positive."
+  },
+  {
+   "id": 325,
+   "page_id": 21,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Owners near new construction report concern about resale values in surveys.\nLocal opinion surveys, various cities"
+  },
+  {
+   "id": 326,
+   "page_id": 21,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 13
+  },
+  {
+   "id": 327,
+   "page_id": 21,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 2,
+   "text": "Auckland land values rose in upzoned areas after 2016.\nGreenaway-McGrevy, Pacheco and Sorensen (2021)"
+  },
+  {
+   "id": 328,
+   "page_id": 21,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Where new homes compete",
+    "definition": "Neighborhoods in which new units are close substitutes for existing detached homes."
+   }
+  },
+  {
+   "id": 329,
+   "page_id": 22,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Redeveloping an occupied older rental evicts its tenants, and small-lot redevelopment targets exactly those buildings."
+  },
+  {
+   "id": 330,
+   "page_id": 22,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "New construction lowers displacement risk for nearby renters in the studies that measure it."
+  },
+  {
+   "id": 331,
+   "page_id": 22,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Most middle-housing projects replace single-family homes, not occupied rentals."
+  },
+  {
+   "id": 332,
+   "page_id": 22,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "New market-rate construction reduced nearby renters' probability of displacement.\nPennington (2021)"
+  },
+  {
+   "id": 333,
+   "page_id": 22,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Displaced household",
+    "definition": "A household that moves because its building is demolished or its rent rises beyond its means."
+   }
+  },
+  {
+   "id": 334,
+   "page_id": 23,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Utilities sized for 1970 household counts need upgrades where infill is concentrated."
+  },
+  {
+   "id": 335,
+   "page_id": 23,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Infill is the cheapest development to serve; cost-of-service studies put it well below greenfield."
+  },
+  {
+   "id": 336,
+   "page_id": 23,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Impact fees and the added tax base cover most infrastructure costs of infill."
+  },
+  {
+   "id": 337,
+   "page_id": 23,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "Per-unit infrastructure cost for infill is a fraction of the greenfield figure in municipal cost-of-service studies.\nSmart Growth America (2013); municipal studies"
+  },
+  {
+   "id": 338,
+   "page_id": 23,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Built-out neighborhood",
+    "definition": "A neighborhood with no vacant land, where new homes replace or add to existing buildings."
+   }
+  },
+  {
+   "id": 339,
+   "page_id": 24,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Shelter is a basic need, and paying more than a third of income for it crowds out food, health and savings.",
+   "pattern": "Basic need"
+  },
+  {
+   "id": 340,
+   "page_id": 24,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "The need is met by a market that builds enough homes; it asks nothing from anyone's pocket.",
+   "pattern": "Asks no transfer from others"
+  },
+  {
+   "id": 341,
+   "page_id": 24,
+   "section": "argument",
+   "side": "agree",
+   "position": 3,
+   "text": "About half of renters pay more than 30 percent of income for housing, so the need is common, not a niche.",
+   "pattern": "Widely held"
+  },
+  {
+   "id": 342,
+   "page_id": 24,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Everyone wants lower prices for what they buy; wanting it does not by itself create a claim on how others use their land.",
+   "pattern": "Claim on others' property or choices"
+  },
+  {
+   "id": 343,
+   "page_id": 25,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "For most owners the home is the family's savings and its security in old age; a loss there is a loss of security, not of luxury.",
+   "pattern": "Basic need"
+  },
+  {
+   "id": 344,
+   "page_id": 25,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Two thirds of households own their home, and most of their wealth is in it.",
+   "pattern": "Widely held"
+  },
+  {
+   "id": 345,
+   "page_id": 25,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Protecting a home's value by controlling what neighbors may build on their own lots is a claim on other people's property.",
+   "pattern": "Claim on others' property or choices"
+  },
+  {
+   "id": 346,
+   "page_id": 25,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Home values in the high-cost metros the belief is about have risen far faster than incomes for decades; the need for protection is a need to keep a windfall.",
+   "pattern": "Already met"
+  },
+  {
+   "id": 347,
+   "page_id": 26,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Fourplexes by right add supply everywhere at once, which spreads change thinly instead of concentrating it."
+  },
+  {
+   "id": 348,
+   "page_id": 26,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Design standards address the character concern that drives most opposition."
+  },
+  {
+   "id": 349,
+   "page_id": 26,
+   "section": "argument",
+   "side": "agree",
+   "position": 3,
+   "text": "Oregon and Minneapolis adopted versions of this and neither reversed it."
+  },
+  {
+   "id": 350,
+   "page_id": 26,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Four units without parking reform produces little where lots are small; the parking rule does most of the work and is the most contested part."
+  },
+  {
+   "id": 351,
+   "page_id": 26,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Homeowner majorities on councils have blocked or watered down every such package in most cities that tried."
+  },
+  {
+   "id": 352,
+   "page_id": 26,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Oregon HB 2001 (2019) required cities over 25,000 to allow fourplexes; no repeal effort has succeeded.\nOregon legislative record (2019-2025)"
+  },
+  {
+   "id": 353,
+   "page_id": 26,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "By right",
+    "definition": "Permitted without a discretionary hearing if the project meets the written standards."
+   }
+  },
+  {
+   "id": 354,
+   "page_id": 27,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Across metros, those that build more have lower price growth for the same demand growth."
+  },
+  {
+   "id": 355,
+   "page_id": 27,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "claim_id": 4
+  },
+  {
+   "id": 356,
+   "page_id": 27,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Induced demand: new supply attracts new residents, so prices do not fall."
+  },
+  {
+   "id": 357,
+   "page_id": 27,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "In superstar cities demand is so deep that any feasible supply is a rounding error."
+  },
+  {
+   "id": 358,
+   "page_id": 27,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Elastic-supply metros had smaller price booms in the 2000s.\nGlaeser, Gyourko and Saiz (2008)"
+  },
+  {
+   "id": 359,
+   "page_id": 27,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "Some studies find new residents arrive faster than units in the most desirable metros.\nVarious migration analyses"
+  },
+  {
+   "id": 360,
+   "page_id": 27,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Induced demand",
+    "definition": "Additional demand that appears because supply was added."
+   }
+  },
+  {
+   "id": 361,
+   "page_id": 28,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Housing is a need before it is an asset, and policy that protects asset values by keeping people out inverts the priority."
+  },
+  {
+   "id": 362,
+   "page_id": 28,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Owners made the largest purchase of their lives under the existing rules and have a reliance interest in them."
+  },
+  {
+   "id": 363,
+   "page_id": 28,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Normative component",
+    "definition": "A claim about what should count, argued by values rather than measured."
+   }
+  },
+  {
+   "id": 364,
+   "page_id": 29,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Where permission was granted broadly (Auckland, Minneapolis, Portland) builders built."
+  },
+  {
+   "id": 365,
+   "page_id": 29,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "At high interest rates and construction costs, permission is not enough; California's lot-split law shows builders staying home."
+  },
+  {
+   "id": 366,
+   "page_id": 29,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Respond to permission",
+    "definition": "Build more when the rules allow more, without a subsidy."
+   }
+  },
+  {
+   "id": 367,
+   "page_id": 30,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "New units rent at the top of the market and their first occupants are higher-income."
+  },
+  {
+   "id": 368,
+   "page_id": 30,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 4
+  },
+  {
+   "id": 369,
+   "page_id": 30,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Filtering down",
+    "definition": "Housing passing to lower-income households as higher-income households move to newer units."
+   }
+  },
+  {
+   "id": 370,
+   "page_id": 31,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Developers and their trade groups fund a share of pro-housing campaigns and stand to gain from higher land values."
+  },
+  {
+   "id": 371,
+   "page_id": 31,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Most pro-housing advocates are renters and researchers with no stake in development returns."
+  },
+  {
+   "id": 372,
+   "page_id": 31,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Actual driver",
+    "definition": "The interest that best predicts who takes the position."
+   }
+  },
+  {
+   "id": 373,
+   "page_id": 32,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Opposition intensity tracks home values and homeownership rates more closely than stated concerns about traffic or design."
+  },
+  {
+   "id": 374,
+   "page_id": 32,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Many opponents are long-time renters and residents with no equity at stake who value the neighborhood as it is."
+  },
+  {
+   "id": 375,
+   "page_id": 32,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Actual driver",
+    "definition": "The interest that best predicts who takes the position."
+   }
+  },
+  {
+   "id": 376,
+   "page_id": 33,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Auckland's rent effect took three to five years to appear; council terms are shorter than that."
+  },
+  {
+   "id": 377,
+   "page_id": 33,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Permit counts rise within a year and give reformers something to point to."
+  },
+  {
+   "id": 378,
+   "page_id": 33,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Sustain",
+    "definition": "Keep a reform in force through subsequent elections."
+   }
+  },
+  {
+   "id": 379,
+   "page_id": 34,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Rent control and subsidies have not made any high-demand city affordable without supply growth."
+  },
+  {
+   "id": 380,
+   "page_id": 34,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Vienna's social housing is a standing example of affordability delivered by public building rather than by upzoning."
+  },
+  {
+   "id": 381,
+   "page_id": 34,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Fixed affordability",
+    "definition": "Brought median rent below 30 percent of median income and kept it there."
+   }
+  },
+  {
+   "id": 382,
+   "page_id": 35,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Houston, with no use zoning, has kept prices near construction cost through decades of growth."
+  },
+  {
+   "id": 383,
+   "page_id": 35,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Houston regulates through deed restrictions, minimum lot sizes and parking rules; it is not unzoned."
+  },
+  {
+   "id": 384,
+   "page_id": 35,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Abolition removes protections against noxious uses that most residents want."
+  },
+  {
+   "id": 385,
+   "page_id": 35,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "Zoning",
+    "definition": "Rules assigning permitted uses and densities to parcels."
+   }
+  },
+  {
+   "id": 386,
+   "page_id": 36,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Every reform with a measured rent effect was in a high-demand city; low-demand cities show no change."
+  },
+  {
+   "id": 387,
+   "page_id": 36,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Modestly undersells Auckland and Minneapolis, where the gaps ran to double digits."
+  },
+  {
+   "id": 388,
+   "page_id": 36,
+   "section": "definition",
+   "side": null,
+   "position": 1,
+   "attrs": {
+    "term": "High-demand city",
+    "definition": "A city where prices exceed construction cost by a large margin."
+   }
+  },
+  {
+   "id": 389,
+   "page_id": 37,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "The study uses a difference-in-differences design with non-upzoned areas as controls and finds a sharp, sustained rise in consents."
+  },
+  {
+   "id": 390,
+   "page_id": 37,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Consents are not completions, and some of the surge may be displaced from areas that were not upzoned."
+  },
+  {
+   "id": 391,
+   "page_id": 37,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Greenaway-McGrevy and Phillips, Journal of Urban Economics (2023): peer-reviewed estimate of 20,000-plus additional dwellings attributable to the Unitary Plan."
+  },
+  {
+   "id": 392,
+   "page_id": 38,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Census permit data and two independent rent indexes agree on the direction and rough size."
+  },
+  {
+   "id": 393,
+   "page_id": 38,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Asking-rent indexes overstate declines for sitting tenants, and the peak was inflated by 2021-2022 in-migration."
+  },
+  {
+   "id": 394,
+   "page_id": 38,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Census Building Permits Survey, metro multifamily permits per capita (2021-2023); Apartment List and Zillow asking-rent indexes (2023-2025)."
+  },
+  {
+   "id": 395,
+   "page_id": 39,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Three independent teams using different data reached the same sign and a similar range."
+  },
+  {
+   "id": 396,
+   "page_id": 39,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "One Minneapolis study finds the opposite sign for the cheapest nearby buildings."
+  },
+  {
+   "id": 397,
+   "page_id": 39,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Asquith, Mast and Reed (2023); Pennington (2021); Bratu, Harjunen and Saarimaa (2023)."
+  },
+  {
+   "id": 398,
+   "page_id": 39,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "text": "Damiano and Frenier (2020), Minneapolis."
+  },
+  {
+   "id": 399,
+   "page_id": 40,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "The Terner count comes from a survey of the state's largest cities and matches later HCD reporting."
+  },
+  {
+   "id": 400,
+   "page_id": 40,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Small cities were not all surveyed, so the true count is somewhat higher."
+  },
+  {
+   "id": 401,
+   "page_id": 40,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "text": "Terner Center for Housing Innovation, SB 9 implementation reports (2023)."
+  },
+  {
+   "id": 402,
+   "page_id": 41,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "It documents the rent and supply divergence after the 2019 reforms in a city that did what the belief names.",
+   "pattern": "Scope fit"
+  },
+  {
+   "id": 403,
+   "page_id": 41,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "It does not separate the single-family change from the parking and density reforms that landed with it.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 404,
+   "page_id": 42,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "It shows upzoning raising prices without construction, the belief's outcome reversed.",
+   "pattern": "Scope fit"
+  },
+  {
+   "id": 405,
+   "page_id": 42,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Its corridor upzonings were small; it says little about citywide reform.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 406,
+   "page_id": 43,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "The option to build more is priced into land the day the rule changes."
+  },
+  {
+   "id": 407,
+   "page_id": 43,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Where nobody expects to build, the option is worth nothing and land does not move."
+  },
+  {
+   "id": 408,
+   "page_id": 43,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 13
+  },
+  {
+   "id": 409,
+   "page_id": 44,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Portland and Minneapolis saw applications within the first year; Auckland within two."
+  },
+  {
+   "id": 410,
+   "page_id": 44,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "California's lot-split law shows that restrictive design rules can hold applications near zero."
+  },
+  {
+   "id": 411,
+   "page_id": 45,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Auckland's rent divergence widened through year five as consents became completions."
+  },
+  {
+   "id": 412,
+   "page_id": 45,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "No reform is old enough to show a full decade yet."
+  },
+  {
+   "id": 413,
+   "page_id": 46,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Every reformed city shows some teardown-to-multiplex activity, concentrated on the most valuable lots."
+  },
+  {
+   "id": 414,
+   "page_id": 46,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The pace is slow: a few percent of lots per decade in the busiest cities."
+  },
+  {
+   "id": 415,
+   "page_id": 47,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Producing what buyers want is the ordinary business of any trade; the need is for permission, not subsidy.",
+   "pattern": "Asks no transfer from others"
+  },
+  {
+   "id": 416,
+   "page_id": 47,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "The right to build on one's own land within the rules is a recognized property right.",
+   "pattern": "Recognized in law"
+  },
+  {
+   "id": 417,
+   "page_id": 47,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Builders profit from land value uplift whether or not costs fall, so the stated need for permission partly covers a need for returns.",
+   "pattern": "Pretext for another aim"
+  },
+  {
+   "id": 418,
+   "page_id": 47,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Builders are a small trade; the need is real but narrow.",
+   "pattern": "Held by few"
+  },
+  {
+   "id": 419,
+   "page_id": 48,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Losing one's home to redevelopment is a serious harm, and it falls on people with the fewest options.",
+   "pattern": "Basic need"
+  },
+  {
+   "id": 420,
+   "page_id": 48,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Relocation assistance and just-cause eviction rules already recognize the need in many cities.",
+   "pattern": "Recognized in law"
+  },
+  {
+   "id": 421,
+   "page_id": 48,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The fear is sometimes raised by owners in neighborhoods where displacement risk is lowest, to block housing for others.",
+   "pattern": "Pretext for another aim"
+  },
+  {
+   "id": 422,
+   "page_id": 48,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Where just-cause and relocation rules exist, the need is met by those rules rather than by blocking new homes.",
+   "pattern": "Already met"
+  },
+  {
+   "id": 423,
+   "page_id": 49,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Polling on housing consistently finds this concern shared across owners and renters."
+  },
+  {
+   "id": 424,
+   "page_id": 49,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Some owners would rather their children inherit a valuable house elsewhere than an affordable one nearby."
+  },
+  {
+   "id": 425,
+   "page_id": 50,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Supporters predicted large SB 9 output that did not appear."
+  },
+  {
+   "id": 426,
+   "page_id": 50,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Most supporters also push for permitting and financing reform, which shows they do not think permission is enough."
+  },
+  {
+   "id": 427,
+   "page_id": 51,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Opposition intensity tracks home equity, and owners weigh a possible loss far more than an equal gain."
+  },
+  {
+   "id": 428,
+   "page_id": 51,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Preferring the neighborhood one chose is a preference, not a bias."
+  },
+  {
+   "id": 429,
+   "page_id": 52,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Early reformers (Minneapolis, Auckland) are already below trend."
+  },
+  {
+   "id": 430,
+   "page_id": 52,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The 2021-2022 boom cities may revert as financing stays expensive."
+  },
+  {
+   "id": 431,
+   "page_id": 53,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Most of the 2023-2025 rent declines happened in Sun Belt cities regardless of zoning."
+  },
+  {
+   "id": 432,
+   "page_id": 53,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Minneapolis diverged from its state under the same rates and a shrinking population."
+  },
+  {
+   "id": 433,
+   "page_id": 54,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Confirmed: about 1 percent versus about 14 percent, 2017-2023 (Pew 2024)."
+  },
+  {
+   "id": 434,
+   "page_id": 54,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The divergence began in 2017, so part of it predates the reform."
+  },
+  {
+   "id": 435,
+   "page_id": 54,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 10
+  },
+  {
+   "id": 436,
+   "page_id": 55,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Advocates projected large output from the state's millions of eligible lots."
+  },
+  {
+   "id": 437,
+   "page_id": 55,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Disconfirmed: a few hundred applications statewide in the first years (Terner Center 2023)."
+  },
+  {
+   "id": 438,
+   "page_id": 55,
+   "section": "evidence",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 40
+  },
+  {
+   "id": 439,
+   "page_id": 56,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Builds the regulatory premium from construction cost and price data, metro by metro.",
+   "pattern": "Primary sources"
+  },
+  {
+   "id": 440,
+   "page_id": 56,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "The gap between price and construction cost is a clean measure of what permission costs.",
+   "pattern": "Well reasoned"
+  },
+  {
+   "id": 441,
+   "page_id": 56,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "It treats regulation as the whole gap and gives little room to land scarcity that no rule created.",
+   "pattern": "One-sided"
+  },
+  {
+   "id": 442,
+   "page_id": 56,
+   "section": "impact",
+   "side": "agree",
+   "position": 1,
+   "text": "The regulatory-premium framing appears in most later work on zoning and prices.",
+   "pattern": "Widely cited"
+  },
+  {
+   "id": 443,
+   "page_id": 56,
+   "section": "impact",
+   "side": "agree",
+   "position": 2,
+   "text": "Cited in state housing bills and federal housing plans.",
+   "pattern": "Shaped policy"
+  },
+  {
+   "id": 444,
+   "page_id": 56,
+   "section": "impact",
+   "side": "disagree",
+   "position": 1,
+   "text": "Read mainly by economists already persuaded that supply matters.",
+   "pattern": "Preaching to the converted"
+  },
+  {
+   "id": 445,
+   "page_id": 57,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Its rent and permit figures match the Census and Zillow series it draws on.",
+   "pattern": "Accurate"
+  },
+  {
+   "id": 446,
+   "page_id": 57,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "A descriptive comparison with the state, not a causal study; several reforms landed at once.",
+   "pattern": "Weak reasoning"
+  },
+  {
+   "id": 447,
+   "page_id": 57,
+   "section": "impact",
+   "side": "agree",
+   "position": 1,
+   "text": "The Minneapolis story is the case most journalists and councils cite.",
+   "pattern": "Reached a broad audience"
+  },
+  {
+   "id": 448,
+   "page_id": 57,
+   "section": "impact",
+   "side": "disagree",
+   "position": 1,
+   "text": "Little academic work builds on it; it is a summary, not a study.",
+   "pattern": "Rarely cited"
+  },
+  {
+   "id": 449,
+   "page_id": 58,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Parcel-level transaction and permit data before and after two upzonings.",
+   "pattern": "Primary sources"
+  },
+  {
+   "id": 450,
+   "page_id": 58,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "A difference-in-differences design with untouched parcels as controls.",
+   "pattern": "Well reasoned"
+  },
+  {
+   "id": 451,
+   "page_id": 58,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Five years is short for construction to follow; the paper reads a lag as a null.",
+   "pattern": "One-sided"
+  },
+  {
+   "id": 452,
+   "page_id": 58,
+   "section": "impact",
+   "side": "agree",
+   "position": 1,
+   "text": "The standard citation for the claim that upzoning raises prices without adding homes.",
+   "pattern": "Widely cited"
+  },
+  {
+   "id": 453,
+   "page_id": 58,
+   "section": "impact",
+   "side": "disagree",
+   "position": 1,
+   "text": "Known in planning circles; little reach beyond them.",
+   "pattern": "Small audience"
+  },
+  {
+   "id": 454,
+   "page_id": 59,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Each law's findings section cites housing costs as the purpose."
+  },
+  {
+   "id": 455,
+   "page_id": 59,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Legislative findings are political statements, not evidence that the policy works."
+  },
+  {
+   "id": 456,
+   "page_id": 60,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Cities keep discretionary review and design rules that can null a state reform, as SB 9 showed."
+  },
+  {
+   "id": 457,
+   "page_id": 60,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "States have been overriding local rules faster each year."
+  },
+  {
+   "id": 458,
+   "page_id": 61,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Basic price theory, confirmed across goods and across housing markets with elastic supply."
+  },
+  {
+   "id": 459,
+   "page_id": 61,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Housing is durable and location-bound, so supply responds slowly and unevenly."
+  },
+  {
+   "id": 460,
+   "page_id": 62,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Residents bear the local effects and know the place best."
+  },
+  {
+   "id": 461,
+   "page_id": 62,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Local control lets incumbents exclude newcomers who have no vote there."
+  },
+  {
+   "id": 462,
+   "page_id": 63,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Parking minimums add tens of thousands of dollars per unit and are unused near transit."
+  },
+  {
+   "id": 463,
+   "page_id": 63,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Spillover parking burdens neighbors without permit systems."
+  },
+  {
+   "id": 464,
+   "page_id": 64,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Irreplaceable building stock deserves protection."
+  },
+  {
+   "id": 465,
+   "page_id": 64,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Historic designation is used to freeze whole neighborhoods, not to protect buildings."
+  },
+  {
+   "id": 466,
+   "page_id": 65,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Decades of published work say so (Glaeser and Gyourko 2018 among others)."
+  },
+  {
+   "id": 467,
+   "page_id": 66,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Its Minneapolis and Auckland analyses draw that conclusion."
+  },
+  {
+   "id": 468,
+   "page_id": 66,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Pew frames its work as analysis rather than advocacy."
+  },
+  {
+   "id": 469,
+   "page_id": 67,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Its public positions and testimony opposed both bills."
+  },
+  {
+   "id": 470,
+   "page_id": 68,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "His 2020 Chicago study says exactly that for corridor upzonings."
+  },
+  {
+   "id": 471,
+   "page_id": 68,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "He has also written in favor of broad zoning reform, so the record is nuanced."
+  },
+  {
+   "id": 472,
+   "page_id": 69,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Auckland's and Minneapolis's rent gaps widened over their first five years, which is the pattern such a study would find if it holds generally."
+  },
+  {
+   "id": 473,
+   "page_id": 69,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "No multi-city study with matched controls has been published yet, so the prediction is pending."
+  },
+  {
+   "id": 474,
+   "page_id": 70,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Where consents rose sharply (Auckland), land value per home fell as lots were split, which is the premium shrinking."
+  },
+  {
+   "id": 475,
+   "page_id": 70,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Construction costs rose faster than prices in 2020-2024, which shrinks the measured premium without any price falling."
+  },
+  {
+   "id": 476,
+   "page_id": 71,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Rents fell across the Sun Belt in 2023-2025 in cities that reformed nothing."
+  },
+  {
+   "id": 477,
+   "page_id": 71,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Minneapolis diverged from its state before the boom and under the same interest rates."
+  },
+  {
+   "id": 478,
+   "page_id": 72,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Teardowns in high-value neighborhoods often replace a small house with a large one under any zoning."
+  },
+  {
+   "id": 479,
+   "page_id": 72,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Portland and Minneapolis permit data show most redeveloped lots taking two to four units where that is allowed."
+  },
+  {
+   "id": 480,
+   "page_id": 73,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "A place to live near work and family is shelter, the most basic need on the list.",
+   "pattern": "Basic need"
+  },
+  {
+   "id": 481,
+   "page_id": 73,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "The need is for homes to exist, not for anyone to give one up.",
+   "pattern": "Asks no transfer from others"
+  },
+  {
+   "id": 482,
+   "page_id": 73,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "People who do not yet live in a city have no standing in its decisions, on the view that a city belongs to its residents.",
+   "pattern": "Held by few"
+  },
+  {
+   "id": 483,
+   "page_id": 73,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Making room for newcomers means changing the neighborhoods current residents chose.",
+   "pattern": "Claim on others' property or choices"
+  },
+  {
+   "id": 484,
+   "page_id": 74,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Long car commutes cost hours, sleep and clean air, and edge growth adds driving for everyone in the region.",
+   "pattern": "Basic need"
+  },
+  {
+   "id": 485,
+   "page_id": 74,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Every household in the region breathes the air and sits in the traffic that edge growth produces.",
+   "pattern": "Widely held"
+  },
+  {
+   "id": 486,
+   "page_id": 74,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Climate is sometimes invoked to justify density that the invoker wants for other reasons.",
+   "pattern": "Pretext for another aim"
+  },
+  {
+   "id": 487,
+   "page_id": 74,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Most residents rank their own commute above regional emissions, so the need as stated is held intensely by few.",
+   "pattern": "Held by few"
+  },
+  {
+   "id": 488,
+   "page_id": 75,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Parking, school crowding and a changed streetscape are what residents actually experience day to day.",
+   "pattern": "Widely held"
+  },
+  {
+   "id": 489,
+   "page_id": 75,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Zoning itself exists in law to protect settled expectations about what a neighborhood will be.",
+   "pattern": "Recognized in law"
+  },
+  {
+   "id": 490,
+   "page_id": 75,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Keeping a neighborhood as it is means deciding what neighbors may build on their own lots.",
+   "pattern": "Claim on others' property or choices"
+  },
+  {
+   "id": 491,
+   "page_id": 75,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Street parking is a public asset given away free; a need to keep it is a need to keep a subsidy.",
+   "pattern": "Already met"
+  },
+  {
+   "id": 492,
+   "page_id": 76,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 493,
+   "page_id": 76,
+   "section": "interest_listing",
+   "side": null,
+   "position": 2,
+   "claim_id": 47,
+   "bearing_id": 96
+  },
+  {
+   "id": 494,
+   "page_id": 76,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "The rent and permit readings in the reform cities are the readings the belief is about."
+  },
+  {
+   "id": 495,
+   "page_id": 76,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Treating the best-known reform cities as the whole story."
+  },
+  {
+   "id": 496,
+   "page_id": 77,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 497,
+   "page_id": 77,
+   "section": "interest_listing",
+   "side": null,
+   "position": 2,
+   "claim_id": 73
+  },
+  {
+   "id": 498,
+   "page_id": 78,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 499,
+   "page_id": 78,
+   "section": "interest_listing",
+   "side": null,
+   "position": 2,
+   "claim_id": 73
+  },
+  {
+   "id": 500,
+   "page_id": 79,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 501,
+   "page_id": 79,
+   "section": "interest_listing",
+   "side": null,
+   "position": 2,
+   "claim_id": 73
+  },
+  {
+   "id": 502,
+   "page_id": 80,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 25
+  },
+  {
+   "id": 503,
+   "page_id": 80,
+   "section": "interest_listing",
+   "side": null,
+   "position": 2,
+   "claim_id": 48,
+   "bearing_id": 97
+  },
+  {
+   "id": 504,
+   "page_id": 81,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 505,
+   "page_id": 82,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 47
+  },
+  {
+   "id": 506,
+   "page_id": 82,
+   "section": "interest_listing",
+   "side": null,
+   "position": 2,
+   "claim_id": 24
+  },
+  {
+   "id": 507,
+   "page_id": 83,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 508,
+   "page_id": 84,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 509,
+   "page_id": 85,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 510,
+   "page_id": 86,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 73
+  },
+  {
+   "id": 511,
+   "page_id": 86,
+   "section": "interest_listing",
+   "side": null,
+   "position": 2,
+   "claim_id": 24
+  },
+  {
+   "id": 512,
+   "page_id": 87,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 25
+  },
+  {
+   "id": 513,
+   "page_id": 87,
+   "section": "interest_listing",
+   "side": null,
+   "position": 2,
+   "claim_id": 24
+  },
+  {
+   "id": 514,
+   "page_id": 88,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 515,
+   "page_id": 89,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 516,
+   "page_id": 90,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 73
+  },
+  {
+   "id": 517,
+   "page_id": 91,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 518,
+   "page_id": 92,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 73
+  },
+  {
+   "id": 519,
+   "page_id": 93,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 520,
+   "page_id": 94,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 521,
+   "page_id": 95,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 73
+  },
+  {
+   "id": 522,
+   "page_id": 96,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "The reason states outright that permits rose, and a permit is a builder getting permission to build.",
+   "pattern": "Scope fit"
+  },
+  {
+   "id": 523,
+   "page_id": 96,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The reason's payload is the rent comparison; builders appear only as the mechanism, not as the people it is about.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 524,
+   "page_id": 97,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Redevelopment that displaces lower-income renters and owners is exactly the harm this need names.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 525,
+   "page_id": 97,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The reason is about land values raising the price of existing homes; displacement is asserted at the end, not shown.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 526,
+   "page_id": 98,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Slower rent growth in reform cities than in comparable cities is the belief's own claim measured directly, so the reason bears on it as directly as evidence can.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 527,
+   "page_id": 98,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "The reason and the belief are about the same cities, the same period and the same quantity (rents), so nothing has to be stretched.",
+   "pattern": "Scope fit"
+  },
+  {
+   "id": 528,
+   "page_id": 98,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Comparable cities are chosen after the fact, so the reason can be true while the causal claim is not; the linkage is only as good as the matching.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 529,
+   "page_id": 98,
+   "section": "related",
+   "side": "y",
+   "position": 1,
+   "claim_id": 99
+  },
+  {
+   "id": 530,
+   "page_id": 98,
+   "section": "related",
+   "side": "y",
+   "position": 2,
+   "claim_id": 100
+  },
+  {
+   "id": 531,
+   "page_id": 98,
+   "section": "related",
+   "side": "y",
+   "position": 3,
+   "claim_id": 14
+  },
+  {
+   "id": 532,
+   "page_id": 98,
+   "section": "assumption",
+   "side": "agree",
+   "position": 1,
+   "text": "The comparison cities would have followed the reform cities' path without reform."
+  },
+  {
+   "id": 533,
+   "page_id": 98,
+   "section": "assumption",
+   "side": "agree",
+   "position": 2,
+   "text": "Permits in reform cities became completed homes."
+  },
+  {
+   "id": 534,
+   "page_id": 98,
+   "section": "assumption",
+   "side": "disagree",
+   "position": 1,
+   "text": "Reform cities were selected for the comparison because they succeeded."
+  },
+  {
+   "id": 535,
+   "page_id": 98,
+   "section": "bias",
+   "side": "agree",
+   "position": 1,
+   "text": "Motivated reasoning toward the belief among pro-housing editors."
+  },
+  {
+   "id": 536,
+   "page_id": 98,
+   "section": "bias",
+   "side": "disagree",
+   "position": 1,
+   "text": "Demanding a randomized trial for a policy that cannot be randomized."
+  },
+  {
+   "id": 537,
+   "page_id": 99,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "If zoning is the binding constraint, relaxing it is what changes supply, and supply is what moves prices; the reason is the causal spine of the belief.",
+   "pattern": "Necessity"
+  },
+  {
+   "id": 538,
+   "page_id": 99,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "High-cost metros are exactly where the belief's cities are, so the constraint claim and the belief cover the same places.",
+   "pattern": "Scope fit"
+  },
+  {
+   "id": 539,
+   "page_id": 99,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "A constraint can bind without one particular reform relaxing it enough to matter; the reason establishes the mechanism, not the size of the effect.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 540,
+   "page_id": 100,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Spillover is how new market-rate homes reach renters in older buildings, which is where most of a city's housing costs are paid.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 541,
+   "page_id": 100,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The result concerns individual new buildings; it does not by itself show that a citywide zoning change produces enough of them to move citywide costs.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 542,
+   "page_id": 101,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Adding homes without subsidy is a route to lower costs that does not depend on budgets, so the reason bears on whether costs fall in practice.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 543,
+   "page_id": 101,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Cheapness is about what the reform costs the public, not about whether it lowers housing costs; the reason answers a different question.",
+   "pattern": "Wrong parent"
+  },
+  {
+   "id": 544,
+   "page_id": 101,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "A tool can be cheap and still fail to lower costs; cheapness says nothing about the size of the effect.",
+   "pattern": "True but irrelevant"
+  },
+  {
+   "id": 545,
+   "page_id": 102,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "If reform produces few homes, it cannot lower costs through supply, so the reason strikes at the belief's mechanism.",
+   "pattern": "Necessity"
+  },
+  {
+   "id": 546,
+   "page_id": 102,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "SB 9 is one narrow reform in one state; a low count there weakens the belief for that design, not for reforms in general.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 547,
+   "page_id": 103,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Higher prices for existing homes are a housing cost, so a land-value effect bears directly on the belief.",
+   "pattern": "Scope fit"
+  },
+  {
+   "id": 548,
+   "page_id": 103,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The belief is about the overall level of housing costs; a rise in land value under existing homes can coexist with lower rents for new tenants.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 549,
+   "page_id": 103,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Displacement and asset effects belong in the cost-benefit table as costs, not in the tree about whether housing costs fall.",
+   "pattern": "Wrong parent"
+  },
+  {
+   "id": 550,
+   "page_id": 104,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "If the rent declines have another sufficient cause, the reform cities stop being evidence for the belief.",
+   "pattern": "Necessity"
+  },
+  {
+   "id": 551,
+   "page_id": 104,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Cheap money explains the timing of the building, not why building happened in the reform cities and not elsewhere; the two causes are not exclusive.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 552,
+   "page_id": 105,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "A permit surge confined to the upzoned areas is the supply response the belief predicts, measured against non-upzoned controls.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 553,
+   "page_id": 105,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Consents measure permission to build, not rents; the finding bears on the mechanism, not on the cost outcome.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 554,
+   "page_id": 106,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Slower rent growth in a reform city against its own state is the belief's outcome measured in the belief's units.",
+   "pattern": "Scope fit"
+  },
+  {
+   "id": 555,
+   "page_id": 106,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "The finding pairs the rent divergence with a faster-growing housing stock, which is the mechanism the belief names.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 556,
+   "page_id": 106,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Minneapolis changed several rules at once, so the finding bears on the package, not on the single-family change alone.",
+   "pattern": "Wrong parent"
+  },
+  {
+   "id": 557,
+   "page_id": 107,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "A rent decline following a permitting boom is the belief's causal chain observed end to end.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 558,
+   "page_id": 107,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Austin's apartments were built on commercial land, so the finding bears on permitting in general more than on single-family zoning.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 559,
+   "page_id": 108,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Rents falling near new buildings is the channel through which new supply reaches existing tenants.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 560,
+   "page_id": 108,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "The effect appears in three cities with different densities and grows with the number of new units, so more supply means lower nearby rents across the range studied.",
+   "pattern": "Monotonicity"
+  },
+  {
+   "id": 561,
+   "page_id": 108,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Effects within a few hundred meters do not establish a citywide effect without a count of how many buildings a reform produces.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 562,
+   "page_id": 109,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "A reform that produces a few hundred homes in a state of 39 million cannot have lowered costs through supply.",
+   "pattern": "Necessity"
+  },
+  {
+   "id": 563,
+   "page_id": 109,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "SB 9 was hedged with owner-occupancy and design rules; its count bears on that design, not on the belief as stated.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 564,
+   "page_id": 110,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Prices rising after upzoning with no new construction is the belief's outcome reversed.",
+   "pattern": "Scope fit"
+  },
+  {
+   "id": 565,
+   "page_id": 110,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Narrow corridor upzonings are not the citywide change the belief names; the finding bears on a different policy.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 566,
+   "page_id": 110,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Prices rising in upzoned parcels is option value being priced in; it bears on the belief only if construction never follows, which five years cannot show.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 567,
+   "page_id": 111,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Slower rent growth across many reform cities against matched controls is the belief's own claim observed at scale.",
+   "pattern": "Scope fit"
+  },
+  {
+   "id": 568,
+   "page_id": 111,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "If the belief is true there is no realistic way for many reform cities to show the same rent growth as their controls for a decade.",
+   "pattern": "Necessity"
+  },
+  {
+   "id": 569,
+   "page_id": 111,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Matched controls can still differ in demand, so the observation would strengthen the belief less than a controlled comparison would.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 570,
+   "page_id": 112,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "A reform city growing rents more slowly than its state is what the belief predicts.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 571,
+   "page_id": 112,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "One city's divergence has several candidate causes, so the observation bears on the belief only through the attribution.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 572,
+   "page_id": 113,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Thousands of homes from lot splits would show the mechanism working in the hardest market.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 573,
+   "page_id": 113,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Homes added are not costs lowered; the observation bears on supply, one step short of the belief.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 574,
+   "page_id": 114,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "A growing effect over time across cities is the signature of a supply effect rather than a coincidence.",
+   "pattern": "Monotonicity"
+  },
+  {
+   "id": 575,
+   "page_id": 114,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Study design decides how much such a result shows; the prediction is only as diagnostic as its controls.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 576,
+   "page_id": 115,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "A shrinking regulatory premium is the direct measure of zoning's price effect being removed.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 577,
+   "page_id": 115,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The premium can shrink because construction costs rose rather than because prices fell, so the observation is ambiguous.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 578,
+   "page_id": 116,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "If reform cities are indistinguishable from others after controls, the reform did nothing the controls did not.",
+   "pattern": "Necessity"
+  },
+  {
+   "id": 579,
+   "page_id": 116,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Over-controlling for permits or migration would absorb the reform's own effect, so the observation depends on which controls are used.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 580,
+   "page_id": 117,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "If the boom explains the whole rent effect, nothing is left for zoning to explain.",
+   "pattern": "Necessity"
+  },
+  {
+   "id": 581,
+   "page_id": 117,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The boom's building happened in the cities that allowed it, so controlling for the boom can control away the reform.",
+   "pattern": "Missing step"
+  },
+  {
+   "id": 582,
+   "page_id": 118,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Lots rebuilt as one bigger house add no homes, so the supply mechanism would have failed where it was allowed.",
+   "pattern": "Mechanism"
+  },
+  {
+   "id": 583,
+   "page_id": 118,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Larger single homes on some lots do not preclude multiplexes on others; the observation bears on the share, not on the belief.",
+   "pattern": "Scope mismatch"
+  },
+  {
+   "id": 584,
+   "page_id": 119,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Rent burdens are the reason most supporters give and the reason they turn out: renter-heavy districts vote for reform.",
+   "pattern": "Predicts who holds the position"
+  },
+  {
+   "id": 585,
+   "page_id": 119,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Affordability is the first reason supporters give at hearings and in polling.",
+   "pattern": "Named first by holders"
+  },
+  {
+   "id": 586,
+   "page_id": 119,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Some support comes from builders and landowners whose interest is in land value, not affordability.",
+   "pattern": "Tracks a different variable"
+  },
+  {
+   "id": 587,
+   "page_id": 120,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Trade groups fund a share of pro-housing campaigns and lobby for the same bills.",
+   "pattern": "Money and turnout follow it"
+  },
+  {
+   "id": 588,
+   "page_id": 120,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Most of the pro-housing coalition holds no development stake; builders are a minority of the movement's voice.",
+   "pattern": "Minority of holders"
+  },
+  {
+   "id": 589,
+   "page_id": 121,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Support is strongest among younger residents and recent arrivals who have not found a place to live.",
+   "pattern": "Predicts who holds the position"
+  },
+  {
+   "id": 590,
+   "page_id": 121,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Newcomers by definition do not yet vote in the city, so they are a small share of the coalition that shows up.",
+   "pattern": "Minority of holders"
+  },
+  {
+   "id": 591,
+   "page_id": 122,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Climate and transit groups name emissions first when they endorse reform bills.",
+   "pattern": "Named first by holders"
+  },
+  {
+   "id": 592,
+   "page_id": 122,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Few residents testify for density because of regional emissions; the reason is stated by organizations more than by people.",
+   "pattern": "Decorative"
+  },
+  {
+   "id": 593,
+   "page_id": 123,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Opposition intensity tracks homeownership rates and home values more closely than any stated concern.",
+   "pattern": "Predicts who holds the position"
+  },
+  {
+   "id": 594,
+   "page_id": 123,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "Opposition is strongest where home values are highest.",
+   "pattern": "Tracks intensity"
+  },
+  {
+   "id": 595,
+   "page_id": 123,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Long-time renters oppose reform too, out of attachment to the neighborhood rather than equity.",
+   "pattern": "Minority of holders"
+  },
+  {
+   "id": 596,
+   "page_id": 124,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "In older, lower-income neighborhoods, displacement is the concern residents name first at hearings.",
+   "pattern": "Named first by holders"
+  },
+  {
+   "id": 597,
+   "page_id": 124,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The loudest opposition comes from high-value neighborhoods where displacement risk is lowest, so the fear drives a minority of the opposition.",
+   "pattern": "Tracks a different variable"
+  },
+  {
+   "id": 598,
+   "page_id": 125,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Parking and school crowding are the concerns opponents name first at hearings.",
+   "pattern": "Named first by holders"
+  },
+  {
+   "id": 599,
+   "page_id": 125,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The same residents oppose projects that add no parking demand, which suggests the stated concern follows the position.",
+   "pattern": "After-the-fact rationalization"
+  },
+  {
+   "id": 600,
+   "page_id": 126,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Opposition tracks the income gap between current residents and likely new ones more closely than any stated concern.",
+   "pattern": "Predicts who holds the position"
+  },
+  {
+   "id": 601,
+   "page_id": 126,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Most opponents name costs they experience, and many oppose market-rate housing that would bring higher-income neighbors.",
+   "pattern": "Minority of holders"
+  },
+  {
+   "id": 602,
+   "page_id": 127,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Both claims say that fewer rules on what may be built lower housing costs.",
+   "pattern": "Interchangeable in arguments"
+  },
+  {
+   "id": 603,
+   "page_id": 127,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "Abolishing zoning removes use separation and lot rules that the belief leaves in place; it is a different policy with different costs.",
+   "pattern": "Different scope"
+  },
+  {
+   "id": 604,
+   "page_id": 127,
+   "section": "argument",
+   "side": "disagree",
+   "position": 2,
+   "text": "Abolition changes what uses are allowed anywhere; the belief changes only how many homes a residential lot may hold.",
+   "pattern": "Different mechanism"
+  },
+  {
+   "id": 605,
+   "page_id": 128,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "text": "Both say the reform slows rent growth where demand is high; the moderate version restates the belief with its scope made explicit.",
+   "pattern": "Same truth conditions"
+  },
+  {
+   "id": 606,
+   "page_id": 128,
+   "section": "argument",
+   "side": "agree",
+   "position": 2,
+   "text": "The same reform-city rent data would confirm or refute both claims.",
+   "pattern": "Same evidence settles both"
+  },
+  {
+   "id": 607,
+   "page_id": 128,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "text": "The belief claims lower costs in the cities that reform, without the modest qualifier or the high-demand restriction; the moderate version is a narrower claim.",
+   "pattern": "Different magnitude"
+  },
+  {
+   "id": 608,
+   "page_id": 129,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 609,
+   "page_id": 129,
+   "section": "interest_listing",
+   "side": null,
+   "position": 2,
+   "claim_id": 73
+  },
+  {
+   "id": 610,
+   "page_id": 130,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 24
+  },
+  {
+   "id": 611,
+   "page_id": 131,
+   "section": "interest_listing",
+   "side": null,
+   "position": 1,
+   "claim_id": 25
+  },
+  {
+   "id": 612,
+   "page_id": 131,
+   "section": "interest_listing",
+   "side": null,
+   "position": 2,
+   "claim_id": 73
+  }
+ ]
+}
