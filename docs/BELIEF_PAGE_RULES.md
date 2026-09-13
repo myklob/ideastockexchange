@@ -6,6 +6,7 @@ This document is referenced by:
 
 - `src/app/beliefs/[slug]/page.tsx` — the live belief page route
 - `src/features/belief-analysis/components/DefinitionsSection.tsx` — renders last per Rule 1
+- `src/core/scoring/decision-leverage.ts` — the Decision Leverage engine behind section 1c
 - `templates/belief-analysis-template.html` — the PBworks / wiki template
 - Any skill, generator, or prompt that produces ISE belief pages
 
@@ -213,6 +214,27 @@ feed it. Renders nothing when no open contract exists.
    Every option's score must trace to its own belief's tree — never a fabricated constant
    (Rule 6). Options rank by score descending, nulls last (Rule 8). Comparative arguments
    ("rival Y beats X") belong here, not in the con column.
+1c. **Decision Leverage** *(only when something is actually at stake)* — the argument
+   table read sideways: which edge is worth settling next. One row per edge from the
+   tree above (`Argument / Leverage / Weight / Open / What would settle it / Status`),
+   ranked by Leverage descending. **Leverage** is the points of conclusion score still
+   at stake on that edge: `weight × openRange × 100`, where `weight = |linkage| ×
+   importance × uniqueness × 0.5^depth` (the impact formula with truth factored out, so
+   weight × 100 is how many points of impact move per unit of truth) and `openRange` is
+   the weighted shortfall across four resolution gaps — evidence 0.40 (1 − the child's
+   grounding), linkage 0.25 (`1/√(1+votes)`), examination 0.20
+   (`1/√(1+min(support, opposition))` over the child's sub-arguments *and* its evidence
+   by side), scoring 0.15 (1 while the child sub-debate is unscored). Status is the
+   quadrant on (weight ≥ 0.35, openRange ≥ 0.40): **Crux** carries weight and rests on
+   little, **Load-bearing** carries weight and is supported, **Open but minor**,
+   **Settled or minor**. The "What would settle it" cell names the widest gap and links
+   the page where it closes (the child belief, the linkage sub-debate, or the
+   score-provenance page) — plain text when no such route exists (Rule 5). A closing
+   line reports the total at stake and flags **concentration** above 0.5, where one
+   unresolved edge is carrying the verdict. Engine-computed from scores the page already
+   shows (`src/core/scoring/decision-leverage.ts`); never hand-ranked, and the whole
+   section is omitted when every edge is settled. Explainer:
+   `/algorithms/decision-leverage`.
 2. **Evidence Ledger** — one two-sided table (Supporting / Weakening), each side with
    `Evidence / Type / Link / Impact`.
 3. **Objective Criteria** (`Criterion / How to Measure / Reading That Would Strengthen /
@@ -302,6 +324,7 @@ Before outputting any ISE belief page, verify:
 - [ ] Logical Anatomy decomposes the belief (logical form + typed, load-bearing-flagged component claims)
 - [ ] Cost-Benefit rows carry Category (Units) / Magnitude / Likelihood % / Expected Value and subtotal only within a category
 - [ ] Conflict Resolution Framework has all sub-sections: Shared Values rankings, Interests of Supporters, Interests of Opponents, Shared+Conflicting (Shared Interests + Primary Conflict Pair), Best Compromise Solutions, Advertised vs. Actual (with Divergence Score), Dispute Types, Primary Obstacles, Biases
+- [ ] Decision Leverage is engine-ranked (never hand-ordered), each row's "what would settle it" link resolves, and the section is omitted when nothing is at stake
 - [ ] Where This Belief Is Used and Score History render only when they have rows; neither is ever hand-authored
 - [ ] Every link points to a page that exists OR is plain text
 - [ ] No `href="#"` anchors anywhere
