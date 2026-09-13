@@ -26,7 +26,9 @@ The global typecheck is currently clean (0 errors) — keep it that way. If `@/g
 
 The single most important thing to get right in this codebase is the belief page (`/beliefs/[slug]`). It is the product. Everything else supports it.
 
-- **Canonical rules:** `docs/BELIEF_PAGE_RULES.md`. Read this before generating, restructuring, or refactoring any belief content. The eight hard rules (no top-of-page summary, definitions go last, arguments are 2-6 word labels, arguments != evidence, no broken links, blank scores until real, symmetric Supporters/Opponents, every table score-ranked with top rows shown and the rest collapsed) are non-negotiable.
+- **Canonical rules:** `docs/BELIEF_PAGE_RULES.md`. Read this before generating, restructuring, or refactoring any belief content. The eight hard rules (no top-of-page summary, definitions go last, arguments are atomic propositions, arguments != evidence, no broken links, blank scores until real, symmetric Supporters/Opponents, every table score-ranked with top rows shown and the rest collapsed) are non-negotiable.
+
+Rule 3 changed in the second July 2026 layout update: an argument cell is a complete, atomic proposition ("Postal infrastructure already reaches every zip code"), not a 2-6 word topic fragment ("long-term cost"). Every argument is a belief with its own page, so a cell that cannot headline a page as a claim cannot carry a truth score. The rules doc is authoritative on the current wording.
 - **Canonical template:** `templates/belief-analysis-template.html`. This is the source of truth for the canonical section order. The live page is built around it.
 - **Live implementation:** `src/app/beliefs/[slug]/page.tsx` plus the section components in `src/features/belief-analysis/components/*`.
 - **Types:** `src/features/belief-analysis/types.ts`. New fields on Values/Interests analysis are optional so existing Prisma data still flows; populate via seed scripts as data lands.
@@ -57,6 +59,49 @@ the JSON readout, `/algorithms/decision-leverage` the explainer. It reuses exist
 formula in `scoring-engine.ts`, the transmission weight and its test pin must follow.
 
 The legacy `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, and `ImpactSection` components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
+
+## Scoring: which engine is which
+
+The repo carries more than one scoring implementation. Know which one you are
+touching before you change a formula.
+
+- **`src/core/scoring/` is what the product runs.** ReasonRank propagation,
+  linkage, importance, evidence (EVS), media truth, decision leverage,
+  retraction exposure. The belief page, `/algorithms/*`, `/leverage` and
+  `/media` all read this. **Default here for any change that affects a page.**
+- **`src/lib/ise-pages/` is a proposed successor, not yet wired.** No route or
+  component imports it. It is a complete, tested reference implementation of
+  the page/edge model plus its worked example; treat it as a design under
+  evaluation, not as the engine to build against.
+- **`src/lib/conclusion-score.ts`** (with its SQL and PHP twins) preserves the
+  founding workbook's original process for reference. Also unwired.
+
+Adding a fourth is the wrong move. If the page/edge model wins, migrate
+`src/core/scoring/` onto it and delete the loser; if it doesn't, delete
+`src/lib/ise-pages/`. Leaving both indefinitely is the outcome that costs.
+
+### The page/edge model (`src/lib/ise-pages/`)
+
+One claim per page, one row per edge, and **no stored scores** — every number
+is computed on read from `page` and `edge`. A row scores Truth x Link x Imp x
+Uniq, where each multiplier is itself an argued page (linkage, importance,
+uniqueness) or a labelled constant when no such page exists yet.
+
+- **Worked example:** `examples/ise-zoning/` — the zoning belief argued all the
+  way down (131 pages, 612 edges), plus the SQL schema and a Python reference
+  scorer. `npm run ise:score -- --card 1` prints every page and the belief
+  page's scorecard.
+- **Cross-implementation contract:** `tests/unit/lib/ise-pages.test.ts` pins all
+  131 page scores to values transcribed from the Python reference's output. It
+  catches TypeScript drift, but it does not execute the Python, so it cannot
+  catch reference drift — re-run `score_reference.py` by hand and re-transcribe
+  whenever a rule changes. Changing a rule means changing the engine, the
+  reference and those numbers together.
+- **The older process:** `src/lib/conclusion-score.ts`,
+  `sql/conclusion_score_process.sql` and `examples/php-score-retrieval/` keep
+  the founding workbook's process runnable (one point per listed reason,
+  linkage as a ratio of counts). All three share the zoning argument tree as
+  their example set; they must produce identical numbers on it.
 
 ## Conventions
 
@@ -98,8 +143,9 @@ Or set `CLAUDE_DEBUG_FILE` before launching. File logging cannot be enabled mid-
 - `/beliefs/[slug]` — the canonical belief page (this is the one that matters).
 - `/beliefs/set-aside-distractions-for-real-solutions` — bespoke route, predates the canonical structure. Don't use as a template.
 - `/product-reviews/[slug]` — separate concept that reuses some belief components. Edits to belief sections may affect it; check before refactoring.
-- `/algorithms` — index of every score explainer; subpages include `reason-rank`, `linkage-scores`, `importance-score`, `truth-scores`, `evidence-scores`, `unique-scores`, `assumptions`, `topic-overlap`, `objective-criteria`, `strong-to-weak`, `belief-equivalency`, `combine-similar-beliefs`, `fallacy-detection`. Belief-page components link these — if you add a link, verify the target exists or use plain text (Rule 5). Wiki-style space-URL routes (`/Linkage Scores` etc.) do NOT exist; never link them.
+- `/algorithms` — index of every score explainer; subpages include `reason-rank`, `linkage-scores`, `importance-score`, `truth-scores`, `evidence-scores`, `unique-scores`, `assumptions`, `topic-overlap`, `objective-criteria`, `strong-to-weak`, `belief-equivalency`, `combine-similar-beliefs`, `fallacy-detection`, `decision-leverage`, `media-truth-score`. Belief-page components link these — if you add a link, verify the target exists or use plain text (Rule 5). Wiki-style space-URL routes (`/Linkage Scores` etc.) do NOT exist; never link them.
 - `/leverage` — the work queue: every unsettled argument edge in the corpus ranked by Decision Leverage, the per-belief roll-up, the beliefs resting on one crux, and the evidence rows counted in published scores without being checked (retraction exposure). JSON twin at `/api/leverage`.
+- `/media` — index of tracked media works ranked by signed epistemic impact; `/media/[id]` — a work's claim ledger and computed Media Truth Score (engine: `src/core/scoring/media-truth.ts`, canonical over prose).
 - `/how-it-works` — the Engine of Reason explainer, with a live engine readout.
 - `/arguments/[id]/linkage` — an edge's linkage sub-debate; `/arguments/[id]/score` — the edge's impact-provenance page (factor-by-factor derivation).
 - `/contact` — contact/contribution pointers (target for all former Contact Me links).

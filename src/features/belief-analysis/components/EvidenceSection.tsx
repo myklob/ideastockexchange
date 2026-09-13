@@ -16,8 +16,10 @@ interface EvidenceSectionProps {
   evidence: EvidenceItem[]
 }
 
+/** Spelled-out tier label ("Tier 1"), per the no-abbreviated-headers rule. */
 function tierLabel(type: string): string {
-  return ['T0', 'T1', 'T2', 'T3', 'T4'].includes(type) ? type : 'T?'
+  const m = /^T([0-4])$/.exec(type)
+  return m ? `Tier ${m[1]}` : type
 }
 
 function linkPct(score: number | null | undefined): string {
@@ -53,11 +55,46 @@ function StandingCell({ item }: { item: EvidenceItem }) {
   )
 }
 
+/** The first few words of an argument's label, used to name it in "Bears On". */
+function openingWords(text: string, count = 8): string {
+  const words = text.trim().split(/\s+/)
+  if (words.length <= count) return text.trim()
+  return `${words.slice(0, count).join(' ')}…`
+}
+
+/** "Finding (Producer, Year)" — producer/year fold into the description cell. */
+function findingLabel(item: EvidenceItem): string {
+  const meta = [item.producer, item.year != null ? String(item.year) : null]
+    .filter(Boolean)
+    .join(', ')
+  return meta ? `${item.description} (${meta})` : item.description
+}
+
+/**
+ * The "Bears On" cell: the specific argument this evidence bears on, named by
+ * its opening words and linking into that argument's own sub-debate — or
+ * "this belief" (plain text) when the evidence bears on the belief directly.
+ */
+function BearsOnCell({ item }: { item: EvidenceItem }) {
+  const arg = item.bearsOnArgument
+  if (!arg) return <span className="text-[var(--muted-foreground)]">this belief</span>
+  return (
+    <Link
+      href={`/beliefs/${arg.belief.slug}`}
+      className="text-[var(--accent)] hover:underline"
+      title="The argument this evidence bears on"
+    >
+      {openingWords(arg.claim ?? arg.belief.statement)}
+    </Link>
+  )
+}
+
 function EvidenceHalf({ item }: { item: EvidenceItem | undefined }) {
   if (!item) {
     return (
       <>
         <td className="border border-gray-300 px-3 py-2">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2">&nbsp;</td>
         <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
         <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
         <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
@@ -70,13 +107,18 @@ function EvidenceHalf({ item }: { item: EvidenceItem | undefined }) {
       <td className="border border-gray-300 px-3 py-2 align-top">
         {item.sourceUrl ? (
           <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">
-            {item.description}
+            {findingLabel(item)}
           </a>
         ) : (
-          item.description
+          findingLabel(item)
         )}
       </td>
-      <td className="border border-gray-300 px-2 py-2 text-center align-top text-xs font-semibold">{tierLabel(item.evidenceType)}</td>
+      <td className="border border-gray-300 px-2 py-2 align-top text-xs">
+        <BearsOnCell item={item} />
+      </td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top text-xs font-semibold whitespace-nowrap">
+        {tierLabel(item.evidenceType)}
+      </td>
       <StandingCell item={item} />
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{linkPct(item.linkageScore)}</td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{impactCell(item)}</td>
@@ -109,37 +151,43 @@ export default function EvidenceSection({ evidence }: EvidenceSectionProps) {
         <Link href="/algorithms/evidence-scores" className="text-[var(--accent)] hover:underline">Evidence Ledger</Link>
       </h2>
       <p className="text-sm text-[var(--muted-foreground)] mb-4 italic">
-        Key: <strong>T1</strong>=Peer-reviewed/Official, <strong>T2</strong>=Expert/Institutional,{' '}
-        <strong>T3</strong>=Journalism/Surveys, <strong>T4</strong>=Opinion/Anecdote,{' '}
-        <strong>T0</strong>=Retracted/Fraudulent. <strong>Standing</strong> is the verification
+        Tier key: <strong>Tier 1</strong>=Peer-reviewed/Official, <strong>Tier 2</strong>=Expert/Institutional,{' '}
+        <strong>Tier 3</strong>=Journalism/Surveys, <strong>Tier 4</strong>=Opinion/Anecdote,{' '}
+        <strong>Tier 0</strong>=Retracted/Fraudulent. <strong>Standing</strong> is the verification
         lifecycle: verified rows count in full, unverified and disputed at half, falsified at
-        nothing.
+        nothing. Format each item as: Finding (Producer, Year). Evidence is data that can fail
+        empirically; a reason that can only fail logically is an argument and belongs in the tree
+        above, not here. Every item must also name what it <strong>bears on</strong>: a specific
+        argument above, identified by its opening words, or this belief directly. Evidence that
+        bears on nothing contributes nothing, no matter how true it is.
       </p>
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr>
-              <th className="border border-gray-300 bg-green-100 text-center font-semibold px-3 py-2" colSpan={5}>
+              <th className="border border-gray-300 bg-green-100 text-center font-semibold px-3 py-2" colSpan={6}>
                 ✅ Supporting Evidence
               </th>
-              <th className="border border-gray-300 bg-red-100 text-center font-semibold px-3 py-2" colSpan={5}>
+              <th className="border border-gray-300 bg-red-100 text-center font-semibold px-3 py-2" colSpan={6}>
                 ❌ Weakening Evidence
               </th>
             </tr>
             <tr className="bg-gray-100 text-xs">
-              <th className="border border-gray-300 px-2 py-1.5 text-left w-[19%]">Evidence</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Type</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[9%]">Standing</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[16%]">Evidence (Producer, Year)</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[10%]">Bears On</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Tier</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Standing</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
-                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Impact</th>
-              <th className="border border-gray-300 px-2 py-1.5 text-left w-[19%]">Evidence</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Type</th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[9%]">Standing</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[16%]">Evidence (Producer, Year)</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[10%]">Bears On</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Tier</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Standing</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[6%]">
-                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Impact</th>
             </tr>
