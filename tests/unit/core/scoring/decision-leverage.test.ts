@@ -22,6 +22,7 @@ import {
   classifyEdge,
   computeEdgeLeverage,
   computeBeliefLeverage,
+  computeCorpusLeverage,
   summarizeLeverage,
   DEPTH_ATTENUATION,
   GAP_WEIGHTS,
@@ -29,6 +30,7 @@ import {
   OPEN_RANGE_THRESHOLD,
   LEVERAGE_CLASSES,
   GAP_LABELS,
+  FRAGILE_CONCENTRATION,
   type LeverageEdgeInput,
 } from '@/core/scoring/decision-leverage'
 import { computeArgumentImpactScore } from '@/core/scoring/scoring-engine'
@@ -365,5 +367,111 @@ describe('summarizeLeverage', () => {
     ])
     expect(summary.cruxes).toEqual([])
     expect(summarizeLeverage(summary)).toMatch(/no single edge both carries weight/)
+  })
+})
+
+describe('computeCorpusLeverage', () => {
+  const corpus = [
+    {
+      belief: { id: 'thin', label: 'A belief resting on assertions' },
+      edges: [
+        bareEdge({ id: 'thin-a', label: 'First assertion' }),
+        bareEdge({ id: 'thin-b', label: 'Second assertion' }),
+        // A third crux, so no single edge holds half the unsettled score.
+        bareEdge({ id: 'thin-c', label: 'Third assertion', linkageScore: 0.5 }),
+      ],
+    },
+    {
+      belief: { id: 'solid', label: 'A belief resting on evidence' },
+      edges: [
+        settledEdge({ id: 'solid-a', label: 'Replicated finding' }),
+        // Transmits nothing: a settled-minor edge, which the queue drops.
+        bareEdge({ id: 'solid-b', label: 'Irrelevant aside', linkageScore: 0 }),
+      ],
+    },
+  ]
+
+  it('ranks beliefs by how much of their score is unsettled', () => {
+    const result = computeCorpusLeverage(corpus)
+    expect(result.beliefs.map(b => b.belief.id)).toEqual(['thin', 'solid'])
+    expect(result.beliefs[0].totalAtStake).toBeGreaterThan(result.beliefs[1].totalAtStake)
+  })
+
+  it('totals the whole corpus', () => {
+    const result = computeCorpusLeverage(corpus)
+    const expected = result.beliefs.reduce((sum, b) => sum + b.totalAtStake, 0)
+    expect(result.totalAtStake).toBeCloseTo(expected, 1)
+  })
+
+  it('queues every open edge, highest stakes first, and drops settled ones', () => {
+    const result = computeCorpusLeverage(corpus)
+    expect(result.openQuestions.map(q => q.id)).toEqual([
+      'thin-a',
+      'thin-b',
+      'thin-c',
+      'solid-a',
+    ])
+    const stakes = result.openQuestions.map(q => q.leverage)
+    expect([...stakes].sort((a, b) => b - a)).toEqual(stakes)
+  })
+
+  it('carries the belief each queued edge belongs to', () => {
+    const result = computeCorpusLeverage(corpus)
+    expect(result.openQuestions[0].belief.label).toBe('A belief resting on assertions')
+  })
+
+  it('flags a belief whose verdict rests on one unresolved edge', () => {
+    const result = computeCorpusLeverage([
+      {
+        belief: { id: 'fragile', label: 'One crux holds it up' },
+        edges: [bareEdge({ id: 'f1' }), settledEdge({ id: 'f2' })],
+      },
+      ...corpus,
+    ])
+    expect(result.fragileBeliefs.map(b => b.belief.id)).toEqual(['fragile'])
+    expect(result.fragileBeliefs[0].concentration).toBeGreaterThanOrEqual(FRAGILE_CONCENTRATION)
+  })
+
+  it('never flags a belief with nothing at stake as fragile', () => {
+    // One edge, so concentration would be 1.0, but it transmits nothing.
+    const result = computeCorpusLeverage([
+      {
+        belief: { id: 'empty', label: 'Nothing at stake' },
+        edges: [bareEdge({ id: 'e1', linkageScore: 0 })],
+      },
+    ])
+    expect(result.beliefs[0].concentration).toBe(0)
+    expect(result.fragileBeliefs).toEqual([])
+  })
+
+  it('never flags a belief whose one open edge is already supported', () => {
+    // Concentration is 1.0 — the settled edge holds every remaining point —
+    // but a supported edge carrying the verdict is finished, not fragile.
+    const result = computeCorpusLeverage([
+      {
+        belief: { id: 'done', label: 'Resting on a replicated finding' },
+        edges: [settledEdge({ id: 'd1' }), bareEdge({ id: 'd2', linkageScore: 0 })],
+      },
+    ])
+    expect(result.beliefs[0].concentration).toBe(1)
+    expect(result.fragileBeliefs).toEqual([])
+  })
+
+  it('handles an empty corpus', () => {
+    const result = computeCorpusLeverage([])
+    expect(result).toMatchObject({
+      beliefs: [],
+      openQuestions: [],
+      totalAtStake: 0,
+      fragileBeliefs: [],
+    })
+  })
+
+  it('handles a belief with no edges without inventing stakes', () => {
+    const result = computeCorpusLeverage([
+      { belief: { id: 'bare', label: 'No arguments yet' }, edges: [] },
+    ])
+    expect(result.beliefs[0].totalAtStake).toBe(0)
+    expect(result.openQuestions).toEqual([])
   })
 })

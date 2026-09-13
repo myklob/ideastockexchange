@@ -94,6 +94,12 @@ export const OPEN_RANGE_THRESHOLD = 0.40
  */
 export const NEGLIGIBLE_LEVERAGE = 0.5
 
+/**
+ * Concentration at or above this share means a single unresolved edge is
+ * carrying the belief's verdict, which is the fragility worth warning about.
+ */
+export const FRAGILE_CONCENTRATION = 0.5
+
 // ─── Inputs ───────────────────────────────────────────────────────
 
 export interface LeverageEdgeInput {
@@ -326,6 +332,90 @@ export function computeBeliefLeverage(edges: LeverageEdgeInput[]): BeliefLeverag
   }
 }
 
+// ─── Corpus roll-up ───────────────────────────────────────────────
+
+/** How a belief is named in corpus output. The engine never builds routes. */
+export interface BeliefRef {
+  id: string | number
+  label: string
+}
+
+export interface CorpusBeliefInput {
+  belief: BeliefRef
+  edges: LeverageEdgeInput[]
+}
+
+export interface CorpusBeliefSummary extends BeliefLeverage {
+  belief: BeliefRef
+}
+
+export interface CorpusOpenQuestion extends EdgeLeverage {
+  belief: BeliefRef
+}
+
+export interface CorpusLeverage {
+  /** Beliefs ranked by how much of their score is still unsettled. */
+  beliefs: CorpusBeliefSummary[]
+  /** Every crux and open edge in the corpus, highest leverage first. */
+  openQuestions: CorpusOpenQuestion[]
+  /** Σ leverage across the whole corpus. */
+  totalAtStake: number
+  /**
+   * Beliefs whose verdict rests on one unresolved edge (see isFragile). These
+   * are the scores most likely to be wrong, and the cheapest to check.
+   */
+  fragileBeliefs: CorpusBeliefSummary[]
+}
+
+/**
+ * Does this belief's verdict rest on one unresolved argument? Two conditions:
+ * the largest gap is a crux (an edge that both carries weight and lacks
+ * support), and it holds at least FRAGILE_CONCENTRATION of everything still
+ * unsettled here. A belief whose one open edge is already well-supported is
+ * not fragile — it is finished — however concentrated its remainder looks.
+ */
+export function isFragile(summary: BeliefLeverage): boolean {
+  return (
+    summary.edges[0]?.classification === 'crux' &&
+    summary.concentration >= FRAGILE_CONCENTRATION
+  )
+}
+
+/**
+ * Roll Decision Leverage up across many beliefs: the work queue. Answers
+ * "where does the next hour go?" for the corpus rather than one page, and
+ * which published scores are one missing source away from moving.
+ *
+ * Open questions exclude settled-or-minor edges — a queue that lists
+ * everything is not a queue.
+ */
+export function computeCorpusLeverage(beliefs: CorpusBeliefInput[]): CorpusLeverage {
+  const summaries: CorpusBeliefSummary[] = beliefs.map(entry => ({
+    belief: entry.belief,
+    ...computeBeliefLeverage(entry.edges),
+  }))
+
+  const openQuestions: CorpusOpenQuestion[] = summaries
+    .flatMap(summary =>
+      summary.edges
+        .filter(edge => edge.classification !== 'settled-minor')
+        .map(edge => ({ ...edge, belief: summary.belief })),
+    )
+    .sort((a, b) => b.leverage - a.leverage)
+
+  const ranked = [...summaries].sort((a, b) => b.totalAtStake - a.totalAtStake)
+
+  return {
+    beliefs: ranked,
+    openQuestions,
+    totalAtStake: round(
+      summaries.reduce((sum, s) => sum + s.totalAtStake, 0),
+      1,
+    ),
+    fragileBeliefs: ranked.filter(isFragile),
+  }
+}
+
 // ─── Presentation helpers ─────────────────────────────────────────
 
 export interface LeverageClassMeta {
@@ -372,13 +462,6 @@ export const GAP_LABELS: Record<keyof ResolutionGaps, string> = {
   examination: 'No opposition yet',
 }
 
-/**
- * One-line verdict for the belief as a whole. Concentration above this share
- * means a single unresolved edge is carrying the verdict, which is the
- * fragility worth warning about.
- */
-export const FRAGILE_CONCENTRATION = 0.5
-
 export function summarizeLeverage(summary: BeliefLeverage): string {
   if (summary.edges.length === 0) {
     return 'No argument edges scored yet, so there is nothing to rank.'
@@ -392,9 +475,8 @@ export function summarizeLeverage(summary: BeliefLeverage): string {
     return `About ${summary.totalAtStake.toFixed(1)} points of score are still unsettled, but no single edge both carries weight and lacks support. ${leader}`
   }
   const plural = summary.cruxes.length === 1 ? 'crux' : 'cruxes'
-  const concentrated =
-    summary.concentration >= FRAGILE_CONCENTRATION
-      ? ' One edge holds most of what is unsettled, so the verdict here is fragile.'
-      : ''
+  const concentrated = isFragile(summary)
+    ? ' One edge holds most of what is unsettled, so the verdict here is fragile.'
+    : ''
   return `${summary.cruxes.length} ${plural} carry ${summary.totalAtStake.toFixed(1)} points of unsettled score. ${leader}${concentrated}`
 }

@@ -308,7 +308,10 @@ export default function DecisionLeveragePage() {
         <code className="bg-gray-100 px-1 rounded">src/core/scoring/decision-leverage.ts</code>.
       </p>
       <p className="mb-4">
-        Start with{' '}
+        Rolled up across every belief, the same ranking is the{' '}
+        <Link href="/leverage" className="text-blue-700 hover:underline">work queue</Link>: every
+        unsettled edge in the corpus in one list, highest stakes first, with the beliefs whose
+        verdict rests on a single unresolved argument flagged. Or start with{' '}
         <Link href="/beliefs" className="text-blue-700 hover:underline">the belief index</Link>{' '}
         and open any belief with an argument tree.
       </p>
