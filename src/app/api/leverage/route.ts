@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { fetchCorpusLeverage } from '@/features/belief-analysis/lib/leverage'
+import { fetchCorpusExposure } from '@/features/belief-analysis/lib/exposure'
 import {
   GAP_WEIGHTS,
   LOAD_BEARING_WEIGHT,
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
   const requested = parseInt(url.searchParams.get('limit') ?? '100', 10)
   const limit = Number.isFinite(requested) ? Math.min(Math.max(requested, 1), 500) : 100
 
-  const corpus = await fetchCorpusLeverage()
+  const [corpus, exposure] = await Promise.all([fetchCorpusLeverage(), fetchCorpusExposure()])
 
   return NextResponse.json({
     summary: {
@@ -51,5 +52,14 @@ export async function GET(request: Request) {
     })),
     openQuestions: corpus.openQuestions.slice(0, limit),
     truncated: corpus.openQuestions.length > limit,
+    evidenceExposure: {
+      countedFromEvidence: exposure.countedFromEvidence,
+      exposedPoints: exposure.exposedPoints,
+      exposedShare: exposure.exposedShare,
+      unrecordedCount: exposure.unrecordedCount,
+      tierUnconfirmedCount: exposure.tierUnconfirmedCount,
+      falsifiedCount: exposure.falsifiedCount,
+      rows: exposure.rows.slice(0, limit),
+    },
   })
 }

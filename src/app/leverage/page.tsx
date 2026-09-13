@@ -1,21 +1,24 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { fetchCorpusLeverage } from '@/features/belief-analysis/lib/leverage'
+import { fetchCorpusExposure } from '@/features/belief-analysis/lib/exposure'
 import {
   GAP_LABELS,
   LEVERAGE_CLASSES,
   FRAGILE_CONCENTRATION,
 } from '@/core/scoring/decision-leverage'
+import { STANDINGS, NEGLIGIBLE_EXPOSURE } from '@/core/scoring/evidence-exposure'
 
 export const metadata: Metadata = {
   title: 'The Work Queue — Idea Stock Exchange',
   description:
-    'Every unsettled argument in the corpus, ranked by the points of conclusion score riding on it. Where the next hour of contribution actually changes an answer.',
+    'Every unsettled argument in the corpus ranked by the conclusion score riding on it, plus the evidence counted in published scores without being checked. Where the next hour of contribution actually changes an answer.',
 }
 
 /** The queue is a queue: past this many rows nobody is reading it as one. */
 const QUESTION_LIMIT = 25
 const BELIEF_LIMIT = 15
+const EVIDENCE_LIMIT = 15
 
 const container = 'max-w-[1100px] mx-auto px-4 py-8 leading-7 text-[#333]'
 const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold'
@@ -40,8 +43,16 @@ function Breadcrumb() {
 }
 
 export default async function WorkQueuePage() {
-  const corpus = await fetchCorpusLeverage()
+  const [corpus, exposure] = await Promise.all([fetchCorpusLeverage(), fetchCorpusExposure()])
   const questions = corpus.openQuestions.slice(0, QUESTION_LIMIT)
+  const exposedRows = exposure.rows
+    .filter(row => row.exposed >= NEGLIGIBLE_EXPOSURE)
+    .slice(0, EVIDENCE_LIMIT)
+  // Nothing in the corpus has been verified yet: say that outright rather than
+  // printing "169.3 of 169.3".
+  const allEvidenceExposed =
+    exposure.countedFromEvidence > 0 &&
+    exposure.exposedPoints >= exposure.countedFromEvidence
   const beliefs = corpus.beliefs.slice(0, BELIEF_LIMIT)
   const hiddenQuestions = corpus.openQuestions.length - questions.length
 
@@ -218,6 +229,89 @@ export default async function WorkQueuePage() {
               </tbody>
             </table>
           </div>
+
+          {exposedRows.length > 0 && (
+            <>
+              <h2 className="text-xl font-bold mt-10 mb-2">Evidence worth verifying</h2>
+              <p className="mb-3 text-sm text-gray-700">
+                The other half of the queue. These rows are already counted in published scores
+                while their standing is unestablished:{' '}
+                {allEvidenceExposed ? (
+                  <>
+                    every one of the{' '}
+                    <strong>{exposure.countedFromEvidence.toFixed(1)} points</strong> the corpus
+                    draws from evidence, across {exposure.beliefsWithEvidence}{' '}
+                    {exposure.beliefsWithEvidence === 1 ? 'belief' : 'beliefs'}, rests on evidence
+                    nobody has checked.
+                  </>
+                ) : (
+                  <>
+                    <strong>{exposure.exposedPoints.toFixed(1)} points</strong> across{' '}
+                    {exposure.beliefsWithEvidence}{' '}
+                    {exposure.beliefsWithEvidence === 1 ? 'belief' : 'beliefs'}, of the{' '}
+                    {exposure.countedFromEvidence.toFixed(1)} the corpus draws from evidence in
+                    total.
+                  </>
+                )}{' '}
+                Checking one is the smallest piece of work on the site that moves a real number.
+                See{' '}
+                <Link
+                  href="/algorithms/evidence-scores"
+                  className="text-blue-700 hover:underline"
+                >
+                  how evidence is weighted
+                </Link>
+                .
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className={TH}>Evidence</th>
+                      <th className={TH}>In this debate</th>
+                      <th className={TH}>Tier</th>
+                      <th className={TH}>Standing</th>
+                      <th className={TH}>At stake</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {exposedRows.map(row => (
+                      <tr key={row.id}>
+                        <td className={TD}>
+                          {row.description}
+                          <span className="ml-2 text-xs text-gray-500">
+                            {row.side === 'supporting' ? 'supports' : 'weakens'}
+                          </span>
+                        </td>
+                        <td className={TD}>
+                          <Link
+                            href={`/beliefs/${row.belief.slug}`}
+                            className="text-blue-700 hover:underline"
+                          >
+                            {row.belief.statement}
+                          </Link>
+                        </td>
+                        <td className={`${TDC} text-xs font-semibold`}>{row.evidenceType}</td>
+                        <td className={`${TDC} text-xs`} title={STANDINGS[row.standing].descriptor}>
+                          {STANDINGS[row.standing].label}
+                        </td>
+                        <td className={`${TDC} font-mono font-semibold`}>
+                          {row.exposed.toFixed(1)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {exposure.tierUnconfirmedCount > 0 && (
+                <p className="text-xs text-gray-600 mt-2">
+                  {exposure.tierUnconfirmedCount}{' '}
+                  {exposure.tierUnconfirmedCount === 1 ? 'row is' : 'rows are'} also weighted by a
+                  tier claim the provenance job has not confirmed.
+                </p>
+              )}
+            </>
+          )}
 
           <h2 className="text-xl font-bold mt-10 mb-2">How to read this</h2>
           <ul className="list-disc ml-6 mb-4 space-y-2 text-sm">
