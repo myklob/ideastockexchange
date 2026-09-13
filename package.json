@@ -17,6 +17,7 @@
     "db:seed-markets": "npx tsx prisma/seed-markets.ts",
     "epoch:run": "npx tsx scripts/run-epoch.ts",
     "scan:duplicates": "npx tsx scripts/scan-corpus-duplicates.ts",
+    "ise:score": "npx tsx scripts/score-ise-pages.ts",
     "db:migrate": "npx prisma migrate dev",
     "db:reset": "npx prisma migrate reset --force",
     "html:sample": "npx tsx scripts/generate-sample-belief-pages.ts",

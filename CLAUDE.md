@@ -44,6 +44,28 @@ rows with the rest collapsed — see Rule 8 and `src/features/belief-analysis/li
 
 The legacy `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, and `ImpactSection` components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
 
+## The Page / Edge Model
+
+The current scoring model lives in `src/lib/ise-pages/`: one claim per page,
+one row per edge, and **no stored scores** — every number is computed on read
+from `page` and `edge`. A row scores Truth x Link x Imp x Uniq, where each
+multiplier is itself an argued page (linkage, importance, uniqueness) or a
+labelled constant when no such page exists yet.
+
+- **Worked example:** `examples/ise-zoning/` — the zoning belief argued all the
+  way down (131 pages, 612 edges), plus the SQL schema and a Python reference
+  scorer. `npm run ise:score -- --card 1` prints every page and the belief
+  page's scorecard.
+- **Cross-implementation contract:** `tests/unit/lib/ise-pages.test.ts` pins all
+  131 page scores to the Python reference. Changing a rule means changing the
+  engine, the reference and those numbers together — otherwise an
+  implementation has drifted.
+- **The older process:** `src/lib/conclusion-score.ts`,
+  `sql/conclusion_score_process.sql` and `examples/php-score-retrieval/` keep
+  the founding workbook's process runnable (one point per listed reason,
+  linkage as a ratio of counts). All three share the zoning argument tree as
+  their example set; they must produce identical numbers on it.
+
 ## Conventions
 
 - **Comments:** default to none. Only write a comment when the *why* is non-obvious. Don't restate what the code does. Don't reference task IDs or PR numbers — those rot.
