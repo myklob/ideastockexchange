@@ -42,6 +42,12 @@ renders as a sub-table inside Cost-Benefit Analysis. Every per-row table carries
 nullable relationship `score`, sorts by it descending (nulls last), and shows its top
 rows with the rest collapsed — see Rule 8 and `src/features/belief-analysis/lib/ranking.ts`.
 
+Retraction exposure rides in the Evidence Ledger: `src/core/scoring/evidence-exposure.ts`
+turns the verification lifecycle (`VERIFICATION_SCORES`, the single source of those weights)
+into a Standing column plus a readout of how many points rest on unestablished standing.
+Rows with no status are counted in full by the engine, so they carry the largest exposure —
+that is deliberate, not a bug to "fix" by defaulting them to verified.
+
 Decision Leverage (`DecisionLeverageSection`, section 1c, right after the argument trees)
 ranks the belief's argument edges by the conclusion score still at stake on each one:
 `src/core/scoring/decision-leverage.ts` is the pure engine,

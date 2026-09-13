@@ -291,6 +291,10 @@ export interface EvidenceItem {
    * Optional so existing fixtures keep flowing.
    */
   verificationStatus?: string | null
+  /** Submitting agent's tier assertion (agent-ingested rows only). */
+  tierClaim?: string | null
+  /** Tier confirmed by the provenance job or a human; null while unconfirmed. */
+  tierVerified?: string | null
 }
 
 export interface ObjectiveCriteriaItem {

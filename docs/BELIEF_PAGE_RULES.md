@@ -7,6 +7,7 @@ This document is referenced by:
 - `src/app/beliefs/[slug]/page.tsx` — the live belief page route
 - `src/features/belief-analysis/components/DefinitionsSection.tsx` — renders last per Rule 1
 - `src/core/scoring/decision-leverage.ts` — the Decision Leverage engine behind section 1c
+- `src/core/scoring/evidence-exposure.ts` — the retraction-exposure readout under the Evidence Ledger
 - `templates/belief-analysis-template.html` — the PBworks / wiki template
 - Any skill, generator, or prompt that produces ISE belief pages
 
@@ -236,7 +237,17 @@ feed it. Renders nothing when no open contract exists.
    section is omitted when every edge is settled. Explainer:
    `/algorithms/decision-leverage`.
 2. **Evidence Ledger** — one two-sided table (Supporting / Weakening), each side with
-   `Evidence / Type / Link / Impact`.
+   `Evidence / Type / Standing / Link / Impact`. **Standing** is the verification
+   lifecycle, and it is not decoration: it decides how much of the row's impact the
+   engine counts — Verified in full, Unverified and Disputed at half, Falsified at
+   nothing, and *Unrecorded* (no status on the row at all) in full. A row is never shown
+   without its standing, because a reader cannot otherwise tell a checked source from an
+   unchecked one carrying the same weight. Below the table, when anything is actually at
+   risk, a **retraction exposure** line reports how many of the points the belief draws
+   from evidence rest on standing nobody has established, how many rows are counted in
+   full on no record, how many are weighted by an unconfirmed tier claim, and — above
+   half — that the score should be read as provisional. Engine-computed
+   (`src/core/scoring/evidence-exposure.ts`); omitted when every row is established.
 3. **Objective Criteria** (`Criterion / How to Measure / Reading That Would Strengthen /
    Reading That Would Weaken / Latest Reading / Score`) — the best criteria are ones
    where the two sides predict different readings.
@@ -318,6 +329,7 @@ Before outputting any ISE belief page, verify:
 - [ ] Argument cells are short claim labels with the famous quote inline and `~Name` submitter — no citations, percentages, or study names
 - [ ] Argument Trees and Evidence Ledger each render as a single two-sided table with Pro/Con (or Supporting/Weakening) halves
 - [ ] All evidence lives in the Evidence Ledger with tier assigned
+- [ ] Every evidence row shows its Standing, and the retraction-exposure line appears whenever points are at risk
 - [ ] Every table has its Score column(s), sorts by score descending, and unscored rows sink to the bottom
 - [ ] Objective Criteria has Criterion / How to Measure / Reading That Would Strengthen / Reading That Would Weaken / Latest Reading / Score
 - [ ] Falsifiability Test rows are bet-specific score-movers with per-row Scores; Testable Predictions include Follows If and Result So Far
