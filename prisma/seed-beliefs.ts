@@ -317,6 +317,8 @@ async function main() {
         side: 'supporting',
         description: 'Finland UBI pilot (2017-2018): Recipients showed improved well-being and modest employment effects',
         sourceUrl: 'https://julkaisut.valtioneuvosto.fi/handle/10024/161361',
+        producer: 'Kela',
+        year: 2019,
         evidenceType: 'T1',
         sourceIndependenceWeight: 1.0,
         replicationQuantity: 3,
@@ -330,6 +332,8 @@ async function main() {
         side: 'supporting',
         description: 'GiveDirectly long-term study in Kenya: Cash transfers led to sustained economic gains',
         sourceUrl: 'https://www.givedirectly.org/research-on-cash-transfers/',
+        producer: 'GiveDirectly',
+        year: 2022,
         evidenceType: 'T1',
         sourceIndependenceWeight: 1.0,
         replicationQuantity: 5,
@@ -342,6 +346,8 @@ async function main() {
         beliefId: mainBelief.id,
         side: 'supporting',
         description: 'Stockton SEED program: Recipients found full-time employment at twice the rate of control group',
+        producer: 'Stockton SEED',
+        year: 2021,
         evidenceType: 'T2',
         sourceIndependenceWeight: 0.75,
         replicationQuantity: 1,
@@ -354,6 +360,8 @@ async function main() {
         beliefId: mainBelief.id,
         side: 'weakening',
         description: 'Alaska Permanent Fund Dividend: No measurable reduction in poverty rates despite 40+ years of payments',
+        producer: 'University of Alaska ISER',
+        year: 2016,
         evidenceType: 'T2',
         sourceIndependenceWeight: 0.75,
         replicationQuantity: 2,
@@ -376,6 +384,92 @@ async function main() {
       },
     ],
   })
+
+  // Name what each evidence item bears on (the ledger's Bears On column): a
+  // specific argument edge on this belief, identified in the UI by its opening
+  // words. Rows left null bear on the belief directly.
+  const mainEdges = await prisma.argument.findMany({
+    where: { parentBeliefId: mainBelief.id },
+    select: { id: true, beliefId: true },
+  })
+  const edgeByChild = new Map(mainEdges.map(e => [e.beliefId, e.id]))
+  const bearsOnByPrefix: Array<[string, number | undefined]> = [
+    ['Finland UBI pilot', edgeByChild.get(workIncentiveBelief.id)],
+    ['GiveDirectly long-term study', edgeByChild.get(povertyBelief.id)],
+    ['Stockton SEED program', edgeByChild.get(workIncentiveBelief.id)],
+    ['Alaska Permanent Fund Dividend', edgeByChild.get(povertyBelief.id)],
+  ]
+  for (const [prefix, argumentId] of bearsOnByPrefix) {
+    if (argumentId == null) continue
+    await prisma.evidence.updateMany({
+      where: { beliefId: mainBelief.id, description: { startsWith: prefix } },
+      data: { bearsOnArgumentId: argumentId },
+    })
+  }
+
+  // People on the Record: history, never weight. One contested listing shows
+  // the annotation path; unlinked names render as plain text (Rule 5).
+  const peopleCount = await prisma.personOnRecord.count({ where: { beliefId: mainBelief.id } })
+  if (peopleCount === 0) {
+    await prisma.personOnRecord.createMany({
+      data: [
+        {
+          beliefId: mainBelief.id,
+          side: 'agree',
+          name: 'Andrew Yang',
+          sourceUrl: 'https://en.wikipedia.org/wiki/Freedom_Dividend',
+          sortOrder: 0,
+        },
+        {
+          beliefId: mainBelief.id,
+          side: 'agree',
+          name: 'Milton Friedman',
+          contested: true,
+          contestedNote: 'advocated a negative income tax, not a universal payment',
+          sortOrder: 1,
+        },
+        {
+          beliefId: mainBelief.id,
+          side: 'disagree',
+          name: 'Oren Cass',
+          sortOrder: 0,
+        },
+      ],
+    })
+  }
+
+  // One community-confirmed fallacy claim, so the inline argument-cell note
+  // renders: the work-incentive argument cherry-picks by ignoring the
+  // higher-tier employment findings already in this ledger.
+  const workIncentiveEdgeId = edgeByChild.get(workIncentiveBelief.id)
+  if (workIncentiveEdgeId != null) {
+    const fallacyCount = await prisma.fallacyClaim.count({
+      where: { argumentId: workIncentiveEdgeId, status: 'confirmed' },
+    })
+    if (fallacyCount === 0) {
+      await prisma.fallacyClaim.create({
+        data: {
+          argumentId: workIncentiveEdgeId,
+          fallacyType: 'cherry-picking',
+          targetFactor: 'evidence-quality',
+          severity: 'major',
+          quotedText: 'UBI could reduce work incentives across the labor market',
+          explanation:
+            'States the labor-supply worry while ignoring the Tier 1/Tier 2 employment findings (Finland pilot, Stockton SEED) already on this page.',
+          missingElements: 'The contradicting employment results from the pilot programs.',
+          evidenceLinks: JSON.stringify([
+            { label: 'Finland UBI pilot final report (Kela, 2019)' },
+            { label: 'Stockton SEED first-year findings (2021)' },
+          ]),
+          consequences:
+            'If confirmed, the argument keeps its logical form but its Evidence Quality factor is damaged until it engages the contrary results.',
+          status: 'confirmed',
+          consensus: 0.82,
+          resolvedAt: new Date(),
+        },
+      })
+    }
+  }
 
   // Create objective criteria
   await prisma.objectiveCriteria.createMany({
@@ -529,6 +623,58 @@ async function main() {
       { beliefId: mainBelief.id, side: 'opposing', mediaType: 'podcast', title: 'EconTalk: The Costs of Universal Basic Income' },
     ],
   })
+
+  // Genre priors and reach per work (updateMany keyed on title so re-runs are
+  // idempotent). The genre prior is where each work's Media Truth Score
+  // starts; the claim ledgers below are how two of them earn a computed,
+  // signed score instead. The podcasts stay claim-less on purpose, so the
+  // genre-prior fallback is visible in the live readout.
+  const mediaMeta: Array<[string, string, number]> = [
+    ['Utopia for Realists', 'investigative', 1_200_000],
+    ['Give People Money', 'investigative', 250_000],
+    ['The Case for Universal Basic Income', 'institutional', 300_000],
+    ['The Ezra Klein Show: Andrew Yang on UBI', 'opinion', 500_000],
+    ['The War on Normal People (critique sections)', 'investigative', 400_000],
+    ['Why Universal Basic Income Is a Bad Idea', 'editorial', 2_000_000],
+    ['EconTalk: The Costs of Universal Basic Income', 'opinion', 350_000],
+  ]
+  for (const [title, genreType, reach] of mediaMeta) {
+    await prisma.mediaResource.updateMany({
+      where: { beliefId: mainBelief.id, title },
+      data: { genreType, reach },
+    })
+  }
+
+  // Claim ledgers: each claim links to the belief page where it is evaluated
+  // across all sources; its signed truth is that belief's engine net.
+  const claimLedgers: Array<[string, Array<{ claimText: string; beliefId: number; linkageScore: number }>]> = [
+    [
+      'Utopia for Realists',
+      [
+        { claimText: 'A universal basic income should be implemented', beliefId: mainBelief.id, linkageScore: 0.95 },
+        { claimText: 'Direct cash transfers reduce poverty and improve outcomes', beliefId: povertyBelief.id, linkageScore: 0.85 },
+        { claimText: 'Automation will displace a large share of existing jobs', beliefId: automationBelief.id, linkageScore: 0.55 },
+      ],
+    ],
+    [
+      'Why Universal Basic Income Is a Bad Idea',
+      [
+        { claimText: 'A universal basic income is fiscally unsustainable at scale', beliefId: fiscalBelief.id, linkageScore: 0.9 },
+        { claimText: 'Unconditional payments weaken the incentive to work', beliefId: workIncentiveBelief.id, linkageScore: 0.7 },
+      ],
+    ],
+  ]
+  for (const [title, claims] of claimLedgers) {
+    const work = await prisma.mediaResource.findFirst({
+      where: { beliefId: mainBelief.id, title },
+    })
+    if (!work) continue
+    const existing = await prisma.mediaClaim.count({ where: { mediaResourceId: work.id } })
+    if (existing > 0) continue
+    await prisma.mediaClaim.createMany({
+      data: claims.map((c, i) => ({ ...c, mediaResourceId: work.id, sortOrder: i })),
+    })
+  }
 
   // Create legal entries
   await prisma.legalEntry.createMany({

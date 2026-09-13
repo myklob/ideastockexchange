@@ -7,9 +7,11 @@ import type {
   SharedInterestItem,
   DisputeTypeItem,
   ObstacleItem,
+  CompromiseItem,
+  BiasItem,
 } from '../types'
 import type { ConflictResolutionReadout } from '@/core/scoring/conflict-resolution'
-import { byScoreDesc, formatScore, rankByScore, TABLE_TOP_LIMIT } from '../lib/ranking'
+import { byScoreDesc, formatScore, pairBySide, rankByScore, TABLE_TOP_LIMIT } from '../lib/ranking'
 import ExpandableRows from './ExpandableRows'
 
 interface ConflictResolutionSectionProps {
@@ -20,6 +22,12 @@ interface ConflictResolutionSectionProps {
   sharedInterests: SharedInterestItem[]
   disputeTypes: DisputeTypeItem[]
   obstacles: ObstacleItem[]
+  /** Best Compromise Solutions sub-section (canonical home per the July 2026
+   *  template). Optional so reuse sites keep working without it. */
+  compromises?: CompromiseItem[]
+  /** Biases sub-section, last inside the framework (July 2026 template).
+   *  Optional so reuse sites keep working without it. */
+  biases?: BiasItem[]
   /** Deep-dive link to the interests-and-motivation dashboard, when one exists. */
   interestsDashboardHref?: string
   /** The computed pipeline readout (shared interests, primary conflict pair,
@@ -200,6 +208,8 @@ function PrimaryConflictPair({ interests }: { interests: InterestsAnalysisData |
         ) : (
           <span className="text-[var(--muted-foreground)] italic">[Supporter interest] vs [Opponent interest]</span>
         )}
+        . Standalone Validity (how legitimate the interest is in general) and Claim Strength (how
+        much it supports this position) are different numbers; conflating them is a scoring error.
       </p>
       <table className="w-full border-collapse border border-gray-300 text-sm">
         <thead>
@@ -341,6 +351,99 @@ function ObstaclesTable({ obstacles }: { obstacles: ObstacleItem[] }) {
   )
 }
 
+/* ── Best Compromise Solutions ──────────────────────────────────────────── */
+function CompromiseRow({ c }: { c: CompromiseItem | null }) {
+  return (
+    <tr>
+      <td className={TD}>{lines(c?.sharedPremise)}</td>
+      <td className={TD}>{lines(c?.synthesis ?? c?.description)}</td>
+      <td className={TD}>{lines(c?.whyDifficult)}</td>
+      <td className={`${TDC} font-mono`}>{formatScore(c?.score) ?? <span>&nbsp;</span>}</td>
+    </tr>
+  )
+}
+
+function CompromisesTable({ compromises }: { compromises: CompromiseItem[] }) {
+  const { top, rest } = rankByScore(compromises, c => c.score)
+  return (
+    <table className="w-full border-collapse border border-gray-300 text-sm">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className={`${TH} w-[28%]`}>Shared Premise Both Sides Accept</th>
+          <th className={`${TH} w-[30%]`}>Proposed Synthesis</th>
+          <th className={`${TH} w-[28%]`}>Why This Is Difficult</th>
+          <th className={`${TH} text-center w-[14%]`}>Score (interests satisfied)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {(top.length > 0 ? top : [null]).map((c, i) => (
+          <CompromiseRow key={c?.id ?? i} c={c} />
+        ))}
+        <ExpandableRows moreCount={rest.length} colSpan={4}>
+          {rest.map(c => (
+            <CompromiseRow key={c.id} c={c} />
+          ))}
+        </ExpandableRows>
+      </tbody>
+    </table>
+  )
+}
+
+/* ── Biases ─────────────────────────────────────────────────────────────── */
+function formatBiasType(type: string): string {
+  return type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+}
+
+function BiasCell({ b }: { b: BiasItem | null }) {
+  if (!b) return <span>&nbsp;</span>
+  return (
+    <>
+      <strong>{formatBiasType(b.biasType)}</strong>
+      {b.description && <span className="text-[var(--muted-foreground)]"> - {b.description}</span>}
+    </>
+  )
+}
+
+function BiasesTable({ biases }: { biases: BiasItem[] }) {
+  const supporters = rankByScore(biases.filter(b => b.side === 'supporter'), b => b.score, Infinity).top
+  const opponents = rankByScore(biases.filter(b => b.side === 'opponent'), b => b.score, Infinity).top
+  const pairs = pairBySide(supporters, opponents)
+  const topPairs = pairs.length > 0 ? pairs.slice(0, TABLE_TOP_LIMIT) : [[null, null] as [BiasItem | null, BiasItem | null]]
+  const restPairs = pairs.slice(TABLE_TOP_LIMIT)
+  return (
+    <table className="w-full border-collapse border border-gray-300 text-sm">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className={`${TH} w-[42%]`}>Biases Affecting Supporters</th>
+          <th className={`${TH} text-center w-[8%]`}>Score</th>
+          <th className={`${TH} w-[42%]`}>Biases Affecting Opponents</th>
+          <th className={`${TH} text-center w-[8%]`}>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {topPairs.map(([s, o], i) => (
+          <tr key={s?.id ?? o?.id ?? i}>
+            <td className={TD}><BiasCell b={s} /></td>
+            <td className={`${TDC} font-mono`}>{formatScore(s?.score) ?? <span>&nbsp;</span>}</td>
+            <td className={TD}><BiasCell b={o} /></td>
+            <td className={`${TDC} font-mono`}>{formatScore(o?.score) ?? <span>&nbsp;</span>}</td>
+          </tr>
+        ))}
+        <ExpandableRows moreCount={restPairs.length} colSpan={4}>
+          {restPairs.map(([s, o], i) => (
+            <tr key={s?.id ?? o?.id ?? i}>
+              <td className={TD}><BiasCell b={s} /></td>
+              <td className={`${TDC} font-mono`}>{formatScore(s?.score) ?? <span>&nbsp;</span>}</td>
+              <td className={TD}><BiasCell b={o} /></td>
+              <td className={`${TDC} font-mono`}>{formatScore(o?.score) ?? <span>&nbsp;</span>}</td>
+            </tr>
+          ))}
+        </ExpandableRows>
+      </tbody>
+    </table>
+  )
+}
+
 /* ── The computed pipeline readout ──────────────────────────────────────── */
 function PipelineReadout({ readout }: { readout: ConflictResolutionReadout }) {
   const {
@@ -438,6 +541,8 @@ export default function ConflictResolutionSection({
   sharedInterests,
   disputeTypes,
   obstacles,
+  compromises,
+  biases,
   interestsDashboardHref,
   readout,
 }: ConflictResolutionSectionProps) {
@@ -456,6 +561,7 @@ export default function ConflictResolutionSection({
           <strong>rank</strong> them, and that ranking shifts based on perceived{' '}
           <Link href="/cba/about" className="text-[var(--accent)] hover:underline">costs, benefits</Link>, and{' '}
           <Link href="/cba/about" className="text-[var(--accent)] hover:underline">likelihood of success</Link>.
+          The conflict readout below is the scored cost-benefit trees above, read sideways.
         </p>
       </div>
 
@@ -477,8 +583,11 @@ export default function ConflictResolutionSection({
           <span>&#128161;</span> Likely Interests of Supporters
         </h3>
         <p className="text-xs text-[var(--muted-foreground)] italic mb-2">
-          Sorted by estimated prevalence. Linkage Confidence measures how sure we are this is actually
-          why they support this belief. Validity measures how legitimate the interest is.
+          Each row is the claim that this interest is actually driving support for this belief, and
+          like every table on this page it ranks by Score; until scores exist, rows sort by estimated
+          prevalence. Linkage Confidence measures how sure we are this is actually why they support
+          this belief. Validity measures how legitimate the interest is, determined by argument and
+          objective criteria, never by which side has more power.
           {interestsDashboardHref && (
             <>
               {' '}For the ranked hypotheses, unstated-interest candidates, and the solutions that
@@ -512,6 +621,15 @@ export default function ConflictResolutionSection({
         <PrimaryConflictPair interests={interests} />
       </div>
 
+      {compromises && (
+        <div>
+          <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
+            <span>&#129309;</span> Best Compromise Solutions
+          </h3>
+          <CompromisesTable compromises={compromises} />
+        </div>
+      )}
+
       <div>
         <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
           <span>&#127917;</span> Advertised vs. Actual Motivations
@@ -532,6 +650,15 @@ export default function ConflictResolutionSection({
         </h3>
         <ObstaclesTable obstacles={obstacles} />
       </div>
+
+      {biases && (
+        <div>
+          <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
+            <span>&#9888;</span> Biases
+          </h3>
+          <BiasesTable biases={biases} />
+        </div>
+      )}
     </section>
   )
 }
