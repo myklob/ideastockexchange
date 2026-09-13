@@ -60,6 +60,20 @@ export default function ContributePage() {
         accumulated state of the debate rather than its latest fragment.
       </p>
 
+      <h2 className="text-xl font-bold mt-8 mb-2">Pick the piece that matters</h2>
+      <p className="mb-4">
+        Before climbing a rung, you can see where the work actually changes an answer. The{' '}
+        <Link href="/leverage" className="text-blue-700 hover:underline">work queue</Link>{' '}
+        ranks every unsettled argument in the corpus by how much conclusion score is riding on it,
+        and names the one gap that would settle each: a missing source, an undebated linkage, a
+        claim nobody has contested, an unscored sub-debate. The top row is the cheapest way to move
+        a published score. How the ranking is computed is explained in{' '}
+        <Link href="/algorithms/decision-leverage" className="text-blue-700 hover:underline">
+          Decision Leverage
+        </Link>
+        .
+      </p>
+
       <h2 className="text-xl font-bold mt-8 mb-2">Challenge one number</h2>
       <p className="mb-4">
         Every argument row in a belief page&apos;s Reasons-to-Agree and Reasons-to-Disagree tables

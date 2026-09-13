@@ -166,30 +166,55 @@
 
 <hr />
 <br />
+<!-- DECISION LEVERAGE: the argument table read sideways. Every row is an edge
+     from the tree above, ranked by the points of conclusion score still at
+     stake on it (transmission weight x unresolved range). Engine-computed from
+     existing scores; never hand-ranked. Omit this whole block when every edge
+     is settled (nothing at stake). See /algorithms/decision-leverage. -->
+<h1>&#127919; <a href="/algorithms/decision-leverage">Decision Leverage</a></h1>
+<p style="font-size: 13px;">Which argument is worth settling next. <strong>Leverage</strong> is the points of conclusion score still at stake on one edge: <strong>Weight</strong> (how much of a change in that reason transmits to this conclusion: |linkage| &times; importance &times; uniqueness &times; 0.5<sup>depth</sup>) &times; <strong>Open</strong> (how much about that reason is still unresolved: evidence, linkage votes, opposition, scoring). High where an argument both carries the conclusion and rests on little. An upper bound on movement, not a forecast &mdash; direction is unknown, which is why the edge is worth investigating.</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6; font-size: 12px;"><th width="34%">Argument</th> <th width="10%">Leverage</th> <th width="9%">Weight</th> <th width="9%">Open</th> <th width="24%">What would settle it</th> <th width="14%">Status</th></tr>
+</thead>
+<tbody>
+<tr style="background-color: #f8d7da;"><td>[Argument label] (supports|opposes)</td><td align="center">[L]</td><td align="center">[W]</td><td align="center">[O]</td><td>[Needs evidence | Linkage undebated | No opposition yet | Sub-debate unscored] (links where that gap closes)</td><td align="center">Crux</td></tr>
+<tr style="background-color: #d4edda;"><td>[Argument label] (supports|opposes)</td><td align="center">[L]</td><td align="center">[W]</td><td align="center">[O]</td><td>[Widest gap]</td><td align="center">Load-bearing</td></tr>
+</tbody>
+</table>
+<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>[N] cruxes carry [TOTAL] points of unsettled score.</strong> The largest single gap is &ldquo;[Top argument]&rdquo; at [L] points. [When one edge holds more than half of it: one edge holds most of what is unsettled, so the verdict here is fragile.]</p>
+
+<hr />
+<br />
 <h1>📊 <a href="/w/page/159353568/Evidence">Evidence Ledger</a></h1>
-<p style="font-size: 13px;"><em>Key: <strong>T1</strong>=Peer-reviewed/Official, <strong>T2</strong>=Expert/Institutional, <strong>T3</strong>=Journalism/Surveys, <strong>T4</strong>=Opinion/Anecdote. Format each item as: Finding (Producer, Year). Evidence is data that can fail empirically; a reason that can only fail logically is an argument and belongs in the tree above, not here.</em></p>
+<p style="font-size: 13px;"><em>Key: <strong>T1</strong>=Peer-reviewed/Official, <strong>T2</strong>=Expert/Institutional, <strong>T3</strong>=Journalism/Surveys, <strong>T4</strong>=Opinion/Anecdote. <strong>Standing</strong> is the verification lifecycle: Verified rows count in full, Unverified and Disputed at half, Falsified at nothing, Unrecorded (no status on record) in full. Format each item as: Finding (Producer, Year). Evidence is data that can fail empirically; a reason that can only fail logically is an argument and belongs in the tree above, not here.</em></p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr>
-<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="4">✅ Supporting Evidence</th> <th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="4">❌ Weakening Evidence</th>
+<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="5">✅ Supporting Evidence</th> <th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="5">❌ Weakening Evidence</th>
 </tr>
 <tr style="background-color: #f0f3f6; font-size: 12px;">
-<th width="22%">Evidence (Producer, Year)</th> <th width="7%">Type</th> <th width="7%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="7%">Impact</th> <th width="22%">Evidence (Producer, Year)</th> <th width="7%">Type</th> <th width="7%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="7%">Impact</th>
+<th width="19%">Evidence (Producer, Year)</th> <th width="6%">Type</th> <th width="9%">Standing</th> <th width="6%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="6%">Impact</th> <th width="19%">Evidence (Producer, Year)</th> <th width="6%">Type</th> <th width="9%">Standing</th> <th width="6%"><a href="/w/page/159338766/Linkage%20Scores">Link</a></th> <th width="6%">Impact</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>&nbsp;</td>
 <td align="center">T1</td>
+<td align="center">Unverified</td>
 <td align="center">&nbsp;</td>
 <td align="center">&nbsp;</td>
 <td>&nbsp;</td>
 <td align="center">T1</td>
+<td align="center">Unverified</td>
 <td align="center">&nbsp;</td>
 <td align="center">&nbsp;</td>
 </tr>
 </tbody>
 </table>
+<!-- RETRACTION EXPOSURE: engine-computed from the Standing column above.
+     Include only when something is actually at risk. -->
+<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>Retraction exposure.</strong> [X] of the [Y] points this belief draws from evidence ([N]%) rest on standing nobody has established. [K rows are counted in full with no verification on record.] [Above half: More than half of the evidence case is unearned; read the score as provisional.]</p>
 <br />
 <h1>🎯 <a href="/Objective%20criteria%20scores">Objective Criteria</a></h1>
 <p style="font-size: 13px;">These are the measurements that would settle this debate if both sides committed to them in advance. Pick the standard first, then check the result: that is what keeps the verdict tied to the world instead of to whoever argues loudest. The best criteria are specific enough that supporters and opponents would predict <em>different</em> readings. A criterion both sides expect to come out the same way tests nothing. See <a href="/w/page/159323070/Applying%20%22Getting%20to%20Yes%22%20Principles">Applying "Getting to Yes" Principles</a>.</p>

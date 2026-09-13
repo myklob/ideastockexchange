@@ -6,6 +6,8 @@ This document is referenced by:
 
 - `src/app/beliefs/[slug]/page.tsx` — the live belief page route
 - `src/features/belief-analysis/components/DefinitionsSection.tsx` — renders last per Rule 1
+- `src/core/scoring/decision-leverage.ts` — the Decision Leverage engine behind section 1c
+- `src/core/scoring/evidence-exposure.ts` — the retraction-exposure readout under the Evidence Ledger
 - `templates/belief-analysis-template.html` — the PBworks / wiki template
 - Any skill, generator, or prompt that produces ISE belief pages
 
@@ -213,8 +215,39 @@ feed it. Renders nothing when no open contract exists.
    Every option's score must trace to its own belief's tree — never a fabricated constant
    (Rule 6). Options rank by score descending, nulls last (Rule 8). Comparative arguments
    ("rival Y beats X") belong here, not in the con column.
+1c. **Decision Leverage** *(only when something is actually at stake)* — the argument
+   table read sideways: which edge is worth settling next. One row per edge from the
+   tree above (`Argument / Leverage / Weight / Open / What would settle it / Status`),
+   ranked by Leverage descending. **Leverage** is the points of conclusion score still
+   at stake on that edge: `weight × openRange × 100`, where `weight = |linkage| ×
+   importance × uniqueness × 0.5^depth` (the impact formula with truth factored out, so
+   weight × 100 is how many points of impact move per unit of truth) and `openRange` is
+   the weighted shortfall across four resolution gaps — evidence 0.40 (1 − the child's
+   grounding), linkage 0.25 (`1/√(1+votes)`), examination 0.20
+   (`1/√(1+min(support, opposition))` over the child's sub-arguments *and* its evidence
+   by side), scoring 0.15 (1 while the child sub-debate is unscored). Status is the
+   quadrant on (weight ≥ 0.35, openRange ≥ 0.40): **Crux** carries weight and rests on
+   little, **Load-bearing** carries weight and is supported, **Open but minor**,
+   **Settled or minor**. The "What would settle it" cell names the widest gap and links
+   the page where it closes (the child belief, the linkage sub-debate, or the
+   score-provenance page) — plain text when no such route exists (Rule 5). A closing
+   line reports the total at stake and flags **concentration** above 0.5, where one
+   unresolved edge is carrying the verdict. Engine-computed from scores the page already
+   shows (`src/core/scoring/decision-leverage.ts`); never hand-ranked, and the whole
+   section is omitted when every edge is settled. Explainer:
+   `/algorithms/decision-leverage`.
 2. **Evidence Ledger** — one two-sided table (Supporting / Weakening), each side with
-   `Evidence / Type / Link / Impact`.
+   `Evidence / Type / Standing / Link / Impact`. **Standing** is the verification
+   lifecycle, and it is not decoration: it decides how much of the row's impact the
+   engine counts — Verified in full, Unverified and Disputed at half, Falsified at
+   nothing, and *Unrecorded* (no status on the row at all) in full. A row is never shown
+   without its standing, because a reader cannot otherwise tell a checked source from an
+   unchecked one carrying the same weight. Below the table, when anything is actually at
+   risk, a **retraction exposure** line reports how many of the points the belief draws
+   from evidence rest on standing nobody has established, how many rows are counted in
+   full on no record, how many are weighted by an unconfirmed tier claim, and — above
+   half — that the score should be read as provisional. Engine-computed
+   (`src/core/scoring/evidence-exposure.ts`); omitted when every row is established.
 3. **Objective Criteria** (`Criterion / How to Measure / Reading That Would Strengthen /
    Reading That Would Weaken / Latest Reading / Score`) — the best criteria are ones
    where the two sides predict different readings.
@@ -296,12 +329,14 @@ Before outputting any ISE belief page, verify:
 - [ ] Argument cells are short claim labels with the famous quote inline and `~Name` submitter — no citations, percentages, or study names
 - [ ] Argument Trees and Evidence Ledger each render as a single two-sided table with Pro/Con (or Supporting/Weakening) halves
 - [ ] All evidence lives in the Evidence Ledger with tier assigned
+- [ ] Every evidence row shows its Standing, and the retraction-exposure line appears whenever points are at risk
 - [ ] Every table has its Score column(s), sorts by score descending, and unscored rows sink to the bottom
 - [ ] Objective Criteria has Criterion / How to Measure / Reading That Would Strengthen / Reading That Would Weaken / Latest Reading / Score
 - [ ] Falsifiability Test rows are bet-specific score-movers with per-row Scores; Testable Predictions include Follows If and Result So Far
 - [ ] Logical Anatomy decomposes the belief (logical form + typed, load-bearing-flagged component claims)
 - [ ] Cost-Benefit rows carry Category (Units) / Magnitude / Likelihood % / Expected Value and subtotal only within a category
 - [ ] Conflict Resolution Framework has all sub-sections: Shared Values rankings, Interests of Supporters, Interests of Opponents, Shared+Conflicting (Shared Interests + Primary Conflict Pair), Best Compromise Solutions, Advertised vs. Actual (with Divergence Score), Dispute Types, Primary Obstacles, Biases
+- [ ] Decision Leverage is engine-ranked (never hand-ordered), each row's "what would settle it" link resolves, and the section is omitted when nothing is at stake
 - [ ] Where This Belief Is Used and Score History render only when they have rows; neither is ever hand-authored
 - [ ] Every link points to a page that exists OR is plain text
 - [ ] No `href="#"` anchors anywhere

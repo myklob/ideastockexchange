@@ -11,6 +11,7 @@ import {
 import { calculateEVS, getEvidenceTypeWeight } from '@/core/scoring/scoring-engine'
 import { applyStrengthPenalty } from '@/core/scoring/claim-strength'
 import { resolveContrastClass } from './contrast-classes'
+import { VERIFICATION_SCORES } from '@/core/reasonrank/types'
 
 /**
  * Standard ordering for score-ranked table rows: highest relationship score
@@ -287,16 +288,18 @@ export async function fetchBeliefCategories(): Promise<string[]> {
 
 /** Compute all 12 ReasonRank scores for a belief */
 /**
- * Verification lifecycle weight, mirroring the reasonrank engine's
- * VERIFICATION_WEIGHTS: FALSIFIED evidence contributes nothing (the
- * retraction propagates to every score built on it), UNVERIFIED and
- * DISPUTED count at half weight, VERIFIED at full. Legacy rows (null
- * status) predate the lifecycle and keep full weight, so existing seeded
- * scores are unchanged until a row's status is actually set.
+ * Verification lifecycle weight, taken from the engine's own
+ * VERIFICATION_SCORES: FALSIFIED evidence contributes nothing (the retraction
+ * propagates to every score built on it), UNVERIFIED and DISPUTED count at
+ * half weight, VERIFIED at full. Legacy rows (null status) predate the
+ * lifecycle and keep full weight, so existing seeded scores are unchanged
+ * until a row's status is actually set — which is exactly the exposure
+ * reported by src/core/scoring/evidence-exposure.ts.
  */
 function verificationWeight(status: string | null | undefined): number {
-  if (status === 'FALSIFIED') return 0
-  if (status === 'DISPUTED' || status === 'UNVERIFIED') return 0.5
+  if (status != null && status in VERIFICATION_SCORES) {
+    return VERIFICATION_SCORES[status as keyof typeof VERIFICATION_SCORES]
+  }
   return 1
 }
 

@@ -2,8 +2,10 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { fetchBeliefBySlug, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
 import { computeConflictReadout, deriveCbaItems } from '@/features/belief-analysis/lib/conflict-pipeline'
+import { fetchBeliefLeverage, hasLeverageToShow } from '@/features/belief-analysis/lib/leverage'
 import ScorecardSection from '@/features/belief-analysis/components/ScorecardSection'
 import ArgumentTreesSection from '@/features/belief-analysis/components/ArgumentTreesSection'
+import DecisionLeverageSection from '@/features/belief-analysis/components/DecisionLeverageSection'
 import ContrastClassSection from '@/features/belief-analysis/components/ContrastClassSection'
 import EvidenceSection from '@/features/belief-analysis/components/EvidenceSection'
 import ConflictResolutionSection from '@/features/belief-analysis/components/ConflictResolutionSection'
@@ -65,9 +67,12 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
   // The belief→market half of the engagement loop (display only; the market
   // firewall guarantees nothing flows the other way).
-  const [openContracts, topicHubs] = await Promise.all([
+  const [openContracts, topicHubs, leverage] = await Promise.all([
     openContractsForBelief(belief.id),
     fetchTopicsForBelief(belief.id),
+    // Which edge is worth settling next: points of conclusion score still at
+    // stake per argument (src/core/scoring/decision-leverage.ts).
+    fetchBeliefLeverage(belief.id),
   ])
 
   return (
@@ -168,6 +173,16 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
               <hr className="border-gray-200" />
               {/* The denominator, made visible — rivals this belief is priced against. */}
               <ContrastClassSection contrastClass={belief.contrastClass} />
+            </>
+          )}
+
+          {/* 1b. Decision Leverage — the argument table read sideways: which
+              edge still holds unsettled conclusion score. Renders only when
+              something is actually at stake. */}
+          {hasLeverageToShow(leverage) && (
+            <>
+              <hr className="border-gray-200" />
+              <DecisionLeverageSection leverage={leverage} />
             </>
           )}
 

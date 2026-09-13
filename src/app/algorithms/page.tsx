@@ -78,6 +78,12 @@ const groups: AlgorithmGroup[] = [
           'The redundancy penalty. Making one point five different ways scores as one point, not five.',
       },
       {
+        name: 'Decision Leverage',
+        href: '/algorithms/decision-leverage',
+        description:
+          'Which argument is worth settling next: the points of conclusion score still at stake on each edge, and which gap would close it.',
+      },
+      {
         name: 'Evidence Scores',
         href: '/algorithms/evidence-scores',
         description:

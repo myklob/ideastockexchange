@@ -42,6 +42,20 @@ renders as a sub-table inside Cost-Benefit Analysis. Every per-row table carries
 nullable relationship `score`, sorts by it descending (nulls last), and shows its top
 rows with the rest collapsed — see Rule 8 and `src/features/belief-analysis/lib/ranking.ts`.
 
+Retraction exposure rides in the Evidence Ledger: `src/core/scoring/evidence-exposure.ts`
+turns the verification lifecycle (`VERIFICATION_SCORES`, the single source of those weights)
+into a Standing column plus a readout of how many points rest on unestablished standing.
+Rows with no status are counted in full by the engine, so they carry the largest exposure —
+that is deliberate, not a bug to "fix" by defaulting them to verified.
+
+Decision Leverage (`DecisionLeverageSection`, section 1c, right after the argument trees)
+ranks the belief's argument edges by the conclusion score still at stake on each one:
+`src/core/scoring/decision-leverage.ts` is the pure engine,
+`src/features/belief-analysis/lib/leverage.ts` the DB adapter, `/api/beliefs/[id]/leverage`
+the JSON readout, `/algorithms/decision-leverage` the explainer. It reuses existing scores
+(linkage, importance, uniqueness, grounding) and adds no schema — if you change the impact
+formula in `scoring-engine.ts`, the transmission weight and its test pin must follow.
+
 The legacy `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, and `ImpactSection` components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
 
 ## Conventions
@@ -85,6 +99,7 @@ Or set `CLAUDE_DEBUG_FILE` before launching. File logging cannot be enabled mid-
 - `/beliefs/set-aside-distractions-for-real-solutions` — bespoke route, predates the canonical structure. Don't use as a template.
 - `/product-reviews/[slug]` — separate concept that reuses some belief components. Edits to belief sections may affect it; check before refactoring.
 - `/algorithms` — index of every score explainer; subpages include `reason-rank`, `linkage-scores`, `importance-score`, `truth-scores`, `evidence-scores`, `unique-scores`, `assumptions`, `topic-overlap`, `objective-criteria`, `strong-to-weak`, `belief-equivalency`, `combine-similar-beliefs`, `fallacy-detection`. Belief-page components link these — if you add a link, verify the target exists or use plain text (Rule 5). Wiki-style space-URL routes (`/Linkage Scores` etc.) do NOT exist; never link them.
+- `/leverage` — the work queue: every unsettled argument edge in the corpus ranked by Decision Leverage, the per-belief roll-up, the beliefs resting on one crux, and the evidence rows counted in published scores without being checked (retraction exposure). JSON twin at `/api/leverage`.
 - `/how-it-works` — the Engine of Reason explainer, with a live engine readout.
 - `/arguments/[id]/linkage` — an edge's linkage sub-debate; `/arguments/[id]/score` — the edge's impact-provenance page (factor-by-factor derivation).
 - `/contact` — contact/contribution pointers (target for all former Contact Me links).

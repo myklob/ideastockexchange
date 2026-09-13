@@ -716,6 +716,7 @@ export default function Home() {
                 <li><Link href="/problems" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">The Problem</Link></li>
                 <li><Link href="/solutions" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Solutions</Link></li>
                 <li><Link href="/contribute" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Contribute</Link></li>
+                <li><Link href="/leverage" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Work Queue</Link></li>
                 <li><Link href="/search" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Search</Link></li>
                 <li><Link href="/how-it-works" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">How It Works</Link></li>
                 <li><Link href="/protocol" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Schlicht Protocol</Link></li>
