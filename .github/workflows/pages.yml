@@ -26,10 +26,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Enable Pages for Actions deployments if the repository has not done so yet
+      - name: Enable Pages if the repository has no site yet
         uses: actions/configure-pages@v5
         with:
           enablement: true
+      - name: Point the existing Pages site at Actions instead of a branch
+        # configure-pages only creates a site; it never changes the source of one that already exists, and this
+        # repository's site still deploys from the gh-pages branch, so the Actions deployment has nowhere to land.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
+        run: |
+          echo '--- Pages site before:'; gh api "repos/$GITHUB_REPOSITORY/pages" --jq '{build_type, source, html_url, status}' || true
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/pages" -f build_type=workflow \
+            && echo 'Source switched to GitHub Actions.' \
+            || echo '::warning::Could not switch the Pages source with the workflow token. Set it by hand: Settings, Pages, Build and deployment, Source: GitHub Actions.'
+          echo '--- Pages site after:'; gh api "repos/$GITHUB_REPOSITORY/pages" --jq '{build_type, source, html_url, status}' || true
       - run: pip install -r tools/static-site/requirements.txt
       - name: Render the belief pages from the two tables
         run: |
@@ -44,9 +56,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    # No environment block: the github-pages environment carries a branch policy from the gh-pages era that
+    # rejects master before a single step runs. deploy-pages records its own deployment through the Pages API.
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+      - run: echo "Deployed to ${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"
