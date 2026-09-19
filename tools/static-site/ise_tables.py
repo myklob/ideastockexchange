@@ -1,0 +1,335 @@
+"""The content of the workbook as two flat tables, and back again.
+
+Why this exists: writing belief pages as nested Python literals means every fact costs punctuation, and adding a
+page in the middle means renumbering. These two tables are the authoring surface instead. Every page is one row
+in `pages`, every row of every table on every page is one row in `edges`, and pages refer to each other by a
+short key rather than a tab number, so nothing has to be renumbered and nothing has to be formatted.
+
+    pages   key kind text parent x y type direction rowkind value measured_by where_found if_true if_false
+            latest bridge bottom_line positivity form tab
+    edges   page section side claim text source link imp uniq drives equiv who bearing pattern category
+            magnitude deadline extra
+
+`extra` carries the long tail as "name: value | name: value" so the sheet stays narrow: the component flags,
+a motive's actual driver, a compromise's premise, a value ranking, a definition.
+
+specs_to_tables() turns the Python spec dicts into these tables; tables_to_specs() turns them back. The two are
+inverses, which build_from_entry.py checks on every run: load the tables, score them, and compare with the model.
+"""
+import re
+
+# (page kind, section, side) -> where the row lives in a spec dict. A tuple means a nested key.
+SECTIONS = {
+    'argument': {'agree': ('args', 'agree'), 'disagree': ('args', 'disagree')},
+    'impact': {'agree': ('iargs', 'agree'), 'disagree': ('iargs', 'disagree')},
+    'evidence': {'agree': ('evid', 'for'), 'disagree': ('evid', 'against')},
+    'prediction': {'agree': 'pred_true', 'disagree': 'pred_false'},
+    'cba': {'agree': 'benefits', 'disagree': 'costs'},
+    'short_term': {None: 'short'}, 'long_term': {None: 'long'},
+    'component': {None: 'components'},
+    'interest': {'agree': 'int_sup', 'disagree': 'int_opp'},
+    'interest_listing': {None: 'interests'},
+    'shared_interest': {None: 'shared'}, 'compromise': {None: 'compromise'},
+    'motive': {'agree': 'motives_sup', 'disagree': 'motives_opp'},
+    'obstacle': {'agree': 'obst_sup', 'disagree': 'obst_opp'},
+    'media': {'agree': 'media_for', 'disagree': 'media_against'},
+    'law': {'agree': 'law_for', 'disagree': 'law_against'},
+    'upstream': {'agree': 'up_for', 'disagree': 'up_against'},
+    'downstream': {'agree': 'down_for', 'disagree': 'down_against'},
+    'similar': {'extreme': 'similar_extreme', 'moderate': 'similar_moderate'},
+    'person': {'agree': 'people_for', 'disagree': 'people_against'},
+    'related': {'x': 'other_x', 'y': 'other_y'},
+    'value': {None: 'values'}, 'definition': {None: 'definitions'},
+    'dispute': {None: 'disputes'}, 'category': {None: 'catnet'},
+}
+# assumptions and biases sit under different keys on a belief page and on a specialized page
+SPLIT = {'assumption': {'belief': {'agree': 'assume_accept', 'disagree': 'assume_reject'},
+                        'other': {'agree': 'assume_hold', 'disagree': 'assume_fail'}},
+         'bias': {'belief': {'agree': 'bias_sup', 'disagree': 'bias_opp'},
+                  'other': {'agree': 'bias_up', 'disagree': 'bias_down'}}}
+SPECIAL = ('linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media')
+PAGE_COLS = ['key', 'tab', 'kind', 'text', 'parent', 'x', 'y', 'type', 'direction', 'rowkind', 'value',
+             'measured_by', 'where_found', 'if_true', 'if_false', 'latest', 'bridge', 'bottom_line', 'positivity', 'form']
+EDGE_COLS = ['page', 'section', 'side', 'claim', 'text', 'source', 'link', 'imp', 'uniq', 'drives', 'equiv',
+             'who', 'bearing', 'pattern', 'category', 'magnitude', 'deadline', 'extra']
+# spec field <-> pages column, for the fields that live on a page rather than on a row
+PAGE_FIELDS = [('topic', None), ('supports', 'parent'), ('x', 'x'), ('y', 'y'), ('typ', 'type'),
+               ('direction', 'direction'), ('rowkind', 'rowkind'), ('value', 'value'), ('measured', 'measured_by'),
+               ('where', 'where_found'), ('if_true', 'if_true'), ('if_false', 'if_false'), ('latest', 'latest'),
+               ('bridge', 'bridge'), ('bottom_line', 'bottom_line'), ('positivity', 'positivity'), ('form', 'form')]
+REFS = [('claim', 'id'), ('link', 'link'), ('imp', 'imp'), ('uniq', 'uniq'), ('drives', 'drives'),
+        ('equiv', 'equiv'), ('who', 'who'), ('bearing', 'addresses')]
+PLAIN = [('text', 'text'), ('source', 'source'), ('pattern', 'pattern'), ('category', 'category'),
+         ('magnitude', 'magnitude'), ('deadline', 'deadline')]
+# everything else a row can carry, by section, written into and read out of the `extra` column
+EXTRA = {'component': ['type', 'stated', 'lb', 'assumes'], 'motive': ['advertised', 'actual'],
+         'compromise': ['premise', 'difficult'], 'shared_interest': ['direction'],
+         'value': ['value', 'srank', 'orank', 'why'], 'definition': ['term', 'definition'],
+         'dispute': ['what', 'move'], 'interest': ['value', 'measured'], 'media': ['type']}
+STOP = {'the', 'a', 'an', 'of', 'to', 'in', 'on', 'and', 'or', 'that', 'is', 'are', 'be', 'would', 'should',
+        'for', 'from', 'it', 'they', 'their', 'not', 'by', 'with', 'as', 'at', 'this'}
+
+def slug(text, n=4):
+    words = [w for w in re.sub(r'[^a-z0-9 ]', ' ', (text or '').lower()).split() if w and w not in STOP]
+    return '-'.join(words[:n]) or 'page'
+
+def is_page(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
+
+def _section_key(kind, section, side):
+    if section in SPLIT:
+        return SPLIT[section]['belief' if kind in ('belief', 'claim') else 'other'][side]
+    return SECTIONS[section][side]
+
+# ------------------------------------------------------------------ specs -> tables
+def specs_to_tables(specs, beliefs=None):
+    beliefs = beliefs or {1}
+    kind_of = {pid: (sp.get('kind') or ('belief' if pid in beliefs else 'claim')) for pid, sp in specs.items()}
+    # one readable key per page: from its own text, or from the pages a formula-built page connects
+    keys, seen = {}, {}
+    def claim_text(pid):
+        sp = specs[pid]
+        return sp.get('claim') if kind_of[pid] in ('interest', 'media') else sp.get('belief')
+    for pid in sorted(specs):
+        k = kind_of[pid]
+        if claim_text(pid): base = slug(claim_text(pid))
+        else:
+            sp = specs[pid]
+            x, y = sp.get('x'), sp.get('y') or sp.get('z')
+            tag = {'linkage': (sp.get('typ') or 'link').lower()[:4], 'importance': 'imp', 'uniqueness': 'uniq',
+                   'equivalence': 'equiv', 'driver': 'drives'}.get(k, k[:4])
+            base = f"{tag}-{slug(claim_text(x), 3) if is_page(x) and claim_text(x) else x}-{slug(claim_text(y), 2) if is_page(y) and claim_text(y) else y}"
+        seen[base] = seen.get(base, 0) + 1
+        keys[pid] = base if seen[base] == 1 else f'{base}-{seen[base]}'
+    K = lambda v: keys[v] if is_page(v) else None
+
+    pages, edges = [], []
+    for pid in sorted(specs):
+        sp = specs[pid]; kind = kind_of[pid]
+        row = {'key': keys[pid], 'tab': pid, 'kind': kind, 'text': claim_text(pid)}
+        for field, col in PAGE_FIELDS:
+            if col is None: continue
+            v = sp.get(field) if field != 'z' else None
+            if field in ('x', 'y') and v is None: v = sp.get('z') if field == 'y' else None
+            if v in (None, '', []): continue
+            row[col] = K(v) if col in ('parent', 'x', 'y') else v
+        pages.append(row)
+        for section, sides in list(SECTIONS.items()) + [(s, SPLIT[s]['belief' if kind in ('belief', 'claim') else 'other']) for s in SPLIT]:
+            for side in sides:
+                key = _section_key(kind, section, side)
+                items = sp.get(key[0], {}).get(key[1], []) if isinstance(key, tuple) else sp.get(key)
+                if not items: continue
+                if section == 'dispute':
+                    for name, d in items.items():
+                        edges.append({'page': keys[pid], 'section': section, 'side': None, 'text': name,
+                                      'extra': fmt_extra({k2: v2 for k2, v2 in d.items() if v2})})
+                    continue
+                if section == 'category':
+                    for t in items:
+                        if t: edges.append({'page': keys[pid], 'section': section, 'side': None, 'text': t})
+                    continue
+                for d in items:
+                    if not isinstance(d, dict): continue
+                    e = {'page': keys[pid], 'section': section, 'side': side}
+                    for col, field in REFS:
+                        v = d.get(field)
+                        if is_page(v): e[col] = keys[v]
+                    for col, field in PLAIN:
+                        v = d.get(field)
+                        if v in (None, ''): continue
+                        if col == 'text' and e.get('claim'):
+                            # the row's own page carries the claim; anything the row adds on top of it (a citation,
+                            # a producer and year) is a source, which is a separate field rather than part of the claim
+                            page_text = claim_text(d.get('id')) or ''
+                            rest = str(v)[len(page_text):].strip() if str(v).startswith(page_text) else None
+                            if rest: e['source'] = rest
+                            elif rest is None and str(v).strip() != page_text.strip(): e['text'] = v
+                            continue
+                        e[col] = v
+                    ex = {f: d[f] for f in EXTRA.get(section, []) if d.get(f) not in (None, '')}
+                    if section == 'interest': ex = {f: v for f, v in ex.items() if not is_page(d.get('id'))}
+                    if ex: e['extra'] = fmt_extra(ex)
+                    if any(e.get(c) not in (None, '') for c in EDGE_COLS[3:]): edges.append(e)
+    return pages, edges
+
+def fmt_extra(d):
+    return ' | '.join(f'{k}: {v}' for k, v in d.items())
+def parse_extra(s):
+    out = {}
+    for part in str(s or '').split('|'):
+        if ':' in part:
+            k, v = part.split(':', 1); out[k.strip()] = v.strip()
+    return out
+
+# ------------------------------------------------------------------ tables -> specs
+def tables_to_specs(pages, edges):
+    """Rebuild the spec dicts the workbook builder consumes. Tab numbers come from the `tab` column when it is
+    filled and are assigned in row order otherwise, so an author only ever types keys."""
+    used = {int(p['tab']) for p in pages if str(p.get('tab') or '').strip().isdigit()}
+    nxt = iter(i for i in range(1, 10000) if i not in used)
+    tabs = {}
+    for p in pages:
+        t = str(p.get('tab') or '').strip()
+        tabs[p['key']] = int(t) if t.isdigit() else next(nxt)
+    T = lambda k: tabs.get(k) if k else None
+    specs, beliefs = {}, set()
+    for p in pages:
+        pid = tabs[p['key']]; kind = p['kind']
+        sp = {'topic': p.get('topic'), 'used_in': []}
+        if kind in ('belief', 'claim'):
+            sp['belief'] = p.get('text')
+            if kind == 'belief': beliefs.add(pid)
+        else:
+            sp['kind'] = kind
+            if kind in ('interest', 'media'): sp['claim'] = p.get('text')
+        for field, col in PAGE_FIELDS:
+            if col is None: continue
+            v = p.get(col)
+            if v in (None, ''): continue
+            sp[field] = T(v) if col in ('parent', 'x', 'y') else v
+        if kind == 'uniqueness' and 'y' in sp: sp['z'] = sp.pop('y')
+        sp.setdefault('args', {'agree': [], 'disagree': []})
+        sp.setdefault('evid', {'for': [], 'against': []})
+        sp.setdefault('pred_true', []); sp.setdefault('pred_false', [])
+        if sp.get('supports'): sp['used_in'] = [{'tab': sp['supports'], 'side': 'Agree'}]
+        specs[pid] = sp
+    for e in edges:
+        pid = tabs[e['page']]; sp = specs[pid]; kind = sp.get('kind') or ('belief' if pid in beliefs else 'claim')
+        section, side = e['section'], (e.get('side') or None)
+        if section == 'dispute':
+            sp.setdefault('disputes', {})[e['text']] = parse_extra(e.get('extra'))
+            continue
+        if section == 'category':
+            sp.setdefault('catnet', []).append(e['text']); continue
+        key = _section_key(kind, section, side)
+        d = {}
+        for col, field in REFS:
+            if e.get(col): d[field] = T(e[col])
+        for col, field in PLAIN:
+            if e.get(col) not in (None, ''): d[field] = e[col]
+        d.update(parse_extra(e.get('extra')))
+        if 'magnitude' in d:
+            try: d['magnitude'] = float(d['magnitude'])
+            except (TypeError, ValueError): pass
+        for f in ('srank', 'orank'):
+            if f in d:
+                try: d[f] = int(d[f])
+                except (TypeError, ValueError): pass
+        if isinstance(key, tuple): sp.setdefault(key[0], {}).setdefault(key[1], []).append(d)
+        else: sp.setdefault(key, []).append(d)
+    return specs, beliefs
+
+
+# ------------------------------------------------------------------ the data-entry workbook
+# Two sheets of rows and nothing else: no merged cells, no formulas, no styling to maintain. This is where content
+# is typed or pasted; the formatted workbook, the SQL, the JSON and the XML are all generated from it.
+HELP = {
+ 'key': 'Short name for this page. Other rows point at it by this name, so tab numbers never have to be typed.',
+ 'tab': 'Tab number in the built workbook. Leave blank and one is assigned.',
+ 'kind': 'belief, claim, linkage, importance, interest, uniqueness, equivalence, driver or media.',
+ 'text': 'The claim, in one complete sentence. Blank for the kinds whose question is written by formula.',
+ 'parent': 'The page this one is used on.',
+ 'x': 'For a formula-built page: the row it is about.', 'y': 'For a formula-built page: the page that row is under.',
+ 'type': 'linkage: Argument, Evidence, Prediction, Interest or Media. media: Book, Study, Article, Report, Film, Podcast, Video.',
+ 'direction': 'linkage: Supports or Weakens. driver: Support or Opposition.',
+ 'rowkind': 'importance: what kind of row this page scores.',
+ 'value': 'interest: the value it appeals to.', 'measured_by': 'interest: what a reading of it looks like.',
+ 'where_found': 'media: where to find the work.', 'if_true': 'interest: what the measure shows if the belief is true.',
+ 'if_false': 'interest: what it shows if the belief is false.', 'latest': 'interest: the latest reading, with source.',
+ 'bridge': 'The one-sentence answer in the check table.', 'bottom_line': 'The one typed line in the scorecard.',
+ 'positivity': 'belief: -100 to +100 on the topic page.', 'form': 'belief: the logical form of the claim.',
+ 'page': 'The page this row sits on (its key).',
+ 'section': 'Which table on that page: argument, evidence, prediction, cba, component, interest, media, law, and so on.',
+ 'side': 'agree or disagree (extreme or moderate for similar beliefs; x or y for related linkages).',
+ 'claim': 'The page that argues this row. Its text is what the row displays.',
+ 'source': 'Producer, year, where to find it. Kept separate from the claim.',
+ 'link': 'Linkage page. Blank means the row is presumed relevant.',
+ 'imp': 'Importance page. Blank means the neutral start.', 'uniq': 'Uniqueness page. Blank means presumed distinct.',
+ 'drives': 'interest rows: the driver page.', 'equiv': 'similar rows: the equivalence page.',
+ 'who': 'cost and benefit rows: the interest that gains or pays.',
+ 'bearing': 'interest listings: the bearing page, if someone has argued the row does not really speak to it.',
+ 'pattern': 'The shape of the reason on a specialized page.', 'category': 'cost and benefit rows: the units.',
+ 'magnitude': 'cost and benefit rows: the estimate, in those units. The one typed number in the system.',
+ 'deadline': 'prediction rows: when and how it gets settled.',
+ 'extra': 'Anything else the row carries, as "name: value | name: value".',
+}
+LISTS = {'kind': ['belief', 'claim', 'linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media'],
+         'section': sorted(set(SECTIONS) | set(SPLIT)), 'side': ['agree', 'disagree', 'extreme', 'moderate', 'x', 'y'],
+         'type': ['Argument', 'Evidence', 'Prediction', 'Interest', 'Media', 'Book', 'Study', 'Article', 'Report', 'Film', 'Podcast', 'Video'],
+         'direction': ['Supports', 'Weakens', 'Support', 'Opposition']}
+
+def write_entry(pages, edges, path):
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.worksheet.datavalidation import DataValidation
+    from openpyxl.comments import Comment
+    wb = Workbook(); wb.remove(wb.active)
+    WIDE = {'text': 90, 'key': 30, 'page': 30, 'claim': 30, 'bottom_line': 60, 'bridge': 60, 'extra': 60,
+            'measured_by': 50, 'if_true': 40, 'if_false': 40, 'latest': 50, 'form': 60, 'where_found': 40,
+            'category': 40, 'deadline': 40, 'source': 50, 'parent': 26, 'x': 26, 'y': 26, 'link': 26, 'imp': 26,
+            'uniq': 26, 'drives': 26, 'equiv': 26, 'who': 26, 'bearing': 26, 'pattern': 22, 'rowkind': 26}
+    for name, cols, rows in (('pages', PAGE_COLS, pages), ('edges', EDGE_COLS, edges)):
+        ws = wb.create_sheet(name)
+        for i, c in enumerate(cols, 1):
+            cell = ws.cell(row=1, column=i, value=c)
+            cell.font = Font(bold=True, size=10, color='FFFFFF'); cell.fill = PatternFill('solid', fgColor='1F3864')
+            cell.alignment = Alignment(vertical='center')
+            if HELP.get(c):
+                cm = Comment(HELP[c], 'ISE'); cm.width = 320; cm.height = 90; cell.comment = cm
+            ws.column_dimensions[cell.column_letter].width = WIDE.get(c, 14)
+            if c in LISTS:
+                dv = DataValidation(type='list', formula1='"%s"' % ','.join(LISTS[c]), allow_blank=True)
+                ws.add_data_validation(dv); dv.add(f'{cell.column_letter}2:{cell.column_letter}5000')
+        for r, row in enumerate(rows, 2):
+            for i, c in enumerate(cols, 1):
+                v = row.get(c)
+                if v not in (None, ''):
+                    cell = ws.cell(row=r, column=i, value=v)
+                    cell.alignment = Alignment(vertical='top', wrap_text=c in WIDE)
+        ws.freeze_panes = 'B2'
+        ws.auto_filter.ref = f'A1:{ws.cell(row=1, column=len(cols)).column_letter}{max(2, len(rows) + 1)}'
+    ws = wb.create_sheet('how to use')
+    for i, line in enumerate([
+        'This workbook is the content. The belief pages, the scores and the database export are all generated from it.',
+        '',
+        'Two sheets. One row in "pages" per page. One row in "edges" per row of every table on every page.',
+        'Pages point at each other by key, never by tab number, so nothing has to be renumbered when content is added.',
+        '',
+        'To add a reason to a belief: add a row to "pages" (kind = claim, key, text), then a row to "edges" with',
+        'page = the belief\'s key, section = argument, side = agree or disagree, claim = the new key.',
+        'To argue that reason\'s relevance: add a linkage page (kind = linkage, x = the reason, y = the belief,',
+        'type = Argument, direction = Supports) and put its key in the reason\'s row under "link".',
+        '',
+        'Nothing here is a score. Every number in the built workbook is computed from these two sheets.',
+        'The only typed number in the system is "magnitude" on a cost or benefit row.',
+        '',
+        'Build: python3 build_example.py ISE_Data_Entry.xlsx',
+    ], 1):
+        ws.cell(row=i, column=1, value=line).font = Font(size=11, bold=i in (1, 3, 11))
+    ws.column_dimensions['A'].width = 120
+    wb._sheets = [wb['how to use'], wb['pages'], wb['edges']]
+    wb.save(path)
+    return path
+
+def read_entry(path):
+    from openpyxl import load_workbook
+    wb = load_workbook(path, data_only=True)
+    out = []
+    for name, cols in (('pages', PAGE_COLS), ('edges', EDGE_COLS)):
+        ws = wb[name]
+        head = [c.value for c in ws[1]]
+        rows = []
+        for r in ws.iter_rows(min_row=2, values_only=True):
+            d = {h: v for h, v in zip(head, r) if h and v not in (None, '')}
+            if d: rows.append(d)
+        out.append(rows)
+    return out[0], out[1]
+
+def entry_keys(pages):
+    """key -> tab, assigned exactly as tables_to_specs assigns them, so a renderer can address pages by key."""
+    used = {int(p['tab']) for p in pages if str(p.get('tab') or '').strip().isdigit()}
+    nxt = iter(i for i in range(1, 10000) if i not in used)
+    out = {}
+    for p in pages:
+        t = str(p.get('tab') or '').strip()
+        out[p['key']] = int(t) if t.isdigit() else next(nxt)
+    return out
