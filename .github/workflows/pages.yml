@@ -30,18 +30,17 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Point the existing Pages site at Actions instead of a branch
-        # configure-pages only creates a site; it never changes the source of one that already exists, and this
-        # repository's site still deploys from the gh-pages branch, so the Actions deployment has nowhere to land.
+      - name: Check that the Pages source is GitHub Actions
+        # The workflow token may read the site's configuration but not change it (the API answers 403), and
+        # deploy-pages cannot deliver to a site that still deploys from a branch, so fail here with the fix.
         env:
           GH_TOKEN: ${{ github.token }}
-        continue-on-error: true
         run: |
-          echo '--- Pages site before:'; gh api "repos/$GITHUB_REPOSITORY/pages" --jq '{build_type, source, html_url, status}' || true
-          gh api -X PUT "repos/$GITHUB_REPOSITORY/pages" -f build_type=workflow \
-            && echo 'Source switched to GitHub Actions.' \
-            || echo '::warning::Could not switch the Pages source with the workflow token. Set it by hand: Settings, Pages, Build and deployment, Source: GitHub Actions.'
-          echo '--- Pages site after:'; gh api "repos/$GITHUB_REPOSITORY/pages" --jq '{build_type, source, html_url, status}' || true
+          site=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '{build_type, source, html_url, status}'); echo "Pages site: $site"
+          if [ "$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .build_type)" != workflow ]; then
+            echo '::error::This repository still deploys Pages from a branch. Open Settings, Pages, Build and deployment, and set Source to "GitHub Actions", then re-run this workflow.'
+            exit 1
+          fi
       - run: pip install -r tools/static-site/requirements.txt
       - name: Render the belief pages from the two tables
         run: |
@@ -56,9 +55,11 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    # No environment block: the github-pages environment carries a branch policy from the gh-pages era that
-    # rejects master before a single step runs. deploy-pages records its own deployment through the Pages API.
+    # deploy-pages refuses to run outside an environment. If this job dies before its first step, the
+    # github-pages environment's branch policy is rejecting master: Settings, Environments, github-pages.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-      - run: echo "Deployed to ${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"
