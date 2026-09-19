@@ -13,6 +13,7 @@ from ise_tables import read_entry, tables_to_specs, entry_keys, is_page
 from score_reference import Model, normalize
 from build_pages import CONSTS, WIKI
 from build_subpages import KINDS
+from export_db import export as export_db
 
 def has(d):
     """A row exists if it has typed text or points at a page."""
@@ -610,7 +611,7 @@ def render_index(c, title):
         s = c.stats(p); par = c.specs[p].get('supports')
         o.append(f'<tr><td class="u">{esc(KINDNAME[c.kind(p)])}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.text(p))}</a></td><td>{f2(s["truth"])}</td><td>{"yes" if s["complete"] else "no"}</td><td class="u">{("<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(par), chr(34), esc(c.short(par, 50)))) if is_page(par) else ""}</td></tr>')
     o.append('</tbody></table></div></section>')
-    o.append(f'<section><h2><span>How to read a page</span></h2><p class="blurb">A page opens with the claim, then a scorecard, then the reasons. A row\'s Truth is its own page\'s score. Link is a <a href="{WIKI["linkage"]}">linkage page</a> whose question writes itself from the two pages it connects. Imp is an <a href="{WIKI["importance"]}">importance page</a> listing the interests the row speaks to. Uniq is a uniqueness page. The <a href="{WIKI["template"]}">wiki template</a> explains each section at length; the <a href="https://github.com/myklob/ideastockexchange">repository</a> holds the tables and the scorer this site is built from.</p></section>')
+    o.append(f'<section><h2><span>How to read a page</span></h2><p class="blurb">A page opens with the claim, then a scorecard, then the reasons. A row\'s Truth is its own page\'s score. Link is a <a href="{WIKI["linkage"]}">linkage page</a> whose question writes itself from the two pages it connects. Imp is an <a href="{WIKI["importance"]}">importance page</a> listing the interests the row speaks to. Uniq is a uniqueness page. The <a href="{WIKI["template"]}">wiki template</a> explains each section at length; the <a href="https://github.com/myklob/ideastockexchange">repository</a> holds the tables and the scorer this site is built from.</p><p class="blurb">The data behind every page, in the shape the scorer reads: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a> and <a href="data/ise_data.sql">SQL data</a>. Two tables, <code>page</code> and <code>edge</code>, plus the five labelled constants; no score is stored in any of them.</p></section>')
     o.append('</main>' + JS + '</body></html>')
     return ''.join(o)
 
@@ -674,7 +675,8 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     open(os.path.join(outdir, 'index.html'), 'w').write(render_index(c, title))
     open(os.path.join(outdir, 'ise.css'), 'w').write(CSS)
     open(os.path.join(outdir, '.nojekyll'), 'w').write('')
-    json.dump({'constants': [{'name': k, 'value': v} for k, v in CONST.items()], 'pages': c.norm_pages, 'edges': c.norm_edges}, open(os.path.join(outdir, 'data', 'ise.json'), 'w'), indent=1)
+    # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
+    export_db(c.specs, CONST, os.path.join(outdir, 'data'), stem='ise', const_meanings=CONST_MEANING, beliefs=c.beliefs)
     # link check: every internal href resolves to a file that was written
     files = set(os.listdir(os.path.join(outdir, 'p')))
     broken = []

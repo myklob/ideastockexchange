@@ -3,7 +3,7 @@
 `ISE_Data_Entry.xlsx` is the content: a `pages` sheet (one row per page) and an `edges` sheet (one row per row of
 every table on every page). Nothing typed in it is a score. Everything else here is generated from those two tables.
 
-    python3 render_site.py ISE_Data_Entry.xlsx site/        the website (index, one page per claim, ise.css, data/ise.json)
+    python3 render_site.py ISE_Data_Entry.xlsx site/        the website (index, one page per claim, ise.css, and data/: JSON, XML, SQL)
     python3 export_db.py  ISE_Data_Entry.xlsx db/           schema.sql, data.sql, JSON and XML of the same two tables
     python3 build_example.py ISE_Data_Entry.xlsx            the formatted Excel workbook (needs LibreOffice for the recalc step)
 
