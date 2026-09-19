@@ -51,3 +51,10 @@ examples/php-score-retrieval/demo.sqlite
 __pycache__/
 *.pyc
 pipeline/tests/test_output/
+
+# static site generator output
+/tools/static-site/site/
+/tools/static-site/db/
+/tools/static-site/ex_out/
+/tools/static-site/__pycache__/
+/_site/
