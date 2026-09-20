@@ -46,6 +46,7 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     confidence.py        how much of the work behind a page has been done, and how much its score therefore counts
     sensitivity.py       which single input, moved, would change the answer, and what it would be worth to settle it
     reasonrank.py        the damped walk from the beliefs: how much of the corpus depends on each page
+    changes.py           what moved since the last revision, in claims and in scores
     similarity.py        which claims say the same thing in different words, so padding can be seen
     integrity.py         faults the shape of the graph shows: circularity, question-begging, a page counted twice
     method.py            the reader-facing methodology page, including what the tool cannot do
@@ -89,6 +90,13 @@ in all four here, and four implementations of a rule is four chances to be wrong
   the structural checks, because a decision cannot be checked against a point estimate: the reader cannot tell
   whether the net survives the estimate being wrong, which is usually the whole question. None of the rows in
   this corpus state a range yet, so every belief page says so.
+- **Say what changed.** A published analysis gets revised, and the first question of a revision is what moved.
+  Because the content is two tables kept as text in git, the previous revision is one `git show` away, and
+  because the engine is a pure function of those tables the old scores can be computed again and subtracted.
+  `changes.html` reports both: the rows a person edited, and which pages moved as a result. The second is the
+  part an ordinary diff cannot give you, since one edit to a linkage page can move dozens of conclusions. CI
+  checks out two commits so the comparison has something to compare against; with no history the page is
+  omitted rather than published wrong.
 - **Publish as data, not only as pages.** Every page writes its computed numbers beside it as
   `p/<key>.json`, indexed at `data/pages_index.json`: truth, confidence, starting point, ReasonRank, work value,
   the structural checks and the sensitivity summary. A score somebody has to scrape out of HTML is a score

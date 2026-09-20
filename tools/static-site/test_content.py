@@ -80,3 +80,74 @@ class TestTheTwoSurfacesAgree(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
+
+class TestWhatChanged(unittest.TestCase):
+    """The revision page. Its value is the second half: which scores moved, which an ordinary diff cannot
+    tell you, because one edit to a linkage page can move dozens of conclusions."""
+
+    def setUp(self):
+        import changes
+        self.ch = changes
+        if not os.path.isdir(CSVDIR): self.skipTest('no content directory')
+
+    def _edit(self, fn):
+        """Run fn over a copy of the tables and return the diff against what is checked in."""
+        import shutil
+        try:
+            import render_site
+        except ImportError as e:
+            self.skipTest(f'openpyxl missing: {e}')
+        pages, edges = IT.read_csv(CSVDIR)
+        fn(pages, edges)
+        d = tempfile.mkdtemp()
+        IT.write_csv(pages, edges, d)
+        new = IT.read_csv(d)
+        old = IT.read_csv(CSVDIR)
+        return self.ch.diff_tables(old, new), (old, new), d
+
+    def test_an_edited_claim_is_reported_with_its_old_and_new_text(self):
+        def edit(pages, edges):
+            pages[0]['text'] = pages[0]['text'] + ' And one more clause.'
+        diff, _, _ = self._edit(edit)
+        self.assertEqual(len(diff['pages']['changed']), 1)
+        ch = diff['pages']['changed'][0]
+        self.assertIn('text', ch['columns'])
+        self.assertNotEqual(ch['old']['text'], ch['new']['text'])
+
+    def test_an_added_and_a_removed_row_are_both_reported(self):
+        def edit(pages, edges):
+            edges.append(dict(edges[0], side='disagree'))
+            edges.pop(1)
+        diff, _, _ = self._edit(edit)
+        self.assertGreaterEqual(len(diff['edges']['added']), 1)
+        self.assertGreaterEqual(len(diff['edges']['removed']), 1)
+
+    def test_no_edit_means_no_change_and_no_movement(self):
+        diff, (old, new), d = self._edit(lambda p, e: None)
+        for table in ('pages', 'edges'):
+            for kind in ('added', 'removed', 'changed'):
+                self.assertEqual(diff[table][kind], [], f'{table} {kind} on an untouched corpus')
+
+    def test_citing_a_premise_moves_its_score_and_the_page_says_by_how_much(self):
+        """The whole point: a change to what one claim rests on, and the number it moved."""
+        import render_site
+        target = None
+        for r in IT.read_csv(CSVDIR)[0]:
+            if r.get('kind') == 'claim' and not r.get('etype'): target = r['key']; break
+        self.assertIsNotNone(target)
+        def edit(pages, edges):
+            for r in pages:
+                if r['key'] == target: r['etype'] = 'statistics'
+        diff, (old, new), d = self._edit(edit)
+        after = render_site.Corpus(d, 'after')
+        moves = self.ch.score_moves(old, after)
+        self.assertTrue(moves, 'citing a source for an unsourced claim must move at least its own score')
+        keys = {m['key'] for m in moves}
+        self.assertIn(target, keys)
+        m = next(m for m in moves if m['key'] == target)
+        self.assertGreater(m['truth_after'], m['truth_before'])
+
+    def test_it_degrades_rather_than_lying_when_there_is_no_history(self):
+        self.assertIsNone(self.ch.previous(tempfile.mkdtemp()))
+        self.assertIsNone(self.ch.previous(CSVDIR, rev='not-a-real-revision'))
