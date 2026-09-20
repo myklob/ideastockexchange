@@ -208,6 +208,18 @@ To add a page, add a row to `pages` with a new key, then refer to that key from 
 numbers, so nothing renumbers. To ground a claim in evidence, fill its `etype` on the `pages` sheet, and `erq` and
 `erp` when replications are known.
 
+## A build that cannot name itself says so
+
+`cite()` and the build stamp read the revision from git, and when there is no revision, both used to render
+nothing at all. So a build from an export, a tarball, or any copy that is not a checkout produced 261 pages
+with no citation block and no provenance line, and looked exactly like an ordinary build. The numbers were
+right and nothing on the page said they could not be tied to a state of the argument or reproduced from one,
+which is the whole reason the citation exists.
+
+Both now render either way and name the build as unidentified when it is. The tests cover both, because the
+one that only checked the in-repo case was also what hid this: a copy of this directory outside the repository
+failed two tests, which is how a mutation sweep run against copies scored a meaningless 527 out of 527.
+
 ## What a green suite does not say
 
 It says how many tests passed. It does not say how much was checked, and the difference is not academic here.

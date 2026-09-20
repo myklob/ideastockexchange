@@ -242,20 +242,33 @@ class TestTheRenderedSite(unittest.TestCase):
         """A score with no way to name the version it came from cannot be quoted in anything anybody has to
         stand behind, because these numbers move as the argument is worked on."""
         import json as _json
+        identified = bool((getattr(self.c, 'prov', {}) or {}).get('rev'))
         for pid, h in self.html.items():
             if isinstance(pid, str): continue
             self.assertIn('Cite this page', h, f'{self.c.key[pid]} cannot be cited')
-            self.assertRegex(h, r'revision [0-9a-f]{6,}')
+            if identified:
+                self.assertRegex(h, r'revision [0-9a-f]{6,}')
+            else:
+                # Built outside a checkout. The citation still has to be there and has to say the build has
+                # no name, because dropping it was how a tarball build silently produced 261 unquotable pages.
+                self.assertIn('revision unidentified', h)
+                self.assertIn('cannot be reproduced', h)
             with open(os.path.join(self.dir, 'p', self.c.key[pid] + '.json')) as fh: d = _json.load(fh)
             self.assertIn('cite', d)
             self.assertIn(self.c.key[pid], d['cite'])
             self.assertIn(f'{self.c.truth(pid):.2f}', d['cite'])
 
     def test_the_build_says_what_it_was_built_from(self):
-        """A number nobody can trace to a revision is not citable."""
+        """A number nobody can trace to a revision is not citable, and a build that cannot name its revision
+        has to say so rather than say nothing: silence reads as an ordinary build."""
+        identified = bool((getattr(self.c, 'prov', {}) or {}).get('rev'))
         for name in ('index.html', 'method.html'):
-            self.assertRegex(self.html[name], r'Built from revision <code>[0-9a-f]{6,}</code>',
-                             f'{name} carries no provenance')
+            if identified:
+                self.assertRegex(self.html[name], r'Built from revision <code>[0-9a-f]{6,}</code>',
+                                 f'{name} carries no provenance')
+            else:
+                self.assertIn('unidentified revision', self.html[name],
+                              f'{name} is silent about having no provenance')
 
 
 if __name__ == '__main__':

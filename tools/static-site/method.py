@@ -174,5 +174,10 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
         o.append(f'<p class="consts">Built from revision <code>{esc(prov["rev"])}</code>'
                  + (f', committed {esc(prov["date"])}' if prov.get('date') else '')
                  + (' with uncommitted edits' if prov.get('dirty') else '') + '.</p>')
+    else:
+        # Saying nothing here reads as an ordinary build. A page of rules that cannot say which state of the
+        # content it describes has to say that, because everything above it is only checkable against one.
+        o.append('<p class="consts">Built from an unidentified revision: this copy is not a git checkout, so '
+                 'nothing here can be tied to a state of the content or reproduced from one.</p>')
     o.append('</main>' + JS + '</body></html>')
     return ''.join(o)
