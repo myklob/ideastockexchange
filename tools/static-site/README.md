@@ -208,6 +208,20 @@ To add a page, add a row to `pages` with a new key, then refer to that key from 
 numbers, so nothing renumbers. To ground a claim in evidence, fill its `etype` on the `pages` sheet, and `erq` and
 `erp` when replications are known.
 
+## The gates, and whether they can fail
+
+Four commands stand between a bad change and the live site: `sync_content.py --check`, `integrity.py content`,
+`conformance.py --check`, and the link count the render prints. Each was trusted because it had always passed,
+which is the weakest reason to trust anything, so `test_gates.py` breaks the thing each gate is for and checks
+the gate says so, and says it usefully: the sync gate has to print the row, the column and both versions; the
+cycle gate has to name the loop; the conformance gate has to print the number it expected; the link gate has to
+name the link it could not resolve. All four pass.
+
+Writing that file produced a false finding worth keeping. The first link-gate injection changed `href`, which
+renames the output file as well as the link, so the link resolved and the gate looked broken when it was not.
+A control can be wrong in the direction of reporting a defect that does not exist, and the way to catch that is
+to read the message the gate prints rather than only its exit code.
+
 ## A build that cannot name itself says so
 
 `cite()` and the build stamp read the revision from git, and when there is no revision, both used to render

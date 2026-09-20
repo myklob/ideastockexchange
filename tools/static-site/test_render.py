@@ -242,17 +242,10 @@ class TestTheRenderedSite(unittest.TestCase):
         """A score with no way to name the version it came from cannot be quoted in anything anybody has to
         stand behind, because these numbers move as the argument is worked on."""
         import json as _json
-        identified = bool((getattr(self.c, 'prov', {}) or {}).get('rev'))
         for pid, h in self.html.items():
             if isinstance(pid, str): continue
             self.assertIn('Cite this page', h, f'{self.c.key[pid]} cannot be cited')
-            if identified:
-                self.assertRegex(h, r'revision [0-9a-f]{6,}')
-            else:
-                # Built outside a checkout. The citation still has to be there and has to say the build has
-                # no name, because dropping it was how a tarball build silently produced 261 unquotable pages.
-                self.assertIn('revision unidentified', h)
-                self.assertIn('cannot be reproduced', h)
+            self.assertIn('revision', h, f'{self.c.key[pid]} does not say which revision it is')
             with open(os.path.join(self.dir, 'p', self.c.key[pid] + '.json')) as fh: d = _json.load(fh)
             self.assertIn('cite', d)
             self.assertIn(self.c.key[pid], d['cite'])
@@ -261,14 +254,8 @@ class TestTheRenderedSite(unittest.TestCase):
     def test_the_build_says_what_it_was_built_from(self):
         """A number nobody can trace to a revision is not citable, and a build that cannot name its revision
         has to say so rather than say nothing: silence reads as an ordinary build."""
-        identified = bool((getattr(self.c, 'prov', {}) or {}).get('rev'))
         for name in ('index.html', 'method.html'):
-            if identified:
-                self.assertRegex(self.html[name], r'Built from revision <code>[0-9a-f]{6,}</code>',
-                                 f'{name} carries no provenance')
-            else:
-                self.assertIn('unidentified revision', self.html[name],
-                              f'{name} is silent about having no provenance')
+            self.assertIn('revision', self.html[name], f'{name} carries no provenance at all')
 
 
 if __name__ == '__main__':
@@ -603,3 +590,49 @@ class TestTheMethodPageStatesEveryRule(unittest.TestCase):
         """So this cannot pass by comparing an empty page against an empty list."""
         self.assertGreater(len(self.prose), 5000)
         self.assertGreaterEqual(len(self.RULES), 10)
+
+
+class TestABuildWithoutARevisionSaysSo(unittest.TestCase):
+    """Both halves of this ran only in the environment that produced them, which is how the bug got in: the
+    citation and the build stamp rendered nothing at all when git had no revision to give, so a build from an
+    export or a tarball produced 261 pages with no citation and no provenance and looked like any other build.
+
+    So this builds the site twice in one test, once with a revision and once with the revision taken away, and
+    checks both. Neither branch can go unrun."""
+
+    def _build(self, prov):
+        import tempfile
+        import render_site as RS
+        real = RS.provenance
+        RS.provenance = lambda *a, **k: prov
+        try:
+            out = tempfile.mkdtemp(prefix='prov-')
+            c, broken = RS.build(os.path.join(HERE, 'content'), out)
+            pages = {}
+            for pid in list(c.specs)[:3]:
+                with open(os.path.join(out, 'p', c.href(pid))) as fh: pages[pid] = fh.read()
+            with open(os.path.join(out, 'method.html')) as fh: pages['method.html'] = fh.read()
+            return c, pages
+        finally:
+            RS.provenance = real
+
+    def test_a_build_with_a_revision_names_it(self):
+        c, pages = self._build({'rev': 'abc1234', 'date': '2026-01-01', 'dirty': False})
+        for k, h in pages.items():
+            if k == 'method.html':
+                self.assertIn('Built from revision', h)
+                self.assertIn('abc1234', h)
+            else:
+                self.assertIn('Cite this page', h)
+                self.assertIn('revision abc1234 of 2026-01-01', h)
+
+    def test_a_build_without_one_says_it_cannot_be_reproduced(self):
+        c, pages = self._build({'rev': '', 'date': '', 'dirty': False})
+        for k, h in pages.items():
+            if k == 'method.html':
+                self.assertIn('unidentified revision', h)
+                self.assertNotIn('Built from revision <code>', h)
+            else:
+                self.assertIn('Cite this page', h, 'the citation was dropped instead of qualified')
+                self.assertIn('revision unidentified', h)
+                self.assertIn('cannot be reproduced', h)
