@@ -56,5 +56,7 @@ pipeline/tests/test_output/
 /tools/static-site/site/
 /tools/static-site/db/
 /tools/static-site/ex_out/
+/tools/static-site/ISE_Government_Ethics_Example*.xlsx
+/tools/static-site/ISE_Government_Ethics_Example*_rows.json
 /tools/static-site/__pycache__/
 /_site/

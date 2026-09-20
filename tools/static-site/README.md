@@ -3,16 +3,21 @@
 `ISE_Data_Entry.xlsx` is the content: a `pages` sheet (one row per page) and an `edges` sheet (one row per row of
 every table on every page). Nothing typed in it is a score. Everything else here is generated from those two tables.
 
-    python3 render_site.py ISE_Data_Entry.xlsx site/        the website (index, one page per claim, ise.css, and data/: JSON, XML, SQL)
-    python3 export_db.py  ISE_Data_Entry.xlsx db/           schema.sql, data.sql, JSON and XML of the same two tables
-    python3 build_example.py ISE_Data_Entry.xlsx            the formatted Excel workbook (needs LibreOffice for the recalc step)
+    python3 render_site.py ISE_Data_Entry.xlsx site/   the website (index, one page per claim, ise.css, and data/)
+    python3 export_db.py  ISE_Data_Entry.xlsx db/      schema.sql, data.sql, a loaded ise.sqlite, JSON and XML
+    python3 conformance.py                             check the engine against the expected numbers
+    python3 -m unittest discover -p 'test_*.py'        the whole suite; CI runs this before it publishes anything
+    python3 build_example.py ISE_Data_Entry.xlsx       the formatted Excel workbook (LibreOffice for the recalc step)
 
-`score_reference.py` is the scorer all three share. It computes every number from the tables:
+## The rules
 
-    row contribution    = sign x (2 x Truth - 1) x Link x Imp x Uniq   (arguments, evidence, predictions alike)
+`score_reference.py` is the scorer of record. It computes every number from the two tables:
+
+    row contribution    = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq
                           signed, so a claim argued false counts against the side it was filed on and a
                           claim nobody has argued contributes exactly 0
-    page truth (argued) = (POS + k x 0.5) / (POS + NEG + k), k = 1
+    page start          = p0 = 0.5 + 0.5 x ESIW x (2 x ERP/100 - 1),  w = k x 2 x ERQ / (ERQ + 1)
+    page truth (argued) = (POS + w x p0) / (POS + NEG + w), k = 1
     page truth          = min(argued, weakest load-bearing component that has its own page)
     belief score        = POS - NEG, open ended, where POS and NEG are the positive and negative
                           contributions as magnitudes (a row lands on the side its sign puts it on)
@@ -21,31 +26,65 @@ every table on every page). Nothing typed in it is a score. Everything else here
 A multiplier with no page reads a labelled constant (UNARG 0.5, DEFLINK 1, DEFIMP 0.5, DEFUNIQ 1), and the site shows
 those in grey so the reader can see which factors nobody has argued yet.
 
+**The starting point is load-bearing, not decoration.** A row contributes `(2 x Truth - 1)`, so a page with no rows
+reads 0.50 and contributes nothing, so every page above it also reads 0.50, and by induction every page of any
+unsourced argument graph reads exactly 0.50 forever. Argument about argument never touches the world. What touches
+the world is evidence, so a page may declare what it rests on (`etype`, `erq`, `erp`) and that sets where its truth
+starts. A page that declares nothing starts at 0.50 with weight k, which is the rule as it always was.
+`test_engines.py` pins the fixed point, so anything that later lets a score move without evidence has to say why.
+
 ## Files
 
     render_site.py       the site generator; prints an internal link check (must be 0 broken) and each belief's truth
-    make_artifact.py     variant of the built site with the stylesheet inlined (for hosted previews); GitHub Pages does not need it
-    ise_tables.py        the two-table format: specs_to_tables / tables_to_specs, write_entry / read_entry
     score_reference.py   the scorer and normalize() (specs -> pages + edges)
-    export_db.py         SQL, JSON and XML exports
+    evidence.py          the evidence tiers, and where a claim's truth starts because of what it cites
+    confidence.py        how much of the work behind a page has been done, and how much its score therefore counts
+    sensitivity.py       which single input, moved, would change the answer, and what it would be worth to settle it
+    reasonrank.py        the damped walk from the beliefs: how much of the corpus depends on each page
+    conformance.py       the cross-implementation contract: conformance/corpus.json and conformance/expected.json
+    ise_tables.py        the two-table format: specs_to_tables / tables_to_specs, write_entry / read_entry
+    export_db.py         SQL schema and data, a loaded SQLite database, JSON and XML, plus the analyst views
     build_pages.py       the Excel belief-page renderer (also supplies the constants and wiki link map to the site)
-    build_subpages.py    the Excel renderer for linkage, importance, interest, uniqueness, equivalence, driver and media pages
-    build_example.py     builds the workbook, recalculates it, checks every engine cell against score_reference and exports
+    build_subpages.py    the Excel renderer for linkage, importance, interest, uniqueness, equivalence, driver, media
+    build_example.py     builds the workbook, recalculates it and checks every engine cell against score_reference
+    test_scoring.py      the scoring rules, the confidence rules and the workbook formula strings
+    test_engines.py      evidence, sensitivity, ReasonRank and the conformance fixture
+    make_artifact.py     variant of the built site with the stylesheet inlined (for hosted previews)
     requirements.txt     openpyxl
+
+## Where each thing belongs
+
+One question keeps coming back: should the rules live in a spreadsheet, in SQL, in PHP, or in code? They have lived
+in all four here, and four implementations of a rule is four chances to be wrong in private. The split now is:
+
+- **Author** in the two flat sheets. They are a boring, wide CSV that happens to live in `.xlsx` for the dropdowns
+  and the column comments. No formulas, no formatting to maintain, keys instead of numbers so nothing renumbers.
+- **Compute** in Python, in `score_reference.py` and the four engines beside it. The recursive part has to live in
+  code: a page's truth is a ratio over its children and then a minimum over them, which no recursive query can
+  aggregate its way to, and a spreadsheet can only do it by carrying one sheet per page.
+- **Store and query** in SQL. `export_db.py` emits the schema, the data, and a loaded `ise.sqlite` with the views an
+  analyst actually opens a database for: `page_start`, `page_coverage`, `page_one_sided`, `page_inert`,
+  `evidence_ledger`, `page_orphan`, `page_uses`. `page_start` is the starting-point rule written in SQL, which is
+  there to show the non-recursive parts port in a few lines.
+- **Serve** as static HTML today. A PHP, Node or Next front end reading `page` and `edge` is a drop-in replacement
+  for the renderer; it does not need permission from this toolchain, it needs to pass conformance.
+- **The Excel workbook is an output, not an authority.** It is still built and its formulas still match, but it is
+  no longer how the rules are checked. LibreOffice cannot be driven in a build container, so a check that depends on
+  it is a check that stops running.
+
+**The conformance suite is what makes any of that safe.** `conformance/corpus.json` is sixteen pages and twenty-two
+rows built to exercise every rule once; `conformance/expected.json` is what they score. Any implementation in any
+language loads the first, computes, and compares against the second. `conformance.py --write` regenerates them, so a
+deliberate rule change arrives as a reviewed diff and an accidental one arrives as a failing test.
 
 ## How it publishes
 
-`.github/workflows/pages.yml` runs `render_site.py` on every push to `master` that touches this folder or the root
-`index.html`, then deploys: the root `index.html` becomes the site front page and the generated pages sit under
-`beliefs/`. The repository's Pages source must be set to "GitHub Actions" (Settings, Pages, Build and deployment).
+`.github/workflows/pages.yml` runs the test suite and then `render_site.py` on every push to `master` that touches
+this folder or the root `index.html`, then deploys: the root `index.html` becomes the site front page and the
+generated pages sit under `beliefs/`. The repository's Pages source must be set to "GitHub Actions" (Settings, Pages,
+Build and deployment).
 
 To change the content, edit `ISE_Data_Entry.xlsx` (the how-to-use sheet inside it explains the columns) and push.
 To add a page, add a row to `pages` with a new key, then refer to that key from `edges`; keys are slugs, never
-numbers, so nothing renumbers.
-
-## Known divergence: the Excel workbook
-
-`build_pages.py` and `build_subpages.py` still write the older unsigned `Truth x Link x Imp x Uniq` into the
-workbook's row formulas, so a workbook built today disagrees with the website and with `score_reference.py`.
-The workbook's totals also need SUMIF partitioning by sign rather than a plain SUM. Until that is done, treat
-`render_site.py` and `score_reference.py` as the engine of record and do not rely on `build_example.py`.
+numbers, so nothing renumbers. To ground a claim in evidence, fill its `etype` on the `pages` sheet, and `erq` and
+`erp` when replications are known.

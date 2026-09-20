@@ -25,6 +25,20 @@ ez = _Ez(); ez.PAGES = SPECS
 
 OUT = os.path.join(HERE, 'ISE_Government_Ethics_Example.xlsx')
 bp.KIND_OF.clear(); bp.KIND_OF.update({pid: sp.get('kind', 'belief') for pid, sp in ez.PAGES.items()})
+
+# Confidence is the one quantity the workbook does not compute itself: it needs the whole tree, so confidence.py
+# computes it and every page carries its own value in a labelled cell, mirrored at W3 for parent rows to read.
+# This is what keeps the workbook numerically identical to the website.
+import render_site as _rs
+_corpus = _rs.Corpus(ENTRY, 'workbook') if ENTRY else None
+if _corpus is not None:
+    bp.CONF_OF.clear(); bp.CONF_OF.update({pid: round(_corpus.conf.of(pid), 6) for pid in SPECS})
+# Where each page's truth starts, and how heavily, from what the page says it rests on. Typed page data, so the
+# workbook could compute it, but it is derived once here so the two never drift apart.
+import evidence as _ev
+bp.BASIS_OF.clear()
+bp.BASIS_OF.update({pid: (round(_ev.prior(sp, 1)['p0'], 6), round(_ev.prior(sp, 1)['weight'], 6)) for pid, sp in SPECS.items()})
+for _pid, _sp in SPECS.items(): _sp['_tab'] = _pid
 wb = Workbook(); ws = wb.active; ws.title = 'Template'
 tpl = Page(ws, None); tpl.build(); ws.sheet_properties.tabColor = '7F7F7F'
 TPL = {'belief': tpl}
@@ -86,6 +100,7 @@ wb2 = load_workbook(RC, data_only=True)
 # ---------------------------------------------------------------- independent model (every multiplier is a page truth or a constant)
 from score_reference import Model
 model = Model(ez.PAGES, {k: v for k, _, v, _ in CONSTS})
+if _corpus is not None: model.conf = _corpus.conf.of   # the workbook gates on confidence, so the check must too
 def T(pid): return model.truth(pid)
 
 bad = 0

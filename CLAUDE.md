@@ -76,9 +76,49 @@ touching before you change a formula.
 - **`src/lib/conclusion-score.ts`** (with its SQL and PHP twins) preserves the
   founding workbook's original process for reference. Also unwired.
 
-Adding a fourth is the wrong move. If the page/edge model wins, migrate
+- **`tools/static-site/` is the published site and the most developed engine.**
+  It builds `myklob.github.io/ideastockexchange/beliefs/` from two flat sheets. It
+  is the page/edge model in production, plus four things none of the others have:
+  an evidence prior, a sensitivity sweep, ReasonRank as a network walk, and a
+  computed duplicate detector. Read its README before changing any of it, and see
+  the note below on the one rule that matters most.
+
+Adding a fifth is the wrong move. If the page/edge model wins, migrate
 `src/core/scoring/` onto it and delete the loser; if it doesn't, delete
 `src/lib/ise-pages/`. Leaving both indefinitely is the outcome that costs.
+
+### The rule that keeps being rediscovered (`tools/static-site/`)
+
+A row contributes `sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq`. That is
+deliberate: listing a claim nobody has argued is worth exactly zero, so a score
+cannot be padded. It also means a page with no rows reads 0.50 and contributes
+nothing, so its parent reads 0.50, and **by induction every page of an argument
+graph in which nothing is cited reads exactly 0.50 forever.** Argument about
+argument never touches the world.
+
+The way out is evidence: a page declares `etype`, `erq` and `erp` on the `pages`
+sheet and that sets where its truth starts (`evidence.py`). A page that declares
+nothing starts at 0.50 with weight k, exactly as before.
+`test_engines.py::test_argument_alone_can_never_leave_the_neutral_point` pins
+this. If it ever fails, something has been added that lets a score move without
+evidence, and that needs a reason, not a fix to the test.
+
+Note that `src/core/scoring/scoring-engine.ts` does **not** share this rule. It
+scores `A / (A + D)` over argument strengths, so listing an unargued reason there
+does raise the score. The two engines disagree about whether volume counts, and
+the disagreement is unresolved, not accidental.
+
+### The static site's modules
+
+`score_reference.py` is the scorer; `evidence.py` sets where a page starts;
+`confidence.py` how much a page's score counts; `sensitivity.py` which single
+input would change the answer; `reasonrank.py` how much of the corpus depends on
+a page; `similarity.py` which claims say the same thing; `method.py` the
+reader-facing methodology page. `conformance.py` holds the cross-implementation
+contract: sixteen pages with their expected numbers checked in, so a port in any
+language can be held to the same rules. A deliberate rule change means
+`python3 conformance.py --write` and a reviewed diff. CI runs the whole suite
+before it will publish anything.
 
 ### The page/edge model (`src/lib/ise-pages/`)
 
