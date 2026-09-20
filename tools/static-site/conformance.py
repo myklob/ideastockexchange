@@ -13,15 +13,26 @@ conforms. Nothing else has to agree about anything.
 
 THE CONTRACT, in full, for anyone writing a port.
 
-  Input is two tables and five constants, exactly the shape export_db.py emits:
+  Input is two tables, five constants and the evidence tiers, exactly the shape export_db.py emits:
     constant  k = 1, UNARG = 0.5, DEFLINK = 1, DEFIMP = 0.5, DEFUNIQ = 1
+    tier      etype -> weight, the seventeen categories, carried in the corpus file so a port needs nothing
+              from this repository's source to run the contract
     page      id, kind, and for a grounded claim etype / erq / erp
     edge      page_id, section, side, claim_id, link_id, imp_id, uniq_id, bearing_id, attrs
 
-  1. A page's starting point, from its own etype / erq / erp (absent fields read the defaults in evidence.py):
-       ESIW = the tier weight, or 0 when no type is named
+  1. A page's starting point, from its own etype / erq / erp:
+       ESIW = the tier weight, or 0 when no type is named or the name matches no tier
        p0   = 0.5 + 0.5 x ESIW x (2 x ERP/100 - 1)
        w    = k x 2 x ERQ / (ERQ + 1)
+     Absent fields read ERQ = 1 and ERP = 100, and three coercions are part of the rule rather than tidying,
+     because a port that skips them passes on ordinary data and is wrong the first time somebody mistypes:
+       the etype is matched on its normalised name: trimmed, lowercased, spaces and hyphens to underscores,
+         so "Expert Claim" and "expert-claim" are both the expert_claim tier and not nothing
+       ERQ below 1 reads as 1, because the weight formula reads it as how many independent looks at this
+         exist and no page has had fewer than one
+       ERP is held inside 0 and 100, because it is a percentage; without this a typo of 150 gives a truth
+         starting point of 1.40, which is not a probability
+     Pages 17 to 21 of the corpus exercise exactly these five cases.
   2. A page's confidence, in [0,1], from the seven structural components and their weights in confidence.py.
      Components that do not apply to a page are dropped and the remaining weights renormalised.
   3. A row's contribution:
@@ -85,6 +96,15 @@ def build_corpus():
         dict(id=14, kind='claim',  text='A prediction that has not been settled', etype='news'),
         dict(id=15, kind='driver', x_id=9, y_id=1, direction='Support'),
         dict(id=16, kind='equivalence', x_id=1, y_id=5),
+        # The coercions in rule 1. These carry no rows and nothing reads them, so they move no other number;
+        # they are here because a port that skips a coercion passes every other page in this file. That is not
+        # hypothetical: this repository's own SQL view of rule 1 agreed with the scorer on all 261 pages of
+        # the live corpus and returned a starting point of 1.40 the first time it was handed an ERP of 150.
+        dict(id=17, kind='claim', text='A tier named the way a person writes it', etype='Expert Claim'),
+        dict(id=18, kind='claim', text='The same tier named with a hyphen', etype='expert-claim'),
+        dict(id=19, kind='claim', text='A type that matches no tier', etype='not a tier at all', erq=3, erp=90),
+        dict(id=20, kind='claim', text='A replication count below one', etype='statistics', erq=0, erp=100),
+        dict(id=21, kind='claim', text='A replication percentage outside its range', etype='statistics', erq=1, erp=150),
     ]
     E, n = [], 0
     def e(page_id, section, side, position, **kw):
@@ -116,7 +136,8 @@ def build_corpus():
     e(15, 'argument', 'agree', 1, claim_id=13)
     e(16, 'argument', 'agree', 1, claim_id=12)
     consts = [dict(name=k, value=v) for k, v in CONSTS.items()]
-    return {'constants': consts, 'pages': P, 'edges': E}
+    tiers = [dict(etype=k, weight=w, meaning=m) for k, (w, _rank, m) in sorted(EV.ESIW.items())]
+    return {'constants': consts, 'tiers': tiers, 'pages': P, 'edges': E}
 
 
 # ------------------------------------------------------------------------------------------- the numbers
@@ -165,6 +186,14 @@ def check(candidate=None):
     got = candidate if candidate is not None else compute(data)
     with open(EXPECTED) as fh: want = json.load(fh)
     bad = []
+    # The tier weights ride in the corpus file so a port needs nothing from this repository's source. That
+    # only holds while the copy is the same as the scorer's, so it is checked rather than trusted.
+    shipped = {t['etype']: t['weight'] for t in data.get('tiers', ())}
+    live = {k: w for k, (w, _r, _m) in EV.ESIW.items()}
+    if shipped != live:
+        for k in sorted(set(shipped) | set(live)):
+            if shipped.get(k) != live.get(k):
+                bad.append(f'tiers[{k}]: corpus.json says {shipped.get(k)!r}, evidence.py says {live.get(k)!r}')
     for table in ('pages', 'edges'):
         for key, exp in want[table].items():
             have = got.get(table, {}).get(key)
