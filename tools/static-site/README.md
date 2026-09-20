@@ -230,6 +230,14 @@ One was the confidence the scorer defaults to when nothing attaches a real one. 
 command line this file documents and `build_example.py` with no corpus to gate on, and neither was exercised
 anywhere. Both are now.
 
+Two more were rules held up by a coincidence, which is the same defect wearing a different face. The contract
+says a row pointing at no page reads UNARG for truth and 0 for confidence, so it contributes exactly nothing.
+UNARG is 0.5 here, so the truth term is 2 x 0.5 - 1 = 0 and the row contributes nothing whatever the confidence
+factor says; setting that factor to 2 changed no number anywhere. The test that pins it now moves UNARG off the
+neutral point, which separates the two halves of the rule so each has to hold on its own. The same went for the
+starting weight `prior()` returns when nobody passes k: every caller that reads the weight passes it, and the
+ones that do not only ask whether the page is classified, so the default was free to be anything.
+
 The first sweep of this kind reported 527 of 527 caught, which was a measurement with no control and no
 meaning: see the section above on a build that cannot name itself.
 
