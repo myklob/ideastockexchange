@@ -179,3 +179,66 @@ class TestTheRenderedSite(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
+
+class TestItCanBeRead(unittest.TestCase):
+    """Accessibility, checked on the output. A tool proposed for public use has to clear WCAG A, and these are
+    the failures that were actually here: no way past the breadcrumb, table cells whose header a screen reader
+    had to infer, links whose entire text was "0.50", and the grey that marks an unargued factor being the
+    least readable thing on the page."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.html, cls.c, cls.dir = cls.parent.html, cls.parent.c, cls.parent.dir
+
+    def test_every_page_can_be_skipped_into(self):
+        for key, h in self.html.items():
+            name = key if isinstance(key, str) else self.c.key[key]
+            self.assertIn('class="skip"', h, f'{name} has no way past the breadcrumb')
+
+    def test_every_column_header_declares_its_column(self):
+        for key, h in self.html.items():
+            name = key if isinstance(key, str) else self.c.key[key]
+            m = re.search(r'<th(?![^>]*scope=)[^>]*>', h)
+            self.assertIsNone(m, f'{name} has a header without scope: {m.group(0) if m else ""}')
+
+    def test_no_link_is_only_a_number(self):
+        """"Link, zero point five zero" is what a screen reader says otherwise."""
+        for key, h in self.html.items():
+            name = key if isinstance(key, str) else self.c.key[key]
+            m = re.search(r'<a class="n"(?![^>]*aria-label)[^>]*>', h)
+            self.assertIsNone(m, f'{name} has an unlabelled number link')
+
+    def test_headings_go_down_one_level_at_a_time(self):
+        for key, h in self.html.items():
+            name = key if isinstance(key, str) else self.c.key[key]
+            prev = 0
+            for lvl in (int(x) for x in re.findall(r'<h([1-6])[ >]', h)):
+                if prev: self.assertLessEqual(lvl, prev + 1, f'{name} skips from h{prev} to h{lvl}')
+                prev = lvl
+
+    def test_every_colour_pair_clears_the_contrast_threshold(self):
+        """Including, especially, the grey that means "nobody has argued this factor". It carries information,
+        so it cannot be the hardest thing on the page to read."""
+        import render_site
+        def lum(hexcol):
+            x = hexcol.lstrip('#')
+            ch = [int(x[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+            f = lambda v: v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+            return 0.2126 * f(ch[0]) + 0.7152 * f(ch[1]) + 0.0722 * f(ch[2])
+        def ratio(a, b):
+            hi, lo = sorted((lum(a), lum(b)), reverse=True)
+            return (hi + 0.05) / (lo + 0.05)
+        css = render_site.CSS
+        blocks = re.findall(r'(?:^:root|@media[^{]*\{:root[^{]*)\{([^}]*)\}', css, re.M)
+        self.assertTrue(blocks, 'no theme variables found')
+        for block in blocks:
+            v = dict(re.findall(r'--([a-z0-9-]+):(#[0-9a-f]{6})', block))
+            if not {'mute', 'const', 'paper'} <= set(v): continue
+            for fg in ('ink', 'ink2', 'mute', 'const'):
+                for bg in ('paper', 'ground', 'head', 'tile'):
+                    if fg in v and bg in v:
+                        r = ratio(v[fg], v[bg])
+                        self.assertGreaterEqual(round(r, 2), 4.5, f'{fg} {v[fg]} on {bg} {v[bg]} is {r:.2f}:1')
