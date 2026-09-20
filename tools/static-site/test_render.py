@@ -133,6 +133,18 @@ class TestTheRenderedSite(unittest.TestCase):
             self.assertIsNotNone(m, f'{self.c.key[pid]} has no formula headline')
             self.assertTrue(m.group(1).endswith(' '), f'{self.c.key[pid]} headline halves run together')
 
+    def test_a_section_with_findings_actually_reaches_the_page(self):
+        """A section can be computed, tested and never rendered, because wiring it in is a separate edit from
+        writing it. That happened to the structural checks on belief pages and nothing caught it."""
+        for pid, h in self.html.items():
+            if isinstance(pid, str): continue
+            if self.c.integ.of(pid):
+                self.assertIn('Structural Checks', h,
+                              f'{self.c.key[pid]} has structural findings that never reach the page')
+            if self.c.sens.of(pid)['n'] and self.c.kind(pid) in ('belief', 'claim'):
+                self.assertIn('What Would Change the Answer', h,
+                              f'{self.c.key[pid]} has sensitivity inputs that never reach the page')
+
     def test_the_build_says_what_it_was_built_from(self):
         """A number nobody can trace to a revision is not citable."""
         for name in ('index.html', 'method.html'):

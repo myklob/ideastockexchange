@@ -608,6 +608,7 @@ def render_belief(c, pid):
     if todo:
         o.append(H.section('Not Argued Yet', 'Parts of the template nobody has filled in here. They are named rather than shown, because an empty table is not a finding, and each one is a reason the confidence above is not higher.'))
         o.append('<table class="plain"><tbody>' + ''.join(f'<tr><td class="t">{esc(n)}</td><td class="u">{esc(why)}</td></tr>' for n, why in todo) + '</tbody></table></section>')
+    o.append(checks_section(H, c, pid))
     o.append(engine_table(H, c, pid))
     o.append(FOOT)
     return ''.join(o)
@@ -1009,7 +1010,7 @@ def provenance(path=None):
         except Exception:
             return ''
     rev, when = git('rev-parse', '--short', 'HEAD'), git('log', '-1', '--format=%cs')
-    dirty = bool(git('status', '--porcelain'))
+    dirty = bool(git('status', '--porcelain', '--untracked-files=no'))
     return {'rev': rev, 'date': when, 'dirty': dirty}
 
 
