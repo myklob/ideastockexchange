@@ -34,6 +34,7 @@ WIKI = {'template': 'https://myclob.pbworks.com/w/page/21959883/Template', 'reas
         'general': 'https://myclob.pbworks.com/w/page/160861572/General%20to%20Specific', 'values': 'https://myclob.pbworks.com/w/page/21956745/American%20values', 'linkage_template': 'https://myclob.pbworks.com/w/page/163966659/LinkageStrengthAnalysisTemplate', 'one_page': 'https://myclob.pbworks.com/w/page/159323433/One%20Page%20Per%20Topic'}
 END = 'V'
 MIRROR_TRUTH, MIRROR_SCORE = '$W$1', '$X$1'
+MIRROR_CONF = '$W$3'   # this page's confidence: how much of the work behind its score has been done
 CONSTS = [('K', 'k, weight of the neutral start', 1, 'A page starts as one neutral vote (0.5) with this weight. Truth = (positive + k x 0.5) / (positive + negative + k). With k = 1 an unargued page reads 0.5, a page with one unrebutted reason moves part of the way, not all the way, to certainty.'),
           ('UNARG', 'Unargued truth', 0.5, 'What a row reads for Truth when it has no page yet: a coin flip. Give it a page and the page decides.'),
           ('DEFLINK', 'Linkage with no linkage page', 1, 'A reason placed under a conclusion is presumed relevant until a linkage page says otherwise; the burden is on the challenger. Open the linkage page ("If it were true that X, it would necessarily strengthen Y") and argue it down. The scorecard counts how many rows still rest on this presumption.'),
@@ -49,6 +50,11 @@ def STRIP(ref):
     return f'IF(AND(RIGHT({ref},1)=".",NOT(AND(EXACT({c},UPPER({c})),NOT(EXACT({c},LOWER({c})))))),LEFT({ref},LEN({ref})-1),{ref})'
 def HL(pid, valref): return f'HYPERLINK("#{PAGE(pid)}A1",{valref})'
 COMPLETE_CELL = '$W$2'   # every page kind writes 1 here when it meets its completeness gate, else 0
+CONF_OF = {}             # tab -> confidence, supplied by the build script from confidence.py
+def conf_ref(pid):
+    """The confidence multiplier a row reads from the page it points at. A row with no page contributes 0
+    anyway (its Truth reads the unargued 0.5, and 2 x 0.5 - 1 = 0), so the constant there is immaterial."""
+    return f'{PAGE(pid)}{MIRROR_CONF}' if is_page(pid) else '0'
 
 # ---- page kinds and their layouts. A belief page and each specialized page kind (linkage, importance, uniqueness,
 # issue, equivalence, driver) has a fixed layout, so the row that holds a page's truth score depends only on its
@@ -198,18 +204,19 @@ class Page:
         if is_page(parent): self.f('N2', f'={HL(parent, PAGE(parent) + "$C$1")}', align=WRAP, fill=INPUT, font=LINK, merge_to=f'{END}2')
         else: self.inp('N2', None, merge_to=f'{END}2')
         self.note('N2', 'The page this claim is a row on (its belief, as a link). More uses are listed in "Where This Belief Is Used" near the bottom.')
-        self.f('W1', '=@TRUTH@', fmt='0.0000'); self.f('X1', '=@BELIEF@', fmt='0.00'); self.f('W2', '=@COMPLETE@', fmt='0')
+        self.f('W1', '=@TRUTH@', fmt='0.0000'); self.f('X1', '=@BELIEF@', fmt='0.00'); self.f('W2', '=@COMPLETE@', fmt='0'); self.f('W3', '=@CONF@', fmt='0.0000')
         self.arguments(); self.evidence(); self.cba(); self.anatomy(); self.conflict(); self.falsifiability(); self.references()
         self.scorecard(); self.topic_readout(); self.engine(); self.resolve(); self.validations()
 
     # ---- a scored two-sided table with Truth | Link | Imp | Uniq | Score (arguments and evidence share it)
     def scored_table(self, key, n, hl, hr, left, right, height, notes):
+        """A two-sided scored table. Contributions are signed: agree rows take sign +1, disagree rows -1."""
         hr_ = self.heads([('B', 'Rank'), ('C', hl), ('F', 'Truth'), ('G', 'Link'), ('H', 'Imp'), ('I', 'Uniq'), ('J', 'Score'),
                           ('M', 'Rank'), ('N', hr), ('Q', 'Truth'), ('R', 'Link'), ('S', 'Imp'), ('T', 'Uniq'), ('U', 'Score')], merges=[('C', 'E'), ('J', 'K'), ('N', 'P'), ('U', 'V')])
         for col, txt in notes.items(): self.note(f'{col}{hr_}', txt)
         rows = [self.nxt(height) for _ in range(n)]; self.rows[key] = rows
         for i, r in enumerate(rows):
-            for s, items in ((LS, left), (RS, right)):
+            for s, items, sign in ((LS, left, ''), (RS, right, '-')):
                 d = items[i] if i < len(items) else {}
                 self.id_cell(s, r, d); self.text_cell(s, r, d, merge_to=f'{s["c2"]}{r}')
                 self.truth_cell(f'{s["c3"]}{r}', s, r, d)
@@ -217,7 +224,9 @@ class Page:
                 self.imp_cell(f'{s["c5"]}{r}', d)
                 self.page_cell(f'{s["c6"]}{r}', self.val(d, 'uniq'), '@DEFUNIQ@')
                 F, G, H, I, J = (CELL(s, k, r) for k in ('c3', 'c4', 'c5', 'c6', 'c7'))
-                self.f(f'{s["c7"]}{r}', f'=IF({CELL(s, "text", r)}="","",{F}*{G}*{H}*{I})', fmt=SF, merge_to=f'{s["c8"]}{r}', note='Score = Truth x Link x Imp x Uniq, the four cells to the left.' if i == 0 else None)
+                K = conf_ref(self.val(d, 'id'))
+                self.f(f'{s["c7"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{F}-1)*{K}*{G}*{H}*{I})', fmt=SF, merge_to=f'{s["c8"]}{r}',
+                       note='Score = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq. Signed, so a claim argued false counts against the side it is filed on, and a claim nobody has argued (Truth 0.50) contributes exactly 0. Confidence is read from the page this row points at.' if i == 0 else None)
                 self.rank_cell(s, r, J, self.rng(s['c7'], rows))
         self.dim_when_blank('F', 'K', rows, '$C'); self.dim_when_blank('Q', 'V', rows, '$N')
         return rows
@@ -234,8 +243,8 @@ class Page:
             'I': 'Uniq: a uniqueness page ("[reason] makes a different point from [other reason]"), or 1 when nobody has alleged an overlap.',
             'B': 'Rank by Score within this side. Rows stay where they were entered; the rank says where they stand.'})
         r = self.nxt(20); self.rows['argtot'] = r
-        self.put(f'B{r}', 'Total of reasons to agree', font=Font(bold=True, size=9), fill=GREEN, merge_to=f'I{r}'); self.f(f'J{r}', f'=SUM({self.rng("J", rows)})', fmt='0.00', fill=GREEN, font=Font(bold=True), merge_to=f'K{r}')
-        self.put(f'M{r}', 'Total of reasons to disagree', font=Font(bold=True, size=9), fill=RED, merge_to=f'T{r}'); self.f(f'U{r}', f'=SUM({self.rng("U", rows)})', fmt='0.00', fill=RED, font=Font(bold=True), merge_to=f'V{r}')
+        self.put(f'B{r}', 'Weight for, from these rows (a refuted objection counts here)', font=Font(bold=True, size=9), fill=GREEN, merge_to=f'I{r}'); self.f(f'J{r}', f'=SUMIF({self.rng("J", rows)},">0")+SUMIF({self.rng("U", rows)},">0")', fmt='0.00', fill=GREEN, font=Font(bold=True), merge_to=f'K{r}')
+        self.put(f'M{r}', 'Weight against, from these rows', font=Font(bold=True, size=9), fill=RED, merge_to=f'T{r}'); self.f(f'U{r}', f'=-SUMIF({self.rng("J", rows)},"<0")-SUMIF({self.rng("U", rows)},"<0")', fmt='0.00', fill=RED, font=Font(bold=True), merge_to=f'V{r}')
         r2 = self.nxt(20); self.rows['argscore'] = r2
         self.put(f'B{r2}', 'Argument score = total agree - total disagree', font=Font(bold=True, size=10), fill=SUB_FILL, merge_to=f'I{r2}')
         self.f(f'J{r2}', f'=$J${r}-$U${r}', fmt=SF, fill=SUB_FILL, font=Font(bold=True), merge_to=f'K{r2}', note='Argument score = the agree total minus the disagree total, the two cells directly above.')
@@ -251,8 +260,8 @@ class Page:
             'H': 'Imp: the finding\'s importance page: the interests at stake in what it measures.',
             'I': 'Uniq: a uniqueness page where two findings rest on the same study; several sources for one finding are evidence volume and belong on the finding\'s page.'})
         r = self.nxt(20); self.rows['evtot'] = r
-        self.put(f'B{r}', 'Total of supporting evidence', font=Font(bold=True, size=9), fill=GREEN, merge_to=f'I{r}'); self.f(f'J{r}', f'=SUM({self.rng("J", rows)})', fmt='0.00', fill=GREEN, font=Font(bold=True), merge_to=f'K{r}')
-        self.put(f'M{r}', 'Total of weakening evidence', font=Font(bold=True, size=9), fill=RED, merge_to=f'T{r}'); self.f(f'U{r}', f'=SUM({self.rng("U", rows)})', fmt='0.00', fill=RED, font=Font(bold=True), merge_to=f'V{r}')
+        self.put(f'B{r}', 'Weight for, from these rows (a refuted objection counts here)', font=Font(bold=True, size=9), fill=GREEN, merge_to=f'I{r}'); self.f(f'J{r}', f'=SUMIF({self.rng("J", rows)},">0")+SUMIF({self.rng("U", rows)},">0")', fmt='0.00', fill=GREEN, font=Font(bold=True), merge_to=f'K{r}')
+        self.put(f'M{r}', 'Weight against, from these rows', font=Font(bold=True, size=9), fill=RED, merge_to=f'T{r}'); self.f(f'U{r}', f'=-SUMIF({self.rng("J", rows)},"<0")-SUMIF({self.rng("U", rows)},"<0")', fmt='0.00', fill=RED, font=Font(bold=True), merge_to=f'V{r}')
         r2 = self.nxt(20); self.rows['evscore'] = r2
         self.put(f'B{r2}', 'Evidence score = total supporting - total weakening (resolved predictions are added further down)', font=Font(bold=True, size=10), fill=SUB_FILL, merge_to=f'I{r2}')
         self.f(f'J{r2}', f'=$J${r}-$U${r}', fmt=SF, fill=SUB_FILL, font=Font(bold=True), merge_to=f'K{r2}', note='Evidence score = the supporting total minus the weakening total, the two cells directly above.')
@@ -452,8 +461,9 @@ class Page:
                 self.imp_cell(f'{s["c3"]}{r}', d)
                 self.page_cell(f'{s["c4"]}{r}', self.val(d, 'uniq'), '@DEFUNIQ@')
                 D, E, F, G = (CELL(s, k, r) for k in ('c1', 'c2', 'c3', 'c4'))
-                self.f(f'{s["c5"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{D}-1)*{E}*{F}*{G})', fmt=SF)
-                self.f(f'{s["c6"]}{r}', f'=IF({CELL(s, "text", r)}="","",{E}*{F}*{G}*(1-ABS(2*{D}-1)))', fmt='0.00')
+                KC = conf_ref(self.val(d, 'id'))
+                self.f(f'{s["c5"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{D}-1)*{KC}*{E}*{F}*{G})', fmt=SF)
+                self.f(f'{s["c6"]}{r}', f'=IF({CELL(s, "text", r)}="","",{KC}*{E}*{F}*{G}*(1-ABS(2*{D}-1)))', fmt='0.00')
                 self.inp(f'{s["c7"]}{r}', self.val(d, 'deadline'), merge_to=f'{s["c8"]}{r}')
         self.dim_when_blank('D', 'I', rows, '$C'); self.dim_when_blank('O', 'T', rows, '$N')
         r = self.nxt(20); self.rows['predtot'] = r
@@ -622,8 +632,9 @@ class Page:
         eng('CON', 'Reasons to disagree, total', f'=$U${T["argtot"]}', 'The total under the disagree side.')
         eng('SUPP', 'Supporting evidence, total', f'=$J${T["evtot"]}', 'The total under the supporting side of the Evidence Ledger.')
         eng('WEAK', 'Weakening evidence, total', f'=$U${T["evtot"]}', 'The total under the weakening side.')
-        eng('POS', 'Positive total', f'=@PRO@+@SUPP@+SUMIF({predGL},">0")+SUMIF({predGR},">0")', 'Everything pulling the belief up: agree reasons, supporting evidence, predictions that came out the belief\'s way.')
-        eng('NEG', 'Negative total', f'=@CON@+@WEAK@-SUMIF({predGL},"<0")-SUMIF({predGR},"<0")', 'Everything pulling it down: disagree reasons, weakening evidence, predictions that went against it (as a positive magnitude).')
+        eng('POS', 'Weight for', f'=@PRO@+@SUPP@+SUMIF({predGL},">0")+SUMIF({predGR},">0")', 'Every row whose signed contribution came out positive, from either side: a refuted objection counts here.')
+        eng('NEG', 'Weight against', f'=@CON@+@WEAK@-SUMIF({predGL},"<0")-SUMIF({predGR},"<0")', 'Every row whose signed contribution came out negative, as a magnitude: a refuted reason to agree counts here.')
+        eng('CONF', 'Confidence (0 to 1)', CONF_OF.get(self.spec.get('_tab'), 0.0), 'How much of the work behind this page has been done, from confidence.py: grounding, two-sidedness, scrutiny of the multipliers, breadth, depth, sourcing and testability. Every row on a parent page multiplies by this, so at 0 this page moves nothing above it. The one quantity computed outside the workbook; the website shows the component breakdown.', fmt='0.0000', const=True)
         eng('RAWTRUTH', 'Truth score, argued (0 to 1)', '=(@POS@+@K@*0.5)/(@POS@+@NEG@+@K@)', 'The share of scored weight on the agree side with k neutral votes mixed in, so an unargued page reads 0.5 instead of certainty. Before the anatomy cap below.')
         eng('TRUTH', 'Truth score (0 to 1)', '=IF(@WEAKEST@="",@RAWTRUTH@,MIN(@RAWTRUTH@,@WEAKEST@))', 'The argued truth score, capped by the weakest load-bearing component when the Logical Anatomy marks any: a conjunction cannot be more probable than its least probable necessary part, however many reasons pile up on the agree side. This is the cell other pages read when this claim is one of their rows.')
         eng('SHARE', 'Agree share of scored weight', '=IF(@POS@+@NEG@=0,"",@POS@/(@POS@+@NEG@))', 'Positive / (Positive + Negative) with nothing mixed in. Blank until something is scored.', fmt='0%')

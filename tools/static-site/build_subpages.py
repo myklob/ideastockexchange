@@ -10,7 +10,7 @@
 # B = Rank, C = Pattern, D = text, E..K = numbers; L..V the same for the right side; W and X hidden mirrors.
 from openpyxl.styles import Font
 from openpyxl.worksheet.datavalidation import DataValidation
-from build_pages import (Page, CELL, PAGE, HL, TCELL, STRIP, is_page, CONSTS, MIRROR_TRUTH, COMPLETE_CELL, WIKI, IDFONT, IDLINK, kind_of,
+from build_pages import (Page, CELL, PAGE, HL, TCELL, STRIP, is_page, CONSTS, MIRROR_TRUTH, COMPLETE_CELL, WIKI, IDFONT, IDLINK, kind_of, conf_ref, CONF_OF,
                          HDR_FILL, SUB_FILL, GREEN, RED, GREY, INPUT, BLUEBOX, ENG, CONST, WRAP, CENTER, MID, MIDC, LINK, DIM, SF, END)
 
 COLW2 = {'A': 6, 'B': 5, 'C': 13, 'D': 44, 'E': 8, 'F': 8, 'G': 8, 'H': 8, 'I': 8, 'J': 8, 'K': 8, 'L': 6,
@@ -154,7 +154,7 @@ class SubPage(Page):
         parent = sp.get('supports')
         if is_page(parent): self.f('L2', f'={HL(parent, PAGE(parent) + "$C$1")}', align=WRAP, fill=INPUT, font=LINK, merge_to=f'{END}2')
         else: self.inp('L2', None, merge_to=f'{END}2')
-        self.f('W1', '=@TRUTH@', fmt='0.0000'); self.f('X1', '=@BELIEF@', fmt='0.00'); self.f('W2', '=@COMPLETE@', fmt='0')
+        self.f('W1', '=@TRUTH@', fmt='0.0000'); self.f('X1', '=@BELIEF@', fmt='0.00'); self.f('W2', '=@COMPLETE@', fmt='0'); self.f('W3', '=@CONF@', fmt='0.0000')
         self.connected()
         if self.kind == 'importance': self.interests()
         elif self.kind == 'media':
@@ -241,7 +241,7 @@ class SubPage(Page):
         for s, items, pats in ((LS2, sp.get('agree', []), patterns[0]), (RS2, sp.get('disagree', []), patterns[1])):
             used = {self.val(d, 'pattern') for d in items}; spare[s['id']] = [p for p in pats if p not in used]
         for i, r in enumerate(rows):
-            for s, items in ((LS2, sp.get('agree', [])), (RS2, sp.get('disagree', []))):
+            for s, items, sign in ((LS2, sp.get('agree', []), ''), (RS2, sp.get('disagree', []), '-')):
                 d = items[i] if i < len(items) else {}
                 self.id_cell(s, r, d); self.text_cell(s, r, d)
                 pat = self.val(d, 'pattern') or (spare[s['id']].pop(0) if (not d and spare[s['id']]) else None)
@@ -251,12 +251,14 @@ class SubPage(Page):
                 self.page_cell(f'{s["c3"]}{r}', self.val(d, 'imp'), '@DEFIMP@', note='Imp: an importance page for this reason, or the constant.' if i == 0 else None)
                 self.page_cell(f'{s["c4"]}{r}', self.val(d, 'uniq'), '@DEFUNIQ@', note='Uniq: a uniqueness page, or 1.' if i == 0 else None)
                 E, F, G, H, I = (CELL(s, k, r) for k in ('c1', 'c2', 'c3', 'c4', 'c5'))
-                self.f(f'{s["c5"]}{r}', f'=IF({CELL(s, "text", r)}="","",{E}*{F}*{G}*{H})', fmt=SF, merge_to=f'{s["c7"]}{r}', note='Score = Truth x Link x Imp x Uniq, the four cells to the left.' if i == 0 else None)
+                KC = conf_ref(self.val(d, 'id'))
+                self.f(f'{s["c5"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{E}-1)*{KC}*{F}*{G}*{H})', fmt=SF, merge_to=f'{s["c7"]}{r}',
+                       note='Score = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq. Signed, so a reason argued false counts against the side it is filed on and an unargued one contributes 0.' if i == 0 else None)
                 self.rank_cell(s, r, I, self.rng(s['c5'], rows))
         self.dim_when_blank('E', 'K', rows, '$D'); self.dim_when_blank('P', 'V', rows, '$O')
         r = self.nxt(20); self.rows[key + 'tot'] = r
-        self.put(f'B{r}', 'Total of reasons to agree', font=Font(bold=True, size=9), fill=GREEN, merge_to=f'H{r}'); self.f(f'I{r}', f'=SUM({self.rng("I", rows)})', fmt='0.00', fill=GREEN, font=Font(bold=True), merge_to=f'K{r}')
-        self.put(f'M{r}', 'Total of reasons to disagree', font=Font(bold=True, size=9), fill=RED, merge_to=f'S{r}'); self.f(f'T{r}', f'=SUM({self.rng("T", rows)})', fmt='0.00', fill=RED, font=Font(bold=True), merge_to=f'{END}{r}')
+        self.put(f'B{r}', 'Weight for, from these rows', font=Font(bold=True, size=9), fill=GREEN, merge_to=f'H{r}'); self.f(f'I{r}', f'=SUMIF({self.rng("I", rows)},">0")+SUMIF({self.rng("T", rows)},">0")', fmt='0.00', fill=GREEN, font=Font(bold=True), merge_to=f'K{r}')
+        self.put(f'M{r}', 'Weight against, from these rows', font=Font(bold=True, size=9), fill=RED, merge_to=f'S{r}'); self.f(f'T{r}', f'=-SUMIF({self.rng("I", rows)},"<0")-SUMIF({self.rng("T", rows)},"<0")', fmt='0.00', fill=RED, font=Font(bold=True), merge_to=f'{END}{r}')
         r2 = self.nxt(20); self.rows[key + 'score'] = r2
         tok = '@IMPACT@' if key == 'iargs' else '@TRUTH@'
         self.put(f'B{r2}', f'{label} score = (agree total + k x 0.5) / (agree total + disagree total + k), computed in the engine below', font=Font(bold=True, size=10), fill=SUB_FILL, merge_to=f'H{r2}')
@@ -389,8 +391,8 @@ class SubPage(Page):
         else:
             A = R['args']; argL, argR = self.rng('I', A), self.rng('T', A)
             lab = 'Quality' if self.kind == 'media' else self.K['label']
-            eng('PRO', 'Reasons to agree, total', f'=$I${R["argstot"]}', 'The total under the agree side.')
-            eng('CON', 'Reasons to disagree, total', f'=$T${R["argstot"]}', 'The total under the disagree side.')
+            eng('PRO', 'Weight for', f'=$I${R["argstot"]}', 'Every row here whose signed contribution came out positive.')
+            eng('CON', 'Weight against', f'=$T${R["argstot"]}', 'Every row here whose signed contribution came out negative, as a magnitude.')
             eng('BELIEF', 'Net score', '=@PRO@-@CON@', 'Agree total minus disagree total, open-ended. Shown for comparison with belief pages; the parent reads the truth score below.', fmt=SF)
             eng('TRUTH', f'{lab} score (0 to 1)', '=(@PRO@+@K@*0.5)/(@PRO@+@CON@+@K@)', 'The agree share of scored weight with k neutral votes mixed in, so a page with no reasons reads 0.5 instead of certainty. This is the cell the parent page reads as its multiplier.')
             eng('SHARE', 'Agree share of scored weight', '=IF(@PRO@+@CON@=0,"",@PRO@/(@PRO@+@CON@))', 'Agree / (Agree + Disagree) with nothing mixed in. Blank until something is scored.', fmt='0%')
@@ -410,6 +412,7 @@ class SubPage(Page):
                 eng('COMPLETE', 'This page meets its completeness gate', f'=IF(AND(@NAGREE@>=1,@NDIS@>=1,$G${ck[0]}<>"",$G${ck[1]}<>""),1,0)', '1 when there is at least one scored reason on each side and both expected readings are filled in. Mirrored in hidden W2.', fmt='0')
             else:
                 eng('COMPLETE', 'This page meets its completeness gate', '=IF(AND(@NAGREE@>=1,@NDIS@>=1),1,0)', '1 when there is at least one scored reason on each side. A one-sided page can score high by the truth formula; this flag says whether the other side has been argued. Mirrored in hidden W2 so the parent page can count it.', fmt='0')
+        eng('CONF', 'Confidence (0 to 1)', CONF_OF.get(self.spec.get('_tab'), 0.0), 'How much of the work behind this page has been done, from confidence.py. Parent rows multiply by it, so at 0 this page moves nothing above it. Computed outside the workbook; the website shows the breakdown.', fmt='0.0000', const=True)
         kids = sorted(self.children)
         eng('NCHILD', 'Pages this page reads', '=' + (f'COUNT({",".join(PAGE(k) + COMPLETE_CELL for k in kids)})' if kids else '0'), 'Pages whose score is read into a row on this page.', fmt='0')
         eng('NINCOMPLETE', 'Pages read that fail their completeness gate', '=' + ('+'.join(f'({PAGE(k)}{COMPLETE_CELL}=0)' for k in kids) if kids else '0'), 'How many of those are one-sided or empty.', fmt='0')

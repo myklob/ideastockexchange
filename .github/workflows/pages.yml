@@ -42,6 +42,8 @@ jobs:
             exit 1
           fi
       - run: pip install -r tools/static-site/requirements.txt
+      - name: Test the scoring engine before anything is published
+        run: python3 -m unittest discover -s tools/static-site -p 'test_*.py' -v
       - name: Render the belief pages from the two tables
         run: |
           python3 tools/static-site/render_site.py tools/static-site/ISE_Data_Entry.xlsx _site/beliefs | tee render.log
