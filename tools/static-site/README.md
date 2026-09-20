@@ -96,6 +96,23 @@ rows built to exercise every rule once; `conformance/expected.json` is what they
 language loads the first, computes, and compares against the second. `conformance.py --write` regenerates them, so a
 deliberate rule change arrives as a reviewed diff and an accidental one arrives as a failing test.
 
+## Scale
+
+Measured on a synthetic corpus of 14,480 pages and as many edges, 55 times the published one:
+
+    corpus load, scoring, confidence, ReasonRank, similarity    3.2 s
+    every page's stats                                          1.3 s
+    every structural check                                      1.1 s
+    sensitivity, one belief with 361 inputs                     0.4 s
+    a full publish, 28,970 files, 207 MB                      107   s
+
+Four things had to change to get there, each of them a rule rather than a tuning. Page ids ran to 10,000 and
+then raised a bare `StopIteration`. Every page scanned the whole edge table to list what it reads. Every page
+scanned the whole duplicate list to find its own pairs. And a what-if cleared the entire memo, so pinning one
+input recomputed a belief's whole subtree; it now invalidates only the pages that read the pinned page, which
+took sensitivity from 24 seconds a page to 0.4. `test_engines.py::TestItScales` pins all four as bounds on work
+rather than on the clock.
+
 ## How it publishes
 
 `.github/workflows/pages.yml` runs the test suite and then `render_site.py` on every push to `master` that touches

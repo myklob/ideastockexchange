@@ -76,6 +76,7 @@ class ReasonRank:
         self.c = corpus
         self.d = damping
         self.pages = sorted(corpus.specs)
+        self._reach = None
         self.seeds = sorted(corpus.beliefs) or self.pages
         self._channels()
         self._run()
@@ -135,21 +136,28 @@ class ReasonRank:
         return sorted(((p, w) for p in self.pages for q, w in self.out[p].items() if q == pid),
                       key=lambda pw: -pw[1])
 
-    def beliefs_reached(self, pid, depth=6):
+    def beliefs_reached(self, pid):
         """Which of the corpus's beliefs have this page somewhere beneath them. A claim under four separate
         policy conclusions is a different kind of problem from a claim under one."""
-        got = set()
-        for b in self.seeds:
-            frontier, seen = [b], {b}
-            for _ in range(depth):
-                nxt = []
-                for p in frontier:
+        return sorted(self._reached().get(pid, ()))
+
+    def _reached(self):
+        """page -> the beliefs above it, computed once by walking down from each belief rather than searching
+        the whole graph again for every page asked. The per-page version was O(beliefs x graph) per call, and
+        every page on the site asks, which made publishing quadratic in the size of the corpus."""
+        if self._reach is None:
+            self._reach = {}
+            for b in self.seeds:
+                seen, stack = {b}, [b]
+                while stack:
+                    p = stack.pop()
                     for q in self.out.get(p, {}):
-                        if q == pid: got.add(b)
-                        if q not in seen: seen.add(q); nxt.append(q)
-                frontier = nxt
-                if b in got or not frontier: break
-        return sorted(got)
+                        if q not in seen:
+                            seen.add(q); stack.append(q)
+                            self._reach.setdefault(q, set()).add(b)
+                        else:
+                            self._reach.setdefault(q, set()).add(b)
+        return self._reach
 
     def work_queue(self, limit=25, with_seeds=False):
         """Rank x unfinished work: where an analyst hour buys the most. The order is the point of this file.

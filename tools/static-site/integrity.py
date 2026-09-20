@@ -34,7 +34,7 @@ class Integrity:
     def __init__(self, corpus):
         self.c = corpus
         self._memo = {}
-        self._reach = {}
+        self._cycles = None
 
     # ---------------------------------------------------------------- graph helpers
     def claims_of(self, pid):
@@ -47,32 +47,57 @@ class Integrity:
         out += list(sp.get('components', [])) + list(sp.get('pred_true', [])) + list(sp.get('pred_false', []))
         return [d['id'] for d in out if _is(d.get('id')) and d['id'] in self.c.specs]
 
-    def reaches(self, pid):
-        """Every page beneath this one through claim edges. Cycle-safe by construction."""
-        if pid in self._reach: return self._reach[pid]
-        seen, stack = set(), [pid]
-        while stack:
-            q = stack.pop()
-            for k in self.claims_of(q):
-                if k not in seen:
-                    seen.add(k); stack.append(k)
-        self._reach[pid] = seen
-        return seen
+    def on_a_cycle(self):
+        """Every page that supports itself, found once for the whole corpus with an iterative depth-first walk
+        rather than by building each page's subtree and asking whether the page is in it. The per-page version
+        was correct and quadratic: it cost more than half a minute on a corpus of fourteen thousand."""
+        if self._cycles is None:
+            WHITE, GREY, BLACK = 0, 1, 2
+            colour = {p: WHITE for p in self.c.specs}
+            bad = set()
+            for root in self.c.specs:
+                if colour[root] != WHITE: continue
+                stack = [(root, iter(self.claims_of(root)))]
+                colour[root] = GREY
+                path = [root]
+                while stack:
+                    node, it = stack[-1]
+                    nxt = next(it, None)
+                    if nxt is None:
+                        colour[node] = BLACK; stack.pop(); path.pop(); continue
+                    if colour.get(nxt) == GREY:
+                        bad.update(path[path.index(nxt):])       # everything around the loop is on it
+                    elif colour.get(nxt) == WHITE:
+                        colour[nxt] = GREY; path.append(nxt); stack.append((nxt, iter(self.claims_of(nxt))))
+            self._cycles = bad
+        return self._cycles
 
+    def reaches_target(self, start, target, limit=4000):
+        """Is `target` anywhere beneath `start`? Answered with a search that stops the moment it finds one,
+        instead of materialising the whole subtree so it can be asked once."""
+        seen, stack, n = {start}, [start], 0
+        while stack and n < limit:
+            q = stack.pop(); n += 1
+            for k in self.claims_of(q):
+                if k == target: return True
+                if k not in seen: seen.add(k); stack.append(k)
+        return False
+
+    # ---------------------------------------------------------------- the checks
     # ---------------------------------------------------------------- the checks
     def of(self, pid):
         if pid in self._memo: return self._memo[pid]
         c = self.c; sp = c.specs[pid]
         out = []
 
-        if pid in self.reaches(pid):
+        if pid in self.on_a_cycle():
             out.append(('serious', 'Circular support',
                         'This claim is used, somewhere below itself, to support itself. Follow the reasons down '
                         'and one of them leads back here. A loop can hold any value at all and stay consistent.'))
 
         lb = [d for d in sp.get('components', []) if str(d.get('lb', '')).upper() == 'Y' and _is(d.get('id'))]
         for d in lb:
-            if d['id'] == pid or pid in self.reaches(d['id']):
+            if d['id'] == pid or self.reaches_target(d['id'], pid):
                 out.append(('serious', 'Assumes its own conclusion',
                             f'A necessary premise here rests on this very claim: {c.brief(d["id"])[0]}'))
             for other, t, _q in c.equivalents.get(pid, []):
@@ -90,7 +115,7 @@ class Integrity:
                         f'{ids.count(i)} rows here read the same page, so one claim is counted several times: '
                         f'{c.brief(i)[0]}'))
 
-        alike = [r for r in c.sim.pairs() if pid in r['shared_parent'] and not r['uniq']]
+        alike = [r for r in c.sim.by_parent().get(pid, ()) if not r['uniq']]
         if alike:
             out.append(('worth checking', 'Rows that may be the same point twice',
                         f'{len(alike)} pair(s) of rows here read alike and no uniqueness page argues the overlap, '
