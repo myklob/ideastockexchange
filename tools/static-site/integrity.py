@@ -17,6 +17,13 @@ been padded. These fire on the shape of the graph, they are checkable by anyone 
 names the rows that caused it.
 
 None of them changes a score. They are a panel on the page saying what to go and look at.
+
+Two of them, circular support and assuming its own conclusion, are worse than a note: the scorer refuses a
+corpus containing either, because a loop can hold any value at all and stay consistent, so there is no number
+to publish. That refusal arrives as an exception in the middle of a build, which is a bad way to learn it. Run
+this file on the content first and it says the same thing in one line, before anything is rendered:
+
+    python3 integrity.py content/        exits non-zero and names the loop
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -207,3 +214,49 @@ class Integrity:
         n = {s: 0 for s in SEVERITY}
         for f in self.corpus(): n[f['severity']] += 1
         return n
+
+
+# ------------------------------------------------------------------------------------------------------------
+def cycles_in_tables(pages, edges):
+    """Loops in the claim graph, found from the two tables alone. The scorer cannot be asked this: it refuses a
+    cyclic corpus before it can answer anything, and so does everything built on it. A pre-publish check has to
+    work without it."""
+    claims = {}
+    for e in edges:
+        src, dst = e.get('page'), e.get('claim')
+        if src and dst and e.get('section') in ('argument', 'evidence', 'prediction', 'component', 'interest_listing'):
+            claims.setdefault(src, []).append(dst)
+    keys = {p['key'] for p in pages if p.get('key')}
+    WHITE, GREY, BLACK = 0, 1, 2
+    colour = {k: WHITE for k in keys}
+    loops = []
+    for root in sorted(keys):
+        if colour[root] != WHITE: continue
+        stack = [(root, iter(claims.get(root, ())))]
+        colour[root] = GREY
+        path = [root]
+        while stack:
+            node, it = stack[-1]
+            nxt = next(it, None)
+            if nxt is None:
+                colour[node] = BLACK; stack.pop(); path.pop(); continue
+            if nxt not in colour: continue                 # points at a page that does not exist; a link check catches that
+            if colour[nxt] == GREY:
+                loops.append(path[path.index(nxt):] + [nxt])
+            elif colour[nxt] == WHITE:
+                colour[nxt] = GREY; path.append(nxt); stack.append((nxt, iter(claims.get(nxt, ()))))
+    return loops
+
+
+if __name__ == '__main__':
+    import ise_tables as _IT
+    where = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path.abspath(__file__)), 'content')
+    pages, edges = _IT.read_source(where)
+    loops = cycles_in_tables(pages, edges)
+    if loops:
+        print(f'{len(loops)} circular argument(s) in {where}. A loop can hold any value at all and stay '
+              f'consistent, so there is no score to publish and the build will refuse:')
+        for lp in loops[:10]:
+            print('  ' + ' -> '.join(lp))
+        sys.exit(1)
+    print(f'no circular arguments in {where} ({len(pages)} pages, {len(edges)} rows)')

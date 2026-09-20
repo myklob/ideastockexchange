@@ -50,6 +50,10 @@ jobs:
         # The CSVs are the record a person can read. If they lag the workbook, the diff a reviewer sees is not
         # the change that shipped.
         run: python3 tools/static-site/sync_content.py --check
+      - name: Refuse a circular argument before spending a build on it
+        # The scorer raises on a loop, part way through rendering. This says the same thing in one line,
+        # names the loop, and says it first.
+        run: python3 tools/static-site/integrity.py tools/static-site/content
       - name: Test the scoring engine before anything is published
         run: python3 -m unittest discover -s tools/static-site -p 'test_*.py' -v
       - name: Show the conformance corpus and its numbers
