@@ -170,6 +170,26 @@ class TestTheRenderedSite(unittest.TestCase):
             for rel in (r['page'], r['json']):
                 self.assertTrue(os.path.exists(os.path.join(self.dir, rel)), f'{rel} is listed and missing')
 
+    def test_the_repository_front_page_links_at_things_that_exist(self):
+        """The root index.html is the site's front door and is not generated, so nothing else notices when a
+        link into the generated part goes stale."""
+        root = os.path.dirname(os.path.dirname(HERE))
+        front = os.path.join(root, 'index.html')
+        if not os.path.exists(front): self.skipTest('no front page in this checkout')
+        with open(front) as fh: h = fh.read()
+        targets = sorted(set(re.findall(r'href="(beliefs/[^"#]*)"', h)))
+        self.assertTrue(targets, 'the front page links at nothing in the generated site')
+        for t in targets:
+            rel = t[len('beliefs/'):] or 'index.html'
+            if rel.endswith('/'): rel += 'index.html'
+            self.assertTrue(os.path.exists(os.path.join(self.dir, rel)),
+                            f'the front page links at beliefs/{rel}, which the build does not produce')
+
+    def test_the_revision_page_exists_even_with_no_history(self):
+        """Anything may link at it, so it cannot be conditional; with nothing to compare it says so rather
+        than implying nothing changed."""
+        self.assertTrue(os.path.exists(os.path.join(self.dir, 'changes.html')))
+
     def test_the_build_says_what_it_was_built_from(self):
         """A number nobody can trace to a revision is not citable."""
         for name in ('index.html', 'method.html'):

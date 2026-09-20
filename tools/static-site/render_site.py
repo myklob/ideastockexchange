@@ -910,8 +910,8 @@ def render_index(c, title):
     H = Html(c)
     o = [f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{esc(title)}</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><a class="skip" href="#beliefs">Skip to the beliefs</a><main class="index" id="beliefs">''']
-    chg = ' \u00b7 <a href="changes.html">What changed in this revision</a>' if getattr(c, 'changes', None) else ''
-    o.append(f'<p class="crumb"><em><a href="method.html">How every number here is computed</a>{chg}</em></p>')
+    o.append('<p class="crumb"><em><a href="method.html">How every number here is computed</a> \u00b7 '
+             '<a href="changes.html">What changed in this revision</a></em></p>')
     o.append(f'<p class="kind">Idea Stock Exchange · {esc(c.name)}</p><h1>Every claim has a page. Every number is a link.</h1>')
     ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
     o.append(f'<p class="lede">{len(c.specs)} pages. Each belief below is one claim, argued on both sides, with every reason, finding and prediction scored as sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq, every factor read from the page that argues it. The score is signed: a claim argued false counts against the side it was filed on, and a claim nobody has argued counts exactly nothing, so listing reasons is worth nothing until they are argued.</p>')
@@ -1125,7 +1125,9 @@ def page_json(c, pid):
 
 def render_changes(c, H, d, title='Idea Stock Exchange'):
     """What somebody changed, and what it did to the numbers. Two different questions on one page."""
-    tb, sc = d['tables'], d['scores']
+    tb = d['tables'] if d else {'pages': {'added': [], 'removed': [], 'changed': []},
+                                'edges': {'added': [], 'removed': [], 'changed': []}}
+    sc = d['scores'] if d else []
     o = [f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>What changed in this revision</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><a class="skip" href="#changes">Skip to the changes</a><main id="changes">''']
     o.append('<p class="crumb"><em><a href="index.html">Home</a> \u203a <a href="method.html">Method</a> \u203a <strong>What changed</strong></em></p>')
@@ -1133,10 +1135,15 @@ def render_changes(c, H, d, title='Idea Stock Exchange'):
     pg, ed = tb['pages'], tb['edges']
     counts = (len(pg['added']), len(pg['removed']), len(pg['changed']),
               len(ed['added']), len(ed['removed']), len(ed['changed']))
-    o.append(f'<p class="meta">Against the previous published revision. {counts[0]} pages added, {counts[1]} removed, '
+    o.append('<p class="meta">' + ('No previous revision was available to this build.' if d is None else
+             f'Against the previous published revision. {counts[0]} pages added, {counts[1]} removed, '
              f'{counts[2]} edited; {counts[3]} rows added, {counts[4]} removed, {counts[5]} edited. '
-             f'{len(sc)} pages moved.</p>')
-    if not any(counts) and not sc:
+             f'{len(sc)} pages moved.') + '</p>')
+    if d is None:
+        o.append('<section class="card"><p class="ro">There is no previous revision to compare this build '
+                 'against: it was built without the history the comparison needs. Nothing below is a claim that '
+                 'nothing changed.</p></section>')
+    elif not any(counts) and not sc:
         o.append('<section class="card"><p class="ro">Nothing in the two tables changed, so no number moved. '
                  'A revision that only touches the toolchain leaves the argument exactly where it was.</p></section>')
     o.append(H.section('What the numbers did',
@@ -1240,9 +1247,8 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
     content = entry if os.path.isdir(entry) else os.path.join(os.path.dirname(os.path.abspath(entry)), 'content')
     c.changes = CHANGES.since(content, c) if os.path.isdir(content) else None
-    if c.changes:
-        with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
-            fh.write(ths(render_changes(c, Html(c, 'p/'), c.changes, title)))
+    with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
+        fh.write(ths(render_changes(c, Html(c, 'p/'), c.changes, title)))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(ths(render_index(c, title)))
     with open(os.path.join(outdir, 'method.html'), 'w') as fh:
         fh.write(ths(method.render(c, Html(c, 'p/'), esc, f2, pct, CONST, CONST_MEANING, WIKI, JS)))
@@ -1256,7 +1262,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     # link check: every internal href resolves to a file that was written
     files = set(os.listdir(os.path.join(outdir, 'p')))
     broken = []
-    for fn in list(files) + ['../index.html', '../method.html'] + (['../changes.html'] if c.changes else []):
+    for fn in list(files) + ['../index.html', '../method.html', '../changes.html']:
         path = os.path.join(outdir, 'p', fn) if not fn.startswith('../') else os.path.join(outdir, fn[3:])
         base = 'p' if not fn.startswith('../') else ''
         with open(path) as fh: page = fh.read()
