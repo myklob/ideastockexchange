@@ -8,8 +8,10 @@ Two jobs, one code path:
    every multiplier is a page id (link_id, imp_id, uniq_id, drives_id, equiv_id, bearing_id, who_id) or nothing.
 
 2. Model computes every score from those two tables alone, with the same rules the workbook's formulas implement:
-     row score            = Truth x Link x Imp x Uniq              (arguments, evidence)
-     prediction           = sign x (2 x Truth - 1) x Link x Imp x Uniq
+     row contribution     = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq   (arguments, evidence, predictions)
+                            signed: a claim argued false counts against the side it was filed on, and a claim
+                            nobody has argued contributes 0. POS and NEG are the positive and negative
+                            contributions as magnitudes, so a row lands on the side its sign puts it on.
      page truth (argued)  = (POS + k x 0.5) / (POS + NEG + k)
      page truth           = min(argued, weakest load-bearing component that has its own page)
      belief score         = POS - NEG (open-ended)
@@ -117,6 +119,9 @@ class Model:
         self.edges = {}
         for e in edges: self.edges.setdefault(e['page_id'], []).append(e)
         self.memo = {}
+        # How much this page's score has earned the right to count, in [0,1]; see confidence.py.
+        # Default 1.0 leaves the scorer exactly as it was, so the zoning reference still reproduces.
+        self.conf = lambda pid: 1.0
 
     def rows(self, pid, section, side=None):
         return [e for e in self.edges.get(pid, []) if e['section'] == section and (side is None or e.get('side') == side)]
@@ -124,12 +129,22 @@ class Model:
     def pg(self, v, default): return self.truth(v) if is_page(v) else default
     def _share(self, pro, con):
         K = self.C['K']; return (pro + K * 0.5) / (pro + con + K)
-    def _row(self, e):
+    def _contrib(self, e, sign):
+        """What a row contributes, signed, in [-1, +1]: sign x (2 x Truth - 1) x Link x Imp x Uniq.
+
+        Truth enters on the -1..+1 scale the wiki uses, so a claim argued false counts AGAINST the side it was
+        filed on: ten refuted reasons to agree weaken the belief instead of padding it. A claim nobody has
+        argued sits at 0.5 and contributes exactly 0, so listing a claim is worth nothing until it is argued.
+        One formula for arguments, evidence and predictions alike; predictions always used this form."""
         C = self.C
-        return self.pg(e.get('claim_id'), C['UNARG']) * self.pg(e.get('link_id'), C['DEFLINK']) * self.pg(e.get('imp_id'), C['DEFIMP']) * self.pg(e.get('uniq_id'), C['DEFUNIQ'])
-    def _pred(self, e, sign):
-        C = self.C
-        return sign * (2 * self.pg(e.get('claim_id'), C['UNARG']) - 1) * self.pg(e.get('link_id'), C['DEFLINK']) * self.pg(e.get('imp_id'), C['DEFIMP']) * self.pg(e.get('uniq_id'), C['DEFUNIQ'])
+        cid = e.get('claim_id')
+        return (sign * (2 * self.pg(cid, C['UNARG']) - 1) * (self.conf(cid) if is_page(cid) else 0.0)
+                * self.pg(e.get('link_id'), C['DEFLINK']) * self.pg(e.get('imp_id'), C['DEFIMP']) * self.pg(e.get('uniq_id'), C['DEFUNIQ']))
+    @staticmethod
+    def _split(vals):
+        """Weight for and weight against, both as magnitudes. A row lands on the side its sign puts it on, not the
+        side it was filed on, so a refuted objection counts as support and a refuted reason counts against."""
+        return sum(v for v in vals if v > 0), -sum(v for v in vals if v < 0)
 
     def evaluate(self, pid):
         if pid in self.memo: return self.memo[pid]
@@ -139,21 +154,23 @@ class Model:
             effs = [self.truth(e['claim_id']) * self.pg(e.get('bearing_id'), C['DEFLINK']) for e in self.rows(pid, 'interest_listing') if is_page(e.get('claim_id'))]
             t = max(effs) if effs else C['UNARG']
             out.update(belief=t, truth=t); self.memo[pid] = out; return out
-        pro = sum(self._row(e) for e in self.rows(pid, 'argument', 'agree')); con = sum(self._row(e) for e in self.rows(pid, 'argument', 'disagree'))
+        args = [self._contrib(e, 1) for e in self.rows(pid, 'argument', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'argument', 'disagree')]
+        pro, con = self._split(args)
         out.update(pro=pro, con=con)
         if kind in SPECIAL:
             out.update(belief=pro - con, truth=self._share(pro, con))
             if kind == 'media':
-                ip = sum(self._row(e) for e in self.rows(pid, 'impact', 'agree')); ic = sum(self._row(e) for e in self.rows(pid, 'impact', 'disagree'))
-                out['impact'] = self._share(ip, ic)
+                imp_rows = [self._contrib(e, 1) for e in self.rows(pid, 'impact', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'impact', 'disagree')]
+                out['impact'] = self._share(*self._split(imp_rows))
             self.memo[pid] = out; return out
-        supp = sum(self._row(e) for e in self.rows(pid, 'evidence', 'agree')); weak = sum(self._row(e) for e in self.rows(pid, 'evidence', 'disagree'))
-        preds = [self._pred(e, 1) for e in self.rows(pid, 'prediction', 'agree')] + [self._pred(e, -1) for e in self.rows(pid, 'prediction', 'disagree')]
-        pos = pro + supp + sum(x for x in preds if x > 0); neg = con + weak - sum(x for x in preds if x < 0)
+        evid = [self._contrib(e, 1) for e in self.rows(pid, 'evidence', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'evidence', 'disagree')]
+        supp, weak = self._split(evid)
+        preds = [self._contrib(e, 1) for e in self.rows(pid, 'prediction', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'prediction', 'disagree')]
+        pos, neg = self._split(args + evid + preds)
         raw = self._share(pos, neg)
         lb = [self.truth(e['claim_id']) for e in self.rows(pid, 'component') if is_page(e.get('claim_id')) and str(e.get('attrs', {}).get('lb', '')).upper() == 'Y']
         truth = min(raw, min(lb)) if lb else raw
-        out.update(supp=supp, weak=weak, pred=sum(preds), belief=(pro - con) + (supp - weak) + sum(preds), truth=truth, raw=raw)
+        out.update(supp=supp, weak=weak, pred=sum(preds), belief=pos - neg, truth=truth, raw=raw, pos=pos, neg=neg)
         self.memo[pid] = out; return out
 
 if __name__ == '__main__':

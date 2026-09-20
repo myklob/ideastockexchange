@@ -9,11 +9,13 @@ every table on every page). Nothing typed in it is a score. Everything else here
 
 `score_reference.py` is the scorer all three share. It computes every number from the tables:
 
-    row score           = Truth x Link x Imp x Uniq
-    prediction          = sign x (2 x Truth - 1) x Link x Imp x Uniq
+    row contribution    = sign x (2 x Truth - 1) x Link x Imp x Uniq   (arguments, evidence, predictions alike)
+                          signed, so a claim argued false counts against the side it was filed on and a
+                          claim nobody has argued contributes exactly 0
     page truth (argued) = (POS + k x 0.5) / (POS + NEG + k), k = 1
     page truth          = min(argued, weakest load-bearing component that has its own page)
-    belief score        = POS - NEG, open ended
+    belief score        = POS - NEG, open ended, where POS and NEG are the positive and negative
+                          contributions as magnitudes (a row lands on the side its sign puts it on)
     importance page     = max over listed interests of Validity x Bears
 
 A multiplier with no page reads a labelled constant (UNARG 0.5, DEFLINK 1, DEFIMP 0.5, DEFUNIQ 1), and the site shows
@@ -40,3 +42,10 @@ those in grey so the reader can see which factors nobody has argued yet.
 To change the content, edit `ISE_Data_Entry.xlsx` (the how-to-use sheet inside it explains the columns) and push.
 To add a page, add a row to `pages` with a new key, then refer to that key from `edges`; keys are slugs, never
 numbers, so nothing renumbers.
+
+## Known divergence: the Excel workbook
+
+`build_pages.py` and `build_subpages.py` still write the older unsigned `Truth x Link x Imp x Uniq` into the
+workbook's row formulas, so a workbook built today disagrees with the website and with `score_reference.py`.
+The workbook's totals also need SUMIF partitioning by sign rather than a plain SUM. Until that is done, treat
+`render_site.py` and `score_reference.py` as the engine of record and do not rely on `build_example.py`.

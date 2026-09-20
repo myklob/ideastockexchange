@@ -1,0 +1,104 @@
+"""Confidence and stability: how much a page's score has earned the right to count.
+
+From docs/wiki/Confidence-Stability-Scores.md. The premise there is that a score means nothing until the work
+behind it has been done, and then means more and more as it is done: pro and con both argued, the multipliers
+challenged rather than presumed, sources cited, the claims underneath actually established rather than asserted.
+
+Confidence is in [0,1] and multiplies a row's contribution to its parent:
+
+    contribution = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq
+
+At confidence 0 a claim moves its parent not at all however true it looks, which is the wiki's "the scores
+wouldn't count". As the work accumulates the same claim counts more and more. This is deliberately NOT a cap on
+the truth score itself: truth stays what the arguments say it is, and confidence says how much to bet on it.
+
+WHAT IS MEASURED HERE, AND WHAT IS NOT. The wiki lists behavioural signals too: up and down votes, weekly
+visitors, dwell time, edit frequency, duplicate submission attempts, per-argument evaluation responses, and the
+standard deviation of a score over time. A two-table corpus has none of those: there is one snapshot and no
+user. Those live in BEHAVIOURAL below with weight 0 and are reported as "no data" rather than scored as 0, so a
+page is never punished for a signal the format cannot carry. Wire them up and they take weight from the
+structural components, which is the migration the wiki describes.
+"""
+
+# component -> (weight, always applicable?)  Reasoning quality outranks volume, per the wiki's own ordering.
+STRUCTURAL = {
+    'grounding':   (0.30, True),   # is what sits underneath actually established, or just asserted?
+    'two_sided':   (0.20, True),   # has anyone argued the other side at all?
+    'scrutiny':    (0.20, True),   # are the multipliers argued, or resting on their starting constants?
+    'breadth':     (0.15, True),   # how much has been brought to bear
+    'depth':       (0.05, True),   # how far down the tree goes
+    'sourcing':    (0.05, False),  # evidence rows that cite a source        (only where there is evidence)
+    'testability': (0.05, False),  # predictions that are diagnostic and dated (only where there are predictions)
+}
+BEHAVIOURAL = ['up and down votes', 'weekly visitors', 'dwell time', 'edit frequency',
+               'duplicate submission attempts', 'evaluation responses', 'score variance over time']
+
+def saturate(n, half):
+    """0 at n=0, 0.5 at n=half, approaching 1. Keeps volume from ever dominating reasoning quality."""
+    return n / (n + half) if n > 0 else 0.0
+
+
+class Confidence:
+    """Computed over the same page/edge tables the scorer uses. Memoised; the corpus is a DAG."""
+
+    def __init__(self, corpus):
+        self.c = corpus
+        self._memo = {}
+
+    def of(self, pid):
+        return self.parts(pid)['confidence']
+
+    def parts(self, pid, _seen=()):
+        if pid in self._memo: return self._memo[pid]
+        if pid in _seen: return {'confidence': 0.0, 'components': {}, 'na': [], 'cycle': True}
+        c = self.c; sp = c.specs[pid]; seen = _seen + (pid,)
+
+        rows, kids = [], []
+        for key, side in (('args', 'agree'), ('args', 'disagree'), ('evid', 'for'), ('evid', 'against')):
+            for d in sp.get(key, {}).get(side, []):
+                rows.append(d)
+                if _is(d.get('id')) and d['id'] in c.specs: kids.append(d['id'])
+        preds = sp.get('pred_true', []) + sp.get('pred_false', [])
+        nagree = len(sp.get('args', {}).get('agree', [])) + len(sp.get('evid', {}).get('for', []))
+        ndis = len(sp.get('args', {}).get('disagree', [])) + len(sp.get('evid', {}).get('against', []))
+
+        comp = {}
+        comp['two_sided'] = 1.0 if (nagree and ndis) else (0.35 if (nagree or ndis) else 0.0)
+        comp['breadth'] = saturate(len(rows) + len(preds), 6)
+        comp['depth'] = saturate(self._depth(pid, seen), 3)
+        # scrutiny: of the three multipliers on each row, how many have been argued on a page of their own
+        slots = [d.get(k) for d in rows + preds for k in ('link', 'imp', 'uniq')]
+        comp['scrutiny'] = (sum(1 for v in slots if _is(v)) / len(slots)) if slots else 0.0
+        # grounding: a page is only as settled as the claims beneath it. Recursive, and the reason a tree of
+        # bare assertions scores near zero no matter how many rows it lists.
+        comp['grounding'] = (sum(self.parts(k, seen)['confidence'] for k in kids) / len(kids)) if kids else 0.0
+
+        na = []
+        ev = sp.get('evid', {}).get('for', []) + sp.get('evid', {}).get('against', [])
+        if ev: comp['sourcing'] = sum(1 for d in ev if (d.get('source') or '').strip()) / len(ev)
+        else: na.append('sourcing')
+        # structural only: dated, and someone has opened a linkage page to argue how diagnostic it is.
+        # Deliberately never reads a truth score, so confidence cannot recurse through the scorer.
+        if preds: comp['testability'] = sum(1 for d in preds if d.get('deadline') and _is(d.get('link'))) / len(preds)
+        else: na.append('testability')
+
+        num = sum(STRUCTURAL[k][0] * v for k, v in comp.items())
+        den = sum(STRUCTURAL[k][0] for k in comp)
+        out = {'confidence': (num / den) if den else 0.0, 'components': comp, 'na': na, 'cycle': False}
+        self._memo[pid] = out
+        return out
+
+    def _depth(self, pid, seen=()):
+        c = self.c; sp = c.specs[pid]; best = 0
+        for key, side in (('args', 'agree'), ('args', 'disagree')):
+            for d in sp.get(key, {}).get(side, []):
+                k = d.get('id')
+                if _is(k) and k in c.specs and k not in seen:
+                    best = max(best, 1 + self._depth(k, seen + (pid,)))
+        return best
+
+    def label(self, v):
+        return 'established' if v >= 0.75 else 'developing' if v >= 0.45 else 'early' if v >= 0.15 else 'unstarted'
+
+
+def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
