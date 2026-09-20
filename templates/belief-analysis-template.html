@@ -17,7 +17,7 @@
        evident from the cell alone: the claim, the single most famous supporting
        quote inline (italic, small), then the submitter as ~Name.
     4. Arguments are NOT Evidence. Citations, stats, and studies go in the Evidence
-       Ledger, not in argument cells — and every evidence item names what it BEARS
+       Ledger, not in argument cells, and every evidence item names what it BEARS
        ON: a specific argument (by its opening words) or this belief directly.
     5. No broken links. Check every href before publishing; use plain text if the
        target page doesn't exist.
@@ -25,13 +25,13 @@
        placeholders. Scorecard cells marked auto-derived are computed from the
        tables below, never hand-picked.
     7. Supporters and Opponents get symmetric structure everywhere.
-    8. Every table sorts by its rank key, descending — rows enter and rank only by
+    8. Every table sorts by its rank key, descending. Rows enter and rank only by
        the performance of their pro/con sub-arguments, never by editorial
        placement. The rank key is the rightmost score column: Impact for arguments
        and evidence, Expected Value for costs and benefits, Claim Strength for the
        Primary Conflict Pair, and Score everywhere else. In the ISE software each
        table shows its top five rows and collapses the rest until expanded.
-    Also: spell words out — no abbreviated column headers, no cryptic placeholder
+    Also: spell words out, no abbreviated column headers, no cryptic placeholder
     tokens. Underscored [Bracketed_Tokens] are machine-replaceable substitution
     slots; keep the underscores AND keep every word readable.
 
@@ -45,7 +45,7 @@
         Falsifiability row]; in the software also the collapsed twelve-dimension
         engine readout) + "How to read this page" box
     1.  Argument Trees (scored two-sided table: Argument / Score / Linkage /
-        Importance / Impact — spelled out, no abbreviations; Pro+Con totals, Net
+        Importance / Impact, spelled out, no abbreviations; Pro+Con totals, Net
         Belief Score line). Confirmed fallacy claims are noted inline in the
         argument cell and damage exactly the factor their type targets
         (relevance → Linkage, formal → the validity component of the Argument
@@ -69,12 +69,12 @@
         (Units) / Magnitude / Likelihood % / Expected Value, per-category
         subtotals only), then Short vs. Long-Term Impacts (with Scores)
     7.  Conflict Resolution Framework (in the software it opens with the computed
-        Pipeline readout — the scored cost-benefit trees read sideways)
+        Pipeline readout, the scored cost-benefit trees read sideways)
         a. Shared Values, Different Rankings (with Score + what-would-shift row)
         b. Likely Interests of Supporters (ranked by Score; prevalence until then)
         c. Likely Interests of Opponents (symmetric)
         d. Shared and Conflicting Interests (Shared Interests with Score +
-           Primary Conflict Pair — Standalone Validity and Claim Strength are
+           Primary Conflict Pair: Standalone Validity and Claim Strength are
            different numbers)
         e. Best Compromise Solutions (with Score: interests satisfied)
         f. Advertised vs. Actual Motivations (with Divergence Score)
@@ -90,9 +90,9 @@
         not in the table)
     11b. Where This Belief Is Used (software only; what-links-here)
     11c. Score History (software only; the accumulation ledger)
-    12. Definitions (Term / Definition / Score, defined operationally) — last
+    12. Definitions (Term / Definition / Score, defined operationally), last
         analysis section
-    12b. People on the Record (On record agreeing / disagreeing — history,
+    12b. People on the Record (On record agreeing / disagreeing, history,
         never weight; omit when empty)
     13. Contribute / footer
     14. Related Topics (the category cluster; current page as plain text)
@@ -127,7 +127,7 @@
 <p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>How to read this page:</strong> nothing here is placed by editorial choice. Every row in every table is itself a claim, and its Score is the <a href="/w/page/159300543/ReasonRank">ReasonRank</a> performance of the pro/con sub-debate about that claim, computed recursively down to the evidence. Every table sorts by its rank key, best content first; the rank key is the rightmost score column: Impact for arguments and evidence, Expected Value for costs and benefits, Claim Strength for the Primary Conflict Pair, and Score everywhere else. In the ISE software each table shows its top five rows and collapses the rest until expanded. [Bracketed] numbers are hand-estimated placeholders until the engine ships, and score cells stay blank until real content exists to score. This wiki can&rsquo;t sort tables live; the score columns are the data contract that lets the software sort, filter, and collapse every table automatically.</p>
 <p>&nbsp;</p>
 <h1>🔍 <a href="/Reasons">Argument Trees</a></h1>
-<p style="font-size: 13px;">Each argument is a belief with its own page. Scores are recursive: Argument Score &times; <a href="/w/page/159338766/Linkage%20Scores">Linkage</a> &times; <a href="/w/page/162731388/Importance%20Score">Importance</a> = Impact. Pro and con impacts sum to the Net Belief Score. A true-but-irrelevant argument scores high on truth and near zero on linkage, so it contributes nothing. <a href="/w/page/162497319/Grouping%20Similar%20Arguments%20and%20Detecting%20Fallacies%20Would%20End%20Repetitive%20Debates">Confirmed fallacy claims</a> feed these factors too: a community-confirmed fallacy damages exactly the factor its type targets (relevance fallacies hit Linkage, formal fallacies hit the validity component of the Argument Score, evidence fallacies hit Evidence Quality) and is noted inline in the argument cell. A fallacy accusation that has not been confirmed changes nothing.</p>
+<p style="font-size: 13px;">Each argument is a belief with its own page. Scores are recursive: Truth Score &times; <a href="/w/page/159338766/Linkage%20Scores">Linkage</a> &times; <a href="/w/page/162731388/Importance%20Score">Importance</a> = Impact. Pro and con impacts sum to the Net Belief Score. A true-but-irrelevant argument scores high on truth and near zero on linkage, so it contributes nothing. <a href="/w/page/162497319/Grouping%20Similar%20Arguments%20and%20Detecting%20Fallacies%20Would%20End%20Repetitive%20Debates">Confirmed fallacy claims</a> feed these factors too: a community-confirmed fallacy damages exactly the factor its type targets (relevance fallacies hit Linkage, formal fallacies hit the validity component of the Truth Score, evidence fallacies hit Evidence Quality) and is noted inline in the argument cell. A fallacy accusation that has not been confirmed changes nothing.</p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr>
@@ -167,7 +167,7 @@
      existing scores; never hand-ranked. Omit this whole block when every edge
      is settled (nothing at stake). See /algorithms/decision-leverage. -->
 <h1>&#127919; <a href="/algorithms/decision-leverage">Decision Leverage</a></h1>
-<p style="font-size: 13px;">Which argument is worth settling next. <strong>Leverage</strong> is the points of conclusion score still at stake on one edge: <strong>Weight</strong> (how much of a change in that reason transmits to this conclusion: |linkage| &times; importance &times; uniqueness &times; 0.5<sup>depth</sup>) &times; <strong>Open</strong> (how much about that reason is still unresolved: evidence, linkage votes, opposition, scoring). High where an argument both carries the conclusion and rests on little. An upper bound on movement, not a forecast &mdash; direction is unknown, which is why the edge is worth investigating.</p>
+<p style="font-size: 13px;">Which argument is worth settling next. <strong>Leverage</strong> is the points of conclusion score still at stake on one edge: <strong>Weight</strong> (how much of a change in that reason transmits to this conclusion: |linkage| &times; importance &times; uniqueness &times; 0.5<sup>depth</sup>) &times; <strong>Open</strong> (how much about that reason is still unresolved: evidence, linkage votes, opposition, scoring). High where an argument both carries the conclusion and rests on little. An upper bound on movement, not a forecast, direction is unknown, which is why the edge is worth investigating.</p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6; font-size: 12px;"><th width="34%">Argument</th> <th width="10%">Leverage</th> <th width="9%">Weight</th> <th width="9%">Open</th> <th width="24%">What would settle it</th> <th width="14%">Status</th></tr>

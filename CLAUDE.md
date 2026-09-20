@@ -215,6 +215,12 @@ uniqueness) or a labelled constant when no such page exists yet.
 
 - **Comments:** default to none. Only write a comment when the *why* is non-obvious. Don't restate what the code does. Don't reference task IDs or PR numbers — those rot.
 - **No new top-level docs (*.md, README, etc.) unless explicitly asked.**
+- **Templates are always brought to the current form, never left stale.** `templates/` holds the page
+  templates and `tools/check_templates.py` decides whether each is current, by the ISE page skill's
+  fingerprints: no retired `Argument Score` or `Evidence Score` columns, canonical Magnitude bands of Modest,
+  Moderate, Strong and Total, engagement as a section rather than a continuum, no em dashes, no empty anchors.
+  CI runs it on any change under `templates/`. A template is copied rather than imported, so a stale one
+  breaks nothing and quietly teaches the next dozen pages the wrong shape.
 - **Edit before Write.** Use `Edit` for changes to existing files. `Write` only for new files or full rewrites.
 - **Branch convention:** Claude-driven work goes on `claude/<short-slug>-<id>` branches. Push, but do NOT open a PR unless the user asks for one.
 - **JSX entities:** the lint rule `react/no-unescaped-entities` will flag bare apostrophes/quotes inside JSX text. Use `&apos;`, `&ldquo;`, `&rdquo;`.
