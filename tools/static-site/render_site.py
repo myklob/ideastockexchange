@@ -13,6 +13,7 @@ from ise_tables import read_entry, tables_to_specs, entry_keys, is_page
 from score_reference import Model, normalize
 from build_pages import CONSTS, WIKI
 from build_subpages import KINDS
+from confidence import Confidence
 from export_db import export as export_db
 
 def has(d):
@@ -34,6 +35,8 @@ class Corpus:
         self.tabs = entry_keys(pages); self.key = {t: k for k, t in self.tabs.items()}
         self.name = name
         self.model = Model(self.specs, CONST)
+        self.conf = Confidence(self)          # how much work stands behind each page
+        self.model.conf = self.conf.of        # ... and it gates what that page passes to its parents
         self.norm_pages, self.norm_edges = normalize(self.specs, self.beliefs)
         self.uses = {}          # pid -> [(page_id, section, side)] : every row anywhere that reads this page
         for e in self.norm_edges:
@@ -93,9 +96,10 @@ class Corpus:
         """One row's factors and its signed contribution, sign x (2 x Truth - 1) x Link x Imp x Uniq. Mirrors
         score_reference.Model._contrib; the two are checked against each other on every render."""
         t, l, i, u = self.pg(d.get('id'), UNARG), self.pg(d.get('link'), DEFLINK), self.pg(d.get('imp'), DEFIMP), self.pg(d.get('uniq'), DEFUNIQ)
-        return dict(truth=t, link=l, imp=i, uniq=u,
-                    score=sign * (2 * t - 1) * l * i * u,
-                    stake=l * i * u * (1 - abs(2 * t - 1)))
+        k = self.conf.of(d['id']) if is_page(d.get('id')) else 0.0
+        return dict(truth=t, link=l, imp=i, uniq=u, conf=k,
+                    score=sign * (2 * t - 1) * k * l * i * u,
+                    stake=k * l * i * u * (1 - abs(2 * t - 1)))
 
     # ---- everything a belief page's scorecard and engine show, mirroring the workbook's engine cells
     def stats(self, pid):
@@ -295,21 +299,27 @@ def render_belief(c, pid):
     cov = f'Of {s["nrows"]} scored rows, {s["nolink"]} have no linkage page, {s["noimp"]} no importance page and {s["nouniq"]} no uniqueness page. This page reads {len(s["children"])} pages.'
     inc = [p for p in s['children'] if not c.stats(p)['complete']]
     cov += (f' {len(inc)} of them are one-sided or empty: ' + '; '.join(H.a(p, c.brief(p)[0]) for p in inc) + '.') if inc else ' All of them have both sides argued.'
-    cb = ('Mixed units, so no single net. ' + '; '.join(f'{esc(cat)}: {smoney(b - x)}' for cat, b, x in s['catnet'])) if s['mixed'] else (f'Net expected value {sf(s["netev"])}' + (f', benefit to cost {f2(s["bcr"])}' if s['bcr'] is not None else ''))
+    kp = c.conf.parts(pid); kv = kp['confidence']
+    weak_first = sorted(kp['components'].items(), key=lambda x: x[1])[:2]
+    read = [('Truth', (pct(s["share"]) + " of scored weight is on the agree side. Weight is signed: a claim argued false subtracts from the side it was filed on, and a claim nobody has argued adds nothing." if s["share"] is not None else "Nothing has been argued here yet, so this sits at the neutral start.") + cap)]
+    read.append(('Confidence', f'{pct(kv)}, {c.conf.label(kv)}. This is how much of the work behind the score has actually been done, and it multiplies what this page passes to any page above it: at 0 a claim moves its parent not at all, however true it looks. Weakest parts right now: ' + ' and '.join(f'{k.replace("_"," ")} {pct(v)}' for k, v in weak_first) + '.'))
+    if s["mover"]: read.append(('What would move this most', esc(s["mover"]) + f' ({f2(s["movval"])} points at stake)'))
+    if s['cba']['ben'] or s['cba']['cos']:
+        read.append(('Worth doing?', ('Mixed units, so no single net. ' + '; '.join(f'{esc(cat)}: {smoney(b - x)}' for cat, b, x in s['catnet'])) if s['mixed'] else (f'Net expected value {sf(s["netev"])}' + (f', benefit to cost {f2(s["bcr"])}' if s['bcr'] is not None else ''))))
+    if s['dispute']: read.append(('Kind of fight', esc(s["dispute"]) + f'. Evidence two-sidedness {pct(s["factual"])}, reasons whose linkage leans against relevance {pct(s["linkshare"])}' + (f', value-ranking gap {f2(s["valgap"])}' if s["valgap"] is not None else '') + (f', ease of resolution {f2(s["ease"])}' if s["ease"] is not None else '') + '.'))
+    read.append(('Coverage', cov))
+    if (sp.get('bottom_line') or '').strip(): read.append(('Bottom line', f'<span class="bl">{esc(sp["bottom_line"])}</span>'))
     o.append(f'''<section class="card"><div class="tiles">
 <div class="tile"><div class="lab">Truth score</div><div class="big">{f2(s["truth"])}</div><div class="sub">0 to 1. What other pages read.</div></div>
+<div class="tile"><div class="lab">Confidence</div><div class="big">{pct(kv)}</div><div class="sub">{esc(c.conf.label(kv))}. How much of the work is done.</div></div>
 <div class="tile"><div class="lab">Belief score</div><div class="big">{sf(s["belief"])}</div><div class="sub">Positive minus negative, open ended.</div></div>
 <div class="tile"><div class="lab">Weight for</div><div class="big">{f2(s["pos"])}</div><div class="sub">arguments {f2(s["pro"])} · evidence {f2(s["supp"])} · predictions {f2(s["pos"] - s["pro"] - s["supp"])}</div></div>
 <div class="tile"><div class="lab">Weight against</div><div class="big">{f2(s["neg"])}</div><div class="sub">arguments {f2(s["con"])} · evidence {f2(s["weak"])} · predictions {f2(s["neg"] - s["con"] - s["weak"])}</div></div>
 </div>
-<dl class="readout">
-<dt>Truth</dt><dd>{pct(s["share"]) + " of scored weight is on the agree side. Weight is what counts, and it is signed: a claim argued false subtracts from the side it was filed on, and a claim nobody has argued adds nothing at all, so a long list of assertions scores no better than an empty page." if s["share"] is not None else "Nothing scored yet, so the neutral start."}{cap}</dd>
-<dt>Cost-benefit</dt><dd>{cb}</dd>
-<dt>What would move this most</dt><dd>{esc(s["mover"]) + f" ({f2(s['movval'])} points at stake)" if s["mover"] else "List testable predictions below."}</dd>
-<dt>Kind of fight</dt><dd>{esc(s["dispute"]) or "(nothing scored)"}. Evidence two-sidedness {pct(s["factual"])}, reasons whose linkage leans against relevance {pct(s["linkshare"])}, value-ranking gap {f2(s["valgap"]) if s["valgap"] is not None else "(none ranked)"}, ease of resolution {f2(s["ease"]) if s["ease"] is not None else "(no compromise scored)"}, misunderstanding index {f2(s["misund"])}.</dd>
-<dt>Coverage</dt><dd>{cov}</dd>
-<dt>Bottom line</dt><dd class="bl">{esc(sp.get("bottom_line") or "")} <span class="typed-note">(the one typed line on this card)</span></dd>
-</dl></section>''')
+<dl class="readout">''' + ''.join(f'<dt>{esc(k)}</dt><dd>{v}</dd>' for k, v in read) + '''</dl></section>''')
+    # Sections with no content yet are not rendered: an empty template row is not a result, and a reader
+    # should meet this page's best work first. What is missing is listed once, at the end, as work to do.
+    todo = []
     # ---- arguments
     o.append(H.section('Argument Trees', 'Each reason is a claim with its own page. Score = sign x (2 x Truth - 1) x Link x Imp x Uniq: a reason argued false scores negative and counts against the side it is filed on, and a reason nobody has argued yet scores exactly 0.', ('How arguments are scored', WIKI['reasons'])))
     o.append(two_sided(H, c, 'Reasons to agree', 'Reasons to disagree',
@@ -317,11 +327,13 @@ def render_belief(c, pid):
                        scored_table(H, c, s['rows']['disagree'], sp['args']['disagree'], None, 'Argument')))
     o.append(f'<p class="tot">From these rows: weight for {f2(s["pro"])} · weight against {f2(s["con"])} · net {sf(s["pro"] - s["con"])}. A refuted objection counts as support and a refuted reason counts against, so weight lands on the side its sign puts it on, not the side it was filed on.</p></section>')
     # ---- evidence
-    o.append(H.section('Evidence Ledger', 'Findings that can fail empirically. Each has its own page where its accuracy is argued; the source is shown under it.', ('How evidence is scored', WIKI['evidence'])))
-    o.append(two_sided(H, c, 'Supporting', 'Weakening',
+    if sp['evid']['for'] or sp['evid']['against']:
+      o.append(H.section('Evidence Ledger', 'Findings that can fail empirically. Each has its own page where its accuracy is argued; the source is shown under it.', ('How evidence is scored', WIKI['evidence'])))
+      o.append(two_sided(H, c, 'Supporting', 'Weakening',
                        scored_table(H, c, s['rows']['for'], sp['evid']['for'], None, 'Finding'),
                        scored_table(H, c, s['rows']['against'], sp['evid']['against'], None, 'Finding')))
-    o.append(f'<p class="tot">From these rows: weight for {f2(s["supp"])} · weight against {f2(s["weak"])} · net {sf(s["supp"] - s["weak"])}. A finding still sits at 0.50 until its own page argues its accuracy, and at 0.50 it contributes nothing.</p></section>')
+      o.append(f'<p class="tot">From these rows: weight for {f2(s["supp"])} · weight against {f2(s["weak"])} · net {sf(s["supp"] - s["weak"])}. A finding still sits at 0.50 until its own page argues its accuracy, and at 0.50 it contributes nothing.</p></section>')
+    else: todo.append(('Evidence Ledger', 'no findings cited yet'))
     # ---- predictions
     def pred_table(specs_rows, side_rows):
         out = ['<table class="scored"><thead><tr><th>Prediction</th><th>Truth</th><th>Link</th><th>Imp</th><th>Contrib.</th><th>At stake</th><th>Deadline and method</th></tr></thead><tbody>']
@@ -329,9 +341,11 @@ def render_belief(c, pid):
             out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td class="sc">{sf(r["score"])}</td><td>{f2(r["stake"])}</td><td class="dl">{esc(d.get("deadline") or "")}</td></tr>')
         if not specs_rows: out.append('<tr><td colspan="7" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
-    o.append(H.section('Falsifiability Test', 'What we should observe if the belief is true, and if it is false. A pending prediction (truth near 0.5) contributes nothing yet; At stake is what it would contribute once settled.', ('Evidence and predictions', WIKI['evidence'])))
-    o.append(two_sided(H, c, 'If the belief is true, we should observe', 'If the belief is false, we should observe', pred_table(sp.get('pred_true', []), s['rows']['pt']), pred_table(sp.get('pred_false', []), s['rows']['pf'])))
-    o.append(f'<p class="tot">Prediction contribution {sf(s["pred"])} · points at stake {f2(s["stake"])} · {pct(s["falsif"]) if s["falsif"] is not None else "no"} predictions diagnostic and dated</p></section>')
+    if sp.get('pred_true') or sp.get('pred_false'):
+      o.append(H.section('Falsifiability Test', 'What we should observe if the belief is true, and if it is false. A pending prediction (truth near 0.5) contributes nothing yet; At stake is what it would contribute once settled.', ('Evidence and predictions', WIKI['evidence'])))
+      o.append(two_sided(H, c, 'If the belief is true, we should observe', 'If the belief is false, we should observe', pred_table(sp.get('pred_true', []), s['rows']['pt']), pred_table(sp.get('pred_false', []), s['rows']['pf'])))
+      o.append(f'<p class="tot">Prediction contribution {sf(s["pred"])} · points at stake {f2(s["stake"])} · {pct(s["falsif"]) if s["falsif"] is not None else "no"} predictions diagnostic and dated</p></section>')
+    else: todo.append(('Falsifiability Test', 'nothing stated that would show this belief false'))
     # ---- cost-benefit
     def cba_table(items, who_label):
         out = [f'<table class="scored"><thead><tr><th>Claim</th><th>Units</th><th>Magn.</th><th>Likelih.</th><th>Exp. value</th><th>{who_label}</th></tr></thead><tbody>']
@@ -341,15 +355,16 @@ def render_belief(c, pid):
             out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td class="u">{esc(d.get("category") or "")}</td><td>{mgs}</td><td>{H.num(t, d.get("id"))}</td><td class="sc">{money(e) if e is not None else ""}</td><td class="u">{who}</td></tr>')
         if not items: out.append('<tr><td colspan="6" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
-    o.append(H.section('Cost-Benefit Analysis', 'Every cost and benefit is a claim with its own page. Likelihood is that page\'s truth score; magnitude is a typed estimate in the row\'s units, the one typed number in the system. Who names the interest that gains or pays.', ('Cost-benefit analysis', WIKI['cba'])))
-    o.append(two_sided(H, c, 'Benefits', 'Costs and risks', cba_table(s['cba']['ben'], 'Who gains'), cba_table(s['cba']['cos'], 'Who pays')))
-    if s['catnet']:
+    if s['cba']['ben'] or s['cba']['cos']:
+      o.append(H.section('What Acting On This Would Cost and Gain', 'Not the cost of the belief being true, but of doing what it implies: who gains, who pays, in what units, and how likely. Every cost and benefit is a claim with its own page, so Likelihood is that page\'s truth score; magnitude is a typed estimate in the row\'s own units.', ('Cost-benefit analysis', WIKI['cba'])))
+      o.append(two_sided(H, c, 'Benefits', 'Costs and risks', cba_table(s['cba']['ben'], 'Who gains'), cba_table(s['cba']['cos'], 'Who pays')))
+      if s['catnet']:
         o.append('<h3 class="sub">Net by category</h3><table class="plain"><thead><tr><th>Units</th><th>Benefit EV</th><th>Cost EV</th><th>Net</th></tr></thead><tbody>')
         for cat, b, x in s['catnet']: o.append(f'<tr><td class="t">{esc(cat)}</td><td>{money(b)}</td><td>{money(x)}</td><td class="sc">{smoney(b - x)}</td></tr>')
         o.append('</tbody></table>')
     # who gains, who pays
-    ints = [r['id'] for r in sp.get('int_sup', []) + sp.get('int_opp', []) if is_page(r.get('id'))]
-    if ints:
+      ints = [r['id'] for r in sp.get('int_sup', []) + sp.get('int_opp', []) if is_page(r.get('id'))]
+      if ints:
         o.append('<h3 class="sub">Who gains, who pays (by interest)</h3><table class="plain"><thead><tr><th>Interest</th><th>Benefit EV</th><th>Cost EV</th><th>Net</th><th>Units</th></tr></thead><tbody>')
         for ip in ints:
             bs = [(b, e) for b, _, e in s['cba']['ben'] if b.get('who') == ip and e is not None]
@@ -360,21 +375,25 @@ def render_belief(c, pid):
             net = ('' if len(units) != 1 else (sf(bsum - xsum) if abs(bsum - xsum) < 100 else ('+' if bsum - xsum >= 0 else '') + money(bsum - xsum)))
             o.append(f'<tr><td class="t">{H.a(ip)}</td><td>{money(bsum)}</td><td>{money(xsum)}</td><td class="sc">{net}</td><td class="u">{esc(next(iter(units))) if len(units) == 1 else "mixed"}</td></tr>')
         o.append('</tbody></table>')
-    o.append('</section>')
+      o.append('</section>')
+    else: todo.append(('What acting on this would cost and gain', 'no costs or benefits priced yet'))
     # ---- anatomy
-    o.append(H.section('Logical Anatomy', 'One sentence is usually several claims. The truth score other pages read cannot exceed the weakest load-bearing component that has its own page.', ('Assumptions', WIKI['assumptions'])))
-    if sp.get('form'): o.append(f'<p class="form"><span class="lab">Logical form</span> {esc(sp["form"])}</p>')
-    o.append('<table class="plain"><thead><tr><th>Component claim</th><th>Type</th><th>Load bearing</th><th>Truth</th><th>What it silently assumes</th></tr></thead><tbody>')
-    for d in sp.get('components', []):
+    if [d for d in sp.get('components', []) if has(d)]:
+      o.append(H.section('Logical Anatomy', 'One sentence is usually several claims. The truth score other pages read cannot exceed the weakest load-bearing component that has its own page.', ('Assumptions', WIKI['assumptions'])))
+      if sp.get('form'): o.append(f'<p class="form"><span class="lab">Logical form</span> {esc(sp["form"])}</p>')
+      o.append('<table class="plain"><thead><tr><th>Component claim</th><th>Type</th><th>Load bearing</th><th>Truth</th><th>What it silently assumes</th></tr></thead><tbody>')
+      for d in sp.get('components', []):
         if not has(d): continue
         lb = str(d.get('lb', '')).upper() == 'Y'
         o.append(f'<tr{" class=lb" if lb else ""}><td class="t">{H.rowtext(d)}</td><td>{esc(d.get("type") or "")}</td><td>{"Yes" if lb else "No"}</td><td>{H.num(c.pg(d.get("id"), UNARG), d.get("id"))}</td><td class="u">{esc(d.get("assumes") or "")}</td></tr>')
-    o.append('</tbody></table>')
-    o.append(f'<p class="tot">Weakest load-bearing component {f2(s["weakest"]) if s["weakest"] is not None else "(none with a page)"} · product of load-bearing truths {f2(s["conj"]) if s["conj"] is not None else "(none)"} · argued truth {f2(s["raw"])} · truth score {f2(s["truth"])}</p>')
-    if sp.get('assume_accept') or sp.get('assume_reject'):
+      o.append('</tbody></table>')
+      o.append(f'<p class="tot">Weakest load-bearing component {f2(s["weakest"]) if s["weakest"] is not None else "(none with a page)"} · product of load-bearing truths {f2(s["conj"]) if s["conj"] is not None else "(none)"} · argued truth {f2(s["raw"])} · truth score {f2(s["truth"])}</p>')
+      if sp.get('assume_accept') or sp.get('assume_reject'):
         o.append(two_sided(H, c, 'Required to accept the belief', 'Required to reject the belief', simple_rows(H, c, sp.get('assume_accept', [])), simple_rows(H, c, sp.get('assume_reject', []))))
-    o.append('</section>')
+      o.append('</section>')
+    else: todo.append(('Logical Anatomy', 'the claim has not been split into its component parts'))
     # ---- interests and conflict
+    mark = len(o)
     o.append(H.section('Interests, Not Positions', 'Positions are what people say they want; interests are why. Each interest is a page where its validity is argued, never weighted by power. Interest score = Validity x Drives.', ('Conflict resolution framework', WIKI['conflict'])))
     if sp.get('values'):
         o.append('<h3 class="sub">Shared values, different rankings</h3><table class="plain"><thead><tr><th>Value</th><th>Supporters rank</th><th>Opponents rank</th><th>Gap</th><th>Why the rankings differ</th></tr></thead><tbody>')
@@ -408,6 +427,8 @@ def render_belief(c, pid):
     if sp.get('obst_sup') or sp.get('obst_opp'): o.append('<h3 class="sub">Obstacles to resolution</h3>' + two_sided(H, c, 'For supporters', 'For opponents', simple_rows(H, c, sp.get('obst_sup', [])), simple_rows(H, c, sp.get('obst_opp', []))))
     if sp.get('bias_sup') or sp.get('bias_opp'): o.append('<h3 class="sub">Cognitive biases</h3>' + two_sided(H, c, 'Affecting supporters', 'Affecting opponents', simple_rows(H, c, sp.get('bias_sup', [])), simple_rows(H, c, sp.get('bias_opp', []))))
     o.append('</section>')
+    if not (sp.get('int_sup') or sp.get('int_opp') or sp.get('values')):
+        del o[mark:]; todo.append(('Interests, Not Positions', 'nobody has mapped who wants what, or why'))
     # ---- media, law, up/down, similar, definitions, people
     def media_table(items):
         out = ['<table class="scored"><thead><tr><th>Work</th><th>Type</th><th>Bears</th><th>Quality</th><th>Impact</th><th>Imp</th><th>Score</th></tr></thead><tbody>']
@@ -418,13 +439,22 @@ def render_belief(c, pid):
             out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td>{esc(typ or "")}</td><td>{H.num(bears, d.get("link"))}</td><td>{H.num(q, mp)}</td><td>{H.num(im, mp)}</td><td>{H.num(imp, d.get("imp"))}</td><td class="sc">{f2(bears * q * im * imp)}</td></tr>')
         if not items: out.append('<tr><td colspan="7" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
+    mark = len(o)
     o.append(H.section('Media Resources', 'Each work has its own page where quality and impact are argued separately; whether it bears on this belief is a linkage page.', ('How media is scored', WIKI['media'])))
     o.append(two_sided(H, c, 'Supporting', 'Weakening', media_table(sp.get('media_for', [])), media_table(sp.get('media_against', []))) + '</section>')
+    if not (sp.get('media_for') or sp.get('media_against')):
+        del o[mark:]; todo.append(('Media Resources', 'no books, studies or films weighed'))
+    mark = len(o)
     o.append(H.section('Legal Framework', 'Laws and rulings that assume the belief, and those that complicate it. Institutional agreement is a datum, not proof.', ('Laws that agree', WIKI['laws'])))
     o.append(two_sided(H, c, 'Supporting', 'Complicating', simple_rows(H, c, sp.get('law_for', [])), simple_rows(H, c, sp.get('law_against', []))) + '</section>')
+    if not (sp.get('law_for') or sp.get('law_against')):
+        del o[mark:]; todo.append(('Legal Framework', 'no laws or rulings cited'))
+    mark = len(o)
     o.append(H.section('General to Specific', 'Upstream: the broader principles this belief inherits from. Downstream: the narrower beliefs that inherit from it.', ('General to specific', WIKI['general'])))
     o.append('<h3 class="sub">Upstream</h3>' + two_sided(H, c, 'Supports the belief', 'Opposes the belief', simple_rows(H, c, sp.get('up_for', [])), simple_rows(H, c, sp.get('up_against', []))))
     o.append('<h3 class="sub">Downstream</h3>' + two_sided(H, c, 'Supports the belief', 'Opposes the belief', simple_rows(H, c, sp.get('down_for', [])), simple_rows(H, c, sp.get('down_against', []))) + '</section>')
+    if not any(sp.get(k) for k in ('up_for', 'up_against', 'down_for', 'down_against')):
+        del o[mark:]; todo.append(('General to Specific', 'not linked to broader or narrower beliefs'))
     if sp.get('similar_extreme') or sp.get('similar_moderate'):
         o.append(H.section('Similar Beliefs', 'Equiv is the truth score of an equivalence page. Near 1 means a merge candidate, not a new page.', ('One page per belief', WIKI['one_page'])))
         eq = lambda d: '<span class="lab">Equiv</span> ' + H.num(c.pg(d.get('equiv'), UNARG), d.get('equiv'))
@@ -437,6 +467,9 @@ def render_belief(c, pid):
         o.append(two_sided(H, c, 'On record agreeing', 'On record disagreeing', simple_rows(H, c, sp.get('people_for', [])), simple_rows(H, c, sp.get('people_against', []))) + '</section>')
     o.append(wordings(H, c, pid))
     o.append(used_on(H, c, pid))
+    if todo:
+        o.append(H.section('Not Argued Yet', 'Parts of the template nobody has filled in here. They are named rather than shown, because an empty table is not a finding, and each one is a reason the confidence above is not higher.'))
+        o.append('<table class="plain"><tbody>' + ''.join(f'<tr><td class="t">{esc(n)}</td><td class="u">{esc(why)}</td></tr>' for n, why in todo) + '</tbody></table></section>')
     o.append(engine_table(H, c, pid))
     o.append(FOOT)
     return ''.join(o)
@@ -680,7 +713,7 @@ td.sc{font-weight:600}.patl{display:block;font:600 10.5px/1.3 var(--sans);letter
 .n{font-variant-numeric:tabular-nums}.n.c,.c{color:var(--const);border:none;cursor:help}.typed{color:var(--ink)}.src{font-size:12px;color:var(--mute);font-family:var(--sans);margin-top:2px}
 .empty{color:var(--mute);font-style:italic}
 .tot{margin:8px 0 0;font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums}
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}@media (max-width:820px){.tiles{grid-template-columns:1fr 1fr}}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}@media (max-width:820px){.tiles{grid-template-columns:1fr 1fr}}
 .tile{background:var(--tile);border-radius:5px;padding:10px 12px}.tile .lab{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:600}.tile .big{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1;margin:2px 0}.tile .sub{font-size:12px;color:var(--ink2)}
 dl.readout{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;font-size:13.5px}dl.readout dt{font-weight:600;color:var(--ink2)}dl.readout dd{margin:0}dd.bl{font-family:var(--serif);font-size:14.5px}
 .typed-note{color:var(--mute);font-size:12px;font-family:var(--sans)}@media (max-width:600px){dl.readout{grid-template-columns:1fr}}

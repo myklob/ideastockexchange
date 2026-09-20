@@ -8,7 +8,7 @@ Two jobs, one code path:
    every multiplier is a page id (link_id, imp_id, uniq_id, drives_id, equiv_id, bearing_id, who_id) or nothing.
 
 2. Model computes every score from those two tables alone, with the same rules the workbook's formulas implement:
-     row contribution     = sign x (2 x Truth - 1) x Link x Imp x Uniq   (arguments, evidence, predictions)
+     row contribution     = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq   (arguments, evidence, predictions)
                             signed: a claim argued false counts against the side it was filed on, and a claim
                             nobody has argued contributes 0. POS and NEG are the positive and negative
                             contributions as magnitudes, so a row lands on the side its sign puts it on.
@@ -119,6 +119,9 @@ class Model:
         self.edges = {}
         for e in edges: self.edges.setdefault(e['page_id'], []).append(e)
         self.memo = {}
+        # How much this page's score has earned the right to count, in [0,1]; see confidence.py.
+        # Default 1.0 leaves the scorer exactly as it was, so the zoning reference still reproduces.
+        self.conf = lambda pid: 1.0
 
     def rows(self, pid, section, side=None):
         return [e for e in self.edges.get(pid, []) if e['section'] == section and (side is None or e.get('side') == side)]
@@ -134,7 +137,9 @@ class Model:
         argued sits at 0.5 and contributes exactly 0, so listing a claim is worth nothing until it is argued.
         One formula for arguments, evidence and predictions alike; predictions always used this form."""
         C = self.C
-        return sign * (2 * self.pg(e.get('claim_id'), C['UNARG']) - 1) * self.pg(e.get('link_id'), C['DEFLINK']) * self.pg(e.get('imp_id'), C['DEFIMP']) * self.pg(e.get('uniq_id'), C['DEFUNIQ'])
+        cid = e.get('claim_id')
+        return (sign * (2 * self.pg(cid, C['UNARG']) - 1) * (self.conf(cid) if is_page(cid) else 0.0)
+                * self.pg(e.get('link_id'), C['DEFLINK']) * self.pg(e.get('imp_id'), C['DEFIMP']) * self.pg(e.get('uniq_id'), C['DEFUNIQ']))
     @staticmethod
     def _split(vals):
         """Weight for and weight against, both as magnitudes. A row lands on the side its sign puts it on, not the
