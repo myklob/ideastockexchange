@@ -292,6 +292,91 @@ class TestOnTheCorpus(unittest.TestCase):
             for b in reached: self.assertIn(b, c.beliefs)
 
 
+class TestTheThingsReviewFound(unittest.TestCase):
+    """Each of these was a real defect found by reading the code rather than by a failing test. The test is what
+    stops it coming back."""
+
+    def test_a_cycle_is_refused_by_name_rather_than_by_running_out_of_stack(self):
+        from score_reference import CircularSupport
+        pages = [{'id': 1, 'kind': 'belief', 'text': 'a'}, {'id': 2, 'kind': 'claim', 'text': 'b'}]
+        edges = [{'id': 1, 'page_id': 1, 'section': 'argument', 'side': 'agree', 'position': 1, 'claim_id': 2},
+                 {'id': 2, 'page_id': 2, 'section': 'argument', 'side': 'agree', 'position': 1, 'claim_id': 1}]
+        m = Model(pages, CONSTS, edges=edges); m.conf = lambda pid: 1.0
+        with self.assertRaises(CircularSupport): m.truth(1)
+
+    def test_confidence_does_not_depend_on_which_page_is_asked_first(self):
+        """A result computed with a cycle truncated below it is path-dependent, so caching one of the two
+        answers publishes whichever happened to be asked first."""
+        from confidence import Confidence, TableCorpus
+        pages = [{'id': 1, 'kind': 'belief', 'text': 'a'}, {'id': 2, 'kind': 'claim', 'text': 'b'},
+                 {'id': 3, 'kind': 'claim', 'text': 'c', 'etype': 'statistics'}]
+        edges = [{'id': 1, 'page_id': 1, 'section': 'argument', 'side': 'agree', 'position': 1, 'claim_id': 2},
+                 {'id': 2, 'page_id': 2, 'section': 'argument', 'side': 'agree', 'position': 1, 'claim_id': 1},
+                 {'id': 3, 'page_id': 1, 'section': 'argument', 'side': 'disagree', 'position': 1, 'claim_id': 3},
+                 {'id': 4, 'page_id': 2, 'section': 'argument', 'side': 'disagree', 'position': 1, 'claim_id': 3}]
+        a = Confidence(TableCorpus(pages, edges)); first = (a.of(1), a.of(2))
+        b = Confidence(TableCorpus(pages, edges)); second = (b.of(2), b.of(1))
+        self.assertAlmostEqual(first[0], second[1], places=12)
+        self.assertAlmostEqual(first[1], second[0], places=12)
+
+    def test_an_importance_page_can_reach_full_scrutiny(self):
+        """Its rows have one multiplier, the bearing page. Counting the three an interest listing structurally
+        cannot have capped every importance page in the corpus at a quarter of the credit available."""
+        from confidence import Confidence, TableCorpus
+        pages = [{'id': 1, 'kind': 'importance', 'x_id': 3, 'y_id': 4},
+                 {'id': 2, 'kind': 'interest', 'text': 'an interest'},
+                 {'id': 3, 'kind': 'claim', 'text': 'x'}, {'id': 4, 'kind': 'belief', 'text': 'y'},
+                 {'id': 5, 'kind': 'linkage', 'x_id': 3, 'y_id': 2}]
+        edges = [{'id': 1, 'page_id': 1, 'section': 'interest_listing', 'side': None, 'position': 1,
+                  'claim_id': 2, 'bearing_id': 5}]
+        k = Confidence(TableCorpus(pages, edges))
+        self.assertAlmostEqual(k.parts(1)['components']['scrutiny'], 1.0)
+        self.assertNotIn('two_sided', k.parts(1)['components'], 'an importance page has no sides to argue')
+
+    def test_the_two_ways_into_the_scorer_agree_about_a_pinned_page(self):
+        m = chain(3, {'etype': 'statistics'})
+        m.pinned_truth[2] = 0.25
+        m.memo = {}
+        self.assertEqual(m.truth(2), 0.25)
+        self.assertEqual(m.evaluate(2)['truth'], 0.25)
+
+    def test_the_sensitivity_memo_honours_the_arguments_it_advertises(self):
+        import render_site
+        if not os.path.exists(ENTRY): self.skipTest('no data workbook')
+        c = render_site.Corpus(ENTRY, 'test')
+        few = c.sens.of(1, keep=3); many = c.sens.of(1)
+        self.assertEqual(len(few['rows']), 3)
+        self.assertEqual(len(many['rows']), 14)
+        self.assertLessEqual(c.sens.of(1, depth=1)['n'], many['n'])
+
+    def test_a_what_if_can_never_reach_the_page_cache(self):
+        """Corpus._stats sits above the model memo and is never cleared, so a stats() call under a live pin
+        would freeze a hypothetical number into the rendered page."""
+        import render_site
+        if not os.path.exists(ENTRY): self.skipTest('no data workbook')
+        c = render_site.Corpus(ENTRY, 'test')
+        real = c.truth(1)
+        c.model.pinned_truth[list(c.specs)[10]] = 0.0
+        c.model.memo.clear(); c._stats.clear()
+        try:
+            with self.assertRaises(RuntimeError): c.stats(1)
+        finally:
+            c.model.pinned_truth.clear(); c.model.memo.clear(); c._stats.clear()
+        self.assertAlmostEqual(c.stats(1)['truth'], real, places=12)
+
+    def test_inert_means_inert_even_once_the_work_is_done(self):
+        """An input the page's own table shows moving it once settled must not be listed under a sentence
+        saying nothing learnable about it matters."""
+        import render_site
+        from sensitivity import INERT
+        if not os.path.exists(ENTRY): self.skipTest('no data workbook')
+        c = render_site.Corpus(ENTRY, 'test')
+        for pid in sorted(c.beliefs):
+            for r in c.sens.of(pid)['inert']:
+                self.assertLessEqual(max(r['reach'], r['settled_reach']), INERT,
+                                     f'page {pid} calls {r["page"]} inert while it moves once settled')
+
+
 class TestConformance(unittest.TestCase):
     """The engine of record against the checked-in expected numbers. A deliberate rule change shows up as a
     reviewed diff in conformance/expected.json; an accidental one shows up here."""

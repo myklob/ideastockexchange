@@ -24,15 +24,17 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from evidence import prior as _prior, classify as _classify
 
-# component -> (weight, always applicable?)  Reasoning quality outranks volume, per the wiki's own ordering.
+# component -> weight. Reasoning quality outranks volume, per the wiki's own ordering. Which components apply
+# to a page is decided in parts() below, by what that page actually has; a component that does not apply is
+# dropped and the remaining weights renormalised, so no page is punished for a signal its shape cannot carry.
 STRUCTURAL = {
-    'grounding':   (0.30, True),   # is this claim actually established, by the world or by the claims beneath it?
-    'two_sided':   (0.20, True),   # has anyone argued the other side at all?
-    'scrutiny':    (0.20, True),   # are the multipliers argued, or resting on their starting constants?
-    'breadth':     (0.15, True),   # how much has been brought to bear
-    'depth':       (0.05, True),   # how far down the tree goes
-    'sourcing':    (0.05, False),  # evidence rows that cite a source and name what kind of source it is
-    'testability': (0.05, False),  # predictions that are diagnostic and dated (only where there are predictions)
+    'grounding':   0.30,   # is this claim actually established, by the world or by the claims beneath it?
+    'two_sided':   0.20,   # has anyone argued the other side at all?  (not an importance page: it has no sides)
+    'scrutiny':    0.20,   # are the multipliers argued, or resting on their starting constants?
+    'breadth':     0.15,   # how much has been brought to bear
+    'depth':       0.05,   # how far down the tree goes
+    'sourcing':    0.05,   # evidence rows that cite a source and name what kind of source it is
+    'testability': 0.05,   # predictions that are diagnostic and dated
 }
 BEHAVIOURAL = ['up and down votes', 'weekly visitors', 'dwell time', 'edit frequency',
                'duplicate submission attempts', 'evaluation responses', 'score variance over time']
@@ -80,7 +82,10 @@ class Confidence:
         comp['breadth'] = saturate(len(rows) + len(preds), 6)
         comp['depth'] = saturate(self._depth(pid, seen), 3)
         # scrutiny: of the multipliers on each row, how many have been argued on a page of their own
-        slots = [d.get(k) for d in rows + preds for k in ('link', 'imp', 'uniq')] + [d.get('addresses') for d in listings]
+        # A listing row's only multiplier is its bearing page. It has no link, imp or uniq slot, so counting
+        # those three as unfilled would cap an importance page's scrutiny at a quarter however complete it is.
+        argued_rows = [d for d in rows if not any(d is x for x in listings)]
+        slots = [d.get(k) for d in argued_rows + preds for k in ('link', 'imp', 'uniq')] + [d.get('addresses') for d in listings]
         comp['scrutiny'] = (sum(1 for v in slots if _is(v)) / len(slots)) if slots else 0.0
         # grounding: a claim is established either because the world backs it or because the claims beneath it
         # are themselves established. Whichever is stronger; a claim needs one of the two, not both.
@@ -90,8 +95,10 @@ class Confidence:
         #   - kids: the mean confidence of the claims argued beneath it. Recursive, and the reason a tree of
         #     bare assertions scores near zero no matter how many rows it lists.
         own = _classify(sp)['esiw']
-        kids_conf = (sum(self.parts(k, seen)['confidence'] for k in kids) / len(kids)) if kids else 0.0
+        kid_parts = [self.parts(k, seen) for k in kids]
+        kids_conf = (sum(kp['confidence'] for kp in kid_parts) / len(kid_parts)) if kid_parts else 0.0
         comp['grounding'] = max(own, kids_conf)
+        cut = any(kp['cycle'] for kp in kid_parts)
 
         ev = sp.get('evid', {}).get('for', []) + sp.get('evid', {}).get('against', [])
         # half for citing a source at all, half for saying what kind of source it is: an uncategorised citation
@@ -104,10 +111,13 @@ class Confidence:
         if preds: comp['testability'] = sum(1 for d in preds if d.get('deadline') and _is(d.get('link'))) / len(preds)
         else: na.append('testability')
 
-        num = sum(STRUCTURAL[k][0] * v for k, v in comp.items())
-        den = sum(STRUCTURAL[k][0] for k in comp)
-        out = {'confidence': (num / den) if den else 0.0, 'components': comp, 'na': na, 'cycle': False}
-        self._memo[pid] = out
+        num = sum(STRUCTURAL[k] * v for k, v in comp.items())
+        den = sum(STRUCTURAL[k] for k in comp)
+        out = {'confidence': (num / den) if den else 0.0, 'components': comp, 'na': na, 'cycle': cut}
+        # A result computed with a cycle truncated below it is path-dependent: ask for the other page in the
+        # loop first and it comes out differently. Caching one of the two answers would publish whichever
+        # happened to be asked first, so a truncated result is recomputed every time and never stored.
+        if not cut: self._memo[pid] = out
         return out
 
     def _depth(self, pid, seen=()):

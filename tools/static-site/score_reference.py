@@ -115,6 +115,11 @@ def normalize(specs, beliefs=None):
     return pages, edges
 
 # ---------------------------------------------------------------------------------------------------------------- model
+class CircularSupport(ValueError):
+    """A page supports itself. A loop can hold any value at all and stay consistent, so the scorer refuses it
+    by name rather than running out of stack and leaving the caller to guess why."""
+
+
 class Model:
     def __init__(self, source, consts=None, edges=None):
         c = dict(CONSTS); c.update(consts or {}); self.C = c
@@ -135,13 +140,13 @@ class Model:
 
     def rows(self, pid, section, side=None):
         return [e for e in self.edges.get(pid, []) if e['section'] == section and (side is None or e.get('side') == side)]
-    def truth(self, pid):
+    def truth(self, pid, _seen=()):
         if pid in self.pinned_truth: return self.pinned_truth[pid]
-        return self.evaluate(pid)['truth']
+        return self.evaluate(pid, _seen)['truth']
     def confidence(self, pid):
         if pid in self.pinned_conf: return self.pinned_conf[pid]
         return self.conf(pid)
-    def pg(self, v, default): return self.truth(v) if is_page(v) else default
+    def pg(self, v, default, _seen=()): return self.truth(v, _seen) if is_page(v) else default
     def _share(self, pro, con, pid=None):
         """Truth from the weight for and against, starting from what the page rests on rather than from nothing."""
         b = self.basis(pid)
@@ -150,7 +155,7 @@ class Model:
         """The page's observational prior: where its truth starts and how heavily, before its own rows count."""
         p = self.pages.get(pid) if pid is not None else None
         return evidence_prior(p or {}, self.C['K'])
-    def _contrib(self, e, sign):
+    def _contrib(self, e, sign, _seen=()):
         """What a row contributes, signed: sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq.
 
         Truth enters on the -1..+1 scale the wiki uses, so a claim argued false counts AGAINST the side it was
@@ -162,39 +167,46 @@ class Model:
         is cited, so it sets where the claim's own page starts (evidence.py) rather than multiplying the row."""
         C = self.C
         cid = e.get('claim_id')
-        return (sign * (2 * self.pg(cid, C['UNARG']) - 1) * (self.confidence(cid) if is_page(cid) else 0.0)
-                * self.pg(e.get('link_id'), C['DEFLINK']) * self.pg(e.get('imp_id'), C['DEFIMP']) * self.pg(e.get('uniq_id'), C['DEFUNIQ']))
+        return (sign * (2 * self.pg(cid, C['UNARG'], _seen) - 1) * (self.confidence(cid) if is_page(cid) else 0.0)
+                * self.pg(e.get('link_id'), C['DEFLINK'], _seen) * self.pg(e.get('imp_id'), C['DEFIMP'], _seen)
+                * self.pg(e.get('uniq_id'), C['DEFUNIQ'], _seen))
     @staticmethod
     def _split(vals):
         """Weight for and weight against, both as magnitudes. A row lands on the side its sign puts it on, not the
         side it was filed on, so a refuted objection counts as support and a refuted reason counts against."""
         return sum(v for v in vals if v > 0), -sum(v for v in vals if v < 0)
 
-    def evaluate(self, pid):
+    def evaluate(self, pid, _seen=()):
+        # A pin is honoured here as well as in truth(), so the two entry points cannot disagree about a page's
+        # score. Only the truth is held; everything else about the page is still what its own rows say.
         if pid in self.memo: return self.memo[pid]
+        if pid in _seen:
+            raise CircularSupport('page %s supports itself through %s' % (pid, ' -> '.join(str(p) for p in _seen + (pid,))))
+        _seen = _seen + (pid,)
         C = self.C; kind = self.pages[pid]['kind']
         out = dict(pro=0.0, con=0.0, supp=0.0, weak=0.0, pred=0.0, impact=None, raw=None)
         if kind == 'importance':
-            effs = [self.truth(e['claim_id']) * self.pg(e.get('bearing_id'), C['DEFLINK']) for e in self.rows(pid, 'interest_listing') if is_page(e.get('claim_id'))]
+            effs = [self.truth(e['claim_id'], _seen) * self.pg(e.get('bearing_id'), C['DEFLINK'], _seen) for e in self.rows(pid, 'interest_listing') if is_page(e.get('claim_id'))]
             t = max(effs) if effs else self._share(0.0, 0.0, pid)
-            out.update(belief=t, truth=t); self.memo[pid] = out; return out
-        args = [self._contrib(e, 1) for e in self.rows(pid, 'argument', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'argument', 'disagree')]
+            out.update(belief=t, truth=self.pinned_truth.get(pid, t)); self.memo[pid] = out; return out
+        args = [self._contrib(e, 1, _seen) for e in self.rows(pid, 'argument', 'agree')] + [self._contrib(e, -1, _seen) for e in self.rows(pid, 'argument', 'disagree')]
         pro, con = self._split(args)
         out.update(pro=pro, con=con)
         if kind in SPECIAL:
-            out.update(belief=pro - con, truth=self._share(pro, con, pid))
+            out.update(belief=pro - con, truth=self.pinned_truth.get(pid, self._share(pro, con, pid)))
             if kind == 'media':
-                imp_rows = [self._contrib(e, 1) for e in self.rows(pid, 'impact', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'impact', 'disagree')]
+                imp_rows = [self._contrib(e, 1, _seen) for e in self.rows(pid, 'impact', 'agree')] + [self._contrib(e, -1, _seen) for e in self.rows(pid, 'impact', 'disagree')]
                 out['impact'] = self._share(*self._split(imp_rows), pid=pid)
             self.memo[pid] = out; return out
-        evid = [self._contrib(e, 1) for e in self.rows(pid, 'evidence', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'evidence', 'disagree')]
+        evid = [self._contrib(e, 1, _seen) for e in self.rows(pid, 'evidence', 'agree')] + [self._contrib(e, -1, _seen) for e in self.rows(pid, 'evidence', 'disagree')]
         supp, weak = self._split(evid)
-        preds = [self._contrib(e, 1) for e in self.rows(pid, 'prediction', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'prediction', 'disagree')]
+        preds = [self._contrib(e, 1, _seen) for e in self.rows(pid, 'prediction', 'agree')] + [self._contrib(e, -1, _seen) for e in self.rows(pid, 'prediction', 'disagree')]
         pos, neg = self._split(args + evid + preds)
         raw = self._share(pos, neg, pid)
-        lb = [self.truth(e['claim_id']) for e in self.rows(pid, 'component') if is_page(e.get('claim_id')) and str(e.get('attrs', {}).get('lb', '')).upper() == 'Y']
+        lb = [self.truth(e['claim_id'], _seen) for e in self.rows(pid, 'component') if is_page(e.get('claim_id')) and str(e.get('attrs', {}).get('lb', '')).upper() == 'Y']
         truth = min(raw, min(lb)) if lb else raw
         out.update(supp=supp, weak=weak, pred=sum(preds), belief=pos - neg, truth=truth, raw=raw, pos=pos, neg=neg)
+        if pid in self.pinned_truth: out['truth'] = self.pinned_truth[pid]
         self.memo[pid] = out; return out
 
 if __name__ == '__main__':

@@ -119,7 +119,8 @@ class Sensitivity:
 
     # ---------------------------------------------------------------- the analysis
     def of(self, pid, depth=4, keep=14):
-        if pid in self._memo: return self._memo[pid]
+        key = (pid, depth, keep)
+        if key in self._memo: return self._memo[key]
         c = self.c
         base = c.truth(pid)
         side = 1 if base > FLIP + EPS else -1 if base < FLIP - EPS else 0
@@ -130,8 +131,8 @@ class Sensitivity:
             r = {'page': q, 'current': c.truth(q), 'conf': c.conf.of(q),
                  'lo': lo, 'hi': hi, 'swing': abs(hi - lo),
                  'settled_lo': slo, 'settled_hi': shi, 'settled_swing': abs(shi - slo),
-                 'flip': self._flip(pid, q, False, lo, hi),
-                 'settled_flip': self._flip(pid, q, True, slo, shi)}
+                 'flip': self._flip(pid, q, False, lo, hi) if side else None,
+                 'settled_flip': self._flip(pid, q, True, slo, shi) if side else None}
             r['down'], r['up'] = FLIP - min(lo, hi), max(lo, hi) - FLIP
             r['settled_down'], r['settled_up'] = FLIP - min(slo, shi), max(slo, shi) - FLIP
             r['reach'] = max(r['down'], r['up'])
@@ -148,16 +149,18 @@ class Sensitivity:
             if side:
                 r['verdict'] = ('decides it alone' if r['breaks'] and r['carries'] else
                                 'breaks it alone' if r['breaks'] else 'carries it alone' if r['carries'] else
-                                'moves it' if r['swing'] > INERT else 'inert')
+                                'moves it' if r['swing'] > INERT else
+                                'worth settling' if r['settled_reach'] > INERT else 'inert')
             else:
                 d, u = r['down'] > INERT, r['up'] > INERT
-                r['verdict'] = ('settles it either way' if d and u else 'settles it against' if d else
-                                'settles it for' if u else 'inert')
+                r['verdict'] = ('moves it either way' if d and u else 'moves it down' if d else
+                                'moves it up' if u else
+                                'worth settling' if r['settled_reach'] > INERT else 'inert')
             rows.append(r)
         rows.sort(key=lambda r: (-max(r['settled_reach'], r['reach']), r['page']))
         decisive = [r for r in rows if r['breaks'] or r['carries']]
         latent = [r for r in rows if not (r['breaks'] or r['carries']) and (r['settled_breaks'] or r['settled_carries'])]
-        inert = [r for r in rows if r['verdict'] == 'inert']
+        inert = [r for r in rows if max(r['reach'], r['settled_reach']) <= INERT]
         top = rows[:3]
         worst = [(r['page'], 0.0 if r['lo'] <= r['hi'] else 1.0) for r in top]
         out = {'base': base, 'side': side, 'status': 'for' if side > 0 else 'against' if side < 0 else 'undecided',
@@ -169,7 +172,7 @@ class Sensitivity:
                'joint': self._joint(pid, worst, False) if top else base,
                'joint_settled': self._joint(pid, worst, True) if top else base,
                'joint_pages': [q for q, _ in worst]}
-        self._memo[pid] = out
+        self._memo[key] = out
         return out
 
     def headline(self, pid, fmt=lambda v: f'{v:.2f}'):

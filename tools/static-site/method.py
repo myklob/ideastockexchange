@@ -76,7 +76,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
         ('sourcing', 'Of the findings cited on this page, how many cite a source and say what kind of source it is. An uncategorised citation is a reference, not a verification.'),
         ('testability', 'Of the predictions listed, how many are dated and have a linkage page arguing how diagnostic they are.'),
     ]:
-        w, always = CF.STRUCTURAL[name]
+        w = CF.STRUCTURAL[name]
         o.append(f'<tr><td class="t"><strong>{esc(name.replace("_", " "))}</strong></td><td>{w:.2f}</td><td class="u">{esc(why)}</td></tr>')
     o.append('</tbody></table>')
     o.append(f'<p class="tot">Components that do not apply to a page are dropped and the rest renormalised, so a page is never punished for a signal its shape cannot carry. Across these {len(c.specs)} pages confidence runs from {f2(ks[0])} to {f2(ks[-1])}, mean {f2(sum(ks) / len(ks))}. The wiki also lists behavioural signals: up and down votes, weekly visitors, dwell time, edit frequency, duplicate submission attempts, per-argument evaluation responses, and the standard deviation of a score over time. A published corpus has one snapshot and no users, so all seven carry weight zero and are reported as having no data rather than scored as zero. Wire them up and they take weight from the structural components.</p></section>')

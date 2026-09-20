@@ -52,7 +52,8 @@ TOLERANCE = 1e-12
 REF_COLS = ('id', 'link', 'imp', 'uniq', 'drives', 'addresses', 'equiv')
 ROW_KEYS = (('args', 'agree'), ('args', 'disagree'), ('evid', 'for'), ('evid', 'against'))
 FLAT_KEYS = ('pred_true', 'pred_false', 'components', 'interests', 'int_sup', 'int_opp',
-             'benefits', 'costs', 'media_for', 'media_against', 'iargs_agree', 'iargs_disagree')
+             'benefits', 'costs', 'media_for', 'media_against')
+NESTED_KEYS = (('iargs', 'agree'), ('iargs', 'disagree'))
 
 
 def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
@@ -61,13 +62,10 @@ def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
 def rows_of(spec):
     """Every scored row on a page, whatever table it sits in."""
     out = []
-    for key, side in ROW_KEYS:
+    for key, side in ROW_KEYS + NESTED_KEYS:
         out += list(spec.get(key, {}).get(side, []))
-    for key in ('pred_true', 'pred_false', 'components', 'interests', 'int_sup', 'int_opp', 'benefits', 'costs',
-                'media_for', 'media_against'):
+    for key in FLAT_KEYS:
         out += list(spec.get(key, []))
-    for side in ('agree', 'disagree'):
-        out += list(spec.get('iargs', {}).get(side, []))
     return out
 
 

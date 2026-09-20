@@ -12,8 +12,11 @@ scorer on a chain of a thousand claims with confidence forced to 1 and every one
 
 That is not a content problem to be argued away. It is the arithmetic saying something true: reasoning about
 reasoning never touches the world. Something has to come in from outside, and what comes in from outside is
-evidence. The wiki says so directly, in its own list of evidence tiers: a meta-analysis enters at 1.0, an
-anecdote at 0.1, a refuted finding at 0.0. A claim that is a cited finding does not start at a coin flip.
+evidence. The wiki says so directly. Its ReasonRank page starts a claim at a truth score set by what kind of
+evidence it is: meta-analysis 1.0, peer-reviewed study 0.8, anecdote 0.1, refuted evidence 0.0. Those four
+figures are a different list from the sixteen ESIW weights below, which come from the EVS page, and they are
+not what this file implements. The principle is, and it is the one thing the engine was missing: a claim that
+is a cited finding does not start at a coin flip.
 
 So a page may declare what it rests on, and that sets where its truth starts:
 
@@ -29,7 +32,9 @@ The prior line says: the replications decide which way a claim is pushed and the
 can be pushed, from nowhere at all when no source is named to nearly the whole way for a published statistic.
 Read it at its corners. A published statistic
 that every replication confirms starts at 0.95. The same statistic that every replication contradicts starts at
-0.05, which is the wiki's refuted finding. An eyewitness account confirmed starts at 0.60 and contradicted at
+0.05. Note where those stop: the strongest source in the table weighs 0.90, so p0 is confined to [0.05, 0.95]
+and evidence alone never drives a claim all the way to certainty in either direction. Getting the last twentieth
+takes an argument, on a page. An eyewitness account confirmed starts at 0.60 and contradicted at
 0.40, because eyewitness testimony was never going to settle much either way. Anything at half agreement starts
 at 0.50 whatever its tier, because a contested literature has established nothing. A page that names no source
 at all stays at 0.50 however many times it is cited.
@@ -160,11 +165,15 @@ def label(page):
         return 'Nothing observed: no source type recorded, so this claim starts at a coin flip'
     bits = [c['meaning']]
     if 'erq' in c['na']: bits.append('no independent replication recorded')
-    else: bits.append(f"{int(c['erq'])} independent replications, {c['erp']:.0f}% consistent")
+    else:
+        n = c['erq']
+        shown = str(int(n)) if n == int(n) else f'{n:g}'
+        bits.append(f"{shown} independent replication{'' if n == 1 else 's'}, {c['erp']:.0f}% consistent")
     bits.append(f"starts at {c['p0']:.2f} with weight {c['weight']:.2f}")
     return ', '.join(bits)
 
 
 def tiers():
-    """The wiki's table plus the addition, ordered as it is ordered, for the explainer on the site."""
-    return sorted(ESIW.items(), key=lambda kv: (-kv[1][0], kv[0]))
+    """The wiki's table plus the addition, strongest source first, for the explainer on the site. That is the
+    wiki's own order except where the addition ties with a ranked row, which is why the rank is displayed."""
+    return sorted(ESIW.items(), key=lambda kv: (-kv[1][0], kv[1][1] is None, kv[0]))

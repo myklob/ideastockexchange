@@ -27,8 +27,9 @@ def corpus(rows, kind='belief'):
     m = Model(pages, CONSTS, edges=edges)
     truths = {i: t for i, (t, _) in enumerate(rows, start=2)}
     real = m.evaluate
-    m.evaluate = lambda pid: ({'truth': truths[pid], 'belief': 0.0, 'pro': 0, 'con': 0, 'supp': 0, 'weak': 0,
-                               'pred': 0, 'impact': None, 'raw': None} if pid in truths else real(pid))
+    m.evaluate = lambda pid, _seen=(): ({'truth': truths[pid], 'belief': 0.0, 'pro': 0, 'con': 0, 'supp': 0,
+                                         'weak': 0, 'pred': 0, 'impact': None, 'raw': None}
+                                        if pid in truths else real(pid, _seen))
     m.conf = lambda pid: 1.0
     return m
 
