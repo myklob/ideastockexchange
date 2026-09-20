@@ -52,9 +52,12 @@ class Corpus:
         self.integ = Integrity(self)          # faults the shape of the graph can show without reading the prose
         self.norm_pages, self.norm_edges = normalize(self.specs, self.beliefs)
         self.uses = {}          # pid -> [(page_id, section, side)] : every row anywhere that reads this page
+        self.reads = {}         # pid -> {page ids this page reads} : the same edges seen from the other end
         for e in self.norm_edges:
             for col in ('claim_id', 'link_id', 'imp_id', 'uniq_id', 'drives_id', 'equiv_id', 'who_id', 'bearing_id'):
-                if e.get(col): self.uses.setdefault(e[col], []).append((e['page_id'], e['section'], col))
+                if e.get(col):
+                    self.uses.setdefault(e[col], []).append((e['page_id'], e['section'], col))
+                    self.reads.setdefault(e['page_id'], set()).add(e[col])
         self._stats = {}
         # every equivalence page, seen from both of the pages it connects: pid -> [(other, equivalence truth, equivalence page)]
         self.equivalents = {}
@@ -222,12 +225,9 @@ class Corpus:
                 s['complete'] = s['nagree'] >= 1 and s['ndis'] >= 1
             else:
                 s['complete'] = s['nagree'] >= 1 and s['ndis'] >= 1
-        kids = set()
-        for e in self.norm_edges:
-            if e['page_id'] == pid:
-                for col in ('claim_id', 'link_id', 'imp_id', 'uniq_id', 'drives_id', 'equiv_id', 'who_id', 'bearing_id'):
-                    if e.get(col): kids.add(e[col])
-        s['children'] = sorted(kids)
+        # Indexed once when the corpus is loaded. Scanning the whole edge table here, once per page, made
+        # publishing quadratic: 2,000 pages spent most of a second on it and 14,000 spent most of a minute.
+        s['children'] = sorted(self.reads.get(pid, ()))
         self._stats[pid] = s
         return s
 
@@ -362,6 +362,8 @@ def sensitivity_section(H, c, pid):
     tail = []
     if len(a['all']) > len(a['rows']):
         tail.append(f'{len(a["all"]) - len(a["rows"])} further inputs move it less than any row shown')
+    tail.append(f'Swept {a["n"]} inputs to {a["depth"]} levels below this page'
+                + (f'; {a["deeper"]} more sit deeper than that and were not swept' if a['deeper'] else ', which is all of them'))
     if a['inert']:
         tail.append(f'{len(a["inert"])} of the {a["n"]} inputs move this page by less than {INERT:g} even with the work behind them finished: '
                     'nothing anyone could learn about those changes the answer here')
@@ -451,7 +453,7 @@ def render_belief(c, pid):
                        scored_table(H, c, s['rows']['agree'], sp['args']['agree'], None, 'Argument'),
                        scored_table(H, c, s['rows']['disagree'], sp['args']['disagree'], None, 'Argument')))
     o.append(f'<p class="tot">From these rows: weight for {f2(s["pro"])} · weight against {f2(s["con"])} · net {sf(s["pro"] - s["con"])}. A refuted objection counts as support and a refuted reason counts against, so weight lands on the side its sign puts it on, not the side it was filed on.</p></section>')
-    dup = [r for r in c.sim.pairs() if pid in r['shared_parent'] and not r['uniq']]
+    dup = [r for r in c.sim.by_parent().get(pid, ()) if not r['uniq']]
     if dup:
         o.append('<p class="tot">Two rows here are scored as if they made different points, and a computed reading of their wording says they may not: '
                  + '; '.join(f'{H.a(r["a"], c.brief(r["a"])[0])} against {H.a(r["b"], c.brief(r["b"])[0])} ({f2(r["ces"])} alike)' for r in dup[:4])

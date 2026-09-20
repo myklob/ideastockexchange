@@ -76,6 +76,12 @@ def slug(text, n=4):
 
 def is_page(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
 
+def _free_ids(used):
+    """Ids for pages that have not been given one. Unbounded: this was a range stopping at 10,000, which made a
+    corpus of more than ten thousand pages fail with a bare StopIteration from inside a dict comprehension."""
+    import itertools
+    return (i for i in itertools.count(1) if i not in used)
+
 def _section_key(kind, section, side):
     if section in SPLIT:
         return SPLIT[section]['belief' if kind in ('belief', 'claim') else 'other'][side]
@@ -166,7 +172,7 @@ def tables_to_specs(pages, edges):
     """Rebuild the spec dicts the workbook builder consumes. Tab numbers come from the `tab` column when it is
     filled and are assigned in row order otherwise, so an author only ever types keys."""
     used = {int(p['tab']) for p in pages if str(p.get('tab') or '').strip().isdigit()}
-    nxt = iter(i for i in range(1, 10000) if i not in used)
+    nxt = _free_ids(used)
     tabs = {}
     for p in pages:
         t = str(p.get('tab') or '').strip()
@@ -396,7 +402,7 @@ def read_entry(path):
 def entry_keys(pages):
     """key -> tab, assigned exactly as tables_to_specs assigns them, so a renderer can address pages by key."""
     used = {int(p['tab']) for p in pages if str(p.get('tab') or '').strip().isdigit()}
-    nxt = iter(i for i in range(1, 10000) if i not in used)
+    nxt = _free_ids(used)
     out = {}
     for p in pages:
         t = str(p.get('tab') or '').strip()

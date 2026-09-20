@@ -50,6 +50,7 @@ class Confidence:
     def __init__(self, corpus):
         self.c = corpus
         self._memo = {}
+        self._depths = {}
 
     def of(self, pid):
         return self.parts(pid)['confidence']
@@ -121,13 +122,28 @@ class Confidence:
         return out
 
     def _depth(self, pid, seen=()):
-        c = self.c; sp = c.specs[pid]; best = 0
+        """How far the argument goes below this page. The result is a property of the page, not of the path
+        taken to reach it, so it is memoised: without that this walks the whole subtree once per page, which is
+        quadratic on a deep corpus. A result computed with a cycle truncated below it is path-dependent and is
+        not kept, for the same reason confidence itself does not keep one."""
+        # The caller's `seen` is the ancestor chain with this page already appended, so drop it here and let
+        # the walk re-add it: otherwise the cycle check fires on the page itself and every depth reads zero.
+        d, _cut = self._depth_cut(pid, frozenset(seen) - {pid})
+        return d
+
+    def _depth_cut(self, pid, stack):
+        if pid in self._depths: return self._depths[pid], False
+        if pid in stack: return 0, True
+        c = self.c; sp = c.specs[pid]; best, cut = 0, False
+        below = stack | {pid}
         for key, side in (('args', 'agree'), ('args', 'disagree')):
             for d in sp.get(key, {}).get(side, []):
                 k = d.get('id')
-                if _is(k) and k in c.specs and k not in seen:
-                    best = max(best, 1 + self._depth(k, seen + (pid,)))
-        return best
+                if _is(k) and k in c.specs:
+                    kd, kc = self._depth_cut(k, below)
+                    best = max(best, 1 + kd); cut = cut or kc
+        if not cut: self._depths[pid] = best
+        return best, cut
 
     def label(self, v):
         return 'established' if v >= 0.75 else 'developing' if v >= 0.45 else 'early' if v >= 0.15 else 'unstarted'

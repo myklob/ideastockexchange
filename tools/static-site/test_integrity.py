@@ -29,6 +29,12 @@ class Stub:
     def text(self, pid): return self.brief(pid)[0]
     def pairs(self): return self._pairs
 
+    def by_parent(self):
+        out = {}
+        for r in self._pairs:
+            for q in r.get('shared_parent', ()): out.setdefault(q, []).append(r)
+        return out
+
 
 def page(text='a claim', agree=(), disagree=(), components=(), preds=(), etype=None):
     sp = {'belief': text, 'args': {'agree': [{'id': i} for i in agree], 'disagree': [{'id': i} for i in disagree]},

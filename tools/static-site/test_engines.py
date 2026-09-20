@@ -409,3 +409,84 @@ class TestConformance(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
+
+class TestItScales(unittest.TestCase):
+    """Deterministic bounds on work, not wall-clock. A tool for national decisions cannot have a page count
+    ceiling or a quadratic publish step, and both were here: the id allocator stopped at ten thousand and threw
+    a bare StopIteration, and a full publish of fourteen thousand pages took most of an hour."""
+
+    @staticmethod
+    def _wide(rows=12, deep=20):
+        """One belief, `rows` chains of `deep` claims. A large subtree where each page has a short ancestry."""
+        pages = [{'id': 1, 'kind': 'belief', 'text': 'root'}]
+        edges, nid, eid = [], 1, 0
+        for _ in range(rows):
+            prev = 1
+            for d in range(deep):
+                nid += 1
+                pages.append({'id': nid, 'kind': 'claim', 'text': f'c{nid}',
+                              **({'etype': 'statistics'} if d == deep - 1 else {})})
+                eid += 1
+                edges.append({'id': eid, 'page_id': prev, 'section': 'argument',
+                              'side': 'agree' if d % 2 == 0 else 'disagree', 'position': d + 1, 'claim_id': nid})
+                prev = nid
+        return pages, edges
+
+    def _corpus(self, pages, edges):
+        from confidence import Confidence, TableCorpus
+        tc = TableCorpus(pages, edges)
+        class C: pass
+        c = C()
+        c.specs = tc.specs
+        c.model = Model({'pages': pages, 'edges': edges}, CONSTS)
+        c.conf = Confidence(tc); c.model.conf = c.conf.of
+        c.uses = {}
+        for e in edges:
+            for col in ('claim_id', 'link_id', 'imp_id', 'uniq_id'):
+                if e.get(col): c.uses.setdefault(e[col], []).append((e['page_id'], e['section'], col))
+        c.truth = lambda pid: c.model.truth(pid)
+        c.brief = lambda pid: (c.specs[pid].get('text', ''), pid)
+        return c
+
+    def test_a_what_if_recomputes_the_pages_that_can_move_and_not_the_whole_subtree(self):
+        """Pinning an input invalidates exactly the pages that read it, directly or through others. Clearing
+        the whole memo instead is correct and quadratic, and it cost a minute per page on a large corpus."""
+        pages, edges = self._wide()
+        c = self._corpus(pages, edges)
+        s = Sensitivity(c)
+        misses, real = [0], c.model.evaluate
+        def counted(pid, _seen=()):
+            if pid not in c.model.memo: misses[0] += 1
+            return real(pid, _seen)
+        c.model.evaluate = counted
+        a = s.of(1)
+        self.assertGreater(a['n'], 20, 'the fixture should offer plenty of inputs')
+        per_input = misses[0] / a['n']
+        self.assertLess(per_input, 60, f'{per_input:.0f} recomputations per input; the subtree is {len(pages)} pages')
+
+    def test_a_what_if_leaves_the_published_numbers_exactly_where_they_were(self):
+        """The speed-up reuses one memo across every sweep. If it ever leaks, a published score becomes a
+        hypothetical one, silently."""
+        pages, edges = self._wide(rows=4, deep=6)
+        c = self._corpus(pages, edges)
+        before = {p: c.model.truth(p) for p in sorted(c.specs)}
+        Sensitivity(c).of(1)
+        self.assertEqual(c.model.pinned_truth, {}); self.assertEqual(c.model.pinned_conf, {})
+        for p, v in before.items():
+            self.assertEqual(c.model.truth(p), v, f'page {p} moved after a what-if sweep')
+
+    def test_there_is_no_ten_thousand_page_ceiling(self):
+        """The id allocator ran to 10,000 and then raised StopIteration from inside a dict comprehension."""
+        import ise_tables as IT
+        pages = [{'key': f'p{i}', 'kind': 'claim', 'text': f'claim {i}'} for i in range(10_050)]
+        specs, beliefs = IT.tables_to_specs(pages, [])
+        self.assertEqual(len(specs), 10_050)
+        self.assertEqual(len(set(IT.entry_keys(pages).values())), 10_050)
+
+    def test_the_sweep_says_how_deep_it_looked(self):
+        """A cap nobody is told about reads as coverage."""
+        pages, edges = self._wide(rows=3, deep=12)
+        a = Sensitivity(self._corpus(pages, edges)).of(1)
+        self.assertIn('depth', a); self.assertIn('deeper', a)
+        self.assertGreater(a['deeper'], 0, 'this fixture is deeper than the sweep, so it must say so')

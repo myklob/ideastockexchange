@@ -54,6 +54,9 @@ STOP = {'the', 'a', 'an', 'of', 'to', 'in', 'on', 'and', 'or', 'that', 'is', 'ar
         'can', 'may', 'might', 'must', 'will', 'shall', 'do', 'does', 'did', 'one', 'two', 'up', 'down'}
 
 
+def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
+
+
 def words(text):
     return [w for w in re.sub(r'[^a-z0-9 ]+', ' ', (text or '').lower()).split() if w and w not in STOP]
 
@@ -122,6 +125,8 @@ class Similarity:
         self.widf = idf(list(self._w.values()))
         self.gidf = idf([list(g) for g in self._g.values()])
         self._pairs = None
+        self._uniq = None
+        self._byparent = None
 
     def between(self, a, b):
         if a not in self._w or b not in self._w: return 0.0
@@ -162,11 +167,18 @@ class Similarity:
 
     def uniqueness(self, a, b):
         """A uniqueness page arguing that one of these makes a different point from the other."""
-        for pid, sp in self.c.specs.items():
-            if self.c.kind(pid) != 'uniqueness': continue
-            x, z = sp.get('x'), sp.get('z') or sp.get('y')
-            if {x, z} == {a, b}: return pid
-        return None
+        return self._uniq_index().get(frozenset((a, b)))
+
+    def _uniq_index(self):
+        """Built once. Scanning every page for every flagged pair is fine at 261 pages and is not a habit to
+        keep in a tool meant for corpora that are much larger."""
+        if self._uniq is None:
+            self._uniq = {}
+            for pid, sp in self.c.specs.items():
+                if self.c.kind(pid) != 'uniqueness': continue
+                x, z = sp.get('x'), sp.get('z') or sp.get('y')
+                if _is(x) and _is(z): self._uniq.setdefault(frozenset((x, z)), pid)
+        return self._uniq
 
     def shared_parent(self, a, b):
         """Whether the two sit on the same page. Two near-identical rows under one conclusion are the padding
@@ -174,6 +186,15 @@ class Similarity:
         pa = {u[0] for u in self.c.uses.get(a, [])}
         pb = {u[0] for u in self.c.uses.get(b, [])}
         return sorted(pa & pb)
+
+    def by_parent(self):
+        """Flagged pairs indexed by the page they both sit on. Every page asks this, so scanning the whole
+        flag list once per page is a scan of the corpus squared."""
+        if self._byparent is None:
+            self._byparent = {}
+            for r in self.pairs():
+                for q in r['shared_parent']: self._byparent.setdefault(q, []).append(r)
+        return self._byparent
 
     def unguarded(self):
         """Flagged pairs that sit on the same page with no uniqueness page between them: the live padding risk."""

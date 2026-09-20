@@ -52,6 +52,9 @@ class Sensitivity:
         self.c = corpus
         self.m = corpus.model
         self._memo = {}
+        self._anc = {}
+        self._scratch_for = None
+        self._scratch_memo = {}
 
     # ---------------------------------------------------------------- the graph beneath a page
     def inputs(self, pid, depth=4):
@@ -80,16 +83,51 @@ class Sensitivity:
         return rows
 
     # ---------------------------------------------------------------- one evaluation with one input held
+    def _above(self, q):
+        """Every page whose score can move when q moves: the pages that read q, and the pages that read those.
+        Pinning q invalidates exactly these and nothing else, which is the difference between recomputing a
+        page's whole subtree for every input and recomputing a handful."""
+        if q in self._anc: return self._anc[q]
+        seen, stack = {q}, [q]
+        while stack:
+            x = stack.pop()
+            for parent, _sec, _col in self.c.uses.get(x, ()):
+                if parent not in seen: seen.add(parent); stack.append(parent)
+        self._anc[q] = seen
+        return seen
+
+    def _scratch(self, pid):
+        """A memo of this page's subtree, built once per analysis and reused across every what-if. The real
+        corpus memo is never touched: it is swapped out for the duration and swapped back."""
+        m = self.m
+        if self._scratch_for != pid:
+            saved = m.memo
+            m.memo = {}
+            try:
+                m.truth(pid)
+                self._scratch_memo = m.memo
+            finally:
+                m.memo = saved
+            self._scratch_for = pid
+        return self._scratch_memo
+
     def _at(self, pid, q, value, settle):
         m = self.m
+        scratch = self._scratch(pid)
         saved = m.memo
-        m.memo = {}
+        m.memo = scratch
+        dirty = self._above(q)
+        keep = {k: scratch[k] for k in dirty if k in scratch}
+        for k in dirty: scratch.pop(k, None)
         m.pinned_truth[q] = value
         if settle: m.pinned_conf[q] = 1.0
         try:
             return m.truth(pid) if pid != q else value
         finally:
-            m.pinned_truth.pop(q, None); m.pinned_conf.pop(q, None); m.memo = saved
+            m.pinned_truth.pop(q, None); m.pinned_conf.pop(q, None)
+            for k in dirty: scratch.pop(k, None)
+            scratch.update(keep)
+            m.memo = saved
 
     def _flip(self, pid, q, settle, lo_v, hi_v):
         """A truth value for q at which pid crosses 0.5, or None when sweeping q never strictly crosses it.
@@ -116,6 +154,13 @@ class Sensitivity:
         finally:
             for q, _ in qs: m.pinned_truth.pop(q, None); m.pinned_conf.pop(q, None)
             m.memo = saved
+
+    def _deeper(self, pid, depth):
+        """How many pages sit below the level the sweep reached. A cap nobody is told about reads as coverage,
+        so the page says how far down it looked and how much it did not look at."""
+        near = set(self.inputs(pid, depth))
+        far = set(self.inputs(pid, depth + 6))
+        return len(far - near)
 
     # ---------------------------------------------------------------- the analysis
     def of(self, pid, depth=4, keep=14):
@@ -164,7 +209,7 @@ class Sensitivity:
         top = rows[:3]
         worst = [(r['page'], 0.0 if r['lo'] <= r['hi'] else 1.0) for r in top]
         out = {'base': base, 'side': side, 'status': 'for' if side > 0 else 'against' if side < 0 else 'undecided',
-               'rows': rows[:keep], 'all': rows, 'n': len(rows),
+               'rows': rows[:keep], 'all': rows, 'n': len(rows), 'depth': depth, 'deeper': self._deeper(pid, depth),
                'decisive': decisive, 'latent': latent, 'inert': inert,
                'robust': not decisive,
                'widest': max((r['swing'] for r in rows), default=0.0),
