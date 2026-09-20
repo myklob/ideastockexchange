@@ -551,3 +551,42 @@ class TestEveryExportCarriesTheSameTwoTables(unittest.TestCase):
                     self.assertTrue(self._same(got, v),
                                     f'{table} {row["id"]}.{k}: XML {got!r}, JSON {v!r}')
         self.assertGreater(checked, 1000, 'this compared almost nothing')
+
+
+class TestTheMethodPageStatesEveryRule(unittest.TestCase):
+    """It is subtitled "every rule on one page", and a reader who cannot find the rule that produced the number
+    in front of them has been told the site is transparent and handed something they cannot check.
+
+    The conformance contract in conformance.py enumerates the rules an implementation must get right. This
+    holds the reader-facing page to the same list. It was missing three: the load-bearing minimum, which is
+    the single reason every belief here reads 0.50 while twenty findings are cited across them, and how an
+    importance page and a media page compute their own scores."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.prose = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', cls.parent.html['method.html']))
+
+    # contract rule -> a phrase the page has to carry for that rule to be stated at all
+    RULES = {
+        '1 starting point': 'p₀ = 0.5 + 0.5',
+        '1 starting weight': 'w = k × 2 × ERQ',
+        '2 confidence renormalises': 'renormalis',
+        '3 a row is signed': '2 × Truth − 1',
+        '4 POS and NEG take sides by sign': 'the side its sign puts it on',
+        '5 argued truth': '(POS + w × p₀)',
+        '5 belief score': 'POS − NEG',
+        '6 the load-bearing minimum': 'min(Truth argued',
+        '7 an importance page is a maximum': 'max over the interests',
+        '8 a media page scores twice': 'quality from its own argument rows',
+    }
+
+    def test_it_states_every_rule_the_contract_enumerates(self):
+        missing = [name for name, phrase in self.RULES.items() if phrase not in self.prose]
+        self.assertEqual(missing, [], f'the method page does not state: {missing}')
+
+    def test_the_list_is_checked_against_a_page_that_has_content(self):
+        """So this cannot pass by comparing an empty page against an empty list."""
+        self.assertGreater(len(self.prose), 5000)
+        self.assertGreaterEqual(len(self.RULES), 10)
