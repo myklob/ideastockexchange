@@ -96,6 +96,18 @@ rows built to exercise every rule once; `conformance/expected.json` is what they
 language loads the first, computes, and compares against the second. `conformance.py --write` regenerates them, so a
 deliberate rule change arrives as a reviewed diff and an accidental one arrives as a failing test.
 
+## Reading it
+
+The site is proposed for public use, so it has to clear WCAG A, and it did not. Four failures, all now fixed
+and all pinned by `test_render.py::TestItCanBeRead`, which checks the rendered output rather than the intent:
+
+- No way past the breadcrumb, on all 261 pages. There is a skip link.
+- Table cells whose header a screen reader had to infer from the layout. `ths()` is applied once to each
+  finished page, so a column header added anywhere gets its `scope` without the author remembering.
+- Links whose entire text was `0.50`. They carry an `aria-label` naming the page the number was argued on.
+- The grey that marks an unargued factor was the least readable thing on the page, at 2.5:1 against white. It
+  carries information, so it now clears 4.5:1 against every background it sits on, in both themes.
+
 ## Scale
 
 Measured on a synthetic corpus of 14,480 pages and as many edges, 55 times the published one:

@@ -19,7 +19,7 @@ from similarity import FLAG, MERGE, NGRAM
 def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     """Return the whole page. `H` is a render_site.Html bound to this corpus."""
     o = [f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>How every number on this site is computed</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><main>''']
+<title>How every number on this site is computed</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><a class="skip" href="#method">Skip to the method</a><main id="method">''']
     o.append('<p class="crumb"><em><a href="index.html">Home</a> › <strong>Method</strong></em></p>')
     o.append('<p class="kind">Methodology</p><h1>How every number on this site is computed</h1>')
     o.append('<p class="meta">Generated from the same modules the pages run, so it cannot describe a rule the site is not using.</p>')

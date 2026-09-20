@@ -248,6 +248,10 @@ def strip_period(t):
 
 # ------------------------------------------------------------------------------------------------ html helpers
 def esc(s): return html.escape(str(s if s is not None else ''), quote=True)
+def ths(markup):
+    """Every column header declares its column. A screen reader reading a cell announces its header, and
+    without scope it has to guess from the layout."""
+    return re.sub(r'<th(?![^>]*scope=)', '<th scope="col"', markup)
 def f2(v): return '' if v is None else f'{v:.2f}'
 def sf(v): return '' if v is None else f'{v:+.2f}'
 def pct(v): return '' if v is None else f'{round(v * 100):d}%'
@@ -261,9 +265,12 @@ class Html:
     def a(self, pid, text=None, cls=''): return f'<a href="{self.p}{self.c.href(pid)}"{" class=%s" % chr(34) + cls + chr(34) if cls else ""}>{esc(text if text is not None else self.c.text(pid))}</a>'
     def num(self, v, pid, fmt=f2, const_label=None):
         """A number that is a link to the page it came from, or a grey constant when no page argues it yet."""
-        if is_page(pid): return f'<a class="n" href="{self.p}{self.c.href(pid)}">{fmt(v)}</a>'
-        title = f' title="{esc(const_label)}"' if const_label else ''
-        return f'<span class="n c"{title}>{fmt(v)}</span>'
+        if is_page(pid):
+            what = self.c.brief(pid)[0]
+            return (f'<a class="n" href="{self.p}{self.c.href(pid)}" '
+                    f'aria-label="{fmt(v)}, argued on the page: {esc(strip_period(what))}">{fmt(v)}</a>')
+        lab = const_label or 'Nobody has argued this factor, so it reads a labelled constant'
+        return f'<span class="n c" title="{esc(lab)}" aria-label="{fmt(v)}. {esc(lab)}">{fmt(v)}</span>'
     def rowtext(self, d):
         c = self.c
         if is_page(d.get('id')):
@@ -286,7 +293,7 @@ def head(c, pid, title):
     parts.append(f'<strong>{esc(KINDNAME[c.kind(pid)])}: {esc(c.short(pid, 60))}</strong>')
     crumb = '<p class="crumb"><em>' + ' › '.join(parts) + '</em></p>'
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(title)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="../ise.css"></head><body><main>{crumb}'''
+<title>{esc(title)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="../ise.css"></head><body><a class="skip" href="#claim">Skip to the claim</a><main id="claim">{crumb}'''
 
 FOOT = '</main>' + JS + '</body></html>'
 
@@ -849,7 +856,7 @@ def render_special(c, pid):
 def render_index(c, title):
     H = Html(c)
     o = [f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{esc(title)}</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><main class="index">''']
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><a class="skip" href="#beliefs">Skip to the beliefs</a><main class="index" id="beliefs">''']
     o.append('<p class="crumb"><em><a href="method.html">How every number here is computed</a></em></p>')
     o.append(f'<p class="kind">Idea Stock Exchange · {esc(c.name)}</p><h1>Every claim has a page. Every number is a link.</h1>')
     ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
@@ -952,9 +959,9 @@ def render_index(c, title):
     return ''.join(o)
 
 CSS = r'''
-:root{--ink:#1b2130;--ink2:#4a5468;--mute:#8791a3;--ground:#f5f7f9;--paper:#ffffff;--line:#d9dee7;--navy:#1f3864;--navy2:#2f4f86;--head:#f0f3f6;--agree:#e9f7ea;--agree-ink:#2e6f40;--dis:#fbeaea;--dis-ink:#a23b3b;--const:#9aa3b2;--tile:#eef2f7;--serif:"Source Serif 4",Georgia,"Times New Roman",serif;--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#e6e9f0;--ink2:#b6bdcb;--mute:#8590a4;--ground:#12161f;--paper:#1a2030;--line:#2c3446;--navy:#8fb0d9;--navy2:#a9c2e6;--head:#202a3d;--agree:#17301f;--agree-ink:#8fd19b;--dis:#3a2021;--dis-ink:#f0a2a2;--const:#6b7587;--tile:#222b3d}}
-:root[data-theme="dark"]{--ink:#e6e9f0;--ink2:#b6bdcb;--mute:#8590a4;--ground:#12161f;--paper:#1a2030;--line:#2c3446;--navy:#8fb0d9;--navy2:#a9c2e6;--head:#202a3d;--agree:#17301f;--agree-ink:#8fd19b;--dis:#3a2021;--dis-ink:#f0a2a2;--const:#6b7587;--tile:#222b3d}
+:root{--ink:#1b2130;--ink2:#4a5468;--mute:#656f81;--ground:#f5f7f9;--paper:#ffffff;--line:#d9dee7;--navy:#1f3864;--navy2:#2f4f86;--head:#f0f3f6;--agree:#e9f7ea;--agree-ink:#2e6f40;--dis:#fbeaea;--dis-ink:#a23b3b;--const:#666f7e;--tile:#eef2f7;--serif:"Source Serif 4",Georgia,"Times New Roman",serif;--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#e6e9f0;--ink2:#b6bdcb;--mute:#8792a6;--ground:#12161f;--paper:#1a2030;--line:#2c3446;--navy:#8fb0d9;--navy2:#a9c2e6;--head:#202a3d;--agree:#17301f;--agree-ink:#8fd19b;--dis:#3a2021;--dis-ink:#f0a2a2;--const:#8892a4;--tile:#222b3d}}
+:root[data-theme="dark"]{--ink:#e6e9f0;--ink2:#b6bdcb;--mute:#8792a6;--ground:#12161f;--paper:#1a2030;--line:#2c3446;--navy:#8fb0d9;--navy2:#a9c2e6;--head:#202a3d;--agree:#17301f;--agree-ink:#8fd19b;--dis:#3a2021;--dis-ink:#f0a2a2;--const:#8892a4;--tile:#222b3d}
 *{box-sizing:border-box}html{color-scheme:light dark}body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.5 var(--sans)}
 main{max-width:1180px;margin:0 auto;padding-block:20px 56px;padding-inline:20px}
 a{color:var(--navy);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--navy) 35%,transparent)}a:hover{border-bottom-color:var(--navy)}a:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
@@ -987,6 +994,8 @@ dl.readout{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 1
 tr.lb td{background:color-mix(in srgb,var(--head) 60%,transparent)}
 .defs{margin:0;padding-left:18px;font-size:13px;color:var(--ink2)}.defs li{margin:4px 0}
 .consts{font-size:12px;color:var(--mute);margin:8px 0 0}
+.skip{position:absolute;left:-9999px;top:0;background:var(--paper);color:var(--ink);padding:10px 14px;border:2px solid var(--navy);border-radius:0 0 4px 0;z-index:10}
+.skip:focus{left:0}
 @media (max-width:640px){table thead{display:none}table tr{display:flex;flex-wrap:wrap;gap:3px 14px;padding:8px 6px;border-top:1px solid var(--line)}table td{border:0;padding:0;width:auto!important;white-space:normal!important;text-align:left!important}td.t,td.u,td.dl,td.ex,td.lab,.check td.lab,.conn td.lab{flex:1 1 100%;width:auto!important}td.rk{display:none}td[data-l]::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}td.u[data-l]::before,td.dl[data-l]::before,td.ex[data-l]::before{display:inline;margin-right:6px}tr.lb td{background:none}tr.lb{background:color-mix(in srgb,var(--head) 60%,transparent)}}
 main.index h1{max-width:none;font-size:clamp(24px,3vw,36px)}.lede{max-width:80ch;font-size:15px;color:var(--ink2)}
 .beliefs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
@@ -1075,7 +1084,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
     index = []
     for pid in c.specs:
-        h = render_belief(c, pid) if c.kind(pid) in ('belief', 'claim') else render_special(c, pid)
+        h = ths(render_belief(c, pid) if c.kind(pid) in ('belief', 'claim') else render_special(c, pid))
         with open(os.path.join(outdir, 'p', c.href(pid)), 'w') as fh: fh.write(h)
         j = page_json(c, pid)
         j['built_from'] = c.prov.get('rev')
@@ -1084,9 +1093,9 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
         index.append({'key': c.key[pid], 'id': pid, 'kind': c.kind(pid), 'text': c.text(pid),
                       'truth': j['truth'], 'confidence': j['confidence'],
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
-    open(os.path.join(outdir, 'index.html'), 'w').write(render_index(c, title))
-    open(os.path.join(outdir, 'method.html'), 'w').write(
-        method.render(c, Html(c, 'p/'), esc, f2, pct, CONST, CONST_MEANING, WIKI, JS))
+    with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(ths(render_index(c, title)))
+    with open(os.path.join(outdir, 'method.html'), 'w') as fh:
+        fh.write(ths(method.render(c, Html(c, 'p/'), esc, f2, pct, CONST, CONST_MEANING, WIKI, JS)))
     open(os.path.join(outdir, 'ise.css'), 'w').write(CSS)
     open(os.path.join(outdir, '.nojekyll'), 'w').write('')
     # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
