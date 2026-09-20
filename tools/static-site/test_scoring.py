@@ -247,3 +247,42 @@ class TestWorkbookFormulasMatchTheEngine(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
+
+class TestTheScorerOnItsOwn(unittest.TestCase):
+    """A Model built with nothing attached to it. Two paths use it that way and neither is exercised anywhere
+    else: `python3 score_reference.py <file>`, which the module docstring documents, and build_example.py when
+    it has no corpus to gate on. So the default that both of them read was pinned by nothing, and changing it
+    left every check in this repository green."""
+
+    def test_confidence_defaults_to_one_so_the_zoning_reference_still_reproduces(self):
+        """1.0 is not a neutral choice of number, it is the choice that leaves the scorer exactly as it was
+        before confidence existed. The zoning example and its Python, SQL and PHP twins have to keep producing
+        the numbers they were transcribed with, and they were transcribed without this gate."""
+        from score_reference import Model, CONSTS
+        m = Model({'pages': [{'id': 1, 'kind': 'belief'}], 'edges': []}, CONSTS)
+        self.assertEqual(m.conf(1), 1.0)
+        self.assertEqual(m.conf(999), 1.0, 'the default has to answer for a page it has never seen')
+
+    def test_the_command_line_scores_a_file_without_anything_attached(self):
+        """The docstring says you can run this file on a JSON corpus and get every page's truth. Nothing ran
+        it, so the whole unattached path, default confidence included, was untested."""
+        import json, os, subprocess, sys, tempfile
+        here = os.path.dirname(os.path.abspath(__file__))
+        corpus = {'constants': [{'name': k, 'value': v} for k, v in
+                                __import__('score_reference').CONSTS.items()],
+                  'pages': [{'id': 1, 'kind': 'belief', 'text': 'The claim under test'},
+                            {'id': 2, 'kind': 'claim', 'text': 'A cited reason', 'etype': 'statistics'}],
+                  'edges': [{'id': 1, 'page_id': 1, 'section': 'argument', 'side': 'agree',
+                             'position': 1, 'claim_id': 2}]}
+        d = tempfile.mkdtemp()
+        path = os.path.join(d, 'corpus.json')
+        with open(path, 'w') as fh: json.dump(corpus, fh)
+        r = subprocess.run([sys.executable, os.path.join(here, 'score_reference.py'), path],
+                           capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 0, r.stderr[-400:])
+        self.assertIn('0.95', r.stdout, 'the cited claim did not score where its evidence puts it')
+        # With confidence defaulting to 1.0 the reason passes its full weight up, so the belief moves off 0.50.
+        first = [ln for ln in r.stdout.splitlines() if ln.strip().startswith('1 ')]
+        self.assertTrue(first, f'no line for page 1 in:\n{r.stdout}')
+        self.assertNotIn('0.50', first[0], 'the belief did not move, so the default gate is not being used')

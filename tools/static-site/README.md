@@ -208,6 +208,31 @@ To add a page, add a row to `pages` with a new key, then refer to that key from 
 numbers, so nothing renumbers. To ground a claim in evidence, fill its `etype` on the `pages` sheet, and `erq` and
 `erp` when replications are known.
 
+## What a mutation sweep found that reading did not
+
+Every check here passing says the suite noticed nothing wrong. It does not say the suite would notice. So each
+numeric constant in the five scoring modules was changed, one at a time, and the whole suite re-run. Seven
+changes to rules survived, meaning each could be made and every check in this repository would still pass.
+
+Three were the labelled constants DEFLINK, DEFIMP and DEFUNIQ, which are the multipliers most rows in this
+corpus actually read, because almost no row has a linkage, importance or uniqueness page yet. They survived
+for a reason worth keeping: this repository held the five constants twice, once in `score_reference.py` and
+once in `build_pages.py`, and the copy the site reads was the second one. Changing the scorer's copy moved
+nothing and nothing said so. The numbers now live once, in the scorer; `build_pages.py` keeps the labels and
+the meanings and reads the values, and `conformance.py` checks the scorer's copy against the one the corpus
+file declares.
+
+One was the sign on the agree side of the evidence table. The conformance corpus had exactly one evidence-agree
+row and it pointed at a claim sitting on the neutral line, so it contributed exactly 0 and the sign it was read
+with had no consequence. A row pointing at an established finding is in the corpus now.
+
+One was the confidence the scorer defaults to when nothing attaches a real one. Two paths use it that way, the
+command line this file documents and `build_example.py` with no corpus to gate on, and neither was exercised
+anywhere. Both are now.
+
+The first sweep of this kind reported 527 of 527 caught, which was a measurement with no control and no
+meaning: see the section above on a build that cannot name itself.
+
 ## The gates, and whether they can fail
 
 Four commands stand between a bad change and the live site: `sync_content.py --check`, `integrity.py content`,

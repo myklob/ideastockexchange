@@ -112,6 +112,7 @@ def build_corpus():
         dict(id=22, kind='importance', x_id=2, y_id=1, rowkind='reason to agree'),   # rule 7 with nothing listed
         dict(id=23, kind='claim', text='A claim whose necessary premise is better established than it is'),
         dict(id=24, kind='claim', text='A claim whose necessary premise has no page yet'),
+        dict(id=25, kind='claim', text='A claim resting on a finding that is actually established'),
     ]
     E, n = [], 0
     def e(page_id, section, side, position, **kw):
@@ -149,6 +150,11 @@ def build_corpus():
     # rule 6, "and which name a page": a necessary premise nobody has opened a page for caps nothing. A port
     # that reads a missing claim as truth 0 caps this page at 0.
     e(24, 'component', None, 1, text='a premise stated in words and not yet argued', attrs={'lb': 'Y'})
+    # rule 4, the agree side of the evidence table. The only evidence-agree row in this corpus pointed at a
+    # claim sitting exactly on the neutral line, so it contributed exactly 0 and the sign on it was worth
+    # nothing: doubling that sign in the scorer changed no number in this file and the suite stayed green.
+    # This row points at a finding that is established, so the sign it is read with has a consequence.
+    e(25, 'evidence', 'agree', 1, claim_id=2, source='A published series, 2024')
     consts = [dict(name=k, value=v) for k, v in CONSTS.items()]
     tiers = [dict(etype=k, weight=w, meaning=m) for k, (w, _rank, m) in sorted(EV.ESIW.items())]
     return {'constants': consts, 'tiers': tiers, 'pages': P, 'edges': E}
@@ -202,6 +208,15 @@ def check(candidate=None):
     bad = []
     # The tier weights ride in the corpus file so a port needs nothing from this repository's source. That
     # only holds while the copy is the same as the scorer's, so it is checked rather than trusted.
+    # The corpus declares the five labelled constants and compute() reads them from there, which is right for
+    # a contract: a port gets them from the file. It also means nothing was comparing them against the
+    # scorer's own defaults, so DEFLINK, DEFIMP and DEFUNIQ could each be changed in score_reference.py and
+    # every check in this repository still passed. They are the multipliers most rows actually read.
+    from score_reference import CONSTS as SCORER
+    declared = {c['name']: c['value'] for c in data.get('constants', ())}
+    for k in sorted(set(declared) | set(SCORER)):
+        if declared.get(k) != SCORER.get(k):
+            bad.append(f'constants[{k}]: corpus.json says {declared.get(k)!r}, score_reference.py says {SCORER.get(k)!r}')
     shipped = {t['etype']: t['weight'] for t in data.get('tiers', ())}
     live = {k: w for k, (w, _r, _m) in EV.ESIW.items()}
     if shipped != live:

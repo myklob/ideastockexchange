@@ -35,12 +35,20 @@ WIKI = {'template': 'https://myclob.pbworks.com/w/page/21959883/Template', 'reas
 END = 'V'
 MIRROR_TRUTH, MIRROR_SCORE = '$W$1', '$X$1'
 MIRROR_CONF = '$W$3'   # this page's confidence: how much of the work behind its score has been done
-KVAL = 1               # k, kept here so the engine rows can compute the starting weight as a literal
-CONSTS = [('K', 'k, weight of the starting point', 1, 'A page starts as one vote with this weight, at 0.5 when it cites nothing and at its evidence prior when it does. Truth = (positive + w x p0) / (positive + negative + w), w = k x a bounded reward for replication. With k = 1 an unargued, unsourced page reads 0.5, a page with one unrebutted reason moves part of the way, not all the way, to certainty, and even the strongest evidence prior is within reach of one well-argued objection.'),
-          ('UNARG', 'Unargued truth', 0.5, 'What a row reads for Truth when it has no page yet: a coin flip. Give it a page and the page decides.'),
-          ('DEFLINK', 'Linkage with no linkage page', 1, 'A reason placed under a conclusion is presumed relevant until a linkage page says otherwise; the burden is on the challenger. Open the linkage page ("If it were true that X, it would necessarily strengthen Y") and argue it down. The scorecard counts how many rows still rest on this presumption.'),
-          ('DEFIMP', 'Importance with no importance page', 0.5, 'The neutral start for importance, the wiki\'s own rule: an importance nobody has argued opens at 0.5, neither trivial nor decisive, until an importance page names the issues the row addresses and their argued importance takes over. Not a penalty; the absence of a claim either way.'),
-          ('DEFUNIQ', 'Uniqueness with no uniqueness page', 1, 'A reason is presumed distinct until a uniqueness page shows the overlap.')]
+from score_reference import CONSTS as _SCORER_CONSTS
+KVAL = _SCORER_CONSTS['K']   # k, kept here so the engine rows can compute the starting weight as a literal
+# The labels and the meanings live here, beside the workbook that prints them. The numbers do not: they
+# live in score_reference.py and are read from it. Two copies of a constant is two places for it to be
+# changed and one place for it to be forgotten, and the copy this file used to hold was the one the site
+# actually reads, so a change to the scorer's copy would have moved nothing and said nothing.
+_LABELS = [
+    ('K', 'k, weight of the starting point', 'A page starts as one vote with this weight, at 0.5 when it cites nothing and at its evidence prior when it does. Truth = (positive + w x p0) / (positive + negative + w), w = k x a bounded reward for replication. With k = 1 an unargued, unsourced page reads 0.5, a page with one unrebutted reason moves part of the way, not all the way, to certainty, and even the strongest evidence prior is within reach of one well-argued objection.'),
+    ('UNARG', 'Unargued truth', 'What a row reads for Truth when it has no page yet: a coin flip. Give it a page and the page decides.'),
+    ('DEFLINK', 'Linkage with no linkage page', 'A reason placed under a conclusion is presumed relevant until a linkage page says otherwise; the burden is on the challenger. Open the linkage page ("If it were true that X, it would necessarily strengthen Y") and argue it down. The scorecard counts how many rows still rest on this presumption.'),
+    ('DEFIMP', 'Importance with no importance page', 'The neutral start for importance, the wiki\'s own rule: an importance nobody has argued opens at 0.5, neither trivial nor decisive, until an importance page names the issues the row addresses and their argued importance takes over. Not a penalty; the absence of a claim either way.'),
+    ('DEFUNIQ', 'Uniqueness with no uniqueness page', 'A reason is presumed distinct until a uniqueness page shows the overlap.'),
+]
+CONSTS = [(n, label, _SCORER_CONSTS[n], meaning) for n, label, meaning in _LABELS]
 
 def CELL(s, k, r): return f'${s[k]}{r}'
 def PAGE(pid): return f"'{pid}'!"
