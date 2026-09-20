@@ -9,7 +9,7 @@ score: every number here is computed by score_reference.Model from the same tabl
 """
 import html, json, os, re, shutil, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from ise_tables import read_entry, tables_to_specs, entry_keys, is_page
+from ise_tables import read_source, tables_to_specs, entry_keys, is_page
 from score_reference import Model, normalize
 from build_pages import CONSTS, WIKI
 from build_subpages import KINDS
@@ -39,7 +39,7 @@ KINDNAME = {'belief': 'Belief', 'claim': 'Claim', 'linkage': 'Linkage', 'importa
 # ------------------------------------------------------------------------------------------------ corpus
 class Corpus:
     def __init__(self, entry_path, name):
-        pages, edges = read_entry(entry_path)
+        pages, edges = read_source(entry_path)
         self.specs, self.beliefs = tables_to_specs(pages, edges)
         self.tabs = entry_keys(pages); self.key = {t: k for k, t in self.tabs.items()}
         self.name = name
@@ -608,6 +608,7 @@ def render_belief(c, pid):
     if todo:
         o.append(H.section('Not Argued Yet', 'Parts of the template nobody has filled in here. They are named rather than shown, because an empty table is not a finding, and each one is a reason the confidence above is not higher.'))
         o.append('<table class="plain"><tbody>' + ''.join(f'<tr><td class="t">{esc(n)}</td><td class="u">{esc(why)}</td></tr>' for n, why in todo) + '</tbody></table></section>')
+    o.append(checks_section(H, c, pid))
     o.append(engine_table(H, c, pid))
     o.append(FOOT)
     return ''.join(o)
@@ -856,7 +857,33 @@ def render_index(c, title):
     o.append('<div class="beliefs">')
     for b in sorted(c.beliefs):
         s = c.stats(b); sp = c.specs[b]
-        o.append(f'<a class="bcard" href="p/{c.href(b)}"><div class="bt">{esc(c.text(b))}</div><div class="bn"><span><b>{f2(s["truth"])}</b> truth</span><span><b>{sf(s["belief"])}</b> belief</span><span><b>{f2(s["pos"])}</b> weight for</span><span><b>{f2(s["neg"])}</b> against</span></div><div class="bb">{esc(sp.get("bottom_line") or "")}</div></a>')
+        # A card showing 0.50 truth beside a belief score of +0.32 invites the reader to think the engine is
+        # broken. Say in one line what is holding the number, because that is the actionable part.
+        lb = [d for d in sp.get('components', []) if str(d.get('lb', '')).upper() == 'Y' and is_page(d.get('id'))]
+        held = [d for d in lb if abs(c.truth(d['id']) - s['weakest']) < 1e-9] if s['weakest'] is not None else []
+        if s['weakest'] is not None and s['weakest'] < s['raw'] - 1e-9:
+            note = (f'Argues to {f2(s["raw"])}, held at {f2(s["truth"])} by '
+                    + (f'{len(held)} load-bearing components tied at that level' if len(held) > 1
+                       else 'its weakest load-bearing component') + ', which nobody has argued yet.')
+        elif s['pos'] + s['neg'] == 0:
+            note = (f'{s["nrows"]} rows are listed here and none of them moves the score: every claim beneath this '
+                    'page is itself unargued and uncited.' if s['nrows'] else
+                    'Nothing is listed beneath this page yet.')
+        elif abs(s['pos'] - s['neg']) < 0.005:
+            scoring = [d for d, r in ((d, c.row(d, sg)) for lst, sg in ((sp['args']['agree'], 1), (sp['args']['disagree'], -1),
+                                                                        (sp['evid']['for'], 1), (sp['evid']['against'], -1))
+                                       for d in lst) if abs(r['score']) > 1e-12]
+            bare = scoring and all(not is_page(d.get('link')) and not is_page(d.get('imp')) for d in scoring)
+            note = ('The two sides cancel to the decimal because no row on either side has a linkage or importance '
+                    'page, so nothing yet distinguishes findings that are equally well sourced.' if bare else
+                    'The weight for and against are balanced.')
+        else:
+            note = 'No load-bearing component is holding this down; the score is what the rows say.'
+        o.append(f'<a class="bcard" href="p/{c.href(b)}"><div class="bt">{esc(c.text(b))}</div>'
+                 f'<div class="bn"><span><b>{f2(s["truth"])}</b> truth</span><span><b>{sf(s["belief"])}</b> belief</span>'
+                 f'<span><b>{f2(s["pos"])}</b> weight for</span><span><b>{f2(s["neg"])}</b> against</span>'
+                 f'<span><b>{pct(c.conf.of(b))}</b> confidence</span></div>'
+                 f'<div class="bb">{esc(note)}</div><div class="bb">{esc(sp.get("bottom_line") or "")}</div></a>')
     o.append('</div>')
     # what the corpus rests on, and what to argue next
     rr = c.rank
@@ -983,7 +1010,7 @@ def provenance(path=None):
         except Exception:
             return ''
     rev, when = git('rev-parse', '--short', 'HEAD'), git('log', '-1', '--format=%cs')
-    dirty = bool(git('status', '--porcelain'))
+    dirty = bool(git('status', '--porcelain', '--untracked-files=no'))
     return {'rev': rev, 'date': when, 'dirty': dirty}
 
 

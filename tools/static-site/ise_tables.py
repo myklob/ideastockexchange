@@ -323,6 +323,62 @@ def write_entry(pages, edges, path):
     wb.save(path)
     return path
 
+# ------------------------------------------------------------------ the same two tables as text
+# The workbook is a good place to type and a bad place to review. A change to a claim shows up in git as
+# "Bin 98313 -> 98414 bytes", which is not a record of anything: five sentences of a policy argument were
+# rewritten in this repository and the only trace was a byte count. An institution cannot review that, and a
+# tool meant for one has to be reviewable. The same two tables are therefore also kept as CSV, which diffs line
+# by line, so a change to an argument reads as a change to an argument.
+CSV_NUMERIC = ('tab', 'positivity', 'erq', 'erp', 'magnitude')
+CSV_NAMES = {'pages': PAGE_COLS, 'edges': EDGE_COLS}
+
+
+def _csvnum(v):
+    """A number from a spreadsheet comes back typed; the same number from a CSV comes back as text. Coerce the
+    columns that are numbers so the two sources produce identical rows, and leave anything unparseable alone
+    rather than silently dropping what somebody typed."""
+    t = str(v).strip()
+    if not t: return None
+    try: f = float(t)
+    except ValueError: return v
+    return int(f) if f == int(f) else f
+
+
+def write_csv(pages, edges, outdir):
+    import csv, os
+    os.makedirs(outdir, exist_ok=True)
+    for name, rows in (('pages', pages), ('edges', edges)):
+        cols = CSV_NAMES[name]
+        with open(os.path.join(outdir, name + '.csv'), 'w', newline='', encoding='utf-8') as fh:
+            w = csv.DictWriter(fh, fieldnames=cols, extrasaction='ignore', lineterminator='\n')
+            w.writeheader()
+            for r in rows:
+                w.writerow({c: ('' if r.get(c) in (None, '') else r[c]) for c in cols})
+    return outdir
+
+
+def read_csv(indir):
+    import csv, os
+    out = []
+    for name in ('pages', 'edges'):
+        with open(os.path.join(indir, name + '.csv'), newline='', encoding='utf-8') as fh:
+            rows = []
+            for d in csv.DictReader(fh):
+                row = {}
+                for k, v in d.items():
+                    if not k or v in (None, ''): continue
+                    row[k] = _csvnum(v) if k in CSV_NUMERIC else v
+                if row: rows.append(row)
+        out.append(rows)
+    return out[0], out[1]
+
+
+def read_source(path):
+    """Either surface: the workbook people type into, or the CSVs people review. Same two tables."""
+    import os
+    return read_csv(path) if os.path.isdir(path) else read_entry(path)
+
+
 def read_entry(path):
     from openpyxl import load_workbook
     wb = load_workbook(path, data_only=True)
