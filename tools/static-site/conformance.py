@@ -45,9 +45,11 @@ THE CONTRACT, in full, for anyone writing a port.
      filed on.
   5. Argued truth = (POS + w x p0) / (POS + NEG + w). Belief score = POS - NEG.
   6. Truth = min(argued truth, the smallest truth among component rows whose attrs.lb is "Y" and which name a
-     page). Uncapped when there are none.
+     page). Uncapped when there are none. It is a minimum and not a replacement, so a premise better
+     established than the conclusion leaves the conclusion where its rows put it (page 23), and a premise
+     stated in words with no page yet caps nothing rather than capping at zero (page 24).
   7. An importance page instead reads max over its interest_listing rows of Truth(claim_id) x Bears, where Bears
-     is the truth of bearing_id or DEFLINK. With no rows listed it reads its own starting point.
+     is the truth of bearing_id or DEFLINK. With no rows listed it reads its own starting point (page 22).
   8. A media page computes quality from its argument rows by rule 5 and impact from its impact rows the same way.
 
   Floating point: compare to 1e-9. Every number here is a short chain of multiplications and one division, so
@@ -105,6 +107,11 @@ def build_corpus():
         dict(id=19, kind='claim', text='A type that matches no tier', etype='not a tier at all', erq=3, erp=90),
         dict(id=20, kind='claim', text='A replication count below one', etype='statistics', erq=0, erp=100),
         dict(id=21, kind='claim', text='A replication percentage outside its range', etype='statistics', erq=1, erp=150),
+        # Three branches the contract states and the corpus did not reach. A port can get every page above
+        # right and still get these wrong, because each is the case where a rule does nothing.
+        dict(id=22, kind='importance', x_id=2, y_id=1, rowkind='reason to agree'),   # rule 7 with nothing listed
+        dict(id=23, kind='claim', text='A claim whose necessary premise is better established than it is'),
+        dict(id=24, kind='claim', text='A claim whose necessary premise has no page yet'),
     ]
     E, n = [], 0
     def e(page_id, section, side, position, **kw):
@@ -135,6 +142,13 @@ def build_corpus():
     e(11, 'impact', 'disagree', 1, claim_id=3)
     e(15, 'argument', 'agree', 1, claim_id=13)
     e(16, 'argument', 'agree', 1, claim_id=12)
+    # rule 6, the cap that does not bind: the component is at 0.95 and the rows argue lower, so min() leaves
+    # the argued number alone. A port that treats the cap as a replacement rather than a minimum reads 0.95.
+    e(23, 'argument', 'disagree', 1, claim_id=2)
+    e(23, 'component', None, 1, claim_id=2, attrs={'lb': 'Y', 'type': 'Causal'})
+    # rule 6, "and which name a page": a necessary premise nobody has opened a page for caps nothing. A port
+    # that reads a missing claim as truth 0 caps this page at 0.
+    e(24, 'component', None, 1, text='a premise stated in words and not yet argued', attrs={'lb': 'Y'})
     consts = [dict(name=k, value=v) for k, v in CONSTS.items()]
     tiers = [dict(etype=k, weight=w, meaning=m) for k, (w, _rank, m) in sorted(EV.ESIW.items())]
     return {'constants': consts, 'tiers': tiers, 'pages': P, 'edges': E}
