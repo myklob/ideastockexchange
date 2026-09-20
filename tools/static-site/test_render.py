@@ -185,6 +185,42 @@ class TestTheRenderedSite(unittest.TestCase):
             self.assertTrue(os.path.exists(os.path.join(self.dir, rel)),
                             f'the front page links at beliefs/{rel}, which the build does not produce')
 
+    def test_the_front_page_states_the_rule_the_engine_runs(self):
+        """The front page is hand-written and is the first thing anyone reads, so a formula that has rotted
+        there is the most expensive rotted sentence on the site. It carried two: the correct signed rule in
+        one section and `contribution = Truth x Relevance x Importance` in another, three sections down under
+        the heading "The ReasonRank formula". The second was the rule before the signed one replaced it, and
+        it omits the two factors that stop a score being padded."""
+        root = os.path.dirname(os.path.dirname(HERE))
+        front = os.path.join(root, 'index.html')
+        if not os.path.exists(front): self.skipTest('no front page in this checkout')
+        with open(front) as fh: h = fh.read()
+        for gone in ('Truth &times; Relevance &times; Importance', 'three independent dimensions'):
+            self.assertNotIn(gone, h, 'the front page carries the formula the engine stopped running')
+        for factor in ('Truth', 'Confidence', 'Linkage', 'Importance', 'Uniqueness'):
+            self.assertIn(factor, h, f'the front page does not name {factor}, which is in the rule')
+        self.assertIn('2 &times; Truth &minus; 1', h, 'the front page does not show the signed form')
+
+    def test_the_front_page_counts_the_limits_the_method_page_actually_lists(self):
+        """It points the reader at "N things the tool cannot do". Somebody adds a limit, nobody edits the
+        front page, and the site under-reports what it cannot do, which is the one direction that matters."""
+        root = os.path.dirname(os.path.dirname(HERE))
+        front = os.path.join(root, 'index.html')
+        if not os.path.exists(front): self.skipTest('no front page in this checkout')
+        with open(front) as fh: h = fh.read()
+        m = re.search(r'([a-z-]+) things the tool cannot do', h)
+        self.assertTrue(m, 'the front page no longer points at the limits section')
+        words = {'four': 4, 'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+                 'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15}
+        said = words.get(m.group(1))
+        self.assertIsNotNone(said, f'unrecognised count word {m.group(1)!r} on the front page')
+        method = self.html['method.html']
+        i = method.index('cannot do')
+        sec = method[i:i + method[i:].index('</section>')]
+        listed = len(re.findall(r'<strong>', sec))
+        self.assertEqual(said, listed,
+                         f'the front page says {said} limits and the method page lists {listed}')
+
     def test_the_revision_page_exists_even_with_no_history(self):
         """Anything may link at it, so it cannot be conditional; with nothing to compare it says so rather
         than implying nothing changed."""

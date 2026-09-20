@@ -236,7 +236,7 @@
         <p class="tagline">A prediction market for ideas, where arguments are scored, not just shouted.</p>
         <p class="deck">A claim is scored from the arguments and evidence beneath it (<strong>ReasonRank</strong>), recursively, with every factor read from the page that argues it. A second layer, a <strong>Market Price</strong> set by what people will bet, is designed and not yet built; where this page describes it, read it as a plan. <a href="beliefs/">The live belief pages</a> are the part that exists, and every number on them is computed at build time from two tables.</p>
         <p class="deck"><a href="beliefs/"><strong>Browse the scored belief pages</strong></a>: five beliefs on government ethics across 261 pages, argued on both sides, every number computed from two tables at build time and linked to the page that produced it. Each page opens by saying what it supports doing, and all five currently say &ldquo;not yet&rdquo; and then say exactly what is missing.</p>
-        <p class="deck">Alongside them: <a href="beliefs/method.html">the method</a>, every rule on one page including seven things the tool cannot do &middot; <a href="beliefs/changes.html">what changed in this revision</a>, in claims and in the scores they moved &middot; and the data behind all of it as <a href="beliefs/data/ise.json">JSON</a>, <a href="beliefs/data/ise_data.sql">SQL</a> and a loaded <a href="beliefs/data/ise.sqlite">SQLite database</a>.</p>
+        <p class="deck">Alongside them: <a href="beliefs/method.html">the method</a>, every rule on one page including eleven things the tool cannot do &middot; <a href="beliefs/changes.html">what changed in this revision</a>, in claims and in the scores they moved &middot; and the data behind all of it as <a href="beliefs/data/ise.json">JSON</a>, <a href="beliefs/data/ise_data.sql">SQL</a> and a loaded <a href="beliefs/data/ise.sqlite">SQLite database</a>.</p>
       </header>
 
       <section id="pillars">
@@ -534,19 +534,21 @@
           </table>
         </div>
 
-        <p style="font-size:14px;color:var(--muted);margin-top:8px;">Each argument label above is its own page in the live application, with its own sub-arguments, evidence ledger, and ReasonRank score. Top-level scores are computed bottom-up &mdash; never assigned by hand.</p>
+        <p style="font-size:14px;color:var(--muted);margin-top:8px;">On the live pages every argument label is its own page, with its own sub-arguments, evidence ledger and score, and the top-level number is computed bottom-up rather than assigned by hand. These two beliefs are not among them: the pages behind these labels do not exist, and the scores above were typed.</p>
       </section>
 
       <section id="reasonrank">
         <h2>The ReasonRank formula</h2>
-        <p>An argument&rsquo;s contribution to its parent claim is the product of three independent dimensions:</p>
+        <p>An argument&rsquo;s contribution to its parent claim is a product of five factors and a sign. Every one of them is itself a page with its own argument, so there is no factor a reader cannot follow down to what set it:</p>
         <ul>
-          <li><strong>Truth</strong> &mdash; is the claim accurate and logically coherent?</li>
+          <li><strong>Truth</strong> &mdash; the claim&rsquo;s own score, entered as <span class="formula">2 &times; Truth &minus; 1</span>, so a claim argued false pulls the other way instead of merely pulling less.</li>
+          <li><strong>Confidence</strong> &mdash; how much of the work behind that claim has been done. A claim nobody has argued passes nothing up, however true it looks.</li>
           <li><strong>Relevance (Linkage)</strong> &mdash; does the supporting argument actually bear on the conclusion?</li>
           <li><strong>Importance (Impact)</strong> &mdash; how much does the argument move the parent claim if true?</li>
+          <li><strong>Uniqueness</strong> &mdash; is this a point the rows beside it have not already made? Without it, a claim repeated three ways counts three times.</li>
         </ul>
-        <p style="margin-bottom:18px;"><span class="formula">contribution = Truth &times; Relevance &times; Importance</span></p>
-        <p>Scoring is recursive: a belief&rsquo;s score is computed from the scores of its sub-arguments, the way Google&rsquo;s PageRank computed page authority from inbound links. A true-but-irrelevant argument scores near zero. A relevant argument with bad evidence scores low. Both layers must hold up.</p>
+        <p style="margin-bottom:18px;"><span class="formula">contribution = sign &times; (2 &times; Truth &minus; 1) &times; Confidence &times; Linkage &times; Importance &times; Uniqueness</span></p>
+        <p>Scoring is recursive: a belief&rsquo;s score is computed from the scores of its sub-arguments, the way Google&rsquo;s PageRank computed page authority from inbound links. A true-but-irrelevant argument scores near zero. An argument shown to be false does not score low, it scores against the side that filed it. And an argument nobody has supported scores exactly nothing, which is why a page whose whole graph cites no evidence sits at 0.50 however much is written beneath it.</p>
       </section>
 
       <section id="market">
@@ -604,7 +606,7 @@
         <p>Three ways to help:</p>
         <ul>
           <li><strong>Developers:</strong> clone the repo, pick an issue labeled <code>good first issue</code> or <code>help wanted</code>. Priority areas: belief scoring pipeline, the Belief Equivalency Engine, and frontend belief display components.</li>
-          <li><strong>Researchers and writers:</strong> add or improve a belief page. Score arguments using Truth, Relevance, and Importance. Classify evidence as T1 (peer-reviewed), T2 (expert/institutional), T3 (journalism/survey), or T4 (opinion/anecdote).</li>
+          <li><strong>Researchers and writers:</strong> add or improve a belief page. Arguments are scored by the five factors above, and each factor is argued on its own page rather than assigned. Evidence is classified by what kind of source it is, from the eighteen tiers the <a href="beliefs/method.html">method page</a> lists; the T1 to T4 scheme in the mock-ups above is not what the live pages use.</li>
           <li><strong>Everyone:</strong> star the repo. Submit a new belief as a <a href="https://github.com/myklob/ideastockexchange/issues">GitHub issue</a>. Join the discussion in <a href="https://github.com/myklob/ideastockexchange/discussions">GitHub Discussions</a>.</li>
         </ul>
       </section>
