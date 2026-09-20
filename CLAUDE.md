@@ -70,6 +70,14 @@ touching before you change a formula.
   retraction exposure. The belief page, `/algorithms/*`, `/leverage` and
   `/media` all read this. **Default here for any change that affects a page.**
 
+  `calculateTruthScoreBreakdown` in `all-scores.ts` used to average every
+  argument's weight regardless of the side it was filed on, so a well-argued
+  objection raised a belief's logical validity by as much as an equally
+  well-argued reason for it: one strong con took a belief from 0.600 to 0.775.
+  It now takes the pro share of argued weight, which is what the evidence half
+  of the same function and `scoring-engine.ts` both already did. Belief-page
+  truth scores move as a result, in the direction of meaning what they say.
+
   Not all of it scores the same way. `cba-scoring.ts` implements a different
   rule, from `docs/automated-cba/SKILL.md`: three factors rather than five, a
   depth attenuation of `0.5^(d-1)` that nothing else has, an unargued
