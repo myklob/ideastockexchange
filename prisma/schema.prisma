@@ -1860,7 +1860,7 @@ model DebateTopic {
   updatedAt DateTime @updatedAt
 
   positions           DebatePosition[]
-  claimMagnitudeLevels DebateClaimMagnitude[]
+  claimStrengthLevels DebateClaimStrength[]
   escalationLevels    DebateEscalation[]
   assumptions         DebateAssumption[]
   abstractionRungs    DebateAbstractionRung[]
@@ -1874,26 +1874,29 @@ model DebateTopic {
   @@index([slug])
 }
 
-/// One row in section 3 (Claim Magnitude — topic-specific pro and anti examples).
+/// One row in section 3 (Claim Strength — topic-specific pro and anti examples).
 /// Replaces the generic static component with per-topic AI-generated content.
-model DebateClaimMagnitude {
+/// The table and its columns keep their original names, so the rename to Claim
+/// Strength is a code-level rename with no data migration behind it.
+model DebateClaimStrength {
   id      Int         @id @default(autoincrement())
   topicId Int
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   sortOrder       Int    @default(0)
-  /// "Weak (20%)", "Moderate (50%)", "Strong (80%)", "Extreme (100%)"
-  magnitudeLevel  String
-  magnitudePercent Int   @default(50)
+  /// "Modest (20%)", "Moderate (50%)", "Strong (80%)", "Total (100%)"
+  strengthLevel   String @map("magnitudeLevel")
+  strengthPercent Int    @default(50) @map("magnitudePercent")
   sublabel        String /// "Hedged", "Standard", "Categorical", "Maximal"
-  /// Topic-specific example of a pro-topic claim at this magnitude
+  /// Topic-specific example of a pro-topic claim at this strength
   proExample      String
-  /// Topic-specific example of an anti-topic claim at this magnitude
+  /// Topic-specific example of an anti-topic claim at this strength
   antiExample     String
   /// Scope description: what this level of assertion implies
   scopeDescription String
 
   @@index([topicId])
+  @@map("DebateClaimMagnitude")
 }
 
 /// One row in section 1 (The Position Spectrum, -100 to +100).

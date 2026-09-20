@@ -11,7 +11,7 @@
   Every argument anyone has made about the topic lives here, scored by evidence
   quality, linked to the claims it supports or undermines, and updated when new
   data arrives. Every belief gets one fixed address with three parts, one per
-  continuum below: Direction (which way it runs), Claim Magnitude (how absolute
+  continuum below: Direction (which way it runs), Claim Strength (how absolute
   it is), and Specificity (where it sits on the general-to-specific tree). Two
   beliefs at the same address are duplicates, so they merge; nearly the same
   address takes the redundancy discount.
@@ -28,10 +28,10 @@
   - Keep on-page prose to one caption line per section. Link the canonical page
     for the full logic rather than restating a definition that has a home.
   - No em dashes. No empty anchors and no links to pages that do not exist: use plain
-    text until the target exists. PBworks links use the full /w/page/{id}/{Name}
-    form, because bare-ID URLs 404 and bare-name URLs are case-fragile.
-  - PBworks strips script tags and CSS class blocks, so use inline styles.
-    Table header rows are #f0f3f6.
+    text until the target exists. Every page is self-contained: link this site's own
+    routes, never an outside wiki, so a template stays correct wherever it is rendered.
+  - Use inline styles, not script tags or CSS class blocks, so the markup survives
+    any renderer it is pasted into. Table header rows are #f0f3f6.
 
   SCHEMA ALIGNMENT (matches the GitHub topic route):
   - Continuum 3 rows carry a rungType of general (the worldview row),
@@ -40,7 +40,7 @@
   - Draw every subcategory with the branch marker and every specific leaf with
     the leaf marker. Do not switch the last subcategory to a leaf marker: the
     marker signals rung type, not sibling position.
-  - Canonical Magnitude bands are Modest, Moderate, Strong, Total. The retired
+  - Canonical Claim Strength bands are Modest, Moderate, Strong, Total. The retired
     Weak and Extreme labels must not come back.
   - The Evidence Ledger sorts each side by quality score, highest first.
 
@@ -48,7 +48,7 @@
     Header (breadcrumb / Topic name / Definition + Scope / Topic Metrics)
     What This Page Does
     Continuum 1: Direction (Oppose <-> Support)
-    Continuum 2: Claim Magnitude (Modest <-> Total)
+    Continuum 2: Claim Strength (Modest <-> Total)
     Continuum 3: General to Specific, with Branching Subcategories
     Assumption Stack Behind Each Position
     Core Values Conflict
@@ -60,17 +60,17 @@
     Related Topics
     Contribute
 -->
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold; text-align: right;"><a style="font-size: 13px;" href="/w/page/21957696/Colorado%20Should">Home</a><span style="font-size: 13px;"> &rsaquo; </span><a style="font-size: 13px;" href="/w/page/159323433/One%20Page%20Per%20Topic">Topics</a><span style="font-size: 13px;"> &rsaquo; </span><strong style="font-family: inherit; font-style: inherit;">[Parent Category] &gt; [Topic Name]</strong></h2>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold; text-align: right;"><a style="font-size: 13px;" href="/">Home</a><span style="font-size: 13px;"> &rsaquo; </span><a style="font-size: 13px;" href="/topics">Topics</a><span style="font-size: 13px;"> &rsaquo; </span><strong style="font-family: inherit; font-style: inherit;">[Parent Category] &gt; [Topic Name]</strong></h2>
 <div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
 <h1>Topic: [Topic Name]</h1>
 <p style="font-size: 13px;"><strong>Definition:</strong> [One sentence naming what the topic covers, written so a reader can tell whether a given belief belongs here.]<br /><strong>Scope:</strong> [What sits inside this page and what belongs to a neighbouring topic with its own page.]</p>
 <div style="border: 1px solid #ccc; padding: 10px; background-color: #f9f9f9;">
-<p style="text-align: center; margin: 0;"><strong>Topic Metrics</strong><br /><a href="/w/page/162731388/Importance%20Score">Importance</a>: <strong>[XX]</strong> | <a href="/w/page/159353568/Evidence%20Scores">Evidence Depth</a>: <strong>[XX]</strong> | <a href="/w/page/159300543/ReasonRank">Controversy</a>: <strong>[XX]</strong></p>
-<p style="text-align: center; margin: 6px 0 0 0; font-size: 11px; color: #777;">Every bracketed number on this page is a placeholder until the <a href="/w/page/159300543/ReasonRank">ReasonRank</a> engine computes live scores.</p>
+<p style="text-align: center; margin: 0;"><strong>Topic Metrics</strong><br /><a href="/algorithms/importance-score">Importance</a>: <strong>[XX]</strong> | <a href="/algorithms/evidence-scores">Evidence Depth</a>: <strong>[XX]</strong> | <a href="/algorithms/reason-rank">Controversy</a>: <strong>[XX]</strong></p>
+<p style="text-align: center; margin: 6px 0 0 0; font-size: 11px; color: #777;">Every bracketed number on this page is a placeholder until the <a href="/algorithms/reason-rank">ReasonRank</a> engine computes live scores.</p>
 </div>
-<div style="border-left: 5px solid #0055a4; padding: 10px 14px; background-color: #f4f9ff; margin: 15px 0; font-size: 13px;"><strong>What this page does.</strong> It gives every belief about this topic one fixed address, so the thousand ways of saying the same thing collapse into a single entry and the real reasons to agree or disagree can be counted and weighed by evidence instead of by how often they get repeated. The address has three parts, one per table below: <a href="#direction">Direction</a> (which way it runs), <a href="#magnitude">Magnitude</a> (how absolute), and <a href="#specificity">Specificity</a> (where it sits on the general-to-specific tree). Same address means the same claim, so it merges; nearly the same address gets the <a href="/w/page/159300543/ReasonRank">redundancy discount</a>. Full logic lives on <a href="/w/page/159323433/One%20Page%20Per%20Topic">One Page Per Topic</a>.</div>
-<h2 id="direction" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128202; Continuum 1: Direction (<a href="/w/page/163411251/positive%20to%20negative">Oppose &harr; Support</a>)</h2>
-<p style="font-size: 13px;">Which way the belief runs, from total opposition (-100%) to total support (+100%). The <strong>Belief Score</strong> column is a separate thing: how well the belief holds up once its arguments are scored, not which way it points. A claim can sit at +100% and still score badly. <span style="color: #666;">See: <a href="/w/page/162417909/beliefs%20grouped">Full Positivity Framework</a> | <a href="/w/page/163411251/positive%20to%20negative">Why We Need This Continuum</a>.</span></p>
+<div style="border-left: 5px solid #0055a4; padding: 10px 14px; background-color: #f4f9ff; margin: 15px 0; font-size: 13px;"><strong>What this page does.</strong> It gives every belief about this topic one fixed address, so the thousand ways of saying the same thing collapse into a single entry and the real reasons to agree or disagree can be counted and weighed by evidence instead of by how often they get repeated. The address has three parts, one per table below: <a href="#direction">Direction</a> (which way it runs), <a href="#claim-strength">Claim Strength</a> (how absolute), and <a href="#specificity">Specificity</a> (where it sits on the general-to-specific tree). Same address means the same claim, so it merges; nearly the same address gets the <a href="/algorithms/reason-rank">redundancy discount</a>. Full logic lives on <a href="/topics">One Page Per Topic</a>.</div>
+<h2 id="direction" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128202; Continuum 1: Direction (Oppose &harr; Support)</h2>
+<p style="font-size: 13px;">Which way the belief runs, from total opposition (-100%) to total support (+100%). The <strong>Belief Score</strong> column is a separate thing: how well the belief holds up once its arguments are scored, not which way it points. A claim can sit at +100% and still score badly. <span style="color: #666;">See: Full Positivity Framework | Why We Need This Continuum.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -110,12 +110,12 @@
 </tr>
 </tbody>
 </table>
-<h2 id="magnitude" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128170; Continuum 2: Claim Magnitude, How Absolute the Claim Is (<a href="/w/page/163411296/strong%20to%20weak">Modest &harr; Total</a>)</h2>
-<p style="font-size: 13px;">How absolute the claim is, from a hedged "sometimes" to a flat "always," independent of which way it runs and of whether it is true. Two beliefs match on this axis when they are equally bold. <span style="color: #666;">See: <a href="/w/page/163411296/strong%20to%20weak">Why We Need This Continuum</a>.</span></p>
+<h2 id="claim-strength" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128170; Continuum 2: Claim Strength, How Absolute the Claim Is (<a href="/algorithms/strong-to-weak">Modest &harr; Total</a>)</h2>
+<p style="font-size: 13px;">How absolute the claim is, from a hedged "sometimes" to a flat "always," independent of which way it runs and of whether it is true. Two beliefs match on this axis when they are equally bold. <span style="color: #666;">See: <a href="/algorithms/strong-to-weak">Why We Need This Continuum</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="16%">Claim Magnitude</th> <th width="32%">Pro Belief at This Strength</th> <th width="32%">Anti Belief at This Strength</th> <th width="20%">Scope &amp; Telltale Words</th>
+<th width="16%">Claim Strength</th> <th width="32%">Pro Belief at This Strength</th> <th width="32%">Anti Belief at This Strength</th> <th width="20%">Scope &amp; Telltale Words</th>
 </tr>
 </thead>
 <tbody>
@@ -146,8 +146,8 @@
 </tbody>
 </table>
 <p style="font-size: 13px; background-color: #f4f9ff; padding: 10px; border-left: 4px solid #0055a4;"><strong>Key insight:</strong> The strongest arguments on either side usually live at Moderate (50%), not Total (100%). Attacking only the Total versions is a straw man. Engage the best version of the opposing argument, not the loudest.</p>
-<h2 id="specificity" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#127795; Continuum 3: General to Specific, with Branching Subcategories (<a href="/w/page/160861572/General%20to%20Specific">General &harr; Specific</a>)</h2>
-<p style="font-size: 13px;">The same topic holds claims at every altitude, from a sweeping worldview down to one line-item policy. A general belief <strong>branches</strong> into subcategories, and each subcategory holds the specific beliefs beneath it. A belief only merges with another that shares its branch <em>and</em> its rung, so a worldview never gets double-counted with the policy it implies. A subcategory that outgrows a row graduates to its own child page (see <a href="#related">Related Topics</a>). <span style="color: #666;">See: <a href="/w/page/160861572/General%20to%20Specific">General to Specific Framework</a>.</span></p>
+<h2 id="specificity" style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#127795; Continuum 3: General to Specific, with Branching Subcategories (General &harr; Specific)</h2>
+<p style="font-size: 13px;">The same topic holds claims at every altitude, from a sweeping worldview down to one line-item policy. A general belief <strong>branches</strong> into subcategories, and each subcategory holds the specific beliefs beneath it. A belief only merges with another that shares its branch <em>and</em> its rung, so a worldview never gets double-counted with the policy it implies. A subcategory that outgrows a row graduates to its own child page (see <a href="#related">Related Topics</a>). <span style="color: #666;">See: General to Specific Framework.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -190,8 +190,8 @@
 </tr>
 </tbody>
 </table>
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128220; <a href="/w/page/162523572/Assumptions">Assumption Stack Behind Each Position</a></h2>
-<p style="font-size: 13px;">Not a fourth axis. Continuum 3 sorts beliefs by altitude; this takes each stance and lists the assumptions a person must accept to hold it, which is how a fight at the bottom gets traced to its real root higher up. <strong>Core split:</strong> [the one assumption the two sides actually differ on]. <span style="color: #666;">See: <a href="/w/page/162523572/Assumptions">Assumptions</a>.</span></p>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128220; <a href="/algorithms/assumptions">Assumption Stack Behind Each Position</a></h2>
+<p style="font-size: 13px;">Not a fourth axis. Continuum 3 sorts beliefs by altitude; this takes each stance and lists the assumptions a person must accept to hold it, which is how a fight at the bottom gets traced to its real root higher up. <strong>Core split:</strong> [the one assumption the two sides actually differ on]. <span style="color: #666;">See: <a href="/algorithms/assumptions">Assumptions</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -214,7 +214,7 @@
 </tbody>
 </table>
 <h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#9878; Core Values Conflict</h2>
-<p style="font-size: 13px;">Advertised values each side claims, and the motivation critics attribute. <span style="color: #666;">See: <a href="/w/page/21956745/American%20values">American Values</a>.</span></p>
+<p style="font-size: 13px;">Advertised values each side claims, and the motivation critics attribute. <span style="color: #666;">See: American Values.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -268,8 +268,8 @@
 </tbody>
 </table>
 <p style="font-size: 13px;"><strong>Key insight:</strong> Engagement is independent of the three matching axes. Someone can hold a moderate claim (50%) about a cause they feel lukewarm toward (+40%) and still go to prison for it (Level 4).</p>
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#129309; <a href="/w/page/162560439/Compromise">Common Ground and Compromise</a></h2>
-<p style="font-size: 13px;">The scored <a href="/w/page/156187122/cost-benefit%20analysis">cost-benefit</a> trees read sideways. Compromise Candidates are the winnable disagreements, the ones a small likelihood shift can flip, as opposed to the symbolic value conflicts no negotiation resolves. That is the payoff of scoring both sides with equal rigor.</p>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#129309; Common Ground and Compromise</h2>
+<p style="font-size: 13px;">The scored <a href="/cba">cost-benefit</a> trees read sideways. Compromise Candidates are the winnable disagreements, the ones a small likelihood shift can flip, as opposed to the symbolic value conflicts no negotiation resolves. That is the payoff of scoring both sides with equal rigor.</p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -285,7 +285,7 @@
 </tbody>
 </table>
 <h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#9878; The Evidence Ledger</h2>
-<p style="font-size: 13px;">A highlight reel of the highest-impact evidence appearing anywhere under this topic, each side sorted by quality, highest first. Evidence formally attaches to specific beliefs and is scored on its own study page; this is the cross-topic view. <span style="color: #666;">See: <a href="/w/page/159353568/Evidence%20Scores">Evidence Scoring Methodology</a>.</span></p>
+<p style="font-size: 13px;">A highlight reel of the highest-impact evidence appearing anywhere under this topic, each side sorted by quality, highest first. Evidence formally attaches to specific beliefs and is scored on its own study page; this is the cross-topic view. <span style="color: #666;">See: <a href="/algorithms/evidence-scores">Evidence Scoring Methodology</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
@@ -307,12 +307,12 @@
 </tr>
 </tbody>
 </table>
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128207; <a href="/w/page/159351732/Objective%20criteria%20scores">Best Objective Criteria</a> for This Topic</h2>
-<p style="font-size: 13px;">Agree on the yardstick before measuring. Each proposed criterion is a belief with its own page, scored on four dimensions: <strong>Validity</strong> (does it capture what we claim?), <strong>Reliability</strong> (do different observers get the same reading?), <strong><a href="/w/page/159338766/Linkage%20Scores">Linkage</a></strong> (how directly it connects to the claim), and <strong><a href="/w/page/162731388/Importance%20Score">Importance</a></strong>. Arguments that connect to high-scoring criteria carry more weight. <span style="color: #666;">See: <a href="/w/page/159351732/Objective%20criteria%20scores">Objective Criteria Scoring</a>.</span></p>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128207; <a href="/algorithms/objective-criteria">Best Objective Criteria</a> for This Topic</h2>
+<p style="font-size: 13px;">Agree on the yardstick before measuring. Each proposed criterion is a belief with its own page, scored on four dimensions: <strong>Validity</strong> (does it capture what we claim?), <strong>Reliability</strong> (do different observers get the same reading?), <strong><a href="/algorithms/linkage-scores">Linkage</a></strong> (how directly it connects to the claim), and <strong><a href="/algorithms/importance-score">Importance</a></strong>. Arguments that connect to high-scoring criteria carry more weight. <span style="color: #666;">See: <a href="/algorithms/objective-criteria">Objective Criteria Scoring</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="28%">Proposed Criterion</th> <th width="12%" align="center"><a href="/w/page/159351732/Objective%20criteria%20scores">Criteria Score</a></th> <th width="15%" align="center">Validity</th> <th width="15%" align="center">Reliability</th> <th width="15%" align="center"><a href="/w/page/159338766/Linkage%20Scores">Linkage</a></th> <th width="15%" align="center"><a href="/w/page/162731388/Importance%20Score">Importance</a></th>
+<th width="28%">Proposed Criterion</th> <th width="12%" align="center"><a href="/algorithms/objective-criteria">Criteria Score</a></th> <th width="15%" align="center">Validity</th> <th width="15%" align="center">Reliability</th> <th width="15%" align="center"><a href="/algorithms/linkage-scores">Linkage</a></th> <th width="15%" align="center"><a href="/algorithms/importance-score">Importance</a></th>
 </tr>
 </thead>
 <tbody>
@@ -333,16 +333,16 @@
 <td align="center">[High/Med/Low]</td>
 </tr>
 <tr>
-<td style="font-size: 85%; font-style: italic; color: #555;" colspan="6">Missing a criterion? <a href="/w/page/160433328/Contact%20Me">Submit a proposal</a> with reasons for its validity, reliability, linkage, and importance. The community scores it.</td>
+<td style="font-size: 85%; font-style: italic; color: #555;" colspan="6">Missing a criterion? <a href="/contact">Submit a proposal</a> with reasons for its validity, reliability, linkage, and importance. The community scores it.</td>
 </tr>
 </tbody>
 </table>
 <h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">&#128218; Best Media and Resources</h2>
-<p style="font-size: 13px;">Sorted by positivity, highest first. <span style="color: #666;">See: <a href="/w/page/21958666/media">Media Framework</a>.</span></p>
+<p style="font-size: 13px;">Sorted by positivity, highest first. <span style="color: #666;">See: <a href="/media">Media Framework</a>.</span></p>
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 2em;" border="1" cellpadding="8">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="28%">Title</th> <th width="12%">Medium</th> <th width="12%">Bias/Tone</th> <th width="10%">Positivity</th> <th width="10%">Magnitude</th> <th width="10%">Escalation</th> <th width="18%">Key Insight</th>
+<th width="28%">Title</th> <th width="12%">Medium</th> <th width="12%">Bias/Tone</th> <th width="10%">Positivity</th> <th width="10%">Claim Strength</th> <th width="10%">Escalation</th> <th width="18%">Key Insight</th>
 </tr>
 </thead>
 <tbody>
@@ -384,5 +384,5 @@
 </tbody>
 </table>
 <h2 style="font-size: 20px;">&#128236; Contribute</h2>
-<p><a href="/w/page/160433328/Contact%20Me">Contact me</a> to add beliefs, strengthen arguments, link evidence, or propose criteria.<br /><a href="https://github.com/myklob/ideastockexchange">GitHub</a> for the code and scoring algorithms.</p>
+<p><a href="/contact">Contact me</a> to add beliefs, strengthen arguments, link evidence, or propose criteria.<br /><a href="https://github.com/myklob/ideastockexchange">GitHub</a> for the code and scoring algorithms.</p>
 </div>

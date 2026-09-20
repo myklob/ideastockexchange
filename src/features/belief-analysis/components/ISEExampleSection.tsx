@@ -76,7 +76,7 @@ export default function ISEExampleSection() {
         : which qualifications matter most for this office, which policy domains carry
         the highest{' '}
         <a
-          href="https://myclob.pbworks.com/importance%20score"
+          href="/algorithms/importance-score"
           className="text-[var(--accent)] hover:underline"
         >
           Importance Scores
@@ -102,7 +102,7 @@ export default function ISEExampleSection() {
         <li>
           <strong>
             <a
-              href="https://myclob.pbworks.com/w/page/21960078/truth"
+              href="/algorithms/truth-scores"
               className="text-[var(--accent)] hover:underline"
             >
               Truth Score
@@ -114,7 +114,7 @@ export default function ISEExampleSection() {
         <li>
           <strong>
             <a
-              href="https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores"
+              href="/algorithms/linkage-scores"
               className="text-[var(--accent)] hover:underline"
             >
               Linkage Score
@@ -126,7 +126,7 @@ export default function ISEExampleSection() {
         <li>
           <strong>
             <a
-              href="https://myclob.pbworks.com/importance%20score"
+              href="/algorithms/importance-score"
               className="text-[var(--accent)] hover:underline"
             >
               Importance Score
@@ -148,7 +148,7 @@ export default function ISEExampleSection() {
       <p className="font-bold mb-3">No Agenda. No Moderator Bias. No Exceptions.</p>
       <p>
         <a
-          href="https://myclob.pbworks.com/ReasonRank"
+          href="/algorithms/reason-rank"
           className="text-[var(--accent)] hover:underline"
         >
           ReasonRank

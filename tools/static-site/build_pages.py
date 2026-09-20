@@ -26,12 +26,18 @@ COLW = {'A': 6, 'B': 5, 'C': 46, 'D': 8, 'E': 8, 'F': 8, 'G': 8, 'H': 8, 'I': 8,
 LS = dict(id='A', rank='B', text='C', c1='D', c2='E', c3='F', c4='G', c5='H', c6='I', c7='J', c8='K')
 RS = dict(id='L', rank='M', text='N', c1='O', c2='P', c3='Q', c4='R', c5='S', c6='T', c7='U', c8='V')
 IDFONT = Font(size=8, color='A0A0A0'); IDLINK = Font(size=8, color='7F9FBF', underline='single')
-WIKI = {'template': 'https://myclob.pbworks.com/w/page/21959883/Template', 'reasons': 'https://myclob.pbworks.com/Reasons', 'linkage': 'https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores',
-        'importance': 'https://myclob.pbworks.com/w/page/162731388/Importance%20Score', 'evidence': 'https://myclob.pbworks.com/w/page/159353568/Evidence', 'truth': 'https://myclob.pbworks.com/w/page/21960078/truth',
-        'cba': 'https://myclob.pbworks.com/w/page/156187122/cost-benefit%20analysis', 'interests': 'https://myclob.pbworks.com/w/page/159301140/Interests', 'interest_scoring': 'https://myclob.pbworks.com/w/page/159323067/Interest%20Scoring%20Methodology',
-        'conflict': 'https://myclob.pbworks.com/w/page/159387558/Conflict%20Resolution%20Framework%20in%20the%20Idea%20Stock%20Exchange%2C%20Understanding%20Interests%20not%20just%20positions', 'conflict_scoring': 'https://myclob.pbworks.com/w/page/164190102/Conflict%20Resolution%20Scoring',
-        'assumptions': 'https://myclob.pbworks.com/Assumptions', 'media': 'https://myclob.pbworks.com/w/page/21958666/media', 'laws': 'https://myclob.pbworks.com/w/page/159554427/Local%2C%20federal%2C%20and%20international%20laws%20that%20agree',
-        'general': 'https://myclob.pbworks.com/w/page/160861572/General%20to%20Specific', 'values': 'https://myclob.pbworks.com/w/page/21956745/American%20values', 'linkage_template': 'https://myclob.pbworks.com/w/page/163966659/LinkageStrengthAnalysisTemplate', 'one_page': 'https://myclob.pbworks.com/w/page/159323433/One%20Page%20Per%20Topic'}
+SITE = 'https://myklob.github.io/ideastockexchange/'
+# Where the long explanation of a rule lives. Every target is a section of this site's own
+# method page, so a built site carries its whole methodology and depends on nothing outside it.
+WIKI = {k: 'method.html#' + a for k, a in {
+    'template': 'formula', 'reasons': 'formula', 'linkage': 'formula', 'importance': 'formula',
+    'evidence': 'starts', 'truth': 'starts', 'cba': 'formula', 'interests': 'formula',
+    'interest_scoring': 'formula', 'conflict': 'formula', 'conflict_scoring': 'formula',
+    'assumptions': 'starts', 'media': 'starts', 'laws': 'formula', 'general': 'formula',
+    'values': 'formula', 'linkage_template': 'formula', 'one_page': 'equivalency',
+    'reasonrank': 'reasonrank', 'confidence': 'confidence', 'sensitivity': 'sensitivity',
+    'constants': 'constants', 'limits': 'limits',
+}.items()}
 END = 'V'
 MIRROR_TRUTH, MIRROR_SCORE = '$W$1', '$X$1'
 MIRROR_CONF = '$W$3'   # this page's confidence: how much of the work behind its score has been done
@@ -122,11 +128,14 @@ class Page:
         if h: self.ws.row_dimensions[r].height = h
         return r
     def title(self, text, blurb=None, link=None):
-        """Section header. blurb: one or two sentences. link: (label, url) to the canonical wiki page for the long explanation."""
+        """Section header. blurb: one or two sentences. link: (label, url) to the method-page section holding the long
+        explanation. A site-relative url is made absolute against SITE, because a workbook is opened
+        away from the site and a relative link would not resolve from it."""
         r = self.nxt(22)
         self.put(f'B{r}', text, font=Font(bold=True, size=13, color='FFFFFF'), fill=HDR_FILL, align=MID, border=False, merge_to=f'S{r}' if link else f'{END}{r}')
         if link:
-            c = self.put(f'T{r}', f'=HYPERLINK("{link[1]}","{link[0]} →")', font=Font(size=9, color='FFFFFF', underline='single'), fill=HDR_FILL, align=MIDC, border=False, merge_to=f'{END}{r}')
+            url = link[1] if link[1].startswith('http') else SITE + link[1]
+            c = self.put(f'T{r}', f'=HYPERLINK("{url}","{link[0]} →")', font=Font(size=9, color='FFFFFF', underline='single'), fill=HDR_FILL, align=MIDC, border=False, merge_to=f'{END}{r}')
         if blurb:
             r2 = self.nxt(max(17, 13 * (len(blurb) // 175 + 1)))
             self.put(f'B{r2}', blurb, font=Font(size=9, color='444444'), fill=GREY, border=False, merge_to=f'{END}{r2}')

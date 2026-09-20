@@ -40,15 +40,16 @@ Both gaps are visible. No other platform shows you both numbers and lets you bet
 
 ## Read the Methodology
 
-The methodology is documented in detail across an open wiki. Start with the foundations:
+Every rule the engine runs is stated on the published site's own method page, generated from
+the same modules the pages use, so it cannot describe a rule the site is not running:
 
-- [Home page on PBworks](http://myclob.pbworks.com/w/page/21957696/Colorado%20Should) — the wiki's entry point
-- [FAQ and common criticisms](http://myclob.pbworks.com/w/page/162495654/Frequently%20Questions%20and%20Critisisms) — eighteen questions answered, including "who decides what's true," "isn't this vulnerable to brigading," and "won't one political tribe dominate"
-- [Truth Score](http://myclob.pbworks.com/w/page/21960078/truth) — the composite metric and what feeds into it
-- [Linkage Scores (Relevance)](http://myclob.pbworks.com/w/page/159338766/Linkage%20Scores) — how the system catches the True-But-Irrelevant pattern
-- [Importance Score](http://myclob.pbworks.com/w/page/162731388/Importance%20Score) — why an argument can be true and relevant but trivial
-- [Logical Validity Score](http://myclob.pbworks.com/w/page/159235779/Logical%20Validity) — six logic battlegrounds: fallacies, contradictions, evidence trees, metaphor analysis, prediction tracking, validity inheritance
-- [ReasonRank algorithm](http://myclob.pbworks.com/w/page/159300543/ReasonRank) — how the scores compose
+- [How every number is computed](https://myklob.github.io/ideastockexchange/method.html) — the whole methodology on one page
+- [The one formula](https://myklob.github.io/ideastockexchange/method.html#formula) — what a scored row contributes, and what each factor reads when nobody has argued it
+- [Where a page starts](https://myklob.github.io/ideastockexchange/method.html#starts) — the evidence prior, the eighteen source tiers, and why an uncited argument graph sits at 0.50 forever
+- [Confidence](https://myklob.github.io/ideastockexchange/method.html#confidence) — how much a score has earned the right to count
+- [What would change the answer](https://myklob.github.io/ideastockexchange/method.html#sensitivity) — the single-input sweep
+- [ReasonRank](https://myklob.github.io/ideastockexchange/method.html#reasonrank) — how much of the corpus depends on a claim
+- [What this cannot do](https://myklob.github.io/ideastockexchange/method.html#limits) — the limits, stated by the engine rather than about it
 
 ## See It Applied
 
@@ -141,9 +142,9 @@ nothing here pretends otherwise.
 Three ways to help:
 
 - **Developers:** clone the repo, pick an issue labeled `good first issue` or `help wanted`. Priority areas include the belief scoring pipeline, the Belief Equivalency Engine, and frontend belief display components.
-- **Researchers and writers:** use the [Belief Template](http://myclob.pbworks.com/w/page/21959883/Template) to add or improve a belief page. Score arguments using Truth, Relevance, and Importance. Classify evidence as **T1** (peer-reviewed), **T2** (expert/institutional), **T3** (journalism/survey), or **T4** (opinion/anecdote).
+- **Researchers and writers:** use the templates in [`templates/`](templates/) to add or improve a belief page. Score arguments using Truth, Relevance, and Importance. Classify evidence as **T1** (peer-reviewed), **T2** (expert/institutional), **T3** (journalism/survey), or **T4** (opinion/anecdote).
 - **Everyone:** star the repo. Share a belief page on social media. Submit a new belief as a [GitHub issue](https://github.com/myklob/ideastockexchange/issues) using the belief taxonomy template. Join the discussion in [GitHub Discussions](https://github.com/myklob/ideastockexchange/discussions).
 
 ## License
 
-MIT. Maintained by Mike Laub. Methodology documented on the [PBworks wiki](http://myclob.pbworks.com); code on [GitHub](https://github.com/myklob/ideastockexchange); applied examples on [Kialo](https://www.kialo.com).
+MIT. Maintained by Mike Laub. Methodology on the [published method page](https://myklob.github.io/ideastockexchange/method.html); code on [GitHub](https://github.com/myklob/ideastockexchange); applied examples on [Kialo](https://www.kialo.com).

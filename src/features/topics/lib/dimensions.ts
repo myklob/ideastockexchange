@@ -3,7 +3,7 @@
  *
  * Every belief is a coordinate on three axes it already carries:
  *   Direction    — positivity, -100..+100 (negative ↔ positive)
- *   Magnitude    — claimStrength, 0..1 (weak ↔ extreme phrasing)
+ *   Strength     — claimStrength, 0..1 (modest ↔ total phrasing)
  *   Abstraction  — specificity, 0..1 (general principle ↔ concrete instance)
  * The topic page sorts one shared belief set along each axis in turn, and by
  * the engine-computed score, so the best-supported version of a claim rises
@@ -20,12 +20,16 @@ export interface TopicBeliefRow {
   groundingScore: number
 }
 
-export const TOPIC_SORT_KEYS = ['direction', 'magnitude', 'abstraction', 'score', 'grounding'] as const
+export const TOPIC_SORT_KEYS = ['direction', 'strength', 'abstraction', 'score', 'grounding'] as const
 export type TopicSortKey = (typeof TOPIC_SORT_KEYS)[number]
+
+/** Links published before the axis was renamed still say ?sortBy=magnitude. */
+const SORT_KEY_ALIASES: Record<string, TopicSortKey> = { magnitude: 'strength' }
 export type SortDir = 'asc' | 'desc'
 
 export function parseTopicSortKey(raw: string | null | undefined): TopicSortKey {
-  return TOPIC_SORT_KEYS.includes(raw as TopicSortKey) ? (raw as TopicSortKey) : 'score'
+  if (TOPIC_SORT_KEYS.includes(raw as TopicSortKey)) return raw as TopicSortKey
+  return (raw ? SORT_KEY_ALIASES[raw] : undefined) ?? 'score'
 }
 
 export function parseSortDir(raw: string | null | undefined): SortDir | undefined {
@@ -81,7 +85,7 @@ export function sortTopicBeliefs(
     switch (key) {
       case 'direction':
         return row.positivity
-      case 'magnitude':
+      case 'strength':
         return row.claimStrength
       case 'abstraction':
         return row.specificity
