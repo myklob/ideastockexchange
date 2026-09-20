@@ -33,6 +33,11 @@ import render_site as _rs
 _corpus = _rs.Corpus(ENTRY, 'workbook') if ENTRY else None
 if _corpus is not None:
     bp.CONF_OF.clear(); bp.CONF_OF.update({pid: round(_corpus.conf.of(pid), 6) for pid in SPECS})
+# Where each page's truth starts, and how heavily, from what the page says it rests on. Typed page data, so the
+# workbook could compute it, but it is derived once here so the two never drift apart.
+import evidence as _ev
+bp.BASIS_OF.clear()
+bp.BASIS_OF.update({pid: (round(_ev.prior(sp, 1)['p0'], 6), round(_ev.prior(sp, 1)['weight'], 6)) for pid, sp in SPECS.items()})
 for _pid, _sp in SPECS.items(): _sp['_tab'] = _pid
 wb = Workbook(); ws = wb.active; ws.title = 'Template'
 tpl = Page(ws, None); tpl.build(); ws.sheet_properties.tabColor = '7F7F7F'

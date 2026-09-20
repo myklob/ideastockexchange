@@ -1,37 +1,57 @@
-"""Evidence Verification Score: how much a cited finding has earned the right to weigh.
+"""Evidence Verification Score: where a claim's truth starts before anyone argues about it.
 
-From docs/wiki/Evidence-Verification-Score-(EVS).md. A finding is not one thing. "Senators beat the market by
-85 basis points a month, per a 2004 paper in the Journal of Financial and Quantitative Analysis" and "a guy on
-television said senators do well in the market" can be the same sentence with the same truth score, and they are
-not the same evidence. Three things separate them, and the wiki names all three:
+From docs/wiki/Evidence-Verification-Score-(EVS).md, and it repairs something the scoring rule could not do
+without it.
 
-    ESIW   what kind of source it is                 a published statistic outranks an eyewitness
+WHY THIS IS LOad-BEARING, NOT A DECORATION. A row contributes sign x (2 x Truth - 1) x ... to the page above it,
+so a claim sitting at 0.50 contributes exactly nothing. That was the fix for padding and it is right. But it has
+a consequence nobody noticed until the whole corpus was scored: a page with no rows reads 0.50, so every page
+whose rows all point at such pages also reads 0.50, and by induction every page in any finite argument graph
+reads exactly 0.50 forever. Argument alone cannot establish anything, however much of it there is. Run the
+scorer on a chain of a thousand claims with confidence forced to 1 and every one of them is 0.50.
+
+That is not a content problem to be argued away. It is the arithmetic saying something true: reasoning about
+reasoning never touches the world. Something has to come in from outside, and what comes in from outside is
+evidence. The wiki says so directly, in its own list of evidence tiers: a meta-analysis enters at 1.0, an
+anecdote at 0.1, a refuted finding at 0.0. A claim that is a cited finding does not start at a coin flip.
+
+So a page may declare what it rests on, and that sets where its truth starts:
+
+    ESIW   how far that kind of source can move it   a published statistic outranks an eyewitness
     ERQ    how many independent replications exist   one study is a finding; four is a fact
     ERP    what share of them agreed                 four studies that disagree are not four studies
 
-The fourth factor the wiki lists, ECRS (relevance to the conclusion), is already in this engine: it is the row's
-linkage page. It is not duplicated here.
+    prior p0 = 0.5 + 0.5 x ESIW x (2 x ERP/100 - 1)
+    weight w = k x replication(ERQ)
+    truth    = (POS + w x p0) / (POS + NEG + w)
 
-TWO NUMBERS COME OUT OF THIS FILE, AND THEY ARE DIFFERENT.
+The prior line says: the replications decide which way a claim is pushed and the source type decides how far it
+can be pushed, from nowhere at all when no source is named to nearly the whole way for a published statistic.
+Read it at its corners. A published statistic
+that every replication confirms starts at 0.95. The same statistic that every replication contradicts starts at
+0.05, which is the wiki's refuted finding. An eyewitness account confirmed starts at 0.60 and contradicted at
+0.40, because eyewitness testimony was never going to settle much either way. Anything at half agreement starts
+at 0.50 whatever its tier, because a contested literature has established nothing. A page that names no source
+at all stays at 0.50 however many times it is cited.
 
-1. `verification(row)['ver']` is what the scorer multiplies into the row, beside Link, Imp and Uniq:
+The weight line says a prior backed by four independent replications takes more arguing to shift than one backed
+by a single paper, and it is bounded at twice k so no pile of replications can put a claim beyond argument. At
+k = 1 even the strongest prior is within reach of a single well-argued objection, which is the intent: evidence
+opens the question, it does not close it.
 
-       contribution = sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq x Ver
+A page that declares nothing reads p0 = 0.5 and w = k, which is the rule exactly as it was. Nothing changes for
+a claim nobody has sourced, and listing an unargued, unsourced claim is still worth precisely zero. The only way
+to move a score is still to do work: argue it, or go and find out.
 
-   It is written so that a row nobody has classified reads exactly 1.0 and is left where it was:
+WHAT THIS IS NOT. It is not a multiplier on the row. Source quality is a property of the claim, not of the place
+the claim is cited, and the same finding cited on four pages has one truth. How much a finding bears on a
+particular conclusion is the linkage page, which is a separate argument with its own reasons, and putting source
+quality on the edge as well would count it twice. The fourth factor the wiki lists for EVS, ECRS, is that
+linkage page; it is not duplicated here.
 
-       Ver = (ESIW / 0.50) x (ERP / 100) x replication(ERQ)
-
-   The type term is a ratio against the middle of the wiki's table, so naming a type can move a row up or down
-   but declining to name one is not a penalty. Replication is bounded: it can at most double a finding's weight,
-   and the first replication buys a third of that. This is deliberate. The wiki's own EVS formula multiplies by
-   the raw replication count, which would let a finding with forty replications outweigh an entire page, and
-   this project's whole objection to social media is that volume should not beat reasoning.
-
-2. `evs(row, ecrs)` is the wiki's formula exactly as written, ESIW x ECRS x ERQ x (ERP/100), summed over a
-   page's evidence to give its Overall EVS. Nothing reads it; it is reported as a measure of evidentiary
-   strength, which is what it is good at and what a bounded score cannot show: a page whose Overall EVS is 30
-   rests on a body of replicated work, and a page whose Overall EVS is 0.4 rests on one uncorroborated claim.
+CLASSIFY WHAT THE CLAIM SAYS, NOT THE INSTRUMENT THAT PRODUCED IT. "58 percent of Americans told a pollster X"
+is a published statistic and close to certain. "Americans believe X" inferred from the same poll is survey
+evidence and much weaker. The tier belongs to the sentence on the page.
 
 WHERE THE CATEGORIES COME FROM. The sixteen rows of ESIW below are the wiki's table, in its order, with its
 weights. Two notes an auditor should have:
@@ -43,6 +63,11 @@ weights. Two notes an auditor should have:
     "historical trend" would be wrong. `record` below is an addition, marked as one, weighted with statistics
     because it is a primary document whose existence is not in dispute. Drop it and those rows fall to
     unclassified; nothing else depends on it.
+
+The wiki's own Overall EVS, ESIW x ECRS x ERQ x (ERP/100) summed over a page's evidence, is still computed and
+reported by evs() below. Nothing reads it. It is unbounded on purpose and is good at the one thing a bounded
+score cannot show: a page whose Overall EVS is 30 rests on a body of replicated work, and a page whose Overall
+EVS is 0.4 rests on one uncorroborated claim.
 """
 
 # key -> (weight, rank in the wiki's table or None for the addition, what it covers)
@@ -66,8 +91,9 @@ ESIW = {
     'visual':        (0.15, 15, 'Visual evidence'),
     'artifact':      (0.10, 16, 'Historical artifact'),
 }
-DEFESIW = 0.50   # no type named yet: the middle of the table, chosen so an unclassified row reads Ver = 1.0
-REP_CAP = 2.0    # the most replication can be worth: a finding replicated without limit counts double, never more
+NOSOURCE = 0.0   # no source type named: no pull either way, so the page starts at the coin flip exactly
+DEFESIW = NOSOURCE
+REP_CAP = 2.0    # the most replication can be worth: a prior replicated without limit weighs double k, never more
 FIELDS = ('etype', 'erq', 'erp')
 
 
@@ -94,7 +120,7 @@ def classify(row):
     if key in ESIW:
         esiw, rank, meaning = ESIW[key]
     else:
-        key, esiw, rank, meaning = None, DEFESIW, None, 'No evidence type named yet: reads the middle of the table'
+        key, esiw, rank, meaning = None, NOSOURCE, None, 'No evidence type named yet, so no pull either way'
         na.append('etype')
     erq = _num(row.get('erq'), None)
     if erq is None or erq < 1:
@@ -106,17 +132,18 @@ def classify(row):
     return {'key': key, 'esiw': esiw, 'rank': rank, 'meaning': meaning, 'erq': erq, 'erp': erp, 'na': na}
 
 
-def verification(row):
-    """The bounded multiplier the scorer uses. An unclassified row returns exactly 1.0 and changes nothing."""
-    c = classify(row)
+def prior(page, k=1.0):
+    """Where this page's truth starts, and how heavily, before any of its own rows are counted.
+
+    Returns p0 in [0,1] and weight > 0. A page that declares nothing returns exactly (0.5, k), which is the
+    neutral start the engine always had."""
+    c = classify(page)
+    c['p0'] = 0.5 + 0.5 * c['esiw'] * (2.0 * c['erp'] / 100.0 - 1.0)
     c['rep'] = replication(c['erq'])
-    c['ver'] = (c['esiw'] / DEFESIW) * (c['erp'] / 100.0) * c['rep']
+    c['weight'] = k * c['rep']
     c['classified'] = c['key'] is not None
+    c['grounded'] = c['classified'] or c['erq'] > 1
     return c
-
-
-def ver(row):
-    return verification(row)['ver'] if row else 1.0
 
 
 def evs(row, ecrs):
@@ -126,14 +153,15 @@ def evs(row, ecrs):
     return c['esiw'] * float(ecrs) * c['erq'] * (c['erp'] / 100.0)
 
 
-def label(row):
-    """One line describing a row's verification, for the page."""
-    c = verification(row)
-    if not c['classified'] and c['erq'] <= 1 and not row.get('erp'):
-        return 'Unclassified: no evidence type, no replication recorded'
-    bits = [c['meaning'] if c['classified'] else 'Unclassified type']
-    bits.append(f"{int(c['erq'])} independent {'replication' if c['erq'] == 1 else 'replications'}")
-    bits.append(f"{c['erp']:.0f}% consistent")
+def label(page):
+    """One line describing what a page rests on, for the page itself and for any row that cites it."""
+    c = prior(page or {})
+    if not c['grounded']:
+        return 'Nothing observed: no source type recorded, so this claim starts at a coin flip'
+    bits = [c['meaning']]
+    if 'erq' in c['na']: bits.append('no independent replication recorded')
+    else: bits.append(f"{int(c['erq'])} independent replications, {c['erp']:.0f}% consistent")
+    bits.append(f"starts at {c['p0']:.2f} with weight {c['weight']:.2f}")
     return ', '.join(bits)
 
 

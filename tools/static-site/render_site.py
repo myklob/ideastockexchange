@@ -98,16 +98,16 @@ class Corpus:
 
     # ---- per-row values: sign x (2 x Truth - 1) x Link x Imp x Uniq, each factor from a page or a constant
     def row(self, d, sign=1):
-        """One row's factors and its signed contribution, sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq x Ver.
-        Mirrors score_reference.Model._contrib; the two are checked against each other on every render. Ver is
-        the evidence verification multiplier and reads exactly 1.0 on any row that names no evidence type,
-        replication count or replication agreement, which is every row that is not a cited finding."""
+        """One row's factors and its signed contribution, sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq.
+        Mirrors score_reference.Model._contrib; the two are checked against each other on every render. What the
+        row's claim rests on is carried alongside for display: it is not a factor here, it is what set the
+        claim's own truth score on its own page."""
         t, l, i, u = self.pg(d.get('id'), UNARG), self.pg(d.get('link'), DEFLINK), self.pg(d.get('imp'), DEFIMP), self.pg(d.get('uniq'), DEFUNIQ)
         k = self.conf.of(d['id']) if is_page(d.get('id')) else 0.0
-        v = EV.verification(d)
-        return dict(truth=t, link=l, imp=i, uniq=u, conf=k, ver=v['ver'], vparts=v, evs=EV.evs(d, l),
-                    score=sign * (2 * t - 1) * k * l * i * u * v['ver'],
-                    stake=k * l * i * u * v['ver'] * (1 - abs(2 * t - 1)))
+        b = EV.prior(self.specs.get(d.get('id')) or {}, K)
+        return dict(truth=t, link=l, imp=i, uniq=u, conf=k, basis=b, evs=EV.evs(self.specs.get(d.get('id')) or {}, l),
+                    score=sign * (2 * t - 1) * k * l * i * u,
+                    stake=k * l * i * u * (1 - abs(2 * t - 1)))
 
     # ---- everything a belief page's scorecard and engine show, mirroring the workbook's engine cells
     def stats(self, pid):
@@ -139,9 +139,11 @@ class Corpus:
             s['noimp'] = sum(1 for d in rowspecs if not is_page(d.get('imp')))
             s['nouniq'] = sum(1 for d in rowspecs if not is_page(d.get('uniq')))
             s['evs_for'] = sum(r['evs'] for r in rows['for']); s['evs_against'] = sum(r['evs'] for r in rows['against'])
+            s['basis'] = EV.prior(sp, K)
             s['evs'] = s['evs_for'] + s['evs_against']
-            uncl = sum(1 for d in EF + EA if not EV.verification(d)['classified'])
-            norep = sum(1 for d in EF + EA if not str(d.get('erq') or '').strip())
+            esp = [self.specs.get(d.get('id')) or {} for d in EF + EA]
+            uncl = sum(1 for x in esp if not EV.prior(x)['classified'])
+            norep = sum(1 for x in esp if not str(x.get('erq') or '').strip())
             notes = ([f'{uncl} of {len(EF) + len(EA)} findings have no source type named yet'] if uncl else []) + \
                     ([f'{norep} have no replication count recorded, so each counts as one study'] if norep else [])
             s['evs_note'] = ('; '.join(notes) + '.') if notes else 'Every finding here is classified and has a replication count.'
@@ -285,21 +287,22 @@ def scored_table(H, c, side_rows, specs_rows, headers, key_label):
     return ''.join(out)
 
 def evidence_table(H, c, side_rows, specs_rows):
-    """An evidence row scores like any other row and then carries what verified it: source type, replications,
-    agreement. Ver multiplies the row; EVS is the wiki's own unbounded measure of evidentiary strength."""
+    """An evidence row scores like any other row. "Starts at" is where the finding's own page begins before
+    anyone argues with it, set by what it cites: source type, replications and how many of them agreed. EVS is
+    the wiki's own unbounded measure of evidentiary strength, reported and read by nothing."""
     order = sorted(range(len(specs_rows)), key=lambda i: -side_rows[i]['score'])
-    out = ['<table class="scored"><thead><tr><th class="rk">#</th><th>Finding</th><th>Truth</th><th>Link</th>'
-           '<th>Imp</th><th>Ver</th><th>Score</th><th>EVS</th><th>What verified it</th></tr></thead><tbody>']
+    out = ['<table class="scored"><thead><tr><th class="rk">#</th><th>Finding</th><th>Starts at</th><th>Truth</th>'
+           '<th>Link</th><th>Imp</th><th>Score</th><th>EVS</th><th>What it rests on</th></tr></thead><tbody>']
     for rank, i in enumerate(order, 1):
         d, r = specs_rows[i], side_rows[i]
-        v = r['vparts']
-        vcell = f'<span class="n{"" if v["classified"] else " c"}" title="{esc(EV.label(d))}">{f2(r["ver"])}</span>'
-        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}</td>'
+        b = r['basis']; sp = c.specs.get(d.get('id')) or {}
+        p0 = f'<span class="n{"" if b["grounded"] else " c"}" title="{esc(EV.label(sp))}">{f2(b["p0"])}</span>'
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}</td><td>{p0}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{H.num(r["link"], d.get("link"), const_label="No linkage page yet: presumed relevant")}</td>'
                    f'<td>{H.num(r["imp"], d.get("imp"), const_label="No importance page yet: the neutral start")}</td>'
-                   f'<td>{vcell}</td><td class="sc">{sf(r["score"])}</td><td>{f2(r["evs"])}</td>'
-                   f'<td class="u">{esc(EV.label(d))}</td></tr>')
+                   f'<td class="sc">{sf(r["score"])}</td><td>{f2(r["evs"])}</td>'
+                   f'<td class="u">{esc(EV.label(sp))}</td></tr>')
     if not specs_rows: out.append('<tr><td colspan="9" class="empty">Nothing here yet.</td></tr>')
     return ''.join(out) + '</tbody></table>'
 
@@ -360,6 +363,10 @@ def render_belief(c, pid):
     if is_page(sp.get('supports')): meta.append('Used on: ' + H.a(sp['supports']))
     o.append('<p class="meta">' + ' · '.join(meta) + '</p>')
     # ---- scorecard, before the reasons
+    if s['basis']['grounded']:
+        read0 = ('What this rests on', esc(EV.label(sp)) + '. A claim that cites nothing starts at 0.50 and contributes nothing to anything, however often it is listed. This one starts at ' + f2(s['basis']['p0']) + ' with weight ' + f2(s['basis']['weight']) + ', and the rows below argue it from there.')
+    else:
+        read0 = None
     cap = ''
     if s['weakest'] is not None and s['weakest'] < s['raw']:
         cap = f' Argues to {f2(s["raw"])}, held at {f2(s["weakest"])} by the weakest load-bearing component: {H.a(s["weakest_comp"]["id"])}.'
@@ -368,7 +375,7 @@ def render_belief(c, pid):
     cov += (f' {len(inc)} of them are one-sided or empty: ' + '; '.join(H.a(p, c.brief(p)[0]) for p in inc) + '.') if inc else ' All of them have both sides argued.'
     kp = c.conf.parts(pid); kv = kp['confidence']
     weak_first = sorted(kp['components'].items(), key=lambda x: x[1])[:2]
-    read = [('Truth', (pct(s["share"]) + " of scored weight is on the agree side. Weight is signed: a claim argued false subtracts from the side it was filed on, and a claim nobody has argued adds nothing." if s["share"] is not None else "Nothing has been argued here yet, so this sits at the neutral start.") + cap)]
+    read = [('Truth', (pct(s["share"]) + " of scored weight is on the agree side. Weight is signed: a claim argued false subtracts from the side it was filed on, and a claim nobody has argued adds nothing." if s["share"] is not None else "Nothing has been argued here yet, so this sits where its starting point puts it.") + cap)]
     read.append(('Confidence', f'{pct(kv)}, {c.conf.label(kv)}. This is how much of the work behind the score has actually been done, and it multiplies what this page passes to any page above it: at 0 a claim moves its parent not at all, however true it looks. Weakest parts right now: ' + ' and '.join(f'{k.replace("_"," ")} {pct(v)}' for k, v in weak_first) + '.'))
     if c.sens.of(pid)['n']: read.append(('What the answer rests on', esc(c.sens.headline(pid, fmt=f2))))
     read.append(('How much depends on this', rank_note(c, pid)))
@@ -376,6 +383,7 @@ def render_belief(c, pid):
     if s['cba']['ben'] or s['cba']['cos']:
         read.append(('Worth doing?', ('Mixed units, so no single net. ' + '; '.join(f'{esc(cat)}: {smoney(b - x)}' for cat, b, x in s['catnet'])) if s['mixed'] else (f'Net expected value {sf(s["netev"])}' + (f', benefit to cost {f2(s["bcr"])}' if s['bcr'] is not None else ''))))
     if s['dispute']: read.append(('Kind of fight', esc(s["dispute"]) + f'. Evidence two-sidedness {pct(s["factual"])}, reasons whose linkage leans against relevance {pct(s["linkshare"])}' + (f', value-ranking gap {f2(s["valgap"])}' if s["valgap"] is not None else '') + (f', ease of resolution {f2(s["ease"])}' if s["ease"] is not None else '') + '.'))
+    if read0: read.insert(1, read0)
     read.append(('Coverage', cov))
     if (sp.get('bottom_line') or '').strip(): read.append(('Bottom line', f'<span class="bl">{esc(sp["bottom_line"])}</span>'))
     o.append(f'''<section class="card"><div class="tiles">
@@ -592,7 +600,7 @@ def used_on(H, c, pid):
     return H.section('Where This Page Is Used', 'Every page that reads this one. One claim, one home, every use visible.') + '<table class="plain"><thead><tr><th>Page</th><th>Table</th><th>As</th><th>Its truth</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table></section>'
 
 def engine_table(H, c, pid):
-    s = c.stats(pid); k = c.kind(pid)
+    s = c.stats(pid); k = c.kind(pid); sp = c.specs[pid]
     rows = []
     def r(label, val, how): rows.append(f'<tr><td class="t">{esc(label)}</td><td class="sc">{val}</td><td class="u">{esc(how)}</td></tr>')
     if k in ('belief', 'claim'):
@@ -602,7 +610,10 @@ def engine_table(H, c, pid):
         r('Belief score', sf(s['belief']), 'the three lines above added together')
         r('Positive total', f2(s['pos']), 'every row whose signed contribution came out positive, from either side')
         r('Negative total', f2(s['neg']), 'every row whose signed contribution came out negative, as a magnitude')
-        r('Truth score, argued', f2(s['raw']), f'(positive + k x 0.5) / (positive + negative + k), k = {K}')
+        b = s['basis']
+        r('Starting point', f2(b['p0']), 'where this claim starts before any of its own rows count: ' + EV.label(sp))
+        r('Weight of the starting point', f2(b['weight']), f'k x a bounded reward for independent replication, k = {K}, capped at {EV.REP_CAP} x k')
+        r('Truth score, argued', f2(s['raw']), '(positive + weight x starting point) / (positive + negative + weight)')
         r('Truth score', f2(s['truth']), 'argued truth, capped by the weakest load-bearing component that has its own page')
     else:
         lab = 'Quality' if k == 'media' else KINDNAME[k]
@@ -611,7 +622,9 @@ def engine_table(H, c, pid):
             r('Importance score', f2(s['truth']), 'the largest Validity x Bears above, or the neutral constant when none is listed')
         else:
             r('Reasons to agree, total', f2(s['pro']), 'sum of the agree side'); r('Reasons to disagree, total', f2(s['con']), 'sum of the disagree side')
-            r(f'{lab} score', f2(s['truth']), f'(agree + k x 0.5) / (agree + disagree + k), k = {K}')
+            b = EV.prior(sp, K)
+            if b['grounded']: r('Starting point', f2(b['p0']), 'where this page starts before any of its own rows count: ' + EV.label(sp))
+            r(f'{lab} score', f2(s['truth']), f'(agree + weight x starting point) / (agree + disagree + weight), starting point {f2(b["p0"])}, weight {f2(b["weight"])}')
             if k == 'media': r('Impact score', f2(s['impact']), 'the same rule applied to the impact table')
     r('ReasonRank', f'{c.rank.of(pid):.4f}', f'share of the corpus walk that reaches this page, rank {c.rank.place_of(pid)} of {len(c.specs)}; damping {c.rank.d}, started evenly at the {len(c.rank.seeds)} beliefs')
     r('Work value', f'{c.rank.of(pid) * (1 - c.conf.of(pid)):.4f}', 'ReasonRank x (1 - confidence): how much settling this page would be worth to the corpus')
@@ -726,7 +739,9 @@ def render_index(c, title):
     o = [f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{esc(title)}</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><main class="index">''']
     o.append(f'<p class="kind">Idea Stock Exchange · {esc(c.name)}</p><h1>Every claim has a page. Every number is a link.</h1>')
-    o.append(f'<p class="lede">{len(c.specs)} pages. Each belief below is one claim, argued on both sides, with every reason, finding and prediction scored as sign x (2 x Truth - 1) x Link x Imp x Uniq, every factor read from the page that argues it. The score is signed: a claim argued false counts against the side it was filed on, and a claim nobody has argued counts nothing, so a page reads 0.50 until the work beneath it is actually done. Nothing typed is a score.</p>')
+    ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
+    o.append(f'<p class="lede">{len(c.specs)} pages. Each belief below is one claim, argued on both sides, with every reason, finding and prediction scored as sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq, every factor read from the page that argues it. The score is signed: a claim argued false counts against the side it was filed on, and a claim nobody has argued counts exactly nothing, so listing reasons is worth nothing until they are argued.</p>')
+    o.append(f'<p class="lede">That rule has a consequence worth stating plainly. If every claim starts at a coin flip, every claim stays at a coin flip: a row contributes (2 x Truth - 1), which is zero at a neutral leaf and therefore zero all the way up. Argument about argument never touches the world. What touches the world is evidence, so a page may say what it rests on, and that sets where its truth starts: a published statistic every replication confirms opens at 0.95, the same statistic contradicted opens at 0.05, and anything half-confirmed opens at 0.50 whatever its source. {len(ground)} of these {len(c.specs)} pages cite something. The rest start at a coin flip and stay there until someone argues them or goes and finds out. Nothing typed is a score.</p>')
     # belief cards
     o.append('<div class="beliefs">')
     for b in sorted(c.beliefs):
@@ -737,7 +752,7 @@ def render_index(c, title):
     rr = c.rank
     o.append('<section><h2><span>What the corpus rests on</span><a class="wiki" href="' + WIKI['truth'] + '">ReasonRank →</a></h2>')
     o.append(f'<p class="blurb">A walk starts evenly at the {len(rr.seeds)} beliefs and steps from each page to the pages it reads, '
-             f'choosing among rows in proportion to how much each could transmit once settled: Link x Imp x Uniq x Ver, with a '
+             f'choosing among rows in proportion to how much each could transmit once settled: Link x Imp x Uniq, with a '
              f'{rr.d} chance of stepping on rather than restarting at a belief. ReasonRank is the share of that walk arriving at a page. '
              f'It measures how much depends on a claim, never whether the claim is true, which is the one thing a truth score cannot tell you. '
              f'Work value is ReasonRank x (1 - confidence): high rank with the work already done is a settled foundation, high rank with the work '

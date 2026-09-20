@@ -6,7 +6,7 @@ challenged rather than presumed, sources cited, the claims underneath actually e
 
 Confidence is in [0,1] and multiplies a row's contribution to its parent:
 
-    contribution = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq x Ver
+    contribution = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq
 
 At confidence 0 a claim moves its parent not at all however true it looks, which is the wiki's "the scores
 wouldn't count". As the work accumulates the same claim counts more and more. This is deliberately NOT a cap on
@@ -22,7 +22,7 @@ structural components, which is the migration the wiki describes.
 
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from evidence import verification as _verify
+from evidence import prior as _prior
 
 # component -> (weight, always applicable?)  Reasoning quality outranks volume, per the wiki's own ordering.
 STRUCTURAL = {
@@ -81,7 +81,8 @@ class Confidence:
         ev = sp.get('evid', {}).get('for', []) + sp.get('evid', {}).get('against', [])
         # half for citing a source at all, half for saying what kind of source it is: an uncategorised citation
         # is a reference, not a verification, and the scorer cannot weigh it against anything.
-        if ev: comp['sourcing'] = sum(0.5 * bool((d.get('source') or '').strip()) + 0.5 * bool(_verify(d)['classified']) for d in ev) / len(ev)
+        if ev: comp['sourcing'] = sum(0.5 * bool((d.get('source') or '').strip())
+                                      + 0.5 * bool(_prior(c.specs.get(d.get('id')) or {})['classified']) for d in ev) / len(ev)
         else: na.append('sourcing')
         # structural only: dated, and someone has opened a linkage page to argue how diagnostic it is.
         # Deliberately never reads a truth score, so confidence cannot recurse through the scorer.
@@ -108,3 +109,34 @@ class Confidence:
 
 
 def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
+
+
+# --------------------------------------------------------------------------------------------------------------
+# Confidence from the two flat tables, so a database-backed port can compute it too.
+#
+# The class above reads the nested spec dicts the workbook builder uses. Those exist only in this Python
+# toolchain: a PHP or SQL front end has `page` and `edge` and nothing else. This adapter presents the two tables
+# in the shape Confidence reads, which is the whole of what it needs, so there is one implementation of the rule
+# rather than two that can drift.
+SIDE_KEY = {('argument', 'agree'): ('args', 'agree'), ('argument', 'disagree'): ('args', 'disagree'),
+            ('evidence', 'agree'): ('evid', 'for'), ('evidence', 'disagree'): ('evid', 'against')}
+FLAT_KEY = {('prediction', 'agree'): 'pred_true', ('prediction', 'disagree'): 'pred_false'}
+COL_FIELD = (('claim_id', 'id'), ('link_id', 'link'), ('imp_id', 'imp'), ('uniq_id', 'uniq'))
+
+
+class TableCorpus:
+    """The minimum a scorer needs, built from `page` and `edge` rows: `.specs` keyed by page id."""
+
+    def __init__(self, pages, edges):
+        self.specs = {p['id']: {'args': {'agree': [], 'disagree': []}, 'evid': {'for': [], 'against': []},
+                                'pred_true': [], 'pred_false': []} for p in pages}
+        for e in edges:
+            sp = self.specs.get(e['page_id'])
+            if sp is None: continue
+            key = SIDE_KEY.get((e.get('section'), e.get('side'))) or FLAT_KEY.get((e.get('section'), e.get('side')))
+            if key is None: continue
+            d = dict(e.get('attrs') or {})
+            for col, field in COL_FIELD:
+                if e.get(col) is not None: d[field] = e[col]
+            if e.get('deadline') is not None: d['deadline'] = e['deadline']
+            (sp[key[0]][key[1]] if isinstance(key, tuple) else sp[key]).append(d)

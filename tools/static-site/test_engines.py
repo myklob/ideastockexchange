@@ -21,18 +21,63 @@ def _rows(corpus, pid):
     return rows_of(corpus.specs[pid])
 
 
-# ------------------------------------------------------------------------------------ evidence verification
-class TestEvidenceVerification(unittest.TestCase):
+# ------------------------------------------------------------------------------------ evidence as a prior
+K = CONSTS['K']
 
-    def test_a_row_nobody_classified_is_left_exactly_where_it_was(self):
-        """The whole point of normalising against the middle of the table: declining to classify is not a penalty."""
-        for row in ({}, {'text': 'a finding'}, {'id': 4, 'link': 9}, None):
-            self.assertEqual(EV.ver(row), 1.0)
 
-    def test_naming_a_better_source_raises_the_row_and_a_worse_one_lowers_it(self):
-        self.assertGreater(EV.ver({'etype': 'statistics'}), 1.0)
-        self.assertLess(EV.ver({'etype': 'eyewitness'}), 1.0)
-        self.assertEqual(EV.ver({'etype': 'logic'}), 1.0)   # the midpoint the default is set to
+def chain(n, basis=None, kind='belief'):
+    """A chain of n claims, each the sole agree row of the one above, with an optional observational basis on
+    the last. Confidence is forced to 1 throughout, so nothing here is gated: whatever the scores do, they do
+    because of the rule and not because the work is unfinished."""
+    pages = [{'id': i, 'kind': kind if i == 1 else 'claim', 'text': f'claim {i}'} for i in range(1, n + 1)]
+    if basis: pages[-1].update(basis)
+    edges = [{'id': i, 'page_id': i, 'section': 'argument', 'side': 'agree', 'position': 1, 'claim_id': i + 1}
+             for i in range(1, n)]
+    m = Model(pages, CONSTS, edges=edges)
+    m.conf = lambda pid: 1.0
+    return m
+
+
+class TestEvidenceAsAPrior(unittest.TestCase):
+
+    def test_argument_alone_can_never_leave_the_neutral_point(self):
+        """The reason this file exists. A row contributes (2 x Truth - 1), so a leaf at 0.50 contributes nothing,
+        so its parent reads 0.50, and by induction every page of any unsourced graph reads exactly 0.50 forever.
+        Reasoning about reasoning never touches the world. If this test ever fails, something has been added
+        that lets a score move without evidence, and it needs a reason."""
+        for n in (2, 5, 40):
+            m = chain(n)
+            for pid in range(1, n + 1):
+                self.assertEqual(m.truth(pid), 0.5, f'unsourced chain of {n}, page {pid}')
+                self.assertEqual(m.evaluate(pid)['belief'], 0.0)
+
+    def test_one_observation_at_the_bottom_moves_the_whole_chain(self):
+        m = chain(4, {'etype': 'statistics'})
+        self.assertAlmostEqual(m.truth(4), EV.prior({'etype': 'statistics'}, K)['p0'])
+        for pid in (1, 2, 3):
+            self.assertGreater(m.truth(pid), 0.5, f'page {pid} did not move')
+
+    def test_a_page_that_cites_nothing_starts_at_the_coin_flip(self):
+        for page in ({}, {'text': 'a claim'}, {'etype': ''}, None):
+            b = EV.prior(page, K)
+            self.assertEqual(b['p0'], 0.5)
+            self.assertEqual(b['weight'], K)
+
+    def test_a_confirmed_source_starts_above_the_flip_and_a_contradicted_one_below(self):
+        up = EV.prior({'etype': 'statistics', 'erq': 3, 'erp': 100}, K)['p0']
+        down = EV.prior({'etype': 'statistics', 'erq': 3, 'erp': 0}, K)['p0']
+        self.assertGreater(up, 0.5); self.assertLess(down, 0.5)
+        self.assertAlmostEqual(up - 0.5, 0.5 - down, msg='the prior must be symmetric about the coin flip')
+
+    def test_half_agreement_starts_at_the_coin_flip_whatever_the_source(self):
+        """A contested literature has established nothing, and a strong source does not change that."""
+        for key in EV.ESIW:
+            self.assertAlmostEqual(EV.prior({'etype': key, 'erq': 4, 'erp': 50}, K)['p0'], 0.5, msg=key)
+
+    def test_a_weaker_source_moves_a_claim_less_than_a_stronger_one(self):
+        far = EV.prior({'etype': 'statistics'}, K)['p0'] - 0.5
+        near = EV.prior({'etype': 'artifact'}, K)['p0'] - 0.5
+        self.assertGreater(far, near); self.assertGreater(near, 0)
 
     def test_the_tier_order_is_the_wiki_s_order(self):
         ranked = [(w, r) for w, r, _ in EV.ESIW.values() if r is not None]
@@ -41,44 +86,48 @@ class TestEvidenceVerification(unittest.TestCase):
                 if r < r2: self.assertGreaterEqual(w, w2, f'rank {r} must not weigh less than rank {r2}')
 
     def test_replication_is_bounded_so_volume_cannot_win(self):
-        """Unbounded replication would let one padded row outweigh a page, which is the failure this project exists to stop."""
+        """Unbounded replication would let a pile of citations put a claim beyond argument."""
         self.assertAlmostEqual(EV.replication(1), 1.0)
         self.assertLess(EV.replication(10 ** 6), EV.REP_CAP)
         for n in range(1, 50):
             self.assertLess(EV.replication(n), EV.replication(n + 1))
 
-    def test_disagreeing_replications_cut_a_finding_down(self):
-        settled = EV.ver({'etype': 'observational', 'erq': 2, 'erp': 100})
-        contested = EV.ver({'etype': 'observational', 'erq': 2, 'erp': 50})
-        self.assertAlmostEqual(contested, settled / 2)
+    def test_even_the_strongest_prior_stays_within_reach_of_argument(self):
+        """Evidence opens a question; it must not close it. At k = 1 a handful of argued objections has to be
+        able to pull the best-sourced claim back under the line."""
+        pages = [{'id': 1, 'kind': 'claim', 'text': 'well sourced', 'etype': 'statistics', 'erq': 50, 'erp': 100}]
+        edges = []
+        for i in range(2, 8):
+            pages.append({'id': i, 'kind': 'claim', 'text': f'objection {i}', 'etype': 'record'})
+            edges.append({'id': i, 'page_id': 1, 'section': 'argument', 'side': 'disagree', 'position': i, 'claim_id': i})
+        m = Model(pages, CONSTS, edges=edges); m.conf = lambda pid: 1.0
+        self.assertLess(m.truth(1), 0.5)
+
+    def test_source_quality_is_not_also_a_row_multiplier(self):
+        """Counting it twice, once on the claim and once on the row, is the failure this design avoids. With the
+        claim's truth held equal, two differently sourced claims must contribute exactly the same."""
+        def contribution(etype):
+            pages = [{'id': 1, 'kind': 'belief', 'text': 'p'}, {'id': 2, 'kind': 'claim', 'text': 'c', 'etype': etype}]
+            m = Model(pages, CONSTS, edges=[{'id': 1, 'page_id': 1, 'section': 'evidence', 'side': 'agree',
+                                             'position': 1, 'claim_id': 2}])
+            m.conf = lambda pid: 1.0
+            m.pinned_truth[2] = 0.8         # same truth, different provenance
+            return m.evaluate(1)['belief']
+        self.assertAlmostEqual(contribution('statistics'), contribution('eyewitness'))
+        self.assertAlmostEqual(contribution('statistics'), contribution(None))
 
     def test_fields_arriving_as_strings_from_the_workbook_are_read_as_numbers(self):
-        self.assertEqual(EV.ver({'etype': 'record', 'erq': '2', 'erp': '50'}),
-                         EV.ver({'etype': 'record', 'erq': 2, 'erp': 50}))
+        self.assertEqual(EV.prior({'etype': 'record', 'erq': '2', 'erp': '50'}, K),
+                         EV.prior({'etype': 'record', 'erq': 2, 'erp': 50}, K))
 
     def test_nonsense_in_a_field_falls_back_and_says_so_rather_than_guessing(self):
         c = EV.classify({'etype': 'not a category', 'erq': 'several', 'erp': ''})
         self.assertEqual(c['na'], ['etype', 'erq', 'erp'])
-        self.assertEqual(c['esiw'], EV.DEFESIW)
+        self.assertEqual(c['esiw'], EV.NOSOURCE)
 
     def test_the_wiki_formula_is_reproduced_for_its_own_worked_example(self):
         """docs/wiki/Evidence-Verification-Score-(EVS).md, section 4: statistics, erq 5, erp 90, ecrs 0.8."""
         self.assertAlmostEqual(EV.evs({'etype': 'statistics', 'erq': 5, 'erp': 90}, 0.8), 0.9 * 0.8 * 5 * 0.9)
-
-    def test_verification_multiplies_the_row_in_the_engine(self):
-        pages = [{'id': 1, 'kind': 'belief', 'text': 'p'}, {'id': 2, 'kind': 'claim', 'text': 'c'}]
-        def belief(attrs):
-            e = {'id': 1, 'page_id': 1, 'section': 'evidence', 'side': 'agree', 'position': 1, 'claim_id': 2}
-            if attrs: e['attrs'] = attrs
-            m = Model(pages, CONSTS, edges=[e])
-            m.evaluate = (lambda real: lambda pid: {'truth': 1.0, 'belief': 0.0, 'pro': 0, 'con': 0, 'supp': 0,
-                                                    'weak': 0, 'pred': 0, 'impact': None, 'raw': None}
-                          if pid == 2 else real(pid))(m.evaluate)
-            m.conf = lambda pid: 1.0
-            return m.evaluate(1)['belief']
-        plain = belief(None)
-        self.assertAlmostEqual(belief({'etype': 'statistics'}), plain * EV.ver({'etype': 'statistics'}))
-        self.assertAlmostEqual(belief({'etype': 'eyewitness'}), plain * EV.ver({'etype': 'eyewitness'}))
 
 
 # ------------------------------------------------------------------------------------ the real corpus

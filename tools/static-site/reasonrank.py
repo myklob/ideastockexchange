@@ -16,7 +16,7 @@ separate policy conclusions at once. Nothing else on this site could tell those 
 THE WALK. Start at the beliefs, spread evenly. From any page, step to one of the pages it reads, choosing among
 its rows in proportion to how much each row can transmit:
 
-    capacity(row) = Link x Imp x Uniq x Ver
+    capacity(row) = Link x Imp x Uniq
 
 Two things are deliberately absent from that product. The truth score of the claim the row points at, because
 capacity is how much the row could carry once that claim is settled either way, and a ranking that fell when a
@@ -45,7 +45,6 @@ should spend a week on, and there is usually a short list of those holding up ev
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from evidence import ver as evidence_ver
 
 DAMPING = 0.85      # PageRank's own constant: the chance the walk takes another step rather than restarting
 ITERATIONS = 80     # far past convergence for a corpus of this size; the check below reports the residual
@@ -94,8 +93,7 @@ class ReasonRank:
             for d in rows_of(c.specs[pid]):
                 refs = [d[col] for col in REF_COLS if _is(d.get(col)) and d[col] in c.specs]
                 if not refs: continue
-                cap = (c.pg(d.get('link'), 1.0) * c.pg(d.get('imp'), 0.5) * c.pg(d.get('uniq'), 1.0)
-                       * evidence_ver(d))
+                cap = c.pg(d.get('link'), 1.0) * c.pg(d.get('imp'), 0.5) * c.pg(d.get('uniq'), 1.0)
                 if cap <= 0: continue
                 share = cap / len(refs)
                 for q in refs: wt[q] = wt.get(q, 0.0) + share

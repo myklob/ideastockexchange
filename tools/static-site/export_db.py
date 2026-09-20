@@ -6,8 +6,9 @@ score_reference.py reproduces every number in the workbook.
 
 Tables
   constant   name, value, meaning                          the five labelled constants (k, UNARG, DEFLINK, DEFIMP, DEFUNIQ)
+             A page's starting point is computed from its etype/erq/erp, not stored: see evidence.py.
   page       id, kind, text, topic, parent_id, x_id, y_id, type, direction, rowkind, value, measured_by, where_found,
-             if_true, if_false, latest, bridge, bottom_line, positivity, logical_form
+             etype, erq, erp, if_true, if_false, latest, bridge, bottom_line, positivity, logical_form
              kind: belief | claim | linkage | importance | interest | uniqueness | equivalence | driver | media
              text is NULL for the formula-built kinds: their question is rendered from x_id / y_id and the row-2 field.
   edge       id, page_id, section, side, position, claim_id, text, link_id, imp_id, uniq_id, drives_id, equiv_id,
@@ -25,7 +26,7 @@ from xml.sax.saxutils import escape
 from score_reference import normalize, CONSTS as DEFAULT_CONSTS
 
 PAGE_COLS = ['id', 'kind', 'text', 'topic', 'parent_id', 'x_id', 'y_id', 'type', 'direction', 'rowkind', 'value', 'measured_by', 'where_found',
-             'if_true', 'if_false', 'latest', 'bridge', 'bottom_line', 'positivity', 'logical_form']
+             'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge', 'bottom_line', 'positivity', 'logical_form']
 EDGE_COLS = ['id', 'page_id', 'section', 'side', 'position', 'claim_id', 'text', 'link_id', 'imp_id', 'uniq_id', 'drives_id', 'equiv_id',
              'who_id', 'bearing_id', 'pattern', 'category', 'magnitude', 'deadline', 'attrs']
 
@@ -52,6 +53,10 @@ CREATE TABLE IF NOT EXISTS page (
   value        VARCHAR(40),           -- interest: the value it appeals to (Opportunity, Security, ...)
   measured_by  TEXT,                  -- interest: what a reading of this interest looks like
   where_found  TEXT,                  -- media: citation or link
+  etype        VARCHAR(16),           -- what this claim rests on, if it is an observed finding: see evidence.py's table.
+                                      -- NULL means nothing observed, and the claim starts at 0.5 and contributes nothing until argued.
+  erq          INTEGER,               -- independent replications of the finding. NULL counts as one, the finding itself.
+  erp          NUMERIC(5,2),          -- percent of those replications that agreed. NULL counts as 100.
   if_true      TEXT,                  -- interest: what the measure should show if the belief is true
   if_false     TEXT,                  -- interest: ... if the belief is false
   latest       TEXT,                  -- interest: latest reading, with source

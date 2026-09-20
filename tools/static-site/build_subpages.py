@@ -10,7 +10,7 @@
 # B = Rank, C = Pattern, D = text, E..K = numbers; L..V the same for the right side; W and X hidden mirrors.
 from openpyxl.styles import Font
 from openpyxl.worksheet.datavalidation import DataValidation
-from build_pages import (ver_ref, Page, CELL, PAGE, HL, TCELL, STRIP, is_page, CONSTS, MIRROR_TRUTH, COMPLETE_CELL, WIKI, IDFONT, IDLINK, kind_of, conf_ref, CONF_OF,
+from build_pages import (basis_of, BASIS_OF, Page, CELL, PAGE, HL, TCELL, STRIP, is_page, CONSTS, MIRROR_TRUTH, COMPLETE_CELL, WIKI, IDFONT, IDLINK, kind_of, conf_ref, CONF_OF,
                          HDR_FILL, SUB_FILL, GREEN, RED, GREY, INPUT, BLUEBOX, ENG, CONST, WRAP, CENTER, MID, MIDC, LINK, DIM, SF, END)
 
 COLW2 = {'A': 6, 'B': 5, 'C': 13, 'D': 44, 'E': 8, 'F': 8, 'G': 8, 'H': 8, 'I': 8, 'J': 8, 'K': 8, 'L': 6,
@@ -252,7 +252,7 @@ class SubPage(Page):
                 self.page_cell(f'{s["c4"]}{r}', self.val(d, 'uniq'), '@DEFUNIQ@', note='Uniq: a uniqueness page, or 1.' if i == 0 else None)
                 E, F, G, H, I = (CELL(s, k, r) for k in ('c1', 'c2', 'c3', 'c4', 'c5'))
                 KC = conf_ref(self.val(d, 'id'))
-                self.f(f'{s["c5"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{E}-1)*{KC}*{F}*{G}*{H}{ver_ref(d)})', fmt=SF, merge_to=f'{s["c7"]}{r}',
+                self.f(f'{s["c5"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{E}-1)*{KC}*{F}*{G}*{H})', fmt=SF, merge_to=f'{s["c7"]}{r}',
                        note='Score = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq. Signed, so a reason argued false counts against the side it is filed on and an unargued one contributes 0.' if i == 0 else None)
                 self.rank_cell(s, r, I, self.rng(s['c5'], rows))
         self.dim_when_blank('E', 'K', rows, '$D'); self.dim_when_blank('P', 'V', rows, '$O')
@@ -384,7 +384,9 @@ class SubPage(Page):
         if self.kind == 'importance':
             I = R['interests']; effs = self.rng('H', I)
             eng('NINT', 'Interests listed (count)', f'=COUNT({effs})', 'Interest pages listed in the table above.', fmt='0')
-            eng('TRUTH', 'Importance score (0 to 1)', f'=IF(@NINT@=0,@UNARG@,MAX({effs}))', 'The largest Effective (interest validity x how far this row bears on it) in the table above, or the neutral constant when no interest is listed. This is the cell the parent page reads as Imp.')
+            p0, pw = basis_of(self.spec.get('_tab'), 1)
+            eng('P0', 'Starting point when no interest is listed', f'={p0:.6f}', 'An importance page with nothing listed reads its own starting point, which is 0.5 unless the page cites an observed finding.')
+            eng('TRUTH', 'Importance score (0 to 1)', f'=IF(@NINT@=0,@P0@,MAX({effs}))', 'The largest Effective (interest validity x how far this row bears on it) in the table above, or the neutral constant when no interest is listed. This is the cell the parent page reads as Imp.')
             eng('BELIEF', 'Same number, for the mirror', '=@TRUTH@', 'Importance pages have no separate net score; the hidden mirror cell reads this.', fmt='0.00')
             eng('TOPINT', 'Most valid interest it speaks to', f'=IF(@NINT@=0,"",INDEX({self.rng("C", I)},MATCH(MAX({effs}),{effs},0)))', 'The interest with the highest Effective.', fmt='@')
             eng('COMPLETE', 'This page meets its completeness gate', '=IF(@NINT@>=1,1,0)', '1 when at least one interest is listed. Mirrored in hidden W2 so the parent page can count it.', fmt='0')
@@ -394,7 +396,10 @@ class SubPage(Page):
             eng('PRO', 'Weight for', f'=$I${R["argstot"]}', 'Every row here whose signed contribution came out positive.')
             eng('CON', 'Weight against', f'=$T${R["argstot"]}', 'Every row here whose signed contribution came out negative, as a magnitude.')
             eng('BELIEF', 'Net score', '=@PRO@-@CON@', 'Agree total minus disagree total, open-ended. Shown for comparison with belief pages; the parent reads the truth score below.', fmt=SF)
-            eng('TRUTH', f'{lab} score (0 to 1)', '=(@PRO@+@K@*0.5)/(@PRO@+@CON@+@K@)', 'The agree share of scored weight with k neutral votes mixed in, so a page with no reasons reads 0.5 instead of certainty. This is the cell the parent page reads as its multiplier.')
+            p0, pw = basis_of(self.spec.get('_tab'), 1)
+            eng('P0', 'Starting point, before any argument (0 to 1)', f'={p0:.6f}', 'Where this page starts because of what it says it rests on. 0.5 unless it cites an observed finding.')
+            eng('PW', 'Weight of that starting point', f'={pw:.6f}', 'How much arguing it takes to move the starting point: k x a bounded reward for independent replication.')
+            eng('TRUTH', f'{lab} score (0 to 1)', '=(@PRO@+@PW@*@P0@)/(@PRO@+@CON@+@PW@)', 'The agree share of scored weight starting from what the page rests on, so a page with no reasons and no source reads 0.5 instead of certainty. This is the cell the parent page reads as its multiplier.')
             eng('SHARE', 'Agree share of scored weight', '=IF(@PRO@+@CON@=0,"",@PRO@/(@PRO@+@CON@))', 'Agree / (Agree + Disagree) with nothing mixed in. Blank until something is scored.', fmt='0%')
             eng('NAGREE', 'Reasons to agree (count)', f'=COUNT({argL})', 'Agree-side reasons with a score.', fmt='0')
             eng('NDIS', 'Reasons to disagree (count)', f'=COUNT({argR})', 'Disagree-side reasons with a score.', fmt='0')
@@ -404,7 +409,7 @@ class SubPage(Page):
                 IA = R['iargs']; iL, iR = self.rng('I', IA), self.rng('T', IA)
                 eng('IPRO', 'Impact: reasons to agree, total', f'=$I${R["iargstot"]}', 'The total under the agree side of the Impact table.')
                 eng('ICON', 'Impact: reasons to disagree, total', f'=$T${R["iargstot"]}', 'The total under the disagree side of the Impact table.')
-                eng('IMPACT', 'Impact score (0 to 1)', '=(@IPRO@+@K@*0.5)/(@IPRO@+@ICON@+@K@)', 'The agree share of scored weight in the Impact table with k neutral votes mixed in. The parent page reads this as Impact on the work\'s row.')
+                eng('IMPACT', 'Impact score (0 to 1)', '=(@IPRO@+@PW@*@P0@)/(@IPRO@+@ICON@+@PW@)', 'The agree share of scored weight in the Impact table with k neutral votes mixed in. The parent page reads this as Impact on the work\'s row.')
                 eng('NIAGREE', 'Impact: reasons to agree (count)', f'=COUNT({iL})', 'Agree-side impact reasons with a score.', fmt='0')
                 eng('NIDIS', 'Impact: reasons to disagree (count)', f'=COUNT({iR})', 'Disagree-side impact reasons with a score.', fmt='0')
             if self.kind == 'interest':

@@ -8,11 +8,15 @@ Two jobs, one code path:
    every multiplier is a page id (link_id, imp_id, uniq_id, drives_id, equiv_id, bearing_id, who_id) or nothing.
 
 2. Model computes every score from those two tables alone, with the same rules the workbook's formulas implement:
-     row contribution     = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq x Ver  (arguments, evidence, predictions)
+     row contribution     = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq   (arguments, evidence, predictions)
                             signed: a claim argued false counts against the side it was filed on, and a claim
                             nobody has argued contributes 0. POS and NEG are the positive and negative
                             contributions as magnitudes, so a row lands on the side its sign puts it on.
-     page truth (argued)  = (POS + k x 0.5) / (POS + NEG + k)
+     page truth (argued)  = (POS + w x p0) / (POS + NEG + w)
+                            p0 and w come from what the page says it rests on (evidence.py): a page that cites
+                            nothing starts at p0 = 0.5 with w = k, exactly the neutral vote it always had. This
+                            is the only thing in the engine that can put a score anywhere but 0.5: with a purely
+                            neutral start, (2 x Truth - 1) is 0 at every leaf and stays 0 all the way up.
      page truth           = min(argued, weakest load-bearing component that has its own page)
      belief score         = POS - NEG (open-ended)
      importance page      = max over listed interests of Validity x Bears   (Bears = bearing page truth, else DEFLINK)
@@ -25,7 +29,7 @@ Run as a script: python3 score_reference.py ise_zoning.json  -> prints every pag
 """
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from evidence import ver as evidence_ver
+from evidence import prior as evidence_prior
 
 CONSTS = {'K': 1, 'UNARG': 0.5, 'DEFLINK': 1, 'DEFIMP': 0.5, 'DEFUNIQ': 1}
 SPECIAL = ('linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media')
@@ -62,7 +66,7 @@ TWO_SIDED = [
     ('bias_up', 'bias', 'agree'), ('bias_down', 'bias', 'disagree'),
 ]
 CORE = ('id', 'text', 'link', 'imp', 'uniq', 'drives', 'equiv', 'who', 'addresses', 'pattern', 'category', 'magnitude', 'deadline', 'tab', 'advertised')
-PAGE_FIELDS = {'topic': 'topic', 'supports': 'parent_id', 'x': 'x_id', 'y': 'y_id', 'z': 'y_id', 'typ': 'type', 'direction': 'direction', 'rowkind': 'rowkind',
+PAGE_FIELDS = {'etype': 'etype', 'erq': 'erq', 'erp': 'erp', 'topic': 'topic', 'supports': 'parent_id', 'x': 'x_id', 'y': 'y_id', 'z': 'y_id', 'typ': 'type', 'direction': 'direction', 'rowkind': 'rowkind',
                'value': 'value', 'measured': 'measured_by', 'where': 'where_found', 'if_true': 'if_true', 'if_false': 'if_false', 'latest': 'latest',
                'bridge': 'bridge', 'bottom_line': 'bottom_line', 'positivity': 'positivity', 'form': 'logical_form'}
 
@@ -138,24 +142,28 @@ class Model:
         if pid in self.pinned_conf: return self.pinned_conf[pid]
         return self.conf(pid)
     def pg(self, v, default): return self.truth(v) if is_page(v) else default
-    def _share(self, pro, con):
-        K = self.C['K']; return (pro + K * 0.5) / (pro + con + K)
+    def _share(self, pro, con, pid=None):
+        """Truth from the weight for and against, starting from what the page rests on rather than from nothing."""
+        b = self.basis(pid)
+        return (pro + b['weight'] * b['p0']) / (pro + con + b['weight'])
+    def basis(self, pid):
+        """The page's observational prior: where its truth starts and how heavily, before its own rows count."""
+        p = self.pages.get(pid) if pid is not None else None
+        return evidence_prior(p or {}, self.C['K'])
     def _contrib(self, e, sign):
-        """What a row contributes, signed: sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq x Ver.
+        """What a row contributes, signed: sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq.
 
         Truth enters on the -1..+1 scale the wiki uses, so a claim argued false counts AGAINST the side it was
         filed on: ten refuted reasons to agree weaken the belief instead of padding it. A claim nobody has
         argued sits at 0.5 and contributes exactly 0, so listing a claim is worth nothing until it is argued.
         One formula for arguments, evidence and predictions alike; predictions always used this form.
 
-        Ver is the evidence verification multiplier (evidence.py): source type, replication count and
-        replication agreement. A row that names none of them reads exactly 1.0, so this term is invisible
-        until someone classifies a finding, and every row that is not evidence carries no such fields."""
+        Source quality is deliberately not a factor here. It belongs to the claim, not to the place the claim
+        is cited, so it sets where the claim's own page starts (evidence.py) rather than multiplying the row."""
         C = self.C
         cid = e.get('claim_id')
         return (sign * (2 * self.pg(cid, C['UNARG']) - 1) * (self.confidence(cid) if is_page(cid) else 0.0)
-                * self.pg(e.get('link_id'), C['DEFLINK']) * self.pg(e.get('imp_id'), C['DEFIMP']) * self.pg(e.get('uniq_id'), C['DEFUNIQ'])
-                * evidence_ver(e.get('attrs')))
+                * self.pg(e.get('link_id'), C['DEFLINK']) * self.pg(e.get('imp_id'), C['DEFIMP']) * self.pg(e.get('uniq_id'), C['DEFUNIQ']))
     @staticmethod
     def _split(vals):
         """Weight for and weight against, both as magnitudes. A row lands on the side its sign puts it on, not the
@@ -168,22 +176,22 @@ class Model:
         out = dict(pro=0.0, con=0.0, supp=0.0, weak=0.0, pred=0.0, impact=None, raw=None)
         if kind == 'importance':
             effs = [self.truth(e['claim_id']) * self.pg(e.get('bearing_id'), C['DEFLINK']) for e in self.rows(pid, 'interest_listing') if is_page(e.get('claim_id'))]
-            t = max(effs) if effs else C['UNARG']
+            t = max(effs) if effs else self._share(0.0, 0.0, pid)
             out.update(belief=t, truth=t); self.memo[pid] = out; return out
         args = [self._contrib(e, 1) for e in self.rows(pid, 'argument', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'argument', 'disagree')]
         pro, con = self._split(args)
         out.update(pro=pro, con=con)
         if kind in SPECIAL:
-            out.update(belief=pro - con, truth=self._share(pro, con))
+            out.update(belief=pro - con, truth=self._share(pro, con, pid))
             if kind == 'media':
                 imp_rows = [self._contrib(e, 1) for e in self.rows(pid, 'impact', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'impact', 'disagree')]
-                out['impact'] = self._share(*self._split(imp_rows))
+                out['impact'] = self._share(*self._split(imp_rows), pid=pid)
             self.memo[pid] = out; return out
         evid = [self._contrib(e, 1) for e in self.rows(pid, 'evidence', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'evidence', 'disagree')]
         supp, weak = self._split(evid)
         preds = [self._contrib(e, 1) for e in self.rows(pid, 'prediction', 'agree')] + [self._contrib(e, -1) for e in self.rows(pid, 'prediction', 'disagree')]
         pos, neg = self._split(args + evid + preds)
-        raw = self._share(pos, neg)
+        raw = self._share(pos, neg, pid)
         lb = [self.truth(e['claim_id']) for e in self.rows(pid, 'component') if is_page(e.get('claim_id')) and str(e.get('attrs', {}).get('lb', '')).upper() == 'Y']
         truth = min(raw, min(lb)) if lb else raw
         out.update(supp=supp, weak=weak, pred=sum(preds), belief=pos - neg, truth=truth, raw=raw, pos=pos, neg=neg)

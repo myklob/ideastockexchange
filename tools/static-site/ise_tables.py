@@ -49,11 +49,12 @@ SPLIT = {'assumption': {'belief': {'agree': 'assume_accept', 'disagree': 'assume
                   'other': {'agree': 'bias_up', 'disagree': 'bias_down'}}}
 SPECIAL = ('linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media')
 PAGE_COLS = ['key', 'tab', 'kind', 'text', 'parent', 'x', 'y', 'type', 'direction', 'rowkind', 'value',
-             'measured_by', 'where_found', 'if_true', 'if_false', 'latest', 'bridge', 'bottom_line', 'positivity', 'form']
+             'measured_by', 'where_found', 'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge',
+             'bottom_line', 'positivity', 'form']
 EDGE_COLS = ['page', 'section', 'side', 'claim', 'text', 'source', 'link', 'imp', 'uniq', 'drives', 'equiv',
              'who', 'bearing', 'pattern', 'category', 'magnitude', 'deadline', 'extra']
 # spec field <-> pages column, for the fields that live on a page rather than on a row
-PAGE_FIELDS = [('topic', None), ('supports', 'parent'), ('x', 'x'), ('y', 'y'), ('typ', 'type'),
+PAGE_FIELDS = [('etype', 'etype'), ('erq', 'erq'), ('erp', 'erp'), ('topic', None), ('supports', 'parent'), ('x', 'x'), ('y', 'y'), ('typ', 'type'),
                ('direction', 'direction'), ('rowkind', 'rowkind'), ('value', 'value'), ('measured', 'measured_by'),
                ('where', 'where_found'), ('if_true', 'if_true'), ('if_false', 'if_false'), ('latest', 'latest'),
                ('bridge', 'bridge'), ('bottom_line', 'bottom_line'), ('positivity', 'positivity'), ('form', 'form')]
@@ -63,7 +64,6 @@ PLAIN = [('text', 'text'), ('source', 'source'), ('pattern', 'pattern'), ('categ
          ('magnitude', 'magnitude'), ('deadline', 'deadline')]
 # everything else a row can carry, by section, written into and read out of the `extra` column
 EXTRA = {'component': ['type', 'stated', 'lb', 'assumes'], 'motive': ['advertised', 'actual'],
-         'evidence': ['etype', 'erq', 'erp'],
          'compromise': ['premise', 'difficult'], 'shared_interest': ['direction'],
          'value': ['value', 'srank', 'orank', 'why'], 'definition': ['term', 'definition'],
          'dispute': ['what', 'move'], 'interest': ['value', 'measured'], 'media': ['type']}
@@ -186,6 +186,10 @@ def tables_to_specs(pages, edges):
             if col is None: continue
             v = p.get(col)
             if v in (None, ''): continue
+            if col in ('erq', 'erp'):
+                try: v = float(v)
+                except (TypeError, ValueError): pass
+                else: v = int(v) if v == int(v) else v
             sp[field] = T(v) if col in ('parent', 'x', 'y') else v
         if kind == 'uniqueness' and 'y' in sp: sp['z'] = sp.pop('y')
         sp.setdefault('args', {'agree': [], 'disagree': []})
@@ -234,7 +238,15 @@ HELP = {
  'direction': 'linkage: Supports or Weakens. driver: Support or Opposition.',
  'rowkind': 'importance: what kind of row this page scores.',
  'value': 'interest: the value it appeals to.', 'measured_by': 'interest: what a reading of it looks like.',
- 'where_found': 'media: where to find the work.', 'if_true': 'interest: what the measure shows if the belief is true.',
+ 'where_found': 'media: where to find the work.',
+ 'etype': 'What this claim rests on, if it is an observed finding: statistics, record, rct, meta, observational, '
+          'historical, expert_data, expert_claim, anecdote, logic, analogy, norm, intuition, news, survey, '
+          'eyewitness, visual, artifact. Blank means nothing observed, and the claim starts at a coin flip. '
+          'Classify what the sentence asserts, not the instrument: "58 percent told a pollster X" is statistics; '
+          '"Americans believe X" is survey.',
+ 'erq': 'Independent replications of this finding. Blank counts as one, the finding itself.',
+ 'erp': 'Percent of those replications that agreed. Blank counts as 100. At 50 the claim starts at a coin flip '
+        'whatever its source type, because a contested literature has established nothing.', 'if_true': 'interest: what the measure shows if the belief is true.',
  'if_false': 'interest: what it shows if the belief is false.', 'latest': 'interest: the latest reading, with source.',
  'bridge': 'The one-sentence answer in the check table.', 'bottom_line': 'The one typed line in the scorecard.',
  'positivity': 'belief: -100 to +100 on the topic page.', 'form': 'belief: the logical form of the claim.',
@@ -251,10 +263,9 @@ HELP = {
  'pattern': 'The shape of the reason on a specialized page.', 'category': 'cost and benefit rows: the units.',
  'magnitude': 'cost and benefit rows: the estimate, in those units. The one typed number in the system.',
  'deadline': 'prediction rows: when and how it gets settled.',
- 'extra': 'Anything else the row carries, as "name: value | name: value". On an evidence row: etype (the '
-          'evidence category, see evidence.py), erq (independent replications) and erp (percent of them that agreed).',
+ 'extra': 'Anything else the row carries, as "name: value | name: value".',
 }
-LISTS = {'kind': ['belief', 'claim', 'linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media'],
+LISTS = {'etype': sorted(__import__('evidence').ESIW), 'kind': ['belief', 'claim', 'linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media'],
          'section': sorted(set(SECTIONS) | set(SPLIT)), 'side': ['agree', 'disagree', 'extreme', 'moderate', 'x', 'y'],
          'type': ['Argument', 'Evidence', 'Prediction', 'Interest', 'Media', 'Book', 'Study', 'Article', 'Report', 'Film', 'Podcast', 'Video'],
          'direction': ['Supports', 'Weakens', 'Support', 'Opposition']}
