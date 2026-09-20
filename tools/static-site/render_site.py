@@ -29,6 +29,9 @@ CONST = {k: v for k, _, v, _ in CONSTS}
 CONST_MEANING = {k: m for k, _, _, m in CONSTS}
 K, UNARG, DEFLINK, DEFIMP, DEFUNIQ = CONST['K'], CONST['UNARG'], CONST['DEFLINK'], CONST['DEFIMP'], CONST['DEFUNIQ']
 EQUIV_MERGE = 0.9   # the score at which the site already calls two claims a merge candidate
+# A blank cell in a column of numbers reads as a zero. Where a number genuinely cannot be computed, say which.
+UNPRICED = '<span class="c" title="No magnitude typed for this row, so no expected value">not priced</span>'
+MIXED = '<span class="c" title="The rows under this interest are in more than one unit, so they do not add">mixed units</span>'
 KINDNAME = {'belief': 'Belief', 'claim': 'Claim', 'linkage': 'Linkage', 'importance': 'Importance', 'interest': 'Interest',
             'uniqueness': 'Uniqueness', 'equivalence': 'Equivalence', 'driver': 'Driver', 'media': 'Media'}
 
@@ -419,11 +422,11 @@ def render_belief(c, pid):
     else: todo.append(('What Would Change the Answer', 'nothing sits beneath this page yet for the answer to rest on'))
     # ---- evidence
     if sp['evid']['for'] or sp['evid']['against']:
-      o.append(H.section('Evidence Ledger', 'Findings that can fail empirically. Each has its own page where its accuracy is argued; the source is shown under it. Ver is the verification multiplier: what kind of source it is, how many independent replications exist and how many of them agreed. A finding nobody has classified reads Ver 1.00 and is left exactly where it was.', ('How evidence is scored', WIKI['evidence'])))
+      o.append(H.section('Evidence Ledger', 'Findings that can fail empirically. Each has its own page where its accuracy is argued; the source is shown under it. “Starts at” is where that page begins before anyone argues with it, set by what kind of source it is, how many independent replications exist and how many of them agreed. A finding nobody has classified starts at 0.50, and at 0.50 it contributes nothing to this page however often it is listed.', ('How evidence is scored', WIKI['evidence'])))
       o.append(two_sided(H, c, 'Supporting', 'Weakening',
                        evidence_table(H, c, s['rows']['for'], sp['evid']['for']),
                        evidence_table(H, c, s['rows']['against'], sp['evid']['against'])))
-      o.append(f'<p class="tot">From these rows: weight for {f2(s["supp"])} · weight against {f2(s["weak"])} · net {sf(s["supp"] - s["weak"])}. A finding still sits at 0.50 until its own page argues its accuracy, and at 0.50 it contributes nothing.</p>')
+      o.append(f'<p class="tot">From these rows: weight for {f2(s["supp"])} · weight against {f2(s["weak"])} · net {sf(s["supp"] - s["weak"])}. An uncited finding sits at 0.50 until its own page argues its accuracy, and at 0.50 it contributes nothing; a cited one starts where its source puts it and is argued from there.</p>')
       o.append(f'<p class="tot">Overall Evidence Verification Score {f2(s["evs"])} ({f2(s["evs_for"])} supporting, {f2(s["evs_against"])} weakening), the sum over these rows of source weight x relevance x replications x agreement. It is not a probability and has no ceiling: it says how much verified work the page rests on, which is the one thing a bounded score cannot show. {s["evs_note"]}</p></section>')
     else: todo.append(('Evidence Ledger', 'no findings cited yet'))
     # ---- predictions
@@ -444,7 +447,7 @@ def render_belief(c, pid):
         for d, t, e in items:
             who = H.a(d['who']) if is_page(d.get('who')) else esc(d.get('who_text') or '')
             mg = d.get('magnitude'); mgs = money(float(mg)) if isinstance(mg, (int, float)) else '<span class="c">unpriced</span>'
-            out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td class="u">{esc(d.get("category") or "")}</td><td>{mgs}</td><td>{H.num(t, d.get("id"))}</td><td class="sc">{money(e) if e is not None else ""}</td><td class="u">{who}</td></tr>')
+            out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td class="u">{esc(d.get("category") or "")}</td><td>{mgs}</td><td>{H.num(t, d.get("id"))}</td><td class="sc">{money(e) if e is not None else UNPRICED}</td><td class="u">{who}</td></tr>')
         if not items: out.append('<tr><td colspan="6" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
     if s['cba']['ben'] or s['cba']['cos']:
@@ -465,7 +468,7 @@ def render_belief(c, pid):
             if not bs and not xs: continue
             bsum, xsum = sum(e for _, e in bs), sum(e for _, e in xs)
             net = ('' if len(units) != 1 else (sf(bsum - xsum) if abs(bsum - xsum) < 100 else ('+' if bsum - xsum >= 0 else '') + money(bsum - xsum)))
-            o.append(f'<tr><td class="t">{H.a(ip)}</td><td>{money(bsum)}</td><td>{money(xsum)}</td><td class="sc">{net}</td><td class="u">{esc(next(iter(units))) if len(units) == 1 else "mixed"}</td></tr>')
+            o.append(f'<tr><td class="t">{H.a(ip)}</td><td>{money(bsum)}</td><td>{money(xsum)}</td><td class="sc">{net or MIXED}</td><td class="u">{esc(next(iter(units))) if len(units) == 1 else "mixed"}</td></tr>')
         o.append('</tbody></table>')
       o.append('</section>')
     else: todo.append(('What acting on this would cost and gain', 'no costs or benefits priced yet'))
@@ -931,7 +934,8 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     for fn in list(files) + ['../index.html', '../method.html']:
         path = os.path.join(outdir, 'p', fn) if not fn.startswith('../') else os.path.join(outdir, fn[3:])
         base = 'p' if not fn.startswith('../') else ''
-        for href in re.findall(r'href="([^"#]+)"', open(path).read()):
+        with open(path) as fh: page = fh.read()
+        for href in re.findall(r'href="([^"#]+)"', page):
             if href.startswith('http'): continue
             target = os.path.normpath(os.path.join(outdir, base, href))
             if not os.path.exists(target): broken.append((fn, href))
