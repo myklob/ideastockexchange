@@ -1070,7 +1070,7 @@ main{max-width:1180px;margin:0 auto;padding-block:20px 56px;padding-inline:20px}
 a{color:var(--navy);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--navy) 35%,transparent)}a:hover{border-bottom-color:var(--navy)}a:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
 .crumb{text-align:right;margin:0 0 6px;font-size:13px;color:var(--ink2)}.crumb a{border:none}.crumb strong{color:var(--ink)}
 .kind{margin:0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);font-weight:600}
-h1{font-family:var(--serif);font-weight:600;font-size:clamp(22px,2.4vw,30px);line-height:1.25;margin:4px 0 8px;text-wrap:balance;max-width:52ch}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(22px,2.6vw,32px);line-height:1.22;margin:4px 0 8px;text-wrap:balance}
 h1.q span{display:block}h1.q span+span{padding-left:1.2em}
 .meta{margin:0 0 18px;color:var(--ink2);font-size:13px}
 section{margin:26px 0 0}section.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
@@ -1101,7 +1101,7 @@ tr.lb td{background:color-mix(in srgb,var(--head) 60%,transparent)}
 .skip{position:absolute;left:-9999px;top:0;background:var(--paper);color:var(--ink);padding:10px 14px;border:2px solid var(--navy);border-radius:0 0 4px 0;z-index:10}
 .skip:focus{left:0}
 @media (max-width:640px){table thead{display:none}table tr{display:flex;flex-wrap:wrap;gap:3px 14px;padding:8px 6px;border-top:1px solid var(--line)}table td{border:0;padding:0;width:auto!important;white-space:normal!important;text-align:left!important}td.t,td.u,td.dl,td.ex,td.lab,.check td.lab,.conn td.lab{flex:1 1 100%;width:auto!important}td.rk{display:none}td[data-l]::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}td.u[data-l]::before,td.dl[data-l]::before,td.ex[data-l]::before{display:inline;margin-right:6px}tr.lb td{background:none}tr.lb{background:color-mix(in srgb,var(--head) 60%,transparent)}}
-main.index h1{max-width:none;font-size:clamp(24px,3vw,36px)}.lede{max-width:80ch;font-size:15px;color:var(--ink2)}
+main.index h1{font-size:clamp(24px,3vw,36px)}.lede{max-width:80ch;font-size:15px;color:var(--ink2)}
 .beliefs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
 .bcard{display:block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px;color:var(--ink)}.bcard:hover{border-color:var(--navy)}
 .bcard .bt{font-family:var(--serif);font-size:16px;line-height:1.35;font-weight:600;margin-bottom:8px}.bcard .bn{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}.bcard .bn b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}.bcard .bb{margin-top:8px;font-size:13px;color:var(--ink2)}
