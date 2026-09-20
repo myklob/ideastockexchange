@@ -473,3 +473,81 @@ class TestThePublishedNumbersAreReproducible(unittest.TestCase):
             with open(os.path.join(self.dir, r['json'])) as fh: walk(json.load(fh))
         self.assertEqual(long, {}, f'published beyond {self.TOL_DIGITS} decimals: {sorted(long)}')
         self.assertTrue(idx['pages'], 'no pages were checked')
+
+
+class TestEveryExportCarriesTheSameTwoTables(unittest.TestCase):
+    """The site publishes the same `page` and `edge` tables in five shapes: the reviewable CSVs, JSON, XML, a
+    SQL data file and a loaded SQLite database. An analyst picks one and works from it, so a field the XML
+    writer drops or the SQL escaper mangles is wrong data delivered with the site's name on it, in a shape
+    nobody who reads the JSON would ever see. Nothing compared them until this."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        import json, sqlite3
+        import xml.etree.ElementTree as ET
+        cls.json, cls.sqlite3, cls.ET = json, sqlite3, ET
+        d = os.path.join(cls.parent.dir, 'data')
+        with open(os.path.join(d, 'ise.json')) as fh: cls.j = json.load(fh)
+        cls.root = ET.parse(os.path.join(d, 'ise.xml')).getroot()
+        cls.con = sqlite3.connect(os.path.join(d, 'ise.sqlite'))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.con.close()
+
+    @staticmethod
+    def _same(a, b):
+        """Equal as data. SQLite hands back a NUMERIC column as a float, so 50 and 50.0 are the same number
+        written down twice, not a difference in what was published."""
+        if a is None or b is None: return a is None and b is None
+        if isinstance(b, (int, float)) and not isinstance(b, bool):
+            try: return float(a) == float(b)
+            except (TypeError, ValueError): return False
+        return str(a) == str(b)
+
+    def test_every_shape_holds_every_row(self):
+        for table, tag in (('page', 'page'), ('edge', 'edge')):
+            n = len(self.j[table + 's'])
+            self.assertGreater(n, 0, f'the JSON export carries no {table} rows')
+            self.assertEqual(len(self.root.findall('.//' + tag)), n, f'the XML dropped {table} rows')
+            self.assertEqual(self.con.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0], n,
+                             f'the database dropped {table} rows')
+
+    def test_the_database_holds_what_the_json_holds(self):
+        checked = 0
+        for table in ('page', 'edge'):
+            cols = [r[1] for r in self.con.execute(f'PRAGMA table_info({table})')]
+            db = {r[0]: dict(zip(cols, r)) for r in self.con.execute(f'SELECT * FROM {table}')}
+            for row in self.j[table + 's']:
+                have = db.get(row['id'])
+                self.assertIsNotNone(have, f'{table} {row["id"]} is in the JSON and not the database')
+                for k, v in row.items():
+                    if k not in cols: continue
+                    checked += 1
+                    if k == 'attrs':
+                        got = self.json.loads(have[k]) if isinstance(have[k], str) and have[k] else have[k]
+                        self.assertEqual(got, v, f'{table} {row["id"]}.attrs')
+                    else:
+                        self.assertTrue(self._same(have[k], v),
+                                        f'{table} {row["id"]}.{k}: database {have[k]!r}, JSON {v!r}')
+        self.assertGreater(checked, 1000, 'this compared almost nothing')
+
+    def test_the_xml_holds_what_the_json_holds(self):
+        checked = 0
+        for table, tag in (('page', 'page'), ('edge', 'edge')):
+            x = {int(e.get('id')): e for e in self.root.findall('.//' + tag)}
+            for row in self.j[table + 's']:
+                e = x.get(row['id'])
+                self.assertIsNotNone(e, f'{table} {row["id"]} is in the JSON and not the XML')
+                for k, v in row.items():
+                    if v is None or k == 'attrs': continue
+                    checked += 1
+                    got = e.get(k)
+                    if got is None:
+                        child = e.find(k)
+                        got = child.text if child is not None else None
+                    self.assertTrue(self._same(got, v),
+                                    f'{table} {row["id"]}.{k}: XML {got!r}, JSON {v!r}')
+        self.assertGreater(checked, 1000, 'this compared almost nothing')

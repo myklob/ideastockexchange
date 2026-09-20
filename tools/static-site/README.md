@@ -113,6 +113,12 @@ in all four here, and four implementations of a rule is four chances to be wrong
   pages, which reads as the site being irreproducible and was not. With it rounded, a local build of the
   deployed revision reproduces all 261 pages of published numbers exactly, fetched from the live site and
   compared field by field.
+- **One set of tables, five shapes, checked against each other.** The same `page` and `edge` rows go out as
+  the reviewable CSVs, JSON, XML, a SQL data file and a loaded SQLite database. An analyst picks one and works
+  from it, so a field the XML writer drops or the SQL escaper mangles is wrong data with the site's name on it
+  in a shape nobody reading the JSON would ever see. `test_render.py::TestEveryExportCarriesTheSameTwoTables`
+  compares them row by row and field by field, and was checked by dropping a column from the XML writer to see
+  it fail.
 - **Publish as data, not only as pages.** Every page writes its computed numbers beside it as
   `p/<key>.json`, indexed at `data/pages_index.json`: truth, confidence, starting point, ReasonRank, work value,
   the structural checks and the sensitivity summary. A score somebody has to scrape out of HTML is a score
