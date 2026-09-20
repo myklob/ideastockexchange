@@ -162,14 +162,40 @@ class TestOnTheCorpus(unittest.TestCase):
             self.assertAlmostEqual(c.truth(p), v, places=12, msg=f'page {p} moved after a what-if run')
 
     def test_an_input_is_never_reported_as_flipping_a_page_it_cannot_reach(self):
-        c = self.c
-        for pid in sorted(c.beliefs):
-            a = c.sens.of(pid)
-            for r in a['all']:
-                if r['flip'] is not None:
+        """Every belief in the published corpus sits on the neutral line with nothing decisive beneath it, so
+        no row here carries a flip value and this assertion never ran against the real corpus: it read like a
+        check and was one only in the file. It now runs on a corpus built to have a flip, and on the real one
+        as a second pass in case a future corpus produces one."""
+        checked = 0
+        for c in (self._flippable(), self.c):
+            for pid in sorted(c.beliefs):
+                for r in c.sens.of(pid)['all']:
+                    if r['flip'] is None: continue
+                    checked += 1
                     lo, hi = r['lo'], r['hi']
                     self.assertTrue(min(lo, hi) < FLIP < max(lo, hi),
                                     f'{r["page"]} reports a flip value without straddling {FLIP}')
+                    self.assertGreaterEqual(r['flip'], 0.0)
+                    self.assertLessEqual(r['flip'], 1.0)
+        self.assertGreater(checked, 0, 'no row carried a flip value, so this test checked nothing')
+
+    @staticmethod
+    def _flippable():
+        """A belief a single input can carry across the line: it starts at the coin flip, and the one reason
+        beneath it is cited and argued on both sides, so it has confidence to pass up and room to move."""
+        import tempfile
+        import ise_tables as IT, render_site as RS
+        pages = [dict(key='b', kind='belief', text='The reform would work.'),
+                 dict(key='r', kind='claim', text='A cited reason argued on both sides beneath it.',
+                      etype='statistics', erq=4, erp=100),
+                 dict(key='r2', kind='claim', text='Support under the cited reason.', etype='record', erq=2, erp=100),
+                 dict(key='r3', kind='claim', text='Opposition under the cited reason.', etype='news', erq=1, erp=100)]
+        edges = [dict(page='b', section='argument', side='agree', claim='r'),
+                 dict(page='r', section='argument', side='agree', claim='r2'),
+                 dict(page='r', section='argument', side='disagree', claim='r3')]
+        d = tempfile.mkdtemp()
+        IT.write_csv(pages, edges, d)
+        return RS.Corpus(d, 'flippable')
 
     def test_a_page_sitting_on_the_neutral_line_reports_no_conclusion_to_overturn(self):
         """An undecided page has nothing for one input to flip. Calling every input decisive there would be a lie."""
