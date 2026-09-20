@@ -282,11 +282,11 @@ def render_belief(c, pid):
     o.append(f'''<section class="card"><div class="tiles">
 <div class="tile"><div class="lab">Truth score</div><div class="big">{f2(s["truth"])}</div><div class="sub">0 to 1. What other pages read.</div></div>
 <div class="tile"><div class="lab">Belief score</div><div class="big">{sf(s["belief"])}</div><div class="sub">Positive minus negative, open ended.</div></div>
-<div class="tile"><div class="lab">Arguments</div><div class="big">{s["nagree"]} / {s["ndis"]}</div><div class="sub">agree {f2(s["pro"])} against disagree {f2(s["con"])}</div></div>
-<div class="tile"><div class="lab">Evidence</div><div class="big">{s["nsupp"]} / {s["nweak"]}</div><div class="sub">supporting {f2(s["supp"])} against weakening {f2(s["weak"])}, predictions {sf(s["pred"])}</div></div>
+<div class="tile"><div class="lab">Weight for</div><div class="big">{f2(s["pos"])}</div><div class="sub">arguments {f2(s["pro"])} · evidence {f2(s["supp"])} · predictions {f2(s["pos"] - s["pro"] - s["supp"])}</div></div>
+<div class="tile"><div class="lab">Weight against</div><div class="big">{f2(s["neg"])}</div><div class="sub">arguments {f2(s["con"])} · evidence {f2(s["weak"])} · predictions {f2(s["neg"] - s["con"] - s["weak"])}</div></div>
 </div>
 <dl class="readout">
-<dt>Truth</dt><dd>{pct(s["share"]) + " of scored weight is on the agree side." if s["share"] is not None else "Nothing scored yet, so the neutral start."}{cap}</dd>
+<dt>Truth</dt><dd>{pct(s["share"]) + " of scored weight is on the agree side. Weight is what counts: every reason, finding and prediction enters as Truth x Link x Imp x Uniq, so one strong reason outweighs several weak ones." if s["share"] is not None else "Nothing scored yet, so the neutral start."}{cap}</dd>
 <dt>Cost-benefit</dt><dd>{cb}</dd>
 <dt>What would move this most</dt><dd>{esc(s["mover"]) + f" ({f2(s['movval'])} points at stake)" if s["mover"] else "List testable predictions below."}</dd>
 <dt>Kind of fight</dt><dd>{esc(s["dispute"]) or "(nothing scored)"}. Evidence two-sidedness {pct(s["factual"])}, reasons whose linkage leans against relevance {pct(s["linkshare"])}, value-ranking gap {f2(s["valgap"]) if s["valgap"] is not None else "(none ranked)"}, ease of resolution {f2(s["ease"]) if s["ease"] is not None else "(no compromise scored)"}, misunderstanding index {f2(s["misund"])}.</dd>
@@ -571,7 +571,7 @@ def render_index(c, title):
     o.append('<div class="beliefs">')
     for b in sorted(c.beliefs):
         s = c.stats(b); sp = c.specs[b]
-        o.append(f'<a class="bcard" href="p/{c.href(b)}"><div class="bt">{esc(c.text(b))}</div><div class="bn"><span><b>{f2(s["truth"])}</b> truth</span><span><b>{sf(s["belief"])}</b> belief</span><span><b>{s["nagree"]}/{s["ndis"]}</b> reasons</span><span><b>{s["nsupp"]}/{s["nweak"]}</b> findings</span></div><div class="bb">{esc(sp.get("bottom_line") or "")}</div></a>')
+        o.append(f'<a class="bcard" href="p/{c.href(b)}"><div class="bt">{esc(c.text(b))}</div><div class="bn"><span><b>{f2(s["truth"])}</b> truth</span><span><b>{sf(s["belief"])}</b> belief</span><span><b>{f2(s["pos"])}</b> weight for</span><span><b>{f2(s["neg"])}</b> against</span></div><div class="bb">{esc(sp.get("bottom_line") or "")}</div></a>')
     o.append('</div>')
     # tree
     o.append('<section><h2><span>The tree</span></h2><p class="blurb">Beliefs, the rows on them, and the pages that supply each row\'s numbers. Open a belief to see its rows; open a row to see the pages behind its multipliers.</p>')
