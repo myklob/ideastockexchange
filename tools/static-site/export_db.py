@@ -29,7 +29,7 @@ import evidence as EV
 PAGE_COLS = ['id', 'kind', 'text', 'topic', 'parent_id', 'x_id', 'y_id', 'type', 'direction', 'rowkind', 'value', 'measured_by', 'where_found',
              'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge', 'bottom_line', 'positivity', 'logical_form']
 EDGE_COLS = ['id', 'page_id', 'section', 'side', 'position', 'claim_id', 'text', 'link_id', 'imp_id', 'uniq_id', 'drives_id', 'equiv_id',
-             'who_id', 'bearing_id', 'pattern', 'category', 'magnitude', 'deadline', 'attrs']
+             'who_id', 'bearing_id', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline', 'attrs']
 
 SCHEMA = '''-- Idea Stock Exchange belief pages: schema (PostgreSQL; MySQL 8 needs JSON instead of JSONB and no "IF NOT EXISTS" on indexes).
 -- Nothing typed is a score. Scores are computed from page + edge by the rules in score_reference.py.
@@ -104,7 +104,9 @@ CREATE TABLE IF NOT EXISTS edge (
   bearing_id  INTEGER REFERENCES page(id),            -- interest_listing rows: bearing page (DEFLINK when NULL)
   pattern     VARCHAR(60),                            -- specialized pages: the shape of the reason (Mechanism, Missing step, ...)
   category    VARCHAR(120),                           -- cba rows: the units
-  magnitude   NUMERIC(14,4),                          -- cba rows: typed estimate in those units (the one typed number; likelihood is claim_id's truth)
+  magnitude   NUMERIC(14,4),                          -- cba rows: typed central estimate in those units (the one typed number; likelihood is claim_id's truth)
+  mag_low     NUMERIC(14,4),                          -- cba rows: low end of that estimate. NULL means no range was stated, which is a deficiency, not a zero.
+  mag_high    NUMERIC(14,4),                          -- cba rows: high end of that estimate
   deadline    TEXT,                                   -- prediction rows: deadline and method
   attrs       JSONB,                                  -- section-specific extras: component type/stated/lb/assumes, motive actual, compromise premise/difficult, value ranks, definition term, media type, dispute what/move, used side
   UNIQUE (page_id, section, side, position)

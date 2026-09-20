@@ -191,18 +191,44 @@ class Corpus:
             # cost-benefit
             ben = [(b, self.pg(b.get('id'), UNARG)) for b in sp.get('benefits', []) if has(b)]
             cos = [(c, self.pg(c.get('id'), UNARG)) for c in sp.get('costs', []) if has(c)]
-            def ev(b, t): return (float(b['magnitude']) * t) if isinstance(b.get('magnitude'), (int, float)) else None
-            s['cba'] = {'ben': [(b, t, ev(b, t)) for b, t in ben], 'cos': [(c, t, ev(c, t)) for c, t in cos]}
-            s['benev'] = sum(e for _, _, e in s['cba']['ben'] if e is not None); s['costev'] = sum(e for _, _, e in s['cba']['cos'] if e is not None)
+            def num(v): return float(v) if isinstance(v, (int, float)) else None
+            def ev(b, t):
+                m = num(b.get('magnitude'))
+                if m is None: return None, None, None
+                lo, hi = num(b.get('mag_low')), num(b.get('mag_high'))
+                if lo is not None and hi is not None and lo > hi: lo, hi = hi, lo
+                return m * t, (lo * t if lo is not None else None), (hi * t if hi is not None else None)
+            s['cba'] = {'ben': [(b, t) + ev(b, t) for b, t in ben], 'cos': [(x, t) + ev(x, t) for x, t in cos]}
+            s['benev'] = sum(e for _, _, e, _, _ in s['cba']['ben'] if e is not None)
+            s['costev'] = sum(e for _, _, e, _, _ in s['cba']['cos'] if e is not None)
+            # The worst case is every benefit at its low end and every cost at its high end. A row with no
+            # stated range falls back to its central estimate, and the count of those is reported, because a
+            # range built partly from point estimates is narrower than the truth and has to say so.
+            def side(rows, which):
+                tot, pts = 0.0, 0
+                for _d, _t, e, lo, hi in rows:
+                    if e is None: continue
+                    v = (lo if which == 'lo' else hi)
+                    if v is None: v, pts = e, pts + 1
+                    tot += v
+                return tot, pts
+            bl, bp = side(s['cba']['ben'], 'lo'); bh, _ = side(s['cba']['ben'], 'hi')
+            cl, cp = side(s['cba']['cos'], 'lo'); ch, _ = side(s['cba']['cos'], 'hi')
+            s['ev_range'] = {'ben_low': bl, 'ben_high': bh, 'cost_low': cl, 'cost_high': ch,
+                             'priced': sum(1 for r in s['cba']['ben'] + s['cba']['cos'] if r[2] is not None),
+                             'no_range': bp + cp}
             typed = [x for x in sp.get('catnet', []) if x]
-            used = [b.get('category') for b, _, _ in s['cba']['ben'] if b.get('category')] + \
-                   [x.get('category') for x, _, _ in s['cba']['cos'] if x.get('category')]
+            used = [b.get('category') for b, *_ in s['cba']['ben'] if b.get('category')] + \
+                   [x.get('category') for x, *_ in s['cba']['cos'] if x.get('category')]
             # The typed list sets the order; any unit that appears on a row and not in the list is appended,
             # because a net that silently drops a cost is worse than no net at all.
             cats = typed + [u for u in dict.fromkeys(used) if u not in typed]
             s['mixed'] = len(cats) > 1
-            s['catnet'] = [(c, sum(e for b, _, e in s['cba']['ben'] if e is not None and b.get('category') == c), sum(e for x, _, e in s['cba']['cos'] if e is not None and x.get('category') == c)) for c in cats]
+            s['catnet'] = [(c, sum(e for b, _, e, _, _ in s['cba']['ben'] if e is not None and b.get('category') == c),
+                            sum(e for x, _, e, _, _ in s['cba']['cos'] if e is not None and x.get('category') == c)) for c in cats]
             s['netev'] = None if s['mixed'] else s['benev'] - s['costev']
+            s['netev_low'] = None if s['mixed'] else bl - ch
+            s['netev_high'] = None if s['mixed'] else bh - cl
             s['bcr'] = None if (s['mixed'] or s['costev'] == 0) else s['benev'] / s['costev']
             s['complete'] = s['nagree'] >= 1 and s['ndis'] >= 1
         else:
@@ -438,7 +464,20 @@ def render_belief(c, pid):
     if bad: read.insert(0, ('Structural fault', '; '.join(f'{esc(t)}: {esc(w)}' for _, t, w in bad)))
     if s["mover"]: read.append(('Prediction with the most at stake', esc(s["mover"]) + f' ({f2(s["movval"])} points at stake)'))
     if s['cba']['ben'] or s['cba']['cos']:
-        read.append(('Worth doing?', ('Mixed units, so no single net. ' + '; '.join(f'{esc(cat)}: {smoney(b - x)}' for cat, b, x in s['catnet'])) if s['mixed'] else (f'Net expected value {sf(s["netev"])}' + (f', benefit to cost {f2(s["bcr"])}' if s['bcr'] is not None else ''))))
+        rg = s['ev_range']
+        note = ''
+        if rg['no_range']:
+            note = (f' {rg["no_range"]} of the {rg["priced"]} priced rows state a single figure with no range, so '
+                    'the spread below is narrower than the real uncertainty.')
+        elif rg['priced']:
+            note = ' Every priced row states a range.'
+        if s['mixed']:
+            body = 'Mixed units, so no single net. ' + '; '.join(f'{esc(cat)}: {smoney(b - x)}' for cat, b, x in s['catnet'])
+        else:
+            body = f'Net expected value {sf(s["netev"])}'
+            if s['netev_low'] is not None: body += f', between {sf(s["netev_low"])} and {sf(s["netev_high"])} taking every benefit low and every cost high'
+            if s['bcr'] is not None: body += f', benefit to cost {f2(s["bcr"])}'
+        read.append(('Worth doing?', body + note))
     if s['dispute']: read.append(('Kind of fight', esc(s["dispute"]) + f'. Evidence two-sidedness {pct(s["factual"])}, reasons whose linkage leans against relevance {pct(s["linkshare"])}' + (f', value-ranking gap {f2(s["valgap"])}' if s["valgap"] is not None else '') + (f', ease of resolution {f2(s["ease"])}' if s["ease"] is not None else '') + '.'))
     if read0: read.insert(1, read0)
     read.append(('Coverage', cov))
@@ -492,15 +531,20 @@ def render_belief(c, pid):
     else: todo.append(('Falsifiability Test', 'nothing stated that would show this ' + ('belief' if k == 'belief' else 'claim') + ' false'))
     # ---- cost-benefit
     def cba_table(items, who_label):
-        out = [f'<table class="scored"><thead><tr><th>Claim</th><th>Units</th><th>Magn.</th><th>Likelih.</th><th>Exp. value</th><th>{who_label}</th></tr></thead><tbody>']
-        for d, t, e in items:
+        out = [f'<table class="scored"><thead><tr><th>Claim</th><th>Units</th><th>Estimate</th><th>Range</th><th>Likelih.</th><th>Exp. value</th><th>{who_label}</th></tr></thead><tbody>']
+        for d, t, e, lo, hi in items:
             who = H.a(d['who']) if is_page(d.get('who')) else esc(d.get('who_text') or '')
             mg = d.get('magnitude'); mgs = money(float(mg)) if isinstance(mg, (int, float)) else '<span class="c">unpriced</span>'
-            out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td class="u">{esc(d.get("category") or "")}</td><td>{mgs}</td><td>{H.num(t, d.get("id"))}</td><td class="sc">{money(e) if e is not None else UNPRICED}</td><td class="u">{who}</td></tr>')
-        if not items: out.append('<tr><td colspan="6" class="empty">Nothing here yet.</td></tr>')
+            rng = (f'{money(float(d["mag_low"]))} to {money(float(d["mag_high"]))}'
+                   if isinstance(d.get('mag_low'), (int, float)) and isinstance(d.get('mag_high'), (int, float))
+                   else ('<span class="c" title="A single figure with no stated range is not an estimate a '
+                         'decision can be checked against">none stated</span>' if mg is not None else ''))
+            evc = (money(e) if lo is None or hi is None else f'{money(e)} <span class="u">({money(lo)} to {money(hi)})</span>') if e is not None else UNPRICED
+            out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td class="u">{esc(d.get("category") or "")}</td><td>{mgs}</td><td class="u">{rng}</td><td>{H.num(t, d.get("id"))}</td><td class="sc">{evc}</td><td class="u">{who}</td></tr>')
+        if not items: out.append('<tr><td colspan="7" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
     if s['cba']['ben'] or s['cba']['cos']:
-      o.append(H.section('What Acting On This Would Cost and Gain', 'Not the cost of the belief being true, but of doing what it implies: who gains, who pays, in what units, and how likely. Every cost and benefit is a claim with its own page, so Likelihood is that page\'s truth score; magnitude is a typed estimate in the row\'s own units.', ('Cost-benefit analysis', WIKI['cba'])))
+      o.append(H.section('What Acting On This Would Cost and Gain', 'Not the cost of the belief being true, but of doing what it implies: who gains, who pays, in what units, and how likely. Every cost and benefit is a claim with its own page, so Likelihood is that page\'s truth score. The estimate and its range are the only typed numbers in the system, in the row\'s own units; a row that states one figure and no range is marked, because a single number is not an estimate a decision can be checked against.', ('Cost-benefit analysis', WIKI['cba'])))
       o.append(two_sided(H, c, 'Benefits', 'Costs and risks', cba_table(s['cba']['ben'], 'Who gains'), cba_table(s['cba']['cos'], 'Who pays')))
       if s['catnet']:
         o.append('<h3 class="sub">Net by category</h3><table class="plain"><thead><tr><th>Units</th><th>Benefit EV</th><th>Cost EV</th><th>Net</th></tr></thead><tbody>')
@@ -511,8 +555,8 @@ def render_belief(c, pid):
       if ints:
         o.append('<h3 class="sub">Who gains, who pays (by interest)</h3><table class="plain"><thead><tr><th>Interest</th><th>Benefit EV</th><th>Cost EV</th><th>Net</th><th>Units</th></tr></thead><tbody>')
         for ip in ints:
-            bs = [(b, e) for b, _, e in s['cba']['ben'] if b.get('who') == ip and e is not None]
-            xs = [(x, e) for x, _, e in s['cba']['cos'] if x.get('who') == ip and e is not None]
+            bs = [(b, e) for b, _, e, _, _ in s['cba']['ben'] if b.get('who') == ip and e is not None]
+            xs = [(x, e) for x, _, e, _, _ in s['cba']['cos'] if x.get('who') == ip and e is not None]
             units = {b.get('category') for b, _ in bs} | {x.get('category') for x, _ in xs}
             if not bs and not xs: continue
             bsum, xsum = sum(e for _, e in bs), sum(e for _, e in xs)

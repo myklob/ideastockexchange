@@ -65,7 +65,7 @@ TWO_SIDED = [
     ('assume_hold', 'assumption', 'agree'), ('assume_fail', 'assumption', 'disagree'),
     ('bias_up', 'bias', 'agree'), ('bias_down', 'bias', 'disagree'),
 ]
-CORE = ('id', 'text', 'link', 'imp', 'uniq', 'drives', 'equiv', 'who', 'addresses', 'pattern', 'category', 'magnitude', 'deadline', 'tab', 'advertised')
+CORE = ('id', 'text', 'link', 'imp', 'uniq', 'drives', 'equiv', 'who', 'addresses', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline', 'tab', 'advertised')
 PAGE_FIELDS = {'etype': 'etype', 'erq': 'erq', 'erp': 'erp', 'topic': 'topic', 'supports': 'parent_id', 'x': 'x_id', 'y': 'y_id', 'z': 'y_id', 'typ': 'type', 'direction': 'direction', 'rowkind': 'rowkind',
                'value': 'value', 'measured': 'measured_by', 'where': 'where_found', 'if_true': 'if_true', 'if_false': 'if_false', 'latest': 'latest',
                'bridge': 'bridge', 'bottom_line': 'bottom_line', 'positivity': 'positivity', 'form': 'logical_form'}
@@ -99,7 +99,7 @@ def normalize(specs, beliefs=None):
                 if txt and not is_page(cid): e['text'] = txt
                 for k, col in (('link', 'link_id'), ('imp', 'imp_id'), ('uniq', 'uniq_id'), ('drives', 'drives_id'), ('equiv', 'equiv_id'), ('who', 'who_id'), ('addresses', 'bearing_id')):
                     if is_page(d.get(k)): e[col] = d[k]
-                for k in ('pattern', 'category', 'magnitude', 'deadline'):
+                for k in ('pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline'):
                     if d.get(k) not in (None, ''): e[k] = d[k]
                 attrs = {k: v for k, v in d.items() if k not in CORE and v not in (None, '', []) and not k.startswith('_')}
                 if attrs: e.setdefault('attrs', {}).update(attrs)

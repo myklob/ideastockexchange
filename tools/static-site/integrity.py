@@ -152,6 +152,14 @@ class Integrity:
                                 f'settled than a premise it needs, so evidence placed here cannot lift the cap. '
                                 f'Put each finding on the premise it is a finding about.'))
 
+        priced = [d for d in sp.get('benefits', []) + sp.get('costs', []) if isinstance(d.get('magnitude'), (int, float))]
+        noband = [d for d in priced if not (isinstance(d.get('mag_low'), (int, float)) and isinstance(d.get('mag_high'), (int, float)))]
+        if priced and noband:
+            out.append(('worth checking', 'Costs and benefits given as single figures',
+                        f'{len(noband)} of {len(priced)} priced rows state one number and no range. A decision '
+                        f'cannot be checked against a point estimate: the reader cannot tell whether the net '
+                        f'survives the estimate being wrong, which is usually the whole question.'))
+
         npred = len(sp.get('pred_true', [])) + len(sp.get('pred_false', []))
         if c.kind(pid) == 'belief' and npred == 0:
             out.append(('a note', 'Nothing stated would show it false',

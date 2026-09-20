@@ -118,7 +118,7 @@ class TestTheRenderedSite(unittest.TestCase):
         for pid in self.c.specs:
             if self.c.kind(pid) not in ('belief', 'claim'): continue
             s = self.c.stats(pid)
-            on_rows = {x.get('category') for x, _, _ in s['cba']['ben'] + s['cba']['cos'] if x.get('category')}
+            on_rows = {x.get('category') for x, *_ in s['cba']['ben'] + s['cba']['cos'] if x.get('category')}
             in_net = {cat for cat, _, _ in s['catnet']}
             self.assertEqual(on_rows - in_net, set(),
                              f'{self.c.key[pid]} drops {sorted(on_rows - in_net)} from the net by category')

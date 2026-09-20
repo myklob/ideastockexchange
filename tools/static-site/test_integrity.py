@@ -37,7 +37,7 @@ class Stub:
 
 
 def page(text='a claim', agree=(), disagree=(), components=(), preds=(), etype=None):
-    sp = {'belief': text, 'args': {'agree': [{'id': i} for i in agree], 'disagree': [{'id': i} for i in disagree]},
+    sp = {'belief': text, 'benefits': [], 'costs': [], 'args': {'agree': [{'id': i} for i in agree], 'disagree': [{'id': i} for i in disagree]},
           'evid': {'for': [], 'against': []}, 'pred_true': [{'id': i} for i in preds], 'pred_false': [],
           'components': list(components)}
     if etype: sp['etype'] = etype
@@ -143,6 +143,28 @@ class TestEachCheckFires(unittest.TestCase):
         specs = {1: page('conclusion', components=[{'id': 2, 'lb': 'Y'}]), 2: page('a necessary premise')}
         c = Stub(specs, truths={1: 0.5, 2: 0.5}, stats={1: {'raw': 0.61, 'truth': 0.5, 'weakest': 0.5}})
         self.assertNotIn('Evidence filed above the premise it bears on', titles(Integrity(c).of(1)))
+
+    def test_a_priced_row_with_no_range_is_noted(self):
+        specs = {1: page('conclusion'), 2: page('a cost')}
+        specs[1]['benefits'] = [{'id': 2, 'magnitude': 1000.0}]
+        specs[1]['costs'] = []
+        c = Stub(specs)
+        self.assertIn('Costs and benefits given as single figures', titles(Integrity(c).of(1)))
+
+    def test_a_priced_row_with_a_range_is_not_noted(self):
+        specs = {1: page('conclusion'), 2: page('a cost')}
+        specs[1]['benefits'] = [{'id': 2, 'magnitude': 1000.0, 'mag_low': 500.0, 'mag_high': 2000.0}]
+        specs[1]['costs'] = []
+        c = Stub(specs)
+        self.assertNotIn('Costs and benefits given as single figures', titles(Integrity(c).of(1)))
+
+    def test_an_unpriced_row_is_not_noted(self):
+        """It has no number at all, so asking for a range around it is asking for nothing."""
+        specs = {1: page('conclusion'), 2: page('a cost')}
+        specs[1]['benefits'] = [{'id': 2}]
+        specs[1]['costs'] = []
+        c = Stub(specs)
+        self.assertNotIn('Costs and benefits given as single figures', titles(Integrity(c).of(1)))
 
     def test_a_belief_with_no_prediction_is_noted(self):
         c = Stub({1: page('one', agree=[2]), 2: page('two')}, kinds={1: 'belief'})
