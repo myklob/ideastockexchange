@@ -392,7 +392,7 @@ def render_belief(c, pid):
     read.append(('Coverage', cov))
     if (sp.get('bottom_line') or '').strip(): read.append(('Bottom line', f'<span class="bl">{esc(sp["bottom_line"])}</span>'))
     o.append(f'''<section class="card"><div class="tiles">
-<div class="tile"><div class="lab">Truth score</div><div class="big">{f2(s["truth"])}</div><div class="sub">0 to 1. What other pages read.</div></div>
+<div class="tile"><div class="lab">Truth score</div><div class="big">{f2(s["truth"])}</div><div class="sub">{truth_range(c, pid)}</div></div>
 <div class="tile"><div class="lab">Confidence</div><div class="big">{pct(kv)}</div><div class="sub">{esc(c.conf.label(kv))}. How much of the work is done.</div></div>
 <div class="tile"><div class="lab">Belief score</div><div class="big">{sf(s["belief"])}</div><div class="sub">Positive minus negative, open ended.</div></div>
 <div class="tile"><div class="lab">Weight for</div><div class="big">{f2(s["pos"])}</div><div class="sub">arguments {f2(s["pro"])} · evidence {f2(s["supp"])} · predictions {f2(s["pos"] - s["pro"] - s["supp"])}</div></div>
@@ -565,6 +565,15 @@ def render_belief(c, pid):
     o.append(engine_table(H, c, pid))
     o.append(FOOT)
     return ''.join(o)
+
+def truth_range(c, pid):
+    """A point estimate on its own invites more confidence than it has earned. This says how far one unsettled
+    input could move it, which is the honest width of the number."""
+    a = c.sens.of(pid)
+    if not a['n'] or a['widest'] <= INERT: return '0 to 1. What other pages read.'
+    lo = min(min(r['lo'], r['hi']) for r in a['all']); hi = max(max(r['lo'], r['hi']) for r in a['all'])
+    return f'{f2(lo)} to {f2(hi)} on one input alone'
+
 
 def rank_note(c, pid):
     """How much of the corpus leans on this page, in one line."""
@@ -822,6 +831,7 @@ def render_index(c, title):
         o.append(f'<tr><td class="u">{esc(KINDNAME[c.kind(p)])}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.text(p))}</a></td><td>{f2(s["truth"])}</td><td>{"yes" if s["complete"] else "no"}</td><td class="u">{("<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(par), chr(34), esc(c.brief(par)[0]))) if is_page(par) else ""}</td></tr>')
     o.append('</tbody></table></div></section>')
     o.append(f'<section><h2><span>How to read a page</span></h2><p class="blurb">A page opens with the claim, then a scorecard, then the reasons. A row\'s Truth is its own page\'s score. Link is a <a href="{WIKI["linkage"]}">linkage page</a> whose question writes itself from the two pages it connects. Imp is an <a href="{WIKI["importance"]}">importance page</a> listing the interests the row speaks to. Uniq is a uniqueness page. <a href="method.html">The method page</a> states every rule on one page, with the evidence tiers, the confidence components, the constants and what the whole thing cannot do. The <a href="{WIKI["template"]}">wiki template</a> explains each section at length; the <a href="https://github.com/myklob/ideastockexchange">repository</a> holds the tables and the scorer this site is built from.</p><p class="blurb">The data behind every page, in the shape the scorer reads: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> and a loaded <a href="data/ise.sqlite">SQLite database</a>. Two tables, <code>page</code> and <code>edge</code>, plus the labelled constants and the evidence tiers; no score is stored in any of them. The database also carries the views an analyst opens it for: <code>page_start</code>, <code>page_coverage</code>, <code>page_one_sided</code>, <code>page_inert</code>, <code>evidence_ledger</code>, <code>page_orphan</code> and <code>page_uses</code>. The recursive part of the score is not one of them, on purpose: truth is a ratio of the children and then a minimum over them, which no recursive query can aggregate its way to, so it lives in code and the conformance suite keeps every implementation of it honest.</p></section>')
+    o.append(stamp(c))
     o.append('</main>' + JS + '</body></html>')
     return ''.join(o)
 
@@ -875,8 +885,34 @@ ul.tree li{margin:4px 0;font-size:13.5px}ul.tree summary{cursor:pointer;font-wei
 '''
 
 # ------------------------------------------------------------------------------------------------ main
+def provenance(path=None):
+    """What this build was made from, so a number can be cited. The repository revision and its commit date,
+    not the clock: a build has to be reproducible, and "as of today" is not a citation anyone can check."""
+    import subprocess
+    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    def git(*a):
+        try:
+            return subprocess.run(['git', '-C', root] + list(a), capture_output=True, text=True, timeout=10).stdout.strip()
+        except Exception:
+            return ''
+    rev, when = git('rev-parse', '--short', 'HEAD'), git('log', '-1', '--format=%cs')
+    dirty = bool(git('status', '--porcelain'))
+    return {'rev': rev, 'date': when, 'dirty': dirty}
+
+
+def stamp(c):
+    p = c.prov
+    if not p.get('rev'): return ''
+    edit = ' with uncommitted edits' if p['dirty'] else ''
+    return (f'<p class="consts">Built from revision <code>{esc(p["rev"])}</code>'
+            + (f', committed {esc(p["date"])}' if p['date'] else '') + edit
+            + f'. {len(c.specs)} pages. Every number above is computed from the two tables in that revision, so a '
+              'reader who fetches it gets these numbers and not different ones.</p>')
+
+
 def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     c = Corpus(entry, name)
+    c.prov = provenance(entry)
     if os.path.isdir(outdir): shutil.rmtree(outdir)
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
     for pid in c.specs:

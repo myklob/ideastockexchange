@@ -131,5 +131,10 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append('<table class="plain"><tbody>' + ''.join(f'<tr><td class="t"><strong>{esc(a)}</strong></td><td class="u">{esc(b)}</td></tr>' for a, b in lim) + '</tbody></table></section>')
 
     o.append('<section><h2><span>Where the code is</span></h2><p class="blurb">Every rule above is one short module, and a conformance corpus of sixteen pages with its expected numbers checked in, so an implementation in any other language can be held to the same contract. The data behind every page is on the front page as JSON, XML, SQL and a loaded SQLite database. <a href="https://github.com/myklob/ideastockexchange">The repository</a> holds all of it.</p></section>')
+    prov = getattr(c, 'prov', {})
+    if prov.get('rev'):
+        o.append(f'<p class="consts">Built from revision <code>{esc(prov["rev"])}</code>'
+                 + (f', committed {esc(prov["date"])}' if prov.get('date') else '')
+                 + (' with uncommitted edits' if prov.get('dirty') else '') + '.</p>')
     o.append('</main>' + JS + '</body></html>')
     return ''.join(o)
