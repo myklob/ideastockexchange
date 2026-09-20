@@ -22,6 +22,7 @@ def has(d):
 CONST = {k: v for k, _, v, _ in CONSTS}
 CONST_MEANING = {k: m for k, _, _, m in CONSTS}
 K, UNARG, DEFLINK, DEFIMP, DEFUNIQ = CONST['K'], CONST['UNARG'], CONST['DEFLINK'], CONST['DEFIMP'], CONST['DEFUNIQ']
+EQUIV_MERGE = 0.9   # the score at which the site already calls two claims a merge candidate
 KINDNAME = {'belief': 'Belief', 'claim': 'Claim', 'linkage': 'Linkage', 'importance': 'Importance', 'interest': 'Interest',
             'uniqueness': 'Uniqueness', 'equivalence': 'Equivalence', 'driver': 'Driver', 'media': 'Media'}
 
@@ -39,6 +40,14 @@ class Corpus:
             for col in ('claim_id', 'link_id', 'imp_id', 'uniq_id', 'drives_id', 'equiv_id', 'who_id', 'bearing_id'):
                 if e.get(col): self.uses.setdefault(e[col], []).append((e['page_id'], e['section'], col))
         self._stats = {}
+        # every equivalence page, seen from both of the pages it connects: pid -> [(other, equivalence truth, equivalence page)]
+        self.equivalents = {}
+        for q in self.specs:
+            if self.kind(q) == 'equivalence':
+                x, y = self.specs[q].get('x'), self.specs[q].get('y')
+                if is_page(x) and is_page(y) and x in self.specs and y in self.specs:
+                    self.equivalents.setdefault(x, []).append((y, self.truth(q), q))
+                    self.equivalents.setdefault(y, []).append((x, self.truth(q), q))
 
     def kind(self, pid):
         sp = self.specs[pid]
@@ -51,8 +60,16 @@ class Corpus:
     def truth(self, pid): return self.model.truth(pid)
     def pg(self, v, default): return self.truth(v) if is_page(v) else default
     def href(self, pid): return f'{self.key[pid]}.html'
+    def brief(self, pid):
+        """The most succinct way of saying the same thing: the shortest wording among this page's own and every
+        equivalent whose equivalence page scores at least EQUIV_MERGE. Returns (text, page the wording came from)."""
+        best = (self.text(pid), pid)
+        for other, t, _ in self.equivalents.get(pid, []):
+            if t >= EQUIV_MERGE and len(self.text(other)) < len(best[0]): best = (self.text(other), other)
+        return best
     def short(self, pid, n=56):
-        t = self.text(pid); return t if len(t) <= n else t[:n - 1].rstrip() + '…'
+        """Only for places that cannot wrap (breadcrumbs, the browser tab): the brief wording, cut if still too long."""
+        t = self.brief(pid)[0]; return t if len(t) <= n else t[:n - 1].rstrip() + '…'
 
     # the formula-built question of a specialized page, exactly as the workbook words it
     def question(self, pid, plain=False):
@@ -269,15 +286,15 @@ def render_belief(c, pid):
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.text(pid))}</h1>')
     meta = [f'Topic: {esc(sp["topic"])}'] if sp.get('topic') else []
     if sp.get('positivity') is not None: meta.append(f'Positivity toward {"the topic" if sp.get("topic") else "the reform"}: {sp["positivity"]:+d}')
-    if is_page(sp.get('supports')): meta.append('Used on: ' + H.a(sp['supports'], c.short(sp['supports'], 70)))
+    if is_page(sp.get('supports')): meta.append('Used on: ' + H.a(sp['supports']))
     o.append('<p class="meta">' + ' · '.join(meta) + '</p>')
     # ---- scorecard, before the reasons
     cap = ''
     if s['weakest'] is not None and s['weakest'] < s['raw']:
-        cap = f' Argues to {f2(s["raw"])}, held at {f2(s["weakest"])} by the weakest load-bearing component: {H.a(s["weakest_comp"]["id"], c.short(s["weakest_comp"]["id"], 90))}.'
+        cap = f' Argues to {f2(s["raw"])}, held at {f2(s["weakest"])} by the weakest load-bearing component: {H.a(s["weakest_comp"]["id"])}.'
     cov = f'Of {s["nrows"]} scored rows, {s["nolink"]} have no linkage page, {s["noimp"]} no importance page and {s["nouniq"]} no uniqueness page. This page reads {len(s["children"])} pages.'
     inc = [p for p in s['children'] if not c.stats(p)['complete']]
-    cov += (f' {len(inc)} of them are one-sided or empty: ' + ', '.join(H.a(p, c.short(p, 40)) for p in inc) + '.') if inc else ' All of them have both sides argued.'
+    cov += (f' {len(inc)} of them are one-sided or empty: ' + '; '.join(H.a(p, c.brief(p)[0]) for p in inc) + '.') if inc else ' All of them have both sides argued.'
     cb = ('Mixed units, so no single net. ' + '; '.join(f'{esc(cat)}: {smoney(b - x)}' for cat, b, x in s['catnet'])) if s['mixed'] else (f'Net expected value {sf(s["netev"])}' + (f', benefit to cost {f2(s["bcr"])}' if s['bcr'] is not None else ''))
     o.append(f'''<section class="card"><div class="tiles">
 <div class="tile"><div class="lab">Truth score</div><div class="big">{f2(s["truth"])}</div><div class="sub">0 to 1. What other pages read.</div></div>
@@ -319,7 +336,7 @@ def render_belief(c, pid):
     def cba_table(items, who_label):
         out = [f'<table class="scored"><thead><tr><th>Claim</th><th>Units</th><th>Magn.</th><th>Likelih.</th><th>Exp. value</th><th>{who_label}</th></tr></thead><tbody>']
         for d, t, e in items:
-            who = H.a(d['who'], c.short(d['who'], 60)) if is_page(d.get('who')) else esc(d.get('who_text') or '')
+            who = H.a(d['who']) if is_page(d.get('who')) else esc(d.get('who_text') or '')
             mg = d.get('magnitude'); mgs = money(float(mg)) if isinstance(mg, (int, float)) else '<span class="c">unpriced</span>'
             out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td class="u">{esc(d.get("category") or "")}</td><td>{mgs}</td><td>{H.num(t, d.get("id"))}</td><td class="sc">{money(e) if e is not None else ""}</td><td class="u">{who}</td></tr>')
         if not items: out.append('<tr><td colspan="6" class="empty">Nothing here yet.</td></tr>')
@@ -341,7 +358,7 @@ def render_belief(c, pid):
             if not bs and not xs: continue
             bsum, xsum = sum(e for _, e in bs), sum(e for _, e in xs)
             net = ('' if len(units) != 1 else (sf(bsum - xsum) if abs(bsum - xsum) < 100 else ('+' if bsum - xsum >= 0 else '') + money(bsum - xsum)))
-            o.append(f'<tr><td class="t">{H.a(ip, c.short(ip, 80))}</td><td>{money(bsum)}</td><td>{money(xsum)}</td><td class="sc">{net}</td><td class="u">{esc(next(iter(units))) if len(units) == 1 else "mixed"}</td></tr>')
+            o.append(f'<tr><td class="t">{H.a(ip)}</td><td>{money(bsum)}</td><td>{money(xsum)}</td><td class="sc">{net}</td><td class="u">{esc(next(iter(units))) if len(units) == 1 else "mixed"}</td></tr>')
         o.append('</tbody></table>')
     o.append('</section>')
     # ---- anatomy
@@ -379,7 +396,7 @@ def render_belief(c, pid):
     o.append('<h3 class="sub">Interests of each side</h3>' + two_sided(H, c, 'Interests of supporters', 'Interests of opponents', lt, rt))
     if lb and rb:
         a, b = lb[1], rb[1]
-        o.append(f'<p class="pair"><span class="lab">Primary conflict pair (computed: the strongest Validity x Drives on each side)</span> {H.a(lb[0]["id"], c.short(lb[0]["id"], 80))} ({f2(lb[2])} x {f2(lb[3])}) against {H.a(rb[0]["id"], c.short(rb[0]["id"], 80))} ({f2(rb[2])} x {f2(rb[3])}). {pct(a / (a + b)) if a + b else ""} of the paired weight sits on the supporting side. Validity is how legitimate the need is in general; Drives is how much it moves this position. They are different numbers.</p>')
+        o.append(f'<p class="pair"><span class="lab">Primary conflict pair (computed: the strongest Validity x Drives on each side)</span> {H.a(lb[0]["id"])} ({f2(lb[2])} x {f2(lb[3])}) against {H.a(rb[0]["id"])} ({f2(rb[2])} x {f2(rb[3])}). {pct(a / (a + b)) if a + b else ""} of the paired weight sits on the supporting side. Validity is how legitimate the need is in general; Drives is how much it moves this position. They are different numbers.</p>')
     if sp.get('shared'): o.append('<h3 class="sub">Shared interests</h3>' + simple_rows(H, c, sp['shared'], extra=lambda d: esc(d.get('direction') or '')))
     if sp.get('compromise'): o.append('<h3 class="sub">Best compromise</h3>' + simple_rows(H, c, sp['compromise'], extra=lambda d: f'<span class="lab">Rests on</span> {esc(d.get("premise") or "")} <span class="lab">Why difficult</span> {esc(d.get("difficult") or "")}'))
     if sp.get('motives_sup') or sp.get('motives_opp'):
@@ -418,10 +435,31 @@ def render_belief(c, pid):
     if sp.get('people_for') or sp.get('people_against'):
         o.append(H.section('People on the Record', 'Who holds a belief never changes its score. These names carry history, not weight.'))
         o.append(two_sided(H, c, 'On record agreeing', 'On record disagreeing', simple_rows(H, c, sp.get('people_for', [])), simple_rows(H, c, sp.get('people_against', []))) + '</section>')
+    o.append(wordings(H, c, pid))
     o.append(used_on(H, c, pid))
     o.append(engine_table(H, c, pid))
     o.append(FOOT)
     return ''.join(o)
+
+def wordings(H, c, pid):
+    """Ways of saying the same thing, ranked by how succinct they are, with the equivalence score that decides whether
+    a wording may stand in for this page where space is short."""
+    eqs = c.equivalents.get(pid, [])
+    if not eqs: return ''
+    own = c.text(pid); rows = [(own, pid, None, None)] + [(c.text(o), o, t, q) for o, t, q in eqs]
+    rows.sort(key=lambda r: len(r[0]))
+    best = c.brief(pid)[1]
+    out = []
+    for text, o, t, q in rows:
+        if q is None: score, verdict = '<span class="c">this page</span>', 'the wording argued on this page'
+        else:
+            score = H.num(t, q)
+            verdict = 'same claim: may stand in for this page' if t >= EQUIV_MERGE else ('overlapping claim: keep both, name the difference' if t >= 0.5 else 'distinct claim')
+        mark = ' <span class="lab">most succinct</span>' if (o == best and o != pid) else (' <span class="lab">used</span>' if o == best else '')
+        out.append(f'<tr><td class="t">{H.a(o, text)}{mark}</td><td>{len(text)}</td><td>{score}</td><td class="u">{verdict}</td></tr>')
+    note = ('No equivalent scores ' + f2(EQUIV_MERGE) + ' yet, so this page\'s own wording is used wherever space is short. Argue an equivalence page up to that line and the shortest wording that clears it takes over.'
+            if best == pid else 'The shortest wording whose equivalence scores at least ' + f2(EQUIV_MERGE) + ' stands in for this page in breadcrumbs and index columns.')
+    return H.section('Ways of Saying the Same Thing', 'Each row is a claim with its own page; Equiv is the truth score of the equivalence page that says it makes the same claim as this one. Shorter is better only once the equivalence holds.', ('One page per belief', WIKI['one_page'])) + '<table class="plain"><thead><tr><th>Wording</th><th>Chars</th><th>Equiv</th><th>Verdict</th></tr></thead><tbody>' + ''.join(out) + f'</tbody></table><p class="tot">{note}</p></section>'
 
 def used_on(H, c, pid):
     us = c.uses.get(pid, [])
@@ -431,7 +469,7 @@ def used_on(H, c, pid):
         if (page_id, section, col) in seen: continue
         seen.add((page_id, section, col))
         role = {'claim_id': 'a row', 'link_id': 'the linkage of a row', 'imp_id': 'the importance of a row', 'uniq_id': 'the uniqueness of a row', 'drives_id': 'the driver of an interest', 'equiv_id': 'an equivalence', 'who_id': 'who gains or pays', 'bearing_id': 'a bearing'}[col]
-        rows.append(f'<tr><td class="t">{H.a(page_id, c.short(page_id, 90))}</td><td class="u">{esc(section)}</td><td class="u">{role}</td><td>{f2(c.truth(page_id))}</td></tr>')
+        rows.append(f'<tr><td class="t">{H.a(page_id)}</td><td class="u">{esc(section)}</td><td class="u">{role}</td><td>{f2(c.truth(page_id))}</td></tr>')
     return H.section('Where This Page Is Used', 'Every page that reads this one. One claim, one home, every use visible.') + '<table class="plain"><thead><tr><th>Page</th><th>Table</th><th>As</th><th>Its truth</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table></section>'
 
 def engine_table(H, c, pid):
@@ -470,7 +508,7 @@ def render_special(c, pid):
     fields = []
     for lab, key in (('Type', 'typ'), ('Direction', 'direction'), ('This row is a', 'rowkind'), ('Value', 'value')):
         if sp.get(key): fields.append(f'{lab}: {esc(sp[key])}')
-    if is_page(sp.get('supports')): fields.append('Used on: ' + H.a(sp['supports'], c.short(sp['supports'], 70)))
+    if is_page(sp.get('supports')): fields.append('Used on: ' + H.a(sp['supports']))
     o.append('<p class="meta">' + ' · '.join(fields) + '</p>')
     # connected pages
     o.append('<section class="card"><table class="plain conn"><tbody>')
@@ -555,6 +593,7 @@ def render_special(c, pid):
         o.append(two_sided(H, c, KD['assume'][0], KD['assume'][1], simple_rows(H, c, sp.get('assume_hold', [])), simple_rows(H, c, sp.get('assume_fail', []))))
         o.append(two_sided(H, c, KD['bias'][0], KD['bias'][1], simple_rows(H, c, sp.get('bias_up', [])), simple_rows(H, c, sp.get('bias_down', []))) + '</section>')
     o.append(H.section('Definitions', None, ('The full explanation', KD['wiki'][1])) + '<ul class="defs">' + ''.join(f'<li>{esc(d)}</li>' for d in KD['defs']) + '</ul></section>')
+    o.append(wordings(H, c, pid))
     o.append(used_on(H, c, pid))
     o.append(engine_table(H, c, pid))
     o.append(FOOT)
@@ -589,7 +628,7 @@ def render_index(c, title):
         else:
             for d in sp['args']['agree'] + sp['args']['disagree']:
                 if is_page(d.get('id')): kids.append((d['id'], 'reason', d))
-        label = f'<a href="p/{c.href(pid)}">{esc(c.short(pid, 110))}</a> <span class="tn">{f2(s["truth"])}</span> <span class="tk">{esc(KINDNAME[k])}</span>'
+        label = f'<a href="p/{c.href(pid)}">{esc(c.text(pid))}</a> <span class="tn">{f2(s["truth"])}</span> <span class="tk">{esc(KINDNAME[k])}</span>'
         if not kids or depth > 3: return f'<li>{label}</li>'
         inner = []
         for kid, lab, d in kids:
@@ -609,7 +648,7 @@ def render_index(c, title):
     o.append('<section><h2><span>All pages</span></h2><div class="tablewrap"><table class="plain all"><thead><tr><th>Kind</th><th>Claim or question</th><th>Truth</th><th>Both sides</th><th>Used on</th></tr></thead><tbody>')
     for p in sorted(c.specs, key=lambda q: (list(KINDNAME).index(c.kind(q)), q)):
         s = c.stats(p); par = c.specs[p].get('supports')
-        o.append(f'<tr><td class="u">{esc(KINDNAME[c.kind(p)])}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.text(p))}</a></td><td>{f2(s["truth"])}</td><td>{"yes" if s["complete"] else "no"}</td><td class="u">{("<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(par), chr(34), esc(c.short(par, 50)))) if is_page(par) else ""}</td></tr>')
+        o.append(f'<tr><td class="u">{esc(KINDNAME[c.kind(p)])}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.text(p))}</a></td><td>{f2(s["truth"])}</td><td>{"yes" if s["complete"] else "no"}</td><td class="u">{("<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(par), chr(34), esc(c.brief(par)[0]))) if is_page(par) else ""}</td></tr>')
     o.append('</tbody></table></div></section>')
     o.append(f'<section><h2><span>How to read a page</span></h2><p class="blurb">A page opens with the claim, then a scorecard, then the reasons. A row\'s Truth is its own page\'s score. Link is a <a href="{WIKI["linkage"]}">linkage page</a> whose question writes itself from the two pages it connects. Imp is an <a href="{WIKI["importance"]}">importance page</a> listing the interests the row speaks to. Uniq is a uniqueness page. The <a href="{WIKI["template"]}">wiki template</a> explains each section at length; the <a href="https://github.com/myklob/ideastockexchange">repository</a> holds the tables and the scorer this site is built from.</p><p class="blurb">The data behind every page, in the shape the scorer reads: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a> and <a href="data/ise_data.sql">SQL data</a>. Two tables, <code>page</code> and <code>edge</code>, plus the five labelled constants; no score is stored in any of them.</p></section>')
     o.append('</main>' + JS + '</body></html>')
