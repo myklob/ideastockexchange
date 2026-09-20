@@ -8,6 +8,7 @@ every table on every page). Nothing typed in it is a score. Everything else here
     python3 sync_content.py [--check]                  rewrite content/*.csv from the workbook, or verify
     python3 export_db.py  ISE_Data_Entry.xlsx db/      schema.sql, data.sql, a loaded ise.sqlite, JSON and XML
     python3 conformance.py                             check the engine against the expected numbers
+    python3 check_assertions.py                        which assertions in the suite never ran
     python3 -m unittest discover -p 'test_*.py'        the whole suite; CI runs this before it publishes anything
     python3 build_example.py ISE_Data_Entry.xlsx       the formatted Excel workbook (LibreOffice for the recalc step)
 
@@ -52,6 +53,7 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     integrity.py         faults the shape of the graph shows: circularity, question-begging, a page counted twice
     method.py            the reader-facing methodology page, including what the tool cannot do
     conformance.py       the cross-implementation contract: conformance/corpus.json and conformance/expected.json
+    check_assertions.py  which assertions in the suite never ran; CI fails if any of them does not
     sync_content.py      keeps ISE_Data_Entry.xlsx and content/*.csv in step; --check runs in CI
     ise_tables.py        the two-table format: specs_to_tables / tables_to_specs, and both read surfaces
     export_db.py         SQL schema and data, a loaded SQLite database, JSON and XML, plus the analyst views
@@ -191,3 +193,22 @@ To change the content, edit `ISE_Data_Entry.xlsx` (the how-to-use sheet inside i
 To add a page, add a row to `pages` with a new key, then refer to that key from `edges`; keys are slugs, never
 numbers, so nothing renumbers. To ground a claim in evidence, fill its `etype` on the `pages` sheet, and `erq` and
 `erp` when replications are known.
+
+## What a green suite does not say
+
+It says how many tests passed. It does not say how much was checked, and the difference is not academic here.
+An assertion inside a loop over a collection that turns out to be empty, or in a branch this corpus never
+reaches, reads in the file exactly like one that can fail and verifies nothing. `check_assertions.py` runs the
+suite under a line tracer and fails the build if any assertion did not execute. CI runs it before publishing.
+
+Two were live the first time it ran, and both were in checks written to catch real defects. The sensitivity
+suite asserted that no input is ever reported as flipping a page whose range does not straddle the line; every
+belief in this corpus sits on the neutral line with nothing decisive beneath it, so no row carried a flip value
+and the assertion never executed. The range readout asserted that the structural check stays silent when every
+priced row states a range; no row in this corpus states one. Both now run against a corpus built to reach them,
+and each ends by asserting it got there.
+
+That is the same failure as the SQL port agreeing on 261 pages and returning 1.40 on the first typed input, and
+the same as the duplicate detector passing a test that it finds what a full sweep finds on a corpus where no
+word sat on more than sixty pages. A check that can only pass is not a check, and the corpus you happen to have
+is not a test suite.

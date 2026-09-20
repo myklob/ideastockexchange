@@ -357,16 +357,41 @@ class TestTheCaveatsReachThePage(unittest.TestCase):
 
     def test_the_range_readout_and_the_structural_check_agree(self):
         """One said "2 of 2 priced rows state one number and no range" while the other presented a band as the
-        ends of stated estimates. Both now count a row as ranged only when it states both ends."""
-        for pid in self.c.specs:
-            rg = self.c.stats(pid).get('ev_range') or {}
-            if not rg.get('priced'): continue
-            check = [w for _s, t, w in self.c.integ.of(pid) if t == 'Costs and benefits given as single figures']
-            if rg['no_range']:
-                self.assertTrue(check, self.c.key[pid])
-                self.assertIn(f'{rg["no_range"]} of {rg["priced"]} priced rows', check[0])
-            else:
-                self.assertFalse(check, self.c.key[pid])
+        ends of stated estimates. Both now count a row as ranged only when it states both ends.
+
+        No row in the published corpus states a range, so the branch where the check should stay silent could
+        not run against it and was a check in name only. A second corpus supplies the rows that do."""
+        seen = {'flagged': 0, 'silent': 0}
+        for c in (self.c, self._priced_with_ranges()):
+            for pid in c.specs:
+                rg = c.stats(pid).get('ev_range') or {}
+                if not rg.get('priced'): continue
+                check = [w for _s, t, w in c.integ.of(pid) if t == 'Costs and benefits given as single figures']
+                if rg['no_range']:
+                    seen['flagged'] += 1
+                    self.assertTrue(check, c.key[pid])
+                    self.assertIn(f'{rg["no_range"]} of {rg["priced"]} priced rows', check[0])
+                else:
+                    seen['silent'] += 1
+                    self.assertFalse(check, c.key[pid])
+        self.assertGreater(seen['flagged'], 0, 'nothing exercised the case where the check fires')
+        self.assertGreater(seen['silent'], 0, 'nothing exercised the case where the check stays silent')
+
+    @staticmethod
+    def _priced_with_ranges():
+        """A belief whose priced rows do state both ends, which nothing in the published corpus does."""
+        import tempfile
+        import ise_tables as IT, render_site as RS
+        pages = [dict(key='b', kind='belief', text='The reform would work.', etype='statistics', erq=3, erp=100),
+                 dict(key='g', kind='claim', text='It saves money every year it runs.', etype='statistics'),
+                 dict(key='x', kind='claim', text='It costs money to set up in the first year.', etype='statistics')]
+        edges = [dict(page='b', section='cba', side='agree', claim='g', category='dollars',
+                      magnitude=100, mag_low=80, mag_high=130),
+                 dict(page='b', section='cba', side='disagree', claim='x', category='dollars',
+                      magnitude=50, mag_low=40, mag_high=75)]
+        d = tempfile.mkdtemp()
+        IT.write_csv(pages, edges, d)
+        return RS.Corpus(d, 'ranged')
 
 
 class TestThePublishedContractIsRunnable(unittest.TestCase):
