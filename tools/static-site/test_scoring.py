@@ -286,3 +286,41 @@ class TestTheScorerOnItsOwn(unittest.TestCase):
         first = [ln for ln in r.stdout.splitlines() if ln.strip().startswith('1 ')]
         self.assertTrue(first, f'no line for page 1 in:\n{r.stdout}')
         self.assertNotIn('0.50', first[0], 'the belief did not move, so the default gate is not being used')
+
+
+class TestTheRulesHeldUpByACoincidence(unittest.TestCase):
+    """Two rules the engine states and nothing was checking, because in this corpus another rule happens to
+    produce the same answer. A rule carried only by a coincidence is a rule that breaks silently the day the
+    coincidence stops holding."""
+
+    def test_a_row_with_no_claim_page_contributes_nothing_because_of_its_confidence(self):
+        """The contract says a row pointing at no page reads UNARG for truth and 0 for confidence, so it
+        contributes exactly 0. In this corpus UNARG is 0.5, so the truth term is 2 x 0.5 - 1 = 0 and the
+        contribution is zero whatever the confidence factor is. The confidence half of the rule was therefore
+        worth nothing: setting it to 2 changed no number anywhere and the whole suite stayed green.
+
+        Moving UNARG off the neutral point separates the two. With UNARG at 0.9 the truth term is 0.8, so a
+        page-less row contributes 0 only if its confidence really is 0."""
+        from score_reference import Model, CONSTS
+        consts = dict(CONSTS, UNARG=0.9)
+        m = Model({'pages': [{'id': 1, 'kind': 'belief'}], 'edges': [
+            {'id': 1, 'page_id': 1, 'section': 'argument', 'side': 'agree', 'position': 1,
+             'text': 'a row somebody typed and never gave a page'}]}, consts)
+        m.conf = lambda pid: 1.0
+        row = m.rows(1, 'argument', 'agree')[0]
+        self.assertEqual(m._contrib(row, 1), 0.0,
+                         'a row with no claim page contributed something, so nothing is holding that rule')
+        self.assertAlmostEqual(m.evaluate(1)['pos'], 0.0, places=12)
+
+    def test_the_starting_weight_defaults_to_k(self):
+        """`prior(page)` with no k is documented to return exactly (0.5, k) for a page that declares nothing,
+        and several callers use that form. The default was pinned nowhere: changing it left every check green,
+        because the callers that read the weight all pass k explicitly and the ones that do not only read
+        whether the page is classified."""
+        import evidence as EV
+        from score_reference import CONSTS
+        b = EV.prior({})
+        self.assertEqual(b['p0'], 0.5)
+        self.assertEqual(b['weight'], CONSTS['K'],
+                         'the default starting weight is no longer k, so prior() and the scorer disagree')
+        self.assertEqual(EV.prior({}, CONSTS['K'])['weight'], b['weight'])
