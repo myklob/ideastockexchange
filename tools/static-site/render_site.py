@@ -734,15 +734,21 @@ def cite(c, pid):
     """A form somebody can put in a footnote. A score with no way to cite the exact version it came from is a
     score that cannot be quoted in anything anybody has to stand behind: the numbers here move as the argument
     is worked on, which is the point, and a citation has to name which state of it was read."""
-    rev = (getattr(c, 'prov', {}) or {}).get('rev')
-    if not rev: return ''
-    date = (getattr(c, 'prov', {}) or {}).get('date')
+    prov = getattr(c, 'prov', {}) or {}
+    rev, date = prov.get('rev'), prov.get('date')
+    # No revision means the build cannot be identified: built outside a checkout, from an export, or somewhere
+    # without git. Dropping the citation entirely was the wrong answer to that. The numbers are still quotable
+    # and the reader still needs them; what they also need is to be told the build has no name, because that is
+    # the difference between a number somebody can reproduce and one they have to take on trust.
+    which = f'revision {rev}' + (f' of {date}' if date else '') if rev else 'revision unidentified'
     ref = (f'{strip_period(c.text(pid))}. Idea Stock Exchange, {KINDNAME[c.kind(pid)].lower()} page '
-           f'{c.key[pid]}, truth {f2(c.truth(pid))}, confidence {pct(c.conf.of(pid))}, revision {rev}'
-           + (f' of {date}' if date else '') + '.')
+           f'{c.key[pid]}, truth {f2(c.truth(pid))}, confidence {pct(c.conf.of(pid))}, {which}.')
+    note = ('The revision is what makes this quotable: these numbers move as the argument is worked on, and '
+            'rebuilding that revision reproduces them exactly.' if rev else
+            'This build carries no revision, so the numbers above cannot be tied to a state of the argument '
+            'and cannot be reproduced from one. Build from a checkout if you need to cite them.')
     return (f'<p class="cite"><span class="lab">Cite this page</span> {esc(ref)} '
-            f'<span class="u">The revision is what makes this quotable: these numbers move as the argument is '
-            f'worked on, and rebuilding that revision reproduces them exactly.</span></p>')
+            f'<span class="u">{esc(note)}</span></p>')
 
 
 def rank_note(c, pid):
@@ -1286,7 +1292,10 @@ def provenance(path=None):
 
 def stamp(c):
     p = c.prov
-    if not p.get('rev'): return ''
+    if not p.get('rev'):
+        return ('<p class="consts">Built from an unidentified revision: this copy is not a git checkout, so the '
+                'build cannot be tied to a state of the content and the numbers on it cannot be reproduced from '
+                'one.</p>')
     edit = ' with uncommitted edits' if p['dirty'] else ''
     return (f'<p class="consts">Built from revision <code>{esc(p["rev"])}</code>'
             + (f', committed {esc(p["date"])}' if p['date'] else '') + edit
