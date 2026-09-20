@@ -490,3 +490,66 @@ class TestItScales(unittest.TestCase):
         a = Sensitivity(self._corpus(pages, edges)).of(1)
         self.assertIn('depth', a); self.assertIn('deeper', a)
         self.assertGreater(a['deeper'], 0, 'this fixture is deeper than the sweep, so it must say so')
+
+
+class TestTheSqlPortIsTheSameRule(unittest.TestCase):
+    """`page_start` is presented as the starting-point rule written in SQL, there to show the non-recursive
+    parts port in a few lines. A port is a claim, and a claim about two implementations agreeing needs both
+    run on the same input. Agreeing on every row of one corpus is not that: the corpus exercises none of the
+    coercions, so the port diverged on typed input and produced a truth starting point of 1.40."""
+
+    @classmethod
+    def setUpClass(cls):
+        import sqlite3, tempfile
+        try:
+            import render_site as RS
+        except ImportError as e:
+            raise unittest.SkipTest(f'openpyxl missing: {e}')
+        import export_db as X
+        cls.RS, cls.sqlite3 = RS, sqlite3
+        cls.c = RS.Corpus(os.path.join(os.path.dirname(ENTRY), 'content'), 'sqltest')
+        d = tempfile.mkdtemp()
+        import score_reference as SR
+        X.export(cls.c.specs, SR.CONSTS, d, stem='t', beliefs=cls.c.beliefs)
+        cls.db = os.path.join(d, 't.sqlite')
+
+    def _start(self, con, pid):
+        return con.execute('SELECT p0, weight FROM page_start WHERE id = ?', (pid,)).fetchone()
+
+    def test_it_agrees_with_the_scorer_on_every_page_of_the_corpus(self):
+        import evidence as EV
+        con = self.sqlite3.connect(self.db)
+        try:
+            for pid in self.c.specs:
+                got = self._start(con, pid)
+                self.assertIsNotNone(got, pid)
+                want = EV.prior(self.c.specs[pid], self.RS.K)
+                self.assertAlmostEqual(got[0], want['p0'], places=9, msg=f'p0 on page {pid}')
+                self.assertAlmostEqual(got[1], want['weight'], places=9, msg=f'weight on page {pid}')
+        finally:
+            con.close()
+
+    def test_it_agrees_on_the_input_the_corpus_does_not_contain(self):
+        """A replication count below one, a percentage outside 0 to 100, and an evidence type written the way
+        a person writes it. Each of these is coerced by the scorer, and none of them appears in the corpus."""
+        import evidence as EV
+        cases = [('statistics', 0, 100), ('rct', 0.5, 100), ('statistics', 1, 150), ('statistics', 1, -20),
+                 ('Statistics', None, None), ('Meta Analysis', 2, 80), ('meta-analysis', 2, 80),
+                 (' record ', None, None), ('not a tier at all', 3, 90), (None, None, None)]
+        con = self.sqlite3.connect(self.db)
+        try:
+            con.execute('DELETE FROM page WHERE id > 900000')
+            for i, (etype, erq, erp) in enumerate(cases):
+                pid = 900001 + i
+                con.execute("INSERT INTO page (id, kind, text, etype, erq, erp) VALUES (?, 'claim', ?, ?, ?, ?)",
+                            (pid, f'case {i}', etype, erq, erp))
+                got = self._start(con, pid)
+                want = EV.prior({'etype': etype, 'erq': erq, 'erp': erp}, self.RS.K)
+                self.assertAlmostEqual(got[0], want['p0'], places=9,
+                                       msg=f'p0 for etype={etype!r} erq={erq} erp={erp}')
+                self.assertAlmostEqual(got[1], want['weight'], places=9,
+                                       msg=f'weight for etype={etype!r} erq={erq} erp={erp}')
+                self.assertGreaterEqual(got[0], 0.0, 'a starting point is a probability')
+                self.assertLessEqual(got[0], 1.0, 'a starting point is a probability')
+        finally:
+            con.close()

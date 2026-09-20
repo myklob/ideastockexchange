@@ -85,7 +85,12 @@ in all four here, and four implementations of a rule is four chances to be wrong
 - **Store and query** in SQL. `export_db.py` emits the schema, the data, and a loaded `ise.sqlite` with the views an
   analyst actually opens a database for: `page_start`, `page_coverage`, `page_one_sided`, `page_inert`,
   `evidence_ledger`, `page_orphan`, `page_uses`. `page_start` is the starting-point rule written in SQL, which is
-  there to show the non-recursive parts port in a few lines.
+  there to show the non-recursive parts port in a few lines, and `test_engines.py::TestTheSqlPortIsTheSameRule`
+  holds it to that by running both on the same input. It had to: the view agreed with the scorer on all 261
+  rows of this corpus and disagreed the moment it was given anything the corpus does not contain, because the
+  corpus exercises none of the three coercions the rule makes. A replication percentage typed as 150 came back
+  as a truth starting point of 1.40, which is not a probability. A port checked only against the data that
+  happens to exist is not a port, it is a coincidence.
 - **Price with a range, not a point.** A cost or benefit row carries `magnitude`, and optionally `mag_low` and
   `mag_high` in the same units. A row that states one figure and no range is marked as such on the page and in
   the structural checks, because a decision cannot be checked against a point estimate: the reader cannot tell
