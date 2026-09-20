@@ -13,13 +13,17 @@ ENTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ISE_Data_Entry
 class Stub:
     """The least a Corpus has to be for Integrity to run on it."""
 
-    def __init__(self, specs, kinds=None, equivalents=None, pairs=()):
+    def __init__(self, specs, kinds=None, equivalents=None, pairs=(), truths=None, stats=None):
         self.specs = specs
         self.kinds = kinds or {}
         self.equivalents = equivalents or {}
         self._pairs = list(pairs)
+        self._truths = truths or {}
+        self._stats = stats or {}
         self.sim = self
 
+    def truth(self, pid): return self._truths.get(pid, 0.5)
+    def stats(self, pid): return self._stats.get(pid, {})
     def kind(self, pid): return self.kinds.get(pid, 'claim')
     def brief(self, pid): return (self.specs[pid].get('belief') or f'page {pid}', pid)
     def text(self, pid): return self.brief(pid)[0]
@@ -99,6 +103,40 @@ class TestEachCheckFires(unittest.TestCase):
         shown to rest only on authority."""
         c = Stub({1: page('one', agree=[2, 3]), 2: page('two', etype='expert_claim'), 3: page('three')})
         self.assertNotIn('Rests only on authority or experience', titles(Integrity(c).of(1)))
+
+    def test_evidence_filed_above_the_premise_it_bears_on(self):
+        """A page can cite a shelf of findings, argue itself well past the line, and still read 0.50 because a
+        premise it needs cites nothing. That is the one failure the page cannot show you on its own."""
+        specs = {1: page('conclusion', components=[{'id': 2, 'lb': 'Y'}]),
+                 2: page('a necessary premise'), 3: page('a finding', etype='statistics')}
+        specs[1]['evid']['for'] = [{'id': 3}]
+        c = Stub(specs, truths={1: 0.5, 2: 0.5, 3: 0.95},
+                 stats={1: {'raw': 0.61, 'truth': 0.5, 'weakest': 0.5}})
+        self.assertIn('Evidence filed above the premise it bears on', titles(Integrity(c).of(1)))
+
+    def test_it_does_not_fire_once_the_premise_cites_something(self):
+        specs = {1: page('conclusion', components=[{'id': 2, 'lb': 'Y'}]),
+                 2: page('a necessary premise'), 3: page('a finding', etype='statistics')}
+        specs[1]['evid']['for'] = [{'id': 3}]
+        specs[2]['evid']['for'] = [{'id': 3}]
+        c = Stub(specs, truths={1: 0.5, 2: 0.5, 3: 0.95},
+                 stats={1: {'raw': 0.61, 'truth': 0.5, 'weakest': 0.5}})
+        self.assertNotIn('Evidence filed above the premise it bears on', titles(Integrity(c).of(1)))
+
+    def test_it_does_not_fire_when_no_cap_is_biting(self):
+        """Nothing is being held down, so nothing is filed too high."""
+        specs = {1: page('conclusion', components=[{'id': 2, 'lb': 'Y'}]),
+                 2: page('a necessary premise'), 3: page('a finding', etype='statistics')}
+        specs[1]['evid']['for'] = [{'id': 3}]
+        c = Stub(specs, truths={1: 0.61, 2: 0.9, 3: 0.95},
+                 stats={1: {'raw': 0.61, 'truth': 0.61, 'weakest': 0.9}})
+        self.assertNotIn('Evidence filed above the premise it bears on', titles(Integrity(c).of(1)))
+
+    def test_it_does_not_fire_when_the_page_cites_nothing_either(self):
+        """Then the advice would be to move evidence that does not exist."""
+        specs = {1: page('conclusion', components=[{'id': 2, 'lb': 'Y'}]), 2: page('a necessary premise')}
+        c = Stub(specs, truths={1: 0.5, 2: 0.5}, stats={1: {'raw': 0.61, 'truth': 0.5, 'weakest': 0.5}})
+        self.assertNotIn('Evidence filed above the premise it bears on', titles(Integrity(c).of(1)))
 
     def test_a_belief_with_no_prediction_is_noted(self):
         c = Stub({1: page('one', agree=[2]), 2: page('two')}, kinds={1: 'belief'})

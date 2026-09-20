@@ -81,6 +81,10 @@ in all four here, and four implementations of a rule is four chances to be wrong
   analyst actually opens a database for: `page_start`, `page_coverage`, `page_one_sided`, `page_inert`,
   `evidence_ledger`, `page_orphan`, `page_uses`. `page_start` is the starting-point rule written in SQL, which is
   there to show the non-recursive parts port in a few lines.
+- **Publish as data, not only as pages.** Every page writes its computed numbers beside it as
+  `p/<key>.json`, indexed at `data/pages_index.json`: truth, confidence, starting point, ReasonRank, work value,
+  the structural checks and the sensitivity summary. A score somebody has to scrape out of HTML is a score
+  nobody checks.
 - **Serve** as static HTML today. A PHP, Node or Next front end reading `page` and `edge` is a drop-in replacement
   for the renderer; it does not need permission from this toolchain, it needs to pass conformance.
 - **The Excel workbook is an output, not an authority.** It is still built and its formulas still match, but it is

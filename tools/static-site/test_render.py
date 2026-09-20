@@ -145,6 +145,31 @@ class TestTheRenderedSite(unittest.TestCase):
                 self.assertIn('What Would Change the Answer', h,
                               f'{self.c.key[pid]} has sensitivity inputs that never reach the page')
 
+    def test_every_page_publishes_its_numbers_as_data(self):
+        """HTML is for a reader. An institution reads with a script, and a score it has to scrape is a score
+        nobody checks."""
+        import json as _json
+        for pid in self.c.specs:
+            path = os.path.join(self.dir, 'p', self.c.key[pid] + '.json')
+            self.assertTrue(os.path.exists(path), f'{self.c.key[pid]} has no JSON beside it')
+            with open(path) as fh: d = _json.load(fh)
+            self.assertEqual(d['id'], pid)
+            self.assertEqual(d['key'], self.c.key[pid])
+            self.assertAlmostEqual(d['truth'], self.c.truth(pid), places=5,
+                                   msg=f'{self.c.key[pid]} JSON truth disagrees with the engine')
+            self.assertAlmostEqual(d['confidence'], self.c.conf.of(pid), places=5)
+            self.assertEqual(len(d['checks']), len(self.c.integ.of(pid)))
+
+    def test_the_index_lists_every_page_and_points_at_files_that_exist(self):
+        import json as _json
+        with open(os.path.join(self.dir, 'data', 'pages_index.json')) as fh: idx = _json.load(fh)
+        self.assertEqual(idx['count'], len(self.c.specs))
+        keys = {r['key'] for r in idx['pages']}
+        self.assertEqual(keys, {self.c.key[p] for p in self.c.specs})
+        for r in idx['pages'][:20]:
+            for rel in (r['page'], r['json']):
+                self.assertTrue(os.path.exists(os.path.join(self.dir, rel)), f'{rel} is listed and missing')
+
     def test_the_build_says_what_it_was_built_from(self):
         """A number nobody can trace to a revision is not citable."""
         for name in ('index.html', 'method.html'):

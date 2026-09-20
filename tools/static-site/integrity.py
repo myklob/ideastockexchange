@@ -106,6 +106,27 @@ class Integrity:
                             'Every claim beneath this one cites an expert, an anecdote, a norm or a hunch. '
                             'Nothing underneath it is a measurement or a record.'))
 
+        # Evidence filed on a conclusion cannot lift a cap set by a premise. The cap is min(argued, weakest
+        # load-bearing component), so a page can cite a shelf of findings, argue itself to 0.61, and still read
+        # 0.50 because a necessary premise beneath it cites nothing. The findings are not wrong; they are filed
+        # one level too high. Nothing else on the site can tell the author that, because from the page's own
+        # point of view the evidence is doing its job.
+        if lb:
+            try: st = c.stats(pid)
+            except Exception: st = None
+            if st and st.get('weakest') is not None and st.get('raw') is not None and st['weakest'] < st['raw'] - 1e-9:
+                here = len(sp.get('evid', {}).get('for', [])) + len(sp.get('evid', {}).get('against', []))
+                capping = [d for d in lb if abs(c.truth(d['id']) - st['weakest']) < 1e-9]
+                beneath = sum(self._cited(d['id']) for d in capping)
+                if here and not beneath:
+                    out.append(('worth checking', 'Evidence filed above the premise it bears on',
+                                f'This page cites {here} finding{"s" if here != 1 else ""} and argues to '
+                                f'{st["raw"]:.2f}, but it reads {st["truth"]:.2f} because '
+                                f'{len(capping)} load-bearing premise{"s" if len(capping) != 1 else ""} beneath it '
+                                f'cite{"" if len(capping) != 1 else "s"} nothing. A conclusion cannot be more '
+                                f'settled than a premise it needs, so evidence placed here cannot lift the cap. '
+                                f'Put each finding on the premise it is a finding about.'))
+
         npred = len(sp.get('pred_true', [])) + len(sp.get('pred_false', []))
         if c.kind(pid) == 'belief' and npred == 0:
             out.append(('a note', 'Nothing stated would show it false',
@@ -120,6 +141,24 @@ class Integrity:
         out.sort(key=lambda f: SEVERITY.index(f[0]))
         self._memo[pid] = out
         return out
+
+    def _cited(self, pid, depth=3):
+        """How many cited findings sit at or beneath this page. A premise argued by claims that themselves cite
+        nothing is still a premise that cites nothing."""
+        import evidence as EV
+        seen, frontier, n = {pid}, [pid], 0
+        for _ in range(depth):
+            nxt = []
+            for q in frontier:
+                sp = self.c.specs[q]
+                if EV.prior(sp)['classified']: n += 1
+                for d in sp.get('evid', {}).get('for', []) + sp.get('evid', {}).get('against', []):
+                    if _is(d.get('id')): n += 1
+                for k in self.claims_of(q):
+                    if k not in seen: seen.add(k); nxt.append(k)
+            frontier = nxt
+            if not frontier: break
+        return n
 
     def corpus(self, severity=None):
         """Every finding across every page, worst first."""
