@@ -287,3 +287,47 @@ class TestItCanBeRead(unittest.TestCase):
                     if fg in v and bg in v:
                         r = ratio(v[fg], v[bg])
                         self.assertGreaterEqual(round(r, 2), 4.5, f'{fg} {v[fg]} on {bg} {v[bg]} is {r:.2f}:1')
+
+
+class TestTheCaveatsReachThePage(unittest.TestCase):
+    """A disclosure computed and not rendered is the same as no disclosure, and it is harder to notice. These
+    ask the built HTML, not the engine, because that is the difference the defect turned on."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.html, cls.c = cls.parent.html, cls.parent.c
+
+    def test_a_priced_page_says_how_many_of_its_rows_state_no_range(self):
+        """The string was built into a local called `note` and never concatenated into anything, so the
+        readout the whole range feature exists for ended at the benefit-to-cost ratio. No row in this corpus
+        states a range, so every priced page has to say so."""
+        priced = [p for p in self.c.specs if (self.c.stats(p).get('ev_range') or {}).get('priced')]
+        self.assertTrue(priced, 'no page in the corpus prices anything')
+        for pid in priced:
+            rg = self.c.stats(pid)['ev_range']
+            h = self.html[pid]
+            want = ('state a single figure with no range' if rg['no_range'] else 'Every priced row states a range')
+            self.assertIn(want, h, f'{self.c.key[pid]} does not disclose its range coverage')
+            if rg['no_range']:
+                self.assertIn(f'{rg["no_range"]} of the {rg["priced"]} priced rows', h)
+
+    def test_no_page_presents_a_band_that_runs_backwards(self):
+        for pid in self.c.specs:
+            s = self.c.stats(pid)
+            if s.get('netev_low') is None: continue
+            self.assertLessEqual(s['netev_low'], s['netev_high'] + 1e-9, self.c.key[pid])
+
+    def test_the_range_readout_and_the_structural_check_agree(self):
+        """One said "2 of 2 priced rows state one number and no range" while the other presented a band as the
+        ends of stated estimates. Both now count a row as ranged only when it states both ends."""
+        for pid in self.c.specs:
+            rg = self.c.stats(pid).get('ev_range') or {}
+            if not rg.get('priced'): continue
+            check = [w for _s, t, w in self.c.integ.of(pid) if t == 'Costs and benefits given as single figures']
+            if rg['no_range']:
+                self.assertTrue(check, self.c.key[pid])
+                self.assertIn(f'{rg["no_range"]} of {rg["priced"]} priced rows', check[0])
+            else:
+                self.assertFalse(check, self.c.key[pid])

@@ -151,3 +151,29 @@ class TestWhatChanged(unittest.TestCase):
     def test_it_degrades_rather_than_lying_when_there_is_no_history(self):
         self.assertIsNone(self.ch.previous(tempfile.mkdtemp()))
         self.assertIsNone(self.ch.previous(CSVDIR, rev='not-a-real-revision'))
+
+
+class TestTheReadSurvivesWhatSomebodyTyped(unittest.TestCase):
+    """A number column is coerced so the workbook and the CSV produce identical rows. What is not a number has
+    to come back as the text somebody typed, because the alternative on this path is a traceback naming neither
+    the file, nor the row, nor the column, in the middle of a publish."""
+
+    def test_infinity_and_nan_are_left_as_text_not_raised(self):
+        """float() parses them and int() raises on them, outside the guard. One cell reading `inf` took down
+        the whole read."""
+        for t in ('inf', '-inf', 'nan', '1e400', 'Infinity'):
+            self.assertEqual(IT._csvnum(t), t, f'{t!r} was not left alone')
+
+    def test_ordinary_numbers_still_come_back_as_numbers(self):
+        for t, want in (('7', 7), ('  7  ', 7), ('3.0', 3), ('2.5', 2.5), ('-4', -4), ('', None)):
+            self.assertEqual(IT._csvnum(t), want)
+
+    def test_a_row_with_an_unpriceable_magnitude_still_reads(self):
+        import tempfile, os
+        d = tempfile.mkdtemp()
+        IT.write_csv([{'key': 'b', 'kind': 'belief', 'text': 'A claim about the world.'},
+                      {'key': 'g', 'kind': 'claim', 'text': 'A benefit of it.'}],
+                     [{'page': 'b', 'section': 'cba', 'side': 'agree', 'claim': 'g', 'magnitude': 'inf'}], d)
+        pages, edges = IT.read_csv(d)
+        self.assertEqual(len(pages), 2)
+        self.assertEqual(edges[0]['magnitude'], 'inf')

@@ -347,12 +347,20 @@ CSV_NAMES = {'pages': PAGE_COLS, 'edges': EDGE_COLS}
 def _csvnum(v):
     """A number from a spreadsheet comes back typed; the same number from a CSV comes back as text. Coerce the
     columns that are numbers so the two sources produce identical rows, and leave anything unparseable alone
-    rather than silently dropping what somebody typed."""
+    rather than silently dropping what somebody typed.
+
+    "Unparseable" includes what float() will happily parse and int() will not. `inf` and `nan` are valid to
+    float and raise from int, outside the guard, so one cell reading `inf` took down the whole read with a
+    traceback naming neither the file nor the row nor the column. A magnitude of infinity is not a number this
+    tool can price anyway, so it is left as the text somebody typed and the checks report it as unpriced."""
+    import math
     t = str(v).strip()
     if not t: return None
     try: f = float(t)
-    except ValueError: return v
-    return int(f) if f == int(f) else f
+    except (ValueError, OverflowError): return v
+    if not math.isfinite(f): return v
+    try: return int(f) if f == int(f) else f
+    except (ValueError, OverflowError): return v
 
 
 def write_csv(pages, edges, outdir):

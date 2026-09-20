@@ -35,6 +35,37 @@ AUTHORITY = ('expert_claim', 'expert_data', 'anecdote', 'intuition', 'norm')
 def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
 
 
+def sccs_of(nodes, succ):
+    """Tarjan's strongly connected components, iteratively so a deep corpus cannot exhaust the stack. One
+    implementation, used by the panel on the page and by the pre-publish check below, because two answers to
+    "does this claim support itself" is one answer too many."""
+    idx, low, on, stack, comp, n, cn = {}, {}, set(), [], {}, 0, 0
+    for root in nodes:
+        if root in idx: continue
+        idx[root] = low[root] = n; n += 1
+        stack.append(root); on.add(root)
+        work = [(root, iter(succ(root)))]
+        while work:
+            node, it = work[-1]
+            nxt = next(it, None)
+            if nxt is None:
+                work.pop()
+                if work: low[work[-1][0]] = min(low[work[-1][0]], low[node])
+                if low[node] == idx[node]:
+                    while True:
+                        w = stack.pop(); on.discard(w); comp[w] = cn
+                        if w == node: break
+                    cn += 1
+                continue
+            if nxt not in idx:
+                idx[nxt] = low[nxt] = n; n += 1
+                stack.append(nxt); on.add(nxt)
+                work.append((nxt, iter(succ(nxt))))
+            elif nxt in on:
+                low[node] = min(low[node], idx[nxt])
+    return comp
+
+
 class Integrity:
     """Built over a render_site.Corpus. Every check is a method returning a list of findings for one page."""
 
@@ -42,6 +73,7 @@ class Integrity:
         self.c = corpus
         self._memo = {}
         self._cycles = None
+        self._scc = None
 
     # ---------------------------------------------------------------- graph helpers
     def claims_of(self, pid):
@@ -55,42 +87,38 @@ class Integrity:
         return [d['id'] for d in out if _is(d.get('id')) and d['id'] in self.c.specs]
 
     def on_a_cycle(self):
-        """Every page that supports itself, found once for the whole corpus with an iterative depth-first walk
-        rather than by building each page's subtree and asking whether the page is in it. The per-page version
-        was correct and quadratic: it cost more than half a minute on a corpus of fourteen thousand."""
+        """Every page that supports itself. A page supports itself exactly when it sits in a strongly connected
+        component of the claim graph holding more than one page, or points at itself directly, so the answer is
+        Tarjan's algorithm and not a depth-first walk marking the path it happened to take.
+
+        The walk it replaces was wrong in a way worth recording, because it looked right and it published. It
+        marked `path[path.index(nxt):]` at each back edge, which is *a* cycle and not *the* cycle: a page on
+        the loop that some shortcut edge reaches first is finished before the back edge is found, so the later
+        tree path skips it, and that page is published with an ordinary score and an ordinary verdict while
+        resting on itself. A component is the whole loop by construction, which is what this always claimed."""
         if self._cycles is None:
-            WHITE, GREY, BLACK = 0, 1, 2
-            colour = {p: WHITE for p in self.c.specs}
-            bad = set()
-            for root in self.c.specs:
-                if colour[root] != WHITE: continue
-                stack = [(root, iter(self.claims_of(root)))]
-                colour[root] = GREY
-                path = [root]
-                while stack:
-                    node, it = stack[-1]
-                    nxt = next(it, None)
-                    if nxt is None:
-                        colour[node] = BLACK; stack.pop(); path.pop(); continue
-                    if colour.get(nxt) == GREY:
-                        bad.update(path[path.index(nxt):])       # everything around the loop is on it
-                    elif colour.get(nxt) == WHITE:
-                        colour[nxt] = GREY; path.append(nxt); stack.append((nxt, iter(self.claims_of(nxt))))
+            comp = self.sccs()
+            size = {}
+            for k in comp.values(): size[k] = size.get(k, 0) + 1
+            bad = {p for p, k in comp.items() if size[k] > 1}
+            bad |= {p for p in self.c.specs if p in self.claims_of(p)}
             self._cycles = bad
         return self._cycles
 
-    def reaches_target(self, start, target, limit=4000):
-        """Is `target` anywhere beneath `start`? Answered with a search that stops the moment it finds one,
-        instead of materialising the whole subtree so it can be asked once."""
-        seen, stack, n = {start}, [start], 0
-        while stack and n < limit:
-            q = stack.pop(); n += 1
-            for k in self.claims_of(q):
-                if k == target: return True
-                if k not in seen: seen.add(k); stack.append(k)
-        return False
+    def sccs(self):
+        """Page -> component id. Two pages share a component exactly when each is reachable from the other."""
+        if self._scc is None: self._scc = sccs_of(self.c.specs, self.claims_of)
+        return self._scc
 
-    # ---------------------------------------------------------------- the checks
+    def rests_on(self, start, target):
+        """Does `target` sit anywhere beneath `start`, asked only where `start` is already a premise of
+        `target`? In that shape it is the same question as "are these two in one strongly connected
+        component", which Tarjan has answered for the whole corpus at once. The search it replaces stopped
+        after four thousand pops and returned False with no signal, so on a large corpus this check quietly
+        stopped firing: an answer that gets less true as the corpus grows is not an answer."""
+        sc = self.sccs()
+        return start in sc and target in sc and sc[start] == sc[target]
+
     # ---------------------------------------------------------------- the checks
     def of(self, pid):
         if pid in self._memo: return self._memo[pid]
@@ -104,7 +132,7 @@ class Integrity:
 
         lb = [d for d in sp.get('components', []) if str(d.get('lb', '')).upper() == 'Y' and _is(d.get('id'))]
         for d in lb:
-            if d['id'] == pid or self.reaches_target(d['id'], pid):
+            if d['id'] == pid or self.rests_on(d['id'], pid):
                 out.append(('serious', 'Assumes its own conclusion',
                             f'A necessary premise here rests on this very claim: {c.brief(d["id"])[0]}'))
             for other, t, _q in c.equivalents.get(pid, []):
@@ -220,32 +248,45 @@ class Integrity:
 def cycles_in_tables(pages, edges):
     """Loops in the claim graph, found from the two tables alone. The scorer cannot be asked this: it refuses a
     cyclic corpus before it can answer anything, and so does everything built on it. A pre-publish check has to
-    work without it."""
+    work without it.
+
+    One loop is reported per strongly connected component, not one per back edge, so the count is the number of
+    tangles a person has to go and fix rather than an artefact of the order the rows happen to be in."""
     claims = {}
+    keys = {p['key'] for p in pages if p.get('key')}
     for e in edges:
         src, dst = e.get('page'), e.get('claim')
-        if src and dst and e.get('section') in ('argument', 'evidence', 'prediction', 'component', 'interest_listing'):
+        if src in keys and dst in keys and e.get('section') in ('argument', 'evidence', 'prediction', 'component', 'interest_listing'):
             claims.setdefault(src, []).append(dst)
-    keys = {p['key'] for p in pages if p.get('key')}
-    WHITE, GREY, BLACK = 0, 1, 2
-    colour = {k: WHITE for k in keys}
+    comp = sccs_of(sorted(keys), lambda k: claims.get(k, ()))
+    members = {}
+    for k, c in comp.items(): members.setdefault(c, []).append(k)
     loops = []
-    for root in sorted(keys):
-        if colour[root] != WHITE: continue
-        stack = [(root, iter(claims.get(root, ())))]
-        colour[root] = GREY
-        path = [root]
-        while stack:
-            node, it = stack[-1]
-            nxt = next(it, None)
-            if nxt is None:
-                colour[node] = BLACK; stack.pop(); path.pop(); continue
-            if nxt not in colour: continue                 # points at a page that does not exist; a link check catches that
-            if colour[nxt] == GREY:
-                loops.append(path[path.index(nxt):] + [nxt])
-            elif colour[nxt] == WHITE:
-                colour[nxt] = GREY; path.append(nxt); stack.append((nxt, iter(claims.get(nxt, ()))))
+    for c, ms in sorted(members.items(), key=lambda kv: sorted(kv[1])[0]):
+        inside = set(ms)
+        if len(ms) == 1 and ms[0] not in claims.get(ms[0], ()): continue
+        loops.append(_a_loop_in(sorted(ms)[0], claims, inside))
     return loops
+
+
+def _a_loop_in(start, claims, inside):
+    """The shortest path from `start` back to itself staying inside its own component, so the message names a
+    real loop a person can follow rather than the whole tangle."""
+    back = {}
+    frontier = [start]
+    while frontier:
+        nxt = []
+        for q in frontier:
+            for k in claims.get(q, ()):
+                if k not in inside: continue
+                if k == start:
+                    path = [q]
+                    while path[-1] != start: path.append(back[path[-1]])
+                    return list(reversed(path)) + [start]
+                if k not in back and k != start:
+                    back[k] = q; nxt.append(k)
+        frontier = nxt
+    return [start, start]
 
 
 if __name__ == '__main__':

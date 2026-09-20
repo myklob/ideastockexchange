@@ -44,6 +44,9 @@ import math, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 FLAG = 0.45      # worth a human reading the pair; tuned so the list stays short enough to actually be read
+IDF_FLOOR = 0.05   # a word this common carries no weight in the score, so pairing on it cannot find anything
+JMIN = 0.05        # weighted word overlap below which the character half cannot carry a pair on its own
+PAIRCAP = 1_500_000  # candidate pairs held at once, rarest word first, with what it could not reach reported
 MERGE = 0.70     # near-identical wording: the two pages are probably one page
 NGRAM = 4
 STOP = {'the', 'a', 'an', 'of', 'to', 'in', 'on', 'and', 'or', 'that', 'is', 'are', 'be', 'been', 'being',
@@ -124,45 +127,81 @@ class Similarity:
         self._g = {p: grams(t) for p, t in self.texts.items()}
         self.widf = idf(list(self._w.values()))
         self.gidf = idf([list(g) for g in self._g.values()])
+        # Each page's weighted gram vector, normalised once. Building it inside every comparison made the
+        # character half cost a hundred times the word half; as a dot product over the shorter of two sparse
+        # vectors it costs a few times as much, which is what lets the word half stop being a gate.
+        self._gv = {}
+        for p, g in self._g.items():
+            v = {k: n * self.gidf.get(k, 0.0) for k, n in g.items()}
+            norm = math.sqrt(sum(x * x for x in v.values()))
+            self._gv[p] = {k: x / norm for k, x in v.items() if x} if norm else {}
         self._pairs = None
         self._uniq = None
         self._byparent = None
-        # proportional, with a floor so a small corpus behaves as before
-        self.bucket = max(60, len(self.texts) // 100)
+        self._unreached = None
+        self.paircap = PAIRCAP
 
     def between(self, a, b):
         if a not in self._w or b not in self._w: return 0.0
-        return (0.5 * wjaccard(self._w[a], self._w[b], self.widf)
-                + 0.5 * wcosine(self._g[a], self._g[b], self.gidf))
+        return 0.5 * wjaccard(self._w[a], self._w[b], self.widf) + 0.5 * self._gcos(a, b)
+
+    def _gcos(self, a, b):
+        x, y = self._gv[a], self._gv[b]
+        if len(x) > len(y): x, y = y, x
+        return sum(v * y.get(k, 0.0) for k, v in x.items())
 
     def pairs(self):
-        """Every pair above the flag, most alike first, with whatever the corpus already says about them."""
+        """Every pair above the flag, most alike first, with whatever the corpus already says about them.
+
+        Two passes, because the two halves of the score cost very different amounts. The word half is a
+        weighted overlap, and an inverted index gives it exactly, for every pair that shares any informative
+        word, by adding one weight per shared word. The character half needs both pages' 4-gram vectors and
+        costs a hundred times as much, so it is only paid for pairs the word half says are worth it.
+
+        What a word is skipped FOR is the part that had to change. It used to be skipped for being carried by
+        more than sixty pages, which silently made two pages with identical text incomparable as soon as the
+        words they shared sat on sixty-one: the detector reported nothing and nothing said it had not looked.
+        A cheap check that quietly stops checking is worse than no check. The rule is now the one the score
+        already implies: a word is skipped only when it carries no weight, which is when almost every page has
+        it. Informative words are never skipped for being common, because that is exactly the case a missed
+        duplicate hides in.
+
+        Two limits remain and both are stated rather than silent. A pair whose weighted word overlap is under
+        JMIN is not scored in full, because the character half catches different forms of the same words and
+        cannot carry a pair that shares none. And candidate pairs are held rarest word first up to PAIRCAP, so
+        on a corpus far larger than this one what goes unexamined is the least informative of it; `report()`
+        names the claims that happened to, rather than presenting a short list as a clean bill of health."""
         if self._pairs is not None: return self._pairs
-        c = self.c
-        # a cheap content-word index keeps this from being 261 x 261 string comparisons on a larger corpus
+        mass = {p: sum(self.widf.get(w, 0.0) for w in set(ws)) for p, ws in self._w.items()}
         index = {}
         for p, ws in self._w.items():
-            for w in set(ws): index.setdefault(w, []).append(p)
-        seen, out = set(), []
-        for w, ps in index.items():
-            # A word shared by a large share of the corpus tells you nothing about any particular pair, and
-            # expanding its bucket is quadratic in the size of that bucket. The bar is proportional, because a
-            # fixed count of 60 means "a quarter of the corpus" at 261 pages and "half a percent" at 14,000,
-            # and a rule that changes meaning with the size of the corpus is not a rule.
-            if len(ps) > self.bucket: continue
+            for w in set(ws):
+                if self.widf.get(w, 0.0) > IDF_FLOOR: index.setdefault(w, []).append(p)
+        shared, unreached, full = {}, set(), 0
+        for w in sorted(index, key=lambda x: (len(index[x]), x)):
+            ps, wt = index[w], self.widf[w]
+            if len(shared) + len(ps) * (len(ps) - 1) // 2 > self.paircap:
+                unreached.update(ps); continue
             for i, a in enumerate(ps):
                 for b in ps[i + 1:]:
-                    key = (a, b) if a < b else (b, a)
-                    if key in seen: continue
-                    seen.add(key)
-                    s = self.between(*key)
-                    if s < self.flag: continue
-                    out.append({'a': key[0], 'b': key[1], 'ces': s,
-                                'equiv': self.equivalence(*key), 'uniq': self.uniqueness(*key),
-                                'shared_parent': self.shared_parent(*key),
-                                'verdict': 'probably one page' if s >= MERGE else 'worth arguing the overlap'})
-        out.sort(key=lambda r: -r['ces'])
+                    k = (a, b) if a < b else (b, a)
+                    shared[k] = shared.get(k, 0.0) + wt
+        out = []
+        for (a, b), sh in shared.items():
+            union = mass[a] + mass[b] - sh
+            wj = (sh / union) if union > 0 else 0.0
+            if wj < JMIN: continue
+            full += 1
+            sc = 0.5 * wj + 0.5 * self._gcos(a, b)
+            if sc < self.flag: continue
+            out.append({'a': a, 'b': b, 'ces': sc,
+                        'equiv': self.equivalence(a, b), 'uniq': self.uniqueness(a, b),
+                        'shared_parent': self.shared_parent(a, b),
+                        'verdict': 'probably one page' if sc >= MERGE else 'worth arguing the overlap'})
+        out.sort(key=lambda r: (-r['ces'], r['a'], r['b']))
         self._pairs = out
+        self._unreached = unreached - {p for pair in shared for p in pair}
+        self._candidates, self._scored = len(shared), full
         return out
 
     def equivalence(self, a, b):
@@ -207,7 +246,9 @@ class Similarity:
         opens, and truncating it without saying so reads as coverage."""
         ps = self.pairs()
         return {'shown': ps[:limit], 'total': len(ps), 'hidden': max(0, len(ps) - limit),
-                'unguarded': len(self.unguarded()), 'claims': len(self.texts), 'bucket': self.bucket}
+                'unguarded': len(self.unguarded()), 'claims': len(self.texts),
+                'candidates': self._candidates, 'compared': self._scored, 'paircap': self.paircap,
+                'unreached': sorted(self._unreached or ())}
 
     def unguarded(self):
         """Flagged pairs that sit on the same page with no uniqueness page between them: the live padding risk."""

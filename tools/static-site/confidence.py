@@ -44,6 +44,10 @@ def saturate(n, half):
     return n / (n + half) if n > 0 else 0.0
 
 
+# The confidence bands, in one place because more than one module says them out loud. Highest floor first.
+BANDS = {'established': 0.75, 'developing': 0.45, 'early': 0.15}
+
+
 class Confidence:
     """Computed over the same page/edge tables the scorer uses. Memoised; the corpus is a DAG."""
 
@@ -146,7 +150,9 @@ class Confidence:
         return best, cut
 
     def label(self, v):
-        return 'established' if v >= 0.75 else 'developing' if v >= 0.45 else 'early' if v >= 0.15 else 'unstarted'
+        for name, floor in BANDS.items():
+            if v >= floor: return name
+        return 'unstarted'
 
 
 def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1

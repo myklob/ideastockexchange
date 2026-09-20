@@ -129,9 +129,9 @@ and all pinned by `test_render.py::TestItCanBeRead`, which checks the rendered o
 
 Measured on a synthetic corpus of 14,480 pages and as many edges, 55 times the published one:
 
-    corpus load, scoring, confidence, ReasonRank, similarity    3.2 s
+    corpus load, scoring, confidence and ReasonRank              4.5 s
     every page's stats                                          1.3 s
-    every structural check                                      1.1 s
+    every structural check, the duplicate sweep included        9.0 s
     sensitivity, one belief with 361 inputs                     0.4 s
     a full publish, 28,970 files, 207 MB                      107   s
 
@@ -141,6 +141,22 @@ scanned the whole duplicate list to find its own pairs. And a what-if cleared th
 input recomputed a belief's whole subtree; it now invalidates only the pages that read the pinned page, which
 took sensitivity from 24 seconds a page to 0.4. `test_engines.py::TestItScales` pins all four as bounds on work
 rather than on the clock.
+
+Two of the cheap answers were cheap because they had stopped answering, and both are worth naming because
+neither failed loudly. "Does this premise rest on its own conclusion" was a search that gave up after four
+thousand steps and returned False, so on the corpus this section is about, the check silently stopped firing;
+it is now a strongly-connected-component lookup, which is exact and costs nothing. And the duplicate detector
+skipped any word carried by more than sixty pages, which made two pages with identical text invisible to each
+other as soon as the words they shared sat on sixty-one. The rule is now the one the score already implies,
+that a word is skipped only when it carries no weight in it.
+
+That second one is why the structural checks read 9.0 s here and 1.1 s in an earlier version of this table.
+The 1.1 s was fast because the detector was not looking: on this corpus, which is fifty-five near-copies of
+every claim, it now examines every pair that shares an informative word, six hundred thousand of them in full,
+and finds them all. The cost came back down by paying for each half of the score separately. The word half is
+exact for every candidate pair straight out of the inverted index; the character half, which is a hundred
+times dearer, is computed only for pairs the word half says are worth it, and from vectors built once per page
+rather than once per comparison.
 
 ## How it publishes
 

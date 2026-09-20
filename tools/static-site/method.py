@@ -121,9 +121,14 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
         o.append(f'<p class="tot">{rep["total"]} pairs flagged out of {rep["claims"]} claims'
                  + (f', of which the {len(pairs)} most alike are shown and {rep["hidden"]} are not' if rep['hidden'] else '')
                  + f'. {rep["unguarded"]} sit on the same page with no uniqueness page between them, which is the '
-                   'live padding risk: each is scored as if it made a point the other did not. A word shared by '
-                   f'more than {rep["bucket"]} of the {rep["claims"]} claims is skipped when looking for pairs, '
-                   'because it tells you nothing about any particular two of them.</p>')
+                   'live padding risk: each is scored as if it made a point the other did not. A word carried '
+                   'by almost every claim is skipped when looking for pairs, because the score is weighted by '
+                   'how rare a word is and such a word carries no weight in it; a word that is merely common '
+                   f'is not skipped. {rep["candidates"]:,} pairs share at least one such word and '
+                   f'{rep["compared"]:,} of them were scored in full'
+                 + (f'; {len(rep["unreached"])} claims were left unexamined at the working limit of '
+                    f'{rep["paircap"]:,} candidate pairs' if rep['unreached'] else ', which covered every claim')
+                 + '.</p>')
     else:
         o.append('<p class="tot">Nothing in this corpus is above the flag.</p>')
     o.append('</section>')

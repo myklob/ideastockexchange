@@ -26,6 +26,9 @@ from xml.sax.saxutils import escape
 from score_reference import normalize, CONSTS as DEFAULT_CONSTS
 import evidence as EV
 
+def _write(path, text):
+    with open(path, 'w', encoding='utf-8') as fh: fh.write(text)
+
 PAGE_COLS = ['id', 'kind', 'text', 'topic', 'parent_id', 'x_id', 'y_id', 'type', 'direction', 'rowkind', 'value', 'measured_by', 'where_found',
              'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge', 'bottom_line', 'positivity', 'logical_form']
 EDGE_COLS = ['id', 'page_id', 'section', 'side', 'position', 'claim_id', 'text', 'link_id', 'imp_id', 'uniq_id', 'drives_id', 'equiv_id',
@@ -228,7 +231,7 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
     constants = [{'name': k, 'value': v, 'meaning': (const_meanings or {}).get(k, '')} for k, v in consts.items()]
     os.makedirs(outdir, exist_ok=True)
     data = {'constants': constants, 'pages': pages, 'edges': edges}
-    json.dump(data, open(os.path.join(outdir, stem + '.json'), 'w'), indent=1, ensure_ascii=False)
+    _write(os.path.join(outdir, stem + '.json'), json.dumps(data, indent=1, ensure_ascii=False))
     # XML
     def el(tag, d, cols):
         attrs = ''.join(f' {c}="{escape(str(d[c]), {chr(34): "&quot;"})}"' for c in cols if c in d and not isinstance(d[c], (dict, list)) and d[c] is not None)
@@ -236,9 +239,9 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
         return f'  <{tag}{attrs}>{inner}</{tag}>' if inner else f'  <{tag}{attrs}/>'
     xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<ise>', ' <constants>'] + [el('constant', c, ['name', 'value', 'meaning']) for c in constants] + [' </constants>', ' <pages>'] \
         + [el('page', p, PAGE_COLS) for p in pages] + [' </pages>', ' <edges>'] + [el('edge', e, EDGE_COLS) for e in edges] + [' </edges>', '</ise>']
-    open(os.path.join(outdir, stem + '.xml'), 'w').write('\n'.join(xml))
+    _write(os.path.join(outdir, stem + '.xml'), '\n'.join(xml))
     # SQL
-    open(os.path.join(outdir, 'schema.sql'), 'w').write(SCHEMA)
+    _write(os.path.join(outdir, 'schema.sql'), SCHEMA)
     lines = ['-- Idea Stock Exchange belief pages as data. Load schema.sql first. Scores are computed, not stored.', 'BEGIN;']
     for c in constants: lines.append(f"INSERT INTO constant (name, value, meaning) VALUES ({sqlval(c['name'])}, {sqlval(c['value'])}, {sqlval(c['meaning'])});")
     for key, (w, rank, meaning) in sorted(EV.ESIW.items(), key=lambda kv: (-kv[1][0], kv[0])):
@@ -251,7 +254,7 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
         lines.append(f"INSERT INTO edge ({', '.join(cols)}) VALUES ({', '.join(sqlval(e[c]) for c in cols)});")
     lines.append('COMMIT;')
     data_sql = '\n'.join(lines) + '\n'
-    open(os.path.join(outdir, stem + '_data.sql'), 'w').write(data_sql)
+    _write(os.path.join(outdir, stem + '_data.sql'), data_sql)
     build_sqlite(os.path.join(outdir, stem + '.sqlite'), data_sql)
     return pages, edges
 

@@ -24,6 +24,9 @@ import changes as CHANGES
 import verdict as VERDICT
 from export_db import export as export_db
 
+def _write(path, text):
+    with open(path, 'w', encoding='utf-8') as fh: fh.write(text)
+
 def has(d):
     """A row exists if it has typed text or points at a page."""
     return bool(d.get('text') or d.get('advertised') or is_page(d.get('id')))
@@ -194,38 +197,47 @@ class Corpus:
             ben = [(b, self.pg(b.get('id'), UNARG)) for b in sp.get('benefits', []) if has(b)]
             cos = [(c, self.pg(c.get('id'), UNARG)) for c in sp.get('costs', []) if has(c)]
             def num(v): return float(v) if isinstance(v, (int, float)) else None
+            # The band is the widest and the narrowest of whatever endpoints the row actually states, the
+            # central estimate included. Ordering only the case where both ends are given left a row that
+            # states one end free to produce a low above its own high, because the other end fell back to the
+            # central estimate afterwards, and a low above a high propagates into a net whose band runs
+            # backwards and a sentence reading "the band stays positive" on a net of -20.
             def ev(b, t):
                 m = num(b.get('magnitude'))
                 if m is None: return None, None, None
-                lo, hi = num(b.get('mag_low')), num(b.get('mag_high'))
-                if lo is not None and hi is not None and lo > hi: lo, hi = hi, lo
-                return m * t, (lo * t if lo is not None else None), (hi * t if hi is not None else None)
+                ends = [x for x in (m, num(b.get('mag_low')), num(b.get('mag_high'))) if x is not None]
+                return m * t, min(ends) * t, max(ends) * t
             s['cba'] = {'ben': [(b, t) + ev(b, t) for b, t in ben], 'cos': [(x, t) + ev(x, t) for x, t in cos]}
             s['benev'] = sum(e for _, _, e, _, _ in s['cba']['ben'] if e is not None)
             s['costev'] = sum(e for _, _, e, _, _ in s['cba']['cos'] if e is not None)
             # The worst case is every benefit at its low end and every cost at its high end. A row with no
-            # stated range falls back to its central estimate, and the count of those is reported, because a
-            # range built partly from point estimates is narrower than the truth and has to say so.
+            # stated range contributes its central estimate at both ends, and the count of those is reported,
+            # because a range built partly from point estimates is narrower than the truth and has to say so.
+            # A row counts as stating a range only when it states both ends, which is the same rule the
+            # structural check uses: the two disagreed, so one panel said "2 of 2 priced rows state one number
+            # and no range" while the readout beside it presented a band as the ends of stated estimates.
             def side(rows, which):
-                tot, pts = 0.0, 0
-                for _d, _t, e, lo, hi in rows:
-                    if e is None: continue
-                    v = (lo if which == 'lo' else hi)
-                    if v is None: v, pts = e, pts + 1
-                    tot += v
-                return tot, pts
-            bl, bp = side(s['cba']['ben'], 'lo'); bh, _ = side(s['cba']['ben'], 'hi')
-            cl, cp = side(s['cba']['cos'], 'lo'); ch, _ = side(s['cba']['cos'], 'hi')
+                return sum((lo if which == 'lo' else hi) for _d, _t, e, lo, hi in rows if e is not None)
+            def ranged(d):
+                return isinstance(d.get('mag_low'), (int, float)) and isinstance(d.get('mag_high'), (int, float))
+            bl, bh = side(s['cba']['ben'], 'lo'), side(s['cba']['ben'], 'hi')
+            cl, ch = side(s['cba']['cos'], 'lo'), side(s['cba']['cos'], 'hi')
+            pr = [r for r in s['cba']['ben'] + s['cba']['cos'] if r[2] is not None]
             s['ev_range'] = {'ben_low': bl, 'ben_high': bh, 'cost_low': cl, 'cost_high': ch,
-                             'priced': sum(1 for r in s['cba']['ben'] + s['cba']['cos'] if r[2] is not None),
-                             'no_range': bp + cp}
+                             'priced': len(pr), 'no_range': sum(1 for r in pr if not ranged(r[0]))}
             typed = [x for x in sp.get('catnet', []) if x]
-            used = [b.get('category') for b, *_ in s['cba']['ben'] if b.get('category')] + \
-                   [x.get('category') for x, *_ in s['cba']['cos'] if x.get('category')]
+            used = [r[0].get('category') for r in s['cba']['ben'] + s['cba']['cos'] if r[0].get('category')]
+            # Only a unit something is actually priced in can make the net unaddable. Counting every unit
+            # somebody typed made a page with one priced dollar row report "several units that do not add"
+            # and withhold its net entirely.
+            priced_cats = {r[0].get('category') for r in s['cba']['ben'] + s['cba']['cos']
+                           if r[2] is not None and r[0].get('category')}
             # The typed list sets the order; any unit that appears on a row and not in the list is appended,
             # because a net that silently drops a cost is worse than no net at all.
             cats = typed + [u for u in dict.fromkeys(used) if u not in typed]
-            s['mixed'] = len(cats) > 1
+            # A unit nobody priced anything in does not make the net unaddable. Counting the typed list made a
+            # page with one priced dollar row report "several units that do not add" and withhold its net.
+            s['mixed'] = len(priced_cats) > 1
             s['catnet'] = [(c, sum(e for b, _, e, _, _ in s['cba']['ben'] if e is not None and b.get('category') == c),
                             sum(e for x, _, e, _, _ in s['cba']['cos'] if e is not None and x.get('category') == c)) for c in cats]
             s['netev'] = None if s['mixed'] else s['benev'] - s['costev']
@@ -486,9 +498,10 @@ def render_belief(c, pid):
             body = 'Mixed units, so no single net. ' + '; '.join(f'{esc(cat)}: {smoney(b - x)}' for cat, b, x in s['catnet'])
         else:
             body = f'Net expected value {sf(s["netev"])}'
-            if s['netev_low'] is not None: body += f', between {sf(s["netev_low"])} and {sf(s["netev_high"])} taking every benefit low and every cost high'
+            if s['netev_low'] is not None and s['netev_high'] > s['netev_low'] + 1e-9:
+                body += f', between {sf(s["netev_low"])} and {sf(s["netev_high"])} taking every benefit low and every cost high'
             if s['bcr'] is not None: body += f', benefit to cost {f2(s["bcr"])}'
-        read.append(('Worth doing, in detail', ('Mixed units, so no single net. ' + '; '.join(f'{esc(cat)}: {smoney(b - x)}' for cat, b, x in s['catnet'])) if s['mixed'] else body))
+        read.append(('Worth doing, in detail', body + note))
     if s['dispute']: read.append(('Kind of fight', esc(s["dispute"]) + f'. Evidence two-sidedness {pct(s["factual"])}, reasons whose linkage leans against relevance {pct(s["linkshare"])}' + (f', value-ranking gap {f2(s["valgap"])}' if s["valgap"] is not None else '') + (f', ease of resolution {f2(s["ease"])}' if s["ease"] is not None else '') + '.'))
     if read0: read.insert(1, read0)
     read.append(('Coverage', cov))
@@ -552,7 +565,8 @@ def render_belief(c, pid):
                    if isinstance(d.get('mag_low'), (int, float)) and isinstance(d.get('mag_high'), (int, float))
                    else ('<span class="c" title="A single figure with no stated range is not an estimate a '
                          'decision can be checked against">none stated</span>' if mg is not None else ''))
-            evc = (money(e) if lo is None or hi is None else f'{money(e)} <span class="u">({money(lo)} to {money(hi)})</span>') if e is not None else UNPRICED
+            evc = (money(e) if lo is None or hi is None or hi <= lo + 1e-9
+                   else f'{money(e)} <span class="u">({money(lo)} to {money(hi)})</span>') if e is not None else UNPRICED
             out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td class="u">{esc(d.get("category") or "")}</td><td>{mgs}</td><td class="u">{rng}</td><td>{H.num(t, d.get("id"))}</td><td class="sc">{evc}</td><td class="u">{who}</td></tr>')
         if not items: out.append('<tr><td colspan="7" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
@@ -1121,6 +1135,7 @@ def page_json(c, pid):
     parsing HTML or reimplementing the engine."""
     s = c.stats(pid); k = c.kind(pid); b = EV.prior(c.specs[pid], K)
     a = c.sens.of(pid)
+    vd = VERDICT.of(c, pid, s)
     out = {
         'key': c.key[pid], 'id': pid, 'kind': k, 'text': c.text(pid),
         'truth': round(s['truth'], 6), 'confidence': round(c.conf.of(pid), 6),
@@ -1131,8 +1146,8 @@ def page_json(c, pid):
         'beliefs_beneath': c.rank.beliefs_reached(pid),
         'complete': bool(s['complete']),
         'checks': [{'severity': sev, 'title': t, 'why': w} for sev, t, w in c.integ.of(pid)],
-        'verdict': {k: v for k, v in VERDICT.of(c, pid, s).items() if k != 'clauses'},
-        'verdict_clauses': [{'label': lab, 'says': sent} for lab, sent in VERDICT.of(c, pid, s)['clauses']],
+        'verdict': {k: v for k, v in vd.items() if k != 'clauses'},
+        'verdict_clauses': [{'label': lab, 'says': sent} for lab, sent in vd['clauses']],
         'used_on': sorted({u[0] for u in c.uses.get(pid, [])}),
         'reads': s['children'],
         'url': c.href(pid),
@@ -1223,6 +1238,8 @@ def render_changes(c, H, d, title='Idea Stock Exchange'):
                 o.append(f'<tr><td class="t">{esc(ch["key"])}</td><td class="u">{esc(col)}</td>'
                          f'<td class="u">{esc(str(ch["old"].get(col, ""))[:240])}</td>'
                          f'<td class="u">{esc(str(ch["new"].get(col, ""))[:240])}</td></tr>')
+        if len(pg['changed']) > 60:
+            o.append(f'<tr><td class="u" colspan="4">and {len(pg["changed"]) - 60} more edited pages</td></tr>')
         o.append('</tbody></table>')
     if ed['added'] or ed['removed'] or ed['changed']:
         o.append('<h3 class="sub">Rows</h3><table class="plain"><thead><tr><th>Change</th><th>On page</th>'
@@ -1232,10 +1249,14 @@ def render_changes(c, H, d, title='Idea Stock Exchange'):
                 o.append(f'<tr><td class="u">{lab}</td><td class="t">{esc(e.get("page"))}</td>'
                          f'<td class="u">{esc(SECTION_NAME.get(e.get("section"), e.get("section")))}</td>'
                          f'<td class="u">{esc((e.get("claim") or e.get("text") or "")[:160])}</td></tr>')
+            if len(rows) > 40:
+                o.append(f'<tr><td class="u" colspan="4">and {len(rows) - 40} more rows {lab}</td></tr>')
         for ch in ed['changed'][:40]:
             o.append(f'<tr><td class="u">edited: {esc(", ".join(ch["columns"]))}</td><td class="t">{esc(ch["where"][0])}</td>'
                      f'<td class="u">{esc(SECTION_NAME.get(ch["where"][1], ch["where"][1]))}</td>'
                      f'<td class="u">{esc(str(ch["where"][3] or "")[:160])}</td></tr>')
+        if len(ed['changed']) > 40:
+            o.append(f'<tr><td class="u" colspan="4">and {len(ed["changed"]) - 40} more rows edited</td></tr>')
         o.append('</tbody></table>')
     o.append('</section>')
     o.append(stamp(c))
@@ -1291,8 +1312,8 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(ths(render_index(c, title)))
     with open(os.path.join(outdir, 'method.html'), 'w') as fh:
         fh.write(ths(method.render(c, Html(c, 'p/'), esc, f2, pct, CONST, CONST_MEANING, WIKI, JS)))
-    open(os.path.join(outdir, 'ise.css'), 'w').write(CSS)
-    open(os.path.join(outdir, '.nojekyll'), 'w').write('')
+    _write(os.path.join(outdir, 'ise.css'), CSS)
+    _write(os.path.join(outdir, '.nojekyll'), '')
     # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
     export_db(c.specs, CONST, os.path.join(outdir, 'data'), stem='ise', const_meanings=CONST_MEANING, beliefs=c.beliefs)
     with open(os.path.join(outdir, 'data', 'pages_index.json'), 'w') as fh:
