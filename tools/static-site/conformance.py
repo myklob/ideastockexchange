@@ -153,17 +153,17 @@ def _round(o, n=12):
 def write():
     os.makedirs(DIR, exist_ok=True)
     data = build_corpus()
-    json.dump(data, open(CORPUS, 'w'), indent=1)
-    json.dump(_round(compute(data)), open(EXPECTED, 'w'), indent=1, sort_keys=True)
+    with open(CORPUS, 'w') as fh: json.dump(data, fh, indent=1)
+    with open(EXPECTED, 'w') as fh: json.dump(_round(compute(data)), fh, indent=1, sort_keys=True)
     return data
 
 
 def check(candidate=None):
     """Compare a candidate result (default: the engine of record) with the expected file. Returns a list of
     differences, empty when the implementation conforms."""
-    data = json.load(open(CORPUS))
+    with open(CORPUS) as fh: data = json.load(fh)
     got = candidate if candidate is not None else compute(data)
-    want = json.load(open(EXPECTED))
+    with open(EXPECTED) as fh: want = json.load(fh)
     bad = []
     for table in ('pages', 'edges'):
         for key, exp in want[table].items():
@@ -185,7 +185,8 @@ if __name__ == '__main__':
     if '--write' in sys.argv:
         d = write(); print(f'wrote {CORPUS} ({len(d["pages"])} pages, {len(d["edges"])} edges) and {EXPECTED}')
     if '--print' in sys.argv:
-        data = json.load(open(CORPUS)); res = compute(data)
+        with open(CORPUS) as fh: data = json.load(fh)
+        res = compute(data)
         by = {p['id']: p for p in data['pages']}
         print(f'{"id":>3} {"kind":<12} {"p0":>5} {"w":>5} {"conf":>5} {"truth":>6} {"belief":>7}  claim')
         for pid in sorted(by):
