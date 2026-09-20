@@ -638,3 +638,40 @@ class TestTheContractCoversItsOwnCoercions(unittest.TestCase):
             if pid == '19': continue   # the one case where skipping normalisation happens to give the same answer
             self.assertTrue(abs(got['p0'] - p0) > 1e-9 or abs(got['weight'] - w) > 1e-9,
                             f'page {pid} does not distinguish a port that skips the coercion')
+
+
+class TestTheTierTableIsTranscribedRight(unittest.TestCase):
+    """The tier weights decide where a claim starts and every check here exercises them. The wiki_rank beside
+    each one decides nothing, which is exactly why it was pinned by nothing: renumber any of them and the
+    whole suite stays green. It is still published, in the method page's table and in the evidence_tier table
+    of the database, as a claim about where the source ranks in the wiki's own list. A published claim nobody
+    checks is the kind this site exists to object to."""
+
+    def test_the_ranks_are_the_wikis_sixteen_and_nothing_else(self):
+        ranks = [r for _k, (_w, r, _m) in EV.ESIW.items() if r is not None]
+        self.assertEqual(sorted(set(ranks)), list(range(1, 17)),
+                         'the ranks are no longer the wiki\'s 1 to 16')
+        self.assertEqual(len(EV.ESIW), 18, 'the tier count changed; the docs say eighteen')
+
+    def test_the_one_shared_rank_is_the_two_formal_studies(self):
+        """Seventeen rows carry sixteen ranks because a randomised trial and a meta-analysis are both rank 2
+        in the wiki. That is the whole reason eighteen tiers is not a typo for seventeen, and the docs say so,
+        so it is worth being a fact rather than a sentence."""
+        by_rank = {}
+        for k, (_w, r, _m) in EV.ESIW.items():
+            if r is not None: by_rank.setdefault(r, []).append(k)
+        shared = {r: sorted(ks) for r, ks in by_rank.items() if len(ks) > 1}
+        self.assertEqual(shared, {2: ['meta', 'rct']})
+
+    def test_only_the_added_category_has_no_rank(self):
+        """`record` is the one tier beyond the wiki's list, and a NULL rank is how the database says so."""
+        unranked = sorted(k for k, (_w, r, _m) in EV.ESIW.items() if r is None)
+        self.assertEqual(unranked, ['record'])
+
+    def test_a_better_rank_never_carries_less_weight(self):
+        """The ranks are an ordering and the weights are meant to follow it. If a rank is renumbered into the
+        wrong place, that shows up here as the ordering disagreeing with itself."""
+        ranked = sorted(((r, w, k) for k, (w, r, _m) in EV.ESIW.items() if r is not None))
+        for (r1, w1, k1), (r2, w2, k2) in zip(ranked, ranked[1:]):
+            if r1 == r2: continue
+            self.assertGreaterEqual(w1, w2, f'{k1} ranks above {k2} and weighs less')
