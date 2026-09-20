@@ -112,6 +112,27 @@ class TestTheRenderedSite(unittest.TestCase):
             self.assertNotIn('Nothing here yet.</td></tr></tbody></table></section>', body,
                              f'{self.c.key[pid]} renders a section whose only row is empty')
 
+    def test_no_cost_or_benefit_unit_is_dropped_from_the_net(self):
+        """The category list is typed and the rows are not, so a unit can appear on a row and not in the list.
+        A summary that silently omits the largest cost is worse than no summary."""
+        for pid in self.c.specs:
+            if self.c.kind(pid) not in ('belief', 'claim'): continue
+            s = self.c.stats(pid)
+            on_rows = {x.get('category') for x, _, _ in s['cba']['ben'] + s['cba']['cos'] if x.get('category')}
+            in_net = {cat for cat, _, _ in s['catnet']}
+            self.assertEqual(on_rows - in_net, set(),
+                             f'{self.c.key[pid]} drops {sorted(on_rows - in_net)} from the net by category')
+
+    def test_a_formula_built_headline_reads_as_a_sentence(self):
+        """Its two halves are separate spans. Without a space between them the text content runs together, which
+        is what a screen reader reads out and what every link to the page shows."""
+        import re as _re
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or self.c.kind(pid) in ('belief', 'claim', 'interest', 'media'): continue
+            m = _re.search(r'<h1 class="q"><span>(.*?)</span><span>', h)
+            self.assertIsNotNone(m, f'{self.c.key[pid]} has no formula headline')
+            self.assertTrue(m.group(1).endswith(' '), f'{self.c.key[pid]} headline halves run together')
+
     def test_the_build_says_what_it_was_built_from(self):
         """A number nobody can trace to a revision is not citable."""
         for name in ('index.html', 'method.html'):

@@ -191,7 +191,12 @@ class Corpus:
             def ev(b, t): return (float(b['magnitude']) * t) if isinstance(b.get('magnitude'), (int, float)) else None
             s['cba'] = {'ben': [(b, t, ev(b, t)) for b, t in ben], 'cos': [(c, t, ev(c, t)) for c, t in cos]}
             s['benev'] = sum(e for _, _, e in s['cba']['ben'] if e is not None); s['costev'] = sum(e for _, _, e in s['cba']['cos'] if e is not None)
-            cats = [c for c in sp.get('catnet', []) if c]
+            typed = [x for x in sp.get('catnet', []) if x]
+            used = [b.get('category') for b, _, _ in s['cba']['ben'] if b.get('category')] + \
+                   [x.get('category') for x, _, _ in s['cba']['cos'] if x.get('category')]
+            # The typed list sets the order; any unit that appears on a row and not in the list is appended,
+            # because a net that silently drops a cost is worse than no net at all.
+            cats = typed + [u for u in dict.fromkeys(used) if u not in typed]
             s['mixed'] = len(cats) > 1
             s['catnet'] = [(c, sum(e for b, _, e in s['cba']['ben'] if e is not None and b.get('category') == c), sum(e for x, _, e in s['cba']['cos'] if e is not None and x.get('category') == c)) for c in cats]
             s['netev'] = None if s['mixed'] else s['benev'] - s['costev']
@@ -361,7 +366,7 @@ def sensitivity_section(H, c, pid):
         tail.append(f'{len(a["inert"])} of the {a["n"]} inputs move this page by less than {INERT:g} even with the work behind them finished: '
                     'nothing anyone could learn about those changes the answer here')
     tail.append('The three pushed together in the line above this table are '
-                + '; '.join(esc(strip_period(c.brief(q)[0])) for q in a['joint_pages']))
+                + ', '.join('“' + esc(strip_period(c.brief(q)[0])) + '”' for q in a['joint_pages']))
     out.append('<p class="tot">' + '. '.join(tail) + '</p></section>')
     return ''.join(out)
 
@@ -385,7 +390,10 @@ def render_belief(c, pid):
     o = [head(c, pid, c.short(pid, 80))]
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.text(pid))}</h1>')
     meta = [f'Topic: {esc(sp["topic"])}'] if sp.get('topic') else []
-    if sp.get('positivity') is not None: meta.append(f'Positivity toward {"the topic" if sp.get("topic") else "the reform"}: {sp["positivity"]:+d}')
+    if sp.get('positivity') is not None:
+        meta.append('<span title="Typed by the author to place this claim on the topic page&apos;s axis, from -100 to '
+                    '+100. It is a label, not a score: nothing on this site reads it.">Position on the topic axis '
+                    f'(typed, not scored): {sp["positivity"]:+d}</span>')
     if is_page(sp.get('supports')): meta.append('Used on: ' + H.a(sp['supports']))
     o.append('<p class="meta">' + ' · '.join(meta) + '</p>')
     # ---- scorecard, before the reasons
@@ -395,7 +403,13 @@ def render_belief(c, pid):
         read0 = None
     cap = ''
     if s['weakest'] is not None and s['weakest'] < s['raw']:
-        cap = f' Argues to {f2(s["raw"])}, held at {f2(s["weakest"])} by the weakest load-bearing component: {H.a(s["weakest_comp"]["id"])}.'
+        tied = [d for d in sp.get('components', []) if str(d.get('lb', '')).upper() == 'Y' and is_page(d.get('id'))
+                and abs(c.truth(d['id']) - s['weakest']) < 1e-9]
+        if len(tied) > 1:
+            cap = (f' Argues to {f2(s["raw"])}, held at {f2(s["weakest"])} by {len(tied)} load-bearing components tied '
+                   'at that level, any one of which caps it: ' + '; '.join(H.a(d['id']) for d in tied) + '.')
+        else:
+            cap = f' Argues to {f2(s["raw"])}, held at {f2(s["weakest"])} by the weakest load-bearing component: {H.a(s["weakest_comp"]["id"])}.'
     gaps = [(n, lab) for n, lab in ((s['nolink'], 'no linkage page'), (s['noimp'], 'no importance page'), (s['nouniq'], 'no uniqueness page')) if n]
     cov = (f'Of {s["nrows"]} scored rows, ' + ', '.join(f'{n} {"has" if n == 1 else "have"} {lab}' for n, lab in gaps) + '.') if gaps else f'All {s["nrows"]} scored rows have a linkage, importance and uniqueness page.'
     kids = s['children']
@@ -724,7 +738,7 @@ def render_special(c, pid):
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p>')
     if k in ('interest', 'media'): o.append(f'<h1>{esc(c.text(pid))}</h1>')
     else:
-        a, b = c.question(pid); o.append(f'<h1 class="q"><span>{esc(a)}</span><span>{esc(b)}</span></h1>')
+        a, b = c.question(pid); o.append(f'<h1 class="q"><span>{esc(a)} </span><span>{esc(b)}</span></h1>')
     fields = []
     for lab, key in (('Type', 'typ'), ('Direction', 'direction'), ('This row is a', 'rowkind'), ('Value', 'value')):
         if sp.get(key): fields.append(f'{lab}: {esc(sp[key])}')
@@ -854,20 +868,17 @@ def render_index(c, title):
              f'Work value is ReasonRank x (1 - confidence): high rank with the work already done is a settled foundation, high rank with the work '
              f'undone is the next week an analyst should spend. The beliefs themselves are left out, because the walk starts there and '
              f'"argue the conclusion" is not a work plan.</p>')
-    o.append('<div class="sides"><div class="side"><h3 class="sub">Argue these next</h3>'
-             '<table class="scored"><thead><tr><th class="rk">#</th><th>Page</th><th>Rank</th><th>Conf</th><th>Beliefs</th><th>Work</th></tr></thead><tbody>')
-    for i, r in enumerate(rr.work_queue(12), 1):
+    o.append('<h3 class="sub">Argue these next</h3><table class="scored"><thead><tr><th class="rk">#</th><th>Page</th>'
+             '<th>ReasonRank</th><th>Truth</th><th>Conf</th><th>Beliefs</th><th>Work value</th></tr></thead><tbody>')
+    for i, r in enumerate(rr.work_queue(20), 1):
         o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(r["page"])}">{esc(c.brief(r["page"])[0])}</a> <span class="tk">{esc(KINDNAME[r["kind"]])}</span></td>'
-                 f'<td>{r["rank"]:.4f}</td><td>{pct(r["conf"])}</td><td>{r["beliefs"]}</td><td class="sc">{r["work"]:.4f}</td></tr>')
-    o.append('</tbody></table></div><div class="side"><h3 class="sub">Most depended upon</h3>'
-             '<table class="scored"><thead><tr><th class="rk">#</th><th>Page</th><th>Rank</th><th>Truth</th><th>Conf</th><th>Beliefs</th></tr></thead><tbody>')
-    for i, r in enumerate(rr.top(12), 1):
-        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(r["page"])}">{esc(c.brief(r["page"])[0])}</a> <span class="tk">{esc(KINDNAME[r["kind"]])}</span></td>'
-                 f'<td>{r["rank"]:.4f}</td><td>{f2(r["truth"])}</td><td>{pct(r["conf"])}</td><td>{r["beliefs"]}</td></tr>')
-    o.append('</tbody></table></div></div>')
+                 f'<td>{r["rank"]:.4f}</td><td>{f2(c.truth(r["page"]))}</td><td>{pct(r["conf"])}</td><td>{r["beliefs"]}</td><td class="sc">{r["work"]:.4f}</td></tr>')
+    o.append('</tbody></table>')
     shared = [r for r in rr.top(len(c.specs)) if r['beliefs'] > 1]
-    o.append(f'<p class="tot">{len(shared)} pages sit beneath more than one belief; settling one of those moves every belief above it. '
-             f'The walk converged to a residual of {rr.residual:.1e}.</p></section>')
+    o.append(f'<p class="tot">Ordered by work value, so a page can sit above one with a higher ReasonRank when less work '
+             f'stands behind it. {len(shared)} pages sit beneath more than one belief, so settling any of those moves every '
+             f'belief above it. The {len(rr.seeds)} beliefs are left out: the walk starts there, so they always come first, '
+             f'and "argue the conclusion" is not a work plan. The walk converged to a residual of {rr.residual:.1e}.</p></section>')
     # tree
     o.append('<section><h2><span>The tree</span></h2><p class="blurb">Beliefs, the rows on them, and the pages that supply each row\'s numbers. Open a belief to see its rows; open a row to see the pages behind its multipliers.</p>')
     def node(pid, depth=0):

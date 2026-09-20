@@ -51,7 +51,7 @@ KINDS = {
   question=GUARD + f'"This "&IF($F$2="","row",$F$2)&": "&{QX}&{NL}&"addresses the most important interest at stake in the belief: "&{QY})',
   readout='="Importance "&TEXT(@TRUTH@,"0.00")&" on 0 to 1 = the largest of (interest validity x how far this row bears on it) over the interests listed below. Validity is argued on each interest\'s page; whether the row really speaks to it is presumed until a bearing page (Linkage, Type = Interest) says otherwise. Y\'s page reads this as Imp on this row."',
   section='Interests at stake in this row', wiki=('Importance scores', WIKI['importance']),
-  blurb='Who is affected by what this row says? List the interests it speaks to (up to five), each an Interest page from the belief\'s Interests table. Bears is presumed 1 until a bearing page argues it down. Effective = Validity x Bears; the row\'s importance is the largest Effective. Nothing here is typed except tab numbers.',
+  blurb='Who is affected by what this row says? List the interests it speaks to (up to five), each an Interest page from the belief\'s Interests table. Bears is presumed 1 until a bearing page argues it down. Effective = Validity x Bears; the row\'s importance is the largest Effective. Nothing here is typed: every number is read from the page that argues it.',
   assume=('Required for this row to speak to the interests listed', 'Required for it to miss them'),
   bias=('Biases that inflate this row\'s importance', 'Biases that deflate this row\'s importance'),
   defs=['Importance asks: if this row is true, how much rides on it? It is answered through the interests the row speaks to, so one interest page serves every row that speaks to it and nobody argues importance twice.',
