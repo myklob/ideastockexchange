@@ -88,14 +88,14 @@ class Corpus:
         else: return self.text(pid)
         return f'{a} {b}' if plain else (a, b)
 
-    # ---- per-row values: Truth x Link x Imp x Uniq, each from a page or a labelled constant
-    def row(self, d, sign=None):
+    # ---- per-row values: sign x (2 x Truth - 1) x Link x Imp x Uniq, each factor from a page or a constant
+    def row(self, d, sign=1):
+        """One row's factors and its signed contribution, sign x (2 x Truth - 1) x Link x Imp x Uniq. Mirrors
+        score_reference.Model._contrib; the two are checked against each other on every render."""
         t, l, i, u = self.pg(d.get('id'), UNARG), self.pg(d.get('link'), DEFLINK), self.pg(d.get('imp'), DEFIMP), self.pg(d.get('uniq'), DEFUNIQ)
-        r = dict(truth=t, link=l, imp=i, uniq=u, score=t * l * i * u)
-        if sign is not None:
-            r['contrib'] = sign * (2 * t - 1) * l * i * u
-            r['stake'] = l * i * u * (1 - abs(2 * t - 1))
-        return r
+        return dict(truth=t, link=l, imp=i, uniq=u,
+                    score=sign * (2 * t - 1) * l * i * u,
+                    stake=l * i * u * (1 - abs(2 * t - 1)))
 
     # ---- everything a belief page's scorecard and engine show, mirroring the workbook's engine cells
     def stats(self, pid):
@@ -105,13 +105,12 @@ class Corpus:
         if k in ('belief', 'claim'):
             A, D = sp['args']['agree'], sp['args']['disagree']; EF, EA = sp['evid']['for'], sp['evid']['against']
             PT, PF = sp.get('pred_true', []), sp.get('pred_false', [])
-            rows = {'agree': [self.row(d) for d in A], 'disagree': [self.row(d) for d in D], 'for': [self.row(d) for d in EF], 'against': [self.row(d) for d in EA],
+            rows = {'agree': [self.row(d, 1) for d in A], 'disagree': [self.row(d, -1) for d in D],
+                    'for': [self.row(d, 1) for d in EF], 'against': [self.row(d, -1) for d in EA],
                     'pt': [self.row(d, 1) for d in PT], 'pf': [self.row(d, -1) for d in PF]}
             s['rows'] = rows
             s['nagree'], s['ndis'], s['nsupp'], s['nweak'] = len(A), len(D), len(EF), len(EA)
             s['npred'] = len(PT) + len(PF)
-            s['pos'] = s['pro'] + s['supp'] + sum(r['contrib'] for r in rows['pt'] + rows['pf'] if r['contrib'] > 0)
-            s['neg'] = s['con'] + s['weak'] - sum(r['contrib'] for r in rows['pt'] + rows['pf'] if r['contrib'] < 0)
             s['share'] = (s['pos'] / (s['pos'] + s['neg'])) if s['pos'] + s['neg'] > 0 else None
             comps = [(c, self.truth(c['id'])) for c in sp.get('components', []) if str(c.get('lb', '')).upper() == 'Y' and is_page(c.get('id'))]
             s['weakest'] = min((t for _, t in comps), default=None)
@@ -166,7 +165,7 @@ class Corpus:
             s['complete'] = s['nagree'] >= 1 and s['ndis'] >= 1
         else:
             A, D = sp['args']['agree'], sp['args']['disagree']
-            s['rows'] = {'agree': [self.row(d) for d in A], 'disagree': [self.row(d) for d in D]}
+            s['rows'] = {'agree': [self.row(d, 1) for d in A], 'disagree': [self.row(d, -1) for d in D]}
             s['nagree'], s['ndis'] = len(A), len(D)
             s['share'] = (s['pro'] / (s['pro'] + s['con'])) if s['pro'] + s['con'] > 0 else None
             if k == 'importance':
@@ -177,8 +176,9 @@ class Corpus:
                 s['complete'] = s['nagree'] >= 1 and s['ndis'] >= 1 and bool(sp.get('if_true')) and bool(sp.get('if_false'))
             elif k == 'media':
                 IA, ID_ = sp.get('iargs', {}).get('agree', []), sp.get('iargs', {}).get('disagree', [])
-                s['rows']['iagree'] = [self.row(d) for d in IA]; s['rows']['idisagree'] = [self.row(d) for d in ID_]
-                s['ipro'] = sum(r['score'] for r in s['rows']['iagree']); s['icon'] = sum(r['score'] for r in s['rows']['idisagree'])
+                s['rows']['iagree'] = [self.row(d, 1) for d in IA]; s['rows']['idisagree'] = [self.row(d, -1) for d in ID_]
+                ivals = [r['score'] for r in s['rows']['iagree'] + s['rows']['idisagree']]
+                s['ipro'], s['icon'] = sum(v for v in ivals if v > 0), -sum(v for v in ivals if v < 0)
                 s['niagree'], s['nidis'] = len(IA), len(ID_)
                 s['complete'] = s['nagree'] >= 1 and s['ndis'] >= 1
             else:
@@ -256,7 +256,7 @@ def scored_table(H, c, side_rows, specs_rows, headers, key_label):
     for rank, i in enumerate(order, 1):
         d, r = specs_rows[i], side_rows[i]
         out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}</td>'
-                   f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG))}</td>'
+                   f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{H.num(r["link"], d.get("link"), const_label="No linkage page yet: presumed relevant, reads " + str(DEFLINK))}</td>'
                    f'<td>{H.num(r["imp"], d.get("imp"), const_label="No importance page yet: the neutral start, reads " + str(DEFIMP))}</td>'
                    f'<td>{H.num(r["uniq"], d.get("uniq"), const_label="No uniqueness page yet: presumed distinct, reads " + str(DEFUNIQ))}</td>'
@@ -303,7 +303,7 @@ def render_belief(c, pid):
 <div class="tile"><div class="lab">Weight against</div><div class="big">{f2(s["neg"])}</div><div class="sub">arguments {f2(s["con"])} · evidence {f2(s["weak"])} · predictions {f2(s["neg"] - s["con"] - s["weak"])}</div></div>
 </div>
 <dl class="readout">
-<dt>Truth</dt><dd>{pct(s["share"]) + " of scored weight is on the agree side. Weight is what counts: every reason, finding and prediction enters as Truth x Link x Imp x Uniq, so one strong reason outweighs several weak ones." if s["share"] is not None else "Nothing scored yet, so the neutral start."}{cap}</dd>
+<dt>Truth</dt><dd>{pct(s["share"]) + " of scored weight is on the agree side. Weight is what counts, and it is signed: a claim argued false subtracts from the side it was filed on, and a claim nobody has argued adds nothing at all, so a long list of assertions scores no better than an empty page." if s["share"] is not None else "Nothing scored yet, so the neutral start."}{cap}</dd>
 <dt>Cost-benefit</dt><dd>{cb}</dd>
 <dt>What would move this most</dt><dd>{esc(s["mover"]) + f" ({f2(s['movval'])} points at stake)" if s["mover"] else "List testable predictions below."}</dd>
 <dt>Kind of fight</dt><dd>{esc(s["dispute"]) or "(nothing scored)"}. Evidence two-sidedness {pct(s["factual"])}, reasons whose linkage leans against relevance {pct(s["linkshare"])}, value-ranking gap {f2(s["valgap"]) if s["valgap"] is not None else "(none ranked)"}, ease of resolution {f2(s["ease"]) if s["ease"] is not None else "(no compromise scored)"}, misunderstanding index {f2(s["misund"])}.</dd>
@@ -311,22 +311,22 @@ def render_belief(c, pid):
 <dt>Bottom line</dt><dd class="bl">{esc(sp.get("bottom_line") or "")} <span class="typed-note">(the one typed line on this card)</span></dd>
 </dl></section>''')
     # ---- arguments
-    o.append(H.section('Argument Trees', 'Each reason is a claim with its own page. Score = Truth x Link x Imp x Uniq, every factor read from a page or shown grey at its starting constant.', ('How arguments are scored', WIKI['reasons'])))
+    o.append(H.section('Argument Trees', 'Each reason is a claim with its own page. Score = sign x (2 x Truth - 1) x Link x Imp x Uniq: a reason argued false scores negative and counts against the side it is filed on, and a reason nobody has argued yet scores exactly 0.', ('How arguments are scored', WIKI['reasons'])))
     o.append(two_sided(H, c, 'Reasons to agree', 'Reasons to disagree',
                        scored_table(H, c, s['rows']['agree'], sp['args']['agree'], None, 'Argument'),
                        scored_table(H, c, s['rows']['disagree'], sp['args']['disagree'], None, 'Argument')))
-    o.append(f'<p class="tot">Total agree {f2(s["pro"])} · total disagree {f2(s["con"])} · argument score {sf(s["pro"] - s["con"])}</p></section>')
+    o.append(f'<p class="tot">From these rows: weight for {f2(s["pro"])} · weight against {f2(s["con"])} · net {sf(s["pro"] - s["con"])}. A refuted objection counts as support and a refuted reason counts against, so weight lands on the side its sign puts it on, not the side it was filed on.</p></section>')
     # ---- evidence
     o.append(H.section('Evidence Ledger', 'Findings that can fail empirically. Each has its own page where its accuracy is argued; the source is shown under it.', ('How evidence is scored', WIKI['evidence'])))
     o.append(two_sided(H, c, 'Supporting', 'Weakening',
                        scored_table(H, c, s['rows']['for'], sp['evid']['for'], None, 'Finding'),
                        scored_table(H, c, s['rows']['against'], sp['evid']['against'], None, 'Finding')))
-    o.append(f'<p class="tot">Total supporting {f2(s["supp"])} · total weakening {f2(s["weak"])} · evidence score {sf(s["supp"] - s["weak"])}</p></section>')
+    o.append(f'<p class="tot">From these rows: weight for {f2(s["supp"])} · weight against {f2(s["weak"])} · net {sf(s["supp"] - s["weak"])}. A finding still sits at 0.50 until its own page argues its accuracy, and at 0.50 it contributes nothing.</p></section>')
     # ---- predictions
     def pred_table(specs_rows, side_rows):
         out = ['<table class="scored"><thead><tr><th>Prediction</th><th>Truth</th><th>Link</th><th>Imp</th><th>Contrib.</th><th>At stake</th><th>Deadline and method</th></tr></thead><tbody>']
         for d, r in zip(specs_rows, side_rows):
-            out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td class="sc">{sf(r["contrib"])}</td><td>{f2(r["stake"])}</td><td class="dl">{esc(d.get("deadline") or "")}</td></tr>')
+            out.append(f'<tr><td class="t">{H.rowtext(d)}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td class="sc">{sf(r["score"])}</td><td>{f2(r["stake"])}</td><td class="dl">{esc(d.get("deadline") or "")}</td></tr>')
         if not specs_rows: out.append('<tr><td colspan="7" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
     o.append(H.section('Falsifiability Test', 'What we should observe if the belief is true, and if it is false. A pending prediction (truth near 0.5) contributes nothing yet; At stake is what it would contribute once settled.', ('Evidence and predictions', WIKI['evidence'])))
@@ -477,12 +477,12 @@ def engine_table(H, c, pid):
     rows = []
     def r(label, val, how): rows.append(f'<tr><td class="t">{esc(label)}</td><td class="sc">{val}</td><td class="u">{esc(how)}</td></tr>')
     if k in ('belief', 'claim'):
-        r('Argument score', sf(s['pro'] - s['con']), 'total agree minus total disagree')
-        r('Evidence score', sf(s['supp'] - s['weak']), 'total supporting minus total weakening')
-        r('Prediction contribution', sf(s['pred']), 'sum of sign x (2 x Truth - 1) x Link x Imp x Uniq')
+        r('Argument score', sf(s['pro'] - s['con']), 'argument rows: weight for minus weight against')
+        r('Evidence score', sf(s['supp'] - s['weak']), 'evidence rows: weight for minus weight against')
+        r('Prediction contribution', sf(s['pred']), 'prediction rows, same signed formula as every other row')
         r('Belief score', sf(s['belief']), 'the three lines above added together')
-        r('Positive total', f2(s['pos']), 'agree + supporting + predictions that went the belief\'s way')
-        r('Negative total', f2(s['neg']), 'disagree + weakening + predictions that went against it')
+        r('Positive total', f2(s['pos']), 'every row whose signed contribution came out positive, from either side')
+        r('Negative total', f2(s['neg']), 'every row whose signed contribution came out negative, as a magnitude')
         r('Truth score, argued', f2(s['raw']), f'(positive + k x 0.5) / (positive + negative + k), k = {K}')
         r('Truth score', f2(s['truth']), 'argued truth, capped by the weakest load-bearing component that has its own page')
     else:
@@ -605,7 +605,7 @@ def render_index(c, title):
     o = [f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{esc(title)}</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><main class="index">''']
     o.append(f'<p class="kind">Idea Stock Exchange · {esc(c.name)}</p><h1>Every claim has a page. Every number is a link.</h1>')
-    o.append(f'<p class="lede">{len(c.specs)} pages. Each belief below is one claim, argued on both sides, with every reason, finding and prediction scored as Truth x Link x Imp x Uniq, and every factor read from the page that argues it. Nothing typed is a score; the numbers are computed from the same two tables the workbook is built from. Grey numbers are starting constants for multipliers nobody has argued yet.</p>')
+    o.append(f'<p class="lede">{len(c.specs)} pages. Each belief below is one claim, argued on both sides, with every reason, finding and prediction scored as sign x (2 x Truth - 1) x Link x Imp x Uniq, every factor read from the page that argues it. The score is signed: a claim argued false counts against the side it was filed on, and a claim nobody has argued counts nothing, so a page reads 0.50 until the work beneath it is actually done. Nothing typed is a score.</p>')
     # belief cards
     o.append('<div class="beliefs">')
     for b in sorted(c.beliefs):
