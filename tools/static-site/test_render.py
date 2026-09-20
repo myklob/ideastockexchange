@@ -202,6 +202,19 @@ class TestTheRenderedSite(unittest.TestCase):
                          'the all-pages table must list every page in the static HTML, before any script runs')
         self.assertNotIn('<noscript', h, 'nothing here should require a script to read')
 
+    def test_every_page_can_be_cited(self):
+        """A score with no way to name the version it came from cannot be quoted in anything anybody has to
+        stand behind, because these numbers move as the argument is worked on."""
+        import json as _json
+        for pid, h in self.html.items():
+            if isinstance(pid, str): continue
+            self.assertIn('Cite this page', h, f'{self.c.key[pid]} cannot be cited')
+            self.assertRegex(h, r'revision [0-9a-f]{6,}')
+            with open(os.path.join(self.dir, 'p', self.c.key[pid] + '.json')) as fh: d = _json.load(fh)
+            self.assertIn('cite', d)
+            self.assertIn(self.c.key[pid], d['cite'])
+            self.assertIn(f'{self.c.truth(pid):.2f}', d['cite'])
+
     def test_the_build_says_what_it_was_built_from(self):
         """A number nobody can trace to a revision is not citable."""
         for name in ('index.html', 'method.html'):

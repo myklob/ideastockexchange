@@ -716,6 +716,21 @@ def verdict_block(c, pid, s):
     return ''.join(out)
 
 
+def cite(c, pid):
+    """A form somebody can put in a footnote. A score with no way to cite the exact version it came from is a
+    score that cannot be quoted in anything anybody has to stand behind: the numbers here move as the argument
+    is worked on, which is the point, and a citation has to name which state of it was read."""
+    rev = (getattr(c, 'prov', {}) or {}).get('rev')
+    if not rev: return ''
+    date = (getattr(c, 'prov', {}) or {}).get('date')
+    ref = (f'{strip_period(c.text(pid))}. Idea Stock Exchange, {KINDNAME[c.kind(pid)].lower()} page '
+           f'{c.key[pid]}, truth {f2(c.truth(pid))}, confidence {pct(c.conf.of(pid))}, revision {rev}'
+           + (f' of {date}' if date else '') + '.')
+    return (f'<p class="cite"><span class="lab">Cite this page</span> {esc(ref)} '
+            f'<span class="u">The revision is what makes this quotable: these numbers move as the argument is '
+            f'worked on, and rebuilding that revision reproduces them exactly.</span></p>')
+
+
 def rank_note(c, pid):
     """How much of the corpus leans on this page, in one line."""
     n = len(c.specs); place = c.rank.place_of(pid); bs = c.rank.beliefs_reached(pid)
@@ -807,7 +822,7 @@ def engine_table(H, c, pid):
     r('Work value', f'{c.rank.of(pid) * (1 - c.conf.of(pid)):.4f}', 'ReasonRank x (1 - confidence): how much settling this page would be worth to the corpus')
     r('Completeness', 'yes' if s['complete'] else 'no', 'at least one scored reason on each side (an importance page: at least one interest; an interest page: both readings filled)')
     consts = ' · '.join(f'{k_} = {v}' for k_, v in CONST.items())
-    return H.section('Scoring Engine', 'Every value here is computed from the tables above at build time. Nothing is typed.', ('Truth scores', WIKI['truth'])) + '<table class="plain"><thead><tr><th>Quantity</th><th>Value</th><th>How</th></tr></thead><tbody>' + ''.join(rows) + f'</tbody></table><p class="consts">Every number on this page as data: <a href="{c.key[pid]}.json">{esc(c.key[pid])}.json</a>. Constants: {consts}. ' + esc(CONST_MEANING['DEFLINK'].split('.')[0]) + '. ' + esc(CONST_MEANING['DEFIMP'].split(':')[0]) + '.</p></section>'
+    return H.section('Scoring Engine', 'Every value here is computed from the tables above at build time. Nothing is typed.', ('Truth scores', WIKI['truth'])) + '<table class="plain"><thead><tr><th>Quantity</th><th>Value</th><th>How</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table>' + cite(c, pid) + f'<p class="consts">Every number on this page as data: <a href="{c.key[pid]}.json">{esc(c.key[pid])}.json</a>. Constants: {consts}. ' + esc(CONST_MEANING['DEFLINK'].split('.')[0]) + '. ' + esc(CONST_MEANING['DEFIMP'].split(':')[0]) + '.</p></section>'
 
 def render_special(c, pid):
     H = Html(c); sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid); KD = KINDS[k]
@@ -1062,6 +1077,7 @@ dl.readout{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 1
 tr.lb td{background:color-mix(in srgb,var(--head) 60%,transparent)}
 .defs{margin:0;padding-left:18px;font-size:13px;color:var(--ink2)}.defs li{margin:4px 0}
 .consts{font-size:12px;color:var(--mute);margin:8px 0 0}
+.cite{font-size:12.5px;color:var(--ink2);margin:10px 0 0;padding:8px 10px;background:var(--tile);border-radius:4px}
 .skip{position:absolute;left:-9999px;top:0;background:var(--paper);color:var(--ink);padding:10px 14px;border:2px solid var(--navy);border-radius:0 0 4px 0;z-index:10}
 .skip:focus{left:0}
 @media (max-width:640px){table thead{display:none}table tr{display:flex;flex-wrap:wrap;gap:3px 14px;padding:8px 6px;border-top:1px solid var(--line)}table td{border:0;padding:0;width:auto!important;white-space:normal!important;text-align:left!important}td.t,td.u,td.dl,td.ex,td.lab,.check td.lab,.conn td.lab{flex:1 1 100%;width:auto!important}td.rk{display:none}td[data-l]::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}td.u[data-l]::before,td.dl[data-l]::before,td.ex[data-l]::before{display:inline;margin-right:6px}tr.lb td{background:none}tr.lb{background:color-mix(in srgb,var(--head) 60%,transparent)}}
@@ -1120,6 +1136,9 @@ def page_json(c, pid):
         'used_on': sorted({u[0] for u in c.uses.get(pid, [])}),
         'reads': s['children'],
         'url': c.href(pid),
+        'cite': (f'{strip_period(c.text(pid))}. Idea Stock Exchange, {KINDNAME[c.kind(pid)].lower()} page '
+                 f'{c.key[pid]}, truth {f2(c.truth(pid))}, confidence {pct(c.conf.of(pid))}, '
+                 f'revision {(getattr(c, "prov", {}) or {}).get("rev", "unknown")}.'),
     }
     if k in ('belief', 'claim'):
         out.update(argued_truth=round(s['raw'], 6), belief_score=round(s['belief'], 6),
