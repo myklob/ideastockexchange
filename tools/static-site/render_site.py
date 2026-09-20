@@ -731,7 +731,7 @@ def engine_table(H, c, pid):
     r('Work value', f'{c.rank.of(pid) * (1 - c.conf.of(pid)):.4f}', 'ReasonRank x (1 - confidence): how much settling this page would be worth to the corpus')
     r('Completeness', 'yes' if s['complete'] else 'no', 'at least one scored reason on each side (an importance page: at least one interest; an interest page: both readings filled)')
     consts = ' · '.join(f'{k_} = {v}' for k_, v in CONST.items())
-    return H.section('Scoring Engine', 'Every value here is computed from the tables above at build time. Nothing is typed.', ('Truth scores', WIKI['truth'])) + '<table class="plain"><thead><tr><th>Quantity</th><th>Value</th><th>How</th></tr></thead><tbody>' + ''.join(rows) + f'</tbody></table><p class="consts">Constants: {consts}. ' + esc(CONST_MEANING['DEFLINK'].split('.')[0]) + '. ' + esc(CONST_MEANING['DEFIMP'].split(':')[0]) + '.</p></section>'
+    return H.section('Scoring Engine', 'Every value here is computed from the tables above at build time. Nothing is typed.', ('Truth scores', WIKI['truth'])) + '<table class="plain"><thead><tr><th>Quantity</th><th>Value</th><th>How</th></tr></thead><tbody>' + ''.join(rows) + f'</tbody></table><p class="consts">Every number on this page as data: <a href="{c.key[pid]}.json">{esc(c.key[pid])}.json</a>. Constants: {consts}. ' + esc(CONST_MEANING['DEFLINK'].split('.')[0]) + '. ' + esc(CONST_MEANING['DEFIMP'].split(':')[0]) + '.</p></section>'
 
 def render_special(c, pid):
     H = Html(c); sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid); KD = KINDS[k]
@@ -944,7 +944,7 @@ def render_index(c, title):
         s = c.stats(p); par = c.specs[p].get('supports')
         o.append(f'<tr><td class="u">{esc(KINDNAME[c.kind(p)])}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.text(p))}</a></td><td>{f2(s["truth"])}</td><td>{"yes" if s["complete"] else "no"}</td><td class="u">{("<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(par), chr(34), esc(c.brief(par)[0]))) if is_page(par) else ""}</td></tr>')
     o.append('</tbody></table></div></section>')
-    o.append(f'<section><h2><span>How to read a page</span></h2><p class="blurb">A page opens with the claim, then a scorecard, then the reasons. A row\'s Truth is its own page\'s score. Link is a <a href="{WIKI["linkage"]}">linkage page</a> whose question writes itself from the two pages it connects. Imp is an <a href="{WIKI["importance"]}">importance page</a> listing the interests the row speaks to. Uniq is a uniqueness page. <a href="method.html">The method page</a> states every rule on one page, with the evidence tiers, the confidence components, the constants and what the whole thing cannot do. The <a href="{WIKI["template"]}">wiki template</a> explains each section at length; the <a href="https://github.com/myklob/ideastockexchange">repository</a> holds the tables and the scorer this site is built from.</p><p class="blurb">The data behind every page, in the shape the scorer reads: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> and a loaded <a href="data/ise.sqlite">SQLite database</a>. Two tables, <code>page</code> and <code>edge</code>, plus the labelled constants and the evidence tiers; no score is stored in any of them. The database also carries the views an analyst opens it for: <code>page_start</code>, <code>page_coverage</code>, <code>page_one_sided</code>, <code>page_inert</code>, <code>evidence_ledger</code>, <code>page_orphan</code> and <code>page_uses</code>. The recursive part of the score is not one of them, on purpose: truth is a ratio of the children and then a minimum over them, which no recursive query can aggregate its way to, so it lives in code and the conformance suite keeps every implementation of it honest.</p></section>')
+    o.append(f'<section><h2><span>How to read a page</span></h2><p class="blurb">A page opens with the claim, then a scorecard, then the reasons. A row\'s Truth is its own page\'s score. Link is a <a href="{WIKI["linkage"]}">linkage page</a> whose question writes itself from the two pages it connects. Imp is an <a href="{WIKI["importance"]}">importance page</a> listing the interests the row speaks to. Uniq is a uniqueness page. <a href="method.html">The method page</a> states every rule on one page, with the evidence tiers, the confidence components, the constants and what the whole thing cannot do. The <a href="{WIKI["template"]}">wiki template</a> explains each section at length; the <a href="https://github.com/myklob/ideastockexchange">repository</a> holds the tables and the scorer this site is built from.</p><p class="blurb">The data behind every page, in the shape the scorer reads: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> and a loaded <a href="data/ise.sqlite">SQLite database</a>. Everything the site computed, page by page, is beside each page as JSON, indexed at <a href="data/pages_index.json">pages_index.json</a>, so an analyst can read a conclusion and what it rests on without parsing HTML or reimplementing the engine. Two tables, <code>page</code> and <code>edge</code>, plus the labelled constants and the evidence tiers; no score is stored in any of them. The database also carries the views an analyst opens it for: <code>page_start</code>, <code>page_coverage</code>, <code>page_one_sided</code>, <code>page_inert</code>, <code>evidence_ledger</code>, <code>page_orphan</code> and <code>page_uses</code>. The recursive part of the score is not one of them, on purpose: truth is a ratio of the children and then a minimum over them, which no recursive query can aggregate its way to, so it lives in code and the conformance suite keeps every implementation of it honest.</p></section>')
     o.append(stamp(c))
     o.append('</main>' + JS + '</body></html>')
     return ''.join(o)
@@ -999,6 +999,48 @@ ul.tree li{margin:4px 0;font-size:13.5px}ul.tree summary{cursor:pointer;font-wei
 '''
 
 # ------------------------------------------------------------------------------------------------ main
+def page_json(c, pid):
+    """Everything the site computed for one page, as data. The whole-corpus export is the two tables and no
+    scores; this is the other half, so somebody with a script can read a conclusion and what it rests on without
+    parsing HTML or reimplementing the engine."""
+    s = c.stats(pid); k = c.kind(pid); b = EV.prior(c.specs[pid], K)
+    a = c.sens.of(pid)
+    out = {
+        'key': c.key[pid], 'id': pid, 'kind': k, 'text': c.text(pid),
+        'truth': round(s['truth'], 6), 'confidence': round(c.conf.of(pid), 6),
+        'starts_at': round(b['p0'], 6), 'start_weight': round(b['weight'], 6),
+        'rests_on': {'etype': c.specs[pid].get('etype'), 'erq': c.specs[pid].get('erq'), 'erp': c.specs[pid].get('erp')},
+        'reasonrank': round(c.rank.of(pid), 8), 'reasonrank_place': c.rank.place_of(pid),
+        'work_value': round(c.rank.of(pid) * (1 - c.conf.of(pid)), 8),
+        'beliefs_beneath': c.rank.beliefs_reached(pid),
+        'complete': bool(s['complete']),
+        'checks': [{'severity': sev, 'title': t, 'why': w} for sev, t, w in c.integ.of(pid)],
+        'used_on': sorted({u[0] for u in c.uses.get(pid, [])}),
+        'reads': s['children'],
+        'url': c.href(pid),
+    }
+    if k in ('belief', 'claim'):
+        out.update(argued_truth=round(s['raw'], 6), belief_score=round(s['belief'], 6),
+                   weight_for=round(s['pos'], 6), weight_against=round(s['neg'], 6),
+                   capped_by=[d['id'] for d in c.specs[pid].get('components', [])
+                              if str(d.get('lb', '')).upper() == 'Y' and is_page(d.get('id'))
+                              and s['weakest'] is not None and abs(c.truth(d['id']) - s['weakest']) < 1e-9]
+                   if (s['weakest'] is not None and s['weakest'] < s['raw'] - 1e-9) else [])
+    else:
+        out.update(weight_for=round(s['pro'], 6), weight_against=round(s['con'], 6))
+        if s.get('impact') is not None: out['impact'] = round(s['impact'], 6)
+    if a['n']:
+        out['sensitivity'] = {
+            'status': a['status'], 'inputs': a['n'], 'inert': len(a['inert']),
+            'joint_worst': round(a['joint'], 6),
+            'top': [{'page': r['page'], 'key': c.key[r['page']], 'if_false': round(r['lo'], 6),
+                     'if_true': round(r['hi'], 6), 'move': round(r['reach'], 6),
+                     'move_if_settled': round(r['settled_reach'], 6), 'verdict': r['verdict']}
+                    for r in a['rows'][:8]],
+        }
+    return out
+
+
 def provenance(path=None):
     """What this build was made from, so a number can be cited. The repository revision and its commit date,
     not the clock: a build has to be reproducible, and "as of today" is not a citation anyone can check."""
@@ -1029,9 +1071,17 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     c.prov = provenance(entry)
     if os.path.isdir(outdir): shutil.rmtree(outdir)
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
+    index = []
     for pid in c.specs:
         h = render_belief(c, pid) if c.kind(pid) in ('belief', 'claim') else render_special(c, pid)
-        open(os.path.join(outdir, 'p', c.href(pid)), 'w').write(h)
+        with open(os.path.join(outdir, 'p', c.href(pid)), 'w') as fh: fh.write(h)
+        j = page_json(c, pid)
+        j['built_from'] = c.prov.get('rev')
+        with open(os.path.join(outdir, 'p', c.key[pid] + '.json'), 'w') as fh:
+            json.dump(j, fh, indent=1, ensure_ascii=False)
+        index.append({'key': c.key[pid], 'id': pid, 'kind': c.kind(pid), 'text': c.text(pid),
+                      'truth': j['truth'], 'confidence': j['confidence'],
+                      'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
     open(os.path.join(outdir, 'index.html'), 'w').write(render_index(c, title))
     open(os.path.join(outdir, 'method.html'), 'w').write(
         method.render(c, Html(c, 'p/'), esc, f2, pct, CONST, CONST_MEANING, WIKI, JS))
@@ -1039,6 +1089,9 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     open(os.path.join(outdir, '.nojekyll'), 'w').write('')
     # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
     export_db(c.specs, CONST, os.path.join(outdir, 'data'), stem='ise', const_meanings=CONST_MEANING, beliefs=c.beliefs)
+    with open(os.path.join(outdir, 'data', 'pages_index.json'), 'w') as fh:
+        json.dump({'built_from': c.prov.get('rev'), 'built_on': c.prov.get('date'),
+                   'count': len(index), 'pages': sorted(index, key=lambda r: r['id'])}, fh, indent=1, ensure_ascii=False)
     # link check: every internal href resolves to a file that was written
     files = set(os.listdir(os.path.join(outdir, 'p')))
     broken = []
