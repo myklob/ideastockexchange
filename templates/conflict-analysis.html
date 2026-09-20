@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- ISE TEMPLATE: Conflict / Belief Analysis Page
      Usage: One page per conflict, policy debate, or belief claim.
-     This is the full stakeholder analysis template — the "conflict node"
+     This is the full stakeholder analysis template, the "conflict node"
      where Stakeholder profiles and Interest nodes meet.
 
      SECTIONS (in order):
@@ -19,7 +19,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>[Conflict Name] — Stakeholder Analysis — ISE</title>
+<title>[Conflict Name], Stakeholder Analysis, ISE</title>
 <style>
   body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; background: #f4f6f9; margin: 0; padding: 0; }
   .page { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
@@ -134,7 +134,7 @@
 
   <h1>Conflict Node: [Conflict Name]</h1>
   <p style="font-size:13px; color:#555; margin-top:4px; margin-bottom:12px;">
-    [Full description — 2-3 sentences providing context and defining the scope of this conflict node.]
+    [Full description, 2-3 sentences providing context and defining the scope of this conflict node.]
   </p>
 
   <!-- Summary stats bar -->
@@ -157,7 +157,7 @@
 
 
   <!-- ════════════════════════════════════════════════════════════
-       SECTION 1 — INVOLVED STAKEHOLDERS
+       SECTION 1, INVOLVED STAKEHOLDERS
        One row per stakeholder. Link name to /stk/[id].
        ════════════════════════════════════════════════════════════ -->
   <h2>👥 <a href="/Stakeholders">Involved Stakeholders</a></h2>
@@ -189,7 +189,7 @@
         <td>[e.g., &lt;0.1%]</td>
         <td class="score-high">[N]/100</td>
         <td>
-          <!-- mini power bars — P=Political E=Economic M=Military N=Narrative I=Institutional -->
+          <!-- mini power bars, P=Political E=Economic M=Military N=Narrative I=Institutional -->
           <div class="pbar-row">
             <div class="pbar-item"><span class="pbar-lbl">P</span><div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:#2e7d32;"></div></div><span>[N]</span></div>
             <div class="pbar-item"><span class="pbar-lbl">M</span><div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:#2e7d32;"></div></div><span>[N]</span></div>
@@ -205,7 +205,7 @@
         </td>
         <td><span class="pos-opp">Opponent</span></td>
         <td>[e.g., Multilateral Diplomat]</td>
-        <td>[e.g., —]</td>
+        <td>[e.g., ]</td>
         <td class="score-mid">[N]/100</td>
         <td>
           <div class="pbar-row">
@@ -223,11 +223,11 @@
   <hr />
 
   <!-- ════════════════════════════════════════════════════════════
-       SECTION 2 — RANKED INTEREST PROFILES
+       SECTION 2, RANKED INTEREST PROFILES
        Default sort: Composite (Validity×0.6 + Linkage×0.4) descending.
        Supporter interests grouped first (green header), then Opponents (red).
        ════════════════════════════════════════════════════════════ -->
-  <h2>🎯 <a href="/Interests">Ranked Interest Profiles</a> — The "Why"</h2>
+  <h2>🎯 <a href="/Interests">Ranked Interest Profiles</a>, The "Why"</h2>
   <p style="font-size:13px; color:#555;">
     Extracted motivations scored by ethical legitimacy (<a href="/Validity">Validity</a>)
     and confidence they actually drive behavior (<a href="/Linkage">Linkage Accuracy</a>).
@@ -262,7 +262,7 @@
 
       <!-- ── Supporter interests ── -->
       <tr class="group-supp">
-        <td colspan="8">✅ Coalition A — Supporter / Advocate Interests</td>
+        <td colspan="8">✅ Coalition A, Supporter / Advocate Interests</td>
       </tr>
 
       <tr>
@@ -307,7 +307,7 @@
 
       <!-- ── Opponent interests ── -->
       <tr class="group-opp">
-        <td colspan="8">❌ Coalition B — Opponent / Resistance Interests</td>
+        <td colspan="8">❌ Coalition B, Opponent / Resistance Interests</td>
       </tr>
 
       <tr>
@@ -339,7 +339,7 @@
         <td>
           <strong>[Interest Name]</strong>
           <div class="sub">[Description]</div>
-          <div class="invalid-note">⚠ Zero-sum / invalid — de-weighted</div>
+          <div class="invalid-note">⚠ Zero-sum / invalid, de-weighted</div>
         </td>
         <td><span class="maslow maslow-invalid">Invalid / Zero-Sum</span></td>
         <td class="score-low">[e.g., 10]</td>
@@ -354,7 +354,7 @@
     </tbody>
   </table>
   <p class="sub" style="margin-top:4px;">
-    Invalid interests are <em>not excluded</em> — they are scored low and de-weighted.
+    Invalid interests are <em>not excluded</em>; they are scored low and de-weighted.
     High linkage accuracy on an invalid interest is informative: it tells us the motivation
     is real but illegitimate, which is different from a motivation that is both legitimate and real.
   </p>
@@ -362,11 +362,11 @@
   <hr />
 
   <!-- ════════════════════════════════════════════════════════════
-       SECTION 3 — EVIDENCE LEDGER & LINKAGE TEST
+       SECTION 3, EVIDENCE LEDGER & LINKAGE TEST
        One row per claim. Left column = evidence supporting the claim.
        Right column = evidence or arguments challenging it.
        ════════════════════════════════════════════════════════════ -->
-  <h2>🔍 <a href="/Evidence">Evidence Ledger — Testing Linkage Accuracy</a></h2>
+  <h2>🔍 <a href="/Evidence">Evidence Ledger, Testing Linkage Accuracy</a></h2>
   <p style="font-size:13px; color:#555;">
     <em>Prove they actually want this.</em> Speculative mind-reading is de-weighted.
     If you claim a motive, you need evidence. Tier key:
@@ -392,11 +392,11 @@
         </td>
         <td><span class="side-press">Pro-Pressure</span></td>
         <td>
-          <strong>✅ Behavioral Match:</strong> [Description — e.g., "Budget allocations and institutional priorities align with stated concern"]<br /><br />
-          <strong>✅ Expert Validation:</strong> <a href="[url]">[Source, e.g., RAND 2022]</a> — [one-sentence finding]
+          <strong>✅ Behavioral Match:</strong> [Description, e.g., "Budget allocations and institutional priorities align with stated concern"]<br /><br />
+          <strong>✅ Expert Validation:</strong> <a href="[url]">[Source, e.g., RAND 2022]</a>, [one-sentence finding]
         </td>
         <td>
-          <strong>❌ Pretextual Claim:</strong> [Description — e.g., "Zero-tolerance position on 5% civilian enrichment goes beyond nonproliferation to regime-change goals"]<br /><br />
+          <strong>❌ Pretextual Claim:</strong> [Description, e.g., "Zero-tolerance position on 5% civilian enrichment goes beyond nonproliferation to regime-change goals"]<br /><br />
           <strong>❌ Confounding Variable:</strong> [Description]
         </td>
         <td>
@@ -412,7 +412,7 @@
         </td>
         <td><span class="side-eng">Pro-Engagement</span></td>
         <td>
-          <strong>✅ [Evidence Type]:</strong> <a href="[url]">[Source]</a> — [Finding]
+          <strong>✅ [Evidence Type]:</strong> <a href="[url]">[Source]</a>, [Finding]
         </td>
         <td>
           <strong>❌ [Counter-argument type]:</strong> [Description]
@@ -429,10 +429,10 @@
   <hr />
 
   <!-- ════════════════════════════════════════════════════════════
-       SECTION 4 — VALIDITY TEST
+       SECTION 4, VALIDITY TEST
        Not "is this motive real?" but "is it legitimate?"
        ════════════════════════════════════════════════════════════ -->
-  <h2>⚖️ <a href="/Objective%20criteria%20scores">Judging the Interests — Validity Test</a></h2>
+  <h2>⚖️ <a href="/Objective%20criteria%20scores">Judging the Interests, Validity Test</a></h2>
   <p style="font-size:13px; color:#555;">
     Even if a motive is accurately identified, is it ethical and legitimate?
     Interests fail the validity test when they require others to lose, cannot survive
@@ -456,7 +456,7 @@
         </td>
         <td>
           <strong>1. Irreversible Harm:</strong> If this interest is ignored, [X population] suffers [permanent / catastrophic] loss.<br /><br />
-          <strong>2. Universal Test:</strong> If all nations / actors held this interest, [outcome — e.g., "the nonproliferation regime would be stronger"].<br /><br />
+          <strong>2. Universal Test:</strong> If all nations / actors held this interest, [outcome, e.g., "the nonproliferation regime would be stronger"].<br /><br />
           <strong>3. Scope of Impact:</strong> [How many people, how severely affected]
         </td>
         <td>
@@ -472,10 +472,10 @@
   <hr />
 
   <!-- ════════════════════════════════════════════════════════════
-       SECTION 5 — COMPROMISE ENGINE
+       SECTION 5, COMPROMISE ENGINE
        Shared high-validity interests + bridging proposals + trade-offs.
        ════════════════════════════════════════════════════════════ -->
-  <h2>🤝 <a href="/Compromise">Compromise Engine — Shared Interests &amp; Bridging Proposals</a></h2>
+  <h2>🤝 <a href="/Compromise">Compromise Engine, Shared Interests &amp; Bridging Proposals</a></h2>
   <p style="font-size:13px; color:#555;">
     The system surfaces interests with <strong>Validity ≥ 70</strong> that appear on
     <em>both</em> sides of the conflict. These are the foundation for compromise.
@@ -507,9 +507,9 @@
       <p class="card-meta">[Short description] · Shared by [N] stakeholders ([N] supporters, [N] opponents)</p>
       <strong style="font-size:12px;">Bridging Proposals:</strong>
       <ol>
-        <li>[Proposal A — satisfies both sides' shared interest]</li>
-        <li>[Proposal B — alternative mechanism for the same goal]</li>
-        <li>[Proposal C — incremental step toward the shared interest]</li>
+        <li>[Proposal A, satisfies both sides' shared interest]</li>
+        <li>[Proposal B, alternative mechanism for the same goal]</li>
+        <li>[Proposal C, incremental step toward the shared interest]</li>
       </ol>
     </div>
 
@@ -533,7 +533,7 @@
   <!-- Remaining trade-offs table -->
   <h3 style="font-size:15px; color:#333; margin-top:16px; margin-bottom:8px;">⚠️ Structural Trade-offs (Require Political Resolution)</h3>
   <p style="font-size:13px; color:#555;">
-    These interest pairs are in inherent tension — satisfying one reduces the other.
+    These interest pairs are in inherent tension, satisfying one reduces the other.
     They cannot be resolved algorithmically; they require explicit political choices.
   </p>
   <table>
@@ -548,7 +548,7 @@
       <tr>
         <td><strong>[Interest A Name]</strong></td>
         <td><strong>[Interest B Name]</strong></td>
-        <td>[One sentence — e.g., "Verifiable nuclear constraints require intrusive inspections the regime resists; regime survival drives defection from inspection agreements."]</td>
+        <td>[One sentence, e.g., "Verifiable nuclear constraints require intrusive inspections the regime resists; regime survival drives defection from inspection agreements."]</td>
       </tr>
       <!-- Add one row per structural trade-off -->
     </tbody>
@@ -557,10 +557,10 @@
   <hr />
 
   <!-- ════════════════════════════════════════════════════════════
-       SECTION 6 — SEMANTIC CLUSTERING
+       SECTION 6, SEMANTIC CLUSTERING
        Shows how raw brainstorm submissions were de-duplicated.
        ════════════════════════════════════════════════════════════ -->
-  <h2>🔗 <a href="/Similarity%20Scores">Semantic Clustering — Duplicate Reduction Log</a></h2>
+  <h2>🔗 <a href="/Similarity%20Scores">Semantic Clustering, Duplicate Reduction Log</a></h2>
   <p style="font-size:13px; color:#555;">
     Raw interests submitted by crowd and AI are compared against the canonical registry.
     Submissions scoring ≥ 45 similarity are auto-merged; those below go to manual review.
@@ -595,7 +595,7 @@
       </tr>
       <tr>
         <td>"[Raw submission that didn't match anything]"</td>
-        <td style="color:#888;">— Pending manual review —</td>
+        <td style="color:#888;">, Pending manual review </td>
         <td class="score-low">38</td>
         <td><span style="color:#f57c00; font-size:11px;">⏳ Pending</span></td>
       </tr>
@@ -621,13 +621,13 @@
   <ul style="font-size:13px;">
     <li><strong>Submit evidence</strong> to correct a Linkage Accuracy score</li>
     <li><strong>Submit an argument</strong> to challenge an Interest Validity score</li>
-    <li><strong>Merge duplicates</strong> — flag semantically identical interests</li>
-    <li><strong>Propose a bridging solution</strong> — add to the Compromise Engine</li>
-    <li><strong>Add a stakeholder</strong> — map a group not yet represented here</li>
+    <li><strong>Merge duplicates</strong>, flag semantically identical interests</li>
+    <li><strong>Propose a bridging solution</strong>, add to the Compromise Engine</li>
+    <li><strong>Add a stakeholder</strong>, map a group not yet represented here</li>
   </ul>
   <p style="font-size:13px;">
     <a href="/Contact">Contact us</a> &nbsp;|&nbsp;
-    <a href="https://github.com/myklob/ideastockexchange">GitHub — full codebase and technical documentation</a>
+    <a href="https://github.com/myklob/ideastockexchange">GitHub, full codebase and technical documentation</a>
   </p>
 
 </div><!-- /page -->

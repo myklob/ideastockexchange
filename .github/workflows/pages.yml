@@ -5,6 +5,8 @@ on:
     branches: [master]
     paths:
       - 'tools/static-site/**'
+      - 'templates/**'
+      - 'tools/check_templates.py'
       - 'index.html'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
@@ -56,6 +58,10 @@ jobs:
         run: python3 tools/static-site/integrity.py tools/static-site/content
       - name: Test the scoring engine before anything is published
         run: python3 -m unittest discover -s tools/static-site -p 'test_*.py' -v
+      - name: Check the page templates are the current ones
+        # A template is copied, not imported, so a stale one breaks nothing and quietly teaches the next
+        # dozen pages the wrong shape. Twelve of fourteen were stale when this step was added.
+        run: python3 tools/check_templates.py
       - name: Check the suite actually checked something
         # A green suite reports how many tests passed, not how much was checked. An assertion in a loop over
         # an empty collection, or in a branch the corpus never reaches, passes and verifies nothing. Two of
