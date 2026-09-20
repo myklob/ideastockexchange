@@ -46,6 +46,7 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     confidence.py        how much of the work behind a page has been done, and how much its score therefore counts
     sensitivity.py       which single input, moved, would change the answer, and what it would be worth to settle it
     reasonrank.py        the damped walk from the beliefs: how much of the corpus depends on each page
+    verdict.py           one paragraph saying what a page supports doing, assembled from its own numbers
     changes.py           what moved since the last revision, in claims and in scores
     similarity.py        which claims say the same thing in different words, so padding can be seen
     integrity.py         faults the shape of the graph shows: circularity, question-begging, a page counted twice

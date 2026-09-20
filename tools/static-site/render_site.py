@@ -21,6 +21,7 @@ from similarity import Similarity
 from integrity import Integrity
 import method
 import changes as CHANGES
+import verdict as VERDICT
 from export_db import export as export_db
 
 def has(d):
@@ -490,7 +491,7 @@ def render_belief(c, pid):
 <div class="tile"><div class="lab">Weight for</div><div class="big">{f2(s["pos"])}</div><div class="sub">arguments {f2(s["pro"])} · evidence {f2(s["supp"])} · predictions {f2(s["pos"] - s["pro"] - s["supp"])}</div></div>
 <div class="tile"><div class="lab">Weight against</div><div class="big">{f2(s["neg"])}</div><div class="sub">arguments {f2(s["con"])} · evidence {f2(s["weak"])} · predictions {f2(s["neg"] - s["con"] - s["weak"])}</div></div>
 </div>
-<dl class="readout">''' + ''.join(f'<dt>{esc(k)}</dt><dd>{v}</dd>' for k, v in read) + '''</dl></section>''')
+<dl class="readout">''' + verdict_block(c, pid, s) + ''.join(f'<dt>{esc(k)}</dt><dd>{v}</dd>' for k, v in read) + '''</dl></section>''')
     # Sections with no content yet are not rendered: an empty template row is not a result, and a reader
     # should meet this page's best work first. What is missing is listed once, at the end, as work to do.
     todo = []
@@ -692,6 +693,16 @@ def checks_section(H, c, pid):
     for sev, title, why in fs:
         out.append(f'<tr><td class="t"><strong>{esc(title)}</strong></td><td class="u">{esc(sev)}</td><td class="u">{esc(why)}</td></tr>')
     return ''.join(out) + '</tbody></table></section>'
+
+
+def verdict_block(c, pid, s):
+    """What the page supports doing, in the order a decision is made, assembled from numbers already on it. A
+    reader who has to assemble this themselves will assemble it differently every time."""
+    v = VERDICT.of(c, pid, s)
+    out = [f'<dt>Verdict</dt><dd><strong>{esc(v["headline"])}</strong></dd>']
+    for lab, sent in v['clauses']:
+        out.append(f'<dt>{esc(lab)}</dt><dd>{esc(sent)}</dd>')
+    return ''.join(out)
 
 
 def rank_note(c, pid):
@@ -1087,6 +1098,8 @@ def page_json(c, pid):
         'beliefs_beneath': c.rank.beliefs_reached(pid),
         'complete': bool(s['complete']),
         'checks': [{'severity': sev, 'title': t, 'why': w} for sev, t, w in c.integ.of(pid)],
+        'verdict': {k: v for k, v in VERDICT.of(c, pid, s).items() if k != 'clauses'},
+        'verdict_clauses': [{'label': lab, 'says': sent} for lab, sent in VERDICT.of(c, pid, s)['clauses']],
         'used_on': sorted({u[0] for u in c.uses.get(pid, [])}),
         'reads': s['children'],
         'url': c.href(pid),
