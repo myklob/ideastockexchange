@@ -69,6 +69,17 @@ touching before you change a formula.
   linkage, importance, evidence (EVS), media truth, decision leverage,
   retraction exposure. The belief page, `/algorithms/*`, `/leverage` and
   `/media` all read this. **Default here for any change that affects a page.**
+
+  Not all of it scores the same way. `cba-scoring.ts` implements a different
+  rule, from `docs/automated-cba/SKILL.md`: three factors rather than five, a
+  depth attenuation of `0.5^(d-1)` that nothing else has, an unargued
+  importance of 1.0 where the static site reads 0.5, and no uniqueness
+  multiplier at all. `applyArgumentDeduplication`, the defence it has instead
+  of that multiplier, is exported and called by nothing: 57 lines, one
+  reference in the whole repository, its own definition. Wiring it in would
+  move published numbers, so it is a decision rather than a fix.
+  `tests/unit/core/scoring/cba-scoring.test.ts` pins each of those differences
+  so that reconciling the two engines has to be deliberate.
 - **`src/lib/ise-pages/` is a proposed successor, not yet wired.** No route or
   component imports it. It is a complete, tested reference implementation of
   the page/edge model plus its worked example; treat it as a design under
@@ -127,8 +138,8 @@ the disagreement is unresolved, not accidental.
 
 ### Open decisions, for the owner rather than for a session
 
-Five things are unresolved. Four are calls somebody has to make rather than bugs; the fifth is a defect whose
-fix requires knowing what the code was meant to say.
+Six things are unresolved. Most are calls somebody has to make rather than bugs; the one about files that do
+not parse is a defect whose fix requires knowing what the code was meant to say.
 
 1. **The two engines disagree about volume.** `src/core/scoring/scoring-engine.ts` scores `A / (A + D)` over
    argument strengths, so listing an unargued reason there raises the score. `tools/static-site/` scores rows
@@ -139,11 +150,15 @@ fix requires knowing what the code was meant to say.
    the premise it supports changes what the argument says, so it is an editorial act, not a refactor.
 3. **Every cost and benefit is a point estimate.** `mag_low` and `mag_high` exist and are empty, and every
    belief page says so. Filling them is the owner's estimate to make, not a session's.
-4. **`src/core/ai/main.py` and `services.py` do not parse.** Nothing imports either, so nothing fails; the
+4. **`applyArgumentDeduplication` in `cba-scoring.ts` is exported and called by nothing.** The CBA engine
+   applies impact-level de-duplication in `recalculateCBA` and never the argument-level kind, so a point made
+   three ways in one argument tree counts three times. Wire it in, or delete it and say the defence is
+   impact-level only. Either changes what `/cba` publishes, which is why it is here rather than done.
+5. **`src/core/ai/main.py` and `services.py` do not parse.** Nothing imports either, so nothing fails; the
    missing lines are gone, so restoring them means writing them. Delete the two files, restore them from
    whatever they were pasted out of, or leave them and accept that `src/core/ai/` cannot be run as a whole.
    Any of the three is fine; the current state is the one that reads as working code and is not.
-5. **The load-bearing cap treats "unargued" as 0.50 and lets it cap.** That is conservative and correct as
+6. **The load-bearing cap treats "unargued" as 0.50 and lets it cap.** That is conservative and correct as
    probability, and it is what holds every belief in the corpus at 0.50. Changing it would be a rule change,
    with a conformance diff to review.
 
