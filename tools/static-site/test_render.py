@@ -190,6 +190,18 @@ class TestTheRenderedSite(unittest.TestCase):
         than implying nothing changed."""
         self.assertTrue(os.path.exists(os.path.join(self.dir, 'changes.html')))
 
+    def test_finding_a_page_is_an_enhancement_and_not_a_requirement(self):
+        """261 pages with no way to look one up is a filing cabinet with no drawer labels. The search box is
+        created by script, so a reader without JavaScript sees the whole table and nothing missing, which is
+        this site's rule everywhere else."""
+        h = self.html['index.html']
+        self.assertIn('Find a page', h, 'no way to look a page up')
+        self.assertIn('id="all"', h, 'the table the search filters has no id')
+        rows = re.findall(r'<tr><td class="u">[^<]*</td><td class="t"><a href="p/', h)
+        self.assertEqual(len(rows), len(self.c.specs),
+                         'the all-pages table must list every page in the static HTML, before any script runs')
+        self.assertNotIn('<noscript', h, 'nothing here should require a script to read')
+
     def test_the_build_says_what_it_was_built_from(self):
         """A number nobody can trace to a revision is not citable."""
         for name in ('index.html', 'method.html'):

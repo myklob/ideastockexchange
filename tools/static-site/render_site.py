@@ -323,6 +323,18 @@ def head(c, pid, title):
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="../ise.css"></head><body><a class="skip" href="#claim">Skip to the claim</a><main id="claim">{crumb}'''
 
+FIND = ("<script>(function(){var t=document.getElementById('all');if(!t)return;var rows=[].slice.call(t.tBodies[0].rows);"
+        "var w=document.createElement('p');w.className='find';"
+        "w.innerHTML='<label for=\"q\">Find a page</label> <input id=\"q\" type=\"search\" autocomplete=\"off\" "
+        "placeholder=\"type any words from a claim\"> <span id=\"qn\" role=\"status\"></span>';"
+        "t.parentNode.parentNode.insertBefore(w,t.parentNode);"
+        "var q=document.getElementById('q'),n=document.getElementById('qn');"
+        "function run(){var v=q.value.toLowerCase().split(/\\s+/).filter(Boolean),c=0;"
+        "rows.forEach(function(r){var s=r.textContent.toLowerCase();"
+        "var ok=v.every(function(x){return s.indexOf(x)>-1});r.hidden=!ok;if(ok)c++;});"
+        "n.textContent=v.length?(c+' of '+rows.length+' pages'):'';}"
+        "q.addEventListener('input',run);})();</script>")
+
 FOOT = '</main>' + JS + '</body></html>'
 
 def conf_cell(H, c, d):
@@ -1004,14 +1016,14 @@ def render_index(c, title):
             o.append(f'<tr><td class="t"><a href="p/{c.href(p)}">{esc(c.text(p))}</a></td><td>{f2(c.truth(p))}</td><td class="u">{esc(c.specs[p].get("value") or "")}</td><td>{n} pages</td></tr>')
         o.append('</tbody></table></section>')
     # all pages
-    o.append('<section><h2><span>All pages</span></h2><div class="tablewrap"><table class="plain all"><thead><tr><th>Kind</th><th>Claim or question</th><th>Truth</th><th>Complete</th><th>Used on</th></tr></thead><tbody>')
+    o.append('<section><h2><span>All pages</span></h2><div class="tablewrap"><table class="plain all" id="all"><thead><tr><th>Kind</th><th>Claim or question</th><th>Truth</th><th>Complete</th><th>Used on</th></tr></thead><tbody>')
     for p in sorted(c.specs, key=lambda q: (list(KINDNAME).index(c.kind(q)), q)):
         s = c.stats(p); par = c.specs[p].get('supports')
         o.append(f'<tr><td class="u">{esc(KINDNAME[c.kind(p)])}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.text(p))}</a></td><td>{f2(s["truth"])}</td><td>{"yes" if s["complete"] else "no"}</td><td class="u">{("<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(par), chr(34), esc(c.brief(par)[0]))) if is_page(par) else ""}</td></tr>')
     o.append('</tbody></table></div></section>')
     o.append(f'<section><h2><span>How to read a page</span></h2><p class="blurb">A page opens with the claim, then a scorecard, then the reasons. A row\'s Truth is its own page\'s score. Link is a <a href="{WIKI["linkage"]}">linkage page</a> whose question writes itself from the two pages it connects. Imp is an <a href="{WIKI["importance"]}">importance page</a> listing the interests the row speaks to. Uniq is a uniqueness page. <a href="method.html">The method page</a> states every rule on one page, with the evidence tiers, the confidence components, the constants and what the whole thing cannot do. The <a href="{WIKI["template"]}">wiki template</a> explains each section at length; the <a href="https://github.com/myklob/ideastockexchange">repository</a> holds the tables and the scorer this site is built from.</p><p class="blurb">The data behind every page, in the shape the scorer reads: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> and a loaded <a href="data/ise.sqlite">SQLite database</a>. Everything the site computed, page by page, is beside each page as JSON, indexed at <a href="data/pages_index.json">pages_index.json</a>, so an analyst can read a conclusion and what it rests on without parsing HTML or reimplementing the engine. Two tables, <code>page</code> and <code>edge</code>, plus the labelled constants and the evidence tiers; no score is stored in any of them. The database also carries the views an analyst opens it for: <code>page_start</code>, <code>page_coverage</code>, <code>page_one_sided</code>, <code>page_inert</code>, <code>evidence_ledger</code>, <code>page_orphan</code> and <code>page_uses</code>. The recursive part of the score is not one of them, on purpose: truth is a ratio of the children and then a minimum over them, which no recursive query can aggregate its way to, so it lives in code and the conformance suite keeps every implementation of it honest.</p></section>')
     o.append(stamp(c))
-    o.append('</main>' + JS + '</body></html>')
+    o.append('</main>' + JS + FIND + '</body></html>')
     return ''.join(o)
 
 CSS = r'''
@@ -1062,6 +1074,12 @@ ul.tree li{margin:4px 0;font-size:13.5px}ul.tree summary{cursor:pointer;font-wei
 .m{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);border-radius:3px;padding:0 5px;margin-left:3px}
 [class^="side-"]{font-size:11px;letter-spacing:.04em;text-transform:uppercase;font-weight:600;margin-right:4px}.side-agree,.side-supporting,.side-if{color:var(--agree-ink)}.side-disagree,.side-weakening{color:var(--dis-ink)}.side-interest,.side-reason{color:var(--mute)}
 .tablewrap{overflow-x:auto}table.all td.t{font-size:13.5px}
+.find{margin:0 0 10px;font-size:13px;color:var(--ink2)}
+.find label{font-weight:600;margin-right:6px}
+.find input{font:inherit;padding:6px 10px;min-width:22em;max-width:100%;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
+.find input:focus-visible{outline:2px solid var(--navy2);outline-offset:1px}
+.find #qn{margin-left:8px;color:var(--mute)}
+@media print{.find{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
  :root{--ink:#000;--ink2:#222;--mute:#444;--const:#444;--paper:#fff;--ground:#fff;--head:#fff;--tile:#fff;--line:#999;--navy:#000;--agree:#fff;--dis:#fff;--agree-ink:#000;--dis-ink:#000}
