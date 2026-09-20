@@ -114,9 +114,11 @@ in all four here, and four implementations of a rule is four chances to be wrong
   it is a check that stops running.
 
 **The conformance suite is what makes any of that safe.** `conformance/corpus.json` is twenty-four pages and
-twenty-five rows built to exercise every rule once, plus the five constants and the seventeen evidence tiers, so a
+twenty-five rows built to exercise every rule once, plus the five constants and the eighteen evidence tiers, so a
 port needs nothing from this repository's source to run it; `conformance/expected.json` is what they score. Any
-implementation in any language loads the first, computes, and compares against the second. `conformance.py --write`
+implementation in any language loads the first, computes, and compares against the second, and both are published beside the site at
+`data/conformance_corpus.json` and `data/conformance_expected.json`, because a contract somebody has to clone a
+repository to run is a contract that gets read about rather than run. `conformance.py --write`
 regenerates them, so a deliberate rule change arrives as a reviewed diff and an accidental one arrives as a failing
 test.
 
