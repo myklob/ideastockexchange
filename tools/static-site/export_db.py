@@ -138,17 +138,29 @@ CREATE VIEW page_uses AS
 -- Where each page's truth starts, before any of its own rows count. This one IS the rule, in SQL, and it is
 -- here to show the rule is small enough to reimplement anywhere: p0 = 0.5 + 0.5 x ESIW x (2 x ERP/100 - 1),
 -- w = k x 2 x ERQ / (ERQ + 1).
+--
+-- The three coercions are part of the rule and not tidying. A replication count below one is one, because the
+-- weight formula reads it as "how many independent looks at this", and no page has had fewer than one. A
+-- replication percentage is a percentage, so it is held inside 0 and 100: without that clamp a typo of 150
+-- put a page's truth starting point at 1.40, which is not a probability. And an evidence type is matched on
+-- its normalised name, so "Meta Analysis" and "meta_analysis" are the same tier rather than a tier and
+-- nothing. The Python scorer does all three, and this view claims to be the same rule; a port that agrees on
+-- every row of one corpus and disagrees on typed input is a port that has not been checked.
 CREATE VIEW page_start AS
-  SELECT p.id,
-         p.kind,
-         p.etype,
-         COALESCE(t.weight, 0)                                                        AS esiw,
-         COALESCE(p.erq, 1)                                                           AS erq,
-         COALESCE(p.erp, 100)                                                         AS erp,
-         0.5 + 0.5 * COALESCE(t.weight, 0) * (2.0 * COALESCE(p.erp, 100) / 100.0 - 1) AS p0,
+  SELECT q.id, q.kind, q.etype, q.esiw, q.erq, q.erp,
+         0.5 + 0.5 * q.esiw * (2.0 * q.erp / 100.0 - 1)                  AS p0,
          (SELECT value FROM constant WHERE name = 'K')
-           * 2.0 * COALESCE(p.erq, 1) / (COALESCE(p.erq, 1) + 1)                      AS weight
-  FROM page p LEFT JOIN evidence_tier t ON t.etype = p.etype;
+           * 2.0 * q.erq / (q.erq + 1)                                   AS weight
+  FROM (SELECT p.id, p.kind, p.etype,
+               COALESCE(t.weight, 0)                                     AS esiw,
+               CASE WHEN COALESCE(p.erq, 1) < 1 THEN 1.0
+                    ELSE COALESCE(p.erq, 1) END                          AS erq,
+               CASE WHEN COALESCE(p.erp, 100) > 100 THEN 100.0
+                    WHEN COALESCE(p.erp, 100) < 0   THEN 0.0
+                    ELSE COALESCE(p.erp, 100) END                        AS erp
+        FROM page p
+        LEFT JOIN evidence_tier t
+          ON t.etype = LOWER(REPLACE(REPLACE(TRIM(p.etype), ' ', '_'), '-', '_'))) q;
 
 -- How much of the template each page has actually had filled in, and how much of it still rests on a presumed
 -- multiplier rather than an argued one.
@@ -184,7 +196,8 @@ CREATE VIEW evidence_ledger AS
   SELECT p.id, p.text, s.etype, t.meaning, t.wiki_rank, s.erq, s.erp, s.p0,
          (SELECT COUNT(*) FROM edge e WHERE e.claim_id = p.id AND e.section = 'evidence') AS cited_on
   FROM page p JOIN page_start s ON s.id = p.id
-              LEFT JOIN evidence_tier t ON t.etype = p.etype
+              LEFT JOIN evidence_tier t
+                ON t.etype = LOWER(REPLACE(REPLACE(TRIM(p.etype), ' ', '_'), '-', '_'))
   WHERE p.etype IS NOT NULL;
 
 -- Pages nothing reads: written and then orphaned.
