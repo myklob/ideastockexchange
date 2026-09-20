@@ -127,6 +127,8 @@ class Similarity:
         self._pairs = None
         self._uniq = None
         self._byparent = None
+        # proportional, with a floor so a small corpus behaves as before
+        self.bucket = max(60, len(self.texts) // 100)
 
     def between(self, a, b):
         if a not in self._w or b not in self._w: return 0.0
@@ -143,7 +145,11 @@ class Similarity:
             for w in set(ws): index.setdefault(w, []).append(p)
         seen, out = set(), []
         for w, ps in index.items():
-            if len(ps) > 60: continue          # a word in a third of the corpus tells us nothing
+            # A word shared by a large share of the corpus tells you nothing about any particular pair, and
+            # expanding its bucket is quadratic in the size of that bucket. The bar is proportional, because a
+            # fixed count of 60 means "a quarter of the corpus" at 261 pages and "half a percent" at 14,000,
+            # and a rule that changes meaning with the size of the corpus is not a rule.
+            if len(ps) > self.bucket: continue
             for i, a in enumerate(ps):
                 for b in ps[i + 1:]:
                     key = (a, b) if a < b else (b, a)
@@ -195,6 +201,13 @@ class Similarity:
             for r in self.pairs():
                 for q in r['shared_parent']: self._byparent.setdefault(q, []).append(r)
         return self._byparent
+
+    def report(self, limit=12):
+        """The pairs worth showing, and how many are not shown. A list of seventeen thousand is a list nobody
+        opens, and truncating it without saying so reads as coverage."""
+        ps = self.pairs()
+        return {'shown': ps[:limit], 'total': len(ps), 'hidden': max(0, len(ps) - limit),
+                'unguarded': len(self.unguarded()), 'claims': len(self.texts), 'bucket': self.bucket}
 
     def unguarded(self):
         """Flagged pairs that sit on the same page with no uniqueness page between them: the live padding risk."""

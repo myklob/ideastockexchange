@@ -500,8 +500,10 @@ def render_belief(c, pid):
     o.append(f'<p class="tot">From these rows: weight for {f2(s["pro"])} · weight against {f2(s["con"])} · net {sf(s["pro"] - s["con"])}. A refuted objection counts as support and a refuted reason counts against, so weight lands on the side its sign puts it on, not the side it was filed on.</p></section>')
     dup = [r for r in c.sim.by_parent().get(pid, ()) if not r['uniq']]
     if dup:
-        o.append('<p class="tot">Two rows here are scored as if they made different points, and a computed reading of their wording says they may not: '
-                 + '; '.join(f'{H.a(r["a"], c.brief(r["a"])[0])} against {H.a(r["b"], c.brief(r["b"])[0])} ({f2(r["ces"])} alike)' for r in dup[:4])
+        more = f' and {len(dup) - 4} further pair{"s" if len(dup) - 4 != 1 else ""} on this page' if len(dup) > 4 else ''
+        o.append('<p class="tot">Rows here are scored as if they made different points, and a computed reading of their wording says they may not: '
+                 + '; '.join(f'{H.a(r["a"], strip_period(c.brief(r["a"])[0]))} against {H.a(r["b"], strip_period(c.brief(r["b"])[0]))} ({f2(r["ces"])} alike)' for r in dup[:4])
+                 + more
                  + f'. Uniqueness reads {DEFUNIQ} on both until a uniqueness page argues the overlap, so each is currently carrying its full weight. The measure reads wording, not meaning, so it is a prompt to look rather than a verdict: see <a href="../method.html">the method page</a>.</p>')
     # ---- what would change the answer
     sens = sensitivity_section(H, c, pid)

@@ -105,7 +105,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append(f'<p class="blurb">A walk starts evenly at the {len(rr.seeds)} beliefs and steps from each page to the pages it reads, choosing among rows in proportion to Link × Imp × Uniq, with a {rr.d} chance of stepping on rather than restarting at a belief. ReasonRank is the share of that walk arriving at a page; it sums to 1 across the corpus and converged here to a residual of {rr.residual:.1e}. The truth of the claim being ranked is deliberately absent, so a page does not drop out of the queue at the moment it is proved false, and confidence is absent, because a page nobody has started is exactly what the ranking exists to find. Work value is ReasonRank × (1 − confidence): high rank with the work done is a settled foundation, high rank with the work undone is the next week an analyst should spend.</p></section>')
 
     # ---------------------------------------------------------------- duplicates
-    sim = c.sim; pairs = sim.pairs()
+    sim = c.sim; rep = sim.report(); pairs = rep['shown']
     o.append(sec('Computed equivalency, and what it gets wrong', 'The wiki splits the equivalency score into a computed half and an argued half. The argued half is the equivalence page. This is the computed one.'))
     o.append(f'<p class="blurb">Two lexical signals over the claim text, each weighted by inverse document frequency across this corpus and averaged: overlap of content words, and cosine over character {NGRAM}-grams. Pairs above {f2(FLAG)} are flagged for a human to read; above {f2(MERGE)} they are probably one page. It measures wording, not meaning. It will flag two claims that share a long subject phrase and say different things, and it will miss two claims that share no words and say the same thing.</p>')
     o.append(f'<p class="blurb"><strong>It changes no score and cannot.</strong> The wiki blends the computed and argued halves with weights set by a validity comparison argument. No such argument exists, so the computed weight is 0 and the argued page decides, which is the same rule as everywhere else here: an input nobody has argued counts nothing. The same goes for the uniqueness multiplier. The wiki defines it as one minus the highest similarity to any other row, computed; this site leaves it presumed distinct and flags the overlap instead, because a number that silently discounts an argument and has no page behind it cannot be audited, and every other number on this site is a link to the page that argues it.</p>')
@@ -118,8 +118,12 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
             o.append(f'<tr><td class="t">{H.a(r["a"], c.brief(r["a"])[0])}</td><td class="t">{H.a(r["b"], c.brief(r["b"])[0])}</td>'
                      f'<td>{f2(r["ces"])}</td><td class="u">{same}</td><td class="u">{argued or NONE_ARGUED}</td></tr>')
         o.append('</tbody></table>')
-        n = len(sim.unguarded())
-        o.append(f'<p class="tot">{len(pairs)} pairs flagged out of {len(sim.texts)} claims. {n} of them sit on the same page with no uniqueness page between them, which is the live padding risk: each is scored as if it made a point the other did not.</p>')
+        o.append(f'<p class="tot">{rep["total"]} pairs flagged out of {rep["claims"]} claims'
+                 + (f', of which the {len(pairs)} most alike are shown and {rep["hidden"]} are not' if rep['hidden'] else '')
+                 + f'. {rep["unguarded"]} sit on the same page with no uniqueness page between them, which is the '
+                   'live padding risk: each is scored as if it made a point the other did not. A word shared by '
+                   f'more than {rep["bucket"]} of the {rep["claims"]} claims is skipped when looking for pairs, '
+                   'because it tells you nothing about any particular two of them.</p>')
     else:
         o.append('<p class="tot">Nothing in this corpus is above the flag.</p>')
     o.append('</section>')
