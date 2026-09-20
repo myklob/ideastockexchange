@@ -9,7 +9,7 @@ score: every number here is computed by score_reference.Model from the same tabl
 """
 import html, json, os, re, shutil, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from ise_tables import read_entry, tables_to_specs, entry_keys, is_page
+from ise_tables import read_source, tables_to_specs, entry_keys, is_page
 from score_reference import Model, normalize
 from build_pages import CONSTS, WIKI
 from build_subpages import KINDS
@@ -39,7 +39,7 @@ KINDNAME = {'belief': 'Belief', 'claim': 'Claim', 'linkage': 'Linkage', 'importa
 # ------------------------------------------------------------------------------------------------ corpus
 class Corpus:
     def __init__(self, entry_path, name):
-        pages, edges = read_entry(entry_path)
+        pages, edges = read_source(entry_path)
         self.specs, self.beliefs = tables_to_specs(pages, edges)
         self.tabs = entry_keys(pages); self.key = {t: k for k, t in self.tabs.items()}
         self.name = name

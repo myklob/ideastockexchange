@@ -14,8 +14,8 @@ from build_subpages import SubPage, KINDS
 #   python3 build_example.py ISE_Data_Entry.xlsx   build from the data-entry workbook
 ENTRY = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1].endswith('.xlsx') else None
 if ENTRY:
-    from ise_tables import read_entry, tables_to_specs
-    SPECS, BELIEFS = tables_to_specs(*read_entry(ENTRY))
+    from ise_tables import read_source, tables_to_specs
+    SPECS, BELIEFS = tables_to_specs(*read_source(ENTRY))
     print('loaded', len(SPECS), 'pages from', ENTRY)
 else:
     import example_gov as _src

@@ -4,6 +4,8 @@
 every table on every page). Nothing typed in it is a score. Everything else here is generated from those two tables.
 
     python3 render_site.py ISE_Data_Entry.xlsx site/   the website (index, one page per claim, ise.css, and data/)
+    python3 render_site.py content/ site/              the same site, built from the reviewable CSVs instead
+    python3 sync_content.py [--check]                  rewrite content/*.csv from the workbook, or verify
     python3 export_db.py  ISE_Data_Entry.xlsx db/      schema.sql, data.sql, a loaded ise.sqlite, JSON and XML
     python3 conformance.py                             check the engine against the expected numbers
     python3 -m unittest discover -p 'test_*.py'        the whole suite; CI runs this before it publishes anything
@@ -41,14 +43,22 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     confidence.py        how much of the work behind a page has been done, and how much its score therefore counts
     sensitivity.py       which single input, moved, would change the answer, and what it would be worth to settle it
     reasonrank.py        the damped walk from the beliefs: how much of the corpus depends on each page
+    similarity.py        which claims say the same thing in different words, so padding can be seen
+    integrity.py         faults the shape of the graph shows: circularity, question-begging, a page counted twice
+    method.py            the reader-facing methodology page, including what the tool cannot do
     conformance.py       the cross-implementation contract: conformance/corpus.json and conformance/expected.json
-    ise_tables.py        the two-table format: specs_to_tables / tables_to_specs, write_entry / read_entry
+    sync_content.py      keeps ISE_Data_Entry.xlsx and content/*.csv in step; --check runs in CI
+    ise_tables.py        the two-table format: specs_to_tables / tables_to_specs, and both read surfaces
     export_db.py         SQL schema and data, a loaded SQLite database, JSON and XML, plus the analyst views
     build_pages.py       the Excel belief-page renderer (also supplies the constants and wiki link map to the site)
     build_subpages.py    the Excel renderer for linkage, importance, interest, uniqueness, equivalence, driver, media
     build_example.py     builds the workbook, recalculates it and checks every engine cell against score_reference
     test_scoring.py      the scoring rules, the confidence rules and the workbook formula strings
     test_engines.py      evidence, sensitivity, ReasonRank and the conformance fixture
+    test_similarity.py   the duplicate detector: that it finds duplicates and that it does not cry wolf
+    test_integrity.py    each structural check, with a case built to trip it and a case built not to
+    test_render.py       the rendered HTML: tiles against the engine table, links, and prose that has rotted
+    test_content.py      that the workbook and the reviewable CSVs cannot drift apart
     make_artifact.py     variant of the built site with the stylesheet inlined (for hosted previews)
     requirements.txt     openpyxl
 
@@ -59,6 +69,11 @@ in all four here, and four implementations of a rule is four chances to be wrong
 
 - **Author** in the two flat sheets. They are a boring, wide CSV that happens to live in `.xlsx` for the dropdowns
   and the column comments. No formulas, no formatting to maintain, keys instead of numbers so nothing renumbers.
+- **Review** in `content/pages.csv` and `content/edges.csv`, the same two tables as text. A spreadsheet is a good
+  place to type a hundred claims and a bad place to review one: a change to a belief shows up in git as
+  `Bin 98313 -> 98414 bytes`, which is not a record of anything. The CSVs diff line by line, so
+  `git log -p content/pages.csv` is the history of the claims themselves. Either surface builds the site, and CI
+  fails if they disagree. Neither is the master; `sync_content.py` writes in both directions.
 - **Compute** in Python, in `score_reference.py` and the four engines beside it. The recursive part has to live in
   code: a page's truth is a ratio over its children and then a minimum over them, which no recursive query can
   aggregate its way to, and a spreadsheet can only do it by carrying one sheet per page.
@@ -84,7 +99,8 @@ this folder or the root `index.html`, then deploys: the root `index.html` become
 generated pages sit under `beliefs/`. The repository's Pages source must be set to "GitHub Actions" (Settings, Pages,
 Build and deployment).
 
-To change the content, edit `ISE_Data_Entry.xlsx` (the how-to-use sheet inside it explains the columns) and push.
+To change the content, edit `ISE_Data_Entry.xlsx` (the how-to-use sheet inside it explains the columns), run
+`python3 sync_content.py`, and push both. Or edit `content/*.csv` directly and run `sync_content.py --to-workbook`.
 To add a page, add a row to `pages` with a new key, then refer to that key from `edges`; keys are slugs, never
 numbers, so nothing renumbers. To ground a claim in evidence, fill its `etype` on the `pages` sheet, and `erq` and
 `erp` when replications are known.

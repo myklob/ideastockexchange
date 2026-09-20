@@ -259,8 +259,8 @@ if __name__ == '__main__':
     from build_pages import CONSTS
     xlsx = next((a for a in sys.argv[1:] if a.endswith('.xlsx')), None); rest = [a for a in sys.argv[1:] if a != xlsx]
     if xlsx:
-        from ise_tables import read_entry, tables_to_specs
-        specs, beliefs = tables_to_specs(*read_entry(xlsx))
+        from ise_tables import read_source, tables_to_specs
+        specs, beliefs = tables_to_specs(*read_source(xlsx))
     else:
         import example_gov as ez
         specs, beliefs = ez.PAGES, getattr(ez, 'BELIEFS', None)
