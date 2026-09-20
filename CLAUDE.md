@@ -108,13 +108,33 @@ scores `A / (A + D)` over argument strengths, so listing an unargued reason ther
 does raise the score. The two engines disagree about whether volume counts, and
 the disagreement is unresolved, not accidental.
 
+### Open decisions, for the owner rather than for a session
+
+Four things are deliberately unresolved. None is a bug; each is a call somebody has to make.
+
+1. **The two engines disagree about volume.** `src/core/scoring/scoring-engine.ts` scores `A / (A + D)` over
+   argument strengths, so listing an unargued reason there raises the score. `tools/static-site/` scores rows
+   signed, so it does not. Consolidating means picking one, and the picking is the decision.
+2. **Evidence is filed above the premise it bears on.** Beliefs 1 and 4 cite seven and five findings, argue to
+   0.61 and 0.59, and read 0.50, because their load-bearing premises cite nothing and a conclusion cannot be
+   more settled than a premise it needs. The structural checks say so on the page. Re-filing a finding under
+   the premise it supports changes what the argument says, so it is an editorial act, not a refactor.
+3. **Every cost and benefit is a point estimate.** `mag_low` and `mag_high` exist and are empty, and every
+   belief page says so. Filling them is the owner's estimate to make, not a session's.
+4. **The load-bearing cap treats "unargued" as 0.50 and lets it cap.** That is conservative and correct as
+   probability, and it is what holds every belief in the corpus at 0.50. Changing it would be a rule change,
+   with a conformance diff to review.
+
 ### The static site's modules
 
 `score_reference.py` is the scorer; `evidence.py` sets where a page starts;
 `confidence.py` how much a page's score counts; `sensitivity.py` which single
 input would change the answer; `reasonrank.py` how much of the corpus depends on
-a page; `similarity.py` which claims say the same thing; `method.py` the
-reader-facing methodology page. `conformance.py` holds the cross-implementation
+a page; `similarity.py` which claims say the same thing; `integrity.py` the
+structural faults the graph can show, and a pre-publish cycle check CI runs first;
+`verdict.py` the one paragraph at the top of each page; `changes.py` what moved
+since the last revision; `method.py` the reader-facing methodology page;
+`sync_content.py` keeps the workbook and the reviewable CSVs in step. `conformance.py` holds the cross-implementation
 contract: sixteen pages with their expected numbers checked in, so a port in any
 language can be held to the same rules. A deliberate rule change means
 `python3 conformance.py --write` and a reviewed diff. CI runs the whole suite
