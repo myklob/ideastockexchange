@@ -636,3 +636,47 @@ class TestABuildWithoutARevisionSaysSo(unittest.TestCase):
                 self.assertIn('Cite this page', h, 'the citation was dropped instead of qualified')
                 self.assertIn('revision unidentified', h)
                 self.assertIn('cannot be reproduced', h)
+
+
+class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
+    """Rule 1 of the belief-page rules is no top-of-page summary, and the page carried one: the verdict and
+    the whole readout sat between the scorecard and the first argument, so a reader met a sentence telling
+    them what to think before they met a single reason. The scores stay at the top, because a score is not a
+    summary; the prose about what the scores add up to is a conclusion and sits after the arguments."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.html, cls.c = cls.parent.html, cls.parent.c
+
+    def _text(self, h):
+        return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', h))
+
+    def test_no_belief_page_states_a_verdict_before_its_arguments(self):
+        checked = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
+            t = self._text(h)
+            trees, readout = t.find('Reasons to agree'), t.find('Reading the scorecard')
+            self.assertGreater(trees, 0, f'{self.c.key[pid]} has no argument trees')
+            self.assertGreater(readout, trees,
+                               f'{self.c.key[pid]} reads out its scores before its arguments')
+            checked += 1
+        self.assertGreater(checked, 0, 'no belief pages were checked')
+
+    def test_the_scorecard_itself_still_leads(self):
+        """Moving the commentary down must not take the numbers with it."""
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
+            t = self._text(h)
+            self.assertLess(t.find('Truth score'), t.find('Reasons to agree'),
+                            f'{self.c.key[pid]} buried its scorecard')
+
+    def test_the_readout_is_still_on_the_page(self):
+        """Moved, not deleted: every line of it restates a number a reader may want to check."""
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
+            t = self._text(h)
+            self.assertIn('Reading the scorecard', t)
+            self.assertIn('Confidence, in detail', t)
