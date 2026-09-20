@@ -109,3 +109,37 @@ class TestOnTheCorpus(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
+
+class TestItStaysReadableAtScale(unittest.TestCase):
+    """A detector that flags seventeen thousand pairs is a detector nobody opens, and truncating the list
+    without saying so reads as coverage."""
+
+    @staticmethod
+    def _corpus(n):
+        class C:
+            def __init__(s):
+                s.specs = {i: {'belief': f'Claim number {i} asserting a specific thing about the world and its parts.'}
+                           for i in range(1, n + 1)}
+                s.uses = {}
+                s.equivalents = {}
+            def kind(s, p): return 'claim'
+            def text(s, p): return s.specs[p]['belief']
+            def truth(s, p): return 0.5
+        return C()
+
+    def test_the_word_bucket_is_proportional_not_a_fixed_count(self):
+        """A bar of 60 means a quarter of a 261-page corpus and half a percent of a 14,000-page one. A rule
+        whose meaning changes with the size of the corpus is not a rule."""
+        small = S.Similarity(self._corpus(200))
+        large = S.Similarity(self._corpus(20000))
+        self.assertEqual(small.bucket, 60)
+        self.assertGreater(large.bucket, small.bucket)
+
+    def test_the_report_says_how_many_pairs_it_is_not_showing(self):
+        sim = S.Similarity(self._corpus(400))
+        r = sim.report(limit=5)
+        self.assertLessEqual(len(r['shown']), 5)
+        self.assertEqual(r['total'], len(sim.pairs()))
+        self.assertEqual(r['hidden'], max(0, r['total'] - len(r['shown'])))
+        self.assertEqual(r['claims'], len(sim.texts))
