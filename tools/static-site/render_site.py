@@ -444,7 +444,7 @@ def render_belief(c, pid):
                 and abs(c.truth(d['id']) - s['weakest']) < 1e-9]
         if len(tied) > 1:
             cap = (f' Argues to {f2(s["raw"])}, held at {f2(s["weakest"])} by {len(tied)} load-bearing components tied '
-                   'at that level, any one of which caps it: ' + '; '.join(H.a(d['id']) for d in tied) + '.')
+                   'at that level, any one of which caps it: ' + '; '.join(H.a(d['id'], strip_period(c.brief(d['id'])[0])) for d in tied) + '.')
         else:
             cap = f' Argues to {f2(s["raw"])}, held at {f2(s["weakest"])} by the weakest load-bearing component: {H.a(s["weakest_comp"]["id"])}.'
     gaps = [(n, lab) for n, lab in ((s['nolink'], 'no linkage page'), (s['noimp'], 'no importance page'), (s['nouniq'], 'no uniqueness page')) if n]
@@ -459,11 +459,8 @@ def render_belief(c, pid):
     kp = c.conf.parts(pid); kv = kp['confidence']
     weak_first = sorted(kp['components'].items(), key=lambda x: x[1])[:2]
     read = [('Truth', (pct(s["share"]) + " of scored weight is on the agree side. Weight is signed: a claim argued false subtracts from the side it was filed on, and a claim nobody has argued adds nothing." if s["share"] is not None else ("Rows are listed here but none of them moves this score yet, so it sits where its starting point puts it." if s["nrows"] else "Nothing is listed here yet, so this sits where its starting point puts it.")) + cap)]
-    read.append(('Confidence', f'{pct(kv)}, {c.conf.label(kv)}. This is how much of the work behind the score has actually been done, and it multiplies what this page passes to any page above it: at 0 a claim moves its parent not at all, however true it looks. Weakest parts right now: ' + ' and '.join(f'{k.replace("_"," ")} {pct(v)}' for k, v in weak_first) + '.'))
-    if c.sens.of(pid)['n']: read.append(('What the answer rests on', esc(c.sens.headline(pid, fmt=f2))))
+    read.append(('Confidence, in detail', f'{pct(kv)} multiplies what this page passes to any page above it: at 0 a claim moves its parent not at all, however true it looks. Weakest parts right now: ' + ' and '.join(f'{k.replace("_"," ")} {pct(v)}' for k, v in weak_first) + '.'))
     read.append(('How much depends on this', rank_note(c, pid)))
-    bad = [f for f in c.integ.of(pid) if f[0] == 'serious']
-    if bad: read.insert(0, ('Structural fault', '; '.join(f'{esc(t)}: {esc(w)}' for _, t, w in bad)))
     if s["mover"]: read.append(('Prediction with the most at stake', esc(s["mover"]) + f' ({f2(s["movval"])} points at stake)'))
     if s['cba']['ben'] or s['cba']['cos']:
         rg = s['ev_range']
@@ -479,7 +476,7 @@ def render_belief(c, pid):
             body = f'Net expected value {sf(s["netev"])}'
             if s['netev_low'] is not None: body += f', between {sf(s["netev_low"])} and {sf(s["netev_high"])} taking every benefit low and every cost high'
             if s['bcr'] is not None: body += f', benefit to cost {f2(s["bcr"])}'
-        read.append(('Worth doing?', body + note))
+        read.append(('Worth doing, in detail', ('Mixed units, so no single net. ' + '; '.join(f'{esc(cat)}: {smoney(b - x)}' for cat, b, x in s['catnet'])) if s['mixed'] else body))
     if s['dispute']: read.append(('Kind of fight', esc(s["dispute"]) + f'. Evidence two-sidedness {pct(s["factual"])}, reasons whose linkage leans against relevance {pct(s["linkshare"])}' + (f', value-ranking gap {f2(s["valgap"])}' if s["valgap"] is not None else '') + (f', ease of resolution {f2(s["ease"])}' if s["ease"] is not None else '') + '.'))
     if read0: read.insert(1, read0)
     read.append(('Coverage', cov))

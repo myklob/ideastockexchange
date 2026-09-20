@@ -5,6 +5,7 @@ tables and a structural panel. A reader who has to assemble that themselves will
 time, and an institution cannot act on a number whose meaning has to be reconstructed. So this states it once,
 in the order a decision is actually made.
 
+    0. Is the argument sound in shape, or does it support itself?
     1. Is there a conclusion here at all, or is the page sitting on the neutral line?
     2. Is anything holding it down that is not about the conclusion itself?
     3. Has enough work been done behind it to bet on it?
@@ -36,6 +37,11 @@ def of(corpus, pid, stats=None):
     conf = c.conf.of(pid)
     truth = s['truth']
     clauses = []
+    # A page that supports itself, or assumes its own conclusion, has no score worth reading. This comes before
+    # everything else, because none of what follows means anything on a circular argument.
+    faults = [f for f in c.integ.of(pid) if f[0] == 'serious']
+    if faults:
+        clauses.append(('Before anything else', '; '.join(f'{t}: {w}' for _sev, t, w in faults)))
 
     # 1. is there a conclusion
     if abs(truth - 0.5) <= 1e-9:
@@ -129,7 +135,10 @@ def of(corpus, pid, stats=None):
             clauses.append(('Whether acting pays', body.strip()))
 
     # the headline
-    if stance == 'undecided':
+    if faults:
+        head = ('The shape of the argument is broken, so the score below it does not mean anything yet: '
+                + faults[0][1][0].lower() + faults[0][1][1:] + '.')
+    elif stance == 'undecided':
         head = 'Not yet. This page does not support a decision either way.'
     elif conf < DEVELOPING:
         head = ('The argument leans ' + ('for' if stance == 'for' else 'against')
@@ -140,4 +149,4 @@ def of(corpus, pid, stats=None):
     else:
         head = ('On what has been argued so far, this page supports '
                 + ('acting on the claim.' if stance == 'for' else 'rejecting the claim.'))
-    return {'headline': head, 'clauses': clauses, 'act': stance, 'confidence': conf}
+    return {'headline': head, 'clauses': clauses, 'act': ('broken' if faults else stance), 'confidence': conf}

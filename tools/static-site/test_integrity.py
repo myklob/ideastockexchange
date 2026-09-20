@@ -219,3 +219,49 @@ class TestOnTheRealCorpus(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
+
+class TestTheCycleCheckThatRunsBeforeTheBuild(unittest.TestCase):
+    """The scorer refuses a cyclic corpus, and so does everything built on it, which means the in-page check
+    can never fire on a corpus that publishes. This one reads the two tables directly, which is the only way
+    to be told before a build rather than during one."""
+
+    def setUp(self):
+        import integrity
+        self.ig = integrity
+
+    def test_it_finds_a_two_page_loop(self):
+        pages = [{'key': 'a', 'kind': 'belief', 'text': 'A because B'}, {'key': 'b', 'kind': 'claim', 'text': 'B because A'}]
+        edges = [{'page': 'a', 'section': 'argument', 'side': 'agree', 'claim': 'b'},
+                 {'page': 'b', 'section': 'argument', 'side': 'agree', 'claim': 'a'}]
+        self.assertTrue(self.ig.cycles_in_tables(pages, edges))
+
+    def test_it_finds_a_long_loop(self):
+        keys = list('abcd')
+        pages = [{'key': k, 'kind': 'claim', 'text': k} for k in keys]
+        edges = [{'page': k, 'section': 'argument', 'side': 'agree', 'claim': keys[(i + 1) % len(keys)]}
+                 for i, k in enumerate(keys)]
+        loops = self.ig.cycles_in_tables(pages, edges)
+        self.assertTrue(loops)
+        self.assertGreaterEqual(len(loops[0]), 4)
+
+    def test_a_diamond_is_not_a_loop(self):
+        pages = [{'key': k, 'kind': 'claim', 'text': k} for k in 'abcd']
+        edges = [{'page': 'a', 'section': 'argument', 'side': 'agree', 'claim': 'b'},
+                 {'page': 'a', 'section': 'argument', 'side': 'agree', 'claim': 'c'},
+                 {'page': 'b', 'section': 'argument', 'side': 'agree', 'claim': 'd'},
+                 {'page': 'c', 'section': 'argument', 'side': 'agree', 'claim': 'd'}]
+        self.assertEqual(self.ig.cycles_in_tables(pages, edges), [])
+
+    def test_a_row_pointing_at_a_page_that_does_not_exist_is_not_a_loop(self):
+        pages = [{'key': 'a', 'kind': 'claim', 'text': 'a'}]
+        edges = [{'page': 'a', 'section': 'argument', 'side': 'agree', 'claim': 'nowhere'}]
+        self.assertEqual(self.ig.cycles_in_tables(pages, edges), [])
+
+    def test_the_published_corpus_has_none(self):
+        import ise_tables as IT
+        here = os.path.dirname(os.path.abspath(__file__))
+        content = os.path.join(here, 'content')
+        if not os.path.isdir(content): self.skipTest('no content')
+        loops = self.ig.cycles_in_tables(*IT.read_csv(content))
+        self.assertEqual(loops, [], f'circular arguments in the published content: {loops[:3]}')
