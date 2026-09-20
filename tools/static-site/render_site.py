@@ -77,10 +77,20 @@ class Corpus:
         sp = self.specs[pid]
         return sp.get('kind') or ('belief' if pid in self.beliefs else 'claim')
     def text(self, pid):
+        """The in-context wording: what the claim says in the table of the page it sits under, which may
+        lean on that page for half its meaning."""
         sp = self.specs[pid]; k = self.kind(pid)
         if k in ('belief', 'claim'): return sp.get('belief') or ''
         if k in ('interest', 'media'): return sp.get('claim') or ''
         return self.question(pid, plain=True)
+    def standalone(self, pid):
+        """The wording for anywhere the claim appears without its parent to supply the context: its own
+        page's heading, the index, search. Falls back to the in-context wording when none is written,
+        because most claims need no context written back in."""
+        return (self.specs[pid].get('standalone') or '').strip() or self.text(pid)
+    def contextual(self, pid):
+        """True when the two wordings differ, so a reader of the short one is missing something."""
+        return self.standalone(pid) != self.text(pid)
     def truth(self, pid): return self.model.truth(pid)
     def pg(self, v, default): return self.truth(v) if is_page(v) else default
     def href(self, pid): return f'{self.key[pid]}.html'
@@ -91,9 +101,11 @@ class Corpus:
         for other, t, _ in self.equivalents.get(pid, []):
             if t >= EQUIV_MERGE and len(self.text(other)) < len(best[0]): best = (self.text(other), other)
         return best
-    def short(self, pid, n=56):
-        """Only for places that cannot wrap (breadcrumbs, the browser tab): the brief wording, cut if still too long."""
-        t = self.brief(pid)[0]; return t if len(t) <= n else t[:n - 1].rstrip() + '…'
+    def short(self, pid, n=56, full=False):
+        """Only for places that cannot wrap (breadcrumbs, the browser tab): a wording cut if still too long.
+        `full` picks the standalone wording, for the places where the parent is not on screen to supply context."""
+        t = self.standalone(pid) if full else self.brief(pid)[0]
+        return t if len(t) <= n else t[:n - 1].rstrip() + '…'
 
     # the formula-built question of a specialized page, exactly as the workbook words it
     def question(self, pid, plain=False):
@@ -453,8 +465,8 @@ def simple_rows(H, c, items, extra=None):
 
 def render_belief(c, pid):
     H = Html(c); sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid)
-    o = [head(c, pid, c.short(pid, 80))]
-    o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.text(pid))}</h1>')
+    o = [head(c, pid, c.short(pid, 80, full=True))]
+    o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.standalone(pid))}</h1>')
     meta = [f'Topic: {esc(sp["topic"])}'] if sp.get('topic') else []
     if sp.get('positivity') is not None:
         meta.append('<span title="Typed by the author to place this claim on the topic page&apos;s axis, from -100 to '
@@ -462,6 +474,10 @@ def render_belief(c, pid):
                     f'(typed, not scored): {sp["positivity"]:+d}</span>')
     if is_page(sp.get('supports')): meta.append('Used on: ' + H.a(sp['supports']))
     o.append('<p class="meta">' + ' · '.join(meta) + '</p>')
+    if c.contextual(pid):
+        par = sp.get('supports')
+        where = (' on ' + H.a(par, c.short(par, 52))) if is_page(par) else ''
+        o.append(f'<p class="wording"><span class="lab">As a row</span>{where}: “{esc(strip_period(c.text(pid)))}”</p>')
     # ---- scorecard, before the reasons
     if s['basis']['grounded']:
         read0 = ('What this rests on', esc(EV.label(sp)) + '. The rows below argue it from there. A claim that cites nothing starts at 0.50 instead and contributes nothing to anything, however often it is listed.')
@@ -758,7 +774,7 @@ def cite(c, pid):
     # and the reader still needs them; what they also need is to be told the build has no name, because that is
     # the difference between a number somebody can reproduce and one they have to take on trust.
     which = f'revision {rev}' + (f' of {date}' if date else '') if rev else 'revision unidentified'
-    ref = (f'{strip_period(c.text(pid))}. Idea Stock Exchange, {KINDNAME[c.kind(pid)].lower()} page '
+    ref = (f'{strip_period(c.standalone(pid))}. Idea Stock Exchange, {KINDNAME[c.kind(pid)].lower()} page '
            f'{c.key[pid]}, truth {f2(c.truth(pid))}, confidence {pct(c.conf.of(pid))}, {which}.')
     note = ('The revision is what makes this quotable: these numbers move as the argument is worked on, and '
             'rebuilding that revision reproduces them exactly.' if rev else
@@ -863,9 +879,9 @@ def engine_table(H, c, pid):
 
 def render_special(c, pid):
     H = Html(c); sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid); KD = KINDS[k]
-    o = [head(c, pid, c.short(pid, 80))]
+    o = [head(c, pid, c.short(pid, 80, full=True))]
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p>')
-    if k in ('interest', 'media'): o.append(f'<h1>{esc(c.text(pid))}</h1>')
+    if k in ('interest', 'media'): o.append(f'<h1>{esc(c.standalone(pid))}</h1>')
     else:
         a, b = c.question(pid); o.append(f'<h1 class="q"><span>{esc(a)} </span><span>{esc(b)}</span></h1>')
     fields = []
@@ -996,7 +1012,7 @@ def browse_and_lists(H, c):
              '<th>Belief</th></tr></thead><tbody>')
     for b in sorted(c.beliefs, key=lambda x: -under.get(x, 0)):
         st = c.stats(b)
-        o.append(f'<tr><td class="t"><a href="p/{c.href(b)}">{esc(c.brief(b)[0])}</a></td>'
+        o.append(f'<tr><td class="t"><a href="p/{c.href(b)}">{esc(c.standalone(b))}</a></td>'
                  f'<td>{under.get(b, 0)}</td><td>{f2(st["truth"])}</td><td>{pct(c.conf.of(b))}</td>'
                  f'<td class="sc">{sf(st["belief"])}</td></tr>')
     o.append('</tbody></table></section>')
@@ -1008,7 +1024,7 @@ def browse_and_lists(H, c):
         o.append(f'<table class="scored"><thead><tr><th class="rk">#</th><th>Page</th><th>Truth</th>'
                  f'<th>Conf</th><th>{esc(extra_head)}</th></tr></thead><tbody>')
         for i, pid in enumerate(rows, 1):
-            o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(pid)}">{esc(c.brief(pid)[0])}</a> '
+            o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(pid)}">{esc(c.standalone(pid))}</a> '
                      f'<span class="tk">{esc(KINDNAME[c.kind(pid)])}</span></td>'
                      f'<td>{f2(c.truth(pid))}</td><td>{pct(c.conf.of(pid))}</td>'
                      f'<td class="sc">{extra_cell(pid)}</td></tr>')
@@ -1105,7 +1121,7 @@ def render_index(c, title):
     o.append('<h3 class="sub">Argue these next</h3><table class="scored"><thead><tr><th class="rk">#</th><th>Page</th>'
              '<th>ReasonRank</th><th>Truth</th><th>Conf</th><th>Beliefs</th><th>Work value</th></tr></thead><tbody>')
     for i, r in enumerate(rr.work_queue(20), 1):
-        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(r["page"])}">{esc(c.brief(r["page"])[0])}</a> <span class="tk">{esc(KINDNAME[r["kind"]])}</span></td>'
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(r["page"])}">{esc(c.standalone(r["page"]))}</a> <span class="tk">{esc(KINDNAME[r["kind"]])}</span></td>'
                  f'<td>{r["rank"]:.4f}</td><td>{f2(c.truth(r["page"]))}</td><td>{pct(r["conf"])}</td><td>{r["beliefs"]}</td><td class="sc">{r["work"]:.4f}</td></tr>')
     o.append('</tbody></table>')
     shared = [r for r in rr.top(len(c.specs)) if r['beliefs'] > 1]
@@ -1129,7 +1145,7 @@ def render_index(c, title):
         else:
             for d in sp['args']['agree'] + sp['args']['disagree']:
                 if is_page(d.get('id')): kids.append((d['id'], 'reason', d))
-        label = f'<a href="p/{c.href(pid)}">{esc(c.text(pid))}</a> <span class="tn">{f2(s["truth"])}</span> <span class="tk">{esc(KINDNAME[k])}</span>'
+        label = f'<a href="p/{c.href(pid)}">{esc(c.standalone(pid))}</a> <span class="tn">{f2(s["truth"])}</span> <span class="tk">{esc(KINDNAME[k])}</span>'
         if not kids or depth > 3: return f'<li>{label}</li>'
         inner = []
         for kid, lab, d in kids:
@@ -1143,13 +1159,13 @@ def render_index(c, title):
         o.append('<section><h2><span>The interest registry</span></h2><p class="blurb">One page per need, shared by every belief that lists it. Validity is argued once and every importance page that lists the interest reads the same number.</p><table class="plain"><thead><tr><th>Interest</th><th>Validity</th><th>Value</th><th>Read by</th></tr></thead><tbody>')
         for p in ints:
             n = len({u[0] for u in c.uses.get(p, [])})
-            o.append(f'<tr><td class="t"><a href="p/{c.href(p)}">{esc(c.text(p))}</a></td><td>{f2(c.truth(p))}</td><td class="u">{esc(c.specs[p].get("value") or "")}</td><td>{n} pages</td></tr>')
+            o.append(f'<tr><td class="t"><a href="p/{c.href(p)}">{esc(c.standalone(p))}</a></td><td>{f2(c.truth(p))}</td><td class="u">{esc(c.specs[p].get("value") or "")}</td><td>{n} pages</td></tr>')
         o.append('</tbody></table></section>')
     # all pages
     o.append('<section><h2><span>All pages</span></h2><div class="tablewrap"><table class="plain all" id="all"><thead><tr><th>Kind</th><th>Claim or question</th><th>Truth</th><th>Complete</th><th>Used on</th></tr></thead><tbody>')
     for p in sorted(c.specs, key=lambda q: (list(KINDNAME).index(c.kind(q)), q)):
         s = c.stats(p); par = c.specs[p].get('supports')
-        o.append(f'<tr><td class="u">{esc(KINDNAME[c.kind(p)])}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.text(p))}</a></td><td>{f2(s["truth"])}</td><td>{"yes" if s["complete"] else "no"}</td><td class="u">{("<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(par), chr(34), esc(c.brief(par)[0]))) if is_page(par) else ""}</td></tr>')
+        o.append(f'<tr><td class="u">{esc(KINDNAME[c.kind(p)])}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.standalone(p))}</a></td><td>{f2(s["truth"])}</td><td>{"yes" if s["complete"] else "no"}</td><td class="u">{("<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(par), chr(34), esc(c.brief(par)[0]))) if is_page(par) else ""}</td></tr>')
     o.append('</tbody></table></div></section>')
     o.append(f'<section><h2><span>How to read a page</span></h2><p class="blurb">A page opens with the claim, then a scorecard, then the reasons. A row\'s Truth is its own page\'s score. Link is a <a href="{WIKI["linkage"]}">linkage page</a> whose question writes itself from the two pages it connects. Imp is an <a href="{WIKI["importance"]}">importance page</a> listing the interests the row speaks to. Uniq is a uniqueness page. <a href="method.html">The method page</a> states every rule on one page, with the evidence tiers, the confidence components, the constants and what the whole thing cannot do. The <a href="https://github.com/myklob/ideastockexchange">repository</a> holds the tables and the scorer this site is built from.</p><p class="blurb">The data behind every page, in the shape the scorer reads: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> and a loaded <a href="data/ise.sqlite">SQLite database</a>. Everything the site computed, page by page, is beside each page as JSON, indexed at <a href="data/pages_index.json">pages_index.json</a>, so an analyst can read a conclusion and what it rests on without parsing HTML or reimplementing the engine. Two tables, <code>page</code> and <code>edge</code>, plus the labelled constants and the evidence tiers; no score is stored in any of them. The database also carries the views an analyst opens it for: <code>page_start</code>, <code>page_coverage</code>, <code>page_one_sided</code>, <code>page_inert</code>, <code>evidence_ledger</code>, <code>page_orphan</code> and <code>page_uses</code>. The recursive part of the score is not one of them, on purpose: truth is a ratio of the children and then a minimum over them, which no recursive query can aggregate its way to, so it lives in code and the conformance suite keeps every implementation of it honest. That suite is published here too, as <a href="data/conformance_corpus.json">conformance_corpus.json</a> and <a href="data/conformance_expected.json">conformance_expected.json</a>: two tables, five constants and eighteen evidence tiers in, one set of numbers out, so an implementation in any language can be held to these rules without cloning anything or asking anyone. <a href="method.html">The method page</a> states the rules the two files encode.</p></section>')
     o.append(stamp(c))
@@ -1190,6 +1206,7 @@ dl.readout{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 1
 .typed-note{color:var(--mute);font-size:12px;font-family:var(--sans)}@media (max-width:600px){dl.readout{grid-template-columns:1fr}}
 .lab{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-right:6px}
 .form,.pair,.ro,.bl{margin:8px 0;font-size:13.5px}p.bl{font-family:var(--serif);font-size:15px}.ro{color:var(--ink2)}
+p.wording{margin:8px 0 0;font-size:13.5px;color:var(--ink2);font-family:var(--serif)}
 .conn td.lab{width:11em;vertical-align:middle}.check td.lab{width:26em;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink2);font-weight:600}
 tr.lb td{background:color-mix(in srgb,var(--head) 60%,transparent)}
 .defs{margin:0;padding-left:18px;font-size:13px;color:var(--ink2)}.defs li{margin:4px 0}
@@ -1240,7 +1257,7 @@ def page_json(c, pid):
     a = c.sens.of(pid)
     vd = VERDICT.of(c, pid, s)
     out = {
-        'key': c.key[pid], 'id': pid, 'kind': k, 'text': c.text(pid),
+        'key': c.key[pid], 'id': pid, 'kind': k, 'text': c.text(pid), 'standalone': c.standalone(pid),
         'truth': round(s['truth'], 6), 'confidence': round(c.conf.of(pid), 6),
         'starts_at': round(b['p0'], 6), 'start_weight': round(b['weight'], 6),
         'rests_on': {'etype': c.specs[pid].get('etype'), 'erq': c.specs[pid].get('erq'), 'erp': c.specs[pid].get('erp')},
@@ -1259,7 +1276,7 @@ def page_json(c, pid):
         'used_on': sorted({u[0] for u in c.uses.get(pid, [])}),
         'reads': s['children'],
         'url': c.href(pid),
-        'cite': (f'{strip_period(c.text(pid))}. Idea Stock Exchange, {KINDNAME[c.kind(pid)].lower()} page '
+        'cite': (f'{strip_period(c.standalone(pid))}. Idea Stock Exchange, {KINDNAME[c.kind(pid)].lower()} page '
                  f'{c.key[pid]}, truth {f2(c.truth(pid))}, confidence {pct(c.conf.of(pid))}, '
                  f'revision {(getattr(c, "prov", {}) or {}).get("rev", "unknown")}.'),
     }
@@ -1413,7 +1430,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
         j['built_from'] = c.prov.get('rev')
         with open(os.path.join(outdir, 'p', c.key[pid] + '.json'), 'w') as fh:
             json.dump(j, fh, indent=1, ensure_ascii=False)
-        index.append({'key': c.key[pid], 'id': pid, 'kind': c.kind(pid), 'text': c.text(pid),
+        index.append({'key': c.key[pid], 'id': pid, 'kind': c.kind(pid), 'text': c.text(pid), 'standalone': c.standalone(pid),
                       'truth': j['truth'], 'confidence': j['confidence'],
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
     content = entry if os.path.isdir(entry) else os.path.join(os.path.dirname(os.path.abspath(entry)), 'content')

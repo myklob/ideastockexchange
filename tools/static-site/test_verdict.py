@@ -117,11 +117,6 @@ class TestTheVerdict(unittest.TestCase):
             labels = [lab for lab, _ in V.of(c, b)['clauses']]
             self.assertIn('What would change it', labels, f'{c.key[b]} offers no next step')
 
-
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
-
-
 class TestItDoesNotContradictThePageItSitsOn(unittest.TestCase):
     """Every clause restates a number printed elsewhere on the same page, so a clause that disagrees with that
     number is the worst failure this module has: two paragraphs, both authoritative in tone, saying opposite
@@ -209,3 +204,7 @@ class TestItDoesNotContradictThePageItSitsOn(unittest.TestCase):
         pid = next(p for p in c.specs if c.key[p] == 'b')
         self.assertFalse(c.stats(pid)['mixed'])
         self.assertIsNotNone(c.stats(pid)['netev'])
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

@@ -77,11 +77,6 @@ class TestTheTwoSurfacesAgree(unittest.TestCase):
                 header = next(csv.reader(fh))
             self.assertEqual(header, cols, f'{name}.csv header has drifted from {name.upper()}_COLS')
 
-
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
-
-
 class TestWhatChanged(unittest.TestCase):
     """The revision page. Its value is the second half: which scores moved, which an ordinary diff cannot
     tell you, because one edit to a linkage page can move dozens of conclusions."""
@@ -177,3 +172,7 @@ class TestTheReadSurvivesWhatSomebodyTyped(unittest.TestCase):
         pages, edges = IT.read_csv(d)
         self.assertEqual(len(pages), 2)
         self.assertEqual(edges[0]['magnitude'], 'inf')
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

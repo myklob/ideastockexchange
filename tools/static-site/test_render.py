@@ -7,6 +7,7 @@ numbers beside it. Copy rots faster than code and nothing else here was watching
 
 The site builds once for the whole class; on this corpus that is about a second.
 """
+import html as htmlmod
 import os, re, shutil, sys, tempfile, unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -16,6 +17,11 @@ ENTRY = os.path.join(HERE, 'ISE_Data_Entry.xlsx')
 
 def strip(h):
     return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', h))
+
+
+def readable(h):
+    """strip(), plus the entities resolved, so a test can look for the sentence an author typed."""
+    return re.sub(r'\s+', ' ', htmlmod.unescape(re.sub(r'<[^>]+>', ' ', h)))
 
 
 class TestTheRenderedSite(unittest.TestCase):
@@ -256,10 +262,6 @@ class TestTheRenderedSite(unittest.TestCase):
         has to say so rather than say nothing: silence reads as an ordinary build."""
         for name in ('index.html', 'method.html'):
             self.assertIn('revision', self.html[name], f'{name} carries no provenance at all')
-
-
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
 
 
 class TestItCanBeRead(unittest.TestCase):
@@ -739,3 +741,80 @@ class TestTheFrontPageRanksWhatItCan(unittest.TestCase):
         for faked in ('Most popular', 'Trending', 'This week&apos;s top'):
             self.assertNotIn(faked, self.c['index.html'],
                              f'the front page prints a "{faked}" list it cannot compute')
+
+
+class TestAClaimHasTwoWordings(unittest.TestCase):
+    """A claim written as a row under its parent leans on that parent for half its meaning. Read on its own
+    page it has to be a complete proposition, which is a different sentence. Both are stored, and the page a
+    reader lands on has to show the one that matches where they are reading it."""
+
+    @classmethod
+    def setUpClass(cls):
+        if not os.path.exists(ENTRY): raise unittest.SkipTest('no data workbook')
+        try:
+            import render_site
+        except ImportError as e:
+            raise unittest.SkipTest(f'openpyxl missing: {e}')
+        cls.dir = tempfile.mkdtemp(prefix='ise-wording-')
+        cls.c, _ = render_site.build(ENTRY, cls.dir)
+        cls.html = {}
+        for pid in cls.c.specs:
+            with open(os.path.join(cls.dir, 'p', cls.c.href(pid))) as fh: cls.html[pid] = fh.read()
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(getattr(cls, 'dir', ''), ignore_errors=True)
+
+    def _contextual(self):
+        return [p for p in self.c.specs if self.c.contextual(p)]
+
+    def test_the_corpus_exercises_the_rule(self):
+        """A rule nothing in the corpus uses is a rule nothing is checking."""
+        self.assertGreater(len(self._contextual()), 0,
+                           'no page carries a standalone wording, so nothing below tests anything')
+
+    def test_a_page_headlines_its_standalone_wording(self):
+        for pid in self._contextual():
+            h1 = re.search(r'<h1>(.*?)</h1>', self.html[pid], re.S)
+            self.assertIsNotNone(h1, f'{self.c.key[pid]} has no h1')
+            self.assertEqual(strip(h1.group(1)).strip(), self.c.standalone(pid),
+                             f'{self.c.key[pid]} headlines its in-context wording, which does not stand alone')
+
+    def test_a_page_still_shows_how_it_reads_under_its_parent(self):
+        """Dropping the short wording would leave a reader who arrived from the parent unable to tell they are
+        on the same claim."""
+        for pid in self._contextual():
+            self.assertIn('class="wording"', self.html[pid],
+                          f'{self.c.key[pid]} hides the wording its parent shows')
+            self.assertIn(re.sub(r'\.$', '', self.c.text(pid)), readable(self.html[pid]),
+                          f'{self.c.key[pid]} does not print its in-context wording anywhere')
+
+    def test_the_parent_table_keeps_the_short_wording(self):
+        """The standalone sentence repeats the parent's own claim back at it. Putting it in the parent's table
+        would make every row restate the page it is on."""
+        for pid in self._contextual():
+            par = self.c.specs[pid].get('supports')
+            if par not in self.html: continue
+            self.assertIn(self.c.text(pid), readable(self.html[par]),
+                          f'{self.c.key[pid]} does not appear in its parent table in its short form')
+
+    def test_falling_back_is_the_common_case(self):
+        """standalone is blank on most pages, and a blank must read as the in-context wording rather than as
+        an empty heading."""
+        blank = [p for p in self.c.specs
+                 if not (self.c.specs[p].get('standalone') or '').strip()]
+        self.assertGreater(len(blank), 0, 'every page carries a standalone wording, so the fallback is untested')
+        for pid in blank:
+            self.assertEqual(self.c.standalone(pid), self.c.text(pid),
+                             f'{self.c.key[pid]} has no standalone wording and does not fall back')
+
+    def test_the_json_beside_each_page_carries_both(self):
+        import json
+        for pid in self._contextual()[:5]:
+            with open(os.path.join(self.dir, 'p', f'{self.c.key[pid]}.json')) as fh: d = json.load(fh)
+            self.assertEqual(d['text'], self.c.text(pid), f'{self.c.key[pid]}.json lost its in-context wording')
+            self.assertEqual(d['standalone'], self.c.standalone(pid), f'{self.c.key[pid]}.json lost its standalone wording')
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

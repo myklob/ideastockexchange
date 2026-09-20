@@ -106,11 +106,6 @@ class TestOnTheCorpus(unittest.TestCase):
             if half['ces'] is not None:
                 self.assertAlmostEqual(half['es'], 0.5 * half['ces'] + 0.5 * half['ues'], places=12)
 
-
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
-
-
 class TestItStaysReadableAtScale(unittest.TestCase):
     """A detector that flags seventeen thousand pairs is a detector nobody opens, and truncating the list
     without saying so reads as coverage."""
@@ -164,3 +159,7 @@ class TestItStaysReadableAtScale(unittest.TestCase):
         self.assertEqual(r['total'], len(sim.pairs()))
         self.assertEqual(r['hidden'], max(0, r['total'] - len(r['shown'])))
         self.assertEqual(r['claims'], len(sim.texts))
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

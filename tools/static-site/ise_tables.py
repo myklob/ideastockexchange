@@ -6,7 +6,7 @@ in `pages`, every row of every table on every page is one row in `edges`, and pa
 short key rather than a tab number, so nothing has to be renumbered and nothing has to be formatted.
 
     pages   key kind text parent x y type direction rowkind value measured_by where_found if_true if_false
-            latest bridge bottom_line positivity form tab
+            standalone latest bridge bottom_line positivity form tab
     edges   page section side claim text source link imp uniq drives equiv who bearing pattern category
             magnitude deadline extra
 
@@ -48,7 +48,7 @@ SPLIT = {'assumption': {'belief': {'agree': 'assume_accept', 'disagree': 'assume
          'bias': {'belief': {'agree': 'bias_sup', 'disagree': 'bias_opp'},
                   'other': {'agree': 'bias_up', 'disagree': 'bias_down'}}}
 SPECIAL = ('linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media')
-PAGE_COLS = ['key', 'tab', 'kind', 'text', 'parent', 'x', 'y', 'type', 'direction', 'rowkind', 'value',
+PAGE_COLS = ['key', 'tab', 'kind', 'text', 'standalone', 'parent', 'x', 'y', 'type', 'direction', 'rowkind', 'value',
              'measured_by', 'where_found', 'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge',
              'bottom_line', 'positivity', 'form']
 EDGE_COLS = ['page', 'section', 'side', 'claim', 'text', 'source', 'link', 'imp', 'uniq', 'drives', 'equiv',
@@ -57,7 +57,7 @@ EDGE_COLS = ['page', 'section', 'side', 'claim', 'text', 'source', 'link', 'imp'
 PAGE_FIELDS = [('etype', 'etype'), ('erq', 'erq'), ('erp', 'erp'), ('topic', None), ('supports', 'parent'), ('x', 'x'), ('y', 'y'), ('typ', 'type'),
                ('direction', 'direction'), ('rowkind', 'rowkind'), ('value', 'value'), ('measured', 'measured_by'),
                ('where', 'where_found'), ('if_true', 'if_true'), ('if_false', 'if_false'), ('latest', 'latest'),
-               ('bridge', 'bridge'), ('bottom_line', 'bottom_line'), ('positivity', 'positivity'), ('form', 'form')]
+               ('bridge', 'bridge'), ('bottom_line', 'bottom_line'), ('standalone', 'standalone'), ('positivity', 'positivity'), ('form', 'form')]
 REFS = [('claim', 'id'), ('link', 'link'), ('imp', 'imp'), ('uniq', 'uniq'), ('drives', 'drives'),
         ('equiv', 'equiv'), ('who', 'who'), ('bearing', 'addresses')]
 PLAIN = [('text', 'text'), ('source', 'source'), ('pattern', 'pattern'), ('category', 'category'),
@@ -238,7 +238,8 @@ HELP = {
  'key': 'Short name for this page. Other rows point at it by this name, so tab numbers never have to be typed.',
  'tab': 'Tab number in the built workbook. Leave blank and one is assigned.',
  'kind': 'belief, claim, linkage, importance, interest, uniqueness, equivalence, driver or media.',
- 'text': 'The claim, in one complete sentence. Blank for the kinds whose question is written by formula.',
+ 'text': 'The claim as it reads in the table of the page it sits under, where that page supplies the context. Blank for the kinds whose question is written by formula.',
+ 'standalone': 'The same claim with its context written back in, as a complete proposition that can headline its own page. Fill it whenever the short wording only means what it means underneath its parent; leave it blank when the short wording already stands alone.',
  'parent': 'The page this one is used on.',
  'x': 'For a formula-built page: the row it is about.', 'y': 'For a formula-built page: the page that row is under.',
  'type': 'linkage: Argument, Evidence, Prediction, Interest or Media. media: Book, Study, Article, Report, Film, Podcast, Video.',
@@ -287,7 +288,7 @@ def write_entry(pages, edges, path):
     from openpyxl.worksheet.datavalidation import DataValidation
     from openpyxl.comments import Comment
     wb = Workbook(); wb.remove(wb.active)
-    WIDE = {'text': 90, 'key': 30, 'mag_low': 16, 'mag_high': 16, 'page': 30, 'claim': 30, 'bottom_line': 60, 'bridge': 60, 'extra': 60,
+    WIDE = {'text': 90, 'standalone': 90, 'key': 30, 'mag_low': 16, 'mag_high': 16, 'page': 30, 'claim': 30, 'bottom_line': 60, 'bridge': 60, 'extra': 60,
             'measured_by': 50, 'if_true': 40, 'if_false': 40, 'latest': 50, 'form': 60, 'where_found': 40,
             'category': 40, 'deadline': 40, 'source': 50, 'parent': 26, 'x': 26, 'y': 26, 'link': 26, 'imp': 26,
             'uniq': 26, 'drives': 26, 'equiv': 26, 'who': 26, 'bearing': 26, 'pattern': 22, 'rowkind': 26}

@@ -244,11 +244,6 @@ class TestWorkbookFormulasMatchTheEngine(unittest.TestCase):
             ws, _ = self._build({'args': {'agree': [], 'disagree': []}}, kind=kind)
             self.assertTrue(str(ws['W3'].value or '').startswith('='), f'{kind} page must mirror confidence at W3')
 
-
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
-
-
 class TestTheScorerOnItsOwn(unittest.TestCase):
     """A Model built with nothing attached to it. Two paths use it that way and neither is exercised anywhere
     else: `python3 score_reference.py <file>`, which the module docstring documents, and build_example.py when
@@ -324,3 +319,7 @@ class TestTheRulesHeldUpByACoincidence(unittest.TestCase):
         self.assertEqual(b['weight'], CONSTS['K'],
                          'the default starting weight is no longer k, so prior() and the scorer disagree')
         self.assertEqual(EV.prior({}, CONSTS['K'])['weight'], b['weight'])
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

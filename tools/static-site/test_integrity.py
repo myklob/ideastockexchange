@@ -235,11 +235,6 @@ class TestOnTheRealCorpus(unittest.TestCase):
             self.assertIn(f['severity'], SEVERITY)
             self.assertTrue(f['title'] and f['why'])
 
-
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
-
-
 class TestTheCycleCheckThatRunsBeforeTheBuild(unittest.TestCase):
     """The scorer refuses a cyclic corpus, and so does everything built on it, which means the in-page check
     can never fire on a corpus that publishes. This one reads the two tables directly, which is the only way
@@ -310,3 +305,7 @@ class TestThePrePublishCheck(unittest.TestCase):
     def test_a_clean_graph_reports_nothing(self):
         pages, edges = self._tables([('a', 'b'), ('a', 'c'), ('b', 'c')], 'abc')
         self.assertEqual(cycles_in_tables(pages, edges), [])
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

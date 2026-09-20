@@ -96,5 +96,25 @@ class TestTheGatesFailWhenTheyShould(unittest.TestCase):
         self.assertIn('never-written.html', out, 'it does not name the link it could not resolve')
 
 
+class TestEveryTestInThisDirectoryActuallyRuns(unittest.TestCase):
+    """CI discovers tests by importing each module, so a `unittest.main()` left in the middle of a file runs
+    nothing there but is invisible. Running that same file directly stops at the guard, so every class below
+    it is silently skipped, and the file reports OK. That happened here: nine classes in test_render.py and
+    twelve more across five other files went unrun by anyone who checked their work locally before pushing.
+    The guard belongs at the end of the file or nowhere."""
+
+    def test_no_main_guard_has_test_classes_below_it(self):
+        import glob, re
+        bad = []
+        for path in sorted(glob.glob(os.path.join(HERE, 'test_*.py'))):
+            src = open(path, encoding='utf-8').read()
+            m = re.search(r"^if __name__ == '__main__':", src, re.M)
+            if not m: continue
+            hidden = re.findall(r'^class (\w+)', src[m.end():], re.M)
+            if hidden: bad.append(f'{os.path.basename(path)} hides {", ".join(hidden)}')
+        self.assertEqual(bad, [], 'a main guard sits above test classes, which never run when the file is '
+                                  'executed directly:\n  ' + '\n  '.join(bad))
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
