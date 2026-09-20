@@ -11,7 +11,7 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import evidence as EV
 import confidence as CF
-from sensitivity import FLIP, STEPS, INERT
+from sensitivity import FLIP, STEPS, INERT, DEPTH
 from reasonrank import DAMPING
 from similarity import FLAG, MERGE, NGRAM
 
@@ -144,7 +144,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
         ('The duplicate detector reads words, not meaning.', 'It has no language model. It will miss a paraphrase that shares no vocabulary, which is the case that pads a score most effectively.'),
         ('Magnitudes in the cost and benefit tables are typed, not computed.', 'They are the only typed numbers in the system. Every other number is derived, and these are not; treat them as an author’s estimate with an author’s error. Not one of them states a range, so every net on this site is a band built out of points.'),
         ('The verdict at the top of a page is a rule, not a judgement.', 'It composes numbers already on the page in a fixed order and says when it cannot tell you. It cannot notice that a claim is absurd, that a source is fabricated, or that the whole question is wrongly framed. A reader who stops at the verdict has read a summary of the arithmetic, not an assessment of the argument.'),
-        ('The sensitivity sweep stops four levels down.', 'Each page says how deep it looked and how many pages sit below that. A claim six levels beneath a belief can still be the thing the conclusion rests on, and the sweep will not have touched it.'),
+        ('The sensitivity sweep stops a fixed number of levels down.', 'Each page says how deep it looked and how many pages sit below that. Nothing in this corpus sits deeper than the sweep reaches, but on a deeper one a claim below the line can still be the thing the conclusion rests on, and the sweep will not have touched it.'),
         ('The revision page compares against the previous revision only.', 'It answers what this revision changed, not what has changed since some earlier state a reader cares about. A number that drifts across twenty revisions drifts invisibly.'),
         ('The duplicate detector skips common words to stay fast.', 'A word shared by more than one page in a hundred is not expanded when looking for candidate pairs. Two claims whose only shared vocabulary is common words will not be compared, and the page says what the threshold is.'),
         ('A truth score is not a probability.', 'It is a share of argued weight around a starting point. It has the shape of a probability and does not have the calibration of one. Nothing here has been checked against outcomes.'),

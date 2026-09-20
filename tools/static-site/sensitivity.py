@@ -38,6 +38,8 @@ FLIP = 0.5          # the line a truth score crosses when the conclusion changes
 STEPS = 16          # bisection depth: resolves the flip point to about 1.5e-5
 EPS = 1e-9          # a page sitting exactly on 0.50 has no conclusion to overturn, so touching the line is not crossing it
 INERT = 0.005       # below this a single input moves the answer by less than the second decimal place
+DEPTH = 6           # how far below a page the sweep looks. Every page reports this and how many sit deeper,
+                    # because a cap nobody is told about reads as coverage.
 MULT_COLS = ('id', 'link', 'imp', 'uniq', 'drives', 'addresses', 'equiv')
 
 
@@ -57,7 +59,7 @@ class Sensitivity:
         self._scratch_memo = {}
 
     # ---------------------------------------------------------------- the graph beneath a page
-    def inputs(self, pid, depth=4):
+    def inputs(self, pid, depth=DEPTH):
         """Every page whose value this one reads, directly or through the rows beneath it, to `depth` levels.
         Multiplier pages count: a linkage page is an input to the conclusion exactly as the claim is."""
         out, frontier, seen = [], [pid], {pid}
@@ -163,7 +165,7 @@ class Sensitivity:
         return len(far - near)
 
     # ---------------------------------------------------------------- the analysis
-    def of(self, pid, depth=4, keep=14):
+    def of(self, pid, depth=DEPTH, keep=14):
         key = (pid, depth, keep)
         if key in self._memo: return self._memo[key]
         c = self.c
