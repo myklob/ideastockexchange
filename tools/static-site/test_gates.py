@@ -84,7 +84,7 @@ class TestTheGatesFailWhenTheyShould(unittest.TestCase):
         exactly that and reported a defect that did not exist."""
         p = os.path.join(self.work, 'render_site.py')
         s = io.open(p, encoding='utf-8').read()
-        anchor = """    return re.sub(r'<th(?![^>]*scope=)', '<th scope="col"', markup)"""
+        anchor = """    return re.sub(r'<th(?=[\\s>])(?![^>]*scope=)', '<th scope="col"', markup)"""
         self.assertIn(anchor, s, 'the per-page finalizer this test injects into has moved')
         io.open(p, 'w', encoding='utf-8').write(s.replace(
             anchor,

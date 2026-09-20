@@ -282,9 +282,11 @@ class TestItCanBeRead(unittest.TestCase):
             self.assertIn('class="skip"', h, f'{name} has no way past the breadcrumb')
 
     def test_every_column_header_declares_its_column(self):
+        """The tag boundary in the pattern matters: written without it this matched `<thead>` too, which is
+        the same mistake ths() was making, so the test agreed with the bug instead of catching it."""
         for key, h in self.html.items():
             name = key if isinstance(key, str) else self.c.key[key]
-            m = re.search(r'<th(?![^>]*scope=)[^>]*>', h)
+            m = re.search(r'<th(?=[\s>])(?![^>]*scope=)[^>]*>', h)
             self.assertIsNone(m, f'{name} has a header without scope: {m.group(0) if m else ""}')
 
     def test_no_link_is_only_a_number(self):
@@ -641,10 +643,11 @@ class TestABuildWithoutARevisionSaysSo(unittest.TestCase):
 
 
 class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
-    """Rule 1 of the belief-page rules is no top-of-page summary, and the page carried one: the verdict and
-    the whole readout sat between the scorecard and the first argument, so a reader met a sentence telling
-    them what to think before they met a single reason. The scores stay at the top, because a score is not a
-    summary; the prose about what the scores add up to is a conclusion and sits after the arguments."""
+    """Rule 1 of the belief-page rules is no top-of-page summary, and the page carried one: a generated
+    verdict and the whole readout sat between the scorecard and the first argument, so a reader met a
+    sentence telling them what to think before they met a single reason. The verdict is gone; what is left is
+    the numbers it was drawn from, and they sit after the arguments. The scorecard still leads, because a
+    score is not a summary."""
 
     @classmethod
     def setUpClass(cls):
@@ -660,7 +663,7 @@ class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
         for pid, h in self.html.items():
             if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
             t = self._text(h)
-            trees, readout = t.find('Reasons to agree'), t.find('Reading the scorecard')
+            trees, readout = t.find('Reasons to agree'), t.find('What the numbers are made of')
             self.assertGreater(trees, 0, f'{self.c.key[pid]} has no argument trees')
             self.assertGreater(readout, trees,
                                f'{self.c.key[pid]} reads out its scores before its arguments')
@@ -676,12 +679,57 @@ class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
                             f'{self.c.key[pid]} buried its scorecard')
 
     def test_the_readout_is_still_on_the_page(self):
-        """Moved, not deleted: every line of it restates a number a reader may want to check."""
+        """Trimmed, not deleted: every line of it restates a number a reader may want to check."""
         for pid, h in self.html.items():
             if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
             t = self._text(h)
-            self.assertIn('Reading the scorecard', t)
-            self.assertIn('Confidence, in detail', t)
+            self.assertIn('What the numbers are made of', t)
+            self.assertIn('Confidence', t)
+
+    def test_no_page_tells_the_reader_what_to_conclude(self):
+        """The readout states numbers. It used to open with a generated sentence that named a verdict, said
+        where the page stood, and told the reader whether acting on it paid. Those are judgements assembled
+        from the numbers below them, and a reader who wants one can assemble it; a tool that states it in the
+        tool's own voice is asking to be quoted as an authority it has no claim to be."""
+        banned = ('Verdict', 'Where it stands', 'How much to bet on it', 'Whether acting pays',
+                  'What would change it', 'Bottom line')
+        checked = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or self.c.kind(pid) not in ('belief', 'claim'): continue
+            m = re.search(r'<dl class="readout">(.*?)</dl>', h, re.S)
+            if not m: continue
+            labels = re.findall(r'<dt>(.*?)</dt>', m.group(1))
+            checked += 1
+            for phrase in banned:
+                if phrase == 'Bottom line': continue   # a typed field, not a generated one
+                self.assertNotIn(phrase, labels,
+                                 f'{self.c.key[pid]} states a conclusion about its own score: {phrase!r}')
+        self.assertGreater(checked, 0, 'no readouts were checked')
+
+    def test_the_typed_bottom_line_survives(self):
+        """Everything generated went; what an author wrote stays. Deleting that with the rest would have been
+        the opposite mistake."""
+        typed = [p for p in self.c.specs if (self.c.specs[p].get('bottom_line') or '').strip()]
+        self.assertTrue(typed, 'no page carries a typed bottom line, so nothing here is tested')
+        for pid in typed:
+            self.assertIn(self.c.specs[pid]['bottom_line'], readable(self.html[pid]),
+                          f'{self.c.key[pid]} dropped its typed bottom line')
+
+    def test_the_captions_sit_under_the_tables_they_explain(self):
+        """A caption telling a reader how to read a table is no use before they have seen the table."""
+        checked = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
+            for m in re.finditer(r'<section[^>]*>(.*?)</section>', h, re.S):
+                body = m.group(1)
+                b = body.find('<p class="blurb">')
+                if b < 0: continue
+                table = body.find('<table')
+                if table < 0: continue
+                self.assertGreater(b, table,
+                                   f'{self.c.key[pid]} prints a caption above the table it explains')
+                checked += 1
+        self.assertGreater(checked, 0, 'no captioned tables were checked')
 
 
 class TestTheFrontPageRanksWhatItCan(unittest.TestCase):
@@ -815,6 +863,83 @@ class TestAClaimHasTwoWordings(unittest.TestCase):
             self.assertEqual(d['text'], self.c.text(pid), f'{self.c.key[pid]}.json lost its in-context wording')
             self.assertEqual(d['standalone'], self.c.standalone(pid), f'{self.c.key[pid]}.json lost its standalone wording')
 
+
+class TestNoTableIsWiderThanWhatHoldsIt(unittest.TestCase):
+    """A table in a `.sides` grid gets half the page. The Interests table had three free-flowing columns in
+    that half, the interest itself plus Measured-by plus Value, and scrolled sideways: two of its columns sat
+    behind a horizontal gesture nobody makes, so for most readers they did not exist.
+
+    Column count is the wrong measure, because the scored tables constrain every numeric cell to 3.7em and
+    nowrap, so eight of those fit where three sentences do not. What overflows is free-flowing text, which is
+    the `t` and `u` cells. One of those fits in half a page. Two do not, and the table has to stack.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.html, cls.c = cls.parent.html, cls.parent.c
+
+    @staticmethod
+    def _flexible(table):
+        """Free-flowing columns, read off the widest body row: cells the stylesheet does not pin."""
+        rows = re.findall(r'<tr>(.*?)</tr>', table, re.S)
+        return max((len(re.findall(r'<td class="[tu]"', r)) for r in rows), default=0)
+
+    @staticmethod
+    def _tables(block):
+        return re.findall(r'<table\b.*?</table>', block, re.S)
+
+    @staticmethod
+    def _blocks(h, cls):
+        """The div's own contents, found by balancing tags. A lookahead for the next section instead ran past
+        the closing tag and swept in whatever followed, which is how this test first reported a scrolling
+        table that was not in a column at all."""
+        out, open_tag, i = [], f'<div class="{cls}">', 0
+        while True:
+            j = h.find(open_tag, i)
+            if j < 0: return out
+            k, depth = j + len(open_tag), 1
+            for m in re.finditer(r'<(/?)div\b', h[k:]):
+                depth += -1 if m.group(1) else 1
+                if depth == 0:
+                    out.append(h[k:k + m.start()]); i = k + m.end(); break
+            else:
+                return out
+
+    def test_a_side_by_side_table_has_at_most_one_free_flowing_column(self):
+        checked = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str): continue
+            for block in self._blocks(h, 'sides'):
+                for t in self._tables(block):
+                    n = self._flexible(t)
+                    checked += 1
+                    self.assertLessEqual(n, 1,
+                                         f'{self.c.key[pid]} puts a table with {n} free-flowing columns in a '
+                                         'half-width column, which scrolls sideways; use stacked() instead')
+        self.assertGreater(checked, 0, 'no side-by-side tables were found, so nothing here was checked')
+
+    def test_the_wide_tables_are_the_stacked_ones(self):
+        """The control: if nothing stacks, the test above passes for the wrong reason."""
+        wide = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str): continue
+            for block in self._blocks(h, 'stack'):
+                wide += sum(1 for t in self._tables(block) if self._flexible(t) > 1)
+        self.assertGreater(wide, 0, 'nothing on the site stacks a wide table, so the limit above is untested')
+
+    def test_every_table_keeps_its_thead(self):
+        """`ths()` added scope= to header cells with a pattern that also matched `<thead>`, rewriting it to
+        `<th scope="col"ead>`. Every table on the site shipped with its header row loose in an implicit tbody
+        and no thead anywhere, which is exactly the header-to-cell association that function exists to
+        establish, and which the mobile column labels read at runtime. The attribute it adds was present and
+        correct on every header cell, so the accessibility test that looked for it passed throughout."""
+        for pid, h in self.html.items():
+            self.assertNotIn('scope="col"ead', h, f'{pid} has a mangled thead')
+            for t in re.findall(r'<table\b.*?</table>', h, re.S):
+                if '<th ' not in t and '<th>' not in t: continue
+                self.assertIn('<thead>', t, f'{pid} has a table with header cells and no thead')
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

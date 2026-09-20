@@ -26,20 +26,6 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
 
     sec = lambda t, b=None, w=None, a=None: H.section(t, b, w, anchor=a)
 
-    # ---------------------------------------------------------------- the verdict
-    o.append(sec('The paragraph at the top of every page',
-                 'Everything a decision needs is on a belief page and it is spread across nine readouts, a '
-                 'scorecard, three tables and a structural panel. A reader who assembles that themselves will '
-                 'assemble it differently every time, so the page states it once, in the order a decision is '
-                 'actually made: is there a conclusion here at all; is anything holding it down that is not '
-                 'about the conclusion itself; has enough work been done to bet on it; would one thing going '
-                 'the other way change the answer; and does acting on it pay. Every clause is generated from '
-                 'one number that appears elsewhere on the page, and is left out when that number is not '
-                 'there. Nothing in it is a judgement the engine has not already made.', a='verdict'))
-    o.append('<p class="blurb">The commonest output on an unfinished corpus is that it cannot tell you, and '
-             'that is deliberate. A reading that always produces a recommendation is a reading nobody should '
-             'trust. Every belief on this site currently reads “not yet”, and says what is missing.</p></section>')
-
     # ---------------------------------------------------------------- the row
     o.append(sec('The one formula', 'Every scored row on every page, whether it is an argument, a cited finding or a prediction, contributes this and nothing else.', a='formula'))
     o.append('<p class="form"><span class="lab">Row contribution</span> sign × (2 × Truth − 1) × Confidence × Link × Imp × Uniq</p>')
