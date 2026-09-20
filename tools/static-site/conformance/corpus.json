@@ -272,6 +272,11 @@
    "id": 24,
    "kind": "claim",
    "text": "A claim whose necessary premise has no page yet"
+  },
+  {
+   "id": 25,
+   "kind": "claim",
+   "text": "A claim resting on a finding that is actually established"
   }
  ],
  "edges": [
@@ -498,6 +503,15 @@
    "attrs": {
     "lb": "Y"
    }
+  },
+  {
+   "id": 26,
+   "page_id": 25,
+   "section": "evidence",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 2,
+   "source": "A published series, 2024"
   }
  ]
 }
