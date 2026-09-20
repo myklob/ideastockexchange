@@ -51,6 +51,14 @@ def STRIP(ref):
 def HL(pid, valref): return f'HYPERLINK("#{PAGE(pid)}A1",{valref})'
 COMPLETE_CELL = '$W$2'   # every page kind writes 1 here when it meets its completeness gate, else 0
 CONF_OF = {}             # tab -> confidence, supplied by the build script from confidence.py
+def ver_ref(d):
+    """The evidence verification multiplier for a row, as a literal. It is derived from three fields typed on the
+    row itself (source type, replications, agreement) rather than from another page, so there is nothing for the
+    workbook to look up. A row that names none of them reads exactly 1.0 and the term is left out of the formula
+    entirely, which keeps every existing sheet byte for byte what it was."""
+    import evidence as _ev
+    v = _ev.ver(d or {})
+    return '' if abs(v - 1.0) < 1e-12 else f'*{v:.6f}'
 def conf_ref(pid):
     """The confidence multiplier a row reads from the page it points at. A row with no page contributes 0
     anyway (its Truth reads the unargued 0.5, and 2 x 0.5 - 1 = 0), so the constant there is immaterial."""
@@ -224,9 +232,9 @@ class Page:
                 self.imp_cell(f'{s["c5"]}{r}', d)
                 self.page_cell(f'{s["c6"]}{r}', self.val(d, 'uniq'), '@DEFUNIQ@')
                 F, G, H, I, J = (CELL(s, k, r) for k in ('c3', 'c4', 'c5', 'c6', 'c7'))
-                K = conf_ref(self.val(d, 'id'))
-                self.f(f'{s["c7"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{F}-1)*{K}*{G}*{H}*{I})', fmt=SF, merge_to=f'{s["c8"]}{r}',
-                       note='Score = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq. Signed, so a claim argued false counts against the side it is filed on, and a claim nobody has argued (Truth 0.50) contributes exactly 0. Confidence is read from the page this row points at.' if i == 0 else None)
+                K = conf_ref(self.val(d, 'id')); V = ver_ref(d)
+                self.f(f'{s["c7"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{F}-1)*{K}*{G}*{H}*{I}{V})', fmt=SF, merge_to=f'{s["c8"]}{r}',
+                       note='Score = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq x Ver. Signed, so a claim argued false counts against the side it is filed on, and a claim nobody has argued (Truth 0.50) contributes exactly 0. Confidence is read from the page this row points at. Ver is the evidence verification multiplier and is left out unless the row names a source type, a replication count or a replication agreement.' if i == 0 else None)
                 self.rank_cell(s, r, J, self.rng(s['c7'], rows))
         self.dim_when_blank('F', 'K', rows, '$C'); self.dim_when_blank('Q', 'V', rows, '$N')
         return rows
@@ -461,9 +469,9 @@ class Page:
                 self.imp_cell(f'{s["c3"]}{r}', d)
                 self.page_cell(f'{s["c4"]}{r}', self.val(d, 'uniq'), '@DEFUNIQ@')
                 D, E, F, G = (CELL(s, k, r) for k in ('c1', 'c2', 'c3', 'c4'))
-                KC = conf_ref(self.val(d, 'id'))
-                self.f(f'{s["c5"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{D}-1)*{KC}*{E}*{F}*{G})', fmt=SF)
-                self.f(f'{s["c6"]}{r}', f'=IF({CELL(s, "text", r)}="","",{KC}*{E}*{F}*{G}*(1-ABS(2*{D}-1)))', fmt='0.00')
+                KC = conf_ref(self.val(d, 'id')); V = ver_ref(d)
+                self.f(f'{s["c5"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{D}-1)*{KC}*{E}*{F}*{G}{V})', fmt=SF)
+                self.f(f'{s["c6"]}{r}', f'=IF({CELL(s, "text", r)}="","",{KC}*{E}*{F}*{G}{V}*(1-ABS(2*{D}-1)))', fmt='0.00')
                 self.inp(f'{s["c7"]}{r}', self.val(d, 'deadline'), merge_to=f'{s["c8"]}{r}')
         self.dim_when_blank('D', 'I', rows, '$C'); self.dim_when_blank('O', 'T', rows, '$N')
         r = self.nxt(20); self.rows['predtot'] = r

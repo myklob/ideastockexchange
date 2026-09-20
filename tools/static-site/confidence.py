@@ -6,7 +6,7 @@ challenged rather than presumed, sources cited, the claims underneath actually e
 
 Confidence is in [0,1] and multiplies a row's contribution to its parent:
 
-    contribution = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq
+    contribution = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq x Ver
 
 At confidence 0 a claim moves its parent not at all however true it looks, which is the wiki's "the scores
 wouldn't count". As the work accumulates the same claim counts more and more. This is deliberately NOT a cap on
@@ -20,6 +20,10 @@ page is never punished for a signal the format cannot carry. Wire them up and th
 structural components, which is the migration the wiki describes.
 """
 
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from evidence import verification as _verify
+
 # component -> (weight, always applicable?)  Reasoning quality outranks volume, per the wiki's own ordering.
 STRUCTURAL = {
     'grounding':   (0.30, True),   # is what sits underneath actually established, or just asserted?
@@ -27,7 +31,7 @@ STRUCTURAL = {
     'scrutiny':    (0.20, True),   # are the multipliers argued, or resting on their starting constants?
     'breadth':     (0.15, True),   # how much has been brought to bear
     'depth':       (0.05, True),   # how far down the tree goes
-    'sourcing':    (0.05, False),  # evidence rows that cite a source        (only where there is evidence)
+    'sourcing':    (0.05, False),  # evidence rows that cite a source and name what kind of source it is
     'testability': (0.05, False),  # predictions that are diagnostic and dated (only where there are predictions)
 }
 BEHAVIOURAL = ['up and down votes', 'weekly visitors', 'dwell time', 'edit frequency',
@@ -75,7 +79,9 @@ class Confidence:
 
         na = []
         ev = sp.get('evid', {}).get('for', []) + sp.get('evid', {}).get('against', [])
-        if ev: comp['sourcing'] = sum(1 for d in ev if (d.get('source') or '').strip()) / len(ev)
+        # half for citing a source at all, half for saying what kind of source it is: an uncategorised citation
+        # is a reference, not a verification, and the scorer cannot weigh it against anything.
+        if ev: comp['sourcing'] = sum(0.5 * bool((d.get('source') or '').strip()) + 0.5 * bool(_verify(d)['classified']) for d in ev) / len(ev)
         else: na.append('sourcing')
         # structural only: dated, and someone has opened a linkage page to argue how diagnostic it is.
         # Deliberately never reads a truth score, so confidence cannot recurse through the scorer.

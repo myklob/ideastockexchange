@@ -14,6 +14,9 @@ from score_reference import Model, normalize
 from build_pages import CONSTS, WIKI
 from build_subpages import KINDS
 from confidence import Confidence
+import evidence as EV
+from sensitivity import Sensitivity, INERT
+from reasonrank import ReasonRank
 from export_db import export as export_db
 
 def has(d):
@@ -37,6 +40,8 @@ class Corpus:
         self.model = Model(self.specs, CONST)
         self.conf = Confidence(self)          # how much work stands behind each page
         self.model.conf = self.conf.of        # ... and it gates what that page passes to its parents
+        self.sens = Sensitivity(self)         # what-if: which single input, moved, would change the answer
+        self.rank = ReasonRank(self)          # how much of the corpus's conclusion-weight flows through a page
         self.norm_pages, self.norm_edges = normalize(self.specs, self.beliefs)
         self.uses = {}          # pid -> [(page_id, section, side)] : every row anywhere that reads this page
         for e in self.norm_edges:
@@ -93,13 +98,16 @@ class Corpus:
 
     # ---- per-row values: sign x (2 x Truth - 1) x Link x Imp x Uniq, each factor from a page or a constant
     def row(self, d, sign=1):
-        """One row's factors and its signed contribution, sign x (2 x Truth - 1) x Link x Imp x Uniq. Mirrors
-        score_reference.Model._contrib; the two are checked against each other on every render."""
+        """One row's factors and its signed contribution, sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq x Ver.
+        Mirrors score_reference.Model._contrib; the two are checked against each other on every render. Ver is
+        the evidence verification multiplier and reads exactly 1.0 on any row that names no evidence type,
+        replication count or replication agreement, which is every row that is not a cited finding."""
         t, l, i, u = self.pg(d.get('id'), UNARG), self.pg(d.get('link'), DEFLINK), self.pg(d.get('imp'), DEFIMP), self.pg(d.get('uniq'), DEFUNIQ)
         k = self.conf.of(d['id']) if is_page(d.get('id')) else 0.0
-        return dict(truth=t, link=l, imp=i, uniq=u, conf=k,
-                    score=sign * (2 * t - 1) * k * l * i * u,
-                    stake=k * l * i * u * (1 - abs(2 * t - 1)))
+        v = EV.verification(d)
+        return dict(truth=t, link=l, imp=i, uniq=u, conf=k, ver=v['ver'], vparts=v, evs=EV.evs(d, l),
+                    score=sign * (2 * t - 1) * k * l * i * u * v['ver'],
+                    stake=k * l * i * u * v['ver'] * (1 - abs(2 * t - 1)))
 
     # ---- everything a belief page's scorecard and engine show, mirroring the workbook's engine cells
     def stats(self, pid):
@@ -130,6 +138,13 @@ class Corpus:
             s['nolink'] = sum(1 for d in rowspecs if not is_page(d.get('link')))
             s['noimp'] = sum(1 for d in rowspecs if not is_page(d.get('imp')))
             s['nouniq'] = sum(1 for d in rowspecs if not is_page(d.get('uniq')))
+            s['evs_for'] = sum(r['evs'] for r in rows['for']); s['evs_against'] = sum(r['evs'] for r in rows['against'])
+            s['evs'] = s['evs_for'] + s['evs_against']
+            uncl = sum(1 for d in EF + EA if not EV.verification(d)['classified'])
+            norep = sum(1 for d in EF + EA if not str(d.get('erq') or '').strip())
+            notes = ([f'{uncl} of {len(EF) + len(EA)} findings have no source type named yet'] if uncl else []) + \
+                    ([f'{norep} have no replication count recorded, so each counts as one study'] if norep else [])
+            s['evs_note'] = ('; '.join(notes) + '.') if notes else 'Every finding here is classified and has a replication count.'
             s['stake'] = sum(r['stake'] for r in rows['pt'] + rows['pf'])
             best = max(((r['stake'], i, side) for side in ('pt', 'pf') for i, r in enumerate(rows[side])), default=(0, None, None))
             s['movval'] = best[0]
@@ -269,6 +284,58 @@ def scored_table(H, c, side_rows, specs_rows, headers, key_label):
     out.append('</tbody></table>')
     return ''.join(out)
 
+def evidence_table(H, c, side_rows, specs_rows):
+    """An evidence row scores like any other row and then carries what verified it: source type, replications,
+    agreement. Ver multiplies the row; EVS is the wiki's own unbounded measure of evidentiary strength."""
+    order = sorted(range(len(specs_rows)), key=lambda i: -side_rows[i]['score'])
+    out = ['<table class="scored"><thead><tr><th class="rk">#</th><th>Finding</th><th>Truth</th><th>Link</th>'
+           '<th>Imp</th><th>Ver</th><th>Score</th><th>EVS</th><th>What verified it</th></tr></thead><tbody>']
+    for rank, i in enumerate(order, 1):
+        d, r = specs_rows[i], side_rows[i]
+        v = r['vparts']
+        vcell = f'<span class="n{"" if v["classified"] else " c"}" title="{esc(EV.label(d))}">{f2(r["ver"])}</span>'
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}</td>'
+                   f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
+                   f'<td>{H.num(r["link"], d.get("link"), const_label="No linkage page yet: presumed relevant")}</td>'
+                   f'<td>{H.num(r["imp"], d.get("imp"), const_label="No importance page yet: the neutral start")}</td>'
+                   f'<td>{vcell}</td><td class="sc">{sf(r["score"])}</td><td>{f2(r["evs"])}</td>'
+                   f'<td class="u">{esc(EV.label(d))}</td></tr>')
+    if not specs_rows: out.append('<tr><td colspan="9" class="empty">Nothing here yet.</td></tr>')
+    return ''.join(out) + '</tbody></table>'
+
+def sensitivity_section(H, c, pid):
+    """What the answer rests on: every input beneath the page swept from false to true, one at a time."""
+    a = c.sens.of(pid)
+    if not a['n']: return ''
+    out = [H.section('What Would Change the Answer',
+                     'Every claim beneath this page held at false and then at true, one at a time, with the whole '
+                     'graph recomputed each time. "If false" and "if true" are where this page’s truth score lands. '
+                     '"If settled" repeats the sweep with that claim’s confidence held at 1, which is what the input '
+                     'would be worth once the work behind it is finished: the gap between the two is the value of '
+                     'doing that work. This is one input at a time and finds single points of failure; it does not '
+                     'test several inputs moving together, which is how correlated assumptions actually fail.',
+                     ('Truth scores', WIKI['truth']))]
+    out.append(f'<p class="ro">{esc(c.sens.headline(pid, fmt=f2))}</p>')
+    out.append('<table class="scored"><thead><tr><th class="rk">#</th><th>Input</th><th>Its truth</th><th>Conf</th>'
+               '<th>If false</th><th>If true</th><th>Move</th><th>If settled</th><th>What it does here</th></tr></thead><tbody>')
+    for rank, r in enumerate(a['rows'], 1):
+        q = r['page']
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.a(q, c.brief(q)[0])} <span class="tk">{esc(KINDNAME[c.kind(q)])}</span></td>'
+                   f'<td>{H.num(r["current"], q)}</td><td>{pct(r["conf"])}</td>'
+                   f'<td>{f2(r["lo"])}</td><td>{f2(r["hi"])}</td><td class="sc">{f2(r["reach"])}</td>'
+                   f'<td>{f2(r["settled_reach"])}</td><td class="u">{esc(r["verdict"])}</td></tr>')
+    out.append('</tbody></table>')
+    tail = []
+    if len(a['all']) > len(a['rows']):
+        tail.append(f'{len(a["all"]) - len(a["rows"])} further inputs move it less than any row shown')
+    if a['inert']:
+        tail.append(f'{len(a["inert"])} of the {a["n"]} inputs move this page by less than {f2(INERT)}: nothing anyone could learn about them changes the answer here')
+    tail.append('Pushing the three widest inputs against the belief at once takes the truth score to '
+                + f2(a['joint']) + ' (' + f2(a['joint_settled']) + ' with their confidence settled): '
+                + '; '.join(esc(c.brief(q)[0]) for q in a['joint_pages']))
+    out.append('<p class="tot">' + '. '.join(tail) + '</p></section>')
+    return ''.join(out)
+
 def two_sided(H, c, left_title, right_title, left_html, right_html):
     return f'<div class="sides"><div class="side agree"><h3>{esc(left_title)}</h3>{left_html}</div><div class="side disagree"><h3>{esc(right_title)}</h3>{right_html}</div></div>'
 
@@ -303,6 +370,8 @@ def render_belief(c, pid):
     weak_first = sorted(kp['components'].items(), key=lambda x: x[1])[:2]
     read = [('Truth', (pct(s["share"]) + " of scored weight is on the agree side. Weight is signed: a claim argued false subtracts from the side it was filed on, and a claim nobody has argued adds nothing." if s["share"] is not None else "Nothing has been argued here yet, so this sits at the neutral start.") + cap)]
     read.append(('Confidence', f'{pct(kv)}, {c.conf.label(kv)}. This is how much of the work behind the score has actually been done, and it multiplies what this page passes to any page above it: at 0 a claim moves its parent not at all, however true it looks. Weakest parts right now: ' + ' and '.join(f'{k.replace("_"," ")} {pct(v)}' for k, v in weak_first) + '.'))
+    if c.sens.of(pid)['n']: read.append(('What the answer rests on', esc(c.sens.headline(pid, fmt=f2))))
+    read.append(('How much depends on this', rank_note(c, pid)))
     if s["mover"]: read.append(('What would move this most', esc(s["mover"]) + f' ({f2(s["movval"])} points at stake)'))
     if s['cba']['ben'] or s['cba']['cos']:
         read.append(('Worth doing?', ('Mixed units, so no single net. ' + '; '.join(f'{esc(cat)}: {smoney(b - x)}' for cat, b, x in s['catnet'])) if s['mixed'] else (f'Net expected value {sf(s["netev"])}' + (f', benefit to cost {f2(s["bcr"])}' if s['bcr'] is not None else ''))))
@@ -326,13 +395,18 @@ def render_belief(c, pid):
                        scored_table(H, c, s['rows']['agree'], sp['args']['agree'], None, 'Argument'),
                        scored_table(H, c, s['rows']['disagree'], sp['args']['disagree'], None, 'Argument')))
     o.append(f'<p class="tot">From these rows: weight for {f2(s["pro"])} · weight against {f2(s["con"])} · net {sf(s["pro"] - s["con"])}. A refuted objection counts as support and a refuted reason counts against, so weight lands on the side its sign puts it on, not the side it was filed on.</p></section>')
+    # ---- what would change the answer
+    sens = sensitivity_section(H, c, pid)
+    if sens: o.append(sens)
+    else: todo.append(('What Would Change the Answer', 'nothing sits beneath this page yet for the answer to rest on'))
     # ---- evidence
     if sp['evid']['for'] or sp['evid']['against']:
-      o.append(H.section('Evidence Ledger', 'Findings that can fail empirically. Each has its own page where its accuracy is argued; the source is shown under it.', ('How evidence is scored', WIKI['evidence'])))
+      o.append(H.section('Evidence Ledger', 'Findings that can fail empirically. Each has its own page where its accuracy is argued; the source is shown under it. Ver is the verification multiplier: what kind of source it is, how many independent replications exist and how many of them agreed. A finding nobody has classified reads Ver 1.00 and is left exactly where it was.', ('How evidence is scored', WIKI['evidence'])))
       o.append(two_sided(H, c, 'Supporting', 'Weakening',
-                       scored_table(H, c, s['rows']['for'], sp['evid']['for'], None, 'Finding'),
-                       scored_table(H, c, s['rows']['against'], sp['evid']['against'], None, 'Finding')))
-      o.append(f'<p class="tot">From these rows: weight for {f2(s["supp"])} · weight against {f2(s["weak"])} · net {sf(s["supp"] - s["weak"])}. A finding still sits at 0.50 until its own page argues its accuracy, and at 0.50 it contributes nothing.</p></section>')
+                       evidence_table(H, c, s['rows']['for'], sp['evid']['for']),
+                       evidence_table(H, c, s['rows']['against'], sp['evid']['against'])))
+      o.append(f'<p class="tot">From these rows: weight for {f2(s["supp"])} · weight against {f2(s["weak"])} · net {sf(s["supp"] - s["weak"])}. A finding still sits at 0.50 until its own page argues its accuracy, and at 0.50 it contributes nothing.</p>')
+      o.append(f'<p class="tot">Overall Evidence Verification Score {f2(s["evs"])} ({f2(s["evs_for"])} supporting, {f2(s["evs_against"])} weakening), the sum over these rows of source weight x relevance x replications x agreement. It is not a probability and has no ceiling: it says how much verified work the page rests on, which is the one thing a bounded score cannot show. {s["evs_note"]}</p></section>')
     else: todo.append(('Evidence Ledger', 'no findings cited yet'))
     # ---- predictions
     def pred_table(specs_rows, side_rows):
@@ -474,6 +548,18 @@ def render_belief(c, pid):
     o.append(FOOT)
     return ''.join(o)
 
+def rank_note(c, pid):
+    """How much of the corpus leans on this page, in one line."""
+    n = len(c.specs); place = c.rank.place_of(pid); bs = c.rank.beliefs_reached(pid)
+    readers = c.rank.readers(pid)
+    under = ('' if pid in c.beliefs else
+             f' It sits beneath {len(bs)} of the {len(c.rank.seeds)} beliefs in this corpus'
+             + (f' and is read directly by {len(readers)} pages.' if readers else '.'))
+    return (f'ReasonRank {c.rank.of(pid):.4f}, {place} of {n}. That is the share of a walk that starts evenly at '
+            f'the beliefs and steps from each page to the pages it reads, in proportion to how much each row '
+            f'could transmit once settled. It says how much depends on this page, not whether it is true.'
+            + esc(under))
+
 def wordings(H, c, pid):
     """Ways of saying the same thing, ranked by how succinct they are, with the equivalence score that decides whether
     a wording may stand in for this page where space is short."""
@@ -527,6 +613,8 @@ def engine_table(H, c, pid):
             r('Reasons to agree, total', f2(s['pro']), 'sum of the agree side'); r('Reasons to disagree, total', f2(s['con']), 'sum of the disagree side')
             r(f'{lab} score', f2(s['truth']), f'(agree + k x 0.5) / (agree + disagree + k), k = {K}')
             if k == 'media': r('Impact score', f2(s['impact']), 'the same rule applied to the impact table')
+    r('ReasonRank', f'{c.rank.of(pid):.4f}', f'share of the corpus walk that reaches this page, rank {c.rank.place_of(pid)} of {len(c.specs)}; damping {c.rank.d}, started evenly at the {len(c.rank.seeds)} beliefs')
+    r('Work value', f'{c.rank.of(pid) * (1 - c.conf.of(pid)):.4f}', 'ReasonRank x (1 - confidence): how much settling this page would be worth to the corpus')
     r('Completeness', 'yes' if s['complete'] else 'no', 'at least one scored reason on each side (an importance page: at least one interest; an interest page: both readings filled)')
     consts = ' · '.join(f'{k_} = {v}' for k_, v in CONST.items())
     return H.section('Scoring Engine', 'Every value here is computed from the tables above at build time. Nothing is typed.', ('Truth scores', WIKI['truth'])) + '<table class="plain"><thead><tr><th>Quantity</th><th>Value</th><th>How</th></tr></thead><tbody>' + ''.join(rows) + f'</tbody></table><p class="consts">Constants: {consts}. ' + esc(CONST_MEANING['DEFLINK'].split('.')[0]) + '. ' + esc(CONST_MEANING['DEFIMP'].split(':')[0]) + '.</p></section>'
@@ -645,6 +733,30 @@ def render_index(c, title):
         s = c.stats(b); sp = c.specs[b]
         o.append(f'<a class="bcard" href="p/{c.href(b)}"><div class="bt">{esc(c.text(b))}</div><div class="bn"><span><b>{f2(s["truth"])}</b> truth</span><span><b>{sf(s["belief"])}</b> belief</span><span><b>{f2(s["pos"])}</b> weight for</span><span><b>{f2(s["neg"])}</b> against</span></div><div class="bb">{esc(sp.get("bottom_line") or "")}</div></a>')
     o.append('</div>')
+    # what the corpus rests on, and what to argue next
+    rr = c.rank
+    o.append('<section><h2><span>What the corpus rests on</span><a class="wiki" href="' + WIKI['truth'] + '">ReasonRank →</a></h2>')
+    o.append(f'<p class="blurb">A walk starts evenly at the {len(rr.seeds)} beliefs and steps from each page to the pages it reads, '
+             f'choosing among rows in proportion to how much each could transmit once settled: Link x Imp x Uniq x Ver, with a '
+             f'{rr.d} chance of stepping on rather than restarting at a belief. ReasonRank is the share of that walk arriving at a page. '
+             f'It measures how much depends on a claim, never whether the claim is true, which is the one thing a truth score cannot tell you. '
+             f'Work value is ReasonRank x (1 - confidence): high rank with the work already done is a settled foundation, high rank with the work '
+             f'undone is the next week an analyst should spend. The beliefs themselves are left out, because the walk starts there and '
+             f'"argue the conclusion" is not a work plan.</p>')
+    o.append('<div class="sides"><div class="side"><h3 class="sub">Argue these next</h3>'
+             '<table class="scored"><thead><tr><th class="rk">#</th><th>Page</th><th>Rank</th><th>Conf</th><th>Beliefs</th><th>Work</th></tr></thead><tbody>')
+    for i, r in enumerate(rr.work_queue(12), 1):
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(r["page"])}">{esc(c.brief(r["page"])[0])}</a> <span class="tk">{esc(KINDNAME[r["kind"]])}</span></td>'
+                 f'<td>{r["rank"]:.4f}</td><td>{pct(r["conf"])}</td><td>{r["beliefs"]}</td><td class="sc">{r["work"]:.4f}</td></tr>')
+    o.append('</tbody></table></div><div class="side"><h3 class="sub">Most depended upon</h3>'
+             '<table class="scored"><thead><tr><th class="rk">#</th><th>Page</th><th>Rank</th><th>Truth</th><th>Conf</th><th>Beliefs</th></tr></thead><tbody>')
+    for i, r in enumerate(rr.top(12), 1):
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(r["page"])}">{esc(c.brief(r["page"])[0])}</a> <span class="tk">{esc(KINDNAME[r["kind"]])}</span></td>'
+                 f'<td>{r["rank"]:.4f}</td><td>{f2(r["truth"])}</td><td>{pct(r["conf"])}</td><td>{r["beliefs"]}</td></tr>')
+    o.append('</tbody></table></div></div>')
+    shared = [r for r in rr.top(len(c.specs)) if r['beliefs'] > 1]
+    o.append(f'<p class="tot">{len(shared)} pages sit beneath more than one belief; settling one of those moves every belief above it. '
+             f'The walk converged to a residual of {rr.residual:.1e}.</p></section>')
     # tree
     o.append('<section><h2><span>The tree</span></h2><p class="blurb">Beliefs, the rows on them, and the pages that supply each row\'s numbers. Open a belief to see its rows; open a row to see the pages behind its multipliers.</p>')
     def node(pid, depth=0):

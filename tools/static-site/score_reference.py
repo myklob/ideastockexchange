@@ -8,7 +8,7 @@ Two jobs, one code path:
    every multiplier is a page id (link_id, imp_id, uniq_id, drives_id, equiv_id, bearing_id, who_id) or nothing.
 
 2. Model computes every score from those two tables alone, with the same rules the workbook's formulas implement:
-     row contribution     = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq   (arguments, evidence, predictions)
+     row contribution     = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq x Ver  (arguments, evidence, predictions)
                             signed: a claim argued false counts against the side it was filed on, and a claim
                             nobody has argued contributes 0. POS and NEG are the positive and negative
                             contributions as magnitudes, so a row lands on the side its sign puts it on.
@@ -23,7 +23,9 @@ Two jobs, one code path:
 
 Run as a script: python3 score_reference.py ise_zoning.json  -> prints every page's truth and belief score.
 """
-import json, sys
+import json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from evidence import ver as evidence_ver
 
 CONSTS = {'K': 1, 'UNARG': 0.5, 'DEFLINK': 1, 'DEFIMP': 0.5, 'DEFUNIQ': 1}
 SPECIAL = ('linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media')
@@ -122,24 +124,38 @@ class Model:
         # How much this page's score has earned the right to count, in [0,1]; see confidence.py.
         # Default 1.0 leaves the scorer exactly as it was, so the zoning reference still reproduces.
         self.conf = lambda pid: 1.0
+        # What-if machinery (sensitivity.py): hold a page's truth, or its confidence, at a chosen value and read
+        # the whole graph again. Empty in normal operation, so this costs nothing until something asks.
+        self.pinned_truth = {}
+        self.pinned_conf = {}
 
     def rows(self, pid, section, side=None):
         return [e for e in self.edges.get(pid, []) if e['section'] == section and (side is None or e.get('side') == side)]
-    def truth(self, pid): return self.evaluate(pid)['truth']
+    def truth(self, pid):
+        if pid in self.pinned_truth: return self.pinned_truth[pid]
+        return self.evaluate(pid)['truth']
+    def confidence(self, pid):
+        if pid in self.pinned_conf: return self.pinned_conf[pid]
+        return self.conf(pid)
     def pg(self, v, default): return self.truth(v) if is_page(v) else default
     def _share(self, pro, con):
         K = self.C['K']; return (pro + K * 0.5) / (pro + con + K)
     def _contrib(self, e, sign):
-        """What a row contributes, signed, in [-1, +1]: sign x (2 x Truth - 1) x Link x Imp x Uniq.
+        """What a row contributes, signed: sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq x Ver.
 
         Truth enters on the -1..+1 scale the wiki uses, so a claim argued false counts AGAINST the side it was
         filed on: ten refuted reasons to agree weaken the belief instead of padding it. A claim nobody has
         argued sits at 0.5 and contributes exactly 0, so listing a claim is worth nothing until it is argued.
-        One formula for arguments, evidence and predictions alike; predictions always used this form."""
+        One formula for arguments, evidence and predictions alike; predictions always used this form.
+
+        Ver is the evidence verification multiplier (evidence.py): source type, replication count and
+        replication agreement. A row that names none of them reads exactly 1.0, so this term is invisible
+        until someone classifies a finding, and every row that is not evidence carries no such fields."""
         C = self.C
         cid = e.get('claim_id')
-        return (sign * (2 * self.pg(cid, C['UNARG']) - 1) * (self.conf(cid) if is_page(cid) else 0.0)
-                * self.pg(e.get('link_id'), C['DEFLINK']) * self.pg(e.get('imp_id'), C['DEFIMP']) * self.pg(e.get('uniq_id'), C['DEFUNIQ']))
+        return (sign * (2 * self.pg(cid, C['UNARG']) - 1) * (self.confidence(cid) if is_page(cid) else 0.0)
+                * self.pg(e.get('link_id'), C['DEFLINK']) * self.pg(e.get('imp_id'), C['DEFIMP']) * self.pg(e.get('uniq_id'), C['DEFUNIQ'])
+                * evidence_ver(e.get('attrs')))
     @staticmethod
     def _split(vals):
         """Weight for and weight against, both as magnitudes. A row lands on the side its sign puts it on, not the

@@ -10,7 +10,7 @@
 # B = Rank, C = Pattern, D = text, E..K = numbers; L..V the same for the right side; W and X hidden mirrors.
 from openpyxl.styles import Font
 from openpyxl.worksheet.datavalidation import DataValidation
-from build_pages import (Page, CELL, PAGE, HL, TCELL, STRIP, is_page, CONSTS, MIRROR_TRUTH, COMPLETE_CELL, WIKI, IDFONT, IDLINK, kind_of, conf_ref, CONF_OF,
+from build_pages import (ver_ref, Page, CELL, PAGE, HL, TCELL, STRIP, is_page, CONSTS, MIRROR_TRUTH, COMPLETE_CELL, WIKI, IDFONT, IDLINK, kind_of, conf_ref, CONF_OF,
                          HDR_FILL, SUB_FILL, GREEN, RED, GREY, INPUT, BLUEBOX, ENG, CONST, WRAP, CENTER, MID, MIDC, LINK, DIM, SF, END)
 
 COLW2 = {'A': 6, 'B': 5, 'C': 13, 'D': 44, 'E': 8, 'F': 8, 'G': 8, 'H': 8, 'I': 8, 'J': 8, 'K': 8, 'L': 6,
@@ -252,7 +252,7 @@ class SubPage(Page):
                 self.page_cell(f'{s["c4"]}{r}', self.val(d, 'uniq'), '@DEFUNIQ@', note='Uniq: a uniqueness page, or 1.' if i == 0 else None)
                 E, F, G, H, I = (CELL(s, k, r) for k in ('c1', 'c2', 'c3', 'c4', 'c5'))
                 KC = conf_ref(self.val(d, 'id'))
-                self.f(f'{s["c5"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{E}-1)*{KC}*{F}*{G}*{H})', fmt=SF, merge_to=f'{s["c7"]}{r}',
+                self.f(f'{s["c5"]}{r}', f'=IF({CELL(s, "text", r)}="","",{sign}(2*{E}-1)*{KC}*{F}*{G}*{H}{ver_ref(d)})', fmt=SF, merge_to=f'{s["c7"]}{r}',
                        note='Score = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq. Signed, so a reason argued false counts against the side it is filed on and an unargued one contributes 0.' if i == 0 else None)
                 self.rank_cell(s, r, I, self.rng(s['c5'], rows))
         self.dim_when_blank('E', 'K', rows, '$D'); self.dim_when_blank('P', 'V', rows, '$O')

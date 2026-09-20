@@ -63,6 +63,7 @@ PLAIN = [('text', 'text'), ('source', 'source'), ('pattern', 'pattern'), ('categ
          ('magnitude', 'magnitude'), ('deadline', 'deadline')]
 # everything else a row can carry, by section, written into and read out of the `extra` column
 EXTRA = {'component': ['type', 'stated', 'lb', 'assumes'], 'motive': ['advertised', 'actual'],
+         'evidence': ['etype', 'erq', 'erp'],
          'compromise': ['premise', 'difficult'], 'shared_interest': ['direction'],
          'value': ['value', 'srank', 'orank', 'why'], 'definition': ['term', 'definition'],
          'dispute': ['what', 'move'], 'interest': ['value', 'measured'], 'media': ['type']}
@@ -250,7 +251,8 @@ HELP = {
  'pattern': 'The shape of the reason on a specialized page.', 'category': 'cost and benefit rows: the units.',
  'magnitude': 'cost and benefit rows: the estimate, in those units. The one typed number in the system.',
  'deadline': 'prediction rows: when and how it gets settled.',
- 'extra': 'Anything else the row carries, as "name: value | name: value".',
+ 'extra': 'Anything else the row carries, as "name: value | name: value". On an evidence row: etype (the '
+          'evidence category, see evidence.py), erq (independent replications) and erp (percent of them that agreed).',
 }
 LISTS = {'kind': ['belief', 'claim', 'linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media'],
          'section': sorted(set(SECTIONS) | set(SPLIT)), 'side': ['agree', 'disagree', 'extreme', 'moderate', 'x', 'y'],
