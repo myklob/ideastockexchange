@@ -234,8 +234,9 @@
       <header class="hero">
         <h1>Idea Stock Exchange</h1>
         <p class="tagline">A prediction market for ideas, where arguments are scored, not just shouted.</p>
-        <p class="deck">Every claim gets two numbers: a logic score derived from sub-arguments and evidence (<strong>ReasonRank</strong>), and a market price set by what the crowd is willing to bet (<strong>Market Price</strong>). When the two diverge, there&rsquo;s a trade. The examples below show what a scored belief actually looks like.</p>
-        <p class="deck"><a href="beliefs/"><strong>Browse the scored belief pages</strong></a>: five beliefs on government ethics, argued on both sides, every number computed from the argument tree and linked to the page that produced it.</p>
+        <p class="deck">A claim is scored from the arguments and evidence beneath it (<strong>ReasonRank</strong>), recursively, with every factor read from the page that argues it. A second layer, a <strong>Market Price</strong> set by what people will bet, is designed and not yet built; where this page describes it, read it as a plan. <a href="beliefs/">The live belief pages</a> are the part that exists, and every number on them is computed at build time from two tables.</p>
+        <p class="deck"><a href="beliefs/"><strong>Browse the scored belief pages</strong></a>: five beliefs on government ethics across 261 pages, argued on both sides, every number computed from two tables at build time and linked to the page that produced it. Each page opens by saying what it supports doing, and all five currently say &ldquo;not yet&rdquo; and then say exactly what is missing.</p>
+        <p class="deck">Alongside them: <a href="beliefs/method.html">the method</a>, every rule on one page including seven things the tool cannot do &middot; <a href="beliefs/changes.html">what changed in this revision</a>, in claims and in the scores they moved &middot; and the data behind all of it as <a href="beliefs/data/ise.json">JSON</a>, <a href="beliefs/data/ise_data.sql">SQL</a> and a loaded <a href="beliefs/data/ise.sqlite">SQLite database</a>.</p>
       </header>
 
       <section id="pillars">
@@ -246,8 +247,8 @@
             <p>Each argument inherits strength from the arguments and evidence that support or undermine it &mdash; recursively. Strong claims earn their score; weak ones can&rsquo;t hide behind volume.</p>
           </div>
           <div class="pillar">
-            <h3>Market Price</h3>
-            <p>A belief&rsquo;s share price reflects what the crowd thinks is true, set by a constant-product market maker. Buy if you disagree with the price and can defend the position.</p>
+            <h3>Market Price <em>(planned)</em></h3>
+            <p>A belief&rsquo;s share price would reflect what the crowd thinks is true, set by a constant-product market maker. Buy if you disagree with the price and can defend the position. Nothing on the live site implements this yet.</p>
           </div>
           <div class="pillar">
             <h3>The arbitrage</h3>
@@ -268,12 +269,12 @@
           <div class="step-num">2</div>
           <div class="step-body">
             <strong>Argument trees</strong>
-            <span>Reasons to Agree and Reasons to Disagree, side by side. Each entry is a 2&ndash;6 word label, not a paragraph. Citations live elsewhere.</span>
+            <span>Reasons to Agree and Reasons to Disagree, side by side. Each entry is a complete, atomic proposition &mdash; a sentence that could headline a page of its own, because it does. A cell that cannot carry a truth score is not an argument.</span>
           </div>
           <div class="step-num">3</div>
           <div class="step-body">
             <strong>Evidence ledger</strong>
-            <span>Empirical data tiered by source quality (T1 peer-reviewed &rarr; T4 opinion), each row pinned to the specific argument it supports.</span>
+            <span>Findings that can fail empirically, each with its own page and its own source. What kind of source it is sets where the claim starts before anyone argues with it: a published statistic every replication confirms opens at 0.95, the same statistic contradicted opens at 0.05, and a claim citing nothing opens at a coin flip and contributes nothing.</span>
           </div>
           <div class="step-num">4</div>
           <div class="step-body">
@@ -302,13 +303,13 @@
           </div>
         </div>
         <div class="callout">
-          <strong>Two layers, scored separately.</strong> Arguments are logical claims; evidence is empirical data. They fail differently and live in different sections. The recursive scoring rule is <span class="formula">Argument Score = Evidence Quality &times; Logical Validity &times; Linkage Strength</span>.
+          <strong>Two layers, scored separately.</strong> Arguments are logical claims; evidence is empirical data. They fail differently and live in different sections. The rule that runs is <span class="formula">sign &times; (2 &times; Truth &minus; 1) &times; Confidence &times; Link &times; Imp &times; Uniq</span>, signed so that a claim argued false counts against the side it was filed on and a claim nobody has argued counts exactly nothing. Every factor is read from the page that argues it, and <a href="beliefs/method.html">the method page</a> states all of it, including what the tool cannot do.
         </div>
       </section>
 
       <section id="examples">
         <h2>Example beliefs</h2>
-        <p>Two illustrative belief pages, abbreviated to fit on this landing page. Argument labels are short on purpose &mdash; in the live application each one is its own page with its own sub-arguments and evidence ledger. Scores shown are illustrative.</p>
+        <p><strong>These two are mock-ups, not output.</strong> The scores are invented and the short argument labels and T1&ndash;T4 tiers predate the current rules; the live pages use complete propositions and the seventeen source tiers described above. They are kept here because they fit on a landing page. For anything you would act on, read <a href="beliefs/">the five real belief pages</a>, where every number is computed and links to the page that produced it.</p>
 
         <div class="belief">
           <h3 class="statement">Cities should adopt congestion pricing for the urban core.</h3>
@@ -549,8 +550,9 @@
       </section>
 
       <section id="market">
-        <h2>The market price layer</h2>
-        <p>Independent of the logic score, users invest virtual currency (<strong>IdeaCredits</strong>) in claims via a constant-product market maker. Buying YES shares pushes the price up; buying NO pushes it down. Prices reflect the crowd&rsquo;s collective probability estimate &mdash; separately from whether the claim is logically sound.</p>
+        <h2>The market price layer <em>(designed, not built)</em></h2>
+        <p class="deck">None of what follows runs anywhere. It is the design for a second layer, kept here because it is half the idea; the scored belief pages are the half that exists.</p>
+        <p>Independent of the logic score, users would invest virtual currency (<strong>IdeaCredits</strong>) in claims via a constant-product market maker. Buying YES shares pushes the price up; buying NO pushes it down. Prices reflect the crowd&rsquo;s collective probability estimate &mdash; separately from whether the claim is logically sound.</p>
         <p>When ReasonRank and Market Price diverge, rational actors profit:</p>
         <table class="arbitrage-table">
           <thead>
@@ -592,8 +594,9 @@
 
       <section id="code">
         <h2>The code</h2>
-        <p>The application is a TypeScript / Next.js codebase with a Prisma-backed schema for beliefs, arguments, evidence, linkage scores, and a constant-product market maker for the Market Price layer. Source lives at <a href="https://github.com/myklob/ideastockexchange">github.com/myklob/ideastockexchange</a>.</p>
-        <p>The repository is the work-in-progress reference implementation. A hosted version of the application is a separate deployment.</p>
+        <p>Two things live in <a href="https://github.com/myklob/ideastockexchange">the repository</a>, and only one of them is published here.</p>
+        <p><strong>The scored belief pages</strong> are generated by a Python toolchain in <code>tools/static-site/</code> from two flat tables: one row per page, one row per row of every table on every page. No score is stored in either. The scorer, the evidence tiers, the confidence rule, the sensitivity sweep, the ReasonRank walk and the duplicate detector are one short module each, with a conformance corpus of sixteen pages and their expected numbers checked in so an implementation in any other language can be held to the same contract. The content is kept as CSV as well as a spreadsheet, so a change to an argument diffs as a change to an argument rather than as a change in byte count.</p>
+        <p><strong>The application</strong> is a TypeScript and Next.js codebase with a Prisma-backed schema for beliefs, arguments, evidence and linkage scores, and the market maker described above. It is a work in progress and a separate deployment. Its scoring engine does not yet follow the same rule as the published pages, which is an open question rather than an oversight.</p>
       </section>
 
       <section id="contribute">
