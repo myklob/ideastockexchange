@@ -113,8 +113,8 @@ in all four here, and four implementations of a rule is four chances to be wrong
   no longer how the rules are checked. LibreOffice cannot be driven in a build container, so a check that depends on
   it is a check that stops running.
 
-**The conformance suite is what makes any of that safe.** `conformance/corpus.json` is twenty-one pages and
-twenty-two rows built to exercise every rule once, plus the five constants and the seventeen evidence tiers, so a
+**The conformance suite is what makes any of that safe.** `conformance/corpus.json` is twenty-four pages and
+twenty-five rows built to exercise every rule once, plus the five constants and the seventeen evidence tiers, so a
 port needs nothing from this repository's source to run it; `conformance/expected.json` is what they score. Any
 implementation in any language loads the first, computes, and compares against the second. `conformance.py --write`
 regenerates them, so a deliberate rule change arrives as a reviewed diff and an accidental one arrives as a failing
@@ -126,6 +126,11 @@ live corpus and returned a truth starting point of 1.40 the first time it was ha
 150. A rule the conformance corpus does not exercise is a rule nothing enforces, whatever the contract says in
 prose. Pages 17 to 21 exercise the three, and a test checks that each of them differs from what a port skipping
 the coercion would produce, because a case that agrees either way is testing nothing.
+
+Three more cover the branches where a rule is supposed to do nothing, which is the other way a port goes wrong:
+an importance page with nothing listed under it, a load-bearing premise better established than the conclusion
+it holds up (the cap is a minimum, not a replacement), and a premise stated in words that nobody has opened a
+page for yet (which caps nothing, rather than capping at zero).
 
 ## Reading it
 

@@ -255,6 +255,23 @@
    "etype": "statistics",
    "erq": 1,
    "erp": 150
+  },
+  {
+   "id": 22,
+   "kind": "importance",
+   "x_id": 2,
+   "y_id": 1,
+   "rowkind": "reason to agree"
+  },
+  {
+   "id": 23,
+   "kind": "claim",
+   "text": "A claim whose necessary premise is better established than it is"
+  },
+  {
+   "id": 24,
+   "kind": "claim",
+   "text": "A claim whose necessary premise has no page yet"
   }
  ],
  "edges": [
@@ -450,6 +467,37 @@
    "side": "agree",
    "position": 1,
    "claim_id": 12
+  },
+  {
+   "id": 23,
+   "page_id": 23,
+   "section": "argument",
+   "side": "disagree",
+   "position": 1,
+   "claim_id": 2
+  },
+  {
+   "id": 24,
+   "page_id": 23,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "claim_id": 2,
+   "attrs": {
+    "lb": "Y",
+    "type": "Causal"
+   }
+  },
+  {
+   "id": 25,
+   "page_id": 24,
+   "section": "component",
+   "side": null,
+   "position": 1,
+   "text": "a premise stated in words and not yet argued",
+   "attrs": {
+    "lb": "Y"
+   }
   }
  ]
 }

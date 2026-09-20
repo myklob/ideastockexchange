@@ -589,6 +589,20 @@ class TestTheContractCoversItsOwnCoercions(unittest.TestCase):
             self.assertGreaterEqual(want[pid]['p0'], 0.0)
             self.assertLessEqual(want[pid]['p0'], 1.0)
 
+    def test_the_branches_where_a_rule_does_nothing_are_in_the_corpus(self):
+        """The cases a port gets wrong by applying a rule too eagerly. Each is a page the contract describes
+        and the corpus did not reach: an importance page with nothing listed, a cap that should not bind, and
+        a necessary premise nobody has opened a page for."""
+        want = self.want['pages']
+        self.assertAlmostEqual(want['22']['truth'], 0.5, places=9,
+                               msg='an importance page with nothing listed reads its own starting point')
+        self.assertAlmostEqual(want['23']['truth'], want['23']['raw'], places=9,
+                               msg='the cap is a minimum, so a premise above the argued number changes nothing')
+        self.assertLess(want['23']['truth'], 0.95,
+                        msg='a port replacing rather than minimising would read the component here')
+        self.assertAlmostEqual(want['24']['truth'], 0.5, places=9,
+                               msg='a load-bearing premise with no page caps nothing rather than capping at 0')
+
     def test_a_port_that_skipped_a_coercion_would_fail_the_suite(self):
         """The point of the pages is that they differ from what a naive reading produces. If any of them
         happened to agree with the uncoerced arithmetic, it would be exercising nothing."""
