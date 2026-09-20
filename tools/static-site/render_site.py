@@ -966,6 +966,80 @@ def render_special(c, pid):
     o.append(FOOT)
     return ''.join(o)
 
+def browse_and_lists(H, c):
+    """Category navigation, then the corpus ranked the ways a reader actually wants it ranked.
+
+    A list is only worth printing if the thing it ranks by exists. Votes, comments and timestamps do not exist
+    here, so "popular", "this week" and "most discussed" cannot be computed, only fabricated. What can be
+    computed is better anyway: ReasonRank says how much of the corpus leans on a page, which is what "popular"
+    is a proxy for, and it is measured rather than asserted. The section says which lists are waiting on data
+    rather than leaving a reader to assume the site has none."""
+    o = []
+    # ---- category navigation: every page hangs under exactly one belief
+    parent = {p: c.specs[p].get('supports') for p in c.specs}
+    under = {b: 0 for b in c.beliefs}
+    for p in c.specs:
+        seen, q = set(), parent.get(p)
+        while q and q not in seen:
+            seen.add(q)
+            if q in under: under[q] += 1; break
+            q = parent.get(q)
+    o.append('<section><h2><span>Browse by topic</span></h2>'
+             '<p class="blurb">Every page in the corpus hangs under one of these. The count is how many pages '
+             'sit beneath it, and the truth score is what its own rows and premises currently argue.</p>')
+    o.append('<table class="scored"><thead><tr><th>Topic</th><th>Pages</th><th>Truth</th><th>Conf</th>'
+             '<th>Belief</th></tr></thead><tbody>')
+    for b in sorted(c.beliefs, key=lambda x: -under.get(x, 0)):
+        st = c.stats(b)
+        o.append(f'<tr><td class="t"><a href="p/{c.href(b)}">{esc(c.brief(b)[0])}</a></td>'
+                 f'<td>{under.get(b, 0)}</td><td>{f2(st["truth"])}</td><td>{pct(c.conf.of(b))}</td>'
+                 f'<td class="sc">{sf(st["belief"])}</td></tr>')
+    o.append('</tbody></table></section>')
+
+    # ---- the ranked lists
+    def table(heading, blurb, rows, extra_head, extra_cell):
+        if not rows: return
+        o.append(f'<h3 class="sub">{esc(heading)}</h3><p class="blurb">{esc(blurb)}</p>')
+        o.append(f'<table class="scored"><thead><tr><th class="rk">#</th><th>Page</th><th>Truth</th>'
+                 f'<th>Conf</th><th>{esc(extra_head)}</th></tr></thead><tbody>')
+        for i, pid in enumerate(rows, 1):
+            o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(pid)}">{esc(c.brief(pid)[0])}</a> '
+                     f'<span class="tk">{esc(KINDNAME[c.kind(pid)])}</span></td>'
+                     f'<td>{f2(c.truth(pid))}</td><td>{pct(c.conf.of(pid))}</td>'
+                     f'<td class="sc">{extra_cell(pid)}</td></tr>')
+        o.append('</tbody></table>')
+
+    o.append('<section><h2><span>The lists</span></h2>')
+    settled = sorted((p for p in c.specs if abs(c.truth(p) - 0.5) > 1e-9),
+                     key=lambda p: (-c.conf.of(p), -abs(c.truth(p) - 0.5)))[:10]
+    table('Best established', 'Pages whose score has actually moved off the coin flip, most work behind them '
+          'first. A page only leaves 0.50 by citing something, so this is the list of claims that touch the '
+          'world rather than only other claims.', settled, 'Off 0.50', lambda p: f'{abs(c.truth(p)-0.5):.2f}')
+
+    depended = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief'][:10]
+    table('Most depended on', 'How much of the corpus leans on a page, from a damped walk that starts at the '
+          'beliefs and steps to the pages they read. This is what a popularity ranking is a proxy for, except '
+          'measured. It says nothing about whether the claim is true.',
+          depended, 'ReasonRank', lambda p: f'{c.rank.of(p):.4f}')
+
+    # pos and neg exist only where a page has two sides to have weight on; the formula-built kinds do not.
+    def sides(pid):
+        st = c.stats(pid)
+        return st.get('pos', 0.0) or 0.0, st.get('neg', 0.0) or 0.0
+    twosided = sorted((p for p in c.specs if min(sides(p)) > 1e-9), key=lambda p: -min(sides(p)))[:10]
+    table('Argued on both sides', 'Weight for and weight against, both non-zero. There are very few, and that '
+          'is the finding: almost nothing below the beliefs has anybody arguing the other way yet.',
+          twosided, 'Weaker side', lambda p: f2(min(sides(p))))
+
+    o.append('<p class="tot">Three lists a reader might expect are missing because nothing here can compute '
+             'them honestly. There are no votes, so there is no popularity; no timestamps on claims, so there '
+             'is no "this week"; and no comments, so there is nothing to count. Wire any of those up and the '
+             'list can be built; until then an invented ranking would be the one number on this site nobody '
+             'could check. What is ranked next, by how much conclusion score is still at stake on it, is '
+             'below.</p></section>')
+    return ''.join(o)
+
+
 # ------------------------------------------------------------------------------------------------ index
 def render_index(c, title):
     H = Html(c)
@@ -975,8 +1049,11 @@ def render_index(c, title):
              '<a href="changes.html">What changed in this revision</a></em></p>')
     o.append(f'<p class="kind">Idea Stock Exchange · {esc(c.name)}</p><h1>Every claim has a page. Every number is a link.</h1>')
     ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
-    o.append(f'<p class="lede">{len(c.specs)} pages. Each belief below is one claim, argued on both sides, with every reason, finding and prediction scored as sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq, every factor read from the page that argues it. The score is signed: a claim argued false counts against the side it was filed on, and a claim nobody has argued counts exactly nothing, so listing reasons is worth nothing until they are argued.</p>')
-    o.append(f'<p class="lede">That rule has a consequence worth stating plainly. If every claim starts at a coin flip, every claim stays at a coin flip: a row contributes (2 x Truth - 1), which is zero at a neutral leaf and therefore zero all the way up. Argument about argument never touches the world. What touches the world is evidence, so a page may say what it rests on, and that sets where its truth starts: a published statistic every replication confirms opens at 0.95, the same statistic contradicted opens at 0.05, and anything half-confirmed opens at 0.50 whatever its source. {len(ground)} of these {len(c.specs)} pages cite something, and {sum(1 for p in c.specs if abs(c.truth(p) - 0.5) > 1e-9)} have ended up anywhere other than 0.50; a cited finding whose replications disagree correctly lands back on the line. Everything else starts at a coin flip and stays there until someone argues it or goes and finds out. No score on this site is typed.</p>')
+    o.append(f'<p class="lede">{len(c.specs)} pages, one claim each, argued on both sides. Every number is '
+             f'computed from two tables at build time and links to the page that argues it: nothing here is typed. '
+             f'{len(ground)} pages cite something, and a page that cites nothing sits at 0.50 until somebody goes '
+             f'and finds out, which is why most of them do. '
+             f'<a href="method.html">How every number is computed</a>.</p>')
     # belief cards
     o.append('<div class="beliefs">')
     for b in sorted(c.beliefs):
@@ -1009,6 +1086,7 @@ def render_index(c, title):
                  f'<span><b>{pct(c.conf.of(b))}</b> confidence</span></div>'
                  f'<div class="bb">{esc(note)}</div><div class="bb">{esc(sp.get("bottom_line") or "")}</div></a>')
     o.append('</div>')
+    o.append(browse_and_lists(H, c))
     # what the corpus rests on, and what to argue next
     rr = c.rank
     o.append('<section><h2><span>What the corpus rests on</span><a class="wiki" href="' + WIKI['truth'] + '">ReasonRank →</a></h2>')

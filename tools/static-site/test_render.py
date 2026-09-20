@@ -680,3 +680,62 @@ class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
             t = self._text(h)
             self.assertIn('Reading the scorecard', t)
             self.assertIn('Confidence, in detail', t)
+
+
+class TestTheFrontPageRanksWhatItCan(unittest.TestCase):
+    """The front page carries category navigation and ranked lists. The rule that matters is which lists get
+    printed: a ranking nobody can compute is the one number on this site a reader could not check, so the page
+    ranks what the corpus supports and names what it does not rather than inventing it."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.c = cls.parent.html
+        cls.corpus = cls.parent.c
+        cls.text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', cls.c['index.html']))
+
+    def test_it_offers_a_way_into_the_corpus_by_topic(self):
+        self.assertIn('Browse by topic', self.text)
+        for b in self.corpus.beliefs:
+            self.assertIn(self.corpus.href(b), self.c['index.html'],
+                          f'{self.corpus.key[b]} is not reachable from the front page')
+
+    def test_the_topic_counts_add_up_to_the_corpus(self):
+        """Every page hangs under exactly one belief, so the counts plus the beliefs themselves are the whole
+        corpus. A navigation that silently loses pages is worse than none."""
+        counts = [int(n) for n in re.findall(r'</a></td><td>(\d+)</td><td>', self.c['index.html'])]
+        self.assertTrue(counts, 'the topic table printed no counts')
+        # A page counts once, under the nearest belief above it. Four of the five beliefs hang under the
+        # fifth, so they are counted there and only the root sits outside every subtree.
+        parent = {q: self.corpus.specs[q].get('supports') for q in self.corpus.specs}
+        def has_belief_above(q):
+            seen, x = set(), parent.get(q)
+            while x and x not in seen:
+                seen.add(x)
+                if x in self.corpus.beliefs: return True
+                x = parent.get(x)
+            return False
+        roots = [b for b in self.corpus.beliefs if not has_belief_above(b)]
+        self.assertEqual(sum(counts) + len(roots), len(self.corpus.specs),
+                         'the topic navigation loses or double-counts pages')
+
+    def test_every_list_it_prints_has_rows(self):
+        for heading in ('Best established', 'Most depended on', 'Argued on both sides'):
+            i = self.text.find(heading)
+            self.assertGreater(i, 0, f'{heading} is missing')
+            # the first ranked row follows within the table that comes after the heading
+            self.assertRegex(self.text[i:i + 900], r'\b1\b',
+                             f'{heading} printed no ranked rows')
+
+    def test_it_says_which_rankings_it_cannot_compute(self):
+        """Votes, timestamps and comments do not exist here. Omitting popularity silently would let a reader
+        assume it was measured and found uninteresting."""
+        for missing in ('no votes', 'this week', 'comments'):
+            self.assertIn(missing, self.text,
+                          f'the front page does not account for the absent "{missing}" ranking')
+
+    def test_it_does_not_claim_a_ranking_it_has_no_data_for(self):
+        for faked in ('Most popular', 'Trending', 'This week&apos;s top'):
+            self.assertNotIn(faked, self.c['index.html'],
+                             f'the front page prints a "{faked}" list it cannot compute')
