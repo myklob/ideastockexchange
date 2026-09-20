@@ -17,6 +17,8 @@ from confidence import Confidence
 import evidence as EV
 from sensitivity import Sensitivity, INERT
 from reasonrank import ReasonRank
+from similarity import Similarity
+import method
 from export_db import export as export_db
 
 def has(d):
@@ -42,6 +44,7 @@ class Corpus:
         self.model.conf = self.conf.of        # ... and it gates what that page passes to its parents
         self.sens = Sensitivity(self)         # what-if: which single input, moved, would change the answer
         self.rank = ReasonRank(self)          # how much of the corpus's conclusion-weight flows through a page
+        self.sim = Similarity(self)           # which claims say the same thing in different words
         self.norm_pages, self.norm_edges = normalize(self.specs, self.beliefs)
         self.uses = {}          # pid -> [(page_id, section, side)] : every row anywhere that reads this page
         for e in self.norm_edges:
@@ -237,11 +240,13 @@ def money(v): return '' if v is None else (f'{v:,.0f}' if abs(v) >= 100 else f'{
 def smoney(v): return '' if v is None else ('+' if v >= 0 else '-') + money(abs(v))
 
 class Html:
-    def __init__(self, c): self.c = c
-    def a(self, pid, text=None, cls=''): return f'<a href="{self.c.href(pid)}"{" class=%s" % chr(34) + cls + chr(34) if cls else ""}>{esc(text if text is not None else self.c.text(pid))}</a>'
+    def __init__(self, c, prefix=''):
+        self.c = c
+        self.p = prefix   # '' from inside p/, 'p/' from a page at the site root
+    def a(self, pid, text=None, cls=''): return f'<a href="{self.p}{self.c.href(pid)}"{" class=%s" % chr(34) + cls + chr(34) if cls else ""}>{esc(text if text is not None else self.c.text(pid))}</a>'
     def num(self, v, pid, fmt=f2, const_label=None):
         """A number that is a link to the page it came from, or a grey constant when no page argues it yet."""
-        if is_page(pid): return f'<a class="n" href="{self.c.href(pid)}">{fmt(v)}</a>'
+        if is_page(pid): return f'<a class="n" href="{self.p}{self.c.href(pid)}">{fmt(v)}</a>'
         title = f' title="{esc(const_label)}"' if const_label else ''
         return f'<span class="n c"{title}>{fmt(v)}</span>'
     def rowtext(self, d):
@@ -262,7 +267,7 @@ JS = "<script>document.querySelectorAll('table').forEach(function(t){var h=[].sl
 
 def head(c, pid, title):
     crumbs = c.crumbs(pid)
-    parts = ['<a href="../index.html">Home</a>'] + [f'<a href="{c.href(p)}" title="{esc(c.text(p))}">{esc(c.short(p, 44))}</a>' for p in crumbs]
+    parts = ['<a href="../index.html">Home</a>', '<a href="../method.html">Method</a>'] + [f'<a href="{c.href(p)}" title="{esc(c.text(p))}">{esc(c.short(p, 44))}</a>' for p in crumbs]
     parts.append(f'<strong>{esc(KINDNAME[c.kind(pid)])}: {esc(c.short(pid, 60))}</strong>')
     crumb = '<p class="crumb"><em>' + ' › '.join(parts) + '</em></p>'
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -403,6 +408,11 @@ def render_belief(c, pid):
                        scored_table(H, c, s['rows']['agree'], sp['args']['agree'], None, 'Argument'),
                        scored_table(H, c, s['rows']['disagree'], sp['args']['disagree'], None, 'Argument')))
     o.append(f'<p class="tot">From these rows: weight for {f2(s["pro"])} · weight against {f2(s["con"])} · net {sf(s["pro"] - s["con"])}. A refuted objection counts as support and a refuted reason counts against, so weight lands on the side its sign puts it on, not the side it was filed on.</p></section>')
+    dup = [r for r in c.sim.pairs() if pid in r['shared_parent'] and not r['uniq']]
+    if dup:
+        o.append('<p class="tot">Two rows here are scored as if they made different points, and a computed reading of their wording says they may not: '
+                 + '; '.join(f'{H.a(r["a"], c.brief(r["a"])[0])} against {H.a(r["b"], c.brief(r["b"])[0])} ({f2(r["ces"])} alike)' for r in dup[:4])
+                 + f'. Uniqueness reads {DEFUNIQ} on both until a uniqueness page argues the overlap, so each is currently carrying its full weight. The measure reads wording, not meaning, so it is a prompt to look rather than a verdict: see <a href="../method.html">the method page</a>.</p>')
     # ---- what would change the answer
     sens = sensitivity_section(H, c, pid)
     if sens: o.append(sens)
@@ -738,6 +748,7 @@ def render_index(c, title):
     H = Html(c)
     o = [f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{esc(title)}</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><main class="index">''']
+    o.append('<p class="crumb"><em><a href="method.html">How every number here is computed</a></em></p>')
     o.append(f'<p class="kind">Idea Stock Exchange · {esc(c.name)}</p><h1>Every claim has a page. Every number is a link.</h1>')
     ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
     o.append(f'<p class="lede">{len(c.specs)} pages. Each belief below is one claim, argued on both sides, with every reason, finding and prediction scored as sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq, every factor read from the page that argues it. The score is signed: a claim argued false counts against the side it was filed on, and a claim nobody has argued counts exactly nothing, so listing reasons is worth nothing until they are argued.</p>')
@@ -810,7 +821,7 @@ def render_index(c, title):
         s = c.stats(p); par = c.specs[p].get('supports')
         o.append(f'<tr><td class="u">{esc(KINDNAME[c.kind(p)])}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.text(p))}</a></td><td>{f2(s["truth"])}</td><td>{"yes" if s["complete"] else "no"}</td><td class="u">{("<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(par), chr(34), esc(c.brief(par)[0]))) if is_page(par) else ""}</td></tr>')
     o.append('</tbody></table></div></section>')
-    o.append(f'<section><h2><span>How to read a page</span></h2><p class="blurb">A page opens with the claim, then a scorecard, then the reasons. A row\'s Truth is its own page\'s score. Link is a <a href="{WIKI["linkage"]}">linkage page</a> whose question writes itself from the two pages it connects. Imp is an <a href="{WIKI["importance"]}">importance page</a> listing the interests the row speaks to. Uniq is a uniqueness page. The <a href="{WIKI["template"]}">wiki template</a> explains each section at length; the <a href="https://github.com/myklob/ideastockexchange">repository</a> holds the tables and the scorer this site is built from.</p><p class="blurb">The data behind every page, in the shape the scorer reads: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> and a loaded <a href="data/ise.sqlite">SQLite database</a>. Two tables, <code>page</code> and <code>edge</code>, plus the labelled constants and the evidence tiers; no score is stored in any of them. The database also carries the views an analyst opens it for: <code>page_start</code>, <code>page_coverage</code>, <code>page_one_sided</code>, <code>page_inert</code>, <code>evidence_ledger</code>, <code>page_orphan</code> and <code>page_uses</code>. The recursive part of the score is not one of them, on purpose: truth is a ratio of the children and then a minimum over them, which no recursive query can aggregate its way to, so it lives in code and the conformance suite keeps every implementation of it honest.</p></section>')
+    o.append(f'<section><h2><span>How to read a page</span></h2><p class="blurb">A page opens with the claim, then a scorecard, then the reasons. A row\'s Truth is its own page\'s score. Link is a <a href="{WIKI["linkage"]}">linkage page</a> whose question writes itself from the two pages it connects. Imp is an <a href="{WIKI["importance"]}">importance page</a> listing the interests the row speaks to. Uniq is a uniqueness page. <a href="method.html">The method page</a> states every rule on one page, with the evidence tiers, the confidence components, the constants and what the whole thing cannot do. The <a href="{WIKI["template"]}">wiki template</a> explains each section at length; the <a href="https://github.com/myklob/ideastockexchange">repository</a> holds the tables and the scorer this site is built from.</p><p class="blurb">The data behind every page, in the shape the scorer reads: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> and a loaded <a href="data/ise.sqlite">SQLite database</a>. Two tables, <code>page</code> and <code>edge</code>, plus the labelled constants and the evidence tiers; no score is stored in any of them. The database also carries the views an analyst opens it for: <code>page_start</code>, <code>page_coverage</code>, <code>page_one_sided</code>, <code>page_inert</code>, <code>evidence_ledger</code>, <code>page_orphan</code> and <code>page_uses</code>. The recursive part of the score is not one of them, on purpose: truth is a ratio of the children and then a minimum over them, which no recursive query can aggregate its way to, so it lives in code and the conformance suite keeps every implementation of it honest.</p></section>')
     o.append('</main>' + JS + '</body></html>')
     return ''.join(o)
 
@@ -872,6 +883,8 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
         h = render_belief(c, pid) if c.kind(pid) in ('belief', 'claim') else render_special(c, pid)
         open(os.path.join(outdir, 'p', c.href(pid)), 'w').write(h)
     open(os.path.join(outdir, 'index.html'), 'w').write(render_index(c, title))
+    open(os.path.join(outdir, 'method.html'), 'w').write(
+        method.render(c, Html(c, 'p/'), esc, f2, pct, CONST, CONST_MEANING, WIKI, JS))
     open(os.path.join(outdir, 'ise.css'), 'w').write(CSS)
     open(os.path.join(outdir, '.nojekyll'), 'w').write('')
     # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
@@ -879,9 +892,9 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     # link check: every internal href resolves to a file that was written
     files = set(os.listdir(os.path.join(outdir, 'p')))
     broken = []
-    for fn in list(files) + ['../index.html']:
-        path = os.path.join(outdir, 'p', fn) if fn != '../index.html' else os.path.join(outdir, 'index.html')
-        base = 'p' if fn != '../index.html' else ''
+    for fn in list(files) + ['../index.html', '../method.html']:
+        path = os.path.join(outdir, 'p', fn) if not fn.startswith('../') else os.path.join(outdir, fn[3:])
+        base = 'p' if not fn.startswith('../') else ''
         for href in re.findall(r'href="([^"#]+)"', open(path).read()):
             if href.startswith('http'): continue
             target = os.path.normpath(os.path.join(outdir, base, href))
