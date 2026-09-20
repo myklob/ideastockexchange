@@ -135,10 +135,13 @@ structural faults the graph can show, and a pre-publish cycle check CI runs firs
 `verdict.py` the one paragraph at the top of each page; `changes.py` what moved
 since the last revision; `method.py` the reader-facing methodology page;
 `sync_content.py` keeps the workbook and the reviewable CSVs in step. `conformance.py` holds the cross-implementation
-contract: sixteen pages with their expected numbers checked in, so a port in any
-language can be held to the same rules. A deliberate rule change means
-`python3 conformance.py --write` and a reviewed diff. CI runs the whole suite
-before it will publish anything.
+contract: twenty-four pages with their expected numbers, the five constants and
+the eighteen evidence tiers checked in, so a port in any language can be held to
+the same rules without reading this repository's source. Eight of those pages exist
+because the contract stated a rule the corpus did not exercise, and the SQL port of
+that same rule passed conformance while returning a truth starting point of 1.40. A
+deliberate rule change means `python3 conformance.py --write` and a reviewed diff.
+CI runs the whole suite before it will publish anything.
 
 ### The page/edge model (`src/lib/ise-pages/`)
 

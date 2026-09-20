@@ -15,7 +15,7 @@ THE CONTRACT, in full, for anyone writing a port.
 
   Input is two tables, five constants and the evidence tiers, exactly the shape export_db.py emits:
     constant  k = 1, UNARG = 0.5, DEFLINK = 1, DEFIMP = 0.5, DEFUNIQ = 1
-    tier      etype -> weight, the seventeen categories, carried in the corpus file so a port needs nothing
+    tier      etype -> weight, the eighteen categories, carried in the corpus file so a port needs nothing
               from this repository's source to run the contract
     page      id, kind, and for a grounded claim etype / erq / erp
     edge      page_id, section, side, claim_id, link_id, imp_id, uniq_id, bearing_id, attrs

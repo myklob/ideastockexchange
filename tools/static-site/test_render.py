@@ -331,3 +331,48 @@ class TestTheCaveatsReachThePage(unittest.TestCase):
                 self.assertIn(f'{rg["no_range"]} of {rg["priced"]} priced rows', check[0])
             else:
                 self.assertFalse(check, self.c.key[pid])
+
+
+class TestThePublishedContractIsRunnable(unittest.TestCase):
+    """The site claims an implementation in any language can be held to these rules without cloning anything.
+    That is only true if what is published is the whole contract and the published numbers are the ones the
+    engine actually produces, so this runs the engine against the published files rather than the checked-in
+    ones."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.dir = cls.parent.dir
+
+    def _load(self, name):
+        import json
+        with open(os.path.join(self.dir, 'data', 'conformance_' + name), encoding='utf-8') as fh:
+            return json.load(fh)
+
+    def test_both_halves_of_the_contract_are_published(self):
+        for name in ('corpus.json', 'expected.json'):
+            self.assertTrue(os.path.exists(os.path.join(self.dir, 'data', 'conformance_' + name)), name)
+
+    def test_the_published_corpus_carries_everything_a_port_needs(self):
+        """Constants and tier weights included. A contract that asks a port to already know eighteen weights
+        held in this repository's Python is not a contract a port can run."""
+        import evidence as EV
+        d = self._load('corpus.json')
+        self.assertEqual({c['name'] for c in d['constants']}, {'K', 'UNARG', 'DEFLINK', 'DEFIMP', 'DEFUNIQ'})
+        self.assertEqual({t['etype']: t['weight'] for t in d['tiers']},
+                         {k: w for k, (w, _r, _m) in EV.ESIW.items()})
+        self.assertTrue(d['pages'] and d['edges'])
+
+    def test_the_engine_reproduces_the_published_numbers(self):
+        import conformance as C
+        got = C.compute(self._load('corpus.json'))
+        want = self._load('expected.json')
+        for table in ('pages', 'edges'):
+            for key, exp in want[table].items():
+                have = got[table].get(key)
+                self.assertIsNotNone(have, f'{table}[{key}] in the published expectations, not in the result')
+                for field, v in exp.items():
+                    if not isinstance(v, (int, float)) or isinstance(v, bool): continue
+                    self.assertAlmostEqual(float(have[field]), float(v), places=9,
+                                           msg=f'{table}[{key}].{field}')
