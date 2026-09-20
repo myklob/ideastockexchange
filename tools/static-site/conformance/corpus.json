@@ -21,6 +21,98 @@
    "value": 1
   }
  ],
+ "tiers": [
+  {
+   "etype": "analogy",
+   "weight": 0.45,
+   "meaning": "Analogy or metaphor"
+  },
+  {
+   "etype": "anecdote",
+   "weight": 0.55,
+   "meaning": "Personal experience or anecdote"
+  },
+  {
+   "etype": "artifact",
+   "weight": 0.1,
+   "meaning": "Historical artifact"
+  },
+  {
+   "etype": "expert_claim",
+   "weight": 0.6,
+   "meaning": "Expert or social media claim"
+  },
+  {
+   "etype": "expert_data",
+   "weight": 0.65,
+   "meaning": "Expert testimony with supporting data"
+  },
+  {
+   "etype": "eyewitness",
+   "weight": 0.2,
+   "meaning": "Eyewitness testimony"
+  },
+  {
+   "etype": "historical",
+   "weight": 0.7,
+   "meaning": "Historical trend, with references"
+  },
+  {
+   "etype": "intuition",
+   "weight": 0.35,
+   "meaning": "Intuition or gut feeling"
+  },
+  {
+   "etype": "logic",
+   "weight": 0.5,
+   "meaning": "Common sense or logic"
+  },
+  {
+   "etype": "meta",
+   "weight": 0.8,
+   "meaning": "Formal scientific study: meta-analysis"
+  },
+  {
+   "etype": "news",
+   "weight": 0.3,
+   "meaning": "News or media report"
+  },
+  {
+   "etype": "norm",
+   "weight": 0.4,
+   "meaning": "Cultural norm"
+  },
+  {
+   "etype": "observational",
+   "weight": 0.75,
+   "meaning": "Observational or correlational study"
+  },
+  {
+   "etype": "rct",
+   "weight": 0.85,
+   "meaning": "Formal scientific study: randomized controlled trial"
+  },
+  {
+   "etype": "record",
+   "weight": 0.9,
+   "meaning": "Primary official record: statute, judicial holding, agency rule, sworn filing"
+  },
+  {
+   "etype": "statistics",
+   "weight": 0.9,
+   "meaning": "Statistics and data, with the source cited"
+  },
+  {
+   "etype": "survey",
+   "weight": 0.25,
+   "meaning": "Survey or poll"
+  },
+  {
+   "etype": "visual",
+   "weight": 0.15,
+   "meaning": "Visual evidence"
+  }
+ ],
  "pages": [
   {
    "id": 1,
@@ -127,6 +219,42 @@
    "kind": "equivalence",
    "x_id": 1,
    "y_id": 5
+  },
+  {
+   "id": 17,
+   "kind": "claim",
+   "text": "A tier named the way a person writes it",
+   "etype": "Expert Claim"
+  },
+  {
+   "id": 18,
+   "kind": "claim",
+   "text": "The same tier named with a hyphen",
+   "etype": "expert-claim"
+  },
+  {
+   "id": 19,
+   "kind": "claim",
+   "text": "A type that matches no tier",
+   "etype": "not a tier at all",
+   "erq": 3,
+   "erp": 90
+  },
+  {
+   "id": 20,
+   "kind": "claim",
+   "text": "A replication count below one",
+   "etype": "statistics",
+   "erq": 0,
+   "erp": 100
+  },
+  {
+   "id": 21,
+   "kind": "claim",
+   "text": "A replication percentage outside its range",
+   "etype": "statistics",
+   "erq": 1,
+   "erp": 150
   }
  ],
  "edges": [

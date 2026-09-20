@@ -553,3 +553,48 @@ class TestTheSqlPortIsTheSameRule(unittest.TestCase):
                 self.assertLessEqual(got[0], 1.0, 'a starting point is a probability')
         finally:
             con.close()
+
+
+class TestTheContractCoversItsOwnCoercions(unittest.TestCase):
+    """The conformance corpus is what a port in another language is held to, so a rule it does not exercise is
+    a rule nothing enforces. These five pages exist because this repository's own SQL port of the starting
+    point passed on all 261 pages of the live corpus and was wrong on the first typed input it saw."""
+
+    @classmethod
+    def setUpClass(cls):
+        import json
+        import conformance as C
+        cls.C = C
+        with open(C.CORPUS) as fh: cls.data = json.load(fh)
+        with open(C.EXPECTED) as fh: cls.want = json.load(fh)
+
+    def test_the_tier_weights_ride_in_the_corpus_file(self):
+        """A port that has to read evidence.py to run the contract is not running a contract."""
+        shipped = {t['etype']: t['weight'] for t in self.data['tiers']}
+        self.assertEqual(shipped, {k: w for k, (w, _r, _m) in EV.ESIW.items()})
+
+    def test_every_coercion_has_a_page_and_the_page_would_catch_a_port_that_skipped_it(self):
+        want = self.want['pages']
+        cases = {
+            '17': (0.80, 1.0, 'a tier named with a space must normalise to its tier'),
+            '18': (0.80, 1.0, 'a tier named with a hyphen must normalise to its tier'),
+            '19': (0.50, 1.5, 'a type matching no tier weighs nothing and does not disturb the replications'),
+            '20': (0.95, 1.0, 'a replication count below one reads as one'),
+            '21': (0.95, 1.0, 'a replication percentage above 100 is held at 100'),
+        }
+        for pid, (p0, w, why) in cases.items():
+            self.assertIn(pid, want, f'the corpus no longer carries the page for: {why}')
+            self.assertAlmostEqual(want[pid]['p0'], p0, places=9, msg=why)
+            self.assertAlmostEqual(want[pid]['weight'], w, places=9, msg=why)
+            self.assertGreaterEqual(want[pid]['p0'], 0.0)
+            self.assertLessEqual(want[pid]['p0'], 1.0)
+
+    def test_a_port_that_skipped_a_coercion_would_fail_the_suite(self):
+        """The point of the pages is that they differ from what a naive reading produces. If any of them
+        happened to agree with the uncoerced arithmetic, it would be exercising nothing."""
+        naive = {'17': (0.5, 1.0), '18': (0.5, 1.0), '19': (0.5, 1.5), '20': (0.95, 0.0), '21': (1.4, 1.0)}
+        for pid, (p0, w) in naive.items():
+            got = self.want['pages'][pid]
+            if pid == '19': continue   # the one case where skipping normalisation happens to give the same answer
+            self.assertTrue(abs(got['p0'] - p0) > 1e-9 or abs(got['weight'] - w) > 1e-9,
+                            f'page {pid} does not distinguish a port that skips the coercion')
