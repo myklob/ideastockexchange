@@ -1146,7 +1146,12 @@ def page_json(c, pid):
         'beliefs_beneath': c.rank.beliefs_reached(pid),
         'complete': bool(s['complete']),
         'checks': [{'severity': sev, 'title': t, 'why': w} for sev, t, w in c.integ.of(pid)],
-        'verdict': {k: v for k, v in vd.items() if k != 'clauses'},
+        # Rounded like every other published number. It was the one field passed through raw, so it carried
+        # seventeen significant digits of a quantity whose own tolerance is 1e-9, and two honest builds of the
+        # same revision on different machines disagreed in the last bit on 133 of 261 pages. A number nobody
+        # can reproduce byte for byte is a number somebody has to take on trust.
+        'verdict': {k: (round(v, 6) if isinstance(v, float) else v)
+                    for k, v in vd.items() if k != 'clauses'},
         'verdict_clauses': [{'label': lab, 'says': sent} for lab, sent in vd['clauses']],
         'used_on': sorted({u[0] for u in c.uses.get(pid, [])}),
         'reads': s['children'],

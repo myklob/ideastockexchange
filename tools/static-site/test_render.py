@@ -437,3 +437,39 @@ class TestThePublishedContractIsRunnable(unittest.TestCase):
                     if not isinstance(v, (int, float)) or isinstance(v, bool): continue
                     self.assertAlmostEqual(float(have[field]), float(v), places=9,
                                            msg=f'{table}[{key}].{field}')
+
+
+class TestThePublishedNumbersAreReproducible(unittest.TestCase):
+    """Every number the site publishes is presented as computable from the two tables, which is only useful if
+    two people computing it get the same answer. Floating point across machines does not guarantee the last
+    bit, so nothing published may carry more precision than the engine's own tolerance."""
+
+    TOL_DIGITS = 9    # conformance compares to 1e-9; publishing past that is noise that cannot be reproduced
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.dir = cls.parent.dir
+
+    def test_no_published_number_carries_more_precision_than_the_tolerance(self):
+        """It was one field: the confidence inside each page's verdict, passed through raw while every other
+        number went through round(). Two builds of one revision on different machines disagreed in the last
+        bit of it on 133 of 261 pages, which reads as the site being irreproducible and was not."""
+        import json
+        with open(os.path.join(self.dir, 'data', 'pages_index.json')) as fh:
+            idx = json.load(fh)
+        long = {}
+
+        def walk(o, path=''):
+            if isinstance(o, dict):
+                for k, v in o.items(): walk(v, f'{path}.{k}' if path else k)
+            elif isinstance(o, list):
+                for v in o: walk(v, path + '[]')
+            elif isinstance(o, float) and len(repr(o).split('.')[-1]) > self.TOL_DIGITS:
+                long[path] = long.get(path, 0) + 1
+
+        for r in idx['pages']:
+            with open(os.path.join(self.dir, r['json'])) as fh: walk(json.load(fh))
+        self.assertEqual(long, {}, f'published beyond {self.TOL_DIGITS} decimals: {sorted(long)}')
+        self.assertTrue(idx['pages'], 'no pages were checked')

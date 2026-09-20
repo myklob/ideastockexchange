@@ -105,6 +105,14 @@ in all four here, and four implementations of a rule is four chances to be wrong
   part an ordinary diff cannot give you, since one edit to a linkage page can move dozens of conclusions. CI
   checks out two commits so the comparison has something to compare against; with no history the page is
   omitted rather than published wrong.
+- **Publish numbers two people can get the same answer for.** Nothing published carries more precision than
+  the engine's own tolerance of 1e-9, and `test_render.py::TestThePublishedNumbersAreReproducible` fails the
+  build if anything does. One field did: the confidence inside each page's verdict went out raw while every
+  other number went through `round()`, so it published seventeen significant digits of a quantity compared to
+  nine. Two honest builds of one revision, on two machines, then disagreed in the last bit on 133 of 261
+  pages, which reads as the site being irreproducible and was not. With it rounded, a local build of the
+  deployed revision reproduces all 261 pages of published numbers exactly, fetched from the live site and
+  compared field by field.
 - **Publish as data, not only as pages.** Every page writes its computed numbers beside it as
   `p/<key>.json`, indexed at `data/pages_index.json`: truth, confidence, starting point, ReasonRank, work value,
   the structural checks and the sensitivity summary. A score somebody has to scrape out of HTML is a score
