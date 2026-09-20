@@ -20,8 +20,10 @@ should trust, so the commonest output on an unfinished corpus is "not yet, and h
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-SETTLED = 0.75      # confidence at which the wiki calls a page established
-DEVELOPING = 0.45
+import confidence as _CONF
+# One set of thresholds, read from the module that owns them. Two copies of 0.75 and 0.45 meant this paragraph
+# could call a page "developing" in one clause and bucket it as established in the next.
+SETTLED, DEVELOPING = _CONF.BANDS['established'], _CONF.BANDS['developing']
 CLEAR = 0.10        # how far from 0.50 a truth score has to be before it is saying something
 
 
@@ -106,6 +108,15 @@ def of(corpus, pid, stats=None):
             clauses.append(('What would change it',
                             f'Settling "{c.brief(r["page"])[0].rstrip(".")}" alone would {moved}. That is the '
                             'cheapest next piece of work on this page.'))
+        elif a['latent']:
+            # Not decisive now, decisive once settled. Saying "even with the work behind it finished" here
+            # contradicted the sensitivity readout printed on the same page, which said the opposite.
+            r = a['latent'][0]
+            clauses.append(('What would change it',
+                            f'No single input can change the answer as things stand, because an unargued claim '
+                            f'moves nothing however decisive it looks. {len(a["latent"])} of the {a["n"]} could '
+                            f'once the work behind them is done, the widest being '
+                            f'"{c.brief(r["page"])[0].rstrip(".")}". That is the work queue.'))
         else:
             clauses.append(('What would change it',
                             f'No single one of the {a["n"]} inputs beneath this page changes the answer, even '
@@ -121,14 +132,17 @@ def of(corpus, pid, stats=None):
                             'net. They have to be weighed, not summed.'))
         elif s.get('netev') is not None and rg.get('priced'):
             lo, hi = s.get('netev_low'), s.get('netev_high')
-            straddles = lo is not None and hi is not None and lo < 0 < hi
+            # A band sentence is only worth saying when there is a band. Where no row states a range the low
+            # and the high are both the central estimate, and "the band stays positive" off a zero-width band
+            # asserts a robustness nobody has shown.
+            band = lo is not None and hi is not None and hi > lo + 1e-9
             body = f'Net expected value {s["netev"]:+.2f}'
-            if lo is not None: body += f', between {lo:+.2f} and {hi:+.2f} at the ends of the stated estimates'
-            body += '. '
-            body += ('The band crosses zero, so on these numbers acting could gain or cost.'
-                     if straddles else
-                     ('The band stays positive.' if (lo or 0) > 0 else
-                      'The band stays negative.' if (hi or 0) < 0 else ''))
+            if band: body += f', between {lo:+.2f} and {hi:+.2f} at the ends of the stated estimates'
+            body += '.'
+            if band:
+                body += (' The band crosses zero, so on these numbers acting could gain or cost.' if lo < 0 < hi
+                         else ' The band stays positive.' if lo > 0
+                         else ' The band stays negative.' if hi < 0 else '')
             if rg.get('no_range'):
                 body += (f' {rg["no_range"]} of the {rg["priced"]} priced rows state one figure and no range, '
                          'so the real band is wider than this one.')

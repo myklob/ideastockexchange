@@ -87,8 +87,10 @@ class Sensitivity:
     # ---------------------------------------------------------------- one evaluation with one input held
     def _above(self, q):
         """Every page whose score can move when q moves: the pages that read q, and the pages that read those.
-        Pinning q invalidates exactly these and nothing else, which is the difference between recomputing a
-        page's whole subtree for every input and recomputing a handful."""
+        Pinning q invalidates these, which is the difference between recomputing a page's whole subtree for
+        every input and recomputing a handful. It is a superset, not an exact set: the reverse index also
+        carries the driver, equivalence and who-holds-it references, which cannot move a truth score. Being
+        wide costs a little work; being narrow would publish a stale number, so the error is on this side."""
         if q in self._anc: return self._anc[q]
         seen, stack = {q}, [q]
         while stack:

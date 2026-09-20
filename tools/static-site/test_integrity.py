@@ -5,7 +5,7 @@ serious ones, so each check gets a synthetic case built to trip it and a case bu
 """
 import os, sys, unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from integrity import Integrity, SEVERITY
+from integrity import Integrity, SEVERITY, cycles_in_tables
 
 ENTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ISE_Data_Entry.xlsx')
 
@@ -69,6 +69,25 @@ class TestEachCheckFires(unittest.TestCase):
         c = Stub({1: page('one', agree=[2, 3]), 2: page('two', agree=[4]), 3: page('three', agree=[4]),
                   4: page('four')})
         self.assertNotIn('Circular support', titles(Integrity(c).of(1)))
+
+    def test_every_page_on_the_loop_is_flagged_not_just_the_ones_on_one_path(self):
+        """The regression this pins published. A depth-first walk marking `path[path.index(nxt):]` at each back
+        edge marks the path it took, not the loop: page 2 here is reached first by the shortcut 1 -> 3, is
+        finished before the back edge 3 -> 1 is found, and the later tree path skips it. It then published an
+        ordinary truth score and an ordinary verdict on a claim that rests on itself."""
+        c = Stub({1: page('one', agree=[3, 2]), 2: page('two', agree=[3]), 3: page('three', agree=[1])})
+        g = Integrity(c)
+        for pid in (1, 2, 3):
+            self.assertIn('Circular support', titles(g.of(pid)), f'page {pid} on the loop was not flagged')
+
+    def test_a_premise_resting_on_its_conclusion_is_found_however_far_down_it_is(self):
+        """The search this replaces stopped after four thousand pops and returned False with no signal, so on
+        a corpus larger than that the check quietly stopped firing."""
+        n = 6000
+        specs = {1: page('conclusion', components=[{'id': 2, 'lb': 'Y'}])}
+        for i in range(2, n): specs[i] = page(f'step {i}', agree=[i + 1])
+        specs[n] = page('back to the top', agree=[1])
+        self.assertIn('Assumes its own conclusion', titles(Integrity(Stub(specs)).of(1)))
 
     def test_assuming_its_own_conclusion(self):
         c = Stub({1: page('one', components=[{'id': 1, 'lb': 'Y'}]), 2: page('two')})
@@ -265,3 +284,29 @@ class TestTheCycleCheckThatRunsBeforeTheBuild(unittest.TestCase):
         if not os.path.isdir(content): self.skipTest('no content')
         loops = self.ig.cycles_in_tables(*IT.read_csv(content))
         self.assertEqual(loops, [], f'circular arguments in the published content: {loops[:3]}')
+
+
+class TestThePrePublishCheck(unittest.TestCase):
+    """`python3 integrity.py content/` has to answer the same question the panel does, without the scorer."""
+
+    @staticmethod
+    def _tables(edges, keys):
+        return [{'key': k} for k in keys], [{'page': a, 'claim': b, 'section': 'argument'} for a, b in edges]
+
+    def test_one_loop_is_reported_per_tangle_not_per_back_edge(self):
+        pages, edges = self._tables([('a', 'c'), ('a', 'b'), ('b', 'c'), ('c', 'a')], 'abc')
+        loops = cycles_in_tables(pages, edges)
+        self.assertEqual(len(loops), 1)
+        self.assertEqual(loops[0][0], loops[0][-1])
+
+    def test_two_separate_tangles_are_two(self):
+        pages, edges = self._tables([('a', 'b'), ('b', 'a'), ('c', 'd'), ('d', 'c')], 'abcd')
+        self.assertEqual(len(cycles_in_tables(pages, edges)), 2)
+
+    def test_a_page_that_cites_itself_is_a_loop(self):
+        pages, edges = self._tables([('a', 'a')], 'a')
+        self.assertEqual(len(cycles_in_tables(pages, edges)), 1)
+
+    def test_a_clean_graph_reports_nothing(self):
+        pages, edges = self._tables([('a', 'b'), ('a', 'c'), ('b', 'c')], 'abc')
+        self.assertEqual(cycles_in_tables(pages, edges), [])

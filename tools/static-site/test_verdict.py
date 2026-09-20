@@ -120,3 +120,92 @@ class TestTheVerdict(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
+
+class TestItDoesNotContradictThePageItSitsOn(unittest.TestCase):
+    """Every clause restates a number printed elsewhere on the same page, so a clause that disagrees with that
+    number is the worst failure this module has: two paragraphs, both authoritative in tone, saying opposite
+    things about whether the conclusion is settled."""
+
+    def test_a_latent_input_is_not_reported_as_the_answer_holding(self):
+        """`decisive` empty does not mean nothing can move it. `latent` is the set that is not decisive now and
+        is decisive once settled, which is exactly what "even with the work behind it finished" denies. The
+        sensitivity readout beside it said the opposite on the same page."""
+        pages = [dict(key='b', kind='belief', text='The reform would work.', etype='eyewitness', erq=1, erp=100),
+                 dict(key='r', kind='claim', text='An unargued reason nobody has yet supported or opposed.')]
+        edges = [dict(page='b', section='argument', side='agree', claim='r')]
+        c = corpus_from(pages, edges)
+        pid = next(p for p in c.specs if c.key[p] == 'b')
+        a = c.sens.of(pid)
+        self.assertFalse(a['decisive'])
+        self.assertTrue(a['latent'], 'the fixture no longer produces a latent input')
+        says = dict(V.of(c, pid)['clauses']).get('What would change it', '')
+        self.assertNotIn('even with the work behind it finished', says)
+        self.assertIn('work queue', says)
+
+    def test_the_band_sentence_is_only_said_when_there_is_a_band(self):
+        """With no row stating a range the low and the high are both the central estimate, and "the band stays
+        positive" off a zero-width band asserts a robustness nobody has shown."""
+        pages = [dict(key='b', kind='belief', text='The reform would work.', etype='statistics', erq=3, erp=100),
+                 dict(key='gain', kind='claim', text='It saves money every year it runs.', etype='statistics'),
+                 dict(key='pain', kind='claim', text='It costs money to set up in the first year.', etype='statistics')]
+        edges = [dict(page='b', section='cba', side='agree', claim='gain', category='dollars', magnitude=100),
+                 dict(page='b', section='cba', side='disagree', claim='pain', category='dollars', magnitude=50)]
+        c = corpus_from(pages, edges)
+        pid = next(p for p in c.specs if c.key[p] == 'b')
+        says = dict(V.of(c, pid)['clauses']).get('Whether acting pays', '')
+        self.assertIn('Net expected value', says)
+        self.assertNotIn('The band stays', says)
+        self.assertNotIn('The band crosses', says)
+        self.assertIn('state one figure and no range', says)
+
+    def test_a_band_that_would_run_backwards_is_ordered_before_it_is_read(self):
+        """A row stating one endpoint had the other fall back to the central estimate afterwards, so a low
+        could exceed its own high, the net band ran backwards, and "the band stays positive" was printed on a
+        net of -20."""
+        pages = [dict(key='b', kind='belief', text='The reform would work.', etype='statistics', erq=3, erp=100),
+                 dict(key='gain', kind='claim', text='It saves money every year it runs.', etype='statistics'),
+                 dict(key='pain', kind='claim', text='It costs money to set up in the first year.', etype='statistics')]
+        edges = [dict(page='b', section='cba', side='agree', claim='gain', category='dollars',
+                      magnitude=10, mag_low=100),
+                 dict(page='b', section='cba', side='disagree', claim='pain', category='dollars', magnitude=50)]
+        c = corpus_from(pages, edges)
+        pid = next(p for p in c.specs if c.key[p] == 'b')
+        st = c.stats(pid)
+        self.assertLessEqual(st['netev_low'], st['netev_high'])
+        self.assertLessEqual(st['ev_range']['ben_low'], st['ev_range']['ben_high'])
+        says = dict(V.of(c, pid)['clauses']).get('Whether acting pays', '')
+        if 'band stays positive' in says: self.assertGreater(st['netev_low'], 0)
+        if 'band stays negative' in says: self.assertLess(st['netev_high'], 0)
+
+    def test_the_range_count_matches_the_structural_check_on_the_same_page(self):
+        """One panel said "2 of 2 priced rows state one number and no range" while the readout beside it
+        presented a band as the ends of stated estimates. A row states a range when it states both ends."""
+        pages = [dict(key='b', kind='belief', text='The reform would work.', etype='statistics', erq=3, erp=100),
+                 dict(key='gain', kind='claim', text='It saves money every year it runs.', etype='statistics'),
+                 dict(key='pain', kind='claim', text='It costs money to set up in the first year.', etype='statistics')]
+        edges = [dict(page='b', section='cba', side='agree', claim='gain', category='dollars',
+                      magnitude=50, mag_low=40),
+                 dict(page='b', section='cba', side='disagree', claim='pain', category='dollars',
+                      magnitude=25, mag_low=20)]
+        c = corpus_from(pages, edges)
+        pid = next(p for p in c.specs if c.key[p] == 'b')
+        self.assertEqual(c.stats(pid)['ev_range']['no_range'], 2)
+        why = [w for _s, t, w in c.integ.of(pid) if t == 'Costs and benefits given as single figures']
+        self.assertTrue(why)
+        self.assertIn('2 of 2', why[0])
+
+    def test_a_unit_nobody_priced_anything_in_does_not_withhold_the_net(self):
+        """Counting typed categories rather than used ones made a page with one priced dollar row report
+        several units that do not add, and publish no net at all."""
+        pages = [dict(key='b', kind='belief', text='The reform would work.', etype='statistics', erq=3, erp=100),
+                 dict(key='gain', kind='claim', text='It saves money every year it runs.', etype='statistics'),
+                 dict(key='soft', kind='claim', text='It also improves how the office is seen.')]
+        edges = [dict(page='b', section='cba', side='agree', claim='gain', category='dollars', magnitude=100),
+                 dict(page='b', section='cba', side='agree', claim='soft', category='reputation'),
+                 dict(page='b', section='category', side=None, text='dollars'),
+                 dict(page='b', section='category', side=None, text='reputation')]
+        c = corpus_from(pages, edges)
+        pid = next(p for p in c.specs if c.key[p] == 'b')
+        self.assertFalse(c.stats(pid)['mixed'])
+        self.assertIsNotNone(c.stats(pid)['netev'])

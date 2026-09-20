@@ -128,13 +128,34 @@ class TestItStaysReadableAtScale(unittest.TestCase):
             def truth(s, p): return 0.5
         return C()
 
-    def test_the_word_bucket_is_proportional_not_a_fixed_count(self):
-        """A bar of 60 means a quarter of a 261-page corpus and half a percent of a 14,000-page one. A rule
-        whose meaning changes with the size of the corpus is not a rule."""
-        small = S.Similarity(self._corpus(200))
-        large = S.Similarity(self._corpus(20000))
-        self.assertEqual(small.bucket, 60)
-        self.assertGreater(large.bucket, small.bucket)
+    def test_two_identical_claims_are_found_however_common_their_words_are(self):
+        """The bar used to be a word count: a word on more than sixty pages was skipped, so two pages with
+        identical text became invisible to each other the moment the words they shared sat on sixty-one. The
+        rule is now the one the score already implies, that a word is skipped only when it carries no weight,
+        so how many pages share a word cannot on its own hide a duplicate."""
+        for carriers in (10, 60, 61, 120):
+            c = self._corpus(200)
+            shared = 'Officials holding office must divest every security they own before taking the seat.'
+            for i in range(1, carriers + 1):
+                c.specs[i]['belief'] = shared if i <= 2 else shared + f' Separately, point {i} about {i}.'
+            sim = S.Similarity(c)
+            found = {(r['a'], r['b']) for r in sim.pairs()}
+            self.assertGreater(sim.between(1, 2), S.FLAG)
+            self.assertIn((1, 2), found, f'identical pages missed when {carriers} pages share their words')
+
+    def test_the_report_names_what_it_could_not_reach(self):
+        """A work limit is allowed; a work limit nobody is told about is not. Whatever the budget stopped it
+        from examining comes back as a list of claims, not as an empty result."""
+        c = self._corpus(300)
+        for i in range(1, 101):
+            c.specs[i]['belief'] = f'Divestiture before taking the seat, considered as point {i}.'
+        sim = S.Similarity(c)
+        sim.paircap = 10
+        r = sim.report()
+        self.assertTrue(r['unreached'])
+        self.assertLessEqual(r['candidates'], 10)
+        full = S.Similarity(c)
+        self.assertEqual(full.report()['unreached'], [])
 
     def test_the_report_says_how_many_pairs_it_is_not_showing(self):
         sim = S.Similarity(self._corpus(400))
