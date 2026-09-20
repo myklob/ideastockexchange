@@ -163,12 +163,24 @@ class TestConfidence(unittest.TestCase):
         if not os.path.exists(ENTRY): raise unittest.SkipTest('workbook not present')
         cls.c = Corpus(ENTRY, 'test')
 
-    def test_a_bare_assertion_has_no_confidence(self):
-        bare = [p for p, sp in self.c.specs.items()
-                if not (sp.get('args', {}).get('agree') or sp.get('args', {}).get('disagree')
-                        or sp.get('evid', {}).get('for') or sp.get('evid', {}).get('against'))]
-        self.assertTrue(bare, 'expected at least one leaf assertion in the corpus')
-        for p in bare: self.assertEqual(self.c.conf.of(p), 0.0, f'page {p}')
+    def test_a_page_with_no_work_behind_it_has_no_confidence(self):
+        """Nothing argued, nothing listed, nothing cited: confidence is exactly 0, so the page moves nothing
+        above it however often it is listed as a reason."""
+        from confidence import Confidence, TableCorpus
+        k = Confidence(TableCorpus([{'id': 1, 'kind': 'claim', 'text': 'a bare assertion'}], []))
+        self.assertEqual(k.of(1), 0.0)
+
+    def test_confidence_comes_only_from_work_actually_done(self):
+        """The mirror of the rule above, over the real corpus: no page may have confidence without rows
+        beneath it, interests listed on it, or a source cited for it."""
+        import evidence as EV
+        for p, sp in self.c.specs.items():
+            if self.c.conf.of(p) <= 0: continue
+            work = (sp.get('args', {}).get('agree') or sp.get('args', {}).get('disagree')
+                    or sp.get('evid', {}).get('for') or sp.get('evid', {}).get('against')
+                    or sp.get('pred_true') or sp.get('pred_false') or sp.get('interests')
+                    or EV.prior(sp)['classified'])
+            self.assertTrue(work, f'page {p} has confidence {self.c.conf.of(p)} with no work behind it')
 
     def test_confidence_never_calls_the_scorer(self):
         """It must measure work done, not what the work concluded, or it recurses through truth."""

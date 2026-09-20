@@ -21,9 +21,10 @@ Tables
              interest_listing, related.
   Scores are never stored: they are computed from these tables (score_reference.Model), so nothing typed is a score.
 """
-import json, sys, os
+import json, sys, os, sqlite3, re
 from xml.sax.saxutils import escape
 from score_reference import normalize, CONSTS as DEFAULT_CONSTS
+import evidence as EV
 
 PAGE_COLS = ['id', 'kind', 'text', 'topic', 'parent_id', 'x_id', 'y_id', 'type', 'direction', 'rowkind', 'value', 'measured_by', 'where_found',
              'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge', 'bottom_line', 'positivity', 'logical_form']
@@ -37,6 +38,16 @@ CREATE TABLE IF NOT EXISTS constant (
   name     VARCHAR(16) PRIMARY KEY,   -- K, UNARG, DEFLINK, DEFIMP, DEFUNIQ
   value    NUMERIC(6,3) NOT NULL,
   meaning  TEXT NOT NULL
+);
+
+-- The evidence tiers, as data rather than as a constant buried in code, so a front end in any language reads
+-- the same weights the scorer uses. wiki_rank is the row's place in the wiki's own table; NULL marks the one
+-- category added beyond it (see evidence.py).
+CREATE TABLE IF NOT EXISTS evidence_tier (
+  etype      VARCHAR(16) PRIMARY KEY,
+  weight     NUMERIC(4,2) NOT NULL,
+  wiki_rank  INTEGER,
+  meaning    TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS page (
@@ -102,8 +113,79 @@ CREATE INDEX IF NOT EXISTS edge_claim ON edge(claim_id);
 CREATE INDEX IF NOT EXISTS edge_page_section ON edge(page_id, section);
 
 -- Where a page is used: every edge whose claim_id is the page. (The workbook's "Where This Belief Is Used" table.)
-CREATE OR REPLACE VIEW page_uses AS
-  SELECT e.claim_id AS page_id, e.page_id AS used_on, e.section, e.side FROM edge e WHERE e.claim_id IS NOT NULL;
+-- A page is used wherever any column reads it, not only as a row's claim: a linkage page is read as a
+-- multiplier and never appears in claim_id, so a view that looked only there would call it an orphan.
+CREATE VIEW page_uses AS
+      SELECT claim_id   AS page_id, page_id AS used_on, section, side, 'claim'      AS role FROM edge WHERE claim_id   IS NOT NULL
+  UNION ALL SELECT link_id,    page_id, section, side, 'linkage'    FROM edge WHERE link_id    IS NOT NULL
+  UNION ALL SELECT imp_id,     page_id, section, side, 'importance' FROM edge WHERE imp_id     IS NOT NULL
+  UNION ALL SELECT uniq_id,    page_id, section, side, 'uniqueness' FROM edge WHERE uniq_id    IS NOT NULL
+  UNION ALL SELECT drives_id,  page_id, section, side, 'driver'     FROM edge WHERE drives_id  IS NOT NULL
+  UNION ALL SELECT equiv_id,   page_id, section, side, 'equivalence' FROM edge WHERE equiv_id  IS NOT NULL
+  UNION ALL SELECT who_id,     page_id, section, side, 'who pays'   FROM edge WHERE who_id     IS NOT NULL
+  UNION ALL SELECT bearing_id, page_id, section, side, 'bearing'    FROM edge WHERE bearing_id IS NOT NULL;
+
+-- ---------------------------------------------------------------------------------------------------------
+-- What SQL is good at here. The recursive part of the score belongs in code: truth is a non-linear function of
+-- the children (a ratio, then a minimum), which a recursive CTE cannot aggregate its way to. Everything below
+-- needs no recursion, and these are the questions an analyst actually opens the database to ask.
+
+-- Where each page's truth starts, before any of its own rows count. This one IS the rule, in SQL, and it is
+-- here to show the rule is small enough to reimplement anywhere: p0 = 0.5 + 0.5 x ESIW x (2 x ERP/100 - 1),
+-- w = k x 2 x ERQ / (ERQ + 1).
+CREATE VIEW page_start AS
+  SELECT p.id,
+         p.kind,
+         p.etype,
+         COALESCE(t.weight, 0)                                                        AS esiw,
+         COALESCE(p.erq, 1)                                                           AS erq,
+         COALESCE(p.erp, 100)                                                         AS erp,
+         0.5 + 0.5 * COALESCE(t.weight, 0) * (2.0 * COALESCE(p.erp, 100) / 100.0 - 1) AS p0,
+         (SELECT value FROM constant WHERE name = 'K')
+           * 2.0 * COALESCE(p.erq, 1) / (COALESCE(p.erq, 1) + 1)                      AS weight
+  FROM page p LEFT JOIN evidence_tier t ON t.etype = p.etype;
+
+-- How much of the template each page has actually had filled in, and how much of it still rests on a presumed
+-- multiplier rather than an argued one.
+CREATE VIEW page_coverage AS
+  SELECT p.id, p.kind, p.text,
+         SUM(CASE WHEN e.section = 'argument'   AND e.side = 'agree'    THEN 1 ELSE 0 END) AS reasons_for,
+         SUM(CASE WHEN e.section = 'argument'   AND e.side = 'disagree' THEN 1 ELSE 0 END) AS reasons_against,
+         SUM(CASE WHEN e.section = 'evidence'                           THEN 1 ELSE 0 END) AS findings,
+         SUM(CASE WHEN e.section = 'prediction'                         THEN 1 ELSE 0 END) AS predictions,
+         SUM(CASE WHEN e.section IN ('argument','evidence','prediction') AND e.link_id IS NULL THEN 1 ELSE 0 END) AS rows_without_linkage,
+         SUM(CASE WHEN e.section IN ('argument','evidence','prediction') AND e.imp_id  IS NULL THEN 1 ELSE 0 END) AS rows_without_importance,
+         SUM(CASE WHEN e.section IN ('argument','evidence','prediction') AND e.uniq_id IS NULL THEN 1 ELSE 0 END) AS rows_without_uniqueness
+  FROM page p LEFT JOIN edge e ON e.page_id = p.id
+  GROUP BY p.id, p.kind, p.text;
+
+-- Argued on one side only: the template's own definition of an incomplete page.
+CREATE VIEW page_one_sided AS
+  SELECT * FROM page_coverage
+  WHERE kind IN ('belief','claim','linkage','interest','uniqueness','equivalence','driver','media')
+    AND (reasons_for = 0) <> (reasons_against = 0);
+
+-- Claims that can never move anything: nothing argued beneath them and nothing cited for them, so their truth
+-- is 0.50 and every row that reads them contributes exactly zero. This is the work queue in its rawest form.
+CREATE VIEW page_inert AS
+  SELECT p.id, p.text
+  FROM page p
+  WHERE p.etype IS NULL
+    AND NOT EXISTS (SELECT 1 FROM edge e WHERE e.page_id = p.id
+                    AND e.section IN ('argument','evidence','prediction','interest_listing'));
+
+-- Every cited finding in the corpus with what it rests on, ranked by how far its source moves it off the flip.
+CREATE VIEW evidence_ledger AS
+  SELECT p.id, p.text, s.etype, t.meaning, t.wiki_rank, s.erq, s.erp, s.p0,
+         (SELECT COUNT(*) FROM edge e WHERE e.claim_id = p.id AND e.section = 'evidence') AS cited_on
+  FROM page p JOIN page_start s ON s.id = p.id
+              LEFT JOIN evidence_tier t ON t.etype = p.etype
+  WHERE p.etype IS NOT NULL;
+
+-- Pages nothing reads: written and then orphaned.
+CREATE VIEW page_orphan AS
+  SELECT p.id, p.kind, p.text FROM page p
+  WHERE p.kind <> 'belief' AND NOT EXISTS (SELECT 1 FROM page_uses u WHERE u.page_id = p.id);
 '''
 
 def sqlval(v):
@@ -112,6 +194,32 @@ def sqlval(v):
     if isinstance(v, (int, float)): return str(v)
     if isinstance(v, (dict, list)): return "'" + json.dumps(v, ensure_ascii=False).replace("'", "''") + "'"
     return "'" + str(v).replace("'", "''") + "'"
+
+# Postgres is the schema of record; SQLite needs three substitutions and nothing else. Keeping one schema and
+# naming the differences here beats keeping two that drift.
+SQLITE_SUBS = [(r'\bJSONB\b', 'TEXT'), (r'NUMERIC\(\d+,\s*\d+\)', 'REAL'), (r'\bCREATE OR REPLACE VIEW\b', 'CREATE VIEW')]
+
+
+def sqlite_schema(schema=None):
+    out = schema or SCHEMA
+    for pat, rep in SQLITE_SUBS: out = re.sub(pat, rep, out)
+    return out
+
+
+def build_sqlite(path, data_sql, schema=None):
+    """A loaded database beside the .sql files, so the two tables can be queried without setting anything up:
+    sqlite3 ise.sqlite 'select * from page_inert'."""
+    if os.path.exists(path): os.remove(path)
+    con = sqlite3.connect(path)
+    try:
+        con.executescript(sqlite_schema(schema))
+        con.executescript(data_sql)
+        con.commit()
+        n = con.execute('SELECT (SELECT COUNT(*) FROM page), (SELECT COUNT(*) FROM edge)').fetchone()
+    finally:
+        con.close()
+    return n
+
 
 def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, beliefs=None):
     pages, edges = normalize(specs, beliefs)
@@ -131,6 +239,8 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
     open(os.path.join(outdir, 'schema.sql'), 'w').write(SCHEMA)
     lines = ['-- Idea Stock Exchange belief pages as data. Load schema.sql first. Scores are computed, not stored.', 'BEGIN;']
     for c in constants: lines.append(f"INSERT INTO constant (name, value, meaning) VALUES ({sqlval(c['name'])}, {sqlval(c['value'])}, {sqlval(c['meaning'])});")
+    for key, (w, rank, meaning) in sorted(EV.ESIW.items(), key=lambda kv: (-kv[1][0], kv[0])):
+        lines.append(f"INSERT INTO evidence_tier (etype, weight, wiki_rank, meaning) VALUES ({sqlval(key)}, {sqlval(w)}, {sqlval(rank)}, {sqlval(meaning)});")
     for p in pages:
         cols = [c for c in PAGE_COLS if p.get(c) is not None]
         lines.append(f"INSERT INTO page ({', '.join(cols)}) VALUES ({', '.join(sqlval(p[c]) for c in cols)});")
@@ -138,7 +248,9 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
         cols = [c for c in EDGE_COLS if e.get(c) is not None]
         lines.append(f"INSERT INTO edge ({', '.join(cols)}) VALUES ({', '.join(sqlval(e[c]) for c in cols)});")
     lines.append('COMMIT;')
-    open(os.path.join(outdir, stem + '_data.sql'), 'w').write('\n'.join(lines) + '\n')
+    data_sql = '\n'.join(lines) + '\n'
+    open(os.path.join(outdir, stem + '_data.sql'), 'w').write(data_sql)
+    build_sqlite(os.path.join(outdir, stem + '.sqlite'), data_sql)
     return pages, edges
 
 if __name__ == '__main__':

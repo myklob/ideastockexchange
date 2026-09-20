@@ -22,11 +22,11 @@ structural components, which is the migration the wiki describes.
 
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from evidence import prior as _prior
+from evidence import prior as _prior, classify as _classify
 
 # component -> (weight, always applicable?)  Reasoning quality outranks volume, per the wiki's own ordering.
 STRUCTURAL = {
-    'grounding':   (0.30, True),   # is what sits underneath actually established, or just asserted?
+    'grounding':   (0.30, True),   # is this claim actually established, by the world or by the claims beneath it?
     'two_sided':   (0.20, True),   # has anyone argued the other side at all?
     'scrutiny':    (0.20, True),   # are the multipliers argued, or resting on their starting constants?
     'breadth':     (0.15, True),   # how much has been brought to bear
@@ -55,29 +55,44 @@ class Confidence:
     def parts(self, pid, _seen=()):
         if pid in self._memo: return self._memo[pid]
         if pid in _seen: return {'confidence': 0.0, 'components': {}, 'na': [], 'cycle': True}
-        c = self.c; sp = c.specs[pid]; seen = _seen + (pid,)
+        c = self.c; sp = c.specs[pid]; seen = _seen + (pid,); kind = sp.get('kind') or 'belief'
 
         rows, kids = [], []
         for key, side in (('args', 'agree'), ('args', 'disagree'), ('evid', 'for'), ('evid', 'against')):
             for d in sp.get(key, {}).get(side, []):
                 rows.append(d)
                 if _is(d.get('id')) and d['id'] in c.specs: kids.append(d['id'])
+        # an importance page argues nothing in two columns; its work is the interests it lists and whether
+        # anyone has opened a bearing page against them. Counting it as one-sided would penalise a page kind
+        # for having the shape it is supposed to have.
+        listings = list(sp.get('interests', [])) if kind == 'importance' else []
+        for d in listings:
+            rows.append(d)
+            if _is(d.get('id')) and d['id'] in c.specs: kids.append(d['id'])
         preds = sp.get('pred_true', []) + sp.get('pred_false', [])
         nagree = len(sp.get('args', {}).get('agree', [])) + len(sp.get('evid', {}).get('for', []))
         ndis = len(sp.get('args', {}).get('disagree', [])) + len(sp.get('evid', {}).get('against', []))
 
         comp = {}
-        comp['two_sided'] = 1.0 if (nagree and ndis) else (0.35 if (nagree or ndis) else 0.0)
+        na = []
+        if kind == 'importance': na.append('two_sided')
+        else: comp['two_sided'] = 1.0 if (nagree and ndis) else (0.35 if (nagree or ndis) else 0.0)
         comp['breadth'] = saturate(len(rows) + len(preds), 6)
         comp['depth'] = saturate(self._depth(pid, seen), 3)
-        # scrutiny: of the three multipliers on each row, how many have been argued on a page of their own
-        slots = [d.get(k) for d in rows + preds for k in ('link', 'imp', 'uniq')]
+        # scrutiny: of the multipliers on each row, how many have been argued on a page of their own
+        slots = [d.get(k) for d in rows + preds for k in ('link', 'imp', 'uniq')] + [d.get('addresses') for d in listings]
         comp['scrutiny'] = (sum(1 for v in slots if _is(v)) / len(slots)) if slots else 0.0
-        # grounding: a page is only as settled as the claims beneath it. Recursive, and the reason a tree of
-        # bare assertions scores near zero no matter how many rows it lists.
-        comp['grounding'] = (sum(self.parts(k, seen)['confidence'] for k in kids) / len(kids)) if kids else 0.0
+        # grounding: a claim is established either because the world backs it or because the claims beneath it
+        # are themselves established. Whichever is stronger; a claim needs one of the two, not both.
+        #   - own: how far its own cited source grounds it, which is the ESIW tier and nothing else. Finding a
+        #     published statistic and saying which kind it is IS work, and a leaf that has had it done should
+        #     not sit at zero confidence and therefore move nothing, however well sourced.
+        #   - kids: the mean confidence of the claims argued beneath it. Recursive, and the reason a tree of
+        #     bare assertions scores near zero no matter how many rows it lists.
+        own = _classify(sp)['esiw']
+        kids_conf = (sum(self.parts(k, seen)['confidence'] for k in kids) / len(kids)) if kids else 0.0
+        comp['grounding'] = max(own, kids_conf)
 
-        na = []
         ev = sp.get('evid', {}).get('for', []) + sp.get('evid', {}).get('against', [])
         # half for citing a source at all, half for saying what kind of source it is: an uncategorised citation
         # is a reference, not a verification, and the scorer cannot weigh it against anything.
@@ -120,16 +135,18 @@ def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
 # rather than two that can drift.
 SIDE_KEY = {('argument', 'agree'): ('args', 'agree'), ('argument', 'disagree'): ('args', 'disagree'),
             ('evidence', 'agree'): ('evid', 'for'), ('evidence', 'disagree'): ('evid', 'against')}
-FLAT_KEY = {('prediction', 'agree'): 'pred_true', ('prediction', 'disagree'): 'pred_false'}
-COL_FIELD = (('claim_id', 'id'), ('link_id', 'link'), ('imp_id', 'imp'), ('uniq_id', 'uniq'))
+FLAT_KEY = {('prediction', 'agree'): 'pred_true', ('prediction', 'disagree'): 'pred_false',
+            ('interest_listing', None): 'interests'}
+COL_FIELD = (('claim_id', 'id'), ('link_id', 'link'), ('imp_id', 'imp'), ('uniq_id', 'uniq'), ('bearing_id', 'addresses'))
 
 
 class TableCorpus:
-    """The minimum a scorer needs, built from `page` and `edge` rows: `.specs` keyed by page id."""
+    """The minimum a scorer needs, built from `page` and `edge` rows: `.specs` keyed by page id. A spec carries
+    its page's own columns, etype / erq / erp among them, plus its rows grouped the way Confidence reads them."""
 
     def __init__(self, pages, edges):
-        self.specs = {p['id']: {'args': {'agree': [], 'disagree': []}, 'evid': {'for': [], 'against': []},
-                                'pred_true': [], 'pred_false': []} for p in pages}
+        self.specs = {p['id']: dict(p, args={'agree': [], 'disagree': []}, evid={'for': [], 'against': []},
+                                    pred_true=[], pred_false=[], interests=[]) for p in pages}
         for e in edges:
             sp = self.specs.get(e['page_id'])
             if sp is None: continue

@@ -292,5 +292,35 @@ class TestOnTheCorpus(unittest.TestCase):
             for b in reached: self.assertIn(b, c.beliefs)
 
 
+class TestConformance(unittest.TestCase):
+    """The engine of record against the checked-in expected numbers. A deliberate rule change shows up as a
+    reviewed diff in conformance/expected.json; an accidental one shows up here."""
+
+    def test_the_engine_of_record_conforms(self):
+        import conformance
+        bad = conformance.check()
+        self.assertEqual(bad, [], 'engine no longer matches conformance/expected.json:\n  ' + '\n  '.join(bad))
+
+    def test_the_fixture_exercises_every_rule_it_claims_to(self):
+        """A conformance corpus that happens to score zero everywhere proves nothing, which is how the first
+        draft of this one was caught."""
+        import json, conformance
+        with open(conformance.EXPECTED) as fh: want = json.load(fh)
+        pages, edges = want['pages'], want['edges']
+        kinds = {p['kind'] for p in pages.values()}
+        for kind in ('belief', 'claim', 'linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media'):
+            self.assertIn(kind, kinds, f'the fixture never exercises a {kind} page')
+        nz = [e for e in edges.values() if abs(e['contribution']) > 1e-12]
+        self.assertGreater(len(nz), len(edges) / 2, 'most rows in the fixture contribute nothing')
+        self.assertTrue([e for e in edges.values() if e['contribution'] < 0], 'no row contributes negatively')
+        self.assertTrue([e for e in edges.values() if abs(e['contribution']) <= 1e-12],
+                        'nothing in the fixture contributes exactly zero, so the neutral rule is untested')
+        self.assertTrue([p for p in pages.values() if p['p0'] > 0.5], 'no page starts above the coin flip')
+        self.assertTrue([p for p in pages.values() if p['p0'] < 0.5], 'no page starts below the coin flip')
+        self.assertTrue([p for p in pages.values() if p.get('raw') is not None and p['truth'] < p['raw'] - 1e-12],
+                        'no page in the fixture is capped by a load-bearing component')
+        self.assertTrue([p for p in pages.values() if p.get('impact') is not None], 'no media impact table')
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

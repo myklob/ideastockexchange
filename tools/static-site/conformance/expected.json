@@ -1,0 +1,327 @@
+{
+ "edges": {
+  "1": {
+   "contribution": 0.018515018109,
+   "page_id": 1,
+   "section": "argument"
+  },
+  "12": {
+   "contribution": 0.041666666667,
+   "page_id": 7,
+   "section": "argument"
+  },
+  "13": {
+   "contribution": -0.026666666667,
+   "page_id": 7,
+   "section": "argument"
+  },
+  "15": {
+   "contribution": 0.026666666667,
+   "page_id": 9,
+   "section": "argument"
+  },
+  "16": {
+   "contribution": -0.0,
+   "page_id": 9,
+   "section": "argument"
+  },
+  "17": {
+   "contribution": 0.041666666667,
+   "page_id": 10,
+   "section": "argument"
+  },
+  "18": {
+   "contribution": 0.041666666667,
+   "page_id": 11,
+   "section": "argument"
+  },
+  "19": {
+   "contribution": 0.026666666667,
+   "page_id": 11,
+   "section": "impact"
+  },
+  "2": {
+   "contribution": 0.0,
+   "page_id": 1,
+   "section": "argument"
+  },
+  "20": {
+   "contribution": 0.135,
+   "page_id": 11,
+   "section": "impact"
+  },
+  "21": {
+   "contribution": 0.026666666667,
+   "page_id": 15,
+   "section": "argument"
+  },
+  "22": {
+   "contribution": 0.041666666667,
+   "page_id": 16,
+   "section": "argument"
+  },
+  "3": {
+   "contribution": 0.0,
+   "page_id": 1,
+   "section": "argument"
+  },
+  "4": {
+   "contribution": 0.135,
+   "page_id": 1,
+   "section": "argument"
+  },
+  "5": {
+   "contribution": 0.0,
+   "page_id": 1,
+   "section": "evidence"
+  },
+  "6": {
+   "contribution": -0.021125845034,
+   "page_id": 1,
+   "section": "evidence"
+  },
+  "7": {
+   "contribution": 0.007605304212,
+   "page_id": 1,
+   "section": "prediction"
+  }
+ },
+ "pages": {
+  "1": {
+   "belief": 0.139994477288,
+   "con": 0,
+   "confidence": 0.476888278388,
+   "kind": "belief",
+   "neg": 0.021125845034,
+   "p0": 0.5,
+   "pos": 0.161120322322,
+   "pred": 0.007605304212,
+   "pro": 0.153515018109,
+   "raw": 0.559206991384,
+   "supp": 0,
+   "truth": 0.05,
+   "weak": 0.021125845034,
+   "weight": 1.0
+  },
+  "10": {
+   "belief": 0.041666666667,
+   "con": 0,
+   "confidence": 0.171031746032,
+   "kind": "uniqueness",
+   "p0": 0.5,
+   "pred": 0.0,
+   "pro": 0.041666666667,
+   "supp": 0.0,
+   "truth": 0.52,
+   "weak": 0.0,
+   "weight": 1.0
+  },
+  "11": {
+   "belief": 0.041666666667,
+   "con": 0,
+   "confidence": 0.171031746032,
+   "impact": 0.569583931133,
+   "kind": "media",
+   "p0": 0.5,
+   "pred": 0.0,
+   "pro": 0.041666666667,
+   "supp": 0.0,
+   "truth": 0.52,
+   "weak": 0.0,
+   "weight": 1.0
+  },
+  "12": {
+   "belief": 0,
+   "con": 0,
+   "confidence": 0.166666666667,
+   "kind": "claim",
+   "neg": 0,
+   "p0": 0.75,
+   "pos": 0,
+   "pred": 0,
+   "pro": 0,
+   "raw": 0.75,
+   "supp": 0,
+   "truth": 0.75,
+   "weak": 0,
+   "weight": 1.0
+  },
+  "13": {
+   "belief": 0,
+   "con": 0,
+   "confidence": 0.133333333333,
+   "kind": "claim",
+   "neg": 0,
+   "p0": 0.7,
+   "pos": 0,
+   "pred": 0,
+   "pro": 0,
+   "raw": 0.7,
+   "supp": 0,
+   "truth": 0.7,
+   "weak": 0,
+   "weight": 1.0
+  },
+  "14": {
+   "belief": 0,
+   "con": 0,
+   "confidence": 0.1,
+   "kind": "claim",
+   "neg": 0,
+   "p0": 0.65,
+   "pos": 0,
+   "pred": 0,
+   "pro": 0,
+   "raw": 0.65,
+   "supp": 0,
+   "truth": 0.65,
+   "weak": 0,
+   "weight": 1.0
+  },
+  "15": {
+   "belief": 0.026666666667,
+   "con": 0,
+   "confidence": 0.159920634921,
+   "kind": "driver",
+   "p0": 0.5,
+   "pred": 0.0,
+   "pro": 0.026666666667,
+   "supp": 0.0,
+   "truth": 0.512987012987,
+   "weak": 0.0,
+   "weight": 1.0
+  },
+  "16": {
+   "belief": 0.041666666667,
+   "con": 0,
+   "confidence": 0.171031746032,
+   "kind": "equivalence",
+   "p0": 0.5,
+   "pred": 0.0,
+   "pro": 0.041666666667,
+   "supp": 0.0,
+   "truth": 0.52,
+   "weak": 0.0,
+   "weight": 1.0
+  },
+  "2": {
+   "belief": 0,
+   "con": 0,
+   "confidence": 0.3,
+   "kind": "claim",
+   "neg": 0,
+   "p0": 0.95,
+   "pos": 0,
+   "pred": 0,
+   "pro": 0,
+   "raw": 0.95,
+   "supp": 0,
+   "truth": 0.95,
+   "weak": 0,
+   "weight": 1.0
+  },
+  "3": {
+   "belief": 0,
+   "con": 0,
+   "confidence": 0.3,
+   "kind": "claim",
+   "neg": 0,
+   "p0": 0.05,
+   "pos": 0,
+   "pred": 0,
+   "pro": 0,
+   "raw": 0.05,
+   "supp": 0,
+   "truth": 0.05,
+   "weak": 0,
+   "weight": 1.5
+  },
+  "4": {
+   "belief": 0,
+   "con": 0,
+   "confidence": 0.25,
+   "kind": "claim",
+   "neg": 0,
+   "p0": 0.5,
+   "pos": 0,
+   "pred": 0,
+   "pro": 0,
+   "raw": 0.5,
+   "supp": 0,
+   "truth": 0.5,
+   "weak": 0,
+   "weight": 1.333333333333
+  },
+  "5": {
+   "belief": 0,
+   "con": 0,
+   "confidence": 0.0,
+   "kind": "claim",
+   "neg": 0,
+   "p0": 0.5,
+   "pos": 0,
+   "pred": 0,
+   "pro": 0,
+   "raw": 0.5,
+   "supp": 0,
+   "truth": 0.5,
+   "weak": 0,
+   "weight": 1.0
+  },
+  "6": {
+   "belief": 0,
+   "con": 0,
+   "confidence": 0.3,
+   "kind": "claim",
+   "neg": 0,
+   "p0": 0.05,
+   "pos": 0,
+   "pred": 0,
+   "pro": 0,
+   "raw": 0.05,
+   "supp": 0,
+   "truth": 0.05,
+   "weak": 0,
+   "weight": 1.333333333333
+  },
+  "7": {
+   "belief": 0.015,
+   "con": 0.026666666667,
+   "confidence": 0.327777777778,
+   "kind": "linkage",
+   "p0": 0.5,
+   "pred": 0.0,
+   "pro": 0.041666666667,
+   "supp": 0.0,
+   "truth": 0.507020280811,
+   "weak": 0.0,
+   "weight": 1.0
+  },
+  "8": {
+   "belief": 0.260094819377,
+   "con": 0.0,
+   "confidence": 0.230612244898,
+   "kind": "importance",
+   "p0": 0.5,
+   "pred": 0.0,
+   "pro": 0.0,
+   "supp": 0.0,
+   "truth": 0.260094819377,
+   "weak": 0.0,
+   "weight": 1.0
+  },
+  "9": {
+   "belief": 0.026666666667,
+   "con": 0,
+   "confidence": 0.3,
+   "kind": "interest",
+   "p0": 0.5,
+   "pred": 0.0,
+   "pro": 0.026666666667,
+   "supp": 0.0,
+   "truth": 0.512987012987,
+   "weak": 0.0,
+   "weight": 1.0
+  }
+ }
+}
