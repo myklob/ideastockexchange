@@ -21,6 +21,9 @@ every table on every page). Nothing typed in it is a score. Everything else here
     page start          = p0 = 0.5 + 0.5 x ESIW x (2 x ERP/100 - 1),  w = k x 2 x ERQ / (ERQ + 1)
     page truth (argued) = (POS + w x p0) / (POS + NEG + w), k = 1
     page truth          = min(argued, weakest load-bearing component that has its own page)
+    cost or benefit     = expected value = magnitude x the claim's truth, with the range magnitude_low to
+                          magnitude_high carried through where one is stated; the worst case is every benefit
+                          low and every cost high
     belief score        = POS - NEG, open ended, where POS and NEG are the positive and negative
                           contributions as magnitudes (a row lands on the side its sign puts it on)
     importance page     = max over listed interests of Validity x Bears
@@ -81,6 +84,11 @@ in all four here, and four implementations of a rule is four chances to be wrong
   analyst actually opens a database for: `page_start`, `page_coverage`, `page_one_sided`, `page_inert`,
   `evidence_ledger`, `page_orphan`, `page_uses`. `page_start` is the starting-point rule written in SQL, which is
   there to show the non-recursive parts port in a few lines.
+- **Price with a range, not a point.** A cost or benefit row carries `magnitude`, and optionally `mag_low` and
+  `mag_high` in the same units. A row that states one figure and no range is marked as such on the page and in
+  the structural checks, because a decision cannot be checked against a point estimate: the reader cannot tell
+  whether the net survives the estimate being wrong, which is usually the whole question. None of the rows in
+  this corpus state a range yet, so every belief page says so.
 - **Publish as data, not only as pages.** Every page writes its computed numbers beside it as
   `p/<key>.json`, indexed at `data/pages_index.json`: truth, confidence, starting point, ReasonRank, work value,
   the structural checks and the sensitivity summary. A score somebody has to scrape out of HTML is a score

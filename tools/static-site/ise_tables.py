@@ -52,7 +52,7 @@ PAGE_COLS = ['key', 'tab', 'kind', 'text', 'parent', 'x', 'y', 'type', 'directio
              'measured_by', 'where_found', 'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge',
              'bottom_line', 'positivity', 'form']
 EDGE_COLS = ['page', 'section', 'side', 'claim', 'text', 'source', 'link', 'imp', 'uniq', 'drives', 'equiv',
-             'who', 'bearing', 'pattern', 'category', 'magnitude', 'deadline', 'extra']
+             'who', 'bearing', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline', 'extra']
 # spec field <-> pages column, for the fields that live on a page rather than on a row
 PAGE_FIELDS = [('etype', 'etype'), ('erq', 'erq'), ('erp', 'erp'), ('topic', None), ('supports', 'parent'), ('x', 'x'), ('y', 'y'), ('typ', 'type'),
                ('direction', 'direction'), ('rowkind', 'rowkind'), ('value', 'value'), ('measured', 'measured_by'),
@@ -61,7 +61,7 @@ PAGE_FIELDS = [('etype', 'etype'), ('erq', 'erq'), ('erp', 'erp'), ('topic', Non
 REFS = [('claim', 'id'), ('link', 'link'), ('imp', 'imp'), ('uniq', 'uniq'), ('drives', 'drives'),
         ('equiv', 'equiv'), ('who', 'who'), ('bearing', 'addresses')]
 PLAIN = [('text', 'text'), ('source', 'source'), ('pattern', 'pattern'), ('category', 'category'),
-         ('magnitude', 'magnitude'), ('deadline', 'deadline')]
+         ('magnitude', 'magnitude'), ('mag_low', 'mag_low'), ('mag_high', 'mag_high'), ('deadline', 'deadline')]
 # everything else a row can carry, by section, written into and read out of the `extra` column
 EXTRA = {'component': ['type', 'stated', 'lb', 'assumes'], 'motive': ['advertised', 'actual'],
          'compromise': ['premise', 'difficult'], 'shared_interest': ['direction'],
@@ -218,9 +218,10 @@ def tables_to_specs(pages, edges):
         for col, field in PLAIN:
             if e.get(col) not in (None, ''): d[field] = e[col]
         d.update(parse_extra(e.get('extra')))
-        if 'magnitude' in d:
-            try: d['magnitude'] = float(d['magnitude'])
-            except (TypeError, ValueError): pass
+        for f in ('magnitude', 'mag_low', 'mag_high'):
+            if f in d:
+                try: d[f] = float(d[f])
+                except (TypeError, ValueError): pass
         for f in ('srank', 'orank'):
             if f in d:
                 try: d[f] = int(d[f])
@@ -267,7 +268,11 @@ HELP = {
  'who': 'cost and benefit rows: the interest that gains or pays.',
  'bearing': 'interest listings: the bearing page, if someone has argued the row does not really speak to it.',
  'pattern': 'The shape of the reason on a specialized page.', 'category': 'cost and benefit rows: the units.',
- 'magnitude': 'cost and benefit rows: the estimate, in those units. The one typed number in the system.',
+ 'magnitude': 'cost and benefit rows: the central estimate, in those units. The one typed number in the system.',
+ 'mag_low': 'cost and benefit rows: the low end of the estimate, in the same units. Blank means nobody has '
+            'stated a range, which the page reports as a deficiency rather than treating the central estimate '
+            'as exact.',
+ 'mag_high': 'cost and benefit rows: the high end of the estimate, in the same units.',
  'deadline': 'prediction rows: when and how it gets settled.',
  'extra': 'Anything else the row carries, as "name: value | name: value".',
 }
@@ -282,7 +287,7 @@ def write_entry(pages, edges, path):
     from openpyxl.worksheet.datavalidation import DataValidation
     from openpyxl.comments import Comment
     wb = Workbook(); wb.remove(wb.active)
-    WIDE = {'text': 90, 'key': 30, 'page': 30, 'claim': 30, 'bottom_line': 60, 'bridge': 60, 'extra': 60,
+    WIDE = {'text': 90, 'key': 30, 'mag_low': 16, 'mag_high': 16, 'page': 30, 'claim': 30, 'bottom_line': 60, 'bridge': 60, 'extra': 60,
             'measured_by': 50, 'if_true': 40, 'if_false': 40, 'latest': 50, 'form': 60, 'where_found': 40,
             'category': 40, 'deadline': 40, 'source': 50, 'parent': 26, 'x': 26, 'y': 26, 'link': 26, 'imp': 26,
             'uniq': 26, 'drives': 26, 'equiv': 26, 'who': 26, 'bearing': 26, 'pattern': 22, 'rowkind': 26}
@@ -335,7 +340,7 @@ def write_entry(pages, edges, path):
 # rewritten in this repository and the only trace was a byte count. An institution cannot review that, and a
 # tool meant for one has to be reviewable. The same two tables are therefore also kept as CSV, which diffs line
 # by line, so a change to an argument reads as a change to an argument.
-CSV_NUMERIC = ('tab', 'positivity', 'erq', 'erp', 'magnitude')
+CSV_NUMERIC = ('tab', 'positivity', 'erq', 'erp', 'magnitude', 'mag_low', 'mag_high')
 CSV_NAMES = {'pages': PAGE_COLS, 'edges': EDGE_COLS}
 
 
