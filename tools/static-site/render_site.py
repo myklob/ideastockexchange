@@ -513,7 +513,12 @@ def render_belief(c, pid):
 <div class="tile"><div class="lab">Weight for</div><div class="big">{f2(s["pos"])}</div><div class="sub">arguments {f2(s["pro"])} · evidence {f2(s["supp"])} · predictions {f2(s["pos"] - s["pro"] - s["supp"])}</div></div>
 <div class="tile"><div class="lab">Weight against</div><div class="big">{f2(s["neg"])}</div><div class="sub">arguments {f2(s["con"])} · evidence {f2(s["weak"])} · predictions {f2(s["neg"] - s["con"] - s["weak"])}</div></div>
 </div>
-<dl class="readout">''' + verdict_block(c, pid, s) + ''.join(f'<dt>{esc(k)}</dt><dd>{v}</dd>' for k, v in read) + '''</dl></section>''')
+</section>''')
+    # The scorecard stays at the top and the prose about it does not. A reader meets the claim, the numbers,
+    # and then the arguments; what the numbers add up to is a conclusion, and a conclusion belongs after the
+    # thing it is drawn from. This is Rule 1 of the belief-page rules, no top-of-page summary.
+    readout = ('<dl class="readout">' + verdict_block(c, pid, s)
+               + ''.join(f'<dt>{esc(k)}</dt><dd>{v}</dd>' for k, v in read) + '</dl>')
     # Sections with no content yet are not rendered: an empty template row is not a result, and a reader
     # should meet this page's best work first. What is missing is listed once, at the end, as work to do.
     todo = []
@@ -688,6 +693,13 @@ def render_belief(c, pid):
     if todo:
         o.append(H.section('Not Argued Yet', 'Parts of the template nobody has filled in here. They are named rather than shown, because an empty table is not a finding, and each one is a reason the confidence above is not higher.'))
         o.append('<table class="plain"><tbody>' + ''.join(f'<tr><td class="t">{esc(n)}</td><td class="u">{esc(why)}</td></tr>' for n, why in todo) + '</tbody></table></section>')
+    o.append(H.section('Reading the scorecard',
+                       'Every line restates a number from the top of the page and says what it is made of. '
+                       'It sits here rather than above the arguments because it is a conclusion drawn from '
+                       'them, and a reader should meet the claim and its reasons before anybody, including '
+                       'this page, tells them what to make of it.'))
+    o.append(readout)
+    o.append('</section>')
     o.append(checks_section(H, c, pid))
     o.append(engine_table(H, c, pid))
     o.append(FOOT)
@@ -1070,7 +1082,7 @@ main{max-width:1180px;margin:0 auto;padding-block:20px 56px;padding-inline:20px}
 a{color:var(--navy);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--navy) 35%,transparent)}a:hover{border-bottom-color:var(--navy)}a:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
 .crumb{text-align:right;margin:0 0 6px;font-size:13px;color:var(--ink2)}.crumb a{border:none}.crumb strong{color:var(--ink)}
 .kind{margin:0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);font-weight:600}
-h1{font-family:var(--serif);font-weight:600;font-size:clamp(22px,2.4vw,30px);line-height:1.25;margin:4px 0 8px;text-wrap:balance;max-width:52ch}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(22px,2.6vw,32px);line-height:1.22;margin:4px 0 8px;text-wrap:balance}
 h1.q span{display:block}h1.q span+span{padding-left:1.2em}
 .meta{margin:0 0 18px;color:var(--ink2);font-size:13px}
 section{margin:26px 0 0}section.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
@@ -1081,7 +1093,9 @@ h3{font:600 13px/1.3 var(--sans);margin:0 0 6px;padding:5px 10px;border-radius:3
 .blurb{margin:0 0 10px;color:var(--ink2);font-size:13px;max-width:90ch}
 .sides{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media (max-width:900px){.sides{grid-template-columns:1fr}}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
-td{padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.4}td.u{color:var(--ink2);font-size:13px}
+td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35}td.u{color:var(--ink2);font-size:13px}
+table.scored td.t,table.all td.t{width:100%}table.scored td:not(.t):not(.rk),table.scored th:not(:nth-child(2)){width:1%;white-space:nowrap}
+td.t a{border-bottom-color:transparent}td.t a:hover,td.t a:focus-visible{border-bottom-color:var(--navy)}
 .scored td:not(.t):not(.u):not(.pat):not(.dl){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;width:3.7em;padding-inline:5px}.scored th{padding-inline:5px}.scored th:first-child,.scored td:first-child{padding-left:8px}.scored td.rk,.plain td.rk{width:1.8em;color:var(--mute);text-align:right;font-variant-numeric:tabular-nums}
 td.sc{font-weight:600}.patl{display:block;font:600 10.5px/1.3 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--navy);margin-bottom:2px}td.pat{font-size:11.5px;font-weight:600;color:var(--navy);width:8em}td.dl{font-size:12px;color:var(--ink2)}td.n1{text-align:right;width:4.6em}td.ex{color:var(--ink2);font-size:13px}
 .n{font-variant-numeric:tabular-nums}.n.c,.c{color:var(--const);border:none;cursor:help}.typed{color:var(--ink)}.src{font-size:12px;color:var(--mute);font-family:var(--sans);margin-top:2px}
@@ -1101,7 +1115,7 @@ tr.lb td{background:color-mix(in srgb,var(--head) 60%,transparent)}
 .skip{position:absolute;left:-9999px;top:0;background:var(--paper);color:var(--ink);padding:10px 14px;border:2px solid var(--navy);border-radius:0 0 4px 0;z-index:10}
 .skip:focus{left:0}
 @media (max-width:640px){table thead{display:none}table tr{display:flex;flex-wrap:wrap;gap:3px 14px;padding:8px 6px;border-top:1px solid var(--line)}table td{border:0;padding:0;width:auto!important;white-space:normal!important;text-align:left!important}td.t,td.u,td.dl,td.ex,td.lab,.check td.lab,.conn td.lab{flex:1 1 100%;width:auto!important}td.rk{display:none}td[data-l]::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}td.u[data-l]::before,td.dl[data-l]::before,td.ex[data-l]::before{display:inline;margin-right:6px}tr.lb td{background:none}tr.lb{background:color-mix(in srgb,var(--head) 60%,transparent)}}
-main.index h1{max-width:none;font-size:clamp(24px,3vw,36px)}.lede{max-width:80ch;font-size:15px;color:var(--ink2)}
+main.index h1{font-size:clamp(24px,3vw,36px)}.lede{max-width:80ch;font-size:15px;color:var(--ink2)}
 .beliefs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
 .bcard{display:block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px;color:var(--ink)}.bcard:hover{border-color:var(--navy)}
 .bcard .bt{font-family:var(--serif);font-size:16px;line-height:1.35;font-weight:600;margin-bottom:8px}.bcard .bn{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}.bcard .bn b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}.bcard .bb{margin-top:8px;font-size:13px;color:var(--ink2)}
