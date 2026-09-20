@@ -51,7 +51,7 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     changes.py           what moved since the last revision, in claims and in scores
     similarity.py        which claims say the same thing in different words, so padding can be seen
     integrity.py         faults the shape of the graph shows: circularity, question-begging, a page counted twice
-    method.py            the reader-facing methodology page, including what the tool cannot do
+    method.py            the reader-facing methodology page: every rule the contract enumerates, and what the tool cannot do
     conformance.py       the cross-implementation contract: conformance/corpus.json and conformance/expected.json
     check_assertions.py  which assertions in the suite never ran; CI fails if any of them does not
     sync_content.py      keeps ISE_Data_Entry.xlsx and content/*.csv in step; --check runs in CI
