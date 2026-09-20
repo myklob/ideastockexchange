@@ -83,7 +83,24 @@ touching before you change a formula.
   computed duplicate detector. Read its README before changing any of it, and see
   the note below on the one rule that matters most.
 
-Adding a fifth is the wrong move. If the page/edge model wins, migrate
+- **`src/core/ai/` is a fifth, and it is not in the same business.** A Python and
+  TypeScript framework for generating analysis pages with an LLM. It matters here
+  because three of its modules produce numbers: `scorer.py` asks a model for an
+  importance score out of 100, and `overlap_engine.py` and `similarity.py` compute
+  claim overlap from sentence-transformer embeddings, which is the same question
+  `tools/static-site/similarity.py` answers lexically and transparently. A number a
+  model asserted is the one thing the published engine refuses to carry, so if any
+  of this is ever wired to a page, it needs a page arguing it like every other
+  factor. Nothing imports the scoring half today.
+
+  Two of its files do not parse: `main.py` (line 137, a `FastAPI(...)` call cut off
+  mid-argument and followed by imports) and `services.py` (line 785, a `return`
+  followed by orphaned keyword arguments). Both look like a botched merge rather
+  than unfinished work, both have been in this state since the directory landed,
+  and nothing imports either, which is why nothing noticed. The missing lines are
+  gone, so this is a restore-or-delete decision and not a fix.
+
+Adding a sixth is the wrong move. If the page/edge model wins, migrate
 `src/core/scoring/` onto it and delete the loser; if it doesn't, delete
 `src/lib/ise-pages/`. Leaving both indefinitely is the outcome that costs.
 
@@ -110,7 +127,8 @@ the disagreement is unresolved, not accidental.
 
 ### Open decisions, for the owner rather than for a session
 
-Four things are deliberately unresolved. None is a bug; each is a call somebody has to make.
+Five things are unresolved. Four are calls somebody has to make rather than bugs; the fifth is a defect whose
+fix requires knowing what the code was meant to say.
 
 1. **The two engines disagree about volume.** `src/core/scoring/scoring-engine.ts` scores `A / (A + D)` over
    argument strengths, so listing an unargued reason there raises the score. `tools/static-site/` scores rows
@@ -121,7 +139,11 @@ Four things are deliberately unresolved. None is a bug; each is a call somebody 
    the premise it supports changes what the argument says, so it is an editorial act, not a refactor.
 3. **Every cost and benefit is a point estimate.** `mag_low` and `mag_high` exist and are empty, and every
    belief page says so. Filling them is the owner's estimate to make, not a session's.
-4. **The load-bearing cap treats "unargued" as 0.50 and lets it cap.** That is conservative and correct as
+4. **`src/core/ai/main.py` and `services.py` do not parse.** Nothing imports either, so nothing fails; the
+   missing lines are gone, so restoring them means writing them. Delete the two files, restore them from
+   whatever they were pasted out of, or leave them and accept that `src/core/ai/` cannot be run as a whole.
+   Any of the three is fine; the current state is the one that reads as working code and is not.
+5. **The load-bearing cap treats "unargued" as 0.50 and lets it cap.** That is conservative and correct as
    probability, and it is what holds every belief in the corpus at 0.50. Changing it would be a rule change,
    with a conformance diff to review.
 
