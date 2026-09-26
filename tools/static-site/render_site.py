@@ -1272,12 +1272,15 @@ def render_topic(c, tkey, title):
     o.append('<p class="cap">Which way the belief runs, from total opposition (-100%) to total support (+100%). The <strong>Belief Score</strong> '
              'column is a separate thing: how well the belief holds up once its arguments are scored, not which way it points. A claim can '
              'sit at +100% and still score badly.</p>')
+    if (t.get('axis') or '').strip():
+        o.append(f'<p class="cap"><strong>Positive means:</strong> {esc(t["axis"].strip())}</p>')
     o.append('<table class="tpl"><thead><tr><th style="width:12%">Position</th><th style="width:55%">Core Belief / Claim</th><th style="width:25%">Top Underlying Argument</th><th style="width:8%">Belief Score</th></tr></thead><tbody>')
     def band_of(pos):
         return '+100' if pos >= 75 else '+50' if pos >= 25 else '0' if pos > -25 else '-50' if pos > -75 else '-100'
+    unlabelled = [b for b in beliefs if c.specs[b].get('positivity') is None]
     for band, label in DIRECTION_BANDS:
         typed = section_rows('direction', band)
-        auto = sorted((b for b in beliefs if band_of(c.specs[b].get('positivity') or 0) == band), key=lambda b: -c.stats(b)['belief'])
+        auto = sorted((b for b in beliefs if c.specs[b].get('positivity') is not None and band_of(c.specs[b]['positivity']) == band), key=lambda b: -c.stats(b)['belief'])
         claims, args, scores = [], [], []
         for d in typed:
             claims.append(cell(d, score=False))
@@ -1290,6 +1293,13 @@ def render_topic(c, tkey, title):
         o.append(f'<tr><td class="band {BAND_COLOURS[band]}"><strong>{band}%</strong><br>({label})</td>'
                  f'<td>{"<br>".join(claims) if claims else EMPTY}</td><td class="u">{"<br>".join(a for a in args if a) or ""}</td>'
                  f'<td class="num">{"<br>".join(x for x in scores if x) or ""}</td></tr>')
+    if unlabelled:
+        # A belief nobody has placed on the axis is not neutral; it is unplaced, and it says so rather than
+        # borrowing the 0% row.
+        o.append('<tr><td class="band"><strong>Not labelled yet</strong><br>(no position typed)</td>'
+                 f'<td>{"<br>".join(belief_cell(b) for b in sorted(unlabelled, key=lambda b: -c.stats(b)["belief"]))}</td>'
+                 f'<td class="u">{"<br>".join(strongest_reason(H, c, b) for b in unlabelled)}</td>'
+                 f'<td class="num">{"<br>".join(sf(c.stats(b)["belief"]) for b in unlabelled)}</td></tr>')
     o.append('</tbody></table>')
 
     # ---- continuum 2: claim strength

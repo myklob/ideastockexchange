@@ -74,7 +74,7 @@ TOPIC_SECTIONS = {
 PAGE_COLS = ['key', 'tab', 'kind', 'text', 'standalone', 'topic', 'parent', 'x', 'y', 'type', 'direction', 'rowkind', 'value',
              'measured_by', 'where_found', 'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge',
              'bottom_line', 'hook', 'question', 'ask', 'positivity', 'strength', 'form']
-TOPIC_COLS = ['key', 'name', 'parent', 'definition', 'scope']
+TOPIC_COLS = ['key', 'name', 'parent', 'definition', 'scope', 'axis']
 EDGE_COLS = ['page', 'section', 'side', 'claim', 'text', 'source', 'link', 'imp', 'uniq', 'drives', 'equiv',
              'who', 'bearing', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline', 'extra']
 # spec field <-> pages column, for the fields that live on a page rather than on a row
@@ -304,6 +304,7 @@ HELP = {
  'name': 'topic: the name a reader sees. A noun phrase, not a claim: "Public office and private gain", not "Public office should not be usable for private gain".',
  'definition': 'topic: one sentence naming what the topic covers, written so a reader can tell whether a given belief belongs here.',
  'scope': 'topic: what sits inside this page and what belongs to a neighbouring topic with its own page.',
+ 'axis': 'topic: what a positive position means on this topic and what a negative one means, so a reader can place a belief on Continuum 1 without guessing. Blank means the site says only Oppose and Support.',
  'page': 'The page this row sits on (its key).',
  'section': 'Which table on that page: argument, evidence, prediction, cba, component, interest, media, law, and so on.',
  'side': 'agree or disagree (extreme or moderate for similar beliefs; x or y for related linkages).',
