@@ -796,9 +796,15 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
 
 
 class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
-    """One page per topic, in the shape of templates/topic-template.html: the three axes, the assumptions,
-    the values, the common ground, the evidence, the works, the neighbours. Every number on it is read from
-    a belief page beneath it; the two labels that are typed say so."""
+    """One page per topic, in the layout of templates/topic-template.html, section for section and in its
+    order. A cell is filled from the topic's own rows, or from the belief pages beneath the topic where those
+    can supply it, and left honestly empty otherwise. A cell that is a page carries that page's score; a cell
+    that is only words carries none."""
+
+    SECTIONS = ('Continuum 1: Direction', 'Continuum 2: Claim Strength', 'Continuum 3: General to Specific',
+                'Assumption Stack Behind Each Position', 'Core Values Conflict', 'The Engagement Landscape',
+                'Common Ground and Compromise', 'The Evidence Ledger', 'Best Objective Criteria',
+                'Best Media and Resources', 'Related Topics', 'Contribute')
 
     @classmethod
     def setUpClass(cls):
@@ -814,22 +820,35 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
     def test_there_is_a_topic_with_beliefs_so_the_rest_tests_something(self):
         self.assertTrue([k for k in self.corpus.topics if self.corpus.topic_beliefs(k)], 'no topic has a belief filed under it')
 
-    def test_a_topic_with_beliefs_carries_the_template_sections(self):
+    def test_every_topic_carries_the_template_sections_in_order(self):
         for k in self.corpus.topics:
-            if not self.corpus.topic_beliefs(k): continue
-            t = self._text(self.pages[k])
-            for sec in ('Which way each belief runs', 'How absolute each claim is', 'From general to specific',
-                        'What you must accept to hold each belief', 'What each side says it values',
-                        'Where the sides could meet', 'The evidence, best sourced first', 'Books, studies and reports',
-                        'Related topics', 'Not filled in yet'):
-                self.assertIn(sec, t, f'topic {k} is missing the section "{sec}"')
+            t = self._text(self.pages[k]); last = -1
+            for sec in self.SECTIONS:
+                i = t.find(sec)
+                self.assertGreater(i, last, f'topic {k}: section "{sec}" is missing or out of order')
+                last = i
 
-    def test_every_belief_in_the_topic_is_placed_on_the_direction_axis(self):
+    def test_the_direction_table_has_the_five_bands_and_places_every_belief(self):
         for k in self.corpus.topics:
+            t = self._text(self.pages[k])
+            for band in ('-100%', '-50%', '0%', '+50%', '+100%'):
+                self.assertIn(band, t, f'topic {k} lacks the {band} band')
             for b in self.corpus.topic_beliefs(k):
                 self.assertIn(self.corpus.href(b), self.pages[k], f'{self.corpus.key[b]} is filed under {k} and not on its page')
-                pos = self.corpus.specs[b].get('positivity')
-                if pos is not None: self.assertIn(f'{pos:+d}%', self._text(self.pages[k]))
+
+    def test_a_typed_cell_carries_no_score_and_a_page_cell_carries_its_own(self):
+        """The template rule: never fill a score cell for a row that has no page. A cell that is only words
+        has no page to read a number from, so it prints none; a cell that is a page prints that page's."""
+        for k in self.corpus.topics:
+            rows = self.corpus.topic_rows.get(k, [])
+            typed = [r for r in rows if r.get('section') == 'direction' and r.get('text') and not r.get('claim')]
+            if not typed: continue
+            h = self.pages[k]
+            for r in typed:
+                i = h.find(htmlmod.escape(r['text'], quote=True)[:60])
+                self.assertGreater(i, 0, f'topic {k}: a typed direction row is not on the page')
+                row_html = h[i:h.find('</tr>', i)]
+                self.assertNotRegex(row_html, r'<td class="num">[^<]*[0-9]', f'topic {k}: a typed cell got a score')
 
     def test_a_belief_links_its_topic_by_name(self):
         for b in self.corpus.beliefs:
@@ -839,14 +858,14 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
             self.assertIn(f'href="../t/{self.corpus.topic_href(k)}"', h, f'{self.corpus.key[b]} does not link its topic')
             self.assertIn(self.corpus.topics[k]['name'], h, f'{self.corpus.key[b]} prints the topic key instead of its name')
 
-    def test_what_is_not_filled_in_is_named_and_not_faked(self):
-        """The template has an engagement section and an objective-criteria section. Nothing here has that
-        data, so the page says so instead of printing an empty table or, worse, a filled one."""
+    def test_an_empty_cell_says_so_rather_than_inventing(self):
+        """Engagement has no rows anywhere yet. The table keeps its four fixed levels, because the levels are
+        the template's taxonomy and not data, and every cell that would need data says it has none."""
         for k in self.corpus.topics:
-            if not self.corpus.topic_beliefs(k): continue
+            if self.corpus.topic_rows.get(k) and any(r.get('section') == 'engagement' for r in self.corpus.topic_rows[k]): continue
             t = self._text(self.pages[k])
-            self.assertIn('Who would act on it', t); self.assertIn('Agreed yardsticks', t)
-            self.assertNotIn('Preference Passive lean', t, 'the engagement table was printed with nothing behind it')
+            i = t.find('The Engagement Landscape'); j = t.find('Common Ground and Compromise')
+            self.assertGreaterEqual(t[i:j].count('Nothing here yet.'), 8, f'topic {k}: the engagement table has cells filled with nothing behind them')
 
 
 class TestThePagesSpeakPlainly(unittest.TestCase):
