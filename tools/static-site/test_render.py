@@ -565,6 +565,7 @@ class TestEveryExportCarriesTheSameTwoTables(unittest.TestCase):
         self.assertEqual(len(self.j['topic_rows']), sum(len(v) for v in self.parent.c.topic_rows.values()))
         self.assertGreater(len(self.j['topic_rows']), 0, 'no topic has rows, so the shape is untested')
         keyed = [r for r in self.j['topic_rows'] if r.get('claim_id')]
+        self.assertTrue(keyed, 'no topic row points at a page, so the id check below would never run')
         for r in keyed:
             self.assertIn(r['claim_id'], {p['id'] for p in self.j['pages']}, 'a topic row names a page that is not in the export')
         parents = {t['parent'] for t in self.j['topics'] if t.get('parent')}
