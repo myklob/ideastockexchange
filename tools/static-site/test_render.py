@@ -7,7 +7,11 @@ numbers beside it. Copy rots faster than code and nothing else here was watching
 
 The site builds once for the whole class; on this corpus that is about a second.
 """
+import html as htmlmod
 import os, re, shutil, sys, tempfile, unittest
+
+
+def f2(v): return f'{v:.2f}'
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -16,6 +20,11 @@ ENTRY = os.path.join(HERE, 'ISE_Data_Entry.xlsx')
 
 def strip(h):
     return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', h))
+
+
+def readable(h):
+    """strip(), plus the entities resolved, so a test can look for the sentence an author typed."""
+    return re.sub(r'\s+', ' ', htmlmod.unescape(re.sub(r'<[^>]+>', ' ', h)))
 
 
 class TestTheRenderedSite(unittest.TestCase):
@@ -230,7 +239,7 @@ class TestTheRenderedSite(unittest.TestCase):
         """261 pages with no way to look one up is a filing cabinet with no drawer labels. The search box is
         created by script, so a reader without JavaScript sees the whole table and nothing missing, which is
         this site's rule everywhere else."""
-        h = self.html['index.html']
+        with open(os.path.join(self.dir, 'all.html')) as fh: h = fh.read()
         self.assertIn('Find a page', h, 'no way to look a page up')
         self.assertIn('id="all"', h, 'the table the search filters has no id')
         rows = re.findall(r'<tr><td class="u">[^<]*</td><td class="t"><a href="p/', h)
@@ -258,10 +267,6 @@ class TestTheRenderedSite(unittest.TestCase):
             self.assertIn('revision', self.html[name], f'{name} carries no provenance at all')
 
 
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
-
-
 class TestItCanBeRead(unittest.TestCase):
     """Accessibility, checked on the output. A tool proposed for public use has to clear WCAG A, and these are
     the failures that were actually here: no way past the breadcrumb, table cells whose header a screen reader
@@ -280,9 +285,11 @@ class TestItCanBeRead(unittest.TestCase):
             self.assertIn('class="skip"', h, f'{name} has no way past the breadcrumb')
 
     def test_every_column_header_declares_its_column(self):
+        """The tag boundary in the pattern matters: written without it this matched `<thead>` too, which is
+        the same mistake ths() was making, so the test agreed with the bug instead of catching it."""
         for key, h in self.html.items():
             name = key if isinstance(key, str) else self.c.key[key]
-            m = re.search(r'<th(?![^>]*scope=)[^>]*>', h)
+            m = re.search(r'<th(?=[\s>])(?![^>]*scope=)[^>]*>', h)
             self.assertIsNone(m, f'{name} has a header without scope: {m.group(0) if m else ""}')
 
     def test_no_link_is_only_a_number(self):
@@ -639,10 +646,11 @@ class TestABuildWithoutARevisionSaysSo(unittest.TestCase):
 
 
 class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
-    """Rule 1 of the belief-page rules is no top-of-page summary, and the page carried one: the verdict and
-    the whole readout sat between the scorecard and the first argument, so a reader met a sentence telling
-    them what to think before they met a single reason. The scores stay at the top, because a score is not a
-    summary; the prose about what the scores add up to is a conclusion and sits after the arguments."""
+    """Rule 1 of the belief-page rules is no top-of-page summary, and the page carried one: a generated
+    verdict and the whole readout sat between the scorecard and the first argument, so a reader met a
+    sentence telling them what to think before they met a single reason. The verdict is gone; what is left is
+    the numbers it was drawn from, and they sit after the arguments. The scorecard still leads, because a
+    score is not a summary."""
 
     @classmethod
     def setUpClass(cls):
@@ -658,7 +666,7 @@ class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
         for pid, h in self.html.items():
             if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
             t = self._text(h)
-            trees, readout = t.find('Reasons to agree'), t.find('Reading the scorecard')
+            trees, readout = t.find('Reasons to agree'), t.find('What the numbers are made of')
             self.assertGreater(trees, 0, f'{self.c.key[pid]} has no argument trees')
             self.assertGreater(readout, trees,
                                f'{self.c.key[pid]} reads out its scores before its arguments')
@@ -666,26 +674,75 @@ class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
         self.assertGreater(checked, 0, 'no belief pages were checked')
 
     def test_the_scorecard_itself_still_leads(self):
-        """Moving the commentary down must not take the numbers with it."""
+        """Moving the commentary down must not take the numbers with it. The truth score sits in the heading,
+        on the same line as the claim it scores, so a reader never has to work out which number a heading is
+        about; the rest of the scorecard follows before the first argument."""
         for pid, h in self.html.items():
             if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
+            m = re.search(r'<h1>(.*?)</h1>', h, re.S)
+            self.assertIsNotNone(m); self.assertIn('class="hs"', m.group(1), f'{self.c.key[pid]} has no score on its heading line')
+            self.assertIn(f2(self.c.truth(pid)), re.sub(r'<[^>]+>', '', m.group(1)))
             t = self._text(h)
-            self.assertLess(t.find('Truth score'), t.find('Reasons to agree'),
-                            f'{self.c.key[pid]} buried its scorecard')
+            self.assertLess(t.find('Confidence'), t.find('Reasons to agree'), f'{self.c.key[pid]} buried its scorecard')
 
     def test_the_readout_is_still_on_the_page(self):
-        """Moved, not deleted: every line of it restates a number a reader may want to check."""
+        """Trimmed, not deleted: every line of it restates a number a reader may want to check."""
         for pid, h in self.html.items():
             if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
             t = self._text(h)
-            self.assertIn('Reading the scorecard', t)
-            self.assertIn('Confidence, in detail', t)
+            self.assertIn('What the numbers are made of', t)
+            self.assertIn('Confidence', t)
+
+    def test_no_page_tells_the_reader_what_to_conclude(self):
+        """The readout states numbers. It used to open with a generated sentence that named a verdict, said
+        where the page stood, and told the reader whether acting on it paid. Those are judgements assembled
+        from the numbers below them, and a reader who wants one can assemble it; a tool that states it in the
+        tool's own voice is asking to be quoted as an authority it has no claim to be."""
+        banned = ('Verdict', 'Where it stands', 'How much to bet on it', 'Whether acting pays',
+                  'What would change it', 'Bottom line')
+        checked = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or self.c.kind(pid) not in ('belief', 'claim'): continue
+            m = re.search(r'<dl class="readout">(.*?)</dl>', h, re.S)
+            if not m: continue
+            labels = re.findall(r'<dt>(.*?)</dt>', m.group(1))
+            checked += 1
+            for phrase in banned:
+                if phrase == 'Bottom line': continue   # a typed field, not a generated one
+                self.assertNotIn(phrase, labels,
+                                 f'{self.c.key[pid]} states a conclusion about its own score: {phrase!r}')
+        self.assertGreater(checked, 0, 'no readouts were checked')
+
+    def test_the_typed_bottom_line_survives(self):
+        """Everything generated went; what an author wrote stays. Deleting that with the rest would have been
+        the opposite mistake."""
+        typed = [p for p in self.c.specs if (self.c.specs[p].get('bottom_line') or '').strip()]
+        self.assertTrue(typed, 'no page carries a typed bottom line, so nothing here is tested')
+        for pid in typed:
+            self.assertIn(self.c.specs[pid]['bottom_line'], readable(self.html[pid]),
+                          f'{self.c.key[pid]} dropped its typed bottom line')
+
+    def test_the_captions_sit_under_the_tables_they_explain(self):
+        """A caption telling a reader how to read a table is no use before they have seen the table."""
+        checked = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
+            for m in re.finditer(r'<section[^>]*>(.*?)</section>', h, re.S):
+                body = m.group(1)
+                b = body.find('<p class="blurb">')
+                if b < 0: continue
+                table = body.find('<table')
+                if table < 0: continue
+                self.assertGreater(b, table,
+                                   f'{self.c.key[pid]} prints a caption above the table it explains')
+                checked += 1
+        self.assertGreater(checked, 0, 'no captioned tables were checked')
 
 
-class TestTheFrontPageRanksWhatItCan(unittest.TestCase):
-    """The front page carries category navigation and ranked lists. The rule that matters is which lists get
-    printed: a ranking nobody can compute is the one number on this site a reader could not check, so the page
-    ranks what the corpus supports and names what it does not rather than inventing it."""
+class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
+    """The home page used to list all 261 pages, the whole tree and the interest registry on one page. It is a
+    way in now: topics, four short lists, and one line for everything else. Each list ranks something the
+    site can compute; a ranking nobody can compute is the one number here a reader could not check."""
 
     @classmethod
     def setUpClass(cls):
@@ -694,48 +751,294 @@ class TestTheFrontPageRanksWhatItCan(unittest.TestCase):
         cls.c = cls.parent.html
         cls.corpus = cls.parent.c
         cls.text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', cls.c['index.html']))
+        cls.root = {}
+        for name in ('all', 'next', 'interests', 'media', 'topics'):
+            with open(os.path.join(cls.parent.dir, name + '.html')) as fh: cls.root[name] = fh.read()
 
-    def test_it_offers_a_way_into_the_corpus_by_topic(self):
-        self.assertIn('Browse by topic', self.text)
-        for b in self.corpus.beliefs:
-            self.assertIn(self.corpus.href(b), self.c['index.html'],
-                          f'{self.corpus.key[b]} is not reachable from the front page')
+    def test_every_topic_is_reachable_from_the_home_page(self):
+        self.assertIn('Topics', self.text)
+        for k in self.corpus.topics:
+            self.assertIn(f'href="t/{self.corpus.topic_href(k)}"', self.c['index.html'],
+                          f'topic {k} is not reachable from the home page')
 
-    def test_the_topic_counts_add_up_to_the_corpus(self):
-        """Every page hangs under exactly one belief, so the counts plus the beliefs themselves are the whole
-        corpus. A navigation that silently loses pages is worse than none."""
-        counts = [int(n) for n in re.findall(r'</a></td><td>(\d+)</td><td>', self.c['index.html'])]
-        self.assertTrue(counts, 'the topic table printed no counts')
-        # A page counts once, under the nearest belief above it. Four of the five beliefs hang under the
-        # fifth, so they are counted there and only the root sits outside every subtree.
-        parent = {q: self.corpus.specs[q].get('supports') for q in self.corpus.specs}
-        def has_belief_above(q):
-            seen, x = set(), parent.get(q)
-            while x and x not in seen:
-                seen.add(x)
-                if x in self.corpus.beliefs: return True
-                x = parent.get(x)
-            return False
-        roots = [b for b in self.corpus.beliefs if not has_belief_above(b)]
-        self.assertEqual(sum(counts) + len(roots), len(self.corpus.specs),
-                         'the topic navigation loses or double-counts pages')
+    def test_it_does_not_list_every_page(self):
+        """One idea per page. The full list has its own page and a search box; the home page is not it."""
+        links = set(re.findall(r'href="p/([^"#]+)"', self.c['index.html']))
+        self.assertLess(len(links), len(self.corpus.specs) // 2,
+                        f'the home page links {len(links)} of {len(self.corpus.specs)} pages; that is the all-pages list, not a home page')
+        for gone in ('The tree', 'The interest registry', 'All pages', 'How to read a page'):
+            self.assertNotIn(gone, self.text, f'"{gone}" is back on the home page')
 
-    def test_every_list_it_prints_has_rows(self):
-        for heading in ('Best established', 'Most depended on', 'Argued on both sides'):
+    def test_the_four_lists_are_there_and_ranked(self):
+        for heading in ('Highest scoring', 'Most argued over', 'Most relied on', 'Changed in this revision'):
             i = self.text.find(heading)
             self.assertGreater(i, 0, f'{heading} is missing')
-            # the first ranked row follows within the table that comes after the heading
-            self.assertRegex(self.text[i:i + 900], r'\b1\b',
-                             f'{heading} printed no ranked rows')
+        for heading in ('Highest scoring', 'Most argued over', 'Most relied on'):
+            i = self.text.find(heading)
+            self.assertRegex(self.text[i:i + 900], r'\b1\b', f'{heading} printed no ranked rows')
 
-    def test_it_says_which_rankings_it_cannot_compute(self):
-        """Votes, timestamps and comments do not exist here. Omitting popularity silently would let a reader
-        assume it was measured and found uninteresting."""
-        for missing in ('no votes', 'this week', 'comments'):
-            self.assertIn(missing, self.text,
-                          f'the front page does not account for the absent "{missing}" ranking')
+    def test_popular_is_named_as_a_stand_in(self):
+        """There are no votes or views here. The list that stands in for popularity has to say so, in the
+        list, not in a footnote."""
+        i = self.text.find('Most relied on'); j = self.text.find('Changed in this revision')
+        self.assertIn('votes', self.text[i:j], 'the most-relied-on list does not say what it is standing in for')
 
     def test_it_does_not_claim_a_ranking_it_has_no_data_for(self):
-        for faked in ('Most popular', 'Trending', 'This week&apos;s top'):
-            self.assertNotIn(faked, self.c['index.html'],
-                             f'the front page prints a "{faked}" list it cannot compute')
+        for faked in ('Most popular', 'Trending', 'This week&apos;s top', 'Most viewed'):
+            self.assertNotIn(faked, self.c['index.html'], f'the home page prints a "{faked}" list it cannot compute')
+
+    def test_each_split_off_page_exists_and_carries_what_it_took(self):
+        self.assertEqual(len(re.findall(r'<tr><td class="u">[^<]*</td><td class="t"><a href="p/', self.root['all'])),
+                         len(self.corpus.specs), 'all.html does not list every page')
+        ints = [p for p in self.corpus.specs if self.corpus.kind(p) == 'interest']
+        for p in ints: self.assertIn(self.corpus.href(p), self.root['interests'], 'an interest is missing from the stake page')
+        works = [p for p in self.corpus.specs if self.corpus.kind(p) == 'media']
+        for p in works: self.assertIn(self.corpus.href(p), self.root['media'], 'a work is missing from the media page')
+        self.assertRegex(re.sub(r'<[^>]+>', ' ', self.root['next']), r'\b1\b', 'the what-to-argue-next page has no ranked rows')
+
+
+class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
+    """One page per topic, in the shape of templates/topic-template.html: the three axes, the assumptions,
+    the values, the common ground, the evidence, the works, the neighbours. Every number on it is read from
+    a belief page beneath it; the two labels that are typed say so."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.corpus = cls.parent.c
+        cls.pages = {}
+        for k in cls.corpus.topics:
+            with open(os.path.join(cls.parent.dir, 't', cls.corpus.topic_href(k))) as fh: cls.pages[k] = fh.read()
+
+    def _text(self, h): return re.sub(r'\s+', ' ', htmlmod.unescape(re.sub(r'<[^>]+>', ' ', h)))
+
+    def test_there_is_a_topic_with_beliefs_so_the_rest_tests_something(self):
+        self.assertTrue([k for k in self.corpus.topics if self.corpus.topic_beliefs(k)], 'no topic has a belief filed under it')
+
+    def test_a_topic_with_beliefs_carries_the_template_sections(self):
+        for k in self.corpus.topics:
+            if not self.corpus.topic_beliefs(k): continue
+            t = self._text(self.pages[k])
+            for sec in ('Which way each belief runs', 'How absolute each claim is', 'From general to specific',
+                        'What you must accept to hold each belief', 'What each side says it values',
+                        'Where the sides could meet', 'The evidence, best sourced first', 'Books, studies and reports',
+                        'Related topics', 'Not filled in yet'):
+                self.assertIn(sec, t, f'topic {k} is missing the section "{sec}"')
+
+    def test_every_belief_in_the_topic_is_placed_on_the_direction_axis(self):
+        for k in self.corpus.topics:
+            for b in self.corpus.topic_beliefs(k):
+                self.assertIn(self.corpus.href(b), self.pages[k], f'{self.corpus.key[b]} is filed under {k} and not on its page')
+                pos = self.corpus.specs[b].get('positivity')
+                if pos is not None: self.assertIn(f'{pos:+d}%', self._text(self.pages[k]))
+
+    def test_a_belief_links_its_topic_by_name(self):
+        for b in self.corpus.beliefs:
+            k = self.corpus.topic_of(b)
+            if not k: continue
+            h = self.parent.html[b]
+            self.assertIn(f'href="../t/{self.corpus.topic_href(k)}"', h, f'{self.corpus.key[b]} does not link its topic')
+            self.assertIn(self.corpus.topics[k]['name'], h, f'{self.corpus.key[b]} prints the topic key instead of its name')
+
+    def test_what_is_not_filled_in_is_named_and_not_faked(self):
+        """The template has an engagement section and an objective-criteria section. Nothing here has that
+        data, so the page says so instead of printing an empty table or, worse, a filled one."""
+        for k in self.corpus.topics:
+            if not self.corpus.topic_beliefs(k): continue
+            t = self._text(self.pages[k])
+            self.assertIn('Who would act on it', t); self.assertIn('Agreed yardsticks', t)
+            self.assertNotIn('Preference Passive lean', t, 'the engagement table was printed with nothing behind it')
+
+
+class TestThePagesSpeakPlainly(unittest.TestCase):
+    """The site is for people deciding things, not for the people who built the engine. A heading like
+    "What the corpus rests on" tells a reader the page was not written for them. The method page is the
+    one place the engine is allowed to talk about itself in its own words, so it is exempt."""
+
+    BANNED = ('corpus', 'readout', 'provenance', 'conformance', 'epistemic', 'damped', 'residual',
+              'heuristic', 'semantic')
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.corpus = cls.parent.c
+        cls.pages = dict(cls.parent.html)
+        del cls.pages['method.html']
+        for name in ('all', 'next', 'interests', 'media', 'topics', 'changes'):
+            with open(os.path.join(cls.parent.dir, name + '.html')) as fh: cls.pages[name + '.html'] = fh.read()
+        for k in cls.corpus.topics:
+            with open(os.path.join(cls.parent.dir, 't', cls.corpus.topic_href(k))) as fh: cls.pages['t/' + k] = fh.read()
+
+    @staticmethod
+    def _visible(h):
+        h = re.sub(r'<script>.*?</script>', ' ', h, flags=re.S)
+        h = re.sub(r'(title|aria-label)="[^"]*"', ' ', h)
+        return re.sub(r'\s+', ' ', htmlmod.unescape(re.sub(r'<[^>]+>', ' ', h)))
+
+    def test_no_page_but_the_method_page_uses_engine_words(self):
+        bad = []
+        for key, h in self.pages.items():
+            t = self._visible(h).lower()
+            for w in self.BANNED:
+                i = t.find(w)
+                if i >= 0:
+                    name = key if isinstance(key, str) else self.corpus.key[key]
+                    bad.append(f'{name}: {w!r} in "{t[max(0, i - 40):i + 40]}"')
+        self.assertEqual(bad, [], 'engine words on reader-facing pages:\n  ' + '\n  '.join(bad[:12]))
+
+
+class TestAClaimHasTwoWordings(unittest.TestCase):
+    """A claim written as a row under its parent leans on that parent for half its meaning. Read on its own
+    page it has to be a complete proposition, which is a different sentence. Both are stored, and the page a
+    reader lands on has to show the one that matches where they are reading it."""
+
+    @classmethod
+    def setUpClass(cls):
+        if not os.path.exists(ENTRY): raise unittest.SkipTest('no data workbook')
+        try:
+            import render_site
+        except ImportError as e:
+            raise unittest.SkipTest(f'openpyxl missing: {e}')
+        cls.dir = tempfile.mkdtemp(prefix='ise-wording-')
+        cls.c, _ = render_site.build(ENTRY, cls.dir)
+        cls.html = {}
+        for pid in cls.c.specs:
+            with open(os.path.join(cls.dir, 'p', cls.c.href(pid))) as fh: cls.html[pid] = fh.read()
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(getattr(cls, 'dir', ''), ignore_errors=True)
+
+    def _contextual(self):
+        return [p for p in self.c.specs if self.c.contextual(p)]
+
+    def test_the_corpus_exercises_the_rule(self):
+        """A rule nothing in the corpus uses is a rule nothing is checking."""
+        self.assertGreater(len(self._contextual()), 0,
+                           'no page carries a standalone wording, so nothing below tests anything')
+
+    def test_a_page_headlines_its_standalone_wording(self):
+        for pid in self._contextual():
+            h1 = re.search(r'<h1>(.*?)</h1>', self.html[pid], re.S)
+            self.assertIsNotNone(h1, f'{self.c.key[pid]} has no h1')
+            heading = re.sub(r'<span class="hs".*?</span>', '', h1.group(1))   # the score shares the line
+            self.assertEqual(strip(heading).strip(), self.c.standalone(pid),
+                             f'{self.c.key[pid]} headlines its in-context wording, which does not stand alone')
+
+    def test_a_page_still_shows_how_it_reads_under_its_parent(self):
+        """Dropping the short wording would leave a reader who arrived from the parent unable to tell they are
+        on the same claim."""
+        for pid in self._contextual():
+            self.assertIn('class="wording"', self.html[pid],
+                          f'{self.c.key[pid]} hides the wording its parent shows')
+            self.assertIn(re.sub(r'\.$', '', self.c.text(pid)), readable(self.html[pid]),
+                          f'{self.c.key[pid]} does not print its in-context wording anywhere')
+
+    def test_the_parent_table_keeps_the_short_wording(self):
+        """The standalone sentence repeats the parent's own claim back at it. Putting it in the parent's table
+        would make every row restate the page it is on."""
+        for pid in self._contextual():
+            par = self.c.specs[pid].get('supports')
+            if par not in self.html: continue
+            self.assertIn(self.c.text(pid), readable(self.html[par]),
+                          f'{self.c.key[pid]} does not appear in its parent table in its short form')
+
+    def test_falling_back_is_the_common_case(self):
+        """standalone is blank on most pages, and a blank must read as the in-context wording rather than as
+        an empty heading."""
+        blank = [p for p in self.c.specs
+                 if not (self.c.specs[p].get('standalone') or '').strip()]
+        self.assertGreater(len(blank), 0, 'every page carries a standalone wording, so the fallback is untested')
+        for pid in blank:
+            self.assertEqual(self.c.standalone(pid), self.c.text(pid),
+                             f'{self.c.key[pid]} has no standalone wording and does not fall back')
+
+    def test_the_json_beside_each_page_carries_both(self):
+        import json
+        for pid in self._contextual()[:5]:
+            with open(os.path.join(self.dir, 'p', f'{self.c.key[pid]}.json')) as fh: d = json.load(fh)
+            self.assertEqual(d['text'], self.c.text(pid), f'{self.c.key[pid]}.json lost its in-context wording')
+            self.assertEqual(d['standalone'], self.c.standalone(pid), f'{self.c.key[pid]}.json lost its standalone wording')
+
+
+class TestNoTableIsWiderThanWhatHoldsIt(unittest.TestCase):
+    """A table in a `.sides` grid gets half the page. The Interests table had three free-flowing columns in
+    that half, the interest itself plus Measured-by plus Value, and scrolled sideways: two of its columns sat
+    behind a horizontal gesture nobody makes, so for most readers they did not exist.
+
+    Column count is the wrong measure, because the scored tables constrain every numeric cell to 3.7em and
+    nowrap, so eight of those fit where three sentences do not. What overflows is free-flowing text, which is
+    the `t` and `u` cells. One of those fits in half a page. Two do not, and the table has to stack.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.html, cls.c = cls.parent.html, cls.parent.c
+
+    @staticmethod
+    def _flexible(table):
+        """Free-flowing columns, read off the widest body row: cells the stylesheet does not pin."""
+        rows = re.findall(r'<tr>(.*?)</tr>', table, re.S)
+        return max((len(re.findall(r'<td class="[tu]"', r)) for r in rows), default=0)
+
+    @staticmethod
+    def _tables(block):
+        return re.findall(r'<table\b.*?</table>', block, re.S)
+
+    @staticmethod
+    def _blocks(h, cls):
+        """The div's own contents, found by balancing tags. A lookahead for the next section instead ran past
+        the closing tag and swept in whatever followed, which is how this test first reported a scrolling
+        table that was not in a column at all."""
+        out, open_tag, i = [], f'<div class="{cls}">', 0
+        while True:
+            j = h.find(open_tag, i)
+            if j < 0: return out
+            k, depth = j + len(open_tag), 1
+            for m in re.finditer(r'<(/?)div\b', h[k:]):
+                depth += -1 if m.group(1) else 1
+                if depth == 0:
+                    out.append(h[k:k + m.start()]); i = k + m.end(); break
+            else:
+                return out
+
+    def test_a_side_by_side_table_has_at_most_one_free_flowing_column(self):
+        checked = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str): continue
+            for block in self._blocks(h, 'sides'):
+                for t in self._tables(block):
+                    n = self._flexible(t)
+                    checked += 1
+                    self.assertLessEqual(n, 1,
+                                         f'{self.c.key[pid]} puts a table with {n} free-flowing columns in a '
+                                         'half-width column, which scrolls sideways; use stacked() instead')
+        self.assertGreater(checked, 0, 'no side-by-side tables were found, so nothing here was checked')
+
+    def test_the_wide_tables_are_the_stacked_ones(self):
+        """The control: if nothing stacks, the test above passes for the wrong reason."""
+        wide = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str): continue
+            for block in self._blocks(h, 'stack'):
+                wide += sum(1 for t in self._tables(block) if self._flexible(t) > 1)
+        self.assertGreater(wide, 0, 'nothing on the site stacks a wide table, so the limit above is untested')
+
+    def test_every_table_keeps_its_thead(self):
+        """`ths()` added scope= to header cells with a pattern that also matched `<thead>`, rewriting it to
+        `<th scope="col"ead>`. Every table on the site shipped with its header row loose in an implicit tbody
+        and no thead anywhere, which is exactly the header-to-cell association that function exists to
+        establish, and which the mobile column labels read at runtime. The attribute it adds was present and
+        correct on every header cell, so the accessibility test that looked for it passed throughout."""
+        for pid, h in self.html.items():
+            self.assertNotIn('scope="col"ead', h, f'{pid} has a mangled thead')
+            for t in re.findall(r'<table\b.*?</table>', h, re.S):
+                if '<th ' not in t and '<th>' not in t: continue
+                self.assertIn('<thead>', t, f'{pid} has a table with header cells and no thead')
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

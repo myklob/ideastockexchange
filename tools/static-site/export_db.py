@@ -7,10 +7,13 @@ score_reference.py reproduces every number in the workbook.
 Tables
   constant   name, value, meaning                          the five labelled constants (k, UNARG, DEFLINK, DEFIMP, DEFUNIQ)
              A page's starting point is computed from its etype/erq/erp, not stored: see evidence.py.
-  page       id, kind, text, topic, parent_id, x_id, y_id, type, direction, rowkind, value, measured_by, where_found,
+  page       id, kind, text, standalone, topic, parent_id, x_id, y_id, type, direction, rowkind, value, measured_by, where_found,
              etype, erq, erp, if_true, if_false, latest, bridge, bottom_line, positivity, logical_form
              kind: belief | claim | linkage | importance | interest | uniqueness | equivalence | driver | media
-             text is NULL for the formula-built kinds: their question is rendered from x_id / y_id and the row-2 field.
+             text is the in-context wording, what the claim says in the table of the page it sits under; it is
+             NULL for the formula-built kinds, whose question is rendered from x_id / y_id and the row-2 field.
+             standalone is the same claim with its context written back in, for reading the page on its own; it
+             is NULL when the in-context wording already stands alone, which is the common case.
   edge       id, page_id, section, side, position, claim_id, text, link_id, imp_id, uniq_id, drives_id, equiv_id,
              who_id, bearing_id, pattern, category, magnitude, deadline, attrs (JSON)
              One row per row of every table on a page. claim_id is the row's own page (its Truth); text is used only
@@ -29,7 +32,7 @@ import evidence as EV
 def _write(path, text):
     with open(path, 'w', encoding='utf-8') as fh: fh.write(text)
 
-PAGE_COLS = ['id', 'kind', 'text', 'topic', 'parent_id', 'x_id', 'y_id', 'type', 'direction', 'rowkind', 'value', 'measured_by', 'where_found',
+PAGE_COLS = ['id', 'kind', 'text', 'standalone', 'topic', 'parent_id', 'x_id', 'y_id', 'type', 'direction', 'rowkind', 'value', 'measured_by', 'where_found',
              'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge', 'bottom_line', 'positivity', 'logical_form']
 EDGE_COLS = ['id', 'page_id', 'section', 'side', 'position', 'claim_id', 'text', 'link_id', 'imp_id', 'uniq_id', 'drives_id', 'equiv_id',
              'who_id', 'bearing_id', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline', 'attrs']
@@ -56,7 +59,8 @@ CREATE TABLE IF NOT EXISTS evidence_tier (
 CREATE TABLE IF NOT EXISTS page (
   id           INTEGER PRIMARY KEY,   -- the workbook tab number; hidden on the web page, it is the link
   kind         VARCHAR(12) NOT NULL CHECK (kind IN ('belief','claim','linkage','importance','interest','uniqueness','equivalence','driver','media')),
-  text         TEXT,                  -- the claim (belief, claim, interest, media); NULL for formula-built kinds
+  text         TEXT,                  -- the claim as it reads under its parent; NULL for formula-built kinds
+  standalone   TEXT,                  -- the same claim with its context written back in; NULL when text stands alone
   topic        VARCHAR(80),
   parent_id    INTEGER REFERENCES page(id),   -- "Used on": the page this one is a row of (first use; the edge table has every use)
   x_id         INTEGER REFERENCES page(id),   -- linkage / importance / uniqueness / equivalence / driver: the row (X)

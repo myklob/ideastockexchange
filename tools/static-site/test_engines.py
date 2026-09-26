@@ -432,11 +432,6 @@ class TestConformance(unittest.TestCase):
                         'no page in the fixture is capped by a load-bearing component')
         self.assertTrue([p for p in pages.values() if p.get('impact') is not None], 'no media impact table')
 
-
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
-
-
 class TestItScales(unittest.TestCase):
     """Deterministic bounds on work, not wall-clock. A tool for national decisions cannot have a page count
     ceiling or a quadratic publish step, and both were here: the id allocator stopped at ten thousand and threw
@@ -675,3 +670,7 @@ class TestTheTierTableIsTranscribedRight(unittest.TestCase):
         for (r1, w1, k1), (r2, w2, k2) in zip(ranked, ranked[1:]):
             if r1 == r2: continue
             self.assertGreaterEqual(w1, w2, f'{k1} ranks above {k2} and weighs less')
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

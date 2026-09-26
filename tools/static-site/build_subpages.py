@@ -285,7 +285,7 @@ class SubPage(Page):
                 ('Exact wording of X, read from its page', '=IF($D$4="","",$D$4)', None),
                 ('How X bears on Y, in one sentence (if this sentence cannot be written cleanly, X probably does not bear on Y)', None, sp.get('bridge')),
                 ('Computed linkage score (never a hand estimate)', '=IF(@NAGREE@+@NDIS@=0,"No reasons yet: the page reads the neutral start, "&TEXT(@TRUTH@,"0.00"),TEXT(@TRUTH@,"0.00")&" from "&@NAGREE@&" reason(s) to agree and "&@NDIS@&" to disagree")', None),
-                ('Flag if below 0.7 (working heuristic)', '=IF(@TRUTH@<0.7,"Flagged: below 0.7. The action is to find better evidence for Y, not to reach with X.","Not flagged")', None)])
+                ('Flag if below 0.7 (a working rule of thumb)', '=IF(@TRUTH@<0.7,"Flagged: below 0.7. The action is to find better evidence for Y, not to reach with X.","Not flagged")', None)])
             self.subtitle('Where else X and Y are used (each row is another linkage page)')
             self.id_text_truth('related', 3, 'Other claims X is placed under (that linkage page)', 'Other arguments placed under Y (that linkage page)', sp.get('other_x', []), sp.get('other_y', []), hdr='Link')
         elif k == 'importance':

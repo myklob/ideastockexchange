@@ -5,7 +5,7 @@ import ExternalReferences from '@/components/debate-topic/ExternalReferences';
 import TopicMetrics from '@/components/debate-topic/TopicMetrics';
 import PositionSpectrum from '@/components/debate-topic/PositionSpectrum';
 import EvidenceLedger from '@/components/debate-topic/EvidenceLedger';
-import ClaimMagnitude from '@/components/debate-topic/ClaimMagnitude';
+import ClaimStrength from '@/components/debate-topic/ClaimStrength';
 import CivicEscalation from '@/components/debate-topic/CivicEscalation';
 import FoundationalAssumptions from '@/components/debate-topic/FoundationalAssumptions';
 import AbstractionLadder from '@/components/debate-topic/AbstractionLadder';
@@ -119,10 +119,10 @@ export default async function DebateTopicPage({ params }: Props) {
           </>
         )}
 
-        {/* 3. Claim Magnitude */}
-        <ClaimMagnitude
+        {/* 3. Claim Strength */}
+        <ClaimStrength
           topicTitle={topic.title}
-          claimMagnitudeLevels={topic.claimMagnitudeLevels}
+          claimStrengthLevels={topic.claimStrengthLevels}
         />
         <hr className="my-6" />
 

@@ -47,7 +47,6 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     confidence.py        how much of the work behind a page has been done, and how much its score therefore counts
     sensitivity.py       which single input, moved, would change the answer, and what it would be worth to settle it
     reasonrank.py        the damped walk from the beliefs: how much of the corpus depends on each page
-    verdict.py           one paragraph saying what a page supports doing, assembled from its own numbers
     changes.py           what moved since the last revision, in claims and in scores
     similarity.py        which claims say the same thing in different words, so padding can be seen
     integrity.py         faults the shape of the graph shows: circularity, question-begging, a page counted twice
@@ -55,7 +54,7 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     conformance.py       the cross-implementation contract: conformance/corpus.json and conformance/expected.json
     check_assertions.py  which assertions in the suite never ran; CI fails if any of them does not
     sync_content.py      keeps ISE_Data_Entry.xlsx and content/*.csv in step; --check runs in CI
-    ise_tables.py        the two-table format: specs_to_tables / tables_to_specs, and both read surfaces
+    ise_tables.py        the table format: pages, edges and topics; specs_to_tables / tables_to_specs, and both read surfaces
     export_db.py         SQL schema and data, a loaded SQLite database, JSON and XML, plus the analyst views
     build_pages.py       the Excel belief-page renderer (also supplies the constants and wiki link map to the site)
     build_subpages.py    the Excel renderer for linkage, importance, interest, uniqueness, equivalence, driver, media

@@ -68,7 +68,7 @@ TWO_SIDED = [
 CORE = ('id', 'text', 'link', 'imp', 'uniq', 'drives', 'equiv', 'who', 'addresses', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline', 'tab', 'advertised')
 PAGE_FIELDS = {'etype': 'etype', 'erq': 'erq', 'erp': 'erp', 'topic': 'topic', 'supports': 'parent_id', 'x': 'x_id', 'y': 'y_id', 'z': 'y_id', 'typ': 'type', 'direction': 'direction', 'rowkind': 'rowkind',
                'value': 'value', 'measured': 'measured_by', 'where': 'where_found', 'if_true': 'if_true', 'if_false': 'if_false', 'latest': 'latest',
-               'bridge': 'bridge', 'bottom_line': 'bottom_line', 'positivity': 'positivity', 'form': 'logical_form'}
+               'bridge': 'bridge', 'bottom_line': 'bottom_line', 'standalone': 'standalone', 'positivity': 'positivity', 'form': 'logical_form'}
 
 def _get(spec, dotted):
     cur = spec
@@ -85,6 +85,7 @@ def normalize(specs, beliefs=None):
     for pid in sorted(specs):
         sp = specs[pid]; kind = sp.get('kind') or ('belief' if pid in beliefs else 'claim')
         page = {'id': pid, 'kind': kind, 'text': sp.get('claim') if kind in ('interest', 'media') else (None if kind in SPECIAL else sp.get('belief'))}
+        page['standalone'] = sp.get('standalone') or None
         for k, col in PAGE_FIELDS.items():
             v = sp.get(k)
             if v not in (None, '', []): page[col] = v

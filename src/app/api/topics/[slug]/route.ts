@@ -14,7 +14,7 @@ import {
  * engine-computed score and evidence grounding.
  *
  * Query params:
- *   sortBy  — 'direction' | 'magnitude' | 'abstraction' | 'score' | 'grounding'
+ *   sortBy  — 'direction' | 'strength' | 'abstraction' | 'score' | 'grounding' ('magnitude' accepted as a legacy alias)
  *             (default 'score': best-supported first, ranked by |score| so a
  *             strongly supported negative claim outranks a weakly supported
  *             positive one; the signed value is the direction axis)

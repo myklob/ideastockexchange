@@ -84,7 +84,7 @@ class TestTheGatesFailWhenTheyShould(unittest.TestCase):
         exactly that and reported a defect that did not exist."""
         p = os.path.join(self.work, 'render_site.py')
         s = io.open(p, encoding='utf-8').read()
-        anchor = """    return re.sub(r'<th(?![^>]*scope=)', '<th scope="col"', markup)"""
+        anchor = """    return re.sub(r'<th(?=[\\s>])(?![^>]*scope=)', '<th scope="col"', markup)"""
         self.assertIn(anchor, s, 'the per-page finalizer this test injects into has moved')
         io.open(p, 'w', encoding='utf-8').write(s.replace(
             anchor,
@@ -94,6 +94,26 @@ class TestTheGatesFailWhenTheyShould(unittest.TestCase):
         self.assertEqual(code, 0, out[-500:])
         self.assertNotIn('broken internal links: 0', out, 'the link gate passed on a link to nothing')
         self.assertIn('never-written.html', out, 'it does not name the link it could not resolve')
+
+
+class TestEveryTestInThisDirectoryActuallyRuns(unittest.TestCase):
+    """CI discovers tests by importing each module, so a `unittest.main()` left in the middle of a file runs
+    nothing there but is invisible. Running that same file directly stops at the guard, so every class below
+    it is silently skipped, and the file reports OK. That happened here: nine classes in test_render.py and
+    twelve more across five other files went unrun by anyone who checked their work locally before pushing.
+    The guard belongs at the end of the file or nowhere."""
+
+    def test_no_main_guard_has_test_classes_below_it(self):
+        import glob, re
+        bad = []
+        for path in sorted(glob.glob(os.path.join(HERE, 'test_*.py'))):
+            src = open(path, encoding='utf-8').read()
+            m = re.search(r"^if __name__ == '__main__':", src, re.M)
+            if not m: continue
+            hidden = re.findall(r'^class (\w+)', src[m.end():], re.M)
+            if hidden: bad.append(f'{os.path.basename(path)} hides {", ".join(hidden)}')
+        self.assertEqual(bad, [], 'a main guard sits above test classes, which never run when the file is '
+                                  'executed directly:\n  ' + '\n  '.join(bad))
 
 
 if __name__ == '__main__':

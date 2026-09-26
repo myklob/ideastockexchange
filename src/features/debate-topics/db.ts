@@ -5,7 +5,7 @@ import type {
   DebateTopic,
   DebateTopicExternal,
   DebatePosition,
-  DebateClaimMagnitude,
+  DebateClaimStrength,
   DebateEscalation,
   DebateAssumption,
   DebateAbstractionRung,
@@ -52,11 +52,11 @@ function mapTopicFromDb(row: any): DebateTopic {
   }));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const claimMagnitudeLevels: DebateClaimMagnitude[] = (row.claimMagnitudeLevels ?? []).map((m: any): DebateClaimMagnitude => ({
+  const claimStrengthLevels: DebateClaimStrength[] = (row.claimStrengthLevels ?? []).map((m: any): DebateClaimStrength => ({
     id: m.id,
     sortOrder: m.sortOrder,
-    magnitudeLevel: m.magnitudeLevel,
-    magnitudePercent: m.magnitudePercent,
+    strengthLevel: m.strengthLevel,
+    strengthPercent: m.strengthPercent,
     sublabel: m.sublabel,
     proExample: m.proExample,
     antiExample: m.antiExample,
@@ -191,7 +191,7 @@ function mapTopicFromDb(row: any): DebateTopic {
     evidenceDepth: row.evidenceDepth ?? 'Med',
     controversyRating: row.controversyRating ?? 0,
     positions: positions.sort((a, b) => a.positionScore - b.positionScore),
-    claimMagnitudeLevels: claimMagnitudeLevels.sort((a, b) => a.sortOrder - b.sortOrder),
+    claimStrengthLevels: claimStrengthLevels.sort((a, b) => a.sortOrder - b.sortOrder),
     escalationLevels: escalationLevels.sort((a, b) => a.level - b.level),
     assumptions,
     abstractionRungs: abstractionRungs.sort((a, b) => a.sortOrder - b.sortOrder),
@@ -208,7 +208,7 @@ function mapTopicFromDb(row: any): DebateTopic {
 
 const FULL_INCLUDE = {
   positions: true,
-  claimMagnitudeLevels: true,
+  claimStrengthLevels: true,
   escalationLevels: true,
   assumptions: true,
   abstractionRungs: true,
@@ -283,11 +283,11 @@ export async function createDebateTopic(data: DebateTopic): Promise<DebateTopic>
           mediaUrl: p.mediaUrl ?? null,
         })),
       },
-      claimMagnitudeLevels: {
-        create: (data.claimMagnitudeLevels ?? []).map((m) => ({
+      claimStrengthLevels: {
+        create: (data.claimStrengthLevels ?? []).map((m) => ({
           sortOrder: m.sortOrder,
-          magnitudeLevel: m.magnitudeLevel,
-          magnitudePercent: m.magnitudePercent,
+          strengthLevel: m.strengthLevel,
+          strengthPercent: m.strengthPercent,
           sublabel: m.sublabel,
           proExample: m.proExample,
           antiExample: m.antiExample,

@@ -24,24 +24,10 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append('<p class="kind">Methodology</p><h1>How every number on this site is computed</h1>')
     o.append('<p class="meta">Generated from the same modules the pages run, so it cannot describe a rule the site is not using.</p>')
 
-    sec = lambda t, b=None, w=None: H.section(t, b, w)
-
-    # ---------------------------------------------------------------- the verdict
-    o.append(sec('The paragraph at the top of every page',
-                 'Everything a decision needs is on a belief page and it is spread across nine readouts, a '
-                 'scorecard, three tables and a structural panel. A reader who assembles that themselves will '
-                 'assemble it differently every time, so the page states it once, in the order a decision is '
-                 'actually made: is there a conclusion here at all; is anything holding it down that is not '
-                 'about the conclusion itself; has enough work been done to bet on it; would one thing going '
-                 'the other way change the answer; and does acting on it pay. Every clause is generated from '
-                 'one number that appears elsewhere on the page, and is left out when that number is not '
-                 'there. Nothing in it is a judgement the engine has not already made.'))
-    o.append('<p class="blurb">The commonest output on an unfinished corpus is that it cannot tell you, and '
-             'that is deliberate. A reading that always produces a recommendation is a reading nobody should '
-             'trust. Every belief on this site currently reads “not yet”, and says what is missing.</p></section>')
+    sec = lambda t, b=None, w=None, a=None: H.section(t, b, w, anchor=a)
 
     # ---------------------------------------------------------------- the row
-    o.append(sec('The one formula', 'Every scored row on every page, whether it is an argument, a cited finding or a prediction, contributes this and nothing else.'))
+    o.append(sec('The one formula', 'Every scored row on every page, whether it is an argument, a cited finding or a prediction, contributes this and nothing else.', a='formula'))
     o.append('<p class="form"><span class="lab">Row contribution</span> sign × (2 × Truth − 1) × Confidence × Link × Imp × Uniq</p>')
     o.append('<table class="plain"><thead><tr><th>Factor</th><th>Range</th><th>What it is</th><th>When nobody has argued it</th></tr></thead><tbody>')
     for name, rng, what, absent in [
@@ -58,7 +44,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
 
     # ---------------------------------------------------------------- where a page starts
     o.append(sec('Where a page starts, and why it has to start somewhere',
-                 'This is the part that is easy to skip and is load-bearing.', ('Evidence', WIKI['evidence'])))
+                 'This is the part that is easy to skip and is load-bearing.', ('Evidence', WIKI['evidence']), a='starts'))
     o.append('<p class="blurb">A row contributes (2 × Truth − 1). A page with no rows reads 0.50, so it contributes nothing, so every page above it also reads 0.50. By induction every page of an argument graph in which nothing is cited reads exactly 0.50, forever, however many reasons are listed and however well they are argued. Reasoning about reasoning never touches the world. What touches the world is evidence, so a page may say what it rests on, and that sets where its truth starts before any of its own rows count.</p>')
     o.append('<p class="form"><span class="lab">Starting point</span> p₀ = 0.5 + 0.5 × ESIW × (2 × ERP/100 − 1) &nbsp;·&nbsp; <span class="lab">Weight</span> w = k × 2 × ERQ / (ERQ + 1)</p>')
     o.append(f'<p class="form"><span class="lab">Truth, argued</span> (POS + w × p₀) / (POS + NEG + w), k = {CONST["K"]}</p>')
@@ -90,7 +76,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     # ---------------------------------------------------------------- confidence
     ks = sorted((c.conf.of(p) for p in c.specs))
     o.append(sec('Confidence: how much a score has earned the right to count',
-                 'A score means nothing until the work behind it has been done, and then means more and more as it is done. Confidence multiplies what a page passes to any page above it: at 0 a claim moves its parent not at all, however true it looks. It is deliberately not a cap on the page’s own truth score. Truth is what the arguments say; confidence is how much to bet on it.'))
+                 'A score means nothing until the work behind it has been done, and then means more and more as it is done. Confidence multiplies what a page passes to any page above it: at 0 a claim moves its parent not at all, however true it looks. It is deliberately not a cap on the page’s own truth score. Truth is what the arguments say; confidence is how much to bet on it.', a='confidence'))
     o.append('<table class="plain"><thead><tr><th>Component</th><th>Weight</th><th>What it measures</th></tr></thead><tbody>')
     for name, why in [
         ('grounding', 'Whether this claim is actually established, taking the better of its own cited source and the average confidence of the claims argued beneath it. Recursive, and the reason a tree of bare assertions scores near zero however many rows it lists.'),
@@ -107,17 +93,17 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append(f'<p class="tot">Components that do not apply to a page are dropped and the rest renormalised, so a page is never punished for a signal its shape cannot carry. Across these {len(c.specs)} pages confidence runs from {f2(ks[0])} to {f2(ks[-1])}, mean {f2(sum(ks) / len(ks))}. The wiki also lists behavioural signals: up and down votes, weekly visitors, dwell time, edit frequency, duplicate submission attempts, per-argument evaluation responses, and the standard deviation of a score over time. A published corpus has one snapshot and no users, so all seven carry weight zero and are reported as having no data rather than scored as zero. Wire them up and they take weight from the structural components.</p></section>')
 
     # ---------------------------------------------------------------- sensitivity and rank
-    o.append(sec('What would change the answer', 'On every belief and claim page, each claim beneath it is held at false and then at true, one at a time, and the whole graph is recomputed.'))
+    o.append(sec('What would change the answer', 'On every belief and claim page, each claim beneath it is held at false and then at true, one at a time, and the whole graph is recomputed.', a='sensitivity'))
     o.append(f'<p class="blurb">The sweep reaches {DEPTH} levels below a page, and every page says so along with how many pages sit deeper than that. The flip point, where a page crosses {f2(FLIP)} and the conclusion changes sides, is found by bisection to {STEPS} places rather than by algebra, because a closed form would be a second implementation of the rule and would drift from the first. An input that moves a page by less than {INERT:g} is reported as inert: nothing anyone could learn about it changes the answer. A second sweep holds the input’s confidence at 1, which is what it would be worth once the work behind it is finished, and the gap between the two sweeps is the value of doing that work.</p>')
     o.append('<p class="blurb"><strong>What it does not do.</strong> This is one input at a time. It finds single points of failure and it cannot see three assumptions each moving a little in the same direction, which is how correlated assumptions actually fail. The three widest inputs are also pushed against the belief together, which is a gesture at the problem rather than a solution to it. Reading a robust column here as “the conclusion is safe” is the mistake this paragraph exists to prevent.</p></section>')
 
     rr = c.rank
-    o.append(sec('ReasonRank: how much depends on a claim', 'The network half of the algorithm the project is named for, which is a different question from whether a claim is true.'))
+    o.append(sec('ReasonRank: how much depends on a claim', 'The network half of the algorithm the project is named for, which is a different question from whether a claim is true.', a='reasonrank'))
     o.append(f'<p class="blurb">A walk starts evenly at the {len(rr.seeds)} beliefs and steps from each page to the pages it reads, choosing among rows in proportion to Link × Imp × Uniq, with a {rr.d} chance of stepping on rather than restarting at a belief. ReasonRank is the share of that walk arriving at a page; it sums to 1 across the corpus and converged here to a residual of {rr.residual:.1e}. The truth of the claim being ranked is deliberately absent, so a page does not drop out of the queue at the moment it is proved false, and confidence is absent, because a page nobody has started is exactly what the ranking exists to find. Work value is ReasonRank × (1 − confidence): high rank with the work done is a settled foundation, high rank with the work undone is the next week an analyst should spend.</p></section>')
 
     # ---------------------------------------------------------------- duplicates
     sim = c.sim; rep = sim.report(); pairs = rep['shown']
-    o.append(sec('Computed equivalency, and what it gets wrong', 'The wiki splits the equivalency score into a computed half and an argued half. The argued half is the equivalence page. This is the computed one.'))
+    o.append(sec('Computed equivalency, and what it gets wrong', 'The wiki splits the equivalency score into a computed half and an argued half. The argued half is the equivalence page. This is the computed one.', a='equivalency'))
     o.append(f'<p class="blurb">Two lexical signals over the claim text, each weighted by inverse document frequency across this corpus and averaged: overlap of content words, and cosine over character {NGRAM}-grams. Pairs above {f2(FLAG)} are flagged for a human to read; above {f2(MERGE)} they are probably one page. It measures wording, not meaning. It will flag two claims that share a long subject phrase and say different things, and it will miss two claims that share no words and say the same thing.</p>')
     o.append(f'<p class="blurb"><strong>It changes no score and cannot.</strong> The wiki blends the computed and argued halves with weights set by a validity comparison argument. No such argument exists, so the computed weight is 0 and the argued page decides, which is the same rule as everywhere else here: an input nobody has argued counts nothing. The same goes for the uniqueness multiplier. The wiki defines it as one minus the highest similarity to any other row, computed; this site leaves it presumed distinct and flags the overlap instead, because a number that silently discounts an argument and has no page behind it cannot be audited, and every other number on this site is a link to the page that argues it.</p>')
     if pairs:
@@ -145,14 +131,14 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append('</section>')
 
     # ---------------------------------------------------------------- constants
-    o.append(sec('The labelled constants', 'What the engine reads when nobody has argued a factor. Each is a presumption, and each is visible in grey on the page so a reader can see which factors are still resting on one.'))
+    o.append(sec('The labelled constants', 'What the engine reads when nobody has argued a factor. Each is a presumption, and each is visible in grey on the page so a reader can see which factors are still resting on one.', a='constants'))
     o.append('<table class="plain"><thead><tr><th>Constant</th><th>Value</th><th>What it presumes</th></tr></thead><tbody>')
     for k, v in CONST.items():
         o.append(f'<tr><td class="t"><strong>{esc(k)}</strong></td><td>{v}</td><td class="u">{esc(CONST_MEANING.get(k, ""))}</td></tr>')
     o.append('</tbody></table></section>')
 
     # ---------------------------------------------------------------- limits
-    o.append(sec('What this cannot do', 'A methodology without this section is marketing.'))
+    o.append(sec('What this cannot do', 'A methodology without this section is marketing.', a='limits'))
     lim = [
         ('Nobody has voted on anything.', 'Every number here comes from the structure of the argument and from what pages cite. There is no community, no vote count and no reputation, so the wiki’s behavioural half of confidence carries zero weight. Do not read these scores as a measure of what anyone believes.'),
         ('The evidence classifications are a judgement call.', 'Somebody decided that a newspaper’s tally of public filings is a published statistic rather than a news report, and that decision moves the claim from 0.65 to 0.95. The wiki says the category should itself be argued in pro and con form. Here it is typed, and a wrong call is not visible as a disagreement.'),
