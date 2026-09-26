@@ -229,7 +229,8 @@ class Sensitivity:
         a = self.of(pid); n = a['n']; c = self.c
         name = lambda r: _claim(c.brief(r['page'])[0])
         if not n:
-            return 'Nothing sits beneath this page yet, so there is no input for the answer to rest on.'
+            where = 'it sits on the neutral line and ' if a['side'] == 0 else ''
+            return f'Nothing sits beneath this page yet, so {where}there is no input for the answer to rest on.'
         if a['side'] == 0:
             top = a['rows'][:3]
             if not top or top[0]['reach'] <= INERT:

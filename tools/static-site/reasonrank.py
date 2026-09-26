@@ -47,7 +47,7 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 DAMPING = 0.85      # PageRank's own constant: the chance the walk takes another step rather than restarting
-ITERATIONS = 80     # far past convergence for a corpus of this size; the check below reports the residual
+ITERATIONS = 2000   # a cap the walk never reaches: it stops at TOLERANCE, and the check below reports the residual
 TOLERANCE = 1e-12
 REF_COLS = ('id', 'link', 'imp', 'uniq', 'drives', 'addresses', 'equiv')
 ROW_KEYS = (('args', 'agree'), ('args', 'disagree'), ('evid', 'for'), ('evid', 'against'))
