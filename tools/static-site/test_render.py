@@ -889,6 +889,23 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
             for b in self.corpus.topic_beliefs(k):
                 self.assertIn(self.corpus.href(b), self.pages[k], f'{self.corpus.key[b]} is filed under {k} and not on its page')
 
+    def test_a_belief_with_no_position_is_not_filed_as_neutral(self):
+        """A belief nobody has placed on the axis goes in its own row, not the 0% band. Built on a second
+        corpus, because every belief in the published one is labelled."""
+        import tempfile
+        import ise_tables as IT, render_site as RS
+        pages = [dict(key='b', kind='belief', text='Rain is good for crops.', topic='t'),
+                 dict(key='r', kind='claim', text='Crops need water.', parent='b')]
+        edges = [dict(page='b', section='argument', side='agree', claim='r')]
+        topics = [dict(key='t', name='Weather', parent='', definition='', scope='')]
+        d = tempfile.mkdtemp(); IT.write_csv(pages, edges, d, topics=topics)
+        c = RS.Corpus(d, 'x'); c.prov = {'rev': None, 'date': None, 'dirty': False}
+        h = RS.render_topic(c, 't', 'x'); t = self._text(h)
+        self.assertIn('Not labelled yet', t)
+        i = t.find('0% (Neutral/Nuanced)'); j = t.find('+50%')
+        self.assertIn('Nothing here yet', t[i:j], 'an unlabelled belief was filed as neutral')
+        k = t.find('Not labelled yet'); self.assertIn('Rain is good for crops', t[k:k + 400])
+
     def test_a_typed_cell_carries_no_score_and_a_page_cell_carries_its_own(self):
         """The template rule: never fill a score cell for a row that has no page. A cell that is only words
         has no page to read a number from, so it prints none; a cell that is a page prints that page's."""
