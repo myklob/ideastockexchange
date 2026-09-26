@@ -182,7 +182,10 @@ since the last revision; `method.py` the reader-facing methodology page;
 `sync_content.py` keeps the workbook and the reviewable CSVs in step. There is no verdict module any more: a
 page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
 page: `index.html` is a way in (topics, four ranked lists, one line for everything else), `t/<topic>.html` is
-one page per row of the third table `content/topics.csv`, and the full list, the interests, the works cited
+one page per row of the third table `content/topics.csv`, laid out section for section like
+`templates/topic-template.html`; a topic's cells are rows in `edges.csv` with `page` set to the topic key and a
+section from `ise_tables.TOPIC_SECTIONS`, and any cell the topic has no row for is filled from the belief pages
+beneath it or left empty, never invented. The full list, the interests, the works cited
 and the what-to-argue-next queue each have a page of their own. Reader-facing pages use plain words;
 `test_render.py::TestThePagesSpeakPlainly` fails the build on engine words like "corpus" anywhere but the
 method page. `conformance.py` holds the cross-implementation

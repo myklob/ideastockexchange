@@ -53,6 +53,22 @@ SPLIT = {'assumption': {'belief': {'agree': 'assume_accept', 'disagree': 'assume
          'bias': {'belief': {'agree': 'bias_sup', 'disagree': 'bias_opp'},
                   'other': {'agree': 'bias_up', 'disagree': 'bias_down'}}}
 SPECIAL = ('linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media')
+# A topic's cells are rows too, in `edges` with `page` set to the topic's key. The section names are distinct
+# from every page section so a row's home can be told from its section alone; `category` carries the band,
+# rung or level the cell sits in; `side` is agree (for the topic) or disagree (against it) where a cell has a
+# side; `claim` points at a page when the cell is one, and `text` is the cell when it is not.
+TOPIC_SECTIONS = {
+    'direction':    'category = -100, -50, 0, +50 or +100; side unused',
+    'strength':     'category = Modest, Moderate, Strong or Total; side = agree (pro) or disagree (anti)',
+    'rung':         'category = general, or a branch letter (A, B) for a subcategory with extra "branch: name", or A.1 for a specific leaf; side = agree or disagree',
+    'stack':        'category = oppose, mixed or support; extra = "worldview: ... | political: ... | causal: ... | specific: ..."',
+    'topic_values': 'side = agree or disagree; extra = "advertised: a; b | critics: c; d"',
+    'engagement':   'category = 1, 2, 3 or 4; side = agree or disagree; text = what it looks like; extra = "example: label"',
+    'common':       'category = shared, conflict or compromise; text or claim',
+    'criteria':     'text = criterion; claim = its page if one exists; extra = "reading: ... | validity: High | reliability: Med | linkage: High | importance: Med"',
+    'topic_media':  'claim = the media page; extra = "medium: Book | tone: Academic | positivity: +60 | strength: 50 | escalation: 2 | insight: ..."',
+    'related':      'category = opposing (parents, children and siblings come from the topics table); text or claim = a topic key',
+}
 PAGE_COLS = ['key', 'tab', 'kind', 'text', 'standalone', 'topic', 'parent', 'x', 'y', 'type', 'direction', 'rowkind', 'value',
              'measured_by', 'where_found', 'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge',
              'bottom_line', 'positivity', 'strength', 'form']
@@ -175,9 +191,20 @@ def parse_extra(s):
     return out
 
 # ------------------------------------------------------------------ tables -> specs
+def topic_rows(edges, topic_keys):
+    """The rows that belong to topic pages, keyed by topic, in sheet order."""
+    out = {k: [] for k in topic_keys}
+    for e in edges:
+        if e.get('page') in out and e.get('section') in TOPIC_SECTIONS: out[e['page']].append(e)
+    return out
+
+
 def tables_to_specs(pages, edges):
     """Rebuild the spec dicts the workbook builder consumes. Tab numbers come from the `tab` column when it is
-    filled and are assigned in row order otherwise, so an author only ever types keys."""
+    filled and are assigned in row order otherwise, so an author only ever types keys.
+
+    A row in a topic section whose page is not a page is a topic row (see TOPIC_SECTIONS) and is left for
+    topic_rows(); any other row naming an unknown page is still an error, because that is a typo."""
     used = {int(p['tab']) for p in pages if str(p.get('tab') or '').strip().isdigit()}
     nxt = _free_ids(used)
     tabs = {}
@@ -211,6 +238,7 @@ def tables_to_specs(pages, edges):
         if sp.get('supports'): sp['used_in'] = [{'tab': sp['supports'], 'side': 'Agree'}]
         specs[pid] = sp
     for e in edges:
+        if e['page'] not in tabs and e.get('section') in TOPIC_SECTIONS: continue
         pid = tabs[e['page']]; sp = specs[pid]; kind = sp.get('kind') or ('belief' if pid in beliefs else 'claim')
         section, side = e['section'], (e.get('side') or None)
         if section == 'dispute':
@@ -290,7 +318,7 @@ HELP = {
  'extra': 'Anything else the row carries, as "name: value | name: value".',
 }
 LISTS = {'etype': sorted(__import__('evidence').ESIW), 'kind': ['belief', 'claim', 'linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media'],
-         'section': sorted(set(SECTIONS) | set(SPLIT)), 'side': ['agree', 'disagree', 'extreme', 'moderate', 'x', 'y'],
+         'section': sorted(set(SECTIONS) | set(SPLIT) | set(TOPIC_SECTIONS)), 'side': ['agree', 'disagree', 'extreme', 'moderate', 'x', 'y'],
          'type': ['Argument', 'Evidence', 'Prediction', 'Interest', 'Media', 'Book', 'Study', 'Article', 'Report', 'Film', 'Podcast', 'Video'],
          'direction': ['Supports', 'Weakens', 'Support', 'Opposition'],
          'strength': ['Modest', 'Moderate', 'Strong', 'Total']}
