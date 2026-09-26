@@ -512,7 +512,7 @@ class TestEveryExportCarriesTheSameTwoTables(unittest.TestCase):
         return str(a) == str(b)
 
     def test_every_shape_holds_every_row(self):
-        for table, tag in (('page', 'page'), ('edge', 'edge')):
+        for table, tag in (('page', 'page'), ('edge', 'edge'), ('topic', 'topic'), ('topic_row', 'topic_row')):
             n = len(self.j[table + 's'])
             self.assertGreater(n, 0, f'the JSON export carries no {table} rows')
             self.assertEqual(len(self.root.findall('.//' + tag)), n, f'the XML dropped {table} rows')
@@ -521,30 +521,32 @@ class TestEveryExportCarriesTheSameTwoTables(unittest.TestCase):
 
     def test_the_database_holds_what_the_json_holds(self):
         checked = 0
-        for table in ('page', 'edge'):
+        for table in ('page', 'edge', 'topic', 'topic_row'):
             cols = [r[1] for r in self.con.execute(f'PRAGMA table_info({table})')]
             db = {r[0]: dict(zip(cols, r)) for r in self.con.execute(f'SELECT * FROM {table}')}
             for row in self.j[table + 's']:
-                have = db.get(row['id'])
-                self.assertIsNotNone(have, f'{table} {row["id"]} is in the JSON and not the database')
+                ident = row['key'] if table == 'topic' else row['id']
+                have = db.get(ident)
+                self.assertIsNotNone(have, f'{table} {ident} is in the JSON and not the database')
                 for k, v in row.items():
                     if k not in cols: continue
                     checked += 1
                     if k == 'attrs':
                         got = self.json.loads(have[k]) if isinstance(have[k], str) and have[k] else have[k]
-                        self.assertEqual(got, v, f'{table} {row["id"]}.attrs')
+                        self.assertEqual(got, v, f'{table} {ident}.attrs')
                     else:
                         self.assertTrue(self._same(have[k], v),
-                                        f'{table} {row["id"]}.{k}: database {have[k]!r}, JSON {v!r}')
+                                        f'{table} {ident}.{k}: database {have[k]!r}, JSON {v!r}')
         self.assertGreater(checked, 1000, 'this compared almost nothing')
 
     def test_the_xml_holds_what_the_json_holds(self):
         checked = 0
-        for table, tag in (('page', 'page'), ('edge', 'edge')):
-            x = {int(e.get('id')): e for e in self.root.findall('.//' + tag)}
+        for table, tag in (('page', 'page'), ('edge', 'edge'), ('topic', 'topic'), ('topic_row', 'topic_row')):
+            x = {(e.get('key') if table == 'topic' else int(e.get('id'))): e for e in self.root.findall('.//' + tag)}
             for row in self.j[table + 's']:
-                e = x.get(row['id'])
-                self.assertIsNotNone(e, f'{table} {row["id"]} is in the JSON and not the XML')
+                ident = row['key'] if table == 'topic' else row['id']
+                e = x.get(ident)
+                self.assertIsNotNone(e, f'{table} {ident} is in the JSON and not the XML')
                 for k, v in row.items():
                     if v is None or k == 'attrs': continue
                     checked += 1
@@ -553,8 +555,20 @@ class TestEveryExportCarriesTheSameTwoTables(unittest.TestCase):
                         child = e.find(k)
                         got = child.text if child is not None else None
                     self.assertTrue(self._same(got, v),
-                                    f'{table} {row["id"]}.{k}: XML {got!r}, JSON {v!r}')
+                                    f'{table} {ident}.{k}: XML {got!r}, JSON {v!r}')
         self.assertGreater(checked, 1000, 'this compared almost nothing')
+
+    def test_the_topics_and_their_rows_are_in_every_shape(self):
+        """The site is one page per topic now, and a topic's cells are rows. An export that carried pages and
+        edges and not these was the site with its directory missing."""
+        self.assertEqual(len(self.j['topics']), len(self.parent.c.topics))
+        self.assertEqual(len(self.j['topic_rows']), sum(len(v) for v in self.parent.c.topic_rows.values()))
+        self.assertGreater(len(self.j['topic_rows']), 0, 'no topic has rows, so the shape is untested')
+        keyed = [r for r in self.j['topic_rows'] if r.get('claim_id')]
+        for r in keyed:
+            self.assertIn(r['claim_id'], {p['id'] for p in self.j['pages']}, 'a topic row names a page that is not in the export')
+        parents = {t['parent'] for t in self.j['topics'] if t.get('parent')}
+        self.assertTrue(parents <= {t['key'] for t in self.j['topics']}, 'a topic names a parent that is not a topic')
 
 
 class TestTheMethodPageStatesEveryRule(unittest.TestCase):
