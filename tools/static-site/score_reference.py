@@ -56,6 +56,7 @@ TWO_SIDED = [
     ('up_for', 'upstream', 'agree'), ('up_against', 'upstream', 'disagree'),
     ('down_for', 'downstream', 'agree'), ('down_against', 'downstream', 'disagree'),
     ('similar_extreme', 'similar', 'extreme'), ('similar_moderate', 'similar', 'moderate'),
+    ('criteria', 'criterion', None), ('falsify_for', 'falsify', 'agree'), ('falsify_against', 'falsify', 'disagree'),
     ('people_for', 'person', 'agree'), ('people_against', 'person', 'disagree'),
     ('values', 'value', None), ('definitions', 'definition', None),   # used_in is derived (every edge whose claim_id is the page), so it is not exported
     # specialized pages
@@ -68,7 +69,7 @@ TWO_SIDED = [
 CORE = ('id', 'text', 'link', 'imp', 'uniq', 'drives', 'equiv', 'who', 'addresses', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline', 'tab', 'advertised')
 PAGE_FIELDS = {'etype': 'etype', 'erq': 'erq', 'erp': 'erp', 'topic': 'topic', 'supports': 'parent_id', 'x': 'x_id', 'y': 'y_id', 'z': 'y_id', 'typ': 'type', 'direction': 'direction', 'rowkind': 'rowkind',
                'value': 'value', 'measured': 'measured_by', 'where': 'where_found', 'if_true': 'if_true', 'if_false': 'if_false', 'latest': 'latest',
-               'bridge': 'bridge', 'bottom_line': 'bottom_line', 'standalone': 'standalone', 'positivity': 'positivity', 'form': 'logical_form'}
+               'bridge': 'bridge', 'bottom_line': 'bottom_line', 'standalone': 'standalone', 'hook': 'hook', 'question': 'question', 'ask': 'ask', 'positivity': 'positivity', 'form': 'logical_form'}
 
 def _get(spec, dotted):
     cur = spec
