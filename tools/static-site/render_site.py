@@ -576,16 +576,10 @@ def render_belief(c, pid):
     if read0: read.insert(1, read0)
     read.append(('Coverage', cov))
     if (sp.get('bottom_line') or '').strip(): read.append(('Bottom line', f'<span class="bl">{esc(sp["bottom_line"])}</span>'))
-    o.append(f'''<section class="card"><div class="tiles">
-<div class="tile"><div class="lab">Confidence</div><div class="big">{pct(kv)}</div><div class="sub">{esc(c.conf.label(kv))}. How much of the work is done.</div></div>
-<div class="tile"><div class="lab">Belief score</div><div class="big">{sf(s["belief"])}</div><div class="sub">Positive minus negative, open ended.</div></div>
-<div class="tile"><div class="lab">Weight for</div><div class="big">{f2(s["pos"])}</div><div class="sub">arguments {f2(s["pro"])} · evidence {f2(s["supp"])} · predictions {f2(s["pos"] - s["pro"] - s["supp"])}</div></div>
-<div class="tile"><div class="lab">Weight against</div><div class="big">{f2(s["neg"])}</div><div class="sub">arguments {f2(s["con"])} · evidence {f2(s["weak"])} · predictions {f2(s["neg"] - s["con"] - s["weak"])}</div></div>
-</div>
-</section>''')
-    # The scorecard stays at the top and the prose about it does not. A reader meets the claim, the numbers,
-    # and then the arguments; what the numbers add up to is a conclusion, and a conclusion belongs after the
-    # thing it is drawn from. This is Rule 1 of the belief-page rules, no top-of-page summary.
+
+    # No score is announced above the arguments. The truth score sits on the heading line; confidence and the
+    # weights appear where they come from: under each table, and in the derivation at the end. A number a
+    # reader meets before the reasons for it is a verdict, whatever it is called (Rule 1, no top-of-page summary).
     readout = '<dl class="readout">' + ''.join(f'<dt>{esc(k)}</dt><dd>{v}</dd>' for k, v in read) + '</dl>'
     # Sections with no content yet are not rendered: an empty template row is not a result, and a reader
     # should meet this page's best work first. What is missing is listed once, at the end, as work to do.
