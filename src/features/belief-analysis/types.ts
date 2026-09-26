@@ -114,6 +114,11 @@ export interface BeliefWithRelations {
   netInterpretation: string | null
   /** Scorecard "Bottom line": one-sentence verdict scoped to the argument tree. */
   bottomLine?: string | null
+  /** Invitation block under the H1 (template: INVITATION BLOCK). Typed by the author; optional so
+   *  existing Prisma data still flows. The ask is derived from the page's gaps when blank. */
+  hook?: string | null
+  question?: string | null
+  ask?: string | null
   /** Scorecard "What would move this score most". */
   scoreMover?: string | null
   /** Logical Anatomy "Logical form" line. */

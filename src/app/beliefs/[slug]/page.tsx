@@ -24,6 +24,9 @@ import ContributeSection from '@/features/belief-analysis/components/ContributeS
 import DefinitionsSection from '@/features/belief-analysis/components/DefinitionsSection'
 import PeopleOnRecordSection from '@/features/belief-analysis/components/PeopleOnRecordSection'
 import RelatedTopicsSection from '@/features/belief-analysis/components/RelatedTopicsSection'
+import InvitationBlock from '@/features/belief-analysis/components/InvitationBlock'
+import WhatThisPageNeedsSection from '@/features/belief-analysis/components/WhatThisPageNeedsSection'
+import { pageGaps } from '@/features/belief-analysis/lib/gaps'
 import { openContractsForBelief } from '@/lib/markets/belief-pointer'
 import { fetchTopicsForBelief } from '@/features/topics/data/fetch-topics'
 
@@ -71,6 +74,9 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
     // stake per argument (src/core/scoring/decision-leverage.ts).
     fetchBeliefLeverage(belief.id),
   ])
+  // What the page needs, read off its own tables: the invitation's slot and the
+  // "What This Page Needs Right Now" table both come from this one list.
+  const gaps = pageGaps(belief.arguments, belief.evidence, belief.objectiveCriteria)
 
   return (
     <div className="min-h-screen bg-white">
@@ -112,14 +118,15 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
         </p>
 
         {/*
-          Header per the new canonical template (docs/BELIEF_PAGE_RULES.md):
-            Belief statement → metadata line (Topic / Dewey / Positivity / Net Belief
-            Score / Related) → "Beliefs this supports" → straight to Argument Trees.
-            NO summary/background/hook (Rule 2).
+          Header per the canonical template (docs/BELIEF_PAGE_RULES.md):
+            Belief statement → invitation block (hook, question, promise, one named slot;
+            not a summary, Rule 2) → metadata line (Topic / Dewey / Positivity / Related)
+            → "Beliefs this supports" → Scorecard → Argument Trees.
         */}
         <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2 leading-tight">
           Belief: {belief.statement}
         </h1>
+        <InvitationBlock hook={belief.hook} question={belief.question} ask={belief.ask} gaps={gaps} />
         {/* Net Belief Score lives in the Scorecard below, not here — the
             metadata line carries only Topic / Dewey / Positivity / Related. */}
         <p className="text-xs text-[var(--muted-foreground)] mb-3">
@@ -313,7 +320,12 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 13. Contribute / footer — the add-a-row move, with speed bumps on
+          {/* 13. What This Page Needs Right Now — the gaps, read off the tables above. */}
+          <WhatThisPageNeedsSection gaps={gaps} />
+
+          <hr className="border-gray-200" />
+
+          {/* 14. Contribute / footer — the add-a-row move, with speed bumps on
               high-stakes beliefs (steelman acknowledgment + principle check). */}
           <ContributeSection
             beliefId={belief.id}
@@ -322,7 +334,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             arguments={belief.arguments}
           />
 
-          {/* 14. Related Topics — the category cluster, current page unlinked
+          {/* 15. Related Topics — the category cluster, current page unlinked
               (renders only when siblings exist). */}
           <RelatedTopicsSection
             category={belief.category}

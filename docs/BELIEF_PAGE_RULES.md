@@ -27,7 +27,13 @@ Definitions, scoring concept explanations, and terminology glossaries live at th
 
 ## Rule 2: No Wikipedia-Style Summary or Background
 
-Do NOT write a "Background," "Summary," "Context," "Overview," or "Hook" section explaining what the topic is.
+Do NOT write a "Background," "Summary," "Context," or "Overview" section explaining what the topic is.
+
+The one thing allowed under the heading is the **invitation block** (a boxed hook, question, promise and
+ask, see the Canonical Section Order). It is not a summary: the hook names an itch the reader already
+feels in one or two concrete sentences, the question states what the page dissects, the promise says why
+this is not a feed, and the ask names one slot a newcomer can fill. It explains nothing about the topic
+and it invites the reader who disagrees; a block that starts explaining is a summary and fails this rule.
 
 **Why:** ISE does not compete with Wikipedia for topic explanation. People have a billion places to go for "what is public banking." ISE's only value proposition is the ReasonRank decomposition: chopping arguments into atomic scored parts. A background paragraph at the top dilutes that value proposition and makes ISE look like a worse Wikipedia.
 
@@ -35,7 +41,7 @@ Do NOT write a "Background," "Summary," "Context," "Overview," or "Hook" section
 
 - No prose intro before the Argument Trees section.
 - No callout boxes with historical context or framing.
-- Belief statement → Topic metadata → Argument Trees. That's it. Go straight to the decomposition.
+- Belief statement → invitation block → Topic metadata → Scorecard → Argument Trees. Nothing else before the decomposition.
 - If the user explicitly asks for a summary, ask them to clarify why. The answer is almost always "move straight to the arguments."
 
 ---
@@ -214,6 +220,15 @@ When an open prediction-market contract exists on this belief's score, a one-lin
 contract on `/markets` and restates the firewall — prices predict the engine, never
 feed it. Renders nothing when no open contract exists.
 
+0a. **Invitation block** — boxed, directly under the H1: `[HOOK]` (one or two sentences naming an
+   itch the reader already feels; concrete, no throat-clearing), `[QUESTION]` (one sentence ending in a
+   question mark, stating exactly what the page dissects; answerable, not rhetorical), `[PROMISE]` (why this
+   is not a feed: one belief, both sides, ranked by how well arguments hold up rather than how often they
+   are repeated, permanent, open to revision), and the ask: **"If you disagree, this page has a column for
+   you."** followed by one specific slot a newcomer can fill in five minutes (an empty con row, a missing
+   counterexample, an unproposed criterion). Never "what do you think?" It passes the reciprocity test: it
+   names a behavior, never a tribe, so it reads the same to either side. The software derives the slot
+   from "What This Page Needs Right Now" when the author has not typed one.
 0. **Scorecard** — a readout of the scored content below, not a prose summary:
    `Net Belief Score (Pro vs. Con)` / `Bottom line` (one-sentence verdict scoped to
    what the tree supports) / `Strongest pro / con` (**auto-derived**: the top-ranked
@@ -283,9 +298,14 @@ feed it. Renders nothing when no open contract exists.
    counted in full on no record, how many are weighted by an unconfirmed tier claim,
    and — above half — that the score should be read as provisional. Engine-computed
    (`src/core/scoring/evidence-exposure.ts`); omitted when every row is established.
-3. **Objective Criteria** (`Criterion / How to Measure / Reading That Would Strengthen /
-   Reading That Would Weaken / Latest Reading / Score`) — the best criteria are ones
-   where the two sides predict different readings.
+3. **Objective Criteria** (`Criterion / Score / Validity / Reliability / Linkage / Importance /
+   Reading That Would Strengthen / Reading That Would Weaken / Latest Reading`) — each criterion is
+   itself a belief with its own page, scored on the four dimensions. The Reading That Would Strengthen
+   and the Reading That Would Weaken must differ from each other: a criterion both sides expect to come
+   out the same way tests nothing. Every page includes at least one **deliberately failing criterion**,
+   scored low with its reasons, because a rubric with no failing example does not show readers where the
+   line is. The Latest Reading column is the open invitation; it stays blank until somebody fills it with
+   a sourced number.
 4. **Falsifiability Test** (`Evidence That Would Strengthen / Score / Evidence That
    Would Weaken / Score` — each row a realistic, bet-specific score-mover) +
    **Testable Predictions** (`Prediction / Follows If / Timeframe / Verification
@@ -349,7 +369,13 @@ feed it. Renders nothing when no open contract exists.
     identity is orthogonal to the final score, so these names carry history, not
     weight. Each listing is itself a debatable claim that the person holds the
     position; contested listings are annotated.
-13. **Contribute / footer** — the three moves, stated and usable: a
+13. **What This Page Needs Right Now** (`# / The gap / Where it goes / Who is best placed to fill
+    it`) — concrete gaps, updated as they fill: the strongest missing counterargument stated as the shape
+    of the argument wanted (not a topic label), an evidence slot (a claim resting on argument alone), a
+    criterion nobody has proposed or a proposed one that needs its first reading. The software derives
+    these from the tables above (`src/features/belief-analysis/lib/gaps.ts`); none of them require
+    agreeing with the page.
+14. **Contribute / footer** — the three moves, stated and usable: a
     suggest-evidence form (queue-only; a suggestion becomes evidence only on
     acceptance, which runs the same validation as agent ingestion),
     challenge-a-number, and an add-a-reason form
@@ -359,7 +385,7 @@ feed it. Renders nothing when no open contract exists.
     On high-stakes beliefs the form and API walk the speed bumps: acknowledge the
     strongest current opposing argument (verified server-side) and affirm the moral
     principle the post rests on.
-14. **Related Topics** *(renders only when the belief has category siblings)* —
+15. **Related Topics** *(renders only when the belief has category siblings)* —
     the category cluster: a link to the topic hub (the category-filtered belief
     index) and the sibling beliefs in this cluster, each linked, with the current
     page appearing as plain text, unlinked.
@@ -374,6 +400,9 @@ Before outputting any ISE belief page, verify:
 - [ ] Breadcrumb reads Home › Topics › Category › This Belief
 - [ ] Header has the metadata line (Topic > Subcategory / Dewey / Positivity / Related) and "Beliefs this supports"; the Net Belief Score appears in the Scorecard, not the metadata line
 - [ ] Belief is stated in positive form so the page headlines the supported claim
+- [ ] The invitation block sits directly under the H1: hook, question, promise, and "If you disagree, this page has a column for you" naming one specific slot; it explains nothing about the topic
+- [ ] Objective Criteria has at least one deliberately failing criterion scored low with its reasons, and every Strengthen/Weaken pair differs
+- [ ] "What This Page Needs Right Now" names concrete gaps with where each goes and who fills it, above Contribute
 - [ ] Scorecard shows Net Belief Score (Pro vs. Con), Bottom line, and the auto-derived Strongest pro/con and top score-mover — auto-derived cells computed from the tables, never hand-picked
 - [ ] Definitions section is the last analysis section; only People on the Record, Contribute, and Related Topics follow
 - [ ] Argument cells are complete atomic propositions with the famous quote inline and `~Name` submitter — no citations, percentages, or study names; confirmed fallacies noted inline
