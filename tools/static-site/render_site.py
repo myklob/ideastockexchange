@@ -909,24 +909,9 @@ def render_special(c, pid):
     elif is_page(x): o.append(f'<tr><td class="lab">{esc(KD["xlabel"])}</td><td class="t">{H.a(x)}</td><td><span class="lab">Truth</span> {H.num(c.truth(x), x)}</td></tr>')
     if is_page(y): o.append(f'<tr><td class="lab">{esc(KD["ylabel"])}</td><td class="t">{H.a(y)}</td><td><span class="lab">Truth</span> {H.num(c.truth(y), y)}</td></tr>')
     o.append('</tbody></table>')
-    # readout
-    t = s['truth']
-    if k == 'linkage' and sp.get('typ') == 'Interest': ro = f'Bearing {f2(t)} on 0 to 1: how far the row really speaks to the interest. The importance page multiplies the interest\'s validity by this number.'
-    elif k == 'linkage':
-        tx = c.truth(x) if is_page(x) else UNARG
-        ro = (f'Linkage score {f2(t)} on 0 to 1 (wiki scale {2 * t - 1:+.2f}). X passes (2 x {f2(tx)} - 1) x Link {f2(t)} = '
-              f'{f2((2 * tx - 1) * t)} to Y, before Y\'s own Conf, Imp and Uniq. A row is signed, so an X nobody has argued '
-              f'passes nothing however relevant the linkage. 1 = if X is true, Y must move; 0 = X can be true and Y does not budge.')
-    elif k == 'importance': ro = f'Importance {f2(t)} on 0 to 1 = the largest of (interest validity x how far this row bears on it) over the interests listed, or this page\'s own starting point when none is listed. Y\'s page reads this as Imp on this row.'
-    elif k == 'interest': ro = f'Validity {f2(t)} on 0 to 1: how real and legitimate this need is, decided by the reasons below and never by who holds it. Every importance page that lists this interest reads it.'
-    elif k == 'uniqueness': ro = f'Uniqueness {f2(t)}: X keeps {pct(t)} of its score on the parent page; the overlap discount is {pct(1 - t)}.'
-    elif k == 'equivalence': ro = f'Equivalence {f2(t)}. ' + ('Merge candidate: the arguments should live on one page.' if t >= 0.9 else 'Distinct claims: keep both pages and cross-link them.' if t < 0.5 else 'Overlapping claims: keep both pages and name the difference on each.')
-    elif k == 'driver': ro = f'Validity of the interest (its page) {f2(c.truth(x)) if is_page(x) else "?"} | how much it drives this position (this page) {f2(t)}. Interest score on Y\'s page = {f2((c.truth(x) if is_page(x) else 0) * t)}.'
-    else: ro = f'Quality {f2(t)} (how well the work makes its case) | Impact {f2(s["impact"])} (how far it has shaped what people think).'
-    kv = c.conf.of(pid)
-    o.append(f'<p class="ro">{esc(ro)}</p>')
-    o.append(f'<p class="ro">Confidence {pct(kv)}, {esc(c.conf.label(kv))}: how much of the work behind this page has been done. '
-             f'It multiplies what this page passes to any page above it, and it is the second half of the work value below.</p>')
+    # No score is announced above the arguments here either. The truth score is on the heading line, and
+    # what it means, with confidence and what it is made of, is in the derivation at the end.
+    t = s['truth']; kv = c.conf.of(pid)
     bl = (sp.get('bottom_line') or '').strip()
     o.append((f'<p class="bl"><span class="lab">Bottom line</span> {esc(bl)}</p>' if bl else '') + '</section>')
     # the argued table(s)
