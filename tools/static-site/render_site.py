@@ -1284,13 +1284,20 @@ def render_topic(c, tkey, title):
     # ---- related topics
     o.append('<h2 id="related" class="th">&#128279; Related Topics</h2>')
     o.append('<p class="cap">The <strong>Children</strong> column is where full subcategories from Continuum 3 go once they outgrow a row and earn their own page.</p>')
+    # A related topic with a page is linked; one named in a row but without a page yet is plain text, which is
+    # Rule 5: no link to a page that does not exist.
     kids = [k for k, x in c.topics.items() if (x.get('parent') or '') == tkey]
     sibs = [k for k, x in c.topics.items() if k != tkey and (x.get('parent') or '') == (t.get('parent') or '') and (t.get('parent') or '')]
-    opp = section_rows('related', 'opposing')
     tl = lambda k: f'<a href="{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a>'
+    def named(cat, have):
+        out = [tl(k) for k in have]
+        for d in section_rows('related', cat):
+            if d.get('text') in c.topics: out.append(tl(d['text']))
+            elif d.get('claim') in c.topics: out.append(tl(d['claim']))
+            else: out.append(cell(d, score=False))
+        return '<br>'.join(dict.fromkeys(out)) or EMPTY
     o.append('<table class="tpl"><thead><tr><th style="width:25%">Broader (Parents)</th><th style="width:25%">Sub-Issues (Children)</th><th style="width:25%">Related (Siblings)</th><th style="width:25%">Opposing / Critical Views</th></tr></thead><tbody><tr class="u">')
-    o.append('<td>' + (tl(parent['key']) if parent else EMPTY) + '</td><td>' + ('<br>'.join(tl(k) for k in kids) or EMPTY) + '</td><td>' + ('<br>'.join(tl(k) for k in sibs) or EMPTY) + '</td>')
-    o.append('<td>' + ('<br>'.join(tl(d['text']) if d.get('text') in c.topics else cell(d, score=False) for d in opp) or EMPTY) + '</td></tr></tbody></table>')
+    o.append('<td>' + (tl(parent['key']) if parent else EMPTY) + '</td><td>' + named('child', kids) + '</td><td>' + named('sibling', sibs) + '</td><td>' + named('opposing', []) + '</td></tr></tbody></table>')
 
     # ---- contribute
     o.append('<h2 class="th">&#128236; Contribute</h2>')

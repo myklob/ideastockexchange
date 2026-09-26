@@ -67,7 +67,7 @@ TOPIC_SECTIONS = {
     'common':       'category = shared, conflict or compromise; text or claim',
     'criteria':     'text = criterion; claim = its page if one exists; extra = "reading: ... | validity: High | reliability: Med | linkage: High | importance: Med"',
     'topic_media':  'claim = the media page; extra = "medium: Book | tone: Academic | positivity: +60 | strength: 50 | escalation: 2 | insight: ..."',
-    'related':      'category = opposing (parents, children and siblings come from the topics table); text or claim = a topic key',
+    'related':      'category = child, sibling or opposing; text = the topic name, or a topic key once that topic has a page (the parent comes from the topics table)',
 }
 PAGE_COLS = ['key', 'tab', 'kind', 'text', 'standalone', 'topic', 'parent', 'x', 'y', 'type', 'direction', 'rowkind', 'value',
              'measured_by', 'where_found', 'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge',
