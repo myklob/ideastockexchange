@@ -1056,3 +1056,30 @@ claims-apes-parrots-understand,argument,agree,no-animal-has-been,,,,,,,,,,,,,,,,
 claims-apes-parrots-understand,argument,disagree,some-animals-use-learned,,,,,,,,,,,,,,,,
 claims-apes-parrots-understand,argument,disagree,wild-animals-already-use,,,,,,,,,,,,,,,,
 claims-apes-parrots-understand,argument,disagree,demanding-full-human-grammar,,,,,,,,,,,,,,,,
+public-office-private-gain,rung,agree,clemency-only-executive-power,,,,,,,,,,,D.1,,,,,
+public-office-private-gain,rung,disagree,article-ii-grants-power,,,,,,,,,,,D.1,,,,,
+public-office-private-gain,rung,agree,pardons-granted-president-s,,,,,,,,,,,D.2,,,,,
+public-office-private-gain,rung,disagree,narrower-fix-reaches-actual,,,,,,,,,,,D.2,,,,,
+public-office-private-gain,rung,agree,two-thirds-threshold-means,,,,,,,,,,,D.3,,,,,
+public-office-private-gain,rung,disagree,clemency-exists-correct-injustices,,,,,,,,,,,D.3,,,,,
+public-office-private-gain,rung,agree,most-states-already-put,,,,,,,,,,,D.4,,,,,
+public-office-private-gain,rung,disagree,reversible-pardon-pardon-nobody,,,,,,,,,,,D.4,,,,,
+public-office-private-gain,engagement,agree,,"A voter who thinks members of Congress should not trade the stocks of industries their committees oversee, votes for candidates who say so when the choice is easy, and otherwise leaves the matter alone.",,,,,,,,,,1,,,,,example: sympathetic voter
+public-office-private-gain,engagement,disagree,,"A voter who believes the disclosure form and the existing conflict-of-interest statutes already catch what matters, doubts a new ban would deter anyone but honest people of ordinary means, and says so only when asked.",,,,,,,,,,1,,,,,example: skeptical voter
+public-office-private-gain,engagement,agree,,"A citizen who writes to their representative to demand a vote on the drafted holdings ban, signs and circulates petitions, backs candidates who pledge not to trade individual stocks, and asks publicly why the Senate has not scheduled the vote.",,,,,,,,,,2,,,,,example: reform campaigner
+public-office-private-gain,engagement,disagree,,"A citizen or former official who testifies, writes and organizes against new bans, argues that forced divestiture narrows who can afford to serve and reaches spouses and children who never ran, and pushes instead to strengthen the disclosure form and the audits.",,,,,,,,,,2,,,,,example: disclosure-first advocate
+public-office-private-gain,engagement,agree,,"An officeholder who sells their individual stocks or moves them into a blind trust, publishes their own tax returns, and declines to give any official role to a relative, all without a rule requiring it, while leaving colleagues to make their own choice.",,,,,,,,,,3,,,,,example: self-divesting officeholder
+public-office-private-gain,engagement,disagree,,"An officeholder who keeps lawful individual holdings, refuses to sign a voluntary pledge to divest or to publish returns, states plainly that the law does not require it and that officials keep the ordinary rights of citizens, and does not try to stop others from pledging.",,,,,,,,,,3,,,,,example: pledge-declining officeholder
+public-office-private-gain,engagement,agree,,"A person with lawful access to an official's confidential tax return who publishes it under their own name to show what the disclosure form leaves out, knowing the law attaches criminal penalties to unauthorized disclosure, and accepts prosecution as the price of forcing the question.",,,,,,,,,,4,,,,,example: open-disclosure lawbreaker
+most-people-depression-anxiety,argument,agree,trained-therapists-doctors-have,,,,,,,,,,,,,,,,
+most-people-depression-anxiety,argument,agree,very-symptoms-depression-low,,,,,,,,,,,,,,,,
+most-people-depression-anxiety,argument,agree,untreated-problems-tend-grow,,,,,,,,,,,,,,,,
+most-people-depression-anxiety,argument,disagree,sadness-worry-normal-responses,,,,,,,,,,,,,,,,
+most-people-depression-anxiety,argument,disagree,many-people-recover-fully,,,,,,,,,,,,,,,,
+most-people-depression-anxiety,argument,disagree,treatment-carries-its-own,,,,,,,,,,,,,,,,
+teaching-children-build-toughness,argument,agree,constant-attention-feelings-can,,,,,,,,,,,,,,,,
+teaching-children-build-toughness,argument,agree,life-will-bring-hardship,,,,,,,,,,,,,,,,
+teaching-children-build-toughness,argument,agree,children-who-treated-fragile,,,,,,,,,,,,,,,,
+teaching-children-build-toughness,argument,disagree,children-who-cannot-name,,,,,,,,,,,,,,,,
+teaching-children-build-toughness,argument,disagree,toughness-training-works-children,,,,,,,,,,,,,,,,
+teaching-children-build-toughness,argument,disagree,talking-about-feelings-building,,,,,,,,,,,,,,,,
