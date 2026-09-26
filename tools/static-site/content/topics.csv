@@ -4,11 +4,11 @@ public-office-private-gain,Public office and private gain,government-ethics,"Whe
 business-and-economy,Business & Economy,,"Beliefs about how people trade, work, invest and are paid, and what the law should do about it.",,
 business,Business,business-and-economy,"Business covers how companies are owned, governed and run, and whom they must answer to.",,"favors tighter public rules on how companies are run and who they answer to, negative favors leaving companies free to run themselves and answer mainly to their owners."
 finance,Finance,business-and-economy,,,
-trade,Trade,business-and-economy,,,
-jobs,Jobs,business-and-economy,,,
+trade,Trade,business-and-economy,Trade covers the buying and selling of goods and services across national borders and the barriers governments place on it.,,"favors open trade with few barriers, negative favors tariffs and protection for home industries."
+jobs,Jobs,business-and-economy,"Jobs covers pay, hiring, firing and working conditions, and how much of that the law should set.",,"favors stronger legal protections and pay floors for workers, negative favors leaving pay and conditions to employers and the market."
 consumer-protection,Consumer Protection,business-and-economy,,,
 computers-and-internet,Computers & Internet,,"Beliefs about software, networks and the rules that govern them.",,
-internet,Internet,computers-and-internet,,,
+internet,Internet,computers-and-internet,"How the internet is run and who sets its rules, from the companies that carry traffic to the laws that govern access, speech and content.",,favors more government rules for how the internet and online platforms operate; negative favors leaving those choices to companies and users.
 software,Software,computers-and-internet,,,
 privacy-and-data,Privacy and Data,computers-and-internet,,,
 games,Games,computers-and-internet,,,
@@ -77,3 +77,9 @@ reference,Reference,,"Definitions, statistics and quotations the other topics re
 dictionaries,Dictionaries,reference,,,
 statistics,Statistics,reference,,,
 quotations,Quotations,reference,,,
+core-principles,Core Principles,society-and-culture,The principles the other positions on this site are argued from.,,
+democracy-and-rule-of-law,Democracy & Rule of Law,government,"How elections, courts and the constitution keep power answerable, and how to strengthen them.",,
+rights-and-liberty,Rights & Liberty,government,The freedoms the law protects and the responsibilities that come with them.,,
+evidence-and-process,Evidence & Process,government,"How public decisions should be made: on evidence, with scorecards, and with a view to the wider world.",,
+energy,Energy,business-and-economy,"How energy is produced, priced and researched.",,
+immigration,Immigration,government,"Who may come to the country, on what terms, and how the rules are enforced.",,
