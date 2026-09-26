@@ -129,7 +129,8 @@ CREATE TABLE IF NOT EXISTS topic (
   name         TEXT NOT NULL,
   parent       VARCHAR(64) REFERENCES topic(key),
   definition   TEXT,
-  scope        TEXT
+  scope        TEXT,
+  axis         TEXT
 );
 
 CREATE TABLE IF NOT EXISTS topic_row (
@@ -269,7 +270,7 @@ def build_sqlite(path, data_sql, schema=None):
     return n
 
 
-TOPIC_COLS = ['key', 'name', 'parent', 'definition', 'scope']
+TOPIC_COLS = ['key', 'name', 'parent', 'definition', 'scope', 'axis']
 TOPIC_ROW_COLS = ['id', 'topic', 'section', 'category', 'side', 'claim_id', 'text', 'source', 'attrs']
 
 def topic_tables(topics, topic_rows, tabs):

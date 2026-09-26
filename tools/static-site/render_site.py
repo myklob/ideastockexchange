@@ -1272,6 +1272,8 @@ def render_topic(c, tkey, title):
     o.append('<p class="cap">Which way the belief runs, from total opposition (-100%) to total support (+100%). The <strong>Belief Score</strong> '
              'column is a separate thing: how well the belief holds up once its arguments are scored, not which way it points. A claim can '
              'sit at +100% and still score badly.</p>')
+    if (t.get('axis') or '').strip():
+        o.append(f'<p class="cap"><strong>Positive means:</strong> {esc(t["axis"].strip())}</p>')
     o.append('<table class="tpl"><thead><tr><th style="width:12%">Position</th><th style="width:55%">Core Belief / Claim</th><th style="width:25%">Top Underlying Argument</th><th style="width:8%">Belief Score</th></tr></thead><tbody>')
     def band_of(pos):
         return '+100' if pos >= 75 else '+50' if pos >= 25 else '0' if pos > -25 else '-50' if pos > -75 else '-100'
