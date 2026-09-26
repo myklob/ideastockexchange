@@ -1411,6 +1411,34 @@ def changed_this_revision(c):
     for r in d['tables']['edges']['added']: keys.add(r.get('page'))
     return [c.tabs[k] for k in keys if k in c.tabs]
 
+def best_beliefs(c, limit=None):
+    """Beliefs ranked by belief score, then by how much scored work stands under them. Only beliefs: a court
+    record at 0.95 is a finding, not a developed position, and a list of the highest truth scores on the site
+    was a list of findings."""
+    bs = sorted(c.beliefs, key=lambda b: (-c.stats(b)['belief'], -c.stats(b)['nrows'], -c.conf.of(b)))
+    return bs[:limit] if limit else bs
+
+def best_table(c, bs, prefix='p/'):
+    o = ['<table class="scored"><thead><tr><th class="rk">#</th><th>Belief</th><th>Belief score</th><th>Scored rows</th><th>Truth</th><th>Conf</th><th>Topic</th></tr></thead><tbody>']
+    for i, b in enumerate(bs, 1):
+        st = c.stats(b); tk = c.topic_of(b)
+        topic = f'<a href="t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>' if tk else ''
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="{prefix}{c.href(b)}">{esc(c.standalone(b))}</a></td>'
+                 f'<td class="sc">{sf(st["belief"])}</td><td>{st["nrows"]}</td><td>{f2(st["truth"])}</td><td>{pct(c.conf.of(b))}</td><td class="u">{topic}</td></tr>')
+    if not bs: o.append('<tr><td colspan="7" class="empty">No belief has a page yet.</td></tr>')
+    o.append('</tbody></table>')
+    return ''.join(o)
+
+def render_best(c, title):
+    o = [root_head('Best beliefs', [('Home', 'index.html'), ('Best beliefs', '')], main_class='index')]
+    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Best beliefs</h1>')
+    o.append('<p class="lede">Every belief on the site, the best argued first. Belief score is the weight for minus the weight against, from the '
+             'reasons, findings and predictions beneath it; scored rows is how many of those there are. Truth is capped by the weakest '
+             'load-bearing part that has a page, which is why a well-argued belief can still read 0.50.</p>')
+    o.append('<section>' + best_table(c, best_beliefs(c)) + '</section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
 def render_index(c, title):
     """The home page: a way in by topic, then four short lists, then where everything else is. It lists no
     claim twice and does not try to list them all; that is what the other pages are for."""
@@ -1427,10 +1455,10 @@ def render_index(c, title):
                              f'{len(filed)} topic{"s have" if len(filed) != 1 else " has"} beliefs filed so far; the rest show where a belief would go.'))
     o.append(directory(c) + '</section>')
     # ---- the four lists
-    off = sorted((p for p in c.specs if abs(c.truth(p) - 0.5) > 1e-9), key=lambda p: (-c.truth(p), -c.conf.of(p)))[:10]
-    o.append(ranked(c, 'Highest scoring', 'The claims that score best right now, with how much work stands behind each. A claim '
-                    'only leaves 0.50 by citing something, so these are the ones that touch the world.',
-                    off, 'Rests on', lambda p: esc(EV.label(c.specs[p]).split(':')[0].split(',')[0].lower())))
+    o.append(H_section_plain('Best beliefs', 'Beliefs only, the best argued first: belief score is the weight for minus the weight against, '
+                             'and scored rows is how many reasons, findings and predictions stand under it. '
+                             '<a href="best.html">Every belief, ranked</a>.'))
+    o.append(best_table(c, best_beliefs(c, 10)) + '</section>')
     def sides(pid):
         st = c.stats(pid); return (st.get('pos') or 0.0), (st.get('neg') or 0.0)
     contested = sorted((p for p in c.specs if min(sides(p)) > 1e-9), key=lambda p: -min(sides(p)))[:10]
@@ -1455,6 +1483,7 @@ def render_index(c, title):
     o.append(H_section_plain('More'))
     ints = sum(1 for p in c.specs if c.kind(p) == 'interest'); med = sum(1 for p in c.specs if c.kind(p) == 'media')
     o.append('<table class="plain"><tbody>'
+             f'<tr><td class="t"><a href="best.html">Best beliefs</a></td><td class="u">Every belief, the best argued first.</td></tr>'
              f'<tr><td class="t"><a href="all.html">All {len(c.specs)} pages</a></td><td class="u">Every claim, with a search box.</td></tr>'
              f'<tr><td class="t"><a href="next.html">What to argue next</a></td><td class="u">The claims where one more argument would change the most.</td></tr>'
              f'<tr><td class="t"><a href="interests.html">Who has a stake</a></td><td class="u">The {ints} interests the beliefs here speak to, and how valid each is argued to be.</td></tr>'
@@ -1801,7 +1830,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
         fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
-    for name, fn in (('all', render_all), ('next', render_next), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index)):
+    for name, fn in (('all', render_all), ('best', render_best), ('next', render_next), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 't'))
     for tkey in c.topics:

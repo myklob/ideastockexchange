@@ -773,12 +773,28 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
             self.assertNotIn(gone, self.text, f'"{gone}" is back on the home page')
 
     def test_the_four_lists_are_there_and_ranked(self):
-        for heading in ('Highest scoring', 'Most argued over', 'Most relied on', 'Changed in this revision'):
+        for heading in ('Best beliefs', 'Most argued over', 'Most relied on', 'Changed in this revision'):
             i = self.text.find(heading)
             self.assertGreater(i, 0, f'{heading} is missing')
-        for heading in ('Highest scoring', 'Most argued over', 'Most relied on'):
+        for heading in ('Best beliefs', 'Most argued over', 'Most relied on'):
             i = self.text.find(heading)
             self.assertRegex(self.text[i:i + 900], r'\b1\b', f'{heading} printed no ranked rows')
+
+    def test_best_beliefs_ranks_beliefs_and_only_beliefs(self):
+        """The list used to rank every page by truth score, so a court record at 0.95 came first and no belief
+        appeared at all. A reader opening a debate site wants the best argued positions, not the best sourced
+        footnotes."""
+        i = self.text.find('Best beliefs'); j = self.text.find('Most argued over')
+        block = self.c['index.html'][self.c['index.html'].find('Best beliefs'):self.c['index.html'].find('Most argued over')]
+        linked = re.findall(r'href="p/([^"#]+)"', block)
+        self.assertTrue(linked, 'the best-beliefs list is empty')
+        keys = {self.corpus.key[b] + '.html' for b in self.corpus.beliefs}
+        for h in linked:
+            self.assertIn(h, keys, f'{h} is in the best-beliefs list and is not a belief')
+        scores = [float(x) for x in re.findall(r'<td class="sc">([+-][0-9.]+)</td>', block)]
+        self.assertEqual(scores, sorted(scores, reverse=True), 'best beliefs are not in belief-score order')
+        with open(os.path.join(self.parent.dir, 'best.html')) as fh: full = fh.read()
+        self.assertEqual(len(re.findall(r'href="p/', full)), len(self.corpus.beliefs), 'best.html does not list every belief exactly once')
 
     def test_popular_is_named_as_a_stand_in(self):
         """There are no votes or views here. The list that stands in for popularity has to say so, in the
