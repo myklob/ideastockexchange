@@ -1164,3 +1164,19 @@ we-support-strengthen-democracy,prediction,agree,jurisdictions-use-ranked-choice
 we-support-strengthen-democracy,prediction,disagree,reformed-states-will-show,,,,,,,,,,,,,,,Two full election cycles,
 we-support-strengthen-democracy,prediction,disagree,center-squeeze-other-pathological,,,,,,,,,,,,,,,,
 we-support-strengthen-democracy,prediction,disagree,representatives-reformed-states-will,,,,,,,,,,,,,,,5-10 years; roll-call ideal-point estimates by state cohort,
+public-office-private-gain,related,,,Congressional Reversal of Pardons,,,,,,,,,,child,,,,,
+public-office-private-gain,related,,,Bribery Statutes,,,,,,,,,,sibling,,,,,
+public-office-private-gain,related,,,Lobbying Rules,,,,,,,,,,sibling,,,,,
+public-office-private-gain,related,,,Financial Disclosure Rules,,,,,,,,,,sibling,,,,,
+public-office-private-gain,related,,,Revolving Door Restrictions,,,,,,,,,,sibling,,,,,
+public-office-private-gain,related,,,Ethics Rules as a Deterrent to Public Service,,,,,,,,,,opposing,,,,,
+public-office-private-gain,related,,,Disclosure Rather Than Prohibition,,,,,,,,,,opposing,,,,,
+public-office-private-gain,topic_media,,ziobrowski-cheng-boyd-ziobrowski,,,,,,,,,,,,,,,,"medium: Study | tone: Academic | positivity: +60 | strength: 80 | insight: Senators earned abnormal returns on their stock purchases in the 1990s, which points to a trading advantage tied to the office."
+public-office-private-gain,topic_media,,eggers-hainmueller-capitol-losses,,,,,,,,,,,,,,,,"medium: Study | tone: Academic | positivity: -50 | strength: 80 | insight: Congressional portfolios did not beat the market, which is hard to square with a systematic insider advantage for a ban to remove."
+public-office-private-gain,strength,disagree,,Some new rules on what officeholders may own or trade tend to deter capable people of ordinary means from serving while catching few conflicts the disclosure form did not already show.,,,,,,,,,,Modest,,,,,
+public-office-private-gain,strength,disagree,forced-divestiture-imposes-real,,,,,,,,,,,Moderate,,,,,
+public-office-private-gain,rung,disagree,members-keep-property-rights,,,,,,,,,,,A.1,,,,,
+public-office-private-gain,rung,disagree,,"When the mandatory audit of a president's returns goes dormant, the fix is to hold the IRS to that audit on a deadline and report when it is completed, not to publish the president's tax return.",,,,,,,,,,C.2,,,,,
+public-office-private-gain,rung,agree,,"When a spouse's or business partner's money appears on an officeholder's tax return, it is part of the financial entanglement voters need to see, so publishing it is a privacy cost worth paying rather than a reason to keep the return private.",,,,,,,,,,C.5,,,,,
+public-office-private-gain,engagement,disagree,,"An officeholder who, after a holdings ban or a publication requirement is enacted, openly announces that they will keep their holdings or withhold their returns because the rule reaches lawful property and a family that never ran, and accepts whatever penalty or sanction follows rather than comply quietly.",,,,,,,,,,4,,,,,example: defiant officeholder
+public-office-private-gain,criteria,,,Share of official decisions made by an official holding a personal financial stake in the outcome,,,,,,,,,,,,,,,"reading: percent of committee votes, rulings or clemency grants in a year where the deciding official or a family member held a stake in the outcome, from disclosure filings matched against the decisions | validity: High | reliability: Med | linkage: High | importance: High | why: It measures the conflict itself rather than a proxy for it, and it is the yardstick behind an interest cited on every belief page in the topic, but building the reading requires matching holdings against decisions, and no matched study of members' holdings against their roll-call votes yet exists, so observers will draw the line between stake and no stake differently."
