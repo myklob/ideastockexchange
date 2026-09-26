@@ -1220,7 +1220,7 @@ def render_topic(c, tkey, title):
         return H.a(b, c.standalone(b))
     parent = c.topics.get(t.get('parent') or '')
     crumbs = [('Home', '../index.html'), ('Topics', '../topics.html')]
-    trail = (parent['name'] + ' &rsaquo; ' if parent else '') + t['name']
+    trail = (parent['name'] + ' › ' if parent else '') + t['name']
     o = [root_head('Topic: ' + t['name'], crumbs + [(trail, '')], up='../', main_class='topic')]
     o.append(f'<h1>Topic: {esc(t["name"])}</h1>')
     o.append('<p class="meta">' + (f'<strong>Definition:</strong> {esc(t["definition"])}<br>' if t.get('definition') else '')
