@@ -1658,7 +1658,7 @@ def render_index(c, title):
              f'<tr><td class="t"><a href="media.html">Books, studies and reports</a></td><td class="u">The {med} works cited, ranked by how much they moved the pages here.</td></tr>'
              f'<tr><td class="t"><a href="method.html">How the numbers are worked out</a></td><td class="u">Every rule, on one page, generated from the code that runs it.</td></tr>'
              f'<tr><td class="t"><a href="changes.html">What changed</a></td><td class="u">What moved since the last revision, and why.</td></tr>'
-             f'<tr><td class="t"><a href="data/ise.json">The data</a></td><td class="u">The tables behind every page, as <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> or a <a href="data/ise.sqlite">SQLite database</a>; every page\'s computed numbers are indexed at <a href="data/pages_index.json">pages_index.json</a>.</td></tr>'
+             f'<tr><td class="t"><a href="data/ise.json">The data</a></td><td class="u">The tables behind every page (pages, the rows on them, the topics and the topics\' own rows), as <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> or a <a href="data/ise.sqlite">SQLite database</a>; every page\'s computed numbers are indexed at <a href="data/pages_index.json">pages_index.json</a>.</td></tr>'
              '</tbody></table></section>')
     o.append(stamp(c))
     o.append('</main>' + JS + '</body></html>')
@@ -2017,7 +2017,8 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     _write(os.path.join(outdir, 'ise.css'), CSS)
     _write(os.path.join(outdir, '.nojekyll'), '')
     # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
-    export_db(c.specs, CONST, os.path.join(outdir, 'data'), stem='ise', const_meanings=CONST_MEANING, beliefs=c.beliefs)
+    export_db(c.specs, CONST, os.path.join(outdir, 'data'), stem='ise', const_meanings=CONST_MEANING, beliefs=c.beliefs,
+              topics=c.topics, topic_rows=c.topic_rows, tabs=c.tabs)
     with open(os.path.join(outdir, 'data', 'pages_index.json'), 'w') as fh:
         json.dump({'built_from': c.prov.get('rev'), 'built_on': c.prov.get('date'),
                    'count': len(index), 'pages': sorted(index, key=lambda r: r['id'])}, fh, indent=1, ensure_ascii=False)

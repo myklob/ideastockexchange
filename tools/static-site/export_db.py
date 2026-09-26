@@ -121,6 +121,29 @@ CREATE TABLE IF NOT EXISTS edge (
   attrs       JSONB,                                  -- section-specific extras: component type/stated/lb/assumes, motive actual, compromise premise/difficult, value ranks, definition term, media type, dispute what/move, used side
   UNIQUE (page_id, section, side, position)
 );
+-- The topics table scores nothing: it is where a belief is filed. A topic's cells (the direction bands, the
+-- strength bands, the rungs, the assumption stack, the values, the engagement levels, the common ground, the
+-- criteria, the media, the related topics) are rows in topic_row, keyed by the topic's text key.
+CREATE TABLE IF NOT EXISTS topic (
+  key          VARCHAR(64) PRIMARY KEY,
+  name         TEXT NOT NULL,
+  parent       VARCHAR(64) REFERENCES topic(key),
+  definition   TEXT,
+  scope        TEXT
+);
+
+CREATE TABLE IF NOT EXISTS topic_row (
+  id           INTEGER PRIMARY KEY,
+  topic        VARCHAR(64) NOT NULL REFERENCES topic(key),
+  section      VARCHAR(24) NOT NULL,   -- direction, strength, rung, stack, topic_values, engagement, common, criteria, topic_media, related
+  category     TEXT,                   -- the band, rung or level the cell sits in
+  side         VARCHAR(8),             -- agree (for the topic) or disagree (against it), where a cell has a side
+  claim_id     INTEGER REFERENCES page(id),   -- the page, when the cell is one
+  text         TEXT,                   -- the cell, when it is only words
+  source       TEXT,
+  attrs        TEXT                    -- JSON: the named extras (branch, argument, advertised, critics, validity, ...)
+);
+
 CREATE INDEX IF NOT EXISTS edge_claim ON edge(claim_id);
 CREATE INDEX IF NOT EXISTS edge_page_section ON edge(page_id, section);
 
@@ -246,11 +269,30 @@ def build_sqlite(path, data_sql, schema=None):
     return n
 
 
-def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, beliefs=None):
+TOPIC_COLS = ['key', 'name', 'parent', 'definition', 'scope']
+TOPIC_ROW_COLS = ['id', 'topic', 'section', 'category', 'side', 'claim_id', 'text', 'source', 'attrs']
+
+def topic_tables(topics, topic_rows, tabs):
+    """The topics table and a topic's rows in the export's shape: a claim key becomes the page id it names,
+    and the extra column becomes the attrs object, as edge rows already do."""
+    from ise_tables import parse_extra
+    ts = [{c: ((topics[k].get(c) or None) if c != 'key' else k) for c in TOPIC_COLS} for k in sorted(topics or {})]
+    rows, i = [], 0
+    for k in sorted(topic_rows or {}):
+        for e in topic_rows[k]:
+            i += 1
+            claim = e.get('claim'); cid = (tabs or {}).get(claim) if claim else None
+            rows.append({'id': i, 'topic': k, 'section': e.get('section'), 'category': (str(e['category']) if e.get('category') not in (None, '') else None),
+                         'side': e.get('side') or None, 'claim_id': cid, 'text': (e.get('text') or None) if not cid else None,
+                         'source': e.get('source') or None, 'attrs': parse_extra(e.get('extra')) if e.get('extra') else None})
+    return ts, rows
+
+def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, beliefs=None, topics=None, topic_rows=None, tabs=None):
     pages, edges = normalize(specs, beliefs)
+    ts, trows = topic_tables(topics, topic_rows, tabs)
     constants = [{'name': k, 'value': v, 'meaning': (const_meanings or {}).get(k, '')} for k, v in consts.items()]
     os.makedirs(outdir, exist_ok=True)
-    data = {'constants': constants, 'pages': pages, 'edges': edges}
+    data = {'constants': constants, 'pages': pages, 'edges': edges, 'topics': ts, 'topic_rows': trows}
     _write(os.path.join(outdir, stem + '.json'), json.dumps(data, indent=1, ensure_ascii=False))
     # XML
     def el(tag, d, cols):
@@ -258,7 +300,8 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
         inner = ''.join(f'<{k}>{escape(json.dumps(v, ensure_ascii=False))}</{k}>' for k, v in d.items() if isinstance(v, (dict, list)))
         return f'  <{tag}{attrs}>{inner}</{tag}>' if inner else f'  <{tag}{attrs}/>'
     xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<ise>', ' <constants>'] + [el('constant', c, ['name', 'value', 'meaning']) for c in constants] + [' </constants>', ' <pages>'] \
-        + [el('page', p, PAGE_COLS) for p in pages] + [' </pages>', ' <edges>'] + [el('edge', e, EDGE_COLS) for e in edges] + [' </edges>', '</ise>']
+        + [el('page', p, PAGE_COLS) for p in pages] + [' </pages>', ' <edges>'] + [el('edge', e, EDGE_COLS) for e in edges] + [' </edges>', ' <topics>'] \
+        + [el('topic', t, TOPIC_COLS) for t in ts] + [' </topics>', ' <topic_rows>'] + [el('topic_row', r, TOPIC_ROW_COLS) for r in trows] + [' </topic_rows>', '</ise>']
     _write(os.path.join(outdir, stem + '.xml'), '\n'.join(xml))
     # SQL
     _write(os.path.join(outdir, 'schema.sql'), SCHEMA)
@@ -272,6 +315,12 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
     for e in edges:
         cols = [c for c in EDGE_COLS if e.get(c) is not None]
         lines.append(f"INSERT INTO edge ({', '.join(cols)}) VALUES ({', '.join(sqlval(e[c]) for c in cols)});")
+    for t in ts:
+        cols = [c for c in TOPIC_COLS if t.get(c) is not None]
+        lines.append(f"INSERT INTO topic ({', '.join(cols)}) VALUES ({', '.join(sqlval(t[c]) for c in cols)});")
+    for r in trows:
+        cols = [c for c in TOPIC_ROW_COLS if r.get(c) is not None]
+        lines.append(f"INSERT INTO topic_row ({', '.join(cols)}) VALUES ({', '.join(sqlval(json.dumps(r[c], ensure_ascii=False) if c == 'attrs' else r[c]) for c in cols)});")
     lines.append('COMMIT;')
     data_sql = '\n'.join(lines) + '\n'
     _write(os.path.join(outdir, stem + '_data.sql'), data_sql)
