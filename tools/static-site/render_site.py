@@ -106,6 +106,19 @@ class Corpus:
         return sorted(p for p in self.specs if self.topic_of(p) == tkey)
     def topic_beliefs(self, tkey):
         return sorted(b for b in self.beliefs if self.topic_of(b) == tkey)
+    def topic_children(self, tkey):
+        return sorted((k for k, t in self.topics.items() if (t.get('parent') or '') == tkey), key=lambda k: self.topics[k]['name'])
+    def topic_descendants(self, tkey):
+        out, stack = [], list(self.topic_children(tkey))
+        while stack:
+            k = stack.pop(0); out.append(k); stack += self.topic_children(k)
+        return out
+    def topic_beliefs_deep(self, tkey):
+        """Beliefs filed under a topic or anything beneath it: what a directory counts."""
+        keys = {tkey, *self.topic_descendants(tkey)}
+        return sorted(b for b in self.beliefs if self.topic_of(b) in keys)
+    def topic_has_content(self, tkey):
+        return bool(self.topic_beliefs(tkey) or self.topic_rows.get(tkey))
     def topic_href(self, tkey): return f'{tkey}.html'
     def truth(self, pid): return self.model.truth(pid)
     def pg(self, v, default): return self.truth(v) if is_page(v) else default
@@ -1068,6 +1081,31 @@ def render_topic(c, tkey, title):
     o.append(f'<h1>Topic: {esc(t["name"])}</h1>')
     o.append('<p class="meta">' + (f'<strong>Definition:</strong> {esc(t["definition"])}<br>' if t.get('definition') else '')
              + (f'<strong>Scope:</strong> {esc(t["scope"])}' if t.get('scope') else '') + '</p>')
+    kids = c.topic_children(tkey)
+    if kids:
+        o.append('<h2 class="th">&#128193; Sub-topics</h2>')
+        o.append('<table class="tpl"><thead><tr><th style="width:40%">Topic</th><th style="width:15%">Beliefs beneath</th><th style="width:45%">What it covers</th></tr></thead><tbody>')
+        for k in kids:
+            n = len(c.topic_beliefs_deep(k))
+            o.append(f'<tr><td><a href="{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a></td><td class="num">{n if n else "none yet"}</td><td class="u">{esc(c.topics[k].get("definition") or "")}</td></tr>')
+        o.append('</tbody></table>')
+    if not c.topic_has_content(tkey):
+        # A directory page. The template's twelve sections would all be empty here, and twelve empty tables
+        # are not a finding; what a reader needs is where the beliefs are, and how to file one.
+        deep = c.topic_beliefs_deep(tkey)
+        if deep and kids:
+            o.append('<h2 class="th">&#128203; Beliefs filed beneath this topic</h2>')
+            o.append('<table class="tpl"><thead><tr><th style="width:12%">Under</th><th style="width:70%">Belief</th><th style="width:9%">Truth</th><th style="width:9%">Belief score</th></tr></thead><tbody>')
+            for b in sorted(deep, key=lambda x: -c.stats(x)['belief']):
+                tk = c.topic_of(b); st = c.stats(b)
+                o.append(f'<tr><td class="u"><a href="{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a></td><td>{H.a(b, c.standalone(b))}</td><td class="num">{f2(st["truth"])}</td><td class="num">{sf(st["belief"])}</td></tr>')
+            o.append('</tbody></table>')
+        else:
+            o.append('<p class="cap">No belief is filed here yet' + (', or under anything beneath it' if kids else '') + '.</p>')
+        o.append('<h2 class="th">&#128236; Contribute</h2>')
+        o.append(f'<p class="cap">File a belief here by giving its page row the topic <code>{esc(tkey)}</code> in the <a href="https://github.com/myklob/ideastockexchange">repository</a>. Once one is filed, this page takes the full topic layout: where each belief sits, what it assumes, what the two sides value, and the evidence beneath it all.</p>')
+        o.append(stamp(c)); o.append(FOOT)
+        return ''.join(o)
     # ---- topic metrics: the three the template names, each computed or said to be missing
     cited = [p for p in pages if EV.prior(c.specs[p])['grounded']]
     contested = [b for b in beliefs if min(c.stats(b)['pos'], c.stats(b)['neg']) > 1e-9]
@@ -1284,13 +1322,20 @@ def render_topic(c, tkey, title):
     # ---- related topics
     o.append('<h2 id="related" class="th">&#128279; Related Topics</h2>')
     o.append('<p class="cap">The <strong>Children</strong> column is where full subcategories from Continuum 3 go once they outgrow a row and earn their own page.</p>')
+    # A related topic with a page is linked; one named in a row but without a page yet is plain text, which is
+    # Rule 5: no link to a page that does not exist.
     kids = [k for k, x in c.topics.items() if (x.get('parent') or '') == tkey]
     sibs = [k for k, x in c.topics.items() if k != tkey and (x.get('parent') or '') == (t.get('parent') or '') and (t.get('parent') or '')]
-    opp = section_rows('related', 'opposing')
     tl = lambda k: f'<a href="{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a>'
+    def named(cat, have):
+        out = [tl(k) for k in have]
+        for d in section_rows('related', cat):
+            if d.get('text') in c.topics: out.append(tl(d['text']))
+            elif d.get('claim') in c.topics: out.append(tl(d['claim']))
+            else: out.append(cell(d, score=False))
+        return '<br>'.join(dict.fromkeys(out)) or EMPTY
     o.append('<table class="tpl"><thead><tr><th style="width:25%">Broader (Parents)</th><th style="width:25%">Sub-Issues (Children)</th><th style="width:25%">Related (Siblings)</th><th style="width:25%">Opposing / Critical Views</th></tr></thead><tbody><tr class="u">')
-    o.append('<td>' + (tl(parent['key']) if parent else EMPTY) + '</td><td>' + ('<br>'.join(tl(k) for k in kids) or EMPTY) + '</td><td>' + ('<br>'.join(tl(k) for k in sibs) or EMPTY) + '</td>')
-    o.append('<td>' + ('<br>'.join(tl(d['text']) if d.get('text') in c.topics else cell(d, score=False) for d in opp) or EMPTY) + '</td></tr></tbody></table>')
+    o.append('<td>' + (tl(parent['key']) if parent else EMPTY) + '</td><td>' + named('child', kids) + '</td><td>' + named('sibling', sibs) + '</td><td>' + named('opposing', []) + '</td></tr></tbody></table>')
 
     # ---- contribute
     o.append('<h2 class="th">&#128236; Contribute</h2>')
@@ -1306,10 +1351,26 @@ def render_topics_index(c, title):
     """The list of topics, one card each."""
     o = [root_head('Topics', [('Home', 'index.html'), ('Topics', '')])]
     o.append('<p class="kind">Idea Stock Exchange</p><h1>Topics</h1>')
-    o.append('<p class="lede">Every belief on this site is filed under one topic. A topic page shows where each belief sits, what it assumes, what its two sides value, and the evidence beneath all of it.</p>')
-    o.append(topic_cards(c))
+    o.append('<p class="lede">Every belief on this site is filed under one topic, and every topic sits in one of these categories. A topic with beliefs shows where each sits, what it assumes, what its two sides value, and the evidence beneath all of it; a topic with none yet shows where a belief would go.</p>')
+    o.append(directory(c))
     o.append(stamp(c) + FOOT)
     return ''.join(o)
+
+def directory(c, prefix='t/'):
+    """Top-level categories, each with its sub-topics on one line and a count of the beliefs beneath it.
+    A category with nothing filed yet is still listed, so a reader can see where a belief would go."""
+    tops = sorted((k for k, t in c.topics.items() if not (t.get('parent') or '')), key=lambda k: c.topics[k]['name'])
+    out = ['<div class="dir">']
+    for k in tops:
+        n = len(c.topic_beliefs_deep(k))
+        kids = c.topic_children(k)
+        line = ', '.join(f'<a href="{prefix}{c.topic_href(x)}">{esc(c.topics[x]["name"])}</a>'
+                         + (f' <span class="dn">({len(c.topic_beliefs_deep(x))})</span>' if c.topic_beliefs_deep(x) else '') for x in kids)
+        out.append(f'<div class="cat"><a class="cn" href="{prefix}{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a>'
+                   + (f' <span class="dn">{n} belief{"s" if n != 1 else ""}</span>' if n else '')
+                   + f'<div class="sub">{line or "<span class=%sempty%s>no sub-topics yet</span>" % (chr(34), chr(34))}</div></div>')
+    out.append('</div>')
+    return ''.join(out)
 
 def topic_cards(c, prefix='t/'):
     order = sorted(c.topics, key=lambda k: (c.topics[k].get('parent') or '', c.topics[k]['name']))
@@ -1324,7 +1385,11 @@ def topic_cards(c, prefix='t/'):
     out.append('</div>')
     return ''.join(out)
 
-def ranked(c, heading, blurb, rows, extra_head, extra_cell, prefix='p/'):
+def see_all(href, n, what):
+    return f'<p class="more"><a href="{href}">All {n} {what} &rarr;</a></p>'
+
+def ranked(c, heading, blurb, rows, extra_head, extra_cell, prefix='p/', more=None):
+    """A short ranked list. `more` is (href, total, what) for the page that carries the whole ranking."""
     if not rows: return ''
     o = [H_section_plain(heading, blurb)]
     o.append(f'<table class="scored"><thead><tr><th class="rk">#</th><th>Claim</th><th>Truth</th><th>Conf</th><th>{esc(extra_head)}</th></tr></thead><tbody>')
@@ -1332,7 +1397,30 @@ def ranked(c, heading, blurb, rows, extra_head, extra_cell, prefix='p/'):
         o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="{prefix}{c.href(pid)}">{esc(c.standalone(pid))}</a> '
                  f'<span class="tk">{esc(KINDNAME[c.kind(pid)])}</span></td>'
                  f'<td>{f2(c.truth(pid))}</td><td>{pct(c.conf.of(pid))}</td><td class="sc">{extra_cell(pid)}</td></tr>')
-    o.append('</tbody></table></section>')
+    o.append('</tbody></table>' + (see_all(*more) if more else '') + '</section>')
+    return ''.join(o)
+
+def contested(c):
+    def sides(pid):
+        st = c.stats(pid); return (st.get('pos') or 0.0), (st.get('neg') or 0.0)
+    return sorted((p for p in c.specs if min(sides(p)) > 1e-9), key=lambda p: -min(sides(p))), sides
+
+def render_contested(c, title):
+    rows, sides = contested(c)
+    o = [root_head('Most argued over', [('Home', 'index.html'), ('Most argued over', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Most argued over</h1>')
+    o.append('<p class="lede">Every claim with real weight on both sides, the ones where the other side has shown up. Ranked by the weaker side, so a claim with strong arguments both ways comes first.</p>')
+    o.append(ranked(c, 'Ranked by the weaker side', None, rows, 'Weaker side', lambda p: f2(min(sides(p)))) or '<section><p class="empty">Nothing is argued on both sides yet.</p></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+def render_relied(c, title):
+    rows = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
+    o = [root_head('Most relied on', [('Home', 'index.html'), ('Most relied on', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Most relied on</h1>')
+    o.append('<p class="lede">The claims the most other claims depend on. This is the nearest thing to "popular" that can be measured here: nobody\'s votes or views are counted, so it says how much rests on a claim, not how many people like it. The beliefs themselves are left out, because everything starts from them.</p>')
+    o.append(ranked(c, 'Ranked by how much depends on each', None, rows, 'Relied on', lambda p: f'{c.rank.of(p):.4f}'))
+    o.append(stamp(c) + FOOT)
     return ''.join(o)
 
 def H_section_plain(title, blurb=None, anchor=None):
@@ -1350,6 +1438,34 @@ def changed_this_revision(c):
     for r in d['tables']['edges']['added']: keys.add(r.get('page'))
     return [c.tabs[k] for k in keys if k in c.tabs]
 
+def best_beliefs(c, limit=None):
+    """Beliefs ranked by belief score, then by how much scored work stands under them. Only beliefs: a court
+    record at 0.95 is a finding, not a developed position, and a list of the highest truth scores on the site
+    was a list of findings."""
+    bs = sorted(c.beliefs, key=lambda b: (-c.stats(b)['belief'], -c.stats(b)['nrows'], -c.conf.of(b)))
+    return bs[:limit] if limit else bs
+
+def best_table(c, bs, prefix='p/'):
+    o = ['<table class="scored"><thead><tr><th class="rk">#</th><th>Belief</th><th>Belief score</th><th>Scored rows</th><th>Truth</th><th>Conf</th><th>Topic</th></tr></thead><tbody>']
+    for i, b in enumerate(bs, 1):
+        st = c.stats(b); tk = c.topic_of(b)
+        topic = f'<a href="t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>' if tk else ''
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="{prefix}{c.href(b)}">{esc(c.standalone(b))}</a></td>'
+                 f'<td class="sc">{sf(st["belief"])}</td><td>{st["nrows"]}</td><td>{f2(st["truth"])}</td><td>{pct(c.conf.of(b))}</td><td class="u">{topic}</td></tr>')
+    if not bs: o.append('<tr><td colspan="7" class="empty">No belief has a page yet.</td></tr>')
+    o.append('</tbody></table>')
+    return ''.join(o)
+
+def render_best(c, title):
+    o = [root_head('Best beliefs', [('Home', 'index.html'), ('Best beliefs', '')], main_class='index')]
+    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Best beliefs</h1>')
+    o.append('<p class="lede">Every belief on the site, the best argued first. Belief score is the weight for minus the weight against, from the '
+             'reasons, findings and predictions beneath it; scored rows is how many of those there are. Truth is capped by the weakest '
+             'load-bearing part that has a page, which is why a well-argued belief can still read 0.50.</p>')
+    o.append('<section>' + best_table(c, best_beliefs(c)) + '</section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
 def render_index(c, title):
     """The home page: a way in by topic, then four short lists, then where everything else is. It lists no
     claim twice and does not try to list them all; that is what the other pages are for."""
@@ -1361,29 +1477,28 @@ def render_index(c, title):
              f'nothing sits at 0.50 until somebody finds out, and {len(ground)} so far cite something. '
              f'<a href="method.html">How the numbers are worked out</a>.</p>')
     # ---- by topic
-    o.append(H_section_plain('Topics', 'Every belief is filed under one topic. Open one to see where each belief sits and what it rests on.'))
-    o.append(topic_cards(c) + '</section>')
+    filed = [k for k in c.topics if c.topic_beliefs(k)]
+    o.append(H_section_plain('Topics', f'Every belief is filed under one topic, and every topic sits in one of these categories. '
+                             f'{len(filed)} topic{"s have" if len(filed) != 1 else " has"} beliefs filed so far; the rest show where a belief would go.'))
+    o.append(directory(c) + '</section>')
     # ---- the four lists
-    off = sorted((p for p in c.specs if abs(c.truth(p) - 0.5) > 1e-9), key=lambda p: (-c.truth(p), -c.conf.of(p)))[:10]
-    o.append(ranked(c, 'Highest scoring', 'The claims that score best right now, with how much work stands behind each. A claim '
-                    'only leaves 0.50 by citing something, so these are the ones that touch the world.',
-                    off, 'Rests on', lambda p: esc(EV.label(c.specs[p]).split(':')[0].split(',')[0].lower())))
-    def sides(pid):
-        st = c.stats(pid); return (st.get('pos') or 0.0), (st.get('neg') or 0.0)
-    contested = sorted((p for p in c.specs if min(sides(p)) > 1e-9), key=lambda p: -min(sides(p)))[:10]
+    TOP = 3
+    o.append(H_section_plain('Best beliefs', 'Beliefs only, the best argued first: belief score is the weight for minus the weight against, '
+                             'and scored rows is how many reasons, findings and predictions stand under it.'))
+    o.append(best_table(c, best_beliefs(c, TOP)) + see_all('best.html', len(c.beliefs), 'beliefs, ranked') + '</section>')
+    con, sides = contested(c)
     o.append(ranked(c, 'Most argued over', 'Claims with real weight on both sides, the ones where the other side has shown up. '
                     'Ranked by the weaker side, so a claim with strong arguments both ways comes first.',
-                    contested, 'Weaker side', lambda p: f2(min(sides(p)))))
-    relied = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief'][:10]
+                    con[:TOP], 'Weaker side', lambda p: f2(min(sides(p))), more=('contested.html', len(con), 'argued both ways')))
+    relied_all = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
     o.append(ranked(c, 'Most relied on', 'The claims the most other claims depend on. This is the nearest thing to '
                     '"popular" that can be measured here: nobody\'s votes or views are counted, so it says how much rests on '
                     'a claim, not how many people like it.',
-                    relied, 'Relied on', lambda p: f'{c.rank.of(p):.4f}'))
-    recent = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))[:10]
-    if recent:
-        o.append(ranked(c, 'Changed in this revision', 'Claims edited or moved since the last published revision, the most relied '
-                        'on first. <a href="changes.html">Every change, row by row</a>.',
-                        recent, 'Relied on', lambda p: f'{c.rank.of(p):.4f}'))
+                    relied_all[:TOP], 'Relied on', lambda p: f'{c.rank.of(p):.4f}', more=('relied.html', len(relied_all), 'claims, by how much depends on them')))
+    recent_all = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))
+    if recent_all:
+        o.append(ranked(c, 'Changed in this revision', 'Claims edited or moved since the last published revision, the most relied on first.',
+                        recent_all[:TOP], 'Relied on', lambda p: f'{c.rank.of(p):.4f}', more=('changes.html', len(recent_all), 'changes, row by row')))
     else:
         o.append(H_section_plain('Changed in this revision', 'Nothing has changed since the last published revision'
                                  + (', or no previous revision was available to compare with' if getattr(c, 'changes', None) is None else '')
@@ -1392,6 +1507,7 @@ def render_index(c, title):
     o.append(H_section_plain('More'))
     ints = sum(1 for p in c.specs if c.kind(p) == 'interest'); med = sum(1 for p in c.specs if c.kind(p) == 'media')
     o.append('<table class="plain"><tbody>'
+             f'<tr><td class="t"><a href="best.html">Best beliefs</a></td><td class="u">Every belief, the best argued first.</td></tr>'
              f'<tr><td class="t"><a href="all.html">All {len(c.specs)} pages</a></td><td class="u">Every claim, with a search box.</td></tr>'
              f'<tr><td class="t"><a href="next.html">What to argue next</a></td><td class="u">The claims where one more argument would change the most.</td></tr>'
              f'<tr><td class="t"><a href="interests.html">Who has a stake</a></td><td class="u">The {ints} interests the beliefs here speak to, and how valid each is argued to be.</td></tr>'
@@ -1492,6 +1608,9 @@ main.topic h1{font-size:clamp(24px,3vw,34px)}main.topic h2.th{display:block;back
 table.tpl{margin-bottom:2em}table.tpl th{text-transform:none;letter-spacing:0;font-size:12.5px}table.tpl td{border:1px solid var(--line);font-size:13.5px}table.tpl td.band{text-align:center;white-space:nowrap}table.tpl td.num{text-align:center;font-variant-numeric:tabular-nums}
 table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl .sub{font-size:85%;font-weight:normal;color:var(--mute)}
 .b-n100{background:#ffcccc;color:#3a1010}.b-n50{background:#ffe6e6;color:#3a1010}.b-0{background:#ffffcc;color:#3a3410}.b-p50{background:#e6ffe6;color:#0f3a14}.b-p100{background:#ccffcc;color:#0f3a14}
+.more{margin:6px 0 0;font-size:13px;text-align:right}.more a{border:none;font-weight:600}
+.dir{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 28px;margin:14px 0 4px}
+.cat .cn{font:600 16px/1.3 var(--serif);border:none}.cat .sub{font-size:13px;color:var(--ink2);margin-top:2px}.cat .sub a{border:none}.dn{font-size:12px;color:var(--mute)}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35}td.u{color:var(--ink2);font-size:13px}
@@ -1736,7 +1855,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
         fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
-    for name, fn in (('all', render_all), ('next', render_next), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index)):
+    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('next', render_next), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 't'))
     for tkey in c.topics:
