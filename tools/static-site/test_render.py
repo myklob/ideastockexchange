@@ -964,7 +964,7 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
             if not k: continue
             h = self.parent.html[b]
             self.assertIn(f'href="../t/{self.corpus.topic_href(k)}"', h, f'{self.corpus.key[b]} does not link its topic')
-            self.assertIn(self.corpus.topics[k]['name'], h, f'{self.corpus.key[b]} prints the topic key instead of its name')
+            self.assertIn(self.corpus.topics[k]['name'], htmlmod.unescape(h), f'{self.corpus.key[b]} prints the topic key instead of its name')
 
     def test_an_empty_cell_says_so_rather_than_inventing(self):
         """Engagement has no rows anywhere yet. The table keeps its four fixed levels, because the levels are
@@ -1211,7 +1211,7 @@ class TestTheBeliefPageFollowsTheTemplate(unittest.TestCase):
             t = self._text(self.html[b])
             i = t.find('If you disagree, this page has a column for you.')
             ask = t[i:i + 260]
-            self.assertTrue(any(w in ask for w in ('A reason to', 'A study, record or dataset', 'A measurement', 'The first sourced reading', 'Any reason')),
+            self.assertTrue(any(w in ask for w in ('A reason to', 'A first reason to', 'A study, record or dataset', 'A measurement', 'The first sourced reading', 'Any reason')),
                             f'{self.c.key[b]}: the ask is not a named gap: {ask!r}')
 
     def test_the_breadcrumb_runs_through_the_topic(self):
