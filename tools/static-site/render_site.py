@@ -1568,12 +1568,18 @@ def render_contested(c, title):
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 
+RELIED_SHOWN = 100
+
 def render_relied(c, title):
     rows = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
+    shown = rows[:RELIED_SHOWN]
     o = [root_head('Most relied on', [('Home', 'index.html'), ('Most relied on', '')], main_class='index')]
     o.append('<p class="kind">Idea Stock Exchange</p><h1>Most relied on</h1>')
     o.append('<p class="lede">The claims the most other claims depend on. This is the nearest thing to "popular" that can be measured here: nobody\'s votes or views are counted, so it says how much rests on a claim, not how many people like it. The beliefs themselves are left out, because everything starts from them.</p>')
-    o.append(ranked(c, 'Ranked by how much depends on each', None, rows, 'Relied on', lambda p: f'{c.rank.of(p):.4f}'))
+    o.append(ranked(c, 'Ranked by how much depends on each', None, shown, 'Relied on', lambda p: f'{c.rank.of(p):.4f}'))
+    if len(rows) > len(shown):
+        o.append(f'<p class="cap">The top {len(shown)} of {len(rows)} claims. Below this line the differences are too small to rank usefully; '
+                 f'every claim is on <a href="all.html">the full list</a>.</p>')
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 

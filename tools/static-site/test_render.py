@@ -752,6 +752,21 @@ class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
         self.assertGreater(checked, 0, 'no captioned tables were checked')
 
 
+class TestTheRankedListsStayReadable(unittest.TestCase):
+    """A ranked list is for the top of the ranking. Past a hundred rows the differences are too small to rank, and
+    the page says where the rest are rather than shipping every claim to every phone."""
+
+    def test_the_relied_on_page_shows_at_most_a_hundred_and_says_where_the_rest_are(self):
+        import render_site as RS
+        parent = TestTheRenderedSite
+        if not hasattr(parent, 'html'): parent.setUpClass()
+        with open(os.path.join(parent.dir, 'relied.html')) as fh: h = fh.read()
+        body = h[h.find('<tbody>'):h.find('</tbody>')]
+        self.assertLessEqual(body.count('<tr'), RS.RELIED_SHOWN)
+        total = len([r for r in parent.c.rank.top(len(parent.c.specs)) if parent.c.kind(r['page']) != 'belief'])
+        if total > RS.RELIED_SHOWN: self.assertIn('href="all.html"', h, 'the page drops rows without saying where they are')
+
+
 class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
     """The home page used to list all 261 pages, the whole tree and the interest registry on one page. It is a
     way in now: topics, four short lists, and one line for everything else. Each list ranks something the
