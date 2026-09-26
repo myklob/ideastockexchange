@@ -1385,7 +1385,11 @@ def topic_cards(c, prefix='t/'):
     out.append('</div>')
     return ''.join(out)
 
-def ranked(c, heading, blurb, rows, extra_head, extra_cell, prefix='p/'):
+def see_all(href, n, what):
+    return f'<p class="more"><a href="{href}">All {n} {what} &rarr;</a></p>'
+
+def ranked(c, heading, blurb, rows, extra_head, extra_cell, prefix='p/', more=None):
+    """A short ranked list. `more` is (href, total, what) for the page that carries the whole ranking."""
     if not rows: return ''
     o = [H_section_plain(heading, blurb)]
     o.append(f'<table class="scored"><thead><tr><th class="rk">#</th><th>Claim</th><th>Truth</th><th>Conf</th><th>{esc(extra_head)}</th></tr></thead><tbody>')
@@ -1393,7 +1397,30 @@ def ranked(c, heading, blurb, rows, extra_head, extra_cell, prefix='p/'):
         o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="{prefix}{c.href(pid)}">{esc(c.standalone(pid))}</a> '
                  f'<span class="tk">{esc(KINDNAME[c.kind(pid)])}</span></td>'
                  f'<td>{f2(c.truth(pid))}</td><td>{pct(c.conf.of(pid))}</td><td class="sc">{extra_cell(pid)}</td></tr>')
-    o.append('</tbody></table></section>')
+    o.append('</tbody></table>' + (see_all(*more) if more else '') + '</section>')
+    return ''.join(o)
+
+def contested(c):
+    def sides(pid):
+        st = c.stats(pid); return (st.get('pos') or 0.0), (st.get('neg') or 0.0)
+    return sorted((p for p in c.specs if min(sides(p)) > 1e-9), key=lambda p: -min(sides(p))), sides
+
+def render_contested(c, title):
+    rows, sides = contested(c)
+    o = [root_head('Most argued over', [('Home', 'index.html'), ('Most argued over', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Most argued over</h1>')
+    o.append('<p class="lede">Every claim with real weight on both sides, the ones where the other side has shown up. Ranked by the weaker side, so a claim with strong arguments both ways comes first.</p>')
+    o.append(ranked(c, 'Ranked by the weaker side', None, rows, 'Weaker side', lambda p: f2(min(sides(p)))) or '<section><p class="empty">Nothing is argued on both sides yet.</p></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+def render_relied(c, title):
+    rows = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
+    o = [root_head('Most relied on', [('Home', 'index.html'), ('Most relied on', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Most relied on</h1>')
+    o.append('<p class="lede">The claims the most other claims depend on. This is the nearest thing to "popular" that can be measured here: nobody\'s votes or views are counted, so it says how much rests on a claim, not how many people like it. The beliefs themselves are left out, because everything starts from them.</p>')
+    o.append(ranked(c, 'Ranked by how much depends on each', None, rows, 'Relied on', lambda p: f'{c.rank.of(p):.4f}'))
+    o.append(stamp(c) + FOOT)
     return ''.join(o)
 
 def H_section_plain(title, blurb=None, anchor=None):
@@ -1455,26 +1482,23 @@ def render_index(c, title):
                              f'{len(filed)} topic{"s have" if len(filed) != 1 else " has"} beliefs filed so far; the rest show where a belief would go.'))
     o.append(directory(c) + '</section>')
     # ---- the four lists
+    TOP = 3
     o.append(H_section_plain('Best beliefs', 'Beliefs only, the best argued first: belief score is the weight for minus the weight against, '
-                             'and scored rows is how many reasons, findings and predictions stand under it. '
-                             '<a href="best.html">Every belief, ranked</a>.'))
-    o.append(best_table(c, best_beliefs(c, 10)) + '</section>')
-    def sides(pid):
-        st = c.stats(pid); return (st.get('pos') or 0.0), (st.get('neg') or 0.0)
-    contested = sorted((p for p in c.specs if min(sides(p)) > 1e-9), key=lambda p: -min(sides(p)))[:10]
+                             'and scored rows is how many reasons, findings and predictions stand under it.'))
+    o.append(best_table(c, best_beliefs(c, TOP)) + see_all('best.html', len(c.beliefs), 'beliefs, ranked') + '</section>')
+    con, sides = contested(c)
     o.append(ranked(c, 'Most argued over', 'Claims with real weight on both sides, the ones where the other side has shown up. '
                     'Ranked by the weaker side, so a claim with strong arguments both ways comes first.',
-                    contested, 'Weaker side', lambda p: f2(min(sides(p)))))
-    relied = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief'][:10]
+                    con[:TOP], 'Weaker side', lambda p: f2(min(sides(p))), more=('contested.html', len(con), 'argued both ways')))
+    relied_all = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
     o.append(ranked(c, 'Most relied on', 'The claims the most other claims depend on. This is the nearest thing to '
                     '"popular" that can be measured here: nobody\'s votes or views are counted, so it says how much rests on '
                     'a claim, not how many people like it.',
-                    relied, 'Relied on', lambda p: f'{c.rank.of(p):.4f}'))
-    recent = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))[:10]
-    if recent:
-        o.append(ranked(c, 'Changed in this revision', 'Claims edited or moved since the last published revision, the most relied '
-                        'on first. <a href="changes.html">Every change, row by row</a>.',
-                        recent, 'Relied on', lambda p: f'{c.rank.of(p):.4f}'))
+                    relied_all[:TOP], 'Relied on', lambda p: f'{c.rank.of(p):.4f}', more=('relied.html', len(relied_all), 'claims, by how much depends on them')))
+    recent_all = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))
+    if recent_all:
+        o.append(ranked(c, 'Changed in this revision', 'Claims edited or moved since the last published revision, the most relied on first.',
+                        recent_all[:TOP], 'Relied on', lambda p: f'{c.rank.of(p):.4f}', more=('changes.html', len(recent_all), 'changes, row by row')))
     else:
         o.append(H_section_plain('Changed in this revision', 'Nothing has changed since the last published revision'
                                  + (', or no previous revision was available to compare with' if getattr(c, 'changes', None) is None else '')
@@ -1584,6 +1608,7 @@ main.topic h1{font-size:clamp(24px,3vw,34px)}main.topic h2.th{display:block;back
 table.tpl{margin-bottom:2em}table.tpl th{text-transform:none;letter-spacing:0;font-size:12.5px}table.tpl td{border:1px solid var(--line);font-size:13.5px}table.tpl td.band{text-align:center;white-space:nowrap}table.tpl td.num{text-align:center;font-variant-numeric:tabular-nums}
 table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl .sub{font-size:85%;font-weight:normal;color:var(--mute)}
 .b-n100{background:#ffcccc;color:#3a1010}.b-n50{background:#ffe6e6;color:#3a1010}.b-0{background:#ffffcc;color:#3a3410}.b-p50{background:#e6ffe6;color:#0f3a14}.b-p100{background:#ccffcc;color:#0f3a14}
+.more{margin:6px 0 0;font-size:13px;text-align:right}.more a{border:none;font-weight:600}
 .dir{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 28px;margin:14px 0 4px}
 .cat .cn{font:600 16px/1.3 var(--serif);border:none}.cat .sub{font-size:13px;color:var(--ink2);margin-top:2px}.cat .sub a{border:none}.dn{font-size:12px;color:var(--mute)}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
@@ -1830,7 +1855,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
         fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
-    for name, fn in (('all', render_all), ('best', render_best), ('next', render_next), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index)):
+    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('next', render_next), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 't'))
     for tkey in c.topics:

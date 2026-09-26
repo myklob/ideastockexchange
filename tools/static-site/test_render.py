@@ -796,6 +796,19 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         with open(os.path.join(self.parent.dir, 'best.html')) as fh: full = fh.read()
         self.assertEqual(len(re.findall(r'href="p/', full)), len(self.corpus.beliefs), 'best.html does not list every belief exactly once')
 
+    def test_each_home_list_is_short_and_links_to_the_full_ranking(self):
+        """Three rows a list on the home page; the whole ranking lives on its own page. A home page that
+        prints ten of everything is the all-pages list again."""
+        h = self.c['index.html']
+        for heading, href in (('Best beliefs', 'best.html'), ('Most argued over', 'contested.html'), ('Most relied on', 'relied.html')):
+            i = h.find(f'<span>{heading}</span>'); j = h.find('</section>', i)
+            block = h[i:j]
+            self.assertLessEqual(len(re.findall(r'<td class="rk">', block)), 3, f'{heading} prints more than three rows on the home page')
+            self.assertIn(f'href="{href}"', block, f'{heading} does not link its full ranking')
+            with open(os.path.join(self.parent.dir, href)) as fh: full = fh.read()
+            self.assertGreaterEqual(len(re.findall(r'<td class="rk">', full)), len(re.findall(r'<td class="rk">', block)),
+                                    f'{href} carries fewer rows than the home page shows')
+
     def test_popular_is_named_as_a_stand_in(self):
         """There are no votes or views here. The list that stands in for popularity has to say so, in the
         list, not in a footnote."""
