@@ -58,9 +58,6 @@ class TestTheRenderedSite(unittest.TestCase):
             self.assertIn('method.html', h, f'{key} does not link the methodology')
 
     # ------------------------------------------------------------------ the numbers on the page agree
-    def _tiles(self, h):
-        return dict(re.findall(r'<div class="lab">([^<]+)</div><div class="big">([^<]*)</div>', h))
-
     def _engine(self, h):
         return dict(re.findall(r'<tr><td class="t">([^<]+)</td><td class="sc">([^<]*)</td>', h))
 
@@ -69,20 +66,20 @@ class TestTheRenderedSite(unittest.TestCase):
         try: return float(str(x).replace('+', '').replace('%', ''))
         except ValueError: return None
 
-    def test_the_headline_tiles_agree_with_the_engine_table_below_them(self):
-        """The tile a reader looks at and the derivation they scroll to must be the same number. They are
-        computed by different code paths on the same page, which is exactly how they drift."""
-        pairs = (('Truth score', 'Truth score'), ('Belief score', 'Belief score'),
-                 ('Weight for', 'Positive total'), ('Weight against', 'Negative total'))
+    def test_no_score_is_announced_above_the_arguments(self):
+        """The page used to open with a row of tiles: confidence, belief score, weight for, weight against.
+        A number a reader meets before the reasons for it is a verdict, whatever it is called. The truth
+        score stays on the heading line, and every other number appears where it comes from: under the table
+        it sums, and in the derivation at the end, where the engine table still carries all of them."""
         for pid, h in self.html.items():
-            if isinstance(pid, str): continue
-            tiles, eng = self._tiles(h), self._engine(h)
-            for tile, row in pairs:
-                if tile not in tiles or row not in eng: continue
-                a, b = self._num(tiles[tile]), self._num(eng[row])
-                self.assertIsNotNone(a, f'{self.c.key[pid]} tile {tile} is not a number: {tiles[tile]!r}')
-                self.assertIsNotNone(b, f'{self.c.key[pid]} engine {row} is not a number: {eng[row]!r}')
-                self.assertLess(abs(a - b), 0.005, f'{self.c.key[pid]}: tile {tile} says {a}, engine {row} says {b}')
+            if isinstance(pid, str) or self.c.kind(pid) not in ('belief', 'claim'): continue
+            args = h.find('Reasons to agree')
+            self.assertGreater(args, 0, f'{self.c.key[pid]} has no argument trees')
+            self.assertNotIn('class="tiles"', h[:args], f'{self.c.key[pid]} announces scores above its arguments')
+            eng = self._engine(h)
+            for row in ('Belief score', 'Positive total', 'Negative total', 'Truth score'):
+                self.assertIn(row, eng, f'{self.c.key[pid]} lost the {row} row from its derivation')
+                self.assertIsNotNone(self._num(eng[row]), f'{self.c.key[pid]} engine {row} is not a number: {eng[row]!r}')
 
     def test_a_scored_table_never_shows_a_score_with_no_row(self):
         for pid, h in self.html.items():
@@ -673,17 +670,18 @@ class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
             checked += 1
         self.assertGreater(checked, 0, 'no belief pages were checked')
 
-    def test_the_scorecard_itself_still_leads(self):
-        """Moving the commentary down must not take the numbers with it. The truth score sits in the heading,
-        on the same line as the claim it scores, so a reader never has to work out which number a heading is
-        about; the rest of the scorecard follows before the first argument."""
+    def test_the_truth_score_shares_the_heading_line_and_nothing_else_leads(self):
+        """The one number a reader meets before the arguments is the truth score, on the same line as the
+        claim it scores, so there is no working out which number a heading is about. Confidence comes after
+        the arguments, next to what it is made of."""
         for pid, h in self.html.items():
             if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
             m = re.search(r'<h1>(.*?)</h1>', h, re.S)
             self.assertIsNotNone(m); self.assertIn('class="hs"', m.group(1), f'{self.c.key[pid]} has no score on its heading line')
             self.assertIn(f2(self.c.truth(pid)), re.sub(r'<[^>]+>', '', m.group(1)))
             t = self._text(h)
-            self.assertLess(t.find('Confidence'), t.find('Reasons to agree'), f'{self.c.key[pid]} buried its scorecard')
+            self.assertGreater(t.find('Confidence'), t.find('Reasons to agree'),
+                               f'{self.c.key[pid]} announces its confidence before its arguments')
 
     def test_the_readout_is_still_on_the_page(self):
         """Trimmed, not deleted: every line of it restates a number a reader may want to check."""
