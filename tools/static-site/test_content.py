@@ -72,7 +72,7 @@ class TestTheTwoSurfacesAgree(unittest.TestCase):
         """A column added to one surface and not the other is how the two drift apart in a way row comparison
         would not notice, because the missing column is absent from both dicts."""
         import csv
-        for name, cols in (('pages', IT.PAGE_COLS), ('edges', IT.EDGE_COLS)):
+        for name, cols in (('pages', IT.PAGE_COLS), ('edges', IT.EDGE_COLS), ('topics', IT.TOPIC_COLS)):
             with open(os.path.join(CSVDIR, name + '.csv'), newline='', encoding='utf-8') as fh:
                 header = next(csv.reader(fh))
             self.assertEqual(header, cols, f'{name}.csv header has drifted from {name.upper()}_COLS')

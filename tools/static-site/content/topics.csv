@@ -1,0 +1,3 @@
+key,name,parent,definition,scope
+government-ethics,Government ethics,,"Rules and norms about how people who hold public power may use it, and who checks them.","Conflicts of interest, disclosure, clemency, appointments and the limits on each. Electoral rules and campaign finance have their own topics."
+public-office-private-gain,Public office and private gain,government-ethics,"Whether, and how, the law should stop officeholders and their families from using an office to make money.","Holdings and trading rules, family appointments, published tax returns and the reversal of pardons. Bribery statutes and lobbying rules belong to neighbouring topics."

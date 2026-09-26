@@ -17,7 +17,7 @@ import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from ise_tables import read_entry, read_csv, write_csv, write_entry
+from ise_tables import read_entry, read_csv, write_csv, write_entry, read_topics
 
 XLSX = os.path.join(HERE, 'ISE_Data_Entry.xlsx')
 CSVDIR = os.path.join(HERE, 'content')
@@ -38,22 +38,22 @@ def differences(a, b, label):
 
 if __name__ == '__main__':
     if '--to-workbook' in sys.argv:
-        pages, edges = read_csv(CSVDIR)
-        write_entry(pages, edges, XLSX)
-        print(f'wrote {XLSX} from {CSVDIR} ({len(pages)} pages, {len(edges)} edges)')
+        pages, edges = read_csv(CSVDIR); topics = read_topics(CSVDIR)
+        write_entry(pages, edges, XLSX, topics=topics)
+        print(f'wrote {XLSX} from {CSVDIR} ({len(pages)} pages, {len(edges)} edges, {len(topics)} topics)')
         sys.exit(0)
-    pages, edges = read_entry(XLSX)
+    pages, edges = read_entry(XLSX); topics = read_topics(XLSX)
     if '--check' in sys.argv:
         if not os.path.isdir(CSVDIR):
             print(f'{CSVDIR} does not exist; run sync_content.py'); sys.exit(1)
-        cp, ce = read_csv(CSVDIR)
-        bad = differences(pages, cp, 'pages') + differences(edges, ce, 'edges')
+        cp, ce = read_csv(CSVDIR); ct = read_topics(CSVDIR)
+        bad = differences(pages, cp, 'pages') + differences(edges, ce, 'edges') + differences(topics, ct, 'topics')
         if bad:
             print('the workbook and the CSVs disagree:\n  ' + '\n  '.join(bad[:30]))
             if len(bad) > 30: print(f'  ... and {len(bad) - 30} more')
             print('\nRun: python3 tools/static-site/sync_content.py')
             sys.exit(1)
-        print(f'in step: {len(pages)} pages, {len(edges)} edges')
+        print(f'in step: {len(pages)} pages, {len(edges)} edges, {len(topics)} topics')
         sys.exit(0)
-    write_csv(pages, edges, CSVDIR)
+    write_csv(pages, edges, CSVDIR, topics=topics)
     print(f'wrote {CSVDIR}/pages.csv and edges.csv ({len(pages)} pages, {len(edges)} edges)')

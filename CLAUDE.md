@@ -177,9 +177,15 @@ not parse is a defect whose fix requires knowing what the code was meant to say.
 input would change the answer; `reasonrank.py` how much of the corpus depends on
 a page; `similarity.py` which claims say the same thing; `integrity.py` the
 structural faults the graph can show, and a pre-publish cycle check CI runs first;
-`verdict.py` the one paragraph at the top of each page; `changes.py` what moved
+`changes.py` what moved
 since the last revision; `method.py` the reader-facing methodology page;
-`sync_content.py` keeps the workbook and the reviewable CSVs in step. `conformance.py` holds the cross-implementation
+`sync_content.py` keeps the workbook and the reviewable CSVs in step. There is no verdict module any more: a
+page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
+page: `index.html` is a way in (topics, four ranked lists, one line for everything else), `t/<topic>.html` is
+one page per row of the third table `content/topics.csv`, and the full list, the interests, the works cited
+and the what-to-argue-next queue each have a page of their own. Reader-facing pages use plain words;
+`test_render.py::TestThePagesSpeakPlainly` fails the build on engine words like "corpus" anywhere but the
+method page. `conformance.py` holds the cross-implementation
 contract: twenty-four pages with their expected numbers, the five constants and
 the eighteen evidence tiers checked in, so a port in any language can be held to
 the same rules without reading this repository's source. Eight of those pages exist

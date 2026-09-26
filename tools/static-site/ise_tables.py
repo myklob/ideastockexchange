@@ -5,10 +5,15 @@ page in the middle means renumbering. These two tables are the authoring surface
 in `pages`, every row of every table on every page is one row in `edges`, and pages refer to each other by a
 short key rather than a tab number, so nothing has to be renumbered and nothing has to be formatted.
 
-    pages   key kind text parent x y type direction rowkind value measured_by where_found if_true if_false
-            standalone latest bridge bottom_line positivity form tab
+    pages   key kind text standalone topic parent x y type direction rowkind value measured_by where_found
+            if_true if_false latest bridge bottom_line positivity strength form tab
     edges   page section side claim text source link imp uniq drives equiv who bearing pattern category
             magnitude deadline extra
+    topics  key name parent definition scope
+
+`topics` is the third table and the smallest: one row per topic page, which is the home a belief is filed
+under. A belief names its topic in the `topic` column; every page beneath the belief inherits it. The table is
+optional on both surfaces, so a workbook or a content folder without it still reads.
 
 `extra` carries the long tail as "name: value | name: value" so the sheet stays narrow: the component flags,
 a motive's actual driver, a compromise's premise, a value ranking, a definition.
@@ -48,16 +53,18 @@ SPLIT = {'assumption': {'belief': {'agree': 'assume_accept', 'disagree': 'assume
          'bias': {'belief': {'agree': 'bias_sup', 'disagree': 'bias_opp'},
                   'other': {'agree': 'bias_up', 'disagree': 'bias_down'}}}
 SPECIAL = ('linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media')
-PAGE_COLS = ['key', 'tab', 'kind', 'text', 'standalone', 'parent', 'x', 'y', 'type', 'direction', 'rowkind', 'value',
+PAGE_COLS = ['key', 'tab', 'kind', 'text', 'standalone', 'topic', 'parent', 'x', 'y', 'type', 'direction', 'rowkind', 'value',
              'measured_by', 'where_found', 'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge',
-             'bottom_line', 'positivity', 'form']
+             'bottom_line', 'positivity', 'strength', 'form']
+TOPIC_COLS = ['key', 'name', 'parent', 'definition', 'scope']
 EDGE_COLS = ['page', 'section', 'side', 'claim', 'text', 'source', 'link', 'imp', 'uniq', 'drives', 'equiv',
              'who', 'bearing', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline', 'extra']
 # spec field <-> pages column, for the fields that live on a page rather than on a row
-PAGE_FIELDS = [('etype', 'etype'), ('erq', 'erq'), ('erp', 'erp'), ('topic', None), ('supports', 'parent'), ('x', 'x'), ('y', 'y'), ('typ', 'type'),
+PAGE_FIELDS = [('etype', 'etype'), ('erq', 'erq'), ('erp', 'erp'), ('topic', 'topic'), ('supports', 'parent'), ('x', 'x'), ('y', 'y'), ('typ', 'type'),
                ('direction', 'direction'), ('rowkind', 'rowkind'), ('value', 'value'), ('measured', 'measured_by'),
                ('where', 'where_found'), ('if_true', 'if_true'), ('if_false', 'if_false'), ('latest', 'latest'),
-               ('bridge', 'bridge'), ('bottom_line', 'bottom_line'), ('standalone', 'standalone'), ('positivity', 'positivity'), ('form', 'form')]
+               ('bridge', 'bridge'), ('bottom_line', 'bottom_line'), ('standalone', 'standalone'), ('positivity', 'positivity'),
+               ('strength', 'strength'), ('form', 'form')]
 REFS = [('claim', 'id'), ('link', 'link'), ('imp', 'imp'), ('uniq', 'uniq'), ('drives', 'drives'),
         ('equiv', 'equiv'), ('who', 'who'), ('bearing', 'addresses')]
 PLAIN = [('text', 'text'), ('source', 'source'), ('pattern', 'pattern'), ('category', 'category'),
@@ -258,6 +265,11 @@ HELP = {
  'if_false': 'interest: what it shows if the belief is false.', 'latest': 'interest: the latest reading, with source.',
  'bridge': 'The one-sentence answer in the check table.', 'bottom_line': 'The one typed line in the scorecard.',
  'positivity': 'belief: -100 to +100 on the topic page.', 'form': 'belief: the logical form of the claim.',
+ 'topic': 'belief: the key of the topic page this belief is filed under (a row in the topics sheet). Pages beneath the belief inherit it.',
+ 'strength': 'belief: how absolute the claim is, as a label. Modest (hedged), Moderate (definite but bounded), Strong (near-universal) or Total (no exceptions). Typed, never scored: it places the belief on the topic page and nothing reads it as a number.',
+ 'name': 'topic: the name a reader sees. A noun phrase, not a claim: "Public office and private gain", not "Public office should not be usable for private gain".',
+ 'definition': 'topic: one sentence naming what the topic covers, written so a reader can tell whether a given belief belongs here.',
+ 'scope': 'topic: what sits inside this page and what belongs to a neighbouring topic with its own page.',
  'page': 'The page this row sits on (its key).',
  'section': 'Which table on that page: argument, evidence, prediction, cba, component, interest, media, law, and so on.',
  'side': 'agree or disagree (extreme or moderate for similar beliefs; x or y for related linkages).',
@@ -280,9 +292,10 @@ HELP = {
 LISTS = {'etype': sorted(__import__('evidence').ESIW), 'kind': ['belief', 'claim', 'linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media'],
          'section': sorted(set(SECTIONS) | set(SPLIT)), 'side': ['agree', 'disagree', 'extreme', 'moderate', 'x', 'y'],
          'type': ['Argument', 'Evidence', 'Prediction', 'Interest', 'Media', 'Book', 'Study', 'Article', 'Report', 'Film', 'Podcast', 'Video'],
-         'direction': ['Supports', 'Weakens', 'Support', 'Opposition']}
+         'direction': ['Supports', 'Weakens', 'Support', 'Opposition'],
+         'strength': ['Modest', 'Moderate', 'Strong', 'Total']}
 
-def write_entry(pages, edges, path):
+def write_entry(pages, edges, path, topics=None):
     from openpyxl import Workbook
     from openpyxl.styles import Font, PatternFill, Alignment
     from openpyxl.worksheet.datavalidation import DataValidation
@@ -292,7 +305,9 @@ def write_entry(pages, edges, path):
             'measured_by': 50, 'if_true': 40, 'if_false': 40, 'latest': 50, 'form': 60, 'where_found': 40,
             'category': 40, 'deadline': 40, 'source': 50, 'parent': 26, 'x': 26, 'y': 26, 'link': 26, 'imp': 26,
             'uniq': 26, 'drives': 26, 'equiv': 26, 'who': 26, 'bearing': 26, 'pattern': 22, 'rowkind': 26}
-    for name, cols, rows in (('pages', PAGE_COLS, pages), ('edges', EDGE_COLS, edges)):
+    sheets = [('pages', PAGE_COLS, pages), ('edges', EDGE_COLS, edges)]
+    if topics is not None: sheets.append(('topics', TOPIC_COLS, topics))
+    for name, cols, rows in sheets:
         ws = wb.create_sheet(name)
         for i, c in enumerate(cols, 1):
             cell = ws.cell(row=1, column=i, value=c)
@@ -316,7 +331,8 @@ def write_entry(pages, edges, path):
     for i, line in enumerate([
         'This workbook is the content. The belief pages, the scores and the database export are all generated from it.',
         '',
-        'Two sheets. One row in "pages" per page. One row in "edges" per row of every table on every page.',
+        'Three sheets. One row in "pages" per page. One row in "edges" per row of every table on every page.',
+        'One row in "topics" per topic page; a belief names its topic in the "topic" column of "pages".',
         'Pages point at each other by key, never by tab number, so nothing has to be renumbered when content is added.',
         '',
         'To add a reason to a belief: add a row to "pages" (kind = claim, key, text), then a row to "edges" with',
@@ -331,7 +347,7 @@ def write_entry(pages, edges, path):
     ], 1):
         ws.cell(row=i, column=1, value=line).font = Font(size=11, bold=i in (1, 3, 11))
     ws.column_dimensions['A'].width = 120
-    wb._sheets = [wb['how to use'], wb['pages'], wb['edges']]
+    wb._sheets = [wb['how to use'], wb['pages'], wb['edges']] + ([wb['topics']] if topics is not None else [])
     wb.save(path)
     return path
 
@@ -342,7 +358,7 @@ def write_entry(pages, edges, path):
 # tool meant for one has to be reviewable. The same two tables are therefore also kept as CSV, which diffs line
 # by line, so a change to an argument reads as a change to an argument.
 CSV_NUMERIC = ('tab', 'positivity', 'erq', 'erp', 'magnitude', 'mag_low', 'mag_high')
-CSV_NAMES = {'pages': PAGE_COLS, 'edges': EDGE_COLS}
+CSV_NAMES = {'pages': PAGE_COLS, 'edges': EDGE_COLS, 'topics': TOPIC_COLS}
 
 
 def _csvnum(v):
@@ -364,10 +380,12 @@ def _csvnum(v):
     except (ValueError, OverflowError): return v
 
 
-def write_csv(pages, edges, outdir):
+def write_csv(pages, edges, outdir, topics=None):
     import csv, os
     os.makedirs(outdir, exist_ok=True)
-    for name, rows in (('pages', pages), ('edges', edges)):
+    tables = [('pages', pages), ('edges', edges)]
+    if topics is not None: tables.append(('topics', topics))
+    for name, rows in tables:
         cols = CSV_NAMES[name]
         with open(os.path.join(outdir, name + '.csv'), 'w', newline='', encoding='utf-8') as fh:
             w = csv.DictWriter(fh, fieldnames=cols, extrasaction='ignore', lineterminator='\n')
@@ -397,6 +415,26 @@ def read_source(path):
     """Either surface: the workbook people type into, or the CSVs people review. Same two tables."""
     import os
     return read_csv(path) if os.path.isdir(path) else read_entry(path)
+
+
+def read_topics(path):
+    """The third table from either surface, or [] when the surface has none. Separate from read_source so the
+    many callers that want the two scored tables do not all have to learn about a third that scores nothing."""
+    import csv, os
+    if os.path.isdir(path):
+        fn = os.path.join(path, 'topics.csv')
+        if not os.path.exists(fn): return []
+        with open(fn, newline='', encoding='utf-8') as fh:
+            return [{k: v for k, v in d.items() if k and v not in (None, '')} for d in csv.DictReader(fh) if any(d.values())]
+    from openpyxl import load_workbook
+    wb = load_workbook(path, data_only=True)
+    if 'topics' not in wb.sheetnames: return []
+    ws = wb['topics']; head = [c.value for c in ws[1]]
+    rows = []
+    for r in ws.iter_rows(min_row=2, values_only=True):
+        d = {h: v for h, v in zip(head, r) if h and v not in (None, '')}
+        if d: rows.append(d)
+    return rows
 
 
 def read_entry(path):
