@@ -33,7 +33,7 @@ def _write(path, text):
     with open(path, 'w', encoding='utf-8') as fh: fh.write(text)
 
 PAGE_COLS = ['id', 'kind', 'text', 'standalone', 'topic', 'parent_id', 'x_id', 'y_id', 'type', 'direction', 'rowkind', 'value', 'measured_by', 'where_found',
-             'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge', 'bottom_line', 'positivity', 'logical_form']
+             'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge', 'bottom_line', 'hook', 'question', 'ask', 'positivity', 'logical_form']
 EDGE_COLS = ['id', 'page_id', 'section', 'side', 'position', 'claim_id', 'text', 'link_id', 'imp_id', 'uniq_id', 'drives_id', 'equiv_id',
              'who_id', 'bearing_id', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline', 'attrs']
 
@@ -80,6 +80,9 @@ CREATE TABLE IF NOT EXISTS page (
   latest       TEXT,                  -- interest: latest reading, with source
   bridge       TEXT,                  -- the one-sentence check-table answer (how X bears on Y, who is affected, ...)
   bottom_line  TEXT,                  -- the only typed line in a scorecard
+  hook         TEXT,                  -- belief: the invitation block's opening line
+  question     TEXT,                  -- belief: the one question the page dissects
+  ask          TEXT,                  -- belief: a typed slot for a newcomer; blank means the page names its own
   positivity   INTEGER,               -- belief: -100..+100 on the topic page's valence axis
   logical_form TEXT                   -- belief: the anatomy's logical form
 );

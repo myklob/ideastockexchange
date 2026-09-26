@@ -1116,5 +1116,99 @@ class TestNoTableIsWiderThanWhatHoldsIt(unittest.TestCase):
                 if '<th ' not in t and '<th>' not in t: continue
                 self.assertIn('<thead>', t, f'{pid} has a table with header cells and no thead')
 
+class TestTheBeliefPageFollowsTheTemplate(unittest.TestCase):
+    """The pieces of templates/belief-analysis-template.html that the built page has to carry: the top rows
+    shown and the rest collapsed, the invitation under the heading, the breadcrumb through the topic, what each
+    finding bears on, predictions apart from falsifiability, the sibling beliefs, and the named gaps."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.html, cls.c = cls.parent.html, cls.parent.c
+        cls.beliefs = [b for b in cls.c.beliefs]
+
+    def _text(self, h): return re.sub(r'\s+', ' ', htmlmod.unescape(re.sub(r'<[^>]+>', ' ', h)))
+
+    def test_ranked_tables_show_five_rows_and_keep_the_rest(self):
+        """Rule 8. The rows past the fifth are still in the HTML, marked, behind a real form control; a reader
+        without a script, or printing, gets all of them."""
+        folded = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str): continue
+            for m in re.finditer(r'<input type="checkbox" class="xt" id="(x\d+)"[^>]*><label class="xl" for="\1">Top 5 of (\d+) rows shown', h):
+                n = int(m.group(2)); folded += 1
+                table = h[m.end():h.find('</table>', m.end())]
+                rows = re.findall(r'<tr\b[^>]*>', table[table.find('<tbody>'):])
+                self.assertEqual(len(rows), n, f'{pid}: the label says {n} rows and the table has {len(rows)}')
+                self.assertEqual(sum(1 for r in rows if 'xtra' in r), n - 5, f'{pid}: the wrong number of rows is folded')
+            self.assertNotRegex(h, r'class="xt"[^<]*<label[^<]*</label><table class="plain engine"', f'{pid} folded its derivation table')
+        self.assertGreater(folded, 0, 'no table on the site has more than five rows, so folding is untested')
+
+    def test_every_belief_page_carries_the_invitation(self):
+        for b in self.beliefs:
+            h = self.html[b]
+            self.assertIn('class="invite"', h, f'{self.c.key[b]} has no invitation block')
+            self.assertIn('If you disagree, this page has a column for you.', h)
+            i = h.find('class="invite"'); j = h.find('Reasons to agree')
+            self.assertLess(i, j, f'{self.c.key[b]}: the invitation is not under the heading')
+            if (self.c.specs[b].get('hook') or '').strip():
+                self.assertIn(htmlmod.escape(self.c.specs[b]['hook'], quote=True)[:40], h, f'{self.c.key[b]} does not print its hook')
+
+    def test_the_ask_names_a_gap_the_page_actually_has(self):
+        """A derived ask points at a slot that is empty on that page, not at boilerplate."""
+        for b in self.beliefs:
+            if (self.c.specs[b].get('ask') or '').strip(): continue
+            t = self._text(self.html[b])
+            i = t.find('If you disagree, this page has a column for you.')
+            ask = t[i:i + 260]
+            self.assertTrue(any(w in ask for w in ('A reason to', 'A study, record or dataset', 'A measurement', 'The first sourced reading', 'Any reason')),
+                            f'{self.c.key[b]}: the ask is not a named gap: {ask!r}')
+
+    def test_the_breadcrumb_runs_through_the_topic(self):
+        for b in self.beliefs:
+            tk = self.c.topic_of(b)
+            if not tk: continue
+            crumb = re.search(r'<p class="crumb">.*?</p>', self.html[b], re.S).group(0)
+            self.assertIn('topics.html', crumb, f'{self.c.key[b]}: the crumb does not pass through Topics')
+            self.assertIn(f'../t/{self.c.topic_href(tk)}', crumb, f'{self.c.key[b]}: the crumb does not name its topic')
+
+    def test_the_ledger_says_what_each_finding_bears_on(self):
+        seen = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or '<span>Evidence Ledger</span>' not in h: continue
+            self.assertIn('<th scope="col">Bears on</th>', h, f'{self.c.key[pid]}: no Bears on column')
+            seen += 1
+        self.assertGreater(seen, 0)
+
+    def test_predictions_and_falsifiability_are_separate_sections(self):
+        for b in self.beliefs:
+            t = self._text(self.html[b])
+            self.assertIn('Testable Predictions', t)
+            self.assertNotIn('If the belief is true, we should observe', t, f'{self.c.key[b]} still merges the two sections')
+
+    def test_a_belief_lists_its_siblings_and_itself_unlinked(self):
+        for b in self.beliefs:
+            tk = self.c.topic_of(b)
+            if not tk or len(self.c.topic_beliefs(tk)) < 2: continue
+            h = self.html[b]
+            i = h.find('Related Beliefs'); self.assertGreater(i, 0, f'{self.c.key[b]} has no Related Beliefs')
+            block = h[i:h.find('</section>', i)]
+            for sib in self.c.topic_beliefs(tk):
+                if sib == b: self.assertNotIn(self.c.href(sib), block, 'the page links itself')
+                else: self.assertIn(self.c.href(sib), block, f'{self.c.key[b]} does not list {self.c.key[sib]}')
+
+    def test_what_this_page_needs_names_where_each_gap_goes(self):
+        for b in self.beliefs:
+            h = self.html[b]
+            i = h.find('What this page needs right now')
+            self.assertGreater(i, 0, f'{self.c.key[b]} names no gaps')
+            block = h[i:h.find('</section>', i)]
+            rows = re.findall(r'<tr><td class="rk">\d+</td>', block)
+            self.assertTrue(1 <= len(rows) <= 3)
+            for where in re.findall(r'<td class="u">([^<]*)</td>', block)[::2]:
+                self.assertTrue(where.strip(), 'a gap has no place to go')
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

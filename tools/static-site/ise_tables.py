@@ -46,6 +46,8 @@ SECTIONS = {
     'related': {'x': 'other_x', 'y': 'other_y'},
     'value': {None: 'values'}, 'definition': {None: 'definitions'},
     'dispute': {None: 'disputes'}, 'category': {None: 'catnet'},
+    'criterion': {None: 'criteria'},
+    'falsify': {'agree': 'falsify_for', 'disagree': 'falsify_against'},
 }
 # assumptions and biases sit under different keys on a belief page and on a specialized page
 SPLIT = {'assumption': {'belief': {'agree': 'assume_accept', 'disagree': 'assume_reject'},
@@ -71,7 +73,7 @@ TOPIC_SECTIONS = {
 }
 PAGE_COLS = ['key', 'tab', 'kind', 'text', 'standalone', 'topic', 'parent', 'x', 'y', 'type', 'direction', 'rowkind', 'value',
              'measured_by', 'where_found', 'etype', 'erq', 'erp', 'if_true', 'if_false', 'latest', 'bridge',
-             'bottom_line', 'positivity', 'strength', 'form']
+             'bottom_line', 'hook', 'question', 'ask', 'positivity', 'strength', 'form']
 TOPIC_COLS = ['key', 'name', 'parent', 'definition', 'scope']
 EDGE_COLS = ['page', 'section', 'side', 'claim', 'text', 'source', 'link', 'imp', 'uniq', 'drives', 'equiv',
              'who', 'bearing', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high', 'deadline', 'extra']
@@ -80,7 +82,7 @@ PAGE_FIELDS = [('etype', 'etype'), ('erq', 'erq'), ('erp', 'erp'), ('topic', 'to
                ('direction', 'direction'), ('rowkind', 'rowkind'), ('value', 'value'), ('measured', 'measured_by'),
                ('where', 'where_found'), ('if_true', 'if_true'), ('if_false', 'if_false'), ('latest', 'latest'),
                ('bridge', 'bridge'), ('bottom_line', 'bottom_line'), ('standalone', 'standalone'), ('positivity', 'positivity'),
-               ('strength', 'strength'), ('form', 'form')]
+               ('strength', 'strength'), ('form', 'form'), ('hook', 'hook'), ('question', 'question'), ('ask', 'ask')]
 REFS = [('claim', 'id'), ('link', 'link'), ('imp', 'imp'), ('uniq', 'uniq'), ('drives', 'drives'),
         ('equiv', 'equiv'), ('who', 'who'), ('bearing', 'addresses')]
 PLAIN = [('text', 'text'), ('source', 'source'), ('pattern', 'pattern'), ('category', 'category'),
@@ -89,7 +91,8 @@ PLAIN = [('text', 'text'), ('source', 'source'), ('pattern', 'pattern'), ('categ
 EXTRA = {'component': ['type', 'stated', 'lb', 'assumes'], 'motive': ['advertised', 'actual'],
          'compromise': ['premise', 'difficult'], 'shared_interest': ['direction'],
          'value': ['value', 'srank', 'orank', 'why'], 'definition': ['term', 'definition'],
-         'dispute': ['what', 'move'], 'interest': ['value', 'measured'], 'media': ['type']}
+         'dispute': ['what', 'move'], 'interest': ['value', 'measured'], 'media': ['type'],
+         'criterion': ['method', 'validity', 'reliability', 'linkage', 'importance', 'strengthen', 'weaken', 'latest']}
 STOP = {'the', 'a', 'an', 'of', 'to', 'in', 'on', 'and', 'or', 'that', 'is', 'are', 'be', 'would', 'should',
         'for', 'from', 'it', 'they', 'their', 'not', 'by', 'with', 'as', 'at', 'this'}
 
@@ -293,6 +296,9 @@ HELP = {
  'if_false': 'interest: what it shows if the belief is false.', 'latest': 'interest: the latest reading, with source.',
  'bridge': 'The one-sentence answer in the check table.', 'bottom_line': 'The one typed line in the scorecard.',
  'positivity': 'belief: -100 to +100 on the topic page.', 'form': 'belief: the logical form of the claim.',
+ 'hook': 'belief: one or two sentences naming an itch the reader already feels. Concrete, not abstract. Shown in the box under the heading.',
+ 'question': 'belief: one sentence ending in a question mark, stating exactly what the page dissects. Answerable, not rhetorical.',
+ 'ask': 'belief: one specific slot a newcomer can fill in five minutes. Leave blank and the page names its own emptiest slot.',
  'topic': 'belief: the key of the topic page this belief is filed under (a row in the topics sheet). Pages beneath the belief inherit it.',
  'strength': 'belief: how absolute the claim is, as a label. Modest (hedged), Moderate (definite but bounded), Strong (near-universal) or Total (no exceptions). Typed, never scored: it places the belief on the topic page and nothing reads it as a number.',
  'name': 'topic: the name a reader sees. A noun phrase, not a claim: "Public office and private gain", not "Public office should not be usable for private gain".',
