@@ -3,78 +3,78 @@ government-ethics,Government ethics,government,"Rules and norms about how people
 public-office-private-gain,Public office and private gain,government-ethics,"Whether, and how, the law should stop officeholders and their families from using an office to make money.","Holdings and trading rules, family appointments, published tax returns and the reversal of pardons. Bribery statutes and lobbying rules belong to neighbouring topics.",
 business-and-economy,Business & Economy,,"Beliefs about how people trade, work, invest and are paid, and what the law should do about it.",,
 business,Business,business-and-economy,"Business covers how companies are owned, governed and run, and whom they must answer to.",,"favors tighter public rules on how companies are run and who they answer to, negative favors leaving companies free to run themselves and answer mainly to their owners."
-finance,Finance,business-and-economy,,,
+finance,Finance,business-and-economy,"Finance covers banking, lending, investing and the markets where money changes hands.",,"favors tighter public rules on banks and investing, negative favors freer markets in lending and investment."
 trade,Trade,business-and-economy,Trade covers the buying and selling of goods and services across national borders and the barriers governments place on it.,,"favors open trade with few barriers, negative favors tariffs and protection for home industries."
 jobs,Jobs,business-and-economy,"Jobs covers pay, hiring, firing and working conditions, and how much of that the law should set.",,"favors stronger legal protections and pay floors for workers, negative favors leaving pay and conditions to employers and the market."
-consumer-protection,Consumer Protection,business-and-economy,,,
+consumer-protection,Consumer Protection,business-and-economy,Consumer Protection covers the rules that govern what companies may sell to the public and how they must treat the people who buy from them.,,"favors stronger government rules protecting buyers, negative favors fewer rules and leaving buyers and sellers to sort things out."
 computers-and-internet,Computers & Internet,,"Beliefs about software, networks and the rules that govern them.",,
 internet,Internet,computers-and-internet,"How the internet is run and who sets its rules, from the companies that carry traffic to the laws that govern access, speech and content.",,favors more government rules for how the internet and online platforms operate; negative favors leaving those choices to companies and users.
 software,Software,computers-and-internet,,,
 privacy-and-data,Privacy and Data,computers-and-internet,"How personal information is collected, stored, shared and protected by companies and governments, and what people can do about it.",,favors stronger limits on collecting and using personal data; negative favors freer collection and access.
 games,Games,computers-and-internet,,,
-artificial-intelligence,Artificial Intelligence,computers-and-internet,,,
+artificial-intelligence,Artificial Intelligence,computers-and-internet,"Computer systems that learn from data to write, draw, predict and decide, and the rules for how they are built and used.",,favors stronger limits and oversight on how AI is built and used; negative favors letting it develop and spread with fewer restrictions.
 news-and-media,News & Media,,"Beliefs about how news is made, paid for and trusted.",,
-newspapers,Newspapers,news-and-media,,,
-television,Television,news-and-media,,,
+newspapers,Newspapers,news-and-media,"How printed and online newspapers gather news, pay for it, and reach readers, and whether they still matter as institutions.",,holds that newspapers are a public good worth protecting with money and policy; negative holds that newspapers are ordinary businesses that should live or die on their own merits.
+television,Television,news-and-media,"Broadcast and cable television news, including who owns it, how it is regulated, and whether it leaves viewers better informed.",,"favors more public rules and public obligations on television news (labeling, ownership limits, public broadcasters); negative favors leaving television news to competition and viewer choice."
 radio,Radio,news-and-media,,,
-social-media,Social Media,news-and-media,,,
-press-freedom,Press Freedom,news-and-media,,,
+social-media,Social Media,news-and-media,"How social platforms spread news, decide who sees what, and what they owe the public and the publishers whose work they carry.",,"favors platforms taking, or being made to take, more responsibility for the news they spread (paying publishers, labeling, moderating); negative favors platforms as open pipes with as little interference as possible."
+press-freedom,Press Freedom,news-and-media,"The legal and practical protections journalists have from governments, courts, and powerful private parties, and the limits on what they may publish and how they get it.",,"favors stronger and broader protections for journalists and publishers; negative favors more limits on, or more accountability for, what journalists publish and how they obtain it."
 entertainment,Entertainment,,"Beliefs about film, music, humor and the industries behind them.",,
 movies,Movies,entertainment,"Feature films and the business that makes, releases and shows them, from theaters to streaming services.",,"favors keeping movies theater-first, with a period on the big screen before they reach homes; negative favors releasing new movies to homes and streaming services right away."
 music,Music,entertainment,"Recorded and live music, the people who make it, and the labels, streaming services and platforms that carry it to listeners.",,holds that music streaming has been good for musicians overall; negative holds that it has shortchanged them.
 humor,Humor,entertainment,"Comedy in stand-up, film, television and online, and the arguments over what jokes are acceptable and who decides.",,favors wide freedom for comedians to joke about any subject with few social consequences; negative favors holding comedians to social limits on jokes that offend or demean.
 publishing,Publishing,entertainment,"The business of producing and selling books, from traditional publishing houses to self-publishing and ebooks.",,"favors traditional publishers as the best path for books, readers and authors; negative favors self-publishing and open platforms."
 recreation-and-sports,Recreation & Sports,,"Beliefs about sport, travel, cars and the outdoors.",,
-sports,Sports,recreation-and-sports,,,
+sports,Sports,recreation-and-sports,"Sports covers how organized athletics, from youth leagues to professional teams, are run, funded and regulated, and what they do to the people who play and watch them.",,"favors more public money, rules and institutional control over sports; negative favors leaving sports to private teams, families and individual choice."
 travel,Travel,recreation-and-sports,,,
 autos,Autos,recreation-and-sports,"Autos covers cars and driving: how vehicles are built, powered and regulated, and how much of daily life should depend on them.",,favors fewer restrictions on cars and drivers and a larger role for driving; negative favors more regulation of cars and a shift toward other ways of getting around.
-outdoors,Outdoors,recreation-and-sports,,,
+outdoors,Outdoors,recreation-and-sports,"Outdoors covers hunting, fishing, hiking, camping and other recreation on natural land, and how that land is managed and shared.",,favors more open access to and use of natural land for recreation; negative favors tighter limits on access and use in order to protect it.
 health,Health,,"Beliefs about disease, treatment, fitness and the systems that deliver care.",,
 diseases,Diseases,health,"How societies prevent, detect, and respond to illness, from infectious outbreaks to chronic conditions like cancer and diabetes.",,"favors aggressive public action to prevent and control disease (mandates, screening, surveillance); negative favors leaving disease prevention mainly to individual choice and treating illness as it appears."
 drugs,Drugs,health,"Prescription medicines, over-the-counter products, and recreational substances, including how they are approved, priced, sold, and regulated.",,"favors treating drugs as a market good with lighter rules on access and pricing; negative favors stronger government control over drug approval, sale, and price."
-fitness,Fitness,health,,,
-medicine,Medicine,health,,,
-health-insurance,Health Insurance,health,,,
+fitness,Fitness,health,"Exercise, physical activity, and the habits and products people use to stay in shape and stay able-bodied as they age.",,"favors structured, demanding, measured training as the path to health; negative favors a relaxed view in which ordinary daily movement is enough."
+medicine,Medicine,health,"How doctors and other clinicians diagnose and treat patients, and how medical knowledge is judged, standardized, and applied.",,"favors more standardization, oversight, and deference to established medical evidence; negative favors more room for individual judgment, patient choice, and approaches outside the mainstream."
+health-insurance,Health Insurance,health,"How the cost of medical care is pooled and paid, whether through private plans, employers, individual payment, or government programs.",,"favors a larger government role in paying for care, up to a single public system; negative favors private insurance and individual payment."
 government,Government,,"Beliefs about how public power is won, held, used and checked.",,
-elections,Elections,government,,,
-military,Military,government,,,
+elections,Elections,government,"How voters choose officeholders, including who may vote, how ballots are cast and counted, and how campaigns are run.",,favors making voting easier and open to more people; negative favors tighter rules on who votes and how.
+military,Military,government,"How a country raises, funds, and uses its armed forces, and who decides when they fight.",,favors a larger military that is used more readily; negative favors a smaller force used with more restraint.
 law,Law,government,"How laws are enforced and judged, including policing, courts, bail, and punishment.",,"favors tougher enforcement and harsher punishment; negative favors restraint, leniency, and rehabilitation."
-taxes,Taxes,government,,,
+taxes,Taxes,government,"How government raises money from people and businesses, including who pays, how much, and on what.",,favors higher or broader taxation; negative favors lower or narrower taxation.
 regional,Regional,,"Beliefs that belong to one place: a country, a region, a state or a city.",,
-countries,Countries,regional,,,
-regions,Regions,regional,,,
+countries,Countries,regional,"Beliefs about the direction, policies, or condition of a single nation taken as a whole.",,"favors a country opening itself further to the wider world through trade, migration, and shared institutions; negative favors a country relying more on itself and setting its own terms."
+regions,Regions,regional,"Beliefs about a part of a country, or an area that crosses borders, that is larger than one city but not a whole sovereign country.",,favors a region governing itself and setting its own priorities; negative favors keeping key decisions with the national government.
 u-s-states,U.S. States,regional,Beliefs about policies and choices made at the level of an individual American state.,,"favors a state government taking a bigger and more active role; negative favors a smaller state role, leaving matters to local governments, the market, or the federal system."
-cities,Cities,regional,,,
+cities,Cities,regional,"Beliefs about how a particular city should be built, run, or paid for.",,"favors government actively reshaping how a city works through new rules, fees, and planning; negative favors leaving more to residents, businesses, and existing patterns."
 society-and-culture,Society & Culture,,"Beliefs about people, communities, the environment and belief itself.",,
-people,People,society-and-culture,,,
+people,People,society-and-culture,"People covers human nature, personal character, and how much of a person's life is shaped by their own choices as opposed to the circumstances they were born into.",,"holds that individuals are mainly responsible for how their lives turn out, negative holds that circumstances and upbringing mainly decide."
 environment,Environment,society-and-culture,"Environment covers how people should use, protect, and share natural resources such as land, air, water, wildlife, and the climate.",,"favors stronger limits on human activity to protect nature, negative favors fewer limits and more trust in growth and technology to handle environmental problems."
-religion,Religion,society-and-culture,,,
-family,Family,society-and-culture,,,
+religion,Religion,society-and-culture,"Religion covers the role of faith, religious institutions, and religious belief in personal life, community life, and public decisions.",,"holds that religion is good for people and society and deserves a larger public role, negative holds that religion does harm or should stay a private matter."
+family,Family,society-and-culture,"Family covers marriage, parenting, household structure, and the duties people owe to their relatives.",,"favors traditional family structure and strong obligations to family, negative favors individual choice and flexible arrangements."
 crime-and-justice,Crime and Justice,society-and-culture,"Crime and Justice covers how society should prevent crime, punish people who commit it, and treat both victims and the accused.",,"favors tougher enforcement and longer punishment, negative favors prevention, rehabilitation, and limits on the power of police and courts."
 education,Education,,"Beliefs about schools, universities and how people learn.",,
-college-and-university,College and University,education,,,
-k-12,K-12,education,,,
+college-and-university,College and University,education,"Covers education after high school at colleges and universities: who should attend, what it should teach, how it is run, and whether it is worth what it costs.",,favors expanding college's role and treating a degree as the default path for most people; negative favors narrowing that role or steering more people toward alternatives.
+k-12,K-12,education,"Covers schooling from kindergarten through high school: what is taught, how schools are run and funded, and how families choose among them.",,"favors more choice and competition among schools, such as vouchers and charter schools; negative favors strengthening traditional neighborhood public schools as a shared system."
 teaching,Teaching,education,"Covers how teachers are trained, paid, evaluated and supported, and how much control they have over what happens in their classrooms.",,"favors more outside structure and accountability for teachers, such as testing, set curricula and formal evaluation; negative favors more trust in teachers' own professional judgment."
-student-debt,Student Debt,education,,,
+student-debt,Student Debt,education,"Covers loans taken out to pay for college, how they are repaid, and who should bear the cost when borrowers cannot.",,favors broad forgiveness or public absorption of student debt; negative favors borrowers repaying what they owe.
 arts-and-humanities,Arts & Humanities,,"Beliefs about art, history, literature and philosophy.",,
 photography,Photography,arts-and-humanities,"Photography covers how pictures are made with a camera, how they are edited and shown, and how they should be judged as art or as records.",,favors treating photography as an art defined by the photographer's choices and editing; negative favors treating photography as a record valued for showing what was really in front of the lens.
 history,History,arts-and-humanities,"History covers how the past is studied, written, taught and remembered in public, including monuments, textbooks and popular retellings.",,favors judging and reshaping how the past is presented by today's moral standards and priorities; negative favors presenting the past on its own terms with as little present-day judgment as possible.
-literature,Literature,arts-and-humanities,,,
-philosophy,Philosophy,arts-and-humanities,,,
+literature,Literature,arts-and-humanities,"Literature covers what people read, how books are judged and taught, and what fiction and poetry are for.",,"favors a shared standard of great works, upheld by tradition and expert judgment, that readers should be taught to meet; negative favors treating readers' own choices and responses as the main measure of what literature is worth."
+philosophy,Philosophy,arts-and-humanities,"Philosophy covers the big questions about knowledge, right and wrong, meaning and the mind, and the question of whether thinking about them carefully is worth doing.",,"favors the view that philosophy produces real, usable answers and belongs in ordinary life and schooling; negative favors the view that philosophy is mostly an academic pursuit with little practical payoff."
 science,Science,,Beliefs about what is known about the natural world and how.,,
 animals,Animals,science,"Animals covers what is known about how other animals think, feel and behave, and how much their inner lives resemble ours.",,holds that animals have minds and feelings close to our own; negative holds that the gap between humans and other animals is wide and often exaggerated by wishful thinking.
-astronomy,Astronomy,science,,,
+astronomy,Astronomy,science,"Astronomy covers what is known about planets, stars, galaxies and the universe beyond Earth, including whether life exists elsewhere.",,"holds that life, including intelligent life, is common beyond Earth; negative holds that Earth and its life are rare or unique."
 engineering,Engineering,science,"Engineering covers what is known about designing and building machines, structures and systems that work reliably in the real world.",,favors trusting complex engineered systems and automating human tasks; negative favors caution about complexity and keeping humans in control.
-climate,Climate,science,,,
-physics,Physics,science,,,
+climate,Climate,science,"Climate covers what is known about how Earth's climate works, how much it is changing, why, and what can be predicted about it.",,"holds that human-caused warming is large, well understood and reliably predicted; negative holds that its causes, size or future effects are more uncertain than commonly presented."
+physics,Physics,science,"Physics covers what is known about matter, energy, space and time, and how far its current theories and big experiments can be trusted.",,holds that physics is on the right track and its major theories and projects deserve backing; negative holds that physics has stalled and needs a different direction.
 social-science,Social Science,,"Beliefs about how people behave, alone and together.",,
-languages,Languages,social-science,,,
-archaeology,Archaeology,social-science,,,
+languages,Languages,social-science,"How people learn, use, and pass on languages, and how societies decide which languages get taught, protected, or left to fade.",,favors public effort to protect and teach many languages; negative favors letting one shared language dominate and leaving other languages to private choice.
+archaeology,Archaeology,social-science,"The study of past human life through physical remains, and the rules about who may dig up, keep, and display what is found.",,"favors more digging, collecting, and display of the past under the control of scholars and museums; negative favors leaving remains in place and giving descendant communities and source countries control over them."
 psychology,Psychology,social-science,"How the mind works, why people feel and act as they do, and how mental health problems are understood and treated.",,"favors treating mental struggles as medical conditions best handled by professionals and treatment; negative favors seeing them as ordinary parts of life best handled through relationships, habits, and personal effort."
 economics,Economics,social-science,"How people produce, trade, and share goods and money, and what government should do about markets, prices, and wages.",,favors more government action to steer markets and share income; negative favors leaving more to free markets and private choice.
-sociology,Sociology,social-science,,,
+sociology,Sociology,social-science,"How groups, institutions, and social forces shape the way people live, and what holds communities together or pulls them apart.",,favors explaining people's outcomes mainly by social structure and circumstance; negative favors explaining them mainly by individual choice and effort.
 reference,Reference,,"Definitions, statistics and quotations the other topics rest on.",,
-dictionaries,Dictionaries,reference,,,
+dictionaries,Dictionaries,reference,"How dictionaries decide which words and meanings to include, and whether their job is to describe how people use words or to set a standard for correct use.",,"favors dictionaries that describe how people actually use words, negative favors dictionaries that set and defend a standard of correct usage."
 statistics,Statistics,reference,"How statistics are produced, reported and used in public argument, and how much trust they deserve compared with other ways of knowing.",,"favors treating measured statistics as trustworthy guides to public decisions, negative favors treating them with suspicion and giving more weight to experience, judgment and other kinds of knowledge."
 quotations,Quotations,reference,"How quotations are attributed, checked and used as authority in argument and in reference works.",,"holds that who said something matters, so quotations must be traced and weighed by their source, negative holds that a quotation's origin and speaker matter little compared with the words themselves."
 core-principles,Core Principles,society-and-culture,The principles the other positions on this site are argued from.,,
