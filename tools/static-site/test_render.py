@@ -753,9 +753,14 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         for name in ('all', 'next', 'interests', 'media', 'topics'):
             with open(os.path.join(cls.parent.dir, name + '.html')) as fh: cls.root[name] = fh.read()
 
-    def test_every_topic_is_reachable_from_the_home_page(self):
+    def test_the_home_page_is_a_directory_of_every_category_and_sub_topic(self):
+        """Like the old web directories: every top-level category with its sub-topics on one line beneath it,
+        so a reader can see the whole shape of the site and where a belief would go."""
         self.assertIn('Topics', self.text)
+        tops = [k for k, t in self.corpus.topics.items() if not (t.get('parent') or '')]
+        self.assertGreaterEqual(len(tops), 10, 'the directory has fewer than ten categories')
         for k in self.corpus.topics:
+            if self.corpus.topics[k].get('parent') and self.corpus.topics[k]['parent'] not in tops: continue   # third level and below live on their parent's page
             self.assertIn(f'href="t/{self.corpus.topic_href(k)}"', self.c['index.html'],
                           f'topic {k} is not reachable from the home page')
 
@@ -820,8 +825,12 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
     def test_there_is_a_topic_with_beliefs_so_the_rest_tests_something(self):
         self.assertTrue([k for k in self.corpus.topics if self.corpus.topic_beliefs(k)], 'no topic has a belief filed under it')
 
+    def _filled(self):
+        return [k for k in self.corpus.topics if self.corpus.topic_has_content(k)]
+
     def test_every_topic_carries_the_template_sections_in_order(self):
-        for k in self.corpus.topics:
+        self.assertTrue(self._filled(), 'no topic has content, so nothing here is tested')
+        for k in self._filled():
             t = self._text(self.pages[k]); last = -1
             for sec in self.SECTIONS:
                 i = t.find(sec)
@@ -829,7 +838,7 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
                 last = i
 
     def test_the_direction_table_has_the_five_bands_and_places_every_belief(self):
-        for k in self.corpus.topics:
+        for k in self._filled():
             t = self._text(self.pages[k])
             for band in ('-100%', '-50%', '0%', '+50%', '+100%'):
                 self.assertIn(band, t, f'topic {k} lacks the {band} band')
@@ -850,6 +859,27 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
                 row_html = h[i:h.find('</tr>', i)]
                 self.assertNotRegex(row_html, r'<td class="num">[^<]*[0-9]', f'topic {k}: a typed cell got a score')
 
+    def test_an_empty_topic_is_a_directory_page_not_a_blank_template(self):
+        """Twelve empty tables are not a finding. A topic with nothing filed lists its sub-topics, says nothing is
+        filed, and says how to file something; the template layout appears once there is content to put in it."""
+        empties = [k for k in self.corpus.topics if not self.corpus.topic_has_content(k)]
+        self.assertTrue(empties, 'every topic has content, so the directory page is untested')
+        for k in empties:
+            t = self._text(self.pages[k])
+            self.assertNotIn('Continuum 1', t, f'topic {k} has no content and still prints the template')
+            self.assertTrue('No belief is filed here yet' in t or 'Beliefs filed beneath this topic' in t, f'topic {k} does not say what is filed')
+            self.assertIn('Contribute', t)
+            for kid in self.corpus.topic_children(k):
+                self.assertIn(self.corpus.topic_href(kid), self.pages[k], f'topic {k} does not list its sub-topic {kid}')
+
+    def test_a_category_counts_the_beliefs_beneath_it(self):
+        """The directory count on a category is every belief under it or under anything beneath it."""
+        gov = self.corpus.topics.get('government')
+        if not gov: self.skipTest('no government category')
+        deep = self.corpus.topic_beliefs_deep('government')
+        self.assertEqual(len(deep), sum(1 for b in self.corpus.beliefs if self.corpus.topic_of(b) in {'government', *self.corpus.topic_descendants('government')}))
+        self.assertGreater(len(deep), 0)
+
     def test_a_belief_links_its_topic_by_name(self):
         for b in self.corpus.beliefs:
             k = self.corpus.topic_of(b)
@@ -861,7 +891,7 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
     def test_an_empty_cell_says_so_rather_than_inventing(self):
         """Engagement has no rows anywhere yet. The table keeps its four fixed levels, because the levels are
         the template's taxonomy and not data, and every cell that would need data says it has none."""
-        for k in self.corpus.topics:
+        for k in self._filled():
             if self.corpus.topic_rows.get(k) and any(r.get('section') == 'engagement' for r in self.corpus.topic_rows[k]): continue
             t = self._text(self.pages[k])
             i = t.find('The Engagement Landscape'); j = t.find('Common Ground and Compromise')

@@ -106,6 +106,19 @@ class Corpus:
         return sorted(p for p in self.specs if self.topic_of(p) == tkey)
     def topic_beliefs(self, tkey):
         return sorted(b for b in self.beliefs if self.topic_of(b) == tkey)
+    def topic_children(self, tkey):
+        return sorted((k for k, t in self.topics.items() if (t.get('parent') or '') == tkey), key=lambda k: self.topics[k]['name'])
+    def topic_descendants(self, tkey):
+        out, stack = [], list(self.topic_children(tkey))
+        while stack:
+            k = stack.pop(0); out.append(k); stack += self.topic_children(k)
+        return out
+    def topic_beliefs_deep(self, tkey):
+        """Beliefs filed under a topic or anything beneath it: what a directory counts."""
+        keys = {tkey, *self.topic_descendants(tkey)}
+        return sorted(b for b in self.beliefs if self.topic_of(b) in keys)
+    def topic_has_content(self, tkey):
+        return bool(self.topic_beliefs(tkey) or self.topic_rows.get(tkey))
     def topic_href(self, tkey): return f'{tkey}.html'
     def truth(self, pid): return self.model.truth(pid)
     def pg(self, v, default): return self.truth(v) if is_page(v) else default
@@ -1068,6 +1081,31 @@ def render_topic(c, tkey, title):
     o.append(f'<h1>Topic: {esc(t["name"])}</h1>')
     o.append('<p class="meta">' + (f'<strong>Definition:</strong> {esc(t["definition"])}<br>' if t.get('definition') else '')
              + (f'<strong>Scope:</strong> {esc(t["scope"])}' if t.get('scope') else '') + '</p>')
+    kids = c.topic_children(tkey)
+    if kids:
+        o.append('<h2 class="th">&#128193; Sub-topics</h2>')
+        o.append('<table class="tpl"><thead><tr><th style="width:40%">Topic</th><th style="width:15%">Beliefs beneath</th><th style="width:45%">What it covers</th></tr></thead><tbody>')
+        for k in kids:
+            n = len(c.topic_beliefs_deep(k))
+            o.append(f'<tr><td><a href="{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a></td><td class="num">{n if n else "none yet"}</td><td class="u">{esc(c.topics[k].get("definition") or "")}</td></tr>')
+        o.append('</tbody></table>')
+    if not c.topic_has_content(tkey):
+        # A directory page. The template's twelve sections would all be empty here, and twelve empty tables
+        # are not a finding; what a reader needs is where the beliefs are, and how to file one.
+        deep = c.topic_beliefs_deep(tkey)
+        if deep and kids:
+            o.append('<h2 class="th">&#128203; Beliefs filed beneath this topic</h2>')
+            o.append('<table class="tpl"><thead><tr><th style="width:12%">Under</th><th style="width:70%">Belief</th><th style="width:9%">Truth</th><th style="width:9%">Belief score</th></tr></thead><tbody>')
+            for b in sorted(deep, key=lambda x: -c.stats(x)['belief']):
+                tk = c.topic_of(b); st = c.stats(b)
+                o.append(f'<tr><td class="u"><a href="{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a></td><td>{H.a(b, c.standalone(b))}</td><td class="num">{f2(st["truth"])}</td><td class="num">{sf(st["belief"])}</td></tr>')
+            o.append('</tbody></table>')
+        else:
+            o.append('<p class="cap">No belief is filed here yet' + (', or under anything beneath it' if kids else '') + '.</p>')
+        o.append('<h2 class="th">&#128236; Contribute</h2>')
+        o.append(f'<p class="cap">File a belief here by giving its page row the topic <code>{esc(tkey)}</code> in the <a href="https://github.com/myklob/ideastockexchange">repository</a>. Once one is filed, this page takes the full topic layout: where each belief sits, what it assumes, what the two sides value, and the evidence beneath it all.</p>')
+        o.append(stamp(c)); o.append(FOOT)
+        return ''.join(o)
     # ---- topic metrics: the three the template names, each computed or said to be missing
     cited = [p for p in pages if EV.prior(c.specs[p])['grounded']]
     contested = [b for b in beliefs if min(c.stats(b)['pos'], c.stats(b)['neg']) > 1e-9]
@@ -1313,10 +1351,26 @@ def render_topics_index(c, title):
     """The list of topics, one card each."""
     o = [root_head('Topics', [('Home', 'index.html'), ('Topics', '')])]
     o.append('<p class="kind">Idea Stock Exchange</p><h1>Topics</h1>')
-    o.append('<p class="lede">Every belief on this site is filed under one topic. A topic page shows where each belief sits, what it assumes, what its two sides value, and the evidence beneath all of it.</p>')
-    o.append(topic_cards(c))
+    o.append('<p class="lede">Every belief on this site is filed under one topic, and every topic sits in one of these categories. A topic with beliefs shows where each sits, what it assumes, what its two sides value, and the evidence beneath all of it; a topic with none yet shows where a belief would go.</p>')
+    o.append(directory(c))
     o.append(stamp(c) + FOOT)
     return ''.join(o)
+
+def directory(c, prefix='t/'):
+    """Top-level categories, each with its sub-topics on one line and a count of the beliefs beneath it.
+    A category with nothing filed yet is still listed, so a reader can see where a belief would go."""
+    tops = sorted((k for k, t in c.topics.items() if not (t.get('parent') or '')), key=lambda k: c.topics[k]['name'])
+    out = ['<div class="dir">']
+    for k in tops:
+        n = len(c.topic_beliefs_deep(k))
+        kids = c.topic_children(k)
+        line = ', '.join(f'<a href="{prefix}{c.topic_href(x)}">{esc(c.topics[x]["name"])}</a>'
+                         + (f' <span class="dn">({len(c.topic_beliefs_deep(x))})</span>' if c.topic_beliefs_deep(x) else '') for x in kids)
+        out.append(f'<div class="cat"><a class="cn" href="{prefix}{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a>'
+                   + (f' <span class="dn">{n} belief{"s" if n != 1 else ""}</span>' if n else '')
+                   + f'<div class="sub">{line or "<span class=%sempty%s>no sub-topics yet</span>" % (chr(34), chr(34))}</div></div>')
+    out.append('</div>')
+    return ''.join(out)
 
 def topic_cards(c, prefix='t/'):
     order = sorted(c.topics, key=lambda k: (c.topics[k].get('parent') or '', c.topics[k]['name']))
@@ -1368,8 +1422,10 @@ def render_index(c, title):
              f'nothing sits at 0.50 until somebody finds out, and {len(ground)} so far cite something. '
              f'<a href="method.html">How the numbers are worked out</a>.</p>')
     # ---- by topic
-    o.append(H_section_plain('Topics', 'Every belief is filed under one topic. Open one to see where each belief sits and what it rests on.'))
-    o.append(topic_cards(c) + '</section>')
+    filed = [k for k in c.topics if c.topic_beliefs(k)]
+    o.append(H_section_plain('Topics', f'Every belief is filed under one topic, and every topic sits in one of these categories. '
+                             f'{len(filed)} topic{"s have" if len(filed) != 1 else " has"} beliefs filed so far; the rest show where a belief would go.'))
+    o.append(directory(c) + '</section>')
     # ---- the four lists
     off = sorted((p for p in c.specs if abs(c.truth(p) - 0.5) > 1e-9), key=lambda p: (-c.truth(p), -c.conf.of(p)))[:10]
     o.append(ranked(c, 'Highest scoring', 'The claims that score best right now, with how much work stands behind each. A claim '
@@ -1499,6 +1555,8 @@ main.topic h1{font-size:clamp(24px,3vw,34px)}main.topic h2.th{display:block;back
 table.tpl{margin-bottom:2em}table.tpl th{text-transform:none;letter-spacing:0;font-size:12.5px}table.tpl td{border:1px solid var(--line);font-size:13.5px}table.tpl td.band{text-align:center;white-space:nowrap}table.tpl td.num{text-align:center;font-variant-numeric:tabular-nums}
 table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl .sub{font-size:85%;font-weight:normal;color:var(--mute)}
 .b-n100{background:#ffcccc;color:#3a1010}.b-n50{background:#ffe6e6;color:#3a1010}.b-0{background:#ffffcc;color:#3a3410}.b-p50{background:#e6ffe6;color:#0f3a14}.b-p100{background:#ccffcc;color:#0f3a14}
+.dir{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 28px;margin:14px 0 4px}
+.cat .cn{font:600 16px/1.3 var(--serif);border:none}.cat .sub{font-size:13px;color:var(--ink2);margin-top:2px}.cat .sub a{border:none}.dn{font-size:12px;color:var(--mute)}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35}td.u{color:var(--ink2);font-size:13px}
