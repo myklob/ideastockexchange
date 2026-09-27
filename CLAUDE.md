@@ -181,7 +181,9 @@ structural faults the graph can show, and a pre-publish cycle check CI runs firs
 since the last revision; `method.py` the reader-facing methodology page;
 `sync_content.py` keeps the workbook and the reviewable CSVs in step. There is no verdict module any more: a
 page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
-page: `index.html` is a way in (topics, four ranked lists, one line for everything else), `t/<topic>.html` is
+page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed), `lists.html`
+says for every ranking what it shows, how it is worked out and why it is tracked, and every card and column that ranks
+links there; in tables, columns hold numbers and short labels and any sentence goes on a line under the row's main text. `t/<topic>.html` is
 one page per row of the third table `content/topics.csv`, laid out section for section like
 `templates/topic-template.html`; a topic's cells are rows in `edges.csv` with `page` set to the topic key and a
 section from `ise_tables.TOPIC_SECTIONS`, and any cell the topic has no row for is filled from the belief pages
@@ -195,8 +197,7 @@ flag, which CI runs) is gated by `publish.py`: a belief goes on the public site 
 both ways, evidence, objective criteria, predictions or a falsifiability test, costs and benefits, interests), and it
 takes the pages beneath it along; every other belief stays in the tables as a draft, listed with what it still needs
 in `data/drafts.json`, and a row pointing at a draft keeps its words but not its link. `--all` builds everything, and
-the render tests build ungated so they keep exercising the whole corpus. The home page is a grid of cards, one per
-way in (search, the complete analyses, the ranked lists, topics); no card spans the page. Reader-facing pages use plain words;
+the render tests build ungated so they keep exercising the whole corpus. The home page's cards flow in columns so a short card leaves no gap; no card spans the page. Reader-facing pages use plain words;
 `test_render.py::TestThePagesSpeakPlainly` fails the build on engine words like "corpus" anywhere but the
 method page. `conformance.py` holds the cross-implementation
 contract: twenty-four pages with their expected numbers, the five constants and
