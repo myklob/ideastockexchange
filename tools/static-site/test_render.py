@@ -853,8 +853,51 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         self.assertEqual(h[:i].count('<section'), 0, 'a section sits above the card grid')
         self.assertGreaterEqual(h.count('<section class="card"'), 6, 'fewer than six ways in')
         self.assertEqual(h.count('<section'), h.count('<section class="card"'), 'a section on the home page is not a card')
-        for way in ('Search', 'Start here', 'Best beliefs', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'Topics'):
+        for way in ('Search', 'Best beliefs', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'What to argue next', 'Who has a stake', 'Books, studies and reports', 'Topics'):
             self.assertIn(f'<span>{way}</span>', h, f'{way} is not a way in')
+
+    def test_every_ranking_on_the_home_page_links_to_what_it_means(self):
+        """A number a reader cannot look up is a number they have to take on trust. Every card that ranks
+        something links its heading and its column to the section of lists.html that says what the ranking
+        shows, how it is worked out and why it is tracked, and every one of those sections exists."""
+        import render_site as RS
+        h = self.c['index.html']
+        with open(os.path.join(self.parent.dir, 'lists.html')) as fh: lists = fh.read()
+        for key, title, *_ in RS.EXPLAIN:
+            self.assertIn(f'id="{key}"', lists, f'lists.html has no section for {title}')
+            sec = lists[lists.find(f'id="{key}"'):]
+            sec = sec[:sec.find('</section>')]
+            for part in ('What it shows.', 'How it is worked out.', 'Why it is tracked.'):
+                self.assertIn(part, sec, f'{title} does not say {part}')
+        for i in [m.start() for m in re.finditer(r'<section class="card">', h)]:
+            card = h[i:h.find('</section>', i)]
+            if '<table' not in card: continue
+            self.assertRegex(card, r'<h2><span>[^<]+</span><a class="wiki" href="lists\.html#', 'a ranking card does not link to what it means')
+            self.assertRegex(card, r'<th[^>]*><a href="lists\.html#', 'a ranking card\'s number column does not link to what it means')
+
+    def test_no_count_is_printed_twice_in_the_directory(self):
+        """A category with one filed sub-topic holding all of its beliefs used to say "4 beliefs" and then "(4)".
+        Built on a small corpus that has exactly that shape."""
+        import tempfile
+        import ise_tables as IT, render_site as RS
+        pages = [dict(key='b1', kind='belief', text='Officials should not trade stocks.', topic='e'),
+                 dict(key='b2', kind='belief', text='Officials should publish tax returns.', topic='e')]
+        topics = [dict(key='g', name='Government', parent='', definition='', scope='', axis=''),
+                  dict(key='e', name='Ethics', parent='g', definition='', scope='', axis='')]
+        d = tempfile.mkdtemp(); IT.write_csv(pages, [], d, topics=topics)
+        html = RS.directory(RS.Corpus(d, 'x'))
+        self.assertEqual(len(re.findall(r'\b2\b', re.sub(r'<[^>]+>', ' ', html))), 1, f'the count is printed more than once: {html}')
+
+    def test_most_argued_over_counts_reasons_at_every_level(self):
+        """It used to rank by the weight of the weaker side, which is not what "argued over" means. It now
+        counts the reasons for and against beneath a belief, each row once, however deep."""
+        import render_site as RS
+        c = self.corpus
+        rows, n = RS.contested(c)
+        self.assertTrue(rows)
+        self.assertEqual(rows, sorted(rows, key=lambda b: (-n[b], c.standalone(b))))
+        b = rows[0]; direct = len(c.specs[b]['args']['agree']) + len(c.specs[b]['args']['disagree'])
+        self.assertGreaterEqual(n[b], direct)
 
     def test_it_does_not_list_every_page(self):
         """One idea per page. The full list has its own page and a search box; the home page is not it."""
