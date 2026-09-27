@@ -21,6 +21,7 @@ from similarity import Similarity
 from integrity import Integrity
 import method
 import changes as CHANGES
+import publish as PUBLISH
 from export_db import export as export_db
 
 def _write(path, text):
@@ -1626,56 +1627,87 @@ def render_best(c, title):
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 
+def card(title, blurb, body, more='', anchor=None):
+    """One way into the site, as a box in the home page's grid. No card spans the page."""
+    i = f' id="{esc(anchor)}"' if anchor else ''
+    return f'<section class="card"{i}><h2><span>{esc(title)}</span></h2>' + (f'<p class="blurb">{blurb}</p>' if blurb else '') + body + more + '</section>'
+
+def mini(c, rows, head, value, prefix='p/'):
+    """A ranked list narrow enough for a card: rank, claim, one number."""
+    if not rows: return '<p class="empty">Nothing ranks here yet.</p>'
+    o = [f'<table class="scored mini"><thead><tr><th class="rk">#</th><th>Claim</th><th>{esc(head)}</th></tr></thead><tbody>']
+    for i, pid in enumerate(rows, 1):
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="{prefix}{c.href(pid)}">{esc(c.standalone(pid))}</a></td><td class="sc">{value(pid)}</td></tr>')
+    return ''.join(o) + '</tbody></table>'
+
+HARDEST = {'Values conflict': 0, 'Mixed dispute': 1, 'Factual dispute': 2}
+
+def hardest(c):
+    """Beliefs ordered by how hard the disagreement is to settle: a values conflict first, because no reading
+    settles it; a mixed dispute next; a factual one last, because a measurement can. Ties go to the belief with
+    more argued on it."""
+    bs = [b for b in c.beliefs if c.stats(b).get('dispute') in HARDEST]
+    return sorted(bs, key=lambda b: (HARDEST[c.stats(b)['dispute']], -c.stats(b)['nrows'], c.standalone(b)))
+
+SEARCH = ("<form class=\"find\" role=\"search\" onsubmit=\"return false\"><label for=\"q\">Find a claim</label>"
+          "<input id=\"q\" type=\"search\" autocomplete=\"off\" placeholder=\"Type a few words\"></form><ol id=\"hits\" class=\"hits\"></ol>"
+          "<script>(function(){var q=document.getElementById('q'),out=document.getElementById('hits'),rows=null;"
+          "function show(){var w=q.value.toLowerCase().split(/\\s+/).filter(Boolean);out.innerHTML='';if(!w.length||!rows)return;"
+          "rows.filter(function(r){var t=(r.standalone||r.text||'').toLowerCase();return w.every(function(x){return t.indexOf(x)>=0})})"
+          ".slice(0,8).forEach(function(r){var li=document.createElement('li'),a=document.createElement('a');a.href=r.page;"
+          "a.textContent=r.standalone||r.text;li.appendChild(a);out.appendChild(li)})}"
+          "q.addEventListener('input',function(){if(rows)return show();fetch('data/pages_index.json').then(function(x){return x.json()})"
+          ".then(function(d){rows=d.pages;show()})})})()</script>")
+
 def render_index(c, title):
-    """The home page: a way in by topic, then four short lists, then where everything else is. It lists no
-    claim twice and does not try to list them all; that is what the other pages are for."""
+    """The home page: several ways in, each a card in a grid, and none of them the whole page. Topics are one
+    way in; search, the ranked lists and the complete analyses are others. A ranking the site cannot compute is
+    left off rather than faked."""
     o = [root_head(title, [('Home', '')], main_class='index')]
     ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
     o.append(f'<p class="kind">Idea Stock Exchange · {esc(c.name)}</p><h1>Every claim has a page. Every number is a link.</h1>')
-    o.append(f'<p class="lede">{len(c.specs)} claims, each on its own page with the reasons for and against it. Every number is '
-             f'worked out from the pages beneath it and links to the page it came from; nothing is typed in. A claim that cites '
-             f'nothing sits at 0.50 until somebody finds out, and {len(ground)} so far cite something. '
+    o.append(f'<p class="lede">{len(c.beliefs)} belief{"s" if len(c.beliefs) != 1 else ""} analyzed so far, and {len(c.specs)} claims beneath them, each on its own page '
+             f'with the reasons for and against it. Every number is worked out from the pages beneath it; nothing is typed in. '
+             f'A claim that cites nothing sits at 0.50 until somebody finds out, and {len(ground)} so far cite something. '
              f'<a href="method.html">How the numbers are worked out</a>.</p>')
-    # ---- by topic
-    filed = [k for k in c.topics if c.topic_beliefs(k)]
-    o.append(H_section_plain('Topics', f'Every belief is filed under one topic, and every topic sits in one of these categories. '
-                             f'{len(filed)} topic{"s have" if len(filed) != 1 else " has"} beliefs filed so far; the rest show where a belief would go.'))
-    o.append(directory(c) + '</section>')
-    # ---- the four lists
     TOP = 3
-    o.append(H_section_plain('Best beliefs', 'Beliefs only, the best argued first: belief score is the weight for minus the weight against, '
-                             'and scored rows is how many reasons, findings and predictions stand under it.'))
-    o.append(best_table(c, best_beliefs(c, TOP)) + see_all('best.html', len(c.beliefs), 'beliefs, ranked') + '</section>')
+    cards = [card('Search', 'Every page on the site, by the words in it.', SEARCH, see_all('all.html', len(c.specs), 'pages, listed'))]
+    start = sorted(c.beliefs, key=lambda b: (-c.stats(b)['nrows'], c.standalone(b)))
+    cards.append(card('Start here', 'The complete analyses: reasons both ways, evidence, a yardstick agreed in advance, predictions, costs and benefits, and who wants what.',
+                      mini(c, start[:TOP + 1], 'Scored rows', lambda p: str(c.stats(p)['nrows'])), see_all('best.html', len(c.beliefs), 'beliefs, ranked')))
+    cards.append(card('Best beliefs', 'The best argued first: belief score is the weight for minus the weight against.',
+                      mini(c, best_beliefs(c, TOP), 'Belief score', lambda p: sf(c.stats(p)['belief'])), see_all('best.html', len(c.beliefs), 'beliefs, ranked')))
     con, sides = contested(c)
-    o.append(ranked(c, 'Most argued over', 'Claims with real weight on both sides, the ones where the other side has shown up. '
-                    'Ranked by the weaker side, so a claim with strong arguments both ways comes first.',
-                    con[:TOP], 'Weaker side', lambda p: f2(min(sides(p))), more=('contested.html', len(con), 'argued both ways')))
+    cards.append(card('Most argued over', 'Real weight on both sides, ranked by the weaker side.',
+                      mini(c, con[:TOP], 'Weaker side', lambda p: f2(min(sides(p)))), see_all('contested.html', len(con), 'argued both ways')))
+    hard = hardest(c)
+    cards.append(card('Hardest to resolve', 'A disagreement over values first, because no measurement settles it; a factual one last, because one can.',
+                      mini(c, hard[:TOP], 'Kind of dispute', lambda p: esc(c.stats(p)['dispute'])), ''))
     relied_all = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
-    o.append(ranked(c, 'Most relied on', 'The claims the most other claims depend on. This is the nearest thing to '
-                    '"popular" that can be measured here: nobody\'s votes or views are counted, so it says how much rests on '
-                    'a claim, not how many people like it.',
-                    relied_all[:TOP], 'Relied on', lambda p: f'{c.rank.of(p):.4f}', more=('relied.html', len(relied_all), 'claims, by how much depends on them')))
+    cards.append(card('Most relied on', 'The claims the most other claims depend on. This is the nearest thing to "popular" that can be measured here: '
+                      'nobody\'s votes or views are counted, so it says how much rests on a claim, not how many people like it.',
+                      mini(c, relied_all[:TOP], 'Relied on', lambda p: f'{c.rank.of(p):.4f}'), see_all('relied.html', min(len(relied_all), RELIED_SHOWN), 'most relied on')))
     recent_all = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))
     if recent_all:
-        o.append(ranked(c, 'Changed in this revision', 'Claims edited or moved since the last published revision, the most relied on first.',
-                        recent_all[:TOP], 'Relied on', lambda p: f'{c.rank.of(p):.4f}', more=('changes.html', len(recent_all), 'changes, row by row')))
+        cards.append(card('Changed in this revision', 'Edited or moved since the last published revision.',
+                          mini(c, recent_all[:TOP], 'Relied on', lambda p: f'{c.rank.of(p):.4f}'), see_all('changes.html', len(recent_all), 'changes, row by row')))
     else:
-        o.append(H_section_plain('Changed in this revision', 'Nothing has changed since the last published revision'
-                                 + (', or no previous revision was available to compare with' if getattr(c, 'changes', None) is None else '')
-                                 + '. <a href="changes.html">The revision page</a> says what it compared.') + '</section>')
-    # ---- everything else, one line each
-    o.append(H_section_plain('More'))
+        cards.append(card('Changed in this revision', 'Nothing has changed since the last published revision'
+                          + (', or no previous revision was available to compare with' if getattr(c, 'changes', None) is None else '')
+                          + '. <a href="changes.html">The revision page</a> says what it compared.', ''))
+    filed = [k for k in c.topics if c.topic_beliefs(k)]
+    cards.append(card('Topics', f'Browse like a library shelf. {len(filed)} topic{"s have" if len(filed) != 1 else " has"} beliefs filed so far.',
+                      directory(c), f'<p class="more"><a href="topics.html">Every topic &rarr;</a></p>'))
     ints = sum(1 for p in c.specs if c.kind(p) == 'interest'); med = sum(1 for p in c.specs if c.kind(p) == 'media')
-    o.append('<table class="plain"><tbody>'
-             f'<tr><td class="t"><a href="best.html">Best beliefs</a></td><td class="u">Every belief, the best argued first.</td></tr>'
-             f'<tr><td class="t"><a href="all.html">All {len(c.specs)} pages</a></td><td class="u">Every claim, with a search box.</td></tr>'
-             f'<tr><td class="t"><a href="next.html">What to argue next</a></td><td class="u">The claims where one more argument would change the most.</td></tr>'
-             f'<tr><td class="t"><a href="interests.html">Who has a stake</a></td><td class="u">The {ints} interests the beliefs here speak to, and how valid each is argued to be.</td></tr>'
-             f'<tr><td class="t"><a href="media.html">Books, studies and reports</a></td><td class="u">The {med} works cited, ranked by how much they moved the pages here.</td></tr>'
-             f'<tr><td class="t"><a href="method.html">How the numbers are worked out</a></td><td class="u">Every rule, on one page, generated from the code that runs it.</td></tr>'
-             f'<tr><td class="t"><a href="changes.html">What changed</a></td><td class="u">What moved since the last revision, and why.</td></tr>'
-             f'<tr><td class="t"><a href="data/ise.json">The data</a></td><td class="u">The tables behind every page (pages, the rows on them, the topics and the topics\' own rows), as <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> or a <a href="data/ise.sqlite">SQLite database</a>; every page\'s computed numbers are indexed at <a href="data/pages_index.json">pages_index.json</a>.</td></tr>'
-             '</tbody></table></section>')
+    cards.append(card('More', None, '<ul class="links">'
+             f'<li><a href="next.html">What to argue next</a>: the claims where one more argument would change the most.</li>'
+             f'<li><a href="interests.html">Who has a stake</a>: the {ints} interests the beliefs here speak to.</li>'
+             f'<li><a href="media.html">Books, studies and reports</a>: the {med} works cited.</li>'
+             f'<li><a href="method.html">How the numbers are worked out</a>: every rule, generated from the code that runs it.</li>'
+             f'<li><a href="changes.html">What changed</a> since the last revision, and why.</li>'
+             f'<li><a href="data/ise.json">The data</a> behind every page, as <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> or <a href="data/ise.sqlite">SQLite</a>.</li>'
+             '</ul>'))
+    o.append('<div class="cards">' + ''.join(cards) + '</div>')
     o.append(stamp(c))
     o.append('</main>' + JS + '</body></html>')
     return ''.join(o)
@@ -1806,6 +1838,7 @@ tr.lb td{background:color-mix(in srgb,var(--head) 60%,transparent)}
 @media (max-width:640px){table thead{display:none}table tr{display:flex;flex-wrap:wrap;gap:3px 14px;padding:8px 6px;border-top:1px solid var(--line)}table td{border:0;padding:0;width:auto!important;white-space:normal!important;text-align:left!important}td.t,td.u,td.dl,td.ex,td.lab,.check td.lab,.conn td.lab{flex:1 1 100%;width:auto!important}td.rk{display:none}td[data-l]::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}td.u[data-l]::before,td.dl[data-l]::before,td.ex[data-l]::before{display:inline;margin-right:6px}tr.lb td{background:none}tr.lb{background:color-mix(in srgb,var(--head) 60%,transparent)}}
 main.index h1{font-size:clamp(24px,3vw,36px)}.lede{max-width:80ch;font-size:15px;color:var(--ink2)}
 .beliefs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px;align-items:start;margin-top:18px}.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:0;min-width:0}.card h2{margin-top:2px}.card .dir{grid-template-columns:1fr;gap:8px}.mini{font-size:13px}.mini td.sc{white-space:nowrap}.find label{display:block;font-size:13px;color:var(--ink2)}.find input{width:100%;box-sizing:border-box;padding:8px;font:inherit;border:1px solid var(--line);border-radius:4px}.hits{padding-left:20px;font-size:14px}.links{padding-left:18px;font-size:14px}.links li{margin:4px 0}
 .bcard{display:block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px;color:var(--ink)}.bcard:hover{border-color:var(--navy)}
 .bcard .bt{font-family:var(--serif);font-size:16px;line-height:1.35;font-weight:600;margin-bottom:8px}.bcard .bn{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}.bcard .bn b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}.bcard .bb{margin-top:8px;font-size:13px;color:var(--ink2)}
 ul.tree,ul.tree ul{list-style:none;margin:0;padding-left:0}ul.tree ul{padding-left:18px;border-left:1px solid var(--line);margin-left:6px}
@@ -2002,8 +2035,15 @@ def stamp(c):
               'reader who fetches it gets these numbers and not different ones.</p>')
 
 
-def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
-    c = Corpus(entry, name)
+def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', gate=False):
+    """Render the site. With gate, only beliefs that meet publish.CORE_BAR, and the pages beneath them, are
+    written; the rest stay in the tables as drafts and are listed in data/drafts.json."""
+    source, drafts = (PUBLISH.staged(entry) if gate else (entry, None))
+    if drafts is not None and not any(not m for m in drafts.values()):
+        raise SystemExit('No belief meets the publish bar (publish.CORE_BAR), so there is nothing to publish. '
+                         'The site already live is left as it is; build with --all to see every draft.')
+    c = Corpus(source, name)
+    c.drafts = drafts
     c.prov = provenance(entry)
     if os.path.isdir(outdir): shutil.rmtree(outdir)
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
@@ -2035,6 +2075,11 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
     # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
     export_db(c.specs, CONST, os.path.join(outdir, 'data'), stem='ise', const_meanings=CONST_MEANING, beliefs=c.beliefs,
               topics=c.topics, topic_rows=c.topic_rows, tabs=c.tabs)
+    if drafts is not None:
+        with open(os.path.join(outdir, 'data', 'drafts.json'), 'w') as fh:
+            json.dump({'bar': [n for n, _ in PUBLISH.CORE_BAR],
+                       'drafts': [{'key': k, 'needs': m} for k, m in sorted(drafts.items(), key=lambda kv: (len(kv[1]), kv[0])) if m]},
+                      fh, indent=1, ensure_ascii=False)
     with open(os.path.join(outdir, 'data', 'pages_index.json'), 'w') as fh:
         json.dump({'built_from': c.prov.get('rev'), 'built_on': c.prov.get('date'),
                    'count': len(index), 'pages': sorted(index, key=lambda r: r['id'])}, fh, indent=1, ensure_ascii=False)
@@ -2062,9 +2107,10 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange'):
 
 if __name__ == '__main__':
     HERE = os.path.dirname(os.path.abspath(__file__))
-    entry = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, 'ISE_Data_Entry.xlsx')
-    out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, 'site')
-    c, broken = build(entry, out)
+    argv = [a for a in sys.argv[1:] if not a.startswith('--')]
+    entry = argv[0] if len(argv) > 0 else os.path.join(HERE, 'ISE_Data_Entry.xlsx')
+    out = argv[1] if len(argv) > 1 else os.path.join(HERE, 'site')
+    c, broken = build(entry, out, gate='--all' not in sys.argv)
     n = len(c.specs); size = sum(os.path.getsize(os.path.join(dp, f)) for dp, _, fs in os.walk(out) for f in fs)
     print(f'{n} pages -> {out}  ({size / 1e6:.1f} MB)  broken internal links: {len(broken)} {broken[:5]}')
     for b in sorted(c.beliefs): print(' ', b, f2(c.truth(b)), c.short(b, 70))

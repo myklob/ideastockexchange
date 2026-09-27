@@ -190,7 +190,13 @@ means; a belief's `hook`, `question` and `ask` columns feed the invitation block
 `falsify` edge sections feed Objective Criteria and the Falsifiability Test. All of it rides along
 in the JSON, XML, SQL and SQLite exports (`topic` and `topic_row` tables), but a score still rests
 on `page` and `edge` alone. The full list, the interests, the works cited
-and the what-to-argue-next queue each have a page of their own. Reader-facing pages use plain words;
+and the what-to-argue-next queue each have a page of their own. The published build (`render_site.py` with no
+flag, which CI runs) is gated by `publish.py`: a belief goes on the public site only when it meets `CORE_BAR` (reasons
+both ways, evidence, objective criteria, predictions or a falsifiability test, costs and benefits, interests), and it
+takes the pages beneath it along; every other belief stays in the tables as a draft, listed with what it still needs
+in `data/drafts.json`, and a row pointing at a draft keeps its words but not its link. `--all` builds everything, and
+the render tests build ungated so they keep exercising the whole corpus. The home page is a grid of cards, one per
+way in (search, the complete analyses, the ranked lists, topics); no card spans the page. Reader-facing pages use plain words;
 `test_render.py::TestThePagesSpeakPlainly` fails the build on engine words like "corpus" anywhere but the
 method page. `conformance.py` holds the cross-implementation
 contract: twenty-four pages with their expected numbers, the five constants and
