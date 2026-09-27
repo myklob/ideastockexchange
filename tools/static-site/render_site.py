@@ -1759,17 +1759,22 @@ SEARCH = ("<form class=\"find\" role=\"search\" onsubmit=\"return false\"><label
           "q.addEventListener('input',function(){if(rows)return show();fetch('data/pages_index.json').then(function(x){return x.json()})"
           ".then(function(d){rows=d.pages;show()})})})()</script>")
 
+WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
+
 def render_index(c, title):
     """The home page: several ways in, each a card in flowing columns so a short card never leaves a gap, and
     none of them the whole page. Every card that ranks something links to what the ranking means; a ranking
     the site cannot compute is left off rather than faked."""
     o = [root_head(title, [('Home', '')], main_class='index')]
     ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
-    o.append(f'<p class="kind">Idea Stock Exchange · {esc(c.name)}</p><h1>Every claim has a page. Every number is a link.</h1>')
-    o.append(f'<p class="lede">{len(c.beliefs)} belief{"s" if len(c.beliefs) != 1 else ""} analyzed so far, and {len(c.specs)} claims beneath them, each on its own page '
-             f'with the reasons for and against it. Every number is worked out from the pages beneath it; nothing is typed in. '
-             f'A claim that cites nothing sits at 0.50 until somebody finds out, and {len(ground)} so far cite something. '
-             f'<a href="lists.html">What each list means</a> · <a href="method.html">how the numbers are worked out</a>.</p>')
+    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
+    filed = sorted({c.topics[c.topic_of(b)]['name'] for b in c.beliefs if c.topic_of(b)})
+    about = (f', all on {esc(filed[0].lower())}' if len(filed) == 1 else f' across {len(filed)} topics') if filed else ''
+    o.append(f'<p class="lede">Most political fights repeat the same few points forever, and nobody keeps score. Here each belief gets one page, '
+             f'with every reason for it and against it and the evidence under each reason. A reason nobody has backed up counts for nothing, '
+             f'however many times it is repeated; only a better argument or better evidence moves a score. '
+             f'{WORDS[len(c.beliefs)] if len(c.beliefs) < len(WORDS) else len(c.beliefs)} belief{"s are" if len(c.beliefs) != 1 else " is"} worked through so far{about}. '
+             f'<a href="lists.html">What each list means</a> · <a href="method.html">how the scores are worked out</a>.</p>')
     TOP = 3
     cards = [card('Search', 'Every page on the site, by the words in it.', SEARCH, see_all('all.html', len(c.specs), 'pages, listed'))]
     cards.append(card('Best beliefs', 'The best argued first.',
