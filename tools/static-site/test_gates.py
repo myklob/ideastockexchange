@@ -90,7 +90,7 @@ class TestTheGatesFailWhenTheyShould(unittest.TestCase):
             anchor,
             """    markup = markup.replace('</main>', '<a href="never-written.html">x</a></main>', 1)\n""" + anchor, 1))
         out_dir = os.path.join(self.work, 'out')
-        code, out = _run(self.work, 'render_site.py', 'content/', out_dir)
+        code, out = _run(self.work, 'render_site.py', 'content/', out_dir, '--all')
         self.assertEqual(code, 0, out[-500:])
         self.assertNotIn('broken internal links: 0', out, 'the link gate passed on a link to nothing')
         self.assertIn('never-written.html', out, 'it does not name the link it could not resolve')

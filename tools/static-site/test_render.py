@@ -8,7 +8,7 @@ numbers beside it. Copy rots faster than code and nothing else here was watching
 The site builds once for the whole class; on this corpus that is about a second.
 """
 import html as htmlmod
-import os, re, shutil, sys, tempfile, unittest
+import json, os, re, shutil, sys, tempfile, unittest
 
 
 def f2(v): return f'{v:.2f}'
@@ -752,6 +752,56 @@ class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
         self.assertGreater(checked, 0, 'no captioned tables were checked')
 
 
+class TestOnlyFinishedBeliefsArePublished(unittest.TestCase):
+    """The public site carries only beliefs that meet the core bar in publish.CORE_BAR, and the pages beneath
+    them. Everything else stays in the tables as a draft: not rendered, not linked, and named with what it still
+    needs in data/drafts.json. Built on a two-belief corpus: one finished, one a draft the finished one points at."""
+
+    @classmethod
+    def setUpClass(cls):
+        import tempfile
+        import ise_tables as IT, render_site as RS
+        pages = [dict(key='a', kind='belief', text='Cities should plant more trees.', topic='t'),
+                 dict(key='b', kind='belief', text='Cities should pave their parks.', topic='t'),
+                 dict(key='r1', kind='claim', text='Trees cool the streets beneath them.', parent='a'),
+                 dict(key='r2', kind='claim', text='Trees cost money to water and prune.', parent='a'),
+                 dict(key='e1', kind='claim', text='Shaded streets measure cooler than bare ones.', parent='a'),
+                 dict(key='c1', kind='claim', text='Summer street temperature is a fair yardstick for tree planting.', parent='a'),
+                 dict(key='p1', kind='claim', text='Planted blocks will read cooler within five years.', parent='a'),
+                 dict(key='k1', kind='claim', text='Cooler streets reduce heat illness.', parent='a'),
+                 dict(key='i1', kind='interest', text='Residents need cool streets in summer.', parent='a'),
+                 dict(key='s1', kind='claim', text='Parks cost more to keep than pavement.', parent='b')]
+        edges = [dict(page='a', section='argument', side='agree', claim='r1'), dict(page='a', section='argument', side='disagree', claim='r2'),
+                 dict(page='a', section='evidence', side='agree', claim='e1', source='City survey, 2020'), dict(page='a', section='criterion', claim='c1'),
+                 dict(page='a', section='prediction', side='agree', claim='p1'),
+                 dict(page='a', section='cba', side='agree', claim='k1', category='cases', magnitude='10'),
+                 dict(page='a', section='interest', side='agree', claim='i1'), dict(page='a', section='similar', side='extreme', claim='b'),
+                 dict(page='b', section='argument', side='agree', claim='s1')]
+        d = tempfile.mkdtemp(); IT.write_csv(pages, edges, d, topics=[dict(key='t', name='Cities', parent='', definition='', scope='', axis='')])
+        cls.out = tempfile.mkdtemp(); cls.c, cls.broken = RS.build(d, cls.out, gate=True)
+
+    def test_the_finished_belief_is_published_with_everything_beneath_it(self):
+        self.assertEqual([self.c.key[b] for b in self.c.beliefs], ['a'])
+        for k in ('a', 'r1', 'r2', 'e1', 'c1', 'p1', 'k1', 'i1'):
+            self.assertTrue(os.path.exists(os.path.join(self.out, 'p', k + '.html')), f'{k} is beneath a published belief and was not written')
+
+    def test_the_draft_and_its_own_pages_are_not(self):
+        for k in ('b', 's1'):
+            self.assertFalse(os.path.exists(os.path.join(self.out, 'p', k + '.html')), f'draft page {k} was published')
+
+    def test_a_row_pointing_at_a_draft_keeps_its_words_and_loses_its_link(self):
+        with open(os.path.join(self.out, 'p', 'a.html')) as fh: h = fh.read()
+        self.assertIn('pave their parks', h)
+        self.assertNotIn('href="b.html"', h)
+        self.assertEqual(self.broken, [])
+
+    def test_the_drafts_are_named_with_what_they_still_need(self):
+        with open(os.path.join(self.out, 'data', 'drafts.json')) as fh: d = json.load(fh)
+        self.assertEqual([x['key'] for x in d['drafts']], ['b'])
+        self.assertIn('objective criteria', d['drafts'][0]['needs'])
+        self.assertNotIn('reasons to agree', d['drafts'][0]['needs'])
+
+
 class TestTheRankedListsStayReadable(unittest.TestCase):
     """A ranked list is for the top of the ranking. Past a hundred rows the differences are too small to rank, and
     the page says where the rest are rather than shipping every claim to every phone."""
@@ -793,6 +843,18 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
             if self.corpus.topics[k].get('parent') and self.corpus.topics[k]['parent'] not in tops: continue   # third level and below live on their parent's page
             self.assertIn(f'href="t/{self.corpus.topic_href(k)}"', self.c['index.html'],
                           f'topic {k} is not reachable from the home page')
+
+    def test_no_part_of_the_home_page_spans_the_whole_width(self):
+        """Topics are one way in among several, not the page. Every section is a card in the grid, and the grid
+        lets no card be wider than a column once there is room for two."""
+        h = self.c['index.html']
+        i = h.find('<div class="cards">')
+        self.assertGreater(i, 0, 'the home page has no card grid')
+        self.assertEqual(h[:i].count('<section'), 0, 'a section sits above the card grid')
+        self.assertGreaterEqual(h.count('<section class="card"'), 6, 'fewer than six ways in')
+        self.assertEqual(h.count('<section'), h.count('<section class="card"'), 'a section on the home page is not a card')
+        for way in ('Search', 'Start here', 'Best beliefs', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'Topics'):
+            self.assertIn(f'<span>{way}</span>', h, f'{way} is not a way in')
 
     def test_it_does_not_list_every_page(self):
         """One idea per page. The full list has its own page and a search box; the home page is not it."""
