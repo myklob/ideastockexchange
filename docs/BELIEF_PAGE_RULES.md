@@ -369,6 +369,15 @@ feed it. Renders nothing when no open contract exists.
     identity is orthogonal to the final score, so these names carry history, not
     weight. Each listing is itself a debatable claim that the person holds the
     position; contested listings are annotated.
+12c. **Add to This Page**: the participation block. On the built site every
+    table above carries a form that takes rows (a reason to agree or disagree, a
+    finding, a prediction, a criterion, a cost or benefit, an interest) and the
+    Related Beliefs section carries a propose-a-belief form; the heading line
+    carries Agree and Disagree links after the score badge, with counts once
+    anyone has voted. As a reader types, claims already on the site that say the
+    same thing are shown, and a near-identical one turns the submit button into
+    a vote for the claim already here. A vote is shown as what people think,
+    next to what the analysis says, and never moves a score.
 13. **What This Page Needs Right Now** (`# / The gap / Where it goes / Who is best placed to fill
     it`) — concrete gaps, updated as they fill: the strongest missing counterargument stated as the shape
     of the argument wanted (not a topic label), an evidence slot (a claim resting on argument alone), a
@@ -404,7 +413,8 @@ Before outputting any ISE belief page, verify:
 - [ ] Objective Criteria has at least one deliberately failing criterion scored low with its reasons, and every Strengthen/Weaken pair differs
 - [ ] "What This Page Needs Right Now" names concrete gaps with where each goes and who fills it, above Contribute
 - [ ] Scorecard shows Net Belief Score (Pro vs. Con), Bottom line, and the auto-derived Strongest pro/con and top score-mover — auto-derived cells computed from the tables, never hand-picked
-- [ ] Definitions section is the last analysis section; only People on the Record, Contribute, and Related Topics follow
+- [ ] Definitions section is the last analysis section; only People on the Record, Add to This Page, What This Page Needs Right Now, Contribute, and Related Topics follow
+- [ ] Add to This Page sits after People on the Record: a form per table, Agree/Disagree links after the score, and the sentence that a vote is shown and never counted
 - [ ] Argument cells are complete atomic propositions with the famous quote inline and `~Name` submitter — no citations, percentages, or study names; confirmed fallacies noted inline
 - [ ] Argument Trees and Evidence Ledger each render as a single two-sided table with Pro/Con (or Supporting/Weakening) halves
 - [ ] Column headers are spelled out (Linkage, Importance, Standing) — no abbreviations

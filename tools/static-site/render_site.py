@@ -67,6 +67,7 @@ class Corpus:
                     self.uses.setdefault(e[col], []).append((e['page_id'], e['section'], col))
                     self.reads.setdefault(e['page_id'], set()).add(e[col])
         self._stats = {}
+        self.votes = {}         # key -> counts from content/votes.csv, set by build(); shown, never scored
         # every equivalence page, seen from both of the pages it connects: pid -> [(other, equivalence truth, equivalence page)]
         self.equivalents = {}
         for q in self.specs:
@@ -468,13 +469,15 @@ def conf_cell(H, c, d):
     return H.num(c.conf.of(d['id']), d['id'])
 
 
-def scored_table(H, c, side_rows, specs_rows, headers, key_label):
-    """One side of a two-sided scored table: rank, text, Truth, Link, Imp, Uniq, Score. Sorted by score."""
+def scored_table(H, c, side_rows, specs_rows, headers, key_label, votes=False):
+    """One side of a two-sided scored table: rank, text, Truth, Link, Imp, Uniq, Score. Sorted by score. With
+    `votes`, a row that is a page carries its two vote links under its text, the way the heading line does."""
     order = sorted(range(len(specs_rows)), key=lambda i: -side_rows[i]['score'])
     out = [f'<table class="scored"><thead><tr><th class="rk">#</th><th>{esc(key_label)}</th><th>Truth</th><th>Conf</th><th>Link</th><th>Imp</th><th>Uniq</th><th>Score</th></tr></thead><tbody>']
     for rank, i in enumerate(order, 1):
         d, r = specs_rows[i], side_rows[i]
-        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}</td>'
+        vl = vote_links(c, d['id']) if votes and is_page(d.get('id')) else ''
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{vl}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{conf_cell(H, c, d)}</td>'
                    f'<td>{H.num(r["link"], d.get("link"), const_label="No linkage page yet: presumed relevant, reads " + str(DEFLINK))}</td>'
@@ -585,9 +588,10 @@ def simple_rows(H, c, items, extra=None):
 def render_belief(c, pid):
     H = Html(c); sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid)
     o = [head(c, pid, c.short(pid, 80, full=True))]
-    o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.standalone(pid))} {score_badge(s["truth"])}</h1>')
+    o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid)}</h1>')
     tk = c.topic_of(pid)
     meta = [f'Topic: <a href="../t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>'] if tk else []
+    meta.append(f'<span class="vnote">{VOTE_NOTE}</span>')
     if sp.get('positivity') is not None:
         meta.append('<span title="Typed by the author to place this claim on the topic page&apos;s axis, from -100 to '
                     '+100. It is a label, not a score: nothing on this site reads it.">Position on the topic axis '
@@ -666,9 +670,10 @@ def render_belief(c, pid):
     todo = []
     # ---- arguments
     o.append(H.section('Argument Trees', 'Each reason is a claim with its own page. Score = sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq, and every column is here so the row can be multiplied out and checked. A reason argued false scores negative and counts against the side it is filed on; a reason nobody has argued yet scores exactly 0, and so does one whose own page has no work behind it.', ('How arguments are scored', WIKI['reasons'])))
+    key = c.key[pid]
     o.append(two_sided(H, c, 'Reasons to agree', 'Reasons to disagree',
-                       scored_table(H, c, s['rows']['agree'], sp['args']['agree'], None, 'Argument'),
-                       scored_table(H, c, s['rows']['disagree'], sp['args']['disagree'], None, 'Argument')))
+                       scored_table(H, c, s['rows']['agree'], sp['args']['agree'], None, 'Argument', votes=True) + add_form(H.up, 'argument', 'agree', key),
+                       scored_table(H, c, s['rows']['disagree'], sp['args']['disagree'], None, 'Argument', votes=True) + add_form(H.up, 'argument', 'disagree', key)))
     o.append(f'<p class="tot">Weight for {f2(s["pro"])} · weight against {f2(s["con"])} · net {sf(s["pro"] - s["con"])}</p></section>')
     dup = [r for r in c.sim.by_parent().get(pid, ()) if not r['uniq']]
     if dup:
@@ -688,7 +693,7 @@ def render_belief(c, pid):
                        evidence_table(H, c, LRF, LF, LBF),
                        evidence_table(H, c, LRA, LA, LBA)))
       o.append(f'<p class="tot">Weight for {f2(s["supp"])} · weight against {f2(s["weak"])} · net {sf(s["supp"] - s["weak"])}</p>')
-      o.append(f'<p class="tot">Evidence Verification Score {f2(s["evs"])} · supporting {f2(s["evs_for"])} · weakening {f2(s["evs_against"])}. {s["evs_note"]}</p></section>')
+      o.append(f'<p class="tot">Evidence Verification Score {f2(s["evs"])} · supporting {f2(s["evs_for"])} · weakening {f2(s["evs_against"])}. {s["evs_note"]}</p>' + add_form(H.up, 'evidence', 'agree', key) + '</section>')
     else: todo.append(('Evidence Ledger', 'no findings cited yet'))
     # ---- predictions
     def pred_table(specs_rows, side_rows):
@@ -707,7 +712,7 @@ def render_belief(c, pid):
     if sp.get('pred_true') or sp.get('pred_false'):
       o.append(H.section('Testable Predictions', 'If this belief is true, what should the world show that it would not show otherwise; if false, what instead? Result so far is the prediction\'s own page: pending at 0.50, and moving as it comes true or fails. A pending prediction contributes nothing yet; At stake is what it would contribute once settled.', ('Evidence and predictions', WIKI['evidence'])))
       o.append(two_sided(H, c, 'Follows if the belief is true', 'Follows if the belief is false', pred_table(sp.get('pred_true', []), s['rows']['pt']), pred_table(sp.get('pred_false', []), s['rows']['pf'])))
-      o.append(f'<p class="tot">Prediction contribution {sf(s["pred"])} · points at stake {f2(s["stake"])} · {(pct(s["falsif"]) + " of predictions are") if s["falsif"] is not None else "no predictions"} diagnostic and dated</p></section>')
+      o.append(f'<p class="tot">Prediction contribution {sf(s["pred"])} · points at stake {f2(s["stake"])} · {(pct(s["falsif"]) + " of predictions are") if s["falsif"] is not None else "no predictions"} diagnostic and dated</p>' + add_form(H.up, 'prediction', 'agree', key) + '</section>')
     else: todo.append(('Testable Predictions', 'nothing stated that we should observe if this ' + ('belief' if k == 'belief' else 'claim') + ' is true or false'))
     # ---- objective criteria: the yardstick named before the reading
     crit = [d for d in sp.get('criteria', []) if has(d)]
@@ -722,7 +727,7 @@ def render_belief(c, pid):
                  + (f'<div class="src side-disagree">A reading that would weaken it: {esc(d["weaken"])}</div>' if d.get('weaken') else '') + f'</td><td>{score}</td>'
                  + ''.join(f'<td>{esc(d.get(k) or "")}</td>' for k in ('validity', 'reliability', 'linkage', 'importance'))
                  + f'<td class="u">{esc(d.get("latest") or "") or "<span class=c>not yet read</span>"}</td></tr>')
-      o.append('</tbody></table></section>')
+      o.append('</tbody></table>' + add_form(H.up, 'criterion', 'agree', key) + '</section>')
     else: todo.append(('Objective Criteria', 'no yardstick both sides would accept in advance has been proposed'))
     # ---- cost-benefit
     def cba_table(items, who_label):
@@ -762,7 +767,7 @@ def render_belief(c, pid):
         o.append('</tbody></table>')
       if sp.get('short') or sp.get('long'):
         o.append('<h3 class="sub">Short-term against long-term</h3>' + two_sided(H, c, 'Short-term (0 to 2 years)', 'Long-term (5 years and beyond)', simple_rows(H, c, sp.get('short', [])), simple_rows(H, c, sp.get('long', []))))
-      o.append('</section>')
+      o.append(add_form(H.up, 'cba', 'agree', key) + '</section>')
     else: todo.append(('What Acting On This Would Cost and Gain', 'no costs or benefits priced yet'))
     # ---- anatomy
     if [d for d in sp.get('components', []) if has(d)]:
@@ -814,7 +819,7 @@ def render_belief(c, pid):
         o.append('</tbody></table>')
     if sp.get('obst_sup') or sp.get('obst_opp'): o.append('<h3 class="sub">Obstacles to resolution</h3>' + two_sided(H, c, 'For supporters', 'For opponents', simple_rows(H, c, sp.get('obst_sup', [])), simple_rows(H, c, sp.get('obst_opp', []))))
     if sp.get('bias_sup') or sp.get('bias_opp'): o.append('<h3 class="sub">Cognitive biases</h3>' + two_sided(H, c, 'Affecting supporters', 'Affecting opponents', simple_rows(H, c, sp.get('bias_sup', [])), simple_rows(H, c, sp.get('bias_opp', []))))
-    o.append('</section>')
+    o.append(add_form(H.up, 'interest', 'agree', key) + '</section>')
     if not (sp.get('int_sup') or sp.get('int_opp') or sp.get('values')):
         del o[mark:]; todo.append(('Interests, Not Positions', 'nobody has mapped who wants what, or why'))
     # ---- media, law, up/down, similar, definitions, people
@@ -862,20 +867,24 @@ def render_belief(c, pid):
     if k == 'belief' and tk:
         sibs = [b for b in c.topic_beliefs(tk) if b != pid]
         o.append(H.section('Related Beliefs', f'The other beliefs filed under <a href="../t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>; this one is listed unlinked.'))
-        o.append('<ol class="sibs">' + ''.join(f'<li>{H.a(b, c.standalone(b))} <span class="tn">{f2(c.truth(b))}</span></li>' for b in sibs) + f'<li class="u">{esc(c.standalone(pid))} (this page)</li></ol></section>')
+        o.append('<ol class="sibs">' + ''.join(f'<li>{H.a(b, c.standalone(b))} <span class="tn">{f2(c.truth(b))}</span></li>' for b in sibs) + f'<li class="u">{esc(c.standalone(pid))} (this page)</li></ol>')
+        o.append(add_form(H.up, 'belief', topic=tk) + '</section>')
     if todo:
-        o.append(H.section('Not filled in yet', 'Parts of the template nobody has filled in here. They are named rather than shown, because an empty table is not a finding, and each one is a reason the confidence above is not higher.'))
-        o.append('<table class="plain"><tbody>' + ''.join(f'<tr><td class="t">{esc(n)}</td><td class="u">{esc(why)}</td></tr>' for n, why in todo) + '</tbody></table></section>')
+        o.append(H.section('Not filled in yet', 'Parts of the template nobody has filled in here. They are named rather than shown, because an empty table is not a finding, and each one is a reason the confidence above is not higher. A part that takes rows has a form for its first one.'))
+        o.append('<table class="plain"><tbody>' + ''.join(f'<tr><td class="t">{esc(n)}</td><td class="u">{esc(why)}</td></tr>' for n, why in todo) + '</tbody></table>')
+        o += [add_form(H.up, FORM_SECTIONS[n], 'agree', key, first=True) for n, _ in todo if n in FORM_SECTIONS]
+        o.append('</section>')
     gaps = page_gaps(H, c, pid)
     if gaps:
-        o.append(H.section('What this page needs right now', 'Named gaps, read off the tables above, so a newcomer can see exactly where a contribution goes. None of them requires agreeing with the page.'))
+        o.append(H.section('What this page needs right now', 'Named gaps, read off the tables above, so a newcomer can see exactly where a contribution goes. None of them requires agreeing with the page, and each one links to the form it goes in.'))
         o.append('<table class="plain"><thead><tr><th class="rk">#</th><th>The gap</th><th>Where it goes</th><th>Who is best placed to fill it</th></tr></thead><tbody>'
-                 + ''.join(f'<tr><td class="rk">{i}</td><td class="t">{g}</td><td class="u">{esc(w)}</td><td class="u">{esc(who)}</td></tr>' for i, (g, w, who) in enumerate(gaps, 1)) + '</tbody></table></section>')
+                 + ''.join(f'<tr><td class="rk">{i}</td><td class="t">{g}</td><td class="u"><a href="#{anchor}">{esc(w)}</a></td><td class="u">{esc(who)}</td></tr>' for i, (g, w, who, anchor) in enumerate(gaps, 1)) + '</tbody></table></section>')
     o.append(H.section('What the numbers are made of'))
     o.append(readout)
     o.append('</section>')
     o.append(checks_section(H, c, pid))
     o.append(engine_table(H, c, pid))
+    o.append(contribute_script(H.up))
     o.append(FOOT)
     return ''.join(o)
 
@@ -1128,7 +1137,8 @@ def rowref(H, c, d):
 
 def page_gaps(H, c, pid):
     """What this page needs right now, read off its own tables: the shape of the missing counterargument, the
-    claim resting on argument alone, the yardstick nobody has proposed or read. Each is (gap, where, who)."""
+    claim resting on argument alone, the yardstick nobody has proposed or read. Each is (gap, where, who,
+    the id of the form on the page it goes in)."""
     sp, s = c.specs[pid], c.stats(pid)
     out = []
     A, D = sp['args']['agree'], sp['args']['disagree']
@@ -1137,19 +1147,19 @@ def page_gaps(H, c, pid):
         pairs = list(zip(sp['args'][strong], s['rows'][strong]))
         top = max(pairs, key=lambda x: abs(x[1]['score']))[0] if pairs else None
         what = (f'A reason to {weak} that answers: “{rowref(H, c, top)}”' if top else f'A first reason to {weak}')
-        out.append((what, f'Argument Trees, {side}', 'someone who holds the opposing position'))
+        out.append((what, f'Argument Trees, {side}', 'someone who holds the opposing position', f'add-argument-{weak}'))
     unsourced = [d for d in A + D if is_page(d.get('id')) and not (c.specs[d['id']]['evid']['for'] or c.specs[d['id']]['evid']['against'])]
     if unsourced:
         d = max(unsourced, key=lambda d: c.rank.of(d['id']))
-        out.append((f'A study, record or dataset for “{rowref(H, c, d)}”, which rests on argument alone', 'Evidence Ledger', 'anyone with the source'))
+        out.append((f'A study, record or dataset for “{rowref(H, c, d)}”, which rests on argument alone', 'Evidence Ledger', 'anyone with the source', 'add-evidence'))
     elif not (sp['evid']['for'] or sp['evid']['against']):
-        out.append(('A study, record or dataset that bears on this belief directly', 'Evidence Ledger', 'anyone with the source'))
+        out.append(('A study, record or dataset that bears on this belief directly', 'Evidence Ledger', 'anyone with the source', 'add-evidence'))
     crit = sp.get('criteria', [])
     unread = [d for d in crit if not (d.get('latest') or '').strip()]
     if not crit:
-        out.append(('A measurement both sides would accept in advance, with the reading each side predicts', 'Objective Criteria', 'anyone who can name a yardstick the other side would sign'))
+        out.append(('A measurement both sides would accept in advance, with the reading each side predicts', 'Objective Criteria', 'anyone who can name a yardstick the other side would sign', 'add-criterion'))
     elif unread:
-        out.append((f'The first sourced reading of “{rowref(H, c, unread[0])}”', 'Objective Criteria, Latest Reading', 'anyone with the number'))
+        out.append((f'The first sourced reading of “{rowref(H, c, unread[0])}”', 'Objective Criteria, Latest Reading', 'anyone with the number', 'add-criterion'))
     return out[:3]
 
 def invitation(H, c, pid):
@@ -1167,6 +1177,152 @@ def invitation(H, c, pid):
                  'Permanent, and open to revision by anyone with a better argument.</p>')
     o.append(f'<p class="ask"><strong>If you disagree, this page has a column for you.</strong> {ask}</p></div>')
     return ''.join(o)
+
+# ------------------------------------------------------------------------------------------------ taking part
+# There is no server. A form on a page is a GET to GitHub's new-issue address, prefilled from the fields the
+# issue form declares; contribute.js checks what is typed against every claim in the tables first, so a
+# duplicate becomes a vote for the claim already here. A vote is shown and never counted: the engine's rule is
+# that a claim nobody has argued is worth exactly nothing, however many people like it.
+REPO = 'https://github.com/myklob/ideastockexchange'
+NEW_ISSUE = REPO + '/issues/new'
+VOTE_NOTE = 'Votes are shown as what people think, next to what the analysis says, and never move a score.'
+GIT_NOTE = 'If you would rather use git, every cell here is a row in the <a href="%s">repository</a>' % REPO
+FORMS = {
+    'argument': ('Add a reason to %s', 'One complete sentence that could headline a page of its own', None, None),
+    'evidence': ('Add a finding', 'What was found, by whom and when, as one sentence',
+                 'Where it can be checked (optional)', ('supports the claim', 'weakens the claim')),
+    'prediction': ('Add a prediction', 'What the world should show, as one sentence',
+                   'By when, and how it gets settled (optional)', ('follows if the claim is true', 'follows if the claim is false')),
+    'criterion': ('Add a criterion', 'A measurement both sides would accept in advance', 'How it is measured (optional)', None),
+    'cba': ('Add a cost or benefit', 'Who gains or pays what, as one sentence', 'In what units, and how it is known (optional)',
+            ('a benefit', 'a cost')),
+    'interest': ('Add an interest', 'A need somebody has, as one sentence', 'Where it is on record (optional)',
+                 ('of supporters', 'of opponents')),
+    'belief': ('Propose a belief', 'One complete sentence someone could agree or disagree with', None, None),
+}
+FORM_SECTIONS = {'Evidence Ledger': 'evidence', 'Testable Predictions': 'prediction', 'Objective Criteria': 'criterion',
+                 'What Acting On This Would Cost and Gain': 'cba', 'Interests, Not Positions': 'interest'}
+
+
+def _q(params):
+    from urllib.parse import urlencode, quote
+    return urlencode([(k, v) for k, v in params if v], quote_via=quote)
+
+
+TITLES = {'argument': {'agree': 'Reason to agree', 'disagree': 'Reason to disagree'}, 'evidence': 'Evidence',
+          'prediction': 'Prediction', 'criterion': 'Criterion', 'cba': 'Cost or benefit', 'interest': 'Interest',
+          'belief': 'Belief'}
+
+
+def vote_url(key, vote):
+    return f'{NEW_ISSUE}?' + _q([('template', 'vote.yml'), ('labels', 'vote'), ('title', f'Vote {vote}: {key}'), ('page', key), ('vote', vote)])
+
+
+def vote_links(c, pid):
+    """The two vote links for the heading line, with the counts when the votes table has any for this page."""
+    key = c.key[pid]; n = getattr(c, 'votes', {}).get(key)
+    out = ['<span class="votes">']
+    for v in ('agree', 'disagree'):
+        out.append(f'<a class="vote" href="{esc(vote_url(key, v))}" rel="nofollow">{v.capitalize()}</a> ')
+    if n: out.append(f'<span class="vn">{n["agree"]} agree, {n["disagree"]} disagree; votes, not a score</span>')
+    out.append('</span>')
+    return ''.join(out)
+
+
+def add_form(up, section, side='agree', page=None, topic=None, first=False):
+    """One form of section E. `up` is how the page reaches the site root ('' at the root, '../' under p/ and
+    t/), which is where contribute.js finds data/claims_index.json. Without a script the form still works:
+    GitHub prefills the fields it knows from the query and ignores the rest."""
+    label, hint, source, sides = FORMS[section]
+    belief = section == 'belief'
+    fid = 'add-' + section + (f'-{side}' if section == 'argument' else '')
+    if section == 'argument': label = label % side
+    if first: label = re.sub(r'^Add an? ', 'Add the first ', label)
+    o = [f'<form class="add" id="{fid}" method="get" action="{NEW_ISSUE}" target="_blank" rel="noopener" '
+         f'data-index="{up}data/claims_index.json" data-page="{esc(page or "")}" data-section="{section}" data-side="{side}" data-repo="{REPO}">']
+    # the title is what a submission with no script arrives under; the script rebuilds it with the first words typed
+    hidden = [('template', 'belief.yml' if belief else 'contribute.yml'), ('labels', 'belief' if belief else 'contribution'),
+              ('title', (TITLES['argument'][side] if section == 'argument' else TITLES[section]) + ': ')]
+    if not belief: hidden += [('page', page or ''), ('section', section)]
+    if not belief and not sides: hidden.append(('side', side))
+    if belief and topic: hidden.append(('topic', topic))
+    o += [f'<input type="hidden" name="{k}" value="{esc(v)}">' for k, v in hidden]
+    o.append(f'<label for="{fid}-text">{esc(label)}</label>')
+    o.append(f'<textarea id="{fid}-text" name="text" rows="2" required placeholder="{esc(hint)}"></textarea>')
+    if sides:
+        opts = ''.join(f'<option value="{v}"{" selected" if v == side else ""}>{esc(t)}</option>' for v, t in zip(('agree', 'disagree'), sides))
+        o.append(f'<label class="lab" for="{fid}-side">It is</label>'
+                 f'<select id="{fid}-side" name="side" onchange="this.form.setAttribute(\'data-side\',this.value)">{opts}</select>')
+    if source: o.append(f'<input id="{fid}-source" name="source" placeholder="{esc(source)}" aria-label="{esc(source)}">')
+    if belief and not topic: o.append(f'<input id="{fid}-topic" name="topic" placeholder="Topic it belongs under (optional)" aria-label="Topic it belongs under (optional)">')
+    o.append('<button type="submit">Add it</button>')
+    o.append('<p class="dup" aria-live="polite"></p>')
+    o.append('<p class="fine">Submitting opens GitHub; you need a free account. As you type, claims already on the site that say '
+             'the same thing are shown, and a duplicate becomes a vote for the one already here.</p></form>')
+    return ''.join(o)
+
+
+def contribute_script(up):
+    return f'<script src="{up}contribute.js" defer></script>'
+
+
+def read_votes(content):
+    """content/votes.csv as key -> {'agree': n, 'disagree': n}. One row per (key, login), latest wins. The
+    table is not in the workbook and the engine never reads it; it is shown beside the score and nowhere else."""
+    import csv
+    fn = os.path.join(content, 'votes.csv')
+    if not os.path.exists(fn): return {}
+    latest = {}
+    with open(fn, newline='', encoding='utf-8') as fh:
+        for i, d in enumerate(csv.DictReader(fh)):
+            key, who = (d.get('key') or '').strip(), (d.get('login') or '').strip()
+            vote = (d.get('vote') or '').strip().lower()
+            if key and vote in ('agree', 'disagree'):
+                latest[(key, who)] = max(latest.get((key, who), ('', -1, '')), ((d.get('date') or '').strip(), i, vote))
+    out = {}
+    for (key, _), (_, _, vote) in latest.items(): out.setdefault(key, {'agree': 0, 'disagree': 0})[vote] += 1
+    return out
+
+
+def disagreement(c):
+    """Pages with votes, ranked by how far the share of votes to agree sits from the truth score: (page, share,
+    gap, votes). Empty when nobody has voted, and then nothing on the site mentions it."""
+    out = []
+    for key, n in getattr(c, 'votes', {}).items():
+        if not is_page_key(c, key): continue
+        pid = c.tabs[key]
+        if c.kind(pid) not in ('belief', 'claim'): continue
+        total = n['agree'] + n['disagree']
+        if not total: continue
+        share = n['agree'] / total
+        out.append((pid, share, share - c.truth(pid), total))
+    return sorted(out, key=lambda r: (-abs(r[2]), -r[3], c.standalone(r[0])))
+
+
+def claims_index(c, entry):
+    """Section A: every claim in the full tables, drafts included, so the duplicate check on the page sees a
+    claim that exists but is not published yet. Built from the tables, not from the published site."""
+    pages, edges = read_source(entry)
+    specs, beliefs = tables_to_specs(pages, edges)
+    key = {t: k for k, t in entry_keys(pages).items()}
+    def kind(pid): return specs[pid].get('kind') or ('belief' if pid in beliefs else 'claim')
+    def root(pid):
+        seen = set()
+        while is_page(pid) and pid in specs and pid not in seen:
+            seen.add(pid)
+            if kind(pid) == 'belief': return key[pid]
+            pid = specs[pid].get('supports')
+        return None
+    out = []
+    for pid in sorted(specs):
+        k = kind(pid)
+        if k not in ('belief', 'claim'): continue
+        text = (specs[pid].get('belief') or '').strip()
+        if not text: continue
+        pk = key[pid]; live = is_page_key(c, pk)
+        out.append({'key': pk, 'kind': k, 'text': text, 'page': f'p/{pk}.html' if live else None,
+                    'belief': root(pid), 'draft': not live})
+    return {'built_from': (getattr(c, 'prov', None) or {}).get('rev'), 'count': len(out), 'claims': out}
 
 def strongest_reason(H, c, pid):
     """The argument row beneath a belief that carries the most weight either way, or the first one listed
@@ -1254,8 +1410,10 @@ def render_topic(c, tkey, title):
         else:
             o.append('<p class="cap">No belief is filed here yet' + (', or under anything beneath it' if kids else '') + '.</p>')
         o.append('<h2 class="th">&#128236; Contribute</h2>')
-        o.append(f'<p class="cap">File a belief here by giving its page row the topic <code>{esc(tkey)}</code> in the <a href="https://github.com/myklob/ideastockexchange">repository</a>. Once one is filed, this page takes the full topic layout: where each belief sits, what it assumes, what the two sides value, and the evidence beneath it all.</p>')
-        o.append(stamp(c)); o.append(FOOT)
+        o.append('<p class="cap">Once a belief is filed here, this page takes the full topic layout: where each belief sits, what it assumes, what the two sides value, and the evidence beneath it all.</p>')
+        o.append(add_form(H.up, 'belief', topic=tkey))
+        o.append(f'<p class="cap">{GIT_NOTE}: a belief is a page row with the topic <code>{esc(tkey)}</code>.</p>')
+        o.append(stamp(c)); o.append(contribute_script(H.up)); o.append(FOOT)
         return ''.join(o)
     # ---- topic metrics: the three the template names, each computed or said to be missing
     cited = [p for p in pages if EV.prior(c.specs[p])['grounded']]
@@ -1500,8 +1658,10 @@ def render_topic(c, tkey, title):
 
     # ---- contribute
     o.append('<h2 class="th">&#128236; Contribute</h2>')
-    o.append(f'<p class="cap">Every cell on this page is a row in the <a href="https://github.com/myklob/ideastockexchange">repository</a>: add a belief to this topic by giving its page row the topic <code>{esc(tkey)}</code>, or add a row to the edges table with page <code>{esc(tkey)}</code> and one of the topic sections. GitHub holds the code and scoring algorithms.</p>')
+    o.append(add_form(H.up, 'belief', topic=tkey))
+    o.append(f'<p class="cap">{GIT_NOTE}: a belief is a page row with the topic <code>{esc(tkey)}</code>, and a cell on this page is an edges row with page <code>{esc(tkey)}</code> and one of the topic sections.</p>')
     o.append(stamp(c))
+    o.append(contribute_script(H.up))
     o.append(FOOT)
     return ''.join(o)
 
@@ -1692,6 +1852,11 @@ EXPLAIN = [
      'The tables behind this version are compared with the previous version, row by row; the pages are listed most relied on first.',
      'So a returning reader can see what is new without rereading everything, and so every change to a number can be traced to the row that caused it.',
      None),
+    ('votes', 'Where people and the analysis disagree',
+     'Claims people have voted on, ranked by how far the share of votes to agree sits from the truth score.',
+     'A vote is one GitHub account saying agree or disagree with a claim, and only that account\'s latest vote counts. The share of the votes that agree is compared with the claim\'s truth score, and the list is ordered by the size of the gap, widest first. The card appears only once somebody has voted.',
+     'Because a claim the analysis rates low that many people agree with, or the other way round, is where a reason is missing from the page: either the people know something the tables do not, or the tables know something the people do not, and the next argument goes there. The votes themselves never move a score, because a claim nobody has argued is worth nothing however many people like it.',
+     None),
     ('topics', 'Topics',
      'Beliefs filed by subject, like a library shelf.',
      'Each belief is filed under one topic. A topic page places every belief on three scales: which way it points, how strongly it is worded, and how general or specific it is.',
@@ -1777,6 +1942,8 @@ def render_index(c, title):
              f'<a href="lists.html">What each list means</a> · <a href="method.html">how the scores are worked out</a>.</p>')
     TOP = 3
     cards = [card('Search', 'Every page on the site, by the words in it.', SEARCH, see_all('all.html', len(c.specs), 'pages, listed'))]
+    cards.append(card('Propose a belief', 'A claim someone could agree or disagree with, as one complete sentence. It starts as a draft and is '
+                      'published once both sides are argued and the evidence, criteria, predictions, costs and interests are in.', add_form('', 'belief')))
     cards.append(card('Best beliefs', 'The best argued first.',
                       mini(c, best_beliefs(c, TOP), 'Belief score', lambda p: sf(c.stats(p)['belief']), 'best', what='Belief'), see_all('best.html', len(c.beliefs), 'beliefs, ranked'), 'best'))
     con, n = contested(c)
@@ -1785,7 +1952,12 @@ def render_index(c, title):
     hard = hardest(c)
     cards.append(card('Hardest to resolve', 'A disagreement over values first, because no measurement settles it; a factual one last, because one can.',
                       mini(c, hard[:TOP], 'Kind of dispute', lambda p: f'<a href="lists.html#hardest">{esc(c.stats(p)["dispute"])}</a>', 'hardest', what='Belief'), '', 'hardest'))
-    relied_all = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
+    voted = disagreement(c)
+    if voted:
+        gap = {p: (share, g, n) for p, share, g, n in voted}
+        cards.append(card('Where people and the analysis disagree', 'The share of votes to agree against the truth score, widest gap first. ' + VOTE_NOTE,
+                          mini(c, [p for p, *_ in voted[:TOP]], 'Gap', lambda p: f'{sf(gap[p][1])} <span class="u">({pct(gap[p][0])} of {gap[p][2]} agree, truth {f2(c.truth(p))})</span>', 'votes'), '', 'votes'))
+    relied_all =[r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
     cards.append(card('Most relied on', 'The claims the most of this site depends on. The nearest thing to "popular" that can be measured here: '
                       'nobody\'s votes or views are counted, so it says how much rests on a claim, not how many people like it.',
                       mini(c, relied_all[:TOP], 'Relied on', lambda p: f'{c.rank.of(p):.4f}', 'relied'), see_all('relied.html', min(len(relied_all), RELIED_SHOWN), 'most relied on'), 'relied'))
@@ -1821,6 +1993,7 @@ def render_index(c, title):
              '<li><a href="changes.html">What changed</a> since the last revision, row by row.</li></ul>'))
     o.append('<div class="cards">' + ''.join(cards) + '</div>')
     o.append(stamp(c))
+    o.append(contribute_script(''))
     o.append('</main>' + JS + '</body></html>')
     return ''.join(o)
 
@@ -1926,6 +2099,19 @@ table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl
 .invite{border:2px solid var(--navy);background:color-mix(in srgb,var(--navy) 6%,var(--paper));padding:14px 16px;margin:14px 0 10px}
 .invite p{margin:0 0 8px;font-size:14.5px}.invite .hook{font-weight:600;font-family:var(--serif);font-size:16px}.invite .promise{font-size:13px;color:var(--ink2)}
 .invite .ask{margin:0;font-size:13px;padding:8px 10px;background:var(--paper);border-left:3px solid var(--navy)}
+.add{display:block;width:100%;max-width:100%;min-width:0;border:2px solid var(--navy);background:color-mix(in srgb,var(--navy) 6%,var(--paper));padding:12px 14px;margin:12px 0 0;font-size:13.5px}
+.add label{display:block;font-weight:600;margin:0 0 4px}.add label.lab{margin-top:4px}
+.add textarea,.add input:not([type=hidden]),.add select{display:block;width:100%;max-width:100%;min-width:0;font:inherit;padding:7px 9px;margin:0 0 6px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
+.add textarea{min-height:3.4em;resize:vertical}.add textarea:focus-visible,.add input:focus-visible,.add select:focus-visible{outline:2px solid var(--navy2);outline-offset:1px}
+.add button{max-width:100%;font:600 13px/1.3 var(--sans);padding:7px 12px;border:1px solid var(--navy);border-radius:4px;background:var(--navy);color:var(--paper);cursor:pointer}
+.add button:hover{background:var(--navy2);border-color:var(--navy2)}.add button:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
+.add .dup{margin:8px 0 0;font-size:13px}.add .dup:empty{display:none}.add .dup ul{margin:4px 0 0;padding-left:18px}.add .dup li{margin:3px 0}
+.add .fine{margin:8px 0 0}.side .add{margin-top:10px}
+.votes{display:inline-block;vertical-align:middle;margin-left:.3em;font:500 .5em/1 var(--sans);white-space:normal}
+.votes .vote{display:inline-block;padding:.35em .55em;margin-right:.3em;border:1px solid var(--line);border-radius:4px;background:var(--paper)}
+.votes .vn{color:var(--mute);font-weight:400;white-space:nowrap}.vnote{color:var(--mute)}
+td .votes{display:block;margin:4px 0 0;font-size:11px}td .votes .vn{white-space:normal}
+@media print{.add,.votes{display:none}}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35}td.u{color:var(--ink2);font-size:13px}
@@ -2160,6 +2346,8 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     c = Corpus(source, name)
     c.drafts = drafts
     c.prov = provenance(entry)
+    content = entry if os.path.isdir(entry) else os.path.join(os.path.dirname(os.path.abspath(entry)), 'content')
+    c.votes = read_votes(content) if os.path.isdir(content) else {}
     if os.path.isdir(outdir): shutil.rmtree(outdir)
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
     index = []
@@ -2173,7 +2361,6 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
         index.append({'key': c.key[pid], 'id': pid, 'kind': c.kind(pid), 'text': c.text(pid), 'standalone': c.standalone(pid),
                       'truth': j['truth'], 'confidence': j['confidence'],
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
-    content = entry if os.path.isdir(entry) else os.path.join(os.path.dirname(os.path.abspath(entry)), 'content')
     c.changes = CHANGES.since(content, c) if os.path.isdir(content) else None
     with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
         fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
@@ -2187,6 +2374,12 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
         fh.write(blurbs_below(ths(method.render(c, Html(c, 'p/'), esc, f2, pct, CONST, CONST_MEANING, WIKI, JS))))
     _write(os.path.join(outdir, 'ise.css'), CSS)
     _write(os.path.join(outdir, '.nojekyll'), '')
+    # taking part: the duplicate check on the page reads every claim in the FULL tables, drafts included,
+    # and the script that runs it is copied beside the pages
+    with open(os.path.join(outdir, 'data', 'claims_index.json'), 'w', encoding='utf-8') as fh:
+        json.dump(claims_index(c, entry), fh, indent=1, ensure_ascii=False)
+    js = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'contribute.js')
+    if os.path.exists(js): shutil.copy(js, os.path.join(outdir, 'contribute.js'))
     # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
     export_db(c.specs, CONST, os.path.join(outdir, 'data'), stem='ise', const_meanings=CONST_MEANING, beliefs=c.beliefs,
               topics=c.topics, topic_rows=c.topic_rows, tabs=c.tabs)
