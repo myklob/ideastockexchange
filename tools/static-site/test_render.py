@@ -688,7 +688,9 @@ class TestTheClaimComesBeforeTheCommentary(unittest.TestCase):
     def test_the_truth_score_shares_the_heading_line_and_nothing_else_leads(self):
         """The one number a reader meets before the arguments is the truth score, on the same line as the
         claim it scores, so there is no working out which number a heading is about. Confidence comes after
-        the arguments, next to what it is made of."""
+        the arguments, next to what it is made of. The vote links share the line, and when votes exist their
+        counts do too; a count of people is not a score, and the line says so in those words (see
+        TestVotesAreShownAndNeverCounted)."""
         for pid, h in self.html.items():
             if isinstance(pid, str) or self.c.kind(pid) != 'belief': continue
             m = re.search(r'<h1>(.*?)</h1>', h, re.S)
@@ -1169,6 +1171,7 @@ class TestAClaimHasTwoWordings(unittest.TestCase):
             h1 = re.search(r'<h1>(.*?)</h1>', self.html[pid], re.S)
             self.assertIsNotNone(h1, f'{self.c.key[pid]} has no h1')
             heading = re.sub(r'<span class="hs".*?</span>', '', h1.group(1))   # the score shares the line
+            heading = heading.split('<span class="votes">')[0]   # so do the vote links, at the end of it
             self.assertEqual(strip(heading).strip(), self.c.standalone(pid),
                              f'{self.c.key[pid]} headlines its in-context wording, which does not stand alone')
 
@@ -1375,8 +1378,267 @@ class TestTheBeliefPageFollowsTheTemplate(unittest.TestCase):
             block = h[i:h.find('</section>', i)]
             rows = re.findall(r'<tr><td class="rk">\d+</td>', block)
             self.assertTrue(1 <= len(rows) <= 3)
-            for where in re.findall(r'<td class="u">([^<]*)</td>', block)[::2]:
+            wheres = re.findall(r'<td class="u"><a href="#(add-[a-z-]+)">([^<]*)</a></td>', block)
+            self.assertEqual(len(wheres), len(rows), f'{self.c.key[b]}: a gap does not link the form it goes in')
+            for anchor, where in wheres:
                 self.assertTrue(where.strip(), 'a gap has no place to go')
+                self.assertIn(f'id="{anchor}"', h, f'{self.c.key[b]}: the gap points at #{anchor}, which is not on the page')
+
+
+class TestPeopleCanTakePart(unittest.TestCase):
+    """There is no server, so GitHub is the backend: every form on a page is a GET to the new-issue address,
+    prefilled from the fields the issue forms declare, and contribute.js checks what is typed against every
+    claim in the tables before it gets that far. The page has to carry exactly the field ids the issue forms
+    and the intake Action parse, or a submission lands in GitHub with its fields empty."""
+
+    SECTIONS = ('argument-agree', 'argument-disagree', 'evidence', 'prediction', 'criterion', 'cba', 'interest')
+    CONTRIBUTE_FIELDS = {'template', 'labels', 'title', 'page', 'section', 'side', 'text', 'source', 'why'}
+    BELIEF_FIELDS = {'template', 'labels', 'title', 'text', 'topic', 'agree', 'disagree', 'source'}
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.html, cls.c, cls.dir = cls.parent.html, cls.parent.c, cls.parent.dir
+        cls.claims = [p for p in cls.c.specs if cls.c.kind(p) in ('belief', 'claim')]
+
+    @staticmethod
+    def _forms(h):
+        return {m.group(1): m.group(0) for m in re.finditer(r'<form class="add" id="add-([a-z-]+)".*?</form>', h, re.S)}
+
+    @staticmethod
+    def _names(form):
+        return set(re.findall(r'name="([a-z]+)"', form))
+
+    def test_every_belief_and_claim_page_carries_every_form_with_the_issue_form_fields(self):
+        import render_site as RS
+        checked = 0
+        for pid in self.claims:
+            h, key = self.html[pid], self.c.key[pid]
+            forms = self._forms(h)
+            for sec in self.SECTIONS:
+                self.assertIn(sec, forms, f'{key} has no form for {sec}')
+                f = forms[sec]
+                self.assertLessEqual(self._names(f), self.CONTRIBUTE_FIELDS, f'{key} {sec}: a field the issue form does not declare')
+                self.assertIn('<textarea id="add-%s-text" name="text"' % sec, f)
+                self.assertIn('name="template" value="contribute.yml"', f); self.assertIn('name="labels" value="contribution"', f)
+                self.assertIn(f'name="page" value="{key}"', f); self.assertIn(f'name="section" value="{sec.split("-")[0]}"', f)
+                self.assertIn('name="side"', f, f'{key} {sec} has no side')
+                title = RS.TITLES[sec.split('-')[0]]
+                if isinstance(title, dict): title = title[sec.split('-')[1]]
+                self.assertIn(f'name="title" value="{title}: "', f, f'{key} {sec}: without a script the issue would carry the wrong title')
+                self.assertIn('data-index="../data/claims_index.json"', f); self.assertIn(f'data-page="{key}"', f)
+                self.assertIn('action="https://github.com/myklob/ideastockexchange/issues/new"', f)
+                self.assertIn('<button type="submit">', f); self.assertIn('class="dup" aria-live="polite"', f)
+                self.assertIn('opens GitHub', f, f'{key} {sec} does not say submitting opens GitHub')
+            checked += 1
+        self.assertGreater(checked, 0)
+
+    def test_a_form_for_a_side_sets_the_side_the_script_reads(self):
+        """contribute.js reads data-side at submit time. A form with a side switch has to keep that attribute
+        in step with the switch, and one without has to carry the side as a field, or the no-script GET and
+        the scripted submit disagree about which side the row is on."""
+        for pid in self.claims[:20]:
+            for sec, f in self._forms(self.html[pid]).items():
+                if sec == 'belief': continue
+                side = re.search(r'data-side="(agree|disagree)"', f)
+                self.assertIsNotNone(side, f'{sec} has no data-side')
+                if '<select' in f:
+                    self.assertIn("this.form.setAttribute('data-side',this.value)", f)
+                    self.assertIn(f'<option value="{side.group(1)}" selected>', f)
+                else:
+                    self.assertIn(f'<input type="hidden" name="side" value="{side.group(1)}">', f)
+
+    def test_the_heading_line_carries_the_two_vote_links_and_the_page_says_they_are_not_a_score(self):
+        import render_site as RS
+        for pid in self.claims:
+            h, key = self.html[pid], self.c.key[pid]
+            h1 = re.search(r'<h1>(.*?)</h1>', h, re.S).group(1)
+            self.assertLess(h1.find('class="hs"'), h1.find('class="votes"'), f'{key}: the votes come before the score badge')
+            for v in ('agree', 'disagree'):
+                self.assertIn(f'template=vote.yml&amp;labels=vote&amp;title=Vote%20{v}%3A%20{key}&amp;page={key}&amp;vote={v}" rel="nofollow">{v.capitalize()}</a>', h1,
+                              f'{key} has no {v} vote link on its heading line')
+            self.assertIn(RS.VOTE_NOTE, h, f'{key} does not say what a vote is')
+            n = self.c.votes.get(key)
+            if n: self.assertIn(f'{n["agree"]} agree, {n["disagree"]} disagree; votes, not a score', h1)
+            else: self.assertNotIn('votes, not a score', h1, f'{key} shows vote counts with no votes')
+
+    def test_every_argument_row_that_is_a_page_carries_its_own_two_vote_links(self):
+        """The brief asks for a small agree/disagree on each argument row, not only on the heading line."""
+        from ise_tables import is_page
+        checked = 0
+        for pid in self.claims:
+            h, sp = self.html[pid], self.c.specs[pid]
+            trees = re.search(r'<h2><span>Argument Trees</span>.*?</section>', h, re.S)
+            for d in sp['args']['agree'] + sp['args']['disagree']:
+                if not is_page(d.get('id')): continue
+                k = self.c.key[d['id']]
+                self.assertIsNotNone(trees, f'{self.c.key[pid]} has argument rows but no scored table')
+                for v in ('agree', 'disagree'):
+                    self.assertIn(f'page={k}&amp;vote={v}" rel="nofollow">{v.capitalize()}</a>', trees.group(0),
+                                  f'{self.c.key[pid]}: the row for {k} has no {v} vote link')
+                checked += 1
+        self.assertGreater(checked, 0)
+
+    def test_the_claims_index_covers_every_claim_and_points_at_pages_that_exist(self):
+        with open(os.path.join(self.dir, 'data', 'claims_index.json')) as fh: d = json.load(fh)
+        self.assertEqual(d['count'], len(d['claims']))
+        keys = {r['key'] for r in d['claims']}
+        expected = {self.c.key[p] for p in self.claims if (self.c.text(p) or '').strip()}
+        self.assertEqual(keys, expected, 'the index does not hold exactly the belief and claim pages with text')
+        for r in d['claims']:
+            self.assertEqual(set(r), {'key', 'kind', 'text', 'page', 'belief', 'draft'}, f'{r["key"]}: not the contract shape')
+            self.assertIn(r['kind'], ('belief', 'claim')); self.assertTrue(r['text'].strip())
+            self.assertFalse(r['draft'], f'{r["key"]} is a draft in an ungated build')
+            self.assertEqual(r['page'], f'p/{r["key"]}.html')
+            self.assertTrue(os.path.exists(os.path.join(self.dir, r['page'])), f'{r["page"]} does not exist')
+            if r['belief'] is not None: self.assertIn(r['belief'], keys, f'{r["key"]} sits under a belief that is not in the index')
+        self.assertEqual({r['key'] for r in d['claims'] if r['kind'] == 'belief'}, {self.c.key[b] for b in self.c.beliefs})
+
+    def test_the_script_is_copied_and_referenced_from_every_page_that_carries_a_form(self):
+        self.assertTrue(os.path.exists(os.path.join(self.dir, 'contribute.js')), 'contribute.js was not copied beside the pages')
+        with open(os.path.join(self.dir, 'contribute.js')) as fh: self.assertIn('ISEContribute', fh.read())
+        seen = 0
+        for sub in ('', 'p', 't'):
+            for fn in os.listdir(os.path.join(self.dir, sub)):
+                if not fn.endswith('.html'): continue
+                with open(os.path.join(self.dir, sub, fn)) as fh: h = fh.read()
+                if '<form class="add"' not in h: continue
+                seen += 1
+                self.assertIn(f'<script src="{"../" if sub else ""}contribute.js" defer></script>', h, f'{sub}/{fn} carries a form and not the script')
+        self.assertGreater(seen, len(self.claims), 'the forms are not on the belief pages plus the topic and home pages')
+
+    def test_the_topic_pages_and_the_home_page_propose_a_belief(self):
+        for k in self.c.topics:
+            with open(os.path.join(self.dir, 't', self.c.topic_href(k))) as fh: h = fh.read()
+            f = self._forms(h).get('belief')
+            self.assertIsNotNone(f, f'topic {k} has no propose-a-belief form')
+            self.assertIn('name="template" value="belief.yml"', f); self.assertIn('name="labels" value="belief"', f)
+            self.assertIn(f'name="topic" value="{k}"', f, f'topic {k} does not prefill itself as the topic')
+            self.assertLessEqual(self._names(f), self.BELIEF_FIELDS)
+            self.assertIn('data-index="../data/claims_index.json"', f)
+            self.assertIn('rather use git', h, f'topic {k} lost the sentence for people who prefer git')
+        home = self.html['index.html']
+        f = self._forms(home).get('belief')
+        self.assertIsNotNone(f, 'the home page has no propose-a-belief form')
+        self.assertIn('data-index="data/claims_index.json"', f)
+        self.assertLess(home.find('<span>Search</span>'), home.find('id="add-belief"'), 'the form is not near Search')
+        for b in self.c.beliefs:
+            if self.c.topic_of(b): self.assertIn('belief', self._forms(self.html[b]), f'{self.c.key[b]} has no propose-a-belief form under Related Beliefs')
+
+    def test_the_forms_cannot_scroll_sideways(self):
+        import render_site as RS
+        rule = re.search(r'\n\.add\{([^}]*)\}', RS.CSS).group(1)
+        self.assertIn('width:100%', rule); self.assertIn('max-width:100%', rule)
+        fields = re.search(r'\.add textarea,\.add input:not\(\[type=hidden\]\),\.add select\{([^}]*)\}', RS.CSS).group(1)
+        self.assertIn('width:100%', fields); self.assertIn('max-width:100%', fields)
+        self.assertIn('.sides>*,.stack>*{min-width:0}', RS.CSS, 'a side column may grow past its half of the page')
+
+    def test_lists_says_what_the_votes_card_would_show(self):
+        with open(os.path.join(self.dir, 'lists.html')) as fh: lists = fh.read()
+        self.assertIn('id="votes"', lists)
+        sec = lists[lists.find('id="votes"'):]; sec = sec[:sec.find('</section>')]
+        self.assertIn('never move a score', sec)
+
+
+class TestVotesAreShownAndNeverCounted(unittest.TestCase):
+    """A small corpus built twice, once with a votes table and once without. With votes the heading line shows
+    the counts and the home page has the card that ranks the gap between people and the analysis; without,
+    neither exists. Either way every truth score is identical, because a vote is not an argument."""
+
+    @classmethod
+    def setUpClass(cls):
+        import tempfile
+        import ise_tables as IT, render_site as RS
+        pages = [dict(key='a', kind='belief', text='Cities should plant more trees.', topic='t'),
+                 dict(key='b', kind='belief', text='Cities should pave their parks.', topic='t'),
+                 dict(key='r1', kind='claim', text='Trees cool the streets beneath them.', parent='a'),
+                 dict(key='r2', kind='claim', text='Trees cost money to water and prune.', parent='a'),
+                 dict(key='e1', kind='claim', text='Shaded streets measure cooler than bare ones.', parent='a'),
+                 dict(key='c1', kind='claim', text='Summer street temperature is a fair yardstick for tree planting.', parent='a'),
+                 dict(key='p1', kind='claim', text='Planted blocks will read cooler within five years.', parent='a'),
+                 dict(key='k1', kind='claim', text='Cooler streets reduce heat illness.', parent='a'),
+                 dict(key='i1', kind='interest', text='Residents need cool streets in summer.', parent='a'),
+                 dict(key='s1', kind='claim', text='Parks cost more to keep than pavement.', parent='b')]
+        edges = [dict(page='a', section='argument', side='agree', claim='r1'), dict(page='a', section='argument', side='disagree', claim='r2'),
+                 dict(page='a', section='evidence', side='agree', claim='e1', source='City survey, 2020'), dict(page='a', section='criterion', claim='c1'),
+                 dict(page='a', section='prediction', side='agree', claim='p1'),
+                 dict(page='a', section='cba', side='agree', claim='k1', category='cases', magnitude='10'),
+                 dict(page='a', section='interest', side='agree', claim='i1'), dict(page='a', section='similar', side='extreme', claim='b'),
+                 dict(page='b', section='argument', side='agree', claim='s1')]
+        topics = [dict(key='t', name='Cities', parent='', definition='', scope='', axis='')]
+        cls.with_votes = tempfile.mkdtemp(); IT.write_csv(pages, edges, cls.with_votes, topics=topics)
+        with open(os.path.join(cls.with_votes, 'votes.csv'), 'w') as fh:
+            fh.write('key,login,vote,issue,date\n'
+                     'a,u1,agree,1,2026-09-01\na,u1,disagree,5,2026-09-03\na,u2,agree,2,2026-09-02\na,u3,agree,3,2026-09-02\n'
+                     'r1,u2,disagree,4,2026-09-02\nb,u1,agree,6,2026-09-04\nnot-a-page,u1,agree,7,2026-09-04\n')
+        cls.without = tempfile.mkdtemp(); IT.write_csv(pages, edges, cls.without, topics=topics)
+        cls.out_v, cls.out_n = tempfile.mkdtemp(), tempfile.mkdtemp()
+        cls.cv, cls.broken_v = RS.build(cls.with_votes, cls.out_v, gate=True)
+        cls.cn, cls.broken_n = RS.build(cls.without, cls.out_n, gate=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        for d in ('with_votes', 'without', 'out_v', 'out_n'): shutil.rmtree(getattr(cls, d, ''), ignore_errors=True)
+
+    def _page(self, out, name):
+        with open(os.path.join(out, name)) as fh: return fh.read()
+
+    def test_one_row_per_login_and_the_latest_wins(self):
+        self.assertEqual(self.cv.votes['a'], {'agree': 2, 'disagree': 1})
+        self.assertEqual(self.cv.votes['r1'], {'agree': 0, 'disagree': 1})
+        self.assertEqual(self.cn.votes, {})
+
+    def test_the_counts_sit_on_the_heading_line_and_are_called_votes_not_a_score(self):
+        h1 = re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/a.html'), re.S).group(1)
+        self.assertIn('2 agree, 1 disagree; votes, not a score', h1)
+        self.assertIn('class="hs"', h1)
+        self.assertNotIn('votes, not a score', re.search(r'<h1>(.*?)</h1>', self._page(self.out_n, 'p/a.html'), re.S).group(1))
+        self.assertNotIn('votes, not a score', re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/r2.html'), re.S).group(1))
+
+    def test_no_vote_moves_any_score(self):
+        for pid in self.cv.specs:
+            self.assertEqual(self.cv.truth(pid), self.cn.truth(pid), f'{self.cv.key[pid]}: a vote moved the truth score')
+            self.assertEqual(self.cv.stats(pid)['belief'], self.cn.stats(pid)['belief'])
+
+    def test_the_home_card_appears_only_once_somebody_has_voted(self):
+        import render_site as RS
+        with_ = self._page(self.out_v, 'index.html'); without = self._page(self.out_n, 'index.html')
+        self.assertIn('<span>Where people and the analysis disagree</span>', with_)
+        self.assertIn('href="lists.html#votes"', with_)
+        self.assertNotIn('Where people and the analysis disagree', without)
+        self.assertNotIn('lists.html#votes', without)
+        ranked = RS.disagreement(self.cv)
+        self.assertEqual([self.cv.key[p] for p, *_ in ranked], ['r1', 'a'], 'the widest gap between people and the analysis does not come first')
+        i = with_.find('Where people and the analysis disagree'); card = with_[i:with_.find('</section>', i)]
+        self.assertLess(card.find('href="p/r1.html"'), card.find('href="p/a.html"'))
+        self.assertNotIn('href="p/b.html"', card, 'a draft is ranked on the home page')
+        self.assertEqual(with_.count('<section'), with_.count('<section class="card"'))
+
+    def test_the_claims_index_covers_the_drafts_and_says_which_they_are(self):
+        with open(os.path.join(self.out_v, 'data', 'claims_index.json')) as fh: d = json.load(fh)
+        by = {r['key']: r for r in d['claims']}
+        self.assertEqual(set(by), {'a', 'b', 'r1', 'r2', 'e1', 'c1', 'p1', 'k1', 's1'}, 'not every belief and claim, or the interest crept in')
+        self.assertEqual(d['count'], 9)
+        self.assertEqual(by['b'], {'key': 'b', 'kind': 'belief', 'text': 'Cities should pave their parks.', 'page': None, 'belief': 'b', 'draft': True})
+        self.assertEqual(by['s1']['page'], None); self.assertTrue(by['s1']['draft']); self.assertEqual(by['s1']['belief'], 'b')
+        self.assertEqual(by['r1'], {'key': 'r1', 'kind': 'claim', 'text': 'Trees cool the streets beneath them.', 'page': 'p/r1.html', 'belief': 'a', 'draft': False})
+        for r in d['claims']:
+            if r['page']: self.assertTrue(os.path.exists(os.path.join(self.out_v, r['page'])), f'{r["page"]} does not exist')
+            else: self.assertFalse(os.path.exists(os.path.join(self.out_v, 'p', r['key'] + '.html')), f'{r["key"]} is published and the index says it is not')
+
+    def test_an_empty_section_still_gets_a_form_for_its_first_row(self):
+        """r1 has no findings, predictions, criteria, costs or interests. Its page names those as not filled in,
+        and every one of them has a form for the first row, so the gaps table has somewhere to point."""
+        h = self._page(self.out_v, 'p/r1.html')
+        i = h.find('Not filled in yet'); block = h[i:h.find('</section>', i)]
+        for sec in ('evidence', 'prediction', 'criterion', 'cba', 'interest'):
+            self.assertIn(f'id="add-{sec}"', block, f'r1 has no first-row form for {sec}')
+            self.assertEqual(h.count(f'id="add-{sec}"'), 1)
+        self.assertIn('Add the first finding', block); self.assertIn('Add the first interest', block)
+        gaps = h[h.find('What this page needs right now'):]
+        self.assertIn('href="#add-evidence"', gaps)
+        self.assertEqual(self.broken_v, [])
 
 
 if __name__ == '__main__':

@@ -143,7 +143,7 @@ Three ways to help:
 
 - **Developers:** clone the repo, pick an issue labeled `good first issue` or `help wanted`. Priority areas include the belief scoring pipeline, the Belief Equivalency Engine, and frontend belief display components.
 - **Researchers and writers:** use the templates in [`templates/`](templates/) to add or improve a belief page. Score arguments using Truth, Relevance, and Importance. Classify evidence as **T1** (peer-reviewed), **T2** (expert/institutional), **T3** (journalism/survey), or **T4** (opinion/anecdote).
-- **Everyone:** star the repo. Share a belief page on social media. Submit a new belief as a [GitHub issue](https://github.com/myklob/ideastockexchange/issues) using the belief taxonomy template. Join the discussion in [GitHub Discussions](https://github.com/myklob/ideastockexchange/discussions).
+- **Everyone:** add to a page from the page. Every belief on the [published site](https://myklob.github.io/ideastockexchange/beliefs/) carries a form under each of its tables (a reason to agree or disagree, a finding, a prediction, a criterion, a cost or benefit, an interest) and a propose-a-belief form; as you type, the page shows the claims already there that say the same thing, and a duplicate becomes a vote for the claim already on the site. Submitting opens a prefilled [GitHub issue](https://github.com/myklob/ideastockexchange/issues/new/choose), so you need a free GitHub account; an Action then records your vote or opens a pull request with your rows for the maintainer to merge. Votes are shown next to the score as what people think and never move it. Star the repo, share a belief page, or join the discussion in [GitHub Discussions](https://github.com/myklob/ideastockexchange/discussions).
 
 ## License
 

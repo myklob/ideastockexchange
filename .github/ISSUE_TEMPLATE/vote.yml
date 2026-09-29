@@ -1,0 +1,27 @@
+name: Vote on a claim
+description: Say whether you agree or disagree with a claim on the site. What happens next, in one sentence, is that your vote is recorded against your GitHub login, latest vote wins, and shown on the page as what people think, next to what the analysis says; it never moves a score.
+title: "Vote agree: "
+labels: [vote]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The key of the page (the last part of its address, before .html).
+      placeholder: barring-members-congress-president
+    validations:
+      required: true
+  - type: dropdown
+    id: vote
+    attributes:
+      label: Vote
+      options:
+        - agree
+        - disagree
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: Optional. If your reason is a claim of its own, add it to the page instead, where it can carry weight.

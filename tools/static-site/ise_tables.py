@@ -359,6 +359,9 @@ def write_entry(pages, edges, path, topics=None):
                 v = row.get(c)
                 if v not in (None, ''):
                     cell = ws.cell(row=r, column=i, value=v)
+                    # openpyxl files a string that starts with "=" as a formula, which reads back as nothing
+                    # and would run in the maintainer's spreadsheet; a submitted claim is text whatever it starts with
+                    if isinstance(v, str) and v.startswith('='): cell.data_type = 's'
                     cell.alignment = Alignment(vertical='top', wrap_text=c in WIDE)
         ws.freeze_panes = 'B2'
         ws.auto_filter.ref = f'A1:{ws.cell(row=1, column=len(cols)).column_letter}{max(2, len(rows) + 1)}'

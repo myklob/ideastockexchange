@@ -1,0 +1,59 @@
+name: Add to a page
+description: Add a reason, a finding, a prediction, a criterion, a cost or benefit, or an interest to a page. What happens next, in one sentence, is that a check runs for duplicates and then either counts this as your vote for the claim already on the site or opens a pull request that adds your rows for the maintainer to merge.
+title: "Reason to agree: "
+labels: [contribution]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One complete sentence that could headline a page of its own. A vote never moves a score; a claim does, once it is argued.
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The key of the page this belongs on (the last part of its address, before .html).
+      placeholder: barring-members-congress-president
+    validations:
+      required: true
+  - type: dropdown
+    id: section
+    attributes:
+      label: Section
+      description: Which table on the page the row goes in. A cost or benefit is cba; agree means a benefit and disagree means a cost.
+      options:
+        - argument
+        - evidence
+        - prediction
+        - criterion
+        - cba
+        - interest
+    validations:
+      required: true
+  - type: dropdown
+    id: side
+    attributes:
+      label: Side
+      description: Does it count for the page's claim (agree) or against it (disagree)? A criterion has no side; pick either.
+      options:
+        - agree
+        - disagree
+    validations:
+      required: true
+  - type: textarea
+    id: text
+    attributes:
+      label: The claim
+      description: One complete sentence, atomic, that is true or false on its own.
+      placeholder: Postal infrastructure already reaches every zip code.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: Optional. Where it can be checked, as producer, year and place. For a prediction, when and how it gets settled.
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it bears on the page
+      description: Optional. One or two sentences on why this belongs on that page.

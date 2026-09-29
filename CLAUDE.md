@@ -197,7 +197,14 @@ flag, which CI runs) is gated by `publish.py`: a belief goes on the public site 
 both ways, evidence, objective criteria, predictions or a falsifiability test, costs and benefits, interests), and it
 takes the pages beneath it along; every other belief stays in the tables as a draft, listed with what it still needs
 in `data/drafts.json`, and a row pointing at a draft keeps its words but not its link. `--all` builds everything, and
-the render tests build ungated so they keep exercising the whole corpus. The home page's cards flow in columns so a short card leaves no gap; no card spans the page. Reader-facing pages use plain words;
+the render tests build ungated so they keep exercising the whole corpus. The home page's cards flow in columns so a short card leaves no gap; no card spans the page. People take part
+through GitHub, because there is no server: every belief page carries a form under each table that takes rows plus a
+propose-a-belief form (also on the home and topic pages), each a plain GET to a prefilled GitHub issue form, and
+`contribute.js` checks what is typed against `data/claims_index.json` (written by `build()` from the full tables, drafts
+included) so a duplicate becomes a vote for the claim already there; `intake.py` does the same check on the issue and
+records a vote in `content/votes.csv` or opens a pull request. A vote never moves a score: the page shows the counts on the
+heading line after the score badge, and a home card ranks the gap between the vote share and the truth score only once
+anyone has voted. Reader-facing pages use plain words;
 `test_render.py::TestThePagesSpeakPlainly` fails the build on engine words like "corpus" anywhere but the
 method page. `conformance.py` holds the cross-implementation
 contract: twenty-four pages with their expected numbers, the five constants and

@@ -54,6 +54,9 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     conformance.py       the cross-implementation contract: conformance/corpus.json and conformance/expected.json
     check_assertions.py  which assertions in the suite never ran; CI fails if any of them does not
     sync_content.py      keeps ISE_Data_Entry.xlsx and content/*.csv in step; --check runs in CI
+    contribute.js        the browser side of taking part: the duplicate check as a reader types, and the prefilled issue URLs
+    intake.py            the GitHub Action side: parses a submitted issue form, re-checks for duplicates, records a vote or opens a PR
+    content/votes.csv    the fourth table, one row per (page key, GitHub login), latest wins; shown on the page, never scored
     ise_tables.py        the table format: pages, edges and topics; specs_to_tables / tables_to_specs, and both read surfaces
     export_db.py         SQL schema and data, a loaded SQLite database, JSON and XML, plus the analyst views
     build_pages.py       the Excel belief-page renderer (also supplies the constants and wiki link map to the site)
@@ -206,6 +209,26 @@ To change the content, edit `ISE_Data_Entry.xlsx` (the how-to-use sheet inside i
 To add a page, add a row to `pages` with a new key, then refer to that key from `edges`; keys are slugs, never
 numbers, so nothing renumbers. To ground a claim in evidence, fill its `etype` on the `pages` sheet, and `erq` and
 `erp` when replications are known.
+
+## How people take part
+
+There is no server, so GitHub is the backend. Every belief and claim page carries a form under each table that
+takes rows (a reason to agree, a reason to disagree, a finding, a prediction, a criterion, a cost or benefit, an
+interest) and a propose-a-belief form under Related Beliefs; the home page and every topic page carry the
+propose-a-belief form too, and a table with nothing in it yet gets a form for its first row. Each form is a plain
+GET to GitHub's new-issue address, prefilled from the fields the issue forms in `.github/ISSUE_TEMPLATE/` declare,
+so it works with no script. With `contribute.js` (copied beside the pages by `render_site.build`), what a reader
+types is scored as they type against every claim in `data/claims_index.json`, which `build()` writes from the FULL
+tables, drafts included; a near-identical claim (`similarity.MERGE`) turns the submit button into an upvote of the
+claim already here, and a close one (`similarity.FLAG`) is shown with an upvote link while the button stays. The
+intake Action (`intake.py`, on issue open) re-checks with the Python engine and either records a vote in
+`content/votes.csv`, converts a duplicate into a vote, or opens a pull request with the new rows.
+
+A vote never moves a score. `render_site.py` reads `votes.csv` when it is present (it is not in the workbook and
+`sync_content.py` does not check it), shows the counts on the heading line after the score badge with the words
+"votes, not a score", and once anyone has voted adds a home card, "Where people and the analysis disagree", that
+ranks voted-on claims by how far the share of votes to agree sits from the truth score. No votes: no card, no
+counts. The engine rule stands: a claim nobody has argued is worth exactly nothing, however many people like it.
 
 ## What a mutation sweep found that reading did not
 

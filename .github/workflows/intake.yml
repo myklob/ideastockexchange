@@ -1,0 +1,56 @@
+name: Intake
+
+# A reader's form on the site opens a prefilled issue here. This reads it back, checks it against every claim
+# already in the tables, and either counts a vote, turns a duplicate into a vote, or opens a pull request
+# with the new rows. intake.py drives gh and git; this only gives it a checkout and a token.
+on:
+  issues:
+    types: [opened, edited]
+
+# actions: write is what lets intake.py start the publish workflow after a vote lands on master; a push made
+# with the workflow's own token starts no push-triggered run on its own, so without it the counts never show.
+# There is no concurrency group: a group holds one pending run and cancels the rest, and a cancelled vote is a
+# vote lost. Two votes at once race on votes.csv instead, and intake.py rebases and retries until they converge.
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  intake:
+    # Only the three forms. The label is what the form sets; the heading is the fallback for an issue whose
+    # label did not stick, which happens when the label does not exist in the repository yet.
+    if: >-
+      github.event.issue.state == 'open' && (
+        contains(github.event.issue.labels.*.name, 'contribution') ||
+        contains(github.event.issue.labels.*.name, 'belief') ||
+        contains(github.event.issue.labels.*.name, 'vote') ||
+        contains(github.event.issue.body, '### The claim') ||
+        contains(github.event.issue.body, '### The belief') ||
+        contains(github.event.issue.body, '### Vote')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r tools/static-site/requirements.txt
+      - name: Make sure the labels the forms use exist
+        # A form's label is applied only when the repository has it; a fresh repository has none of these.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create contribution --force --color 0e8a16 --description 'A row for an existing page, from the site' >/dev/null
+          gh label create belief --force --color 1d76db --description 'A proposed belief, from the site' >/dev/null
+          gh label create vote --force --color fbca04 --description 'A vote on a claim, from the site' >/dev/null
+      - name: Read the issue, check for duplicates, and file the result
+        # If this fails with "::error::" naming a repository setting, the pull request was refused because
+        # "Allow GitHub Actions to create and approve pull requests" is off: Settings, Actions, General,
+        # Workflow permissions. The branch is pushed either way, so nothing the person typed is lost.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/static-site/intake.py --event "$GITHUB_EVENT_PATH"
