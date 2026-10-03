@@ -804,6 +804,77 @@ class TestOnlyFinishedBeliefsArePublished(unittest.TestCase):
         self.assertNotIn('reasons to agree', d['drafts'][0]['needs'])
 
 
+class TestEveryBeliefIsPublishedAndTheCompleteOnesComeFirst(unittest.TestCase):
+    """The default build publishes every belief in the tables, however far along: an argument somebody started
+    is never thrown away. Quality is ranked rather than gated: a belief that meets the bar comes first, and a
+    draft is marked as one, in the lists and on its own page, with what it still needs. Same two-belief corpus
+    as the gate test above, built without the gate."""
+
+    @classmethod
+    def setUpClass(cls):
+        import tempfile
+        import ise_tables as IT, render_site as RS
+        pages = [dict(key='b', kind='belief', text='Cities should pave their parks.', topic='t'),
+                 dict(key='a', kind='belief', text='Cities should plant more trees.', topic='t'),
+                 dict(key='r1', kind='claim', text='Trees cool the streets beneath them.', parent='a'),
+                 dict(key='r2', kind='claim', text='Trees cost money to water and prune.', parent='a'),
+                 dict(key='e1', kind='claim', text='Shaded streets measure cooler than bare ones.', parent='a'),
+                 dict(key='c1', kind='claim', text='Summer street temperature is a fair yardstick for tree planting.', parent='a'),
+                 dict(key='p1', kind='claim', text='Planted blocks will read cooler within five years.', parent='a'),
+                 dict(key='k1', kind='claim', text='Cooler streets reduce heat illness.', parent='a'),
+                 dict(key='i1', kind='interest', text='Residents need cool streets in summer.', parent='a'),
+                 dict(key='s1', kind='claim', text='Parks cost more to keep than pavement.', parent='b'),
+                 dict(key='s2', kind='claim', text='Pavement sheds rain into the drains faster than grass.', parent='b'),
+                 dict(key='s3', kind='claim', text='Paved parks stay usable after rain.', parent='b')]
+        edges = [dict(page='a', section='argument', side='agree', claim='r1'), dict(page='a', section='argument', side='disagree', claim='r2'),
+                 dict(page='a', section='evidence', side='agree', claim='e1', source='City survey, 2020'), dict(page='a', section='criterion', claim='c1'),
+                 dict(page='a', section='prediction', side='agree', claim='p1'),
+                 dict(page='a', section='cba', side='agree', claim='k1', category='cases', magnitude='10'),
+                 dict(page='a', section='interest', side='agree', claim='i1'), dict(page='a', section='similar', side='extreme', claim='b'),
+                 dict(page='b', section='argument', side='agree', claim='s1'), dict(page='b', section='argument', side='agree', claim='s2'),
+                 dict(page='b', section='argument', side='agree', claim='s3')]
+        d = tempfile.mkdtemp(); IT.write_csv(pages, edges, d, topics=[dict(key='t', name='Cities', parent='', definition='', scope='', axis='')])
+        cls.out = tempfile.mkdtemp(); cls.c, cls.broken = RS.build(d, cls.out)
+        cls.f = {}
+        for name in ('index.html', 'best.html', 'contested.html'):
+            with open(os.path.join(cls.out, name)) as fh: cls.f[name] = fh.read()
+        for k in ('a', 'b'):
+            with open(os.path.join(cls.out, 'p', k + '.html')) as fh: cls.f[k] = fh.read()
+
+    @classmethod
+    def tearDownClass(cls): shutil.rmtree(cls.out, ignore_errors=True)
+
+    def test_the_draft_is_published_too_with_everything_beneath_it(self):
+        self.assertEqual(sorted(self.c.key[b] for b in self.c.beliefs), ['a', 'b'])
+        for k in ('a', 'b', 's1', 'r1'):
+            self.assertTrue(os.path.exists(os.path.join(self.out, 'p', k + '.html')), f'{k} was not written')
+        self.assertEqual(self.broken, [])
+        self.assertIn('href="b.html"', self.f['a'], 'the finished belief no longer links the draft it points at')
+
+    def test_the_complete_belief_comes_first_even_when_the_draft_has_more_rows(self):
+        i = self.f['best.html'].find('<tbody>')
+        order = re.findall(r'<td class="t"><a href="p/([^"]+)\.html">', self.f['best.html'][i:])
+        self.assertEqual(order[:2], ['a', 'b'])
+        self.assertTrue(self.c.complete(self.c.tabs['a']) and not self.c.complete(self.c.tabs['b']))
+
+    def test_the_draft_is_marked_in_the_lists_and_on_its_own_page_with_what_it_still_needs(self):
+        i = self.f['best.html'].find('href="p/b.html"'); row = self.f['best.html'][i:self.f['best.html'].find('</tr>', i)]
+        self.assertIn('class="dm"', row, 'the draft carries no mark in the ranking')
+        self.assertIn('objective criteria', row)
+        i = self.f['best.html'].find('href="p/a.html"'); row = self.f['best.html'][i:self.f['best.html'].find('</tr>', i)]
+        self.assertNotIn('class="dm"', row, 'the finished belief is marked as a draft')
+        meta = self.f['b'][self.f['b'].find('<p class="meta">'):]; meta = meta[:meta.find('</p>')]
+        self.assertIn('>draft</span> Still needs: reasons to disagree, evidence, objective criteria', meta)
+        self.assertNotIn('Still needs', self.f['a'][self.f['a'].find('<p class="meta">'):self.f['a'].find('</p>', self.f['a'].find('<p class="meta">'))])
+
+    def test_the_home_page_counts_both_and_says_the_finished_ones_come_first(self):
+        lede = self.f['index.html'][self.f['index.html'].find('<p class="lede">'):]; lede = lede[:lede.find('</p>')]
+        self.assertIn('Two beliefs', lede); self.assertIn('one of them worked all the way through', lede)
+        self.assertIn('never thrown away', lede)
+        with open(os.path.join(self.out, 'data', 'drafts.json')) as fh: d = json.load(fh)
+        self.assertEqual([x['key'] for x in d['drafts']], ['b'])
+
+
 class TestTheRankedListsStayReadable(unittest.TestCase):
     """A ranked list is for the top of the ranking. Past a hundred rows the differences are too small to rank, and
     the page says where the rest are rather than shipping every claim to every phone."""
@@ -1518,11 +1589,10 @@ class TestPeopleCanTakePart(unittest.TestCase):
             self.assertLessEqual(self._names(f), self.BELIEF_FIELDS)
             self.assertIn('data-index="../data/claims_index.json"', f)
             self.assertIn('rather use git', h, f'topic {k} lost the sentence for people who prefer git')
+        # A belief is proposed where its topic is already known, on a topic page or beneath a belief, never out
+        # of nowhere on the home page, which only points at the shelf.
         home = self.html['index.html']
-        f = self._forms(home).get('belief')
-        self.assertIsNotNone(f, 'the home page has no propose-a-belief form')
-        self.assertIn('data-index="data/claims_index.json"', f)
-        self.assertLess(home.find('<span>Search</span>'), home.find('id="add-belief"'), 'the form is not near Search')
+        self.assertIsNone(self._forms(home).get('belief'), 'the home page carries a propose-a-belief form out of nowhere')
         for b in self.c.beliefs:
             if self.c.topic_of(b): self.assertIn('belief', self._forms(self.html[b]), f'{self.c.key[b]} has no propose-a-belief form under Related Beliefs')
 
@@ -1604,13 +1674,13 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
     def test_the_home_card_appears_only_once_somebody_has_voted(self):
         import render_site as RS
         with_ = self._page(self.out_v, 'index.html'); without = self._page(self.out_n, 'index.html')
-        self.assertIn('<span>Where people and the analysis disagree</span>', with_)
+        self.assertIn('<span>Votes vs the analysis</span>', with_)
         self.assertIn('href="lists.html#votes"', with_)
-        self.assertNotIn('Where people and the analysis disagree', without)
+        self.assertNotIn('Votes vs the analysis', without)
         self.assertNotIn('lists.html#votes', without)
         ranked = RS.disagreement(self.cv)
         self.assertEqual([self.cv.key[p] for p, *_ in ranked], ['r1', 'a'], 'the widest gap between people and the analysis does not come first')
-        i = with_.find('Where people and the analysis disagree'); card = with_[i:with_.find('</section>', i)]
+        i = with_.find('Votes vs the analysis'); card = with_[i:with_.find('</section>', i)]
         self.assertLess(card.find('href="p/r1.html"'), card.find('href="p/a.html"'))
         self.assertNotIn('href="p/b.html"', card, 'a draft is ranked on the home page')
         self.assertEqual(with_.count('<section'), with_.count('<section class="card"'))

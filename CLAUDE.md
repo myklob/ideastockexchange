@@ -192,12 +192,14 @@ means; a belief's `hook`, `question` and `ask` columns feed the invitation block
 `falsify` edge sections feed Objective Criteria and the Falsifiability Test. All of it rides along
 in the JSON, XML, SQL and SQLite exports (`topic` and `topic_row` tables), but a score still rests
 on `page` and `edge` alone. The full list, the interests, the works cited
-and the what-to-argue-next queue each have a page of their own. The published build (`render_site.py` with no
-flag, which CI runs) is gated by `publish.py`: a belief goes on the public site only when it meets `CORE_BAR` (reasons
-both ways, evidence, objective criteria, predictions or a falsifiability test, costs and benefits, interests), and it
-takes the pages beneath it along; every other belief stays in the tables as a draft, listed with what it still needs
-in `data/drafts.json`, and a row pointing at a draft keeps its words but not its link. `--all` builds everything, and
-the render tests build ungated so they keep exercising the whole corpus. The home page's cards flow in columns so a short card leaves no gap; no card spans the page. People take part
+and the what-to-argue-next queue each have a page of their own. **Every belief in the tables is published, however far along it is, and no drafted argument, reason, or
+analysis is ever deleted.** That is the owner's standing rule (quality is ranked, not gated): a belief that meets
+`publish.CORE_BAR` (reasons both ways, evidence, objective criteria, predictions or a falsifiability test, costs and
+benefits, interests) is complete and comes first in every ranking (`Corpus.complete`, `best_beliefs`); every other
+belief is a draft, published with a `draft` mark in lists and on its own meta line, saying what it still needs, and
+listed in `data/drafts.json`. Improve a weak page by adding to it or by ranking it lower, never by removing it or its
+rows. `--complete-only` builds the gated site (complete beliefs and the pages beneath them, a row pointing at a draft
+keeping its words but not its link); CI builds everything. The home page's cards flow in columns so a short card leaves no gap; no card spans the page. People take part
 through GitHub, because there is no server: every belief page carries a form under each table that takes rows plus a
 propose-a-belief form (also on the home and topic pages), each a plain GET to a prefilled GitHub issue form, and
 `contribute.js` checks what is typed against `data/claims_index.json` (written by `build()` from the full tables, drafts
