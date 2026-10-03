@@ -98,38 +98,39 @@ To modify the templates:
 }
 ```
 
-## Media Templates (New)
+## Media Templates
 
-Four new templates for the Media Analysis system, which tracks the best books, movies, songs, poems, images, and other content that support or weaken each belief:
+The Media Analysis system tracks the books, films, songs, studies and other works that carry each belief, and scores each work on one page:
 
-- **media_index.html** - Media index page: browse all media sorted by epistemic impact, quality score, reach, category, etc. Includes media type overview (Books, Films, Songs, Poems, Images, Scientific Papers, etc.) and category groupings.
+- **media-analysis-template.html** - The per-work page (ISE Media Analysis template v4, 2026-10-03, GitHub form). One work, one page, the media-side twin of the Media Resources table on belief pages. Sections in order: header line, the two questions kept apart (is it well made? is what it carries true?), Scorecard, Beliefs This Work Carries, Quality Arguments, Influence Arguments, The Strongest Case the Work Leaves Out, Persuasion Patterns, Who Gains if the Audience Believes It, Is It a Great Work? (the evidence ledger and objective criteria for the quality claim, carried over from the retired quality template), Worked Examples and Definitions, Scoring Engine, Contribute. Nothing typed on the page is a score; Reach is the one typed number and carries its source. Authoring rules are in the hidden paragraph at the top of the markup; every link points at this site's own routes.
 
-- **media-belief-argument-template.html** - Individual media detail page with two parts:
-  1. **Belief Arguments**: The beliefs/claims this media supports or weakens, with linkage scores showing how central each belief is to the work's narrative
-  2. **Quality Arguments**: Pro/con arguments about the media's quality as a work (craft, originality, entertainment value), independent of its ideological message
+- **media_index.html** - Media index page: every tracked work ranked by Epistemic Impact, with Quality, Influence, Reach and Media Truth Score beside it; works by belief category; best works by kind.
 
-- **media-quality-template.html** - Full quality analysis page applying the ISE belief-analysis template to the question "Is [Media Title] a great [type]?" Includes argument trees, evidence ledger, and objective quality criteria.
+- **why_pro_con_media_per_belief.html** - Explanatory page with the rationale for tracking media per belief: the influence gap between how true a work is and how far it reaches, and why both the best supporting and the best opposing work for every belief are worth naming.
 
-- **why_pro_con_media_per_belief.html** - Explanatory page with the rationale for tracking media per belief. Covers the influence gap (truth score vs. reach), two key reasons (understanding cultural influence and finding educational content), the danger of low directness of advocacy, and ISE's six scoring dimensions for media.
+- **media-belief-argument-template.html** and **media-quality-template.html** - Retired. Each is now a one-paragraph stub pointing at media-analysis-template.html, kept so old links do not break. Their content moved into the v4 page: belief arguments became Beliefs This Work Carries, the quality argument trees became Quality Arguments, and the quality evidence ledger and objective quality criteria became the Is It a Great Work? section. Directness of Advocacy was dropped as a multiplier (how a work carries a claim is now a description that points the centrality debate at the right evidence), and the claim-strength adjustment on the quality page is not part of the v4 Scoring Engine.
 
-### Key Media Scoring Dimensions
+### Key Media Scoring Quantities
 
-| Dimension | Range | Description |
-|-----------|-------|-------------|
-| Quality Score | 0 - 1.0 | Technical merit regardless of ideology |
-| Truth Score | -1.0 to +1.0 | Accuracy of central claims |
-| Linkage Score | 0 - 1.0 | How central a belief is to the work |
-| Reach | 0 - infinity | Estimated audience size |
-| Epistemic Impact | computed | Truth Score x Reach |
-| Directness of Advocacy | 0% - 100% | How explicitly the media argues |
+| Quantity | Range | Read from |
+|----------|-------|-----------|
+| Quality Score | 0 to 1 | The Quality Arguments table: accurate, well reasoned, well made, built on primary sources. Says nothing about whether the message is true. |
+| Influence Score | 0 to 1 | The Influence Arguments table: citations, minds changed on record, policy that traces to the work. |
+| Reach | people | Typed once, with its source (admissions, copies sold, views, circulation). The only measurement on the page. |
+| Centrality | 0 to 1 | The media linkage page for the work and one belief: how much of the work rides on that claim. |
+| Belief truth | -1 to +1 | Read from the belief page; 0 when no page exists yet. |
+| Media Truth Score | -1 to +1 | Sum of (belief truth x centrality) / sum of centrality over the Beliefs table. |
+| Epistemic Impact | signed, truth-weighted exposures | Media Truth Score x Reach; per row, belief truth x centrality x Reach, which the Beliefs table ranks by. |
+
+Quality Score and Influence Score are smoothed, (Pro Total + 0.5k) / (Pro Total + |Con Total| + k) with k = 1, so an empty table reads 0.5 rather than a verdict. The engine is `src/core/scoring/media-truth.ts`; where it and a page disagree, the engine is canonical.
 
 ### React Implementation
 
-These templates are implemented as React pages:
-- `/media` - Media index (browse all media)
-- `/media/[id]` - Individual media review (belief arguments + quality arguments)
-- `/media/[id]/quality` - Full quality analysis page
+- `/media` - Media index (browse all works)
+- `/media/[id]` - One work's page
+- `/media/[id]/quality` - The quality arguments on their own (the v4 template folds this into the work's page)
 - `/media/why-pro-con-media` - Explanatory rationale page
+- `/algorithms/media-truth-score` - The Media Truth Score explainer
 
 ## Future Enhancements
 
