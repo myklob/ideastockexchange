@@ -199,6 +199,12 @@ rather than once per comparison.
 
 ## How it publishes
 
+Everything. Every belief in the tables gets its page, however far along it is, and nothing anyone has drafted is ever
+deleted: a belief that meets `publish.CORE_BAR` (reasons both ways, evidence, objective criteria, predictions or a
+falsifiability test, costs and benefits, interests) is complete and comes first in every ranking; the rest are marked
+`draft`, each saying what it still needs, and `data/drafts.json` lists them. `render_site.py --complete-only` builds
+only the complete beliefs and the pages beneath them, for a build that has to be finished work only.
+
 `.github/workflows/pages.yml` runs the test suite and then `render_site.py` on every push to `master` that touches
 this folder or the root `index.html`, then deploys: the root `index.html` becomes the site front page and the
 generated pages sit under `beliefs/`. The repository's Pages source must be set to "GitHub Actions" (Settings, Pages,
@@ -226,7 +232,7 @@ intake Action (`intake.py`, on issue open) re-checks with the Python engine and 
 
 A vote never moves a score. `render_site.py` reads `votes.csv` when it is present (it is not in the workbook and
 `sync_content.py` does not check it), shows the counts on the heading line after the score badge with the words
-"votes, not a score", and once anyone has voted adds a home card, "Where people and the analysis disagree", that
+"votes, not a score", and once anyone has voted adds a home card, "Votes vs the analysis", that
 ranks voted-on claims by how far the share of votes to agree sits from the truth score. No votes: no card, no
 counts. The engine rule stands: a claim nobody has argued is worth exactly nothing, however many people like it.
 

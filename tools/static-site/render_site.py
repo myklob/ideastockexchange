@@ -108,6 +108,10 @@ class Corpus:
         return sorted(p for p in self.specs if self.topic_of(p) == tkey)
     def topic_beliefs(self, tkey):
         return sorted(b for b in self.beliefs if self.topic_of(b) == tkey)
+    def complete(self, pid):
+        """A belief with every part of the publish bar filled in. Complete pages come first in every ranking;
+        a draft is still published, marked, and says what it still needs."""
+        return self.kind(pid) != 'belief' or not PUBLISH.missing(self.specs[pid])
     def topic_children(self, tkey):
         return sorted((k for k, t in self.topics.items() if (t.get('parent') or '') == tkey), key=lambda k: self.topics[k]['name'])
     def topic_descendants(self, tkey):
@@ -591,6 +595,8 @@ def render_belief(c, pid):
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid)}</h1>')
     tk = c.topic_of(pid)
     meta = [f'Topic: <a href="../t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>'] if tk else []
+    if k == 'belief' and not c.complete(pid):
+        meta.append('<span class="dm">draft</span> Still needs: ' + esc(', '.join(PUBLISH.missing(sp))) + ' (listed at the end of the page)')
     meta.append(f'<span class="vnote">{VOTE_NOTE}</span>')
     if sp.get('positivity') is not None:
         meta.append('<span title="Typed by the author to place this claim on the topic page&apos;s axis, from -100 to '
@@ -1229,7 +1235,7 @@ def vote_links(c, pid):
     return ''.join(out)
 
 
-def add_form(up, section, side='agree', page=None, topic=None, first=False):
+def add_form(up, section, side='agree', page=None, topic=None, first=False, labelled=True):
     """One form of section E. `up` is how the page reaches the site root ('' at the root, '../' under p/ and
     t/), which is where contribute.js finds data/claims_index.json. Without a script the form still works:
     GitHub prefills the fields it knows from the query and ignores the rest."""
@@ -1247,7 +1253,8 @@ def add_form(up, section, side='agree', page=None, topic=None, first=False):
     if not belief and not sides: hidden.append(('side', side))
     if belief and topic: hidden.append(('topic', topic))
     o += [f'<input type="hidden" name="{k}" value="{esc(v)}">' for k, v in hidden]
-    o.append(f'<label for="{fid}-text">{esc(label)}</label>')
+    cls = '' if labelled else ' class="vh"'
+    o.append(f'<label for="{fid}-text"{cls}>{esc(label)}</label>')
     o.append(f'<textarea id="{fid}-text" name="text" rows="2" required placeholder="{esc(hint)}"></textarea>')
     if sides:
         opts = ''.join(f'<option value="{v}"{" selected" if v == side else ""}>{esc(t)}</option>' for v, t in zip(('agree', 'disagree'), sides))
@@ -1735,6 +1742,27 @@ def reasons_beneath(c, pid):
             if is_page(q) and q not in seen: seen.add(q); todo.append(q)
     return n
 
+def popular_topics(c, n=8, prefix='t/'):
+    """The sub-topics with the most argued beneath them, most first, as one line for the top of the shelf: a way
+    to the busiest topics without reading the whole directory. Argued means reasons counted at every level
+    beneath the topic's beliefs, the same count Most argued over uses, so it rewards work and not filing."""
+    subs = [k for k, t in c.topics.items() if (t.get('parent') or '') and c.topic_beliefs_deep(k)]
+    argued = {k: sum(reasons_beneath(c, b) for b in c.topic_beliefs_deep(k)) for k in subs}
+    def ancestors(k):
+        out = []
+        while c.topics.get(k, {}).get('parent'):
+            k = c.topics[k]['parent']; out.append(k)
+        return out
+    top = []
+    for k in sorted(subs, key=lambda k: (-argued[k], -len(c.topic_beliefs_deep(k)), c.topics[k]['name'])):
+        # a topic and the topic above it count the same beliefs, so the line names only the higher one
+        if any(a in top for a in ancestors(k)): continue
+        top.append(k)
+        if len(top) == n: break
+    if not top: return ''
+    return ('<p class="pop"><strong>Most argued:</strong> '
+            + ', '.join(f'<a href="{prefix}{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a>' for k in top) + '</p>')
+
 def contested(c):
     """Beliefs with the most reasons for and against beneath them, most first."""
     n = {b: reasons_beneath(c, b) for b in c.beliefs}
@@ -1786,15 +1814,21 @@ def best_beliefs(c, limit=None):
     """Beliefs ranked by belief score, then by how much scored work stands under them. Only beliefs: a court
     record at 0.95 is a finding, not a developed position, and a list of the highest truth scores on the site
     was a list of findings."""
-    bs = sorted(c.beliefs, key=lambda b: (-c.stats(b)['belief'], -c.stats(b)['nrows'], -c.conf.of(b)))
+    bs = sorted(c.beliefs, key=lambda b: (not c.complete(b), -c.stats(b)['belief'], -c.stats(b)['nrows'], -c.conf.of(b)))
     return bs[:limit] if limit else bs
+
+def draft_mark(c, pid):
+    """A belief that does not meet the publish bar yet carries the word, in lists, next to its title."""
+    if c.complete(pid): return ''
+    need = PUBLISH.missing(c.specs[pid])
+    return f' <span class="dm" title="Still needs: {esc("; ".join(need))}">draft</span>'
 
 def best_table(c, bs, prefix='p/'):
     o = ['<table class="scored"><thead><tr><th class="rk">#</th><th>Belief</th><th>Belief score</th><th>Scored rows</th><th>Truth</th><th>Conf</th><th>Topic</th></tr></thead><tbody>']
     for i, b in enumerate(bs, 1):
         st = c.stats(b); tk = c.topic_of(b)
         topic = f'<a href="t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>' if tk else ''
-        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="{prefix}{c.href(b)}">{esc(c.standalone(b))}</a></td>'
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="{prefix}{c.href(b)}">{esc(c.standalone(b))}</a>{draft_mark(c, b)}</td>'
                  f'<td class="sc">{sf(st["belief"])}</td><td>{st["nrows"]}</td><td>{f2(st["truth"])}</td><td>{pct(c.conf.of(b))}</td><td class="u">{topic}</td></tr>')
     if not bs: o.append('<tr><td colspan="7" class="empty">No belief has a page yet.</td></tr>')
     o.append('</tbody></table>')
@@ -1852,7 +1886,7 @@ EXPLAIN = [
      'The tables behind this version are compared with the previous version, row by row; the pages are listed most relied on first.',
      'So a returning reader can see what is new without rereading everything, and so every change to a number can be traced to the row that caused it.',
      None),
-    ('votes', 'Where people and the analysis disagree',
+    ('votes', 'Votes vs the analysis',
      'Claims people have voted on, ranked by how far the share of votes to agree sits from the truth score.',
      'A vote is one GitHub account saying agree or disagree with a claim, and only that account\'s latest vote counts. The share of the votes that agree is compared with the claim\'s truth score, and the list is ordered by the size of the gap, widest first. The card appears only once somebody has voted.',
      'Because a claim the analysis rates low that many people agree with, or the other way round, is where a reason is missing from the page: either the people know something the tables do not, or the tables know something the people do not, and the next argument goes there. The votes themselves never move a score, because a claim nobody has argued is worth nothing however many people like it.',
@@ -1896,13 +1930,16 @@ def card(title, blurb, body, more='', why=None):
     link = explain(why) if why else ''
     return f'<section class="card"><h2><span>{esc(title)}</span>{link}</h2>' + (f'<p class="blurb">{blurb}</p>' if blurb else '') + body + more + '</section>'
 
-def mini(c, rows, head, value, why=None, prefix='p/', what='Claim'):
-    """A ranked list narrow enough for a card: rank, claim, one number, the number's heading linking to what it means."""
+def mini(c, rows, head, value, why=None, prefix='p/', what='Claim', note=None):
+    """A ranked list narrow enough for a card: rank, claim, one number, the number's heading linking to what it
+    means. Anything longer than a number goes on a line under the claim, never in the number column, where it
+    would squeeze the claim to a word a line."""
     if not rows: return '<p class="empty">Nothing ranks here yet.</p>'
     h = f'<a href="lists.html#{why}">{esc(head)}</a>' if why else esc(head)
     o = [f'<table class="scored mini"><thead><tr><th class="rk">#</th><th>{esc(what)}</th><th>{h}</th></tr></thead><tbody>']
     for i, pid in enumerate(rows, 1):
-        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="{prefix}{c.href(pid)}">{esc(c.standalone(pid))}</a></td><td class="sc">{value(pid)}</td></tr>')
+        under = f'<div class="src">{note(pid)}</div>' if note else ''
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="{prefix}{c.href(pid)}">{esc(c.standalone(pid))}</a>{draft_mark(c, pid)}{under}</td><td class="sc">{value(pid)}</td></tr>')
     return ''.join(o) + '</tbody></table>'
 
 HARDEST = {'Values conflict': 0, 'Mixed dispute': 1, 'Linkage dispute': 2, 'Factual dispute': 3}
@@ -1924,6 +1961,16 @@ SEARCH = ("<form class=\"find\" role=\"search\" onsubmit=\"return false\"><label
           "q.addEventListener('input',function(){if(rows)return show();fetch('data/pages_index.json').then(function(x){return x.json()})"
           ".then(function(d){rows=d.pages;show()})})})()</script>")
 
+# CSS columns fill top to bottom and cannot move a card once placed, so a tall card leaves the column beside
+# it half empty. This lays the cards out again, each into whichever column is shortest, and leaves the CSS
+# columns as they are for a reader without scripts.
+MASONRY = ("<script>(function(){var g=document.querySelector('.cards');if(!g)return;var cards=[].slice.call(g.children),cols=[];"
+           "function lay(){var n=Math.max(1,Math.floor((g.clientWidth+18)/338));if(n===cols.length)return;cols=[];g.innerHTML='';g.className='cards js';"
+           "for(var i=0;i<n;i++){var d=document.createElement('div');d.className='col';g.appendChild(d);cols.push(d)}"
+           "if(n===1){cards.forEach(function(c){cols[0].appendChild(c)});return}"
+           "cards.forEach(function(c){var s=cols[0];cols.forEach(function(d){if(d.offsetHeight<s.offsetHeight)s=d});s.appendChild(c)})}"
+           "lay();window.addEventListener('resize',lay)})()</script>")
+
 WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
 
 def render_index(c, title):
@@ -1935,16 +1982,22 @@ def render_index(c, title):
     o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
     filed = sorted({c.topics[c.topic_of(b)]['name'] for b in c.beliefs if c.topic_of(b)})
     about = (f', all on {esc(filed[0].lower())}' if len(filed) == 1 else f' across {len(filed)} topics') if filed else ''
+    done = [b for b in c.beliefs if c.complete(b)]
+    def count(n): return WORDS[n].lower() if n < len(WORDS) else f'{n:,}'
+    if done and len(done) < len(c.beliefs):
+        sofar = (f'{count(len(c.beliefs)).capitalize()} beliefs{about}, {count(len(done))} of them worked all the way through: reasons both ways, '
+                 'evidence, yardsticks, predictions, costs and interests. Those come first in every list; the rest are drafts, each marked and '
+                 'saying what it still needs, because an argument somebody started is never thrown away.')
+    else:
+        sofar = f'{count(len(c.beliefs)).capitalize()} belief{"s are" if len(c.beliefs) != 1 else " is"} worked through so far{about}.'
     o.append(f'<p class="lede">Most political fights repeat the same few points forever, and nobody keeps score. Here each belief gets one page, '
              f'with every reason for it and against it and the evidence under each reason. A reason nobody has backed up counts for nothing, '
              f'however many times it is repeated; only a better argument or better evidence moves a score. '
-             f'{WORDS[len(c.beliefs)] if len(c.beliefs) < len(WORDS) else len(c.beliefs)} belief{"s are" if len(c.beliefs) != 1 else " is"} worked through so far{about}. '
+             f'{sofar} '
              f'<a href="lists.html">What each list means</a> · <a href="method.html">how the scores are worked out</a>.</p>')
     TOP = 3
     cards = [card('Search', 'Every page on the site, by the words in it.', SEARCH, see_all('all.html', len(c.specs), 'pages, listed'))]
-    cards.append(card('Propose a belief', 'A claim someone could agree or disagree with, as one complete sentence. It starts as a draft and is '
-                      'published once both sides are argued and the evidence, criteria, predictions, costs and interests are in.', add_form('', 'belief')))
-    cards.append(card('Best beliefs', 'The best argued first.',
+    cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts.',
                       mini(c, best_beliefs(c, TOP), 'Belief score', lambda p: sf(c.stats(p)['belief']), 'best', what='Belief'), see_all('best.html', len(c.beliefs), 'beliefs, ranked'), 'best'))
     con, n = contested(c)
     cards.append(card('Most argued over', 'The most reasons for and against, counted at every level beneath the belief.',
@@ -1955,8 +2008,9 @@ def render_index(c, title):
     voted = disagreement(c)
     if voted:
         gap = {p: (share, g, n) for p, share, g, n in voted}
-        cards.append(card('Where people and the analysis disagree', 'The share of votes to agree against the truth score, widest gap first. ' + VOTE_NOTE,
-                          mini(c, [p for p, *_ in voted[:TOP]], 'Gap', lambda p: f'{sf(gap[p][1])} <span class="u">({pct(gap[p][0])} of {gap[p][2]} agree, truth {f2(c.truth(p))})</span>', 'votes'), '', 'votes'))
+        cards.append(card('Votes vs the analysis', 'The share of votes to agree against the truth score, widest gap first. ' + VOTE_NOTE,
+                          mini(c, [p for p, *_ in voted[:TOP]], 'Gap', lambda p: sf(gap[p][1]), 'votes',
+                               note=lambda p: f'{pct(gap[p][0])} of {gap[p][2]} vote{"" if gap[p][2] == 1 else "s"} agree; truth {f2(c.truth(p))}'), '', 'votes'))
     relied_all =[r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
     cards.append(card('Most relied on', 'The claims the most of this site depends on. The nearest thing to "popular" that can be measured here: '
                       'nobody\'s votes or views are counted, so it says how much rests on a claim, not how many people like it.',
@@ -1980,18 +2034,18 @@ def render_index(c, title):
                           + '. <a href="changes.html">The revision page</a> says what it compared.', '', '', 'changed'))
     filed = [k for k in c.topics if c.topic_beliefs(k)]
     if len(filed) > 1:
-        cards.append(card('Topics', 'Beliefs filed by subject, like a library shelf.', directory(c), '<p class="more"><a href="topics.html">Every topic &rarr;</a></p>', 'topics'))
-    cards.append(card('How the numbers are worked out', None, '<ul class="links">'
-             '<li><a href="method.html#formula">The one formula</a> every row on every page is scored by.</li>'
-             '<li><a href="method.html#starts">Where a claim starts</a>, before anyone argues with it.</li>'
-             '<li><a href="method.html#confidence">Confidence</a>: how much work stands behind a number.</li>'
-             '<li><a href="method.html#sensitivity">What would change the answer</a>.</li>'
-             '<li><a href="lists.html">What each list on this page means</a>, and why it is tracked.</li></ul>'))
-    cards.append(card('The data', 'Every table behind every page, free to download and check.', '<ul class="links">'
-             '<li><a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> or a <a href="data/ise.sqlite">SQLite database</a>.</li>'
-             '<li><a href="data/pages_index.json">Every page\'s computed numbers</a>, indexed.</li>'
-             '<li><a href="changes.html">What changed</a> since the last revision, row by row.</li></ul>'))
+        # second, next to Search: the shelf is the other way in that does not rank, and the tallest card, so
+        # placing it early lets the shorter ranked lists settle around it
+        cards.insert(1, card('Topics', 'Beliefs filed by subject, like a library shelf; the busiest shelves first.', popular_topics(c) + directory(c),
+                             '<p class="more"><a href="topics.html">Every topic &rarr;</a></p>', 'topics'))
     o.append('<div class="cards">' + ''.join(cards) + '</div>')
+    o.append(MASONRY)
+    # The plumbing stays off the cards: a reader comes for the arguments, and the tables and the method are one
+    # line at the foot of the page for the reader who wants to check them.
+    o.append('<p class="under"><a href="method.html">How the numbers are worked out</a> · <a href="lists.html">What each list means</a> · '
+             'Every table behind every page, free to download and check: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, '
+             '<a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a>, <a href="data/ise.sqlite">SQLite</a> or '
+             '<a href="data/pages_index.json">every page\'s computed numbers</a> · <a href="changes.html">What changed</a> since the last revision.</p>')
     o.append(stamp(c))
     o.append(contribute_script(''))
     o.append('</main>' + JS + '</body></html>')
@@ -2137,9 +2191,9 @@ tr.lb td{background:color-mix(in srgb,var(--head) 60%,transparent)}
 .skip{position:absolute;left:-9999px;top:0;background:var(--paper);color:var(--ink);padding:10px 14px;border:2px solid var(--navy);border-radius:0 0 4px 0;z-index:10}
 .skip:focus{left:0}
 @media (max-width:640px){table thead{display:none}table tr{display:flex;flex-wrap:wrap;gap:3px 14px;padding:8px 6px;border-top:1px solid var(--line)}table td{border:0;padding:0;width:auto!important;white-space:normal!important;text-align:left!important}td.t,td.u,td.dl,td.ex,td.lab,.check td.lab,.conn td.lab{flex:1 1 100%;width:auto!important}td.rk{display:none}td[data-l]::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}td.u[data-l]::before,td.dl[data-l]::before,td.ex[data-l]::before{display:inline;margin-right:6px}tr.lb td{background:none}tr.lb{background:color-mix(in srgb,var(--head) 60%,transparent)}}
-main.index h1{font-size:clamp(24px,3vw,36px)}.lede{max-width:80ch;font-size:15px;color:var(--ink2)}
+main.index h1{font-size:clamp(24px,3vw,36px)}.lede{font-size:15px;color:var(--ink2)}
 .beliefs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
-.cards{column-width:320px;column-gap:18px;margin-top:18px}.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:0 0 18px;break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box}.card h2{margin-top:2px}.card .dir{grid-template-columns:1fr;gap:8px}.mini{font-size:13px}.mini td.t{min-width:0}.mini td.sc{white-space:normal;min-width:4em}.find label{display:block;font-size:13px;color:var(--ink2)}.find input{width:100%;box-sizing:border-box;padding:8px;font:inherit;border:1px solid var(--line);border-radius:4px}.hits{padding-left:20px;font-size:14px}.links{padding-left:18px;font-size:14px}.links li{margin:4px 0}
+.pop{font-size:13.5px;margin:0 0 10px;padding:8px 10px;background:color-mix(in srgb,var(--navy) 6%,var(--paper));border-left:3px solid var(--navy)}.under{font-size:13px;color:var(--ink2);margin:6px 0 0}.dm{display:inline-block;font:600 10.5px/1.4 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--line);border-radius:3px;padding:0 5px;vertical-align:middle;margin-left:4px}.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.cards{column-width:320px;column-gap:18px;margin-top:18px}.cards.js{column-width:auto;display:flex;gap:18px;align-items:flex-start}.cards.js>.col{flex:1 1 0;min-width:0}.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:0 0 18px;break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box}.card h2{margin-top:2px}.card .dir{grid-template-columns:1fr;gap:8px}.mini{font-size:13px}.mini td.t{min-width:0}.mini td.sc{white-space:normal;min-width:4em}.find label{display:block;font-size:13px;color:var(--ink2)}.find input{width:100%;box-sizing:border-box;padding:8px;font:inherit;border:1px solid var(--line);border-radius:4px}.hits{padding-left:20px;font-size:14px}.links{padding-left:18px;font-size:14px}.links li{margin:4px 0}
 .bcard{display:block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px;color:var(--ink)}.bcard:hover{border-color:var(--navy)}
 .bcard .bt{font-family:var(--serif);font-size:16px;line-height:1.35;font-weight:600;margin-bottom:8px}.bcard .bn{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}.bcard .bn b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}.bcard .bb{margin-top:8px;font-size:13px;color:var(--ink2)}
 ul.tree,ul.tree ul{list-style:none;margin:0;padding-left:0}ul.tree ul{padding-left:18px;border-left:1px solid var(--line);margin-left:6px}
@@ -2337,13 +2391,16 @@ def stamp(c):
 
 
 def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', gate=False):
-    """Render the site. With gate, only beliefs that meet publish.CORE_BAR, and the pages beneath them, are
-    written; the rest stay in the tables as drafts and are listed in data/drafts.json."""
+    """Render the site: every belief in the tables, however far along, because an argument somebody started is
+    never thrown away. A belief that meets publish.CORE_BAR is complete and comes first in every ranking; the
+    rest are drafts, marked as such, each saying what it still needs, and listed in data/drafts.json. With
+    gate, only the complete beliefs and the pages beneath them are written (the --complete-only build)."""
     source, drafts = (PUBLISH.staged(entry) if gate else (entry, None))
     if drafts is not None and not any(not m for m in drafts.values()):
         raise SystemExit('No belief meets the publish bar (publish.CORE_BAR), so there is nothing to publish. '
-                         'The site already live is left as it is; build with --all to see every draft.')
+                         'The site already live is left as it is; build without --complete-only to see every draft.')
     c = Corpus(source, name)
+    if drafts is None: drafts = {c.key[b]: PUBLISH.missing(c.specs[b]) for b in c.beliefs}
     c.drafts = drafts
     c.prov = provenance(entry)
     content = entry if os.path.isdir(entry) else os.path.join(os.path.dirname(os.path.abspath(entry)), 'content')
@@ -2418,7 +2475,7 @@ if __name__ == '__main__':
     argv = [a for a in sys.argv[1:] if not a.startswith('--')]
     entry = argv[0] if len(argv) > 0 else os.path.join(HERE, 'ISE_Data_Entry.xlsx')
     out = argv[1] if len(argv) > 1 else os.path.join(HERE, 'site')
-    c, broken = build(entry, out, gate='--all' not in sys.argv)
+    c, broken = build(entry, out, gate='--complete-only' in sys.argv)
     n = len(c.specs); size = sum(os.path.getsize(os.path.join(dp, f)) for dp, _, fs in os.walk(out) for f in fs)
     print(f'{n} pages -> {out}  ({size / 1e6:.1f} MB)  broken internal links: {len(broken)} {broken[:5]}')
     for b in sorted(c.beliefs): print(' ', b, f2(c.truth(b)), c.short(b, 70))
