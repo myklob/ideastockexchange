@@ -10,6 +10,7 @@ score: every number here is computed by score_reference.Model from the same tabl
 import html, json, os, re, shutil, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ise_tables import read_source, read_topics, tables_to_specs, entry_keys, is_page, topic_rows
+import ise_tables as IT
 from score_reference import Model, normalize
 from build_pages import CONSTS, WIKI
 from build_subpages import KINDS
@@ -1872,9 +1873,9 @@ EXPLAIN = [
      'To point the next contributor at the work that matters, instead of at whatever is most talked about.',
      'method.html#confidence'),
     ('stake', 'Who has a stake',
-     'The interests the beliefs here speak to: needs somebody has, like "voters need enough information to judge an official".',
-     'Each interest has its own page where how valid that need is gets argued, and the list is ranked by that. How much power the people behind an interest hold never enters into it.',
-     'Positions are what people say they want; interests are why. Compromises are built out of interests, so knowing which ones are valid, and which side holds them, is where a way through starts.',
+     'The groups of people with something at stake in the beliefs here (voters, investors, officials, parents, workers), and what each group needs, like "voters need enough information to judge an official".',
+     'Every interest on the site is written as a group and a need, "<who> need <what>", so the group is read off the sentence. Groups are ranked by how many beliefs list one of their interests, then by how many interests they have; under each group, its needs are ranked by how valid each is argued to be on its own page. A group that is only a belief\'s supporters or opponents is a side rather than a party, so it is kept but listed last. How much power a group holds never enters into it.',
+     'Positions are what people say they want; interests are why. A compromise is built out of interests, so knowing who has a stake, what they actually need, and which of those needs hold up is where a way through starts.',
      None),
     ('works', 'Books, studies and reports',
      'Every book, study, report and film cited on a belief page.',
@@ -2019,8 +2020,9 @@ def render_index(c, title):
     cards.append(card('What to argue next', 'Where one more hour of work would move the most.',
                       mini(c, [r['page'] for r in queue], 'Work value', lambda p: f'{work[p]:.4f}', 'next'), see_all('next.html', len(c.rank.work_queue(40)), 'claims, in order'), 'next'))
     ints = sorted((p for p in c.specs if c.kind(p) == 'interest'), key=lambda q: -c.truth(q))
-    cards.append(card('Who has a stake', 'The needs behind the positions, ranked by how valid each is argued to be.',
-                      mini(c, ints[:TOP], 'Validity', lambda p: f2(c.truth(p)), 'stake', what='Interest'), see_all('interests.html', len(ints), 'interests'), 'stake'))
+    named, generic = stake_groups(c)
+    cards.append(card('Who has a stake', 'The people with something at stake, ranked by how many beliefs touch them; under each, their best argued need.',
+                      stake_table(c, named, TOP), see_all('interests.html', len(named) + len(generic), 'groups'), 'stake'))
     works = sorted((p for p in c.specs if c.kind(p) == 'media'), key=lambda m: -(c.stats(m).get('impact') or 0))
     cards.append(card('Books, studies and reports', 'The works cited, ranked by how much they moved these pages.',
                       mini(c, works[:TOP], 'Impact', lambda p: f2(c.stats(p).get('impact') or 0), 'works', what='Work'), see_all('media.html', len(works), 'works'), 'works'))
@@ -2078,21 +2080,78 @@ def render_next(c, title):
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 
+STAKE = re.compile(r'^(.+?)\s+(?:need|needs|want|wants|benefit|benefits|depend|depends|rely|relies)\b', re.I)
+# a group that is only the belief's own supporters or opponents is a side, not a party with a stake
+GENERIC = re.compile(r'^(?:some |many |most |the )?(?:supporters|opponents|proponents|critics|advocates|backers|believers|skeptics|sceptics)(?: of .*)?$', re.I)
+
+def group_of(c, pid):
+    """The people an interest belongs to, read off its sentence: an interest here is written "<who> need <what>",
+    so the words before the verb name the group."""
+    t = c.text(pid).strip(); m = STAKE.match(t)
+    g = (m.group(1) if m else ' '.join(t.split()[:3])).strip(' ,;')
+    return (g[0].upper() + g[1:]) if g else 'Unnamed'
+
+def stake_beliefs(c, pid):
+    """The beliefs an interest is listed on, through the pages that list it."""
+    out = set()
+    for u, _, _ in c.uses.get(pid, []):
+        if c.kind(u) == 'belief': out.add(u)
+        elif is_page(c.specs[u].get('supports')) and c.kind(c.specs[u]['supports']) == 'belief': out.add(c.specs[u]['supports'])
+    return out
+
+def stake_groups(c):
+    """Who has a stake, as groups of people: each group with its interests, ranked by how many beliefs the group
+    has a stake in, then by how many interests it has. Returns (named groups, generic ones): a group that is only
+    "supporters" or "opponents" is a side rather than a party, so it is kept but listed last."""
+    by = {}
+    for p in c.specs:
+        if c.kind(p) == 'interest': by.setdefault(group_of(c, p), []).append(p)
+    def key(gp):
+        g, ps = gp
+        return (-len({b for p in ps for b in stake_beliefs(c, p)}), -len(ps), g.lower())
+    named = sorted(((g, ps) for g, ps in by.items() if not GENERIC.match(g)), key=key)
+    generic = sorted(((g, ps) for g, ps in by.items() if GENERIC.match(g)), key=key)
+    return named, generic
+
+def group_anchor(g): return 'g-' + (IT.slug(g) or 'group')
+
+def stake_table(c, groups, n, prefix=''):
+    """The home card: who, how many beliefs they have a stake in, and their best argued need under the name."""
+    if not groups: return '<p class="empty">No interest has a page yet.</p>'
+    o = [f'<table class="scored mini"><thead><tr><th class="rk">#</th><th>Who</th><th><a href="{prefix}lists.html#stake">Beliefs</a></th></tr></thead><tbody>']
+    for i, (g, ps) in enumerate(groups[:n], 1):
+        top = max(ps, key=lambda p: (c.truth(p), -p))
+        bs = {b for p in ps for b in stake_beliefs(c, p)}
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="{prefix}interests.html#{group_anchor(g)}">{esc(g)}</a>'
+                 f'<div class="src">{esc(strip_period(c.standalone(top)))}</div></td><td class="sc">{len(bs)}</td></tr>')
+    return ''.join(o) + '</tbody></table>'
+
 def render_interests(c, title):
-    """Who has a stake: one row per interest, shared by every belief that lists it."""
-    ints = [p for p in sorted(c.specs) if c.kind(p) == 'interest']
+    """Who has a stake: the groups of people, each with its interests, every interest shared by the beliefs that
+    list it."""
+    named, generic = stake_groups(c)
     o = [root_head('Who has a stake', [('Home', 'index.html'), ('Who has a stake', '')], main_class='index')]
     o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Who has a stake</h1>')
-    o.append('<p class="lede">Every interest the beliefs here speak to: a need somebody has, with its own page where how valid that need is gets argued. Validity is argued once and every page that lists the interest reads the same number; how much power the people behind it hold never enters into it.</p>')
+    o.append('<p class="lede">The people with something at stake in the beliefs here, group by group, and what each group needs. Every need has its own page where how valid it is gets argued; validity is argued once and every page that lists the interest reads the same number, and how much power the people behind it hold never enters into it.</p>')
     o.append(EXPLAIN_BLOCK['stake'])
-    o.append('<section><table class="scored"><thead><tr><th>Interest</th><th>Value it serves</th><th>Validity</th><th>Listed on</th><th>Beliefs</th></tr></thead><tbody>')
-    for p in sorted(ints, key=lambda q: -c.truth(q)):
-        users = {u[0] for u in c.uses.get(p, [])}
-        bs = sorted({b for b in c.beliefs if any(c.topic_of(u) == c.topic_of(b) and (u == b or c.specs[u].get('supports') == b) for u in users)})
-        o.append(f'<tr><td class="t"><a href="p/{c.href(p)}">{esc(c.standalone(p))}</a></td><td class="u">{esc(c.specs[p].get("value") or "")}</td>'
-                 f'<td>{f2(c.truth(p))}</td><td>{len(users)} pages</td><td class="u">{"; ".join(f"<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(b), chr(34), esc(c.short(b, 44))) for b in bs)}</td></tr>')
-    if not ints: o.append('<tr><td class="empty" colspan="5">No interest has a page yet.</td></tr>')
-    o.append('</tbody></table></section>')
+    def table(ps):
+        o.append('<table class="scored"><thead><tr><th>Interest</th><th>Value it serves</th><th>Validity</th><th>Listed on</th><th>Beliefs</th></tr></thead><tbody>')
+        for p in sorted(ps, key=lambda q: (-c.truth(q), q)):
+            users = {u[0] for u in c.uses.get(p, [])}; bs = sorted(stake_beliefs(c, p))
+            o.append(f'<tr><td class="t"><a href="p/{c.href(p)}">{esc(c.standalone(p))}</a></td><td class="u">{esc(c.specs[p].get("value") or "")}</td>'
+                     f'<td>{f2(c.truth(p))}</td><td>{len(users)} pages</td><td class="u">{"; ".join(f"<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(b), chr(34), esc(c.short(b, 44))) for b in bs)}</td></tr>')
+        o.append('</tbody></table>')
+    for g, ps in named:
+        bs = {b for p in ps for b in stake_beliefs(c, p)}
+        o.append(f'<section><h2 id="{group_anchor(g)}"><span>{esc(g)}</span><span class="n">{len(ps)} interest{"s" if len(ps) != 1 else ""} · {len(bs)} belief{"s" if len(bs) != 1 else ""}</span></h2>')
+        table(ps); o.append('</section>')
+    if generic:
+        o.append('<section><h2 id="g-sides"><span>Supporters and opponents, as such</span></h2>'
+                 '<p class="cap">Interests written for a belief\'s own supporters or opponents rather than for a named group of people. They count like any other, and each is a page waiting for a better name: who, exactly, needs this?</p>')
+        for g, ps in generic:
+            o.append(f'<h3 id="{group_anchor(g)}">{esc(g)}</h3>'); table(ps)
+        o.append('</section>')
+    if not named and not generic: o.append('<p class="empty">No interest has a page yet.</p>')
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 

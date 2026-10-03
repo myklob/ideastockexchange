@@ -972,6 +972,24 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         b = rows[0]; direct = len(c.specs[b]['args']['agree']) + len(c.specs[b]['args']['disagree'])
         self.assertGreaterEqual(n[b], direct)
 
+    def test_who_has_a_stake_names_groups_of_people_not_sentences(self):
+        """The card asks who, so its rows are groups (citizens, voters, officials), each with the number of beliefs
+        that touch them and their best argued need under the name; the sentences themselves live on the stake
+        page, grouped the same way. A group that is only "supporters" or "opponents" is a side, not a party, and
+        never leads the card."""
+        import render_site as RS
+        h = self.c['index.html']; i = h.find('<span>Who has a stake</span>'); card = h[i:h.find('</section>', i)]
+        rows = re.findall(r'<td class="t"><a href="interests.html#(g-[a-z0-9-]+)">([^<]+)</a><div class="src">', card)
+        self.assertGreaterEqual(len(rows), 1, 'the stake card has no group rows')
+        for anchor, name in rows:
+            self.assertFalse(RS.GENERIC.match(name), f'{name} leads the stake card but is only a side of the argument')
+            self.assertIn(f'id="{anchor}"', self.root['interests'], f'{name} has no anchor on the stake page')
+            self.assertNotRegex(name, r'\b(need|needs|want|wants)\b', f'{name} is a sentence, not a group')
+        named, generic = RS.stake_groups(self.corpus)
+        self.assertEqual([g for g, _ in named[:len(rows)]], [n for _, n in rows], 'the card does not follow the group ranking')
+        ints = [p for p in self.corpus.specs if self.corpus.kind(p) == 'interest']
+        self.assertEqual(sum(len(ps) for _, ps in named + generic), len(ints), 'an interest belongs to no group')
+
     def test_it_does_not_list_every_page(self):
         """One idea per page. The full list has its own page and a search box; the home page is not it."""
         links = set(re.findall(r'href="p/([^"#]+)"', self.c['index.html']))
