@@ -926,7 +926,7 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         self.assertEqual(h[:i].count('<section'), 0, 'a section sits above the card grid')
         self.assertGreaterEqual(h.count('<section class="card"'), 6, 'fewer than six ways in')
         self.assertEqual(h.count('<section'), h.count('<section class="card"'), 'a section on the home page is not a card')
-        for way in ('Search', 'Best beliefs', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'What to argue next', 'Who has a stake', 'Books, studies and reports', 'Topics'):
+        for way in ('Search', 'Best beliefs', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'What to argue next', 'Who has a stake', 'Best books, studies and reports', 'Topics'):
             self.assertIn(f'<span>{way}</span>', h, f'{way} is not a way in')
 
     def test_every_ranking_on_the_home_page_links_to_what_it_means(self):
@@ -989,6 +989,25 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         self.assertEqual([g for g, _ in named[:len(rows)]], [n for _, n in rows], 'the card does not follow the group ranking')
         ints = [p for p in self.corpus.specs if self.corpus.kind(p) == 'interest']
         self.assertEqual(sum(len(ps) for _, ps in named + generic), len(ints), 'an interest belongs to no group')
+
+    def test_best_works_are_listed_by_kind_and_each_work_says_what_it_bears_on(self):
+        """A book and a study are not best at the same thing, so the works page ranks each kind on its own; under
+        every work on the card sits what it is and the belief it bears on most, and every work's own page opens
+        with the beliefs it bears on before the argument about how good it is."""
+        import render_site as RS
+        page = self.root['media']
+        groups = RS.works_by_kind(self.corpus)
+        self.assertGreaterEqual(len(groups), 2, 'the works page has fewer than two kinds to rank')
+        for k, heading, ps in groups:
+            self.assertIn(f'<span>{heading}</span>', page, f'{heading} is not a section of the works page')
+            for mp in ps: self.assertIn(f'href="p/{self.corpus.href(mp)}"', page)
+        h = self.c['index.html']; i = h.find('<span>Best books, studies and reports</span>'); card = h[i:h.find('</section>', i)]
+        self.assertRegex(card, r'<div class="src">(Book|Study|Report|Article|Film|Podcast|Video|Work)', 'a work on the card does not say what kind it is')
+        self.assertIn('yardstick', card, 'the card does not say that best is a yardstick anyone can argue')
+        mp = groups[0][2][0]
+        with open(os.path.join(self.parent.dir, 'p', self.corpus.href(mp))) as fh: w = fh.read()
+        self.assertLess(w.find('Beliefs this work bears on'), w.find('Quality Arguments'), 'the work page argues quality before saying what the work bears on')
+        self.assertIn('What it shows:', w)
 
     def test_it_does_not_list_every_page(self):
         """One idea per page. The full list has its own page and a search box; the home page is not it."""

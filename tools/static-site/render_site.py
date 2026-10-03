@@ -1022,6 +1022,30 @@ def engine_table(H, c, pid):
     consts = ' · '.join(f'{k_} = {v}' for k_, v in CONST.items())
     return H.section('Scoring Engine', 'Every value here is computed from the tables above at build time. Nothing is typed.', ('Truth scores', WIKI['truth'])) + '<table class="plain engine"><thead><tr><th>Quantity</th><th>Value</th><th>How</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table>' + cite(c, pid) + f'<p class="consts">Every number on this page as data: <a href="{c.key[pid]}.json">{esc(c.key[pid])}.json</a>. Constants: {consts}. ' + esc(CONST_MEANING['DEFLINK'].split('.')[0]) + '. ' + esc(CONST_MEANING['DEFIMP'].split(':')[0]) + '.</p></section>'
 
+def work_beliefs(c, mp):
+    """(belief page, side) for every belief page that cites a work, supports first."""
+    out = []
+    for u in sorted({u for u, sec, _ in c.uses.get(mp, []) if sec == 'media'}):
+        side = 'supports' if any(r.get('id') == mp for r in c.specs[u].get('media_for', [])) else 'weakens'
+        out.append((u, side))
+    return sorted(out, key=lambda t: (t[1] != 'supports', t[0]))
+
+def promotes_section(H, c, mp):
+    """What a work is for, before how good it is: the beliefs it is cited on, which way it bears on each, what
+    it shows (the bridge sentence typed on the citing page), and how that belief stands. A work is listed by
+    what it changes; whether it deserved to is the quality argument that follows."""
+    sp = c.specs[mp]; rows = work_beliefs(c, mp)
+    o = [H.section('Beliefs this work bears on', 'The beliefs that cite this work, which way it bears on each, and what it shows there. '
+                   'A work earns its place by what it changes; whether it deserved to is argued below.')]
+    o.append('<table class="scored"><thead><tr><th class="rk">#</th><th>Belief</th><th>Bears</th><th>Belief&apos;s truth</th></tr></thead><tbody>')
+    for i, (u, side) in enumerate(rows, 1):
+        shows = f'<div class="src">What it shows: {esc(strip_period(sp["bridge"]))}.</div>' if sp.get('bridge') else ''
+        o.append(f'<tr><td class="rk">{i}</td><td class="t">{H.a(u, c.standalone(u))}{shows}</td>'
+                 f'<td class="{"ag" if side == "supports" else "di"}">{side}</td><td>{H.num(c.truth(u), u)}</td></tr>')
+    if not rows: o.append('<tr><td colspan="4" class="empty">No belief page cites this work yet.</td></tr>')
+    o.append('</tbody></table></section>')
+    return ''.join(o)
+
 def render_special(c, pid):
     H = Html(c); sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid); KD = KINDS[k]
     o = [head(c, pid, c.short(pid, 80, full=True))]
@@ -1068,6 +1092,7 @@ def render_special(c, pid):
         if not s['interests']: o.append('<tr><td colspan="7" class="empty">No interest listed yet, so the row reads the neutral constant.</td></tr>')
         o.append('</tbody></table></section>')
     else:
+        if k == 'media': o.append(promotes_section(H, c, pid))
         o.append(H.section(KD['section'], KD['blurb'], KD['wiki']))
         o.append(two_sided(H, c, KD['agree'], KD['disagree'], pat_table(sp['args']['agree'], s['rows']['agree'], KD['patterns'][0]), pat_table(sp['args']['disagree'], s['rows']['disagree'], KD['patterns'][1])))
         o.append(f'<p class="tot">Total agree {f2(s["pro"])} · total disagree {f2(s["con"])} · {"quality" if k == "media" else KD["label"].lower()} score {f2(s["truth"])}</p></section>')
@@ -1877,10 +1902,10 @@ EXPLAIN = [
      'Every interest on the site is written as a group and a need, "<who> need <what>", so the group is read off the sentence. Groups are ranked by how many beliefs list one of their interests, then by how many interests they have; under each group, its needs are ranked by how valid each is argued to be on its own page. A group that is only a belief\'s supporters or opponents is a side rather than a party, so it is kept but listed last. How much power a group holds never enters into it.',
      'Positions are what people say they want; interests are why. A compromise is built out of interests, so knowing who has a stake, what they actually need, and which of those needs hold up is where a way through starts.',
      None),
-    ('works', 'Books, studies and reports',
-     'Every book, study, report and film cited on a belief page.',
-     'Ranked by impact: how much of these pages the work moved. Its quality (whether what it says holds up) is argued on its own page and shown beside it.',
-     'A widely cited work that is wrong and a rarely cited work that is right are different problems, so how much a work moved the pages and whether it deserved to are kept apart.',
+    ('works', 'Best books, studies and reports',
+     'Every book, study, report, article and film cited on a belief page, by kind, each kind ranked. Under each work: what it is, and the belief it bears on most.',
+     'Best, so far, means impact: how much of these pages the work moved, which is its contribution to every belief that cites it, counted through the row it sits on. A work is listed by what it changes. Whether it deserved to is a separate number, quality, argued on the work\'s own page: is it accurate, well reasoned, well made, built on primary sources? The two are kept apart because a widely read work that is wrong and an unread work that is right are different problems. Other yardsticks for best (most important, most accurate, most entertaining, most cited) are each a criterion anyone can propose on a work\'s page and argue; a yardstick nobody has argued is not used to rank anything.',
+     'Because a work reaches people in a way an argument never does: one film teaches its ethics to more people than every analysis of those ethics put together. Knowing which works moved the beliefs here, and whether they earned it, is how a reader finds the best thing to read on a question, and how a work that moved a lot of people with a claim that does not hold up gets noticed.',
      None),
     ('changed', 'Changed in this revision',
      'Pages edited, or whose numbers moved, since the last published version of the site.',
@@ -2023,9 +2048,10 @@ def render_index(c, title):
     named, generic = stake_groups(c)
     cards.append(card('Who has a stake', 'The people with something at stake, ranked by how many beliefs touch them; under each, their best argued need.',
                       stake_table(c, named, TOP), see_all('interests.html', len(named) + len(generic), 'groups'), 'stake'))
-    works = sorted((p for p in c.specs if c.kind(p) == 'media'), key=lambda m: -(c.stats(m).get('impact') or 0))
-    cards.append(card('Books, studies and reports', 'The works cited, ranked by how much they moved these pages.',
-                      mini(c, works[:TOP], 'Impact', lambda p: f2(c.stats(p).get('impact') or 0), 'works', what='Work'), see_all('media.html', len(works), 'works'), 'works'))
+    works = best_works(c, len(c.specs))
+    cards.append(card('Best books, studies and reports', 'Best, so far, means the works that moved these pages the most. What best ought to mean is a yardstick anyone can argue.',
+                      mini(c, works[:TOP], 'Impact', lambda p: f2(c.stats(p).get('impact') or 0), 'works', what='Work', note=lambda p: work_note(c, p)),
+                      see_all('media.html', len(works), 'works, by kind'), 'works'))
     recent_all = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))
     if recent_all:
         cards.append(card('Changed in this revision', 'Edited or moved since the last published revision.',
@@ -2155,21 +2181,50 @@ def render_interests(c, title):
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 
+KINDS_OF_WORK = [('Book', 'Best books'), ('Study', 'Best studies'), ('Report', 'Best reports'), ('Article', 'Best articles'),
+                 ('Film', 'Best films'), ('Podcast', 'Best podcasts'), ('Video', 'Best videos'), ('', 'Other works')]
+
+def works_by_kind(c):
+    """Every work, by kind, each kind ranked by impact: a book and a study are not best at the same thing."""
+    works = [p for p in c.specs if c.kind(p) == 'media']
+    by = {}
+    for mp in works: by.setdefault(c.specs[mp].get('typ') or '', []).append(mp)
+    known = {k for k, _ in KINDS_OF_WORK}
+    for k in list(by):
+        if k not in known: by.setdefault('', []).extend(by.pop(k))
+    rank = lambda ps: sorted(ps, key=lambda m: (-(c.stats(m).get('impact') or 0), -c.truth(m), m))
+    return [(k, title, rank(by[k])) for k, title in KINDS_OF_WORK if by.get(k)]
+
+def best_works(c, limit):
+    """The home card: the top works of any kind, by impact."""
+    return sorted((p for p in c.specs if c.kind(p) == 'media'), key=lambda m: (-(c.stats(m).get('impact') or 0), -c.truth(m), m))[:limit]
+
+def work_note(c, mp):
+    """One line under a work: its kind and the belief it bears on most, so a list of titles says what each is for."""
+    rows = work_beliefs(c, mp); kind = c.specs[mp].get('typ') or 'Work'
+    if not rows: return esc(kind)
+    u, side = rows[0]
+    return f'{esc(kind)} · {side} <a href="p/{c.href(u)}">{esc(strip_period(c.short(u, 60)))}</a>' + (f' and {len(rows) - 1} more' if len(rows) > 1 else '')
+
 def render_media_index(c, title):
-    """Every work cited anywhere, ranked by how much it moved the pages here."""
-    works = [p for p in sorted(c.specs) if c.kind(p) == 'media']
-    o = [root_head('Books, studies and reports', [('Home', 'index.html'), ('Books, studies and reports', '')], main_class='index')]
-    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Books, studies and reports</h1>')
-    o.append('<p class="lede">Every work cited on a belief page. Quality is whether what it says holds up; impact is how much of these pages it moved. A widely read work that is wrong and an unread work that is right are different problems, so the two are kept apart. Both are argued on the work\'s own page.</p>')
+    """Every work cited anywhere, by kind, each kind ranked by how much it moved the pages here. Best is a
+    yardstick, and the yardstick is open: see EXPLAIN['works']."""
+    o = [root_head('Best books, studies and reports', [('Home', 'index.html'), ('Best books, studies and reports', '')], main_class='index')]
+    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Best books, studies and reports</h1>')
+    o.append('<p class="lede">Every work cited on a belief page, by kind. Best, so far, means the works that moved these pages the most: a work earns its place by what it changes. Whether it deserved to is its quality, argued on its own page and shown beside it, because a widely read work that is wrong and an unread work that is right are different problems. What best ought to mean (most important, most accurate, most entertaining) is a yardstick anyone can propose and argue, like every other criterion here.</p>')
     o.append(EXPLAIN_BLOCK['works'])
-    o.append('<section><table class="scored"><thead><tr><th class="rk">#</th><th>Work</th><th>Type</th><th>Quality</th><th>Impact</th><th>Cited on</th></tr></thead><tbody>')
-    for i, mp in enumerate(sorted(works, key=lambda m: -((c.stats(m).get('impact') or 0))), 1):
-        st = c.stats(mp); users = sorted({u[0] for u in c.uses.get(mp, [])})
-        on = '; '.join(f'<a href="p/{c.href(u)}">{esc(c.short(u, 44))}</a>' for u in users)
-        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(mp)}">{esc(c.standalone(mp))}</a></td><td>{esc(c.specs[mp].get("typ") or "")}</td>'
-                 f'<td>{f2(st["truth"])}</td><td class="sc">{f2(st.get("impact") or 0)}</td><td class="u">{on}</td></tr>')
-    if not works: o.append('<tr><td class="empty" colspan="6">No work has a page yet.</td></tr>')
-    o.append('</tbody></table></section>')
+    groups = works_by_kind(c)
+    for k, heading, ps in groups:
+        o.append(f'<section><h2 id="{(k or "other").lower()}"><span>{esc(heading)}</span><span class="n">{len(ps)} work{"s" if len(ps) != 1 else ""}</span></h2>')
+        o.append('<table class="scored"><thead><tr><th class="rk">#</th><th>Work</th><th>Quality</th><th>Impact</th><th>Bears on</th></tr></thead><tbody>')
+        for i, mp in enumerate(ps, 1):
+            st = c.stats(mp); rows = work_beliefs(c, mp)
+            on = '; '.join(f'{side} <a href="p/{c.href(u)}">{esc(c.short(u, 44))}</a>' for u, side in rows)
+            shows = f'<div class="src">What it shows: {esc(strip_period(c.specs[mp]["bridge"]))}.</div>' if c.specs[mp].get('bridge') else ''
+            o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(mp)}">{esc(c.standalone(mp))}</a>{shows}</td>'
+                     f'<td>{f2(st["truth"])}</td><td class="sc">{f2(st.get("impact") or 0)}</td><td class="u">{on}</td></tr>')
+        o.append('</tbody></table></section>')
+    if not groups: o.append('<p class="empty">No work has a page yet.</p>')
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 
