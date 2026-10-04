@@ -23,7 +23,7 @@ Definitions, scoring concept explanations, and terminology glossaries live at th
 
 **Why:** The page is a navigation tool into a scored argument network, not a tutorial. Readers come to see the structured argument, not to be taught what a Linkage Score is. Anyone who needs a definition clicks the link to that concept's own page. Definitions at the top are friction; they push the scored content below the fold.
 
-**How to apply:** If a page has a Definitions section, Scoring Concepts section, or anything labeled "What this is": it goes AFTER arguments, evidence, values, interests, assumptions, CBA, resolution, and belief mapping. It is the last *analysis* section; only People on the Record (history, not analysis), What This Page Needs Right Now, What the numbers are made of (the readout), Add to This Page, the Contribute footer, and Related Topics may follow it. Definitions are operational (how would you measure it?), not philosophical.
+**How to apply:** If a page has a Definitions section, Scoring Concepts section, or anything labeled "What this is": it goes AFTER arguments, evidence, values, interests, assumptions, CBA, resolution, and belief mapping. It is the last *analysis* section; only People on the Record (history, not analysis), What This Page Needs Right Now, What the numbers are made of (the readout), Add to This Page, the Contribute footer, and Related Topics may follow it. The published static site (`tools/static-site/`) names a few of these differently and adds three that are lists or derivations rather than analysis: Related Beliefs (the other beliefs filed under the same topic, its Related Topics), Not filled in yet (the parts nobody has filled, each with its first-row form), Structural Checks (faults the shape of the argument shows, none of which moves a score) and Scoring Engine (every computed value and how it was worked out). Those four may follow Definitions too; Ways of Saying the Same Thing and Where This Page Is Used come before it. Definitions are operational (how would you measure it?), not philosophical.
 
 The readout sits at the back for the same reason the definitions do. The single truth score on the heading line is the only number above the arguments; no other score and no verdict is announced before them, and what the numbers are made of is read out only after the reader has seen what they rest on.
 
@@ -360,6 +360,13 @@ feed it. Renders nothing when no open contract exists.
    counted in full on no record, how many are weighted by an unconfirmed source-type
    claim, and, above half, that the score should be read as provisional. Engine-computed
    (`src/core/scoring/evidence-exposure.ts`); omitted when every row is established.
+   **Standing is software only.** The published static site has no verification
+   lifecycle in its tables, so every row there is the Unrecorded case and counts in
+   full; its ledger prints no Standing column rather than a column that reads
+   Unrecorded on every row, and its columns are `Finding / Bears on / Starts at / Truth /
+   Confidence / Linkage / Importance / Uniqueness / Score / EVS`, every factor of the row
+   rule shown so the row can be multiplied out. Testable Predictions carries the same
+   factor columns, Uniqueness included.
 3. **Objective Criteria** (`Criterion / Score / Validity / Reliability / Linkage / Importance /
    Latest Reading`, with how it is measured, the Reading That Would Strengthen and the Reading That
    Would Weaken printed under the criterion), each criterion is itself a belief with its own page,
