@@ -425,9 +425,9 @@ class Html:
     def method(self, target):
         """A site-relative method-page link, resolved from wherever this page sits."""
         return target if target.startswith('http') else self.up + target
-    def section(self, title, blurb=None, wiki=None, anchor=None):
+    def section(self, title, blurb=None, wiki=None, anchor=None, raw=False):
         w = f'<a class="wiki" href="{self.method(wiki[1])}">{esc(wiki[0])} →</a>' if wiki else ''
-        b = f'<p class="blurb">{esc(blurb)}</p>' if blurb else ''
+        b = (f'<p class="blurb">{blurb if raw else esc(blurb)}</p>') if blurb else ''
         i = f' id="{esc(anchor)}"' if anchor else ''
         return f'<section{i}><h2><span>{esc(title)}</span>{w}</h2>{b}'
 
@@ -873,7 +873,7 @@ def render_belief(c, pid):
     tk = c.topic_of(pid)
     if k == 'belief' and tk:
         sibs = [b for b in c.topic_beliefs(tk) if b != pid]
-        o.append(H.section('Related Beliefs', f'The other beliefs filed under <a href="../t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>; this one is listed unlinked.'))
+        o.append(H.section('Related Beliefs', f'The other beliefs filed under <a href="../t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>; this one is listed unlinked.', raw=True))
         o.append('<ol class="sibs">' + ''.join(f'<li>{H.a(b, c.standalone(b))} <span class="tn">{f2(c.truth(b))}</span></li>' for b in sibs) + f'<li class="u">{esc(c.standalone(pid))} (this page)</li></ol>')
         o.append(add_form(H.up, 'belief', topic=tk) + '</section>')
     if todo:
@@ -1070,7 +1070,7 @@ def render_special(c, pid):
     # what it means, with confidence and what it is made of, is in the derivation at the end.
     t = s['truth']; kv = c.conf.of(pid)
     bl = (sp.get('bottom_line') or '').strip()
-    o.append((f'<p class="bl"><span class="lab">Bottom line</span> {esc(bl)}</p>' if bl else '') + '</section>')
+    o.append('</section>')
     # the argued table(s)
     def pat_table(specs_rows, side_rows, pats):
         order = sorted(range(len(specs_rows)), key=lambda i: -side_rows[i]['score'])
@@ -1129,7 +1129,8 @@ def render_special(c, pid):
     elif k == 'media':
         checks = [('The work', esc(c.text(pid))), ('Type', esc(sp.get('typ') or '')), ('What it claims about the belief', esc(sp.get('bridge') or '')),
                   ('Computed quality', f'{f2(t)} from {s["nagree"]} reason(s) to agree and {s["ndis"]} to disagree'), ('Computed impact', f'{f2(s["impact"])} from {s["niagree"]} reason(s) to agree and {s["nidis"]} to disagree')]
-    o.append(H.section('Check table', 'The five steps, answered from the pages above. Only the one-sentence bridge is typed.'))
+    if bl: checks = checks + [('Bottom line, typed by the author after the tables above', esc(bl))]
+    o.append(H.section('Check table', 'The five steps, answered from the pages above. Only the one-sentence bridge and the bottom line are typed.'))
     o.append('<table class="plain check"><tbody>' + ''.join(f'<tr><td class="rk">{i}</td><td class="lab">{esc(lab)}</td><td class="u">{val}</td></tr>' for i, (lab, val) in enumerate(checks, 1)) + '</tbody></table></section>')
     if any(sp.get(k_) for k_ in ('assume_hold', 'assume_fail', 'bias_up', 'bias_down')):
         o.append(H.section('Hidden assumptions and bias risks', 'Each is a claim with its own page, scored like any other.'))
@@ -1256,7 +1257,11 @@ def vote_links(c, pid):
     out = ['<span class="votes">']
     for v in ('agree', 'disagree'):
         out.append(f'<a class="vote" href="{esc(vote_url(key, v))}" rel="nofollow">{v.capitalize()}</a> ')
-    if n: out.append(f'<span class="vn">{n["agree"]} agree, {n["disagree"]} disagree; votes, not a score</span>')
+    if n:
+        total = n['agree'] + n['disagree']; share = n['agree'] / total if total else 0.0
+        gap = share - c.truth(pid)
+        out.append(f'<a class="vn" href="../lists.html#votes">{n["agree"]} agree, {n["disagree"]} disagree; votes, not a score</a> '
+                   f'<span class="vn">· {pct(share)} agree, the analysis reads {f2(c.truth(pid))}, gap {sf(gap)}</span>')
     out.append('</span>')
     return ''.join(out)
 
@@ -1317,16 +1322,19 @@ def read_votes(content):
     return out
 
 
+MIN_VOTERS = 3
+
 def disagreement(c):
-    """Pages with votes, ranked by how far the share of votes to agree sits from the truth score: (page, share,
-    gap, votes). Empty when nobody has voted, and then nothing on the site mentions it."""
+    """Pages with votes from at least MIN_VOTERS people, ranked by how far the share of votes to agree sits from
+    the truth score: (page, share, gap, votes). One person's vote is shown on the page but ranks nothing. Empty
+    when nobody has voted, and then nothing on the site mentions it."""
     out = []
     for key, n in getattr(c, 'votes', {}).items():
         if not is_page_key(c, key): continue
         pid = c.tabs[key]
         if c.kind(pid) not in ('belief', 'claim'): continue
         total = n['agree'] + n['disagree']
-        if not total: continue
+        if total < MIN_VOTERS: continue
         share = n['agree'] / total
         out.append((pid, share, share - c.truth(pid), total))
     return sorted(out, key=lambda r: (-abs(r[2]), -r[3], c.standalone(r[0])))
@@ -1586,7 +1594,7 @@ def render_topic(c, tkey, title):
 
     # ---- engagement landscape
     o.append('<h2 id="engagement" class="th">&#9889; The Engagement Landscape (Passive &harr; Active)</h2>')
-    o.append('<p class="cap"><strong>A stakeholder map, not a matching axis.</strong> It measures how far a person will go to act on a belief, which is '
+    o.append('<p class="cap"><strong>A map of who will act, not a matching axis.</strong> It measures how far a person will go to act on a belief, which is '
              'a fact about the person, not the belief, so it never feeds the three-part address above. A casual supporter and someone willing to go '
              'to prison hold the same belief.</p>')
     o.append('<table class="tpl"><thead><tr><th style="width:18%">Engagement Level</th><th style="width:27%">Pro-Topic: What It Looks Like</th><th style="width:27%">Anti-Topic: What It Looks Like</th><th style="width:14%">Pro Example</th><th style="width:14%">Anti Example</th></tr></thead><tbody>')
@@ -1742,7 +1750,8 @@ def topic_cards(c, prefix='t/'):
     return ''.join(out)
 
 def see_all(href, n, what):
-    return f'<p class="more"><a href="{href}">All {n} {what} &rarr;</a></p>'
+    """The link to a full ranking. n is None when the count is already printed elsewhere on the page."""
+    return f'<p class="more"><a href="{href}">All {(str(n) + " ") if n is not None else ""}{what} &rarr;</a></p>'
 
 def ranked(c, heading, blurb, rows, extra_head, extra_cell, prefix='p/', more=None):
     """A short ranked list. `more` is (href, total, what) for the page that carries the whole ranking."""
@@ -1786,13 +1795,25 @@ def popular_topics(c, n=8, prefix='t/'):
         top.append(k)
         if len(top) == n: break
     if not top: return ''
-    return ('<p class="pop"><strong>Most argued:</strong> '
+    return (f'<p class="pop"><strong><a href="{prefix[:-2] if prefix.endswith("t/") else ""}lists.html#topics">Most argued</a>:</strong> '
             + ', '.join(f'<a href="{prefix}{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a>' for k in top) + '</p>')
 
 def contested(c):
     """Beliefs with the most reasons for and against beneath them, most first."""
     n = {b: reasons_beneath(c, b) for b in c.beliefs}
     return sorted((b for b in c.beliefs if n[b]), key=lambda b: (-n[b], c.standalone(b))), n
+
+def render_hardest(c, title):
+    """Every belief whose kind of dispute the engine can name, hardest first, and how many it cannot name yet."""
+    rows = hardest(c)
+    o = [root_head('Hardest to resolve', [('Home', 'index.html'), ('Hardest to resolve', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Hardest to resolve</h1>')
+    o.append(f'<p class="lede">A disagreement over values first, because no measurement settles it; a factual one last, because one can. '
+             f'{len(rows)} of {len(c.beliefs)} beliefs are classified; the rest need evidence on both sides and a ranking of values before the kind of dispute can be read. '
+             f'{explain("hardest", "What this list means, how the kind is read, and why it is tracked")}</p>')
+    o.append(ranked(c, 'Ranked by kind of dispute', None, rows, 'Kind of dispute', lambda p: f'<a href="lists.html#hardest">{esc(c.stats(p)["dispute"])}</a>') or '<section><p class="empty">No belief is classified yet.</p></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
 
 def render_contested(c, title):
     rows, n = contested(c)
@@ -1914,12 +1935,12 @@ EXPLAIN = [
      None),
     ('votes', 'Votes vs the analysis',
      'Claims people have voted on, ranked by how far the share of votes to agree sits from the truth score.',
-     'A vote is one GitHub account saying agree or disagree with a claim, and only that account\'s latest vote counts. The share of the votes that agree is compared with the claim\'s truth score, and the list is ordered by the size of the gap, widest first. The card appears only once somebody has voted.',
+     'A vote is one GitHub account saying agree or disagree with a claim, and only that account\'s latest vote counts. The share of the votes that agree is compared with the claim\'s truth score, and the list is ordered by the size of the gap, widest first. A claim enters the list once three or more people have voted on it; fewer votes are shown on the claim\'s own page but rank nothing. The card appears only once a claim has that many.',
      'Because a claim the analysis rates low that many people agree with, or the other way round, is where a reason is missing from the page: either the people know something the tables do not, or the tables know something the people do not, and the next argument goes there. The votes themselves never move a score, because a claim nobody has argued is worth nothing however many people like it.',
      None),
     ('topics', 'Topics',
      'Beliefs filed by subject, like a library shelf.',
-     'Each belief is filed under one topic. A topic page places every belief on three scales: which way it points, how strongly it is worded, and how general or specific it is.',
+     'Each belief is filed under one topic. A topic page places every belief on three scales: which way it points, how strongly it is worded, and how general or specific it is. The "Most argued" line at the top of the shelf orders topics by the reasons counted beneath their beliefs, at every level, the same count Most argued over uses; a topic and the topic above it are never both listed.',
      'So that two ways of saying the same thing land in the same place, and so a reader can see the whole range of positions on a subject at once.',
      None),
 ]
@@ -2022,15 +2043,16 @@ def render_index(c, title):
              f'{sofar} '
              f'<a href="lists.html">What each list means</a> · <a href="method.html">how the scores are worked out</a>.</p>')
     TOP = 3
-    cards = [card('Search', 'Every page on the site, by the words in it.', SEARCH, see_all('all.html', len(c.specs), 'pages, listed'))]
+    cards = [card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
     cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts.',
-                      mini(c, best_beliefs(c, TOP), 'Belief score', lambda p: sf(c.stats(p)['belief']), 'best', what='Belief'), see_all('best.html', len(c.beliefs), 'beliefs, ranked'), 'best'))
+                      mini(c, best_beliefs(c, TOP), 'Belief score', lambda p: sf(c.stats(p)['belief']), 'best', what='Belief'), see_all('best.html', None, 'beliefs, ranked'), 'best'))
     con, n = contested(c)
     cards.append(card('Most argued over', 'The most reasons for and against, counted at every level beneath the belief.',
                       mini(c, con[:TOP], 'Reasons', lambda p: str(n[p]), 'argued', what='Belief'), see_all('contested.html', len(con), 'beliefs, by reasons argued'), 'argued'))
     hard = hardest(c)
     cards.append(card('Hardest to resolve', 'A disagreement over values first, because no measurement settles it; a factual one last, because one can.',
-                      mini(c, hard[:TOP], 'Kind of dispute', lambda p: f'<a href="lists.html#hardest">{esc(c.stats(p)["dispute"])}</a>', 'hardest', what='Belief'), '', 'hardest'))
+                      mini(c, hard[:TOP], 'Kind of dispute', lambda p: f'<a href="lists.html#hardest">{esc(c.stats(p)["dispute"])}</a>', 'hardest', what='Belief'),
+                      f'<p class="more"><a href="hardest.html">{len(hard)} of {len(c.beliefs)} beliefs classified &rarr;</a></p>', 'hardest'))
     voted = disagreement(c)
     if voted:
         gap = {p: (share, g, n) for p, share, g, n in voted}
@@ -2070,10 +2092,8 @@ def render_index(c, title):
     o.append(MASONRY)
     # The plumbing stays off the cards: a reader comes for the arguments, and the tables and the method are one
     # line at the foot of the page for the reader who wants to check them.
-    o.append('<p class="under"><a href="method.html">How the numbers are worked out</a> · <a href="lists.html">What each list means</a> · '
-             'Every table behind every page, free to download and check: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, '
-             '<a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a>, <a href="data/ise.sqlite">SQLite</a> or '
-             '<a href="data/pages_index.json">every page\'s computed numbers</a> · <a href="changes.html">What changed</a> since the last revision.</p>')
+    o.append('<p class="under"><a href="changes.html">What changed</a> since the last revision · '
+             '<a href="method.html#data">The tables behind every page</a>, free to download and check.</p>')
     o.append(stamp(c))
     o.append(contribute_script(''))
     o.append('</main>' + JS + '</body></html>')
@@ -2082,11 +2102,11 @@ def render_index(c, title):
 def render_all(c, title):
     o = [root_head('All pages', [('Home', 'index.html'), ('All pages', '')], main_class='index')]
     o.append(f'<p class="kind">Idea Stock Exchange</p><h1>All {len(c.specs)} pages</h1>')
-    o.append('<section><div class="tablewrap"><table class="plain all" id="all"><thead><tr><th>Kind</th><th>Claim or question</th><th>Truth</th><th>Complete</th><th>Used on</th></tr></thead><tbody>')
+    o.append('<section><table class="plain all" id="all"><thead><tr><th>Kind</th><th>Claim or question</th><th>Truth</th><th>Complete</th><th>Used on</th></tr></thead><tbody>')
     for p in sorted(c.specs, key=lambda q: (list(KINDNAME).index(c.kind(q)), q)):
         s = c.stats(p); par = c.specs[p].get('supports')
         o.append(f'<tr><td class="u">{esc(KINDNAME[c.kind(p)])}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.standalone(p))}</a></td><td>{f2(s["truth"])}</td><td>{"yes" if s["complete"] else "no"}</td><td class="u">{("<a href=%sp/%s%s>%s</a>" % (chr(34), c.href(par), chr(34), esc(c.brief(par)[0]))) if is_page(par) else ""}</td></tr>')
-    o.append('</tbody></table></div></section>')
+    o.append('</tbody></table></section>')
     o.append(stamp(c) + '</main>' + JS + FIND + '</body></html>')
     return ''.join(o)
 
@@ -2317,7 +2337,7 @@ ul.tree li{margin:4px 0;font-size:13.5px}ul.tree summary{cursor:pointer;font-wei
 .tablewrap{overflow-x:auto}table.all td.t{font-size:13.5px}
 .find{margin:0 0 10px;font-size:13px;color:var(--ink2)}
 .find label{font-weight:600;margin-right:6px}
-.find input{font:inherit;padding:6px 10px;min-width:22em;max-width:100%;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
+.find input{font:inherit;padding:6px 10px;max-width:100%;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
 .find input:focus-visible{outline:2px solid var(--navy2);outline-offset:1px}
 .find #qn{margin-left:8px;color:var(--mute)}
 @media print{.find{display:none}}
@@ -2536,7 +2556,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
         fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
-    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('next', render_next), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists)):
+    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 't'))
     for tkey in c.topics:

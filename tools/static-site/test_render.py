@@ -1716,9 +1716,11 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
         self.assertNotIn('Votes vs the analysis', without)
         self.assertNotIn('lists.html#votes', without)
         ranked = RS.disagreement(self.cv)
-        self.assertEqual([self.cv.key[p] for p, *_ in ranked], ['r1', 'a'], 'the widest gap between people and the analysis does not come first')
+        # r1 has one vote and a wider gap, but one person's vote ranks nothing: a claim enters the card at MIN_VOTERS
+        self.assertEqual([self.cv.key[p] for p, *_ in ranked], ['a'], 'a claim with fewer than MIN_VOTERS votes is ranked, or the one with enough is not')
         i = with_.find('Votes vs the analysis'); card = with_[i:with_.find('</section>', i)]
-        self.assertLess(card.find('href="p/r1.html"'), card.find('href="p/a.html"'))
+        self.assertNotIn('href="p/r1.html"', card, 'a claim one person voted on is ranked against the analysis')
+        self.assertIn('href="p/a.html"', card)
         self.assertNotIn('href="p/b.html"', card, 'a draft is ranked on the home page')
         self.assertEqual(with_.count('<section'), with_.count('<section class="card"'))
 
