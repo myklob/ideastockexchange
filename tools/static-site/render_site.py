@@ -2934,16 +2934,18 @@ def render_media_index(c, title):
         if how == 'typed':
             n = len({mp for mp, _ in crit.get(key, ('', []))[1]})
             now = f'read for {n} work{"s" if n != 1 else ""}' if n else 'nobody has proposed a way to measure it yet'
+            tag = f'{n} read' if n else 'empty'
         else:
             got = [v for v in (work_value(c, mp, key) for mp in allw) if v is not None]
             spread = len({round(v, 4) for v in got})
             now = (f'tells works apart ({spread} different values)' if spread > 1 else
                    (f'every work reads {measure_cell(key, got[0])} until someone argues one' if got else 'no work has a value yet'))
-        o.append(f'<tr><td class="t"><a href="lists.html#works-{key}">{esc(name)}</a>: {esc(q)}<div class="src">Worked out from {esc(src)}.</div></td><td class="u">{esc(now)}</td></tr>')
+            tag = 'ranks works' if spread > 1 else ('all tied' if got else 'empty')
+        o.append(f'<tr><td class="t"><a href="lists.html#works-{key}">{esc(name)}</a>: {esc(q)}<div class="src">Worked out from {esc(src)}. So far: {esc(now)}.</div></td><td>{esc(tag)}</td></tr>')
     for g, (name, rows) in sorted(crit.items()):
         if g == 'entertaining': continue
         n = len({mp for mp, _ in rows})
-        o.append(f'<tr><td class="t"><a href="lists.html#works-proposed">{esc(name)}</a><div class="src">Proposed by a reader; worked out from the readings typed on each work&apos;s page.</div></td><td class="u">read for {n} work{"s" if n != 1 else ""}</td></tr>')
+        o.append(f'<tr><td class="t"><a href="lists.html#works-proposed">{esc(name)}</a><div class="src">Proposed by a reader; worked out from the readings typed on each work&apos;s page. So far: read for {n} work{"s" if n != 1 else ""}.</div></td><td>{n} read</td></tr>')
     o.append('</tbody></table>')
     o.append('<p class="cap">Each yardstick links to what it measures, how it is worked out and why it is tracked. '
              'A yardstick is itself a claim: one that cannot tell a great work from a poor one should lose to one that can. '
