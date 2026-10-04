@@ -3201,3 +3201,112 @@ shohei-ohtani-already-most,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two s
 shohei-ohtani-already-most,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about how much Babe Ruth's 1920s numbers should be discounted for competition that excluded Black, Latin American and Asian players and was spread over only 16 teams. | move: A published era adjustment with its method open to inspection, applied to both Ruth and Ohtani, would let both sides argue about the adjustment rather than the conclusion."
 shohei-ohtani-already-most,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether Ohtani's elbow, knee and biceps injuries show that two-way play is wearing him down or are ordinary bad luck that any 32-year-old pitcher faces. | move: His innings pitched and plate appearances from 2027 through 2030 will show whether the two-way career can last long enough to add the total value the opposing side demands."
 shohei-ohtani-already-most,value,,,,,,,,,,,,,,,,,,"value: Excellence | srank: 1 | orank: 2 | why: Supporters care most about how high a player's ceiling reaches in a single season or game, and no one-way player can match Ohtani's ceiling."
+music,direction,,,"Music streaming has been a disaster for musicians, turning recorded music into something nearly worthless and making a life in music possible only for a tiny few.",,,,,,,,,,-100,,,,,"argument: When a single play earns almost nothing, recordings stop being a living for anyone but the biggest stars, and every other part of a musician's income has to carry the load."
+music,direction,,,"Music streaming has helped some musicians and hurt others about equally, widening who can be heard while shrinking what most of them earn from being heard.",,,,,,,,,,0,,,,,"argument: Streaming opened distribution to everyone and brought paying listeners back, but it also spread a limited pool of attention and money across far more artists, so gains in reach and losses in pay roughly offset."
+music,direction,,,"Music streaming has been an unqualified win for musicians, freeing them from label control and giving every artist a worldwide paying audience that never existed before.",,,,,,,,,,+100,,,,,"argument: Before streaming most musicians never got a record deal and earned nothing from recordings, so any income and audience streaming gives them is a pure gain over obscurity."
+music,strength,agree,,"Streaming tends to help musicians in some ways, such as letting newer artists in certain genres find listeners they could not have reached before.",,,,,,,,,,Modest,,,,,
+music,strength,disagree,,"Streaming tends to shortchange some musicians, especially those with small audiences who earn little from their recordings.",,,,,,,,,,Modest,,,,,
+music,strength,agree,,Streaming has fundamentally improved the position of musicians across the board by giving every artist direct access to a worldwide paying audience.,,,,,,,,,,Strong,,,,,
+music,strength,disagree,,"Streaming has fundamentally devalued musicians' work across the board, leaving almost every artist unable to earn a real living from recordings.",,,,,,,,,,Strong,,,,,
+music,strength,agree,,"Streaming has always been better for every musician than the system it replaced, and no artist has ever been made worse off by it.",,,,,,,,,,Total,,,,,
+music,strength,disagree,,"Streaming has never been good for musicians, and every artist would always be better off if their music were not on it.",,,,,,,,,,Total,,,,,
+music,rung,agree,,"Open markets and technology that remove middlemen generally leave creators better off, even when they disrupt the old ways of getting paid.",,,,,,,,,,general,,,,,
+music,rung,disagree,,"When a few platforms control how creative work reaches the public, creators lose bargaining power and the value of their work flows to whoever owns the platform.",,,,,,,,,,general,,,,,
+music,rung,agree,,Streaming has generally improved musicians' income from recorded music compared with what most of them earned before it.,,,,,,,,,,A,,,,,branch: Income from recordings
+music,rung,disagree,streaming-services-generally-pay,,,,,,,,,,,A,,,,,branch: Income from recordings
+music,rung,agree,streaming-brought-paying-listeners,,,,,,,,,,,A.1,,,,,
+music,rung,disagree,single-play-earns-almost,,,,,,,,,,,A.1,,,,,
+music,rung,agree,before-streaming-most-musicians,,,,,,,,,,,A.2,,,,,
+music,rung,disagree,money-split-so-most,,,,,,,,,,,A.2,,,,,
+music,rung,agree,streaming-has-clearly-done,,,,,,,,,,,B,,,,,branch: Reach and discovery
+music,rung,disagree,,The wider reach streaming offers has done little to build lasting careers for most musicians.,,,,,,,,,,B,,,,,branch: Reach and discovery
+music,rung,agree,any-musician-can-upload,,,,,,,,,,,B.1,,,,,
+music,rung,disagree,when-everyone-can-publish,,,,,,,,,,,B.1,,,,,
+music,rung,agree,,Streaming has given musicians more control over their own work and careers than they had when record labels decided who got released.,,,,,,,,,,C,,,,,branch: Control and gatekeepers
+music,rung,disagree,,Streaming has left most musicians with little more real control over their careers than they had under the labels.,,,,,,,,,,C,,,,,branch: Control and gatekeepers
+music,rung,agree,artists-keep-rights-own,,,,,,,,,,,C.1,,,,,
+music,rung,disagree,playlists-chosen-platform-staff,,,,,,,,,,,C.1,,,,,
+music,stack,,,,,,,,,,,,,oppose,,,,,"worldview: creative work deserves a fair return, and markets dominated by a few platforms do not deliver one on their own | political: artists need collective bargaining power or rules on royalty rates to stand up to platforms and labels | causal: low per-play payouts and label-favoring splits cause most musicians to earn too little from recordings to live on | specific: the right test is whether a working musician with a modest audience can earn a living from streams today"
+music,stack,,,,,,,,,,,,,mixed,,,,,"worldview: acknowledges that streaming widened access to audiences while also changing how and how much musicians are paid | political: opponents are right that per-play pay is tiny and splits favor labels, and supporters are right that most musicians earned nothing from recordings before | causal: whether streaming helps depends on the artist's audience size, genre, career stage and whether they can tour | specific: how royalties are divided among labels, publishers and performers decides whether the added income reaches the people who make the music"
+music,stack,,,,,,,,,,,,,support,,,,,"worldview: technology that lets creators reach audiences directly is good for creators even when it upends old business models | political: rates should be set by what listeners will pay, not by rules that could shrink the audience | causal: streaming brought paying listeners back and lets far more artists earn something than the old label system did | specific: the right comparison is a musician's streaming income and reach against the obscurity most faced before, not against a few stars of the record era"
+music,topic_values,agree,,,,,,,,,,,,,,,,,advertised: open access for every artist; listener choice; independence from record labels | critics: defending a business model that profits platforms and big labels; treating reach as a substitute for pay
+music,topic_values,disagree,,,,,,,,,,,,,,,,,advertised: fair pay for creative work; a sustainable life for working musicians; artists' bargaining power | critics: nostalgia for a record business that excluded most musicians; wanting listeners to pay more than they are willing to
+music,engagement,agree,,Prefers to listen to music through a streaming subscription and thinks it is a fair deal for the artists.,,,,,,,,,,1,,,,,example: casual streaming subscriber
+music,engagement,disagree,,Streams music for convenience but privately feels artists are being underpaid by it.,,,,,,,,,,1,,,,,example: uneasy longtime listener
+music,engagement,agree,,Tells other musicians to release their work on streaming services and argues publicly that it beats waiting for a label.,,,,,,,,,,2,,,,,example: independent artist mentor
+music,engagement,disagree,,"Campaigns for higher per-play rates and fairer royalty splits, writing, organizing and speaking for working musicians.",,,,,,,,,,2,,,,,example: musicians' union organizer
+music,engagement,agree,,"Declines to join a campaign to pull music off streaming services, keeping their own catalog up without trying to stop others who leave.",,,,,,,,,,3,,,,,example: self-released bedroom producer
+music,engagement,disagree,,"Refuses to put new releases on streaming services or to subscribe, and buys music directly from artists instead, without pressuring others to do the same.",,,,,,,,,,3,,,,,example: direct-sale indie band
+music,engagement,agree,,"There is no honest lawbreaking form here; the nearest real behavior is an artist walking away from a label deal to release everything on streaming themselves, accepting the lost advance.",,,,,,,,,,4,,,,,example: label-free touring musician
+music,engagement,disagree,,"There is no honest lawbreaking form here; the nearest real behavior is publicly pulling an entire catalog off streaming services in protest, accepting the lost listeners and income.",,,,,,,,,,4,,,,,example: protesting veteran songwriter
+music,common,,,Both sides want more of the money listeners spend on music to reach the people who write and perform it.,,,,,,,,,,shared,,,,,
+music,common,,,Both sides want talented musicians from anywhere to be able to find an audience and keep making music.,,,,,,,,,,shared,,,,,
+music,common,,,"Cheap unlimited access that lets listeners hear far more music is in real tension with paying each artist more for every listen, and no fact decides which matters more.",,,,,,,,,,conflict,,,,,
+music,common,,,Streaming services could keep their current prices while changing how royalties are divided so a larger share goes to performers and songwriters rather than labels.,,,,,,,,,,compromise,,,,,
+music,common,,,"Platforms could pair low-cost subscriptions with built-in ways for fans to pay artists directly, such as tips, paid releases or merchandise sold alongside the music.",,,,,,,,,,compromise,,,,,
+music,criteria,,,Share of working musicians earning a living wage from recorded music,,,,,,,,,,,,,,,"reading: percent of active musicians whose recording income meets a set living-wage threshold, per year | validity: High | reliability: Med | linkage: High | importance: High"
+music,criteria,,,Share of streaming revenue reaching performers and songwriters,,,,,,,,,,,,,,,reading: percent of each dollar listeners pay that ends up with the people who wrote or performed the song | validity: High | reliability: Med | linkage: High | importance: High
+music,criteria,,,Number of artists earning meaningful recording income,,,,,,,,,,,,,,,"reading: count of artists earning above a set yearly amount from recordings, compared across years | validity: Med | reliability: Med | linkage: High | importance: Med"
+music,criteria,,,Share of musicians who reach an audience without a label,,,,,,,,,,,,,,,reading: percent of artists with a set number of regular listeners who release independently | validity: Med | reliability: Med | linkage: Med | importance: Med
+music,criteria,,,Share of musician income coming from touring and merchandise,,,,,,,,,,,,,,,"reading: percent of a typical musician's total income from live shows and merchandise rather than recordings, per year | validity: Med | reliability: Low | linkage: Med | importance: Med"
+music,related,,,Streaming Royalty Rates,,,,,,,,,,child,,,,,
+music,related,,,Playlists and Music Discovery,,,,,,,,,,child,,,,,
+music,related,,,Touring and Live Music Income,,,,,,,,,,child,,,,,
+music,related,,,Video Games,,,,,,,,,,sibling,,,,,
+music,related,,,Podcasts,,,,,,,,,,sibling,,,,,
+music,related,,,Buying Music Directly From Artists,,,,,,,,,,opposing,,,,,
+taxes,direction,,,"Taxes should be cut to the minimum needed for a few core duties of government, such as courts, police and national defense.",,,,,,,,,,-100,,,,,"argument: People spend money they earned more carefully than a government spends money it collected, so every dollar left with them does more good."
+taxes,direction,,,"The overall level of taxation is about right, and the real questions are which taxes are used and who carries them, not whether the total should rise or fall.",,,,,,,,,,0,,,,,"argument: Both higher and lower taxes carry real costs, so changing the mix and closing loopholes can improve fairness and growth without the harms of a large swing either way."
+taxes,direction,,,"Taxes should be raised substantially and broadly so that government can guarantee health care, education and basic security to everyone.",,,,,,,,,,+100,,,,,"argument: Goods everyone depends on can only be paid for together, and a broad, high tax base pays for them more reliably and fairly than leaving each family to buy them alone."
+taxes,strength,agree,,"In certain cases, raising some taxes tends to do more good than harm when the money goes to services people rely on.",,,,,,,,,,Modest,,,,,
+taxes,strength,disagree,,"Some taxes tend to cost more in lost work and investment than they bring in, and in certain cases they should be lowered.",,,,,,,,,,Modest,,,,,
+taxes,strength,agree,,"Government is underfunded across the board, and taxes should be fundamentally higher and broader to pay for the public goods everyone depends on.",,,,,,,,,,Strong,,,,,
+taxes,strength,disagree,,"Taxes are fundamentally too high across the board, and nearly every tax should be cut.",,,,,,,,,,Strong,,,,,
+taxes,strength,agree,,"Raising taxes to pay for public goods is always justified, and a tax cut is never the right policy.",,,,,,,,,,Total,,,,,
+taxes,strength,disagree,,"Every tax is a taking of what people earned, and a tax increase is never justified.",,,,,,,,,,Total,,,,,
+taxes,rung,agree,,"A society should provide shared goods that markets alone will not, and its members owe a fair share toward paying for them.",,,,,,,,,,general,,,,,
+taxes,rung,disagree,,"People have a strong claim to what they earn, and government should take only what it truly needs to carry out its core duties.",,,,,,,,,,general,,,,,
+taxes,rung,agree,,The income tax should ask a larger share from those with the greatest ability to pay.,,,,,,,,,,A,,,,,branch: Income taxes
+taxes,rung,disagree,,"The income tax should be lower and flatter, so people keep more of each additional dollar they earn.",,,,,,,,,,A,,,,,branch: Income taxes
+taxes,rung,agree,highest-earning-households-pay,,,,,,,,,,,A.1,,,,,
+taxes,rung,disagree,,The highest-earning households should not pay a larger share of their income in taxes than they do today.,,,,,,,,,,A.1,,,,,
+taxes,rung,agree,,Tips are income like any other wage and should be taxed the same way as other pay.,,,,,,,,,,A.2,,,,,
+taxes,rung,disagree,workers-get-tax-cuts,,,,,,,,,,,A.2,,,,,
+taxes,rung,agree,,Taxes on spending should stay a major part of how government is funded rather than be cut back.,,,,,,,,,,B,,,,,branch: Consumption taxes
+taxes,rung,disagree,,Taxes on spending should be kept low and carry a smaller part of how government is funded.,,,,,,,,,,B,,,,,branch: Consumption taxes
+taxes,rung,agree,,Sales taxes on everyday goods should not be lowered from where they are today.,,,,,,,,,,B.1,,,,,
+taxes,rung,disagree,sales-taxes-everyday-goods,,,,,,,,,,,B.1,,,,,
+taxes,rung,agree,,Taxes on land and property should pay for more of what local government does.,,,,,,,,,,C,,,,,branch: Land and property taxes
+taxes,rung,disagree,,Taxes on land and property should be kept low so owners are not taxed out of homes and farms they have already paid for.,,,,,,,,,,C,,,,,branch: Land and property taxes
+taxes,rung,agree,we-tax-property-value,,,,,,,,,,,C.1,,,,,
+taxes,rung,disagree,,Property should not be taxed by the value of the land alone; what is built on it should stay part of what is taxed.,,,,,,,,,,C.1,,,,,
+taxes,stack,,,,,,,,,,,,,oppose,,,,,"worldview: People own what they earn, and taking it requires a strong reason | political: Government should be limited, with its spending held in check by tight budgets | causal: Lower taxes leave more money for work, saving and investment, which grows the economy for everyone | specific: Cutting a given tax will raise people's living standards by more than the lost revenue would have provided in services"
+taxes,stack,,,,,,,,,,,,,mixed,,,,,"worldview: Acknowledges that taxes both pay for real public goods and impose real costs on those who pay them | political: Grants supporters that shared goods need shared funding, and grants opponents that high rates invite avoidance and unchecked spending | causal: Which tax, at what rate, on whom, and what the money buys matter more than the overall level | specific: Design details such as exemptions, phase-ins, yearly caps and how revenue is spent decide whether a given tax helps or hurts"
+taxes,stack,,,,,,,,,,,,,support,,,,,worldview: Members of a society owe something toward the shared goods that make their success possible | political: Government has a duty to provide services and reduce hardship that markets leave unaddressed | causal: Tax money spent on public goods returns more value than the same money left in private hands | specific: Raising a given tax will fund services without driving away enough work and investment to undo the gain
+taxes,topic_values,agree,,,,,,,,,,,,,,,,,advertised: fairness; shared responsibility; public services; opportunity for all | critics: wanting to spend other people's money on their own priorities; resentment of those who succeed
+taxes,topic_values,disagree,,,,,,,,,,,,,,,,,advertised: liberty; self-reliance; economic growth; limited government | critics: shielding the wealthy from paying their share; indifference to people who depend on public services
+taxes,engagement,agree,,Tells friends and pollsters they would accept higher taxes in return for better public services.,,,,,,,,,,1,,,,,example: supportive everyday voter
+taxes,engagement,disagree,,Prefers candidates who promise lower taxes and resents the size of each tax bill.,,,,,,,,,,1,,,,,example: frustrated taxpayer
+taxes,engagement,agree,,"Campaigns for ballot measures and candidates that would raise taxes to fund schools, health care or transit.",,,,,,,,,,2,,,,,example: school funding volunteer
+taxes,engagement,disagree,,Organizes against proposed tax increases and testifies at budget hearings in favor of cuts.,,,,,,,,,,2,,,,,example: taxpayer group organizer
+taxes,engagement,agree,,"Declines to use legal tax shelters they could claim and pays more than the law requires, without trying to stop others from using them.",,,,,,,,,,3,,,,,example: wealthy voluntary payer
+taxes,engagement,disagree,,"Moves to a lower-tax place or arranges income to pay the least the law allows, without trying to stop anyone else from paying more.",,,,,,,,,,3,,,,,example: tax-motivated relocator
+taxes,engagement,agree,,"Holds sit-ins at the offices of companies seen as dodging taxes, openly breaking trespass rules and accepting arrest to draw attention.",,,,,,,,,,4,,,,,example: tax fairness protester
+taxes,engagement,disagree,,"Openly withholds part of a tax as a protest, announces it publicly, and accepts the penalties that follow.",,,,,,,,,,4,,,,,example: open tax resister
+taxes,common,,,"Both sides want public money spent efficiently, with less waste and fewer loopholes that let some people avoid what others pay.",,,,,,,,,,shared,,,,,
+taxes,common,,,Both sides want a tax system simple enough that ordinary people can understand what they owe and why.,,,,,,,,,,shared,,,,,
+taxes,common,,,"Whether a person's share should match their ability to pay, or whether everyone should contribute something regardless of means, is a question of values that no measurement settles.",,,,,,,,,,conflict,,,,,
+taxes,common,,,"Whether earnings belong to the earner first, with taxes as a cost, or depend on shared goods that carry a claim on them, is a moral judgment rather than a fact.",,,,,,,,,,conflict,,,,,
+taxes,common,,,Raise needed revenue by closing loopholes and broadening what is taxed rather than by raising rates.,,,,,,,,,,compromise,,,,,
+taxes,common,,,"Phase in any major tax change gradually, cap how much any one bill can rise in a year, and offer relief to low-income and fixed-income payers.",,,,,,,,,,compromise,,,,,
+taxes,criteria,,,Revenue actually collected compared with what was promised,,,,,,,,,,,,,,,reading: percent of projected revenue collected over five years after a tax change | validity: High | reliability: Med | linkage: High | importance: High
+taxes,criteria,,,Share of total taxes paid by each income group compared with its share of total income,,,,,,,,,,,,,,,"reading: ratio of tax share to income share, for each fifth of households | validity: High | reliability: High | linkage: High | importance: High"
+taxes,criteria,,,Change in jobs and new businesses after a tax change,,,,,,,,,,,,,,,"reading: percent change in employment and business starts over three years, compared with similar places without the change | validity: Med | reliability: Med | linkage: Med | importance: High"
+taxes,criteria,,,Cost of collecting and complying with a tax for each dollar it raises,,,,,,,,,,,,,,,reading: cents of government collection cost plus taxpayer filing cost per dollar of revenue | validity: High | reliability: Med | linkage: Med | importance: Med
+taxes,criteria,,,Quality of the services the revenue pays for,,,,,,,,,,,,,,,"reading: outcome measures such as road condition ratings, school results or emergency response times, per dollar spent | validity: Med | reliability: Med | linkage: Med | importance: High"
+taxes,related,,,Income Tax Progressivity,,,,,,,,,,child,,,,,
+taxes,related,,,Sales and Consumption Taxes,,,,,,,,,,child,,,,,
+taxes,related,,,Land and Property Taxes,,,,,,,,,,child,,,,,
+taxes,related,,,Government Spending,,,,,,,,,,sibling,,,,,
+taxes,related,,,Public Debt and Deficits,,,,,,,,,,sibling,,,,,
+taxes,related,,,Limited Government,,,,,,,,,,opposing,,,,,
