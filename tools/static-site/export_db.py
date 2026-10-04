@@ -22,6 +22,7 @@ Tables
              long_term, component, assumption, interest, shared_interest, compromise, motive, obstacle, bias, media,
              law, upstream, downstream, similar, person, value, definition, used, dispute, category, impact,
              interest_listing, related.
+  vote       key, login, vote, issue, date                  what people said, from content/votes.csv; read by nothing that scores
   Scores are never stored: they are computed from these tables (score_reference.Model), so nothing typed is a score.
 """
 import json, sys, os, sqlite3, re
@@ -143,6 +144,17 @@ CREATE TABLE IF NOT EXISTS topic_row (
   text         TEXT,                   -- the cell, when it is only words
   source       TEXT,
   attrs        TEXT                    -- JSON: the named extras (branch, argument, advertised, critics, validity, ...)
+);
+
+-- What people said, kept apart from what the analysis says. One row per (page key, GitHub login), the latest
+-- vote by that login; the issue is where it was cast. Nothing reads this into a score.
+CREATE TABLE IF NOT EXISTS vote (
+  key          VARCHAR(64) NOT NULL,   -- the page key (page.id is the tab number; the key is the address)
+  login        VARCHAR(64) NOT NULL,
+  vote         VARCHAR(8) NOT NULL,    -- agree or disagree
+  issue        INTEGER,
+  date         DATE,
+  PRIMARY KEY (key, login)
 );
 
 CREATE INDEX IF NOT EXISTS edge_claim ON edge(claim_id);
@@ -272,6 +284,7 @@ def build_sqlite(path, data_sql, schema=None):
 
 TOPIC_COLS = ['key', 'name', 'parent', 'definition', 'scope', 'axis']
 TOPIC_ROW_COLS = ['id', 'topic', 'section', 'category', 'side', 'claim_id', 'text', 'source', 'attrs']
+VOTE_COLS = ['key', 'login', 'vote', 'issue', 'date']
 
 def topic_tables(topics, topic_rows, tabs):
     """The topics table and a topic's rows in the export's shape: a claim key becomes the page id it names,
@@ -288,12 +301,14 @@ def topic_tables(topics, topic_rows, tabs):
                          'source': e.get('source') or None, 'attrs': parse_extra(e.get('extra')) if e.get('extra') else None})
     return ts, rows
 
-def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, beliefs=None, topics=None, topic_rows=None, tabs=None):
+def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, beliefs=None, topics=None, topic_rows=None, tabs=None, votes=None):
     pages, edges = normalize(specs, beliefs)
     ts, trows = topic_tables(topics, topic_rows, tabs)
+    vs = [{'key': v['key'], 'login': v['login'], 'vote': v['vote'], 'issue': (int(v['issue']) if str(v.get('issue') or '').isdigit() else None),
+           'date': v.get('date') or None} for v in (votes or [])]
     constants = [{'name': k, 'value': v, 'meaning': (const_meanings or {}).get(k, '')} for k, v in consts.items()]
     os.makedirs(outdir, exist_ok=True)
-    data = {'constants': constants, 'pages': pages, 'edges': edges, 'topics': ts, 'topic_rows': trows}
+    data = {'constants': constants, 'pages': pages, 'edges': edges, 'topics': ts, 'topic_rows': trows, 'votes': vs}
     _write(os.path.join(outdir, stem + '.json'), json.dumps(data, indent=1, ensure_ascii=False))
     # XML
     def el(tag, d, cols):
@@ -302,7 +317,8 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
         return f'  <{tag}{attrs}>{inner}</{tag}>' if inner else f'  <{tag}{attrs}/>'
     xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<ise>', ' <constants>'] + [el('constant', c, ['name', 'value', 'meaning']) for c in constants] + [' </constants>', ' <pages>'] \
         + [el('page', p, PAGE_COLS) for p in pages] + [' </pages>', ' <edges>'] + [el('edge', e, EDGE_COLS) for e in edges] + [' </edges>', ' <topics>'] \
-        + [el('topic', t, TOPIC_COLS) for t in ts] + [' </topics>', ' <topic_rows>'] + [el('topic_row', r, TOPIC_ROW_COLS) for r in trows] + [' </topic_rows>', '</ise>']
+        + [el('topic', t, TOPIC_COLS) for t in ts] + [' </topics>', ' <topic_rows>'] + [el('topic_row', r, TOPIC_ROW_COLS) for r in trows] + [' </topic_rows>', ' <votes>'] \
+        + [el('vote', v, VOTE_COLS) for v in vs] + [' </votes>', '</ise>']
     _write(os.path.join(outdir, stem + '.xml'), '\n'.join(xml))
     # SQL
     _write(os.path.join(outdir, 'schema.sql'), SCHEMA)
@@ -322,6 +338,9 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
     for r in trows:
         cols = [c for c in TOPIC_ROW_COLS if r.get(c) is not None]
         lines.append(f"INSERT INTO topic_row ({', '.join(cols)}) VALUES ({', '.join(sqlval(json.dumps(r[c], ensure_ascii=False) if c == 'attrs' else r[c]) for c in cols)});")
+    for v in vs:
+        cols = [c for c in VOTE_COLS if v.get(c) is not None]
+        lines.append(f"INSERT INTO vote ({', '.join(cols)}) VALUES ({', '.join(sqlval(v[c]) for c in cols)});")
     lines.append('COMMIT;')
     data_sql = '\n'.join(lines) + '\n'
     _write(os.path.join(outdir, stem + '_data.sql'), data_sql)
