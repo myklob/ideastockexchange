@@ -2063,12 +2063,13 @@ def render_topic(c, tkey, title):
             if is_page_key(c, d.get('claim')):
                 pid = c.tabs[d['claim']]; args.append(strongest_reason(H, c, pid)); scores.append(sf(c.stats(pid)['belief']))
             else:
-                args.append(esc(_extra(d).get('argument', ''))); scores.append('')
+                # typed words have no page to read a score from; say so in place, so the beliefs below keep their own lines
+                args.append(esc(_extra(d).get('argument', ''))); scores.append('<span class="empty">no score</span>')
         for b in auto:
             claims.append(belief_cell(b)); args.append(strongest_reason(H, c, b)); scores.append(sf(c.stats(b)['belief']))
         o.append(f'<tr><td class="band {BAND_COLOURS[band]}"><strong>{band}%</strong><br>({label})</td>'
                  f'<td>{"<br>".join(claims) if claims else EMPTY}</td><td class="u">{"<br>".join(a for a in args if a) or ""}</td>'
-                 f'<td class="num">{"<br>".join(x for x in scores if x) or ""}</td></tr>')
+                 f'<td class="num">{"<br>".join(scores) if any("empty" not in x for x in scores) else ""}</td></tr>')
     if unlabelled:
         # A belief nobody has placed on the axis is not neutral; it is unplaced, and it says so rather than
         # borrowing the 0% row.
