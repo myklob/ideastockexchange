@@ -1006,7 +1006,8 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         self.assertIn('yardstick', card, 'the card does not say that best is a yardstick anyone can argue')
         mp = groups[0][2][0]
         with open(os.path.join(self.parent.dir, 'p', self.corpus.href(mp))) as fh: w = fh.read()
-        self.assertLess(w.find('Beliefs this work bears on'), w.find('Quality Arguments'), 'the work page argues quality before saying what the work bears on')
+        self.assertGreater(w.find('<span>Beliefs This Work Carries</span>'), 0, 'the work page does not say which beliefs it carries')
+        self.assertLess(w.find('<span>Beliefs This Work Carries</span>'), w.find('<span>Quality Arguments</span>'), 'the work page argues quality before saying what the work bears on')
         self.assertIn('What it shows:', w)
 
     def test_it_does_not_list_every_page(self):
@@ -1072,6 +1073,198 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         works = [p for p in self.corpus.specs if self.corpus.kind(p) == 'media']
         for p in works: self.assertIn(self.corpus.href(p), self.root['media'], 'a work is missing from the media page')
         self.assertRegex(re.sub(r'<[^>]+>', ' ', self.root['next']), r'\b1\b', 'the what-to-argue-next page has no ranked rows')
+
+
+class TestTheBestWorksAreBestByAYardstick(unittest.TestCase):
+    """Every work is best until shown otherwise, and best by what is argued too (most accurate, most important,
+    most entertaining). The list of works ranks each kind under every yardstick the tables can answer, names a
+    yardstick that ties or that nobody can measure yet instead of numbering it, and a work's own page follows the
+    media template's order with no score above its arguments."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        import render_site as RS
+        cls.RS, cls.c, cls.dir = RS, cls.parent.c, cls.parent.dir
+        with open(os.path.join(cls.dir, 'media.html')) as fh: cls.media = fh.read()
+        with open(os.path.join(cls.dir, 'lists.html')) as fh: cls.lists = fh.read()
+        cls.works = [p for p in cls.c.specs if cls.c.kind(p) == 'media']
+
+    def _sections(self):
+        """media.html's kind sections, as {anchor: markup}."""
+        out = {}
+        for k, heading, ps in self.RS.works_by_kind(self.c):
+            a = self.RS.kind_anchor(k)
+            i = self.media.find(f'<h2 id="{a}">'); j = self.media.find('</section>', i)
+            self.assertGreater(i, 0, f'{heading} has no section'); out[a] = (k, ps, self.media[i:j])
+        return out
+
+    def test_every_yardstick_is_named_and_explained(self):
+        i = self.media.find('<span>What best can mean</span>'); j = self.media.find('</section>', i)
+        self.assertGreater(i, 0, 'the list of works does not say what best can mean')
+        block = self.media[i:j]
+        for key, name, *_ in self.RS.WORK_MEASURES:
+            self.assertIn(f'<a href="lists.html#works-{key}">{name}</a>', block, f'{name} is not named among the yardsticks')
+            self.assertIn(f'id="works-{key}"', self.lists, f'lists.html does not explain {name}')
+        self.assertLess(i, self.media.find('<h2 id="' + self.RS.kind_anchor(self.RS.works_by_kind(self.c)[0][0]) + '">'),
+                        'the yardsticks come after the lists ranked by them')
+
+    def test_a_yardstick_that_ties_is_named_not_numbered(self):
+        """The old list numbered fifteen works 1 to 15 while every one of them read 0.50. A yardstick on which
+        every work of a kind scores the same gets a sentence saying so, and no numbered list."""
+        RS = self.RS
+        for a, (k, ps, sec) in self._sections().items():
+            for key, name, col, how, *_ in RS.WORK_MEASURES:
+                if how == 'typed': continue
+                vals = {round(v, 4) for v in (RS.work_value(self.c, mp, key) for mp in ps) if v is not None}
+                card = f'<h3><a href="lists.html#works-{key}">{name}</a></h3>'
+                if len(vals) > 1:
+                    self.assertIn(card, sec, f'{a}: {name} tells these works apart and has no list')
+                else:
+                    self.assertNotIn(card, sec, f'{a}: {name} is numbered although every work reads the same')
+                    if vals: self.assertIn(f'>{name.lower()}</a> (all ', sec, f'{a}: the tie on {name} is not named')
+            # the table by title is not a ranking, and carries no rank column
+            t = sec[sec.find('by title</h3>'):]
+            self.assertNotIn('<th class="rk">', t[:t.find('</thead>')], f'{a}: the list by title is numbered')
+            for mp in ps: self.assertIn(f'href="p/{self.c.href(mp)}"', t, f'{a}: a work is missing from the list by title')
+
+    def test_works_that_tie_share_a_rank(self):
+        self.assertEqual(self.RS.comp_ranks([3, 1, 1, 0]), [1, 2, 2, 4])
+        for a, (k, ps, sec) in self._sections().items():
+            for m in re.finditer(r'<table class="scored mini">.*?</table>', sec, re.S):
+                rows = re.findall(r'<td class="rk">(\d+)</td>.*?<td class="sc">([^<]+)</td>', m.group(0), re.S)
+                for (r1, v1), (r2, v2) in zip(rows, rows[1:]):
+                    if v1 == v2: self.assertEqual(r1, r2, f'{a}: two works with {v1} have ranks {r1} and {r2}')
+                    else: self.assertLess(int(r1), int(r2))
+
+    def test_a_yardstick_nobody_measures_is_named_and_left_empty(self):
+        RS = self.RS
+        crit = RS.work_criteria(self.c)
+        if crit.get('entertaining'): self.skipTest('the tables now carry a reading for most entertaining')
+        self.assertIn('nobody has proposed a way to measure it yet', self.media)
+        for a, (k, ps, sec) in self._sections().items():
+            self.assertIn('>most entertaining</a>: nobody has proposed a way to measure it', sec, f'{a} does not say most entertaining is empty')
+
+    def test_a_typed_yardstick_is_read_from_criterion_rows_and_never_made_up(self):
+        """A reader proposes a yardstick on a work's page, as an Objective Criteria row. Readings that are all
+        numbers are ranked; readings in words are listed by title; a row about entertainment is filed under
+        Most entertaining."""
+        RS = self.RS
+        books = [mp for k, h, ps in RS.works_by_kind(self.c) for mp in ps][:3]
+        a, b, w = books
+        saved = {mp: self.c.specs[mp].get('criteria') for mp in books}
+        try:
+            self.c.specs[a]['criteria'] = [{'text': 'Positive reviews on a named aggregator', 'latest': '71% positive across 40 reviews'}]
+            self.c.specs[b]['criteria'] = [{'text': 'Positive reviews on a named aggregator', 'latest': '92% positive across 300 reviews'},
+                                           {'text': 'Share of readers who finish it, as a measure of how entertaining it is', 'latest': 'about half'}]
+            self.c.specs[w]['criteria'] = [{'text': 'Positive reviews on a named aggregator', 'latest': 'mixed'}]
+            crit = RS.work_criteria(self.c)
+            self.assertEqual([mp for mp, _ in crit['entertaining'][1]], [b])
+            groups = [g for g, (name, rows) in crit.items() if g != 'entertaining']
+            self.assertEqual(len(groups), 1, 'one yardstick typed on three works became several')
+            name, rows = crit[groups[0]]
+            both = RS.typed_table(self.c, [r for r in rows if r[0] in (a, b)])
+            self.assertLess(both.find(self.c.href(b)), both.find(self.c.href(a)), 'the higher reading is not ranked first')
+            self.assertIn('<td class="rk">1</td>', both)
+            words = RS.typed_table(self.c, rows)
+            self.assertNotIn('<td class="rk">', words, 'readings in words were put in a numbered order')
+            self.assertIn('Listed by title', words)
+        finally:
+            for mp, v in saved.items():
+                if v is None: self.c.specs[mp].pop('criteria', None)
+                else: self.c.specs[mp]['criteria'] = v
+
+    def test_a_reader_can_propose_a_yardstick_or_a_work_from_the_list(self):
+        import intake
+        forms = {m.group(1): m.group(0) for m in re.finditer(r'<form class="add" id="add-([a-z_-]+)".*?</form>', self.media, re.S)}
+        keys = set(self.c.key.values())
+        for sec, what in (('criterion', 'works'), ('media', 'beliefs')):
+            self.assertIn(sec, forms, f'media.html has no form for a {sec}')
+            f = forms[sec]
+            self.assertIn(sec, intake.PAGE_SECTIONS)
+            self.assertNotIn('<input type="hidden" name="page"', f, 'the page is fixed although the reader chooses it')
+            self.assertIn("onchange=\"this.form.setAttribute('data-page',this.value)\"", f)
+            opts = self._page_options(f)
+            self.assertTrue(opts and set(opts) <= keys, f'the {sec} form offers a page that does not exist')
+            first = re.search(r'data-page="([^"]*)"', f).group(1)
+            self.assertEqual(first, opts[0], 'the script would file the row on a page the form does not show')
+        self.assertEqual(set(self._page_options(forms['criterion'])), {self.c.key[p] for p in self.works})
+        self.assertEqual(set(self._page_options(forms['media'])), {self.c.key[b] for b in self.c.beliefs})
+
+    @staticmethod
+    def _page_options(form):
+        sel = re.search(r'<select id="[^"]*" name="page".*?</select>', form, re.S)
+        return re.findall(r'<option value="([^"]+)">', sel.group(0)) if sel else []
+
+    def test_the_old_impact_sentences_are_gone(self):
+        """The list said best meant how much of these pages a work moved, while ranking by a number nobody had
+        argued; and it said one sentence twice."""
+        for h in (self.media, self.lists, self.parent.html['index.html']):
+            self.assertNotIn('how much of these pages the work moved', h)
+            self.assertNotIn('moved these pages the most', h)
+        self.assertLessEqual(self.media.count('different problems'), 1)
+
+    def _work(self, mp):
+        with open(os.path.join(self.dir, 'p', self.c.href(mp))) as fh: return fh.read()
+
+    def test_a_work_page_follows_the_media_template_with_no_score_above_the_arguments(self):
+        order = ('Beliefs This Work Carries', 'Quality Arguments', 'Influence Arguments', 'The Strongest Case Against What It Carries',
+                 'Persuasion Patterns', 'Who Gains if the Audience Believes It', 'Is It a Great Work? Evidence and Objective Criteria',
+                 'Predictions the Work Made', 'Hidden Assumptions and Bias Risks', 'Definitions', 'Scoring Engine', 'Contribute')
+        for mp in self.works:
+            h, key = self._work(mp), self.c.key[mp]
+            at = [h.find(f'<span>{s}</span>') for s in order]
+            for s, i in zip(order, at): self.assertGreater(i, 0, f'{key} has no {s} section')
+            self.assertEqual(at, sorted(at), f'{key} sections are out of the template order')
+            self.assertNotIn('Impact Arguments', h, f'{key} still calls the second table Impact')
+            top = h[:at[0]]
+            self.assertNotIn('class="hs"', top, f'{key} announces a score above its arguments')
+            self.assertNotIn('class="tiles"', top)
+
+    def test_a_work_page_is_reached_from_the_list_of_works(self):
+        for mp in self.works:
+            h = self._work(mp)
+            crumb = re.search(r'<p class="crumb">(.*?)</p>', h, re.S).group(1)
+            a = self.RS.kind_anchor(self.c.specs[mp].get('typ') or '')
+            self.assertIn('href="../media.html"', crumb)
+            self.assertIn(f'href="../media.html#{a}"', crumb)
+            self.assertIn(f'<h2 id="{a}">', self.media, f'the crumb points at #{a}, which is not on the list')
+
+    def test_an_empty_section_says_what_is_missing_and_takes_the_first_row(self):
+        forms_re = r'<form class="add" id="add-([a-z_-]+)"'
+        for mp in self.works:
+            h, key, sp = self._work(mp), self.c.key[mp], self.c.specs[mp]
+            forms = set(re.findall(forms_re, h))
+            for f in ('argument-agree', 'argument-disagree', 'impact', 'evidence', 'criterion', 'prediction', 'interest', 'assumption', 'bias'):
+                self.assertIn(f, forms, f'{key} has no {f} form')
+            for f in re.findall(r'<form class="add".*?</form>', h, re.S):
+                self.assertIn(f'name="page" value="{key}"', f, f'{key}: a form files its row somewhere else')
+            i = h.find('<span>Is It a Great Work?'); sec = h[i:h.find('</section>', i)]
+            if not (sp['evid']['for'] or sp['evid']['against']):
+                self.assertIn('No finding about how good this work is has been added yet', sec)
+                self.assertIn('Add the first finding about how good it is', sec)
+            if not sp.get('criteria'): self.assertIn('Nobody has proposed a measurement for a great', sec)
+
+    def test_the_beliefs_a_work_carries_and_its_accuracy_are_read_from_the_belief_pages(self):
+        RS = self.RS
+        checked = 0
+        for mp in self.works:
+            cites = RS.work_cites(self.c, mp)
+            if not cites: continue
+            num = sum(RS.carried_truth(self.c, u, side) * self.c.pg(d.get('link'), RS.DEFLINK) for u, side, d in cites)
+            den = sum(self.c.pg(d.get('link'), RS.DEFLINK) for _, _, d in cites)
+            acc = RS.work_accuracy(self.c, mp)
+            self.assertAlmostEqual(acc, num / den, places=6)
+            h = self._work(mp)
+            for u, side, d in cites:
+                self.assertIn(f'href="{self.c.href(u)}"', h)
+                t = self.c.truth(u)
+                self.assertAlmostEqual(RS.carried_truth(self.c, u, side), (2 * t - 1) if side == 'supports' else (1 - 2 * t), places=6)
+            self.assertIn(f'<tr><td class="t">Accuracy of what it backs</td><td class="sc">{RS.sf(acc)}</td>', h)
+            self.assertIn(f'Accuracy of what it backs: {RS.sf(acc)}', h)
+            checked += 1
+        self.assertGreater(checked, 0)
 
 
 class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
