@@ -27,6 +27,7 @@ import RelatedTopicsSection from '@/features/belief-analysis/components/RelatedT
 import InvitationBlock from '@/features/belief-analysis/components/InvitationBlock'
 import WhatThisPageNeedsSection from '@/features/belief-analysis/components/WhatThisPageNeedsSection'
 import { pageGaps } from '@/features/belief-analysis/lib/gaps'
+import { truthShare } from '@/core/scoring/contrast-class'
 import { openContractsForBelief } from '@/lib/markets/belief-pointer'
 import { fetchTopicsForBelief } from '@/features/topics/data/fetch-topics'
 
@@ -77,6 +78,10 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
   // What the page needs, read off its own tables: the invitation's slot and the
   // "What This Page Needs Right Now" table both come from this one list.
   const gaps = pageGaps(belief.arguments, belief.evidence, belief.objectiveCriteria)
+  // The heading line's single truth score: the only number above the arguments.
+  // Blank until arguments are scored (Rule 6); what it is made of is read out
+  // after What This Page Needs Right Now.
+  const headlineTruth = truthShare(scores.totalPro, scores.totalCon)
 
   return (
     <div className="min-h-screen bg-white">
@@ -119,16 +124,29 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
         {/*
           Header per the canonical template (docs/BELIEF_PAGE_RULES.md):
-            Belief statement → invitation block (hook, question, promise, one named slot;
-            not a summary, Rule 2) → metadata line (Topic / Dewey / Positivity / Related)
-            → "Beliefs this supports" → Scorecard → Argument Trees.
+            Belief statement, with its single truth score on the heading line (the only
+            number above the arguments) → invitation block (hook, question, promise, one
+            named slot; not a summary, Rule 2) → metadata line (Topic / Dewey / Positivity /
+            Related) → "Beliefs this supports" → Argument Trees. The readout of what the
+            numbers are made of comes after What This Page Needs Right Now.
         */}
         <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2 leading-tight">
           Belief: {belief.statement}
+          {headlineTruth != null && (
+            <span
+              className="ml-3 text-base font-normal text-[#555] whitespace-nowrap"
+              title="The pro share of argued weight on this page. What it is made of is read out after What This Page Needs Right Now."
+            >
+              Truth score {Math.round(headlineTruth * 100)}%
+            </span>
+          )}
         </h1>
         <InvitationBlock hook={belief.hook} question={belief.question} ask={belief.ask} gaps={gaps} />
-        {/* Net Belief Score lives in the Scorecard below, not here — the
-            metadata line carries only Topic / Dewey / Positivity / Related. */}
+        {/* Net Belief Score lives in What the numbers are made of, at the back,
+            not here: the metadata line carries only Topic / Dewey / Positivity /
+            Related. Dewey is a typed number; the rules doc says a typed number
+            without a source stays blank, and the belief record carries no source
+            field yet, so the number is shown as stored. */}
         <p className="text-xs text-[var(--muted-foreground)] mb-3">
           <Link href="/beliefs" className="text-[var(--accent)] hover:underline">Topic</Link>:{' '}
           {category}
@@ -158,24 +176,12 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
           </p>
         )}
 
-        {/* Belief→market pointer — an affordance, not a summary (Rule 2 intact) */}
+        {/* Belief→market pointer: an affordance, not a summary (Rule 2 intact) */}
         <MarketPointer contracts={openContracts} />
 
         <div className="space-y-12">
-          {/* 0. Scorecard — a readout of the top-scoring rows below, not a prose summary */}
-          <ScorecardSection
-            arguments={belief.arguments}
-            totalPro={scores.totalPro}
-            totalCon={scores.totalCon}
-            bottomLine={belief.bottomLine ?? null}
-            scoreMover={belief.scoreMover ?? null}
-            falsifiabilityItems={belief.falsifiabilityItems ?? []}
-            scores={scores}
-          />
-
-          <hr className="border-gray-200" />
-
-          {/* 1. Argument Trees */}
+          {/* 1. Argument Trees. Nothing scored sits above them: the readout of what
+              the numbers are made of is section 14, after What This Page Needs. */}
           <ArgumentTreesSection
             arguments={belief.arguments}
             totalPro={scores.totalPro}
@@ -186,14 +192,17 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
           {belief.contrastClass && belief.contrastClass.options.length > 0 && (
             <>
               <hr className="border-gray-200" />
-              {/* The denominator, made visible — rivals this belief is priced against. */}
+              {/* The denominator, made visible: rivals this belief is priced against. */}
               <ContrastClassSection contrastClass={belief.contrastClass} />
             </>
           )}
 
-          {/* 1b. Decision Leverage — the argument table read sideways: which
+          {/* 1c. Decision Leverage: the argument table read sideways, which
               edge still holds unsettled conclusion score. Renders only when
-              something is actually at stake. */}
+              something is actually at stake. 1d, What Would Change the Answer
+              (the sensitivity sweep), is in the template and the rules doc but
+              not here yet: src/core/scoring has no sensitivity engine, and the
+              static site is the only implementation that computes it. */}
           {hasLeverageToShow(leverage) && (
             <>
               <hr className="border-gray-200" />
@@ -243,7 +252,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 7. Conflict Resolution Framework — the scored cost-benefit trees
+          {/* 7. Conflict Resolution Framework: the scored cost-benefit trees
               read sideways: values rankings, interests, shared/conflicting,
               compromises, advertised vs. actual, dispute types, obstacles,
               biases. */}
@@ -288,7 +297,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             currentBeliefId={belief.id}
           />
 
-          {/* 11b. Where This Belief Is Used — what-links-here (renders only when used) */}
+          {/* 11b. Where This Belief Is Used: what-links-here (renders only when used) */}
           {(belief.usedIn?.length ?? 0) > 0 && (
             <>
               <hr className="border-gray-200" />
@@ -296,7 +305,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             </>
           )}
 
-          {/* 11c. Score History — the accumulation ledger (renders only when events exist) */}
+          {/* 11c. Score History: the accumulation ledger (renders only when events exist) */}
           {(belief.scoreEvents?.length ?? 0) > 0 && (
             <>
               <hr className="border-gray-200" />
@@ -306,10 +315,10 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 12. Definitions — last analysis section (Rule 1) */}
+          {/* 12. Definitions: last analysis section (Rule 1) */}
           <DefinitionsSection definitions={belief.definitions} />
 
-          {/* 12b. People on the Record — history, never weight (renders only
+          {/* 12b. People on the Record: history, never weight (renders only
               when positions are on record). */}
           {(belief.peopleOnRecord?.length ?? 0) > 0 && (
             <>
@@ -320,12 +329,27 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 13. What This Page Needs Right Now — the gaps, read off the tables above. */}
+          {/* 13. What This Page Needs Right Now: the gaps, read off the tables above. */}
           <WhatThisPageNeedsSection gaps={gaps} />
 
           <hr className="border-gray-200" />
 
-          {/* 14. Contribute / footer — the add-a-row move, with speed bumps on
+          {/* 14. What the numbers are made of (formerly the Scorecard): a readout
+              of the top-scoring rows above, not a prose summary. It sits here so
+              that no score or verdict is announced before the arguments. */}
+          <ScorecardSection
+            arguments={belief.arguments}
+            totalPro={scores.totalPro}
+            totalCon={scores.totalCon}
+            bottomLine={belief.bottomLine ?? null}
+            scoreMover={belief.scoreMover ?? null}
+            falsifiabilityItems={belief.falsifiabilityItems ?? []}
+            scores={scores}
+          />
+
+          <hr className="border-gray-200" />
+
+          {/* 15. Contribute / footer: the add-a-row move, with speed bumps on
               high-stakes beliefs (steelman acknowledgment + principle check). */}
           <ContributeSection
             beliefId={belief.id}
@@ -334,7 +358,7 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
             arguments={belief.arguments}
           />
 
-          {/* 15. Related Topics — the category cluster, current page unlinked
+          {/* 16. Related Topics: the category cluster, current page unlinked
               (renders only when siblings exist). */}
           <RelatedTopicsSection
             category={belief.category}

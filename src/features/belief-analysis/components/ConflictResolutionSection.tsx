@@ -124,7 +124,7 @@ function InterestTable({ entries, headerClass }: { entries: InterestEntryItem[];
           <th className={`${TH} w-[30%]`}>
             Interest
           </th>
-          <th className={`${TH} text-center w-[10%]`}>Prevalence</th>
+          <th className={`${TH} text-center w-[12%]`}>Prevalence (typed, with source)</th>
           <th className={`${TH} text-center w-[12%]`}>
             <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage Confidence</Link>
           </th>
@@ -460,7 +460,7 @@ function PipelineReadout({ readout }: { readout: ConflictResolutionReadout }) {
       <p className="font-semibold">
         Pipeline readout{' '}
         <span className="font-normal text-xs text-[var(--muted-foreground)]">
-          — computed from the scored rows below, never hand-authored
+          , computed from the scored rows below, never hand-authored
         </span>
       </p>
       {!hasAny && (
@@ -514,7 +514,7 @@ function PipelineReadout({ readout }: { readout: ConflictResolutionReadout }) {
       {compromiseCandidates.length > 0 && (
         <div>
           <p className="font-medium">
-            Compromise candidates — a small likelihood shift flips a category&apos;s net
+            Compromise candidates: a small likelihood shift flips a category&apos;s net
           </p>
           <ul className="list-disc ml-5">
             {compromiseCandidates.slice(0, TABLE_TOP_LIMIT).map(c => (
