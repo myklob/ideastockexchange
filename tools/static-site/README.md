@@ -56,7 +56,7 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     sync_content.py      keeps ISE_Data_Entry.xlsx and content/*.csv in step; --check runs in CI
     contribute.js        the browser side of taking part: the duplicate check as a reader types, and the prefilled issue URLs
     intake.py            the GitHub Action side: parses a submitted issue form, re-checks for duplicates, records a vote or opens a PR
-    content/votes.csv    the fourth table, one row per (page key, GitHub login), latest wins; shown on the page, never scored
+    content/votes.csv    the fourth table, one row per (page key, on, GitHub login), latest wins; shown on the page, never scored
     ise_tables.py        the table format: pages, edges and topics; specs_to_tables / tables_to_specs, and both read surfaces
     export_db.py         SQL schema and data, a loaded SQLite database, JSON and XML, plus the analyst views
     build_pages.py       the Excel belief-page renderer (also supplies the constants and wiki link map to the site)
@@ -229,8 +229,13 @@ its reach table, an importance page for an interest at stake) and a Contribute l
 form under each of its cell tables that files a row with the topic as its page, plus the propose-a-belief form.
 Each form is a plain GET to GitHub's new-issue address, prefilled from the fields the issue forms in
 `.github/ISSUE_TEMPLATE/` declare, so it works with no script; a form whose source is a work also takes an address
-and the date it was checked, and intake folds both into the one source cell as "title, producer, year, URL
-(checked date)". Above the first form a page says once what happens next, where to get an account, and the git
+and the date it was checked, and the cost or benefit form takes a best estimate, a low and a high end, the units
+and who gains or pays (each optional; intake copies a number onto the row only when it is one, the units into
+`category`, and who pays into `who` when it names an interest page). Every row a submission adds carries named
+fields in its `extra` cell: `url` and `checked` for a source, and `added_by` and `added` for who added the row and
+when. They ride along in every export (an edge's `attrs`), and the page shows them in a line under the row. They
+live in `extra` rather than in columns of their own so that adding them did not change the shape of the tables.
+Above the first form a page says once what happens next, where to get an account, and the git
 path. With `contribute.js` (copied beside the pages by `render_site.build`), what a reader types is scored as
 they type against every claim in `data/claims_index.json`, which `build()` writes from the FULL tables, drafts
 included, beliefs, claims and interests each with its kind (an interest form matches interests only). A
@@ -249,8 +254,11 @@ A vote never moves a score. `render_site.py` reads `votes.csv` when it is presen
 `sync_content.py` does not check it), shows the counts on the heading line after the score badge with the words
 "votes, not a score" and a link to the issues that recorded them, and every row that is a page (a reason, a
 finding, a prediction, a criterion, a cost, an interest, a law, a person) carries its own Agree and Disagree. A
-reason with a linkage or importance page carries a second pair, "Bears on this: yes / no" and "Matters here:
-yes / no", which are votes on those pages. Once anyone has voted the home page gets a "Recently voted" card
+reason or finding also carries "Bears on this: yes / no", a vote on the argument as an argument rather than on its
+claim: it is stored as a vote on the claim with `on` set to the page the row sits on, counted apart from the votes
+on whether the claim is true, and the linkage page for that row (when there is one) takes the same vote on its
+heading with the same counts. A row with an importance page also carries "Matters here: yes / no", a vote on that
+page. `on` is the last column of `votes.csv`, so a file written before it existed reads as the same table. Once anyone has voted the home page gets a "Recently voted" card
 (newest vote first, counts each way) and, once three people have voted on a claim, "Votes vs the analysis",
 which ranks voted-on claims by how far the share of votes to agree sits from the truth score. The votes ride
 along in the exports as a `vote` table. No votes: no cards, no counts. The engine rule stands: a claim nobody

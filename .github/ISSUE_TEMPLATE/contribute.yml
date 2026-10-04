@@ -91,12 +91,37 @@ body:
     id: url
     attributes:
       label: URL
-      description: Optional. The address where the source can be read; it is written into the source text.
+      description: Optional. The address where the source can be read. It is kept on the row as its own field, and the page links it.
   - type: input
     id: date
     attributes:
       label: Date checked
-      description: Optional. The day you checked the source, as YYYY-MM-DD; it is written into the source text.
+      description: Optional. The day you checked the source, as YYYY-MM-DD. It is kept on the row as its own field.
+  - type: input
+    id: magnitude
+    attributes:
+      label: Estimate
+      description: Optional, for a cost or benefit only. Your best single number, written positive; the side says whether it is a cost or a benefit.
+  - type: input
+    id: mag_low
+    attributes:
+      label: Low end
+      description: Optional, for a cost or benefit only. The low end of the estimate, in the same units.
+  - type: input
+    id: mag_high
+    attributes:
+      label: High end
+      description: Optional, for a cost or benefit only. The high end of the estimate, in the same units.
+  - type: input
+    id: units
+    attributes:
+      label: Units
+      description: Optional, for a cost or benefit only. What the numbers count, such as dollars per year, cases or hours.
+  - type: input
+    id: who
+    attributes:
+      label: Who gains or pays
+      description: Optional, for a cost or benefit only. The interest that gains or pays, in its own words or by its page key.
   - type: textarea
     id: why
     attributes:

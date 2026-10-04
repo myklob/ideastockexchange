@@ -23,7 +23,8 @@
   /* Field ids -> the labels GitHub renders them under, for Copy as text: the copied text is the issue as the
      intake Action reads it, so it can be pasted into an issue, an email or a message and still parse. */
   var LABELS = {page: 'Page', section: 'Section', side: 'Side', text: 'The claim', source: 'Source', url: 'URL',
-    date: 'Date checked', category: 'Category', why: 'Why it bears on the page'};
+    date: 'Date checked', magnitude: 'Estimate', mag_low: 'Low end', mag_high: 'High end', units: 'Units',
+    who: 'Who gains or pays', category: 'Category', why: 'Why it bears on the page'};
   var BELIEF_LABELS = {text: 'The belief', topic: 'Topic', agree: 'A reason to agree', disagree: 'A reason to disagree', source: 'Source'};
 
   function words(text) {
@@ -114,9 +115,10 @@
     return parts.join('&');
   }
 
-  function voteUrl(repo, key, vote) {
+  /* on: the page the claim is a row on, for a vote on whether it bears there rather than on whether it is true */
+  function voteUrl(repo, key, vote, on) {
     return repo + '/issues/new?' + query([['template', 'vote.yml'], ['labels', 'vote'],
-      ['title', 'Vote ' + vote + ': ' + key], ['page', key], ['vote', vote]]);
+      ['title', 'Vote ' + vote + ': ' + key + (on ? ' on ' + on : '')], ['page', key], ['vote', vote], ['on', on]]);
   }
 
   /* fields: {text, source, why, topic, agree, disagree}. The free text is cut until the query fits GitHub's
@@ -132,7 +134,10 @@
        ['topic', topic], ['source', source]] :
       [['template', 'contribute.yml'], ['labels', 'contribution'], ['title', title + ': ' + text.slice(0, 60)],
        ['page', page], ['section', section], ['side', side], ['category', (fields.category || '').slice(0, 60)],
-       ['source', source], ['url', (fields.url || '').slice(0, 500)], ['date', (fields.date || '').slice(0, 10)]]);
+       ['source', source], ['url', (fields.url || '').slice(0, 500)], ['date', (fields.date || '').slice(0, 10)],
+       ['magnitude', (fields.magnitude || '').slice(0, 30)], ['mag_low', (fields.mag_low || '').slice(0, 30)],
+       ['mag_high', (fields.mag_high || '').slice(0, 30)], ['units', (fields.units || '').slice(0, 200)],
+       ['who', (fields.who || '').slice(0, 300)]]);
     var free = [['text', text], ['why', fields.why], ['agree', fields.agree], ['disagree', fields.disagree]], q, before;
     while (true) {
       q = fixed + '&' + query(free);

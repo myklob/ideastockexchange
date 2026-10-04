@@ -69,6 +69,7 @@ class Corpus:
                     self.reads.setdefault(e['page_id'], set()).add(e[col])
         self._stats = {}
         self.votes = {}         # key -> counts from content/votes.csv, set by build(); shown, never scored
+        self.relevance = {}     # (key, on) -> counts of votes on whether a claim bears on a page; shown, never scored
         # every equivalence page, seen from both of the pages it connects: pid -> [(other, equivalence truth, equivalence page)]
         self.equivalents = {}
         for q in self.specs:
@@ -329,6 +330,23 @@ class Corpus:
             chain.append(p); seen.add(p); p = self.specs[p].get('supports')
         return list(reversed(chain))
 
+def provenance_line(d):
+    """Where a row's source can be read and the day that was checked, then who added the row and when: the named
+    fields intake writes into a row's extra cell. Nothing when a row carries none, as rows typed before the
+    fields existed do."""
+    parts = []
+    url = str(d.get('url') or '').strip()
+    if re.match(r'^https?://', url): parts.append(f'<a href="{esc(url)}" rel="nofollow noopener">read the source</a>')
+    if d.get('checked'): parts.append(f'checked {esc(d["checked"])}')
+    if d.get('added_by'):
+        who = str(d['added_by']).lstrip('@')
+        parts.append(f'added by <a href="https://github.com/{esc(who)}" rel="nofollow">@{esc(who)}</a>' + (f' on {esc(d["added"])}' if d.get('added') else ''))
+    elif d.get('added'): parts.append(f'added {esc(d["added"])}')
+    if not parts: return ''
+    text = '; '.join(parts)
+    return f'<div class="src prov">{text[0].upper() + text[1:]}</div>'
+
+
 def strip_period(t):
     t = (t or '').strip()
     if t.endswith('.') and not (len(t) > 1 and t[-2].isupper()): return t[:-1]
@@ -403,6 +421,7 @@ def smoney(v): return '' if v is None else ('+' if v >= 0 else '-') + money(abs(
 class Html:
     def __init__(self, c, prefix='', up=None):
         self.c = c
+        self.pid = None   # the page being rendered, for the votes on whether a row bears on it
         self.p = prefix   # '' from inside p/, 'p/' from a page at the site root, '../p/' from inside t/
         self.up = ('../' if prefix == '' else '') if up is None else up   # how this page reaches the site root
     def a(self, pid, text=None, cls=''): return f'<a href="{self.p}{self.c.href(pid)}"{" class=%s" % chr(34) + cls + chr(34) if cls else ""}>{esc(text if text is not None else self.c.text(pid))}</a>'
@@ -415,13 +434,9 @@ class Html:
         lab = const_label or 'Nobody has argued this factor, so it reads a labelled constant'
         return f'<span class="n c" title="{esc(lab)}" aria-label="{fmt(v)}. {esc(lab)}">{fmt(v)}</span>'
     def rowtext(self, d):
-        c = self.c
-        if is_page(d.get('id')):
-            t = self.a(d['id'])
-            src = d.get('source')
-            return t + (f'<div class="src">{esc(src)}</div>' if src else '')
-        t = esc(d.get('text') or d.get('advertised') or '')
-        return f'<span class="typed">{t}</span>' + (f'<div class="src">{esc(d["source"])}</div>' if d.get('source') else '')
+        if is_page(d.get('id')): t = self.a(d['id'])
+        else: t = f'<span class="typed">{esc(d.get("text") or d.get("advertised") or "")}</span>'
+        return t + (f'<div class="src">{esc(d["source"])}</div>' if d.get('source') else '') + provenance_line(d)
     def method(self, target):
         """A site-relative method-page link, resolved from wherever this page sits."""
         return target if target.startswith('http') else self.up + target
@@ -481,7 +496,7 @@ def scored_table(H, c, side_rows, specs_rows, headers, key_label, votes=False):
     out = [f'<table class="scored"><thead><tr><th class="rk">#</th><th>{esc(key_label)}</th><th>Truth</th><th>Conf</th><th>Link</th><th>Imp</th><th>Uniq</th><th>Score</th></tr></thead><tbody>']
     for rank, i in enumerate(order, 1):
         d, r = specs_rows[i], side_rows[i]
-        vl = (vote_links(c, d['id']) + edge_vote_links(c, d)) if votes and is_page(d.get('id')) else ''
+        vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if votes and is_page(d.get('id')) else ''
         out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{vl}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{conf_cell(H, c, d)}</td>'
@@ -504,9 +519,12 @@ def evidence_table(H, c, side_rows, specs_rows, bears=None, votes=False):
         d, r = specs_rows[i], side_rows[i]
         b = r['basis']; sp = c.specs.get(d.get('id')) or {}
         p0 = f'<span class="n{"" if b["grounded"] else " c"}" title="{esc(EV.label(sp))}">{f2(b["p0"])}</span>'
-        on = (bears[i] if bears else None) or '<span class="u">this belief</span>'
+        # a finding filed under one of this page's reasons is a row on that reason's page, so that is the page a
+        # vote on whether it bears is about
+        tag, home = (bears[i] if bears else None) or (None, H.pid)
+        on = tag or '<span class="u">this belief</span>'
         rests = f'<div class="src">Rests on: {esc(EV.label(sp).split(", starts at")[0])}</div>'
-        vl = (vote_links(c, d['id']) + edge_vote_links(c, d)) if votes and is_page(d.get('id')) else ''
+        vl = (vote_links(c, d['id']) + edge_vote_links(c, d, home)) if votes and is_page(d.get('id')) else ''
         out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{rests}{vl}</td><td class="u">{on}</td><td>{p0}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{conf_cell(H, c, d)}</td>'
@@ -531,8 +549,8 @@ def ledger_with_reasons(H, c, pid, s):
             tag = H.a(d['id'], c.short(d['id'], 60)) + ' <span class="tk">counted there</span>'
             for ev, rows, supports in ((rs['evid']['for'], rst['rows']['for'], True), (rs['evid']['against'], rst['rows']['against'], False)):
                 helps = supports if side == 'agree' else not supports
-                if helps: F += ev; RF += rows; BF += [tag] * len(ev)
-                else: A += ev; RA += rows; BA += [tag] * len(ev)
+                if helps: F += ev; RF += rows; BF += [(tag, d['id'])] * len(ev)
+                else: A += ev; RA += rows; BA += [(tag, d['id'])] * len(ev)
     return F, A, RF, RA, BF, BA
 
 def sensitivity_section(H, c, pid):
@@ -594,7 +612,7 @@ def simple_rows(H, c, items, extra=None, votes=False):
     return ''.join(out)
 
 def render_belief(c, pid):
-    H = Html(c); sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid)
+    H = Html(c); H.pid = pid; sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid)
     o = [head(c, pid, c.short(pid, 80, full=True))]
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid)}</h1>')
     tk = c.topic_of(pid)
@@ -711,7 +729,7 @@ def render_belief(c, pid):
         out = ['<table class="scored"><thead><tr><th>Prediction</th><th>Truth</th><th>Conf</th><th>Link</th><th>Imp</th><th>Contrib.</th><th>At stake</th></tr></thead><tbody>']
         for d, r in zip(specs_rows, side_rows):
             dl = f'<div class="src">By when, and how it is checked: {esc(d["deadline"])}</div>' if d.get('deadline') else '<div class="src">No deadline or method stated yet.</div>'
-            vl = (vote_links(c, d['id']) + edge_vote_links(c, d)) if is_page(d.get('id')) else ''
+            vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
             out.append(f'<tr><td class="t">{H.rowtext(d)}{dl}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td class="sc">{sf(r["score"])}</td><td>{f2(r["stake"])}</td></tr>')
         if not specs_rows: out.append('<tr><td colspan="7" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
@@ -857,7 +875,7 @@ def render_belief(c, pid):
             mp = d.get('id') if is_page(d.get('id')) and c.kind(d['id']) == 'media' else None
             typ = c.specs[mp].get('typ') if mp else d.get('type')
             bears = c.pg(d.get('link'), DEFLINK); q = c.truth(mp) if mp else UNARG; im = (c.stats(mp)['impact'] if mp else UNARG) or UNARG; imp = c.pg(d.get('imp'), DEFIMP)
-            vl = (vote_links(c, mp) + edge_vote_links(c, d)) if mp else ''
+            vl = (vote_links(c, mp) + edge_vote_links(c, d, H.pid)) if mp else ''
             out.append(f'<tr><td class="t">{H.rowtext(d)}{vl}</td><td>{esc(typ or "")}</td><td>{H.num(bears, d.get("link"))}</td><td>{H.num(q, mp)}</td><td>{H.num(im, mp)}</td><td>{H.num(imp, d.get("imp"))}</td><td class="sc">{sf((2 * q - 1) * bears * im * imp)}</td></tr>')
         if not items: out.append('<tr><td colspan="7" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
@@ -1072,12 +1090,17 @@ def promotes_section(H, c, mp):
     return ''.join(o)
 
 def render_special(c, pid):
-    H = Html(c); sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid); KD = KINDS[k]
+    H = Html(c); H.pid = pid; sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid); KD = KINDS[k]
     o = [head(c, pid, c.short(pid, 80, full=True))]
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p>')
     if k in ('interest', 'media'): o.append(f'<h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid)}</h1>')
     else:
-        a, b = c.question(pid); o.append(f'<h1 class="q"><span>{esc(a)} </span><span>{esc(b)} {score_badge(s["truth"])} {vote_links(c, pid)}</span></h1>')
+        # a linkage page asks whether a row bears on the page it is filed on, which is the question the yes and no
+        # on that row ask; the heading takes the same vote with the same counts rather than a second tally of it
+        lx, ly = sp.get('x'), sp.get('y')
+        rel = k == 'linkage' and is_page(lx) and is_page(ly) and (sp.get('typ') or '') != 'Interest'
+        vl = relevance_links(c, lx, ly, 'Does it bear on that page?') if rel else vote_links(c, pid)
+        a, b = c.question(pid); o.append(f'<h1 class="q"><span>{esc(a)} </span><span>{esc(b)} {score_badge(s["truth"])} {vl}</span></h1>')
     fields = []
     for lab, key in (('Type', 'typ'), ('Direction', 'direction'), ('This row is a', 'rowkind'), ('Value', 'value')):
         if sp.get(key): fields.append(f'{lab}: {esc(sp[key])}')
@@ -1105,7 +1128,7 @@ def render_special(c, pid):
         for rank, i in enumerate(order, 1):
             d, r = specs_rows[i], side_rows[i]
             pat = f'<span class="patl">{esc(d["pattern"])}</span>' if d.get('pattern') else ''
-            vl = (vote_links(c, d['id']) + edge_vote_links(c, d)) if is_page(d.get('id')) else ''
+            vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
             out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
         if not specs_rows: out.append(f'<tr><td colspan="8" class="empty">Nothing here yet. Starter patterns: {esc(", ".join(pats))}.</td></tr>')
         return ''.join(out) + '</tbody></table>'
@@ -1261,8 +1284,8 @@ NEXT_NOTE = ('What happens next: a check runs for a claim already saying the sam
 # sides: the two labels of the side switch, or None when the section has no side; cats: fixed categories a
 # topic cell is filed in, as (value, label), or a placeholder string for a typed one; url: whether the form
 # takes an address and a date that intake folds into the source text.
-def _f(label, hint, source=None, sides=None, cats=None, url=False, term=False):
-    return {'label': label, 'hint': hint, 'source': source, 'sides': sides, 'cats': cats, 'url': url, 'term': term}
+def _f(label, hint, source=None, sides=None, cats=None, url=False, term=False, est=False):
+    return {'label': label, 'hint': hint, 'source': source, 'sides': sides, 'cats': cats, 'url': url, 'term': term, 'est': est}
 FORMS = {
     'argument': _f('Add a reason to %s', 'One complete sentence that could headline a page of its own'),
     'evidence': _f('Add a finding', 'What was found, by whom and when, as one sentence',
@@ -1270,8 +1293,8 @@ FORMS = {
     'prediction': _f('Add a prediction', 'What the world should show, as one sentence',
                      'By when, and how it gets settled (optional)', ('follows if the claim is true', 'follows if the claim is false')),
     'criterion': _f('Add a criterion', 'A measurement both sides would accept in advance', 'How it is measured (optional)'),
-    'cba': _f('Add a cost or benefit', 'Who gains or pays what, as one sentence', 'In what units, and how it is known (optional)',
-              ('a benefit', 'a cost')),
+    'cba': _f('Add a cost or benefit', 'Who gains or pays what, as one sentence', 'How the estimate is known: title, producer, year (optional)',
+              ('a benefit', 'a cost'), est=True),
     'interest': _f('Add an interest', 'A need somebody has, as one sentence', 'Where it is on record (optional)',
                    ('of supporters', 'of opponents')),
     'falsify': _f('Add evidence that would move this', 'What result, from what kind of source, by when, as one sentence',
@@ -1357,8 +1380,11 @@ TITLES = {'argument': {'agree': 'Reason to agree', 'disagree': 'Reason to disagr
           'topic_values': 'Value', 'engagement': 'Engagement', 'common': 'Common ground', 'criteria': 'Criterion', 'related': 'Related topic'}
 
 
-def vote_url(key, vote):
-    return f'{NEW_ISSUE}?' + _q([('template', 'vote.yml'), ('labels', 'vote'), ('title', f'Vote {vote}: {key}'), ('page', key), ('vote', vote)])
+def vote_url(key, vote, on=None):
+    """A prefilled vote issue. With `on`, the vote is on whether the claim `key` bears on the page `on`, which is a
+    vote on the argument as an argument; without it, on whether the claim is true."""
+    title = f'Vote {vote}: {key}' + (f' on {on}' if on else '')
+    return f'{NEW_ISSUE}?' + _q([('template', 'vote.yml'), ('labels', 'vote'), ('title', title), ('page', key), ('vote', vote), ('on', on)])
 
 
 def votes_search(key):
@@ -1386,12 +1412,26 @@ def vote_links(c, pid, words=('Agree', 'Disagree'), lead=None, gap=True, up='../
     return ''.join(out)
 
 
-def edge_vote_links(c, d):
-    """A reader can vote on an argument as an argument, not only on whether the claim is true: when the row has
-    a linkage page, yes or no to whether it bears on this page; when it has an importance page, yes or no to
-    whether it matters here. Each is a vote on that page, so nothing new is stored and no score moves."""
+def relevance_links(c, x, y, lead='Bears on this:', up='../'):
+    """Yes and no to whether the claim `x` bears on the page `y`: one vote per person on the pair, kept apart
+    from votes on whether `x` is true. The same pair, with the same counts, is on every row that files `x` under
+    `y` and on the heading of the linkage page that argues it."""
+    kx, ky = c.key[x], c.key[y]; n = getattr(c, 'relevance', {}).get((kx, ky))
+    out = ['<span class="votes rel">' + (f'<span class="vl">{esc(lead)}</span> ' if lead else '')]
+    for v, w in (('agree', 'yes'), ('disagree', 'no')):
+        out.append(f'<a class="vote" href="{esc(vote_url(kx, v, ky))}" rel="nofollow">{w}</a> ')
+    if n:
+        out.append(f'<a class="vn" href="{esc(votes_search(kx))}" rel="nofollow">{n["agree"]} yes, {n["disagree"]} no; votes, not a score</a>')
+    out.append('</span>')
+    return ''.join(out)
+
+
+def edge_vote_links(c, d, on=None):
+    """A reader can vote on an argument as an argument, not only on whether its claim is true: yes or no to
+    whether it bears on the page it is filed on (`on`), and, when the row has an importance page, yes or no to
+    whether it matters here, which is a vote on that page. No vote moves a score."""
     out = []
-    if is_page(d.get('link')): out.append(vote_links(c, d['link'], ('yes', 'no'), 'Bears on this:', gap=False))
+    if on is not None and is_page(d.get('id')) and d['id'] != on: out.append(relevance_links(c, d['id'], on))
     if is_page(d.get('imp')): out.append(vote_links(c, d['imp'], ('yes', 'no'), 'Matters here:', gap=False))
     return ''.join(out)
 
@@ -1431,6 +1471,15 @@ def add_form(up, section, side='agree', page=None, topic=None, first=False, labe
     if source:
         req = ' required' if F['term'] else ''
         o.append(f'<input id="{fid}-source" name="source"{req} placeholder="{esc(source)}" aria-label="{esc(source)}">')
+    if F['est']:
+        # the estimate, its range and its units, each optional; intake copies a number onto the row only when it is one
+        o.append(f'<input id="{fid}-units" name="units" placeholder="In what units: dollars per year, cases, hours (optional)" '
+                 f'aria-label="In what units (optional)">')
+        o.append('<span class="est">' + ''.join(
+            f'<input id="{fid}-{n}" name="{n}" type="number" step="any" min="0" placeholder="{esc(ph)}" aria-label="{esc(ph)} (optional)">'
+            for n, ph in (('magnitude', 'Best estimate'), ('mag_low', 'Low end'), ('mag_high', 'High end'))) + '</span>')
+        o.append(f'<input id="{fid}-who" name="who" placeholder="Who gains or pays: an interest, in its own words (optional)" '
+                 f'aria-label="Who gains or pays (optional)">')
     if F['url']:
         o.append(f'<input id="{fid}-url" name="url" type="url" placeholder="Its address on the web (optional)" aria-label="Its address on the web (optional)">')
         o.append(f'<label class="lab" for="{fid}-date">Date you checked it (optional)</label><input id="{fid}-date" name="date" type="date">')
@@ -1452,7 +1501,9 @@ def take_part(up, page_kind='page'):
     someone who would rather use git, and what happens after the button."""
     return (f'<p class="take" id="take-part"><strong>Add to this {esc(page_kind)}.</strong> Every table below has a form. Submitting opens a prefilled '
             f'GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE} '
-            f'{GIT_NOTE}. Without an account, the Copy as text button under any form puts your submission on the clipboard so you can send it another way.</p>')
+            f'{GIT_NOTE}. Without an account, the Copy as text button under any form puts your submission on the clipboard so you can send it another way.</p>'
+            '<noscript><p class="fine">With scripts turned off, each form still opens GitHub with this page and its table filled in; '
+            'the check for a claim already on the site and the Copy as text button need scripts.</p></noscript>')
 
 
 def contribute_script(up):
@@ -1460,26 +1511,30 @@ def contribute_script(up):
 
 
 def read_votes(content, detail=False):
-    """content/votes.csv as key -> {'agree': n, 'disagree': n}. One row per (key, login), latest wins. The
+    """content/votes.csv as key -> {'agree': n, 'disagree': n}. One row per (key, on, login), latest wins. The
     table is not in the workbook and the engine never reads it; it is shown beside the score and nowhere else.
-    With `detail`, also the latest (date, issue) per key and the rows themselves, for the recently-voted list
-    and the exports."""
+    A row with `on` set is a vote on whether the claim bears on that page, not on whether it is true, so it is
+    counted apart, in (key, on) -> counts. With `detail`: (truth counts, the latest (date, issue) per key, the
+    rows themselves for the exports, relevance counts)."""
     import csv
     fn = os.path.join(content, 'votes.csv')
-    if not os.path.exists(fn): return ({}, {}, []) if detail else {}
+    if not os.path.exists(fn): return ({}, {}, [], {}) if detail else {}
     latest = {}
     with open(fn, newline='', encoding='utf-8') as fh:
         for i, d in enumerate(csv.DictReader(fh)):
             key, who = (d.get('key') or '').strip(), (d.get('login') or '').strip()
+            on = (d.get('on') or '').strip()
             vote = (d.get('vote') or '').strip().lower()
             if key and vote in ('agree', 'disagree'):
-                latest[(key, who)] = max(latest.get((key, who), ('', -1, '', '')), ((d.get('date') or '').strip(), i, vote, (d.get('issue') or '').strip()))
-    out, when, rows = {}, {}, []
-    for (key, who), (date, _, vote, issue) in sorted(latest.items()):
-        out.setdefault(key, {'agree': 0, 'disagree': 0})[vote] += 1
-        when[key] = max(when.get(key, ('', '')), (date, issue))
-        rows.append({'key': key, 'login': who, 'vote': vote, 'issue': issue, 'date': date})
-    return (out, when, rows) if detail else out
+                latest[(key, on, who)] = max(latest.get((key, on, who), ('', -1, '', '')), ((d.get('date') or '').strip(), i, vote, (d.get('issue') or '').strip()))
+    out, when, rows, rel = {}, {}, [], {}
+    for (key, on, who), (date, _, vote, issue) in sorted(latest.items()):
+        if on: rel.setdefault((key, on), {'agree': 0, 'disagree': 0})[vote] += 1
+        else:
+            out.setdefault(key, {'agree': 0, 'disagree': 0})[vote] += 1
+            when[key] = max(when.get(key, ('', '')), (date, issue))
+        rows.append({'key': key, 'on': on, 'login': who, 'vote': vote, 'issue': issue, 'date': date})
+    return (out, when, rows, rel) if detail else out
 
 
 def recently_voted(c):
@@ -2483,7 +2538,7 @@ table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl
 .add button{max-width:100%;font:600 13px/1.3 var(--sans);padding:7px 12px;border:1px solid var(--navy);border-radius:4px;background:var(--navy);color:var(--paper);cursor:pointer}
 .add button:hover{background:var(--navy2);border-color:var(--navy2)}.add button:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
 .add .dup{margin:8px 0 0;font-size:13px}.add .dup:empty{display:none}.add .dup ul{margin:4px 0 0;padding-left:18px}.add .dup li{margin:3px 0}
-.add .fine{margin:8px 0 0}.side .add{margin-top:10px}
+.add .fine{margin:8px 0 0}.add .est{display:flex;gap:6px}.add .est input{min-width:0;flex:1}.side .add{margin-top:10px}
 .forms{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:12px}.forms .add{margin:0}
 .take{font-size:13.5px;color:var(--ink2);border-left:3px solid var(--navy);padding:6px 10px;margin:10px 0}
 .votes .vl{color:var(--mute);font-weight:400}td .votes+.votes{margin-top:2px}.add button.copy{background:var(--paper);color:var(--navy);margin-left:6px}
@@ -2736,7 +2791,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     c.drafts = drafts
     c.prov = provenance(entry)
     content = entry if os.path.isdir(entry) else os.path.join(os.path.dirname(os.path.abspath(entry)), 'content')
-    c.votes, c.vote_latest, c.vote_rows = read_votes(content, detail=True) if os.path.isdir(content) else ({}, {}, [])
+    c.votes, c.vote_latest, c.vote_rows, c.relevance = read_votes(content, detail=True) if os.path.isdir(content) else ({}, {}, [], {})
     if os.path.isdir(outdir): shutil.rmtree(outdir)
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
     index = []
