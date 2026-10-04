@@ -83,7 +83,7 @@ THING = {'argument': 'reason', 'evidence': 'finding', 'prediction': 'prediction'
          'shared_interest': 'shared interest', 'compromise': 'compromise', 'motive': 'motive', 'dispute': 'dispute',
          'obstacle': 'obstacle', 'bias': 'bias', 'media': 'work', 'law': 'law', 'upstream': 'broader belief',
          'downstream': 'narrower belief', 'similar': 'similar belief', 'definition': 'definition', 'person': 'person on the record',
-         'impact': 'reason about reach', 'interest_listing': 'interest at stake', 'direction': 'position', 'strength': 'claim strength',
+         'impact': 'reason about influence', 'interest_listing': 'interest at stake', 'direction': 'position', 'strength': 'claim strength',
          'rung': 'rung', 'stack': 'assumption behind a position', 'topic_values': 'value', 'engagement': 'engagement',
          'common': 'common ground', 'criteria': 'criterion', 'related': 'related topic'}
 PR_SETTING = ('Allow GitHub Actions to create and approve pull requests')

@@ -224,8 +224,11 @@ criteria, costs and benefits, short and long-term effects, components, assumptio
 interests, compromises, motives, disputes, obstacles, biases, works, laws, broader and narrower beliefs, similar
 beliefs, definitions, people on the record) and a propose-a-belief form under Related Beliefs; a part of the
 template nobody has filled in gets a form for its first row, under "Not filled in yet". Linkage, importance,
-uniqueness, interest, equivalence and media pages carry forms under their argued tables (a media page also under
-its reach table, an importance page for an interest at stake) and a Contribute line. Every topic page carries a
+uniqueness, interest, equivalence and media pages carry forms under their argued tables (an importance page for an
+interest at stake) and a Contribute line. A work's page follows templates/media-analysis-template.html: its Influence
+table, findings and yardsticks for a great work, predictions it made, who gains, assumptions and biases each take a
+first row from a form, and `media.html` takes a proposed yardstick for best (filed on the work picked from a list) and a
+proposed work (filed on the belief picked from a list). Every topic page carries a
 form under each of its cell tables that files a row with the topic as its page, plus the propose-a-belief form.
 Each form is a plain GET to GitHub's new-issue address, prefilled from the fields the issue forms in
 `.github/ISSUE_TEMPLATE/` declare, so it works with no script; a form whose source is a work also takes an address

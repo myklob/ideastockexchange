@@ -373,7 +373,7 @@ def collapse_tables(markup, n=5):
     counter = [0]
     def one(m):
         head, body = m.group(1), m.group(2)
-        if 'id="all"' in head or 'check' in head or 'conn' in head or 'engine' in head: return m.group(0)
+        if 'id="all"' in head or 'check' in head or 'conn' in head or 'engine' in head or 'whole' in head: return m.group(0)
         rows = re.findall(r'<tr\b[^>]*>.*?</tr>', body, re.S)
         if len(rows) <= n: return m.group(0)
         counter[0] += 1
@@ -870,7 +870,7 @@ def render_belief(c, pid):
         del o[mark:]; todo.append(('Interests, Not Positions', 'nobody has mapped who wants what, or why'))
     # ---- media, law, up/down, similar, definitions, people
     def media_table(items):
-        out = ['<table class="scored"><thead><tr><th>Work</th><th>Type</th><th>Bears</th><th>Quality</th><th>Impact</th><th>Imp</th><th>Score</th></tr></thead><tbody>']
+        out = ['<table class="scored"><thead><tr><th>Work</th><th>Type</th><th>Bears</th><th>Quality</th><th>Influence</th><th>Imp</th><th>Score</th></tr></thead><tbody>']
         for d in items:
             mp = d.get('id') if is_page(d.get('id')) and c.kind(d['id']) == 'media' else None
             typ = c.specs[mp].get('typ') if mp else d.get('type')
@@ -880,7 +880,7 @@ def render_belief(c, pid):
         if not items: out.append('<tr><td colspan="7" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
     mark = len(o)
-    o.append(H.section('Media Resources', 'Each work has its own page where quality and impact are argued separately; whether it bears on this belief is a linkage page. Score = (2 x Quality - 1) x Bears x Impact x Imp, signed like every other row, so a work nobody has argued scores exactly 0. These rows are shown, not counted: the belief score above is arguments, evidence and predictions only, because a book is a container for reasons rather than a reason.', ('How media is scored', WIKI['media'])))
+    o.append(H.section('Media Resources', 'Each work has its own page where its quality and its influence are argued separately; whether it bears on this belief is a linkage page. Score = (2 x Quality - 1) x Bears x Influence x Imp, signed like every other row, so a work nobody has argued scores exactly 0. These rows are shown, not counted: the belief score above is arguments, evidence and predictions only, because a book is a container for reasons rather than a reason.', ('How media is scored', WIKI['media'])))
     o.append(stacked(H, c, 'Supporting', 'Weakening', media_table(sp.get('media_for', [])), media_table(sp.get('media_against', []))) + add_form(H.up, 'media', 'agree', key) + '</section>')
     if not (sp.get('media_for') or sp.get('media_against')):
         del o[mark:]; todo.append(('Media Resources', 'no books, studies or films weighed'))
@@ -1058,7 +1058,12 @@ def engine_table(H, c, pid):
             b = EV.prior(sp, K)
             if b['grounded']: r('Starting point', f2(b['p0']), 'where this page starts before any of its own rows count: ' + EV.label(sp))
             r(f'{lab} score', f2(s['truth']), f'(agree + weight x starting point) / (agree + disagree + weight), starting point {f2(b["p0"])}, weight {f2(b["weight"])}')
-            if k == 'media': r('Impact score', f2(s['impact']), 'the same rule applied to the impact table')
+            if k == 'media':
+                r('Influence score', f2(s['impact']), 'the same rule applied to the Influence Arguments table')
+                acc = work_accuracy(c, pid)
+                r('Accuracy of what it backs', sf(acc) if acc is not None else 'none yet', 'carried truth x centrality, summed over the beliefs that cite it, divided by the sum of centrality')
+                r('Beliefs citing it', str(len(work_beliefs(c, pid))), 'belief pages that list it under Media Resources')
+                r('Reach', 'not recorded', 'how many people the work reached: the one typed number the media template allows, with its source. No work here has one yet, so nothing is multiplied by it')
     r('ReasonRank', f'{c.rank.of(pid):.4f}', f'how much of the site depends on this page: rank {c.rank.place_of(pid)} of {len(c.specs)}. The share of a walk that starts at the {len(c.rank.seeds)} beliefs and steps to the pages they read, with a {c.rank.d} chance of stepping on each time')
     r('Work value', f'{c.rank.of(pid) * (1 - c.conf.of(pid)):.4f}', 'ReasonRank x (1 - confidence): how much settling this page would be worth to everything above it')
     r('Completeness', 'yes' if s['complete'] else 'no', 'at least one scored reason on each side (an importance page: at least one interest; an interest page: both readings filled)')
@@ -1073,24 +1078,9 @@ def work_beliefs(c, mp):
         out.append((u, side))
     return sorted(out, key=lambda t: (t[1] != 'supports', t[0]))
 
-def promotes_section(H, c, mp):
-    """What a work is for, before how good it is: the beliefs it is cited on, which way it bears on each, what
-    it shows (the bridge sentence typed on the citing page), and how that belief stands. A work is listed by
-    what it changes; whether it deserved to is the quality argument that follows."""
-    sp = c.specs[mp]; rows = work_beliefs(c, mp)
-    o = [H.section('Beliefs this work bears on', 'The beliefs that cite this work, which way it bears on each, and what it shows there. '
-                   'A work earns its place by what it changes; whether it deserved to is argued below.')]
-    o.append('<table class="scored"><thead><tr><th class="rk">#</th><th>Belief</th><th>Bears</th><th>Belief&apos;s truth</th></tr></thead><tbody>')
-    for i, (u, side) in enumerate(rows, 1):
-        shows = f'<div class="src">What it shows: {esc(strip_period(sp["bridge"]))}.</div>' if sp.get('bridge') else ''
-        o.append(f'<tr><td class="rk">{i}</td><td class="t">{H.a(u, c.standalone(u))}{shows}</td>'
-                 f'<td class="{"ag" if side == "supports" else "di"}">{side}</td><td>{H.num(c.truth(u), u)}</td></tr>')
-    if not rows: o.append('<tr><td colspan="4" class="empty">No belief page cites this work yet.</td></tr>')
-    o.append('</tbody></table></section>')
-    return ''.join(o)
-
 def render_special(c, pid):
     H = Html(c); H.pid = pid; sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid); KD = KINDS[k]
+    if k == 'media': return render_media(c, pid)
     o = [head(c, pid, c.short(pid, 80, full=True))]
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p>')
     if k in ('interest', 'media'): o.append(f'<h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid)}</h1>')
@@ -1144,7 +1134,6 @@ def render_special(c, pid):
         if not s['interests']: o.append('<tr><td colspan="7" class="empty">No interest listed yet, so the row reads the neutral constant.</td></tr>')
         o.append('</tbody></table>' + add_form(H.up, 'interest_listing', 'agree', key, first=not s['interests']) + '</section>')
     else:
-        if k == 'media': o.append(promotes_section(H, c, pid))
         o.append(H.section(KD['section'], KD['blurb'], KD['wiki']))
         o.append(two_sided(H, c, KD['agree'], KD['disagree'],
                            pat_table(sp['args']['agree'], s['rows']['agree'], KD['patterns'][0]) + add_form(H.up, 'argument', 'agree', key),
@@ -1196,6 +1185,230 @@ def render_special(c, pid):
     o.append(checks_section(H, c, pid))
     o.append(engine_table(H, c, pid))
     o.append(H.section('Contribute') + f'<p class="cap">The forms under the tables above take a reason either way; the Agree and Disagree links on the heading line take a vote. {GIT_NOTE}: this page is <code>{esc(key)}</code> in the pages table and its rows are in the edges table.</p></section>')
+    o.append(contribute_script(H.up))
+    o.append(FOOT)
+    return ''.join(o)
+
+# ------------------------------------------------------------------------------------------------ a work's own page
+# The persuasion patterns of the media template: fixed definitions, not findings about any work. Naming one is a
+# reason like any other, typed in a table on the page with the pattern's name in its pattern column.
+PERSUASION = [
+    ('Rewarded choice', 'The story rewards a choice whose documented real-world results run the other way, so the audience learns the reward, not the record.',
+     'Weak reasoning, a reason to disagree under Quality Arguments. The record itself is argued on the belief page.'),
+    ('Weakest opponent', 'The opposing view gets its least capable advocate, or is voiced only by the villain.',
+     'One-sided, a reason to disagree under Quality Arguments. The strongest case it could have voiced is in the table above.'),
+    ('Incoherent character', 'A character acts against their own established competence or values at the moment the plot needs the claim to land.',
+     'Weak reasoning, a reason to disagree under Quality Arguments. Say which trait the scene contradicts and where it was established.'),
+    ('Emotional timing', 'Music, pacing and imagery peak exactly when the claim arrives, so it is felt before it can be examined.',
+     'How central the claim is to the work, on the linkage page that says how strongly the work bears on the belief. Not a defect by itself: a true claim can be carried this way too.'),
+    ('Selected outcomes', 'The audience sees the cases where the behavior worked, never how often it does.',
+     'One-sided, a reason to disagree under Quality Arguments. How often it works belongs on the belief page as evidence.'),
+]
+MEDIA_DEFS = [
+    'Quality: how well the work makes its case (accurate in its checkable facts, well reasoned, well made, built on primary sources), from the Quality Arguments on this page. It says nothing about whether the work\'s message is true.',
+    'Influence: whether the work changed what people think, say or do, from the Influence Arguments on this page. How many people it reached is a separate, typed number, and a large audience that already agreed is not influence.',
+    'Centrality: how much of the work rides on a belief, read from the linkage page that says how strongly the work bears on that belief, or the labelled constant until somebody argues one.',
+    'Accuracy of what it backs: each belief\'s truth on its own page, from -1 to +1 and turned around where the work argues against the belief, averaged with centrality as the weight.',
+    'A work\'s row on a belief page is shown and not counted: the belief\'s score is its reasons, findings and predictions, because a book is a container for reasons rather than a reason.',
+]
+
+def media_pat_table(H, c, specs_rows, side_rows, pats):
+    order = sorted(range(len(specs_rows)), key=lambda i: -side_rows[i]['score'])
+    out = ['<table class="scored"><thead><tr><th class="rk">#</th><th>Reason (pattern)</th><th>Truth</th><th>Conf</th><th>Link</th><th>Imp</th><th>Uniq</th><th>Score</th></tr></thead><tbody>']
+    for rank, i in enumerate(order, 1):
+        d, r = specs_rows[i], side_rows[i]
+        pat = f'<span class="patl">{esc(d["pattern"])}</span>' if d.get('pattern') else ''
+        vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
+    if not specs_rows: out.append(f'<tr><td colspan="8" class="empty">No reason on this side yet. Starter patterns: {esc(", ".join(pats))}.</td></tr>')
+    return ''.join(out) + '</tbody></table>'
+
+def media_head(c, pid, title):
+    """Home, then the shelf of works, then the kind of work, then this one: a work is reached from the list of
+    best works, whichever belief cited it first."""
+    typ = c.specs[pid].get('typ') or ''
+    heading = dict(KINDS_OF_WORK).get(typ) or dict(KINDS_OF_WORK)['']
+    parts = ['<a href="../index.html">Home</a>', '<a href="../media.html">Books, studies and reports</a>',
+             f'<a href="../media.html#{kind_anchor(typ)}">{esc(heading)}</a>', f'<strong>{esc(c.short(pid, 60))}</strong>']
+    crumb = '<p class="crumb"><em>' + ' › '.join(parts) + '</em></p>'
+    return (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>{esc(title)}</title>{HEAD_CSS}<link rel="stylesheet" href="../ise.css"></head><body><a class="skip" href="#claim">Skip to the work</a><main id="claim">{crumb}')
+
+NOT_READ = '<span class="empty">not read yet</span>'
+
+def nothing_yet(what, forms=''):
+    return f'<p class="empty">{what}</p>{forms}'
+
+def render_media(c, pid):
+    """A work's own page, in the order of templates/media-analysis-template.html. No score or verdict above the
+    arguments: the template's scorecard is the Scoring Engine at the foot of the page. Every table is read from
+    rows in the tables, on this page or on the belief pages that cite the work; a section with no rows says what
+    is missing and carries the form that adds the first one."""
+    H = Html(c); H.pid = pid; sp = c.specs[pid]; s = c.stats(pid); key = c.key[pid]
+    typ = sp.get('typ') or 'Work'
+    o = [media_head(c, pid, c.short(pid, 80, full=True))]
+    o.append(f'<p class="kind">{esc(typ)}</p><h1>{esc(c.standalone(pid))} {vote_links(c, pid)}</h1>')
+    meta = [esc(typ)]
+    if sp.get('where'): meta.append('Where to find it: ' + esc(sp['where']))
+    meta.append(f'<span class="vnote">{VOTE_NOTE}</span>')
+    o.append('<p class="meta">' + ' · '.join(meta) + '</p>')
+    o.append('<p class="lede">Two questions, kept apart on purpose. Is it well made? That is argued on this page, under Quality Arguments. '
+             'Is what it backs true? That is argued on the belief pages that cite it, and this page only reads their scores. '
+             'A third question, whether it changed anything, is argued under Influence Arguments.</p>')
+    o.append(take_part(H.up, 'work page'))
+    # ---- beliefs this work carries
+    cites = work_cites(c, pid)
+    o.append(H.section('Beliefs This Work Carries', 'Each row is a belief page that cites this work, and which way the work bears on it. Centrality is how much of the work rides on that belief: '
+                       'the linkage page that says how strongly the work bears on it, or the grey constant until somebody argues one. Carried truth is the belief\'s truth on its own page, '
+                       'from -1 to +1, turned around when the work argues against the belief. Rows rank by carried truth times centrality, largest either way first.', ('How media is scored', 'method.html#media')))
+    if sp.get('bridge'): o.append(f'<p class="cap">What it shows: {esc(strip_period(sp["bridge"]))}.</p>')
+    if cites:
+        rows = []
+        for u, side, d in cites:
+            cen = c.pg(d.get('link'), DEFLINK); ct = carried_truth(c, u, side)
+            rows.append((u, side, d, cen, ct, ct * cen))
+        tied = len({round(abs(r[5]), 4) for r in rows}) == 1
+        rows.sort(key=lambda r: (-abs(r[5]), r[1] != 'supports', c.standalone(r[0]).lower()))
+        ranks = comp_ranks([abs(r[5]) for r in rows])
+        rk = '' if tied else '<th class="rk">#</th>'
+        o.append(f'<table class="scored"><thead><tr>{rk}<th>Belief the work backs</th><th>Bears</th><th>Centrality</th><th>Belief&apos;s truth</th><th>Carried truth</th></tr></thead><tbody>')
+        for (u, side, d, cen, ct, w), r in zip(rows, ranks):
+            num = '' if tied else f'<td class="rk">{r}</td>'
+            o.append(f'<tr>{num}<td class="t">{H.a(u, c.standalone(u))}{relevance_links(c, pid, u, "Bears on it:")}</td>'
+                     f'<td class="{"ag" if side == "supports" else "di"}">{side}</td><td>{H.num(cen, d.get("link"))}</td><td>{H.num(c.truth(u), u)}</td><td class="sc">{sf(ct)}</td></tr>')
+        o.append('</tbody></table>')
+        acc = work_accuracy(c, pid)
+        o.append(f'<p class="tot">Accuracy of what it backs: {sf(acc)}, the carried truths averaged with centrality as the weight.'
+                 + (' Every row reads the same, so they are listed supports first rather than numbered.' if tied else '') + '</p>')
+    else:
+        o.append(nothing_yet('No belief page cites this work yet. A work is tied to a belief from the belief&apos;s own page, under Media Resources, with the form there.'))
+    o.append('</section>')
+    # ---- quality and influence
+    KD = KINDS['media']
+    o.append(H.section('Quality Arguments', 'Craft only: is the work accurate in its checkable facts, well reasoned, well made, built on primary sources? Reasons here are about the work itself, '
+                       'never about whether the beliefs it backs are true; that is argued on their pages. A reason that names a persuasion pattern (see below) goes on the disagree side.', ('How media is scored', 'method.html#media')))
+    o.append(two_sided(H, c, KD['agree'], KD['disagree'],
+                       media_pat_table(H, c, sp['args']['agree'], s['rows']['agree'], KD['patterns'][0]) + add_form(H.up, 'argument', 'agree', key),
+                       media_pat_table(H, c, sp['args']['disagree'], s['rows']['disagree'], KD['patterns'][1]) + add_form(H.up, 'argument', 'disagree', key)))
+    o.append(f'<p class="tot">Total agree {f2(s["pro"])} · total disagree {f2(s["con"])} · quality {f2(s["truth"])}</p></section>')
+    o.append(H.section('Influence Arguments', 'Did the work change what people think, say or do: is it cited, did people say it changed their minds, does a law or ruling trace to it? '
+                       'Reasons here are about effect, never about quality; a bad book can be influential. How many people it reached is a separate question: a large audience that already agreed is not influence.', ('How media is scored', 'method.html#media')))
+    o.append(two_sided(H, c, 'Reasons to agree that the work has shaped what people think, say or do', 'Reasons to disagree',
+                       media_pat_table(H, c, sp.get('iargs', {}).get('agree', []), s['rows']['iagree'], KD['patterns2'][0]),
+                       media_pat_table(H, c, sp.get('iargs', {}).get('disagree', []), s['rows']['idisagree'], KD['patterns2'][1])))
+    o.append(f'<p class="tot">Total agree {f2(s["ipro"])} · total disagree {f2(s["icon"])} · influence {f2(s["impact"])}</p>' + add_form(H.up, 'impact', 'agree', key) + '</section>')
+    # ---- the strongest case against what it carries, from each belief's own page
+    o.append(H.section('The Strongest Case Against What It Carries', 'For each belief this work backs, the best-scoring reason on the other side, taken from that belief\'s own page, not written here. '
+                       'Whether the work answers it is for a reader to check; if it leaves it out, that is a One-sided reason to disagree under Quality Arguments.'))
+    case = []
+    for u, side, d in cites:
+        other = 'disagree' if side == 'supports' else 'agree'
+        pairs = list(zip(c.specs[u]['args'][other], c.stats(u)['rows'][other]))
+        if not pairs: case.append((u, side, None, None)); continue
+        dd, r = max(pairs, key=lambda x: (-x[1]['score'] if other == 'disagree' else x[1]['score'], c.rank.of(x[0]['id']) if is_page(x[0].get('id')) else 0))
+        case.append((u, side, dd, r))
+    if case:
+        o.append('<table class="scored"><thead><tr><th>Strongest reason on the other side</th><th>Against</th><th>Its score there</th></tr></thead><tbody>')
+        for u, side, dd, r in case:
+            if dd is None:
+                o.append(f'<tr><td class="t"><span class="empty">The belief page has no reason to {"disagree" if side == "supports" else "agree"} yet.</span></td><td class="u">{H.a(u, c.short(u, 60))}</td><td class="u">none yet</td></tr>')
+            else:
+                o.append(f'<tr><td class="t">{H.rowtext(dd)}</td><td class="u">{H.a(u, c.short(u, 60))}</td><td class="sc">{sf(round(r["score"], 9) + 0.0)}</td></tr>')
+        o.append('</tbody></table>')
+    else:
+        o.append(nothing_yet('No belief page cites this work yet, so there is no other side to read.'))
+    o.append('</section>')
+    # ---- persuasion patterns
+    named = {}
+    for d in sp['args']['agree'] + sp['args']['disagree'] + sp.get('iargs', {}).get('agree', []) + sp.get('iargs', {}).get('disagree', []):
+        for name, *_ in PERSUASION:
+            if (d.get('pattern') or '').strip().lower() == name.lower(): named.setdefault(name, []).append(d)
+    o.append(H.section('Persuasion Patterns', 'How a work can carry a claim past a reader\'s guard. Naming a pattern is a reason like any other: it goes in a table above, draws replies, '
+                       'and changes nothing until it outscores them. There is no automatic penalty for an accusation.'))
+    o.append('<table class="plain"><thead><tr><th>Pattern</th><th>Where it is argued</th><th>Named on this page</th></tr></thead><tbody>')
+    for name, what, where in PERSUASION:
+        here = '; '.join(rowref(H, c, d) for d in named.get(name, [])) or '<span class="empty">not yet</span>'
+        o.append(f'<tr><td class="t"><strong>{esc(name)}</strong><div class="src">{esc(what)}</div></td><td class="u">{esc(where)}</td><td class="u">{here}</td></tr>')
+    o.append('</tbody></table>')
+    if not named: o.append('<p class="cap">No reason on this page names one of these patterns yet. To name one, add a reason to disagree under '
+                           '<a href="#add-argument-disagree">Quality Arguments</a> that says where in the work it happens.</p>')
+    o.append('</section>')
+    # ---- who gains
+    gains = []
+    for u, side, d in cites:
+        for i in c.specs[u].get('int_sup' if side == 'supports' else 'int_opp', []):
+            if is_page(i.get('id')): gains.append((i['id'], u))
+    typed_gain, typed_pay = sp.get('int_sup', []), sp.get('int_opp', [])
+    o.append(H.section('Who Gains if the Audience Believes It', 'Each belief a work backs serves somebody. Listing them is not an accusation; it is how a reader checks whether a claim is carried because it is true or because it pays. '
+                       'The interests below are read from each belief\'s own page, for the side the work takes, and validity is argued on each interest\'s page.'))
+    if gains:
+        seen, rows = set(), []
+        for ip, u in sorted(gains, key=lambda t: (-c.truth(t[0]), c.standalone(t[0]).lower())):
+            if (ip, u) in seen: continue
+            seen.add((ip, u)); rows.append((ip, u))
+        o.append('<table class="scored"><thead><tr><th>Interest</th><th>Belief it is listed on</th><th>Validity</th></tr></thead><tbody>')
+        for ip, u in rows:
+            o.append(f'<tr><td class="t">{H.a(ip, c.standalone(ip))}</td><td class="u">{H.a(u, c.short(u, 60))}</td><td>{H.num(c.truth(ip), ip)}</td></tr>')
+        o.append('</tbody></table>')
+    if typed_gain or typed_pay:
+        o.append(two_sided(H, c, 'Who gains, named on this page', 'Who pays, named on this page', simple_rows(H, c, typed_gain, votes=True), simple_rows(H, c, typed_pay, votes=True)))
+    if not (gains or typed_gain or typed_pay):
+        o.append(nothing_yet('Nobody has named who gains or pays if the audience believes what this work backs, here or on the belief pages that cite it.'))
+    o.append(add_form(H.up, 'interest', 'agree', key, first=not (gains or typed_gain or typed_pay),
+                      override={'label': 'Add who gains or pays', 'sides': ('gains if the audience believes it', 'pays if the audience believes it')}) + '</section>')
+    # ---- is it a great work: evidence and objective criteria
+    ev_for, ev_against, crit = sp['evid']['for'], sp['evid']['against'], sp.get('criteria', [])
+    o.append(H.section('Is It a Great Work? Evidence and Objective Criteria', 'The findings and agreed measurements the Quality Arguments above can cite instead of restating. '
+                       'Shown, not counted: the quality score is the Quality Arguments alone, and a finding here moves it only through a reason that cites it.'))
+    o.append('<h3 class="sub">Evidence</h3>')
+    if ev_for or ev_against:
+        o.append(two_sided(H, c, 'Supporting evidence (the work is well made)', 'Weakening evidence (it is not)', simple_rows(H, c, ev_for, votes=True), simple_rows(H, c, ev_against, votes=True)))
+    else:
+        o.append(nothing_yet('No finding about how good this work is has been added yet: awards, critical consensus, documented errors, or how long it has lasted.'))
+    o.append(add_form(H.up, 'evidence', 'agree', key, first=not (ev_for or ev_against),
+                      override={'label': 'Add a finding about how good it is', 'sides': ('the work is well made', 'it is not')}))
+    o.append(f'<h3 class="sub">Objective criteria for a great {esc(typ.lower())}</h3>')
+    if crit:
+        o.append('<table class="scored"><thead><tr><th>Criterion</th><th>How it is measured</th><th>Latest reading</th></tr></thead><tbody>')
+        for d in crit:
+            st = ''.join(f'<div class="src">{lab}: {esc(d[k_])}</div>' for lab, k_ in (('Would strengthen', 'strengthen'), ('Would weaken', 'weaken')) if d.get(k_))
+            o.append(f'<tr><td class="t">{H.rowtext(d)}{st}</td><td class="u">{esc(d.get("method") or "")}</td><td class="u">{esc(d.get("latest") or "") or NOT_READ}</td></tr>')
+        o.append('</tbody></table><p class="cap">Every yardstick here is also listed on <a href="../media.html#yardsticks">the best works page</a>, with every other work that carries a reading for it.</p>')
+    else:
+        o.append(nothing_yet(f'Nobody has proposed a measurement for a great {esc(typ.lower())} on this page yet: one that people who disagree about this work would accept in advance, such as critical reviews on a named site, awards per category it was eligible for, or how long it has stayed in print or in use.'))
+    o.append(add_form(H.up, 'criterion', 'agree', key, first=not crit, override={'label': 'Add a criterion for a great work'}) + '</section>')
+    # ---- predictions the work made
+    pt, pf = sp.get('pred_true', []), sp.get('pred_false', [])
+    o.append(H.section('Predictions the Work Made', 'What the work said would happen, and how it turned out. Shown, not counted: a prediction that failed is a reason to disagree under Quality Arguments, where it is scored.'))
+    if pt or pf:
+        o.append(two_sided(H, c, 'Borne out so far', 'Not borne out', simple_rows(H, c, pt, votes=True), simple_rows(H, c, pf, votes=True)))
+    else:
+        o.append(nothing_yet('No prediction this work made has been added yet.'))
+    o.append(add_form(H.up, 'prediction', 'agree', key, first=not (pt or pf),
+                      override={'label': 'Add a prediction the work made', 'hint': 'What the work said would happen, as one sentence',
+                                'source': 'By when, and how it turned out (optional)', 'sides': ('borne out so far', 'not borne out')}) + '</section>')
+    # ---- hidden assumptions and bias risks
+    ah, af, bu, bd = sp.get('assume_hold', []), sp.get('assume_fail', []), sp.get('bias_up', []), sp.get('bias_down', [])
+    o.append(H.section('Hidden Assumptions and Bias Risks', 'What has to be true for the quality and influence above to hold, and the habits of thought that could be inflating or deflating them. Each is a claim with its own page, scored like any other.'))
+    if ah or af: o.append(two_sided(H, c, KD['assume'][0], KD['assume'][1], simple_rows(H, c, ah), simple_rows(H, c, af)))
+    else: o.append(nothing_yet('No assumption behind these scores has been named yet.'))
+    o.append(add_form(H.up, 'assumption', 'agree', key, first=not (ah or af),
+                      override={'sides': ('required for the scores to hold', 'required for them to fail')}))
+    if bu or bd: o.append(two_sided(H, c, KD['bias'][0], KD['bias'][1], simple_rows(H, c, bu, votes=True), simple_rows(H, c, bd, votes=True)))
+    else: o.append(nothing_yet('No bias that could be shaping these scores has been named yet.'))
+    o.append(add_form(H.up, 'bias', 'agree', key, first=not (bu or bd),
+                      override={'sides': ('inflating these scores', 'deflating them')}) + '</section>')
+    # ---- definitions, then the derivation
+    o.append(H.section('Definitions', None, ('How media is scored', 'method.html#media')) + '<ul class="defs">' + ''.join(f'<li>{esc(d)}</li>' for d in MEDIA_DEFS)
+             + '<li>What each yardstick for a best work means, and how it is worked out: <a href="../lists.html#works">the lists page</a>.</li></ul></section>')
+    o.append(wordings(H, c, pid))
+    o.append(used_on(H, c, pid))
+    o.append(checks_section(H, c, pid))
+    bl = (sp.get('bottom_line') or '').strip()
+    if bl: o.append(H.section('Bottom Line') + f'<p>{esc(bl)}</p><p class="cap">Typed by the author after the tables above, not computed from them.</p></section>')
+    o.append(engine_table(H, c, pid))
+    o.append(H.section('Contribute') + f'<p class="cap">The forms under the tables above take a reason either way, a finding, a yardstick, a prediction or who gains; the Agree and Disagree links on the heading line take a vote. '
+             f'A belief this work bears on is added from that belief&apos;s page, under Media Resources. {GIT_NOTE}: this page is <code>{esc(key)}</code> in the pages table and its rows are in the edges table.</p></section>')
     o.append(contribute_script(H.up))
     o.append(FOOT)
     return ''.join(o)
@@ -1326,8 +1539,8 @@ FORMS = {
     'definition': _f('Add a definition', 'What the term means here, as one sentence', 'The term being defined', term=True),
     'person': _f('Add a person on the record', 'Who, and what they said or did, as one sentence', 'Where it is on record (optional)',
                  ('agreeing', 'disagreeing'), url=True),
-    'impact': _f('Add a reason about its reach', 'One complete sentence about how far this work reached, not how good it is', None,
-                 ('its reach is wide', 'its reach is narrow')),
+    'impact': _f('Add a reason about its influence', 'One complete sentence about whether the work changed what people think, say or do, not how good it is', None,
+                 ('it changed what people think or do', 'it changed little')),
     'interest_listing': _f('Add an interest this row speaks to', 'A need somebody has, as one sentence', 'Where it is on record (optional)'),
     'belief': _f('Propose a belief', 'One complete sentence someone could agree or disagree with'),
     # a topic page's cells
@@ -1375,7 +1588,7 @@ TITLES = {'argument': {'agree': 'Reason to agree', 'disagree': 'Reason to disagr
           'short_term': 'Short-term effect', 'long_term': 'Long-term effect', 'value': 'Value', 'shared_interest': 'Shared interest',
           'compromise': 'Compromise', 'motive': 'Motive', 'dispute': 'Dispute', 'obstacle': 'Obstacle', 'bias': 'Bias',
           'media': 'Work', 'law': 'Law', 'upstream': 'Broader belief', 'downstream': 'Narrower belief', 'similar': 'Similar belief',
-          'definition': 'Definition', 'person': 'On the record', 'impact': 'Reach', 'interest_listing': 'Interest at stake',
+          'definition': 'Definition', 'person': 'On the record', 'impact': 'Influence', 'interest_listing': 'Interest at stake',
           'direction': 'Position', 'strength': 'Claim strength', 'rung': 'Rung', 'stack': 'Assumption behind a position',
           'topic_values': 'Value', 'engagement': 'Engagement', 'common': 'Common ground', 'criteria': 'Criterion', 'related': 'Related topic'}
 
@@ -1436,29 +1649,38 @@ def edge_vote_links(c, d, on=None):
     return ''.join(out)
 
 
-def add_form(up, section, side='agree', page=None, topic=None, first=False, labelled=True):
+def add_form(up, section, side='agree', page=None, topic=None, first=False, labelled=True, choose=None, choose_label=None, override=None):
     """One form of section E. `up` is how the page reaches the site root ('' at the root, '../' under p/ and
     t/), which is where contribute.js finds data/claims_index.json. Without a script the form still works:
     GitHub prefills the fields it knows from the query and ignores the rest. A topic page passes its key as
-    `page` and one of ise_tables.TOPIC_SECTIONS as `section`; the row then lands in that topic's cell."""
-    F = FORMS[section]
+    `page` and one of ise_tables.TOPIC_SECTIONS as `section`; the row then lands in that topic's cell.
+
+    A list page that is not itself a page passes `choose`, the (key, label) pages the row could go on, and the
+    reader picks one; `override` replaces the wording of the form (label, hint, source, sides) where the same
+    section reads differently in a different place, as a prediction does on a work's page."""
+    F = dict(FORMS[section], **(override or {}))
     label, hint, source, sides, cats = F['label'], F['hint'], F['source'], F['sides'], F['cats']
     belief = section == 'belief'
     fid = 'add-' + section + (f'-{side}' if section == 'argument' else '')
     if section == 'argument': label = label % side
     if first: label = re.sub(r'^Add an? ', 'Add the first ', label)
+    if choose: page = choose[0][0]
     o = [f'<form class="add" id="{fid}" method="get" action="{NEW_ISSUE}" target="_blank" rel="noopener" '
          f'data-index="{up}data/claims_index.json" data-page="{esc(page or "")}" data-section="{section}" data-side="{side}" data-repo="{REPO}">']
     # the title is what a submission with no script arrives under; the script rebuilds it with the first words typed
     hidden = [('template', 'belief.yml' if belief else 'contribute.yml'), ('labels', 'belief' if belief else 'contribution'),
               ('title', (TITLES['argument'][side] if section == 'argument' else TITLES[section]) + ': ')]
-    if not belief: hidden += [('page', page or ''), ('section', section)]
+    if not belief: hidden += ([] if choose else [('page', page or '')]) + [('section', section)]
     if not belief and not sides: hidden.append(('side', side))
     if belief and topic: hidden.append(('topic', topic))
     o += [f'<input type="hidden" name="{k}" value="{esc(v)}">' for k, v in hidden]
     cls = '' if labelled else ' class="vh"'
     o.append(f'<label for="{fid}-text"{cls}>{esc(label)}</label>')
     o.append(f'<textarea id="{fid}-text" name="text" rows="2" required placeholder="{esc(hint)}"></textarea>')
+    if choose:
+        opts = ''.join(f'<option value="{esc(k)}">{esc(t)}</option>' for k, t in choose)
+        o.append(f'<label class="lab" for="{fid}-page">{esc(choose_label or "The page it goes on")}</label>'
+                 f'<select id="{fid}-page" name="page" onchange="this.form.setAttribute(\'data-page\',this.value)">{opts}</select>')
     if sides:
         opts = ''.join(f'<option value="{v}"{" selected" if v == side else ""}>{esc(t)}</option>' for v, t in zip(('agree', 'disagree'), sides))
         o.append(f'<label class="lab" for="{fid}-side">It is</label>'
@@ -2155,9 +2377,39 @@ EXPLAIN = [
      'Positions are what people say they want; interests are why. A compromise is built out of interests, so knowing who has a stake, what they actually need, and which of those needs hold up is where a way through starts.',
      None),
     ('works', 'Best books, studies and reports',
-     'Every book, study, report, article and film cited on a belief page, by kind, each kind ranked. Under each work: what it is, and the belief it bears on most.',
-     'Best, so far, means impact: how much of these pages the work moved, which is its contribution to every belief that cites it, counted through the row it sits on. A work is listed by what it changes. Whether it deserved to is a separate number, quality, argued on the work\'s own page: is it accurate, well reasoned, well made, built on primary sources? The two are kept apart because a widely read work that is wrong and an unread work that is right are different problems. Other yardsticks for best (most important, most accurate, most entertaining, most cited) are each a criterion anyone can propose on a work\'s page and argue; a yardstick nobody has argued is not used to rank anything.',
-     'Because a work reaches people in a way an argument never does: one film teaches its ethics to more people than every analysis of those ethics put together. Knowing which works moved the beliefs here, and whether they earned it, is how a reader finds the best thing to read on a question, and how a work that moved a lot of people with a claim that does not hold up gets noticed.',
+     'Every book, study, report, article and film cited on a belief page, by kind, each kind ranked under every yardstick for best that can be worked out, with each work\'s numbers in a table by title.',
+     'A work counts as one of the best on its question until somebody shows otherwise; it moves down only when an argument on its own page moves it, and it is never removed. Best by what is a separate question, so there is no single ranking: each kind of work (books, studies, reports, articles, films) gets a short list under each yardstick that tells its works apart. A yardstick that every work of that kind scores the same on is named and not ranked, because a numbered order among ties would be made up. A yardstick nobody can measure yet (most entertaining, so far) is named and left empty. Works that tie share a rank.',
+     'Because a work reaches people in a way an argument never does: one film teaches its ethics to more people than every analysis of those ethics put together. The most accurate work on a question, the most important one and the most entertaining one are often three different works, and a reader looking for the best thing to read should be able to see which is which, and argue about which should count.',
+     None),
+    ('works-accurate', 'Most accurate (a yardstick for best works)',
+     'Works ranked by how well what they back holds up: how the beliefs a work is cited for read on their own pages.',
+     'Each belief page that cites a work says whether the work supports the belief or weakens it. The belief\'s truth score is moved onto a scale from -1 (argued false) through 0 (balanced, or nobody has argued it) to +1 (argued true), and turned around when the work argues against the belief, so a work that argues against a belief that is false scores well. The values are averaged, each weighed by how strongly the work bears on that belief (its Bears linkage page, or the labelled constant when nobody has argued that). A belief nobody has argued reads 0, so most works read 0.00 until the beliefs they back are argued.',
+     'So that a widely read work carrying a claim that does not hold up is noticed, and so a reader can find the work whose message has survived argument. It is kept apart from how well the work is made, because a beautifully made work can carry a false claim and a dull one a true claim.',
+     'method.html#formula'),
+    ('works-important', 'Most important (a yardstick for best works)',
+     'Works ranked by influence: whether the work changed what people think, say or do.',
+     'Each work has an Influence Arguments table on its own page: reasons to agree it has shaped what people think (widely cited, changed minds on record, reached a broad audience, shaped policy) and reasons to disagree (rarely cited, read only by people who already agreed, small audience, no trace in policy). The influence score comes from those reasons by the same rule as every truth score here, so it starts at 0.50 and stays there until somebody argues it. How many people a work reached is recorded separately and is not this number: a huge audience that already agreed changes little.',
+     'Because the works that changed a debate are the ones a reader needs to know, whether or not they were right, and because a work that changed a lot of minds with a claim that does not hold up is exactly the work worth answering.',
+     'method.html#formula'),
+    ('works-made', 'Best made (a yardstick for best works)',
+     'Works ranked by quality: how well the work makes its case.',
+     'Each work has a Quality Arguments table on its own page: reasons to agree it is well made (its checkable facts hold up, its reasoning follows, it is clear and well crafted, it is built on primary sources) and reasons to disagree (errors of fact, weak reasoning, poorly made, one-sided). The quality score comes from those reasons by the same rule as every truth score here, so it starts at 0.50 and stays there until somebody argues it. It says nothing about whether the work\'s message is true; that is Most accurate.',
+     'Because craft is real and worth knowing, and because keeping it apart from truth stops a well-made work from borrowing credibility for a claim it carries.',
+     'method.html#formula'),
+    ('works-entertaining', 'Most entertaining (a yardstick for best works)',
+     'Works ranked by a measurement of how well they hold the people they reach, once somebody proposes one.',
+     'Nothing on this site computes how entertaining a work is. A reader proposes a way to measure it on a work\'s own page, under Objective Criteria (for example, the share of people who finish it, or audience scores on a named site), with the latest reading and its source. Every work that carries such a reading is listed under this yardstick; the readings are put in order only when every one of them is a number, and otherwise the works are listed by title. Until somebody proposes a measurement, this yardstick is named and left empty rather than filled with a guess.',
+     'Because for a film, a novel or a podcast, holding an audience is much of what best means, and leaving it out would make the lists read as if only accuracy counts.',
+     None),
+    ('works-cited', 'Most cited here (a yardstick for best works)',
+     'Works ranked by how many belief pages on this site cite them.',
+     'A count of the belief pages that list the work under Media Resources, on either side. It is a count of where the work is used here, not of how good it is, and a work cited on three pages counts three.',
+     'Because a work that bears on several beliefs is a good place to start reading, and because it shows which works the arguments here lean on most.',
+     None),
+    ('works-proposed', 'Yardsticks readers propose (for best works)',
+     'Any other measure of a great work that a reader has proposed on a work\'s page, with the works that carry a reading for it.',
+     'A yardstick is filed on a work\'s own page, under Objective Criteria, as a measurement people who disagree would accept in advance, with how it is measured and the latest reading. The same yardstick proposed on two works is one yardstick, because the duplicate check sends the second to the page the first one made. Readings are put in order only when every one is a number; otherwise the works are listed by title.',
+     'Because which yardstick should count is itself open to argument. A yardstick that cannot tell a great work from a poor one should lose to one that can, and the only way to find out is to let people propose them and read them.',
      None),
     ('changed', 'Changed in this revision',
      'Pages edited, or whose numbers moved, since the last published version of the site.',
@@ -2313,9 +2565,19 @@ def render_index(c, title):
     cards.append(card('Who has a stake', 'The people with something at stake, ranked by how many beliefs touch them; under each, their best argued need.',
                       stake_table(c, named, TOP), see_all('interests.html', len(named) + len(generic), 'groups'), 'stake'))
     works = best_works(c, len(c.specs))
-    cards.append(card('Best books, studies and reports', 'Best, so far, means the works that moved these pages the most. What best ought to mean is a yardstick anyone can argue.',
-                      mini(c, works[:TOP], 'Impact', lambda p: f2(c.stats(p).get('impact') or 0), 'works', what='Work', note=lambda p: work_note(c, p)),
-                      see_all('media.html', len(works), 'works, by kind'), 'works'))
+    wkey = home_measure(c, works)
+    if wkey:
+        wname = MEASURE[wkey][1]
+        wblurb = (f'Every work cited here counts as best until shown otherwise. Best by what is a yardstick, and the yardstick is argued too; '
+                  f'here, {esc(wname.lower())}, the first one that tells these works apart. The full page ranks each kind under every yardstick.')
+        wbody = works_table(c, works[:TOP], wkey, note=lambda p: work_note(c, p))
+    else:
+        wblurb = ('Every work cited here counts as best until shown otherwise. Best by what is a yardstick, and the yardstick is argued too; '
+                  'no yardstick tells these works apart yet, so they are listed by title.')
+        wbody = (f'<table class="scored mini"><thead><tr><th>Work</th></tr></thead><tbody>'
+                 + ''.join(f'<tr><td class="t"><a href="p/{c.href(p)}">{esc(c.standalone(p))}</a><div class="src">{work_note(c, p)}</div></td></tr>' for p in works[:TOP])
+                 + '</tbody></table>')
+    cards.append(card('Best books, studies and reports', wblurb, wbody, see_all('media.html', len(works), 'works, by kind and by yardstick'), 'works'))
     recent_all = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))
     if recent_all:
         cards.append(card('Changed in this revision', 'Edited or moved since the last published revision.',
@@ -2446,51 +2708,269 @@ def render_interests(c, title):
 
 KINDS_OF_WORK = [('Book', 'Best books'), ('Study', 'Best studies'), ('Report', 'Best reports'), ('Article', 'Best articles'),
                  ('Film', 'Best films'), ('Podcast', 'Best podcasts'), ('Video', 'Best videos'), ('', 'Other works')]
+# The yardsticks for "best". Every work is best until shown otherwise, and best by what is itself argued: each
+# yardstick is a section of lists.html (id works-<key>) saying what it measures, how and why. `how` is computed
+# (read from argued pages), counted, or typed (read from the criterion rows filed on work pages, never made up).
+WORK_MEASURES = [
+    ('accurate', 'Most accurate', 'Accuracy', 'computed', 'Does what it backs hold up?',
+     'the belief pages that cite it, each weighed by how strongly the work bears on it'),
+    ('important', 'Most important', 'Influence', 'computed', 'Did it change what people think, say or do?',
+     'the Influence Arguments on its own page'),
+    ('made', 'Best made', 'Quality', 'computed', 'How well does it make its case?',
+     'the Quality Arguments on its own page'),
+    ('entertaining', 'Most entertaining', 'Reading', 'typed', 'Does it hold the people it reaches?',
+     'a measurement typed on a work\'s page, under Objective Criteria, with its latest reading'),
+    ('cited', 'Most cited here', 'Beliefs', 'counted', 'How many beliefs on this site cite it?',
+     'a count of the belief pages that list it under Media Resources'),
+]
+MEASURE = {m[0]: m for m in WORK_MEASURES}
+ENTERTAINING = re.compile(r'\bentertain|\benjoy', re.I)
+
+
+def kind_anchor(typ):
+    known = {k for k, _ in KINDS_OF_WORK}
+    return ((typ if typ in known else '') or 'other').lower()
 
 def works_by_kind(c):
-    """Every work, by kind, each kind ranked by impact: a book and a study are not best at the same thing."""
+    """Every work, by kind, each kind listed by title: a book and a study are not best at the same thing, and
+    which yardstick ranks them is a separate question, answered once per yardstick (see kind_section)."""
     works = [p for p in c.specs if c.kind(p) == 'media']
     by = {}
     for mp in works: by.setdefault(c.specs[mp].get('typ') or '', []).append(mp)
     known = {k for k, _ in KINDS_OF_WORK}
     for k in list(by):
         if k not in known: by.setdefault('', []).extend(by.pop(k))
-    rank = lambda ps: sorted(ps, key=lambda m: (-(c.stats(m).get('impact') or 0), -c.truth(m), m))
-    return [(k, title, rank(by[k])) for k, title in KINDS_OF_WORK if by.get(k)]
+    return [(k, title, sorted(by[k], key=lambda m: (c.standalone(m).lower(), m))) for k, title in KINDS_OF_WORK if by.get(k)]
 
-def best_works(c, limit):
-    """The home card: the top works of any kind, by impact."""
-    return sorted((p for p in c.specs if c.kind(p) == 'media'), key=lambda m: (-(c.stats(m).get('impact') or 0), -c.truth(m), m))[:limit]
+def work_cites(c, mp):
+    """(belief page, side, the row) for every belief page that lists a work, supports first."""
+    out = []
+    for u, side in work_beliefs(c, mp):
+        key = 'media_for' if side == 'supports' else 'media_against'
+        for d in c.specs[u].get(key, []):
+            if d.get('id') == mp: out.append((u, side, d))
+    return out
 
-def work_note(c, mp):
+def carried_truth(c, u, side):
+    """How true the claim a work carries reads, from -1 to +1: the belief's own truth when the work supports it,
+    the opposite when the work argues against it."""
+    t = 2 * c.truth(u) - 1
+    return round(t if side == 'supports' else -t, 9) + 0.0
+
+def work_accuracy(c, mp):
+    """How the beliefs a work backs read on their own pages, each weighed by Bears, the linkage page that says how
+    strongly the work bears on it (the constant when nobody has argued that). None when no belief cites it."""
+    rows = [(carried_truth(c, u, side), c.pg(d.get('link'), DEFLINK)) for u, side, d in work_cites(c, mp)]
+    w = sum(b for _, b in rows)
+    return (round(sum(t * b for t, b in rows) / w, 9) + 0.0) if rows and w else None
+
+def work_value(c, mp, key):
+    if key == 'accurate': return work_accuracy(c, mp)
+    if key == 'important': return c.stats(mp).get('impact')
+    if key == 'made': return c.truth(mp)
+    if key == 'cited': return len(work_beliefs(c, mp))
+    return None
+
+def first_number(s):
+    m = re.search(r'-?\d+(?:\.\d+)?', str(s or '').replace(',', ''))
+    return float(m.group(0)) if m else None
+
+def work_criteria(c):
+    """Every yardstick typed on a work's page, as an Objective Criteria row: {group: (name, [(work, row)])}. A
+    row whose category or wording names entertainment is filed under Most entertaining; any other is a yardstick
+    of its own, grouped by the page it points at (the duplicate check sends the same yardstick typed on two works
+    to one page) or, failing that, by its words."""
+    out = {}
+    for mp in c.specs:
+        if c.kind(mp) != 'media': continue
+        for d in c.specs[mp].get('criteria', []):
+            text = c.rowtext(d) if is_page(d.get('id')) else (d.get('text') or '')
+            if not text.strip(): continue
+            cat = str(d.get('category') or '').strip().lower()
+            if cat in ('entertaining', 'most entertaining') or ENTERTAINING.search(text): g, name = 'entertaining', MEASURE['entertaining'][1]
+            elif is_page(d.get('id')): g, name = f'p{d["id"]}', strip_period(text)
+            else: g, name = 't-' + IT.slug(text, 8), strip_period(text)
+            out.setdefault(g, (name, []))[1].append((mp, d))
+    return out
+
+def comp_ranks(vals):
+    """Competition ranks, highest first: two works with the same value share a rank, so a tie never reads as an
+    order."""
+    return [1 + sum(1 for w in vals if w > v + 1e-9) for v in vals]
+
+def bears_line(c, mp, prefix='p/', n=44):
+    rows = work_beliefs(c, mp)
+    return '; '.join(f'{side} <a href="{prefix}{c.href(u)}">{esc(c.short(u, n))}</a>' for u, side in rows)
+
+def work_note(c, mp, prefix='p/'):
     """One line under a work: its kind and the belief it bears on most, so a list of titles says what each is for."""
     rows = work_beliefs(c, mp); kind = c.specs[mp].get('typ') or 'Work'
     if not rows: return esc(kind)
     u, side = rows[0]
-    return f'{esc(kind)} · {side} <a href="p/{c.href(u)}">{esc(strip_period(c.short(u, 60)))}</a>' + (f' and {len(rows) - 1} more' if len(rows) > 1 else '')
+    return f'{esc(kind)} · {side} <a href="{prefix}{c.href(u)}">{esc(strip_period(c.short(u, 60)))}</a>' + (f' and {len(rows) - 1} more' if len(rows) > 1 else '')
+
+def measure_cell(key, v):
+    if v is None: return 'none yet'
+    if key == 'cited': return str(v)
+    return sf(v) if key == 'accurate' else f2(v)
+
+def works_table(c, ps, key, note=None, prefix='p/', mini_=True):
+    """A ranked list of works under one yardstick, with competition ranks. The number column links to what the
+    yardstick means; anything longer than a number goes under the title."""
+    vals = [work_value(c, mp, key) for mp in ps]
+    order = sorted(range(len(ps)), key=lambda i: (-(vals[i] if vals[i] is not None else -9), c.standalone(ps[i]).lower()))
+    ranks = comp_ranks([vals[i] if vals[i] is not None else -9 for i in order])
+    _, name, col, *_ = MEASURE[key]
+    o = [f'<table class="scored{" mini" if mini_ else ""}"><thead><tr><th class="rk">#</th><th>Work</th><th><a href="lists.html#works-{key}">{esc(col)}</a></th></tr></thead><tbody>']
+    for r, i in zip(ranks, order):
+        mp = ps[i]
+        under = f'<div class="src">{note(mp)}</div>' if note else ''
+        o.append(f'<tr><td class="rk">{r}</td><td class="t"><a href="{prefix}{c.href(mp)}">{esc(c.standalone(mp))}</a>{under}</td><td class="sc">{measure_cell(key, vals[i])}</td></tr>')
+    return ''.join(o) + '</tbody></table>'
+
+def typed_table(c, rows, prefix='p/'):
+    """The works carrying a typed yardstick, with each reading. Readings are ranked only when every one of them
+    is a number; words are listed by title, because two sentences cannot be put in order without someone
+    arguing which is higher."""
+    nums = [first_number(d.get('latest')) for _, d in rows]
+    ranked = bool(rows) and all(n is not None for n in nums)
+    idx = sorted(range(len(rows)), key=lambda i: ((-nums[i]) if ranked else 0, c.standalone(rows[i][0]).lower()))
+    ranks = comp_ranks([nums[i] for i in idx]) if ranked else None
+    o = ['<table class="scored mini"><thead><tr>' + ('<th class="rk">#</th>' if ranked else '') + '<th>Work</th><th>Latest reading</th></tr></thead><tbody>']
+    for j, i in enumerate(idx):
+        mp, d = rows[i]
+        how = f'<div class="src">Measured by: {esc(d.get("method"))}</div>' if d.get('method') else ''
+        reading = esc(d.get('latest') or '') or '<span class="empty">not read yet</span>'
+        o.append('<tr>' + (f'<td class="rk">{ranks[j]}</td>' if ranked else '') + f'<td class="t"><a href="{prefix}{c.href(mp)}">{esc(c.standalone(mp))}</a>{how}</td><td class="u">{reading}</td></tr>')
+    note = '' if ranked else '<p class="cap">Listed by title: the readings are words, not numbers, so nothing puts them in order yet.</p>'
+    return ''.join(o) + '</tbody></table>' + note
+
+def plural_kind(heading):
+    return heading.replace('Best ', '').replace('Other works', 'works')
+
+def kind_section(c, k, heading, ps, crit):
+    """One kind of work: a short ranked list under every yardstick that tells these works apart, one line naming
+    the yardsticks that do not yet, and every work of the kind by title with all its numbers."""
+    things = plural_kind(heading)
+    one = things[:-3] + 'y' if things.endswith('ies') else things[:-1]
+    o = [f'<section><h2 id="{kind_anchor(k)}"><span>{esc(heading)}</span><span class="n">{len(ps)} work{"s" if len(ps) != 1 else ""}</span></h2>']
+    cards, flat, empty = [], [], []
+    for key, name, col, how, q, src in WORK_MEASURES:
+        title = f'<h3><a href="lists.html#works-{key}">{esc(name)}</a></h3><p class="cap">{esc(q)}</p>'
+        if how == 'typed':
+            rows = [(mp, d) for mp, d in crit.get(key, ('', []))[1] if mp in ps]
+            if rows: cards.append(f'<div class="yard">{title}{typed_table(c, rows)}</div>')
+            else: empty.append(name)
+            continue
+        vals = [work_value(c, mp, key) for mp in ps]
+        got = [v for v in vals if v is not None]
+        if len({round(v, 4) for v in got}) > 1:
+            cards.append(f'<div class="yard">{title}{works_table(c, ps, key)}</div>')
+        elif got: flat.append((name, measure_cell(key, got[0])))
+        else: empty.append(name)
+    for g, (name, rows) in sorted(crit.items()):
+        if g == 'entertaining': continue
+        rows = [(mp, d) for mp, d in rows if mp in ps]
+        if rows: cards.append(f'<div class="yard"><h3><a href="lists.html#works-proposed">{esc(name)}</a></h3><p class="cap">Proposed on a work&apos;s page as a yardstick for a great {esc(one)}.</p>{typed_table(c, rows)}</div>')
+    if cards: o.append('<div class="yards">' + ''.join(cards) + '</div>')
+    lines = []
+    if flat:
+        lines.append(f'Not ranked yet, because every {esc(one)} reads the same: ' + '; '.join(f'<a href="lists.html#works-{_measure_key(n)}">{esc(n.lower())}</a> (all {v})' for n, v in flat)
+                     + '. Nobody has argued one of them up or down yet, so a numbered order here would be made up.')
+    if empty:
+        lines.append(f'No {esc(one)} has a reading yet for ' + ', '.join(f'<a href="lists.html#works-{_measure_key(n)}">{esc(n.lower())}</a>' for n in empty)
+                     + ': nobody has proposed a way to measure it. Propose one with the form at the foot of this page.')
+    o += [f'<p class="cap">{x}</p>' for x in lines]
+    o.append(f'<h3 class="sub">Every {esc(one)}, by title</h3>')
+    heads = ''.join(f'<th><a href="lists.html#works-{key}">{esc(col)}</a></th>' for key, name, col, how, *_ in WORK_MEASURES if how != 'typed')
+    o.append(f'<table class="scored whole"><thead><tr><th>Work</th>{heads}</tr></thead><tbody>')
+    for mp in ps:
+        shows = f'<div class="src">What it shows: {esc(strip_period(c.specs[mp]["bridge"]))}.</div>' if c.specs[mp].get('bridge') else ''
+        on = bears_line(c, mp)
+        on = f'<div class="src">{on[0].upper() + on[1:]}</div>' if on else ''
+        cells = ''.join(f'<td>{measure_cell(key, work_value(c, mp, key))}</td>' for key, name, col, how, *_ in WORK_MEASURES if how != 'typed')
+        o.append(f'<tr><td class="t"><a href="p/{c.href(mp)}">{esc(c.standalone(mp))}</a>{shows}{on}</td>{cells}</tr>')
+    o.append('</tbody></table></section>')
+    return ''.join(o)
+
+def _measure_key(name):
+    return next(k for k, n, *_ in WORK_MEASURES if n == name)
+
+def home_measure(c, works):
+    """The first computed yardstick that tells the works apart, for the home card; None when none does yet."""
+    for key, name, col, how, *_ in WORK_MEASURES:
+        if how == 'typed': continue
+        got = {round(v, 4) for v in (work_value(c, mp, key) for mp in works) if v is not None}
+        if len(got) > 1: return key
+    return None
+
+def best_works(c, limit):
+    """The home card: the top works of any kind under the first yardstick that tells them apart, or every work by
+    title when none does yet."""
+    works = [p for p in c.specs if c.kind(p) == 'media']
+    key = home_measure(c, works)
+    if key is None: return sorted(works, key=lambda m: (c.standalone(m).lower(), m))[:limit]
+    return sorted(works, key=lambda m: (-(work_value(c, m, key) if work_value(c, m, key) is not None else -9), c.standalone(m).lower(), m))[:limit]
 
 def render_media_index(c, title):
-    """Every work cited anywhere, by kind, each kind ranked by how much it moved the pages here. Best is a
-    yardstick, and the yardstick is open: see EXPLAIN['works']."""
+    """Every work cited anywhere, by kind, each kind ranked under every yardstick for best that the tables can
+    answer. Best is the default (a work is on the shelf until shown otherwise), and the yardstick is open: each
+    one is explained on lists.html, and a reader can propose another on any work's page."""
     o = [root_head('Best books, studies and reports', [('Home', 'index.html'), ('Best books, studies and reports', '')], main_class='index')]
-    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Best books, studies and reports</h1>')
-    o.append('<p class="lede">Every work cited on a belief page, by kind. Best, so far, means the works that moved these pages the most: a work earns its place by what it changes. Whether it deserved to is its quality, argued on its own page and shown beside it, because a widely read work that is wrong and an unread work that is right are different problems. What best ought to mean (most important, most accurate, most entertaining) is a yardstick anyone can propose and argue, like every other criterion here.</p>')
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Best books, studies and reports</h1>')
+    o.append('<p class="lede">Every work cited on a belief page here counts as one of the best on its question until somebody shows otherwise. '
+             'A work moves down only when an argument on its own page moves it, and it is never taken off the shelf. '
+             'Best by what, though, is a question of its own: the most accurate work on a question, the most important one and the most entertaining one '
+             'are often three different works, and which of those should count for most is argued like everything else here. '
+             'So each kind of work is ranked under every yardstick the site can work out, and a yardstick nobody can measure yet is named and left empty.</p>')
     o.append(EXPLAIN_BLOCK['works'])
     groups = works_by_kind(c)
+    crit = work_criteria(c)
+    allw = [mp for _, _, ps in groups for mp in ps]
+    # the yardsticks themselves, before any list ranked by them
+    o.append('<section id="yardsticks"><h2><span>What best can mean</span></h2>')
+    o.append('<table class="scored whole"><thead><tr><th>Yardstick, and what it is worked out from</th><th>So far</th></tr></thead><tbody>')
+    for key, name, col, how, q, src in WORK_MEASURES:
+        if how == 'typed':
+            n = len({mp for mp, _ in crit.get(key, ('', []))[1]})
+            now = f'read for {n} work{"s" if n != 1 else ""}' if n else 'nobody has proposed a way to measure it yet'
+        else:
+            got = [v for v in (work_value(c, mp, key) for mp in allw) if v is not None]
+            spread = len({round(v, 4) for v in got})
+            now = (f'tells works apart ({spread} different values)' if spread > 1 else
+                   (f'every work reads {measure_cell(key, got[0])} until someone argues one' if got else 'no work has a value yet'))
+        o.append(f'<tr><td class="t"><a href="lists.html#works-{key}">{esc(name)}</a>: {esc(q)}<div class="src">Worked out from {esc(src)}.</div></td><td class="u">{esc(now)}</td></tr>')
+    for g, (name, rows) in sorted(crit.items()):
+        if g == 'entertaining': continue
+        n = len({mp for mp, _ in rows})
+        o.append(f'<tr><td class="t"><a href="lists.html#works-proposed">{esc(name)}</a><div class="src">Proposed by a reader; worked out from the readings typed on each work&apos;s page.</div></td><td class="u">read for {n} work{"s" if n != 1 else ""}</td></tr>')
+    o.append('</tbody></table>')
+    o.append('<p class="cap">Each yardstick links to what it measures, how it is worked out and why it is tracked. '
+             'A yardstick is itself a claim: one that cannot tell a great work from a poor one should lose to one that can. '
+             '<a href="#propose">Propose another</a>.</p></section>')
     for k, heading, ps in groups:
-        o.append(f'<section><h2 id="{(k or "other").lower()}"><span>{esc(heading)}</span><span class="n">{len(ps)} work{"s" if len(ps) != 1 else ""}</span></h2>')
-        o.append('<table class="scored"><thead><tr><th class="rk">#</th><th>Work</th><th>Quality</th><th>Impact</th><th>Bears on</th></tr></thead><tbody>')
-        for i, mp in enumerate(ps, 1):
-            st = c.stats(mp); rows = work_beliefs(c, mp)
-            on = '; '.join(f'{side} <a href="p/{c.href(u)}">{esc(c.short(u, 44))}</a>' for u, side in rows)
-            shows = f'<div class="src">What it shows: {esc(strip_period(c.specs[mp]["bridge"]))}.</div>' if c.specs[mp].get('bridge') else ''
-            o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(mp)}">{esc(c.standalone(mp))}</a>{shows}</td>'
-                     f'<td>{f2(st["truth"])}</td><td class="sc">{f2(st.get("impact") or 0)}</td><td class="u">{on}</td></tr>')
-        o.append('</tbody></table></section>')
+        o.append(kind_section(c, k, heading, ps, crit))
     if not groups: o.append('<p class="empty">No work has a page yet.</p>')
-    o.append(take_part_foot('a book, study or film is added on the page of the belief it bears on, under Media Resources; reasons about its quality and its reach go on the work\'s own page.'))
-    o.append(stamp(c) + FOOT)
-    return ''.join(o)
+    # taking part: a yardstick is filed on a work's page, as one of its Objective Criteria; a work is filed on the
+    # page of the belief it bears on, under Media Resources. The two forms pick that page from a list.
+    o.append('<section id="propose"><h2><span>Propose a yardstick or a work</span></h2>')
+    o.append(f'<p class="take" id="take-part"><strong>Add to this list.</strong> Pick the work or the belief from the list in the form. Submitting opens a prefilled '
+             f'GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE} Without an account, the Copy as text '
+             'button under each form puts your submission on the clipboard so you can send it another way.</p>')
+    forms = []
+    if allw:
+        forms.append(add_form('', 'criterion', 'agree', None, choose=[(c.key[mp], c.short(mp, 70)) for mp in sorted(allw, key=lambda m: c.standalone(m).lower())],
+                              choose_label='The work to read it on first',
+                              override={'label': 'Propose a yardstick for best', 'hint': 'What makes a work best, as a measurement people who disagree would accept in advance',
+                                        'source': 'How it is measured, and the reading for this work if you have it (optional)'}))
+    bs = sorted(c.beliefs, key=lambda b: c.standalone(b).lower())
+    if bs:
+        forms.append(add_form('', 'media', 'agree', None, choose=[(c.key[b], c.short(b, 70)) for b in bs], choose_label='The belief it bears on',
+                              override={'label': 'Propose a book, study or film'}))
+    o.append('<div class="forms wide">' + ''.join(forms) + '</div></section>')
+    o.append(take_part_foot('a book, study or film is added on the page of the belief it bears on, under Media Resources; reasons about how well it is made and whether it changed anything go on the work\'s own page, and so does a yardstick, under Objective Criteria.'))
+    o.append(stamp(c) + contribute_script('') + FOOT)
+    return collapse_tables(''.join(o))
 
 CSS = r'''
 :root{--ink:#1b2130;--ink2:#4a5468;--mute:#656f81;--ground:#f5f7f9;--paper:#ffffff;--line:#d9dee7;--navy:#1f3864;--navy2:#2f4f86;--head:#f0f3f6;--agree:#e9f7ea;--agree-ink:#2e6f40;--dis:#fbeaea;--dis-ink:#a23b3b;--const:#666f7e;--tile:#eef2f7;--serif:"Source Serif 4",Georgia,"Times New Roman",serif;--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -2539,7 +3019,8 @@ table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl
 .add button:hover{background:var(--navy2);border-color:var(--navy2)}.add button:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
 .add .dup{margin:8px 0 0;font-size:13px}.add .dup:empty{display:none}.add .dup ul{margin:4px 0 0;padding-left:18px}.add .dup li{margin:3px 0}
 .add .fine{margin:8px 0 0}.add .est{display:flex;gap:6px}.add .est input{min-width:0;flex:1}.side .add{margin-top:10px}
-.forms{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:12px}.forms .add{margin:0}
+.forms{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:12px}.forms .add{margin:0}.forms.wide{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.yards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px;margin:6px 0 12px}.yard{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 14px;min-width:0}.yard h3{background:var(--head);margin:0 0 4px}.yard h3 a{border:none}.yard .cap{margin:0 0 6px}
 .take{font-size:13.5px;color:var(--ink2);border-left:3px solid var(--navy);padding:6px 10px;margin:10px 0}
 .votes .vl{color:var(--mute);font-weight:400}td .votes+.votes{margin-top:2px}.add button.copy{background:var(--paper);color:var(--navy);margin-left:6px}
 .votes{display:inline-block;vertical-align:middle;margin-left:.3em;font:500 .5em/1 var(--sans);white-space:normal}
