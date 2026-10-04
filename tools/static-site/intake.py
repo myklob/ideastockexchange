@@ -15,8 +15,13 @@ The page checks as the reader types, with a port of the same measure, and this c
 and is counted as the submitter's vote for it; if that claim is not yet a row on the page it was submitted to,
 a pull request adds just that row, so the placement the reader proposed is kept. Between FLAG and MERGE the rows
 are added and the maintainer is shown the near matches to decide. A vote never moves a score; it is recorded in
-content/votes.csv, one row per (page, login), latest wins, and the site shows it next to the analysis as what
-people think.
+content/votes.csv, one row per (page, on, login), latest wins, and the site shows it next to the analysis as what
+people think. `on` is empty for a vote on whether a claim is true, and is the page a row sits on for a vote on
+whether that row bears on that page, which is a vote on the argument as an argument rather than on its claim.
+
+Every row a submission adds says who added it and when (`added_by`, `added`) and, for a source, where it can be
+read and the day it was checked (`url`, `checked`), as named fields in the row's extra cell, so the exports
+carry them and the page shows them under the row.
 
 Nothing here runs gh or git directly. Every command goes through a runner that a test replaces and that
 --dry-run replaces with print, so the whole flow can be exercised without a token or a repository.
@@ -32,7 +37,8 @@ from similarity import FLAG, MERGE, words, grams, idf, wjaccard
 
 CONTENT = os.path.join(HERE, 'content')
 WORKBOOK = os.path.join(HERE, 'ISE_Data_Entry.xlsx')
-VOTE_COLS = ['key', 'login', 'vote', 'issue', 'date']
+# `on` is last so a votes.csv written before it existed is still the same table with one column fewer
+VOTE_COLS = ['key', 'login', 'vote', 'issue', 'date', 'on']
 SITE = 'https://myklob.github.io/ideastockexchange/beliefs/'
 REPO = 'https://github.com/myklob/ideastockexchange'
 DEFAULT_BRANCH = 'master'
@@ -58,14 +64,17 @@ KEY_WORDS = 5
 # field label as GitHub renders it -> field id, per form; the labels are the contract in the brief
 FIELDS = {
     'contribution': {'Page': 'page', 'Section': 'section', 'Side': 'side', 'The claim': 'text', 'Category': 'category',
-                     'Source': 'source', 'URL': 'url', 'Date checked': 'date', 'Why it bears on the page': 'why'},
+                     'Source': 'source', 'URL': 'url', 'Date checked': 'date', 'Estimate': 'magnitude', 'Low end': 'mag_low',
+                     'High end': 'mag_high', 'Units': 'units', 'Who gains or pays': 'who', 'Why it bears on the page': 'why'},
     'belief': {'The belief': 'text', 'Topic': 'topic', 'A reason to agree': 'agree',
                'A reason to disagree': 'disagree', 'Source': 'source'},
-    'vote': {'Page': 'page', 'Vote': 'vote', 'Why': 'why'},
+    'vote': {'Page': 'page', 'Vote': 'vote', 'On page': 'on', 'Why': 'why'},
 }
 # the headings a form renders even when left empty; a form read back by its headings alone need not carry them
 OPTIONAL = {'Source', 'URL', 'Date checked', 'Category', 'Why it bears on the page', 'Topic', 'A reason to agree',
-            'A reason to disagree', 'Why'}
+            'A reason to disagree', 'Why', 'On page', 'Estimate', 'Low end', 'High end', 'Units', 'Who gains or pays'}
+# the estimate a cost or benefit form takes, field id -> edges column; each is copied only when it is a number
+ESTIMATE = (('magnitude', 'magnitude'), ('mag_low', 'mag_low'), ('mag_high', 'mag_high'))
 # one heading that only that form carries, for an issue whose label did not stick
 SIGNATURE = {'contribution': 'The claim', 'belief': 'The belief', 'vote': 'Vote'}
 THING = {'argument': 'reason', 'evidence': 'finding', 'prediction': 'prediction', 'criterion': 'criterion',
@@ -193,12 +202,75 @@ class Tables:
 
 
 def source_text(f):
-    """The source as one cell, the way every existing row carries it: what was typed, then the address, then the
-    date it was checked, as "title, producer, year, URL (checked date)". A structured source stays one cell."""
+    """The source as one line, for the one place that has no structured fields to put the address in: a new
+    work's "where to find it" on its own page, as "title, producer, year, URL (checked date)". A row keeps the
+    three apart (see provenance)."""
     parts = [x for x in (f.get('source', ''), f.get('url', '')) if x]
     out = ', '.join(parts)
     if f.get('date'): out = (out + ' ' if out else '') + f'(checked {f["date"]})'
     return out
+
+
+def _cell(v):
+    """A value written into the extra cell, which separates fields with a bar."""
+    return str(v).replace('|', '%7C').strip()
+
+
+def provenance(sub):
+    """Who added a row and when, and where its source can be read and the day it was checked: named fields of the
+    row's extra cell, so they ride along in every export and the page can show them under the row."""
+    f = sub['fields']
+    out = {}
+    if f.get('url'): out['url'] = _cell(f['url'])
+    if f.get('date'): out['checked'] = _cell(f['date'])
+    out['added_by'] = _cell(sub['login'])
+    out['added'] = sub['date']
+    return out
+
+
+def stamp(e, sub):
+    """The row with its provenance added to whatever its extra cell already carries."""
+    x = IT.parse_extra(e.get('extra'))
+    x.update(provenance(sub))
+    e['extra'] = IT.fmt_extra(x)
+    return e
+
+
+def _number(v):
+    try: x = float(str(v).replace(',', '').strip())
+    except ValueError: return None
+    return x if math.isfinite(x) else None
+
+
+def estimate(f, tables):
+    """A cost or benefit's estimate as the reader typed it: ({column: value}, notes). A number is copied onto the
+    row only when it is one; the units become the row's category, the column the page reads them from; who
+    gains or pays becomes the row's interest when it names an interest page by key or by its exact words."""
+    cols, notes = {}, []
+    for fid, col in ESTIMATE:
+        raw = (f.get(fid) or '').strip()
+        if not raw: continue
+        x = _number(raw)
+        if x is None: notes.append(f'The {col.replace("mag_", "").replace("magnitude", "estimate")} typed, {raw!r}, is not a number, so it was not copied.'); continue
+        if x < 0: notes.append(f'{raw} was typed as negative; magnitudes are written positive and the side says whether it is a cost.')
+        x = abs(x)
+        cols[col] = int(x) if x == int(x) else x
+    lo, hi, mid = cols.get('mag_low'), cols.get('mag_high'), cols.get('magnitude')
+    if lo is not None and hi is not None and lo > hi:
+        notes.append(f'The low end ({lo}) is above the high end ({hi}), so the range was not copied.')
+        cols.pop('mag_low'); cols.pop('mag_high')
+    elif mid is not None and ((lo is not None and mid < lo) or (hi is not None and mid > hi)):
+        notes.append('The estimate falls outside the range typed with it; check which is meant before merging.')
+    if f.get('units'): cols['category'] = f['units'].strip()
+    who = (f.get('who') or '').strip()
+    if who:
+        hit = next((p['key'] for p in tables.pages if p.get('kind') == 'interest'
+                    and (p['key'] == who or (p.get('text') or '').strip().lower() == who.lower())), None)
+        if hit: cols['who'] = hit
+        else: notes.append(f'Who gains or pays, in the submitter\'s words: {who}. No interest page says exactly that, so the row names none yet.')
+    if cols.get('magnitude') is not None and not f.get('units'):
+        notes.append('An estimate was typed with no units, so it cannot be priced until the units are filled in.')
+    return cols, notes
 
 
 def check_contribution(f, tables):
@@ -259,7 +331,8 @@ def page_row(f, tables, claim=None):
         while kind in taken: n += 1; kind = f'Open question {n}'
         e['text'] = kind
         e['extra'] = IT.fmt_extra({k: v for k, v in (('what', text), ('move', source)) if v})
-    elif section in ('evidence', 'law', 'person', 'falsify', 'media') and source_text(f): e['source'] = source_text(f)
+    elif section in ('evidence', 'law', 'person', 'falsify', 'media') and source: e['source'] = source
+    elif section == 'cba': e.update(estimate(f, tables)[0])
     elif section == 'prediction' and source: e['deadline'] = source
     elif section == 'criterion' and source: e['extra'] = IT.fmt_extra({'method': source})
     elif section == 'shared_interest' and source: e['extra'] = IT.fmt_extra({'direction': source})
@@ -284,7 +357,7 @@ def new_page(f, tables, key):
 
 NOTES = {
     'evidence': 'The finding has no evidence type yet, so it starts at a coin flip until one is filled in.',
-    'cba': 'No magnitude, units or interest are filled in: the estimate is the maintainer\'s to make.',
+    'cba': 'No estimate was typed, so the row is unpriced until somebody states one with its units and range.',
     'component': 'Type, whether it is stated, and whether it is load-bearing are left for the maintainer to mark.',
     'dispute': 'The kind of dispute (Empirical, Definitional, Causal, Values) is left for the maintainer; it is filed as an open question.',
     'media': 'The kind of work (Book, Study, Report, Article, Film) is left for the maintainer to type on the new page.',
@@ -305,19 +378,24 @@ def rows_for(sub, tables):
     if form == 'contribution':
         section, text = f['section'], f['text']
         if check_contribution(f, tables):
-            edges.append(topic_row(f))
+            edges.append(stamp(topic_row(f), sub))
             notes.append('Typed as words in the cell; it becomes a page once a belief is filed for it.')
         elif section in TEXT_ONLY:
-            edges.append(page_row(f, tables))
+            edges.append(stamp(page_row(f, tables), sub))
         else:
             key = tables.new_key(text)
             pages.append(new_page(f, tables, key))
-            edges.append(page_row(f, tables, key))
-        if section in NOTES: notes.append(NOTES[section])
+            edges.append(stamp(page_row(f, tables, key), sub))
+        if section == 'cba':
+            cols, said = estimate(f, tables)
+            notes += said
+            if 'magnitude' in cols: notes.append('The estimate is the submitter\'s, in the units they gave; check it before merging, because it is the one typed number the page multiplies.')
+            else: notes.append(NOTES['cba'])
+        elif section in NOTES: notes.append(NOTES[section])
         if f['why']: notes.append('Why it bears on the page, in the submitter\'s words: ' + f['why'])
         carried = section in ('evidence', 'prediction', 'criterion', 'law', 'person', 'falsify', 'media', 'value', 'definition', 'dispute',
                               'shared_interest', 'compromise', 'motive', 'engagement', 'criteria')
-        if source_text(f) and not carried: notes.append('Source given: ' + source_text(f))
+        if f.get('source') and not carried: notes.append('Source given: ' + f['source'])
     elif form == 'belief':
         text = f['text']
         if not text: raise IntakeError('the belief is empty')
@@ -336,7 +414,7 @@ def rows_for(sub, tables):
             r = {'key': rk, 'kind': 'claim', 'text': reason, 'parent': key}
             if topic: r['topic'] = topic
             pages.append(r)
-            edges.append({'page': key, 'section': 'argument', 'side': side, 'claim': rk})
+            edges.append(stamp({'page': key, 'section': 'argument', 'side': side, 'claim': rk}, sub))
         if f['source']: notes.append('Source given: ' + f['source'])
     else:
         raise IntakeError('a vote adds no rows')
@@ -355,7 +433,7 @@ def place_existing(sub, tables, hit):
     have = 'claim' if hit['kind'] in ('belief', 'claim') else hit['kind']
     if want != have or hit['key'] == page: return None
     if tables.on_page(page, hit['key'], section if topic else None): return None
-    return topic_row(f, claim=hit['key']) if topic else page_row(f, tables, claim=hit['key'])
+    return stamp(topic_row(f, claim=hit['key']) if topic else page_row(f, tables, claim=hit['key']), sub)
 
 
 # ------------------------------------------------------------------------------------------- votes
@@ -369,13 +447,15 @@ def write_votes(path, rows):
     with open(path, 'w', newline='', encoding='utf-8') as fh:
         w = csv.DictWriter(fh, fieldnames=VOTE_COLS, lineterminator='\n')
         w.writeheader()
-        for r in sorted(rows, key=lambda r: (r['key'], r['login'])): w.writerow({c: r.get(c, '') for c in VOTE_COLS})
+        for r in sorted(rows, key=lambda r: (r['key'], r.get('on', ''), r['login'])): w.writerow({c: r.get(c, '') for c in VOTE_COLS})
 
 
-def record_vote(rows, key, login, vote, issue, date):
-    """One row per (key, login), latest wins: the new row replaces whatever that login said before."""
-    kept = [r for r in rows if not (r['key'] == key and r['login'] == login)]
-    kept.append({'key': key, 'login': login, 'vote': vote, 'issue': str(issue), 'date': date})
+def record_vote(rows, key, login, vote, issue, date, on=''):
+    """One row per (key, on, login), latest wins: the new row replaces whatever that login said before about the
+    same question. A vote on whether a claim is true and a vote on whether it bears on one page are different
+    questions, so neither replaces the other."""
+    kept = [r for r in rows if not (r['key'] == key and r['login'] == login and r.get('on', '') == on)]
+    kept.append({'key': key, 'login': login, 'vote': vote, 'issue': str(issue), 'date': date, 'on': on})
     return kept
 
 
@@ -523,31 +603,44 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
     votes_path = os.path.join(content, 'votes.csv')
     n, login = sub['number'], sub['login']
 
-    def vote_for(key, vote, why):
+    def vote_for(key, vote, why, on=''):
         def apply():
-            write_votes(votes_path, record_vote(read_votes(votes_path), key, login, vote, n, sub['date']))
+            write_votes(votes_path, record_vote(read_votes(votes_path), key, login, vote, n, sub['date'], on))
         apply()
         git.identity()
-        git.push_master([votes_path], f'Record a vote from #{n}: {login} {vote}s with {key}', apply)
-        git.comment(n, f'Counted: your vote to {vote} with [{tables.by_key[key].get("text") or key}]({page_link(key)}). '
-                       f'{why} {NO_MOVE}')
+        name = lambda k: f'[{tables.by_key[k].get("text") or k}]({page_link(k)})'
+        if on:
+            git.push_master([votes_path], f'Record a vote from #{n}: {login} says {key} {"bears" if vote == "agree" else "does not bear"} on {on}', apply)
+            git.comment(n, f'Counted: your vote that {name(key)} {"bears" if vote == "agree" else "does not bear"} on {name(on)}. '
+                           f'This is a vote on the argument as an argument, not on whether its claim is true. {why} {NO_MOVE}')
+        else:
+            git.push_master([votes_path], f'Record a vote from #{n}: {login} {vote}s with {key}', apply)
+            git.comment(n, f'Counted: your vote to {vote} with {name(key)}. {why} {NO_MOVE}')
 
     if sub['form'] == 'vote':
-        key, vote = sub['fields']['page'], sub['fields']['vote']
+        key, vote, on = sub['fields']['page'], sub['fields']['vote'], sub['fields'].get('on', '')
         if vote not in SIDES: raise IntakeError(f'vote must be agree or disagree, not {vote!r}')
-        if not tables.has(key):
-            git.comment(n, f'There is no page with the key `{key}`, so nothing was counted. Check the address of the page and open a new vote.')
+        for k in (key, on):
+            if k and not tables.has(k):
+                git.comment(n, f'There is no page with the key `{k}`, so nothing was counted. Check the address of the page and open a new vote.')
+                git.close(n, 'not planned')
+                return {'did': 'nothing', 'why': 'unknown page'}
+        if on and not tables.on_page(on, key):
+            git.comment(n, f'`{key}` is not a row on `{on}`, so there is no argument there to vote on, and nothing was counted. '
+                           f'To put it there, add it on that page with the form under the table it belongs in.')
             git.close(n, 'not planned')
-            return {'did': 'nothing', 'why': 'unknown page'}
+            return {'did': 'nothing', 'why': 'not a row there'}
         said = sub['fields']['why']
         why = 'Latest vote per person counts, so voting again replaces this one.'
         if said:
             # the reason is read back, not thrown away: quoted, with the form it would carry weight in
+            where = (f'add it as a reason on the page it sits on, where it can carry weight: {page_link(on)}#take-part' if on else
+                     f'add it as a reason to {vote} on the page, where it can carry weight: {page_link(key)}#add-argument-{vote}')
             why += (f'\n\nYou wrote: "{said}"\n\nA vote is a count; a reason is a claim that can be argued and scored. If that is a '
-                    f'claim of its own, add it as a reason to {vote} on the page, where it can carry weight: {page_link(key)}#add-argument-{vote}')
-        vote_for(key, vote, why)
+                    f'claim of its own, {where}')
+        vote_for(key, vote, why, on)
         git.close(n)
-        return {'did': 'vote', 'key': key, 'vote': vote}
+        return {'did': 'vote', 'key': key, 'vote': vote, 'on': on}
 
     text = sub['fields']['text']
     if not text: raise IntakeError('the submitted text is empty')
@@ -630,7 +723,7 @@ def main(argv=None):
     except IntakeError as e:
         print(f'::error::{e}')
         return 1
-    print(json.dumps({k: v for k, v in done.items() if k in ('did', 'key', 'vote', 'score', 'url', 'why')}))
+    print(json.dumps({k: v for k, v in done.items() if k in ('did', 'key', 'vote', 'on', 'score', 'url', 'why')}))
     return 0
 
 

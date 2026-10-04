@@ -93,6 +93,9 @@ EXTRA = {'component': ['type', 'stated', 'lb', 'assumes'], 'motive': ['advertise
          'value': ['value', 'srank', 'orank', 'why'], 'definition': ['term', 'definition'],
          'dispute': ['what', 'move'], 'interest': ['value', 'measured'], 'media': ['type'],
          'criterion': ['method', 'validity', 'reliability', 'linkage', 'importance', 'strengthen', 'weaken', 'latest']}
+# what any row can carry about where it came from, in the same cell: the address its source can be read at, the
+# day that was checked, the login that added the row and the day it was added (intake writes all four)
+PROVENANCE = ['url', 'checked', 'added_by', 'added']
 STOP = {'the', 'a', 'an', 'of', 'to', 'in', 'on', 'and', 'or', 'that', 'is', 'are', 'be', 'would', 'should',
         'for', 'from', 'it', 'they', 'their', 'not', 'by', 'with', 'as', 'at', 'this'}
 
@@ -180,6 +183,7 @@ def specs_to_tables(specs, beliefs=None):
                         e[col] = v
                     ex = {f: d[f] for f in EXTRA.get(section, []) if d.get(f) not in (None, '')}
                     if section == 'interest': ex = {f: v for f, v in ex.items() if not is_page(d.get('id'))}
+                    ex.update({f: d[f] for f in PROVENANCE if d.get(f) not in (None, '')})
                     if ex: e['extra'] = fmt_extra(ex)
                     if any(e.get(c) not in (None, '') for c in EDGE_COLS[3:]): edges.append(e)
     return pages, edges
@@ -322,7 +326,8 @@ HELP = {
             'as exact.',
  'mag_high': 'cost and benefit rows: the high end of the estimate, in the same units.',
  'deadline': 'prediction rows: when and how it gets settled.',
- 'extra': 'Anything else the row carries, as "name: value | name: value".',
+ 'extra': 'Anything else the row carries, as "name: value | name: value". Any row may carry url (where its source '
+          'can be read), checked (the day that was checked), added_by (who added the row) and added (the day it was added).',
 }
 LISTS = {'etype': sorted(__import__('evidence').ESIW), 'kind': ['belief', 'claim', 'linkage', 'importance', 'interest', 'uniqueness', 'equivalence', 'driver', 'media'],
          'section': sorted(set(SECTIONS) | set(SPLIT) | set(TOPIC_SECTIONS)), 'side': ['agree', 'disagree', 'extreme', 'moderate', 'x', 'y'],
