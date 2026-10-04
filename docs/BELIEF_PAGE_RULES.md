@@ -153,7 +153,8 @@ Do not assign scores (Truth, Linkage, Importance, argument score, net score) to 
 - Never assign a confident-looking score to an argument that has no sub-arguments, no linked evidence, and no linkage evaluation.
 - Confidence and Uniqueness cells follow the same rule: blank until the engine computes them. The software carries them as optional fields and renders blank when absent.
 - Readout cells marked auto-derived (What the numbers are made of) are computed from the tables above them, never hand-picked.
-- A typed number is not a score and is not exempt. Prevalence in the interest tables and Dewey on the header line are typed by a person, not computed; each carries its source in the cell or in a parenthetical (`[share] ([survey or record, year])`, `Dewey [Number] (typed, with source: [Classification source])`), and a typed number without a source stays blank.
+- A typed number is not a score and is not exempt. Prevalence in the interest tables and the cost and benefit estimates are typed by a person, not computed; each carries its source in the cell or in a parenthetical (`[share] ([survey or record, year])`), and a typed number without a source stays blank.
+- Every typed input is labelled typed where it appears, and the page never says "nothing is typed". On a belief page the typed inputs are: the position on the topic axis, each finding's source type, replications and share agreeing, the four labels on each objective criterion, the supporters' and opponents' value ranks, the load-bearing flag on each component, the cost and benefit estimates and their ranges, and the bottom line. The Scoring Engine section lists them. The bottom line is the one sentence that is not computed: it is labelled "typed by the author", and where every row on the page scores 0 the page says so beside it.
 
 ---
 
@@ -174,7 +175,7 @@ ReasonRank performance of that row's own pro/con sub-debate. Tables sort by thei
 rank key, descending, highest-scoring content first, and the software shows each
 table's top five rows and collapses the rest until expanded. The rank key is the
 rightmost score column: **Impact** for arguments and evidence, **Expected Value**
-for costs and benefits, **Claim Strength** for the Primary Conflict Pair, and
+for costs and benefits, **Gap** for shared values, **Equiv** for similar beliefs, and
 **Score** everywhere else. Rows enter and rank only by how their sub-arguments
 perform, never by editorial placement.
 
@@ -203,8 +204,9 @@ anything, a row's position always traces to its score.
 - **Underscored [Bracketed_Tokens]** in the wiki template are machine-replaceable
   substitution slots: keep the underscores so a script can find them, but keep
   every word readable.
-- **An Importance of 100% is a default** meaning "not yet differentiated," never a
-  claim of maximal importance; differentiate it whenever the material supports it.
+- **An Importance of 0.50 is the default** meaning "not yet differentiated": the
+  neutral start (the published engine's `DEFIMP`), neither a penalty nor a claim of
+  importance; differentiate it whenever the material supports it.
 - **Delete empty scaffolding.** When publishing an instance of the template, drop
   any section that would ship with nothing but blank cells; a short correct page
   beats a long blank one. (The software equivalent: sections like People on the
@@ -238,16 +240,25 @@ published engine's row rule, adds the **Confidence** and **Uniqueness** columns 
 Argument Trees and the Evidence Ledger, adds **What Would Change the Answer** (the
 sensitivity sweep) after Decision Leverage, replaces the four evidence tiers with the
 engine's eighteen **Source types**, gives People on the Record a **Source** column,
-marks Prevalence and Dewey as typed with source, and moves the Scorecard to the back
+marks Prevalence as typed with source, and moves the Scorecard to the back
 as **What the numbers are made of**, after What This Page Needs Right Now, so that the
-heading line's single truth score is the only number above the arguments. The source
-of truth is `templates/belief-analysis-template.html`.
+heading line's single truth score is the only number above the arguments. The October
+2026 update brings the template and these rules to the shapes the published static site
+builds: Objective Criteria with four typed labels, predictions split by which way they
+follow, a Range column and Net by Category and Who Gains, Who Pays under the
+cost-benefit tables, a Gap column on shared values, interest tables of Validity x Drives,
+a computed Primary Conflict Pair line, Dispute Types with a Linkage row and the computed
+kind marked, media rows that are shown and not counted, and the built-site sections
+(Ways of Saying the Same Thing, Structural Checks, Scoring Engine, Cite This Page). The
+React page (`/beliefs/[slug]`) still renders the earlier shapes of sections 3, 4, 7a to 7d,
+7g and 8 and has not yet been migrated. The source of truth is
+`templates/belief-analysis-template.html`.
 
 Breadcrumb (`Home › Topics › Category › This Belief`), then the header: Belief
 statement, with the page's single truth score on the heading line (the only number
 above the arguments; blank until computed) → metadata line (Topic > Subcategory /
-Dewey (typed, with source) / Positivity / Related; the Net Belief Score lives in What
-the numbers are made of, not here) → "Beliefs this supports" line.
+Position on the topic axis (typed, not scored) / Used on: the page this belief is a
+row on; the Net Belief Score lives in What the numbers are made of, not here).
 No summary or background (Rule 2).
 When an open prediction-market contract exists on this belief's score, a one-line
 **market pointer** follows the header (an affordance, not a summary): it links the
@@ -290,7 +301,7 @@ feed it. Renders nothing when no open contract exists.
    Every option's score must trace to its own belief's tree, never a fabricated constant
    (Rule 6). Options rank by score descending, nulls last (Rule 8). Comparative arguments
    ("rival Y beats X") belong here, not in the con column.
-1c. **Decision Leverage** *(only when something is actually at stake)*: the argument
+1c. **Decision Leverage** *(software only; only when something is actually at stake)*: the argument
    table read sideways: which edge is worth settling next. One row per edge from the
    tree above (`Argument / Leverage / Weight / Open / What would settle it / Status`),
    ranked by Leverage descending. **Leverage** is the points of conclusion score still
@@ -350,8 +361,10 @@ feed it. Renders nothing when no open contract exists.
    claim, and, above half, that the score should be read as provisional. Engine-computed
    (`src/core/scoring/evidence-exposure.ts`); omitted when every row is established.
 3. **Objective Criteria** (`Criterion / Score / Validity / Reliability / Linkage / Importance /
-   Reading That Would Strengthen / Reading That Would Weaken / Latest Reading`), each criterion is
-   itself a belief with its own page, scored on the four dimensions. The Reading That Would Strengthen
+   Latest Reading`, with how it is measured, the Reading That Would Strengthen and the Reading That
+   Would Weaken printed under the criterion), each criterion is itself a belief with its own page,
+   and Score is that page's truth. Validity, Reliability, Linkage and Importance are labels typed by
+   the author, not computed, and nothing reads them; the page says so. The Reading That Would Strengthen
    and the Reading That Would Weaken must differ from each other: a criterion both sides expect to come
    out the same way tests nothing. Every page includes at least one **deliberately failing criterion**,
    scored low with its reasons, because a rubric with no failing example does not show readers where the
@@ -359,16 +372,27 @@ feed it. Renders nothing when no open contract exists.
    a sourced number.
 4. **Falsifiability Test** (`Evidence That Would Strengthen / Score / Evidence That
    Would Weaken / Score`, each row a realistic, bet-specific score-mover) +
-   **Testable Predictions** (`Prediction / Follows If / Timeframe / Verification
-   Method / Result So Far / Score`)
+   **Testable Predictions**, two tables, Follows If the Belief Is True and Follows If the
+   Belief Is False, each `Prediction / Result So Far / Confidence / Linkage / Importance /
+   Contribution / At Stake`, with the timeframe and how it is checked under the prediction.
+   At Stake = Confidence x Linkage x Importance x Uniqueness x (1 - |2 x Truth - 1|), what a
+   pending prediction would add once settled; the footnote says so, and says the share of
+   predictions that are dated with a linkage reading of 0.50 or more.
 5. **Logical Anatomy & Foundational Assumptions**: the belief's logical form
    (ANDs/ORs), the Component Claims table (`Component Claim / Type / Stated? /
-   If false, does the belief survive? / Unstated assumptions / Score`), then
-   Assumptions by Side (`Required to Accept / Score / Required to Reject / Score`)
+   Load Bearing (typed) / Truth / What it silently assumes`), whose footnote says the
+   load-bearing flag is typed, not argued, and that the product of load-bearing truths
+   is shown for comparison and read by nothing; then Assumptions by Side
+   (`Required to Accept / Score / Required to Reject / Score`)
 6. **Cost-Benefit Analysis**: Benefits table and Costs and Risks table, each
-   `Claim (links to its own page) / Category (Units) / Magnitude / Likelihood % /
-   Expected Value`, ranked by Expected Value with subtotals only within a category;
-   then **Short vs. Long-Term Impacts** (`Short-Term / Score / Long-Term / Score`)
+   `Claim (links to its own page; who gains or pays under it) / Category (Units) /
+   Magnitude / Range / Likelihood / Expected Value`, ranked by Expected Value with
+   subtotals only within a category. Magnitude and Range are typed; Likelihood is the
+   claim page's truth; a row with no range is marked. On the built site **Net by
+   Category** (`Units / Benefit Expected Value / Cost Expected Value / Net`) and **Who
+   Gains, Who Pays** (`Interest / Benefit Expected Value / Cost Expected Value / Net /
+   Units`) follow, both computed. Then **Short vs. Long-Term Impacts** (`Short-Term /
+   Score / Long-Term / Score`)
 7. **Conflict Resolution Framework**: opens with the **Pipeline readout**, computed
    from the scored rows below (never hand-authored): interests both sides actually
    share (cross-side similarity, both clearing the Resolution Floor), the primary
@@ -376,33 +400,49 @@ feed it. Renders nothing when no open contract exists.
    side), genuine value conflicts (shared values ranked far apart), and compromise
    candidates (cost/benefit items where a likelihood shift ≤ 15 points flips their
    category's net: the winnable disagreements).
-   - 7a. Shared Values, Different Rankings (`Value / Supporter Rank / Opponent Rank /
-     Why Rankings Differ / Score`, then a "What would shift these rankings?" row)
-   - 7b. Likely Interests of Supporters (`Interest / Prevalence (typed, with source) /
-     Linkage Confidence / Validity / Evidence Basis / Connected Value`, plus a
-     Pretextual/Low-validity row). Prevalence is typed by a person, not computed, so the
-     cell carries its source in a parenthetical, and a typed number without a source
-     stays blank (Rule 6).
+   - 7a. Shared Values, Different Rankings (`Value / Supporters Rank / Opponents Rank /
+     Gap / Why Rankings Differ`, then a "What would shift these rankings?" row). The two
+     ranks are typed by the author and say so; Gap is the only typed input to the
+     computed kind of dispute (7g).
+   - 7b. Likely Interests of Supporters (`Interest / Validity / Drives / Score / Value`,
+     plus a Pretextual/Low-validity row). Each interest is a need with a subject ("renters
+     need housing they can afford"), with what it is measured by and its Prevalence under
+     it. Validity is argued on the interest's own page by the mirror test; Drives is the
+     driver page, whether this need is really why the side holds its position (Linkage
+     Accuracy in the interest scoring methodology); Score = Validity x Drives. Prevalence
+     is typed by a person, not computed, so it carries its source in a parenthetical, and
+     a typed number without a source stays blank (Rule 6).
    - 7c. Likely Interests of Opponents (same columns, symmetric)
    - 7d. Shared and Conflicting Interests: Shared Interests table (`Shared Interest /
-     Validity / Compromise direction / Score`) + Primary Conflict Pair (`Interest in
-     the pair / Standalone Validity / Claim strength on THIS issue / What drives its
-     claim here`)
+     Validity / Compromise direction / Score`) + the **Primary Conflict Pair** line,
+     computed, never typed: the interest with the highest Validity x Drives on each side,
+     each with its two factors, and the share of the paired weight on the supporting side
    - 7e. Best Compromise Solutions (`Shared Premise / Proposed Synthesis / Why This Is
      Difficult / Score (interests satisfied)`)
    - 7f. Advertised vs. Actual Motivations (rows: Advertised reason / Actual driver /
      Evidence for divergence / Divergence Score, columns Supporters / Opponents)
-   - 7g. Dispute Types (Empirical / Definitional / Values, each with Score)
+   - 7g. Dispute Types (`Dispute Type / The Specific Disagreement / Evidence That Would
+     Move Both Sides`; rows Factual dispute, Definitional dispute, Values conflict, Linkage
+     dispute), the kind computed from the page's own tables marked "leading here", with a
+     footnote giving the computed kind and linking how it is worked out (evidence
+     two-sidedness, linkage leaning against relevance, value-ranking gap, a 0.1 margin;
+     otherwise a mixed dispute). A definitional dispute is not computed.
    - 7h. Primary Obstacles to Resolution (`Obstacles for Supporters / Score /
      Obstacles for Opponents / Score`)
    - 7i. Biases (`Affecting Supporters / Score / Affecting Opponents / Score`)
-8. **Media Resources** (two-sided: `Resource (Author, Year) / Type / Score`)
+8. **Media Resources** (two-sided: `Work (Author, Year) / Type / Bears / Quality / Influence /
+   Importance / Score`, Score = (2 x Quality - 1) x Bears x Influence x Importance). The rows
+   are **shown, not counted**: the belief score is arguments, evidence and predictions only,
+   because a book is a container for reasons rather than a reason.
 9. **Legal Framework** (`Supporting / Score / Complicating / Score`)
 10. **General to Specific Belief Mapping** (Upstream and Downstream, each
     `Support / Score / Oppose / Score`)
-11. **Similar Beliefs** (`More Extreme / Score / More Moderate / Score`, scored by
-    belief equivalency). Same-strength paraphrases (equivalency near 100%) render
+11. **Similar Beliefs** (`More Extreme / Equiv / More Moderate / Equiv`, Equiv the truth
+    of an equivalence page). Same-strength paraphrases (equivalency near 100%) render
     as prose merge candidates above the table, not as table rows.
+11a. **Ways of Saying the Same Thing** *(built site; renders only when an equivalence page
+    connects this belief to another wording)*: `Wording / Characters / Equiv / Verdict`; the
+    shortest wording whose equivalence scores at least 0.90 stands in where space is short.
 11b. **Where This Belief Is Used** *(renders only when the belief serves as a
     reason somewhere)*: what-links-here, every parent debate using this belief
     as a reason (`Used as a reason in / Side / Impact`), ranked by impact
@@ -436,8 +476,9 @@ feed it. Renders nothing when no open contract exists.
     score or verdict is announced before the arguments; the single truth score on
     the heading line is the only number above them. It is a readout of the scored
     content above, not a prose summary:
-    `Net Belief Score (Pro vs. Con)` / `Bottom line` (one-sentence verdict scoped to
-    what the tree supports) / `Strongest pro / con` (**auto-derived**: the top-ranked
+    `Net Belief Score (Pro vs. Con)` / `Bottom line (typed by the author)` (one sentence
+    scoped to what the tree supports; the one sentence not computed, flagged when every
+    row scores 0) / `Strongest pro / con` (**auto-derived**: the top-ranked
     row from each side of the Argument Trees) / `What would move this score most`
     (**auto-derived**: the top-scoring row of the Falsifiability Test) / `How a row
     counts` (the row rule from Rule 4, with the sentence that a claim nobody has argued
@@ -455,6 +496,15 @@ feed it. Renders nothing when no open contract exists.
     same thing are shown, and a near-identical one turns the submit button into
     a vote for the claim already here. A vote is shown as what people think,
     next to what the analysis says, and never moves a score.
+14c. **Structural Checks** *(built site; renders only when one fires)*: `Finding / How
+    serious / What it means`, the nine faults the shape of the argument can show (circular
+    support, assumes its own conclusion, the same page listed twice, rows that may be the
+    same point, rests only on authority, evidence filed above its premise, single-figure
+    costs, nothing that would show it false, one side argued). None moves a score;
+    fallacy pattern-matching is not done.
+14d. **Scoring Engine and Cite This Page** *(built site)*: `Quantity / Value / How`, every
+    value computed at build time, followed by the list of what an author typed on this
+    kind of page and a citation naming the revision the numbers came from.
 15. **Contribute / footer**: the three moves, stated and usable: a
     suggest-evidence form (queue-only; a suggestion becomes evidence only on
     acceptance, which runs the same validation as agent ingestion),
@@ -478,7 +528,7 @@ Before outputting any ISE belief page, verify:
 
 - [ ] No summary or background section at the top, and no readout before the arguments: the heading line's single truth score is the only number above them
 - [ ] Breadcrumb reads Home › Topics › Category › This Belief
-- [ ] Header has the metadata line (Topic > Subcategory / Dewey (typed, with source) / Positivity / Related) and "Beliefs this supports"; the Net Belief Score appears in What the numbers are made of, not the metadata line
+- [ ] Header has the metadata line (Topic > Subcategory / Position on the topic axis, typed / Used on); the Net Belief Score appears in What the numbers are made of, not the metadata line
 - [ ] Belief is stated in positive form so the page headlines the supported claim
 - [ ] The invitation block sits directly under the H1: hook, question, promise, and "If you disagree, this page has a column for you" naming one specific slot; it explains nothing about the topic
 - [ ] Objective Criteria has at least one deliberately failing criterion scored low with its reasons, and every Strengthen/Weaken pair differs
@@ -493,18 +543,18 @@ Before outputting any ISE belief page, verify:
 - [ ] Column headers are spelled out (Linkage, Importance, Confidence, Uniqueness, Standing, Source type), no abbreviations
 - [ ] All evidence lives in the Evidence Ledger as Finding (Producer, Year) with one of the eighteen Source types named and a Bears On target (an argument's opening words or "this belief")
 - [ ] Every evidence row shows its Standing, and the retraction-exposure line appears whenever points are at risk
-- [ ] Every table sorts by its rank key descending (Impact / Expected Value / Claim Strength / Score), unscored rows sink to the bottom, and the software shows the top five rows
-- [ ] Objective Criteria has Criterion / How to Measure / Reading That Would Strengthen / Reading That Would Weaken / Latest Reading / Score
-- [ ] Falsifiability Test rows are bet-specific score-movers with per-row Scores (plus the nothing-could-falsify note row); Testable Predictions include Follows If and Result So Far
-- [ ] Logical Anatomy decomposes the belief (logical form + typed, load-bearing-flagged component claims)
-- [ ] Cost-Benefit rows carry Category (Units) / Magnitude / Likelihood % / Expected Value and subtotal only within a category; cross-category conversions are stated out loud
+- [ ] Every table sorts by its rank key descending (Impact / Expected Value / Gap / Equiv / Score), unscored rows sink to the bottom, and the software shows the top five rows
+- [ ] Objective Criteria has Criterion (how measured, strengthen and weaken readings under it) / Score / Validity / Reliability / Linkage / Importance / Latest Reading, and says the four labels are typed
+- [ ] Falsifiability Test rows are bet-specific score-movers with per-row Scores (plus the nothing-could-falsify note row); Testable Predictions are split into Follows If True and Follows If False, with Result So Far and At Stake
+- [ ] Logical Anatomy decomposes the belief (logical form + component claims with Load Bearing (typed))
+- [ ] Cost-Benefit rows carry Category (Units) / Magnitude / Range / Likelihood / Expected Value and subtotal only within a category; cross-category conversions are stated out loud
 - [ ] Conflict Resolution Framework has all sub-sections in order: Shared Values rankings, Interests of Supporters, Interests of Opponents, Shared+Conflicting (Shared Interests + Primary Conflict Pair), Best Compromise Solutions, Advertised vs. Actual (with Divergence Score), Dispute Types, Primary Obstacles, Biases
 - [ ] Decision Leverage is engine-ranked (never hand-ordered), each row's "what would settle it" link resolves, and the section is omitted when nothing is at stake
 - [ ] Where This Belief Is Used, Score History, People on the Record, and Related Topics render only when they have rows; sections that would ship all-blank are deleted (wiki) or self-suppressed (software)
 - [ ] People on the Record carries a Source column (the bill, floor statement, column or interview, with date) beside each name
-- [ ] Prevalence and Dewey, the two typed numbers, each carry a source or stay blank
+- [ ] Prevalence and the cost and benefit estimates, the typed numbers, carry a source or stay blank, and every typed input is labelled typed
 - [ ] Similar Beliefs puts near-100% paraphrases in prose as merge candidates, not in the table
 - [ ] Every link points to a page that exists OR is plain text
 - [ ] No `href="#"` anchors anywhere
 - [ ] Both sides have symmetric structure in Interests, Advertised vs. Actual, Biases, Obstacles
-- [ ] Score cells are blank for unpopulated arguments; Importance 100% is treated as "not yet differentiated"
+- [ ] Score cells are blank for unpopulated arguments; Importance 0.50 is treated as "not yet differentiated"

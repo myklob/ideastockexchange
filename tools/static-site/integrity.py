@@ -29,6 +29,19 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 SEVERITY = ('serious', 'worth checking', 'a note')
+# Every check Integrity.of can report, with the shape that sets it off, for the method page. A title reported
+# that is not listed here is caught by test_render.
+CHECKS = (
+    ('serious', 'Circular support', 'Following the reasons beneath a claim leads back to the claim itself.'),
+    ('serious', 'Assumes its own conclusion', 'A load-bearing premise rests on the claim, or is argued to be the same claim (equivalence 0.90 or more).'),
+    ('worth checking', 'The same page listed more than once', 'Two or more reason or evidence rows on one page read the same claim page.'),
+    ('worth checking', 'Rows that may be the same point twice', 'Two rows on one page read alike to the duplicate detector and no uniqueness page argues the overlap.'),
+    ('worth checking', 'Rests only on authority or experience', 'Every claim beneath the page is classified as an expert claim, expert testimony, an anecdote, a norm or a hunch.'),
+    ('worth checking', 'Evidence filed above the premise it bears on', 'The page cites findings and argues higher than it reads, because a load-bearing premise beneath it cites nothing.'),
+    ('worth checking', 'Costs and benefits given as single figures', 'A priced cost or benefit states one number and no range.'),
+    ('a note', 'Nothing stated would show it false', 'A belief lists no testable prediction.'),
+    ('a note', 'Nobody has argued the other side', 'Every reason and finding on the page is on one side.'),
+)
 AUTHORITY = ('expert_claim', 'expert_data', 'anecdote', 'intuition', 'norm')
 
 

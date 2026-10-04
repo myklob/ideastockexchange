@@ -31,7 +31,7 @@ SITE = 'https://myklob.github.io/ideastockexchange/'
 # method page, so a built site carries its whole methodology and depends on nothing outside it.
 WIKI = {k: 'method.html#' + a for k, a in {
     'template': 'formula', 'reasons': 'formula', 'linkage': 'formula', 'importance': 'formula',
-    'evidence': 'starts', 'truth': 'starts', 'cba': 'formula', 'interests': 'formula',
+    'evidence': 'starts', 'truth': 'starts', 'cba': 'cba', 'interests': 'formula',
     'interest_scoring': 'formula', 'conflict': 'formula', 'conflict_scoring': 'formula',
     'assumptions': 'starts', 'media': 'starts', 'laws': 'formula', 'general': 'formula',
     'values': 'formula', 'linkage_template': 'formula', 'one_page': 'equivalency',
