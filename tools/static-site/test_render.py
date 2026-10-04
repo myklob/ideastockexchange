@@ -1300,7 +1300,7 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
         for k in self._filled():
             t = self._text(self.pages[k]); last = -1
             for sec in self.SECTIONS:
-                i = t.find(sec)
+                i = t.find(sec, last + 1)
                 self.assertGreater(i, last, f'topic {k}: section "{sec}" is missing or out of order')
                 last = i
 
