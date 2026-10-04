@@ -578,8 +578,8 @@ class TestTheMethodPageStatesEveryRule(unittest.TestCase):
 
     The conformance contract in conformance.py enumerates the rules an implementation must get right. This
     holds the reader-facing page to the same list. It was missing three: the load-bearing minimum, which is
-    the single reason every belief here reads 0.50 while twenty findings are cited across them, and how an
-    importance page and a media page compute their own scores."""
+    why a belief that cites findings can still read 0.50 (TestTheMethodPageDescribesThisBuild checks the count
+    it prints), and how an importance page and a media page compute their own scores."""
 
     @classmethod
     def setUpClass(cls):
@@ -609,6 +609,190 @@ class TestTheMethodPageStatesEveryRule(unittest.TestCase):
         """So this cannot pass by comparing an empty page against an empty list."""
         self.assertGreater(len(self.prose), 5000)
         self.assertGreaterEqual(len(self.RULES), 10)
+
+
+class TestTheMethodPageDescribesThisBuild(unittest.TestCase):
+    """The method page said "the five beliefs here read 0.50 while citing twenty findings", "1911 pages on one
+    topic" and "nothing in this corpus sits deeper than the sweep reaches" long after each stopped being true.
+    Every count it prints is now worked out from the build, and each is checked here against the corpus."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.c = cls.parent.c
+        cls.text = readable(cls.parent.html['method.html'])
+
+    def test_no_stale_count_survives(self):
+        for stale in ('the five beliefs here', 'twenty findings', 'pages on one topic', 'Nothing in this corpus sits deeper',
+                      'only typed numbers', 'is a rule, not a judgement'):
+            self.assertNotIn(stale, self.text, f'the method page still says {stale!r}')
+
+    def test_the_held_beliefs_are_counted_from_the_build(self):
+        import method
+        held = [b for b in self.c.beliefs if self.c.stats(b)['weakest'] is not None and self.c.stats(b)['weakest'] < self.c.stats(b)['raw'] - 1e-9]
+        if not held:
+            self.assertIn('no belief is held below what its rows argue', self.text); return
+        cited = sum(self.c.stats(b)['nsupp'] + self.c.stats(b)['nweak'] for b in held)
+        self.assertIn(f'{method.count_words(len(held))} belief', self.text)
+        self.assertIn(f'citing {cited} finding', self.text)
+
+    def test_the_corpus_and_the_sweep_are_counted_from_the_build(self):
+        topics = {self.c.topic_of(b) for b in self.c.beliefs if self.c.topic_of(b)}
+        self.assertIn(f'{len(self.c.specs)} pages, {len(self.c.beliefs)} of them beliefs, filed under {len(topics)} topics', self.text)
+        swept = [p for p in self.c.specs if self.c.kind(p) in ('belief', 'claim')]
+        deep = [p for p in swept if self.c.sens.of(p)['n'] and self.c.sens.of(p)['deeper'] > 0]
+        self.assertIn(f'{len(deep)} of the {len(swept)}' if deep else f'none of the {len(swept)}', self.text)
+
+    def test_every_number_a_page_prints_is_defined_here(self):
+        """EVS, the four kind-of-dispute numbers and their 0.1 margin, the cost-benefit arithmetic, and the
+        structural checks were printed on pages and defined nowhere."""
+        for phrase in ('ESIW × Link × ERQ × ERP/100', 'read by no score', 'Evidence two-sidedness', 'Linkage leaning against relevance',
+                       'Value-ranking gap', 'Ease of resolution', 'at least 0.1', 'the typed estimate × Likelihood',
+                       'every benefit at its low end', 'competing', 'Fallacy detection is not done'):
+            self.assertIn(phrase, self.text, f'the method page does not define {phrase!r}')
+
+    def test_the_structural_checks_listed_are_the_ones_the_pages_run(self):
+        import integrity as IG
+        listed = {t for _, t, _ in IG.CHECKS}
+        for _, title, _ in IG.CHECKS: self.assertIn(title, self.text)
+        found = {f['title'] for f in self.c.integ.corpus()}
+        self.assertEqual(found - listed, set(), 'a structural check the pages report is missing from integrity.CHECKS and the method page')
+
+    def test_the_rules_the_engine_does_not_run_are_named(self):
+        self.assertIn('Rules in the wiki this site does not run', self.text)
+        for rule in ('Lifecycle multipliers', 'TopicRank', 'scope, magnitude, reversibility and urgency', 'agree share of all argued strength'):
+            self.assertIn(rule, self.text)
+
+    def test_the_kind_of_dispute_on_a_page_links_its_definition(self):
+        checked = 0
+        for b in self.c.beliefs:
+            if not self.c.stats(b)['dispute']: continue
+            h = self.parent.html[b]
+            self.assertIn('<dt>Kind of dispute</dt>', h)
+            self.assertIn('href="../method.html#dispute">evidence two-sidedness</a>', h)
+            checked += 1
+        self.assertGreater(checked, 0)
+        self.assertIn('id="dispute"', self.parent.html['method.html'])
+
+
+class TestTheLabelsTypedByAnAuthorSaySo(unittest.TestCase):
+    """Pages said "Nothing is typed" and "the only typed numbers in the system" while a bottom line, value
+    rankings, criteria labels, the load-bearing flag and every evidence classification were typed by an author."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html') or not os.path.isdir(cls.parent.dir): cls.parent.setUpClass()
+        cls.c, cls.html = cls.parent.c, cls.parent.html
+
+    def test_no_page_claims_nothing_is_typed(self):
+        for pid, h in self.html.items():
+            t = readable(h)
+            self.assertNotIn('Nothing is typed', t, f'{pid} says nothing is typed')
+            self.assertNotIn('nothing here is typed', t, f'{pid} says nothing is typed')
+            self.assertNotIn('only typed numbers in the system', t, f'{pid} says the estimates are the only typed numbers')
+
+    def test_the_engine_footer_names_what_was_typed(self):
+        for b in list(self.c.beliefs)[:20]:
+            t = readable(self.html[b])
+            self.assertIn('because an author typed it', t)
+            self.assertIn('the load-bearing flag on each component', t)
+            self.assertIn('the bottom line', t)
+
+    def test_a_bottom_line_is_labelled_typed_and_flagged_where_nothing_scores(self):
+        typed = [p for p in self.c.specs if (self.c.specs[p].get('bottom_line') or '').strip() and self.c.kind(p) in ('belief', 'claim')]
+        self.assertTrue(typed)
+        flagged = 0
+        for p in typed:
+            h = self.html[p]
+            self.assertIn('<dt>Bottom line (typed by the author)</dt>', h)
+            s = self.c.stats(p)
+            if s['pos'] + s['neg'] == 0:
+                self.assertIn('Every row on this page scores 0', readable(h)); flagged += 1
+        self.assertGreater(flagged, 0, 'no bottom line sits on a page where nothing scores, so the flag is untested')
+
+    def test_labels_are_not_presented_as_scores(self):
+        for b in self.c.beliefs:
+            h = self.html[b]; t = readable(h)
+            if [d for d in self.c.specs[b].get('criteria', []) if RS_has(d)]:
+                self.assertIn('These four labels are typed by the author, not computed', t)
+            if [d for d in self.c.specs[b].get('components', []) if RS_has(d)]:
+                self.assertIn('Load bearing (typed)', t)
+                self.assertIn('read by nothing', t)
+            if self.c.specs[b].get('values'):
+                self.assertIn('The two rank columns are typed by the author', t)
+        for k in self.c.topics:
+            with open(os.path.join(self.parent.dir, 't', self.c.topic_href(k))) as fh: t = readable(fh.read())
+            self.assertNotIn('Arguments that connect to high-scoring criteria carry more weight', t)
+            self.assertNotIn('scored on four dimensions', t)
+            self.assertNotIn('nothing here is typed', t)
+
+    def test_a_starting_point_shows_its_working(self):
+        import evidence as EV
+        sp = {'etype': 'statistics', 'erq': 3, 'erp': 100}
+        lab = EV.label(sp, 1)
+        self.assertIn('tier weight 0.90', lab)
+        self.assertIn('0.5 + 0.5 x 0.90 x (2 x 100/100 - 1) = 0.95', lab)
+        self.assertIn('1 x 2 x 3 / (3 + 1) = 1.50', lab)
+
+    def test_the_linkage_definition_names_the_starting_point(self):
+        from build_subpages import KINDS
+        self.assertIn('shrunk toward the 0.50 starting point by weight k', KINDS['linkage']['defs'][0])
+
+
+def RS_has(d):
+    import render_site
+    return render_site.has(d)
+
+
+class TestTheInterestsAreFiledByParty(unittest.TestCase):
+    """Request 11: who has a stake answers who, sorted by party (parents, farmers, workers, Americans), not one
+    heading for every wording of a subject. The counts on the card and the page are the same count, a row says
+    "1 page" not "1 pages", and a column every row leaves empty is not printed."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html') or not os.path.isdir(cls.parent.dir): cls.parent.setUpClass()
+        cls.c = cls.parent.c
+        with open(os.path.join(cls.parent.dir, 'interests.html')) as fh: cls.page = fh.read()
+
+    def test_near_duplicate_groups_share_a_heading(self):
+        import render_site as RS
+        for g, want in (('Low-income workers', 'Workers'), ('Workers in every income category', 'Workers'),
+                        ('Parents of children assigned to failing public schools', 'Parents'),
+                        ('American farmers who export soybeans', 'Farmers and ranchers'), ('Climate policy advocates', 'Advocates and activists'),
+                        ('Ukrainians and Taiwanese living under the threat of invasion', 'Ukrainians'), ('The country', 'Citizens and the public'),
+                        ('Some officeholders', 'Officials and politicians'), ('Members of the American armed forces and their families', 'The military and veterans'),
+                        ('Black Americans whose ancestors the original Constitution counted as property', 'Americans'),
+                        ('Career public school teachers', 'Teachers and school staff'), ('Supporters', 'Supporters')):
+            self.assertEqual(RS.party_of(g), want, g)
+
+    def test_every_interest_is_still_listed(self):
+        import render_site as RS
+        named, generic = RS.stake_groups(self.c)
+        ints = [p for p in self.c.specs if self.c.kind(p) == 'interest']
+        self.assertEqual(sum(len(ps) for _, ps in named + generic), len(ints))
+        for p in ints: self.assertIn(f'href="p/{self.c.href(p)}"', self.page)
+
+    def test_the_home_count_is_the_page_count(self):
+        import render_site as RS
+        named, _ = RS.stake_groups(self.c)
+        heads = [a for a in re.findall(r'<h2 id="(g-[^"]+)">', self.page) if a != 'g-sides']
+        self.assertEqual(len(heads), len(named))
+        with open(os.path.join(self.parent.dir, 'index.html')) as fh: home = fh.read()
+        m = re.search(r'All ([\d,]+) groups', home)
+        self.assertTrue(m, 'the home card no longer links all the groups')
+        self.assertEqual(int(m.group(1).replace(',', '')), len(heads))
+
+    def test_counts_are_plural_only_when_plural_and_empty_columns_are_dropped(self):
+        self.assertNotRegex(self.page, r'>1 pages<')
+        for t in re.findall(r'<table class="scored">.*?</table>', self.page, re.S):
+            if '<th>Value it serves</th>' not in t: continue
+            cells = re.findall(r'</a></td><td class="u">([^<]*)</td><td>', t)
+            self.assertTrue(any(x.strip() for x in cells), 'a Value it serves column is printed with every cell empty')
+        self.assertIn('Listed on counts every page that lists the interest', readable(self.page))
 
 
 class TestABuildWithoutARevisionSaysSo(unittest.TestCase):
@@ -1300,6 +1484,8 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
         for k in self._filled():
             t = self._text(self.pages[k]); last = -1
             for sec in self.SECTIONS:
+                # searched for after the previous section, because a cell's own words can contain a heading's
+                # ("Contributes code..." on an engagement row once came before the Contribute heading)
                 i = t.find(sec, last + 1)
                 self.assertGreater(i, last, f'topic {k}: section "{sec}" is missing or out of order')
                 last = i

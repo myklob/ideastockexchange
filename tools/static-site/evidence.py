@@ -70,7 +70,7 @@ weights. Two notes an auditor should have:
     unclassified; nothing else depends on it.
 
 The wiki's own Overall EVS, ESIW x ECRS x ERQ x (ERP/100) summed over a page's evidence, is still computed and
-reported by evs() below. Nothing reads it. It is unbounded on purpose and is good at the one thing a bounded
+reported by evs() below. Every Evidence Ledger shows it, for comparison; no score reads it. It is unbounded on purpose and is good at the one thing a bounded
 score cannot show: a page whose Overall EVS is 30 rests on a body of replicated work, and a page whose Overall
 EVS is 0.4 rests on one uncorroborated claim.
 """
@@ -158,9 +158,11 @@ def evs(row, ecrs):
     return c['esiw'] * float(ecrs) * c['erq'] * (c['erp'] / 100.0)
 
 
-def label(page):
-    """One line describing what a page rests on, for the page itself and for any row that cites it."""
-    c = prior(page or {})
+def label(page, k=1.0):
+    """One line describing what a page rests on, for the page itself and for any row that cites it, ending with
+    the tier weight and both formulas with this page's own numbers filled in, so the starting point printed beside
+    it can be checked without the method page."""
+    c = prior(page or {}, k)
     if not c['grounded']:
         return 'Nothing observed: no source type recorded, so this claim starts at a coin flip'
     bits = [c['meaning']]
@@ -170,7 +172,14 @@ def label(page):
         shown = str(int(n)) if n == int(n) else f'{n:g}'
         bits.append(f"{shown} independent replication{'' if n == 1 else 's'}, {c['erp']:.0f}% consistent")
     bits.append(f"starts at {c['p0']:.2f} with weight {c['weight']:.2f}")
-    return ', '.join(bits)
+    return ', '.join(bits) + ' (' + working(c, k) + ')'
+
+
+def working(c, k=1.0):
+    """The arithmetic behind a starting point, from a prior() result: tier weight, then p0 and w worked out."""
+    n = lambda v: f'{v:g}'
+    return (f"tier weight {c['esiw']:.2f}; starting point 0.5 + 0.5 x {c['esiw']:.2f} x (2 x {n(c['erp'])}/100 - 1) = {c['p0']:.2f}; "
+            f"weight {n(k)} x 2 x {n(c['erq'])} / ({n(c['erq'])} + 1) = {c['weight']:.2f}")
 
 
 def tiers():
