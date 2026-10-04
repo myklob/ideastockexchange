@@ -11,7 +11,10 @@
 
   HARD RULES (every generation must follow):
     1. NO summary / background / hook / overview at the top. Header metadata, then
-       the Scorecard readout, then straight to Argument Trees.
+       straight to Argument Trees. The single truth score on the heading line is the
+       only number above the arguments: no other score and no verdict is announced
+       before them. The readout of what the numbers are made of comes after What
+       This Page Needs Right Now.
     2. Definitions go LAST among analysis sections, never first.
     3. Argument cells are complete, atomic propositions whose pro/con direction is
        evident from the cell alone: the claim, the single most famous supporting
@@ -22,8 +25,9 @@
     5. No broken links. Check every href before publishing; use plain text if the
        target page doesn't exist.
     6. Score cells stay blank until real sub-argument scoring exists. No "+0"
-       placeholders. Scorecard cells marked auto-derived are computed from the
-       tables below, never hand-picked.
+       placeholders. Readout cells marked auto-derived are computed from the
+       tables above them, never hand-picked. A typed number (Prevalence, Dewey)
+       carries its source or stays blank.
     7. Supporters and Opponents get symmetric structure everywhere.
     8. Every table sorts by its rank key, descending. Rows enter and rank only by
        the performance of their pro/con sub-arguments, never by editorial
@@ -37,16 +41,15 @@
 
   CANONICAL SECTION ORDER:
     Breadcrumb (Home › Topics › Category › This Belief)
-    Header (Belief / metadata: Topic > Subcategory · Dewey · Positivity · Related /
-        Beliefs this supports)
-    0.  Scorecard (Net Belief Score · Pro vs. Con / Bottom line / Strongest
-        pro+con [auto-derived: top-ranked row from each side of the Argument
-        Trees] / What would move this score most [auto-derived: top-scoring
-        Falsifiability row]; in the software also the collapsed twelve-dimension
-        engine readout) + "How to read this page" box
-    1.  Argument Trees (scored two-sided table: Argument / Score / Linkage /
-        Importance / Impact, spelled out, no abbreviations; Pro+Con totals, Net
-        Belief Score line). Confirmed fallacy claims are noted inline in the
+    Header (Belief / invitation block / metadata: Topic > Subcategory · Dewey (typed,
+        with source) · Positivity · Related / Beliefs this supports). The heading
+        line's single truth score is the only number above the arguments.
+    1.  Argument Trees (scored two-sided table: Argument / Score / Confidence /
+        Linkage / Importance / Uniqueness / Impact, spelled out, no abbreviations;
+        Pro+Con totals, Net Belief Score line). A row contributes
+        sign x (2 x Truth - 1) x Confidence x Linkage x Importance x Uniqueness,
+        so a reason nobody has argued sits at Truth 0.50 and reads exactly 0.
+        Confirmed fallacy claims are noted inline in the
         argument cell and damage exactly the factor their type targets
         (relevance → Linkage, formal → the validity component of the Argument
         Score, evidence → Evidence Quality); unconfirmed accusations change
@@ -55,8 +58,15 @@
         sub-belief, Impact the provenance page.
     1b. Contrast Class (software only; the denominator: mutually exclusive rivals
         this belief is priced against). Only when the topic has a rival option set.
+    1c. Decision Leverage (Argument / Leverage / Weight / Open / What would settle
+        it / Status; engine-ranked, omitted when every edge is settled)
+    1d. What Would Change the Answer (the sensitivity sweep: # / Input / Its truth /
+        Confidence / If false / If true / Move / If settled / What it does here;
+        engine-computed, omitted when nothing sits beneath the page)
     2.  Evidence Ledger (two-sided: Supporting / Weakening, each with
-        Evidence (Producer, Year) / Bears On / Tier / Linkage / Impact)
+        Evidence (Producer, Year) / Bears On / Source type / Standing / Confidence /
+        Linkage / Uniqueness / Impact; Source type is one of the engine's eighteen,
+        listed in the authoring notes with where each starts)
     3.  Objective Criteria (Criterion / How to Measure / Reading That Would
         Strengthen / Reading That Would Weaken / Latest Reading / Score)
     4.  Falsifiability Test (Evidence That Would Strengthen+Score / Weaken+Score,
@@ -71,7 +81,8 @@
     7.  Conflict Resolution Framework (in the software it opens with the computed
         Pipeline readout, the scored cost-benefit trees read sideways)
         a. Shared Values, Different Rankings (with Score + what-would-shift row)
-        b. Likely Interests of Supporters (ranked by Score; prevalence until then)
+        b. Likely Interests of Supporters (ranked by Score; prevalence, typed
+           with source, until then)
         c. Likely Interests of Opponents (symmetric)
         d. Shared and Conflicting Interests (Shared Interests with Score +
            Primary Conflict Pair: Standalone Validity and Claim Strength are
@@ -92,76 +103,69 @@
     11c. Score History (software only; the accumulation ledger)
     12. Definitions (Term / Definition / Score, defined operationally), last
         analysis section
-    12b. People on the Record (On record agreeing / disagreeing, history,
+    12b. People on the Record (On record agreeing / Source / On record
+        disagreeing / Source: where the position was stated, with date; history,
         never weight; omit when empty)
-    12c. Add to This Page (the participation block: one form per table on the
+    13. What This Page Needs Right Now (# / The gap / Where it goes / Who is best
+        placed to fill it)
+    14. What the numbers are made of (the readout, formerly the Scorecard: Net
+        Belief Score · Pro vs. Con / Bottom line / Strongest pro+con [auto-derived:
+        top-ranked row from each side of the Argument Trees] / What would move
+        this score most [auto-derived: top-scoring Falsifiability row] / the row
+        formula; in the software also the collapsed twelve-dimension engine
+        readout) + "How to read this page" box. It sits here, after the
+        arguments, because no score or verdict is announced before them.
+    14b. Add to This Page (the participation block: one form per table on the
         built site, vote links on the heading line; a vote never moves a score)
-    13. Contribute / footer
-    14. Related Topics (the category cluster; current page as plain text)
+    15. Contribute / footer
+    16. Related Topics (the category cluster; current page as plain text)
 -->
 <p style="text-align: right;"><a href="/">Home</a> &rsaquo;  <a href="/topics">Topics</a> &rsaquo;  [Category] &rsaquo;  [This Belief]</p>
 <div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
-<p style="display: none;">AUTHORING RULES (hidden text; leave in place, readers never see this): state the belief in positive form so the page headlines the supported claim. Every argument cell must be a complete, atomic proposition whose pro/con direction is evident from the cell alone. Never fill a score cell for an empty item. All scores stay [bracketed] until the ReasonRank engine computes them. Every table sorts by its rank key, descending; rows enter and rank only by the performance of their pro/con sub-arguments, never by editorial placement. Every row in every table is a scored relationship between this belief and the row's content; the software renders each table's top five rows and collapses the rest, so a row's position always traces to its score. Every evidence item must name what it bears on: a specific argument above, identified by its opening words, or this belief directly. Scorecard cells marked auto-derived are computed from the tables below, never hand-picked. Arguments fail logically and go in the tree; evidence fails empirically and goes in the ledger. Spell words out: no abbreviated column headers, no cryptic placeholder tokens. Underscored [Bracketed_Tokens] are machine-replaceable substitution slots; leave the underscores so a script can find them, but keep every word readable. An Importance of [100%] is a default that means not yet differentiated, never a claim of maximal importance; differentiate it whenever the material supports doing so. Never ship an unverified link: check every href before publishing, and when a target page does not exist, use plain text rather than a dead link. When publishing an instance of this template, delete any section that would ship with nothing but blank cells; empty scaffolding is not analysis, and a short correct page beats a long blank one. When migrating an old page, preserve its filled content somewhere on the new page (People lists go to People on the Record; equivalent phrasings go to Similar Beliefs) rather than deleting it. INVITATION BLOCK: the boxed block under the H1 names an itch the reader already feels, asks the one question this page dissects, says why this is not a feed, and names one specific slot a newcomer can fill in five minutes; it never asks "what do you think," it invites the reader who disagrees, and it passes the reciprocity test (it names a behavior, never a tribe, so it would read the same to either side). OBJECTIVE CRITERIA: each criterion scores on validity, reliability, linkage, and importance; the Reading That Would Strengthen and the Reading That Would Weaken must differ from each other, and every page includes at least one deliberately failing criterion scored low with its reasons, because a rubric with no failing example does not show readers where the line is. WHAT THIS PAGE NEEDS: the table above Contribute names concrete gaps (a missing counterargument stated as the shape of the argument wanted, an evidence slot, an unfilled criterion reading), each with where it goes and who is best placed to fill it; update it as gaps fill. ADD TO THIS PAGE: the block between that table and Contribute is the participation block; on the built site every table that takes rows carries a form like it, the heading line carries Agree and Disagree vote links after the score, and a vote is shown and never counted, because a claim nobody has argued is worth nothing however many people like it. No em dashes anywhere on the page; use commas, parentheses, or separate sentences.</p>
-<h1>Belief: [Insert Belief Statement Here]</h1>
+<p style="display: none;">AUTHORING RULES (hidden text; leave in place, readers never see this): state the belief in positive form so the page headlines the supported claim. Every argument cell must be a complete, atomic proposition whose pro/con direction is evident from the cell alone. Never fill a score cell for an empty item. All scores stay [bracketed] until the ReasonRank engine computes them. Every table sorts by its rank key, descending; rows enter and rank only by the performance of their pro/con sub-arguments, never by editorial placement. Every row in every table is a scored relationship between this belief and the row's content; the software renders each table's top five rows and collapses the rest, so a row's position always traces to its score. Every evidence item must name what it bears on: a specific argument above, identified by its opening words, or this belief directly. Cells of the readout (What the numbers are made of) marked auto-derived are computed from the tables above it, never hand-picked. Arguments fail logically and go in the tree; evidence fails empirically and goes in the ledger. Spell words out: no abbreviated column headers, no cryptic placeholder tokens. Underscored [Bracketed_Tokens] are machine-replaceable substitution slots; leave the underscores so a script can find them, but keep every word readable. An Importance of [100%] is a default that means not yet differentiated, never a claim of maximal importance; differentiate it whenever the material supports doing so. Never ship an unverified link: check every href before publishing, and when a target page does not exist, use plain text rather than a dead link. When publishing an instance of this template, delete any section that would ship with nothing but blank cells; empty scaffolding is not analysis, and a short correct page beats a long blank one. When migrating an old page, preserve its filled content somewhere on the new page (People lists go to People on the Record; equivalent phrasings go to Similar Beliefs) rather than deleting it. INVITATION BLOCK: the boxed block under the H1 names an itch the reader already feels, asks the one question this page dissects, says why this is not a feed, and names one specific slot a newcomer can fill in five minutes; it never asks "what do you think," it invites the reader who disagrees, and it passes the reciprocity test (it names a behavior, never a tribe, so it would read the same to either side). OBJECTIVE CRITERIA: each criterion scores on validity, reliability, linkage, and importance; the Reading That Would Strengthen and the Reading That Would Weaken must differ from each other, and every page includes at least one deliberately failing criterion scored low with its reasons, because a rubric with no failing example does not show readers where the line is. WHAT THIS PAGE NEEDS: the table above Contribute names concrete gaps (a missing counterargument stated as the shape of the argument wanted, an evidence slot, an unfilled criterion reading), each with where it goes and who is best placed to fill it; update it as gaps fill. ADD TO THIS PAGE: the block between that table and Contribute is the participation block; on the built site every table that takes rows carries a form like it, the heading line carries Agree and Disagree vote links after the score, and a vote is shown and never counted, because a claim nobody has argued is worth nothing however many people like it. ROW FORMULA: a row in the Argument Trees or the Evidence Ledger contributes sign x (2 x Truth - 1) x Confidence x Linkage x Importance x Uniqueness to the page above it. Truth is the row's own page score on 0 to 1; a claim nobody has argued sits at 0.50, so (2 x Truth - 1) is 0 and the row reads exactly 0, however famous the claim. Confidence is how much of the work behind that page has been done (0 to 1); a claim with no page contributes 0. Linkage, Importance and Uniqueness are each argued on a page of their own and read a labelled constant until then (Linkage 1, Importance 0.5, Uniqueness 1). Nothing on this page can be padded by listing more. SOURCE TYPES: the Evidence Ledger's Source type cell holds one of the engine's eighteen types, and the type sets where a finding's truth starts before anyone argues it (the weight is how far that kind of source can move it; a finding every replication confirms starts at 0.5 plus half the weight, one every replication contradicts starts at 0.5 minus half the weight, and one at half agreement starts at 0.50 whatever its type): Statistics and data, with the source cited (statistics, 0.90, starts at 0.95) / Primary official record: statute, judicial holding, agency rule, sworn filing (record, 0.90, starts at 0.95) / Randomized controlled trial (rct, 0.85, starts at 0.925) / Meta-analysis (meta, 0.80, starts at 0.90) / Observational or correlational study (observational, 0.75, starts at 0.875) / Historical trend, with references (historical, 0.70, starts at 0.85) / Expert testimony with supporting data (expert_data, 0.65, starts at 0.825) / Expert or social media claim (expert_claim, 0.60, starts at 0.80) / Personal experience or anecdote (anecdote, 0.55, starts at 0.775) / Common sense or logic (logic, 0.50, starts at 0.75) / Analogy or metaphor (analogy, 0.45, starts at 0.725) / Cultural norm (norm, 0.40, starts at 0.70) / Intuition or gut feeling (intuition, 0.35, starts at 0.675) / News or media report (news, 0.30, starts at 0.65) / Survey or poll (survey, 0.25, starts at 0.625) / Eyewitness testimony (eyewitness, 0.20, starts at 0.60) / Visual evidence (visual, 0.15, starts at 0.575) / Historical artifact (artifact, 0.10, starts at 0.55). A finding with no source type named starts at 0.50 exactly and pulls nothing either way. Classify what the claim says, not the instrument that produced it: a published poll result is a statistic, what the public believes inferred from it is a survey. TYPED NUMBERS: Prevalence (interest tables) and Dewey (header line) are typed by a person, not computed; each carries its source in the cell or in a parenthetical, and a typed number without a source stays blank. No em dashes anywhere on the page; use commas, parentheses, or separate sentences.</p>
+<h1>Belief: [Insert Belief Statement Here] <span style="font-size: 14px; font-weight: normal; color: #555;">Truth score [Truth_Score]</span></h1>
+<p style="font-size: 11px; color: #999; margin: -8px 0 10px 0;">The truth score on the heading line is the only number above the arguments; what it is made of is read out after What This Page Needs Right Now. It stays [bracketed] until the engine computes it.</p>
 <div style="border: 2px solid #0055a4; padding: 16px 18px; background-color: #f4f9ff; margin: 18px 0;">
 <p style="margin: 0 0 10px 0; font-size: 15px;"><strong>[HOOK: one or two sentences naming an itch the reader already feels. Concrete, not abstract. No throat-clearing.]</strong></p>
 <p style="margin: 0 0 10px 0; font-size: 15px;">[QUESTION: one sentence ending in a question mark, stating exactly what this page dissects. Answerable, not rhetorical.]</p>
 <p style="margin: 0 0 10px 0; font-size: 13px;">[PROMISE: one or two sentences on why this is not a feed. One belief, both sides, ranked by how well arguments hold up rather than how often they are repeated, permanent, and open to revision by anyone with a better argument.]</p>
 <p style="margin: 0; font-size: 13px; padding: 8px 10px; background-color: #fff; border-left: 3px solid #0055a4;"><strong>If you disagree, this page has a column for you.</strong> [ASK: name one specific slot a newcomer can fill in five minutes: an empty con row, a missing counterexample, an unproposed criterion. Never "what do you think?"]</p>
 </div>
-<p style="text-align: right; font-size: 11px; color: #999; margin: 0 0 12px 0;">Topic: [Category] &gt; [Subcategory] &middot; Dewey [Number] &middot; Positivity [Scale -100% to +100%] &middot; Related: [Related belief 1] | [Related belief 2]</p>
+<p style="text-align: right; font-size: 11px; color: #999; margin: 0 0 12px 0;">Topic: [Category] &gt; [Subcategory] &middot; Dewey [Number] (typed, with source: [Classification source]) &middot; Positivity [Scale -100% to +100%] &middot; Related: [Related belief 1] | [Related belief 2]</p>
 <p style="font-size: 13px;"><strong>🔗 Beliefs this supports:</strong> [Belief 1] | [Belief 2]</p>
-<h1>📋 Scorecard</h1>
-<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
-<tbody>
-<tr>
-<td style="background-color: #f0f3f6;" width="25%"><strong>Net Belief Score</strong></td>
-<td width="75%"><strong>[Net_Score]</strong> &middot; Pro [Pro_Total] vs. Con [Con_Total] &middot; <span style="font-size: 12px; color: #555;">brackets = placeholders until <a href="/algorithms/reason-rank">ReasonRank</a> computes live scores</span></td>
-</tr>
-<tr style="background-color: #f9f9f9;">
-<td style="background-color: #f0f3f6;"><strong>Bottom line</strong></td>
-<td>[One-sentence verdict, scoped to what the argument tree below actually supports. No bigger claim than the leaves can carry.]</td>
-</tr>
-<tr>
-<td style="background-color: #f0f3f6;"><strong>Strongest pro / con</strong></td>
-<td>[Best pro argument] &middot; [Best con argument] <span style="font-size: 11px; color: #999;">(auto-derived: the top-ranked row from each side of the Argument Trees)</span></td>
-</tr>
-<tr style="background-color: #f9f9f9;">
-<td style="background-color: #f0f3f6;"><strong>What would move this score most</strong></td>
-<td>[The single piece of evidence that would most change the verdict] <span style="font-size: 11px; color: #999;">(auto-derived: the top-scoring row of the Falsifiability Test below)</span></td>
-</tr>
-</tbody>
-</table>
-<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>How to read this page:</strong> nothing here is placed by editorial choice. Every row in every table is itself a claim, and its Score is the <a href="/algorithms/reason-rank">ReasonRank</a> performance of the pro/con sub-debate about that claim, computed recursively down to the evidence. Every table sorts by its rank key, best content first; the rank key is the rightmost score column: Impact for arguments and evidence, Expected Value for costs and benefits, Claim Strength for the Primary Conflict Pair, and Score everywhere else. In the ISE software each table shows its top five rows and collapses the rest until expanded. [Bracketed] numbers are hand-estimated placeholders until the engine ships, and score cells stay blank until real content exists to score. This wiki can&rsquo;t sort tables live; the score columns are the data contract that lets the software sort, filter, and collapse every table automatically.</p>
 <p>&nbsp;</p>
 <h1>🔍 <a href="/algorithms/reason-rank">Argument Trees</a></h1>
-<p style="font-size: 13px;">Each argument is a belief with its own page. Scores are recursive: Truth Score &times; <a href="/algorithms/linkage-scores">Linkage</a> &times; <a href="/algorithms/importance-score">Importance</a> = Impact. Pro and con impacts sum to the Net Belief Score. A true-but-irrelevant argument scores high on truth and near zero on linkage, so it contributes nothing. Confirmed fallacy claims feed these factors too: a community-confirmed fallacy damages exactly the factor its type targets (relevance fallacies hit Linkage, formal fallacies hit the validity component of the Truth Score, evidence fallacies hit Evidence Quality) and is noted inline in the argument cell. A fallacy accusation that has not been confirmed changes nothing.</p>
+<p style="font-size: 13px;">Each argument is a belief with its own page, and its Score is that page&rsquo;s truth score. A row contributes <strong>sign &times; (2 &times; Truth &minus; 1) &times; Confidence &times; <a href="/algorithms/linkage-scores">Linkage</a> &times; <a href="/algorithms/importance-score">Importance</a> &times; <a href="/algorithms/unique-scores">Uniqueness</a></strong>, and that is the Impact column. A reason nobody has argued sits at Truth 0.50, so it reads exactly 0: listing a claim is worth nothing until it is argued. Confidence is how much of the work behind the argument&rsquo;s page has been done; Uniqueness is whether this row makes a point no other row has made. Pro and con impacts sum to the Net Belief Score. A true-but-irrelevant argument scores high on truth and near zero on linkage, so it contributes nothing. Confirmed fallacy claims feed these factors too: a community-confirmed fallacy damages exactly the factor its type targets (relevance fallacies hit Linkage, formal fallacies hit the validity component of the Truth Score, evidence fallacies hit Evidence Quality) and is noted inline in the argument cell. A fallacy accusation that has not been confirmed changes nothing.</p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr>
-<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="5">✅ Reasons to Agree</th> <th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="5">❌ Reasons to Disagree</th>
+<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="7">✅ Reasons to Agree</th> <th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="7">❌ Reasons to Disagree</th>
 </tr>
 <tr style="background-color: #f0f3f6; font-size: 12px;">
-<th width="24%">Argument</th> <th width="6%">Score</th> <th width="6%"><a href="/algorithms/linkage-scores">Linkage</a></th> <th width="6%"><a href="/algorithms/importance-score">Importance</a></th> <th width="8%">Impact</th> <th width="24%">Argument</th> <th width="6%">Score</th> <th width="6%"><a href="/algorithms/linkage-scores">Linkage</a></th> <th width="6%"><a href="/algorithms/importance-score">Importance</a></th> <th width="8%">Impact</th>
+<th width="20%">Argument</th> <th width="5%">Score</th> <th width="5%">Confidence</th> <th width="5%"><a href="/algorithms/linkage-scores">Linkage</a></th> <th width="5%"><a href="/algorithms/importance-score">Importance</a></th> <th width="5%"><a href="/algorithms/unique-scores">Uniqueness</a></th> <th width="5%">Impact</th> <th width="20%">Argument</th> <th width="5%">Score</th> <th width="5%">Confidence</th> <th width="5%"><a href="/algorithms/linkage-scores">Linkage</a></th> <th width="5%"><a href="/algorithms/importance-score">Importance</a></th> <th width="5%"><a href="/algorithms/unique-scores">Uniqueness</a></th> <th width="5%">Impact</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>[Claim]. <span style="font-size: 12px; color: #555;"><em>"[most famous quote]"</em></span> ~Name</td>
 <td align="center">[Score]</td>
+<td align="center">[Confidence]</td>
 <td align="center">[Linkage]</td>
 <td align="center">[Importance]</td>
+<td align="center">[Uniqueness]</td>
 <td align="center">[Impact]</td>
 <td>[Claim]. ~Name</td>
 <td align="center">[Score]</td>
+<td align="center">[Confidence]</td>
 <td align="center">[Linkage]</td>
 <td align="center">[Importance]</td>
+<td align="center">[Uniqueness]</td>
 <td align="center">[Impact]</td>
 </tr>
 <tr style="background-color: #f0f0f0; font-style: italic; color: #666;">
-<td colspan="4" align="right"><strong>Pro Total:</strong></td>
+<td colspan="6" align="right"><strong>Pro Total:</strong></td>
 <td align="center">[Pro_Total]</td>
-<td colspan="4" align="right"><strong>Con Total:</strong></td>
+<td colspan="6" align="right"><strong>Con Total:</strong></td>
 <td align="center">[Con_Total]</td>
 </tr>
 </tbody>
@@ -189,29 +193,52 @@
 
 <hr />
 <br />
+<!-- WHAT WOULD CHANGE THE ANSWER: the sensitivity sweep. Every claim beneath this page
+     is held at false and then at true, one at a time, and the whole graph is recomputed.
+     Engine-computed from the same two tables as every other number; never hand-ranked.
+     Omit this whole block when nothing sits beneath the page for the answer to rest on.
+     The static site computes it; the ISE software does not yet. -->
+<h1>&#9878; What Would Change the Answer</h1>
+<p style="font-size: 13px;">Every claim beneath this page held at false and then at true, one at a time, with the whole graph recomputed each time. <strong>If false</strong> and <strong>If true</strong> are where this page&rsquo;s truth score lands; <strong>Move</strong> is how far apart they are. <strong>If settled</strong> is that same distance with the input&rsquo;s confidence held at 1, which is what it would be worth once the work behind it is finished, so the gap between Move and If settled is the value of doing that work. An input that moves this page by less than 0.005 is inert: nothing anyone could learn about it changes the answer. This is one input at a time and finds single points of failure; it does not test several inputs moving together, which is how correlated assumptions actually fail.</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6; font-size: 12px;"><th width="4%">#</th> <th width="30%">Input</th> <th width="8%">Its truth</th> <th width="8%">Confidence</th> <th width="8%">If false</th> <th width="8%">If true</th> <th width="8%">Move</th> <th width="8%">If settled</th> <th width="18%">What it does here</th></tr>
+</thead>
+<tbody>
+<tr><td align="center">1</td><td>[Claim beneath this page] ([argument | evidence | linkage | importance])</td><td align="center">[Truth]</td><td align="center">[Confidence]</td><td align="center">[If_False]</td><td align="center">[If_True]</td><td align="center">[Move]</td><td align="center">[If_Settled]</td><td>[Flips the conclusion at Truth [Flip_Point] | Moves it without flipping it | Inert]</td></tr>
+</tbody>
+</table>
+<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>Not shown:</strong> [N] further inputs, each moving it less than any row shown &middot; [M] inputs sit deeper than [D] levels and were not swept. [When one input alone can flip the conclusion: the verdict here rests on one claim; settle that one first.]</p>
+
+<hr />
+<br />
 <h1>📊 <a href="/algorithms/evidence-scores">Evidence Ledger</a></h1>
-<p style="font-size: 13px;"><em>Tier key: <strong>Tier 1</strong>=Peer-reviewed/Official, <strong>Tier 2</strong>=Expert/Institutional, <strong>Tier 3</strong>=Journalism/Surveys, <strong>Tier 4</strong>=Opinion/Anecdote. <strong>Standing</strong> is the verification lifecycle: Verified rows count in full, Unverified and Disputed at half, Falsified at nothing, Unrecorded (no status on record) in full. Format each item as: Finding (Producer, Year). Evidence is data that can fail empirically; a reason that can only fail logically is an argument and belongs in the tree above, not here. Every item must also name what it <strong>bears on</strong>: a specific argument above, identified by its opening words, or this belief directly. Evidence that bears on nothing contributes nothing, no matter how true it is.</em></p>
+<p style="font-size: 13px;"><em><strong>Source type</strong> is what kind of thing the finding is, one of the eighteen the engine knows, and it sets where the finding&rsquo;s truth starts before anyone argues it: statistics and data with the source cited, primary official record, randomized controlled trial, meta-analysis, observational study, historical trend, expert testimony with data, expert or social media claim, personal anecdote, common sense or logic, analogy, cultural norm, intuition, news report, survey or poll, eyewitness testimony, visual evidence, historical artifact (strongest first; the authoring notes list where each starts). Classify what the claim says, not the instrument that produced it. A finding with no source type named starts at 0.50 and pulls nothing either way. A row counts as sign &times; (2 &times; Truth &minus; 1) &times; Confidence &times; Linkage &times; Importance &times; Uniqueness, the same rule as the arguments above, so a finding nobody has argued or sourced reads exactly 0. <strong>Standing</strong> is the verification lifecycle: Verified rows count in full, Unverified and Disputed at half, Falsified at nothing, Unrecorded (no status on record) in full. Format each item as: Finding (Producer, Year). Evidence is data that can fail empirically; a reason that can only fail logically is an argument and belongs in the tree above, not here. Every item must also name what it <strong>bears on</strong>: a specific argument above, identified by its opening words, or this belief directly. Evidence that bears on nothing contributes nothing, no matter how true it is.</em></p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr>
-<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="6">✅ Supporting Evidence</th> <th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="6">❌ Weakening Evidence</th>
+<th style="background-color: #e6ffe6; text-align: center; font-size: 15px;" colspan="8">✅ Supporting Evidence</th> <th style="background-color: #ffe6e6; text-align: center; font-size: 15px;" colspan="8">❌ Weakening Evidence</th>
 </tr>
 <tr style="background-color: #f0f3f6; font-size: 12px;">
-<th width="16%">Evidence (Producer, Year)</th> <th width="10%">Bears On</th> <th width="5%">Tier</th> <th width="7%">Standing</th> <th width="6%"><a href="/algorithms/linkage-scores">Linkage</a></th> <th width="6%">Impact</th> <th width="16%">Evidence (Producer, Year)</th> <th width="10%">Bears On</th> <th width="5%">Tier</th> <th width="7%">Standing</th> <th width="6%"><a href="/algorithms/linkage-scores">Linkage</a></th> <th width="6%">Impact</th>
+<th width="14%">Evidence (Producer, Year)</th> <th width="8%">Bears On</th> <th width="7%">Source type</th> <th width="5%">Standing</th> <th width="4%">Confidence</th> <th width="4%"><a href="/algorithms/linkage-scores">Linkage</a></th> <th width="4%"><a href="/algorithms/unique-scores">Uniqueness</a></th> <th width="4%">Impact</th> <th width="14%">Evidence (Producer, Year)</th> <th width="8%">Bears On</th> <th width="7%">Source type</th> <th width="5%">Standing</th> <th width="4%">Confidence</th> <th width="4%"><a href="/algorithms/linkage-scores">Linkage</a></th> <th width="4%"><a href="/algorithms/unique-scores">Uniqueness</a></th> <th width="4%">Impact</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>&nbsp;</td>
 <td>[Argument&rsquo;s opening words / this belief]</td>
-<td align="center">Tier 1</td>
+<td align="center">[Statistics and data / Primary official record / Randomized controlled trial / Meta-analysis / Observational study / Historical trend / Expert testimony with data / Expert or social media claim / Personal anecdote / Common sense or logic / Analogy / Cultural norm / Intuition / News report / Survey or poll / Eyewitness testimony / Visual evidence / Historical artifact]</td>
 <td align="center">Unverified</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
 <td align="center">&nbsp;</td>
 <td align="center">&nbsp;</td>
 <td>&nbsp;</td>
 <td>[Argument&rsquo;s opening words / this belief]</td>
-<td align="center">Tier 1</td>
+<td align="center">[Statistics and data / Primary official record / Randomized controlled trial / Meta-analysis / Observational study / Historical trend / Expert testimony with data / Expert or social media claim / Personal anecdote / Common sense or logic / Analogy / Cultural norm / Intuition / News report / Survey or poll / Eyewitness testimony / Visual evidence / Historical artifact]</td>
 <td align="center">Unverified</td>
+<td align="center">&nbsp;</td>
+<td align="center">&nbsp;</td>
 <td align="center">&nbsp;</td>
 <td align="center">&nbsp;</td>
 </tr>
@@ -447,11 +474,11 @@
 </table>
 <p>&nbsp;</p>
 <h2>💡 Likely Interests of Supporters</h2>
-<p style="font-size: 13px;">Each row is the claim that this interest is actually driving support for this belief, and like every table on this page it ranks by Score; until scores exist, sort by estimated prevalence. <a href="/algorithms/linkage-scores">Linkage Confidence</a> measures how sure we are this is actually why they support this belief. Validity measures how legitimate the interest is, determined by argument and objective criteria, never by which side has more power. For the deepest treatment build a dedicated Interest Analysis page and link it here.</p>
+<p style="font-size: 13px;">Each row is the claim that this interest is actually driving support for this belief, and like every table on this page it ranks by Score; until scores exist, sort by estimated prevalence. Prevalence is typed by a person, not computed, so the cell carries its source in a parenthetical ([share] ([survey or record, year])); a typed number without a source stays blank. <a href="/algorithms/linkage-scores">Linkage Confidence</a> measures how sure we are this is actually why they support this belief. Validity measures how legitimate the interest is, determined by argument and objective criteria, never by which side has more power. For the deepest treatment build a dedicated Interest Analysis page and link it here.</p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #e6ffe6;">
-<th width="26%">Interest</th> <th width="9%">Prevalence</th> <th width="11%"><a href="/algorithms/linkage-scores">Linkage Confidence</a></th> <th width="11%">Validity</th> <th width="18%">Evidence Basis</th> <th width="17%">Connected Value</th> <th width="8%">Score</th>
+<th width="22%">Interest</th> <th width="13%">Prevalence (typed, with source)</th> <th width="11%"><a href="/algorithms/linkage-scores">Linkage Confidence</a></th> <th width="11%">Validity</th> <th width="18%">Evidence Basis</th> <th width="17%">Connected Value</th> <th width="8%">Score</th>
 </tr>
 </thead>
 <tbody>
@@ -480,7 +507,7 @@
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #ffe6e6;">
-<th width="26%">Interest</th> <th width="9%">Prevalence</th> <th width="11%"><a href="/algorithms/linkage-scores">Linkage Confidence</a></th> <th width="11%">Validity</th> <th width="18%">Evidence Basis</th> <th width="17%">Connected Value</th> <th width="8%">Score</th>
+<th width="22%">Interest</th> <th width="13%">Prevalence (typed, with source)</th> <th width="11%"><a href="/algorithms/linkage-scores">Linkage Confidence</a></th> <th width="11%">Validity</th> <th width="18%">Evidence Basis</th> <th width="17%">Connected Value</th> <th width="8%">Score</th>
 </tr>
 </thead>
 <tbody>
@@ -767,17 +794,19 @@
 </table>
 <br />
 <h1>🗣 People on the Record</h1>
-<p style="font-size: 13px;">Recorded public positions, preserved for tracing the debate. In the ISE, who holds a belief never changes its score: author identity is orthogonal to the final score, so these names carry history, not weight. Each listing is itself a debatable claim that the person actually holds the position; annotate entries whose accuracy is contested. Omit this section when no notable positions are on record.</p>
+<p style="font-size: 13px;">Recorded public positions, preserved for tracing the debate. In the ISE, who holds a belief never changes its score: author identity is orthogonal to the final score, so these names carry history, not weight. Each listing is itself a debatable claim that the person actually holds the position; annotate entries whose accuracy is contested. The Source column says where the position was stated (the bill, the floor statement, the column, the interview), with its date; a name with no source is a rumour, not a record. Omit this section when no notable positions are on record.</p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;">
-<th width="50%">On record agreeing</th> <th width="50%">On record disagreeing</th>
+<th width="28%">On record agreeing</th> <th width="22%">Source</th> <th width="28%">On record disagreeing</th> <th width="22%">Source</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td valign="top">[Person] ([link to statement or source])</td>
-<td valign="top">[Person] ([link to statement or source])</td>
+<td valign="top">[Person]</td>
+<td valign="top">[Bill, floor statement, column or interview, linked where it exists], [Date]</td>
+<td valign="top">[Person]</td>
+<td valign="top">[Bill, floor statement, column or interview, linked where it exists], [Date]</td>
 </tr>
 </tbody>
 </table>
@@ -812,6 +841,37 @@
 </tbody>
 </table>
 <br />
+<!-- WHAT THE NUMBERS ARE MADE OF: the readout, formerly the Scorecard. It sits here,
+     after the arguments and after What This Page Needs Right Now, because no score or
+     verdict is announced before the arguments; the single truth score on the heading
+     line is the only number above them. Every cell is computed from the tables above. -->
+<h1>📋 What the numbers are made of</h1>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<tbody>
+<tr>
+<td style="background-color: #f0f3f6;" width="25%"><strong>Net Belief Score</strong></td>
+<td width="75%"><strong>[Net_Score]</strong> &middot; Pro [Pro_Total] vs. Con [Con_Total] &middot; <span style="font-size: 12px; color: #555;">brackets = placeholders until <a href="/algorithms/reason-rank">ReasonRank</a> computes live scores</span></td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td style="background-color: #f0f3f6;"><strong>Bottom line</strong></td>
+<td>[One-sentence verdict, scoped to what the argument tree below actually supports. No bigger claim than the leaves can carry.]</td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>Strongest pro / con</strong></td>
+<td>[Best pro argument] &middot; [Best con argument] <span style="font-size: 11px; color: #999;">(auto-derived: the top-ranked row from each side of the Argument Trees)</span></td>
+</tr>
+<tr style="background-color: #f9f9f9;">
+<td style="background-color: #f0f3f6;"><strong>What would move this score most</strong></td>
+<td>[The single piece of evidence that would most change the verdict] <span style="font-size: 11px; color: #999;">(auto-derived: the top-scoring row of the Falsifiability Test above)</span></td>
+</tr>
+<tr>
+<td style="background-color: #f0f3f6;"><strong>How a row counts</strong></td>
+<td>sign &times; (2 &times; Truth &minus; 1) &times; Confidence &times; Linkage &times; Importance &times; Uniqueness. A claim nobody has argued sits at Truth 0.50 and reads exactly 0, so no score here can be padded by listing more. Confidence is how much of the work behind the row&rsquo;s page has been done; Linkage, Importance and Uniqueness each read a labelled constant until a page argues them.</td>
+</tr>
+</tbody>
+</table>
+<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>How to read this page:</strong> nothing here is placed by editorial choice. The heading line&rsquo;s truth score is the only number announced before the arguments; this readout comes last so that nothing tells you what to conclude before you have seen what it rests on. Every row in every table is itself a claim, and its Score is the <a href="/algorithms/reason-rank">ReasonRank</a> performance of the pro/con sub-debate about that claim, computed recursively down to the evidence. Every table sorts by its rank key, best content first; the rank key is the rightmost score column: Impact for arguments and evidence, Expected Value for costs and benefits, Claim Strength for the Primary Conflict Pair, and Score everywhere else. In the ISE software each table shows its top five rows and collapses the rest until expanded. [Bracketed] numbers are hand-estimated placeholders until the engine ships, and score cells stay blank until real content exists to score. This wiki can&rsquo;t sort tables live; the score columns are the data contract that lets the software sort, filter, and collapse every table automatically.</p>
+<p>&nbsp;</p>
 <h2>✍ Add to This Page</h2>
 <p style="font-size: 13px;">Every table above takes rows from readers. On the built site each of those tables carries a form like the one below: type one complete sentence, and as you type the page shows the claims already on the site that say the same thing, so a duplicate becomes a vote for the claim already here instead of a second page. Submitting opens a prefilled GitHub issue; a free GitHub account is the cost. A check on GitHub then either records your vote or opens a pull request that adds your rows for the maintainer to merge.</p>
 <div style="border: 2px solid #0055a4; padding: 12px 14px; background-color: #f4f9ff; margin: 12px 0;">

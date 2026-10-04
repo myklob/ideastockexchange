@@ -793,7 +793,7 @@ def render_belief(c, pid):
     else: todo.append(('Logical Anatomy', 'the claim has not been split into its component parts'))
     # ---- interests and conflict
     mark = len(o)
-    o.append(H.section('Interests, Not Positions', 'Positions are what people say they want; interests are why. Each interest is a page where its validity is argued, never weighted by power. Interest score = Validity x Drives.', ('Conflict resolution framework', WIKI['conflict'])))
+    o.append(H.section('Interests, Not Positions', 'Positions are what people say they want; interests are why. Each interest is a need with a subject (who needs what), and that one sentence is argued two ways that never borrow from each other. Validity asks whether the need should be honored, and is settled on the interest\'s own page by the mirror test: would the side accept the same need honored for its opponents, and what happens if everyone pursues it? Who holds the need, how many of them there are and how much power they have never count. Drives asks whether this need is really why the side holds its position, and is settled by the side\'s record, not its rhetoric (the scoring methodology calls it Linkage Accuracy). Score = Validity x Drives. A motive that is real and illegitimate stays in the table with its low validity: it is scored, not deleted, and the same suspicion applies to both sides.', ('Conflict resolution framework', WIKI['conflict'])))
     if sp.get('values'):
         o.append('<h3 class="sub">Shared values, different rankings</h3><table class="plain"><thead><tr><th>Value</th><th>Supporters rank</th><th>Opponents rank</th><th>Gap</th><th>Why the rankings differ</th></tr></thead><tbody>')
         for v in sp['values']:
@@ -815,7 +815,7 @@ def render_belief(c, pid):
     o.append('<h3 class="sub">Interests of each side</h3>' + stacked(H, c, 'Interests of supporters', 'Interests of opponents', lt, rt))
     if lb and rb:
         a, b = lb[1], rb[1]
-        o.append(f'<p class="pair"><span class="lab">Primary conflict pair (computed: the strongest Validity x Drives on each side)</span> {H.a(lb[0]["id"])} ({f2(lb[2])} x {f2(lb[3])}) against {H.a(rb[0]["id"])} ({f2(rb[2])} x {f2(rb[3])}). {pct(a / (a + b)) if a + b else ""} of the paired weight sits on the supporting side. Validity is how legitimate the need is in general; Drives is how much it moves this position. They are different numbers.</p>')
+        o.append(f'<p class="pair"><span class="lab">Primary conflict pair (computed: the interest with the highest Validity x Drives on each side)</span> {H.a(lb[0]["id"])} ({f2(lb[2])} x {f2(lb[3])}) against {H.a(rb[0]["id"])} ({f2(rb[2])} x {f2(rb[3])}). {pct(a / (a + b)) if a + b else ""} of the paired weight sits on the supporting side. This is the one disagreement actually driving the debate: the product uses validity on purpose, so a cover story cannot lead a side and neither can a worthy need nobody is moved by. Validity is whether the need should be honored, argued on its own page and never by the power of who holds it; Drives is whether the need is really why this side holds its position, settled by what the side does. They are different numbers.</p>')
     if sp.get('shared'): o.append('<h3 class="sub">Shared interests</h3>' + simple_rows(H, c, sp['shared'], extra=lambda d: esc(d.get('direction') or '')))
     if sp.get('compromise'): o.append('<h3 class="sub">Best compromise</h3>' + simple_rows(H, c, sp['compromise'], extra=lambda d: f'<span class="lab">Rests on</span> {esc(d.get("premise") or "")} <span class="lab">Why difficult</span> {esc(d.get("difficult") or "")}'))
     if sp.get('motives_sup') or sp.get('motives_opp'):
@@ -1124,7 +1124,7 @@ def render_special(c, pid):
                   ('Computed equivalence score', f2(t)), ('Verdict', 'Merge candidate' if t >= 0.9 else 'Distinct claims: keep both pages, cross-link' if t < 0.5 else 'Overlapping: keep both, name the difference on each page')]
     elif k == 'driver':
         vx = c.truth(x) if is_page(x) else 0
-        checks = [('The interest, read from its page', esc(c.text(x)) if is_page(x) else ''), ('Validity: how legitimate the need is in general (its page)', f2(vx)), ('Claim strength here: how much it drives this position (this page)', f2(t)),
+        checks = [('The interest, read from its page', esc(c.text(x)) if is_page(x) else ''), ('Validity: should the need be honored, argued on its page and never by the power of who holds it', f2(vx)), ('Drives: is this need really why the side holds this position, settled by what the side does (this page)', f2(t)),
                   ('What would show the position is driven by something else', esc(sp.get('bridge') or '')), ('Interest score on Y\'s page = Validity x Drives', f2(vx * t))]
     elif k == 'media':
         checks = [('The work', esc(c.text(pid))), ('Type', esc(sp.get('typ') or '')), ('What it claims about the belief', esc(sp.get('bridge') or '')),
@@ -1920,7 +1920,7 @@ EXPLAIN = [
      'method.html#confidence'),
     ('stake', 'Who has a stake',
      'The groups of people with something at stake in the beliefs here (voters, investors, officials, parents, workers), and what each group needs, like "voters need enough information to judge an official".',
-     'Every interest on the site is written as a group and a need, "<who> need <what>", so the group is read off the sentence. Groups are ranked by how many beliefs list one of their interests, then by how many interests they have; under each group, its needs are ranked by how valid each is argued to be on its own page. A group that is only a belief\'s supporters or opponents is a side rather than a party, so it is kept but listed last. How much power a group holds never enters into it.',
+     'Every interest on the site is written as a group and a need, "<who> need <what>", so the group is read off the sentence. Groups are ranked by how many beliefs list one of their interests, then by how many interests they have; under each group, its needs are ranked by how valid each is argued to be on its own page. Validity asks whether the need should be honored, and is settled by the mirror test: would the group accept the same need honored for its opponents, and what happens if everyone pursues it? It is never set by who holds the need, how many of them there are or how much power they have. On each belief page a second number, Drives, asks whether the need is really why that side holds its position, settled by the side\'s record rather than its rhetoric (the scoring methodology calls it Linkage Accuracy), and Validity x Drives names the one interest actually driving each side. A need that is real and does not hold up is scored, not deleted, and the same suspicion is applied to both sides. A group that is only a belief\'s supporters or opponents is a side rather than a party, so it is kept but listed last.',
      'Positions are what people say they want; interests are why. A compromise is built out of interests, so knowing who has a stake, what they actually need, and which of those needs hold up is where a way through starts.',
      None),
     ('works', 'Best books, studies and reports',
@@ -2178,7 +2178,7 @@ def render_interests(c, title):
     named, generic = stake_groups(c)
     o = [root_head('Who has a stake', [('Home', 'index.html'), ('Who has a stake', '')], main_class='index')]
     o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Who has a stake</h1>')
-    o.append('<p class="lede">The people with something at stake in the beliefs here, group by group, and what each group needs. Every need has its own page where how valid it is gets argued; validity is argued once and every page that lists the interest reads the same number, and how much power the people behind it hold never enters into it.</p>')
+    o.append('<p class="lede">The people with something at stake in the beliefs here, group by group, and what each group needs. Every need has its own page where how valid it is gets argued: should it be honored, held up to a mirror, never who holds it or how much power they have. Validity is argued once and every page that lists the interest reads the same number. A need that is real and does not hold up stays listed with its low score rather than being deleted, whichever side holds it.</p>')
     o.append(EXPLAIN_BLOCK['stake'])
     def table(ps):
         o.append('<table class="scored"><thead><tr><th>Interest</th><th>Value it serves</th><th>Validity</th><th>Listed on</th><th>Beliefs</th></tr></thead><tbody>')

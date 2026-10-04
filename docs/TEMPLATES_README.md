@@ -132,6 +132,28 @@ Quality Score and Influence Score are smoothed, (Pro Total + 0.5k) / (Pro Total 
 - `/media/why-pro-con-media` - Explanatory rationale page
 - `/algorithms/media-truth-score` - The Media Truth Score explainer
 
+## Interest Templates
+
+An interest is a need with a subject ("renters need housing they can afford"), and that one sentence is argued two ways that never borrow from each other: is this really why the side holds its position (Linkage Accuracy, the Drives column on belief pages, settled by behavior through the alibi test), and should it be honored (Interest Validity, settled by the six mirror-test criteria: reciprocity, the universal test, asks no loss from others, alternative satisfaction, scope and reversibility, unmet and shared; never by the holder's power). Drive = Linkage Accuracy x Validity / 100 is computed and typed nowhere. Every interest starts at the opening prior of its Maslow rung (physiological 85 to 100 down to curiosity and play 30 to 50, with needs that fail the criteria outright below the floor at 0 to 20) and the arguments move it from there. A motive that is real and illegitimate is scored and kept, not deleted, with the same suspicion for one's own side. All three templates below carry these rules, the alibi test table, the mirror test, the Maslow priors, the outputs table (shared interests at or above the Resolution Floor of 70, the Primary Conflict Pair, solution scores of 2 x S x O / (S + O), argument importance set by the most valid interest a reason bears on, and every cost and benefit naming the interest that pays or collects it) and a Contribute block in which no step asks anyone to type a score. They are in GitHub form (leading builder comment, hidden authoring-rules paragraph, inline styles, links only to routes that exist). The word "stakeholder" survives only in two file names, kept so links do not break; the pages say "who has a stake", "the people involved" or "groups".
+
+- **interest-validity-debate-template.html** - The argument tree under one interest's Validity score, for when the validity itself is the fight. Sections in order: the interest and the ground rules, the three scores and which one the page argues, what belongs on the other track (the alibi test), the mirror test, where the score starts (the Maslow rungs), three scopes of validity (valid at all; more or less valid than other interests in general; validity inside a specific conflict), bad motives are scored not deleted, where the validity score goes, objective criteria, related pages, contribute. Retired: the rule that an interest starts valid until challenged, the loose seven-item criteria list, the Conflict Resolution Pipeline steps, and the line that the engine was still on the roadmap.
+
+- **stakeholder-profile.html** - The group profile: one page per group of people with a stake (renters, officeholders, voters). Who they are, with size and sources and a note on how well the record speaks for them; every need filed for the group ranked by Linkage Accuracy with Prevalence, Validity and Drive beside it; the alibi test applied to the group's own record; the mirror test; the Maslow rungs; bad motives scored not deleted; the beliefs the group has a stake in and whether its need is in each belief's Primary Conflict Pair; where the scores go; contribute. Retired: the Power Dynamics section and its Influence average, the Composite column (Validity x 0.6 + Linkage x 0.4), the "Invalid / Zero-Sum, de-weighted" marker, Representation Confidence as a number, and clickable rows to routes that never existed.
+
+- **stakeholder-index.html** - The way into every group, the template twin of the published site's interests.html. Groups ranked by how many beliefs list one of their needs, then by how many needs they have; under each group its needs ranked by Validity with Linkage Accuracy and Drive beside them; supporters and opponents "as such" listed last; the shared needs across the site at or above the Resolution Floor; the Primary Conflict Pair on each belief; power never counts and bad motives are scored not deleted; where the scores go; contribute. Retired: the Power and Primary Power Lever columns, the Representation Confidence score, the directory grouped by kind of entity with a count chip for each, and clickable rows to a route that never existed.
+
+### Key Interest Scoring Quantities
+
+| Quantity | Range | Read from |
+|----------|-------|-----------|
+| Linkage Accuracy | 0 to 100 | The alibi test on the interest's own page: does this need predict the side's votes, spending and past positions with fewer exceptions than any rival? Shown as Drives on belief pages. |
+| Interest Validity | 0 to 100 | The mirror test on the interest's validity page, starting from its Maslow rung's opening prior. Never the holder's power, never feasibility. |
+| Drive | 0 to 100 | Linkage Accuracy x Validity / 100. Computed, never typed. |
+| Prevalence | percent | A survey reading with its source: the share of the side the need actually drives. Not a score; multiplies into nothing. |
+| Shared interest | pair | Opposite-side needs that say the same thing, both at or above the Resolution Floor of 70; combined validity is the harmonic mean. |
+| Primary Conflict Pair | pair | The highest-Drive unshared need on each side. |
+| Solution score | 0 to 1 | 2 x S x O / (S + O), where each side's total is the sum over satisfied needs of fraction met x validity. |
+
 ## Future Enhancements
 
 Potential additions to these templates:

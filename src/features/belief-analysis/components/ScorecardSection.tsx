@@ -46,10 +46,13 @@ function ArgumentLink({ arg }: { arg: ArgumentWithBelief | null }) {
 }
 
 /**
- * The Scorecard readout at the top of the page: the computed Net Belief Score
- * and the single highest-scoring row from each side of the argument tree.
- * Everything here is derived from scored content below — it is a readout of
- * the tables, not a prose summary (Rule 2 still applies to prose).
+ * What the numbers are made of (formerly the Scorecard): the computed Net
+ * Belief Score and the single highest-scoring row from each side of the
+ * argument tree. It renders after What This Page Needs Right Now, because no
+ * score or verdict is announced before the arguments; the single truth score
+ * on the heading line is the only number above them. Everything here is
+ * derived from scored content above; it is a readout of the tables, not a
+ * prose summary (Rule 2 still applies to prose).
  */
 export default function ScorecardSection({
   arguments: args,
@@ -97,7 +100,7 @@ export default function ScorecardSection({
   return (
     <section>
       <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-3">
-        <span>&#128203;</span> Scorecard
+        <span>&#128203;</span> What the numbers are made of
       </h2>
       <table className="w-full border-collapse border border-gray-300 text-sm">
         <tbody>
@@ -120,7 +123,7 @@ export default function ScorecardSection({
             <td className={TD}>
               {bottomLine ?? (
                 <span className="text-[var(--muted-foreground)] italic">
-                  One-sentence verdict, scoped to what the argument tree below actually supports.
+                  One-sentence verdict, scoped to what the argument tree above actually supports.
                 </span>
               )}
             </td>
@@ -139,12 +142,25 @@ export default function ScorecardSection({
             <td className={TD}>
               {topMover ?? (
                 <span className="text-[var(--muted-foreground)] italic">
-                  The single piece of evidence that would most change the verdict; see the Falsifiability Test below.
+                  The single piece of evidence that would most change the verdict; see the Falsifiability Test above.
                 </span>
               )}{' '}
               <span className="text-[11px] text-[#999]">
-                (auto-derived: the top-scoring row of the Falsifiability Test below)
+                (auto-derived: the top-scoring row of the Falsifiability Test above)
               </span>
+            </td>
+          </tr>
+          <tr>
+            <td className={LABEL}>How a row counts</td>
+            <td className={TD}>
+              sign × (2 × Truth − 1) × Confidence ×{' '}
+              <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
+              <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link> ×{' '}
+              <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>.
+              A claim nobody has argued sits at Truth 0.50 and reads exactly 0, so no score here can be
+              padded by listing more. Confidence is how much of the work behind the row&apos;s page has
+              been done; Linkage, Importance and Uniqueness each read a labelled constant until a page
+              argues them.
             </td>
           </tr>
         </tbody>
@@ -176,7 +192,9 @@ export default function ScorecardSection({
         </details>
       )}
       <p className="text-sm mt-3 p-2 bg-[#f0f3f6] border border-gray-300">
-        <strong>How to read this page:</strong> nothing here is placed by editorial choice. Every row
+        <strong>How to read this page:</strong> nothing here is placed by editorial choice. The heading
+        line&apos;s truth score is the only number announced before the arguments; this readout comes last
+        so that nothing tells you what to conclude before you have seen what it rests on. Every row
         in every table is itself a claim, and its Score is the{' '}
         <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">ReasonRank</Link>{' '}
         performance of the pro/con sub-debate about that claim, computed recursively down to the
