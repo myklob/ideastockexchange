@@ -32,6 +32,7 @@ out.kinds = job.kinds.map(function (q) {
 out.interestSections = C.INTEREST_SECTIONS;
 out.urls = job.urls.map(function (u) { return C.issueUrl(REPO, u.section, u.side, u.page, u.fields); });
 out.vote = C.voteUrl(REPO, 'some-key', 'disagree');
+out.voteOn = C.voteUrl(REPO, 'some-key', 'agree', 'some-page');
 process.stdout.write(JSON.stringify(out));
 """.replace('REPO', json.dumps(REPO))
 
@@ -87,6 +88,9 @@ class TestTheScoringPort(unittest.TestCase):
             {'section': 'falsify', 'side': 'disagree', 'page': 'some-belief',
              'fields': {'title': 'Would move it: ', 'text': 'A matched study finds no trading edge.', 'url': 'https://example.org/s', 'date': '2026-09-30'}},
             {'section': 'direction', 'side': 'agree', 'page': 'some-topic', 'fields': {'title': 'Position: ', 'text': 'Cities should plant trees.', 'category': '+50'}},
+            {'section': 'cba', 'side': 'disagree', 'page': 'some-belief',
+             'fields': {'title': 'Cost or benefit: ', 'text': 'Officials pay to sell their holdings.', 'magnitude': '20000', 'mag_low': '5000',
+                        'mag_high': '60000', 'units': 'dollars per official per term', 'who': 'Officials need rules they can follow'}},
         ]
         cls.out = run_node({'claims': cls.claims, 'pairs': cls.pairs, 'queries': cls.queries, 'kinds': cls.kinds, 'urls': cls.urls})
 
@@ -147,8 +151,12 @@ class TestTheScoringPort(unittest.TestCase):
             for m, r in zip(got, want): self.assertAlmostEqual(m['score'], r['score'], delta=1e-9)
 
     def test_issue_urls_carry_the_form_field_ids(self):
-        arg, belief, long, wide, mover, cell = (urlsplit(u) for u in self.out['urls'])
-        for u in (arg, belief, long, wide, mover, cell): self.assertEqual(u.path, '/myklob/ideastockexchange/issues/new')
+        arg, belief, long, wide, mover, cell, cost = (urlsplit(u) for u in self.out['urls'])
+        for u in (arg, belief, long, wide, mover, cell, cost): self.assertEqual(u.path, '/myklob/ideastockexchange/issues/new')
+        k = parse_qs(cost.query)
+        self.assertEqual({f: k[f][0] for f in ('magnitude', 'mag_low', 'mag_high', 'units', 'who')},
+                         {f: self.urls[6]['fields'][f] for f in ('magnitude', 'mag_low', 'mag_high', 'units', 'who')}, 'the estimate does not reach the issue')
+        for f in ('magnitude', 'units', 'who'): self.assertNotIn(f, parse_qs(arg.query), 'an empty field was sent')
         m = parse_qs(mover.query)
         self.assertEqual(m['title'], ['Would move it: A matched study finds no trading edge.'], 'the title the form carries is not used')
         self.assertEqual(m['section'], ['falsify']); self.assertEqual(m['url'], ['https://example.org/s']); self.assertEqual(m['date'], ['2026-09-30'])
@@ -174,6 +182,29 @@ class TestTheScoringPort(unittest.TestCase):
         v = urlsplit(self.out['vote'])
         self.assertEqual(parse_qs(v.query), {'template': ['vote.yml'], 'labels': ['vote'], 'page': ['some-key'],
                                              'vote': ['disagree'], 'title': ['Vote disagree: some-key']})
+        v = urlsplit(self.out['voteOn'])
+        self.assertEqual(parse_qs(v.query)['on'], ['some-page'], 'a vote on whether a row bears on its page lost the page')
+        self.assertEqual(parse_qs(v.query)['title'], ['Vote agree: some-key on some-page'])
+
+    def test_every_field_the_script_sends_is_one_the_issue_form_has_and_intake_reads(self):
+        """A query parameter GitHub has no field for is dropped without a word, and a heading intake does not
+        read is thrown away, so the three lists are held to each other: the script's, the issue form's, intake's."""
+        import re, intake
+        root = os.path.dirname(os.path.dirname(HERE))
+        for form, yml_name in (('contribution', 'contribute.yml'), ('vote', 'vote.yml')):
+            with open(os.path.join(root, '.github', 'ISSUE_TEMPLATE', yml_name)) as fh: yml = fh.read()
+            ids = set(re.findall(r'^\s+id: ([a-z_]+)$', yml, re.M))
+            labels = set(re.findall(r'^\s+label: (.+)$', yml, re.M))
+            for label, fid in intake.FIELDS[form].items():
+                self.assertIn(fid, ids, f'{yml_name} has no field {fid}')
+                self.assertIn(label, labels, f'{yml_name} labels {fid} differently from what intake reads')
+        sent = set()
+        for u in self.out['urls']:
+            q = parse_qs(urlsplit(u).query)
+            if q['template'] == ['contribute.yml']: sent |= set(q)
+        self.assertEqual(sent - {'template', 'labels', 'title'} - set(intake.FIELDS['contribution'].values()), set())
+        with open(JS, encoding='utf-8') as fh: src = fh.read()
+        for label in intake.FIELDS['contribution']: self.assertIn(f"'{label}'", src, f'Copy as text does not write the heading {label!r}')
 
 
 class TestItIsPlainScript(unittest.TestCase):

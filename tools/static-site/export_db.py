@@ -22,7 +22,7 @@ Tables
              long_term, component, assumption, interest, shared_interest, compromise, motive, obstacle, bias, media,
              law, upstream, downstream, similar, person, value, definition, used, dispute, category, impact,
              interest_listing, related.
-  vote       key, login, vote, issue, date                  what people said, from content/votes.csv; read by nothing that scores
+  vote       key, on_page, login, vote, issue, date         what people said, from content/votes.csv; read by nothing that scores
   Scores are never stored: they are computed from these tables (score_reference.Model), so nothing typed is a score.
 """
 import json, sys, os, sqlite3, re
@@ -146,15 +146,17 @@ CREATE TABLE IF NOT EXISTS topic_row (
   attrs        TEXT                    -- JSON: the named extras (branch, argument, advertised, critics, validity, ...)
 );
 
--- What people said, kept apart from what the analysis says. One row per (page key, GitHub login), the latest
--- vote by that login; the issue is where it was cast. Nothing reads this into a score.
+-- What people said, kept apart from what the analysis says. One row per (page key, on_page, GitHub login), the
+-- latest vote by that login on that question; the issue is where it was cast. Nothing reads this into a score.
 CREATE TABLE IF NOT EXISTS vote (
   key          VARCHAR(64) NOT NULL,   -- the page key (page.id is the tab number; the key is the address)
+  on_page      VARCHAR(64) NOT NULL DEFAULT '',  -- empty: a vote on whether the claim is true; a page key: on whether
+                                                 -- the claim bears on that page, a vote on the argument as an argument
   login        VARCHAR(64) NOT NULL,
-  vote         VARCHAR(8) NOT NULL,    -- agree or disagree
+  vote         VARCHAR(8) NOT NULL,    -- agree or disagree; for a vote with on_page, agree means it bears there
   issue        INTEGER,
   date         DATE,
-  PRIMARY KEY (key, login)
+  PRIMARY KEY (key, on_page, login)
 );
 
 CREATE INDEX IF NOT EXISTS edge_claim ON edge(claim_id);
@@ -284,7 +286,7 @@ def build_sqlite(path, data_sql, schema=None):
 
 TOPIC_COLS = ['key', 'name', 'parent', 'definition', 'scope', 'axis']
 TOPIC_ROW_COLS = ['id', 'topic', 'section', 'category', 'side', 'claim_id', 'text', 'source', 'attrs']
-VOTE_COLS = ['key', 'login', 'vote', 'issue', 'date']
+VOTE_COLS = ['key', 'on_page', 'login', 'vote', 'issue', 'date']
 
 def topic_tables(topics, topic_rows, tabs):
     """The topics table and a topic's rows in the export's shape: a claim key becomes the page id it names,
@@ -304,8 +306,8 @@ def topic_tables(topics, topic_rows, tabs):
 def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, beliefs=None, topics=None, topic_rows=None, tabs=None, votes=None):
     pages, edges = normalize(specs, beliefs)
     ts, trows = topic_tables(topics, topic_rows, tabs)
-    vs = [{'key': v['key'], 'login': v['login'], 'vote': v['vote'], 'issue': (int(v['issue']) if str(v.get('issue') or '').isdigit() else None),
-           'date': v.get('date') or None} for v in (votes or [])]
+    vs = [{'key': v['key'], 'on_page': v.get('on') or '', 'login': v['login'], 'vote': v['vote'],
+           'issue': (int(v['issue']) if str(v.get('issue') or '').isdigit() else None), 'date': v.get('date') or None} for v in (votes or [])]
     constants = [{'name': k, 'value': v, 'meaning': (const_meanings or {}).get(k, '')} for k, v in consts.items()]
     os.makedirs(outdir, exist_ok=True)
     data = {'constants': constants, 'pages': pages, 'edges': edges, 'topics': ts, 'topic_rows': trows, 'votes': vs}

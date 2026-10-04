@@ -1,5 +1,5 @@
 name: Vote on a claim
-description: Say whether you agree or disagree with a claim on the site. What happens next, in one sentence, is that your vote is recorded against your GitHub login, latest vote wins, and shown on the page as what people think, next to what the analysis says; it never moves a score.
+description: Say whether you agree or disagree with a claim on the site, or whether a claim bears on a page it is filed on. What happens next, in one sentence, is that your vote is recorded against your GitHub login, latest vote wins, and shown on the page as what people think, next to what the analysis says; it never moves a score.
 title: "Vote agree: "
 labels: [vote]
 body:
@@ -20,6 +20,11 @@ body:
         - disagree
     validations:
       required: true
+  - type: input
+    id: on
+    attributes:
+      label: On page
+      description: Optional. Leave empty to vote on whether the claim is true. Fill in the key of a page the claim is a row on to vote instead on whether it bears on that page, which is a vote on the argument, not on the claim.
   - type: textarea
     id: why
     attributes:

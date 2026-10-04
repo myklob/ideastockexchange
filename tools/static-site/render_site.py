@@ -519,9 +519,12 @@ def evidence_table(H, c, side_rows, specs_rows, bears=None, votes=False):
         d, r = specs_rows[i], side_rows[i]
         b = r['basis']; sp = c.specs.get(d.get('id')) or {}
         p0 = f'<span class="n{"" if b["grounded"] else " c"}" title="{esc(EV.label(sp))}">{f2(b["p0"])}</span>'
-        on = (bears[i] if bears else None) or '<span class="u">this belief</span>'
+        # a finding filed under one of this page's reasons is a row on that reason's page, so that is the page a
+        # vote on whether it bears is about
+        tag, home = (bears[i] if bears else None) or (None, H.pid)
+        on = tag or '<span class="u">this belief</span>'
         rests = f'<div class="src">Rests on: {esc(EV.label(sp).split(", starts at")[0])}</div>'
-        vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if votes and is_page(d.get('id')) else ''
+        vl = (vote_links(c, d['id']) + edge_vote_links(c, d, home)) if votes and is_page(d.get('id')) else ''
         out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{rests}{vl}</td><td class="u">{on}</td><td>{p0}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{conf_cell(H, c, d)}</td>'
@@ -546,8 +549,8 @@ def ledger_with_reasons(H, c, pid, s):
             tag = H.a(d['id'], c.short(d['id'], 60)) + ' <span class="tk">counted there</span>'
             for ev, rows, supports in ((rs['evid']['for'], rst['rows']['for'], True), (rs['evid']['against'], rst['rows']['against'], False)):
                 helps = supports if side == 'agree' else not supports
-                if helps: F += ev; RF += rows; BF += [tag] * len(ev)
-                else: A += ev; RA += rows; BA += [tag] * len(ev)
+                if helps: F += ev; RF += rows; BF += [(tag, d['id'])] * len(ev)
+                else: A += ev; RA += rows; BA += [(tag, d['id'])] * len(ev)
     return F, A, RF, RA, BF, BA
 
 def sensitivity_section(H, c, pid):
@@ -1281,8 +1284,8 @@ NEXT_NOTE = ('What happens next: a check runs for a claim already saying the sam
 # sides: the two labels of the side switch, or None when the section has no side; cats: fixed categories a
 # topic cell is filed in, as (value, label), or a placeholder string for a typed one; url: whether the form
 # takes an address and a date that intake folds into the source text.
-def _f(label, hint, source=None, sides=None, cats=None, url=False, term=False):
-    return {'label': label, 'hint': hint, 'source': source, 'sides': sides, 'cats': cats, 'url': url, 'term': term}
+def _f(label, hint, source=None, sides=None, cats=None, url=False, term=False, est=False):
+    return {'label': label, 'hint': hint, 'source': source, 'sides': sides, 'cats': cats, 'url': url, 'term': term, 'est': est}
 FORMS = {
     'argument': _f('Add a reason to %s', 'One complete sentence that could headline a page of its own'),
     'evidence': _f('Add a finding', 'What was found, by whom and when, as one sentence',
@@ -1290,8 +1293,8 @@ FORMS = {
     'prediction': _f('Add a prediction', 'What the world should show, as one sentence',
                      'By when, and how it gets settled (optional)', ('follows if the claim is true', 'follows if the claim is false')),
     'criterion': _f('Add a criterion', 'A measurement both sides would accept in advance', 'How it is measured (optional)'),
-    'cba': _f('Add a cost or benefit', 'Who gains or pays what, as one sentence', 'In what units, and how it is known (optional)',
-              ('a benefit', 'a cost')),
+    'cba': _f('Add a cost or benefit', 'Who gains or pays what, as one sentence', 'How the estimate is known: title, producer, year (optional)',
+              ('a benefit', 'a cost'), est=True),
     'interest': _f('Add an interest', 'A need somebody has, as one sentence', 'Where it is on record (optional)',
                    ('of supporters', 'of opponents')),
     'falsify': _f('Add evidence that would move this', 'What result, from what kind of source, by when, as one sentence',
@@ -1468,6 +1471,15 @@ def add_form(up, section, side='agree', page=None, topic=None, first=False, labe
     if source:
         req = ' required' if F['term'] else ''
         o.append(f'<input id="{fid}-source" name="source"{req} placeholder="{esc(source)}" aria-label="{esc(source)}">')
+    if F['est']:
+        # the estimate, its range and its units, each optional; intake copies a number onto the row only when it is one
+        o.append(f'<input id="{fid}-units" name="units" placeholder="In what units: dollars per year, cases, hours (optional)" '
+                 f'aria-label="In what units (optional)">')
+        o.append('<span class="est">' + ''.join(
+            f'<input id="{fid}-{n}" name="{n}" type="number" step="any" min="0" placeholder="{esc(ph)}" aria-label="{esc(ph)} (optional)">'
+            for n, ph in (('magnitude', 'Best estimate'), ('mag_low', 'Low end'), ('mag_high', 'High end'))) + '</span>')
+        o.append(f'<input id="{fid}-who" name="who" placeholder="Who gains or pays: an interest, in its own words (optional)" '
+                 f'aria-label="Who gains or pays (optional)">')
     if F['url']:
         o.append(f'<input id="{fid}-url" name="url" type="url" placeholder="Its address on the web (optional)" aria-label="Its address on the web (optional)">')
         o.append(f'<label class="lab" for="{fid}-date">Date you checked it (optional)</label><input id="{fid}-date" name="date" type="date">')
@@ -1489,7 +1501,9 @@ def take_part(up, page_kind='page'):
     someone who would rather use git, and what happens after the button."""
     return (f'<p class="take" id="take-part"><strong>Add to this {esc(page_kind)}.</strong> Every table below has a form. Submitting opens a prefilled '
             f'GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE} '
-            f'{GIT_NOTE}. Without an account, the Copy as text button under any form puts your submission on the clipboard so you can send it another way.</p>')
+            f'{GIT_NOTE}. Without an account, the Copy as text button under any form puts your submission on the clipboard so you can send it another way.</p>'
+            '<noscript><p class="fine">With scripts turned off, each form still opens GitHub with this page and its table filled in; '
+            'the check for a claim already on the site and the Copy as text button need scripts.</p></noscript>')
 
 
 def contribute_script(up):
@@ -2524,7 +2538,7 @@ table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl
 .add button{max-width:100%;font:600 13px/1.3 var(--sans);padding:7px 12px;border:1px solid var(--navy);border-radius:4px;background:var(--navy);color:var(--paper);cursor:pointer}
 .add button:hover{background:var(--navy2);border-color:var(--navy2)}.add button:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
 .add .dup{margin:8px 0 0;font-size:13px}.add .dup:empty{display:none}.add .dup ul{margin:4px 0 0;padding-left:18px}.add .dup li{margin:3px 0}
-.add .fine{margin:8px 0 0}.side .add{margin-top:10px}
+.add .fine{margin:8px 0 0}.add .est{display:flex;gap:6px}.add .est input{min-width:0;flex:1}.side .add{margin-top:10px}
 .forms{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:12px}.forms .add{margin:0}
 .take{font-size:13.5px;color:var(--ink2);border-left:3px solid var(--navy);padding:6px 10px;margin:10px 0}
 .votes .vl{color:var(--mute);font-weight:400}td .votes+.votes{margin-top:2px}.add button.copy{background:var(--paper);color:var(--navy);margin-left:6px}

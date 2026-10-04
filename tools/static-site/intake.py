@@ -332,7 +332,9 @@ def page_row(f, tables, claim=None):
         e['text'] = kind
         e['extra'] = IT.fmt_extra({k: v for k, v in (('what', text), ('move', source)) if v})
     elif section in ('evidence', 'law', 'person', 'falsify', 'media') and source: e['source'] = source
-    elif section == 'cba': e.update(estimate(f, tables)[0])
+    elif section == 'cba':
+        if source: e['source'] = source
+        e.update(estimate(f, tables)[0])
     elif section == 'prediction' and source: e['deadline'] = source
     elif section == 'criterion' and source: e['extra'] = IT.fmt_extra({'method': source})
     elif section == 'shared_interest' and source: e['extra'] = IT.fmt_extra({'direction': source})
@@ -393,7 +395,7 @@ def rows_for(sub, tables):
             else: notes.append(NOTES['cba'])
         elif section in NOTES: notes.append(NOTES[section])
         if f['why']: notes.append('Why it bears on the page, in the submitter\'s words: ' + f['why'])
-        carried = section in ('evidence', 'prediction', 'criterion', 'law', 'person', 'falsify', 'media', 'value', 'definition', 'dispute',
+        carried = section in ('cba', 'evidence', 'prediction', 'criterion', 'law', 'person', 'falsify', 'media', 'value', 'definition', 'dispute',
                               'shared_interest', 'compromise', 'motive', 'engagement', 'criteria')
         if f.get('source') and not carried: notes.append('Source given: ' + f['source'])
     elif form == 'belief':
