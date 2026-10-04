@@ -199,7 +199,7 @@ export default function EvidenceSection({ evidence }: EvidenceSectionProps) {
                 <EvidenceHalf item={weakening[i]} />
               </tr>
             ))}
-            <ExpandableRows moreCount={restRows.length} colSpan={10}>
+            <ExpandableRows moreCount={restRows.length} colSpan={12}>
               {restRows.map(i => (
                 <tr key={i}>
                   <EvidenceHalf item={supporting[i]} />

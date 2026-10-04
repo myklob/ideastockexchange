@@ -24,6 +24,7 @@ const DB_PATH = path.resolve(__dirname, 'tmp-propagation.test.db')
 let prisma: any
 let propagateBeliefScores: any
 let propagateFromLinkageChange: any
+let previewArgumentImpacts: any
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 // Seeded ids, filled during setup.
@@ -53,7 +54,7 @@ beforeAll(async () => {
 
   // Dynamic imports AFTER DATABASE_URL is set so the singleton binds correctly.
   ;({ prisma } = await import('@/lib/prisma'))
-  ;({ propagateBeliefScores, propagateFromLinkageChange } = await import(
+  ;({ propagateBeliefScores, propagateFromLinkageChange, previewArgumentImpacts } = await import(
     '@/lib/propagate-belief-scores'
   ))
 
@@ -289,5 +290,21 @@ describe('Cycle safety', () => {
     const result = await propagateBeliefScores(a.id)
     expect(result).toHaveProperty('updatedBeliefIds')
     expect(Array.isArray(result.updatedArgumentIds)).toBe(true)
+  }, 20_000)
+})
+
+describe('Dry-run preview parity', () => {
+  it('previewArgumentImpacts projects exactly what propagateBeliefScores then writes', async () => {
+    const preview = await previewArgumentImpacts(truthChildId)
+    expect(preview.length).toBeGreaterThan(0)
+
+    await propagateBeliefScores(truthChildId)
+
+    for (const p of preview) {
+      const arg = await prisma.argument.findUnique({ where: { id: p.argumentId } })
+      expect(arg.impactScore).toBeCloseTo(p.projectedImpactScore, 5)
+      expect(arg.importanceScore).toBeCloseTo(p.effectiveImportance, 5)
+      expect(arg.uniquenessScore).toBeCloseTo(p.uniqueness, 5)
+    }
   }, 20_000)
 })
