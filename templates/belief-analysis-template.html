@@ -66,7 +66,10 @@
     2.  Evidence Ledger (two-sided: Supporting / Weakening, each with
         Evidence (Producer, Year) / Bears On / Source type / Standing / Confidence /
         Linkage / Uniqueness / Impact; Source type is one of the engine's eighteen,
-        listed in the authoring notes with where each starts)
+        listed in the authoring notes with where each starts. Standing is software
+        only: the static site has no verification lifecycle, counts every row in
+        full as Unrecorded, and prints Starts at / Truth / Confidence / Linkage /
+        Importance / Uniqueness / Score / EVS instead)
     3.  Objective Criteria (Criterion / How to Measure / Reading That Would
         Strengthen / Reading That Would Weaken / Latest Reading / Score)
     4.  Falsifiability Test (Evidence That Would Strengthen+Score / Weaken+Score,
@@ -99,7 +102,10 @@
     11. Similar Beliefs (More Extreme+Score / More Moderate+Score, scored by
         equivalency; near-100% paraphrases go in prose as merge candidates,
         not in the table)
-    11b. Where This Belief Is Used (software only; what-links-here)
+    11a. Ways of Saying the Same Thing (static site; other wordings, shortest
+        first, each with its equivalence score)
+    11b. Where This Belief Is Used (what-links-here; the static site calls it
+        Where This Page Is Used)
     11c. Score History (software only; the accumulation ledger)
     12. Definitions (Term / Definition / Score, defined operationally), last
         analysis section
@@ -118,7 +124,10 @@
     14b. Add to This Page (the participation block: one form per table on the
         built site, vote links on the heading line; a vote never moves a score)
     15. Contribute / footer
-    16. Related Topics (the category cluster; current page as plain text)
+    16. Related Topics (the category cluster; current page as plain text; the
+        static site calls it Related Beliefs)
+    The static site may also follow Definitions with Not filled in yet, Structural
+    Checks and Scoring Engine, which list or derive rather than analyse (Rule 1).
 -->
 <p style="text-align: right;"><a href="/">Home</a> &rsaquo;  <a href="/topics">Topics</a> &rsaquo;  [Category] &rsaquo;  [This Belief]</p>
 <div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -213,7 +222,7 @@
 <hr />
 <br />
 <h1>📊 <a href="/algorithms/evidence-scores">Evidence Ledger</a></h1>
-<p style="font-size: 13px;"><em><strong>Source type</strong> is what kind of thing the finding is, one of the eighteen the engine knows, and it sets where the finding&rsquo;s truth starts before anyone argues it: statistics and data with the source cited, primary official record, randomized controlled trial, meta-analysis, observational study, historical trend, expert testimony with data, expert or social media claim, personal anecdote, common sense or logic, analogy, cultural norm, intuition, news report, survey or poll, eyewitness testimony, visual evidence, historical artifact (strongest first; the authoring notes list where each starts). Classify what the claim says, not the instrument that produced it. A finding with no source type named starts at 0.50 and pulls nothing either way. A row counts as sign &times; (2 &times; Truth &minus; 1) &times; Confidence &times; Linkage &times; Importance &times; Uniqueness, the same rule as the arguments above, so a finding nobody has argued or sourced reads exactly 0. <strong>Standing</strong> is the verification lifecycle: Verified rows count in full, Unverified and Disputed at half, Falsified at nothing, Unrecorded (no status on record) in full. Format each item as: Finding (Producer, Year). Evidence is data that can fail empirically; a reason that can only fail logically is an argument and belongs in the tree above, not here. Every item must also name what it <strong>bears on</strong>: a specific argument above, identified by its opening words, or this belief directly. Evidence that bears on nothing contributes nothing, no matter how true it is.</em></p>
+<p style="font-size: 13px;"><em><strong>Source type</strong> is what kind of thing the finding is, one of the eighteen the engine knows, and it sets where the finding&rsquo;s truth starts before anyone argues it: statistics and data with the source cited, primary official record, randomized controlled trial, meta-analysis, observational study, historical trend, expert testimony with data, expert or social media claim, personal anecdote, common sense or logic, analogy, cultural norm, intuition, news report, survey or poll, eyewitness testimony, visual evidence, historical artifact (strongest first; the authoring notes list where each starts). Classify what the claim says, not the instrument that produced it. A finding with no source type named starts at 0.50 and pulls nothing either way. A row counts as sign &times; (2 &times; Truth &minus; 1) &times; Confidence &times; Linkage &times; Importance &times; Uniqueness, the same rule as the arguments above, so a finding nobody has argued or sourced reads exactly 0. <strong>Standing</strong> is the verification lifecycle: Verified rows count in full, Unverified and Disputed at half, Falsified at nothing, Unrecorded (no status on record) in full. Standing is kept by the software only; where no lifecycle is recorded every row is Unrecorded and the column is left off. Format each item as: Finding (Producer, Year). Evidence is data that can fail empirically; a reason that can only fail logically is an argument and belongs in the tree above, not here. Every item must also name what it <strong>bears on</strong>: a specific argument above, identified by its opening words, or this belief directly. Evidence that bears on nothing contributes nothing, no matter how true it is.</em></p>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr>

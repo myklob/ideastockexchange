@@ -1389,14 +1389,50 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
             self.assertIn(f'href="../t/{self.corpus.topic_href(k)}"', h, f'{self.corpus.key[b]} does not link its topic')
             self.assertIn(self.corpus.topics[k]['name'], htmlmod.unescape(h), f'{self.corpus.key[b]} prints the topic key instead of its name')
 
-    def test_an_empty_cell_says_so_rather_than_inventing(self):
-        """Engagement has no rows anywhere yet. The table keeps its four fixed levels, because the levels are
-        the template's taxonomy and not data, and every cell that would need data says it has none."""
+    def test_an_empty_section_says_so_once_rather_than_drawing_empty_cells(self):
+        """Engagement has no rows anywhere yet. A section with nothing filed keeps its heading, its caption and
+        its form, and says once that nothing is here, the way a belief page names an unfilled part once: four
+        levels of empty cells were twenty lines of "Nothing here yet" on every topic."""
+        checked = 0
         for k in self._filled():
             if self.corpus.topic_rows.get(k) and any(r.get('section') == 'engagement' for r in self.corpus.topic_rows[k]): continue
-            t = self._text(self.pages[k])
-            i = t.find('The Engagement Landscape'); j = t.find('Common Ground and Compromise')
-            self.assertGreaterEqual(t[i:j].count('Nothing here yet.'), 8, f'topic {k}: the engagement table has cells filled with nothing behind them')
+            h = self.pages[k]
+            i = h.find('The Engagement Landscape'); j = h.find('Common Ground and Compromise')
+            block = h[i:j]
+            self.assertEqual(self._text(block).count('Nothing here yet.'), 1, f'topic {k}: an empty section repeats its emptiness')
+            self.assertNotIn('<table', block, f'topic {k}: an empty section still draws a table')
+            self.assertIn('Add what engagement looks like', block, f'topic {k}: an empty section lost its form')
+            checked += 1
+        self.assertGreater(checked, 0)
+
+    def test_the_metrics_count_the_rows_the_page_shows(self):
+        """Evidence Depth counts the findings the topic's Evidence Ledger lists, so the two cannot disagree; a
+        metric with no computation behind it is left off, and each metric links to where it is defined."""
+        for k in self._filled():
+            h = self.pages[k]
+            beliefs = self.corpus.topic_beliefs(k)
+            n = sum(len(self.corpus.specs[b]['evid']['for']) + len(self.corpus.specs[b]['evid']['against']) for b in beliefs)
+            m = re.search(r'<div class="metrics">.*?</div>', h, re.S).group(0)
+            self.assertIn(f'{n} finding{"" if n == 1 else "s"} listed', self._text(m), f'topic {k}: Evidence Depth disagrees with its ledger')
+            self.assertNotIn('Importance', m, f'topic {k}: a metric nothing computes is printed')
+            self.assertNotIn('method.html#formula', m)
+            self.assertIn('lists.html#topics', m)
+
+    def test_a_topic_page_carries_no_boilerplate_that_reads_the_same_everywhere(self):
+        """Headings are words, the Key insight boxes are gone, the producer of a finding is printed once, and
+        the parent topic in the breadcrumb is a link."""
+        for k in self._filled():
+            h = self.pages[k]
+            self.assertNotRegex(h, r'<h2[^>]*>&#\d+;', f'topic {k}: a heading starts with a picture')
+            self.assertNotIn('Key insight', h)
+            self.assertNotIn('redundancy discount', h)
+            self.assertNotIn('Compromise Candidates', h)
+            i = h.find('The Evidence Ledger'); block = h[i:h.find('Best Objective Criteria', i)]
+            self.assertNotRegex(block, r'<div class="src">([^<]+)</div><br><span class="sub">\1</span>', f'topic {k}: a producer is printed twice')
+            parent = self.corpus.topics[k].get('parent')
+            if parent:
+                crumb = re.search(r'<p class="crumb">.*?</p>', h, re.S).group(0)
+                self.assertIn(f'href="{self.corpus.topic_href(parent)}"', crumb, f'topic {k}: the parent topic is not linked')
 
 
 class TestThePagesSpeakPlainly(unittest.TestCase):
@@ -2108,6 +2144,16 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
         self.assertNotIn('votes, not a score', re.search(r'<h1>(.*?)</h1>', self._page(self.out_n, 'p/a.html'), re.S).group(1))
         self.assertNotIn('votes, not a score', re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/r2.html'), re.S).group(1))
 
+    def test_one_vote_is_a_count_and_the_share_waits_for_enough_voters(self):
+        """One vote is always 100% or 0%, and a gap from the analysis built on it says nothing. The counts are
+        shown from the first vote; the share and the gap appear on the heading line only once MIN_VOTERS people
+        have voted, which is the same threshold the ranked list uses."""
+        a = re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/a.html'), re.S).group(1)
+        self.assertIn('67% agree, the analysis reads', a)
+        r1 = re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/r1.html'), re.S).group(1)
+        self.assertIn('0 agree, 1 disagree; votes, not a score', r1)
+        self.assertNotIn('the analysis reads', r1, 'one vote is shown as a share with a gap')
+
     def test_no_vote_moves_any_score(self):
         for pid in self.cv.specs:
             self.assertEqual(self.cv.truth(pid), self.cn.truth(pid), f'{self.cv.key[pid]}: a vote moved the truth score')
@@ -2139,8 +2185,10 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
         i = with_.find('<span>Recently voted</span>'); card = with_[i:with_.find('</section>', i)]
         self.assertIn('href="p/a.html"', card); self.assertIn('href="p/r1.html"', card, 'a page one person voted on is not listed')
         self.assertNotIn('href="p/b.html"', card, 'an unpublished draft is listed')
-        # the number column is the count of votes; the line under the claim says the share and the date, not the count again
-        self.assertIn('67% agree, last on 2026-09-03', card); self.assertIn('0% agree, last on 2026-09-02', card)
+        # the number column is the count of votes; the line under the claim says the share and the date once
+        # MIN_VOTERS people have voted, and the plain counts before that, because one vote is always 0% or 100%
+        self.assertIn('67% agree, last on 2026-09-03', card); self.assertIn('0 agree, 1 disagree, last on 2026-09-02', card)
+        self.assertNotIn('0% agree', card, 'one vote is shown as a share')
         self.assertRegex(card, r'<td class="sc">3</td>'); self.assertRegex(card, r'<td class="sc">1</td>')
         self.assertEqual([self.cv.key[p] for p, *_ in RS.recently_voted(self.cv)], ['a', 'r1'], 'not newest vote first')
         self.assertIn(RS.VOTE_NOTE, card)
@@ -2188,6 +2236,146 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
         gaps = h[h.find('What this page needs right now'):]
         self.assertIn('href="#add-evidence"', gaps)
         self.assertEqual(self.broken_v, [])
+
+
+
+class TestTheBeliefPageReadsInPlainOrder(unittest.TestCase):
+    """The belief-page audit, read off the published build: every table ranks its own side strongest first, every
+    factor of the row rule is a column, a page carries one meaning of complete, zero has one spelling, headers say
+    what they are, and the invitation sends a reader who disagrees to the disagreeing column."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.html, cls.c = cls.parent.html, cls.parent.c
+        cls.beliefs = list(cls.c.beliefs)
+
+    @staticmethod
+    def _text(h): return re.sub(r'\s+', ' ', htmlmod.unescape(re.sub(r'<[^>]+>', ' ', h)))
+
+    @staticmethod
+    def _num(cell):
+        t = htmlmod.unescape(re.sub(r'<[^>]+>', '', cell)).strip().split(' ')[0].replace(',', '').replace('+', '')
+        try: return float(t)
+        except ValueError: return None
+
+    def _side_tables(self, h, section):
+        i = h.find(f'<span>{section}</span>')
+        if i < 0: return []
+        block = h[i:h.find('</section>', i)]
+        return re.findall(r'<table class="scored"[^>]*>.*?</table>', block, re.S)
+
+    def _column(self, table, name):
+        heads = [htmlmod.unescape(re.sub(r'<[^>]+>', '', x)).strip() for x in re.findall(r'<th[^>]*>(.*?)</th>', table, re.S)]
+        if name not in heads: return None
+        j = heads.index(name)
+        out = []
+        for row in re.findall(r'<tr\b[^>]*>(.*?)</tr>', table[table.find('<tbody>'):], re.S):
+            cells = re.findall(r'<td[^>]*>(.*?)</td>', row, re.S)
+            if len(cells) > j: out.append(self._num(cells[j]))
+        return out
+
+    def test_a_side_ranks_its_strongest_row_first(self):
+        """Rule 8 on both sides. A row's score is signed for the page above it, so the strongest objection is the
+        most negative one; ranking the disagreeing side by the raw score put the weakest first."""
+        import render_site as RS
+        rows = [dict(score=-0.0, sign=-1), dict(score=-0.25, sign=-1), dict(score=-0.13, sign=-1)]
+        self.assertEqual(RS.side_order(rows), [1, 2, 0])
+        self.assertEqual(RS.side_order([dict(score=0.1, sign=1), dict(score=0.3, sign=1)]), [1, 0])
+        checked = 0
+        for b in self.beliefs:
+            for sec in ('Argument Trees', 'Evidence Ledger'):
+                tables = self._side_tables(self.html[b], sec)
+                if len(tables) < 2: continue
+                for t, sign in ((tables[0], 1), (tables[1], -1)):
+                    col = [v for v in (self._column(t, 'Score') or []) if v is not None]
+                    self.assertEqual(col, sorted(col, key=lambda v: -sign * v), f'{self.c.key[b]} {sec}: a side is not strongest first: {col}')
+                    checked += 1
+        self.assertGreater(checked, 0)
+
+    def test_costs_and_benefits_rank_by_expected_value_with_unpriced_rows_last(self):
+        checked = 0
+        for b in self.beliefs:
+            for t in self._side_tables(self.html[b], 'What Acting On This Would Cost and Gain')[:2]:
+                col = self._column(t, 'Expected value')
+                if not col: continue
+                priced = [v for v in col if v is not None]
+                self.assertEqual(priced, sorted(priced, reverse=True), f'{self.c.key[b]}: costs or benefits out of order: {col}')
+                self.assertEqual(col[:len(priced)], priced, f'{self.c.key[b]}: an unpriced row sits above a priced one')
+                checked += 1
+        self.assertGreater(checked, 0)
+
+    def test_every_factor_of_the_row_rule_is_a_column(self):
+        """The evidence and prediction scores multiply by uniqueness, so a reader who cannot see it cannot check
+        the row."""
+        ev = pr = 0
+        for b in self.beliefs:
+            for t in self._side_tables(self.html[b], 'Evidence Ledger'):
+                self.assertIn('<th scope="col">Uniqueness</th>', t, f'{self.c.key[b]}: the ledger has no Uniqueness column'); ev += 1
+            for t in self._side_tables(self.html[b], 'Testable Predictions'):
+                self.assertIn('title="Uniqueness"', t, f'{self.c.key[b]}: predictions have no Uniqueness column'); pr += 1
+        self.assertGreater(ev, 0); self.assertGreater(pr, 0)
+
+    def test_a_page_carries_one_meaning_of_complete(self):
+        """A draft says what it still needs on its meta line; the Scoring Engine must not say yes to a second,
+        looser test under the same word."""
+        import publish as PUBLISH
+        for b in self.beliefs:
+            h = self.html[b]
+            row = re.search(r'<tr><td class="t">Complete</td><td class="sc">(yes|no)</td>', h)
+            self.assertIsNotNone(row, f'{self.c.key[b]}: no Complete row in the Scoring Engine')
+            self.assertEqual(row.group(1) == 'yes', not PUBLISH.missing(self.c.specs[b]), f'{self.c.key[b]}: Complete disagrees with the draft mark')
+            self.assertNotIn('Completeness', h)
+
+    def test_zero_has_one_spelling(self):
+        for pid, h in self.html.items():
+            self.assertNotIn('-0.00', h, f'{pid}: a negative zero is printed')
+
+    def test_factor_headers_are_words_or_say_what_they_stand_for(self):
+        for b in self.beliefs:
+            for short in ('Conf', 'Link', 'Imp', 'Uniq', 'EVS', 'Likelih.', 'Exp. value', 'Contrib.', 'Benefit EV', 'Cost EV'):
+                self.assertNotIn(f'<th scope="col">{short}</th>', self.html[b], f'{self.c.key[b]}: a bare abbreviation heads a column')
+
+    def test_every_plain_table_says_what_its_columns_are(self):
+        """A table with no header row leaves a bare number at the right of every row, and on a phone the cells
+        have no labels at all, because the labels are read from the header."""
+        for b in self.beliefs:
+            for t in re.findall(r'<table class="plain[^"]*"[^>]*>.*?</table>', self.html[b], re.S):
+                self.assertIn('<thead>', t, f'{self.c.key[b]}: a plain table has no header row: {t[:120]}')
+
+    def test_the_invitation_sends_a_reader_who_disagrees_to_the_disagreeing_column(self):
+        for b in self.beliefs:
+            h = self.html[b]
+            inv = re.search(r'<div class="invite">.*?</div>', h, re.S).group(0)
+            self.assertIn('class="promise"', inv, f'{self.c.key[b]}: the promise is missing')
+            if not (self.c.specs[b].get('ask') or '').strip():
+                self.assertNotIn('A reason to agree', self._text(inv), f'{self.c.key[b]}: a reader who disagrees is asked for a reason to agree')
+            gaps = h[h.find('What this page needs right now'):]
+            for row in re.findall(r'<tr><td class="rk">\d+</td>(.*?)</tr>', gaps[:gaps.find('</section>')], re.S):
+                if 'add-argument-agree' in row: self.assertIn('someone who holds the belief', row)
+
+    def test_a_finding_with_no_source_type_does_not_repeat_it_on_every_row(self):
+        for b in self.beliefs:
+            self.assertNotIn('Rests on: Nothing observed', self.html[b], f'{self.c.key[b]}: the unclassified sentence repeats on every row')
+
+    def test_the_foot_of_a_belief_page_speaks_plainly(self):
+        for b in self.beliefs:
+            t = self._text(self.html[b])
+            self.assertNotIn('The wiki also specifies', t)
+            self.assertNotIn("the wiki's own rule", t)
+            if self.c.sens.of(b)['n']:
+                self.assertIn('"Worth settling" means', t, f'{self.c.key[b]}: the labels in What it does here are not explained')
+            if self.c.specs[b].get('positivity') is not None:
+                self.assertIn('on a -100 to +100 scale', t, f'{self.c.key[b]}: the axis position has no scale')
+
+    def test_the_sections_that_list_wordings_and_uses_come_before_definitions(self):
+        for b in self.beliefs:
+            h = self.html[b]; d = h.find('<span>Definitions</span>')
+            if d < 0: continue
+            for sec in ('Ways of Saying the Same Thing', 'Where This Page Is Used'):
+                i = h.find(f'<span>{sec}</span>')
+                if i >= 0: self.assertLess(i, d, f'{self.c.key[b]}: {sec} follows Definitions')
 
 
 if __name__ == '__main__':
