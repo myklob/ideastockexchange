@@ -2637,11 +2637,12 @@ def render_index(c, title):
                                note=lambda p: vote_count_words(by[p][0]) + (f', last on {esc(by[p][1])}' if by[p][1] else '')), '', 'voted'))
     relied_all =[r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
     cards.append(card('Most relied on', 'The claims the most of this site depends on. The nearest thing to "popular" that can be measured here: '
-                      'nobody\'s votes or views are counted, so it says how much rests on a claim, not how many people like it.',
-                      mini(c, relied_all[:TOP], 'Share of the site', lambda p: share_pct(c.rank.of(p)), 'relied'), see_all('relied.html', min(len(relied_all), RELIED_SHOWN), 'most relied on'), 'relied'))
+                      'nobody\'s votes or views are counted, so it says how much rests on a claim, not how many people like it. '
+                      'Each number is that claim\'s share of the whole site.',
+                      mini(c, relied_all[:TOP], 'Relied on', lambda p: share_pct(c.rank.of(p)), 'relied'), see_all('relied.html', min(len(relied_all), RELIED_SHOWN), 'most relied on'), 'relied'))
     queue = c.rank.work_queue(TOP); work = {r['page']: r['work'] for r in queue}
-    cards.append(card('What to argue next', 'Where one more hour of work would move the most.',
-                      mini(c, [r['page'] for r in queue], 'Work value, share of the site', lambda p: share_pct(work[p]), 'next'), see_all('next.html', len(c.rank.work_queue(40)), 'claims, in order'), 'next'))
+    cards.append(card('What to argue next', 'Where one more hour of work would move the most: the share of the site resting on a claim, times the share of its work still undone.',
+                      mini(c, [r['page'] for r in queue], 'Work value', lambda p: share_pct(work[p]), 'next'), see_all('next.html', len(c.rank.work_queue(40)), 'claims, in order'), 'next'))
     ints = sorted((p for p in c.specs if c.kind(p) == 'interest'), key=lambda q: -c.truth(q))
     named, generic = stake_groups(c)
     cards.append(card('Who has a stake', 'The people with something at stake, ranked by how many beliefs touch them; under each, their best argued need.',
@@ -2663,7 +2664,7 @@ def render_index(c, title):
     recent_all = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))
     if recent_all:
         cards.append(card('Changed in this revision', 'Edited or moved since the last published revision.',
-                          mini(c, recent_all[:TOP], 'Share of the site', lambda p: share_pct(c.rank.of(p)), 'relied'), see_all('changes.html', len(recent_all), 'changes, row by row'), 'changed'))
+                          mini(c, recent_all[:TOP], 'Relied on', lambda p: share_pct(c.rank.of(p)), 'relied'), see_all('changes.html', len(recent_all), 'changes, row by row'), 'changed'))
     else:
         cards.append(card('Changed in this revision', 'Nothing has changed since the last published revision'
                           + (', or no previous revision was available to compare with' if getattr(c, 'changes', None) is None else '')
