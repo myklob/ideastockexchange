@@ -808,8 +808,8 @@ class TestABuildWithoutARevisionSaysSo(unittest.TestCase):
         import render_site as RS
         real = RS.provenance
         RS.provenance = lambda *a, **k: prov
+        out = tempfile.mkdtemp(prefix='prov-')
         try:
-            out = tempfile.mkdtemp(prefix='prov-')
             c, broken = RS.build(os.path.join(HERE, 'content'), out)
             pages = {}
             for pid in list(c.specs)[:3]:
@@ -818,6 +818,7 @@ class TestABuildWithoutARevisionSaysSo(unittest.TestCase):
             return c, pages
         finally:
             RS.provenance = real
+            shutil.rmtree(out, ignore_errors=True)  # a full build of the real tables, about 130 MB
 
     def test_a_build_with_a_revision_names_it(self):
         c, pages = self._build({'rev': 'abc1234', 'date': '2026-01-01', 'dirty': False})
@@ -1653,8 +1654,12 @@ class TestThePagesSpeakPlainly(unittest.TestCase):
 
     def test_no_page_but_the_method_page_uses_engine_words(self):
         bad = []
+        # A work's title is its author's words, not the site's, and keeps its name wherever it is cited, even
+        # cut short in a list. Each exemption is a phrase from a real title, so a new one is a deliberate act.
+        exempt = ('a semantic, syntactic',)
         for key, h in self.pages.items():
             t = self._visible(h).lower()
+            for phrase in exempt: t = t.replace(phrase, ' ')
             for w in self.BANNED:
                 i = t.find(w)
                 if i >= 0:
