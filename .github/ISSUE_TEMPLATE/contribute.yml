@@ -1,5 +1,5 @@
 name: Add to a page
-description: Add a reason, a finding, a prediction, a criterion, a cost or benefit, or an interest to a page. What happens next, in one sentence, is that a check runs for duplicates and then either counts this as your vote for the claim already on the site or opens a pull request that adds your rows for the maintainer to merge.
+description: Add a row to any table on a page (a reason, a finding, a prediction, a criterion, a cost or benefit, an interest, an assumption, a work, a law, a definition and so on) or a cell on a topic page. What happens next, in one sentence, is that a check runs for duplicates and then either counts this as your vote for the claim already on the site (and files it here too, if it is not here yet) or opens a pull request that adds your rows for the maintainer to merge.
 title: "Reason to agree: "
 labels: [contribution]
 body:
@@ -11,7 +11,7 @@ body:
     id: page
     attributes:
       label: Page
-      description: The key of the page this belongs on (the last part of its address, before .html).
+      description: The key of the page this belongs on (the last part of its address, before .html). For a cell on a topic page, the topic's key.
       placeholder: barring-members-congress-president
     validations:
       required: true
@@ -19,21 +19,51 @@ body:
     id: section
     attributes:
       label: Section
-      description: Which table on the page the row goes in. A cost or benefit is cba; agree means a benefit and disagree means a cost.
+      description: Which table on the page the row goes in. A cost or benefit is cba; agree means a benefit and disagree means a cost. The last ten are the cells of a topic page.
       options:
         - argument
         - evidence
+        - falsify
         - prediction
         - criterion
         - cba
+        - short_term
+        - long_term
+        - component
+        - assumption
         - interest
+        - value
+        - shared_interest
+        - compromise
+        - motive
+        - dispute
+        - obstacle
+        - bias
+        - media
+        - law
+        - upstream
+        - downstream
+        - similar
+        - definition
+        - person
+        - impact
+        - interest_listing
+        - direction
+        - strength
+        - rung
+        - stack
+        - topic_values
+        - engagement
+        - common
+        - criteria
+        - related
     validations:
       required: true
   - type: dropdown
     id: side
     attributes:
       label: Side
-      description: Does it count for the page's claim (agree) or against it (disagree)? A criterion has no side; pick either.
+      description: Does it count for the page's claim (agree) or against it (disagree)? A table with no sides ignores this; pick either. For similar, agree means more extreme and disagree means more moderate.
       options:
         - agree
         - disagree
@@ -43,15 +73,30 @@ body:
     id: text
     attributes:
       label: The claim
-      description: One complete sentence, atomic, that is true or false on its own.
+      description: One complete sentence, atomic, that is true or false on its own. For a value or a definition, the value or the meaning.
       placeholder: Postal infrastructure already reaches every zip code.
     validations:
       required: true
   - type: input
+    id: category
+    attributes:
+      label: Category
+      description: Optional, for a cell on a topic page only. direction is -100, -50, 0, +50 or +100; strength is Modest, Moderate, Strong or Total; rung is general, a branch letter like A or a leaf like A.1; stack is oppose, mixed or support; engagement is 1 to 4; common is shared, conflict or compromise; related is child, sibling or opposing.
+  - type: input
     id: source
     attributes:
       label: Source
-      description: Optional. Where it can be checked, as producer, year and place. For a prediction, when and how it gets settled.
+      description: Optional. Where it can be checked, as title, producer and year. For a prediction, when and how it gets settled. For a definition, the term being defined (required). For a motive, what the record suggests the actual reason is.
+  - type: input
+    id: url
+    attributes:
+      label: URL
+      description: Optional. The address where the source can be read; it is written into the source text.
+  - type: input
+    id: date
+    attributes:
+      label: Date checked
+      description: Optional. The day you checked the source, as YYYY-MM-DD; it is written into the source text.
   - type: textarea
     id: why
     attributes:

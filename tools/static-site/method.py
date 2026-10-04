@@ -155,7 +155,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append('<table class="plain"><tbody>' + ''.join(f'<tr><td class="t"><strong>{esc(a)}</strong></td><td class="u">{esc(b)}</td></tr>' for a, b in lim) + '</tbody></table></section>')
 
     o.append(sec('The tables behind every page', 'Everything the site is built from, free to download and check. Every number on every page can be recomputed from these.', a='data'))
-    o.append('<ul class="links"><li>The two tables and the topics, in every shape: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> or a <a href="data/ise.sqlite">SQLite database</a>.</li>'
+    o.append('<ul class="links"><li>The two tables, the topics and the votes, in every shape: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> or a <a href="data/ise.sqlite">SQLite database</a>.</li>'
              '<li><a href="data/pages_index.json">Every page\'s computed numbers</a>, indexed, and <a href="data/claims_index.json">every claim in the tables</a>, drafts included.</li>'
              '<li><a href="data/drafts.json">Every draft and what it still needs</a>.</li>'
              '<li><a href="changes.html">What changed</a> since the last revision, row by row.</li></ul></section>')

@@ -26,6 +26,10 @@ out.scores = job.pairs.map(function (p) { return C.score(job.claims[p[0]].text, 
 out.nearest = job.queries.map(function (q) {
   return C.nearest(q, model, 5).map(function (m) { return {key: m.claim.key, score: m.score}; });
 });
+out.kinds = job.kinds.map(function (q) {
+  return C.nearest(q.text, model, 5, q.kinds).map(function (m) { return {key: m.claim.key, kind: m.claim.kind, score: m.score}; });
+});
+out.interestSections = C.INTEREST_SECTIONS;
 out.urls = job.urls.map(function (u) { return C.issueUrl(REPO, u.section, u.side, u.page, u.fields); });
 out.vote = C.voteUrl(REPO, 'some-key', 'disagree');
 process.stdout.write(JSON.stringify(out));
@@ -69,6 +73,9 @@ class TestTheScoringPort(unittest.TestCase):
         cls.expect = {'exact': cls.claims[longest]['key'], 'reworded': cls.claims[longest]['key']}
         cls.queries = [cls.exact, cls.reworded, 'Rainfall in the Cascades peaks in November.',
                        'The constructor of a bridge answers for its load.']
+        interest = next(x for x in cls.claims if x['kind'] == 'interest')
+        cls.kinds = [{'text': interest['text'], 'kinds': ['interest']}, {'text': interest['text'], 'kinds': ['belief', 'claim']},
+                     {'text': cls.exact, 'kinds': ['belief', 'claim']}, {'text': cls.exact, 'kinds': ['interest']}]
         cls.urls = [
             {'section': 'argument', 'side': 'disagree', 'page': 'some-belief',
              'fields': {'text': 'A ban moves the money into spouses and partnerships.', 'source': 'GAO 2024'}},
@@ -77,8 +84,11 @@ class TestTheScoringPort(unittest.TestCase):
                         'agree': 'Parking mandates raise rents.', 'disagree': 'Street parking fills up.'}},
             {'section': 'evidence', 'side': 'agree', 'page': 'some-belief', 'fields': {'text': 'x' * 9000}},
             {'section': 'evidence', 'side': 'agree', 'page': 'some-belief', 'fields': {'text': 'A short finding.', 'source': 'y' * 7000}},
+            {'section': 'falsify', 'side': 'disagree', 'page': 'some-belief',
+             'fields': {'title': 'Would move it: ', 'text': 'A matched study finds no trading edge.', 'url': 'https://example.org/s', 'date': '2026-09-30'}},
+            {'section': 'direction', 'side': 'agree', 'page': 'some-topic', 'fields': {'title': 'Position: ', 'text': 'Cities should plant trees.', 'category': '+50'}},
         ]
-        cls.out = run_node({'claims': cls.claims, 'pairs': cls.pairs, 'queries': cls.queries, 'urls': cls.urls})
+        cls.out = run_node({'claims': cls.claims, 'pairs': cls.pairs, 'queries': cls.queries, 'kinds': cls.kinds, 'urls': cls.urls})
 
     def python_score(self, i, j):
         """Similarity.between() over the Matcher's weights: the same rule, the weights the page has."""
@@ -94,9 +104,25 @@ class TestTheScoringPort(unittest.TestCase):
         self.assertEqual(set(self.out['widf']), set(self.m.widf))
         for t, v in self.m.widf.items(): self.assertAlmostEqual(self.out['widf'][t], v, delta=1e-12)
 
-    def test_the_index_the_page_loads_carries_no_interests(self):
-        self.assertEqual({x['kind'] for x in self.claims}, {'belief', 'claim'})
-        self.assertGreater(sum(1 for p in self.m.c.specs if self.m.c.kind(p) == 'interest'), 0, 'the tables do have interests to leave out')
+    def test_the_index_the_page_loads_carries_interests_with_their_kind(self):
+        self.assertEqual({x['kind'] for x in self.claims}, {'belief', 'claim', 'interest'})
+        self.assertEqual(sum(1 for x in self.claims if x['kind'] == 'interest'), sum(1 for p in self.m.c.specs if self.m.c.kind(p) == 'interest'))
+
+    def test_a_form_matches_only_the_kinds_its_section_takes(self):
+        """An interest form sees interests and nothing else; every other form sees beliefs and claims, so a
+        need is never offered as a duplicate of a reason. The Action filters the same way."""
+        import intake
+        self.assertEqual(self.out['interestSections'], list(intake.INTEREST_SECTIONS))
+        as_interest, as_claim, exact_claim, exact_interest = self.out['kinds']
+        self.assertTrue(as_interest); self.assertEqual(as_interest[0]['kind'], 'interest'); self.assertGreaterEqual(as_interest[0]['score'], S.MERGE)
+        self.assertTrue(all(m['kind'] == 'interest' for m in as_interest))
+        self.assertTrue(all(m['kind'] in ('belief', 'claim') for m in as_claim))
+        self.assertNotIn(as_interest[0]['key'], [m['key'] for m in as_claim])
+        self.assertTrue(exact_claim); self.assertTrue(all(m['kind'] in ('belief', 'claim') for m in exact_claim))
+        self.assertTrue(all(m['kind'] == 'interest' for m in exact_interest))
+        for q, got in zip(self.kinds, self.out['kinds']):
+            want = self.m.nearest(q['text'], kinds=tuple(q['kinds']))
+            self.assertEqual([m['key'] for m in got], [r['key'] for r in want], q)
 
     def test_score_matches_the_action_on_real_pairs(self):
         self.assertGreaterEqual(len(self.pairs), 20)
@@ -121,8 +147,14 @@ class TestTheScoringPort(unittest.TestCase):
             for m, r in zip(got, want): self.assertAlmostEqual(m['score'], r['score'], delta=1e-9)
 
     def test_issue_urls_carry_the_form_field_ids(self):
-        arg, belief, long, wide = (urlsplit(u) for u in self.out['urls'])
-        for u in (arg, belief, long, wide): self.assertEqual(u.path, '/myklob/ideastockexchange/issues/new')
+        arg, belief, long, wide, mover, cell = (urlsplit(u) for u in self.out['urls'])
+        for u in (arg, belief, long, wide, mover, cell): self.assertEqual(u.path, '/myklob/ideastockexchange/issues/new')
+        m = parse_qs(mover.query)
+        self.assertEqual(m['title'], ['Would move it: A matched study finds no trading edge.'], 'the title the form carries is not used')
+        self.assertEqual(m['section'], ['falsify']); self.assertEqual(m['url'], ['https://example.org/s']); self.assertEqual(m['date'], ['2026-09-30'])
+        self.assertNotIn('category', m)
+        t = parse_qs(cell.query)
+        self.assertEqual(t['category'], ['+50']); self.assertEqual(t['page'], ['some-topic']); self.assertEqual(t['title'], ['Position: Cities should plant trees.'])
         self.assertLessEqual(len(wide.query), 6000, 'a pasted citation of any length must still open the issue')
         self.assertEqual(parse_qs(wide.query)['text'], ['A short finding.'])
         a = parse_qs(arg.query)
@@ -151,7 +183,10 @@ class TestItIsPlainScript(unittest.TestCase):
         self.assertNotIn('\u2014', src)
         for token in ('=>', 'const ', 'let ', '`', 'class '):
             self.assertNotIn(token, src, f'{token!r} is not ES5')
-        self.assertLessEqual(src.count('\n'), 250)
+        self.assertLessEqual(src.count('\n'), 320)
+        for word in ('Copy as text', 'add it here as well', 'open it and vote'):
+            self.assertIn(word, src, f'the script lost {word!r}')
+        self.assertIn("voteUrl(repo, c.key, 'disagree')", src, 'a match offers no disagree link')
 
 
 if __name__ == '__main__':

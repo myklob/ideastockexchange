@@ -218,23 +218,43 @@ numbers, so nothing renumbers. To ground a claim in evidence, fill its `etype` o
 
 ## How people take part
 
-There is no server, so GitHub is the backend. Every belief and claim page carries a form under each table that
-takes rows (a reason to agree, a reason to disagree, a finding, a prediction, a criterion, a cost or benefit, an
-interest) and a propose-a-belief form under Related Beliefs; the home page and every topic page carry the
-propose-a-belief form too, and a table with nothing in it yet gets a form for its first row. Each form is a plain
-GET to GitHub's new-issue address, prefilled from the fields the issue forms in `.github/ISSUE_TEMPLATE/` declare,
-so it works with no script. With `contribute.js` (copied beside the pages by `render_site.build`), what a reader
-types is scored as they type against every claim in `data/claims_index.json`, which `build()` writes from the FULL
-tables, drafts included; a near-identical claim (`similarity.MERGE`) turns the submit button into an upvote of the
-claim already here, and a close one (`similarity.FLAG`) is shown with an upvote link while the button stays. The
-intake Action (`intake.py`, on issue open) re-checks with the Python engine and either records a vote in
-`content/votes.csv`, converts a duplicate into a vote, or opens a pull request with the new rows.
+There is no server, so GitHub is the backend. Every belief and claim page carries a form under every table it
+has (`render_site.BELIEF_FORMS` lists the twenty-five: reasons by side, findings, what would move it, predictions,
+criteria, costs and benefits, short and long-term effects, components, assumptions, interests, values, shared
+interests, compromises, motives, disputes, obstacles, biases, works, laws, broader and narrower beliefs, similar
+beliefs, definitions, people on the record) and a propose-a-belief form under Related Beliefs; a part of the
+template nobody has filled in gets a form for its first row, under "Not filled in yet". Linkage, importance,
+uniqueness, interest, equivalence and media pages carry forms under their argued tables (a media page also under
+its reach table, an importance page for an interest at stake) and a Contribute line. Every topic page carries a
+form under each of its cell tables that files a row with the topic as its page, plus the propose-a-belief form.
+Each form is a plain GET to GitHub's new-issue address, prefilled from the fields the issue forms in
+`.github/ISSUE_TEMPLATE/` declare, so it works with no script; a form whose source is a work also takes an address
+and the date it was checked, and intake folds both into the one source cell as "title, producer, year, URL
+(checked date)". Above the first form a page says once what happens next, where to get an account, and the git
+path. With `contribute.js` (copied beside the pages by `render_site.build`), what a reader types is scored as
+they type against every claim in `data/claims_index.json`, which `build()` writes from the FULL tables, drafts
+included, beliefs, claims and interests each with its kind (an interest form matches interests only). A
+near-identical claim (`similarity.MERGE`) that is already a row on the page turns the button into "open it and
+vote"; one that is elsewhere on the site turns it into "add it here as well"; a close one (`similarity.FLAG`) is
+shown with an agree and a disagree link while the button stays. "Copy as text" puts the submission on the
+clipboard, in the shape the intake parses, for a reader without an account. The intake Action (`intake.py`, on
+issue open or edit) re-checks with the Python engine and either records a vote in `content/votes.csv`, converts a
+duplicate into a vote (and, when the claim is not yet a row on the page it was filed on, opens a pull request
+adding just that row), or opens a pull request with the new rows. An edited issue brings its pull request up to
+date rather than opening a second; an issue edited into a duplicate closes the one its first version opened.
+`.github/workflows/check.yml` runs the test suite, the templates check, the contract and a full render on every
+pull request that touches the site, so "merge when its checks pass" has a check to mean.
 
 A vote never moves a score. `render_site.py` reads `votes.csv` when it is present (it is not in the workbook and
 `sync_content.py` does not check it), shows the counts on the heading line after the score badge with the words
-"votes, not a score", and once anyone has voted adds a home card, "Votes vs the analysis", that
-ranks voted-on claims by how far the share of votes to agree sits from the truth score. No votes: no card, no
-counts. The engine rule stands: a claim nobody has argued is worth exactly nothing, however many people like it.
+"votes, not a score" and a link to the issues that recorded them, and every row that is a page (a reason, a
+finding, a prediction, a criterion, a cost, an interest, a law, a person) carries its own Agree and Disagree. A
+reason with a linkage or importance page carries a second pair, "Bears on this: yes / no" and "Matters here:
+yes / no", which are votes on those pages. Once anyone has voted the home page gets a "Recently voted" card
+(newest vote first, counts each way) and, once three people have voted on a claim, "Votes vs the analysis",
+which ranks voted-on claims by how far the share of votes to agree sits from the truth score. The votes ride
+along in the exports as a `vote` table. No votes: no cards, no counts. The engine rule stands: a claim nobody
+has argued is worth exactly nothing, however many people like it.
 
 ## What a mutation sweep found that reading did not
 

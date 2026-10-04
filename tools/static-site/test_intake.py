@@ -11,7 +11,11 @@ import intake as K
 from similarity import FLAG, MERGE
 
 CONTRIBUTE = ('### Page\n\n{page}\n\n### Section\n\n{section}\n\n### Side\n\n{side}\n\n### The claim\n\n{text}\n\n'
-              '### Source\n\n{source}\n\n### Why it bears on the page\n\n{why}')
+              '### Category\n\n{category}\n\n### Source\n\n{source}\n\n### URL\n\n{url}\n\n### Date checked\n\n{date}\n\n'
+              '### Why it bears on the page\n\n{why}')
+# the form as it arrived before the category, URL and date fields existed; intake still has to read it
+CONTRIBUTE_OLD = ('### Page\n\n{page}\n\n### Section\n\n{section}\n\n### Side\n\n{side}\n\n### The claim\n\n{text}\n\n'
+                  '### Source\n\n{source}\n\n### Why it bears on the page\n\n{why}')
 BELIEF = ('### The belief\n\n{text}\n\n### Topic\n\n{topic}\n\n### A reason to agree\n\n{agree}\n\n'
           '### A reason to disagree\n\n{disagree}\n\n### Source\n\n{source}')
 VOTE = '### Page\n\n{page}\n\n### Vote\n\n{vote}\n\n### Why\n\n{why}'
@@ -50,6 +54,8 @@ class Runner:
 
     def __call__(self, args, cwd=None):
         self.log.append(list(args))
+        # a fresh repository has no branch for the issue unless a test says so
+        if args[:2] == ['git', 'ls-remote'] and not any(tuple(args[:len(p)]) == p for p in list(self.say) + list(self.fail)): return 1, ''
         for prefix, n in list(self.fail.items()):
             if tuple(args[:len(prefix)]) == prefix and n > 0:
                 self.fail[prefix] = n - 1
@@ -68,19 +74,28 @@ def event(body, label, number=7, login='ann', title='Reason to agree: something'
             'repository': {'html_url': 'https://github.com/x/y', 'default_branch': 'master'}}
 
 
-def contribute(page='a', section='argument', side='agree', text='', source=NONE, why=NONE, **kw):
-    return event(CONTRIBUTE.format(page=page, section=section, side=side, text=text, source=source, why=why), 'contribution', **kw)
+def contribute(page='a', section='argument', side='agree', text='', source=NONE, why=NONE, category=NONE, url=NONE, date=NONE, **kw):
+    return event(CONTRIBUTE.format(page=page, section=section, side=side, text=text, source=source, why=why, category=category, url=url, date=date), 'contribution', **kw)
 
 
 class TestReadingTheForm(unittest.TestCase):
 
-    def test_a_contribution_form_parses_into_its_six_fields(self):
-        sub = K.submission(contribute(text='Street trees drop limbs on parked cars.', source='City works log, 2025', why='It is a cost of planting.')['issue'])
+    def test_a_contribution_form_parses_into_its_nine_fields(self):
+        sub = K.submission(contribute(text='Street trees drop limbs on parked cars.', source='City works log, 2025', why='It is a cost of planting.',
+                                      url='https://city.example/works', date='2026-09-28')['issue'])
         self.assertEqual(sub['form'], 'contribution')
         self.assertEqual(sub['fields'], {'page': 'a', 'section': 'argument', 'side': 'agree',
-                                         'text': 'Street trees drop limbs on parked cars.',
-                                         'source': 'City works log, 2025', 'why': 'It is a cost of planting.'})
+                                         'text': 'Street trees drop limbs on parked cars.', 'category': '',
+                                         'source': 'City works log, 2025', 'url': 'https://city.example/works', 'date': '2026-09-28',
+                                         'why': 'It is a cost of planting.'})
         self.assertEqual((sub['number'], sub['login'], sub['date']), (7, 'ann', '2026-09-29'))
+
+    def test_a_form_from_before_the_new_fields_still_parses(self):
+        body = CONTRIBUTE_OLD.format(page='a', section='evidence', side='agree', text='Anything.', source=NONE, why=NONE)
+        ev = event(body, 'nothing'); ev['issue']['labels'] = []
+        sub = K.submission(ev['issue'])
+        self.assertEqual(sub['form'], 'contribution')
+        self.assertEqual((sub['fields']['url'], sub['fields']['date'], sub['fields']['category']), ('', '', ''))
 
     def test_a_belief_form_parses_and_no_response_reads_as_empty(self):
         body = BELIEF.format(text='Cities should ban leaf blowers.', topic='Cities', agree='They are loud.', disagree=NONE, source=NONE)
@@ -106,7 +121,7 @@ class TestReadingTheForm(unittest.TestCase):
             K.submission({'number': 1, 'body': 'I found a bug in the search box.', 'labels': [{'name': 'bug'}]})
 
     def test_a_multi_line_value_keeps_its_lines_and_windows_line_ends_are_fine(self):
-        body = CONTRIBUTE.format(page='a', section='argument', side='agree', text='Line one.\nLine two.', source=NONE, why=NONE).replace('\n', '\r\n')
+        body = CONTRIBUTE_OLD.format(page='a', section='argument', side='agree', text='Line one.\nLine two.', source=NONE, why=NONE).replace('\n', '\r\n')
         self.assertEqual(K.parse_body(body)['The claim'], 'Line one.\nLine two.')
 
 
@@ -230,16 +245,163 @@ class TestTheFlow(unittest.TestCase):
         self.assertEqual(edges[-1], {'page': 'r1', 'section': 'interest', 'side': 'disagree', 'claim': key})
 
     def test_the_action_scores_against_exactly_the_claims_the_page_loads(self):
-        """The page checks what is typed against data/claims_index.json, which carries beliefs and claims and no
-        interests. The Action must see the same list with the same weights, or the two disagree at the thresholds:
-        an interest that restates an interest reaches the pull request on both sides, where the maintainer sees it."""
+        """The page checks what is typed against data/claims_index.json, which carries beliefs, claims and
+        interests with their kind. The Action must see the same list with the same weights, or the two disagree
+        at the thresholds. An interest form matches interests only, so a reworded need is caught there and a
+        reason that happens to read like a need is not."""
         import render_site
         index = render_site.claims_index(render_site.Corpus(self.src, 'index'), self.src)['claims']
         self.assertEqual([x['key'] for x in self.matcher.claims], [x['key'] for x in index])
-        self.assertNotIn('interest', {x['kind'] for x in self.matcher.claims})
-        self.assertEqual(self.matcher.nearest('Residents need cool streets in summer.'), [])
+        self.assertIn('interest', {x['kind'] for x in self.matcher.claims})
+        self.assertEqual(self.matcher.nearest('Residents need cool streets in summer.', kinds=('belief', 'claim')), [])
+        self.assertEqual(self.matcher.nearest('Residents need cool streets in summer.', kinds=('interest',))[0]['key'], 'i1')
+        before = self.tables()
         done = self.go(contribute(section='interest', text='Residents need cool streets in summer.'))
-        self.assertEqual(done['did'], 'pr')
+        self.assertEqual(done['did'], 'duplicate'); self.assertEqual(done['key'], 'i1')
+        self.assertEqual(self.tables(), before, 'an interest already on this page was added again')
+        self.run.log.clear()
+        done = self.go(contribute(section='argument', text='Residents need cool streets in summer.'))
+        self.assertEqual(done['did'], 'pr', 'a reason form matched an interest')
+
+    # ---------------------------------------------------------------- a duplicate filed somewhere new
+    def test_a_claim_already_on_the_site_but_not_on_this_page_is_voted_for_and_filed_here_as_a_row(self):
+        """The reader's placement is kept: the existing claim becomes a row on the page they put it on, with no
+        second page, and their submission still counts as a vote for it."""
+        done = self.go(contribute(page='b', side='disagree', text='Trees cool the streets beneath them.'))
+        self.assertEqual(done['did'], 'placed'); self.assertEqual(done['key'], 'r1')
+        pages, edges = self.tables()
+        self.assertEqual(edges[-1], {'page': 'b', 'section': 'argument', 'side': 'disagree', 'claim': 'r1'})
+        self.assertEqual(done['pages'], [], 'a page was added for a claim that has one')
+        self.assertEqual(len(pages), 10)
+        votes = K.read_votes(os.path.join(self.d, 'votes.csv'))
+        self.assertEqual([(v['key'], v['vote']) for v in votes], [('r1', 'agree')])
+        self.assertTrue(self.run.ran('gh', 'pr', 'create'))
+        body = self.run.ran('gh', 'pr', 'create')[0]; body = body[body.index('--body') + 1]
+        self.assertIn('b / argument / disagree -> `r1`', body); self.assertIn('no page is added', body)
+        comment = self.run.ran('gh', 'issue', 'comment', '7')[-1][-1]
+        self.assertIn('counts as a vote', comment); self.assertIn('files it as a row where you put it', comment)
+        self.assertTrue(self.run.ran('gh', 'issue', 'edit', '7', '--add-label', 'duplicate'))
+
+    def test_a_duplicate_already_on_the_page_adds_no_row_and_a_need_is_not_filed_as_a_reason(self):
+        before = self.tables()
+        done = self.go(contribute(page='a', text='Trees cool the streets beneath them.'))
+        self.assertEqual(done['did'], 'duplicate'); self.assertEqual(self.tables(), before)
+        done = self.go(contribute(page='b', section='interest', text='Trees cool the streets beneath them.'))
+        self.assertEqual(done['did'], 'pr', 'a claim offered as an interest was matched to a claim')
+
+    # ---------------------------------------------------------------- every table
+    def test_every_section_a_page_carries_adds_a_row_in_the_shape_its_rows_already_have(self):
+        shapes = {
+            'falsify': ({'page': 'a', 'section': 'falsify', 'side': 'disagree', 'claim': '?'}, 'claim'),
+            'assumption': ({'page': 'a', 'section': 'assumption', 'side': 'agree', 'claim': '?'}, 'claim'),
+            'component': ({'page': 'a', 'section': 'component', 'claim': '?'}, 'claim'),
+            'short_term': ({'page': 'a', 'section': 'short_term', 'claim': '?'}, 'claim'),
+            'long_term': ({'page': 'a', 'section': 'long_term', 'claim': '?'}, 'claim'),
+            'shared_interest': ({'page': 'a', 'section': 'shared_interest', 'claim': '?', 'extra': 'direction: Plant where both agree'}, 'claim'),
+            'compromise': ({'page': 'a', 'section': 'compromise', 'claim': '?', 'extra': 'premise: Plant where both agree'}, 'claim'),
+            'motive': ({'page': 'a', 'section': 'motive', 'side': 'disagree', 'claim': '?', 'extra': 'advertised: TEXT | actual: Plant where both agree'}, 'claim'),
+            'obstacle': ({'page': 'a', 'section': 'obstacle', 'side': 'agree', 'claim': '?'}, 'claim'),
+            'bias': ({'page': 'a', 'section': 'bias', 'side': 'disagree', 'claim': '?'}, 'claim'),
+            'media': ({'page': 'a', 'section': 'media', 'side': 'agree', 'claim': '?'}, 'media'),
+            'law': ({'page': 'a', 'section': 'law', 'side': 'agree', 'claim': '?', 'source': 'Plant where both agree'}, 'claim'),
+            'upstream': ({'page': 'a', 'section': 'upstream', 'side': 'agree', 'claim': '?'}, 'claim'),
+            'downstream': ({'page': 'a', 'section': 'downstream', 'side': 'disagree', 'claim': '?'}, 'claim'),
+            'similar': ({'page': 'a', 'section': 'similar', 'side': 'moderate', 'claim': '?'}, 'claim'),
+            'person': ({'page': 'a', 'section': 'person', 'side': 'agree', 'claim': '?', 'source': 'Plant where both agree'}, 'claim'),
+            'impact': ({'page': 'a', 'section': 'impact', 'side': 'agree', 'claim': '?'}, 'claim'),
+            'interest_listing': ({'page': 'a', 'section': 'interest_listing', 'claim': '?'}, 'interest'),
+        }
+        self.assertEqual(set(shapes) | {'argument', 'evidence', 'prediction', 'criterion', 'cba', 'interest', 'value', 'dispute', 'definition'}, set(K.PAGE_SECTIONS))
+        texts = {s: f'A fresh {s.replace("_", " ")} nobody has typed about frogs {i}.' for i, s in enumerate(shapes)}
+        for section, (want, kind) in shapes.items():
+            side = want.get('side', 'agree')
+            if section == 'similar': side = 'disagree'
+            source = 'Plant where both agree' if 'extra' in want or 'source' in want else NONE
+            done = self.go(contribute(section=section, side=side, text=texts[section], source=source))
+            self.assertEqual(done['did'], 'pr', section)
+            pages, edges = self.tables()
+            e = edges[-1]; key = e['claim']
+            want = dict(want); want['claim'] = key
+            if 'extra' in want: want['extra'] = want['extra'].replace('TEXT', texts[section])
+            self.assertEqual(e, want, section)
+            self.assertEqual(pages[key]['kind'], kind, section); self.assertEqual(pages[key]['text'], texts[section])
+            self.assertEqual(pages[key]['parent'], 'a', section)
+            for typed in ('link', 'imp', 'uniq', 'equiv', 'magnitude', 'etype'): self.assertNotIn(typed, e, f'{section}: the engine typed {typed}')
+        import render_site
+        c = render_site.Corpus(self.d, 'after')
+        self.assertEqual(len(c.specs), 10 + len(shapes), 'a row was added that the site cannot read back')
+
+    def test_the_text_only_sections_add_a_row_and_no_page(self):
+        n0 = len(self.tables()[0])
+        self.go(contribute(section='value', text='Shade', source='Supporters rank it first; opponents rank cost first.'))
+        pages, edges = self.tables()
+        self.assertEqual(edges[-1], {'page': 'a', 'section': 'value', 'extra': 'value: Shade | why: Supporters rank it first; opponents rank cost first.'})
+        self.go(contribute(section='definition', text='A tree planted in the public right of way.', source='Street tree'))
+        pages, edges = self.tables()
+        self.assertEqual(edges[-1], {'page': 'a', 'section': 'definition', 'extra': 'term: Street tree | definition: A tree planted in the public right of way.'})
+        self.go(contribute(section='dispute', text='Whether shade measured at noon is the right reading.', source='A reading at 4 pm as well.'))
+        self.go(contribute(section='dispute', text='Whether maintenance costs are counted at all.'))
+        pages, edges = self.tables()
+        self.assertEqual(edges[-2], {'page': 'a', 'section': 'dispute', 'text': 'Open question',
+                                     'extra': 'what: Whether shade measured at noon is the right reading. | move: A reading at 4 pm as well.'})
+        self.assertEqual(edges[-1]['text'], 'Open question 2', 'two open disputes collide on one key')
+        self.assertEqual(len(pages), n0, 'a text-only row grew a page')
+        with self.assertRaises(K.IntakeError): self.go(contribute(section='definition', text='A tree in the right of way.'))
+        import render_site
+        c = render_site.Corpus(self.d, 'after')
+        sp = c.specs[c.tabs['a']]
+        self.assertEqual(len(sp['disputes']), 2); self.assertEqual(sp['values'][-1]['value'], 'Shade'); self.assertEqual(sp['definitions'][-1]['term'], 'Street tree')
+
+    def test_a_finding_source_folds_the_address_and_the_date_into_the_one_cell(self):
+        self.go(contribute(section='evidence', text='Shaded blocks were 3 degrees cooler in the 2024 heat survey.', source='City heat survey, 2024',
+                           url='https://city.example/heat', date='2026-09-28'))
+        _, edges = self.tables()
+        self.assertEqual(edges[-1]['source'], 'City heat survey, 2024, https://city.example/heat (checked 2026-09-28)')
+        self.assertEqual(K.source_text({'source': '', 'url': 'https://x', 'date': ''}), 'https://x')
+        self.assertEqual(K.source_text({'source': 'A', 'url': '', 'date': '2026-01-01'}), 'A (checked 2026-01-01)')
+        self.assertEqual(K.source_text({'source': '', 'url': '', 'date': ''}), '')
+
+    def test_a_section_the_tables_do_not_have_is_refused_with_the_list(self):
+        with self.assertRaises(K.IntakeError) as cm: self.go(contribute(section='footnote', text='Anything new about frogs.'))
+        self.assertIn('argument', str(cm.exception)); self.assertIn('direction', str(cm.exception))
+        with self.assertRaises(K.IntakeError): self.go(contribute(section='direction', text='Anything new about frogs.', category='+50'))
+
+    # ---------------------------------------------------------------- a topic page's cells
+    def test_a_topic_cell_adds_one_row_with_the_topic_as_its_page(self):
+        done = self.go(contribute(page='t', section='direction', text='Cities should plant a tree on every block.', category='+50'))
+        self.assertEqual(done['did'], 'pr'); self.assertEqual(done['pages'], [])
+        _, edges = self.tables()
+        self.assertEqual(edges[-1], {'page': 't', 'section': 'direction', 'category': '+50', 'text': 'Cities should plant a tree on every block.'})
+        self.go(contribute(page='t', section='strength', side='disagree', text='No street anywhere needs a canopy.', category='Total'))
+        self.go(contribute(page='t', section='engagement', side='agree', text='Plants a tree in the yard.', category='2', source='A block captain'))
+        self.go(contribute(page='t', section='topic_values', side='agree', text='Shade for all'))
+        self.go(contribute(page='t', section='rung', side='agree', text='Trees belong on every street.', category='A.1'))
+        self.go(contribute(page='t', section='criteria', text='Canopy cover is a fair yardstick.', source='31% in 2024, city survey'))
+        _, edges = self.tables()
+        got = {e['section']: e for e in edges if e['page'] == 't'}
+        self.assertEqual(got['strength'], {'page': 't', 'section': 'strength', 'side': 'disagree', 'category': 'Total', 'text': 'No street anywhere needs a canopy.'})
+        self.assertEqual(got['engagement'], {'page': 't', 'section': 'engagement', 'side': 'agree', 'category': '2', 'text': 'Plants a tree in the yard.', 'extra': 'example: A block captain'})
+        self.assertEqual(got['topic_values'], {'page': 't', 'section': 'topic_values', 'side': 'agree', 'extra': 'advertised: Shade for all'})
+        self.assertEqual(got['rung']['category'], 'A.1')
+        self.assertEqual(got['criteria'], {'page': 't', 'section': 'criteria', 'text': 'Canopy cover is a fair yardstick.', 'extra': 'reading: 31% in 2024, city survey'})
+        import render_site
+        c = render_site.Corpus(self.d, 'after'); c.prov = {'rev': None, 'date': None, 'dirty': False}
+        self.assertEqual(len(c.topic_rows['t']), 6)
+        self.assertIn('Cities should plant a tree on every block.', render_site.render_topic(c, 't', 'x'))
+
+    def test_a_topic_cell_that_names_a_claim_already_on_the_site_points_at_its_page(self):
+        done = self.go(contribute(page='t', section='common', text='Trees cool the streets beneath them.', category='shared'))
+        self.assertEqual(done['did'], 'placed')
+        _, edges = self.tables()
+        self.assertEqual(edges[-1], {'page': 't', 'section': 'common', 'category': 'shared', 'claim': 'r1'})
+
+    def test_a_topic_cell_needs_its_category_and_a_page_section_is_refused_on_a_topic(self):
+        with self.assertRaises(K.IntakeError) as cm: self.go(contribute(page='t', section='direction', text='Anything new about frogs.'))
+        self.assertIn('-100, -50, 0, +50, +100', str(cm.exception))
+        with self.assertRaises(K.IntakeError): self.go(contribute(page='t', section='rung', side='agree', text='Anything new about frogs.', category='nowhere'))
+        with self.assertRaises(K.IntakeError) as cm: self.go(contribute(page='t', section='argument', text='Anything new about frogs.'))
+        self.assertIn('topic', str(cm.exception))
+        self.assertEqual(self.go(contribute(page='nowhere', section='direction', text='Anything.', category='0'))['did'], 'nothing')
 
     def test_a_belief_with_reasons_adds_the_belief_and_two_argued_claims_under_it(self):
         body = BELIEF.format(text='Cities should ban gas leaf blowers.', topic='cities', agree='Gas blowers are as loud as a chainsaw at the curb.',
@@ -325,6 +487,15 @@ class TestTheFlow(unittest.TestCase):
         self.assertFalse(self.run.ran('git', 'commit'))
 
     # ---------------------------------------------------------------- votes
+    def test_the_reason_on_a_vote_is_read_back_with_the_form_it_belongs_in(self):
+        self.go(event(VOTE.format(page='a', vote='disagree', why='Trees drop limbs on cars.'), 'vote', login='bob', number=3))
+        comment = self.run.ran('gh', 'issue', 'comment', '3')[0][-1]
+        self.assertIn('You wrote: "Trees drop limbs on cars."', comment)
+        self.assertIn('p/a.html#add-argument-disagree', comment)
+        self.run.log.clear()
+        self.go(event(VOTE.format(page='a', vote='agree', why=NONE), 'vote', login='bob', number=4))
+        self.assertNotIn('You wrote', self.run.ran('gh', 'issue', 'comment', '4')[0][-1])
+
     def test_a_vote_is_recorded_committed_to_master_and_the_issue_closed(self):
         done = self.go(event(VOTE.format(page='a', vote='disagree', why=NONE), 'vote', login='bob', number=3))
         self.assertEqual(done, {'did': 'vote', 'key': 'a', 'vote': 'disagree'})
@@ -406,12 +577,26 @@ class TestTheFlow(unittest.TestCase):
         self.assertEqual(done['url'], 'https://github.com/x/y/pull/9')
         self.assertIn('https://github.com/x/y/pull/9', run.ran('gh', 'issue', 'comment', '7')[0][-1])
 
-    def test_an_existing_pull_request_for_the_issue_is_kept_when_the_issue_is_edited(self):
+    def test_an_existing_pull_request_for_the_issue_is_brought_up_to_date_when_the_issue_is_edited(self):
         run = Runner(fail={('gh', 'pr', 'create'): 1},
                      say={('gh', 'pr', 'create'): 'a pull request for branch "contrib/issue-7" into branch "master" already exists:\nhttps://github.com/x/y/pull/9'})
         done = self.go(contribute(text='Street trees raise the value of the homes beside them.'), run=run)
         self.assertEqual(done['url'], 'https://github.com/x/y/pull/9')
         self.assertEqual(run.ran('git', 'push', '--force')[0][-1], 'HEAD:refs/heads/contrib/issue-7')
+        edit = run.ran('gh', 'pr', 'edit')
+        self.assertEqual(edit[0][3], 'contrib/issue-7', 'the open pull request was not brought up to date')
+        self.assertIn('--title', edit[0]); self.assertIn('--body', edit[0])
+        self.assertIn('Street trees raise the value', edit[0][edit[0].index('--body') + 1])
+        comments = run.ran('gh', 'issue', 'comment', '7')
+        self.assertEqual(len(comments), 1); self.assertIn('Updated', comments[0][-1]); self.assertNotIn('Thank you', comments[0][-1])
+
+    def test_an_issue_edited_into_a_duplicate_closes_the_pull_request_its_first_version_opened(self):
+        run = Runner(say={('git', 'ls-remote'): 'abc\trefs/heads/contrib/issue-7\n'})
+        done = self.go(contribute(page='a', text='Trees cool the streets beneath them.'), run=run)
+        self.assertEqual(done['did'], 'duplicate')
+        close = run.ran('gh', 'pr', 'close')
+        self.assertEqual(close[0][3], 'contrib/issue-7'); self.assertIn('--delete-branch', close[0]); self.assertIn('counted as a vote', close[0][close[0].index('--comment') + 1])
+        self.assertFalse(self.run.ran('gh', 'pr', 'close'), 'a fresh duplicate has no pull request to close')
 
 
 class TestTheCommandLine(unittest.TestCase):
