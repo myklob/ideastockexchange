@@ -1478,7 +1478,7 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
         self.assertTrue([k for k in self.corpus.topics if self.corpus.topic_beliefs(k)], 'no topic has a belief filed under it')
 
     def _filled(self):
-        return [k for k in self.corpus.topics if self.corpus.topic_has_content(k)]
+        return [k for k in self.corpus.topics if self.corpus.topic_has_content(k) and self.corpus.topic_has_sides(k)]
 
     def test_every_topic_carries_the_template_sections_in_order(self):
         self.assertTrue(self._filled(), 'no topic has content, so nothing here is tested')
@@ -1507,7 +1507,7 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
         pages = [dict(key='b', kind='belief', text='Rain is good for crops.', topic='t'),
                  dict(key='r', kind='claim', text='Crops need water.', parent='b')]
         edges = [dict(page='b', section='argument', side='agree', claim='r')]
-        topics = [dict(key='t', name='Weather', parent='', definition='', scope='')]
+        topics = [dict(key='t', name='Weather', parent='', definition='', scope='', axis='more rain is better for farming')]
         d = tempfile.mkdtemp(); IT.write_csv(pages, edges, d, topics=topics)
         c = RS.Corpus(d, 'x'); c.prov = {'rev': None, 'date': None, 'dirty': False}
         h = RS.render_topic(c, 't', 'x'); t = self._text(h)
@@ -1536,7 +1536,7 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
     def test_a_typed_cell_carries_no_score_and_a_page_cell_carries_its_own(self):
         """The template rule: never fill a score cell for a row that has no page. A cell that is only words
         has no page to read a number from, so it prints none; a cell that is a page prints that page's."""
-        for k in self.corpus.topics:
+        for k in self._filled():
             rows = self.corpus.topic_rows.get(k, [])
             typed = [r for r in rows if r.get('section') == 'direction' and r.get('text') and not r.get('claim')]
             if not typed: continue
@@ -1546,6 +1546,27 @@ class TestATopicPageHoldsWhatTheTemplateSays(unittest.TestCase):
                 self.assertGreater(i, 0, f'topic {k}: a typed direction row is not on the page')
                 row_html = h[i:h.find('</tr>', i)]
                 self.assertNotRegex(row_html, r'<td class="num">[^<]*[0-9]', f'topic {k}: a typed cell got a score')
+
+    def test_a_subject_nobody_is_for_or_against_has_no_continuum(self):
+        """History and Music are subjects, not positions: there is no Oppose-to-Support scale to place a belief on.
+        A topic says it has sides by typing what a positive position means; one that does not is a directory of its
+        sub-topics and the beliefs beneath it, each of which takes its own side."""
+        subjects = [k for k in self.corpus.topics if self.corpus.topic_has_content(k) and not self.corpus.topic_has_sides(k)]
+        self.assertTrue(subjects, 'no topic with content lacks sides, so the subject page is untested')
+        self.assertTrue(self._filled(), 'no topic has sides, so the continuum page is untested')
+        for k in subjects:
+            t = self._text(self.pages[k])
+            self.assertNotIn('Continuum 1', t, f'topic {k} has no sides and still prints a continuum')
+            self.assertIn('is a subject, not a position', t)
+            for b in self.corpus.topic_beliefs_deep(k):
+                self.assertIn(self.corpus.href(b), self.pages[k], f'{self.corpus.key[b]} is filed beneath {k} and not on its page')
+            for kid in self.corpus.topic_children(k):
+                self.assertIn(self.corpus.topic_href(kid), self.pages[k], f'topic {k} does not list its sub-topic {kid}')
+            for b in self.corpus.topic_beliefs(k):
+                with open(os.path.join(self.parent.dir, 'p', self.corpus.href(b))) as fh:
+                    self.assertNotIn('Position on', fh.read(), f'{self.corpus.key[b]} is placed on an axis {k} does not have')
+        for k in self._filled():
+            self.assertIn('Positive means:', self._text(self.pages[k]))
 
     def test_an_empty_topic_is_a_directory_page_not_a_blank_template(self):
         """Twelve empty tables are not a finding. A topic with nothing filed lists its sub-topics, says nothing is
@@ -2127,7 +2148,7 @@ class TestPeopleCanTakePart(unittest.TestCase):
 
     def test_every_cell_of_a_topic_page_has_a_form_that_files_a_row_in_it(self):
         import intake
-        filled = [k for k in self.c.topics if self.c.topic_has_content(k)]
+        filled = [k for k in self.c.topics if self.c.topic_has_content(k) and self.c.topic_has_sides(k)]
         self.assertTrue(filled)
         for k in filled:
             with open(os.path.join(self.dir, 't', self.c.topic_href(k))) as fh: h = fh.read()

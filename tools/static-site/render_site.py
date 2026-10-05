@@ -127,6 +127,10 @@ class Corpus:
         return sorted(b for b in self.beliefs if self.topic_of(b) in keys)
     def topic_has_content(self, tkey):
         return bool(self.topic_beliefs(tkey) or self.topic_rows.get(tkey))
+    def topic_has_sides(self, tkey):
+        # A subject like History or Music has no for and against, so no axis is typed for it and its page is a
+        # directory; a topic people take a side on as a whole (Taxes, Immigration) says what positive means.
+        return bool((self.topics.get(tkey, {}).get('axis') or '').strip())
     def topic_href(self, tkey): return f'{tkey}.html'
     def truth(self, pid): return self.model.truth(pid)
     def pg(self, v, default): return self.truth(v) if is_page(v) else default
@@ -653,7 +657,8 @@ def render_belief(c, pid):
     if k == 'belief' and not c.complete(pid):
         meta.append('<span class="dm">draft</span> Still needs: ' + esc(', '.join(PUBLISH.missing(sp))) + ' (listed at the end of the page)')
     meta.append(f'<span class="vnote">{VOTE_NOTE}</span>')
-    if sp.get('positivity') is not None:
+    # a subject nobody is for or against has no axis, so a position on it means nothing and is not printed
+    if sp.get('positivity') is not None and (not tk or c.topic_has_sides(tk)):
         axis = f'<a href="../t/{c.topic_href(tk)}#direction">the topic axis</a>' if tk else 'the topic axis'
         meta.append('<span title="Typed by the author to place this claim on the topic page&apos;s axis. It is a label, not a '
                     f'score: nothing on this site reads it.">Position on {axis} (typed, not scored): {sp["positivity"]:+d} on a '
@@ -1997,21 +2002,74 @@ def render_topic(c, tkey, title):
             n = len(c.topic_beliefs_deep(k))
             o.append(f'<tr><td><a href="{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a></td><td class="num">{n if n else "none yet"}</td><td class="u">{esc(c.topics[k].get("definition") or "")}</td></tr>')
         o.append('</tbody></table>')
-    if not c.topic_has_content(tkey):
-        # A directory page. The template's twelve sections would all be empty here, and twelve empty tables
-        # are not a finding; what a reader needs is where the beliefs are, and how to file one.
+    def media_section(bs, if_any=False):
+        works = {}
+        for b in bs:
+            for side, key in (('supports', 'media_for'), ('weakens', 'media_against')):
+                for d in c.specs[b].get(key, []):
+                    if is_page(d.get('id')) and c.kind(d['id']) == 'media': works.setdefault(d['id'], {'sides': [], 'typed': {}})['sides'].append((b, side))
+        for d in section_rows('topic_media'):
+            if is_page_key(c, d.get('claim')): works.setdefault(c.tabs[d['claim']], {'sides': [], 'typed': {}})['typed'] = _extra(d)
+        if if_any and not works: return
+        o.append('<h2 class="th">Best Media and Resources</h2>')
+        o.append('<p class="cap">Every work cited on a belief page in this topic, sorted by how much it moved those pages. Quality and impact are argued on the work\'s own page.</p>')
+        if works:
+            o.append('<table class="tpl"><thead><tr><th style="width:28%">Title</th><th style="width:12%">Medium</th><th style="width:12%">Bias/Tone</th><th style="width:10%">Positivity</th><th style="width:10%">Claim Strength</th><th style="width:10%">Quality</th><th style="width:18%">Key Insight</th></tr></thead><tbody>')
+            for mp in sorted(works, key=lambda m: -((c.stats(m).get('impact') or 0))):
+                x = works[mp]['typed']; sp = c.specs[mp]
+                insight = esc(x.get('insight') or sp.get('bridge') or '')
+                o.append(f'<tr><td>{H.a(mp)}</td><td>{esc(x.get("medium") or sp.get("typ") or "")}</td><td>{esc(x.get("tone", ""))}</td>'
+                         f'<td class="num">{esc(x.get("positivity", ""))}</td><td class="num">{esc(x.get("strength", ""))}</td><td class="num">{f2(c.truth(mp))}</td><td class="u">{insight}</td></tr>')
+            o.append('</tbody></table>')
+        else: o.append(NOTHING_YET)
+
+    def related_section(sides):
+        o.append('<h2 id="related" class="th">Related Topics</h2>')
+        if sides:
+            o.append('<p class="cap">The <strong>Children</strong> column is where full subcategories from Continuum 3 go once they outgrow a row and earn their own page.</p>')
+        # A related topic with a page is linked; one named in a row but without a page yet is plain text, which is
+        # Rule 5: no link to a page that does not exist.
+        sibs = [k for k, x in c.topics.items() if k != tkey and (x.get('parent') or '') == (t.get('parent') or '') and (t.get('parent') or '')]
+        tl = lambda k: f'<a href="{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a>'
+        def named(cat, have):
+            out = [tl(k) for k in have]
+            for d in section_rows('related', cat):
+                if d.get('text') in c.topics: out.append(tl(d['text']))
+                elif d.get('claim') in c.topics: out.append(tl(d['claim']))
+                else: out.append(cell(d, score=False))
+            return '<br>'.join(dict.fromkeys(out)) or EMPTY
+        o.append('<table class="tpl"><thead><tr><th style="width:25%">Broader (Parents)</th><th style="width:25%">Sub-Issues (Children)</th><th style="width:25%">Related (Siblings)</th><th style="width:25%">Opposing / Critical Views</th></tr></thead><tbody><tr class="u">')
+        o.append('<td>' + (tl(parent['key']) if parent else EMPTY) + '</td><td>' + named('child', kids) + '</td><td>' + named('sibling', sibs) + '</td><td>' + named('opposing', []) + '</td></tr></tbody></table>'
+                 + add_form(H.up, 'related', 'agree', tkey))
+
+    has_content = c.topic_has_content(tkey)
+    if not has_content or not c.topic_has_sides(tkey):
+        # A directory page. A topic with nothing filed would print twelve empty tables, and a subject nobody is for
+        # or against (History, Music) has no Oppose-to-Support scale to place beliefs on. Either way what a reader
+        # needs is where the beliefs are, and how to file one; the beliefs and sub-topics take the sides.
         deep = c.topic_beliefs_deep(tkey)
-        if deep and kids:
+        if has_content:
+            o.append(f'<p class="cap">{esc(t["name"])} is a subject, not a position: nobody is simply for or against it, so this page '
+                     'lists what is filed here rather than placing it on a scale from oppose to support. Each belief below takes '
+                     'its own side, and so does any sub-topic that has two.</p>')
+        if deep:
             o.append('<h2 class="th">Beliefs filed beneath this topic</h2>')
-            o.append('<table class="tpl"><thead><tr><th style="width:12%">Under</th><th style="width:70%">Belief</th><th style="width:9%">Truth</th><th style="width:9%">Belief score</th></tr></thead><tbody>')
+            under = any(c.topic_of(b) != tkey for b in deep)
+            o.append('<table class="tpl"><thead><tr>' + ('<th style="width:12%">Under</th>' if under else '')
+                     + f'<th style="width:{70 if under else 82}%">Belief</th><th style="width:9%">Truth</th><th style="width:9%">Belief score</th></tr></thead><tbody>')
             for b in sorted(deep, key=lambda x: -c.stats(x)['belief']):
                 tk = c.topic_of(b); st = c.stats(b)
-                o.append(f'<tr><td class="u"><a href="{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a></td><td>{H.a(b, c.standalone(b))}</td><td class="num">{f2(st["truth"])}</td><td class="num">{sf(st["belief"])}</td></tr>')
+                o.append('<tr>' + (f'<td class="u"><a href="{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a></td>' if under else '')
+                         + f'<td>{H.a(b, c.standalone(b))}</td><td class="num">{f2(st["truth"])}</td><td class="num">{sf(st["belief"])}</td></tr>')
             o.append('</tbody></table>')
         else:
             o.append('<p class="cap">No belief is filed here yet' + (', or under anything beneath it' if kids else '') + '.</p>')
+        if has_content:
+            media_section(deep, if_any=True)
+            related_section(False)
         o.append('<h2 class="th">Contribute</h2>')
-        o.append('<p class="cap">Once a belief is filed here, this page takes the full topic layout: where each belief sits, what it assumes, what the two sides value, and the evidence beneath it all.</p>')
+        if not has_content:
+            o.append('<p class="cap">Once a belief is filed here, this page takes the full topic layout: where each belief sits, what it assumes, what the two sides value, and the evidence beneath it all.</p>')
         o.append(add_form(H.up, 'belief', topic=tkey))
         o.append(f'<p class="cap">{GIT_NOTE}: a belief is a page row with the topic <code>{esc(tkey)}</code>.</p>')
         o.append(stamp(c)); o.append(contribute_script(H.up)); o.append(FOOT)
@@ -2239,43 +2297,10 @@ def render_topic(c, tkey, title):
     o.append(add_form(H.up, 'criteria', 'agree', tkey))
 
     # ---- best media and resources
-    o.append('<h2 class="th">Best Media and Resources</h2>')
-    o.append('<p class="cap">Every work cited on a belief page in this topic, sorted by how much it moved those pages. Quality and impact are argued on the work\'s own page.</p>')
-    works = {}
-    for b in beliefs:
-        for side, key in (('supports', 'media_for'), ('weakens', 'media_against')):
-            for d in c.specs[b].get(key, []):
-                if is_page(d.get('id')) and c.kind(d['id']) == 'media': works.setdefault(d['id'], {'sides': [], 'typed': {}})['sides'].append((b, side))
-    for d in section_rows('topic_media'):
-        if is_page_key(c, d.get('claim')): works.setdefault(c.tabs[d['claim']], {'sides': [], 'typed': {}})['typed'] = _extra(d)
-    if works:
-        o.append('<table class="tpl"><thead><tr><th style="width:28%">Title</th><th style="width:12%">Medium</th><th style="width:12%">Bias/Tone</th><th style="width:10%">Positivity</th><th style="width:10%">Claim Strength</th><th style="width:10%">Quality</th><th style="width:18%">Key Insight</th></tr></thead><tbody>')
-        for mp in sorted(works, key=lambda m: -((c.stats(m).get('impact') or 0))):
-            x = works[mp]['typed']; sp = c.specs[mp]
-            insight = esc(x.get('insight') or sp.get('bridge') or '')
-            o.append(f'<tr><td>{H.a(mp)}</td><td>{esc(x.get("medium") or sp.get("typ") or "")}</td><td>{esc(x.get("tone", ""))}</td>'
-                     f'<td class="num">{esc(x.get("positivity", ""))}</td><td class="num">{esc(x.get("strength", ""))}</td><td class="num">{f2(c.truth(mp))}</td><td class="u">{insight}</td></tr>')
-        o.append('</tbody></table>')
-    else: o.append(NOTHING_YET)
+    media_section(beliefs)
 
     # ---- related topics
-    o.append('<h2 id="related" class="th">Related Topics</h2>')
-    o.append('<p class="cap">The <strong>Children</strong> column is where full subcategories from Continuum 3 go once they outgrow a row and earn their own page.</p>')
-    # A related topic with a page is linked; one named in a row but without a page yet is plain text, which is
-    # Rule 5: no link to a page that does not exist.
-    kids = [k for k, x in c.topics.items() if (x.get('parent') or '') == tkey]
-    sibs = [k for k, x in c.topics.items() if k != tkey and (x.get('parent') or '') == (t.get('parent') or '') and (t.get('parent') or '')]
-    tl = lambda k: f'<a href="{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a>'
-    def named(cat, have):
-        out = [tl(k) for k in have]
-        for d in section_rows('related', cat):
-            if d.get('text') in c.topics: out.append(tl(d['text']))
-            elif d.get('claim') in c.topics: out.append(tl(d['claim']))
-            else: out.append(cell(d, score=False))
-        return '<br>'.join(dict.fromkeys(out)) or EMPTY
-    o.append('<table class="tpl"><thead><tr><th style="width:25%">Broader (Parents)</th><th style="width:25%">Sub-Issues (Children)</th><th style="width:25%">Related (Siblings)</th><th style="width:25%">Opposing / Critical Views</th></tr></thead><tbody><tr class="u">')
-    o.append('<td>' + (tl(parent['key']) if parent else EMPTY) + '</td><td>' + named('child', kids) + '</td><td>' + named('sibling', sibs) + '</td><td>' + named('opposing', []) + '</td></tr></tbody></table>'
-             + add_form(H.up, 'related', 'agree', tkey))
+    related_section(True)
 
     # ---- contribute
     o.append('<h2 class="th">Contribute</h2>')
