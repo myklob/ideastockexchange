@@ -168,9 +168,12 @@ class Similarity:
 
         Two limits remain and both are stated rather than silent. A pair whose weighted word overlap is under
         JMIN is not scored in full, because the character half catches different forms of the same words and
-        cannot carry a pair that shares none. And candidate pairs are held rarest word first up to PAIRCAP, so
-        on a corpus far larger than this one what goes unexamined is the least informative of it; `report()`
-        names the claims that happened to, rather than presenting a short list as a clean bill of health."""
+        cannot carry a pair that shares none. And candidate pairs are opened rarest word first up to PAIRCAP;
+        a word too common to open more still adds its weight to every candidate already held, so the overlap
+        of a candidate is always exact and only a pair sharing nothing rarer than such a word goes unexamined.
+        `report()` names the claims that happened to, rather than presenting a short list as a clean bill of
+        health. (Before the weight was added, "s" from "U.S." hit the cap once the prediction pages landed, and
+        eight pairs just over the flag dropped out by exactly its weight.)"""
         if self._pairs is not None: return self._pairs
         mass = {p: sum(self.widf.get(w, 0.0) for w in set(ws)) for p, ws in self._w.items()}
         index = {}
@@ -181,6 +184,16 @@ class Similarity:
         for w in sorted(index, key=lambda x: (len(index[x]), x)):
             ps, wt = index[w], self.widf[w]
             if len(shared) + len(ps) * (len(ps) - 1) // 2 > self.paircap:
+                # whichever is cheaper: the word's own pairs, or one pass over the candidates held
+                if len(ps) * (len(ps) - 1) // 2 < len(shared):
+                    for i, a in enumerate(ps):
+                        for b in ps[i + 1:]:
+                            k = (a, b) if a < b else (b, a)
+                            if k in shared: shared[k] += wt
+                else:
+                    sps = set(ps)
+                    for k in shared:
+                        if k[0] in sps and k[1] in sps: shared[k] += wt
                 unreached.update(ps); continue
             for i, a in enumerate(ps):
                 for b in ps[i + 1:]:
