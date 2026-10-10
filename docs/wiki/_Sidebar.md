@@ -1,26 +1,41 @@
-# Wiki Navigation
+**Idea Stock Exchange**
 
-## Core Documentation
-* [Home](Home)
-* [Installation Guide](Installation-Guide)
-* [Architecture Overview](Architecture-Overview)
-* [Core Concepts](Core-Concepts)
-* [Belief Web Navigation](Belief-Web-Navigation)
+- [[ReasonRank]]
+- [[ReasonRank: Google's PageRank for Arguments]]
+- [[Truth Score]]
+- [[Quantifying Reason: The Power of Truth Scores]]
+- [[Evidence Verification Score (EVS)]]
+- [[Evidence to Conclusion Relevance Score]]
+- [[Equivalency Score:]]
+- [[Confidence Stability Scores]]
+- [[Media]]
+- [[Automated Conflict Resolution Platform]]
+- [[Electronic Democracy]]
+- [[Evidence‐based policy]]
 
-## Technical Reference
-* [Data Models](Data-Models)
-* [Scoring System](Scoring-System)
-* [Algorithms](Algorithms)
-* [API Reference](API-Reference)
-* [Frontend Components](Frontend-Components)
+**[[Templates]]**
 
-## Conceptual Articles
-* [ReasonRank](ReasonRank:-Google's-PageRank-for-Arguments)
-* [Truth Score](Truth-Score)
-* [Evidence Verification](Evidence-Verification-Score-(EVS))
-* [Confidence & Stability](Confidence-Stability-Scores)
+*Page template*
+- [[Template: Belief Analysis]]
+- [[Template: Topic]]
+- [[Template: Media Analysis]]
+- [[Template: Linkage Evaluation]]
+- [[Template: Interest Validity Debate]]
+- [[Template: Stakeholder Profile]]
 
-## Advanced Topics
-* [Automated Conflict Resolution](Automated-Conflict-Resolution-Platform)
-* [Electronic Democracy](Electronic-Democracy)
-* [Media Impact](Media)
+*Index template*
+- [[Template: Media Index]]
+- [[Template: Stakeholder Index]]
+
+*Special analysis*
+- [[Template: Belief Equivalence Scorecard]]
+- [[Template: Candidate Evaluation]]
+- [[Template: Product Review]]
+- [[Template: Conflict Analysis]]
+
+*Explainer*
+- [[Template: Why Pro and Con Media per Belief]]
+
+*Retired*
+- [[Template: Media Quality (retired)]]
+- [[Template: Media Belief Argument (retired)]]
