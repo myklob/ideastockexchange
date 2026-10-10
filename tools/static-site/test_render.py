@@ -2582,7 +2582,7 @@ class TestTheBeliefPageReadsInPlainOrder(unittest.TestCase):
             self.assertNotIn("the wiki's own rule", t)
             if self.c.sens.of(b)['n']:
                 self.assertIn('"Worth settling" means', t, f'{self.c.key[b]}: the labels in What it does here are not explained')
-            if self.c.specs[b].get('positivity') is not None:
+            if self.c.specs[b].get('positivity') is not None and self.c.topic_has_sides(self.c.topic_of(b)):
                 self.assertIn('on a -100 to +100 scale', t, f'{self.c.key[b]}: the axis position has no scale')
 
     def test_the_sections_that_list_wordings_and_uses_come_before_definitions(self):

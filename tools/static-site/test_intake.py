@@ -56,7 +56,8 @@ def small_corpus():
              dict(page='a', section='interest', side='agree', claim='i1'),
              dict(page='b', section='argument', side='agree', claim='s1')]
     d = tempfile.mkdtemp(prefix='intake-')
-    IT.write_csv(pages, edges, d, topics=[dict(key='t', name='Cities', parent='', definition='', scope='', axis='')])
+    # the topic has sides, so a typed position cell filed on it has a Direction table to appear in
+    IT.write_csv(pages, edges, d, topics=[dict(key='t', name='Cities', parent='', definition='', scope='', axis='cities should do more about trees')])
     return d
 
 
