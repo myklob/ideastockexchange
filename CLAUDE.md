@@ -188,7 +188,9 @@ one page per row of the third table `content/topics.csv`, laid out section for s
 `templates/topic-template.html`; a topic's cells are rows in `edges.csv` with `page` set to the topic key and a
 section from `ise_tables.TOPIC_SECTIONS`, and any cell the topic has no row for is filled from the belief pages
 beneath it or left empty, never invented. A topic's `axis` column says what a positive position
-means; a belief's `hook`, `question` and `ask` columns feed the invitation block; the `criterion` and
+means, and is typed only for a topic people take a side on as a whole (Taxes, Immigration, a person); a subject
+nobody is for or against (History, Music) leaves it empty, and its page is a directory of sub-topics and the beliefs
+beneath, with no continuum and no position printed on its beliefs; a belief's `hook`, `question` and `ask` columns feed the invitation block; the `criterion` and
 `falsify` edge sections feed Objective Criteria and the Falsifiability Test. All of it rides along
 in the JSON, XML, SQL and SQLite exports (`topic` and `topic_row` tables), but a score still rests
 on `page` and `edge` alone. The full list, the interests, the works cited
