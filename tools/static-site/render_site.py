@@ -16,6 +16,7 @@ from build_pages import CONSTS, WIKI
 from build_subpages import KINDS
 from confidence import Confidence
 import evidence as EV
+import tally as TALLY
 from sensitivity import Sensitivity, INERT
 from reasonrank import ReasonRank, DAMPING as RR_DAMPING
 from similarity import Similarity
@@ -198,6 +199,7 @@ class Corpus:
             s['nagree'], s['ndis'], s['nsupp'], s['nweak'] = len(A), len(D), len(EF), len(EA)
             s['npred'] = len(PT) + len(PF)
             s['share'] = (s['pos'] / (s['pos'] + s['neg'])) if s['pos'] + s['neg'] > 0 else None
+            s['tally'] = TALLY.tally(rows, self.specs, {'agree': A, 'disagree': D, 'for': EF, 'against': EA, 'pt': PT, 'pf': PF}, EV.prior(sp, K))
             comps = [(c, self.truth(c['id'])) for c in sp.get('components', []) if str(c.get('lb', '')).upper() == 'Y' and is_page(c.get('id'))]
             s['weakest'] = min((t for _, t in comps), default=None)
             s['weakest_comp'] = min(comps, key=lambda ct: ct[1])[0] if comps else None
@@ -698,6 +700,14 @@ def render_belief(c, pid):
     read = [('Agree share of scored weight', ((pct(s["share"]) + ' of all the scored weight (reasons, findings and predictions) sits on the agree side, '
                                                'before the starting point and the load-bearing cap')
                                               if s["share"] is not None else 'no scored weight either way') + cap)]
+    t = s['tally']
+    if t['share'] is not None:
+        nn = lambda v: f'{v:g}' if v == int(v) else f'{v:.2f}'
+        read.append(('Counting every reason until it is argued down',
+                     f'{pct(t["share"])} for, starting from the same even vote as the truth score: {nn(t["reasons_for"])} independent reason'
+                     f'{"" if t["reasons_for"] == 1 else "s"} for and {nn(t["reasons_against"])} against, findings weighing '
+                     f'{f2(t["findings_for"])} for and {f2(t["findings_against"])} against. A second rule shown beside the truth score '
+                     '<a href="../method.html#tally">so the two can be compared</a>: here a reason counts from the moment it is posted.'))
     read.append(('Confidence', pct(kv) + '. Weakest parts: ' + ' · '.join(f'{k.replace("_"," ")} {pct(v)}' for k, v in weak_first)))
     read.append(('Relied on', rank_note(c, pid)))
     for side, lab in (('agree', 'Strongest reason for'), ('disagree', 'Strongest reason against')):
@@ -1141,6 +1151,12 @@ def engine_table(H, c, pid):
         r('Weight of the starting point', f2(b['weight']), f'k x a bounded reward for independent replication, k = {K}, capped at {EV.REP_CAP} x k')
         r('Truth score, argued', f2(s['raw']), '(positive + weight x starting point) / (positive + negative + weight)')
         r('Truth score', f2(s['truth']), 'argued truth, capped by the weakest load-bearing component that has its own page')
+        t = s['tally']
+        r('Independent reasons for', f2(t['reasons_for']), 'the sum of Uniqueness over the reasons to agree: two reasons a uniqueness page shows say the same thing count as one')
+        r('Independent reasons against', f2(t['reasons_against']), 'the same, over the reasons to disagree')
+        r('Weight for, counting every reason', f2(t['weight_for']), 'the second rule, not the truth score\'s: a reason or prediction weighs Truth x Linkage x Importance x Uniqueness, with no (2 x Truth - 1) and no confidence gate, so it counts before it is argued; a finding weighs the same x (1 + ESIW x ERQ x ERP/100), with no ceiling')
+        r('Weight against, counting every reason', f2(t['weight_against']), 'the same, over the rows against')
+        r('Share for, counting every reason', pct(t['share']) if t['share'] is not None else 'none listed', '(weight for + weight x starting point) / (weight for + weight against + weight), the same starting vote as the truth score; shown beside it and read by no other number')
     else:
         lab = 'Quality' if k == 'media' else KINDNAME[k]
         if k == 'importance':
@@ -3361,6 +3377,7 @@ def page_json(c, pid):
     if k in ('belief', 'claim'):
         out.update(argued_truth=round(s['raw'], 6), belief_score=round(s['belief'], 6),
                    weight_for=round(s['pos'], 6), weight_against=round(s['neg'], 6),
+                   counting_every_reason={k: (round(v, 6) if v is not None else None) for k, v in s['tally'].items()},
                    capped_by=[d['id'] for d in c.specs[pid].get('components', [])
                               if str(d.get('lb', '')).upper() == 'Y' and is_page(d.get('id'))
                               and s['weakest'] is not None and abs(c.truth(d['id']) - s['weakest']) < 1e-9]

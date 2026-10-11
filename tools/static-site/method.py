@@ -95,6 +95,29 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append('<p class="form" id="evs"><span class="lab">EVS, shown and read by no score</span> the sum over a page&rsquo;s findings of ESIW × Link × ERQ × ERP/100</p>')
     o.append('<p class="blurb">Every Evidence Ledger also prints the wiki&rsquo;s Evidence Verification Score, in the EVS column and as a total under the table. It is the wiki&rsquo;s own unbounded sum, with the row&rsquo;s linkage reading standing in for the wiki&rsquo;s relevance factor. It is shown for comparison and nothing reads it: no truth score, confidence or ranking on this site uses it. Unbounded is the point of showing it, because it tells apart a page resting on a body of replicated work (an EVS of 30) from one resting on a single uncorroborated claim (0.4), which a score capped between 0 and 1 cannot show. It is also why it is not used: an unbounded sum grows with every finding listed, and a score that grows with listing is the padding this site exists to stop.</p></section>')
 
+    # ---------------------------------------------------------------- the owner's starting rule, shown beside the truth score
+    shares = [c.stats(b)['tally']['share'] for b in c.beliefs if c.stats(b)['tally']['share'] is not None]
+    moved = sum(1 for v in shares if abs(v - 0.5) > 0.005)
+    o.append(sec('Counting every reason until it is argued down',
+                 'A second rule for belief strength, printed beside the truth score on every belief page so the two can be compared. '
+                 'The truth score above counts a reason only once it has been argued: a reason nobody has argued is worth exactly 0, '
+                 'which is why most pages read 0.50. This rule starts where the project&rsquo;s owner says belief strength should '
+                 'start: count the truly independent reasons to agree and disagree, weigh how valid they are against each other, and '
+                 'let the weight of one side against the other decide. A reason counts from the moment it is posted and is argued '
+                 'down or up from there, and evidence can outweigh any argument with no ceiling. No vote enters it.',
+                 a='tally'))
+    o.append('<p class="form"><span class="lab">A reason or prediction weighs</span> Truth × Linkage × Importance × Uniqueness</p>')
+    o.append('<p class="form"><span class="lab">A finding weighs</span> the same × (1 + ESIW × ERQ × ERP/100), its evidence strength, unbounded</p>')
+    o.append('<p class="form"><span class="lab">Independent reasons on a side</span> the sum of Uniqueness over its reasons</p>')
+    o.append('<p class="form"><span class="lab">Share for</span> (weight for + w × p0) / (weight for + weight against + w), the same starting vote as the truth score</p>')
+    o.append('<p class="blurb">Every factor is read from a page or a labelled starting value, as everywhere else on this site, so a reason argued '
+             'false weighs almost nothing and a reason a uniqueness page shows repeats another adds almost nothing. What it leaves out '
+             'of the truth score&rsquo;s rule is the (2 × Truth − 1) that makes an unargued reason worth 0 and the confidence that '
+             'zeroes a row with no work behind it. Nothing else on the site reads this number: it is shown so that whether volume '
+             f'should count can be judged on real pages. Today it moves {moved} of the {len(shares)} beliefs with anything listed '
+             'away from an even split. Which choices to act on is a different question, answered by costs and benefits across the '
+             'interests at stake, in each page&rsquo;s cost-benefit section.</p>')
+
     # ---------------------------------------------------------------- confidence
     ks = sorted((c.conf.of(p) for p in c.specs))
     o.append(sec('Confidence: how much a score has earned the right to count',

@@ -14,6 +14,25 @@ Every page of the GitHub wiki (github.com/myklob/ideastockexchange/wiki, 13 page
 | Replaced by another mechanism | 50 |
 | Refused by design | 40 |
 
+## The owner's answers (October 2026)
+
+The owner answered the five questions that shape most of the rewrite (Home questions 1, 2, 3, 5 and 7 below) and
+asked not to be asked again at this level of detail. CLAUDE.md records them as standing direction.
+
+- **Does volume count?** For belief strength, start from the number of truly independent reasons to agree and
+  disagree, rank how valid they are against each other, and let the weight of pro against con decide. For choices
+  of action, use costs and benefits across every stakeholder with a legitimate interest, counting both the quantity
+  and the quality of interests met, under different assumptions about which interests are valid. Try different
+  inputs and see what works. Built: `tools/static-site/tally.py`, printed beside the truth score on every belief page.
+- **Do votes ever move a score?** Votes may decide what is promoted and given attention, never what is valid.
+  Track what is popular apart from what stands up to analysis, and show where the two part ways.
+- **Fallacy detection.** Nothing is final. Software may flag a possible fallacy; people then argue for and against
+  the flag.
+- **Linkage with no argument.** Start trusting and lower it when a reason is shown unrelated or invalid; a well
+  argued link must rise. Keep contributors engaged; any sensible starting guess will do.
+- **Evidence formula.** Prefer no upper limit, so some arguments can weigh 15 or 200 times others; ultimately use
+  whatever promotes good ideas and demotes bad ones in practice.
+
 ## Questions for the owner
 
 Design disagreements between a page and the code, which only the owner can settle. Each says what the wiki says, what the code does, and the ways to resolve it.

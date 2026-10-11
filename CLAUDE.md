@@ -144,14 +144,42 @@ scores `A / (A + D)` over argument strengths, so listing an unargued reason ther
 does raise the score. The two engines disagree about whether volume counts, and
 the disagreement is unresolved, not accidental.
 
+### The owner's direction on scoring (October 2026)
+
+The owner answered the scoring questions the wiki audit (`docs/WIKI_AUDIT.md`) raised, and asked not to be
+asked again at this level of detail: know the goals and build toward them. The goal is a score that promotes good
+ideas and demotes bad ones in the real world; whatever rule does that best wins, so prefer publishing a rule beside
+the current one and comparing them on real pages over replacing a rule unseen.
+
+- **Volume.** For belief strength, start from the quantity of truly independent reasons to agree and disagree,
+  rank how valid they are against each other, and let the weight of pro against con decide. Contributions count
+  from the moment they are posted and are argued down from there; a rule under which work counts for nothing until
+  someone proves it tells contributors their effort is wasted. For choices of action the question is different:
+  costs and benefits across every stakeholder with a legitimate interest, the quantity and the quality of
+  interests met, under different assumptions about which interests are valid. `tools/static-site/tally.py` is the
+  starting rule, printed on every belief page beside the argued truth score ("Counting every reason until it is
+  argued down") and read by no other number; the argued rule and its pinned test are unchanged until the two have
+  been compared.
+- **Votes.** There are many scores. Track what is popular separately from what stands up to analysis: votes may
+  decide what is promoted and given attention, never what is valid, and the gap between the two is worth showing
+  because it says where people need more time with the argument. The static site already does this.
+- **Fallacies.** Nothing is final. Software may flag a possible fallacy, and the flag is a claim people argue
+  for and against like any other; a flag alone moves no score.
+- **Linkage with no argument.** Start trusting (the static site's 1) and lower it as people show a reason is
+  unrelated or invalid, so contributors stay engaged; a link that is argued well must be able to rise. Any
+  sensible starting guess (the contributor's record, topic relatedness, an AI estimate, or 0.5 where tokens are
+  short) is acceptable.
+- **Evidence weight.** The owner prefers an evidence weight with no ceiling, so a body of replicated work can
+  outweigh opinion by 15 or 200 times; `tally.py` uses ESIW x ERQ x ERP/100 uncapped for that reason.
+
 ### Open decisions, for the owner rather than for a session
 
 Six things are unresolved. Most are calls somebody has to make rather than bugs; the one about files that do
 not parse is a defect whose fix requires knowing what the code was meant to say.
 
-1. **The two engines disagree about volume.** `src/core/scoring/scoring-engine.ts` scores `A / (A + D)` over
-   argument strengths, so listing an unargued reason there raises the score. `tools/static-site/` scores rows
-   signed, so it does not. Consolidating means picking one, and the picking is the decision.
+1. **The two engines still disagree about volume.** `src/core/scoring/scoring-engine.ts` scores `A / (A + D)`
+   over argument strengths; `tools/static-site/` scores rows signed and now prints the owner's starting rule
+   beside them. Which one leads the page is to be settled by comparing them on real pages (see above).
 2. **Evidence is filed above the premise it bears on.** Beliefs 1 and 4 cite seven and five findings, argue to
    0.61 and 0.59, and read 0.50, because their load-bearing premises cite nothing and a conclusion cannot be
    more settled than a premise it needs. The structural checks say so on the page. Re-filing a finding under
@@ -167,12 +195,13 @@ not parse is a defect whose fix requires knowing what the code was meant to say.
    whatever they were pasted out of, or leave them and accept that `src/core/ai/` cannot be run as a whole.
    Any of the three is fine; the current state is the one that reads as working code and is not.
 6. **The load-bearing cap treats "unargued" as 0.50 and lets it cap.** That is conservative and correct as
-   probability, and it is what holds every belief in the corpus at 0.50. Changing it would be a rule change,
-   with a conformance diff to review.
+   probability, and with the unargued-row rule it is what holds most beliefs at 0.50. The owner's direction on
+   volume points toward counting contributions from the start; changing the argued rule is still a rule change,
+   with a conformance diff to review, and waits on the comparison above.
 
 ### The static site's modules
 
-`score_reference.py` is the scorer; `evidence.py` sets where a page starts;
+`score_reference.py` is the scorer; `tally.py` the owner's count-every-reason rule printed beside it; `evidence.py` sets where a page starts;
 `confidence.py` how much a page's score counts; `sensitivity.py` which single
 input would change the answer; `reasonrank.py` how much of the corpus depends on
 a page; `similarity.py` which claims say the same thing; `integrity.py` the
