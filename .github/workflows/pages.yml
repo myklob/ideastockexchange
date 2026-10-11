@@ -7,6 +7,7 @@ on:
       - 'tools/static-site/**'
       - 'templates/**'
       - 'tools/check_templates.py'
+      - 'tools/wiki_templates.py'
       - 'index.html'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
@@ -62,6 +63,8 @@ jobs:
         # A template is copied, not imported, so a stale one breaks nothing and quietly teaches the next
         # dozen pages the wrong shape. Twelve of fourteen were stale when this step was added.
         run: python3 tools/check_templates.py
+      - name: Check the wiki copies of the templates match the HTML
+        run: python3 tools/wiki_templates.py --check
       - name: Check the suite actually checked something
         # A green suite reports how many tests passed, not how much was checked. An assertion in a loop over
         # an empty collection, or in a branch the corpus never reaches, passes and verifies nothing. Two of

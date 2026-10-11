@@ -9,6 +9,8 @@ on:
       - 'tools/static-site/**'
       - 'templates/**'
       - 'tools/check_templates.py'
+      - 'tools/wiki_templates.py'
+      - 'docs/wiki/**'
       - '.github/workflows/check.yml'
 
 permissions:
@@ -38,6 +40,8 @@ jobs:
         run: python3 -m unittest discover -s tools/static-site -p 'test_*.py'
       - name: Check the page templates are the current ones
         run: python3 tools/check_templates.py
+      - name: Check the wiki copies of the templates match the HTML
+        run: python3 tools/wiki_templates.py --check
       - name: Check the contract numbers
         run: python3 tools/static-site/conformance.py --check
       - name: Render the site and refuse a broken link
