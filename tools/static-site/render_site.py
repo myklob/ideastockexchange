@@ -21,6 +21,7 @@ from sensitivity import Sensitivity, INERT
 from reasonrank import ReasonRank, DAMPING as RR_DAMPING
 from similarity import Similarity
 from integrity import Integrity
+import fallacy as FALLACY
 import method
 import changes as CHANGES
 import publish as PUBLISH
@@ -1024,19 +1025,38 @@ def render_belief(c, pid):
 def checks_section(H, c, pid):
     """What the shape of the argument shows. No finding here moves a score; each one names something to look at."""
     fs = c.integ.of(pid)
-    if not fs: return ''
+    flagged = FALLACY.page_flags(c, pid)
+    if not fs and not flagged: return ''
     out = [H.section('Structural Checks',
                      'Faults the shape of the argument can show without reading a word of it: a claim used to '
                      'support itself, a conclusion listed among its own premises, the same page counted twice. '
-                     'None of these changes a score. Matching the wording against a list of named fallacies is '
-                     'deliberately not done here. A matcher looking for '
-                     '“attacking the person rather than the argument” would fire on the central legitimate '
-                     'argument on this whole site, and a score moved by a word pattern has no page to '
-                     'appeal to.')]
-    out.append('<table class="plain"><thead><tr><th>Finding</th><th>How serious</th><th>What it means</th></tr></thead><tbody>')
-    for sev, title, why in fs:
-        out.append(f'<tr><td class="t"><strong>{esc(title)}</strong></td><td class="u">{esc(sev)}</td><td class="u">{esc(why)}</td></tr>')
-    return ''.join(out) + '</tbody></table></section>'
+                     'Below them, reasons whose wording suggests a named fallacy. None of these changes a score. A '
+                     'flag is a question, not a verdict: the same words that mark a personal attack also open an '
+                     'honest argument about a conflict of interest, so each flag says which words set it off and '
+                     'opens a form on the flagged claim&rsquo;s own page to argue that it is, or is not, the fallacy. '
+                     '<a href="../method.html#checks">The phrases that raise a flag</a>.')]
+    if fs:
+        out.append('<table class="plain"><thead><tr><th>Finding</th><th>How serious</th><th>What it means</th></tr></thead><tbody>')
+        for sev, title, why in fs:
+            out.append(f'<tr><td class="t"><strong>{esc(title)}</strong></td><td class="u">{esc(sev)}</td><td class="u">{esc(why)}</td></tr>')
+        out.append('</tbody></table>')
+    if flagged:
+        out.append('<table class="plain"><thead><tr><th>Reason</th><th>Possible fallacy</th><th>Argue it</th></tr></thead><tbody>')
+        for d, side, fl in flagged:
+            key = c.key.get(d['id']) if d.get('id') in c.specs else ''
+            for name, what, words in fl:
+                if key:
+                    is_it = f'{NEW_ISSUE}?' + _q([('template', 'contribute.yml'), ('labels', 'contribution'), ('title', f'Reason to disagree: it is {name.lower()}'),
+                                                   ('page', key), ('section', 'argument'), ('side', 'disagree'), ('text', f'This is {name.lower()}: it {what}, because ')])
+                    is_not = f'{NEW_ISSUE}?' + _q([('template', 'contribute.yml'), ('labels', 'contribution'), ('title', f'Reason to agree: it is not {name.lower()}'),
+                                                    ('page', key), ('section', 'argument'), ('side', 'agree'), ('text', f'This is not {name.lower()}, because ')])
+                    argue = f'<a href="{esc(is_it)}" rel="nofollow">It is</a> · <a href="{esc(is_not)}" rel="nofollow">It is not</a>'
+                else:
+                    argue = 'give the reason a page of its own first'
+                out.append(f'<tr><td class="t">{H.rowtext(d)}<br><span class="u">{"reason to agree" if side == "agree" else "reason to disagree"}; the words “{esc(words)}”</span></td>'
+                           f'<td class="u"><strong>{esc(name)}?</strong> It {esc(what)}.</td><td class="u">{argue}</td></tr>')
+        out.append('</tbody></table>')
+    return ''.join(out) + '</section>'
 
 
 
@@ -3378,6 +3398,8 @@ def page_json(c, pid):
         out.update(argued_truth=round(s['raw'], 6), belief_score=round(s['belief'], 6),
                    weight_for=round(s['pos'], 6), weight_against=round(s['neg'], 6),
                    counting_every_reason={k: (round(v, 6) if v is not None else None) for k, v in s['tally'].items()},
+                   possible_fallacies=[{'row': c.key.get(d['id']) if d.get('id') in c.specs else None, 'side': side, 'fallacy': n, 'words': w}
+                                       for d, side, fl in FALLACY.page_flags(c, pid) for n, _, w in fl],
                    capped_by=[d['id'] for d in c.specs[pid].get('components', [])
                               if str(d.get('lb', '')).upper() == 'Y' and is_page(d.get('id'))
                               and s['weakest'] is not None and abs(c.truth(d['id']) - s['weakest']) < 1e-9]

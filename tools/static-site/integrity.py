@@ -18,6 +18,11 @@ names the rows that caused it.
 
 None of them changes a score. They are a panel on the page saying what to go and look at.
 
+The owner's direction since (October 2026) is that nothing is final: software may flag a possible fallacy as long
+as the flag is a claim people argue for and against and moves no score. fallacy.py does that, beside these checks:
+it flags by a short published phrase list, says which words set each flag off, and opens forms on the flagged
+claim's own page to argue it is or is not the fallacy. The deduction described above is still not done.
+
 Two of them, circular support and assuming its own conclusion, are worse than a note: the scorer refuses a
 corpus containing either, because a loop can hold any value at all and stay consistent, so there is no number
 to publish. That refusal arrives as an exception in the middle of a build, which is a bad way to learn it. Run

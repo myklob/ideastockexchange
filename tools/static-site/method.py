@@ -15,6 +15,7 @@ from sensitivity import FLIP, STEPS, INERT, DEPTH
 from reasonrank import DAMPING
 from similarity import FLAG, MERGE, NGRAM
 import integrity as IG
+import fallacy as FALLACY
 
 NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve']
 
@@ -206,6 +207,17 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
             if sev_ != sev: continue
             o.append(f'<tr><td class="t"><strong>{esc(title)}</strong></td><td class="u">{esc(sev)}</td><td class="u">{esc(fires)}</td><td>{counts.get(title, 0)}</td></tr>')
     o.append('</tbody></table>')
+    o.append('<p class="blurb"><strong>Possible fallacies.</strong> A reason or objection whose wording matches one of the phrases below is flagged on its belief page as a question, with the words that set it off and two prefilled forms on the flagged claim&rsquo;s own page: a reason to disagree saying it is the fallacy, and a reason to agree saying it is not. Nothing is final: the same words that mark a personal attack also open an honest argument about a conflict of interest, so the flag decides nothing and moves no score, and whatever the argument on that page concludes reaches the score through the ordinary rules. The phrases are listed in full so a flag can always be answered.</p>')
+    o.append('<table class="plain"><thead><tr><th>Possible fallacy</th><th>What it is</th><th>Phrases that raise the flag</th><th>Flagged here</th></tr></thead><tbody>')
+    fcount = {}
+    for pid in c.specs:
+        if c.kind(pid) in ('belief', 'claim'):
+            for _, _, fl in FALLACY.page_flags(c, pid):
+                for n, _, _ in fl: fcount[n] = fcount.get(n, 0) + 1
+    for name, what, pats in FALLACY.PATTERNS:
+        shown = ' · '.join('<code>' + esc(p) + '</code>' for p in pats)
+        o.append(f'<tr><td class="t"><strong>{esc(name)}</strong></td><td class="u">{esc(what)}</td><td class="u">{shown}</td><td>{fcount.get(name, 0)}</td></tr>')
+    o.append('</tbody></table>')
     o.append('<p class="blurb">The two serious ones are also refused outright: before anything is published, a check over the two tables looks for a claim that supports itself, because a loop can hold any value at all and stay consistent, so there is no number to publish. <strong>Fallacy detection is not done.</strong> The wiki specifies pattern-matching the prose for ten named fallacies, each deducting from a score. On a site whose subject is often officials acting on their own interests, a matcher looking for &ldquo;attacking the person rather than the argument&rdquo; would fire on the central legitimate argument on page after page, and a score moved by a pattern match has no page anyone can argue with. A fallacy is argued instead, as a reason to disagree on the linkage page of the row it infects.</p></section>')
 
     # ---------------------------------------------------------------- the wiki rules not run
@@ -216,7 +228,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
         ('Evidence quality from four ratings (internal validity, statistical soundness, replicability, bias resistance)', 'ALGORITHMS.md 2', 'Source type, number of replications and the share that agreed set where a finding&rsquo;s page starts; nothing else.'),
         ('Evidence start values by kind (meta-analysis 1.0, peer-reviewed 0.8, anecdote 0.1)', 'wiki: ReasonRank', 'The sixteen evidence tiers above, which keep every starting point between 0.05 and 0.95.'),
         ('Truth score on a scale from &minus;1 to +1, built from logical validity, evidence quality and verification', 'ALGORITHMS.md 5; wiki: Truth Score', 'Truth runs from 0 to 1 by the argued-truth rule. The &minus;1 to +1 scale appears only inside a row, as 2 × Truth &minus; 1.'),
-        ('Logical validity from weighted fallacy deductions', 'ALGORITHMS.md 8; wiki: Truth Score', 'Not computed. The structural checks above name faults and move no score.'),
+        ('Logical validity from weighted fallacy deductions', 'ALGORITHMS.md 8; wiki: Truth Score', 'Not computed. The structural checks above name faults, and possible fallacies are flagged by wording and argued on the flagged claim&rsquo;s page; neither moves a score.'),
         ('Topic overlap and TopicRank', 'ALGORITHMS.md 6', 'Each belief is filed under one topic by an author; topic lists are ordered by counts of reasons.'),
         ('ReasonRank restarting evenly across every argument', 'ALGORITHMS.md 7', 'The walk restarts at the beliefs only and steps in proportion to Link × Imp × Uniq.'),
         ('Importance from scope, magnitude, reversibility and urgency', 'ALGORITHMS.md 9', 'An importance page: the largest validity × bears among the interests it lists.'),

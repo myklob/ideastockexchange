@@ -205,7 +205,8 @@ not parse is a defect whose fix requires knowing what the code was meant to say.
 `confidence.py` how much a page's score counts; `sensitivity.py` which single
 input would change the answer; `reasonrank.py` how much of the corpus depends on
 a page; `similarity.py` which claims say the same thing; `integrity.py` the
-structural faults the graph can show, and a pre-publish cycle check CI runs first;
+structural faults the graph can show, and a pre-publish cycle check CI runs first; `fallacy.py` flags a
+possible fallacy by a published phrase list, as a question argued on the flagged claim's page that moves no score;
 `changes.py` what moved
 since the last revision; `method.py` the reader-facing methodology page;
 `sync_content.py` keeps the workbook and the reviewable CSVs in step. There is no verdict module any more: a
