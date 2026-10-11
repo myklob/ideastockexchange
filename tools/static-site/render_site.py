@@ -1154,7 +1154,7 @@ def engine_table(H, c, pid):
         t = s['tally']
         r('Independent reasons for', f2(t['reasons_for']), 'the sum of Uniqueness over the reasons to agree: two reasons a uniqueness page shows say the same thing count as one')
         r('Independent reasons against', f2(t['reasons_against']), 'the same, over the reasons to disagree')
-        r('Weight for, counting every reason', f2(t['weight_for']), 'reasons and predictions: Truth x Link x Imp x Uniq; findings: the same x (1 + ESIW x ERQ x ERP/100), with no ceiling')
+        r('Weight for, counting every reason', f2(t['weight_for']), 'the second rule, not the truth score\'s: a reason or prediction weighs Truth x Linkage x Importance x Uniqueness, with no (2 x Truth - 1) and no confidence gate, so it counts before it is argued; a finding weighs the same x (1 + ESIW x ERQ x ERP/100), with no ceiling')
         r('Weight against, counting every reason', f2(t['weight_against']), 'the same, over the rows against')
         r('Share for, counting every reason', pct(t['share']) if t['share'] is not None else 'none listed', '(weight for + weight x starting point) / (weight for + weight against + weight), the same starting vote as the truth score; shown beside it and read by no other number')
     else:
