@@ -33,7 +33,7 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 import ise_tables as IT
 from integrity import cycles_in_tables
-from similarity import FLAG, MERGE, words, grams, idf, wjaccard
+from similarity import FLAG, MERGE, words, grams, idf, wjaccard, opposite
 
 CONTENT = os.path.join(HERE, 'content')
 WORKBOOK = os.path.join(HERE, 'ISE_Data_Entry.xlsx')
@@ -492,7 +492,7 @@ class Matcher:
             if kinds and x['kind'] not in kinds: continue
             gc = sum(v * self._gv[i].get(t, 0.0) for t, v in gv.items())
             sc = 0.5 * wjaccard(w, self._w[i], self.widf) + 0.5 * gc
-            if sc >= FLAG: out.append({'key': x['key'], 'kind': x['kind'], 'text': x['text'], 'score': sc})
+            if sc >= FLAG: out.append({'key': x['key'], 'kind': x['kind'], 'text': x['text'], 'score': sc, 'opposite': opposite(text, x['text'])})
         out.sort(key=lambda r: (-r['score'], r['key']))
         return out[:k]
 
@@ -657,7 +657,8 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
     near = matcher.nearest(text, kinds=kinds)
     pages, edges, notes = [], [], []
     hit = None
-    if near and near[0]['score'] >= MERGE:
+    # a denial of a claim is not that claim, and a variant filed under Similar Beliefs is meant to read alike
+    if near and near[0]['score'] >= MERGE and not near[0]['opposite'] and sub['fields'].get('section') != 'similar':
         hit = near[0]
         placed = place_existing(sub, tables, hit)
         vote_for(hit['key'], 'agree', f'This is already on the site, so it is counted as your vote to agree with it '

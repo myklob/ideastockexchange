@@ -210,6 +210,19 @@ class TestTheFlow(unittest.TestCase):
         self.assertIn('never moves a score', comment)
         self.assertFalse(self.run.ran('gh', 'pr', 'create'))
 
+    def test_a_denial_of_a_claim_is_never_counted_as_agreeing_with_it(self):
+        """'Not' is a stop word to the measure, so a denial reads almost exactly like the claim it denies. It used to
+        be recorded as an agree vote for that claim and the issue closed; it is filed as its own claim instead."""
+        done = self.go(contribute(side='disagree', text='Trees do not cool the streets beneath them.'))
+        self.assertEqual(done['did'], 'pr')
+        self.assertTrue(done['near'] and done['near'][0]['key'] == 'r1' and done['near'][0]['opposite'])
+        self.assertFalse(os.path.exists(os.path.join(self.d, 'votes.csv')) and K.read_votes(os.path.join(self.d, 'votes.csv')),
+                         'the denial was recorded as a vote')
+
+    def test_a_variant_filed_under_similar_beliefs_is_kept_and_not_turned_into_a_vote(self):
+        done = self.go(contribute(page='a', section='similar', side='agree', text='Trees cool the streets beneath them.'))
+        self.assertEqual(done['did'], 'pr', 'a deliberately near-identical variant was swallowed as a duplicate')
+
     def test_a_near_match_still_opens_the_pull_request_and_names_the_candidates(self):
         done = self.go(contribute(text='The streets beneath trees are cooler.'))
         self.assertEqual(done['did'], 'pr')

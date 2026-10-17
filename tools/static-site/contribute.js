@@ -94,13 +94,18 @@
     return model;
   }
 
+  /* a claim and its denial read alike (the negating words are stop words) but are never one claim; same rule as
+     similarity.negated */
+  var NEGATION = /\b(?:not|no|never|none|nobody|nothing|neither|nor|cannot)\b|n['\u2019]t\b/g;
+  function negated(t) { return (((t || '').toLowerCase().match(NEGATION) || []).length % 2) === 1; }
+
   function nearest(text, model, k, kinds) {
     var q = vec(text, model), out = [];
     if (!q.w.length && !q.size) return out;
     for (var i = 0; i < model.claims.length; i++) {
       if (kinds && kinds.indexOf(model.claims[i].kind) < 0) continue;
       var s = score(q, model.vecs[i], model);
-      if (s >= FLAG) out.push({claim: model.claims[i], score: s});
+      if (s >= FLAG) out.push({claim: model.claims[i], score: s, opposite: negated(text) !== negated(model.claims[i].text)});
     }
     out.sort(function (p, r) { return r.score - p.score || (p.claim.key < r.claim.key ? -1 : 1); });
     return out.slice(0, k || 5);
@@ -217,7 +222,9 @@
     form.openPage = null;
     button.textContent = button.getAttribute('data-label') || button.textContent;
     if (!matches.length) return;
-    var merged = matches[0].score >= MERGE, top = matches[0].claim, here = merged && onThisPage(top.key);
+    /* a variant typed into Similar Beliefs is meant to read alike, and a denial is not the claim it denies */
+    var merged = matches[0].score >= MERGE && !matches[0].opposite && form.getAttribute('data-section') !== 'similar';
+    var top = matches[0].claim, here = merged && onThisPage(top.key);
     if (here) {
       /* already a row here: the button opens the claim's own page, where Agree and Disagree are both on the heading line */
       form.openPage = top.page ? site + top.page : null;
@@ -275,7 +282,7 @@
     for (var i = 0; i < forms.length; i++) wireForm(forms[i]);
   }
 
-  var api = {FLAG: FLAG, MERGE: MERGE, words: words, grams: grams, idf: idf, score: score, build: build,
+  var api = {FLAG: FLAG, MERGE: MERGE, words: words, grams: grams, idf: idf, score: score, build: build, negated: negated,
     nearest: nearest, voteUrl: voteUrl, issueUrl: issueUrl, wire: wire, INTEREST_SECTIONS: INTEREST_SECTIONS};
   if (typeof module !== 'undefined') module.exports = api;
   if (root) {

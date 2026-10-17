@@ -161,5 +161,17 @@ class TestItStaysReadableAtScale(unittest.TestCase):
         self.assertEqual(r['claims'], len(sim.texts))
 
 
+class TestADenialIsNotTheClaimItDenies(unittest.TestCase):
+    def test_negated_reads_the_polarity_of_the_wording(self):
+        import similarity as S
+        self.assertTrue(S.negated('A hot dog is not a sandwich.'))
+        self.assertTrue(S.negated("A hot dog isn't a sandwich."))
+        self.assertFalse(S.negated('A hot dog is a sandwich.'))
+        self.assertFalse(S.negated('It is not true that a hot dog is not a sandwich.'))
+        self.assertFalse(S.negated('Knowledge of nothingness is notable.'.replace('nothingness', 'voids')))
+        self.assertTrue(S.opposite('Officials should trade stocks.', 'Officials should never trade stocks.'))
+        self.assertGreater(S.ces('A hot dog is a sandwich.', 'A hot dog is not a sandwich.'), 0.7, 'the measure alone cannot tell them apart')
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

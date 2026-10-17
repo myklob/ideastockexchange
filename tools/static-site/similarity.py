@@ -60,6 +60,19 @@ STOP = {'the', 'a', 'an', 'of', 'to', 'in', 'on', 'and', 'or', 'that', 'is', 'ar
 def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
 
 
+NEGATION = re.compile(r"\b(?:not|no|never|none|nobody|nothing|neither|nor|cannot)\b|n['\u2019]t\b")
+
+
+def negated(text):
+    """Whether a claim is worded as a denial: an odd number of negating words. Those words are stop words to the
+    measure, so "A hot dog is not a sandwich" reads 0.96 alike to "A hot dog is a sandwich"; this tells them apart.
+    A claim and its denial are never one claim, however alike they read."""
+    return len(NEGATION.findall((text or '').lower())) % 2 == 1
+
+
+def opposite(a, b): return negated(a) != negated(b)
+
+
 def words(text):
     return [w for w in re.sub(r'[^a-z0-9 ]+', ' ', (text or '').lower()).split() if w and w not in STOP]
 
@@ -210,7 +223,9 @@ class Similarity:
             out.append({'a': a, 'b': b, 'ces': sc,
                         'equiv': self.equivalence(a, b), 'uniq': self.uniqueness(a, b),
                         'shared_parent': self.shared_parent(a, b),
-                        'verdict': 'probably one page' if sc >= MERGE else 'worth arguing the overlap'})
+                        'opposite': opposite(self.texts[a], self.texts[b]),
+                        'verdict': ('may be the opposite claim' if opposite(self.texts[a], self.texts[b])
+                                    else 'probably one page' if sc >= MERGE else 'worth arguing the overlap')})
         out.sort(key=lambda r: (-r['ces'], r['a'], r['b']))
         self._pairs = out
         self._unreached = unreached - {p for pair in shared for p in pair}
@@ -265,10 +280,10 @@ class Similarity:
 
     def unguarded(self):
         """Flagged pairs that sit on the same page with no uniqueness page between them: the live padding risk."""
-        return [r for r in self.pairs() if r['shared_parent'] and not r['uniq']]
+        return [r for r in self.pairs() if r['shared_parent'] and not r['uniq'] and not r['opposite']]
 
     def merge_candidates(self):
-        return [r for r in self.pairs() if r['ces'] >= MERGE and not r['equiv']]
+        return [r for r in self.pairs() if r['ces'] >= MERGE and not r['equiv'] and not r['opposite']]
 
     # ---------------------------------------------------------------- the wiki's blend
     def blend(self, equivalence_page, w_ces=0.0):
