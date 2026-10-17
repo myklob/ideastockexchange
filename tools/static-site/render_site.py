@@ -22,6 +22,7 @@ from reasonrank import ReasonRank, DAMPING as RR_DAMPING
 from similarity import Similarity
 from integrity import Integrity
 import fallacy as FALLACY
+import predictions as PRED
 import method
 import changes as CHANGES
 import publish as PUBLISH
@@ -1016,11 +1017,47 @@ def render_belief(c, pid):
     o.append(H.section('What the numbers are made of'))
     o.append(readout)
     o.append('</section>')
+    if k == 'belief': o.append(share_section(c, pid))
     o.append(checks_section(H, c, pid))
     o.append(engine_table(H, c, pid))
     o.append(contribute_script(H.up))
     o.append(FOOT)
     return ''.join(o)
+
+PUBLIC = 'https://myklob.github.io/ideastockexchange/beliefs/'
+
+def share_text(c, pid):
+    """A belief page as plain text a reader can paste into a reply anywhere: the claim, both scores, the two strongest
+    reasons on each side, and the link. Strongest is the weight under the count-every-reason rule, so a reason counts
+    here before anyone has argued it, as it does in that readout."""
+    s = c.stats(pid); sp = c.specs[pid]; t = s['tally']
+    lines = [strip_period(c.standalone(pid)) + '?', '']
+    lines.append(f'Truth score so far: {f2(c.truth(pid))}' + (f'. Counting every reason until it is argued down: {pct(t["share"])} for.' if t['share'] is not None else '.'))
+    for side, head in (('agree', 'Strongest reasons for'), ('disagree', 'Strongest reasons against')):
+        pairs = sorted(zip(sp['args'][side], s['rows'][side]), key=lambda x: -TALLY.weight(x[1]))[:2]
+        if pairs:
+            lines += ['', head + ':'] + [f'- {strip_period(c.rowtext(d))}.' for d, _ in pairs]
+    lines += ['', 'Every reason, the evidence under each one, and a form to add your own: ' + PUBLIC + 'p/' + c.href(pid)]
+    return '\n'.join(lines)
+
+
+def share_section(c, pid):
+    """Carry the argument to where people are already arguing. Plain text to copy, and share links that need no account
+    on this site."""
+    url = PUBLIC + 'p/' + c.href(pid)
+    text = share_text(c, pid)
+    from urllib.parse import quote
+    title = strip_period(c.standalone(pid))
+    links = [('Facebook', f'https://www.facebook.com/sharer/sharer.php?u={quote(url, safe="")}'),
+             ('X', f'https://twitter.com/intent/tweet?text={quote(title + "? Both sides, scored:", safe="")}&url={quote(url, safe="")}'),
+             ('Reddit', f'https://www.reddit.com/submit?url={quote(url, safe="")}&title={quote(title + "? Both sides, scored", safe="")}'),
+             ('Email', f'mailto:?subject={quote(title + "?", safe="")}&body={quote(text, safe="")}')]
+    return ('<section id="share"><h2><span>Share this argument</span></h2>'
+            '<p class="blurb">An argument settles nothing on a page nobody reads. Paste this into a reply wherever this question is being fought '
+            'over, or share the page itself. Both sides go with it, so nobody is handed half the case.</p>'
+            f'<textarea class="share" readonly rows="{text.count(chr(10)) + 2}" aria-label="The argument as plain text, to copy">{esc(text)}</textarea>'
+            '<p class="fine">' + ' · '.join(f'<a href="{esc(h)}" rel="nofollow noopener" target="_blank">{n}</a>' for n, h in links) + '</p></section>')
+
 
 def checks_section(H, c, pid):
     """What the shape of the argument shows. No finding here moves a score; each one names something to look at."""
@@ -2560,6 +2597,16 @@ EXPLAIN = [
      'Relied on times the share of the work still undone (one minus confidence). A claim everything rests on but nobody has worked on comes first; a claim everything rests on and that is already well argued drops down.',
      'To point the next contributor at the work that matters, instead of at whatever is most talked about.',
      'method.html#confidence'),
+    ('predictions', 'Predictions coming due',
+     'Every prediction a belief makes, sorted by when it falls due: overdue first, then the next ninety days, then the rest, with those already settled listed apart.',
+     'Each prediction states a deadline in words. The site reads the date out of it (a full date as written, a month or quarter to its last day, a year to 31 December) and compares it with the date of the revision the site was built from. A prediction is settled once a finding about what happened is filed on its own page; it came true if that evidence has raised its truth score to 0.55 or more, and did not if it has lowered it to 0.45 or less.',
+     'Because a claim that predicts something checkable can be caught out, and catching it out is the best test of whether the arguments behind it were any good. A record of predictions that came true and failed is the closest thing this site has to a track record.',
+     ''),
+    ('compare', 'Where the two rules disagree',
+     'Every belief with a reason listed, ordered by how far apart its two strength numbers are: the truth score and the share for when every reason is counted until it is argued down.',
+     'The truth score counts a row as two times its truth minus one, times its confidence, linkage, importance and uniqueness, so a reason nobody has argued counts zero. The second rule counts a reason as its truth times its linkage, importance and uniqueness, and a finding as that times one plus its uncapped evidence strength, then takes the share for from the same even starting vote. The gap is the second number minus the first.',
+     'Which rule should lead a page is an open question, and the owner asked for it to be settled on real cases rather than in the abstract. The beliefs where the rules disagree most are the cases that settle it.',
+     'method.html#tally'),
     ('stake', 'Who has a stake',
      'The groups of people with something at stake in the beliefs here (voters, investors, officials, parents, workers), and what each group needs, like "voters need enough information to judge an official".',
      'Every interest on the site is written as a group and a need, "<who> need <what>", so the group is read off the sentence and filed under the party it names: the role it leads with (parents, workers, farmers, voters, officials), or for "members of" a group the role named after it, or else the nationality it names (Americans, Ukrainians); a subject that names none of these is a group of its own. Each interest keeps its own wording, so the exact people stay on the row. Groups are ranked by how many beliefs list one of their interests, then by how many interests they have; under each group, its needs are ranked by how valid each is argued to be on its own page. Validity asks whether the need should be honored, and is settled by the mirror test: would the group accept the same need honored for its opponents, and what happens if everyone pursues it? It is never set by who holds the need, how many of them there are or how much power they have. On each belief page a second number, Drives, asks whether the need is really why that side holds its position, settled by the side\'s record rather than its rhetoric (the scoring methodology calls it Linkage Accuracy), and Validity x Drives names the one interest actually driving each side. A need that is real and does not hold up is scored, not deleted, and the same suspicion is applied to both sides. A group that is only a belief\'s supporters or opponents is a side rather than a party, so it is kept but listed last.',
@@ -2752,6 +2799,13 @@ def render_index(c, title):
     queue = c.rank.work_queue(TOP); work = {r['page']: r['work'] for r in queue}
     cards.append(card('What to argue next', 'Where one more hour of work would move the most: the share of the site resting on a claim, times the share of its work still undone.',
                       mini(c, [r['page'] for r in queue], 'Work value', lambda p: share_pct(work[p]), 'next'), see_all('next.html', len(c.rank.work_queue(40)), 'claims, in order'), 'next'))
+    tr = PRED.tracker(c)
+    due = tr['overdue'] + tr['soon']
+    if due or tr['resolved'] or tr['later']:
+        show = (due or tr['later'])[:TOP]
+        cards.append(card('Predictions coming due', 'What the beliefs here said we would see, and when. Overdue first; recording what happened is one form.',
+                          mini(c, [r['page'] for r in show], 'Due', lambda p: next((r['due'].isoformat() for r in show if r['page'] == p and r['due']), ''), 'predictions'),
+                          f'<p class="more"><a href="predictions.html">{len(tr["overdue"])} overdue, {len(tr["soon"])} due soon, {len(tr["resolved"])} settled &rarr;</a></p>', 'predictions'))
     ints = sorted((p for p in c.specs if c.kind(p) == 'interest'), key=lambda q: -c.truth(q))
     named, generic = stake_groups(c)
     cards.append(card('Who has a stake', 'The people with something at stake, ranked by how many beliefs touch them; under each, their best argued need.',
@@ -2819,6 +2873,95 @@ def render_next(c, title):
                  f'<td>{share_pct(r["rank"])}</td><td>{f2(c.truth(r["page"]))}</td><td>{pct(r["conf"])}</td><td>{r["beliefs"]}</td><td class="sc">{share_pct(r["work"])}</td></tr>')
     shared = [r for r in rr.top(len(c.specs)) if r['beliefs'] > 1]
     o.append(f'</tbody></table><p class="tot">{len(shared)} claims sit beneath more than one belief, so settling any of those moves all of them.</p></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+def rule_gaps(c):
+    """Beliefs where the two rules for belief strength disagree most: the argued truth score, and the share for when
+    every reason counts until it is argued down. Widest gap first."""
+    out = []
+    for b in c.beliefs:
+        t = c.stats(b)['tally']
+        if t['share'] is None: continue
+        out.append((b, c.truth(b), t['share'], t['share'] - c.truth(b)))
+    return sorted(out, key=lambda r: (-abs(r[3]), c.standalone(r[0])))
+
+
+def render_compare(c, title):
+    """The two rules side by side on every belief, so which one should lead can be judged on real pages."""
+    rows = rule_gaps(c)
+    o = [root_head('Where the two rules disagree', [('Home', 'index.html'), ('Where the two rules disagree', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Where the two rules disagree</h1>')
+    moved = sum(1 for r in rows if abs(r[1] - 0.5) > 0.005)
+    o.append(f'<p class="lede">Every belief page prints two numbers for how strong the belief is. The truth score counts a reason only once it '
+             f'has been argued, so an unargued reason is worth nothing; it has moved {moved} of these {len(rows)} beliefs off an even split. The '
+             'second rule counts every reason from the moment it is posted and lets argument lower it from there, with evidence weighing more '
+             'and no ceiling on how much more. Neither is settled as the one that should lead. This page lists the beliefs where they part '
+             'ways most, so the choice can be made by looking at real cases: where the second rule looks right, volume of honest reasons is '
+             'telling us something; where it looks wrong, it is being padded.</p>')
+    o.append(EXPLAIN_BLOCK['compare'])
+    o.append('<section><table class="scored"><thead><tr><th class="rk">#</th><th>Belief</th><th>Truth score</th><th>Counting every reason</th>'
+             '<th>Gap</th></tr></thead><tbody>')
+    for i, (b, tr, sh, gap) in enumerate(rows, 1):
+        t = c.stats(b)['tally']
+        nn = lambda v: f'{v:g}' if v == int(v) else f'{v:.2f}'
+        under = (f'<div class="src">{nn(t["reasons_for"])} independent reasons for, {nn(t["reasons_against"])} against; findings weigh '
+                 f'{f2(t["findings_for"])} for and {f2(t["findings_against"])} against</div>')
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(b)}">{esc(c.standalone(b))}</a>{draft_mark(c, b)}{under}</td>'
+                 f'<td>{f2(tr)}</td><td>{pct(sh)}</td><td class="sc">{sf(gap)}</td></tr>')
+    o.append('</tbody></table></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+def outcome_urls(c, pid):
+    """Two prefilled forms on a prediction's own page: a finding that it happened, and a finding that it did not."""
+    key = c.key[pid]
+    def u(side, lead):
+        return f'{NEW_ISSUE}?' + _q([('template', 'contribute.yml'), ('labels', 'contribution'), ('title', 'Evidence: '), ('page', key),
+                                     ('section', 'evidence'), ('side', side), ('text', lead)])
+    return u('agree', 'It happened: '), u('disagree', 'It did not happen: ')
+
+
+def render_predictions(c, title):
+    """The track record: every dated prediction, sorted into overdue, coming due, resolved and later."""
+    tr = PRED.tracker(c)
+    today = PRED.today_of(c)
+    n = sum(len(v) for v in tr.values())
+    o = [root_head('Predictions and how they turned out', [('Home', 'index.html'), ('Predictions', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Predictions and how they turned out</h1>')
+    o.append(f'<p class="lede">Every belief here says what we should see if it is true and what if it is false, with a date and a way to check. '
+             f'This page holds the site to those dates. {n} predictions are listed, as of {today.isoformat()}: what is overdue, what comes due in the '
+             f'next {PRED.SOON} days, what has already been settled, and what comes later. Recording what happened takes one form: '
+             'it files a finding, with its source, on the prediction&rsquo;s own page, and that finding moves the prediction&rsquo;s truth score '
+             'and the belief above it by the ordinary rules. Nobody types in a verdict.</p>')
+    o.append(EXPLAIN_BLOCK['predictions'])
+    def table(rows, cols):
+        if not rows: return '<p class="empty">None.</p>'
+        h = ['<table class="scored"><thead><tr><th>Prediction</th>' + ''.join(f'<th>{esc(x)}</th>' for x in cols) + '</tr></thead><tbody>']
+        for r in rows:
+            follows = 'follows if the belief is true' if r['side'] == 'true' else 'follows if the belief is false'
+            under = (f'<div class="src">On <a href="p/{c.href(r["belief"])}">{esc(c.short(r["belief"], 90))}</a>; {follows}. '
+                     f'{esc(r["deadline"]) if r["deadline"] else "No deadline stated."}</div>')
+            cells = []
+            for col in cols:
+                if col == 'Due': cells.append(f'<td>{r["due"].isoformat() if r["due"] else ""}</td>')
+                elif col == 'Outcome': cells.append(f'<td>{esc(r["outcome"])}<div class="src">{esc(PRED.record(r))}</div></td>')
+                elif col == 'Truth': cells.append(f'<td>{f2(r["truth"])}</td>')
+                elif col == 'Record it':
+                    yes, no = outcome_urls(c, r['page'])
+                    cells.append(f'<td class="u"><a href="{esc(yes)}" rel="nofollow">It happened</a><br><a href="{esc(no)}" rel="nofollow">It did not</a></td>')
+            h.append(f'<tr><td class="t"><a href="p/{c.href(r["page"])}">{esc(c.standalone(r["page"]))}</a>{under}</td>{"".join(cells)}</tr>')
+        return ''.join(h) + '</tbody></table>'
+    for key, head, blurb, cols in (
+        ('overdue', 'Overdue', 'The date has passed and no outcome is recorded yet. These are the most useful forms on the site to fill in.', ('Due', 'Record it')),
+        ('soon', f'Coming due in the next {PRED.SOON} days', 'Worth watching now.', ('Due', 'Record it')),
+        ('resolved', 'Settled', 'An outcome is recorded on the prediction&rsquo;s page. Came true means its truth score has risen to '
+         f'{PRED.CAME_TRUE:.2f} or more on that evidence, did not means it has fallen to {1 - PRED.CAME_TRUE:.2f} or less.', ('Outcome', 'Truth')),
+        ('later', 'Later', 'Due after the next three months, soonest first.', ('Due', 'Record it')),
+        ('undated', 'No date yet', 'A prediction with no date cannot be held to one. Adding a date is a contribution in itself.', ('Record it',)),
+    ):
+        o.append(f'<section id="{key}"><h2><span>{esc(head)}</span></h2><p class="blurb">{blurb}</p>{table(tr[key], cols)}</section>')
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 
@@ -3293,6 +3436,7 @@ table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl
 .add{display:block;width:100%;max-width:100%;min-width:0;border:2px solid var(--navy);background:color-mix(in srgb,var(--navy) 6%,var(--paper));padding:12px 14px;margin:12px 0 0;font-size:13.5px}
 .add label{display:block;font-weight:600;margin:0 0 4px}.add label.lab{margin-top:4px}
 .add textarea,.add input:not([type=hidden]),.add select{display:block;width:100%;max-width:100%;min-width:0;font:inherit;padding:7px 9px;margin:0 0 6px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
+textarea.share{display:block;width:100%;max-width:100%;box-sizing:border-box;font:inherit;font-size:.92em;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);resize:vertical}
 .add textarea{min-height:3.4em;resize:vertical}.add textarea:focus-visible,.add input:focus-visible,.add select:focus-visible{outline:2px solid var(--navy2);outline-offset:1px}
 .add button{max-width:100%;font:600 13px/1.3 var(--sans);padding:7px 12px;border:1px solid var(--navy);border-radius:4px;background:var(--navy);color:var(--paper);cursor:pointer}
 .add button:hover{background:var(--navy2);border-color:var(--navy2)}.add button:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
@@ -3575,7 +3719,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
         fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
-    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists)):
+    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 't'))
     for tkey in c.topics:
@@ -3618,7 +3762,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
         base = 'p' if not fn.startswith('../') else ('t' if fn.startswith('../t/') else '')
         with open(path) as fh: page = fh.read()
         for href in re.findall(r'href="([^"#]+)"', page):
-            if href.startswith('http'): continue
+            if href.startswith(('http', 'mailto:')): continue
             target = os.path.normpath(os.path.join(outdir, base, href))
             if not os.path.exists(target): broken.append((fn, href))
     return c, broken

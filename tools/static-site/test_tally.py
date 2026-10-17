@@ -97,3 +97,20 @@ class TestCountingEveryReason(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestTheComparisonPage(unittest.TestCase):
+    def test_beliefs_are_listed_widest_gap_first(self):
+        pages = [dict(key='b', kind='belief', text='Cities should plant more trees.', topic='t'),
+                 dict(key='c', kind='belief', text='Cities should pave their parks.', topic='t')]
+        edges = []
+        for k, n in (('b', 3), ('c', 1)):
+            for i in range(n):
+                pages.append(dict(key=f'{k}{i}', kind='claim', text=f'Reason {i} on page {k} about trees and parks.', parent=k))
+                edges.append(dict(page=k, section='argument', side='agree', claim=f'{k}{i}'))
+        c = corpus(pages, edges)
+        rows = RS.rule_gaps(c)
+        self.assertEqual([c.key[r[0]] for r in rows], ['b', 'c'])
+        self.assertGreater(rows[0][3], rows[1][3])
+        h = RS.render_compare(c, 'x')
+        self.assertLess(h.find(c.href(c.tabs['b'])), h.find(c.href(c.tabs['c'])))

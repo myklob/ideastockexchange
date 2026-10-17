@@ -117,7 +117,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
              'zeroes a row with no work behind it. Nothing else on the site reads this number: it is shown so that whether volume '
              f'should count can be judged on real pages. Today it moves {moved} of the {len(shares)} beliefs with anything listed '
              'away from an even split. Which choices to act on is a different question, answered by costs and benefits across the '
-             'interests at stake, in each page&rsquo;s cost-benefit section.</p>')
+             'interests at stake, in each page&rsquo;s cost-benefit section. <a href="compare.html">The beliefs where the two rules disagree most</a>.</p>')
 
     # ---------------------------------------------------------------- confidence
     ks = sorted((c.conf.of(p) for p in c.specs))
