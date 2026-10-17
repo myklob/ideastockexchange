@@ -95,9 +95,6 @@ class TestCountingEveryReason(unittest.TestCase):
         self.assertAlmostEqual(T.weight(r, strength=9.0), 2.0)
 
 
-if __name__ == '__main__':
-    unittest.main()
-
 
 class TestTheComparisonPage(unittest.TestCase):
     def test_beliefs_are_listed_widest_gap_first(self):
@@ -114,3 +111,57 @@ class TestTheComparisonPage(unittest.TestCase):
         self.assertGreater(rows[0][3], rows[1][3])
         h = RS.render_compare(c, 'x')
         self.assertLess(h.find(c.href(c.tabs['b'])), h.find(c.href(c.tabs['c'])))
+
+
+class TestTheReadoutSaysWhatMoved(unittest.TestCase):
+    """A returning reader sees a different number from last time and needs to know why: the page's own numbers
+    before and after, the rows edited on it, and the pages beneath it that moved."""
+
+    def setUp(self):
+        self.c = corpus(*belief(('argument', 'agree'), ('argument', 'disagree')))
+        self.c.prov = {'rev': 'abc1234', 'date': '2026-10-17', 'dirty': False}
+        self.H = RS.Html(self.c, '')
+        self.b = self.c.tabs['b']; self.r0 = self.c.tabs['r0']
+
+    def changes(self, scores=(), added=(), pages_added=()):
+        return {'rev': 'HEAD~1', 'scores': list(scores),
+                'tables': {'pages': {'added': list(pages_added), 'removed': [], 'changed': []},
+                           'edges': {'added': list(added), 'removed': [], 'changed': []}}}
+
+    def test_no_comparison_prints_nothing(self):
+        self.c.changes = None
+        self.assertIsNone(RS.since_note(self.H, self.c, self.b))
+
+    def test_numbers_rows_and_pages_beneath_are_named(self):
+        self.c.changes = self.changes(
+            scores=[dict(page=self.b, key='b', truth_before=0.48, truth_after=0.5, delta=0.02, conf_before=0.5, conf_after=0.6, conf_delta=0.1, crossed=False),
+                    dict(page=self.r0, key='r0', truth_before=0.5, truth_after=0.6, delta=0.1, conf_before=0.2, conf_after=0.3, conf_delta=0.1, crossed=False)],
+            added=[dict(page='b', section='argument', side='agree', claim='r9')])
+        t = RS.since_note(self.H, self.c, self.b)
+        self.assertIn('Truth 0.48 to 0.50, confidence 50% to 60%.', t)
+        self.assertIn('On this page: 1 row added.', t)
+        self.assertIn('Beneath it:', t); self.assertIn('moved +0.10', t)
+
+    def test_a_new_page_says_so_and_an_untouched_one_says_nothing_moved(self):
+        self.c.changes = self.changes(pages_added=[dict(key='b')])
+        self.assertEqual(RS.since_note(self.H, self.c, self.b), 'New in this revision.')
+        self.c.changes = self.changes()
+        self.assertEqual(RS.since_note(self.H, self.c, self.b), 'Its printed numbers are unchanged and no row on it was edited.')
+
+
+class TestTheSecondRuleSaysWhereItStarts(unittest.TestCase):
+    def test_a_page_with_a_source_type_names_its_starting_point(self):
+        pages, edges = belief(('argument', 'agree'))
+        pages[0].update(etype='statistics', erq='1', erp='100')
+        c = corpus(pages, edges)
+        h = RS.render_belief(c, c.tabs['b'])
+        self.assertIn('starting where the truth score starts, at 0.95', h)
+        self.assertNotIn('even split', h[h.find('Counting every reason'):h.find('Counting every reason') + 400])
+
+    def test_a_page_with_none_starts_from_an_even_split(self):
+        c = corpus(*belief(('argument', 'agree')))
+        self.assertIn('starting from the same even split as the truth score', RS.render_belief(c, c.tabs['b']))
+
+
+if __name__ == '__main__':
+    unittest.main()

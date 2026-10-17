@@ -1060,6 +1060,56 @@ class TestEveryBeliefIsPublishedAndTheCompleteOnesComeFirst(unittest.TestCase):
         self.assertEqual([x['key'] for x in d['drafts']], ['b'])
 
 
+class TestANewcomerKnowsWhereToStart(unittest.TestCase):
+    """Four outside reviews of the home page made the same three complaints: nothing said where to click first, two
+    different numbers were both called a score with no scale given, and shares like 0.073% meant nothing to a
+    newcomer. Each fix is pinned here."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html'): cls.parent.setUpClass()
+        cls.h = cls.parent.html['index.html']
+        cls.c = cls.parent.c
+
+    def card(self, name):
+        i = self.h.find(f'<span>{name}</span>'); return self.h[i:self.h.find('</section>', i)]
+
+    def test_start_here_is_the_first_card_and_follows_the_rankings(self):
+        import render_site as RS
+        self.assertLess(self.h.find('<span>Start here</span>'), self.h.find('<span>Search</span>'))
+        card = self.card('Start here')
+        self.assertIn(f'href="p/{self.c.href(RS.best_beliefs(self.c)[0])}"', card, 'the first door is not the best belief')
+        top = self.c.rank.work_queue(1)
+        if top: self.assertIn(f'href="p/{self.c.href(top[0]["page"])}', card, 'the second door is not the top of the work queue')
+        self.assertIn('href="method.html"', card)
+        self.assertNotRegex(card, r'<a [^>]*>[^<]*<a ', 'a link is nested inside another link')
+
+    def test_the_best_beliefs_card_says_what_each_number_is(self):
+        card = self.card('Best beliefs')
+        self.assertIn('The number is the belief score', card)
+        self.assertIn('0 to 1, where 0.50 means', card)
+
+    def test_shares_on_the_home_page_are_multiples_of_the_average_page(self):
+        import render_site as RS
+        card = self.card('Most relied on')
+        cells = re.findall(r'<td class="sc">([0-9.]+)&times;</td>', card)
+        self.assertTrue(cells, 'the relied-on card prints no multiples')
+        self.assertNotRegex(card, r'<td class="sc">[0-9.]+%</td>', 'a share is still printed as a percent on the card')
+        first = [r['page'] for r in self.c.rank.top(len(self.c.specs)) if self.c.kind(r['page']) != 'belief'][0]
+        self.assertEqual(RS.times_avg(self.c, self.c.rank.of(first)), cells[0] + '&times;')
+        self.assertAlmostEqual(sum(self.c.rank.of(p) for p in self.c.specs), 1.0, places=6, msg='the shares do not add to 1, so 1x is not the average page')
+
+    def test_the_search_box_says_where_to_go_without_scripts_and_puts_beliefs_first(self):
+        card = self.card('Search')
+        self.assertRegex(card, r'<noscript>.*href="all.html".*</noscript>')
+        self.assertIn("(a.kind!=='belief')-(b.kind!=='belief')", card)
+        import json as _json
+        with open(os.path.join(self.parent.dir, 'data', 'pages_index.json')) as fh: idx = _json.load(fh)
+        drafts = {r['key'] for r in idx['pages'] if r.get('draft')}
+        self.assertEqual(drafts, {self.c.key[b] for b in self.c.beliefs if not self.c.complete(b)})
+
+
 class TestTheRankedListsStayReadable(unittest.TestCase):
     """A ranked list is for the top of the ranking. Past a hundred rows the differences are too small to rank, and
     the page says where the rest are rather than shipping every claim to every phone."""

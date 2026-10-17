@@ -430,6 +430,12 @@ def smoney(v): return '' if v is None else ('+' if v >= 0 else '-') + money(abs(
 def share_pct(v):
     """A share of the whole site (all shares add up to 1) as a percent, with enough places to tell neighbours apart."""
     return '' if v is None else f'{v * 100:.3f}%'
+def times_avg(c, v):
+    """A share of the whole site as a multiple of the average page's share, for the home page, where 0.073% means
+    nothing to a newcomer and 3.1x (three times what rests on a page picked at random) does. Same order as the share."""
+    if v is None: return ''
+    m = v * len(c.specs)
+    return f'{m:.0f}&times;' if m >= 10 else (f'{m:.1f}&times;' if m >= 1 else f'{m:.2f}&times;')
 
 # Every column header that names a factor, spelled out. Where a table is narrow enough that the full word would
 # squeeze its text column, the short form is printed with the full word as its expansion.
@@ -705,13 +711,18 @@ def render_belief(c, pid):
     t = s['tally']
     if t['share'] is not None:
         nn = lambda v: f'{v:g}' if v == int(v) else f'{v:.2f}'
+        start = EV.prior(sp, K)
+        begins = (f'starting where the truth score starts, at {f2(start["p0"])} because of what the page rests on'
+                  if start['grounded'] else 'starting from the same even split as the truth score')
         read.append(('Counting every reason until it is argued down',
-                     f'{pct(t["share"])} for, starting from the same even vote as the truth score: {nn(t["reasons_for"])} independent reason'
+                     f'{pct(t["share"])} for, {begins}: {nn(t["reasons_for"])} independent reason'
                      f'{"" if t["reasons_for"] == 1 else "s"} for and {nn(t["reasons_against"])} against, findings weighing '
                      f'{f2(t["findings_for"])} for and {f2(t["findings_against"])} against. A second rule shown beside the truth score '
                      '<a href="../method.html#tally">so the two can be compared</a>: here a reason counts from the moment it is posted.'))
     read.append(('Confidence', pct(kv) + '. Weakest parts: ' + ' · '.join(f'{k.replace("_"," ")} {pct(v)}' for k, v in weak_first)))
     read.append(('Relied on', rank_note(c, pid)))
+    moved = since_note(H, c, pid)
+    if moved: read.append(('Since the previous revision', moved))
     for side, lab in (('agree', 'Strongest reason for'), ('disagree', 'Strongest reason against')):
         pairs = list(zip(sp['args'][side], s['rows'][side]))
         if pairs:
@@ -1116,6 +1127,36 @@ def cite(c, pid):
             'and cannot be reproduced from one. Build from a checkout if you need to cite them.')
     return (f'<p class="cite"><span class="lab">Cite this page</span> {esc(ref)} '
             f'<span class="u">{esc(note)}</span></p>')
+
+
+def since_note(H, c, pid):
+    """What moved on this page since the previous revision and what moved it, read off the comparison the revision
+    page prints: its own numbers before and after, the rows edited on it, and the pages beneath it that moved. A
+    returning reader sees why the number is not the one they saw last time. None when no comparison could run."""
+    d = getattr(c, 'changes', None)
+    if not d or not c.prov.get('rev'): return None
+    key = c.key[pid]
+    if any(p.get('key') == key for p in d['tables']['pages']['added']): return 'New in this revision.'
+    mv = {m['key']: m for m in d.get('scores', [])}
+    ed = d['tables']['edges']
+    counts = [(len([e for e in ed['added'] if e.get('page') == key]), 'added'),
+              (len([e for e in ed['removed'] if e.get('page') == key]), 'removed'),
+              (len([e for e in ed['changed'] if e['new'].get('page') == key]), 'edited')]
+    own = next((p for p in d['tables']['pages']['changed'] if p['key'] == key), None)
+    beneath = sorted((mv[c.key[k]] for k in c.stats(pid).get('children', []) if c.key.get(k) in mv), key=lambda m: -abs(m['delta']))
+    parts = []
+    m = mv.get(key)
+    if m:
+        bits = [f'truth {f2(m["truth_before"])} to {f2(m["truth_after"])}'] if abs(m['delta']) >= 0.005 else []
+        if round(m['conf_before'] * 100) != round(m['conf_after'] * 100): bits.append(f'confidence {pct(m["conf_before"])} to {pct(m["conf_after"])}')
+        if bits: parts.append(', '.join(bits).capitalize() + '.')
+    rows = [f'{n} row{"" if n == 1 else "s"} {what}' for n, what in counts if n]
+    if rows: parts.append('On this page: ' + ', '.join(rows) + '.')
+    if own: parts.append('Its own entry edited (' + ', '.join(own['columns']) + ').')
+    shown = [b for b in beneath if abs(b['delta']) >= 0.005][:3]
+    if shown:
+        parts.append('Beneath it: ' + '; '.join(f'{H.a(b["page"], c.short(b["page"], 70))} moved {sf(b["delta"])}' for b in shown) + '.')
+    return ' '.join(parts) if parts else 'Its printed numbers are unchanged and no row on it was edited.'
 
 
 def rank_note(c, pid):
@@ -2589,12 +2630,12 @@ EXPLAIN = [
      'method.html#dispute'),
     ('relied', 'Most relied on',
      'The claims the most of this site depends on: the reasons, findings and assumptions that the most beliefs rest on, directly or through other claims.',
-     'Picture a reader who starts at a belief, follows one of its reasons to that reason\'s page, then follows one of the reasons there, and so on. Each next step is picked in proportion to how relevant, important and distinct that row is argued to be. Now and then (' + f'{round((1 - RR_DAMPING) * 100)}' + '% of the time) the reader jumps back to a belief picked at random and starts again. Relied on is the share of that reader\'s time spent on each claim; all the shares add up to 1. Whether a claim is true is deliberately left out, so a claim does not drop off the list the moment it is argued false.',
+     'Picture a reader who starts at a belief, follows one of its reasons to that reason\'s page, then follows one of the reasons there, and so on. Each next step is picked in proportion to how relevant, important and distinct that row is argued to be. Now and then (' + f'{round((1 - RR_DAMPING) * 100)}' + '% of the time) the reader jumps back to a belief picked at random and starts again. Relied on is the share of that reader\'s time spent on each claim; all the shares add up to 1. The home page prints each share as a multiple of the average page\'s share, so 3x means three times as much of the site rests on the claim as on a page picked at random; the full list prints the share itself. Whether a claim is true is deliberately left out, so a claim does not drop off the list the moment it is argued false.',
      'Because a claim many beliefs rest on is where one piece of work moves the most: settle it and every belief above it moves. It is also the honest stand-in for "popular". Nobody\'s votes or views are counted here, so this says how much rests on a claim, not how many people like it.',
      'method.html#reasonrank'),
     ('next', 'What to argue next',
      'The claims where one more hour of work would move the most.',
-     'Relied on times the share of the work still undone (one minus confidence). A claim everything rests on but nobody has worked on comes first; a claim everything rests on and that is already well argued drops down.',
+     'Relied on times the share of the work still undone (one minus confidence). A claim everything rests on but nobody has worked on comes first; a claim everything rests on and that is already well argued drops down. The home page prints it on the same scale as Relied on, a multiple of the average page; the full list prints the share.',
      'To point the next contributor at the work that matters, instead of at whatever is most talked about.',
      'method.html#confidence'),
     ('predictions', 'Predictions coming due',
@@ -2604,7 +2645,7 @@ EXPLAIN = [
      ''),
     ('compare', 'Where the two rules disagree',
      'Every belief with a reason listed, ordered by how far apart its two strength numbers are: the truth score and the share for when every reason is counted until it is argued down.',
-     'The truth score counts a row as two times its truth minus one, times its confidence, linkage, importance and uniqueness, so a reason nobody has argued counts zero. The second rule counts a reason as its truth times its linkage, importance and uniqueness, and a finding as that times one plus its uncapped evidence strength, then takes the share for from the same even starting vote. The gap is the second number minus the first.',
+     'The truth score counts a row as two times its truth minus one, times its confidence, linkage, importance and uniqueness, so a reason nobody has argued counts zero. The second rule counts a reason as its truth times its linkage, importance and uniqueness, and a finding as that times one plus its uncapped evidence strength, then takes the share for from the same starting point the truth score uses (an even split, unless the page declares what it rests on). The gap is the second number minus the first.',
      'Which rule should lead a page is an open question, and the owner asked for it to be settled on real cases rather than in the abstract. The beliefs where the rules disagree most are the cases that settle it.',
      'method.html#tally'),
     ('stake', 'Who has a stake',
@@ -2722,13 +2763,21 @@ def hardest(c):
     bs = [b for b in c.beliefs if c.stats(b).get('dispute') in HARDEST]
     return sorted(bs, key=lambda b: (HARDEST[c.stats(b)['dispute']], -c.stats(b)['nrows'], c.standalone(b)))
 
+# Beliefs come first among the hits, each hit says what kind of page it is (and that a belief is a draft), and
+# a reader without scripts is told where the full list is instead of being left with a box that does nothing.
 SEARCH = ("<form class=\"find\" role=\"search\" onsubmit=\"return false\"><label for=\"q\">Find a claim</label>"
-          "<input id=\"q\" type=\"search\" autocomplete=\"off\" placeholder=\"Type a few words\"></form><ol id=\"hits\" class=\"hits\"></ol>"
-          "<script>(function(){var q=document.getElementById('q'),out=document.getElementById('hits'),rows=null;"
-          "function show(){var w=q.value.toLowerCase().split(/\\s+/).filter(Boolean);out.innerHTML='';if(!w.length||!rows)return;"
-          "rows.filter(function(r){var t=(r.standalone||r.text||'').toLowerCase();return w.every(function(x){return t.indexOf(x)>=0})})"
-          ".slice(0,8).forEach(function(r){var li=document.createElement('li'),a=document.createElement('a');a.href=r.page;"
-          "a.textContent=r.standalone||r.text;li.appendChild(a);out.appendChild(li)})}"
+          "<input id=\"q\" type=\"search\" autocomplete=\"off\" placeholder=\"Type a few words\"></form>"
+          "<noscript><p class=\"u\">The search box needs scripts. <a href=\"all.html\">Every page is listed here</a>, and your "
+          "browser&apos;s find (Ctrl+F) searches that list.</p></noscript><p id=\"nhits\" class=\"u\" aria-live=\"polite\"></p><ol id=\"hits\" class=\"hits\"></ol>"
+          "<script>(function(){var q=document.getElementById('q'),out=document.getElementById('hits'),n=document.getElementById('nhits'),rows=null,"
+          "KIND=" + json.dumps(KINDNAME) + ";"
+          "function show(){var w=q.value.toLowerCase().split(/\\s+/).filter(Boolean);out.innerHTML='';n.textContent='';if(!w.length||!rows)return;"
+          "var hit=rows.filter(function(r){var t=(r.standalone||r.text||'').toLowerCase();return w.every(function(x){return t.indexOf(x)>=0})});"
+          "hit.sort(function(a,b){return (a.kind!=='belief')-(b.kind!=='belief')});"
+          "n.textContent=hit.length?(hit.length>8?hit.length+' pages match; the first 8, beliefs first.':''):'No page matches all of those words.';"
+          "hit.slice(0,8).forEach(function(r){var li=document.createElement('li'),a=document.createElement('a'),k=document.createElement('span');a.href=r.page;"
+          "a.textContent=r.standalone||r.text;k.className='tk';k.textContent=' '+(KIND[r.kind]||r.kind)+(r.draft?', draft':'');"
+          "li.appendChild(a);li.appendChild(k);out.appendChild(li)})}"
           "q.addEventListener('input',function(){if(rows)return show();fetch('data/pages_index.json').then(function(x){return x.json()})"
           ".then(function(d){rows=d.pages;show()})})})()</script>")
 
@@ -2741,6 +2790,29 @@ MASONRY = ("<script>(function(){var g=document.querySelector('.cards');if(!g)ret
            "if(n===1){cards.forEach(function(c){cols[0].appendChild(c)});return}"
            "cards.forEach(function(c){var s=cols[0];cols.forEach(function(d){if(d.offsetHeight<s.offsetHeight)s=d});s.appendChild(c)})}"
            "lay();window.addEventListener('resize',lay)})()</script>")
+
+def start_here(c):
+    """One first click for each reason to arrive: to read an argument worked all the way through, to add to one,
+    or to check the arithmetic. Read off the same rankings the cards below print, so it can never point at a
+    page the lists would not."""
+    ranked = best_beliefs(c)
+    doors = []
+    if ranked:
+        b = ranked[0]
+        doors.append(f'<li><strong>Read one argument {"worked all the way through" if c.complete(b) else "from start to finish"}.</strong> '
+                     f'<a href="p/{c.href(b)}">{esc(c.standalone(b))}</a> Every reason for it and against it, the evidence under each, '
+                     'and what would change the answer.</li>')
+    queue = c.rank.work_queue(1)
+    if queue:
+        p = queue[0]['page']
+        gaps = page_gaps(Html(c, 'p/'), c, p) if c.kind(p) in ('belief', 'claim') else []
+        need = (f' What it needs first: {gaps[0][0][0].lower() + gaps[0][0][1:]} (<a href="p/{c.href(p)}#{gaps[0][3]}">the form for it</a>).'
+                if gaps else '')
+        doors.append(f'<li><strong>Add to the claim where an hour of work moves the most.</strong> <a href="p/{c.href(p)}">{esc(c.standalone(p))}</a>{need} '
+                     'You do not have to agree with it to help.</li>')
+    doors.append('<li><strong>Check the arithmetic.</strong> <a href="method.html">How every number is worked out</a>, and '
+                 '<a href="compare.html">where the two rules for how strong a belief is disagree</a>.</li>')
+    return card('Start here', 'Three ways in, depending on what you came for.', '<ol class="doors">' + ''.join(doors) + '</ol>')
 
 WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
 
@@ -2768,12 +2840,19 @@ def render_index(c, title):
              f'Anyone can add a reason, a finding or a vote on any page. A claim that is already here becomes a vote for it, not a second copy. '
              f'<a href="lists.html">What each list means</a> · <a href="method.html">how the scores are worked out</a>.</p>')
     TOP = 3
-    cards = [card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
-    cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts.',
+    cards = [start_here(c), card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
+    cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
+                      'for the belief minus the weight against it, open ended, where 0 means balanced or not yet argued. The truth score under each '
+                      'belief is the one its own page shows, 0 to 1, where 0.50 means the evidence so far has not moved it either way.',
                       mini(c, best_beliefs(c, TOP), 'Belief score', lambda p: sf(c.stats(p)['belief']), 'best', what='Belief',
                            note=lambda p: f'truth score {f2(c.truth(p))}'), see_all('best.html', None, 'beliefs, ranked'), 'best'))
     con, n = contested(c)
-    cards.append(card('Most argued over', 'The most reasons for and against, counted at every level beneath the belief.',
+    ranked = best_beliefs(c)
+    volume = ''
+    if con and ranked.index(con[0]) > 0:
+        volume = (f' Counting reasons is not scoring them: the belief with the most reasons here is number {ranked.index(con[0]) + 1} '
+                  f'of {len(ranked)} on the best-beliefs list.')
+    cards.append(card('Most argued over', 'The most reasons for and against, counted at every level beneath the belief.' + volume,
                       mini(c, con[:TOP], 'Reasons', lambda p: str(n[p]), 'argued', what='Belief'), see_all('contested.html', len(con), 'beliefs with a reason, by reasons argued'), 'argued'))
     hard = hardest(c)
     cards.append(card('Hardest to resolve', 'A disagreement over values first, because no measurement settles it; a factual one last, because one can.',
@@ -2794,11 +2873,12 @@ def render_index(c, title):
     relied_all =[r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
     cards.append(card('Most relied on', 'The claims the most of this site depends on. The nearest thing to "popular" that can be measured here: '
                       'nobody\'s votes or views are counted, so it says how much rests on a claim, not how many people like it. '
-                      'Each number is that claim\'s share of the whole site.',
-                      mini(c, relied_all[:TOP], 'Relied on', lambda p: share_pct(c.rank.of(p)), 'relied'), see_all('relied.html', min(len(relied_all), RELIED_SHOWN), 'most relied on'), 'relied'))
+                      'Each number compares the claim with the average page: 3&times; means three times as much of the site rests on it.',
+                      mini(c, relied_all[:TOP], 'Relied on', lambda p: times_avg(c, c.rank.of(p)), 'relied'), see_all('relied.html', min(len(relied_all), RELIED_SHOWN), 'most relied on'), 'relied'))
     queue = c.rank.work_queue(TOP); work = {r['page']: r['work'] for r in queue}
-    cards.append(card('What to argue next', 'Where one more hour of work would move the most: the share of the site resting on a claim, times the share of its work still undone.',
-                      mini(c, [r['page'] for r in queue], 'Work value', lambda p: share_pct(work[p]), 'next'), see_all('next.html', len(c.rank.work_queue(40)), 'claims, in order'), 'next'))
+    cards.append(card('What to argue next', 'Where one more hour of work would move the most: how much rests on a claim, as a multiple of the average '
+                      'page, times the share of its work still undone.',
+                      mini(c, [r['page'] for r in queue], 'Work value', lambda p: times_avg(c, work[p]), 'next'), see_all('next.html', len(c.rank.work_queue(40)), 'claims, in order'), 'next'))
     tr = PRED.tracker(c)
     due = tr['overdue'] + tr['soon']
     if due or tr['resolved'] or tr['later']:
@@ -2827,7 +2907,7 @@ def render_index(c, title):
     recent_all = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))
     if recent_all:
         cards.append(card('Changed in this revision', 'Edited or moved since the last published revision.',
-                          mini(c, recent_all[:TOP], 'Relied on', lambda p: share_pct(c.rank.of(p)), 'relied'), see_all('changes.html', len(recent_all), 'changes, row by row'), 'changed'))
+                          mini(c, recent_all[:TOP], 'Relied on', lambda p: times_avg(c, c.rank.of(p)), 'relied'), see_all('changes.html', len(recent_all), 'changes, row by row'), 'changed'))
     else:
         cards.append(card('Changed in this revision', 'Nothing has changed since the last published revision'
                           + (', or no previous revision was available to compare with' if getattr(c, 'changes', None) is None else '')
@@ -3478,7 +3558,7 @@ tr.lb td{background:color-mix(in srgb,var(--head) 60%,transparent)}
 @media (max-width:640px){table thead{display:none}table tr{display:flex;flex-wrap:wrap;gap:3px 14px;padding:8px 6px;border-top:1px solid var(--line)}table td{border:0;padding:0;width:auto!important;white-space:normal!important;text-align:left!important}td.t,td.u,td.dl,td.ex,td.lab,.check td.lab,.conn td.lab{flex:1 1 100%;width:auto!important}td.rk{display:none}td[data-l]::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}td.u[data-l]::before,td.dl[data-l]::before,td.ex[data-l]::before{display:inline;margin-right:6px}tr.lb td{background:none}tr.lb{background:color-mix(in srgb,var(--head) 60%,transparent)}}
 main.index h1{font-size:clamp(24px,3vw,36px)}.lede{font-size:15px;color:var(--ink2);max-width:720px}
 .beliefs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
-.pop{font-size:13.5px;margin:0 0 10px;padding:8px 10px;background:color-mix(in srgb,var(--navy) 6%,var(--paper));border-left:3px solid var(--navy)}.under{font-size:13px;color:var(--ink2);margin:6px 0 0}.dm{display:inline-block;font:600 10.5px/1.4 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--line);border-radius:3px;padding:0 5px;vertical-align:middle;margin-left:4px}.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.cards{column-width:320px;column-gap:18px;margin-top:18px}.cards.js{column-width:auto;display:flex;gap:18px;align-items:flex-start}.cards.js>.col{flex:1 1 0;min-width:0}.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:0 0 18px;break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box}.card h2{margin-top:2px}.card .dir{grid-template-columns:1fr;gap:8px}.mini{font-size:13px}.mini td.t{min-width:0}.mini td.sc{white-space:normal;min-width:4em}.find label{display:block;font-size:13px;color:var(--ink2)}.find input{width:100%;box-sizing:border-box;padding:8px;font:inherit;border:1px solid var(--line);border-radius:4px}.hits{padding-left:20px;font-size:14px}.links{padding-left:18px;font-size:14px}.links li{margin:4px 0}
+.pop{font-size:13.5px;margin:0 0 10px;padding:8px 10px;background:color-mix(in srgb,var(--navy) 6%,var(--paper));border-left:3px solid var(--navy)}.under{font-size:13px;color:var(--ink2);margin:6px 0 0}.dm{display:inline-block;font:600 10.5px/1.4 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--line);border-radius:3px;padding:0 5px;vertical-align:middle;margin-left:4px}.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.cards{column-width:320px;column-gap:18px;margin-top:18px}.cards.js{column-width:auto;display:flex;gap:18px;align-items:flex-start}.cards.js>.col{flex:1 1 0;min-width:0}.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:0 0 18px;break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box}.card h2{margin-top:2px}.card .dir{grid-template-columns:1fr;gap:8px}.mini{font-size:13px}.mini td.t{min-width:0}.mini td.sc{white-space:normal;min-width:4em}.find label{display:block;font-size:13px;color:var(--ink2)}.find input{width:100%;box-sizing:border-box;padding:8px;font:inherit;border:1px solid var(--line);border-radius:4px}.hits{padding-left:20px;font-size:14px}.doors{padding-left:20px;font-size:14px;margin:6px 0}.doors li{margin:0 0 8px}.links{padding-left:18px;font-size:14px}.links li{margin:4px 0}
 .bcard{display:block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px;color:var(--ink)}.bcard:hover{border-color:var(--navy)}
 .bcard .bt{font-family:var(--serif);font-size:16px;line-height:1.35;font-weight:600;margin-bottom:8px}.bcard .bn{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}.bcard .bn b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}.bcard .bb{margin-top:8px;font-size:13px;color:var(--ink2)}
 ul.tree,ul.tree ul{list-style:none;margin:0;padding-left:0}ul.tree ul{padding-left:18px;border-left:1px solid var(--line);margin-left:6px}
@@ -3705,6 +3785,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     if os.path.isdir(outdir): shutil.rmtree(outdir)
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
     index = []
+    c.changes = CHANGES.since(content, c) if os.path.isdir(content) else None
     for pid in c.specs:
         h = collapse_tables(blurbs_below(ths(render_belief(c, pid) if c.kind(pid) in ('belief', 'claim') else render_special(c, pid))))
         with open(os.path.join(outdir, 'p', c.href(pid)), 'w') as fh: fh.write(h)
@@ -3715,7 +3796,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
         index.append({'key': c.key[pid], 'id': pid, 'kind': c.kind(pid), 'text': c.text(pid), 'standalone': c.standalone(pid),
                       'truth': j['truth'], 'confidence': j['confidence'],
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
-    c.changes = CHANGES.since(content, c) if os.path.isdir(content) else None
+        if c.kind(pid) == 'belief' and not c.complete(pid): index[-1]['draft'] = True
     with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
         fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))

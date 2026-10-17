@@ -76,9 +76,6 @@ class TestTracker(unittest.TestCase):
         self.assertIn('page=p2', h)
 
 
-if __name__ == '__main__':
-    unittest.main()
-
 
 class TestShareBox(unittest.TestCase):
     def test_a_belief_page_carries_both_sides_as_text_to_paste_and_share_links(self):
@@ -99,3 +96,7 @@ class TestShareBox(unittest.TestCase):
         self.assertIn('Share this argument', h)
         for host in ('facebook.com/sharer', 'twitter.com/intent', 'reddit.com/submit', 'mailto:'):
             self.assertIn(host, h)
+
+
+if __name__ == '__main__':
+    unittest.main()
