@@ -191,7 +191,7 @@ page truth       = (POS + w x p0) / (POS + NEG + w)
 
 with `p0 = 0.50` and `w = k = 1` for a page that cites no evidence (`CONSTS = {'K': 1, 'UNARG': 0.5, 'DEFLINK': 1, 'DEFIMP': 0.5, 'DEFUNIQ': 1}`). A reason nobody has argued has Truth 0.50, so `(2 x 0.5 - 1) = 0` and it contributes nothing; a reason argued false counts against the side it was filed on. That is the whole of "community consensus" here: argued weight, never a head count. And "updated continuously" means recomputed on every build of a static site, not on every click.
 
-The verdict bands printed in the equivalence page's check table (code: `render_site.py`, the `equivalence` branch of the check table; `EQUIV_MERGE = 0.9` in [`build_pages.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/build_pages.py)):
+The verdict bands printed in the equivalence page's check table (code: `render_site.py`, the `equivalence` branch of the check table; `EQUIV_MERGE = 0.9`, "the score at which the site already calls two claims a merge candidate", near the top of [`render_site.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/render_site.py)):
 
 | Equivalence page truth | Verdict printed |
 |---|---|

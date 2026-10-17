@@ -310,9 +310,9 @@ The 2025 page's three claims, with status:
 
 One stale line elsewhere: the 2025 Home page said this score "uses an adapted PageRank model to reflect collective judgment on relevance". No engine applies PageRank to linkage. ReasonRank's walk restarts at the beliefs and steps by `Link x Imp x Uniq`; it reads Link and does not set it.
 
-## Original sketch (2025), not what runs
+## Original sketch (2023), not what runs
 
-<details><summary>Original sketch (2025), not what runs</summary>
+<details><summary>Original sketch (2023), not what runs</summary>
 
 What runs instead is `Model.evaluate` in [`tools/static-site/score_reference.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/score_reference.py), reading `pages.csv` and `edges.csv`, with the rule pinned language-neutrally by [`conformance.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/conformance.py) and the zoning reference in `examples/ise-zoning/score_reference.py`; in the app, `calculateLinkageFromArguments` in `scoring-engine.ts`. No shipped code measures strength by text length, and the sample's `else 0` default differs from every shipped default (1, 0.5, 0.1).
 
