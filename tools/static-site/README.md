@@ -27,6 +27,8 @@ every table on every page). Nothing typed in it is a score. Everything else here
                           low and every cost high
     belief score        = POS - NEG, open ended, where POS and NEG are the positive and negative
                           contributions as magnitudes (a row lands on the side its sign puts it on)
+    a repeated claim    = counts once: a claim page read by more than one reason, finding or prediction
+                          row on the same page and side counts at its strongest reading and no more
     importance page     = max over listed interests of Validity x Bears
 
 A multiplier with no page reads a labelled constant (UNARG 0.5, DEFLINK 1, DEFIMP 0.5, DEFUNIQ 1), and the site shows
@@ -39,6 +41,34 @@ the world is evidence, so a page may declare what it rests on (`etype`, `erq`, `
 starts. A page that declares nothing starts at 0.50 with weight k, which is the rule as it always was.
 `test_engines.py` pins the fixed point, so anything that later lets a score move without evidence has to say why.
 
+## The guarantees, and the test that pins each
+
+Outside reviewers keep asking where the invariants are written down. Here, each with the test that fails if a
+change breaks it. A failure in any of them means a score has moved for a reason that is not an argument or a
+finding, and that needs a reason, not a fix to the test.
+
+    A reason nobody has argued adds exactly 0          test_engines  test_argument_alone_can_never_leave_the_neutral_point
+    Only evidence moves a page off its start           test_engines  (the same test)
+    Truth stays in 0 to 1; a row adds at most 1        test_scoring  test_every_truth_in_range, test_contribution_is_bounded_by_one_in_magnitude
+    No number is NaN or infinite                       test_invariants  TestNoNumberIsUndefined
+    A circular argument is refused, not scored         test_engines  test_a_cycle_is_refused_by_name_rather_than_by_running_out_of_stack
+    No depth limit: the scorer walks the whole graph   one memoized pass over a graph with no cycles; there is no cap to test
+    The order rows are stored in changes nothing       test_invariants  TestOrderChangesNothing
+    A claim listed twice on a page counts once         test_invariants  TestARepeatedClaimCountsOnce
+    The same tables give the same site, byte for byte  test_invariants  TestTheSameTablesGiveTheSameSite
+    Who added a row moves nothing                      test_invariants  TestWhoAddedARowMovesNothing
+    A vote moves nothing                               test_render   test_no_vote_moves_any_score
+    A fallacy flag moves nothing                       test_fallacy  test_a_flag_moves_no_score
+    A computed similarity moves nothing                test_similarity  test_it_changes_no_score
+    The second strength rule moves nothing else        test_tally    test_it_moves_no_other_number
+    Every port gives the same numbers                  conformance.py, run in CI
+
+Two things the list does not promise, on purpose. Two different claims that say nearly the same thing still count
+twice until somebody argues the overlap on a uniqueness page: the duplicate detector flags the pair on the page and
+moves nothing, because a lexical match is a guess about meaning. And independent findings that agree are not
+duplicates at all: replication raises a finding's weight through ERQ, which is the opposite of the uniqueness
+discount and is meant to be.
+
 ## Files
 
     render_site.py       the site generator; prints an internal link check (must be 0 broken) and each belief's truth
@@ -49,7 +79,7 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     reasonrank.py        the damped walk from the beliefs: how much of the corpus depends on each page
     changes.py           what moved since the last revision, in claims and in scores
     similarity.py        which claims say the same thing in different words, so padding can be seen
-    integrity.py         faults the shape of the graph shows: circularity, question-begging, a page counted twice
+    integrity.py         faults the shape of the graph shows: circularity, question-begging, a page listed twice
     method.py            the reader-facing methodology page: every rule the contract enumerates, every number a page
                          prints (EVS, kind of dispute, costs and benefits, structural checks), the wiki rules the
                          engine does not run, and what the tool cannot do; every count on it is read from the build
@@ -133,8 +163,8 @@ in all four here, and four implementations of a rule is four chances to be wrong
   no longer how the rules are checked. LibreOffice cannot be driven in a build container, so a check that depends on
   it is a check that stops running.
 
-**The conformance suite is what makes any of that safe.** `conformance/corpus.json` is twenty-four pages and
-twenty-five rows built to exercise every rule once, plus the five constants and the eighteen evidence tiers, so a
+**The conformance suite is what makes any of that safe.** `conformance/corpus.json` is twenty-six pages and
+twenty-nine rows built to exercise every rule once, plus the five constants and the eighteen evidence tiers, so a
 port needs nothing from this repository's source to run it; `conformance/expected.json` is what they score. Any
 implementation in any language loads the first, computes, and compares against the second, and both are published beside the site at
 `data/conformance_corpus.json` and `data/conformance_expected.json`, because a contract somebody has to clone a

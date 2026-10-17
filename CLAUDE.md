@@ -241,9 +241,9 @@ heading line after the score badge, and a home card ranks the gap between the vo
 anyone has voted. Reader-facing pages use plain words;
 `test_render.py::TestThePagesSpeakPlainly` fails the build on engine words like "corpus" anywhere but the
 method page. `conformance.py` holds the cross-implementation
-contract: twenty-four pages with their expected numbers, the five constants and
+contract: twenty-six pages with their expected numbers, the five constants and
 the eighteen evidence tiers checked in, so a port in any language can be held to
-the same rules without reading this repository's source. Eight of those pages exist
+the same rules without reading this repository's source. Ten of those pages exist
 because the contract stated a rule the corpus did not exercise, and the SQL port of
 that same rule passed conformance while returning a truth starting point of 1.40. A
 deliberate rule change means `python3 conformance.py --write` and a reviewed diff.

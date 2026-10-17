@@ -42,7 +42,10 @@ THE CONTRACT, in full, for anyone writing a port.
      named in link_id / imp_id / uniq_id, or DEFLINK / DEFIMP / DEFUNIQ when absent.
   4. POS is the sum of the positive contributions and NEG the magnitude of the negative ones, over the argument,
      evidence and prediction rows together. A row lands on the side its sign puts it on, not the side it was
-     filed on.
+     filed on. A claim page read by more than one of those rows on the same page and the same filed side counts
+     once, at the contribution largest in magnitude, in whichever section that row sits; the others are left out
+     of every sum (POS, NEG, pro, con, supp, weak, pred), though each row's own contribution is still printed.
+     Largest rather than first, so the order rows are stored in changes nothing (page 26).
   5. Argued truth = (POS + w x p0) / (POS + NEG + w). Belief score = POS - NEG.
   6. Truth = min(argued truth, the smallest truth among component rows whose attrs.lb is "Y" and which name a
      page). Uncapped when there are none. It is a minimum and not a replacement, so a premise better
@@ -113,6 +116,7 @@ def build_corpus():
         dict(id=23, kind='claim', text='A claim whose necessary premise is better established than it is'),
         dict(id=24, kind='claim', text='A claim whose necessary premise has no page yet'),
         dict(id=25, kind='claim', text='A claim resting on a finding that is actually established'),
+        dict(id=26, kind='claim', text='A claim whose one reason is listed three times, once as evidence'),
     ]
     E, n = [], 0
     def e(page_id, section, side, position, **kw):
@@ -155,6 +159,12 @@ def build_corpus():
     # nothing: doubling that sign in the scorer changed no number in this file and the suite stayed green.
     # This row points at a finding that is established, so the sign it is read with has a consequence.
     e(25, 'evidence', 'agree', 1, claim_id=2, source='A published series, 2024')
+    # rule 4, a claim listed more than once counts once. The first row reads the claim through an argued
+    # linkage below 1, the second with no linkage page (1), the third as evidence; only the second counts. A
+    # port that sums all three reads three times the weight, and one that keeps the first row reads too little.
+    e(26, 'argument', 'agree', 1, claim_id=2, link_id=7)
+    e(26, 'argument', 'agree', 2, claim_id=2)
+    e(26, 'evidence', 'agree', 1, claim_id=2)
     consts = [dict(name=k, value=v) for k, v in CONSTS.items()]
     tiers = [dict(etype=k, weight=w, meaning=m) for k, (w, _rank, m) in sorted(EV.ESIW.items())]
     return {'constants': consts, 'tiers': tiers, 'pages': P, 'edges': E}

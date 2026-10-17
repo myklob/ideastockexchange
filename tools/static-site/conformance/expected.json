@@ -70,6 +70,21 @@
    "page_id": 25,
    "section": "evidence"
   },
+  "27": {
+   "contribution": 0.06844773791,
+   "page_id": 26,
+   "section": "argument"
+  },
+  "28": {
+   "contribution": 0.135,
+   "page_id": 26,
+   "section": "argument"
+  },
+  "29": {
+   "contribution": 0.135,
+   "page_id": 26,
+   "section": "evidence"
+  },
   "3": {
    "contribution": 0.0,
    "page_id": 1,
@@ -367,6 +382,22 @@
    "pro": 0,
    "raw": 0.559471365639,
    "supp": 0.135,
+   "truth": 0.559471365639,
+   "weak": 0,
+   "weight": 1.0
+  },
+  "26": {
+   "belief": 0.135,
+   "con": 0,
+   "confidence": 0.283918128655,
+   "kind": "claim",
+   "neg": 0,
+   "p0": 0.5,
+   "pos": 0.135,
+   "pred": 0,
+   "pro": 0.135,
+   "raw": 0.559471365639,
+   "supp": 0,
    "truth": 0.559471365639,
    "weak": 0,
    "weight": 1.0

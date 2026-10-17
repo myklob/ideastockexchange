@@ -46,14 +46,17 @@ def tally(rows, specs, ids, basis=None):
     share of None when nothing is listed on either side."""
     basis = basis or {'p0': 0.5, 'weight': 1.0}
     def side(reason_keys, finding_key):
-        w = n = 0.0
-        for k in reason_keys:
-            for r in rows.get(k, []):
-                w += weight(r); n += r['uniq'] if k in ('agree', 'disagree') else 0.0
-        fw = 0.0
-        for r, d in zip(rows.get(finding_key, []), ids.get(finding_key, [])):
-            fw += weight(r, finding_strength(specs.get(d.get('id'))))
-        return n, w, fw
+        # a claim page listed more than once on a side counts once, at its heaviest, as the truth score's rule does
+        best, loose = {}, []
+        for k in reason_keys + (finding_key,):
+            for r, d in zip(rows.get(k, []), ids.get(k, [])):
+                wt = weight(r, finding_strength(specs.get(d.get('id')))) if k == finding_key else weight(r)
+                item = (wt, r['uniq'] if k in ('agree', 'disagree') else 0.0, k == finding_key)
+                cid = d.get('id')
+                if not (isinstance(cid, int) and cid >= 1): loose.append(item)
+                elif cid not in best or wt > best[cid][0]: best[cid] = item
+        kept = loose + list(best.values())
+        return (sum(n for _, n, _ in kept), sum(w for w, _, f in kept if not f), sum(w for w, _, f in kept if f))
     n_for, w_for, f_for = side(('agree', 'pt'), 'for')
     n_against, w_against, f_against = side(('disagree', 'pf'), 'against')
     total_for, total_against = w_for + f_for, w_against + f_against

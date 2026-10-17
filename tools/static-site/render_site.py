@@ -198,6 +198,20 @@ class Corpus:
                     'for': [self.row(d, 1) for d in EF], 'against': [self.row(d, -1) for d in EA],
                     'pt': [self.row(d, 1) for d in PT], 'pf': [self.row(d, -1) for d in PF]}
             s['rows'] = rows
+            # the scorer counts a claim page once per page and side, at its strongest reading
+            # (score_reference.Model._once); the rows it drops print as +0.00 and say so, so the table still adds up
+            best = {}
+            for sec, filed, specs_ in (('agree', 'agree', A), ('disagree', 'disagree', D), ('for', 'agree', EF),
+                                       ('against', 'disagree', EA), ('pt', 'agree', PT), ('pf', 'disagree', PF)):
+                for d, r in zip(specs_, rows[sec]):
+                    if not is_page(d.get('id')): continue
+                    k = (d['id'], filed)
+                    if k not in best: best[k] = r
+                    elif abs(r['score']) > abs(best[k]['score']): best[k]['repeat'] = True; best[k] = r
+                    else: r['repeat'] = True
+            for sec in rows:
+                for r in rows[sec]:
+                    if r.get('repeat'): r['score'] = 0.0; r['stake'] = 0.0
             s['nagree'], s['ndis'], s['nsupp'], s['nweak'] = len(A), len(D), len(EF), len(EA)
             s['npred'] = len(PT) + len(PF)
             s['share'] = (s['pos'] / (s['pos'] + s['neg'])) if s['pos'] + s['neg'] > 0 else None
@@ -421,6 +435,10 @@ def blurbs_below(markup):
         i = k
     return ''.join(out)
 def f2(v): return '' if v is None else f'{v:.2f}'
+def repeat_note(r):
+    """Under a row the scorer does not count because the same claim is listed again on the page."""
+    return ('<div class="src">Listed again on this page, so counted once, at its strongest reading.</div>'
+            if r.get('repeat') else '')
 def sf(v):
     # a value that rounds to zero prints as +0.00 whichever side of zero it came from: zero has one spelling
     return '' if v is None else ('+0.00' if abs(v) < 0.005 else f'{v:+.2f}')
@@ -535,7 +553,7 @@ def scored_table(H, c, side_rows, specs_rows, headers, key_label, votes=False):
     for rank, i in enumerate(order, 1):
         d, r = specs_rows[i], side_rows[i]
         vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if votes and is_page(d.get('id')) else ''
-        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{vl}</td>'
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{repeat_note(r)}{vl}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{conf_cell(H, c, d)}</td>'
                    f'<td>{H.num(r["link"], d.get("link"), const_label="No linkage page yet: presumed relevant, reads " + str(DEFLINK))}</td>'
@@ -565,7 +583,7 @@ def evidence_table(H, c, side_rows, specs_rows, bears=None, votes=False):
         # Starts at cell; the same sentence under every row was the loudest thing in a draft's ledger
         rests = f'<div class="src">Rests on: {esc(EV.label(sp).split(", starts at")[0])}</div>' if b['grounded'] else ''
         vl = (vote_links(c, d['id']) + edge_vote_links(c, d, home)) if votes and is_page(d.get('id')) else ''
-        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{rests}{vl}</td><td class="u">{on}</td><td>{p0}</td>'
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{rests}{repeat_note(r)}{vl}</td><td class="u">{on}</td><td>{p0}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{conf_cell(H, c, d)}</td>'
                    f'<td>{H.num(r["link"], d.get("link"), const_label="No linkage page yet: presumed relevant")}</td>'
@@ -810,7 +828,7 @@ def render_belief(c, pid):
         for d, r in ((specs_rows[i], side_rows[i]) for i in order):
             dl = f'<div class="src">By when, and how it is checked: {esc(d["deadline"])}</div>' if d.get('deadline') else '<div class="src">No deadline or method stated yet.</div>'
             vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
-            out.append(f'<tr><td class="t">{H.rowtext(d)}{dl}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td><td>{f2(r["stake"])}</td></tr>')
+            out.append(f'<tr><td class="t">{H.rowtext(d)}{dl}{repeat_note(r)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td><td>{f2(r["stake"])}</td></tr>')
         if not specs_rows: out.append('<tr><td colspan="8" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
     # ---- falsifiability: the evidence that would strengthen or weaken, as a bet, before any of it exists
@@ -1334,7 +1352,7 @@ def render_special(c, pid):
             d, r = specs_rows[i], side_rows[i]
             pat = f'<span class="patl">{esc(d["pattern"])}</span>' if d.get('pattern') else ''
             vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
-            out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
+            out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{repeat_note(r)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
         if not specs_rows: out.append(f'<tr><td colspan="8" class="empty">Nothing here yet. Starter patterns: {esc(", ".join(pats))}.</td></tr>')
         return ''.join(out) + '</tbody></table>'
     o.append(take_part(H.up, KINDNAME[k].lower() + ' page'))
@@ -1435,7 +1453,7 @@ def media_pat_table(H, c, specs_rows, side_rows, pats):
         d, r = specs_rows[i], side_rows[i]
         pat = f'<span class="patl">{esc(d["pattern"])}</span>' if d.get('pattern') else ''
         vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
-        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{repeat_note(r)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
     if not specs_rows: out.append(f'<tr><td colspan="8" class="empty">No reason on this side yet. Starter patterns: {esc(", ".join(pats))}.</td></tr>')
     return ''.join(out) + '</tbody></table>'
 

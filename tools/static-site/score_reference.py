@@ -27,7 +27,7 @@ Two jobs, one code path:
 
 Run as a script: python3 score_reference.py ise_zoning.json  -> prints every page's truth and belief score.
 """
-import json, os, sys
+import json, math, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from evidence import prior as evidence_prior
 
@@ -173,10 +173,27 @@ class Model:
                 * self.pg(e.get('link_id'), C['DEFLINK'], _seen) * self.pg(e.get('imp_id'), C['DEFIMP'], _seen)
                 * self.pg(e.get('uniq_id'), C['DEFUNIQ'], _seen))
     @staticmethod
+    def _once(rows):
+        """rows: (edge, contribution) pairs; returns them with every repeat dropped. A claim page read by more than
+        one row on the same page and the same side counts once, at its strongest reading, in whichever section
+        that reading sits, so listing one claim five times (or as a reason and again as evidence) weighs exactly
+        what listing it once does. The strongest reading rather than the first keeps the result independent of
+        row order. A row with no claim page contributes 0 anyway and is left alone."""
+        best, out = {}, []
+        for e, v in rows:
+            cid = e.get('claim_id')
+            if not is_page(cid): out.append((e, v)); continue
+            k = (cid, e.get('side'))
+            if k not in best or abs(v) > abs(best[k][1]): best[k] = (e, v)
+        return out + list(best.values())
+
+    @staticmethod
     def _split(vals):
         """Weight for and weight against, both as magnitudes. A row lands on the side its sign puts it on, not the
         side it was filed on, so a refuted objection counts as support and a refuted reason counts against."""
-        return sum(v for v in vals if v > 0), -sum(v for v in vals if v < 0)
+        # fsum is exactly rounded, so the totals do not depend on the order the rows are added in
+        pos, neg = [v for v in vals if v > 0], [v for v in vals if v < 0]
+        return (math.fsum(pos) if pos else 0), (-math.fsum(neg) if neg else 0)
 
     def evaluate(self, pid, _seen=()):
         # A pin is honoured here as well as in truth(), so the two entry points cannot disagree about a page's
@@ -191,23 +208,28 @@ class Model:
             effs = [self.truth(e['claim_id'], _seen) * self.pg(e.get('bearing_id'), C['DEFLINK'], _seen) for e in self.rows(pid, 'interest_listing') if is_page(e.get('claim_id'))]
             t = max(effs) if effs else self._share(0.0, 0.0, pid)
             out.update(belief=t, truth=self.pinned_truth.get(pid, t)); self.memo[pid] = out; return out
-        args = [self._contrib(e, 1, _seen) for e in self.rows(pid, 'argument', 'agree')] + [self._contrib(e, -1, _seen) for e in self.rows(pid, 'argument', 'disagree')]
-        pro, con = self._split(args)
-        out.update(pro=pro, con=con)
+        arg_rows = [(e, self._contrib(e, 1, _seen)) for e in self.rows(pid, 'argument', 'agree')] + [(e, self._contrib(e, -1, _seen)) for e in self.rows(pid, 'argument', 'disagree')]
         if kind in SPECIAL:
+            pro, con = self._split([v for _, v in self._once(arg_rows)])
+            out.update(pro=pro, con=con)
             out.update(belief=pro - con, truth=self.pinned_truth.get(pid, self._share(pro, con, pid)))
             if kind == 'media':
-                imp_rows = [self._contrib(e, 1, _seen) for e in self.rows(pid, 'impact', 'agree')] + [self._contrib(e, -1, _seen) for e in self.rows(pid, 'impact', 'disagree')]
-                out['impact'] = self._share(*self._split(imp_rows), pid=pid)
+                imp_rows = [(e, self._contrib(e, 1, _seen)) for e in self.rows(pid, 'impact', 'agree')] + [(e, self._contrib(e, -1, _seen)) for e in self.rows(pid, 'impact', 'disagree')]
+                out['impact'] = self._share(*self._split([v for _, v in self._once(imp_rows)]), pid=pid)
             self.memo[pid] = out; return out
-        evid = [self._contrib(e, 1, _seen) for e in self.rows(pid, 'evidence', 'agree')] + [self._contrib(e, -1, _seen) for e in self.rows(pid, 'evidence', 'disagree')]
+        evid_rows = [(e, self._contrib(e, 1, _seen)) for e in self.rows(pid, 'evidence', 'agree')] + [(e, self._contrib(e, -1, _seen)) for e in self.rows(pid, 'evidence', 'disagree')]
+        pred_rows = [(e, self._contrib(e, 1, _seen)) for e in self.rows(pid, 'prediction', 'agree')] + [(e, self._contrib(e, -1, _seen)) for e in self.rows(pid, 'prediction', 'disagree')]
+        kept = self._once(arg_rows + evid_rows + pred_rows)
+        args = [v for e, v in kept if e['section'] == 'argument']
+        evid = [v for e, v in kept if e['section'] == 'evidence']
+        preds = [v for e, v in kept if e['section'] == 'prediction']
+        pro, con = self._split(args)
         supp, weak = self._split(evid)
-        preds = [self._contrib(e, 1, _seen) for e in self.rows(pid, 'prediction', 'agree')] + [self._contrib(e, -1, _seen) for e in self.rows(pid, 'prediction', 'disagree')]
         pos, neg = self._split(args + evid + preds)
         raw = self._share(pos, neg, pid)
         lb = [self.truth(e['claim_id'], _seen) for e in self.rows(pid, 'component') if is_page(e.get('claim_id')) and str(e.get('attrs', {}).get('lb', '')).upper() == 'Y']
         truth = min(raw, min(lb)) if lb else raw
-        out.update(supp=supp, weak=weak, pred=sum(preds), belief=pos - neg, truth=truth, raw=raw, pos=pos, neg=neg)
+        out.update(pro=pro, con=con, supp=supp, weak=weak, pred=math.fsum(preds) if preds else 0, belief=pos - neg, truth=truth, raw=raw, pos=pos, neg=neg)
         if pid in self.pinned_truth: out['truth'] = self.pinned_truth[pid]
         self.memo[pid] = out; return out
 
