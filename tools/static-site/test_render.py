@@ -2393,11 +2393,11 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
 
     def test_a_row_shows_where_its_source_is_and_who_added_it(self):
         """The address and the day it was checked sit under the finding in the Evidence Ledger, with who added
-        the row; a row that carries none of these shows nothing extra."""
+        the row linked to their page on this site; a row that carries none of these shows nothing extra."""
         h = self._page(self.out_v, 'p/a.html')
         line = re.search(r'<div class="src prov">(.*?)</div>', h).group(1)
         self.assertEqual(line, '<a href="https://city.example/survey" rel="nofollow noopener">read the source</a>; checked 2026-09-01; '
-                               'added by <a href="https://github.com/ann" rel="nofollow">@ann</a> on 2026-09-02')
+                               'added by <a href="../u/ann.html">@ann</a> on 2026-09-02')
         self.assertEqual(h.count('class="src prov"'), 1, 'a row with no provenance grew a line')
         import render_site as RS
         self.assertEqual(RS.provenance_line({'url': 'javascript:alert(1)'}), '', 'an address that is not a web address is linked')
@@ -2503,6 +2503,77 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
         self.assertIn('href="#add-evidence"', gaps)
         self.assertEqual(self.broken_v, [])
 
+
+
+class TestEveryContributorHasAPage(unittest.TestCase):
+    """Every login that adds a row or casts a vote gets a page listing what they did; the maintainer's page carries
+    their profile and every page credits them. None of it reaches a score."""
+
+    @classmethod
+    def setUpClass(cls):
+        # the votes fixture is torn down after its own class runs, so this class builds its own copy of it
+        class V(TestVotesAreShownAndNeverCounted): pass
+        V.setUpClass(); cls.v = V
+        cls.site = TestTheRenderedSite
+        if not hasattr(cls.site, 'html'): cls.site.setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.v.tearDownClass()
+
+    def read(self, out, name):
+        with open(os.path.join(out, name)) as fh: return fh.read()
+
+    def test_every_voter_and_every_row_adder_has_a_page_and_the_list_names_them(self):
+        out = self.v.out_v
+        people = self.read(out, 'contributors.html')
+        for login in ('u1', 'u2', 'u3', 'u4', 'ann'):
+            self.assertTrue(os.path.exists(os.path.join(out, 'u', login + '.html')), f'{login} has no page')
+            self.assertIn(f'href="u/{login}.html"', people)
+        self.assertIn('Rows added', self.read(out, 'u/ann.html'))
+        self.assertIn('Votes cast', self.read(out, 'u/u1.html'))
+        self.assertEqual(self.v.broken_v, [], 'a contributor link points at a page that was not written')
+
+    def test_added_by_links_to_the_contributors_page_on_this_site(self):
+        h = self.read(self.v.out_v, 'p/' + self.v.cv.href(self.v.cv.tabs['a']))
+        self.assertIn('added by <a href="../u/ann.html">@ann</a>', h)
+
+    def test_the_maintainer_has_a_profile_and_every_kind_of_page_credits_them(self):
+        import render_site as RS
+        c = self.site.c
+        if not c.maintainer: self.skipTest('the shipped tables name no maintainer')
+        out = self.site.dir; name = c.users[c.maintainer]['name']
+        page = self.read(out, f'u/{c.maintainer}.html')
+        self.assertIn(f'<h1>{name}</h1>', page)
+        for l in c.user_links.get(c.maintainer, []): self.assertIn(l['url'], page, f'{l["platform"]} is missing from the profile')
+        credit = f'Built and maintained by <a href="{{}}u/{c.maintainer}.html">{name}</a>'
+        self.assertIn(credit.format(''), self.read(out, 'index.html'))
+        self.assertIn(credit.format('../'), self.read(out, 't/' + c.topic_href(next(iter(c.topics)))))
+        b = RS.best_beliefs(c)[0]
+        claim = self.read(out, 'p/' + c.href(b))
+        self.assertIn(credit.format('../'), claim)
+        self.assertIn(f'Idea Stock Exchange, maintained by {name}', claim)
+
+    def test_the_people_tables_move_no_number(self):
+        """The same tables built with and without users.csv and user_links.csv publish the same numbers."""
+        import json as _json, render_site as RS
+        src = tempfile.mkdtemp(); outs = [tempfile.mkdtemp(), tempfile.mkdtemp()]
+        try:
+            for f in os.listdir(self.v.without): shutil.copy(os.path.join(self.v.without, f), src)
+            RS.build(src, outs[0])
+            with open(os.path.join(src, 'users.csv'), 'w') as fh:
+                fh.write('login,name,maintainer,role,about\nzed,Zed Example,Y,Maintainer,Builds things.\n')
+            with open(os.path.join(src, 'user_links.csv'), 'w') as fh:
+                fh.write('login,group,platform,best_for,label,url\nzed,Social,Blog,Essays,zed.example,https://zed.example/\n')
+            c, broken = RS.build(src, outs[1])
+            self.assertEqual(broken, [])
+            self.assertEqual(c.maintainer, 'zed')
+            idx = []
+            for o in outs:
+                with open(os.path.join(o, 'data', 'pages_index.json')) as fh: idx.append({r['key']: (r['truth'], r['confidence']) for r in _json.load(fh)['pages']})
+            self.assertEqual(idx[0], idx[1], 'naming a maintainer moved a published number')
+        finally:
+            for d in [src] + outs: shutil.rmtree(d, ignore_errors=True)
 
 
 class TestTheBeliefPageReadsInPlainOrder(unittest.TestCase):

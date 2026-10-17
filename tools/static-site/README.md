@@ -89,6 +89,9 @@ discount and is meant to be.
     contribute.js        the browser side of taking part: the duplicate check as a reader types, and the prefilled issue URLs
     intake.py            the GitHub Action side: parses a submitted issue form, re-checks for duplicates, records a vote or opens a PR
     content/votes.csv    the fourth table, one row per (page key, on, GitHub login), latest wins; shown on the page, never scored
+    content/users.csv    who takes part: one row per GitHub login (name, role, a few sentences, maintainer Y), with
+    content/user_links.csv  where to reach each one, grouped as on their own contact page; every login that adds a
+                         row or votes gets a page at u/<login>.html, listed on contributors.html; never scored
     ise_tables.py        the table format: pages, edges and topics; specs_to_tables / tables_to_specs, and both read surfaces
     export_db.py         SQL schema and data, a loaded SQLite database, JSON and XML, plus the analyst views
     build_pages.py       the Excel belief-page renderer (also supplies the constants and wiki link map to the site)
@@ -163,8 +166,8 @@ in all four here, and four implementations of a rule is four chances to be wrong
   no longer how the rules are checked. LibreOffice cannot be driven in a build container, so a check that depends on
   it is a check that stops running.
 
-**The conformance suite is what makes any of that safe.** `conformance/corpus.json` is twenty-six pages and
-twenty-nine rows built to exercise every rule once, plus the five constants and the eighteen evidence tiers, so a
+**The conformance suite is what makes any of that safe.** `conformance/corpus.json` is a small corpus
+built to exercise every rule once, plus the five constants and the eighteen evidence tiers, so a
 port needs nothing from this repository's source to run it; `conformance/expected.json` is what they score. Any
 implementation in any language loads the first, computes, and compares against the second, and both are published beside the site at
 `data/conformance_corpus.json` and `data/conformance_expected.json`, because a contract somebody has to clone a

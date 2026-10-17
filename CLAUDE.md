@@ -236,14 +236,14 @@ through GitHub, because there is no server: every belief page carries a form und
 propose-a-belief form (also on the home and topic pages), each a plain GET to a prefilled GitHub issue form, and
 `contribute.js` checks what is typed against `data/claims_index.json` (written by `build()` from the full tables, drafts
 included) so a duplicate becomes a vote for the claim already there; `intake.py` does the same check on the issue and
-records a vote in `content/votes.csv` or opens a pull request. A vote never moves a score: the page shows the counts on the
+records a vote in `content/votes.csv` or opens a pull request. Every login that adds a row (its `added_by`) or votes gets a page at `u/<login>.html`, and `content/users.csv` with `user_links.csv` give a person a profile; the one marked maintainer (the owner, Mike Laub) is credited in every page footer and citation. No scorer reads any of it. A vote never moves a score: the page shows the counts on the
 heading line after the score badge, and a home card ranks the gap between the vote share and the truth score only once
 anyone has voted. Reader-facing pages use plain words;
 `test_render.py::TestThePagesSpeakPlainly` fails the build on engine words like "corpus" anywhere but the
 method page. `conformance.py` holds the cross-implementation
-contract: twenty-six pages with their expected numbers, the five constants and
+contract: a small corpus with its expected numbers, the five constants and
 the eighteen evidence tiers checked in, so a port in any language can be held to
-the same rules without reading this repository's source. Ten of those pages exist
+the same rules without reading this repository's source. Several of its pages exist
 because the contract stated a rule the corpus did not exercise, and the SQL port of
 that same rule passed conformance while returning a truth starting point of 1.40. A
 deliberate rule change means `python3 conformance.py --write` and a reviewed diff.

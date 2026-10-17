@@ -480,6 +480,21 @@ def read_topics(path):
     return rows
 
 
+def read_users(path):
+    """The people who take part, from content/users.csv (one row per GitHub login: name, role, a few sentences,
+    and maintainer Y for whoever maintains the site) and content/user_links.csv (where to reach each one, grouped
+    the way their own contact page groups them). Both are optional and neither is read by any scorer: who wrote a
+    row never changes what it is worth. Returns (users, links), each a list of dicts, [] when absent."""
+    import csv, os
+    out = []
+    for name in ('users.csv', 'user_links.csv'):
+        fn = os.path.join(path, name) if os.path.isdir(path) else ''
+        if not fn or not os.path.exists(fn): out.append([]); continue
+        with open(fn, newline='', encoding='utf-8') as fh:
+            out.append([{k: (v or '').strip() for k, v in d.items() if k} for d in csv.DictReader(fh) if any((v or '').strip() for v in d.values())])
+    return tuple(out)
+
+
 def read_entry(path):
     from openpyxl import load_workbook
     wb = load_workbook(path, data_only=True)

@@ -352,7 +352,11 @@ class Corpus:
             chain.append(p); seen.add(p); p = self.specs[p].get('supports')
         return list(reversed(chain))
 
-def provenance_line(d):
+def user_slug(login):
+    """A GitHub login as a file name: logins are letters, digits and hyphens, and nothing else gets through."""
+    return re.sub(r'[^A-Za-z0-9_-]', '', str(login or '').lstrip('@'))
+
+def provenance_line(d, up='../'):
     """Where a row's source can be read and the day that was checked, then who added the row and when: the named
     fields intake writes into a row's extra cell. Nothing when a row carries none, as rows typed before the
     fields existed do."""
@@ -362,7 +366,7 @@ def provenance_line(d):
     if d.get('checked'): parts.append(f'checked {esc(d["checked"])}')
     if d.get('added_by'):
         who = str(d['added_by']).lstrip('@')
-        parts.append(f'added by <a href="https://github.com/{esc(who)}" rel="nofollow">@{esc(who)}</a>' + (f' on {esc(d["added"])}' if d.get('added') else ''))
+        parts.append(f'added by <a href="{up}u/{user_slug(who)}.html">@{esc(who)}</a>' + (f' on {esc(d["added"])}' if d.get('added') else ''))
     elif d.get('added'): parts.append(f'added {esc(d["added"])}')
     if not parts: return ''
     text = '; '.join(parts)
@@ -485,7 +489,7 @@ class Html:
     def rowtext(self, d):
         if is_page(d.get('id')): t = self.a(d['id'])
         else: t = f'<span class="typed">{esc(d.get("text") or d.get("advertised") or "")}</span>'
-        return t + (f'<div class="src">{esc(d["source"])}</div>' if d.get('source') else '') + provenance_line(d)
+        return t + (f'<div class="src">{esc(d["source"])}</div>' if d.get('source') else '') + provenance_line(d, self.up)
     def method(self, target):
         """A site-relative method-page link, resolved from wherever this page sits."""
         return target if target.startswith('http') else self.up + target
@@ -739,8 +743,6 @@ def render_belief(c, pid):
                      '<a href="../method.html#tally">so the two can be compared</a>: here a reason counts from the moment it is posted.'))
     read.append(('Confidence', pct(kv) + '. Weakest parts: ' + ' · '.join(f'{k.replace("_"," ")} {pct(v)}' for k, v in weak_first)))
     read.append(('Relied on', rank_note(c, pid)))
-    moved = since_note(H, c, pid)
-    if moved: read.append(('Since the previous revision', moved))
     for side, lab in (('agree', 'Strongest reason for'), ('disagree', 'Strongest reason against')):
         pairs = list(zip(sp['args'][side], s['rows'][side]))
         if pairs:
@@ -1137,44 +1139,16 @@ def cite(c, pid):
     # and the reader still needs them; what they also need is to be told the build has no name, because that is
     # the difference between a number somebody can reproduce and one they have to take on trust.
     which = f'revision {rev}' + (f' of {date}' if date else '') if rev else 'revision unidentified'
-    ref = (f'{strip_period(c.standalone(pid))}. Idea Stock Exchange, {KINDNAME[c.kind(pid)].lower()} page '
+    m = getattr(c, 'maintainer', None)
+    by = f', maintained by {c.users[m].get("name") or "@" + m}' if m else ''
+    ref = (f'{strip_period(c.standalone(pid))}. Idea Stock Exchange{by}, {KINDNAME[c.kind(pid)].lower()} page '
            f'{c.key[pid]}, truth {f2(c.truth(pid))}, confidence {pct(c.conf.of(pid))}, {which}.')
     note = ('The revision is what makes this quotable: these numbers move as the argument is worked on, and '
             'rebuilding that revision reproduces them exactly.' if rev else
             'This build carries no revision, so the numbers above cannot be tied to a state of the argument '
             'and cannot be reproduced from one. Build from a checkout if you need to cite them.')
     return (f'<p class="cite"><span class="lab">Cite this page</span> {esc(ref)} '
-            f'<span class="u">{esc(note)}</span></p>')
-
-
-def since_note(H, c, pid):
-    """What moved on this page since the previous revision and what moved it, read off the comparison the revision
-    page prints: its own numbers before and after, the rows edited on it, and the pages beneath it that moved. A
-    returning reader sees why the number is not the one they saw last time. None when no comparison could run."""
-    d = getattr(c, 'changes', None)
-    if not d or not c.prov.get('rev'): return None
-    key = c.key[pid]
-    if any(p.get('key') == key for p in d['tables']['pages']['added']): return 'New in this revision.'
-    mv = {m['key']: m for m in d.get('scores', [])}
-    ed = d['tables']['edges']
-    counts = [(len([e for e in ed['added'] if e.get('page') == key]), 'added'),
-              (len([e for e in ed['removed'] if e.get('page') == key]), 'removed'),
-              (len([e for e in ed['changed'] if e['new'].get('page') == key]), 'edited')]
-    own = next((p for p in d['tables']['pages']['changed'] if p['key'] == key), None)
-    beneath = sorted((mv[c.key[k]] for k in c.stats(pid).get('children', []) if c.key.get(k) in mv), key=lambda m: -abs(m['delta']))
-    parts = []
-    m = mv.get(key)
-    if m:
-        bits = [f'truth {f2(m["truth_before"])} to {f2(m["truth_after"])}'] if abs(m['delta']) >= 0.005 else []
-        if round(m['conf_before'] * 100) != round(m['conf_after'] * 100): bits.append(f'confidence {pct(m["conf_before"])} to {pct(m["conf_after"])}')
-        if bits: parts.append(', '.join(bits).capitalize() + '.')
-    rows = [f'{n} row{"" if n == 1 else "s"} {what}' for n, what in counts if n]
-    if rows: parts.append('On this page: ' + ', '.join(rows) + '.')
-    if own: parts.append('Its own entry edited (' + ', '.join(own['columns']) + ').')
-    shown = [b for b in beneath if abs(b['delta']) >= 0.005][:3]
-    if shown:
-        parts.append('Beneath it: ' + '; '.join(f'{H.a(b["page"], c.short(b["page"], 70))} moved {sf(b["delta"])}' for b in shown) + '.')
-    return ' '.join(parts) if parts else 'Its printed numbers are unchanged and no row on it was edited.'
+            f'<span class="u">{esc(note)}</span></p>') + credit(c, '../')
 
 
 def rank_note(c, pid):
@@ -2204,7 +2178,7 @@ def render_topic(c, tkey, title):
             o.append('<p class="cap">Once a belief is filed here, this page takes the full topic layout: where each belief sits, what it assumes, what the two sides value, and the evidence beneath it all.</p>')
         o.append(add_form(H.up, 'belief', topic=tkey))
         o.append(f'<p class="cap">{GIT_NOTE}: a belief is a page row with the topic <code>{esc(tkey)}</code>.</p>')
-        o.append(stamp(c)); o.append(contribute_script(H.up)); o.append(FOOT)
+        o.append(stamp(c, H.up)); o.append(contribute_script(H.up)); o.append(FOOT)
         return ''.join(o)
     # ---- topic metrics: the ones that can be computed, each counted from the same rows the tables below show.
     # Importance has no computation behind it yet, so it is left off rather than printed as a blank.
@@ -2439,7 +2413,7 @@ def render_topic(c, tkey, title):
     o.append(f'<p class="cap">Every table above has a form under it that files a row in that table. Submitting opens a prefilled GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE}</p>')
     o.append(add_form(H.up, 'belief', topic=tkey))
     o.append(f'<p class="cap">{GIT_NOTE}. A belief is a page row with the topic <code>{esc(tkey)}</code>. A cell on this page is an edges row with page <code>{esc(tkey)}</code> and one of the topic sections.</p>')
-    o.append(stamp(c))
+    o.append(stamp(c, H.up))
     o.append(contribute_script(H.up))
     o.append(FOOT)
     return ''.join(o)
@@ -2940,7 +2914,7 @@ def render_index(c, title):
     o.append(MASONRY)
     # The plumbing stays off the cards: a reader comes for the arguments, and the tables and the method are one
     # line at the foot of the page for the reader who wants to check them.
-    o.append('<p class="under"><a href="changes.html">What changed</a> since the last revision · '
+    o.append('<p class="under"><a href="contributors.html">Who takes part</a> · <a href="changes.html">What changed</a> since the last revision · '
              '<a href="method.html#data">The tables behind every page</a>, free to download and check.</p>')
     o.append(stamp(c))
     o.append(contribute_script(''))
@@ -3769,7 +3743,117 @@ def take_part_foot(what):
             f'<a href="{REPO}">GitHub</a>, and a duplicate becomes a vote for what is already here.</p>')
 
 
-def stamp(c):
+def load_people(c, content):
+    """Who takes part, read from the tables and nothing else: the profiles in users.csv and user_links.csv, every
+    row a contributor added (its added_by), and every vote cast. Nothing here reaches a scorer."""
+    users, links = IT.read_users(content) if content and os.path.isdir(content) else ([], [])
+    c.users = {user_slug(u['login']): u for u in users if user_slug(u.get('login'))}
+    c.user_links = {}
+    for l in links: c.user_links.setdefault(user_slug(l.get('login')), []).append(l)
+    c.maintainer = next((k for k, u in c.users.items() if u.get('maintainer', '').upper() == 'Y'), None)
+    c.added = {}
+    if content and os.path.isdir(content):
+        for e in IT.read_csv(content)[1]:
+            x = IT.parse_extra(e.get('extra'))
+            who = user_slug(x.get('added_by'))
+            if who and who != 'anonymous': c.added.setdefault(who, []).append((e, x.get('added', '')))
+    c.voted = {}
+    for v in getattr(c, 'vote_rows', []):
+        who = user_slug(v.get('login'))
+        if who and who != 'anonymous': c.voted.setdefault(who, []).append(v)
+    c.people = sorted(set(c.users) | set(c.added) | set(c.voted), key=lambda k: (k != c.maintainer, (c.users.get(k, {}).get('name') or k).lower()))
+
+
+def person_name(c, login):
+    return (getattr(c, 'users', {}).get(login, {}).get('name')) or '@' + login
+
+
+def render_user(c, login, title):
+    """A contributor's page: who they are and where to reach them when they have said, then everything they have
+    added and every vote they have cast, read off the tables. Every login that appears anywhere gets one."""
+    u = c.users.get(login, {}); name = person_name(c, login)
+    o = [root_head(name, [('Home', '../index.html'), ('Contributors', '../contributors.html'), (name, '')], up='../', main_class='index')]
+    o.append(f'<p class="kind">{"Maintainer" if login == c.maintainer else "Contributor"}</p><h1>{esc(name)}</h1>')
+    meta = [esc(u['role'])] if u.get('role') else []
+    meta.append(f'<a href="https://github.com/{esc(login)}" rel="nofollow">@{esc(login)} on GitHub</a>')
+    o.append('<p class="meta">' + ' · '.join(meta) + '</p>')
+    if u.get('about'):
+        about = esc(u['about']).replace('Idea Stock Exchange', '<a href="../index.html">Idea Stock Exchange</a>', 1)
+        o.append(f'<p class="lede">{about}</p>')
+    if login == c.maintainer:
+        done = [b for b in c.beliefs if c.complete(b)]
+        filed = {c.topic_of(b) for b in c.beliefs if c.topic_of(b)}
+        o.append(f'<section><h2><span>What {esc(name)} built</span></h2><p>This site and everything on it: '
+                 f'<a href="../best.html">{len(c.beliefs):,} beliefs</a> across <a href="../topics.html">{len(filed)} topics</a>, '
+                 f'{len(done):,} of them worked all the way through, and {len(c.specs):,} pages in all, with the rules that score them '
+                 f'and <a href="../method.html">the method page</a> that explains every number. Every row that carries no other '
+                 f'contributor&apos;s name was entered by the maintainer.</p>'
+                 + (f'<p>{esc(u["method"])}</p>' if u.get('method') else '') + '</section>')
+    groups = []
+    for l in c.user_links.get(login, []):
+        g = l.get('group') or 'Where to find me'
+        if g not in groups: groups.append(g)
+    for g in groups:
+        o.append(f'<section><h2><span>{esc(g)}</span></h2><table class="plain"><thead><tr><th>Platform</th><th>Best for</th><th>Link</th></tr></thead><tbody>')
+        for l in c.user_links[login]:
+            if (l.get('group') or 'Where to find me') != g: continue
+            url = l.get('url', '')
+            link = f'<a href="{esc(url)}" rel="me noopener">{esc(l.get("label") or url)}</a>' if re.match(r'^https?://', url) else esc(l.get('label', ''))
+            o.append(f'<tr><td class="t"><strong>{esc(l.get("platform", ""))}</strong></td><td class="u">{esc(l.get("best_for", ""))}</td><td>{link}</td></tr>')
+        o.append('</tbody></table></section>')
+    rows = c.added.get(login, [])
+    if rows:
+        o.append(f'<section><h2><span>Rows added</span></h2><table class="plain"><thead><tr><th>On the page</th><th>Where</th><th>Added</th></tr></thead><tbody>')
+        for e, when in sorted(rows, key=lambda r: r[1], reverse=True):
+            pg = e.get('page'); where = (e.get('section') or '') + (f', {e["side"]}' if e.get('side') else '')
+            page = (f'<a href="../p/{c.href(c.tabs[pg])}">{esc(c.standalone(c.tabs[pg]))}</a>' if pg in getattr(c, 'tabs', {})
+                    else (f'<a href="../t/{c.topic_href(pg)}">{esc(c.topics[pg]["name"])}</a>' if pg in c.topics else esc(pg or '')))
+            o.append(f'<tr><td class="t">{page}</td><td class="u">{esc(where)}</td><td class="u">{esc(when)}</td></tr>')
+        o.append('</tbody></table></section>')
+    votes = c.voted.get(login, [])
+    if votes:
+        o.append(f'<section><h2><span>Votes cast</span></h2><table class="plain"><thead><tr><th>Claim</th><th>Vote</th><th>On</th></tr></thead><tbody>')
+        for v in sorted(votes, key=lambda v: v.get('date', ''), reverse=True):
+            k = v.get('key'); claim = f'<a href="../p/{c.href(c.tabs[k])}">{esc(c.standalone(c.tabs[k]))}</a>' if k in getattr(c, 'tabs', {}) else esc(k or '')
+            what = esc(v.get('vote', '')) + (' that it bears on the page above' if v.get('on') else '')
+            o.append(f'<tr><td class="t">{claim}</td><td class="u">{what}</td><td class="u">{esc(v.get("date", ""))}</td></tr>')
+        o.append('</tbody></table></section>')
+    if not (rows or votes or login == c.maintainer):
+        o.append('<p class="empty">Nothing added or voted on yet.</p>')
+    o.append('<p class="tot">Who added a row never changes its score, and a vote never moves one: the site checks both on every build.</p>')
+    if u.get('closing'): o.append(f'<p class="consts">{esc(u["closing"])}</p>')
+    o.append(stamp(c, '../') + FOOT)
+    return ''.join(o)
+
+
+def render_contributors(c, title):
+    """Everybody who takes part, the maintainer first, each linked to their page."""
+    o = [root_head('Contributors', [('Home', 'index.html'), ('Contributors', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Contributors</h1>')
+    o.append('<p class="lede">Everyone who has added a row or cast a vote here, and whoever maintains the site. Each has a page listing '
+             'what they added. Who added a row never changes its score.</p>')
+    o.append('<section><table class="plain"><thead><tr><th>Who</th><th>Role</th><th>Rows added</th><th>Votes cast</th></tr></thead><tbody>')
+    for k in getattr(c, 'people', []):
+        role = 'Maintainer' if k == c.maintainer else (c.users.get(k, {}).get('role') or 'Contributor')
+        o.append(f'<tr><td class="t"><a href="u/{user_slug(k)}.html">{esc(person_name(c, k))}</a></td><td class="u">{esc(role)}</td>'
+                 f'<td>{len(c.added.get(k, []))}</td><td>{len(c.voted.get(k, []))}</td></tr>')
+    if not getattr(c, 'people', []): o.append('<tr><td colspan="4" class="empty">Nobody yet.</td></tr>')
+    o.append('</tbody></table></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+def credit(c, up=''):
+    """Who built and maintains the site, linked to their page. Nothing when no maintainer is named."""
+    m = getattr(c, 'maintainer', None)
+    if not m: return ''
+    name = c.users[m].get('name') or '@' + m
+    return f'<p class="consts">Built and maintained by <a href="{up}u/{user_slug(m)}.html">{esc(name)}</a>.</p>'
+
+def stamp(c, up=''):
+    return _stamp(c) + credit(c, up)
+
+def _stamp(c):
     p = c.prov
     if not p.get('rev'):
         return ('<p class="consts">Built from an unidentified revision: this copy is not a git checkout, so the '
@@ -3800,6 +3884,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     c.prov = provenance(entry)
     content = entry if os.path.isdir(entry) else os.path.join(os.path.dirname(os.path.abspath(entry)), 'content')
     c.votes, c.vote_latest, c.vote_rows, c.relevance = read_votes(content, detail=True) if os.path.isdir(content) else ({}, {}, [], {})
+    load_people(c, content)
     if os.path.isdir(outdir): shutil.rmtree(outdir)
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
     index = []
@@ -3820,6 +3905,10 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
     for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
+    os.makedirs(os.path.join(outdir, 'u'))
+    for login in getattr(c, 'people', []):
+        with open(os.path.join(outdir, 'u', user_slug(login) + '.html'), 'w') as fh: fh.write(blurbs_below(ths(render_user(c, login, title))))
+    with open(os.path.join(outdir, 'contributors.html'), 'w') as fh: fh.write(blurbs_below(ths(render_contributors(c, title))))
     os.makedirs(os.path.join(outdir, 't'))
     for tkey in c.topics:
         with open(os.path.join(outdir, 't', c.topic_href(tkey)), 'w') as fh: fh.write(blurbs_below(ths(render_topic(c, tkey, title))))
@@ -3855,10 +3944,11 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     files = set(os.listdir(os.path.join(outdir, 'p')))
     roots = ['../' + f for f in os.listdir(outdir) if f.endswith('.html')]
     tops = ['../t/' + f for f in os.listdir(os.path.join(outdir, 't'))]
+    users = ['../u/' + f for f in os.listdir(os.path.join(outdir, 'u'))]
     broken = []
-    for fn in list(files) + roots + tops:
+    for fn in list(files) + roots + tops + users:
         path = os.path.join(outdir, 'p', fn) if not fn.startswith('../') else os.path.join(outdir, fn[3:])
-        base = 'p' if not fn.startswith('../') else ('t' if fn.startswith('../t/') else '')
+        base = 'p' if not fn.startswith('../') else ('t' if fn.startswith('../t/') else ('u' if fn.startswith('../u/') else ''))
         with open(path) as fh: page = fh.read()
         for href in re.findall(r'href="([^"#]+)"', page):
             if href.startswith(('http', 'mailto:')): continue
