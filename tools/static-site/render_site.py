@@ -438,7 +438,7 @@ def blurbs_below(markup):
         out.append(markup[i:j]); out.append(body)
         i = k
     return ''.join(out)
-def f2(v): return '' if v is None else f'{v:.2f}'
+def f2(v): return '' if v is None else ('0.00' if abs(v) < 0.005 else f'{v:.2f}')
 def repeat_note(r):
     """Under a row the scorer does not count because the same claim is listed again on the page."""
     return ('<div class="src">Listed again on this page, so counted once, at its strongest reading.</div>'
