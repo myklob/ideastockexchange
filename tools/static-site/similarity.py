@@ -151,6 +151,7 @@ class Similarity:
         self._pairs = None
         self._uniq = None
         self._byparent = None
+        self._scored = None
         self._unreached = None
         self.paircap = PAIRCAP
 
@@ -222,7 +223,7 @@ class Similarity:
             if sc < self.flag: continue
             out.append({'a': a, 'b': b, 'ces': sc,
                         'equiv': self.equivalence(a, b), 'uniq': self.uniqueness(a, b),
-                        'shared_parent': self.shared_parent(a, b),
+                        'shared_parent': self.shared_parent(a, b), 'scored_parent': self.scored_parent(a, b),
                         'opposite': opposite(self.texts[a], self.texts[b]),
                         'verdict': ('may be the opposite claim' if opposite(self.texts[a], self.texts[b])
                                     else 'probably one page' if sc >= MERGE else 'worth arguing the overlap')})
@@ -260,13 +261,27 @@ class Similarity:
         pb = {u[0] for u in self.c.uses.get(b, [])}
         return sorted(pa & pb)
 
+    def scored_parent(self, a, b):
+        """The pages on which both are read as a reason, a finding or a prediction on the same side: the only place
+        a repeat can pad a score. Two outcomes of a falsifiability test, the prediction if true beside the
+        prediction if false, or a belief and its own variant under Similar Beliefs read alike on purpose and pad
+        nothing."""
+        if self._scored is None:
+            self._scored = {}
+            for e in getattr(self.c, 'norm_edges', ()):
+                if e.get('section') in ('argument', 'evidence', 'prediction') and e.get('claim_id'):
+                    self._scored.setdefault(e['claim_id'], set()).add((e['page_id'], e.get('side')))
+        both = self._scored.get(a, set()) & self._scored.get(b, set())
+        return sorted({page for page, _side in both})
+
     def by_parent(self):
-        """Flagged pairs indexed by the page they both sit on. Every page asks this, so scanning the whole
-        flag list once per page is a scan of the corpus squared."""
+        """Flagged pairs indexed by the page on which both carry weight, leaving out a claim and its denial. Every
+        page asks this, so scanning the whole flag list once per page is a scan of the corpus squared."""
         if self._byparent is None:
             self._byparent = {}
             for r in self.pairs():
-                for q in r['shared_parent']: self._byparent.setdefault(q, []).append(r)
+                if r['opposite']: continue
+                for q in r['scored_parent']: self._byparent.setdefault(q, []).append(r)
         return self._byparent
 
     def report(self, limit=12):
@@ -280,7 +295,7 @@ class Similarity:
 
     def unguarded(self):
         """Flagged pairs that sit on the same page with no uniqueness page between them: the live padding risk."""
-        return [r for r in self.pairs() if r['shared_parent'] and not r['uniq'] and not r['opposite']]
+        return [r for r in self.pairs() if r['scored_parent'] and not r['uniq'] and not r['opposite']]
 
     def merge_candidates(self):
         return [r for r in self.pairs() if r['ces'] >= MERGE and not r['equiv'] and not r['opposite']]

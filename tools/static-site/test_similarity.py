@@ -173,5 +173,36 @@ class TestADenialIsNotTheClaimItDenies(unittest.TestCase):
         self.assertGreater(S.ces('A hot dog is a sandwich.', 'A hot dog is not a sandwich.'), 0.7, 'the measure alone cannot tell them apart')
 
 
+class TestOnlyRowsThatCarryWeightCanPad(unittest.TestCase):
+    """The flag "rows that may be the same point twice" says each row carries its full weight. That is only true of
+    a reason, finding or prediction on the same side; two outcomes of a falsifiability test, or a prediction if true
+    beside a prediction if false, read alike on purpose and carry none."""
+
+    def corpus(self, edges):
+        import shutil, tempfile, ise_tables as IT, render_site as RS
+        pages = [dict(key='b', kind='belief', text='Cities should plant more trees along every street.', topic='t'),
+                 dict(key='x', kind='claim', text='Street trees cut summer surface temperatures by several degrees.', parent='b'),
+                 dict(key='y', kind='claim', text='Street trees cut summer surface temperatures by several whole degrees.', parent='b')]
+        d = tempfile.mkdtemp()
+        try:
+            IT.write_csv(pages, edges, d, topics=[dict(key='t', name='Cities', parent='', definition='', scope='', axis='')])
+            c = RS.Corpus(d, 'x')
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+        return c, {(c.key[r['a']], c.key[r['b']]) for r in c.sim.unguarded()}
+
+    def test_two_reasons_on_one_side_are_flagged(self):
+        c, flagged = self.corpus([dict(page='b', section='argument', side='agree', claim='x'),
+                                  dict(page='b', section='argument', side='agree', claim='y')])
+        self.assertEqual(len(flagged), 1)
+
+    def test_opposite_sides_and_unscored_tables_are_not(self):
+        for edges in ([dict(page='b', section='argument', side='agree', claim='x'), dict(page='b', section='argument', side='disagree', claim='y')],
+                      [dict(page='b', section='falsify', side='agree', claim='x'), dict(page='b', section='falsify', side='disagree', claim='y')],
+                      [dict(page='b', section='prediction', side='agree', claim='x'), dict(page='b', section='prediction', side='disagree', claim='y')]):
+            c, flagged = self.corpus(edges)
+            self.assertEqual(flagged, set(), f'{edges[0]["section"]} rows that carry no weight on one side were flagged as padding')
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

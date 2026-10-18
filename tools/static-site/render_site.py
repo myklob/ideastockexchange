@@ -2203,9 +2203,9 @@ def render_topic(c, tkey, title):
              'so the thousand ways of saying the same thing collapse into a single entry. Then the real reasons to agree or disagree '
              'can be counted and weighed by evidence instead of by how often they get repeated. The address has three parts, one '
              'per table below: <a href="#direction">Direction</a> (which way it runs), <a href="#claim-strength">Claim Strength</a> '
-             '(how absolute), and <a href="#specificity">Specificity</a> (where it sits on the general-to-specific tree). Same address '
-             'means the same claim, so it merges; nearly the same address is flagged as a <a href="../method.html#equivalency">possible '
-             'duplicate</a> for someone to argue.</div>')
+             '(how absolute), and <a href="#specificity">Specificity</a> (where it sits on the general-to-specific tree). The address '
+             'places a claim; it merges nothing by itself. Two claims worded nearly alike are flagged as a <a href="../grouping.html">possible '
+             'duplicate</a> for someone to argue, and only an argued uniqueness or equivalence page changes how they count.</div>')
 
     # ---- continuum 1: direction
     o.append('<h2 id="direction" class="th">Continuum 1: Direction (Oppose &harr; Support)</h2>')
@@ -2218,6 +2218,9 @@ def render_topic(c, tkey, title):
     def band_of(pos):
         return '+100' if pos >= 75 else '+50' if pos >= 25 else '0' if pos > -25 else '-50' if pos > -75 else '-100'
     unlabelled = [b for b in beliefs if c.specs[b].get('positivity') is None]
+    def leans(b):
+        p = c.specs[b].get('positivity')
+        return None if p is None else ('pro' if p >= 0 else 'anti')
     for band, label in DIRECTION_BANDS:
         typed = section_rows('direction', band)
         auto = sorted((b for b in beliefs if c.specs[b].get('positivity') is not None and band_of(c.specs[b]['positivity']) == band), key=lambda b: -c.stats(b)['belief'])
@@ -2249,16 +2252,20 @@ def render_topic(c, tkey, title):
              'whether it is true. Two beliefs match on this axis when they are equally bold.</p>')
     o.append('<table class="tpl"><thead><tr><th style="width:16%">Claim Strength</th><th style="width:32%">Pro Belief at This Strength</th><th style="width:32%">Anti Belief at This Strength</th><th style="width:20%">Scope &amp; Telltale Words</th></tr></thead><tbody>')
     for band, pc, sub, words in STRENGTH_ROWS:
-        pro = [cell(d) for d in section_rows('strength', band, 'agree')] + [belief_cell(b) for b in beliefs if (c.specs[b].get('strength') or '') == band and (c.specs[b].get('positivity') or 0) >= 0]
-        con = [cell(d) for d in section_rows('strength', band, 'disagree')] + [belief_cell(b) for b in beliefs if (c.specs[b].get('strength') or '') == band and (c.specs[b].get('positivity') or 0) < 0]
+        pro = [cell(d) for d in section_rows('strength', band, 'agree')] + [belief_cell(b) for b in beliefs if (c.specs[b].get('strength') or '') == band and leans(b) == 'pro']
+        con = [cell(d) for d in section_rows('strength', band, 'disagree')] + [belief_cell(b) for b in beliefs if (c.specs[b].get('strength') or '') == band and leans(b) == 'anti']
         o.append(f'<tr><td class="band"><strong>{band} ({pc})</strong><br>{sub}</td><td>{"<br>".join(pro) or EMPTY}</td><td>{"<br>".join(con) or EMPTY}</td><td class="u">{words}</td></tr>')
-    o.append('</tbody></table>' + add_form(H.up, 'strength', 'agree', tkey))
+    o.append('</tbody></table>')
+    if unlabelled:
+        o.append('<p class="tot">No position typed yet, so in neither column: '
+                 + '; '.join(belief_cell(b) + (f' ({esc(c.specs[b]["strength"])})' if c.specs[b].get('strength') else '') for b in unlabelled) + '.</p>')
+    o.append(add_form(H.up, 'strength', 'agree', tkey))
 
     # ---- continuum 3: general to specific
     o.append('<h2 id="specificity" class="th">Continuum 3: General to Specific, with Branching Subcategories (General &harr; Specific)</h2>')
     o.append('<p class="cap">The same topic holds claims at every altitude, from a sweeping worldview down to one line-item policy. A general belief '
-             '<strong>branches</strong> into subcategories, and each subcategory holds the specific beliefs beneath it. A belief only merges with '
-             'another that shares its branch <em>and</em> its rung, so a worldview never gets double-counted with the policy it implies.</p>')
+             '<strong>branches</strong> into subcategories, and each subcategory holds the specific beliefs beneath it. A worldview and the '
+             'policy it implies sit on different rungs, so a reader can see which is which; nothing here merges them.</p>')
     o.append('<table class="tpl"><thead><tr><th style="width:24%">Rung / Branch</th><th style="width:38%">Pro-Topic Belief</th><th style="width:38%">Anti-Topic Belief</th></tr></thead><tbody>')
     rung_rows = section_rows('rung')
     def two(lst_pro, lst_con):
@@ -2279,8 +2286,8 @@ def render_topic(c, tkey, title):
     else:
         bparent = {b: c.specs[b].get('supports') for b in beliefs}
         roots = [b for b in beliefs if bparent[b] not in beliefs]
-        sides = lambda lst: ([belief_cell(b) + f' <span class="tn" title="Truth score">{f2(c.truth(b))}</span>' for b in lst if (c.specs[b].get('positivity') or 0) >= 0],
-                             [belief_cell(b) + f' <span class="tn" title="Truth score">{f2(c.truth(b))}</span>' for b in lst if (c.specs[b].get('positivity') or 0) < 0])
+        sides = lambda lst: ([belief_cell(b) + f' <span class="tn" title="Truth score">{f2(c.truth(b))}</span>' for b in lst if leans(b) == 'pro'],
+                             [belief_cell(b) + f' <span class="tn" title="Truth score">{f2(c.truth(b))}</span>' for b in lst if leans(b) == 'anti'])
         o.append(f'<tr><td class="band b-gen"><strong>Most General</strong><br>(Worldview)</td>{two(*sides(roots))}</tr>')
         if any(bparent[b] in roots for b in beliefs):
             o.append('<tr><td colspan="3" class="branch">branches into the specific beliefs beneath &darr;</td></tr>')
@@ -2303,10 +2310,16 @@ def render_topic(c, tkey, title):
             x = _extra(d)
             parts += [f'<strong>{lab}:</strong> {esc(x[f])}' for f, lab in zip(fields, labels) if x.get(f)]
             if d.get('text'): parts.append(esc(d['text']))
-        if key == 'support' and lb:
+        mine = [d for b, d in lb if {'pro': 'support', 'anti': 'oppose'}.get(leans(b)) == key]
+        if mine:
             parts.append('<strong>Load-bearing parts of the beliefs here, each with its own page:</strong> '
-                         + '; '.join(H.rowtext(d) + (f' <span class="tn" title="Truth score">{f2(c.truth(d["id"]))}</span>' if is_page(d.get('id')) else '') for _, d in lb))
+                         + '; '.join(H.rowtext(d) + (f' <span class="tn" title="Truth score">{f2(c.truth(d["id"]))}</span>' if is_page(d.get('id')) else '') for d in mine))
         stack_rows.append((parts, f'<tr><td class="band {colour}"><strong>{rng}</strong><br>({label})</td><td class="u">{"<br>".join(parts) or EMPTY}</td></tr>'))
+    loose = [d for b, d in lb if leans(b) is None]
+    if loose:
+        parts = ['<strong>Load-bearing parts of beliefs with no position typed yet:</strong> '
+                 + '; '.join(H.rowtext(d) + (f' <span class="tn" title="Truth score">{f2(c.truth(d["id"]))}</span>' if is_page(d.get('id')) else '') for d in loose)]
+        stack_rows.append((parts, f'<tr><td class="band"><strong>Position not labelled yet</strong></td><td class="u">{"<br>".join(parts)}</td></tr>'))
     if any(p_ for p_, _ in stack_rows):
         o.append('<table class="tpl"><thead><tr><th style="width:15%">To Hold Position</th><th style="width:85%">You Must Accept These Assumptions (General to Specific)</th></tr></thead><tbody>'
                  + ''.join(r_ for _, r_ in stack_rows) + '</tbody></table>')
@@ -3826,6 +3839,156 @@ def render_user(c, login, title):
     return ''.join(o)
 
 
+def render_grouping(c, title):
+    """How the site decides what counts as the same claim, and how every belief is placed on its topic, with live
+    examples read off the tables this build was made from. Every number and example below is computed here, so
+    the page cannot describe a rule the code does not run."""
+    import similarity as SIM
+    o = [root_head('How claims are grouped and placed', [('Home', 'index.html'), ('Method', 'method.html'), ('Grouped and placed', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>How claims are grouped and placed</h1>')
+    o.append('<p class="lede">A debate is won by a loud side when the same point can be counted twice. So the first question this site asks of '
+             'anything new is whether it is a claim already here, and the second is where it belongs. This page says exactly how both are '
+             'decided, with examples taken from the tables as they stand today. Grouping and placing move no score, except in the two '
+             'places marked below.</p>')
+    a = lambda pid, n=90: f'<a href="p/{c.href(pid)}">{esc(c.short(pid, n))}</a>'
+    pairs = c.sim.pairs()
+
+    # 1. before a claim is added
+    o.append('<section id="duplicates"><h2><span>Before a claim is added: is it already here?</span></h2>')
+    o.append(f'<p>Every form on the site checks what is typed against every claim in the tables, drafts included, as the reader types, and '
+             f'the check runs again when the submission arrives. The measure reads wording, not meaning: half of it is how many of the '
+             f'informative words two claims share, and half is how many four-letter runs of their spelling they share, each weighted by how '
+             f'rare it is, so a phrase on every page counts for almost nothing. Two claims that read {SIM.FLAG:.2f} alike or more are shown '
+             f'as possible matches. At {SIM.MERGE:.2f} or more the new text is treated as the claim already here: the submitter&apos;s '
+             f'agreement is recorded as a vote for it, and if it was offered on a page where that claim is not yet a row, the row is added '
+             f'pointing at the existing page. A vote never moves a score.</p>')
+    deny_a, deny_b = 'Officials should trade stocks.', 'Officials should not trade stocks.'
+    o.append(f'<p>Two exceptions keep the check honest. A denial is never the claim it denies, however alike they read: "{deny_a}" and '
+             f'"{deny_b}" share every informative word and read {SIM.ces(deny_a, deny_b):.2f} alike, because words like not and no carry '
+             f'no weight in the measure, so the site counts the negating words and never merges two claims whose counts disagree. And a '
+             f'variant filed under Similar Beliefs is meant to read alike, so it is never merged with the belief it varies.</p>')
+    ex = next((r for r in pairs if not r['opposite'] and r['scored_parent']), None)
+    if ex:
+        on = ex['scored_parent'][0]
+        o.append(f'<p class="tot">Example from today&apos;s tables, both on {a(on)}: &ldquo;{a(ex["a"], 400)}&rdquo; and '
+                 f'&ldquo;{a(ex["b"], 400)}&rdquo; read {ex["ces"]:.2f} alike, and the duplicate check calls the pair '
+                 f'&ldquo;{esc(ex["verdict"])}&rdquo;.</p>')
+    o.append('</section>')
+
+    # 2. the same point twice on one page
+    flagged = len({q for r in c.sim.unguarded() for q in r['scored_parent']})
+    uniq = sorted((p for p in c.specs if c.kind(p) == 'uniqueness'), key=lambda p: c.key[p])
+    o.append('<section id="repeats"><h2><span>The same point twice on one page</span></h2>')
+    o.append('<p><strong>The same claim listed again</strong> counts once, at its strongest reading, whichever table it sits in. Listing a '
+             'claim five times weighs exactly what listing it once does, and the extra rows print +0.00 with a note saying why. '
+             '<em>This moves a score.</em></p>')
+    o.append(f'<p><strong>A reworded copy</strong> is a different page, so it counts in full until somebody argues the overlap. The '
+             f'duplicate check flags it on the page ("Rows that may be the same point twice"; {flagged} page{"s" if flagged != 1 else ""} '
+             f'carry the flag today), and the way to answer it is a uniqueness page: a claim of its own, "this reason makes a different '
+             f'point from that one", argued like any other. Its truth score multiplies the row, so a reason argued to repeat another adds '
+             f'little or nothing. <em>This moves a score.</em> A row with no uniqueness page counts in full.</p>')
+    if uniq:
+        o.append('<p class="tot">Uniqueness pages today: ' + '; '.join(f'{a(p)} reads {f2(c.truth(p))}' for p in uniq) + '.</p>')
+    o.append('<p>Independent findings that agree are not repeats. A finding replicated by many studies is one page with its replication '
+             'count recorded, and replication raises how much the finding weighs, which is the opposite of the uniqueness discount and '
+             'meant to be.</p></section>')
+
+    # 3. ways of saying the same thing
+    eq = sorted((p for p in c.specs if c.kind(p) == 'equivalence'), key=lambda p: c.key[p])
+    o.append('<section id="wordings"><h2><span>Ways of saying the same thing</span></h2>')
+    o.append(f'<p>Whether two wordings are one claim is itself a claim, so it gets a page: "this makes the same claim as that", argued for '
+             f'and against. Once such a page reads {EQUIV_MERGE:.2f} or more, the shortest wording stands in for the page wherever space '
+             f'is short, and the page lists every wording under Ways of Saying the Same Thing. Nothing else changes: an equivalence page '
+             f'moves no score.</p>')
+    if eq:
+        argued = [p for p in eq if abs(c.truth(p) - 0.5) > 0.005]
+        o.append(f'<p class="tot">{len(eq)} equivalence page{"s" if len(eq) != 1 else ""} today, '
+                 + (f'{len(argued)} argued off the starting point: ' if argued else 'none argued off the starting point yet: ')
+                 + '; '.join(f'{a(p, 400)} ({f2(c.truth(p))})' for p in eq[:3]) + '.</p>')
+    o.append('</section>')
+
+    # 4. stronger and weaker
+    var = next((b for b in best_beliefs(c) if c.specs[b].get('similar_extreme') and c.specs[b].get('similar_moderate')), None)
+    o.append('<section id="variants"><h2><span>More extreme and more moderate wordings</span></h2>')
+    o.append('<p>A belief and a bolder or more cautious version of it are different claims, and often one is true and the other is not. '
+             'Each belief page links its variants under Similar Beliefs, each variant has its own page and its own score, and the '
+             'duplicate check leaves them apart.</p>')
+    if var:
+        ext = [d['id'] for d in c.specs[var]['similar_extreme'] if is_page(d.get('id'))][:1]
+        mod = [d['id'] for d in c.specs[var]['similar_moderate'] if is_page(d.get('id'))][:1]
+        o.append(f'<p class="tot">Example: {a(var, 140)} ({f2(c.truth(var))})'
+                 + (f'; more extreme: {a(ext[0], 140)} ({f2(c.truth(ext[0]))})' if ext else '')
+                 + (f'; more moderate: {a(mod[0], 140)} ({f2(c.truth(mod[0]))})' if mod else '') + '.</p>')
+    o.append('</section>')
+
+    # 5. topics
+    tops = [k for k, t in c.topics.items() if not t.get('parent')]
+    sided = [k for k, t in c.topics.items() if (t.get('axis') or '').strip() and c.topic_beliefs(k)]
+    plain = [k for k, t in c.topics.items() if not (t.get('axis') or '').strip() and c.topic_beliefs(k)]
+    depth = lambda k: 1 if not c.topics[k].get('parent') or c.topics[k]['parent'] not in c.topics else 1 + depth(c.topics[k]['parent'])
+    tl = lambda k: f'<a href="t/{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a>'
+    o.append('<section id="topics"><h2><span>Topics and sub-topics</span></h2>')
+    o.append(f'<p>Every belief is filed under one topic, like a book on a library shelf, and topics nest: {len(tops)} categories, '
+             f'{len(c.topics) - len(tops)} topics beneath them, at most {max((depth(k) for k in c.topics), default=0)} levels deep. A topic '
+             f'people take sides on as a whole (taxes, immigration, a candidate) says what a positive position means, and its page places '
+             f'every belief on the three scales below. A subject nobody is for or against (history, music) says no such thing, and its page '
+             f'is a directory of what is filed beneath it. Filing moves no score.</p>')
+    if sided and plain:
+        o.append(f'<p class="tot">Today {len(sided)} topics with beliefs filed take sides, for example {tl(sided[0])}, and {len(plain)} are '
+                 f'subjects, for example {tl(plain[0])}.</p>')
+    o.append('</section>')
+
+    # 6-8. the three scales
+    show = max(sided, key=lambda k: len(c.topic_beliefs(k)), default=None)
+    o.append('<section id="direction"><h2><span>Which way a belief points</span></h2>')
+    o.append('<p>On a topic that takes sides, each belief carries a position from -100 to +100, typed by its author, saying which way it points '
+             'on that topic&apos;s axis. It is a label, not a score: it says nothing about whether the belief is true, and no number on the '
+             'site reads it. The topic page sorts beliefs into five bands, ' + ', '.join(f'{lab} ({pc}%)' for pc, lab in DIRECTION_BANDS)
+             + ', and a belief with no position typed is listed apart as not labelled yet rather than filed as neutral.</p>')
+    if show:
+        bs = sorted(c.topic_beliefs(show), key=lambda b: (c.specs[b].get('positivity') is None, -(c.specs[b].get('positivity') or 0)))
+        o.append(f'<p class="tot">On {tl(show)} positive means: {esc(c.topics[show]["axis"])}. '
+                 + '; '.join(f'{a(b, 70)} ' + (f'{c.specs[b]["positivity"]:+d}' if isinstance(c.specs[b].get("positivity"), int) else 'not labelled')
+                             for b in bs[:5]) + '.</p>')
+    o.append('</section>')
+    counts = {band: sum(1 for b in c.beliefs if c.specs[b].get('strength') == band) for band, *_ in STRENGTH_ROWS}
+    o.append('<section id="strength"><h2><span>How strongly it is worded</span></h2>')
+    o.append('<p>Separately from which way it points, each belief carries how absolute it is, in four bands with the words that give each away: '
+             + '; '.join(f'{band} ({pc}, {re.sub("<[^>]+>", "", words)})' for band, pc, _sub, words in STRENGTH_ROWS)
+             + '. Two beliefs can point the same way and differ only in this, which is what Similar Beliefs records. It is typed, and no '
+             'number reads it.</p>')
+    o.append('<p class="tot">Today: ' + ', '.join(f'{counts[b]} {b}' for b in counts) + f', of {len(c.beliefs)} beliefs.</p></section>')
+    o.append('<section id="specificity"><h2><span>General to specific</span></h2>')
+    o.append('<p>The same topic holds claims at every altitude, from a worldview down to one line-item policy. A topic page draws them as a '
+             'tree: the most general beliefs at the top, branches beneath, specific beliefs at the leaves, from rows typed on the topic or, '
+             'where there are none, from which belief sits under which. A worldview and the policy it implies sit on different rows, so a '
+             'reader can see which is which. Placement moves no score.</p></section>')
+
+    # 9. what moves a score
+    o.append('<section id="moves"><h2><span>What moves a score and what does not</span></h2><table class="plain"><thead><tr><th>Mechanism</th><th>Moves a score?</th><th>How</th></tr></thead><tbody>')
+    for m, yes, how in (
+            ('The duplicate check', 'No', 'A match becomes a vote, and a vote is shown beside the score, never inside it.'),
+            ('The same claim listed again on a page', 'Yes', 'It counts once, at its strongest reading.'),
+            ('A reworded copy', 'Only once argued', 'It counts in full until a uniqueness page argues the overlap.'),
+            ('A uniqueness page', 'Yes', 'Its truth score multiplies the row it is attached to.'),
+            ('An equivalence page', 'No', 'At 0.90 or more it decides which wording is shown.'),
+            ('How alike two claims read', 'No', 'It flags pairs for somebody to argue and decides nothing.'),
+            ('Topic, position, strength, rung', 'No', 'They place a belief; nothing reads them into a number.')):
+        o.append(f'<tr><td class="t">{m}</td><td>{yes}</td><td class="u">{how}</td></tr>')
+    o.append('</tbody></table></section>')
+
+    # 10. not built
+    o.append('<section id="not-built"><h2><span>Not built yet</span></h2>')
+    o.append('<p>Four things the project&apos;s writing describes are not run here, and nothing on the site should be read as if they were. '
+             'Two beliefs at the same address on a topic (the same direction band, strength and rung) are not merged or flagged by it; only '
+             'their wording is compared. How alike two claims read never sets a uniqueness score by itself; a person has to open the page. '
+             'There is no clustering of many restatements into one entry with a summary. And the measure reads spelling, not meaning: two '
+             'claims that say the same thing in entirely different words are missed, which is why the uniqueness and equivalence pages exist '
+             'for people to argue.</p></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
 def render_contributors(c, title):
     """Everybody who takes part, the maintainer first, each linked to their page."""
     o = [root_head('Contributors', [('Home', 'index.html'), ('Contributors', '')], main_class='index')]
@@ -3909,6 +4072,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     for login in getattr(c, 'people', []):
         with open(os.path.join(outdir, 'u', user_slug(login) + '.html'), 'w') as fh: fh.write(blurbs_below(ths(render_user(c, login, title))))
     with open(os.path.join(outdir, 'contributors.html'), 'w') as fh: fh.write(blurbs_below(ths(render_contributors(c, title))))
+    with open(os.path.join(outdir, 'grouping.html'), 'w') as fh: fh.write(blurbs_below(ths(render_grouping(c, title))))
     os.makedirs(os.path.join(outdir, 't'))
     for tkey in c.topics:
         with open(os.path.join(outdir, 't', c.topic_href(tkey)), 'w') as fh: fh.write(blurbs_below(ths(render_topic(c, tkey, title))))

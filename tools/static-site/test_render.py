@@ -2576,6 +2576,31 @@ class TestEveryContributorHasAPage(unittest.TestCase):
             for d in [src] + outs: shutil.rmtree(d, ignore_errors=True)
 
 
+class TestTheGroupingMethodIsPublished(unittest.TestCase):
+    """How claims are grouped and placed is one page, linked from the method page and every sided topic page, and
+    every example on it is read off the tables."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.site = TestTheRenderedSite
+        if not hasattr(cls.site, 'html'): cls.site.setUpClass()
+        with open(os.path.join(cls.site.dir, 'grouping.html')) as fh: cls.h = fh.read()
+
+    def test_it_says_what_moves_a_score_and_what_is_not_built(self):
+        for part in ('Before a claim is added', 'The same point twice on one page', 'Ways of saying the same thing',
+                     'More extreme and more moderate wordings', 'Topics and sub-topics', 'Which way a belief points',
+                     'How strongly it is worded', 'General to specific', 'What moves a score and what does not', 'Not built yet'):
+            self.assertIn(f'<span>{part}', self.h)
+        self.assertIn('A denial is never the claim it denies', self.h)
+
+    def test_it_is_linked_from_the_method_page_and_the_topic_pages(self):
+        self.assertIn('href="grouping.html"', self.site.html['method.html'])
+        sided = next(k for k, t in self.site.c.topics.items() if (t.get('axis') or '').strip() and self.site.c.topic_beliefs(k))
+        with open(os.path.join(self.site.dir, 't', self.site.c.topic_href(sided))) as fh: t = fh.read()
+        self.assertIn('href="../grouping.html"', t)
+        self.assertNotIn('so it merges', t, 'the topic page still says the same address merges two claims')
+
+
 class TestTheBeliefPageReadsInPlainOrder(unittest.TestCase):
     """The belief-page audit, read off the published build: every table ranks its own side strongest first, every
     factor of the row rule is a column, a page carries one meaning of complete, zero has one spelling, headers say
