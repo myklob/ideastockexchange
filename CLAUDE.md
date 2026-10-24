@@ -209,7 +209,10 @@ structural faults the graph can show, and a pre-publish cycle check CI runs firs
 possible fallacy by a published phrase list, as a question argued on the flagged claim's page that moves no score;
 `changes.py` what moved
 since the last revision; `method.py` the reader-facing methodology page;
-`sync_content.py` keeps the workbook and the reviewable CSVs in step. There is no verdict module any more: a
+`sync_content.py` keeps the workbook and the reviewable CSVs in step; `vocab.py` what a post can be (197 kinds, each mapped to
+where intake files it and to AIF, ASPIC+, Walton's schemes and schema.org), behind `vocab.html`, `data/vocab.json`, the JSON-LD
+on every claim page, and intake's `Kind of post` and `Row` fields, which can open a row's linkage, importance or uniqueness
+page. An empty linkage or uniqueness page starts at DEFLINK or DEFUNIQ (`evidence.FACTOR_START`), so opening one moves nothing. There is no verdict module any more: a
 page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
 page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed), `lists.html`
 says for every ranking what it shows, how it is worked out and why it is tracked, and every card and column that ranks

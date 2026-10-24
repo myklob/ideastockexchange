@@ -2692,6 +2692,8 @@ class TestTheBeliefPageReadsInPlainOrder(unittest.TestCase):
 
     def test_zero_has_one_spelling(self):
         for pid, h in self.html.items():
+            # the page's structured data carries numbers to six places, where -0.000123 is a real number, not a zero
+            h = re.sub(r'<script type="application/ld\+json">.*?</script>', '', h, flags=re.S)
             self.assertNotIn('-0.00', h, f'{pid}: a negative zero is printed')
 
     def test_factor_headers_are_words_or_say_what_they_stand_for(self):

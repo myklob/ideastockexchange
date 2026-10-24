@@ -32,7 +32,10 @@ every table on every page). Nothing typed in it is a score. Everything else here
     importance page     = max over listed interests of Validity x Bears
 
 A multiplier with no page reads a labelled constant (UNARG 0.5, DEFLINK 1, DEFIMP 0.5, DEFUNIQ 1), and the site shows
-those in grey so the reader can see which factors nobody has argued yet.
+those in grey so the reader can see which factors nobody has argued yet. A linkage or uniqueness page that cites
+nothing starts at that same constant rather than at 0.50 (`evidence.FACTOR_START`), so opening the page to question a
+row's relevance moves nothing until somebody argues there. It used to start at 0.50, which halved every row the moment
+its linkage page existed; all 39 such pages on the site had nothing argued on them and were doing exactly that.
 
 **The starting point is load-bearing, not decoration.** A row contributes `(2 x Truth - 1)`, so a page with no rows
 reads 0.50 and contributes nothing, so every page above it also reads 0.50, and by induction every page of any
@@ -57,6 +60,8 @@ finding, and that needs a reason, not a fix to the test.
     A claim listed twice on a page counts once         test_invariants  TestARepeatedClaimCountsOnce
     The same tables give the same site, byte for byte  test_invariants  TestTheSameTablesGiveTheSameSite
     Who added a row moves nothing                      test_invariants  TestWhoAddedARowMovesNothing
+    Opening an empty linkage page moves nothing        test_invariants  TestOpeningAFactorPageMovesNothing
+    A row's kind of post (its tag) moves nothing       no scorer reads `tag`; test_vocab pins where each kind files
     A vote moves nothing                               test_render   test_no_vote_moves_any_score
     A fallacy flag moves nothing                       test_fallacy  test_a_flag_moves_no_score
     A computed similarity moves nothing                test_similarity  test_it_changes_no_score
@@ -88,6 +93,9 @@ discount and is meant to be.
     sync_content.py      keeps ISE_Data_Entry.xlsx and content/*.csv in step; --check runs in CI
     contribute.js        the browser side of taking part: the duplicate check as a reader types, and the prefilled issue URLs
     intake.py            the GitHub Action side: parses a submitted issue form, re-checks for duplicates, records a vote or opens a PR
+    vocab.py             what a post can be: 197 kinds in 14 families, each with where it files, what it can move once argued,
+                         and its names in AIF, ASPIC+, Walton's schemes (65 critical questions) and schema.org; vocab.html,
+                         data/vocab.json, and the JSON-LD context every claim page's structured data uses
     content/votes.csv    the fourth table, one row per (page key, on, GitHub login), latest wins; shown on the page, never scored
     content/users.csv    who takes part: one row per GitHub login (name, role, a few sentences, maintainer Y), with
     content/user_links.csv  where to reach each one, grouped as on their own contact page; every login that adds a
@@ -287,6 +295,14 @@ adding just that row), or opens a pull request with the new rows. An edited issu
 date rather than opening a second; an issue edited into a duplicate closes the one its first version opened.
 `.github/workflows/check.yml` runs the test suite, the templates check, the contract and a full render on every
 pull request that touches the site, so "merge when its checks pass" has a check to mean.
+
+A post can name its kind (`Kind of post`, an id from `vocab.py` such as `link.irrelevant` or `fallacy.straw-man`) and
+the row it is about (`Row`, the row's claim key). The kind decides the section and side, and where it lands: the page,
+the row's own claim page, or the row's linkage, importance, uniqueness or equivalence page, which intake opens when the
+row has none (`intake.aim`). The kind rides on the new row as `tag` in its `extra` cell and nothing scores it. Every
+reason and finding row carries an "argue about this row" link to `vocab.html?page=...&row=...`, which names the row and
+fills both into every "post one" link. `vocab.html` also says how to brief an AI assistant to draft posts, and that the
+repository is MIT-licensed for anyone who wants to run a copy with a rule of their own over the same tables.
 
 A vote never moves a score. `render_site.py` reads `votes.csv` when it is present (it is not in the workbook and
 `sync_content.py` does not check it), shows the counts on the heading line after the score badge with the words

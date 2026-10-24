@@ -34,6 +34,7 @@ sys.path.insert(0, HERE)
 import ise_tables as IT
 from integrity import cycles_in_tables
 from similarity import FLAG, MERGE, words, grams, idf, wjaccard, opposite
+import vocab as V
 
 CONTENT = os.path.join(HERE, 'content')
 WORKBOOK = os.path.join(HERE, 'ISE_Data_Entry.xlsx')
@@ -65,14 +66,16 @@ KEY_WORDS = 5
 FIELDS = {
     'contribution': {'Page': 'page', 'Section': 'section', 'Side': 'side', 'The claim': 'text', 'Category': 'category',
                      'Source': 'source', 'URL': 'url', 'Date checked': 'date', 'Estimate': 'magnitude', 'Low end': 'mag_low',
-                     'High end': 'mag_high', 'Units': 'units', 'Who gains or pays': 'who', 'Why it bears on the page': 'why'},
+                     'High end': 'mag_high', 'Units': 'units', 'Who gains or pays': 'who', 'Why it bears on the page': 'why',
+                     'Kind of post': 'tag', 'Row': 'row'},
     'belief': {'The belief': 'text', 'Topic': 'topic', 'A reason to agree': 'agree',
                'A reason to disagree': 'disagree', 'Source': 'source'},
     'vote': {'Page': 'page', 'Vote': 'vote', 'On page': 'on', 'Why': 'why'},
 }
 # the headings a form renders even when left empty; a form read back by its headings alone need not carry them
 OPTIONAL = {'Source', 'URL', 'Date checked', 'Category', 'Why it bears on the page', 'Topic', 'A reason to agree',
-            'A reason to disagree', 'Why', 'On page', 'Estimate', 'Low end', 'High end', 'Units', 'Who gains or pays'}
+            'A reason to disagree', 'Why', 'On page', 'Estimate', 'Low end', 'High end', 'Units', 'Who gains or pays',
+            'Kind of post', 'Row'}
 # the estimate a cost or benefit form takes, field id -> edges column; each is copied only when it is a number
 ESTIMATE = (('magnitude', 'magnitude'), ('mag_low', 'mag_low'), ('mag_high', 'mag_high'))
 # one heading that only that form carries, for an issue whose label did not stick
@@ -225,6 +228,7 @@ def provenance(sub):
     if f.get('date'): out['checked'] = _cell(f['date'])
     out['added_by'] = _cell(sub['login'])
     out['added'] = sub['date']
+    if f.get('tag'): out['tag'] = _cell(f['tag'])
     return out
 
 
@@ -271,6 +275,63 @@ def estimate(f, tables):
     if cols.get('magnitude') is not None and not f.get('units'):
         notes.append('An estimate was typed with no units, so it cannot be priced until the units are filled in.')
     return cols, notes
+
+
+# a row's factor page: the edges column that names it, the page kind, and its key prefix, as the pages already
+# on the site are named (argu-, imp-, uniq-, equiv-)
+FACTOR = {'link': ('link', 'linkage', 'link'), 'imp': ('imp', 'importance', 'imp'), 'uniq': ('uniq', 'uniqueness', 'uniq'),
+          'equiv': ('equiv', 'equivalence', 'equiv')}
+ROW_TYPE = {'argument': 'Argument', 'evidence': 'Evidence', 'prediction': 'Prediction', 'interest': 'Interest', 'media': 'Media'}
+ROW_KIND = {('argument', 'agree'): 'reason to agree', ('argument', 'disagree'): 'reason to disagree',
+            ('evidence', 'agree'): 'evidence for', ('evidence', 'disagree'): 'evidence against',
+            ('prediction', 'agree'): 'prediction if true', ('prediction', 'disagree'): 'prediction if false'}
+
+
+def aim(sub, tables):
+    """Where a post with a Kind of post lands, written back into its fields: the section and side the type files
+    under, and the page, which is the one it was posted from, the row's own claim page, or the row's linkage,
+    importance, uniqueness or equivalence page, opened here when the row has none yet. An empty factor page reads
+    the constant a row with no page reads, so opening one moves no number; only what is argued on it does.
+    Returns notes for the pull request."""
+    f = sub['fields']
+    tag = (f.get('tag') or '').strip()
+    if sub['form'] != 'contribution' or not tag: return []
+    if tag not in V.BY_ID:
+        raise IntakeError(f'{tag!r} is not a kind of post; the list is at {SITE}vocab.html')
+    t = V.BY_ID[tag]
+    target, section = t['target'], t['section']
+    if not section:
+        raise IntakeError(f'a {t["label"].lower()} is not a row on a page; {SITE}vocab.html#{tag} says where it goes')
+    f['section'] = section
+    if t['side'] in SIDES: f['side'] = t['side']
+    if target == 'page': return []
+    row, page = (f.get('row') or '').strip(), f['page']
+    if not row: raise IntakeError(f'a {V.BY_ID[tag]["label"].lower()} is about one row, so the Row field needs the key of that row\'s claim')
+    on = [e for e in tables.edges if e.get('page') == page and e.get('claim') == row]
+    if not on: raise IntakeError(f'`{row}` is not a row on `{page}`')
+    if target == 'claim':
+        f['page'] = row
+        return []
+    col, kind, prefix = FACTOR[target]
+    e = next((x for x in on if x.get('section') in ROW_TYPE or x.get('section') == 'similar'), on[0])
+    if e.get(col) and tables.has(e[col]):
+        f['page'] = e[col]
+        return []
+    base = f'{prefix}-{IT.slug(tables.by_key[row].get("text"), 3)}-{IT.slug(tables.by_key.get(page, {}).get("text"), 2)}'
+    key, n = base, 1
+    while key in tables.keys: n += 1; key = f'{base}-{n}'
+    tables.keys.add(key)
+    fp = {'key': key, 'kind': kind, 'parent': tables.root(page), 'x': row, 'y': page}
+    if kind == 'linkage':
+        fp['type'] = ROW_TYPE.get(e.get('section'), 'Argument')
+        fp['direction'] = 'Weakens' if e.get('side') == 'disagree' else 'Supports'
+    if kind == 'importance': fp['rowkind'] = ROW_KIND.get((e.get('section'), e.get('side')), 'row')
+    tables.add([fp], [])
+    for x in on:
+        if x.get('section') == e.get('section'): x[col] = key
+    f['page'] = key
+    return [f'Opened the {kind} page `{key}` for the row `{row}` on `{page}`. It reads {"1.00" if kind in ("linkage", "uniqueness") else "its starting point"} '
+            f'until something is argued on it, the same as before it existed.']
 
 
 def check_contribution(f, tables):
@@ -650,6 +711,7 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
         git.comment(n, f'There is no page with the key `{sub["fields"]["page"]}`, so nothing was added. Check the address of the page and submit again.')
         git.close(n, 'not planned')
         return {'did': 'nothing', 'why': 'unknown page'}
+    aimed = aim(sub, tables)
     matcher = matcher or Matcher(content)
     kinds = None
     if sub['form'] == 'contribution':
@@ -671,9 +733,10 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
             return {'did': 'duplicate', 'key': hit['key'], 'score': hit['score']}
         # on the site, but not on this page: the row the reader proposed is kept, pointing at the existing claim
         edges = [placed]
-        notes = ['The claim already has a page, so no page is added; this row files it where the submitter put it.']
+        notes = aimed + ['The claim already has a page, so no page is added; this row files it where the submitter put it.']
     else:
         pages, edges, notes = rows_for(sub, tables)
+    notes = aimed + notes
     tables.add(pages, edges)
     loops = cycles_in_tables(tables.pages, tables.edges)
     if loops:

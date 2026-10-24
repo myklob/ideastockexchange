@@ -1,7 +1,7 @@
 {
  "edges": {
   "1": {
-   "contribution": 0.018515018109,
+   "contribution": 0.13167826944,
    "page_id": 1,
    "section": "argument"
   },
@@ -71,7 +71,7 @@
    "section": "evidence"
   },
   "27": {
-   "contribution": 0.06844773791,
+   "contribution": 0.131630265211,
    "page_id": 26,
    "section": "argument"
   },
@@ -90,6 +90,11 @@
    "page_id": 1,
    "section": "argument"
   },
+  "30": {
+   "contribution": 0.135,
+   "page_id": 28,
+   "section": "argument"
+  },
   "4": {
    "contribution": 0.135,
    "page_id": 1,
@@ -101,31 +106,31 @@
    "section": "evidence"
   },
   "6": {
-   "contribution": -0.021125845034,
+   "contribution": -0.040626625065,
    "page_id": 1,
    "section": "evidence"
   },
   "7": {
-   "contribution": 0.007605304212,
+   "contribution": 0.014625585023,
    "page_id": 1,
    "section": "prediction"
   }
  },
  "pages": {
   "1": {
-   "belief": 0.139994477288,
+   "belief": 0.240677229399,
    "con": 0,
    "confidence": 0.476888278388,
    "kind": "belief",
-   "neg": 0.021125845034,
+   "neg": 0.040626625065,
    "p0": 0.5,
-   "pos": 0.161120322322,
-   "pred": 0.007605304212,
-   "pro": 0.153515018109,
-   "raw": 0.559206991384,
+   "pos": 0.281303854464,
+   "pred": 0.014625585023,
+   "pro": 0.26667826944,
+   "raw": 0.591032483601,
    "supp": 0,
    "truth": 0.05,
-   "weak": 0.021125845034,
+   "weak": 0.040626625065,
    "weight": 1.0
   },
   "10": {
@@ -133,11 +138,11 @@
    "con": 0,
    "confidence": 0.171031746032,
    "kind": "uniqueness",
-   "p0": 0.5,
+   "p0": 1.0,
    "pred": 0.0,
    "pro": 0.041666666667,
    "supp": 0.0,
-   "truth": 0.52,
+   "truth": 1.0,
    "weak": 0.0,
    "weight": 1.0
   },
@@ -402,6 +407,35 @@
    "weak": 0,
    "weight": 1.0
   },
+  "27": {
+   "belief": 0,
+   "con": 0,
+   "confidence": 0.0,
+   "kind": "linkage",
+   "p0": 1.0,
+   "pred": 0.0,
+   "pro": 0,
+   "supp": 0.0,
+   "truth": 1.0,
+   "weak": 0.0,
+   "weight": 1.0
+  },
+  "28": {
+   "belief": 0.135,
+   "con": 0,
+   "confidence": 0.215476190476,
+   "kind": "claim",
+   "neg": 0,
+   "p0": 0.5,
+   "pos": 0.135,
+   "pred": 0,
+   "pro": 0.135,
+   "raw": 0.559471365639,
+   "supp": 0,
+   "truth": 0.559471365639,
+   "weak": 0,
+   "weight": 1.0
+  },
   "3": {
    "belief": 0,
    "con": 0,
@@ -471,16 +505,16 @@
    "con": 0.026666666667,
    "confidence": 0.327777777778,
    "kind": "linkage",
-   "p0": 0.5,
+   "p0": 1.0,
    "pred": 0.0,
    "pro": 0.041666666667,
    "supp": 0.0,
-   "truth": 0.507020280811,
+   "truth": 0.97503900156,
    "weak": 0.0,
    "weight": 1.0
   },
   "8": {
-   "belief": 0.260094819377,
+   "belief": 0.500182344956,
    "con": 0.0,
    "confidence": 0.444897959184,
    "kind": "importance",
@@ -488,7 +522,7 @@
    "pred": 0.0,
    "pro": 0.0,
    "supp": 0.0,
-   "truth": 0.260094819377,
+   "truth": 0.500182344956,
    "weak": 0.0,
    "weight": 1.0
   },

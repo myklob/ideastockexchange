@@ -32,7 +32,10 @@ THE CONTRACT, in full, for anyone writing a port.
          exist and no page has had fewer than one
        ERP is held inside 0 and 100, because it is a percentage; without this a typo of 150 gives a truth
          starting point of 1.40, which is not a probability
-     Pages 17 to 21 of the corpus exercise exactly these five cases.
+     Pages 17 to 21 of the corpus exercise exactly these five cases. A linkage or uniqueness page that names no
+     tier and has ERQ of 1 starts at p0 = DEFLINK or DEFUNIQ instead, with the same w, so a row reads the same
+     multiplier whether its factor page exists yet or not and only arguments on that page move it (pages 10, 27
+     and 28).
   2. A page's confidence, in [0,1], from the seven structural components and their weights in confidence.py.
      Components that do not apply to a page are dropped and the remaining weights renormalised.
   3. A row's contribution:
@@ -117,6 +120,10 @@ def build_corpus():
         dict(id=24, kind='claim', text='A claim whose necessary premise has no page yet'),
         dict(id=25, kind='claim', text='A claim resting on a finding that is actually established'),
         dict(id=26, kind='claim', text='A claim whose one reason is listed three times, once as evidence'),
+        # rule 1, a factor page that cites nothing. Opening a linkage page to argue a row's relevance must not
+        # move the row before anyone argues there, so the empty page reads DEFLINK, as no page does.
+        dict(id=27, kind='linkage', x_id=2, y_id=28, type='Argument', direction='Supports'),
+        dict(id=28, kind='claim', text='A claim whose one reason has a linkage page nobody has argued on'),
     ]
     E, n = [], 0
     def e(page_id, section, side, position, **kw):
@@ -165,6 +172,7 @@ def build_corpus():
     e(26, 'argument', 'agree', 1, claim_id=2, link_id=7)
     e(26, 'argument', 'agree', 2, claim_id=2)
     e(26, 'evidence', 'agree', 1, claim_id=2)
+    e(28, 'argument', 'agree', 1, claim_id=2, link_id=27)
     consts = [dict(name=k, value=v) for k, v in CONSTS.items()]
     tiers = [dict(etype=k, weight=w, meaning=m) for k, (w, _rank, m) in sorted(EV.ESIW.items())]
     return {'constants': consts, 'tiers': tiers, 'pages': P, 'edges': E}

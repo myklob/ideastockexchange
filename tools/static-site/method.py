@@ -127,11 +127,11 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     for name, why in [
         ('grounding', 'Whether this claim is actually established, taking the better of its own cited source and the average confidence of the claims argued beneath it. Recursive, and the reason a tree of bare assertions scores near zero however many rows it lists.'),
         ('two_sided', 'Whether anyone has argued the other side at all. Not applicable to an importance page, which has no sides by design.'),
-        ('scrutiny', 'Of the multipliers on each row, how many have been argued on a page of their own rather than resting on a starting constant.'),
+        ('scrutiny', 'Of the multipliers on each row, how many have been argued on a page of their own rather than resting on a starting constant. A page with nothing on it still reads its constant, so it counts only once a reason or an interest is on it.'),
         ('breadth', 'How much has been brought to bear. Saturating, so volume never overtakes reasoning quality.'),
         ('depth', 'How far down the tree goes.'),
         ('sourcing', 'Of the findings cited on this page, how many cite a source and say what kind of source it is. An uncategorised citation is a reference, not a verification.'),
-        ('testability', 'Of the predictions listed, how many are dated and have a linkage page arguing how diagnostic they are. This counts whether the linkage page exists, because confidence never reads a score. The line under a belief page’s Testable Predictions table counts something close but different: predictions that are dated and whose linkage reads 0.50 or more, the labelled constant included. Both say which they count.'),
+        ('testability', 'Of the predictions listed, how many are dated and have a linkage page arguing how diagnostic they are. This counts whether anything has been put on the linkage page, because confidence never reads a score. The line under a belief page’s Testable Predictions table counts something close but different: predictions that are dated and whose linkage reads 0.50 or more, the labelled constant included. Both say which they count.'),
     ]:
         w = CF.STRUCTURAL[name]
         o.append(f'<tr><td class="t"><strong>{esc(name.replace("_", " "))}</strong></td><td>{w:.2f}</td><td class="u">{esc(why)}</td></tr>')
@@ -237,7 +237,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
         ('Equivalency as a blend of a computed and an argued half', 'wiki: Equivalency Score', 'The argued equivalence page alone; the computed half carries weight zero.'),
         ('Lifecycle multipliers (active 1.0, weakened 0.7, conditional 0.8, outdated 0.3, refuted 0.1)', 'wiki: Scoring System', 'None. A row argued false scores below zero through 2 × Truth &minus; 1.'),
         ('Only the first of several rows making one point counts, plus a corroboration boost', 'wiki: Redundancy Problem', 'Neither. Each row has a uniqueness factor, and replications of a finding are rewarded up to twice k and no more.'),
-        ('Linkage as the agree share of all argued strength', 'wiki: Evidence to Conclusion Relevance Score', 'The agree share of the scored weight on the linkage page, shrunk toward its starting point: (POS + w × p₀) / (POS + NEG + w), the argued-truth rule, which on a linkage page that cites nothing has p₀ = 0.50 and w = k.'),
+        ('Linkage as the agree share of all argued strength', 'wiki: Evidence to Conclusion Relevance Score', 'The agree share of the scored weight on the linkage page, shrunk toward its starting point: (POS + w × p₀) / (POS + NEG + w), the argued-truth rule, which on a linkage page that cites nothing has p₀ = DEFLINK (1.00) and w = k: an empty linkage page reads what no linkage page reads, so opening one to question a row moves nothing until somebody argues there.'),
         ('Likelihood as the winning estimate among competing ones, with a status and an interval', 'ALGORITHMS.md 11; wiki: Likelihood of Cost and Benefits', 'The truth score of the cost or benefit&rsquo;s own page.'),
         ('A necessity score argued for each assumption', 'wiki: Assumptions', 'A typed load-bearing flag.'),
         ('Behavioural confidence signals (votes, visitors, dwell time and four more)', 'wiki: Confidence and Stability Scores', 'Weight zero, as the confidence section says; votes are shown and never scored.'),

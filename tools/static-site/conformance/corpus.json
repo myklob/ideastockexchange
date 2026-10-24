@@ -282,6 +282,19 @@
    "id": 26,
    "kind": "claim",
    "text": "A claim whose one reason is listed three times, once as evidence"
+  },
+  {
+   "id": 27,
+   "kind": "linkage",
+   "x_id": 2,
+   "y_id": 28,
+   "type": "Argument",
+   "direction": "Supports"
+  },
+  {
+   "id": 28,
+   "kind": "claim",
+   "text": "A claim whose one reason has a linkage page nobody has argued on"
   }
  ],
  "edges": [
@@ -542,6 +555,15 @@
    "side": "agree",
    "position": 1,
    "claim_id": 2
+  },
+  {
+   "id": 30,
+   "page_id": 28,
+   "section": "argument",
+   "side": "agree",
+   "position": 1,
+   "claim_id": 2,
+   "link_id": 27
   }
  ]
 }

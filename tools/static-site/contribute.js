@@ -24,7 +24,7 @@
      intake Action reads it, so it can be pasted into an issue, an email or a message and still parse. */
   var LABELS = {page: 'Page', section: 'Section', side: 'Side', text: 'The claim', source: 'Source', url: 'URL',
     date: 'Date checked', magnitude: 'Estimate', mag_low: 'Low end', mag_high: 'High end', units: 'Units',
-    who: 'Who gains or pays', category: 'Category', why: 'Why it bears on the page'};
+    who: 'Who gains or pays', category: 'Category', why: 'Why it bears on the page', tag: 'Kind of post', row: 'Row'};
   var BELIEF_LABELS = {text: 'The belief', topic: 'Topic', agree: 'A reason to agree', disagree: 'A reason to disagree', source: 'Source'};
 
   function words(text) {

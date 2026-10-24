@@ -108,7 +108,7 @@ class TestReadingTheForm(unittest.TestCase):
                                          'text': 'Street trees drop limbs on parked cars.', 'category': '',
                                          'source': 'City works log, 2025', 'url': 'https://city.example/works', 'date': '2026-09-28',
                                          'magnitude': '', 'mag_low': '', 'mag_high': '', 'units': '', 'who': '',
-                                         'why': 'It is a cost of planting.'})
+                                         'why': 'It is a cost of planting.', 'tag': '', 'row': ''})
         self.assertEqual((sub['number'], sub['login'], sub['date']), (7, 'ann', '2026-09-29'))
 
     def test_a_form_from_before_the_new_fields_still_parses(self):
@@ -178,6 +178,57 @@ class TestTheFlow(unittest.TestCase):
     def tables(self):
         p, e = IT.read_csv(self.d)
         return {r['key']: r for r in p}, e
+
+    # ---------------------------------------------------------------- a kind of post
+    def tagged(self, tag, row='r1', text='Cool streets in one summer do not show trees pay for themselves.', side='agree', **kw):
+        body = contribute(side=side, text=text, **kw)
+        body['issue']['body'] += f'\n\n### Kind of post\n\n{tag}\n\n### Row\n\n{row}'
+        return self.go(body)
+
+    def test_a_relevance_challenge_opens_the_rows_linkage_page_and_files_there(self):
+        done = self.tagged('link.irrelevant')
+        self.assertEqual(done['did'], 'pr')
+        pages, edges = self.tables()
+        row = next(e for e in edges if e['page'] == 'a' and e['claim'] == 'r1')
+        lp = pages[row['link']]
+        self.assertEqual((lp['kind'], lp['x'], lp['y'], lp['type'], lp['direction']), ('linkage', 'r1', 'a', 'Argument', 'Supports'))
+        new = [e for e in edges if e['page'] == lp['key']]
+        self.assertEqual([(e['section'], e['side']) for e in new], [('argument', 'disagree')])
+        self.assertEqual(IT.parse_extra(new[0]['extra'])['tag'], 'link.irrelevant')
+        self.assertEqual(pages[new[0]['claim']]['parent'], lp['key'])
+        self.assertTrue(any('Opened the linkage page' in n for n in done['notes']))
+
+    def test_a_second_challenge_to_the_same_row_uses_the_page_the_first_opened(self):
+        self.tagged('link.irrelevant')
+        self.tagged('fallacy.straw-man', text='The reason answers a claim nobody on the other side makes.', number=8)
+        pages, edges = self.tables()
+        self.assertEqual(sum(1 for p in pages.values() if p['kind'] == 'linkage'), 1)
+        lk = next(e for e in edges if e['page'] == 'a' and e['claim'] == 'r1')['link']
+        self.assertEqual(sorted(IT.parse_extra(e['extra'])['tag'] for e in edges if e['page'] == lk), ['fallacy.straw-man', 'link.irrelevant'])
+
+    def test_an_importance_challenge_opens_an_importance_page(self):
+        self.tagged('imp.less', row='e1', text='The survey covered three blocks in one city.')
+        pages, edges = self.tables()
+        ip = pages[next(e for e in edges if e['page'] == 'a' and e['claim'] == 'e1')['imp']]
+        self.assertEqual((ip['kind'], ip['rowkind']), ('importance', 'evidence for'))
+
+    def test_a_premise_challenge_lands_on_the_rows_own_page(self):
+        self.tagged('truth.premise-false', text='Street trees in dense downtowns cool the air by less than a degree.')
+        pages, edges = self.tables()
+        new = [e for e in edges if e['page'] == 'r1']
+        self.assertEqual([(e['section'], e['side']) for e in new], [('argument', 'disagree')])
+
+    def test_a_type_with_one_side_files_on_it_whatever_side_was_picked(self):
+        self.tagged('link.irrelevant', side='agree')
+        _, edges = self.tables()
+        lk = next(e for e in edges if e['page'] == 'a' and e['claim'] == 'r1')['link']
+        self.assertEqual({e['side'] for e in edges if e['page'] == lk}, {'disagree'})
+
+    def test_an_unknown_kind_or_a_missing_row_is_refused_with_the_reason(self):
+        with self.assertRaisesRegex(K.IntakeError, 'not a kind of post'): self.tagged('link.nonsense')
+        with self.assertRaisesRegex(K.IntakeError, 'Row field'): self.tagged('link.irrelevant', row=NONE)
+        with self.assertRaisesRegex(K.IntakeError, 'not a row on'): self.tagged('link.irrelevant', row='s1')
+        with self.assertRaisesRegex(K.IntakeError, 'not a row on a page'): self.tagged('house.vote')
 
     # ---------------------------------------------------------------- duplicates
     def test_the_measure_puts_an_exact_duplicate_first_at_or_above_merge(self):

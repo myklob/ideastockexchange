@@ -191,9 +191,16 @@ CREATE VIEW page_uses AS
 -- its normalised name, so "Meta Analysis" and "meta_analysis" are the same tier rather than a tier and
 -- nothing. The Python scorer does all three, and this view claims to be the same rule; a port that agrees on
 -- every row of one corpus and disagrees on typed input is a port that has not been checked.
+--
+-- A linkage or uniqueness page that names no tier and has one look starts at DEFLINK or DEFUNIQ, what a row
+-- with no such page reads, so opening the page to argue a row's relevance moves nothing until someone argues.
 CREATE VIEW page_start AS
   SELECT q.id, q.kind, q.etype, q.esiw, q.erq, q.erp,
-         0.5 + 0.5 * q.esiw * (2.0 * q.erp / 100.0 - 1)                  AS p0,
+         CASE WHEN q.esiw = 0 AND q.erq <= 1 AND q.kind = 'linkage'
+                THEN (SELECT value FROM constant WHERE name = 'DEFLINK')
+              WHEN q.esiw = 0 AND q.erq <= 1 AND q.kind = 'uniqueness'
+                THEN (SELECT value FROM constant WHERE name = 'DEFUNIQ')
+              ELSE 0.5 + 0.5 * q.esiw * (2.0 * q.erp / 100.0 - 1) END   AS p0,
          (SELECT value FROM constant WHERE name = 'K')
            * 2.0 * q.erq / (q.erq + 1)                                   AS weight
   FROM (SELECT p.id, p.kind, p.etype,

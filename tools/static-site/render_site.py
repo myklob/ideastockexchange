@@ -502,7 +502,33 @@ class Html:
 # ------------------------------------------------------------------------------------------------ page renderers
 JS = "<script>document.querySelectorAll('table').forEach(function(t){var h=[].slice.call(t.querySelectorAll('thead th')).map(function(x){return x.textContent.trim()});if(!h.length)return;t.querySelectorAll('tbody tr').forEach(function(r){[].slice.call(r.children).forEach(function(c,i){if(h[i]&&!c.classList.contains('t')&&!c.classList.contains('rk'))c.setAttribute('data-l',h[i])})})})</script>"
 
-def head(c, pid, title):
+def json_ld(c, pid):
+    """The page as structured data, in the schema.org words search engines and other programs already read, with
+    this site's own terms (vocab.CONTEXT) for what schema.org has no word for: each row's section, side, kind of
+    post and contribution, and the numbers the page publishes. The same numbers as the page, nothing more."""
+    import vocab as V
+    s = c.stats(pid); sp = c.specs[pid]; url = lambda p: PUBLIC + 'p/' + c.href(p)
+    rows = []
+    for (sec, side, lst), key in ((('argument', 'agree', sp['args']['agree']), 'agree'), (('argument', 'disagree', sp['args']['disagree']), 'disagree'),
+                                  (('evidence', 'agree', sp['evid']['for']), 'for'), (('evidence', 'disagree', sp['evid']['against']), 'against'),
+                                  (('prediction', 'agree', sp.get('pred_true', [])), 'pt'), (('prediction', 'disagree', sp.get('pred_false', [])), 'pf')):
+        for d, r in zip(lst, s['rows'].get(key, [])):
+            if not (is_page(d.get('id')) and d['id'] in c.key): continue
+            row = {'@type': 'Row', 'section': sec, 'side': side, 'claim': url(d['id']), 'text': c.standalone(d['id']),
+                   'contribution': round(r['score'], 6) + 0.0, 'linkage': round(r['link'], 6), 'importance': round(r['imp'], 6),
+                   'uniqueness': round(r['uniq'], 6)}
+            if d.get('tag'): row['tag'] = d['tag']
+            rows.append(row)
+    tk = c.topic_of(pid)
+    out = {'@context': V.CONTEXT, '@type': ['Claim', 'Belief'] if c.kind(pid) == 'belief' else 'Claim', '@id': url(pid),
+           'text': c.standalone(pid), 'truthScore': round(s['truth'], 6), 'beliefScore': round(s['belief'], 6) + 0.0,
+           'confidence': round(c.conf.of(pid), 6), 'rows': rows}
+    if tk: out['topic'] = PUBLIC + 't/' + c.topic_href(tk)
+    return ('<link rel="alternate" type="application/json" href="' + esc(c.key[pid]) + '.json">'
+            '<script type="application/ld+json">' + json.dumps(out, ensure_ascii=False).replace('</', '<\\/') + '</script>')
+
+
+def head(c, pid, title, ld=''):
     crumbs = c.crumbs(pid)
     parts = ['<a href="../index.html">Home</a>']
     tk = c.topic_of(pid)
@@ -518,7 +544,7 @@ def head(c, pid, title):
     parts.append(f'<strong>{esc(KINDNAME[c.kind(pid)])}: {esc(c.short(pid, 60))}</strong>')
     crumb = '<p class="crumb"><em>' + ' › '.join(parts) + '</em></p>'
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(title)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="../ise.css"></head><body><a class="skip" href="#claim">Skip to the claim</a><main id="claim">{crumb}'''
+<title>{esc(title)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="../ise.css">{ld}</head><body><a class="skip" href="#claim">Skip to the claim</a><main id="claim">{crumb}'''
 
 FIND = ("<script>(function(){var t=document.getElementById('all');if(!t)return;var rows=[].slice.call(t.tBodies[0].rows);"
         "var w=document.createElement('p');w.className='find';"
@@ -682,7 +708,7 @@ def simple_rows(H, c, items, extra=None, votes=False, head='Claim', extra_head='
 
 def render_belief(c, pid):
     H = Html(c); H.pid = pid; sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid)
-    o = [head(c, pid, c.short(pid, 80, full=True))]
+    o = [head(c, pid, c.short(pid, 80, full=True), json_ld(c, pid))]
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid)}</h1>')
     tk = c.topic_of(pid)
     meta = [f'Topic: <a href="../t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>'] if tk else []
@@ -1857,6 +1883,8 @@ def edge_vote_links(c, d, on=None):
     out = []
     if on is not None and is_page(d.get('id')) and d['id'] != on: out.append(relevance_links(c, d['id'], on))
     if is_page(d.get('imp')): out.append(vote_links(c, d['imp'], ('yes', 'no'), 'Matters here:', gap=False))
+    if on is not None and is_page(d.get('id')) and d['id'] != on and d['id'] in c.key:
+        out.append(f'<a class="argue" href="../vocab.html?page={esc(c.key[on])}&amp;row={esc(c.key[d["id"]])}" rel="nofollow">argue about this row</a>')
     return ''.join(out)
 
 
@@ -1933,7 +1961,9 @@ def take_part(up, page_kind='page'):
     """The one paragraph above the first form on a page: what a form does, the account it needs, the way in for
     someone who would rather use git, and what happens after the button."""
     return (f'<p class="take" id="take-part"><strong>Add to this {esc(page_kind)}.</strong> Every table below has a form. Submitting opens a prefilled '
-            f'GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE} '
+            f'GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). To question one row (whether it bears on '
+            f'the claim, how much it matters, whether it repeats another, or a mistake in its reasoning), use the <em>argue about this row</em> '
+            f'link beside it; <a href="{up}vocab.html">every kind of post</a> is listed with what it can move. {NEXT_NOTE} '
             f'{GIT_NOTE}. Without an account, the Copy as text button under any form puts your submission on the clipboard so you can send it another way.</p>'
             '<noscript><p class="fine">With scripts turned off, each form still opens GitHub with this page and its table filled in; '
             'the check for a claim already on the site and the Copy as text button need scripts.</p></noscript>')
@@ -2927,7 +2957,7 @@ def render_index(c, title):
     o.append(MASONRY)
     # The plumbing stays off the cards: a reader comes for the arguments, and the tables and the method are one
     # line at the foot of the page for the reader who wants to check them.
-    o.append('<p class="under"><a href="contributors.html">Who takes part</a> · <a href="changes.html">What changed</a> since the last revision · '
+    o.append('<p class="under"><a href="contributors.html">Who takes part</a> · <a href="vocab.html">What a post can be</a> · <a href="changes.html">What changed</a> since the last revision · '
              '<a href="method.html#data">The tables behind every page</a>, free to download and check.</p>')
     o.append(stamp(c))
     o.append(contribute_script(''))
@@ -3535,7 +3565,8 @@ textarea.share{display:block;width:100%;max-width:100%;box-sizing:border-box;fon
 .votes .vote{display:inline-block;padding:.35em .55em;margin-right:.3em;border:1px solid var(--line);border-radius:4px;background:var(--paper)}
 .votes .vn{color:var(--mute);font-weight:400;white-space:nowrap}.vnote{color:var(--mute)}
 td .votes{display:block;margin:4px 0 0;font-size:11px}td .votes .vn{white-space:normal}
-@media print{.add,.votes{display:none}}
+td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(--mute)}table.vocab code{font-size:11px;color:var(--mute)}ul.cq{margin:4px 0 0;padding-left:1.2em;font-size:13px}pre.brief{white-space:pre-wrap;font-size:13px;background:var(--paper);border:1px solid var(--line);padding:10px}
+@media print{.add,.votes,a.argue{display:none}}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35}td.u{color:var(--ink2);font-size:13px}
@@ -3989,6 +4020,118 @@ def render_grouping(c, title):
     return ''.join(o)
 
 
+VOCAB_WHERE = {'page': 'this page', 'claim': 'the row&apos;s own page', 'link': 'the row&apos;s linkage page',
+               'imp': 'the row&apos;s importance page', 'uniq': 'the row&apos;s uniqueness page',
+               'equiv': 'the page asking whether two claims are the same'}
+VOCAB_TABLE = {'argument': 'Reasons', 'evidence': 'Evidence', 'prediction': 'Predictions', 'falsify': 'Falsifiability test',
+               'criterion': 'Objective criteria', 'cba': 'Costs and benefits', 'short_term': 'Short-term effects',
+               'long_term': 'Long-term effects', 'component': 'Components', 'assumption': 'Assumptions', 'interest': 'Interests',
+               'interest_listing': 'Interests at stake', 'value': 'Shared values', 'shared_interest': 'Shared interests',
+               'compromise': 'Compromises', 'motive': 'Motives', 'dispute': 'Core disputes', 'obstacle': 'Obstacles', 'bias': 'Biases',
+               'media': 'Media', 'law': 'Laws', 'upstream': 'Broader beliefs', 'downstream': 'Narrower beliefs',
+               'similar': 'Similar beliefs', 'definition': 'Definitions', 'person': 'People on the record', 'impact': 'Influence'}
+VOCAB_SIDE = {'agree': ', for', 'disagree': ', against', 'either': ', for or against', '': ''}
+VOCAB_MOVES = {'truth': 'the truth score of the page it is filed on', 'link': 'the row&apos;s linkage', 'imp': 'the row&apos;s importance',
+               'uniq': 'the row&apos;s uniqueness', '': 'nothing; it is listed, not scored'}
+VOCAB_NONE = {'house.vote': ('the yes and no beside any claim', None), 'house.new-belief': ('the propose-a-belief form', 'belief.yml'),
+              'meaning.opposite': ('the propose-a-belief form, then a link to it as a reason against', 'belief.yml')}
+
+
+def vocab_post_url(t):
+    """The GitHub form, opened with the section, side and kind of post filled in; the chooser adds the page and the
+    row it was opened from."""
+    from urllib.parse import urlencode
+    side = t['side'] if t['side'] in ('agree', 'disagree') else 'agree'
+    q = {'template': 'contribute.yml', 'labels': 'contribution', 'title': t['label'] + ': ',
+         'section': t['section'], 'side': side, 'tag': t['id']}
+    return NEW_ISSUE + '?' + urlencode(q)
+
+
+def render_vocab(c, title):
+    """Every kind of post, where it is filed and what it can move, with the names the published standards for
+    exchanging arguments give the same thing. Opened from a row's "argue about this row" link, it fills in the
+    page and the row, so each "post one" link opens the form ready to type."""
+    import vocab as V
+    o = [root_head('What a post can be', [('Home', 'index.html'), ('Method', 'method.html'), ('What a post can be', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>What a post can be</h1>')
+    o.append(f'<p class="lede">Every post on this site is one of the {len(V.TYPES)} kinds below. Naming the kind is what lets millions of separate '
+             'posts add up instead of piling up: the site knows where each one goes and which number it can move, and a program anywhere '
+             'reads it the same way. Naming the kind moves nothing by itself. A post counts once its claim is argued, exactly like '
+             'every other row.</p>')
+    o.append('<p class="take" id="row" hidden></p>')
+    o.append('<p>' + ' · '.join(f'<a href="#{f}">{esc(q)}</a>' for f, q, _ in V.FAMILIES) + ' · <a href="#programs">For programs and AI assistants</a></p>')
+    by = {}
+    for t in V.TYPES: by.setdefault(t['family'], []).append(t)
+    for fam, q, about in V.FAMILIES:
+        o.append(f'<section id="{fam}"><h2><span>{esc(q)}</span></h2><p class="blurb">{esc(about)}</p>')
+        o.append('<table class="vocab"><thead><tr><th>Kind of post</th><th>Filed in</th><th>Moves, once argued</th><th>Post one</th></tr></thead><tbody>')
+        for t in by.get(fam, []):
+            if t['target'] == 'none':
+                how, form = VOCAB_NONE.get(t['id'], ('an ordinary issue on the repository', None))
+                where = 'Not a row'
+                post = (f'<a href="{NEW_ISSUE}?template={form}&amp;labels=belief" rel="nofollow">use {esc(how)}</a>' if form else
+                        (esc('use ' + how) if t['id'] == 'house.vote' else f'<a href="{NEW_ISSUE}" rel="nofollow">use {esc(how)}</a>'))
+            else:
+                where = f'{VOCAB_WHERE[t["target"]]}: {VOCAB_TABLE.get(t["section"], t["section"])}{VOCAB_SIDE[t["side"]]}'
+                post = (f'<a class="post" data-target="{t["target"]}" href="{esc(vocab_post_url(t))}" rel="nofollow" target="_blank">post one</a>')
+            extra = ''
+            if t.get('questions'):
+                extra = '<ul class="cq">' + ''.join(
+                    f'<li>{esc(x["q"])} If not, that is <a href="#{x["files"]}">{esc(V.BY_ID[x["files"]]["label"].lower())}</a>.</li>'
+                    for x in t['questions']) + '</ul>'
+            names = ' · '.join(x for x in (
+                f'AIF {t["aif"]}-node' if t['aif'] else '', t['attack'] if t['attack'] else '',
+                f'schema.org {t["schema"]}' if t['schema'] else '') if x)
+            o.append(f'<tr id="{esc(t["id"])}"><td class="t"><strong>{esc(t["label"])}</strong> <code>{esc(t["id"])}</code>'
+                     f'<div class="u">{esc(t["example"])}</div>{extra}'
+                     + (f'<div class="src">{esc(names)}</div>' if names else '') +
+                     f'</td><td>{where}</td><td>{VOCAB_MOVES[t["moves"]]}</td><td>{post}</td></tr>')
+        o.append('</tbody></table></section>')
+    o.append('<section id="programs"><h2><span>For programs and AI assistants</span></h2>')
+    o.append('<p>The same list as data: <a href="data/vocab.json">data/vocab.json</a>. Every claim page carries its numbers and rows as '
+             'structured data in the page itself, in the schema.org vocabulary search engines read, with the terms schema.org has no word '
+             'for defined in <a href="data/ise-context.jsonld">data/ise-context.jsonld</a>; the full numbers for a page are beside it at '
+             '<code>p/&lt;key&gt;.json</code>, and the two tables behind everything are on the <a href="method.html#data">method page</a>.</p>')
+    o.append('<p>The outside names in small type under each kind line this site up with the published standards for exchanging arguments: '
+             'the Argument Interchange Format (Chesñevar, Rahwan, Reed and others, 2006), whose I-node is a claim, RA-node a reason for, '
+             'CA-node a reason against, PA-node a preference and MA-node a rewording; the three ways ASPIC+ (Prakken, 2010) says an '
+             'objection lands, a rebut against the conclusion, an undercut against the step from reason to conclusion (what a linkage page '
+             'argues) and an undermine against the reason itself (what its own page argues); and the argumentation schemes and critical '
+             'questions of Walton, Reed and Macagno (2008).</p>')
+    o.append('<p><strong>Asking an AI to help.</strong> Any AI assistant can draft posts for a page. Paste this to it with the page&apos;s '
+             'address, then submit each post it returns through the form its "post one" link opens:</p>')
+    brief = ('Read the belief page at [address]. Propose up to five posts that page does not already have, the strongest ones on '
+             'whichever side is thinner. For each, give: the kind of post (an id from https://myklob.github.io/ideastockexchange/beliefs/'
+             'vocab.html, such as link.irrelevant or evidence.statistics), the row it is about if it is about one row (the last part of '
+             'that row\'s address), the side (agree or disagree), the claim as one complete sentence a reader could check without the page, '
+             'and for a finding the source and the address you read it at. Do not invent a figure, a study, a quotation or a person; every '
+             'number needs a source you actually read. Argue each side as its best advocate would.')
+    o.append(f'<pre class="brief">{esc(brief)}</pre>')
+    o.append('<p class="fine">What an assistant drafts goes through the same check as anything a person types: a claim already here becomes '
+             'a vote for it, and nothing is published until a person merges it.</p>')
+    o.append(f'<p><strong>Run your own.</strong> Everything here is free to copy under the MIT License: fork the <a href="{REPO}">repository</a>, '
+             'change the tables, the pages or the scoring rule, and publish your own site on GitHub Pages. Keep the two tables and this list of '
+             'kinds of post and your site can read the same arguments as this one, so two rules can be compared on the same pages, which is '
+             'the fair test of which one ranks good ideas higher. The <a href="data/conformance_expected.json">conformance files</a> pin what '
+             'this site&apos;s rule computes, so a copy can say exactly where its rule differs.</p></section>')
+    o.append(VOCAB_JS)
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+# The chooser: opened as vocab.html?page=KEY&row=KEY from a row's "argue about this row" link, it names the row and
+# adds the page and the row to every "post one" link, so the form opens with both filled in.
+VOCAB_JS = ("<script>(function(){var q=new URLSearchParams(location.search),pg=q.get('page'),row=q.get('row');if(!pg)return;"
+            "[].forEach.call(document.querySelectorAll('a.post'),function(a){var u=new URL(a.href);u.searchParams.set('page',pg);"
+            "if(row&&a.getAttribute('data-target')!=='page')u.searchParams.set('row',row);a.href=u.toString()});"
+            "var b=document.getElementById('row');b.hidden=false;"
+            "function say(t){b.innerHTML='';var s=document.createElement('strong');s.textContent=row?'Arguing about one row. ':'Posting to one page. ';"
+            "b.appendChild(s);b.appendChild(document.createTextNode(t+' Every \\u201cpost one\\u201d link below opens the form with '+(row?'the page and the row':'the page')+' filled in.'))}"
+            "say(row?'The row: '+row+', on the page '+pg+'.':'The page: '+pg+'.');"
+            "fetch('data/claims_index.json').then(function(r){return r.json()}).then(function(d){var m={};(d.claims||d).forEach(function(x){m[x.key]=x.text});"
+            "if(row&&m[row])say('The row: \\u201c'+m[row]+'\\u201d, on the page \\u201c'+(m[pg]||pg)+'\\u201d.');else if(m[pg])say('The page: \\u201c'+m[pg]+'\\u201d.')}).catch(function(){})})()</script>")
+
+
 def render_contributors(c, title):
     """Everybody who takes part, the maintainer first, each linked to their page."""
     o = [root_head('Contributors', [('Home', 'index.html'), ('Contributors', '')], main_class='index')]
@@ -4073,6 +4216,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
         with open(os.path.join(outdir, 'u', user_slug(login) + '.html'), 'w') as fh: fh.write(blurbs_below(ths(render_user(c, login, title))))
     with open(os.path.join(outdir, 'contributors.html'), 'w') as fh: fh.write(blurbs_below(ths(render_contributors(c, title))))
     with open(os.path.join(outdir, 'grouping.html'), 'w') as fh: fh.write(blurbs_below(ths(render_grouping(c, title))))
+    with open(os.path.join(outdir, 'vocab.html'), 'w') as fh: fh.write(blurbs_below(ths(render_vocab(c, title))))
     os.makedirs(os.path.join(outdir, 't'))
     for tkey in c.topics:
         with open(os.path.join(outdir, 't', c.topic_href(tkey)), 'w') as fh: fh.write(blurbs_below(ths(render_topic(c, tkey, title))))
@@ -4084,6 +4228,11 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     # and the script that runs it is copied beside the pages
     with open(os.path.join(outdir, 'data', 'claims_index.json'), 'w', encoding='utf-8') as fh:
         json.dump(claims_index(c, entry), fh, indent=1, ensure_ascii=False)
+    import vocab as V
+    with open(os.path.join(outdir, 'data', 'vocab.json'), 'w', encoding='utf-8') as fh:
+        json.dump(V.as_json(c.prov.get('rev')), fh, indent=1, ensure_ascii=False)
+    with open(os.path.join(outdir, 'data', 'ise-context.jsonld'), 'w', encoding='utf-8') as fh:
+        json.dump({'@context': V.CONTEXT}, fh, indent=1, ensure_ascii=False)
     js = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'contribute.js')
     if os.path.exists(js): shutil.copy(js, os.path.join(outdir, 'contribute.js'))
     # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
@@ -4116,7 +4265,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
         with open(path) as fh: page = fh.read()
         for href in re.findall(r'href="([^"#]+)"', page):
             if href.startswith(('http', 'mailto:')): continue
-            target = os.path.normpath(os.path.join(outdir, base, href))
+            target = os.path.normpath(os.path.join(outdir, base, href.split('?')[0]))
             if not os.path.exists(target): broken.append((fn, href))
     return c, broken
 

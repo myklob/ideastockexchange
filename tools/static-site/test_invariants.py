@@ -172,6 +172,39 @@ class TestTheSameTablesGiveTheSameSite(unittest.TestCase):
             for d in [src] + outs: shutil.rmtree(d, ignore_errors=True)
 
 
+class TestOpeningAFactorPageMovesNothing(unittest.TestCase):
+    """A row with no linkage page reads DEFLINK. A linkage page with nothing argued on it used to start at 0.5, so
+    the first person to open one to question a row's relevance halved the row before anyone had argued anything.
+    An empty linkage or uniqueness page now reads what no page reads, and only arguments on it move it."""
+
+    def test_the_starting_points_are_the_scorer_constants(self):
+        import evidence as EV
+        from score_reference import CONSTS
+        self.assertEqual(EV.FACTOR_START, {'linkage': CONSTS['DEFLINK'], 'uniqueness': CONSTS['DEFUNIQ']})
+
+    def test_an_empty_linkage_page_leaves_every_number_where_it_was(self):
+        pages, edges = trees(['argument'])
+        before = numbers(corpus_of(pages, edges))
+        pages.append(dict(key='l', kind='linkage', parent='b', x='r', y='b', type='Argument', direction='Supports'))
+        pages.append(dict(key='u', kind='uniqueness', parent='b', x='r', y='e'))
+        edges[0]['link'], edges[0]['uniq'] = 'l', 'u'
+        after = numbers(corpus_of(pages, edges))
+        # Relied on (the last number) is each page's share of the whole site, so any new page redistributes it.
+        for k, w in before.items():
+            for a, b in zip(w[:4], after[k][:4]):
+                if a is None or b is None: self.assertEqual(a, b, k); continue
+                self.assertAlmostEqual(a, b, places=12, msg=f'{k} moved when an empty factor page was opened')
+
+    def test_an_argued_objection_lowers_the_link(self):
+        pages, edges = trees(['argument'])
+        pages += [dict(key='l', kind='linkage', parent='b', x='r', y='b', type='Argument', direction='Supports'),
+                  dict(key='o', kind='claim', parent='l', text='Shade from trees also traps heat at night.', etype='statistics', erq='2', erp='100')]
+        edges[0]['link'] = 'l'
+        edges.append(dict(page='l', section='argument', side='disagree', claim='o'))
+        c = corpus_of(pages, edges)
+        self.assertLess(c.truth(c.tabs['l']), 1.0)
+
+
 class TestWhoAddedARowMovesNothing(unittest.TestCase):
     """Every row a submission adds records who added it (added_by). No scorer may read it: who said a thing does
     not change what it is worth."""

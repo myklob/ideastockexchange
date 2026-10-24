@@ -52,7 +52,8 @@ class TestCountingEveryReason(unittest.TestCase):
         self.assertAlmostEqual(s['tally']['share'], 0.5)
 
     def test_a_reason_shown_to_repeat_another_adds_nothing(self):
-        """Independence comes from the uniqueness page: argued to 0, the duplicate counts for nothing."""
+        """Independence comes from the uniqueness page: argued below 1, the duplicate counts for less. An empty
+        uniqueness page starts at DEFUNIQ (1), so it is the objection argued there that lowers it."""
         pages, edges = belief(('argument', 'agree'), ('argument', 'agree'))
         pages.append(dict(key='u', kind='uniqueness', text='The second reason makes a different point from the first.', parent='b'))
         pages.append(dict(key='u1', kind='claim', text='Both reasons are the same claim about shade, worded twice.', parent='u'))
@@ -63,7 +64,7 @@ class TestCountingEveryReason(unittest.TestCase):
         edges[1]['uniq'] = 'u'
         c, s = self.stats(pages, edges)
         u = c.truth(c.tabs['u'])
-        self.assertLess(u, 0.5)
+        self.assertLess(u, 1.0)
         self.assertAlmostEqual(s['tally']['reasons_for'], 1.0 + u)
 
     def test_evidence_outweighs_argument_with_no_ceiling(self):

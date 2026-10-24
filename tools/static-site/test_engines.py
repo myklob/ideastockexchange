@@ -352,11 +352,15 @@ class TestTheThingsReviewFound(unittest.TestCase):
         pages = [{'id': 1, 'kind': 'importance', 'x_id': 3, 'y_id': 4},
                  {'id': 2, 'kind': 'interest', 'text': 'an interest'},
                  {'id': 3, 'kind': 'claim', 'text': 'x'}, {'id': 4, 'kind': 'belief', 'text': 'y'},
-                 {'id': 5, 'kind': 'linkage', 'x_id': 3, 'y_id': 2}]
+                 {'id': 5, 'kind': 'linkage', 'x_id': 3, 'y_id': 2}, {'id': 6, 'kind': 'claim', 'text': 'z'}]
         edges = [{'id': 1, 'page_id': 1, 'section': 'interest_listing', 'side': None, 'position': 1,
-                  'claim_id': 2, 'bearing_id': 5}]
+                  'claim_id': 2, 'bearing_id': 5},
+                 {'id': 2, 'page_id': 5, 'section': 'argument', 'side': 'agree', 'position': 1, 'claim_id': 6}]
         k = Confidence(TableCorpus(pages, edges))
         self.assertAlmostEqual(k.parts(1)['components']['scrutiny'], 1.0)
+        # a bearing page nobody has put anything on still reads its starting constant, so it earns nothing
+        k = Confidence(TableCorpus(pages, edges[:1]))
+        self.assertEqual(k.parts(1)['components']['scrutiny'], 0.0)
         self.assertNotIn('two_sided', k.parts(1)['components'], 'an importance page has no sides to argue')
 
     def test_the_two_ways_into_the_scorer_agree_about_a_pinned_page(self):
