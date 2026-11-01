@@ -282,6 +282,9 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append('<ul class="links"><li>The two tables, the topics and the votes, in every shape: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> or a <a href="data/ise.sqlite">SQLite database</a>.</li>'
              '<li><a href="data/pages_index.json">Every page\'s computed numbers</a>, indexed, and <a href="data/claims_index.json">every claim in the tables</a>, drafts included.</li>'
              '<li><a href="data/drafts.json">Every draft and what it still needs</a>.</li>'
+             '<li>Every page and topic as a <a href="outline.html">Reason Outline</a>, the plain text a post is written in, beside it at '
+             '<code>p/&lt;key&gt;.txt</code> and <code>t/&lt;key&gt;.txt</code>; a printout read back matches every row it was printed from, so '
+             'sending one back adds nothing. The names the outline reads are in <a href="data/outline-spec.json">outline-spec.json</a>.</li>'
              '<li><a href="changes.html">What changed</a> since the last revision, row by row.</li></ul></section>')
     o.append('<section><h2><span>Where the code is</span></h2><p class="blurb">Every rule above is one short module, and a small conformance corpus built to exercise every rule, with its expected numbers, the five constants and the evidence tiers, published as <a href="data/conformance_corpus.json">conformance_corpus.json</a> and <a href="data/conformance_expected.json">conformance_expected.json</a> so an implementation in any other language can be held to the same contract without cloning anything. The data behind every page is in the section above as JSON, XML, SQL and a loaded SQLite database. <a href="https://github.com/myklob/ideastockexchange">The repository</a> holds all of it.</p></section>')
     prov = getattr(c, 'prov', {})

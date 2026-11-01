@@ -1712,7 +1712,7 @@ class TestThePagesSpeakPlainly(unittest.TestCase):
         cls.corpus = cls.parent.c
         cls.pages = dict(cls.parent.html)
         del cls.pages['method.html']
-        for name in ('all', 'next', 'interests', 'media', 'topics', 'changes'):
+        for name in ('all', 'next', 'interests', 'media', 'topics', 'changes', 'outline', 'vocab'):
             with open(os.path.join(cls.parent.dir, name + '.html')) as fh: cls.pages[name + '.html'] = fh.read()
         for k in cls.corpus.topics:
             with open(os.path.join(cls.parent.dir, 't', cls.corpus.topic_href(k))) as fh: cls.pages['t/' + k] = fh.read()
@@ -2740,6 +2740,137 @@ class TestTheBeliefPageReadsInPlainOrder(unittest.TestCase):
             for sec in ('Ways of Saying the Same Thing', 'Where This Page Is Used'):
                 i = h.find(f'<span>{sec}</span>')
                 if i >= 0: self.assertLess(i, d, f'{self.c.key[b]}: {sec} follows Definitions')
+
+
+
+class TestEveryPageIsAReasonOutline(unittest.TestCase):
+    """Every page and topic is printed beside itself as a Reason Outline, the plain text a post is written in, and a
+    printout sent back adds nothing. outline.html explains the language to a reader, so every name it teaches is
+    checked against the reader's own lists, and every example on it is read back."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.parent = TestTheRenderedSite
+        if not hasattr(cls.parent, 'html') or not os.path.isdir(cls.parent.dir): cls.parent.setUpClass()
+        cls.c, cls.dir = cls.parent.c, cls.parent.dir
+        with open(os.path.join(cls.dir, 'outline.html')) as fh: cls.page = fh.read()
+
+    def read(self, *path):
+        with open(os.path.join(self.dir, *path), encoding='utf-8') as fh: return fh.read()
+
+    def test_outline_html_exists_and_every_link_on_it_resolves(self):
+        hrefs = [h for h in re.findall(r'href="([^"#]+)"', self.page) if not h.startswith(('http', 'mailto:'))]
+        self.assertTrue(hrefs)
+        for h in hrefs: self.assertTrue(os.path.exists(os.path.join(self.dir, h.split('?')[0])), f'outline.html links {h}, which is not there')
+        for want in ('id="example"', 'id="marks"', 'id="details"', 'id="naming"', 'id="post"', 'id="reply"', 'id="argdown"', 'id="ai"',
+                     'template=outline.yml&amp;labels=outline', 'href="data/outline-spec.json"', 'href="https://argdown.org/"'):
+            self.assertIn(want, self.page)
+        self.assertEqual(self.parent.broken, [])
+
+    def test_the_vocabulary_the_home_page_and_the_method_page_point_at_it(self):
+        vocab = self.read('vocab.html')
+        self.assertIn('href="outline.html#ai"', vocab)
+        self.assertNotIn('<pre class="brief">', vocab, 'the vocabulary page kept a brief of its own beside the outline brief')
+        self.assertIn('<pre class="brief">', self.page)
+        under = re.search(r'<p class="under">(.*?)</p>', self.read('index.html'), re.S).group(1)
+        self.assertIn('href="outline.html"', under)
+        self.assertIn('href="outline.html"', self.read('method.html'))
+
+    def test_every_page_and_topic_has_its_outline_and_each_reads_back_with_no_stop(self):
+        import outline_read as R
+        bad, n = [], 0
+        # strict, because a printout is valid strict input: strict stops on anything loose mode would repair
+        for where, key in [('p', self.c.key[pid]) for pid in self.c.specs] + [('t', t) for t in self.c.topics]:
+            text = self.read(where, key + '.txt'); n += 1
+            self.assertTrue(text.startswith('===\nreasons: 1\nfrom: ' + key + '\n'), key)
+            stops = R.read(text, mode='strict').stops
+            if stops: bad.append((key, stops[:2]))
+        self.assertEqual(bad, [], f'{len(bad)} printouts do not read back: {bad[:3]}')
+        self.assertEqual(n, len(self.c.specs) + len(self.c.topics))
+
+    def test_a_printout_sent_back_files_nothing(self):
+        """Sampled: every belief and every topic, filed against the tables intake files against. The full round trip
+        over every page is test_outline_file's; this checks the files the site actually publishes."""
+        import intake as K, outline_read as R, outline_file as F
+
+        class NoMatcher:
+            def nearest(self, *a, **k): raise AssertionError('a printed line was measured instead of matched')
+        tables = K.Tables(K.CONTENT)
+        sample = [('p', self.c.key[b]) for b in sorted(self.c.beliefs)] + [('t', t) for t in sorted(self.c.topics)]
+        for where, key in sample:
+            f = F.file(R.read(self.read(where, key + '.txt')), tables, matcher=NoMatcher(), login='x', date='2026-11-01', issue=1)
+            self.assertEqual((f.stops, f.pages, f.edges, f.changed, f.votes, f.requests, f.corrections), ([],) * 7, f'{where}/{key}.txt')
+
+    def test_every_page_links_its_outline_next_to_the_take_part_paragraph(self):
+        import render_site as RS
+        for pid in self.c.specs:
+            h, key = self.parent.html[pid], self.c.key[pid]
+            i = h.find('id="take-part"')
+            self.assertGreater(i, 0, key)
+            j = h.find(f'<a href="{key}.txt">{RS.OUTLINE_LINK}</a>')
+            self.assertGreater(j, i, f'{key} does not link its outline after the take-part paragraph')
+            self.assertLess(j - i, 3000, f'{key}: the outline link is not next to the take-part paragraph')
+            line = h[j:h.find('</p>', j)]
+            for want in ('copy it', 'add your own lines', 'post it back', 'template=outline.yml', '../outline.html'): self.assertIn(want, line, key)
+        for tkey in self.c.topics:
+            h = self.read('t', self.c.topic_href(tkey))
+            self.assertIn(f'<a href="{tkey}.txt">{RS.OUTLINE_LINK}</a>', h, f'topic {tkey} does not link its outline')
+
+    def test_every_name_the_page_teaches_is_one_the_reader_knows(self):
+        import outline_names as N, render_site as RS
+        for names, written, _ in RS.OUTLINE_LABELS:
+            for name in names: self.assertIn(N.fold(name), N.LABELS, f'{name} is not a label')
+            for part in written.split(' / '):
+                head = re.sub(r' \(with \+ or -\)$', '', part).split(' [')[0].split(' <')[0].rstrip(':').strip()
+                self.assertTrue(N.fold(head) in N.LABELS, f'{written!r}: {head!r} is not a label')
+        for name in ('Relevance', 'Importance', 'Uniqueness vs'): self.assertIn(N.fold(name), N.HEADS)
+        for name, _, example in RS.OUTLINE_DETAILS:
+            self.assertIn(N.fold(name), N.FIELDS, f'{name} is not a detail'); self.assertTrue(example.startswith(name + ': '), name)
+        for name in RS.OUTLINE_MAINTAINER: self.assertEqual(N.FIELDS[N.fold(name)].use, 'request', f'{name} is not a maintainer cell')
+        for w in ('Agree', 'Disagree', 'Pro', 'Con', 'For', 'Against'): self.assertIn(N.fold(w), N.SIGNWORDS)
+        # any name and colon in the prose (Many people:, Settled by:, Where to find it:) is one the reader knows too
+        prose = [RS.OUTLINE_PARAGRAPH] + [m for _, _, m in RS.OUTLINE_LABELS] + [m for _, m, _ in RS.OUTLINE_MARKS + RS.OUTLINE_MARKS_AFTER] \
+            + [m for _, m, _ in RS.OUTLINE_DETAILS] + [m for _, m in RS.OUTLINE_STEPS]
+        named = {t for m in prose for t in re.findall(r"(?<![\w'])([A-Z][a-z-]*(?: [a-z-]+){0,4}):", m)}
+        self.assertGreater(len(named), 30)
+        self.assertEqual(sorted(t for t in named if N.fold(t) not in N.NAMES), [], 'the page names something the reader does not know')
+        for line in ('- Small sample:', '+ Statistics:', '- link.does-not-follow:'):
+            self.assertIn(line, RS.OUTLINE_BRIEF)
+            post = R_read('Page: [k]\n  ' + line + ' Something that is new.')
+            self.assertEqual(post.stops, [], line); self.assertIsNotNone(post.nodes[1].label, line)
+
+    def test_the_examples_on_the_page_read_back_and_the_reply_is_a_post(self):
+        import render_site as RS
+        self.assertEqual(R_read(RS.OUTLINE_EXAMPLE).stops, [])
+        self.assertEqual(R_read(RS.OUTLINE_REPLY, mode='strict').stops, [], 'the reply shown is not a valid post')
+        self.assertIn(htmlmod.escape(RS.OUTLINE_EXAMPLE), self.page); self.assertIn(htmlmod.escape(RS.OUTLINE_REPLY), self.page)
+        for line in RS.OUTLINE_EXAMPLE.splitlines()[1:]:
+            self.assertTrue(line.strip() in RS.OUTLINE_REPLY or line.split(': ', 1)[-1] in RS.OUTLINE_REPLY, f'the reply shown does not print back {line!r}')
+
+    def test_the_page_says_how_an_outline_gets_in_and_what_it_calls_a_page(self):
+        import render_site as RS
+        self.assertNotIn('straight into', RS.OUTLINE_PARAGRAPH)
+        self.assertIn('outline form on GitHub', RS.OUTLINE_PARAGRAPH); self.assertIn('pull request', RS.OUTLINE_PARAGRAPH)
+        self.assertNotIn('so a slip of the keyboard never makes a new page', self.page)
+        self.assertIn('Linkage page', self.page)
+
+    def test_the_data_carries_every_name_a_program_needs(self):
+        import outline_names as N, vocab as V
+        with open(os.path.join(self.dir, 'data', 'outline-spec.json'), encoding='utf-8') as fh: d = json.load(fh)
+        self.assertEqual(d['version'], N.VERSION)
+        self.assertEqual(sorted(N.fold(x['name']) for x in d['labels']), sorted(N.LABELS))
+        self.assertEqual(sorted(N.fold(x['name']) for x in d['fields']), sorted(N.FIELDS))
+        self.assertEqual(sorted(N.fold(x['name']) for x in d['headings']), sorted(N.HEADS))
+        self.assertEqual(sorted(N.fold(x['name']) for x in d['sign_words']), sorted(N.SIGNWORDS))
+        for x in d['labels']:
+            for i in x['ids']: self.assertIn(i, V.BY_ID, x['name'])
+        self.assertIn('E-UNKNOWN-KEY', d['codes']); self.assertIn('E-NEAR', d['codes'])
+        self.assertNotIn('\u2014', json.dumps(d, ensure_ascii=False))
+
+
+def R_read(text, mode=None):
+    import outline_read as R
+    return R.read(text, mode)
 
 
 if __name__ == '__main__':

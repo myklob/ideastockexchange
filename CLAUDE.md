@@ -212,7 +212,11 @@ since the last revision; `method.py` the reader-facing methodology page;
 `sync_content.py` keeps the workbook and the reviewable CSVs in step; `vocab.py` what a post can be (197 kinds, each mapped to
 where intake files it and to AIF, ASPIC+, Walton's schemes and schema.org), behind `vocab.html`, `data/vocab.json`, the JSON-LD
 on every claim page, and intake's `Kind of post` and `Row` fields, which can open a row's linkage, importance or uniqueness
-page. An empty linkage or uniqueness page starts at DEFLINK or DEFUNIQ (`evidence.FACTOR_START`), so opening one moves nothing. There is no verdict module any more: a
+page. An empty linkage or uniqueness page starts at DEFLINK or DEFUNIQ (`evidence.FACTOR_START`), so opening one moves nothing.
+`outline_names.py`, `outline_read.py`, `outline_print.py` and `outline_file.py` are the Reason Outline, a plain-text post of any
+number of rows (its names, its reader, the printer behind every page's `p/<key>.txt`, and the filer intake's `outline` form
+uses, explained on `outline.html`); a printout reads back to exactly the rows it was printed from, so sending one back adds
+nothing. There is no verdict module any more: a
 page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
 page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed), `lists.html`
 says for every ranking what it shows, how it is worked out and why it is tracked, and every card and column that ranks

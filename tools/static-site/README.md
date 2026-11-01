@@ -96,6 +96,11 @@ discount and is meant to be.
     vocab.py             what a post can be: 197 kinds in 14 families, each with where it files, what it can move once argued,
                          and its names in AIF, ASPIC+, Walton's schemes (65 critical questions) and schema.org; vocab.html,
                          data/vocab.json, and the JSON-LD context every claim page's structured data uses
+    outline_names.py     the Reason Outline's closed lists: the labels (each naming a kind from vocab.py or a place), the
+                         sign words, the factor headings and the details; data/outline-spec.json is these lists as data
+    outline_read.py      reads an outline into a tree of lines, every stop and notice at once, with nothing looked up
+    outline_print.py     prints any page or topic as an outline (p/<key>.txt, t/<key>.txt) that reads back to its rows
+    outline_file.py      files a read outline against the tables, all or nothing, and writes the reply that prints it back
     content/votes.csv    the fourth table, one row per (page key, on, GitHub login), latest wins; shown on the page, never scored
     content/users.csv    who takes part: one row per GitHub login (name, role, a few sentences, maintainer Y), with
     content/user_links.csv  where to reach each one, grouped as on their own contact page; every login that adds a
@@ -111,6 +116,8 @@ discount and is meant to be.
     test_integrity.py    each structural check, with a case built to trip it and a case built not to
     test_render.py       the rendered HTML: tiles against the engine table, links, and prose that has rotted
     test_content.py      that the workbook and the reviewable CSVs cannot drift apart
+    test_outline_*.py    the outline's names, reader, printer and filer, and the round trip: every page printed and read
+                         back adds nothing
     make_artifact.py     variant of the built site with the stylesheet inlined (for hosted previews)
     requirements.txt     openpyxl
 
@@ -301,8 +308,8 @@ the row it is about (`Row`, the row's claim key). The kind decides the section a
 the row's own claim page, or the row's linkage, importance, uniqueness or equivalence page, which intake opens when the
 row has none (`intake.aim`). The kind rides on the new row as `tag` in its `extra` cell and nothing scores it. Every
 reason and finding row carries an "argue about this row" link to `vocab.html?page=...&row=...`, which names the row and
-fills both into every "post one" link. `vocab.html` also says how to brief an AI assistant to draft posts, and that the
-repository is MIT-licensed for anyone who wants to run a copy with a rule of their own over the same tables.
+fills both into every "post one" link. `vocab.html` also says that the repository is MIT-licensed for anyone who wants
+to run a copy with a rule of their own over the same tables, and points an AI assistant at the brief on `outline.html`.
 
 A vote never moves a score. `render_site.py` reads `votes.csv` when it is present (it is not in the workbook and
 `sync_content.py` does not check it), shows the counts on the heading line after the score badge with the words
@@ -317,6 +324,31 @@ page. `on` is the last column of `votes.csv`, so a file written before it existe
 which ranks voted-on claims by how far the share of votes to agree sits from the truth score. The votes ride
 along in the exports as a `vote` table. No votes: no cards, no counts. The engine rule stands: a claim nobody
 has argued is worth exactly nothing, however many people like it.
+
+## Reason Outline
+
+A form takes one row; a Reason Outline takes any number, as plain text a person can write anywhere (or ask an AI to
+write) and send through the outline issue form on GitHub, the one way in. A block starts at the left edge with `Page:` and a page's address or `[key]`, or with
+`Belief:` and a new claim; every line under it is one claim, pushed in two spaces under the line it is about, with `+`
+or `-` for its side, an optional label for its kind (`Does not follow:`, `Matters less:`, `Statistics:`, `Cost:`, or any
+vocab.py id and a colon but `house.vote` and `house.new-belief`, which are written as a `Vote:` line and a `Belief:`
+header) and its details on lines of their own (`Source:`, `Checked:`, `Estimate:`). `Relevance:`, `Importance:` and
+`Uniqueness vs [k]:` under a row argue that row's factor pages, opened empty for the first line filed under them, to
+any depth. It is built on Argdown: `+`, `-`, indentation and `[name]: words` mean what they mean there.
+
+`outline_names.py` holds every name, `outline_read.py` reads the text alone, `outline_file.py` settles what needs the
+tables (which page a line lands on, whether its words are already a page or a stored row, what it may set and what it
+may only compare) and `outline_print.py` writes any page back in the same form. `build()` writes every page as
+`p/<key>.txt` and every topic as `t/<key>.txt`, and every page links its printout next to the take-part paragraph; a
+printout sent back matches every line to the row it came from and adds nothing, a line added to it adds its own rows,
+a line left out deletes nothing, and a line edited in it becomes a correction request. `outline.html` explains the
+language to a reader, with the brief for an AI assistant, and `data/outline-spec.json` carries the closed lists for a
+program. The fourth issue form (`.github/ISSUE_TEMPLATE/outline.yml`, label `outline`) is filed by
+`intake.process_outline`: one stop and nothing is filed, and the reply on the issue lists every stop by its line;
+otherwise the post's votes go to the default branch in one commit (a vote on a page the post itself adds goes in the
+pull request instead, since that page is not on the site until it is merged), its rows to one pull request whose body is the reply,
+and the reply on the issue shows every new key, every match and every near match. Where the four modules make a choice
+the language left open, or part from it to follow the stored data, their docstrings say so under Decisions.
 
 ## What a mutation sweep found that reading did not
 

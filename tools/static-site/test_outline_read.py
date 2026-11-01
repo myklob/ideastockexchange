@@ -199,9 +199,11 @@ class TestTheExamples(unittest.TestCase):
         self.assertEqual(con.words, 'The Postal Service lost 6.5 billion dollars in 2023.')
         self.assertEqual(con.typed, 'The Postal Service lost 6.5 billion dollars in 2023 -- see https://example.org/usps-2023-results')
         self.assertEqual(con.fields['address'].value, 'https://example.org/usps-2023-results')
-        self.assertEqual(sorted(set(codes(p, kind='notices'))), ['N-ADDRESS', 'N-BULLET', 'N-DASH', 'N-DOTS', 'N-SIGNWORD'])
+        self.assertEqual(sorted(set(codes(p, kind='notices'))), ['N-ADDRESS', 'N-BULLET', 'N-DASH', 'N-DOTS', 'N-SIGNATURE', 'N-SIGNWORD'])
         self.assertEqual(codes(p, 9, 'notices'), ['N-BULLET', 'N-SIGNWORD', 'N-DASH', 'N-ADDRESS'])
-        self.assertTrue(all(m.line not in (3, 4, 12, 13) for m in p.notices))
+        self.assertEqual([m.text for m in p.notices if m.line == 12],
+                         ["Line 12 is '--', which starts a mail signature, so it and the 1 line after it were not read. To keep them, take the '--' line out."])
+        self.assertTrue(all(m.line not in (3, 4, 13) for m in p.notices))
 
     def test_example_5_local_names_and_named_mistakes(self):
         p = read(EXAMPLES[5])
@@ -338,8 +340,16 @@ class TestTheErrors(unittest.TestCase):
 
     def test_the_near_misses_list_the_3_nearest(self):
         p = read(ERRORS[1][0])
-        self.assertIn('Did you mean Matters less:, Matters more: or Sameness:?', p.stops[-1].text)
+        self.assertIn('Did you mean Matters less:?', p.stops[-1].text)
         self.assertTrue(p.stops[-1].text.endswith('To keep it as words, put \\ in front of them.'))
+
+    def test_a_near_miss_names_only_names_that_near(self):
+        """C6's distance decides which names are offered, not only whether any is: a sign word three letters off is no
+        help for a mistyped detail name, and calling it a detail name teaches the wrong thing."""
+        p = read(f'Page: [{KEY}]\n  + Lawmakers who trade stocks.\n    Sorce: A hearing in 2022')
+        self.assertEqual(p.stops[0].text, "Line 3: 'Sorce:' is not a detail name. Did you mean Source:? To keep it as words, put \\ in front of them.")
+        p = read(f'Page: [{KEY}]\n  + Lawmakers who trade stocks.\n    Matters lesser: Most trades are small.')
+        self.assertIn('Did you mean Matters less:?', p.stops[0].text)
 
     def test_the_errors_that_need_the_tables_are_left_to_the_filer(self):
         for text in NEED_TABLES:
@@ -460,7 +470,7 @@ class TestDepth(unittest.TestCase):
         one = p.blocks[0].children[0]
         self.assertEqual((one.depth, one.children[0].depth), (2, 4))
         self.assertEqual(one.children[0].words, 'Two. Three goes on here.')
-        self.assertEqual(codes(p, kind='notices'), ['N-DOTS'] * 3)
+        self.assertEqual(codes(p, kind='notices'), ['N-DOTS'] * 3 + ['N-WRAP'])
         self.assertEqual(codes(read(f'Page: [{KEY}]\n. + One.', 'strict')), ['E-DOTS'])
 
     def test_bullets_are_dropped(self):
@@ -860,10 +870,12 @@ class TestRepairs(unittest.TestCase):
             self.assertEqual([m.code for m in n.repairs], ['N-DASH'])
 
     def test_strict_stops_on_a_long_dash_and_repairs_nothing(self):
+        """The stop is left on the line for the filer, which gives it only when the words turn out new: words that are a
+        stored page or row are not new, and stored texts carry long dashes (G, G3)."""
         for typed, stops in (('Rents rose \u2014 sharply.', ['E-DASH']), ('Rents rose \u2013 sharply.', ['E-DASH']),
                              ('A long\u2013term lease.', []), ('Rents rose -- sharply.', [])):
             n, p = self.row(typed, 'strict')
-            self.assertEqual((codes(p), n.words), (stops, typed), typed)
+            self.assertEqual((codes(p), n.words, [m.code for m in n.repairs]), ([], typed, stops), typed)
         n, p = self.row('[k]: Rents rose \u2014 sharply.', 'strict')
         self.assertEqual((codes(p), [m.code for m in n.repairs]), ([], ['E-DASH']))
 
@@ -933,6 +945,153 @@ class TestThePlainWordsRule(unittest.TestCase):
         repaired = {c.replace('N-', 'E-', 1) for c in used if c.startswith('N-')} & set(R.CODES)
         self.assertEqual(used - set(R.CODES), set())
         self.assertEqual(set(R.CODES) - used - repaired, set())
+
+
+class TestTextAsItArrives(unittest.TestCase):
+    """What a reviewer found a post can carry when it is pasted from a word processor, a phone or an assistant: none of
+    it may be read silently as something else, and none of it may stop the reader with an error instead of a message."""
+
+    def test_a_sign_or_bullet_with_a_tab_after_it_is_a_sign(self):
+        p = read('Belief: Cities should plant more street trees on every block.\n  +\tShade lowers summer power bills.\n'
+                 '  -\tStreet trees drop limbs on parked cars.')
+        self.assertEqual([(n.shape, n.side, n.typed) for n in p.nodes[1:]],
+                         [('entry', 'agree', 'Shade lowers summer power bills.'), ('entry', 'disagree', 'Street trees drop limbs on parked cars.')])
+        self.assertEqual(p.blocks[0].typed, 'Cities should plant more street trees on every block.')
+        self.assertEqual(codes(p, 2, 'notices'), ['N-SIGN-LOOKALIKE'])
+        self.assertEqual(codes(read(f'Page: [{KEY}]\n  +\tShade lowers bills.', 'strict')), ['E-SIGN-LOOKALIKE'])
+
+    def test_an_en_dash_a_minus_sign_or_a_wide_plus_is_a_sign(self):
+        for c, side in (('\u2013', 'disagree'), ('\u2212', 'disagree'), ('\uff0b', 'agree')):
+            p = read(f'Page: [{KEY}]\n  {c} A ban would push holdings into the names of spouses.')
+            n = p.nodes[1]
+            self.assertEqual((n.shape, n.side, n.typed), ('entry', side, 'A ban would push holdings into the names of spouses.'), c)
+            self.assertEqual(codes(p, kind='notices'), ['N-SIGN-LOOKALIKE'], c)
+        self.assertEqual(read(f'Page: [{KEY}]\n  + Rents rose\n  \u20135 percent').stops[0].code, 'E-WRAP')
+
+    def test_a_wide_colon_after_a_name_is_a_colon(self):
+        p = read('Page\uff1a [barring-members-congress-president]\n  + Members beat the market.')
+        self.assertEqual((p.blocks[0].word, p.blocks[0].ref['value'], p.stops), ('Page', KEY, []))
+        p = read(f'Page: [{KEY}]\n  - Cost\uff1a Officials pay tax on forced sales.')
+        self.assertEqual((p.nodes[1].label.id, p.nodes[1].typed), ('cba.cost', 'Officials pay tax on forced sales.'))
+        p = read(f'Page: [{KEY}]\n  + \u6bd4\u5982\uff1a\u8fd9\u662f\u4e00\u53e5\u8bdd\u3002')
+        self.assertEqual((p.nodes[1].typed, codes(p, kind='notices')), ('\u6bd4\u5982\uff1a\u8fd9\u662f\u4e00\u53e5\u8bdd\u3002', []))
+
+    def test_a_wrapped_line_is_never_joined_without_a_word(self):
+        p = read(f'Page: [{KEY}]\n  + Members regularly trade in\n    the industries they oversee.')
+        self.assertEqual((p.nodes[1].typed, codes(p, kind='notices')), ('Members regularly trade in the industries they oversee.', ['N-WRAP']))
+
+    def test_a_control_character_is_taken_out(self):
+        for c in ('\x0b', '\x0c', '\x07', '\x00'):
+            p = read(f'Page: [{KEY}]\n  + Street trees drop limbs{c}on parked cars every storm.')
+            self.assertNotRegex(p.nodes[1].typed, '[\x00-\x08\x0b\x0c\x0e-\x1f]', repr(c))
+            self.assertEqual(codes(p, kind='notices'), ['N-CONTROL'], repr(c))
+        self.assertEqual(read(f'Page: [{KEY}]\n  + Street trees drop limbs\x0bon cars.').nodes[1].typed, 'Street trees drop limbs on cars.')
+        self.assertEqual(codes(read(f'Page: [{KEY}]\n  + Street trees drop limbs\x0bon cars.', 'strict')), ['E-CONTROL'])
+
+    def test_a_version_or_depth_that_is_no_number_is_a_message(self):
+        for text, code in (('===\nreasons: 1\ndepth: \u00b2\n===\nPage: [a]\n  + One reason.', 'N-FRONTMATTER'),
+                           ('===\nreasons: \u00b9\n===\nPage: [a]\n  + One reason.', 'E-VERSION'),
+                           ('// reasons ' + '1' * 5000 + '\nPage: [a]\n  + One reason.', 'E-VERSION'),
+                           ('===\nreasons: 1\ndepth: ' + '9' * 5000 + '\n===\nPage: [a]\n  + One reason.', 'N-FRONTMATTER')):
+            p = read(text)
+            self.assertEqual([m.code for m in p.stops + p.notices], [code], text[:30])
+            self.assertLess(len((p.stops + p.notices)[0].text), 200)
+        self.assertEqual(read('// reasons 1 strict\nPage: [a]\n  + One reason.').mode, 'strict')
+
+    def test_a_signature_says_what_it_left_out(self):
+        p = read('Page: [a]\n  + Street trees drop limbs on parked cars every storm.\n--\nPage: [b]\n  + Paved parks flood.')
+        self.assertEqual((len(p.blocks), codes(p, kind='notices')), (1, ['N-SIGNATURE']))
+        self.assertIn('the 2 lines after it were not read', p.notices[0].text)
+        self.assertEqual(codes(read('Page: [a]\n  + Street trees drop limbs.\n--'), kind='notices'), [])
+
+    def test_a_markdown_fence_around_the_post_is_a_break(self):
+        for opening in ('```', '```markdown', '```text', '~~~'):
+            p = read(f'{opening}\nPage: [{KEY}]\n  + Members beat the market by six percent a year.\n{opening[:3]}')
+            self.assertEqual((p.stops, len(p.nodes)), ([], 2), opening)
+
+    def test_a_long_run_of_spaces_reads_in_one_pass(self):
+        t = time.time()
+        for line in ('  + a' + ' ' * 64000 + 'b.', '  + a' + ' ' * 64000 + '\u2014 b: c.', '  + In ' + ' ' * 64000 + 'x (y): z.',
+                     '  + a' + ' ' * 64000 + 'b): c.'):
+            read(f'Page: [{KEY}]\n' + line)
+        self.assertLess(time.time() - t, 3)
+
+    def test_a_sign_word_read_as_a_bullet_is_not_also_read_as_a_side(self):
+        p = read(f'Page: [{KEY}]\n  Pro: Cost: Officials pay tax here two.')
+        self.assertEqual((p.nodes[1].side, p.nodes[1].signword), ('disagree', None))
+        self.assertEqual([m.text for m in p.notices],
+                         ['Line 2: Cost: is always on the cost side, so the Pro: in front of it was read as a list bullet.'])
+
+    def test_a_plain_line_that_stops_is_kept_for_the_reply(self):
+        p = read(f'Page: [{KEY}]\n  + A reason here.\n\n  Some thoughts on the ban:\n    + Members should not trade.\n'
+                 f'  + Lawmakers time trades around closed\n  briefings they attend.')
+        self.assertEqual([(n.line_no, n.raw.strip()) for n in p.dropped], [(4, 'Some thoughts on the ban:'), (7, 'briefings they attend.')])
+        self.assertEqual(codes(p), ['E-NOT-A-HEADER', 'E-WRAP'])
+
+
+class TestWhatASecondReviewFound(unittest.TestCase):
+    """A second review's findings about reading: text that arrives from an assistant, a word processor or a phone, read
+    as something other than what it says. Each test fails on the reader as it was before the fix."""
+
+    def test_a_category_line_gives_a_topic_cell_its_bracket(self):
+        for label in ('Common ground', 'In common'):
+            p = read(f'Page: [public-office-private-gain]\n  {label}: Both sides want searchable forms.\n    Category: shared\n')
+            self.assertEqual((p.stops, p.nodes[1].category), ([], 'shared'), label)
+        self.assertEqual(codes(read(f'Page: [public-office-private-gain]\n  Common ground: Both sides want searchable forms.\n')), ['E-CATEGORY'])
+
+    def test_invisible_and_unusual_spaces_are_read_as_what_they_stand_for(self):
+        p = read(f'\u2060Page: [{KEY}]\n  + Officials with tips can front-run the market.')
+        self.assertEqual((p.stops, [n.shape for n in p.nodes]), ([], ['header', 'entry']))
+        self.assertEqual(codes(p, kind='notices'), ['N-CONTROL'])
+        p = read(f'Page: [{KEY}]\n  +\u2003Officials with tips can front-run the market.\n    -\u3000Tips are rare and hard to act on.')
+        self.assertEqual([(n.shape, n.sign) for n in p.nodes[1:]], [('entry', 'agree'), ('entry', 'disagree')])
+        self.assertEqual(codes(read(f'Page: [{KEY}]\n  + Officials who trade on tips\u200bshould resign.', 'strict')), ['E-CONTROL'])
+
+    def test_a_heavy_sign_a_long_dash_or_a_double_hyphen_starts_a_line_as_a_sign(self):
+        for lead, sign in (('\u2796', 'disagree'), ('\u2795', 'agree'), ('\u2014', 'disagree'), ('--', 'disagree')):
+            p = read(f'Page: [{KEY}]\n  + Officials with tips can front-run the market.\n    {lead} Tips are rare and hard to act on.')
+            self.assertEqual(([n.sign for n in p.nodes[1:]], p.stops), (['agree', sign], []), lead)
+            self.assertIn('N-SIGN-LOOKALIKE', codes(p, kind='notices'))
+
+    def test_xml_forbidden_characters_are_taken_out(self):
+        for c in ('\uffff', '\ufffe'):
+            p = read(f'Page: [{KEY}]\n  + Officials who trade on tips{c} should resign at once.')
+            self.assertNotIn(c, p.nodes[1].typed)
+            self.assertEqual(codes(p, kind='notices'), ['N-CONTROL'])
+            self.assertEqual(codes(read(f'Page: [{KEY}]\n  + Officials who trade on tips{c} should resign at once.', 'strict')), ['E-CONTROL'])
+
+    def test_markdown_around_a_name_is_read_through(self):
+        p = read(f'Page: [{KEY}]\n- **Pro:** Officials with tips can front-run the market.\n  - **Evidence:** A 2004 study found senators beat '
+                 f'the market.\n- **Con:** A ban drives good people out of office.')
+        self.assertEqual(p.stops, [])
+        self.assertEqual([(n.side, n.label.name if n.label else None, n.typed) for n in p.nodes[1:]],
+                         [('agree', None, 'Officials with tips can front-run the market.'),
+                          ('disagree', 'Evidence', 'A 2004 study found senators beat the market.'),
+                          ('disagree', None, 'A ban drives good people out of office.')])
+        self.assertIn('N-MINUS-LIST', codes(p, kind='notices'))
+        p = read(f'## Page: [{KEY}]\n- *Pro*: Officials with tips can front-run the market.')
+        self.assertEqual(([n.shape for n in p.nodes], p.nodes[1].side), (['header', 'entry'], 'agree'))
+        self.assertIn('E-MARKUP', codes(read(f'## Page: [{KEY}]\n  + Officials with tips can front-run the market.', 'strict')))
+        self.assertEqual(codes(read(f'Page: [{KEY}]\n  + - Officials with tips can front-run the market.')), ['E-SIDE'])
+
+    def test_two_letters_swapped_in_a_name_are_a_near_miss(self):
+        for text, name in ((f'Pgae: [{KEY}]\n  + Officials who trade on tips should resign.', 'Page:'),
+                           ('Beleif: Cities should ban leaf blowers.\n  + They are loud.', 'Belief:'),
+                           (f'Page: [{KEY}]\n  + Senators beat the market by 12 percent a year.\n    Soruce: Ziobrowski 2004', 'Source:')):
+            p = read(text)
+            self.assertIn('E-NEAR', codes(p), text)
+            self.assertIn(f'Did you mean {name}', [m.text for m in p.stops if m.code == 'E-NEAR'][0])
+
+    def test_an_address_in_square_brackets_comes_out_clean(self):
+        for s in ('Senators beat the market (https://example.org/report).', 'Senators beat the market [https://example.org/report].'):
+            n = read(f'Page: [{KEY}]\n  + {s}\n').nodes[1]
+            self.assertEqual((n.words, n.moved_address), ('Senators beat the market.', 'https://example.org/report'), s)
+        n = read(f'Page: [{KEY}]\n  - Disclosure is too slow [https://myklob.github.io/ideastockexchange/beliefs/p/disclosure-has-failed-check.html]\n').nodes[1]
+        self.assertEqual((n.ref['value'], n.words, n.moved_address), ('disclosure-has-failed-check', 'Disclosure is too slow.', None))
+
+    def test_a_printout_address_names_its_page(self):
+        p = read(f'Page: https://myklob.github.io/ideastockexchange/beliefs/p/{KEY}.txt\n  + A ban is easier to check than a disclosure rule.\n')
+        self.assertEqual((p.stops, p.blocks[0].ref['value']), ([], KEY))
 
 
 if __name__ == '__main__':

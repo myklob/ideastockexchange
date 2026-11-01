@@ -44,6 +44,9 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   Appeals to:, Measured by:, If true:, If false: and Latest reading: on interests; Type: on works and linkage pages;
   What it covers:, Scope: and Positive means: on topics; Parent: on both). Type: on a linkage page is written by
   intake, so the filer compares it rather than applying it.
+- C6's near-miss distance counts two letters swapped side by side as one edit (distance), where Levenshtein's counts
+  two, so 'Pgae:', 'Beleif:' and 'Soruce:' are near misses of Page:, Belief: and Source: as the commonest typing slip
+  should be; under Levenshtein's a swap in a name of 6 letters or fewer was never near anything.
 - near_names lists the 3 nearest names whenever any is within near-miss distance, as C6 says. The error examples
   that show one name ('Sorce:', 'Strawman:') are read as shortened; each Near carries its distance, so the reader
   can show only the close ones.
@@ -103,6 +106,29 @@ WORK_TYPES = ('Book', 'Study', 'Article', 'Report', 'Film', 'Podcast', 'Video')
 FRONTMATTER = ('reasons', 'mode', 'from', 'printed', 'depth', 'cells')
 MODES = ('loose', 'strict')
 CELLS = ('words', 'all')
+
+
+# the tables in plain words, as the reply names where a row went; a page's are the names vocab.html gives them
+# (render_site.VOCAB_TABLE, which test_outline_names keeps in step), a topic's the plurals of its cells' labels
+TABLES = {'argument': 'Reasons', 'evidence': 'Evidence', 'prediction': 'Predictions', 'falsify': 'Falsifiability test',
+          'criterion': 'Objective criteria', 'cba': 'Costs and benefits', 'short_term': 'Short-term effects',
+          'long_term': 'Long-term effects', 'component': 'Components', 'assumption': 'Assumptions', 'interest': 'Interests',
+          'interest_listing': 'Interests at stake', 'value': 'Shared values', 'shared_interest': 'Shared interests',
+          'compromise': 'Compromises', 'motive': 'Motives', 'dispute': 'Core disputes', 'obstacle': 'Obstacles', 'bias': 'Biases',
+          'media': 'Media', 'law': 'Laws', 'upstream': 'Broader beliefs', 'downstream': 'Narrower beliefs',
+          'similar': 'Similar beliefs', 'definition': 'Definitions', 'person': 'People on the record', 'impact': 'Influence',
+          'category': 'Filed under', 'related': 'Related linkages'}
+TOPIC_TABLES = {'direction': 'Positions', 'strength': 'Claim strengths', 'rung': 'Rungs', 'stack': 'Stacks', 'topic_values': 'Topic values',
+                'engagement': 'Engagement', 'common': 'Common ground', 'criteria': 'Topic measures', 'topic_media': 'Topic works',
+                'related': 'Related topics'}
+_TABLE_SIDE = {'agree': ', for', 'disagree': ', against', 'extreme': ', stronger', 'moderate': ', weaker', 'x': ' (x)', 'y': ' (y)'}
+
+
+def table_name(section, side='', topic=False):
+    """A table and a side in plain words: 'Reasons to agree', 'Costs and benefits, against', 'Common ground'."""
+    if section == 'argument' and side in ('agree', 'disagree'): return f'Reasons to {side}'
+    name = (TOPIC_TABLES if topic or section not in TABLES else TABLES).get(section, section)
+    return name + _TABLE_SIDE.get(side or '', '')
 
 
 def main_words(section): return MAIN_WORDS.get(section, (('edge', 'text'),))
@@ -422,18 +448,26 @@ Brackets, ref and term keep the case they were typed in."""
 InPlace = namedtuple('InPlace', 'section side category')
 Near = namedtuple('Near', 'name list distance')
 _REF = re.compile(r'^(.*?\S)\s+@?\[([^\[\]]*)\]$')
-_DETAIL = re.compile(r'^(.*?)\s*\(([^()]*)\)$')
 _SUFFIX = re.compile(r'^(.*\S) (for|against)$')
 _TERM = [(re.compile(r'^' + r'[\s_-]+'.join(re.escape(w) for w in rec.name.split()) + r'\s+(.+)$', re.I), rec)
          for rec in _LABELS if rec.detail == 'term']
-_IN = re.compile(r'^in\s+(.*?)\s*(?:\(([^()]*)\))?$', re.I)
+_IN = re.compile(r'^in\s+(.*)$', re.I)
 _SECTION_BY_FOLD = {fold(s): s for s in ALL_SECTIONS}
+
+
+def _detail(p):
+    """(name, inner) for text that ends in a bracket holding no other bracket, 'Dispute (Empirical)'; None otherwise.
+    Found from the end, so a long line is read in one pass."""
+    if not p.endswith(')'): return None
+    i = p.rfind('(')
+    if i < 0 or ')' in p[i + 1:-1]: return None
+    return p[:i].rstrip(), p[i + 1:-1]
 
 
 def split_ref(text):
     """(words, ref) for text that ends in a [ref] or @[ref], the ref's inner text trimmed; (text, None) otherwise."""
     t = str(text or '').strip()
-    m = _REF.match(t)
+    m = _REF.match(t) if t.endswith(']') else None
     return (m.group(1), m.group(2).strip()) if m else (t, None)
 
 
@@ -457,9 +491,9 @@ def read_label(prefix):
     m = _SUFFIX.match(f)
     if m and m.group(1) in LABELS and LABELS[m.group(1)].side == 'either':
         return LabelMatch(LABELS[m.group(1)], 'agree' if m.group(2) == 'for' else 'disagree', None, None, None)
-    m = _DETAIL.match(p)
-    if m and fold(m.group(1)) in LABELS and LABELS[fold(m.group(1))].detail in ('kind', 'category', 'xy'):
-        return LabelMatch(LABELS[fold(m.group(1))], None, m.group(2).strip(), None, None)
+    m = _detail(p)
+    if m and fold(m[0]) in LABELS and LABELS[fold(m[0])].detail in ('kind', 'category', 'xy'):
+        return LabelMatch(LABELS[fold(m[0])], None, m[1].strip(), None, None)
     name, ref = split_ref(p)
     if ref is not None and fold(name) in LABELS and LABELS[fold(name)].takes_ref:
         return LabelMatch(LABELS[fold(name)], None, None, ref, None)
@@ -488,10 +522,13 @@ def read_in(prefix):
     and underscores alike), or None."""
     m = _IN.match(str(prefix or '').strip())
     if not m: return None
-    words, side = m.group(1).split(), ''
+    rest, category = m.group(1), ''
+    d = _detail(rest)
+    if d: rest, category = d[0], d[1].strip()
+    words, side = rest.split(), ''
     if len(words) > 1 and words[-1].lower() in SIDE_WORDS: side = words.pop().lower()
     section = _SECTION_BY_FOLD.get(fold(' '.join(words)))
-    return InPlace(section, side, (m.group(2) or '').strip()) if section else None
+    return InPlace(section, side, category) if section else None
 
 
 def in_label(section, side='', category=''):
@@ -530,12 +567,26 @@ def levenshtein(a, b):
     return prev[-1]
 
 
+def distance(a, b):
+    """C6's near-miss distance: Levenshtein's, with two letters swapped side by side counted as one edit (optimal
+    string alignment), so the commonest slip of a typist ('Pgae:', 'Soruce:') is one step from the name it misses."""
+    prev2, prev = None, list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        cur = [i]
+        for j, cb in enumerate(b, 1):
+            d = min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca != cb))
+            if i > 1 and j > 1 and ca == b[j - 2] and a[i - 2] == cb: d = min(d, prev2[j - 2] + 1)
+            cur.append(d)
+        prev2, prev = prev, cur
+    return prev[-1]
+
+
 def near_names(prefix, k=3):
     """C6: when some name in the lists is within near-miss distance of the folded prefix (1 for names of 6 characters
     or fewer, 2 for longer), the k nearest names as Near(name, list, distance), nearest first and in listing order
     on a tie; [] when none is that near."""
     f = fold(prefix)
-    ds = sorted((levenshtein(f, n), i, n) for i, n in enumerate(NAMES))
+    ds = sorted((distance(f, n), i, n) for i, n in enumerate(NAMES))
     if not any(d <= (1 if len(n) <= 6 else 2) for d, _, n in ds): return []
     return [Near(NAMES[n][0], NAMES[n][1], d) for d, _, n in ds[:k]]
 

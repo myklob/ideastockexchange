@@ -49,6 +49,10 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   with nothing after it is not a sign (C4).
 - A page with no text (a factor page) has the header 'Page: [key]'. A key that names both a page and a topic prints
   the topic, as intake.check_contribution reads it; the stored tables have no such key.
+- Words that start with a character the reader takes for a sign in another form (an en dash, a minus sign, a long
+  dash, a heavy plus or minus, a full-width plus) get a backslash too, since the reader reads those as + or -.
+- A Related topic cell whose words are a topic's key (ise_tables allows it once the topic has a page) is printed as
+  that topic's [key] and name, which the filer matches back to the cell.
 - 'printed:' is written in UTC as YYYY-MM-DDTHH:MMZ, as in the spec's Example 6. now may be a datetime (a naive one
   is read as UTC), a date, or a string written as given.
 """
@@ -71,7 +75,8 @@ ROW_CELLS = ('source', 'pattern', 'category', 'magnitude', 'mag_low', 'mag_high'
 HEADINGS = (('link', 'relevance'), ('bearing', 'relevance'), ('imp', 'importance'), ('uniq', 'uniqueness vs'),
             ('equiv', 'sameness'), ('drives', 'driver'))
 _NO_TERM = {'Definition of': 'Definition', 'Two senses of': 'Two senses'}
-_LEAD = ('\\', '[', ']', '@', '+', '-', '_', '<', '>', '*', '\u2022', '\u00b7', '/', '.', '=', '#')
+_LEAD = ('\\', '[', ']', '@', '+', '-', '_', '<', '>', '*', '\u2022', '\u00b7', '/', '.', '=', '#',
+         '\u2013', '\u2212', '\ufe63', '\uff0d', '\u2010', '\u2011', '\uff0b', '\ufe62', '\u2795', '\u2796', '\u2014', '\u2015')
 _BULLET = re.compile(r'\d+[.)] ')
 _ADDRESS = re.compile(r'(https?://|www\.|myklob\.github\.io)', re.I)
 _BREAK = re.compile(r'[\r\n\v\f\x1c-\x1e\x85\u2028\u2029]+')
@@ -280,6 +285,11 @@ class Printer:
         if claim:
             text = one_line((cp or {}).get('text'))
             words = f'[{claim}]' + (f': {after_handle(text)}' if text else '')
+        elif topic and section == 'related' and one_line(e.get('text')) in self.topics:
+            # a related topic stored by its key (ise_tables) is printed as that topic's [key] and name
+            k = one_line(e.get('text'))
+            words = f'[{k}]' + (f': {after_handle(self.topics[k].get("name"))}' if self.topics[k].get('name') else '')
+            used.add(('edge', 'text'))
         else:
             cell = N.words_cell(section)
             words = '' if cell is None else escape(ex.get(cell[1]) if cell[0] == 'extra' else e.get(cell[1]))

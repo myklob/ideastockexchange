@@ -4,10 +4,11 @@
     python3 intake.py --event event.json --dry-run            print every gh and git command instead of running it
 
 There is no backend. A reader on a belief page fills in a form, the form opens a prefilled GitHub issue, and
-this runs on the issue. Three forms arrive here (.github/ISSUE_TEMPLATE): a contribution to an existing page
-or to a cell of a topic page, a proposed belief, and a vote. GitHub renders a submitted form as markdown, one
-"### Label" heading per field with the value under it ("_No response_" when the field was left empty), so the
-first job is to read that back.
+this runs on the issue. Four forms arrive here (.github/ISSUE_TEMPLATE): a contribution to an existing page
+or to a cell of a topic page, a proposed belief, a vote, and a Reason Outline, which carries any number of rows
+at once as plain text (outline_read reads it, outline_file files it; see process_outline). GitHub renders a
+submitted form as markdown, one "### Label" heading per field with the value under it ("_No response_" when the
+field was left empty), so the first job is to read that back.
 
 The second job is the one the owner asked for: a claim that is already on the site must not be added twice.
 The page checks as the reader types, with a port of the same measure, and this checks again with the real one
@@ -25,8 +26,41 @@ carry them and the page shows them under the row.
 
 Nothing here runs gh or git directly. Every command goes through a runner that a test replaces and that
 --dry-run replaces with print, so the whole flow can be exercised without a token or a repository.
+
+Decisions on the outline form, where the spec left a choice:
+- A post's votes go straight to the default branch in one commit, as a vote from the vote form does, and its rows go
+  in a pull request. A vote needs no review and never moves a score; the spec asks that a post's votes land in one
+  commit rather than one push each, which is what this does.
+- A post with a stop files nothing and leaves the issue open, because editing the issue is how the sender fixes it;
+  the pull request an earlier version of the issue opened is closed, so a version the sender has since changed cannot
+  be merged by mistake. A post that adds no rows closes that pull request too.
+- A post whose only output is requests or correction requests opens no pull request (there is nothing to commit) and
+  leaves the issue open for the maintainer, who reads the requests there. A post that leaves nothing for anyone to do
+  is answered and closed.
+- The reply goes on the issue and in the pull request inside a ```reasons fence, so GitHub keeps its indentation and
+  the reply pasted back into the form is read as a post (the reader reads only inside such a fence). Every stop is
+  also listed above it, and a reply too long for GitHub is cut with a note saying so. The list of stops, the requests
+  and the sender's note are cut the same way, so no comment or body is ever too long for GitHub to take.
+- A vote on a page the post itself adds goes in the pull request, not on the default branch: until it is merged the
+  page is not on the site, and a vote left behind by a pull request that is never merged would wait for the next page
+  given that key.
+- A post whose lines were not read, and that filed, counted and asked for nothing, leaves the issue open, as a post
+  with requests does, so the sender can fix them by editing it. A closed issue's reply says to open a new one, since
+  editing a closed issue runs nothing.
+- A body too long to pass to gh as one argument (Linux takes at most 131,072 bytes, which a reply in another alphabet
+  reaches well within GitHub's 65,536 characters) is passed in a file instead.
+- A new key is cut to 60 characters at a hyphen (fit_key), the longest a post can name and the longest stored, so a
+  belief written as five long hashtags still has a page a post can point back at.
+- parse_body reads no heading inside the code block the form puts round the outline box, since the form always
+  closes that block before its next heading: a line of the outline that reads '### Source' or '### Note' is part of
+  the outline. Once a fence the sender wrote (```reasons) has closed that block early, a form's own heading ends the
+  field again, as it does in a block the sender opened in any other box, so a fence left open swallows nothing.
+- Typed words that reach the pull request, its title, the commit message or a comment outside a code block (the
+  title, the sender's note, the requests and corrections, the stops) have '#12' and '@name' written with the
+  full-width number sign and at sign (inert), so a post cannot close or link another issue on merge, or notify
+  anyone. The reply itself sits in a code block, where GitHub reads neither.
 """
-import argparse, csv, datetime, json, math, os, re, subprocess, sys
+import argparse, csv, datetime, json, math, os, re, shutil, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -62,6 +96,7 @@ CATEGORIES = {'direction': ('-100', '-50', '0', '+50', '+100'), 'strength': ('Mo
               'common': ('shared', 'conflict', 'compromise'), 'related': ('child', 'sibling', 'opposing')}
 RUNG = re.compile(r'^(general|[A-Z](\.\d+)?)$')
 KEY_WORDS = 5
+KEY_ROOM = 60       # the longest key a post can name ([key] or the page's address), and the longest stored
 # field label as GitHub renders it -> field id, per form; the labels are the contract in the brief
 FIELDS = {
     'contribution': {'Page': 'page', 'Section': 'section', 'Side': 'side', 'The claim': 'text', 'Category': 'category',
@@ -71,15 +106,20 @@ FIELDS = {
     'belief': {'The belief': 'text', 'Topic': 'topic', 'A reason to agree': 'agree',
                'A reason to disagree': 'disagree', 'Source': 'source'},
     'vote': {'Page': 'page', 'Vote': 'vote', 'On page': 'on', 'Why': 'why'},
+    'outline': {'The outline': 'text', 'Note': 'note'},
 }
+FORMS = tuple(FIELDS)
+LABELS = {label for form in FIELDS.values() for label in form}
+# the boxes a form renders as a code block of its own (render: in the issue template)
+RENDERED = {'The outline'}
 # the headings a form renders even when left empty; a form read back by its headings alone need not carry them
 OPTIONAL = {'Source', 'URL', 'Date checked', 'Category', 'Why it bears on the page', 'Topic', 'A reason to agree',
             'A reason to disagree', 'Why', 'On page', 'Estimate', 'Low end', 'High end', 'Units', 'Who gains or pays',
-            'Kind of post', 'Row'}
+            'Kind of post', 'Row', 'Note'}
 # the estimate a cost or benefit form takes, field id -> edges column; each is copied only when it is a number
 ESTIMATE = (('magnitude', 'magnitude'), ('mag_low', 'mag_low'), ('mag_high', 'mag_high'))
 # one heading that only that form carries, for an issue whose label did not stick
-SIGNATURE = {'contribution': 'The claim', 'belief': 'The belief', 'vote': 'Vote'}
+SIGNATURE = {'contribution': 'The claim', 'belief': 'The belief', 'vote': 'Vote', 'outline': 'The outline'}
 THING = {'argument': 'reason', 'evidence': 'finding', 'prediction': 'prediction', 'criterion': 'criterion',
          'cba': 'cost or benefit', 'interest': 'interest', 'falsify': 'evidence that would move it', 'assumption': 'assumption',
          'component': 'component', 'short_term': 'short-term effect', 'long_term': 'long-term effect', 'value': 'value',
@@ -99,26 +139,37 @@ class IntakeError(Exception):
 
 # ------------------------------------------------------------------------------------------- the issue
 def parse_body(body):
-    """The rendered issue form back into {label: value}. An empty field renders as _No response_."""
-    out, label, lines = {}, None, []
+    """The rendered issue form back into {label: value}. An empty field renders as _No response_. A line inside a
+    code block is never a heading, so an outline (which the form renders as one) keeps any line it has that starts
+    with ###. In a code block a sender opened, a form's own heading still ends the field, so a fence left open does
+    not swallow the rest of the form; in the block the form itself puts round a box it renders (RENDERED), only the
+    closing fence does, since the form always closes it before the next heading."""
+    out, label, lines, fence, own = {}, None, [], False, False
     def close():
         if label is not None:
             v = '\n'.join(lines).strip()
             out[label] = '' if v == '_No response_' else v
     for line in (body or '').replace('\r\n', '\n').split('\n'):
-        m = re.match(r'^###\s+(.+?)\s*$', line)
-        if m:
-            close(); label, lines = m.group(1), []
-        elif label is not None:
-            lines.append(line)
+        m = re.match(r'^###\s+(.+)$', line)
+        head = m.group(1).strip() if m else None
+        if m and (not fence or (head in LABELS and not own)):
+            close(); label, lines, fence, own = head, [], False, False
+            continue
+        s = line.strip()
+        if fence: fence = not re.fullmatch('`{3,}', s)
+        else:
+            fence = s.startswith('```')
+            own = fence and label in RENDERED and not any(x.strip() for x in lines)
+        if not fence: own = False
+        if label is not None: lines.append(line)
     close()
     return out
 
 
 def form_of(labels, parsed):
-    """Which form an issue came from: its label when one of the three stuck, otherwise the heading only that
-    form carries. None when it is not one of ours, which the workflow filter should already have caught."""
-    for name in ('contribution', 'belief', 'vote'):
+    """Which form an issue came from: its label when one of ours stuck, otherwise the heading only that form
+    carries. None when it is not one of ours, which the workflow filter should already have caught."""
+    for name in FORMS:
         if name in labels: return name
     for name, heading in SIGNATURE.items():
         if heading in parsed and all(h in parsed for h in FIELDS[name] if h not in OPTIONAL): return name
@@ -130,7 +181,7 @@ def submission(issue):
     parsed = parse_body(issue.get('body'))
     labels = {(l.get('name') if isinstance(l, dict) else l) for l in issue.get('labels') or []}
     form = form_of(labels, parsed)
-    if form is None: raise IntakeError('this issue did not come from one of the three forms; nothing to do')
+    if form is None: raise IntakeError("this issue did not come from one of the site's forms; nothing to do")
     fields = {fid: (parsed.get(label) or '').strip() for label, fid in FIELDS[form].items()}
     when = (issue.get('updated_at') or issue.get('created_at') or '')[:10]
     return {'form': form, 'fields': fields, 'number': int(issue.get('number') or 0),
@@ -147,10 +198,11 @@ class Tables:
     """The three tables from a content folder, with what appending a row needs to know: which keys are taken,
     which belief a page sits under, and the topic that belief is filed under."""
 
-    def __init__(self, content):
+    def __init__(self, content, rows=None):
+        """rows, when given, is (pages, edges, topics) already read, so a caller that has the tables in hand (the
+        site build, which prints every page as an outline) does not read them twice."""
         self.content = content
-        self.pages, self.edges = IT.read_csv(content)
-        self.topics = IT.read_topics(content)
+        self.pages, self.edges, self.topics = rows if rows is not None else (*IT.read_csv(content), IT.read_topics(content))
         self.by_key = {p['key']: p for p in self.pages}
         self.keys = set(self.by_key) | {t['key'] for t in self.topics}
 
@@ -190,9 +242,9 @@ class Tables:
         """A slug of the first content words, made unique against every key in the tables and every key handed
         out so far in this run: -2, -3 and so on, the same way the workbook builder disambiguates."""
         base = IT.slug(text, KEY_WORDS)
-        key, n = base, 1
+        key, n = fit_key(base), 1
         while key in self.keys:
-            n += 1; key = f'{base}-{n}'
+            n += 1; key = fit_key(base, n)
         self.keys.add(key)
         return key
 
@@ -202,6 +254,17 @@ class Tables:
 
     def write(self):
         IT.write_csv(self.pages, self.edges, self.content, topics=self.topics)
+
+
+def fit_key(base, n=1):
+    """base, or base-n for n above 1, cut to KEY_ROOM characters at a hyphen where it can be, so five long words (or
+    hashtags) still make a key that a post can name and a file system can hold."""
+    tail = f'-{n}' if n > 1 else ''
+    if len(base) + len(tail) > KEY_ROOM:
+        cut = base[:KEY_ROOM - len(tail)]
+        if '-' in cut and base[len(cut)] != '-': cut = cut.rsplit('-', 1)[0]
+        base = cut.strip('-') or 'page'
+    return base + tail
 
 
 def source_text(f):
@@ -277,14 +340,54 @@ def estimate(f, tables):
     return cols, notes
 
 
-# a row's factor page: the edges column that names it, the page kind, and its key prefix, as the pages already
-# on the site are named (argu-, imp-, uniq-, equiv-)
-FACTOR = {'link': ('link', 'linkage', 'link'), 'imp': ('imp', 'importance', 'imp'), 'uniq': ('uniq', 'uniqueness', 'uniq'),
-          'equiv': ('equiv', 'equivalence', 'equiv')}
+# a row's factor page: the edges column that names it and the page kind (factor_page names and fills the page)
+FACTOR = {'link': ('link', 'linkage'), 'imp': ('imp', 'importance'), 'uniq': ('uniq', 'uniqueness'), 'equiv': ('equiv', 'equivalence')}
 ROW_TYPE = {'argument': 'Argument', 'evidence': 'Evidence', 'prediction': 'Prediction', 'interest': 'Interest', 'media': 'Media'}
+# an importance page's rowkind, in the words the stored pages use
 ROW_KIND = {('argument', 'agree'): 'reason to agree', ('argument', 'disagree'): 'reason to disagree',
-            ('evidence', 'agree'): 'evidence for', ('evidence', 'disagree'): 'evidence against',
-            ('prediction', 'agree'): 'prediction if true', ('prediction', 'disagree'): 'prediction if false'}
+            ('evidence', 'agree'): 'supporting finding', ('evidence', 'disagree'): 'weakening finding',
+            ('prediction', 'agree'): 'prediction if the belief is true', ('prediction', 'disagree'): 'prediction if the belief is false',
+            ('media', 'agree'): 'work', ('media', 'disagree'): 'work'}
+
+
+def factor_page(tables, cell, e, other=None):
+    """A new, empty factor page for the row e, with the key and the cells the stored pages of that kind have:
+    <type>-<x>-<y> keys (argu-, evid-, pred-, inte-, medi-, imp-, uniq-, equiv-, drives-), the nearest belief above
+    as parent. The forms and Reason Outline both open pages here, so a page reads the same whichever way it came.
+    Returns (key, page); the key is reserved in tables.keys."""
+    by = tables.by_key
+    def words(k, n): return IT.slug((by.get(k) or {}).get('text') or (k or '').replace('-', ' '), n)
+    def belief_above(k):
+        seen = set()
+        while k in by and k not in seen:
+            seen.add(k)
+            if by[k].get('kind') == 'belief': return k
+            up = by[k].get('parent')
+            if not up or up not in by: break
+            k = up
+        return tables.root(k)
+    P, C, section, side = e.get('page'), e.get('claim'), e.get('section'), e.get('side') or ''
+    B = belief_above(P)
+    if cell == 'link':
+        typ = ROW_TYPE.get(section, 'Argument')
+        base, page = f'{typ.lower()[:4]}-{words(C, 3)}-{words(P, 2)}', {
+            'kind': 'linkage', 'parent': B, 'x': C, 'y': P, 'type': typ, 'direction': 'Weakens' if side == 'disagree' else 'Supports'}
+    elif cell == 'bearing':
+        X = (by.get(P) or {}).get('x') or P
+        base, page = f'inte-{words(X, 3)}-{words(C, 2)}', {'kind': 'linkage', 'parent': B, 'x': X, 'y': C, 'type': 'Interest', 'direction': 'Supports'}
+    elif cell == 'imp':
+        base, page = f'imp-{words(C, 3)}-{words(P, 2)}', {'kind': 'importance', 'parent': B, 'x': C, 'y': P, 'rowkind': ROW_KIND.get((section, side), 'row')}
+    elif cell == 'uniq':
+        base, page = f'uniq-{words(C, 3)}-{words(other, 2)}', {'kind': 'uniqueness', 'parent': B, 'x': C, 'y': other}
+    elif cell == 'equiv':
+        base, page = f'equiv-{words(P, 3)}-{words(C, 2)}', {'kind': 'equivalence', 'parent': B, 'x': P, 'y': C}
+    else:
+        base, page = f'drives-{words(C, 3)}-{words(P, 2)}', {
+            'kind': 'driver', 'parent': B, 'x': C, 'y': P, 'direction': 'Support' if side == 'agree' else 'Opposition'}
+    key, n = fit_key(base), 1
+    while key in tables.keys: n += 1; key = fit_key(base, n)
+    tables.keys.add(key)
+    return key, dict({'key': key}, **page)
 
 
 def aim(sub, tables):
@@ -312,20 +415,13 @@ def aim(sub, tables):
     if target == 'claim':
         f['page'] = row
         return []
-    col, kind, prefix = FACTOR[target]
+    col, kind = FACTOR[target]
     e = next((x for x in on if x.get('section') in ROW_TYPE or x.get('section') == 'similar'), on[0])
     if e.get(col) and tables.has(e[col]):
         f['page'] = e[col]
         return []
-    base = f'{prefix}-{IT.slug(tables.by_key[row].get("text"), 3)}-{IT.slug(tables.by_key.get(page, {}).get("text"), 2)}'
-    key, n = base, 1
-    while key in tables.keys: n += 1; key = f'{base}-{n}'
-    tables.keys.add(key)
-    fp = {'key': key, 'kind': kind, 'parent': tables.root(page), 'x': row, 'y': page}
-    if kind == 'linkage':
-        fp['type'] = ROW_TYPE.get(e.get('section'), 'Argument')
-        fp['direction'] = 'Weakens' if e.get('side') == 'disagree' else 'Supports'
-    if kind == 'importance': fp['rowkind'] = ROW_KIND.get((e.get('section'), e.get('side')), 'row')
+    # a form names no other row, so a uniqueness page opened from one compares the row with the page it sits on
+    key, fp = factor_page(tables, target, e, other=page if target == 'uniq' else None)
     tables.add([fp], [])
     for x in on:
         if x.get('section') == e.get('section'): x[col] = key
@@ -612,7 +708,17 @@ class Git:
             print(f'::warning::The vote is on {self.base} but the publish workflow could not be started, so the site '
                   f'shows it after the next push. The intake workflow needs "actions: write" for this.\n{out.strip()}')
 
-    def comment(self, n, body): self('gh', 'issue', 'comment', str(n), '--body', body)
+    def with_body(self, args, body, ok=True):
+        """A gh call that takes a body: as an argument when it is short enough to be one, and from a file when not."""
+        if len(body.encode('utf-8')) <= ARG_ROOM: return self(*args, '--body', body, ok=ok)
+        d = tempfile.mkdtemp(prefix='intake-body-')
+        try:
+            path = os.path.join(d, 'body.md')
+            with open(path, 'w', encoding='utf-8') as fh: fh.write(body)
+            return self(*args, '--body-file', path, ok=ok)
+        finally: shutil.rmtree(d, ignore_errors=True)
+
+    def comment(self, n, body): self.with_body(('gh', 'issue', 'comment', str(n)), body)
     def label(self, n, name): self('gh', 'issue', 'edit', str(n), '--add-label', name, ok=False)
     def close(self, n, reason='completed'): self('gh', 'issue', 'close', str(n), '--reason', reason)
 
@@ -634,13 +740,13 @@ class Git:
         of the issue, its title and body are brought up to date instead of a second one being opened."""
         head = f'contrib/issue-{n}'
         self('git', 'push', '--force', 'origin', f'HEAD:refs/heads/{head}')
-        code, out = self('gh', 'pr', 'create', '--base', self.base, '--head', head, '--title', title, '--body', body, ok=False)
+        code, out = self.with_body(('gh', 'pr', 'create', '--base', self.base, '--head', head, '--title', title), body, ok=False)
         listing = f'{self.repo}/pulls?q=head:{head}'
         # the address is the one line gh prints on stdout; what it says on stderr comes after it
         low = out.lower()
         if code == 0: return next((l for l in out.split() if l.startswith('http')), listing), False
         if 'already exists' in low:
-            self('gh', 'pr', 'edit', head, '--title', title, '--body', body, ok=False)
+            self.with_body(('gh', 'pr', 'edit', head, '--title', title), body, ok=False)
             return next((l for l in out.split() if l.startswith('http')), listing), True
         if 'not permitted' in low or 'not allowed' in low or 'permission' in low:
             print(f'::error::GitHub Actions is not allowed to open pull requests in this repository. Open Settings, '
@@ -650,13 +756,179 @@ class Git:
         raise IntakeError(f'gh pr create failed:\n{out.strip()}')
 
 
+# ------------------------------------------------------------------------------------------- an outline
+# GitHub refuses a comment or a pull request body past 65,536 characters; this leaves room for the lines around it
+GITHUB_ROOM = 65536
+REPLY_ROOM = 60000
+ARG_ROOM = 100000   # bytes in one argument to gh; Linux refuses more than 131,072
+_FENCE_OPEN = re.compile(r'^\s*```([\w+.-]*)\s*$')
+
+
+def outline_text(value):
+    """The outline as the sender typed it. The form renders its box as a code block, which comes off here; a fence
+    the sender wrote themselves (```reasons or ```argdown) is the language's own and is left for the reader."""
+    lines = (value or '').replace('\r\n', '\n').split('\n')
+    m = _FENCE_OPEN.match(lines[0]) if lines else None
+    if m and len(lines) > 1 and lines[-1].strip() == '```' and m.group(1).lower() not in ('reasons', 'argdown'):
+        lines = lines[1:-1]
+    return '\n'.join(lines)
+
+
+def fenced(reply):
+    """The reply as a ```reasons block: GitHub shows its indentation, and pasted back into the form it is a post."""
+    return '```reasons\n' + reply.rstrip('\n') + '\n```'
+
+
+def cut(reply, room=REPLY_ROOM):
+    """The reply, or as many of its first lines as fit, with a last note saying where it was cut."""
+    if len(reply) <= room: return reply
+    keep, used = [], 0
+    for line in reply.split('\n'):
+        if used + len(line) + 1 > room - 200: break
+        keep.append(line); used += len(line) + 1
+    return '\n'.join(keep + ['// the reply is cut here, because GitHub takes at most 65,536 characters; the lines '
+                             'above it are complete, and the pull request carries every row'])
+
+
+def _outline_title(sub, post, filed, tables):
+    """The issue's title, or, when it is only the form's prefix, the page the outline starts on."""
+    title = sub['title'].strip()
+    if title and not title.endswith(':'): return title
+    key = filed.keys.get(post.blocks[0].line_no) if post.blocks else None
+    words = (tables.by_key.get(key) or {}).get('text') or next((t.get('name') for t in tables.topics if t.get('key') == key), '') or key or ''
+    return f'Reason Outline: {words[:60]}' if words else 'Reason Outline'
+
+
+def inert(text):
+    """Typed words that land outside a code block, in a pull request, a commit message or a comment, with GitHub's
+    references made plain: '#12' and '@name' are written with the full-width number sign and at sign, which read the
+    same and neither link, notify anyone, nor let a closing word ('Fixes #12') close another issue on merge."""
+    return re.sub(r'@(?=[A-Za-z0-9])', '\uff20', re.sub(r'#(?=\d)', '\uff03', str(text or '')))
+
+
+def bound(lines, room):
+    """As many of the lines as fit in room characters, and a last line saying how many more there were."""
+    out, used = [], 0
+    for i, line in enumerate(lines):
+        if used + len(line) + 1 > room:
+            out.append(f'- and {len(lines) - i} more, each marked at its line in the reply'); break
+        out.append(line); used += len(line) + 1
+    return out
+
+
+def process_outline(sub, tables, git, matcher, content, workbook):
+    """One outline in: read, filed against the tables (outline_file), and answered with the reply, which prints the
+    post back with what became of each line. With a stop nothing is filed and the reply lists every stop. Otherwise
+    the votes go to the default branch in one commit (a vote on a page the post adds goes with its rows), the rows to a
+    pull request whose body is the reply, and the reply is commented on the issue: every new key, every match and every
+    near match."""
+    import outline_read as R, outline_file as F
+    n, login, f = sub['number'], sub['login'], sub['fields']
+    text = outline_text(f['text'])
+    if not text.strip(): raise IntakeError('the outline is empty')
+    post = R.read(text)
+    filed = F.file(post, tables, matcher=matcher, login=login, date=sub['date'], issue=n)
+    reply = F.reply(post, filed)
+    def said(lead, closing=False):
+        top = '\n'.join(lead + ['', 'What the site read, printed back (' + ('open a new issue to send it again' if closing else
+                                                                         'edit this issue to send it again') + '):', ''])
+        return top + '\n' + fenced(cut(reply, min(REPLY_ROOM, GITHUB_ROOM - len(top) - 400)))
+    if filed.stops:
+        earlier = git.has_branch(n)
+        if earlier:
+            git.close_pr(n, f'#{n} was edited and now has a line that stops it, so nothing from it is filed and this pull request '
+                            f'is closed. Once every stop is fixed, a new one opens.')
+        many = len(filed.stops) > 1
+        lead = [f'Nothing was filed: the outline has {len(filed.stops)} stop{"s" if many else ""}, listed here with '
+                f'{"their lines" if many else "its line"}. Edit this issue to fix {"each one" if many else "it"} and save; the outline '
+                f'is read again, and nothing is filed until no line stops.']
+        if earlier: lead.append('The pull request an earlier version of this issue opened is closed, so it cannot be merged by mistake.')
+        lead += [''] + bound([f'- {inert(m.text)}' for m in filed.stops], 20000)
+        git.comment(n, said(lead))
+        return {'did': 'stops', 'stops': [m.text for m in filed.stops], 'reply': reply, 'filed': filed}
+    rows, asks = bool(filed.pages or filed.edges or filed.changed), filed.requests + filed.corrections
+    if rows and (loops := cycles_in_tables(tables.pages, tables.edges)):
+        raise IntakeError('the tables already make a circular argument: ' + ' -> '.join(loops[0]))
+    added = {p['key'] for p in filed.pages}
+    now = [v for v in filed.votes if v['key'] not in added and (v.get('on') or '') not in added]
+    later = [v for v in filed.votes if v not in now]
+    votes_path = os.path.join(content, 'votes.csv')
+    def recorded(votes):
+        rows_ = read_votes(votes_path)
+        for v in votes: rows_ = record_vote(rows_, v['key'], v['login'], v['vote'], v['issue'], v['date'], v.get('on', ''))
+        write_votes(votes_path, rows_)
+    git.identity()
+    if now:
+        apply = lambda: recorded(now)
+        apply()
+        many = len(now) > 1
+        git.push_master([votes_path], f'Record {len(now)} vote{"s" if many else ""} from #{n}, a Reason Outline by {login}', apply)
+    url, existed, closed = None, False, False
+    if rows:
+        git.branch(n)
+        tables.write()
+        if later: recorded(later)
+        git('python3', os.path.join(HERE, 'sync_content.py'), '--to-workbook')
+        git('python3', os.path.join(HERE, 'sync_content.py'), '--check')
+        git('python3', os.path.join(HERE, 'integrity.py'), content)
+        title = inert(_outline_title(sub, post, filed, tables))
+        head = [f'From #{n}, a Reason Outline submitted by @{login}.', '']
+        tail = []
+        if now: tail += ['', f'Its {len(now)} vote{"s are" if len(now) > 1 else " is"} already recorded on {git.base}: a vote needs no '
+                             f'review and never moves a score.']
+        if later: tail += ['', f'{len(later)} vote{"s are" if len(later) > 1 else " is"} on pages this pull request adds, so '
+                               f'{"they are" if len(later) > 1 else "it is"} in it, and count{"" if len(later) > 1 else "s"} once it is merged.']
+        if filed.requests: tail += ['', 'Requests, which add no row:'] + bound([f'- line {r["line"]}: {inert(r["text"])}' for r in filed.requests], 12000)
+        if filed.corrections:
+            tail += ['', 'Correction requests (nothing stored was changed):'] + bound([f'- line {r["line"]}: {inert(r["text"])}' for r in filed.corrections], 12000)
+        if f.get('note'):
+            note = f['note'] if len(f['note']) <= 6000 else f['note'][:6000] + ' [the note is cut here; the issue has all of it]'
+            tail += ['', 'Note from the sender: ' + inert(note)]
+        tail += ['', f'Closes #{n}']
+        room = GITHUB_ROOM - len('\n'.join(head + tail)) - 400
+        body = head + [fenced(cut(reply, min(REPLY_ROOM, room)))] + tail
+        paths = [os.path.join(content, x) for x in ('pages.csv', 'edges.csv', 'topics.csv') if os.path.exists(os.path.join(content, x))] + [workbook]
+        if later: paths.append(votes_path)
+        git.commit(paths, f'{title}\n\nFrom #{n} by @{login}.')
+        url, existed = git.open_pr(n, title, '\n'.join(body))
+    elif git.has_branch(n):
+        git.close_pr(n, f'#{n} was edited and now adds no rows, so this pull request is closed.')
+        closed = True
+    unread = len(filed.unread)
+    lead = []
+    if existed: lead.append(f'Updated: the pull request now carries the rows as you edited them: {url}.')
+    elif url: lead.append(f'Thank you. A pull request now carries your rows: {url}. The maintainer merges it and the site rebuilds. Until '
+                          f'then, edit this issue rather than opening a new one, because its new keys are not on the site yet.')
+    if now:
+        lead.append(f'Counted: {len(now)} vote{"s" if len(now) > 1 else ""}, from the Vote: lines and from typed words that '
+                    f'are a claim already on the site. Latest vote per person counts. {NO_MOVE}')
+    if later: lead.append(f'{len(later)} vote{"s" if len(later) > 1 else ""} on pages the pull request adds count{"" if len(later) > 1 else "s"} '
+                          f'once it is merged.')
+    if closed: lead.append('The pull request an earlier version of this issue opened is closed, because the outline now adds no rows.')
+    # lines that were not read keep the issue open when nothing else came of the post, so the sender can fix them
+    closing = not url and not asks and not (unread and not filed.votes)
+    if unread:
+        them = 'them' if unread > 1 else 'it'
+        lead.append(f'{unread} line{"s" if unread > 1 else ""} of the outline {"were" if unread > 1 else "was"} not read, marked // not read '
+                    f'in the reply. A line is read when it starts with Belief:, Page:, + or -, a label or a detail name. If '
+                    f'{"they were" if unread > 1 else "it was"} meant as part of the outline, ' +
+                    (f'open a new issue with {them} fixed.' if closing else f'edit this issue to fix {them}; the outline is read again.'))
+    if asks and not url: lead.append('Nothing was added to the tables. The requests in the reply are left on this issue for the maintainer, '
+                                     'so it stays open.')
+    if not (url or filed.votes or asks or unread): lead.append('Nothing new: every line is already on the site, so nothing was added.')
+    git.comment(n, said(lead, closing))
+    if closing: git.close(n, 'completed' if filed.votes else 'not planned')
+    did = 'pr' if url else ('vote' if filed.votes else ('request' if asks else 'nothing'))
+    return {'did': did, 'url': url, 'pages': filed.pages, 'edges': filed.edges, 'votes': filed.votes, 'reply': reply, 'filed': filed}
+
+
 # ------------------------------------------------------------------------------------------- the flow
 def page_link(key, site=SITE): return f'{site}p/{key}.html'
 
 
 def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=ROOT, workbook=WORKBOOK):
-    """One issue in, and out: a vote recorded, a duplicate turned into a vote, or rows added and a pull
-    request opened. Returns what was done, for the log and for the tests."""
+    """One issue in, and out: a vote recorded, a duplicate turned into a vote, rows added and a pull request
+    opened, or an outline filed (process_outline). Returns what was done, for the log and for the tests."""
     issue = event.get('issue') or {}
     repo = (event.get('repository') or {}).get('html_url') or REPO
     branch = (event.get('repository') or {}).get('default_branch') or DEFAULT_BRANCH
@@ -705,6 +977,7 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
         git.close(n)
         return {'did': 'vote', 'key': key, 'vote': vote, 'on': on}
 
+    if sub['form'] == 'outline': return process_outline(sub, tables, git, matcher, content, workbook)
     text = sub['fields']['text']
     if not text: raise IntakeError('the submitted text is empty')
     if sub['form'] == 'contribution' and not (tables.has(sub['fields']['page']) or tables.is_topic(sub['fields']['page'])):

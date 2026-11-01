@@ -422,6 +422,7 @@ class TestReadingAPrefix(unittest.TestCase):
         self.assertFalse(N.label_shaped('The conflict does not require proving'))
         self.assertFalse(N.label_shaped('link.irrelevant'))
         self.assertEqual(N.levenshtein('kitten', 'sitting'), 3)
+        self.assertEqual((N.distance('kitten', 'sitting'), N.distance('pgae', 'page'), N.levenshtein('pgae', 'page')), (3, 1, 2))
 
 
 class TestEveryCellHasAName(unittest.TestCase):
@@ -486,6 +487,27 @@ class TestEveryCellHasAName(unittest.TestCase):
         self.assertEqual(N.words_cell('definition'), ('extra', 'definition'))
         self.assertEqual(N.words_cell('argument'), ('edge', 'text'))
         self.assertIsNone(N.words_cell('stack'))
+
+
+class TestTablesInPlainWords(unittest.TestCase):
+    """The reply says where a row went by the table's name on the page, never by its id in the tables."""
+
+    def test_every_section_has_a_plain_name_and_a_page_section_has_vocab_htmls(self):
+        try:
+            import render_site as RS
+        except ImportError as e:
+            raise unittest.SkipTest(f'openpyxl missing: {e}')
+        for k, name in RS.VOCAB_TABLE.items(): self.assertEqual(N.TABLES[k], name, k)
+        for section in N.PAGE_SECTIONS: self.assertNotIn('_', N.table_name(section, 'agree'), section)
+        for section in N.TOPIC_SECTIONS: self.assertNotIn('_', N.table_name(section, '', topic=True), section)
+
+    def test_a_table_and_its_side(self):
+        self.assertEqual(N.table_name('argument', 'disagree'), 'Reasons to disagree')
+        self.assertEqual(N.table_name('cba', 'disagree'), 'Costs and benefits, against')
+        self.assertEqual(N.table_name('similar', 'extreme'), 'Similar beliefs, stronger')
+        self.assertEqual(N.table_name('interest_listing'), 'Interests at stake')
+        self.assertEqual(N.table_name('related', '', topic=True), 'Related topics')
+        self.assertEqual(N.table_name('related', 'x'), 'Related linkages (x)')
 
 
 class TestTheVersion(unittest.TestCase):

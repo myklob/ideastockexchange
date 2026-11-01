@@ -88,6 +88,17 @@ class TestThePageAndTheData(unittest.TestCase):
         self.assertEqual([t['id'] for t in d['types']], [t['id'] for t in V.TYPES])
         with open(os.path.join(self.out, 'data', 'ise-context.jsonld')) as fh: self.assertEqual(json.load(fh)['@context'], V.CONTEXT)
 
+    def test_the_page_sends_an_ai_assistant_to_the_reason_outline_brief(self):
+        """The vocabulary is about kinds of post. How to write many of them at once, and the brief an assistant is given,
+        live on outline.html, so the two cannot drift into two briefs that say different things."""
+        self.assertIn('href="outline.html#ai"', self.page)
+        self.assertNotIn('<pre class="brief">', self.page)
+        with open(os.path.join(self.out, 'outline.html')) as fh: self.assertIn('<pre class="brief">', fh.read())
+        with open(os.path.join(self.out, 'data', 'outline-spec.json')) as fh: d = json.load(fh)
+        named = {i for x in d['labels'] for i in x['ids']}
+        self.assertTrue(named <= set(V.BY_ID), sorted(named - set(V.BY_ID)))
+        self.assertGreater(len(named), len(V.TYPES) * 0.9, 'most kinds have a label of their own in an outline')
+
     def test_a_claim_page_carries_its_rows_as_structured_data(self):
         with open(os.path.join(self.out, 'p', self.c.href(self.c.tabs['b']))) as fh: h = fh.read()
         m = re.search(r'<script type="application/ld\+json">(.*?)</script>', h, re.S)

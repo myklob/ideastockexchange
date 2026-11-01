@@ -27,8 +27,9 @@ post.notices), for the filer to drop when the line matched.
 Decisions, where the spec left a choice or where it and the code or the stored data pull apart:
 - mode='strict' makes any post strict, and a post that says it is strict is strict whatever the caller passed;
   mode='loose' cannot make a strict post loose, because the post's own word is what a program relies on.
-- C6 lists the 3 nearest names, as it says, nearest first. Two of the spec's error examples show one name; they are
-  read as shortened.
+- C6 lists the nearest names that are within near-miss distance themselves, at most 3, nearest first. The spec's
+  examples disagree ('Sorce:' shows one name, 'Matter less:' three); a name further off than that is no help, and
+  one from another list (a sign word offered for a mistyped detail) teaches the wrong thing.
 - A prefix shaped like a vocab id ('link.irelevant') that is not one is a near miss of the ids, in both modes. C6
   covers only label-shaped prefixes, which an id is not, and without this a mistyped id would silently be words.
 - A line at depth 0 that starts with [ is a header only when the bracket holds a name or an address and is followed
@@ -59,9 +60,21 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   ('(via: www.x.org)'), and brackets the address leaves empty are taken out with it.
 - D3's "an entry with no break between" is read as an entry at the same depth: an entry less deep than the plain line
   is not under it, so 'goes on.' after a note and before a shallower '+' line is loose text, not E-NOT-A-HEADER.
-- Strict G3 stops on a long dash only in words that are not after a [ref]: words after a ref are compared with the
-  page when the ref is a site key, and three stored pages carry long dashes. When the ref turns out to be a local
-  name the filer applies the stop, from node.repairs.
+- Strict G3's stop for a long dash is left on the line (node.repairs, code E-DASH) and the filer applies it only when
+  the words turn out to be new: words that are a stored page or a stored row are not new (G), and stored texts carry
+  long and spaced dashes, so a printout of their page must read back in strict mode (P7).
+- D1's wrap gets a notice (N-WRAP) in loose mode, so a line joined to the one above is never joined without a word.
+- A sign or a bullet in another form is read as itself, with a notice in loose mode and a stop in strict: an en dash,
+  a minus sign or a full-width plus at the start of a line, a tab after a sign or a bullet (a list copied from a word
+  processor), and a full-width colon after a name the reader knows. Read as words, such a line would be joined to the
+  line above it.
+- A control character (A1 does not name them) is taken out, a vertical tab or a form feed read as a space, with a
+  notice in loose mode and a stop in strict, since the workbook cannot hold one.
+- A3's '--' gets a notice saying how many lines it left unread, when any follow it.
+- With no ```reasons fence, a line that is only a Markdown fence (```, ```text, ~~~) is a break: it is the markup
+  of a mail or an assistant's answer around the post.
+- A version or a depth is read only as the digits 0 to 9, at most nine of them; anything else is a stop or a notice,
+  never an error.
 - The text alone also settles some of nesting_and_targets, and those checks run here: a factor heading or kind under
   the wrong row or the wrong heading, anything under a row with no page of its own, a topic cell away from a topic,
   a vote with nothing to vote on, a definition with no term, a topic cell's bracket, and a row naming the page it is
@@ -69,7 +82,19 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   filer to move (T8), since it says where they land.
 - '_' with no label is given the label Does not bear on it (node.label, with label_text None and sign 'undercut').
 - The notice for a post whose rows are all unlabeled '-' lines (risks, Markdown lists) is given only when they are
-  all rows of their header, a flat list; a reason against a reason against a reason (Example 3) is an argument.
+  all rows of their header, a flat list; a reason against a reason against a reason (Example 3) is an argument. A
+  post in which some '-' was dropped as a list bullet (C4) is a list too, so each other line that took its side only
+  from a '-' gets that notice as well.
+- Markdown an assistant adds is read through, with a notice in loose mode and a stop in strict (N-MARKUP): '#' marks
+  in front of Belief: or Page:, and emphasis around a name the reader knows and its colon ('**Pro:**', '*Evidence*:').
+  Two signs in a row ('+ - words') are a stop in both modes (E-SIDE), since neither can be told to be the bullet.
+- A1's no-break space is joined by the other spaces Unicode has (an em space, an ideographic space and the rest),
+  read as a space with no notice. The characters a line cannot keep (U+FFFE and U+FFFF, which XML and so the
+  workbook refuse, halves of a broken character, and the invisible zero-width space, word joiner and byte order mark)
+  are taken out as a control character is, with a notice in loose mode and a stop in strict. A heavy plus or minus, a
+  long dash and a double hyphen at the start of a line are read as a sign, as an en dash is.
+- An address ends before a closing bracket, square or round, so '[https://x.org]' leaves no '[.' behind. A site
+  address may end in .txt (a page's printout) as well as .html, and names the same page.
 - A strict line that starts with a tab gets its tab stop and not also a depth stop for the four spaces it reads as.
 - Fields under a request (Correction: with Source:) are allowed: the request is copied with them.
 - Belief: or Page: away from the left edge is a stop and still starts a block, so the lines under it are not each
@@ -133,14 +158,29 @@ CODES = {
     'N-BELIEF': 'a first plain line read as Belief:', 'N-FIELD-DEPTH': 'a detail read as belonging to the line beside it',
     'N-STEP-BACK': 'a line between two depths, put under the nearer', 'N-DASH': 'dashes repaired', 'N-ADDRESS': 'a web address moved',
     'N-MINUS-LIST': 'every row an unlabeled -, read as reasons to disagree',
+    'N-WRAP': 'a line read as the rest of the line above it', 'N-SIGNATURE': 'a -- line, read as the start of a mail signature',
+    'N-CONTROL': 'a control character taken out', 'E-CONTROL': 'a control character, in strict mode',
+    'N-SIGN-LOOKALIKE': 'a sign, a bullet or a colon in another form, read as itself',
+    'N-MARKUP': 'Markdown marks around a name, or in front of a header, dropped', 'E-MARKUP': 'Markdown marks, in strict mode',
+    'E-SIGN-LOOKALIKE': 'a sign, a bullet or a colon in another form, in strict mode',
 }
 SIGNS = {'+': 'agree', '-': 'disagree', '_': 'undercut', '<+': 'agree', '<-': 'disagree', '<_': 'undercut'}
 _SIGN = re.compile(r'(<\+|<-|<_|\+|-|_) ')
 _BULLET = re.compile(r'(\*|\u2022|\u00b7|\d+[.)]) +')
 _DOTS = re.compile(r'(\.+) +')
 _FENCE = re.compile(r'[ \t]*```(reasons|argdown)$', re.I)
-_REASONS = re.compile(r'//\s*reasons\s+(\d+)(?:\s+(loose|strict))?$', re.I)
-_SITE = r'(?:https?://)?(?:www\.)?myklob\.github\.io/ideastockexchange/beliefs/([pt])/([A-Za-z0-9_-]{1,60})\.html(?:[#?][^\s\]]+)?'
+_REASONS = re.compile(r'//\s*reasons\s+([0-9]+)(?:\s+(loose|strict))?$', re.I)
+_MARKUP_FENCE = re.compile(r'[ \t]*(```|~~~)[\w+.-]*$')
+# characters a line cannot keep: control characters, the two that XML (and so the workbook) cannot hold, halves of a
+# broken character, and the invisible ones (a zero-width space, a word joiner) that would hide a sign or a header
+_CONTROL = re.compile('[\x00-\x08\x0b\x0c\x0e-\x1f\x7f\ufffe\uffff\ud800-\udfff\u200b\u2060\ufeff\u180e]')
+_SPACES = re.compile('[\u1680\u2000-\u200a\u202f\u205f\u3000]')
+_LOOK_SIGN = re.compile('([\u2013\u2212\ufe63\uff0d\u2010\u2011\uff0b\ufe62\u2795\u2796\u2014\u2015]|--)(?=[ \t])')
+_LOOK_NAME = {'\u2013': 'en dash', '\u2212': 'minus sign', '\ufe63': 'small hyphen', '\uff0d': 'full-width hyphen', '\u2010': 'hyphen',
+              '\u2011': 'hyphen', '\uff0b': 'full-width plus', '\ufe62': 'small plus', '\u2795': 'heavy plus', '\u2796': 'heavy minus',
+              '\u2014': 'long dash', '\u2015': 'long dash', '--': 'double hyphen'}
+_TAB_AFTER = re.compile(r'(<\+|<-|<_|\+|-|_|\*|\u2022|\u00b7|\d+[.)])\t[ \t]*')
+_SITE = r'(?:https?://)?(?:www\.)?myklob\.github\.io/ideastockexchange/beliefs/([pt])/([A-Za-z0-9_-]{1,60})\.(?:html|txt)(?:[#?][^\s\]]+)?'
 _SITE_AT = re.compile(_SITE + r':?(?= |$)', re.I)
 _SITE_ONLY = re.compile(_SITE + r'$', re.I)
 _ADDRESS = re.compile(r'(?:https?://|www\.)\S+', re.I)
@@ -148,6 +188,8 @@ _HANDLE = re.compile(r'(@?)\[([^\[\]]*)\](:?)(?: (.*))?$')
 _REF_ONLY = re.compile(r'@?\[([^\[\]]*)\]$')
 _NAME = re.compile(r'[\w-][\w -]{0,59}$')
 _IDISH = re.compile(r'(?:%s)\.[a-z0-9-]+$' % '|'.join(f[0] for f in V.FAMILIES))
+_HASHES = re.compile(r'#{1,6} +')
+_EMPH = re.compile(r'((?:(?:<\+|<-|<_|\+|-|_) )*)(\*\*|__|\*|_)([^*_\s][^*_]{0,39}?)(:?)\2(:?)(?= |$)')
 _DATE = re.compile(r'\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?$')
 _LEAD = re.compile(r'(?:^|(?<=[\s(\[]))((?:see|source|at|from|via):?)\s*$', re.I)
 _NO_REPAIR = {('extra', 'url'), ('extra', 'checked'), ('extra', 'tag')}
@@ -176,14 +218,14 @@ class Node:
     __slots__ = ('line_no', 'raw', 'brk', 'depth', 'shape', 'sign', 'signword', 'written', 'suffix', 'label', 'label_text',
                  'place', 'detail', 'category', 'term', 'label_ref', 'ref', 'typed', 'words', 'escaped', 'side', 'section',
                  'fields', 'field', 'value', 'vote', 'children', 'parent', 'head', 'word', 'implied', 'repairs',
-                 'moved_address', 'pending', 'bad', 'rows_at')
+                 'moved_address', 'pending', 'bad', 'rows_at', 'minus')
 
     def __init__(self, line_no, raw='', brk=False):
         self.line_no, self.raw, self.brk = line_no, raw, brk
         self.depth, self.shape = 0, 'plain'
         for a in ('sign', 'signword', 'written', 'suffix', 'label', 'label_text', 'place', 'detail', 'category', 'term',
                   'label_ref', 'ref', 'words', 'side', 'section', 'field', 'value', 'vote', 'parent', 'head', 'word',
-                  'moved_address', 'rows_at'):
+                  'moved_address', 'rows_at', 'minus'):
             setattr(self, a, None)
         self.typed, self.escaped, self.implied, self.bad = '', False, False, False
         self.fields, self.children, self.repairs, self.pending = {}, [], [], []
@@ -196,14 +238,16 @@ class Node:
 class Post:
     """A read post. mode 'loose' or 'strict'; version; frontmatter {name: value}; blocks, the header Nodes in order;
     orphans, the top-level lines before the first header (New topic: needs no page, anything else there is a stop);
-    nodes, every line placed in the tree, in line order; notes, the // lines as (line, text); loose_text, the lines
-    not read, as (line, text); notices and stops, Messages sorted by line."""
+    nodes, every line placed in the tree, in line order; notes, the // lines as (line, text), and note_depth the
+    spaces in front of each; loose_text, the lines
+    not read, as (line, text); dropped, the plain lines that stopped and are in no tree (E-WRAP, E-NOT-A-HEADER),
+    which the reply still prints; notices and stops, Messages sorted by line."""
 
     def __init__(self, mode='loose'):
         self.mode, self.version, self.frontmatter = mode, N.VERSION, {}
         self.blocks, self.orphans, self.nodes = [], [], []
-        self.notes, self.loose_text, self.notices, self.stops = [], [], [], []
-        self._tabbed = set()
+        self.notes, self.loose_text, self.notices, self.stops, self.dropped = [], [], [], [], []
+        self._tabbed, self.note_depth = set(), {}
 
     @property
     def strict(self): return self.mode == 'strict'
@@ -222,9 +266,13 @@ class Post:
 # ------------------------------------------------------------------------------------------- A. the pre-pass
 def _prepass(text, forced, post):
     """A1 to A9: the lines that are read, as (line number, text, whether a break comes before it)."""
-    t = unicodedata.normalize('NFC', str(text or '').replace('\r\n', '\n').replace('\r', '\n')).replace('\u00a0', ' ')
+    t = _SPACES.sub(' ', unicodedata.normalize('NFC', str(text or '').replace('\r\n', '\n').replace('\r', '\n')).replace('\u00a0', ' '))
     if t.startswith('\ufeff'): t = t[1:]
     raw = t.split('\n')
+    # a control character cannot be stored (the workbook refuses one): a line break pasted from a word processor
+    # (vertical tab) or a page break (form feed) reads as a space, and any other is taken out
+    controls = [i for i, l in enumerate(raw, 1) if _CONTROL.search(l)]
+    for i in controls: raw[i - 1] = _CONTROL.sub('', raw[i - 1].replace('\x0b', ' ').replace('\x0c', ' '))
     seq = []
     if any(_FENCE.match(l.rstrip()) for l in raw):
         open_at = 0
@@ -237,8 +285,14 @@ def _prepass(text, forced, post):
         if open_at: post.notice(open_at, 'N-FENCE', f'The fence that opens on line {open_at} has no closing ```, so it was read to the end.')
     else:
         for i, l in enumerate(raw, 1):
-            if l.rstrip() == '--': break
-            seq.append((i, l))
+            if l.rstrip() == '--':
+                rest = sum(1 for x in raw[i:] if x.strip())
+                if rest:
+                    post.notice(i, 'N-SIGNATURE', f"Line {i} is '--', which starts a mail signature, so it and the {rest} line"
+                                                  f"{'s' if rest > 1 else ''} after it were not read. To keep them, take the '--' line out.")
+                break
+            # a code fence of a mail or an assistant's answer is markup around the post, not part of it
+            seq.append(None if _MARKUP_FENCE.match(l.rstrip()) else (i, l))
     kept = []
     for x in seq:
         if x is None: kept.append(None); continue
@@ -251,17 +305,24 @@ def _prepass(text, forced, post):
     elif at < len(kept):
         m = _REASONS.match(kept[at][1].strip())
         if m:
-            post.version = int(m.group(1))
+            post.version = _whole(m.group(1)) or m.group(1)
             if post.version != N.VERSION:
-                post.stop(kept[at][0], 'E-VERSION', f'This post says reasons {m.group(1)}, and this site reads version {N.VERSION}.')
+                post.stop(kept[at][0], 'E-VERSION', f'This post says reasons {_short(m.group(1))}, and this site reads version {N.VERSION}.')
             declared = (m.group(2) or '').lower() or None
     post.mode = 'strict' if 'strict' in (forced, declared) else 'loose'
+    if controls:
+        more = f' and {len(controls) - 1} other line{"s" if len(controls) > 2 else ""}' if len(controls) > 1 else ''
+        post.repair(controls[0], 'N-CONTROL', f'Line {controls[0]}{more} had a character that cannot be stored or cannot be seen, such as a pasted '
+                                              f'line break or a zero-width space; it was read as a space or taken out.',
+                    f'Line {controls[0]}{more} has a character that cannot be stored or cannot be seen, such as a pasted line break or a '
+                    f'zero-width space. In strict mode, send plain text.')
     out, brk, tabs = [], True, []
     for k in kept[start:]:
         if k is None: brk = True; continue
         i, l = k
         s = l.lstrip(' \t')
-        if s.startswith('//'): post.notes.append((i, s[2:].strip())); brk = True; continue
+        if s.startswith('//'):
+            post.notes.append((i, s[2:].strip())); post.note_depth[i] = len(l) - len(s); brk = True; continue
         lead = l[:len(l) - len(s)]
         if '\t' in lead: tabs.append(i); l = lead.replace('\t', '    ') + s
         out.append((i, l, brk)); brk = False
@@ -272,6 +333,14 @@ def _prepass(text, forced, post):
         more = f' and {len(tabs) - 1} other line{"s" if len(tabs) > 2 else ""} start' if len(tabs) > 1 else ' starts'
         post.notice(tabs[0], 'N-TAB', f'Line {tabs[0]}{more} with a tab; each tab was read as 4 spaces.')
     return out
+
+
+def _whole(s):
+    """A whole number written in the digits 0 to 9, short enough to be one (a version or a depth); None otherwise."""
+    return int(s) if re.fullmatch('[0-9]{1,9}', s or '') else None
+
+
+def _short(v, n=20): return v if len(v) <= n else v[:n] + '...'
 
 
 def _frontmatter(kept, at, post):
@@ -290,9 +359,9 @@ def _frontmatter(kept, at, post):
             post.notice(i, 'N-FRONTMATTER', f'Line {i}: {m.group(1)!r} is not a frontmatter name ({", ".join(N.FRONTMATTER)}), so it was not read.'); continue
         bad = None
         if name == 'reasons':
-            post.version = int(value) if value.isdigit() else value
-            if value != str(N.VERSION):
-                post.stop(i, 'E-VERSION', f'This post says reasons: {value}, and this site reads version {N.VERSION}.')
+            post.version = _whole(value) or value
+            if post.version != N.VERSION:
+                post.stop(i, 'E-VERSION', f'This post says reasons: {_short(value)}, and this site reads version {N.VERSION}.')
         elif name == 'mode':
             value = value.lower()
             if value in N.MODES: mode = value
@@ -301,14 +370,14 @@ def _frontmatter(kept, at, post):
             value = value.lower()
             if value not in N.CELLS: bad = 'words or all'
         elif name == 'depth':
-            if value.isdigit(): value = int(value)
+            if _whole(value) is not None: value = _whole(value)
             else: bad = 'a whole number'
         elif name == 'printed':
             if not _DATE.match(value): bad = 'a date, or a date and time'
         elif name == 'from':
             value = N.keyfold(value.strip('[]'))
         if bad:
-            post.notice(i, 'N-FRONTMATTER', f'Line {i}: {m.group(1)} is {bad}, so {value!r} was not read.'); continue
+            post.notice(i, 'N-FRONTMATTER', f'Line {i}: {m.group(1)} is {bad}, so {_short(value)!r} was not read.'); continue
         post.frontmatter[name] = value
     post.stop(opened, 'E-FRONTMATTER', f'The frontmatter that opens on line {opened} has no closing ===, so nothing after it could be read.')
     return len(kept), mode
@@ -354,16 +423,19 @@ def _ref_value(s):
 
 @lru_cache(maxsize=8192)
 def _near(fp):
-    """C6: the 3 nearest names, when any name is within near-miss distance of the folded prefix; () otherwise. The
-    lengths are compared first, so a post of a thousand unknown prefixes is not a million distance sums."""
+    """C6: the names within near-miss distance of the folded prefix, at most 3 and nearest first; () when there are
+    none. The lengths are compared first, so a post of a thousand unknown prefixes is not a million distance sums."""
     lim = lambda n: 1 if len(n) <= 6 else 2
-    if not any(abs(len(n) - len(fp)) <= lim(n) and N.levenshtein(fp, n) <= lim(n) for n in N.NAMES): return ()
-    return tuple(N.near_names(fp))
+    if not any(abs(len(n) - len(fp)) <= lim(n) and N.distance(fp, n) <= lim(n) for n in N.NAMES): return ()
+    return tuple(x for x in N.near_names(fp, k=len(N.NAMES)) if x.distance <= lim(N.fold(x.name)))[:3]
 
 
 @lru_cache(maxsize=1024)
 def _near_ids(p):
-    return tuple(sorted(V.BY_ID, key=lambda i: (N.levenshtein(p, i), i))[:3])
+    return tuple(sorted(V.BY_ID, key=lambda i: (N.distance(p, i), i))[:3])
+
+
+def _a(word): return ('an ' if word[:1] in 'aeiou' else 'a ') + word
 
 
 def _or(names):
@@ -383,14 +455,76 @@ def _line(no, s, brk, post):
         body = body[m.end():]
         post.repair(no, 'N-DOTS', f'Line {no} read its {"dot" if dots == 1 else "dots"} as depth {depth}.',
                     f'Line {no} uses dots for depth. In strict mode, indent with two spaces per step.', n.pending)
+    body = _lookalikes(n, body, post)
     m = _BULLET.match(body)
     if m:
         body = body[m.end():]
         post.repair(no, 'N-BULLET', f"Line {no} dropped the '{m.group(1)}' bullet.",
                     f"Line {no} starts with a '{m.group(1)}' bullet. In strict mode, leave bullets out.", n.pending)
+    body = _markup(n, body, post)
     n.depth = depth
     _body(n, body, post)
     return n
+
+
+def _known_prefix(p):
+    """Whether the text before a colon is a name the reader knows: a header word, a sign word, a heading, a detail
+    name, Vote or a label."""
+    fp = N.fold(p)
+    return fp in ('belief', 'page', 'vote') or fp in N.SIGNWORDS or bool(N.read_head(p) or N.read_field(p) or N.read_label(p))
+
+
+def _lookalikes(n, body, post):
+    """A sign, a bullet or a colon in a form a word processor or another keyboard gives it: an en dash, a minus sign
+    or a full-width plus for a sign, a tab after a sign or a bullet (a list copied from a document), and a full-width
+    colon after a name the reader knows. Each is read as itself, with a notice, and stops a strict post; left alone,
+    the line would be read as words and joined to the line above it."""
+    no, said, what = n.line_no, [], []
+    m = _LOOK_SIGN.match(body)
+    if m:
+        c = m.group(1)
+        body = ('+' if c in '\uff0b\ufe62\u2795' else '-') + body[len(c):]
+        said.append(f'the {_LOOK_NAME[c]} at its start as {body[0]}'); what.append(f'{_a(_LOOK_NAME[c])} for {body[0]}')
+    m = _TAB_AFTER.match(body)
+    if m:
+        body = m.group(1) + ' ' + body[m.end():]
+        said.append(f'the tab after {m.group(1)} as a space'); what.append(f'a tab after {m.group(1)}')
+    if '\uff1a' in body:
+        sm = _SIGN.match(body)
+        lead = body[:sm.end()] if sm else ''
+        rest = body[len(lead):]
+        i = rest.find('\uff1a')
+        if 0 < i <= 40 and ': ' not in rest[:i] and _known_prefix(rest[:i]):
+            body = lead + rest[:i].rstrip() + ': ' + rest[i + 1:].lstrip(' ')
+            said.append(f'the full-width colon after {rest[:i].strip()} as a colon'); what.append(f'a full-width colon after {rest[:i].strip()}')
+    if said:
+        fix = [x for x, why in (('+ or - with one space after it', any('colon' not in w for w in what)),
+                                ('a plain colon', any('colon' in w for w in what))) if why]
+        post.repair(no, 'N-SIGN-LOOKALIKE', f'Line {no} read ' + ' and '.join(said) + '.',
+                    f'Line {no} has ' + ' and '.join(what) + '. In strict mode, write ' + ' and '.join(fix) + '.', n.pending)
+    return body
+
+
+def _markup(n, body, post):
+    """Markdown that an assistant or a mail program adds: heading marks in front of Belief: or Page:, and emphasis
+    around a name and its colon ('**Pro:**', '*Evidence*:'). Each is dropped, with a notice, and stops a strict post;
+    left alone, the header would be a new belief and the name part of the words."""
+    no, said = n.line_no, []
+    m = _HASHES.match(body)
+    if m:
+        P, _ = _prefix(body[m.end():])
+        if P is not None and N.fold(P) in ('belief', 'page'):
+            said.append(f"the {m.group().strip()} in front of {P.strip()}:")
+            body = body[m.end():]
+    m = _EMPH.match(body)
+    if m and (m.group(4) or m.group(5)) and _known_prefix(m.group(3)):
+        name = m.group(3).strip()
+        said.append(f'the {m.group(2)} around {name}:')
+        body = m.group(1) + name + ':' + body[m.end():]
+    if said:
+        post.repair(no, 'N-MARKUP', f'Line {no} dropped ' + ' and '.join(said) + '.',
+                    f'Line {no} has Markdown marks: ' + ' and '.join(said) + '. In strict mode, write the name and its colon alone.', n.pending)
+    return body
 
 
 def _bullet_minus(s):
@@ -423,15 +557,22 @@ def _body(n, s, post):
         return
     sign = None
     m = _SIGN.match(s)
+    n.minus = 'sign' if m and m.group(1) == '-' else None
     while m:
         sign, s = SIGNS[m.group(1)], s[m.end():]
         if m.group(1) == '-' and _bullet_minus(s):
+            n.minus = 'bullet'
             nxt = s.split(': ')[0] if not _SIGN.match(s) else s[:2].strip()
             post.repair(no, 'N-BULLET', f'Line {no} read the - in front of {nxt} as a list bullet and dropped it.',
                         f'Line {no}: the - in front of {nxt} reads as a list bullet. In strict mode, leave it out.', n.pending)
             sign = None
             m = _SIGN.match(s)
         else: m = None
+    if sign is not None and _SIGN.match(s):
+        post.stop(no, 'E-SIDE', f'Line {no} starts with two signs. Keep the one that gives it its side: + for a reason to agree, - for a '
+                                f'reason to disagree.')
+        n.shape, n.bad, n.typed = 'entry', True, s
+        return
     P, rest = _prefix(s) if not s.startswith('\\') else (None, s)
     fp = N.fold(P) if P is not None else None
     signword = None
@@ -617,19 +758,23 @@ def _tree(lines, post):
         no = n.line_no
         if after_vote is not None and n.depth > after_vote.depth:
             post.stop(no, 'E-UNDER-VOTE', f'Line {no} is pushed in under the vote on line {after_vote.line_no}, and nothing goes under a vote.')
-            if n.shape == 'plain': continue
+            if n.shape == 'plain': post.dropped.append(n); continue
         if n.shape == 'plain':
             if wrap is not None:
                 if n.depth <= wrap.depth:
                     post.stop(no, 'E-WRAP', f'Line {no} is not a reason, a detail, or the rest of line {wrap.line_no}. To continue line '
                                             f'{wrap.line_no}, push line {no} in further than line {wrap.line_no}. To make it a reason, start it with + or -.')
+                    post.dropped.append(n)
                 elif strict:
                     post.stop(no, 'E-WRAP', f'Line {no} continues line {wrap.line_no}, and in strict mode nothing wraps: put the whole line on one line.')
+                    post.dropped.append(n)
                 else:
                     t = n.typed.strip()
                     if wrap.shape == 'field': wrap.value = ((wrap.value or '') + ' ' + t).strip(); wrap.typed = wrap.value
                     else: wrap.typed = (wrap.typed + ' ' + t).strip()
                     post.notices += n.pending
+                    post.notice(no, 'N-WRAP', f'Line {no} is pushed in under line {wrap.line_no} and has no sign or label, so it was read as the '
+                                              f'rest of line {wrap.line_no}.')
                 continue
             nxt = lines[i + 1] if i + 1 < len(lines) else None
             if n.brk and nxt is not None and (nxt.depth > n.depth or (nxt.shape == 'entry' and not nxt.brk and nxt.depth == n.depth)):
@@ -639,6 +784,7 @@ def _tree(lines, post):
                 else:
                     post.stop(no, 'E-NOT-A-HEADER', f'Line {no} has a line pushed in under it, but it is not a page, a belief or a reason. '
                                                     f'Start it with Belief: for a new belief, Page: for a page on the site, or + or - for a reason.')
+                    post.dropped.append(n)
                     continue
             else:
                 post.loose_text.append((no, n.raw.strip()))
@@ -708,10 +854,11 @@ def _depth_check(n, parent, post):
 def _dashes(s):
     """G1: (the words with their dashes repaired, what was changed)."""
     did = []
-    for rx, to, what in ((r' *[\u2014\u2015] *', ', ', 'a long dash into a comma'),
+    # each run of spaces is tried once, from its start and without backtracking, so a long run is read in one pass
+    for rx, to, what in ((r'(?<! ) *+[\u2014\u2015] *', ', ', 'a long dash into a comma'),
                          (r'(?<=\d)\u2013(?=\d)', ' to ', "a dash between two numbers into 'to'"),
-                         (r' +\u2013 +', ', ', 'a spaced dash into a comma'), ('\u2013', '-', 'a dash into a hyphen'),
-                         (r' +-- +', ', ', "' -- ' into a comma")):
+                         (r'(?<! ) ++\u2013 +', ', ', 'a spaced dash into a comma'), ('\u2013', '-', 'a dash into a hyphen'),
+                         (r'(?<! ) ++-- +', ', ', "' -- ' into a comma")):
         t = re.sub(rx, to, s)
         if t != s: did.append(what); s = t
     if did:
@@ -728,7 +875,7 @@ def _addresses(n, s, post):
     to its Address. Returns the words, or None when there was no address."""
     found = []
     for m in _ADDRESS.finditer(s):
-        a = m.group().rstrip('.,;:!?)')
+        a = m.group().rstrip('.,;:!?)]')
         site = bool(a) and bool(_SITE_ONLY.match(a))
         if a and (site or n.shape != 'header'): found.append((m.start(), m.start() + len(a), a, site))
     if not found: return None
@@ -764,10 +911,7 @@ def _addresses(n, s, post):
 def _repair_words(n, post):
     s = n.typed
     if post.strict:
-        if not n.ref and _long_dash(s):
-            post.stop(n.line_no, 'E-DASH', f'Line {n.line_no} has a long dash, or a dash with a space on each side. In strict mode, write '
-                                           f'a comma, a colon or parentheses instead.')
-        elif n.ref and _long_dash(s):
+        if _long_dash(s):
             n.repairs.append(Message(n.line_no, 'E-DASH', f'Line {n.line_no} has a long dash, or a dash with a space on each side. In '
                                                           f'strict mode, write a comma, a colon or parentheses instead.'))
         n.words = s
@@ -812,11 +956,11 @@ def _k5(n, post):
             n.bad = True
             return
     written = n.written
-    sign_text = {'agree': '+', 'disagree': '-', 'undercut': '_'}.get(n.sign) or (f'{n.signword}:' if n.signword else '')
+    sign_text = ' '.join(x for x in ({'agree': '+', 'disagree': '-', 'undercut': '_'}.get(n.sign), f'{n.signword}:' if n.signword else '') if x)
     if n.suffix and written and n.suffix != written:
         post.repair(no, 'N-SIDE', f"Line {no}: '{n.label_text}' says {n.suffix}, so the {sign_text} in front of it was read as a list bullet.",
                     f"Line {no}: '{n.label_text}' says {n.suffix}, and the line starts with {sign_text}. In strict mode, write one or the other.")
-        n.sign = None
+        _as_bullet(n, post)
     if n.suffix: written = n.suffix
     if rec is not None:
         side, note = N.resolve_side(rec, written, n.detail)
@@ -826,7 +970,7 @@ def _k5(n, post):
             post.repair(no, 'N-SIDE', f'Line {no}: {name}: is always {_side_words(rec, side)}, so the {sign_text} in front of it was read as a list bullet.',
                         f'Line {no}: {name}: is always {_side_words(rec, side)}, and the line starts with {sign_text}. In strict mode, write '
                         f'{right + " " if right else ""}{name}: (or no sign).')
-            n.sign = None
+            _as_bullet(n, post)
         elif note == 'default':
             post.repair(no, 'N-SIDE', f"Line {no}: {name}: takes its side from + or - (or ' for' or ' against' after it), and the line has "
                                       f'neither, so it was read as a reason to agree.',
@@ -853,6 +997,7 @@ def _k5(n, post):
             if written and side in ('agree', 'disagree') and written != side:
                 post.repair(no, 'N-SIDE', f'Line {no}: {n.label_text}: says {side}, so the {sign_text} in front of it was read as a list bullet.',
                             f'Line {no}: {n.label_text}: says {side}, and the line starts with {sign_text}. In strict mode, write one or the other.')
+                _as_bullet(n, post)
         elif '' in allowed and not ({'agree', 'disagree'} & allowed):
             if written:
                 post.repair(no, 'N-SIDE', f'Line {no}: {n.place.section} has no side, so the {sign_text} in front of it was ignored.',
@@ -872,11 +1017,23 @@ def _k5(n, post):
     n.side = written
 
 
+def _as_bullet(n, post):
+    """A sign or a sign word that the label or place contradicts, read as a list bullet: it gives the line no side, and
+    the notice that read the sign word as a side is taken back, since it was not."""
+    if n.signword: post.notices = [m for m in post.notices if not (m.line == n.line_no and m.code == 'N-SIGNWORD')]
+    n.sign = n.signword = None
+
+
 def _category(n, post, typed=None):
     """A topic cell's bracket, checked against intake.CATEGORIES (and a rung against intake.RUNG)."""
     no, section = n.line_no, n.section
     typed = (n.detail if typed is None else typed) or ''
     name = n.label.name if n.label else f'In {section}'
+    line = None
+    if not typed.strip():
+        line = next((c for c in n.children if c.shape == 'field' and c.field is not None and not c.bad
+                     and (c.field.store, c.field.col) == ('edge', 'category') and c.value), None)
+        if line is not None: typed = line.value
     if section == 'rung':
         t = 'general' if typed.strip().lower() == 'general' else typed.strip()
         if K.RUNG.match(t): n.category = t; return
@@ -888,6 +1045,8 @@ def _category(n, post, typed=None):
         why = _or(cats)
     if not typed.strip():
         post.stop(no, 'E-CATEGORY', f'Line {no}: {name} needs its bracket, which must be {why}: write {name} ({(K.CATEGORIES.get(section) or ["A"])[0]}):.')
+    elif line is not None:
+        post.stop(line.line_no, 'E-CATEGORY', f"Line {line.line_no}: {line.label_text}: on a {name} must be {why}.")
     else:
         post.stop(no, 'E-CATEGORY', f"Line {no}: a {name}'s bracket must be {why}.")
     n.bad = True
@@ -1053,6 +1212,16 @@ def _finish(post):
                              and n.parent is not None and n.parent.shape == 'header' for n in rows):
         post.notice(rows[0].line_no, 'N-MINUS-LIST', 'Every line in this post starts with - and has no label, so each was read as a reason to '
                                                      'disagree. If they are a list, start each one with + or - for its side.')
+    else:
+        # a post whose - was dropped as a list bullet (C4) is a list: a - that gave another line its side may be one too
+        listed = next((n for n in rows if n.minus == 'bullet'), None)
+        took = [n for n in rows if n.minus == 'sign' and n.sign == 'disagree' and not n.signword and not n.bad
+                and (n.label is None or n.label.side == 'either') and n.place is None]
+        if listed is not None and took:
+            more = f' and {len(took) - 1} other line{"s" if len(took) > 2 else ""}' if len(took) > 1 else ''
+            post.notice(took[0].line_no, 'N-MINUS-LIST', f'Line {listed.line_no} used - as a list bullet, so the - in front of line '
+                                                         f'{took[0].line_no}{more} may be one too; {"each" if more else "it"} was read as against. If a '
+                                                         f'line agrees, start it with +.')
 
 
 # ------------------------------------------------------------------------------------------- the whole post

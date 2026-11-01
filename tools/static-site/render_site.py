@@ -51,7 +51,9 @@ class Corpus:
         pages, edges = read_source(entry_path)
         self.specs, self.beliefs = tables_to_specs(pages, edges)
         # the third table: one row per topic page, the home a belief is filed under
-        self.topics = {t['key']: t for t in read_topics(entry_path)}
+        topics = read_topics(entry_path)
+        self.topics = {t['key']: t for t in topics}
+        self.rows = (pages, edges, topics)    # the tables as read, which every page's Reason Outline is printed from
         self.topic_rows = topic_rows(edges, self.topics)
         self.tabs = entry_keys(pages); self.key = {t: k for k, t in self.tabs.items()}
         self.name = name
@@ -819,7 +821,7 @@ def render_belief(c, pid):
     # ---- arguments
     o.append(H.section('Argument Trees', 'Each reason is a claim with its own page. Score = sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq, and every column is here so the row can be multiplied out and checked. A reason argued false scores negative and counts against the side it is filed on; a reason nobody has argued yet scores exactly 0, and so does one whose own page has no work behind it.', ('How arguments are scored', WIKI['reasons'])))
     key = c.key[pid]
-    o.append(take_part(H.up, 'belief' if k == 'belief' else 'claim'))
+    o.append(take_part(H.up, 'belief' if k == 'belief' else 'claim', key))
     o.append(two_sided(H, c, 'Reasons to agree', 'Reasons to disagree',
                        scored_table(H, c, s['rows']['agree'], sp['args']['agree'], None, 'Argument', votes=True) + add_form(H.up, 'argument', 'agree', key),
                        scored_table(H, c, s['rows']['disagree'], sp['args']['disagree'], None, 'Argument', votes=True) + add_form(H.up, 'argument', 'disagree', key)))
@@ -1355,7 +1357,7 @@ def render_special(c, pid):
             out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{repeat_note(r)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
         if not specs_rows: out.append(f'<tr><td colspan="8" class="empty">Nothing here yet. Starter patterns: {esc(", ".join(pats))}.</td></tr>')
         return ''.join(out) + '</tbody></table>'
-    o.append(take_part(H.up, KINDNAME[k].lower() + ' page'))
+    o.append(take_part(H.up, KINDNAME[k].lower() + ' page', c.key[pid]))
     if k == 'importance':
         o.append(H.section(KD['section'], KD['blurb'], KD['wiki']))
         o.append('<table class="scored"><thead><tr><th class="rk">#</th><th>Interest</th><th>Validity</th><th>Bears</th><th>Effective</th><th>Relative</th><th>Value</th></tr></thead><tbody>')
@@ -1489,7 +1491,7 @@ def render_media(c, pid):
     o.append('<p class="lede">Two questions, kept apart on purpose. Is it well made? That is argued on this page, under Quality Arguments. '
              'Is what it backs true? That is argued on the belief pages that cite it, and this page only reads their scores. '
              'A third question, whether it changed anything, is argued under Influence Arguments.</p>')
-    o.append(take_part(H.up, 'work page'))
+    o.append(take_part(H.up, 'work page', c.key[pid]))
     # ---- beliefs this work carries
     cites = work_cites(c, pid)
     o.append(H.section('Beliefs This Work Carries', 'Each row is a belief page that cites this work, and which way the work bears on it. Centrality is how much of the work rides on that belief: '
@@ -1957,16 +1959,34 @@ def forms_grid(up, page, sections, first=True):
     return '<div class="forms">' + ''.join(add_form(up, s, 'agree', page, first=first) for s in sections) + '</div>'
 
 
-def take_part(up, page_kind='page'):
+def take_part(up, page_kind='page', key=None):
     """The one paragraph above the first form on a page: what a form does, the account it needs, the way in for
-    someone who would rather use git, and what happens after the button."""
+    someone who would rather use git, and what happens after the button; then, for a page with a key, the page as
+    a Reason Outline."""
     return (f'<p class="take" id="take-part"><strong>Add to this {esc(page_kind)}.</strong> Every table below has a form. Submitting opens a prefilled '
             f'GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). To question one row (whether it bears on '
             f'the claim, how much it matters, whether it repeats another, or a mistake in its reasoning), use the <em>argue about this row</em> '
             f'link beside it; <a href="{up}vocab.html">every kind of post</a> is listed with what it can move. {NEXT_NOTE} '
             f'{GIT_NOTE}. Without an account, the Copy as text button under any form puts your submission on the clipboard so you can send it another way.</p>'
             '<noscript><p class="fine">With scripts turned off, each form still opens GitHub with this page and its table filled in; '
-            'the check for a claim already on the site and the Copy as text button need scripts.</p></noscript>')
+            'the check for a claim already on the site and the Copy as text button need scripts.</p></noscript>'
+            + (outline_link(key, up) if key else ''))
+
+
+OUTLINE_LINK = 'This page as a Reason Outline'
+
+
+def outline_form_url(key=None):
+    """The outline form on GitHub, its title naming the page the outline is for."""
+    from urllib.parse import urlencode
+    return NEW_ISSUE + '?' + urlencode({'template': 'outline.yml', 'labels': 'outline', 'title': 'Reason Outline: ' + (key or '')})
+
+
+def outline_link(key, up):
+    """The page printed as a Reason Outline (p/<key>.txt or t/<key>.txt beside it), and how to send it back."""
+    return (f'<p class="fine outline-link"><a href="{esc(key)}.txt">{OUTLINE_LINK}</a>: copy it, add your own lines under the ones they are '
+            f'about, and post it back with the <a href="{esc(outline_form_url(key))}" rel="nofollow">outline form</a> '
+            f'(<a href="{up}outline.html">how to write one</a>).</p>')
 
 
 def contribute_script(up):
@@ -2206,6 +2226,7 @@ def render_topic(c, tkey, title):
         o.append('<h2 class="th">Contribute</h2>')
         if not has_content:
             o.append('<p class="cap">Once a belief is filed here, this page takes the full topic layout: where each belief sits, what it assumes, what the two sides value, and the evidence beneath it all.</p>')
+        o.append(outline_link(tkey, H.up))
         o.append(add_form(H.up, 'belief', topic=tkey))
         o.append(f'<p class="cap">{GIT_NOTE}: a belief is a page row with the topic <code>{esc(tkey)}</code>.</p>')
         o.append(stamp(c, H.up)); o.append(contribute_script(H.up)); o.append(FOOT)
@@ -2454,6 +2475,7 @@ def render_topic(c, tkey, title):
     # ---- contribute
     o.append('<h2 class="th">Contribute</h2>')
     o.append(f'<p class="cap">Every table above has a form under it that files a row in that table. Submitting opens a prefilled GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE}</p>')
+    o.append(outline_link(tkey, H.up))
     o.append(add_form(H.up, 'belief', topic=tkey))
     o.append(f'<p class="cap">{GIT_NOTE}. A belief is a page row with the topic <code>{esc(tkey)}</code>. A cell on this page is an edges row with page <code>{esc(tkey)}</code> and one of the topic sections.</p>')
     o.append(stamp(c, H.up))
@@ -2957,7 +2979,8 @@ def render_index(c, title):
     o.append(MASONRY)
     # The plumbing stays off the cards: a reader comes for the arguments, and the tables and the method are one
     # line at the foot of the page for the reader who wants to check them.
-    o.append('<p class="under"><a href="contributors.html">Who takes part</a> · <a href="vocab.html">What a post can be</a> · <a href="changes.html">What changed</a> since the last revision · '
+    o.append('<p class="under"><a href="contributors.html">Who takes part</a> · <a href="vocab.html">What a post can be</a> · '
+             '<a href="outline.html">Reason Outline</a>, many rows in one post · <a href="changes.html">What changed</a> since the last revision · '
              '<a href="method.html#data">The tables behind every page</a>, free to download and check.</p>')
     o.append(stamp(c))
     o.append(contribute_script(''))
@@ -3565,7 +3588,7 @@ textarea.share{display:block;width:100%;max-width:100%;box-sizing:border-box;fon
 .votes .vote{display:inline-block;padding:.35em .55em;margin-right:.3em;border:1px solid var(--line);border-radius:4px;background:var(--paper)}
 .votes .vn{color:var(--mute);font-weight:400;white-space:nowrap}.vnote{color:var(--mute)}
 td .votes{display:block;margin:4px 0 0;font-size:11px}td .votes .vn{white-space:normal}
-td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(--mute)}table.vocab code{font-size:11px;color:var(--mute)}ul.cq{margin:4px 0 0;padding-left:1.2em;font-size:13px}pre.brief{white-space:pre-wrap;font-size:13px;background:var(--paper);border:1px solid var(--line);padding:10px}
+td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(--mute)}table.vocab code{font-size:11px;color:var(--mute)}ul.cq{margin:4px 0 0;padding-left:1.2em;font-size:13px}pre.brief{white-space:pre-wrap;font-size:13px;background:var(--paper);border:1px solid var(--line);padding:10px}pre.outline{white-space:pre;overflow-x:auto;font-size:13px;line-height:1.45;background:var(--paper);border:1px solid var(--line);padding:10px;margin:10px 0}ol.steps{font-size:13.5px;color:var(--ink2);padding-left:1.4em}ol.steps li{margin:3px 0}.outline-link{margin:4px 0 10px}
 @media print{.add,.votes,a.argue{display:none}}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
@@ -4098,22 +4121,19 @@ def render_vocab(c, title):
              'objection lands, a rebut against the conclusion, an undercut against the step from reason to conclusion (what a linkage page '
              'argues) and an undermine against the reason itself (what its own page argues); and the argumentation schemes and critical '
              'questions of Walton, Reed and Macagno (2008).</p>')
-    o.append('<p><strong>Asking an AI to help.</strong> Any AI assistant can draft posts for a page. Paste this to it with the page&apos;s '
-             'address, then submit each post it returns through the form its "post one" link opens:</p>')
-    brief = ('Read the belief page at [address]. Propose up to five posts that page does not already have, the strongest ones on '
-             'whichever side is thinner. For each, give: the kind of post (an id from https://myklob.github.io/ideastockexchange/beliefs/'
-             'vocab.html, such as link.irrelevant or evidence.statistics), the row it is about if it is about one row (the last part of '
-             'that row\'s address), the side (agree or disagree), the claim as one complete sentence a reader could check without the page, '
-             'and for a finding the source and the address you read it at. Do not invent a figure, a study, a quotation or a person; every '
-             'number needs a source you actually read. Argue each side as its best advocate would.')
-    o.append(f'<pre class="brief">{esc(brief)}</pre>')
+    o.append('<p><strong>Asking an AI to help.</strong> An AI assistant writes posts best as a <a href="outline.html">Reason Outline</a>, '
+             'the plain-text form every page is also printed in: one line per claim, any number of them in one post. <a href="outline.html#ai">The '
+             'brief on that page</a> can be pasted into any assistant with a page&apos;s address, and the outline it returns is posted with one form. '
+             'In an outline, any kind below but two is written by its label or by its id and a colon (<code>link.irrelevant:</code>); '
+             'the labels are listed on <a href="outline.html#marks">the outline page</a>. The two are lines of their own: a vote is written '
+             '<code>Vote:</code> and a new belief <code>Belief:</code>.</p>')
     o.append('<p class="fine">What an assistant drafts goes through the same check as anything a person types: a claim already here becomes '
              'a vote for it, and nothing is published until a person merges it.</p>')
     o.append(f'<p><strong>Run your own.</strong> Everything here is free to copy under the MIT License: fork the <a href="{REPO}">repository</a>, '
              'change the tables, the pages or the scoring rule, and publish your own site on GitHub Pages. Keep the two tables and this list of '
              'kinds of post and your site can read the same arguments as this one, so two rules can be compared on the same pages, which is '
-             'the fair test of which one ranks good ideas higher. The <a href="data/conformance_expected.json">conformance files</a> pin what '
-             'this site&apos;s rule computes, so a copy can say exactly where its rule differs.</p></section>')
+             'the fair test of which one ranks good ideas higher. <a href="data/conformance_expected.json">A small set of pages with the numbers '
+             'this site&apos;s rule gives them</a> pins what the rule computes, so a copy can say exactly where its rule differs.</p></section>')
     o.append(VOCAB_JS)
     o.append(stamp(c) + FOOT)
     return ''.join(o)
@@ -4130,6 +4150,360 @@ VOCAB_JS = ("<script>(function(){var q=new URLSearchParams(location.search),pg=q
             "say(row?'The row: '+row+', on the page '+pg+'.':'The page: '+pg+'.');"
             "fetch('data/claims_index.json').then(function(r){return r.json()}).then(function(d){var m={};(d.claims||d).forEach(function(x){m[x.key]=x.text});"
             "if(row&&m[row])say('The row: \\u201c'+m[row]+'\\u201d, on the page \\u201c'+(m[pg]||pg)+'\\u201d.');else if(m[pg])say('The page: \\u201c'+m[pg]+'\\u201d.')}).catch(function(){})})()</script>")
+
+
+# ------------------------------------------------------------------------------------------------ the Reason Outline page
+# The page explains the language to a reader who has never seen it. test_render checks every label, heading and detail
+# name it shows against outline_names and reads every example on it back, and where a label files is worked out from
+# its kind, so the page cannot teach a name the reader does not know.
+OUTLINE_PARAGRAPH = (
+    'A Reason Outline is a plain-text list of reasons for and against a claim. You can write one anywhere you type, or ask an AI to write '
+    'one, and send it through the outline form on GitHub: the site reads it, turns each line into a row of its two tables, and a pull '
+    'request holds those rows until the maintainer merges it. Start with the page you are adding to: Page: and the '
+    'page\'s address copied from your browser, or Belief: and a new claim in one sentence. Then write one claim per line. Start it with + '
+    '(or Agree:) for a reason to agree, or - (or Disagree:) for a reason to disagree. Push a line in under another line and it is about that '
+    'line. + and - under a reason argue whether the reason is true, and a plain label says what else it argues: Does not follow: for whether '
+    'it really supports the claim above it, Matters more: or Matters less: for how much it counts, Repeats [other-row]: for a point already '
+    'made, Statistics: or Poll: for a finding, Cost: or Benefit:, or a named mistake such as Straw man:. Every line is a claim with a page of '
+    'its own, so you can keep going as deep as you like. Details go on their own lines, pushed in under the line they describe: Source:, '
+    'Address:, Checked:. If a box strips the spaces at the start of a line, start the line with one dot per step instead (. or ..). To use a '
+    'claim already on the site, paste its address or write its short name in square brackets, [like-this]. A line that says what a claim on '
+    'the site already says is filed as that claim and counted as your vote for it. Vote: agree under a line is a vote: it is counted and '
+    'shown, and it never moves a score. A label never moves a score either; only reasons that are argued do. Any page on the site prints in '
+    'this same form, with each of these lists under its own heading (Relevance:, Importance:), so you can copy a page, add lines and send it '
+    'back. A line you leave out is never deleted, and the reply prints your post back as it was filed, with every new page and every match.')
+OUTLINE_EXAMPLE_PAGE = 'barring-members-congress-president'
+OUTLINE_EXAMPLE = (
+    'Page: https://myklob.github.io/ideastockexchange/beliefs/p/barring-members-congress-president.html\n'
+    '  + [members-regularly-trade-industries]\n'
+    '    - Matters less: Most trades are small next to members\' total wealth.\n'
+    '    Does not follow: Holding a stock in an industry is not the same as voting to help it.\n'
+    '  + Statistics: Dozens of members of the 117th Congress filed trade reports after the 45-day deadline.\n'
+    '    Source: Insider, Conflicted Congress, 2021\n'
+    '    Checked: 2026-10-31\n')
+# what the filer replied to OUTLINE_EXAMPLE on 2026-10-31 (outline_file.reply); test_render reads it back as a post
+OUTLINE_REPLY = (
+    '// Filed: 3 new pages and 3 new rows.\n'
+    '// Until the pull request is merged, edit the original issue rather than sending this back: its new keys are not on the site yet.\n'
+    'Page: [barring-members-congress-president]\n'
+    '  + [members-regularly-trade-industries]: Members regularly trade in the industries their own committees oversee, which puts a private '
+    'financial stake on both sides of decisions they control.\n'
+    '  // already on the page: nothing added\n'
+    '    - Matters less: [most-trades-small-next-members]: Most trades are small next to members\' total wealth.\n'
+    '    // new page [most-trades-small-next-members] (claim)\n'
+    '    // new row on [imp-members-regularly-trade-barring-members] in Reasons to disagree\n'
+    '    - Does not follow: [holding-stock-industry-same-voting]: Holding a stock in an industry is not the same as voting to help it.\n'
+    '    // new page [holding-stock-industry-same-voting] (claim)\n'
+    '    // new row on [argu-members-regularly-trade-barring-members] in Reasons to disagree\n'
+    '  + Statistics: [dozens-members-117th-congress-filed]: Dozens of members of the 117th Congress filed trade reports after the 45-day deadline.\n'
+    '  // new page [dozens-members-117th-congress-filed] (claim)\n'
+    '  // new row on [barring-members-congress-president] in Evidence, for\n'
+    '  // notice: Line 5: the finding has no evidence type yet, so it starts at a coin flip until the maintainer fills one in.\n'
+    '    Source: Insider, Conflicted Congress, 2021\n'
+    '    Checked: 2026-10-31\n')
+OUTLINE_STEPS = [
+    ('Page:', 'and the page&apos;s address, pasted from the browser, say which page the lines under it are about.'),
+    ('+ [members-regularly-trade-industries]', 'names a reason already on that page by its key, the last part of its address. It is already '
+     'there, so it adds nothing; it is there so the next two lines can sit under it.'),
+    ('- Matters less:', 'pushed in under that reason, argues that the reason matters less than it looks. It is filed on the reason&apos;s '
+     'importance page, which is opened, empty, when the reason has none.'),
+    ('Does not follow:', 'argues that the reason does not carry the conclusion, even if it is true. It is filed on the reason&apos;s relevance '
+     'page. The label says which side it is on, so it needs no sign.'),
+    ('+ Statistics:', 'is a new finding for the page. It gets a page of its own, with a key made from its first words.'),
+    ('Source: and Checked:', 'pushed in under the finding, are details of that row.'),
+]
+# (what you write, what it means, where it files); the structure of a post, before the labels
+OUTLINE_MARKS = [
+    ('Belief: <one sentence>', 'Starts a block for a new belief, at the left edge. When its words are already a page here, that page is used '
+     'instead, and it counts as your vote to agree with it.', 'a new belief page'),
+    ('Page: <address>   or   Page: [key]', 'Starts a block for a page already on the site, at the left edge. Paste the address from your browser.',
+     'nothing by itself; the lines under it file on that page'),
+    ('+', 'For: a reason to agree with the line above. Under a heading, for its question: it bears, it matters more, it is a new point.',
+     'the page above it: Reasons, for'),
+    ('-', 'Against: a reason to disagree with the line above, or against the heading&apos;s question.', 'the page above it: Reasons, against'),
+    ('Agree: / Disagree:', 'The same as + and -, in words. Pro:, Con:, For: and Against: are read the same.', 'the same as + and -'),
+    ('Relevance:', 'A heading under a row. The lines under it argue whether the row bears on the page it is listed on.',
+     'the row&apos;s relevance page (the site calls it its Linkage page), opened for the first line filed under the heading'),
+    ('Importance:', 'A heading under a row. The lines under it argue how much the row matters; At stake: lines name the interests it bears on.',
+     'the row&apos;s importance page, opened for the first line filed under the heading'),
+    ('Uniqueness vs [other]:', 'A heading under a row. The lines under it argue whether the row makes a new point or repeats [other], another '
+     'row on the same page.', 'the row&apos;s uniqueness page against [other]'),
+]
+# (the labels a row is about, what you write, what it means); where each files is worked out from its kind
+OUTLINE_LABELS = [
+    (('Does not follow',), 'Does not follow:', 'The row does not carry the conclusion, even if it is true. Bears on it: says it does.'),
+    (('Matters more', 'Matters less'), 'Matters more: / Matters less:', 'The row counts for more, or for less, than it looks. Many people:, '
+     'Few people:, Lasting: and Easy to undo: say why.'),
+    (('At stake',), 'At stake: [interest] or words', 'An interest the row bears on, by the [key] of an interest page or in words, which make a '
+     'new interest page. These are what an importance page weighs.'),
+    (('Repeats',), 'Repeats [other]:', 'The row makes the same point as [other], another row on the same page, named by its key or by a name '
+     'given earlier in the post. Overlaps [other]: says it does in part.'),
+    (('Evidence',), 'Evidence:', 'A finding whose kind of source is not named. Its sign, or for or against after the label, gives the side.'),
+    (('Statistics', 'Poll'), 'Statistics: / Poll:', 'A finding by the kind of source it rests on; Official record:, Trial:, Expert says: and '
+     'Anecdote: are others. The label is kept with the row, and never sets the finding&apos;s evidence type, which only the maintainer fills.'),
+    (('Small sample',), 'Small sample:', 'A reason a finding is weaker than it looks; Out of date:, Picked to suit:, Source has a stake: and '
+     'Not replicated: are others.'),
+    (('Counterexample',), 'Counterexample:', 'A case that a general claim gets wrong.'),
+    (('Prediction',), 'Prediction: (with + or -)', 'Something that will happen if the belief is true (+) or false (-). Settled by: under it '
+     'says when and how it is settled.'),
+    (('Would confirm', 'Would refute'), 'Would confirm: / Would refute:', 'Something that would strongly confirm the belief, or refute it.'),
+    (('Measure',), 'Measure:', 'A measure that would settle the question.'),
+    (('Benefit', 'Cost'), 'Benefit: / Cost:', 'A benefit or a cost if the belief is true and acted on. Estimate:, Low end:, High end:, Units: '
+     'and Who: go under it.'),
+    (('Interest',), 'Interest: (with + or -)', 'A group whose need is served (+) or harmed (-) if the belief is true. New words make an '
+     'interest page.'),
+    (('Assumption',), 'Assumption: (with + or -)', 'Something a supporter (+) or an opponent (-) takes for granted.'),
+    (('Definition of',), 'Definition of <term>:', 'What a word the page turns on means. It is words only, with no page of its own.'),
+    (('Stronger version', 'Weaker version'), 'Stronger version: / Weaker version:', 'A stronger or a weaker version of the belief. It is never '
+     'merged with a page it reads like, because the two are meant to read alike.'),
+    (('Book', 'Study'), 'Book: / Study: / Report:', 'A work as a source. New words make a work page of that type; Where to find it: goes under it.'),
+    (('Person', 'Law'), 'Person: / Law:', 'A person on the record, or a law or ruling, that bears on the claim.'),
+    (('Straw man',), 'Straw man:', 'A named mistake in the row&apos;s reasoning, one of {fallacies} named mistakes, such as Red herring:, Slippery '
+     'slope: or False choice:. It is a claim like any other, and moves nothing until it is argued.'),
+    (('From expert opinion',), 'From expert opinion:', 'A reason that follows one of {schemes} named patterns, such as From analogy: or From cause to '
+     'effect:, each with the questions that test it.'),
+    (('Needs a source', 'Correction'), 'Needs a source: / Correction:', 'A request for a source, or a correction to a figure, a date or a '
+     'name, with its source. The maintainer reads it.'),
+    (('Duplicate of',), 'Duplicate of [key]:', 'The page above and [key] are the same claim. The maintainer decides.'),
+]
+# the structure that closes the table
+OUTLINE_MARKS_AFTER = [
+    ('Vote: agree   or   Vote: disagree', 'A vote on whether the line it is under is true. It is counted and shown, and never moves a score.',
+     'the votes, never a row'),
+    ('Vote: bears on it', 'A vote on whether the row it is under bears on the page it sits on (Vote: does not bear on it, the other way).',
+     'the votes, never a row'),
+    ('[name]: words', 'A new page, called name inside this post so later lines can point back at it. The reply gives its real key.',
+     'a new page'),
+    ('\\', 'At the start of the words: the words after it are only words, so words that begin with a word and a colon are not read as a label.',
+     'nothing'),
+    ('// a note', 'A whole line for the people reading. It is never stored; the reply prints it back, on the issue and in the pull request.',
+     'nothing'),
+]
+OUTLINE_WHERE = {'page': 'the page above it', 'claim': 'the row&apos;s own page', 'link': 'the row&apos;s relevance page',
+                 'imp': 'the row&apos;s importance page', 'uniq': 'the row&apos;s uniqueness page',
+                 'equiv': 'the sameness page of a stronger or weaker version'}
+OUTLINE_SIDE = {'agree': ', for', 'disagree': ', against', 'either': ', for or against by the sign', '': '',
+                'extreme': ', stronger', 'moderate': ', weaker', 'xy': ''}
+# (detail name, what it holds, an example); the names are checked against outline_names
+OUTLINE_DETAILS = [
+    ('Source', 'Who produced it, the year, and where to find it.', 'Source: Insider, Conflicted Congress, 2021'),
+    ('Address', 'Where the source can be read. In an outline that is not strict, a bare web address in new words moves here by itself.',
+     'Address: https://www.example.org/report'),
+    ('Checked', 'The day the address was checked, as YYYY-MM-DD.', 'Checked: 2026-10-31'),
+    ('Settled by', 'When and how a prediction is settled.', 'Settled by: Annual financial disclosure reports filed in 2032'),
+    ('Estimate', 'The central estimate of a cost or benefit, as a number, written positive: the side says whether it is a cost.', 'Estimate: 40000'),
+    ('Low end', 'The low end of the estimate; High end: is the high end.', 'Low end: 5000'),
+    ('Units', 'What the estimate counts.', 'Units: dollars of tax per affected official'),
+    ('Who', 'The interest that gains or pays, by its [key] or its exact words.', 'Who: [officials-families-need-same]'),
+    ('Topic', 'Under a Belief: line, the topic the new belief is filed under, by key or by name.', 'Topic: public-office-private-gain'),
+    ('Question', 'The one question a belief dissects. Hook:, Ask:, Bottom line: and Full wording: are the other cells people write.',
+     'Question: Would a ban reduce the use of office for private gain?'),
+    ('Term', 'The word a definition defines, when it is not in the label.', 'Term: Individual stock'),
+    ('Kind', 'Any kind of post, by its id, whatever the place. For programs.', 'Kind: link.relevant'),
+    ('Own page', 'Printed under a row that is only words, with no page of its own. Leave it as it is.', 'Own page: no'),
+]
+OUTLINE_MAINTAINER = ('Evidence type', 'Replication count', 'Replication agreement', 'Strength', 'Positivity', 'Load-bearing')
+OUTLINE_BRIEF = (
+    'You are writing a Reason Outline for the Idea Stock Exchange (https://myklob.github.io/ideastockexchange/beliefs/). The site reads it '
+    'into its two tables and replies with the post printed back. The language is explained at '
+    'https://myklob.github.io/ideastockexchange/beliefs/outline.html.\n'
+    'The page to add to: [paste its address here]. Read it as an outline at the same address with .txt in place of .html. Add up to five '
+    'lines it does not already have, the strongest ones on whichever side is thinner, and argue each side as its best advocate would.\n'
+    '1 Start with frontmatter: \'===\', \'reasons: 1\', \'mode: strict\', \'===\'. Strict mode never guesses, so any mistake comes back as a '
+    'stop with its line number.\n'
+    '2 Write one block per page. Start it at the left edge with \'Page: [key]: <the page\'s exact words>\' for a page on the site, or '
+    '\'Belief: <one sentence>\' for a new belief. Every page\'s key and exact words are in '
+    'https://myklob.github.io/ideastockexchange/beliefs/data/pages_index.json, and every topic\'s key and name in '
+    'https://myklob.github.io/ideastockexchange/beliefs/data/ise.json. Never retype a claim the site has: name it by [key].\n'
+    '3 Every claim is one complete, atomic sentence that could headline its own page. Never write a topic fragment (\'long-term cost\'). '
+    'Never join two claims with \'and\'; post them as two lines.\n'
+    '4 Indent two spaces per step. One physical line per entry. Never wrap a line, and never use tabs, dots or bullets.\n'
+    '5 Start each reason with + or -. Add a label only when the line is not a plain reason, using the labels in '
+    'https://myklob.github.io/ideastockexchange/beliefs/data/outline-spec.json or the ids in '
+    'https://myklob.github.io/ideastockexchange/beliefs/data/vocab.json (\'- Small sample:\', \'+ Statistics:\', \'- link.does-not-follow:\'). '
+    'A label only files the line; it never changes a score.\n'
+    '6 To argue a row\'s factors, put a heading under the row: \'Relevance:\' (does it bear?), \'Importance:\' (how much does it matter? list '
+    'the interests with \'At stake: [interest-key]\'), \'Uniqueness vs [other-row-key]:\' (is it a repeat?). Then add + and - lines under the '
+    'heading. Leave the heading\'s [key] out unless you are copying a printout, and never name another row\'s factor page.\n'
+    '7 Use \'[name]: words\' to make a new page that later lines point back at (\'Repeats [name]:\'). Define a name before you use it.\n'
+    '8 Put details on their own lines, two spaces under their entry: Source:, Address:, Checked: (YYYY-MM-DD), Settled by: for predictions, '
+    'and Estimate:, Low end:, High end:, Units: and Who: for costs and benefits. Never invent a source, a number, a date, a quotation, a '
+    'person or an address. If you lack one, leave the line out, and add \'Needs a source: <what is missing>\' under the claim.\n'
+    '9 Never write Evidence type:, Replication count:, Replication agreement:, Strength:, Positivity: or Load-bearing:. Only the maintainer '
+    'fills these, and a post\'s values are not applied.\n'
+    '10 Never use a long dash or a spaced en dash; write a comma, a colon or parentheses. Put a backslash before any words that start with a '
+    'word and a colon, a bracket, a sign or a dot.\n'
+    '11 Nothing you leave out is deleted, so send only what you add. To change words already on the site, write \'Correction:\' with the source.\n'
+    '12 Return only the outline, in one block, so it can be pasted into the outline form as it is. When the site\'s reply is pasted back to '
+    'you, fix every stop it lists and write the whole outline again.')
+
+
+def outline_files_on(names):
+    """Where a label's line files, from the kind it names: the page it lands on, seen from the line it is under, the
+    table and the side. Labels shown together that share a page and a table differ only in the side their words
+    decide; labels that do not are each said in turn."""
+    import outline_names as N
+    recs = [N.LABELS[N.fold(n)] for n in names]
+    if all(r.request for r in recs): return 'no row: a request for the maintainer, in the pull request, or on the issue when the post adds no row'
+    places = list(dict.fromkeys((r.target, r.section) for r in recs))
+    if len(places) > 1: return '; '.join(outline_files_on((r.name,)) for r in recs)
+    sides = list(dict.fromkeys(r.side for r in recs))
+    side = OUTLINE_SIDE[sides[0]] if len(sides) == 1 else (', stronger or weaker by the label' if 'extreme' in sides else ', for or against by the label')
+    return f'{OUTLINE_WHERE[recs[0].target]}: {VOCAB_TABLE.get(recs[0].section, recs[0].section)}{side}'
+
+
+def render_outline(c, title):
+    """The Reason Outline explained to a reader: what it is, an example and its reply, the marks and labels used most,
+    the details, how to name a claim already here, how to post one, how it relates to Argdown, the brief for an AI
+    assistant, and what a program needs."""
+    import vocab as V
+    o = [root_head('Reason Outline', [('Home', 'index.html'), ('What a post can be', 'vocab.html'), ('Reason Outline', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Reason Outline</h1>')
+    o.append(f'<p class="lede">{esc(OUTLINE_PARAGRAPH)}</p>')
+    parts = (('example', 'An example'), ('marks', 'Marks and labels'), ('details', 'Details'), ('naming', 'Naming a claim already here'),
+             ('post', 'Posting one'), ('reply', 'The reply'), ('argdown', 'Argdown'), ('ai', 'Asking an AI to write one'), ('programs', 'For programs'))
+    o.append('<p>' + ' · '.join(f'<a href="#{a}">{esc(t)}</a>' for a, t in parts) + '</p>')
+    there = f'<a href="p/{c.href(c.tabs[OUTLINE_EXAMPLE_PAGE])}">a page already on the site</a>' if OUTLINE_EXAMPLE_PAGE in c.tabs else 'a page already on the site'
+    o.append(f'<section id="example"><h2><span>An example</span></h2><p>Three lines added to {there}: two under one of its reasons, '
+             'and a new finding. What each line does is said under it.</p>')
+    o.append(f'<pre class="outline">{esc(OUTLINE_EXAMPLE)}</pre><ol class="steps">'
+             + ''.join(f'<li><code>{esc(w)}</code> {m}</li>' for w, m in OUTLINE_STEPS) + '</ol></section>')
+    o.append('<section id="marks"><h2><span>The marks and labels used most</span></h2><p>A line starts with a sign, a label, or '
+             'both. The page above a line is the page it is pushed in under: the block&apos;s page for a line one step in, a reason&apos;s own '
+             'page for a line under that reason, and the heading&apos;s page for a line under Relevance:, Importance: or Uniqueness vs. A label '
+             'only says where the line is filed; it never changes a score. A label is read in any letter case, and every one of the '
+             f'{len(V.TYPES)} kinds on <a href="vocab.html">what a post can be</a> can be named, by its label or by its id and a colon, but two that '
+             'are lines of their own: a vote, written <code>Vote:</code>, and a new belief, written <code>Belief:</code>.</p>')
+    rows = list(OUTLINE_MARKS) + [(w, m.format(fallacies=len(V.FALLACIES), schemes=len(V.SCHEMES)), outline_files_on(names))
+                                  for names, w, m in OUTLINE_LABELS] + list(OUTLINE_MARKS_AFTER)
+    o.append('<table class="plain outline-marks"><thead><tr><th>You write</th><th>It means</th><th>It is filed on</th></tr></thead><tbody>'
+             + ''.join(f'<tr><td class="t"><code>{esc(w)}</code></td><td class="u">{m}</td><td class="u">{f}</td></tr>' for w, m, f in rows)
+             + '</tbody></table></section>')
+    o.append('<section id="details"><h2><span>Details</span></h2><p>A detail goes on a line of its own, pushed in two spaces under '
+             'the line it describes, as a name, a colon and its value. A name that is close to one of these and is not one stops the post and '
+             'suggests the names it is near.</p>')
+    o.append('<table class="plain"><thead><tr><th>Detail</th><th>What it holds</th><th>For example</th></tr></thead><tbody>'
+             + ''.join(f'<tr><td class="t"><code>{esc(n)}:</code></td><td class="u">{esc(m)}</td><td class="u"><code>{esc(x)}</code></td></tr>'
+                       for n, m, x in OUTLINE_DETAILS) + '</tbody></table>')
+    o.append('<p>Never write ' + ', '.join(f'<code>{esc(n)}:</code>' for n in OUTLINE_MAINTAINER[:-1])
+             + f' or <code>{esc(OUTLINE_MAINTAINER[-1])}:</code>. Only the maintainer fills these, because they set where a page&apos;s score '
+             'starts or what it reads; a post that carries one gets a request, not a change.</p></section>')
+    o.append('<section id="naming"><h2><span>Naming a claim already here</span></h2><p>A claim the site already has is named, '
+             'not typed again, in one of three ways:</p><ul class="links">'
+             '<li><code>[key]</code>: its key in square brackets, the last part of its address before .html, such as '
+             '<code>[members-regularly-trade-industries]</code>. Spaces and underscores in the brackets are read as hyphens. Every page&apos;s '
+             'key and exact words are in <a href="data/pages_index.json">the list of every page</a>, works and the pages that argue a row '
+             'included, and every topic&apos;s key and name in <a href="data/ise.json">the tables as data</a>.</li>'
+             '<li>Its address, pasted from the browser, with or without https:// and www.</li>'
+             '<li>A name given to a new line earlier in the same post: <code>[picks]: Senators&apos; stock picks beat the market in the 1990s.</code> '
+             'makes a new page, and a later <code>Repeats [picks]:</code> points back at it. The reply says which key the name became.</li></ul>'
+             '<p>Words typed after a [key] are compared with the page&apos;s words, and a difference becomes a correction request '
+             'for the maintainer, never an edit. A line typed without a key is checked against every claim on the site first: one that says the '
+             'same thing names that page and counts as your vote to agree with it, and one that only reads close is listed in the reply as a near '
+             'match and gets a page of its own. A [key] written alone that names no page stops the post and lists the nearest keys, so a slip of '
+             'the keyboard there never makes a new page. Written with words after it, as in <code>[picks]: words</code>, a name that is no key '
+             'makes a new page, and the reply says so when the name is a letter or two from a key on the site.</p></section>')
+    o.append(f'<section id="post"><h2><span>Posting one</span></h2><ol class="steps">'
+             f'<li>Open the page you are adding to and follow its <em>{OUTLINE_LINK}</em> link, or start a new belief with Belief:.</li>'
+             '<li>Copy it and add your lines, each pushed in under the line it is about. You can also send only the Page: line and your own '
+             'lines: nothing you leave out is deleted.</li>'
+             f'<li>Paste it into the <a href="{esc(outline_form_url())}" rel="nofollow">outline form</a> on GitHub and submit it. You need a free '
+             f'account (<a href="{SIGNUP}" rel="nofollow">sign up</a>).</li>'
+             '<li>Read the reply, which comes as a comment on your issue a few minutes later. If it lists a stop, edit the issue to fix it and '
+             'save, and the outline is read again. Otherwise a pull request carries your rows until the maintainer merges it, and any votes in '
+             'it count at once, except a vote on a page the post itself adds, which counts once that page is merged.</li></ol>'
+             '<p>An outline can also ride inside other text, such as an email or a document: put it between a line '
+             '<code>```reasons</code> and a line <code>```</code>, and only the lines between them are read. Quoted mail (lines starting with '
+             '&gt;) and a signature after a line <code>--</code> are left out.</p></section>')
+    o.append('<section id="reply"><h2><span>The reply</span></h2><p>The reply prints your post back as it was filed, each new page '
+             'under its real key, and under each line a note starting with // that says what became of it. Notes are never read, so the reply is '
+             'itself an outline you can edit and send again. Its first line says what was filed, or that nothing was and why: a single stop and '
+             'nothing in the post is filed. This is the reply to the example above:</p>')
+    o.append(f'<pre class="outline">{esc(OUTLINE_REPLY)}</pre>')
+    notes = ('// new page [key] (claim)', '// new row on [page] in Reasons to agree', '// already on the page: nothing added',
+             '// matched [key] (0.89): counted as your vote to agree', '// near: [key] 0.52',
+             '// opened [key], the relevance page of this row (its Linkage page)',
+             '// notice: ...', '// stop: ...', '// not read: ...')
+    o.append('<p>The notes you will see: ' + ', '.join(f'<code>{esc(x)}</code>' for x in notes) + '. A near match is a claim '
+             'that reads close, listed so the maintainer can decide whether yours is the same; a line that is not read is one that was not part '
+             'of the outline, such as a greeting.</p></section>')
+    o.append('<section id="argdown"><h2><span>Argdown</span></h2><p>Reason Outline is built on <a href="https://argdown.org/">Argdown</a>, '
+             'a plain-text language for maps of arguments by Christian Voigt.</p><ul class="links">'
+             '<li>+ and - under a line, with indentation, mean what they mean in Argdown: the line pushed in supports, or attacks, the line '
+             'above it. Argdown&apos;s spelled-out <code>&lt;+</code>, <code>&lt;-</code> and <code>&lt;_</code> are read the same, and so is its '
+             'mention <code>@[name]</code>.</li>'
+             '<li><code>[name]: words</code> makes a statement and <code>[name]</code> refers to it, as in Argdown, and <code>===</code> '
+             'frontmatter, whole-line // notes and a backslash escape are Argdown&apos;s too. An outline that uses only these is an Argdown '
+             'document, and Argdown&apos;s tools draw the same tree. Every printout writes its rows as <code>[key]: words</code>, so its tree of '
+             'statements is Argdown&apos;s.</li>'
+             '<li>What does not carry over: Argdown reads a label, a detail or a heading as part of a statement&apos;s words, so its tree is the '
+             'same but it does not know what they say. Argdown&apos;s <code>_</code>, which attacks a step of reasoning, is read here and never '
+             'printed, because here it argues the row&apos;s relevance page, which a printout writes as a Relevance: list. Argdown&apos;s braces, '
+             '#tags, block comments and argument names are only words here. And where Argdown merges every <code>[same title]</code> into one '
+             'statement with several wordings, here a different wording under a key on the site is a correction request.</li></ul></section>')
+    o.append('<section id="ai"><h2><span>Asking an AI to write one</span></h2><p>Any AI assistant can write an outline. Paste this '
+             'to it with the address of the page you want it to add to, read what it returns, and paste the outline into the outline form. You '
+             'are the one posting it, so check each line first.</p>')
+    o.append(f'<pre class="brief">{esc(OUTLINE_BRIEF)}</pre>')
+    o.append('<p class="fine">What an assistant writes goes through the same checks as anything a person types: a claim already here becomes a '
+             'vote for it, and nothing is published until a person merges it.</p></section>')
+    o.append('<section id="programs"><h2><span>For programs</span></h2><p>A program writes strict outlines: frontmatter that says '
+             '<code>mode: strict</code>, two spaces a step, and every name exact, so a mistake is a stop and never a guess. Every name the '
+             'language reads (each label with the kind it names and where it files, the sign words, the headings and the details) is in '
+             '<a href="data/outline-spec.json">data/outline-spec.json</a>, and the kinds themselves in <a href="data/vocab.json">data/vocab.json</a>. '
+             'A kind can be written by its id and a colon (<code>link.irrelevant:</code>), and a place by <code>In &lt;table&gt; &lt;side&gt;:</code> '
+             'with a table&apos;s name from the two tables (<code>In evidence agree:</code>). Every page is printed as an outline at '
+             '<code>p/&lt;key&gt;.txt</code>, and every topic at <code>t/&lt;key&gt;.txt</code>; a printout read back matches every one of '
+             'its lines to the row it was printed from, so it adds nothing.</p></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+def outline_spec(rev=None):
+    """The closed lists of the Reason Outline (outline_names) as data, so a program can read and write the language
+    without this repository: every label with the kind of post it names and where it files, the sign words, the
+    factor headings, the detail names, the votes, and every stop and notice the reader and the filer give."""
+    import outline_names as N, outline_read as R, outline_file as F
+    return {
+        'name': 'Reason Outline', 'version': N.VERSION, 'built_from': rev, 'explained_at': PUBLIC + 'outline.html',
+        'how_to_read': {
+            'folding': 'A name matches any text that folds to the same string: lower case, apostrophes removed, hyphens and underscores '
+                       'read as spaces, every run of spaces one space. A name in brackets is a key: lower case, each run of spaces and '
+                       'underscores one hyphen. Names are kept without their colon.',
+            'labels': 'id is the kind of post the label names (vocab.json), or null for a label that names only a place; ids is every kind '
+                      'it can name (Prediction names one of two by the sign). section and side are where it files: side is agree or '
+                      'disagree when the label decides it, extreme or moderate for a stronger or weaker version, xy when its brackets '
+                      'decide, either when the sign or a for or against after the label decides, empty for none. target is the page it '
+                      'files on, seen from the line it is under: page, the page above; claim, the row\'s own page; link, imp, uniq and '
+                      'equiv, the row\'s relevance, importance, uniqueness or sameness page. takes_ref: it names another row, as in '
+                      'Repeats [other]. detail: what its brackets or the words after it hold (term, kind, category, xy). request: it makes '
+                      'no row, only a request. topic: a cell of a topic page. canonical: the label a printout writes for its kind.',
+            'ids': 'Every kind of post in vocab.json but house.vote and house.new-belief is also a label, written as its id and a colon '
+                   '(link.irrelevant:), matched exactly. Those two are lines of their own, written Vote: and Belief:.',
+            'places': 'In <section> [<side>] [(<category>)]: names a place, not a kind, with a section from sections and a side from '
+                      'side_words. It stores no tag.',
+            'headings': 'cell is the row cell the heading\'s page fills (Relevance under an At stake row fills bearing), kind the kind of page '
+                        'it opens, target the kinds that file on that page, sections the rows it may sit under.',
+            'fields': 'store is edge (an edges column), extra (a name in the row\'s extra cell), row (Own page) or page (a pages column, or a '
+                      'topics column on a topic). sections are the rows a row field applies to, kinds the pages a page field applies to. '
+                      'use is set (a new line\'s value is stored), request (only the maintainer fills it, so a post\'s value becomes a '
+                      'request) or compare (intake writes it; it is compared and never applied). ref: the value names a page, as [key].',
+            'codes': 'An E- code is a stop, and one stop files nothing; an N- code is a notice that travels with the rows.',
+        },
+        'signs': {'+': 'agree', '-': 'disagree', '_': 'does not bear on it (read, never printed)', '<+': 'agree', '<-': 'disagree',
+                  '<_': 'does not bear on it (read, never printed)'},
+        'words': list(N.WORDS),
+        'sign_words': [{'name': N.NAMES[f][0], 'side': s} for f, s in N.SIGNWORDS.items()],
+        'votes': [{'name': k, 'vote': v.vote, 'on_row': v.on_row} for k, v in N.VOTES.items()],
+        'headings': [dict(h._asdict(), sections=list(h.sections)) for h in N.HEADS.values()],
+        'labels': [dict(r._asdict(), ids=list(r.ids)) for r in N.LABELS.values()],
+        'fields': [dict(f._asdict(), sections=list(f.sections), kinds=list(f.kinds)) for f in N.FIELDS.values()],
+        'sections': {'page': list(N.PAGE_SECTIONS), 'topic': list(N.TOPIC_SECTIONS), 'words_only': list(N.WORDS_ONLY)},
+        'side_words': list(N.SIDE_WORDS), 'work_types': list(N.WORK_TYPES),
+        'frontmatter': list(N.FRONTMATTER), 'modes': list(N.MODES), 'cells': list(N.CELLS),
+        'codes': {**R.CODES, **F.CODES},
+        'brief': OUTLINE_BRIEF,
+    }
 
 
 def render_contributors(c, title):
@@ -4217,9 +4591,18 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     with open(os.path.join(outdir, 'contributors.html'), 'w') as fh: fh.write(blurbs_below(ths(render_contributors(c, title))))
     with open(os.path.join(outdir, 'grouping.html'), 'w') as fh: fh.write(blurbs_below(ths(render_grouping(c, title))))
     with open(os.path.join(outdir, 'vocab.html'), 'w') as fh: fh.write(blurbs_below(ths(render_vocab(c, title))))
+    with open(os.path.join(outdir, 'outline.html'), 'w') as fh: fh.write(blurbs_below(ths(render_outline(c, title))))
     os.makedirs(os.path.join(outdir, 't'))
     for tkey in c.topics:
         with open(os.path.join(outdir, 't', c.topic_href(tkey)), 'w') as fh: fh.write(blurbs_below(ths(render_topic(c, tkey, title))))
+    # every page and topic as a Reason Outline beside its page, printed from the full tables intake files against, so a
+    # printout sent back reads to exactly the rows it came from, even from the complete-only build
+    import intake as K, outline_print as OP
+    tables = K.Tables(entry, rows=c.rows if source == entry else (*read_source(entry), read_topics(entry)))
+    # the revision's date, not the clock: two builds of the same tables write the same bytes (test_invariants)
+    now = (getattr(c, 'prov', None) or {}).get('date') or OP.printed_at()
+    for pid in c.specs: _write(os.path.join(outdir, 'p', c.key[pid] + '.txt'), OP.print_page(tables, c.key[pid], 1, 'words', now))
+    for tkey in c.topics: _write(os.path.join(outdir, 't', tkey + '.txt'), OP.print_page(tables, tkey, 1, 'words', now))
     with open(os.path.join(outdir, 'method.html'), 'w') as fh:
         fh.write(blurbs_below(ths(method.render(c, Html(c, 'p/'), esc, f2, pct, CONST, CONST_MEANING, WIKI, JS))))
     _write(os.path.join(outdir, 'ise.css'), CSS)
@@ -4233,6 +4616,8 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
         json.dump(V.as_json(c.prov.get('rev')), fh, indent=1, ensure_ascii=False)
     with open(os.path.join(outdir, 'data', 'ise-context.jsonld'), 'w', encoding='utf-8') as fh:
         json.dump({'@context': V.CONTEXT}, fh, indent=1, ensure_ascii=False)
+    with open(os.path.join(outdir, 'data', 'outline-spec.json'), 'w', encoding='utf-8') as fh:
+        json.dump(outline_spec(c.prov.get('rev')), fh, indent=1, ensure_ascii=False)
     js = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'contribute.js')
     if os.path.exists(js): shutil.copy(js, os.path.join(outdir, 'contribute.js'))
     # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
