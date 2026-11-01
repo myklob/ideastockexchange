@@ -2867,6 +2867,85 @@ class TestEveryPageIsAReasonOutline(unittest.TestCase):
         self.assertIn('E-UNKNOWN-KEY', d['codes']); self.assertIn('E-NEAR', d['codes'])
         self.assertNotIn('\u2014', json.dumps(d, ensure_ascii=False))
 
+    def test_the_lede_is_a_few_sentences_and_links_the_form(self):
+        import render_site as RS
+        lede = re.search(r'<p class="lede">(.*?)</p>', self.page, re.S).group(1)
+        words = re.sub(r'<[^>]+>', '', lede)
+        self.assertLessEqual(len(re.split(r'(?<=[.!?])\s+', words.strip())), 4)
+        self.assertLess(len(words.split()), 150)
+        self.assertIn(f'href="{htmlmod.escape(RS.outline_form_url())}"', lede)
+        # the one rule the long lede held that no section did, with the space the dots need
+        marks = self.page[self.page.index('id="marks"'):self.page.index('id="details"')]
+        self.assertIn('one dot and a space for each step in', marks)
+        self.assertIn('<code>. + reason   and   .. - reason</code>', marks)
+        self.assertIn('is read as the rest of the line above it', marks)
+
+    def test_the_brief_breaks_its_long_addresses_on_a_phone(self):
+        css = self.read('ise.css')
+        self.assertRegex(css, r'pre\.brief\{[^}]*overflow-wrap:anywhere')
+
+    def test_a_printouts_first_lines_are_explained(self):
+        post = self.page[self.page.index('id="post"'):self.page.index('id="reply"')]
+        self.assertIn('<code>===</code> lines that say which page it was printed from', post)
+        with open(os.path.join(self.dir, 'data', 'outline-spec.json'), encoding='utf-8') as fh: d = json.load(fh)
+        for name in ('reasons:', 'mode:', 'from:', 'printed:', 'depth:', 'cells:'): self.assertIn(name, d['how_to_read']['frontmatter'])
+
+    def test_where_the_keys_are_listed_reads_as_one_sentence(self):
+        self.assertIn('the list of every page</a> (works and the pages that argue a row included), and every topic&apos;s key and name are in',
+                      self.page)
+
+
+class TestAPrintoutAndAClaimsWordsAreInert(unittest.TestCase):
+    """Two small builds of three pages: a claim whose words would end the page's structured data early is written so
+    it cannot, and a printout carries the revision's time in UTC, or no printed: line when there is no revision."""
+
+    @classmethod
+    def setUpClass(cls):
+        import tempfile
+        import ise_tables as IT, render_site as RS
+        pages = [dict(key='a', kind='belief', text='Officials should not trade stocks.'),
+                 dict(key='r1', kind='claim', text='Officials who trade <!--<script> before votes profit from what they know.', parent='a'),
+                 dict(key='r2', kind='claim', text='Trading rules are hard to enforce.', parent='a')]
+        edges = [dict(page='a', section='argument', side='agree', claim='r1'), dict(page='a', section='argument', side='disagree', claim='r2')]
+        cls.src = tempfile.mkdtemp(prefix='ise-inert-')
+        IT.write_csv(pages, edges, cls.src, topics=[])
+        cls.out, real = {}, RS.provenance
+        try:
+            for name, prov in (('rev', {'rev': 'abc1234', 'date': '2026-10-10', 'dirty': False, 'time': '2026-10-11T02:05Z'}),
+                               ('none', {'rev': '', 'date': '', 'dirty': False})):
+                RS.provenance = lambda *a, _p=prov, **k: _p
+                cls.out[name] = tempfile.mkdtemp(prefix='ise-inert-out-')
+                RS.build(cls.src, cls.out[name])
+        finally:
+            RS.provenance = real
+
+    @classmethod
+    def tearDownClass(cls):
+        for d in [cls.src] + list(cls.out.values()): shutil.rmtree(d, ignore_errors=True)
+
+    def read(self, build, *path):
+        with open(os.path.join(self.out[build], *path), encoding='utf-8') as fh: return fh.read()
+
+    def test_no_claims_words_change_where_the_structured_data_ends(self):
+        for key in ('a', 'r1'):
+            h = self.read('rev', 'p', key + '.html')
+            i = h.index('<script type="application/ld+json">') + len('<script type="application/ld+json">')
+            j = h.index('</script>', i)
+            self.assertNotIn('<', h[i:j], key)
+            self.assertEqual(json.loads(h[i:j])['@id'].rsplit('/', 1)[-1], key + '.html')
+            self.assertIn('<h1', h[j:], f'{key}: the heading is not after the structured data')
+        self.assertIn('&lt;!--&lt;script&gt;', self.read('rev', 'p', 'a.html'))
+
+    def test_a_printout_carries_the_revisions_time_in_utc_or_no_time(self):
+        self.assertIn('\nprinted: 2026-10-11T02:05Z\n', self.read('rev', 'p', 'a.txt'))
+        self.assertNotIn('printed:', self.read('none', 'p', 'a.txt'))
+        import render_site as RS, subprocess, datetime
+        p = RS.provenance()
+        if not p.get('rev'): self.skipTest('not in a git checkout')
+        root = os.path.dirname(os.path.dirname(HERE))
+        ct = subprocess.run(['git', '-C', root, 'log', '-1', '--format=%ct'], capture_output=True, text=True).stdout.strip()
+        self.assertEqual(p['time'], datetime.datetime.fromtimestamp(int(ct), datetime.timezone.utc).strftime('%Y-%m-%dT%H:%MZ'))
+
 
 def R_read(text, mode=None):
     import outline_read as R

@@ -417,6 +417,21 @@ class TestCraftedRows(unittest.TestCase):
         self.assertIn('  Topic work: [w]: Trees and Streets, a report', t)
         self.assertFalse(any('Own page' in x for x in t))
 
+    def test_a_page_with_no_words_says_what_it_argues(self):
+        for kind, x, y, want in (('linkage', 'r', 'b', '// whether [r] bears on [b]'), ('importance', 'r', 'b', '// how much [r] matters to [b]'),
+                                 ('uniqueness', 'r', 's', '// whether [r] makes a point that [s] does not'),
+                                 ('equivalence', 'b', 'v', '// whether [b] and [v] are one claim'),
+                                 ('driver', 'i', 'b', '// whether the interest [i] really drives the position on [b]')):
+            with self.subTest(kind):
+                t = SimpleNamespace(pages=[dict(key='f', kind=kind, x=x, y=y)], edges=[], topics=[], by_key={'f': dict(key='f', kind=kind, x=x, y=y)})
+                lines = OP.print_page(t, 'f', 1, 'words', 'now').split('\n')
+                self.assertEqual(lines[8:10], ['// https://myklob.github.io/ideastockexchange/beliefs/p/f.html', want])
+        self.assertNotIn('// whether', '\n'.join(self.lines))
+
+    def test_a_printout_with_no_time_to_stamp_has_no_printed_line(self):
+        lines = OP.print_page(self.t, 'b', 1, 'words', '').split('\n')
+        self.assertEqual(lines[:6], ['===', 'reasons: 1', 'from: b', 'depth: 1', 'cells: words', '==='])
+
     def test_now_and_cells(self):
         self.assertIn('printed: 2026-10-31T09:00Z', self.lines)
         self.assertIn('printed: 2026-10-31T02:00Z', OP.print_page(self.t, 'b', 1, 'words', datetime.datetime(2026, 10, 30, 19, 0, tzinfo=datetime.timezone(datetime.timedelta(hours=-7)))).split('\n'))

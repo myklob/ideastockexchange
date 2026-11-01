@@ -24,6 +24,8 @@ moves other numbers the site prints (ReasonRank, the sensitivity count, confiden
 filed on the page it makes. Every other difference between a line and what is stored becomes a correction request,
 and nothing is ever deleted.
 
+The rules are cited by their ids in the language's specification (W6, K5); outline_names.RULES says each in a line.
+
 Decisions, where the spec left a choice or where it and the code or the stored data pull apart:
 - A line with no [key] is first compared with the stored rows that have no page, at its own page, section, side and
   (for a topic cell) category, by its folded main words (W2), before W1 looks for a page with those words. The spec
@@ -39,10 +41,14 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   extra words-only line is a new row, as the spec says. An extra line naming a claim already listed at that place
   matches it again instead, because a claim is listed once per page.
 - W6 compares a new line with the stored words-only rows on the same page and section, on either side (the spec says
-  page and section). On the page a printout was printed from (its from: line), every stored row was printed, so a
-  stored row no line has exactly was edited or taken out, and there W6 takes a score of FLAG, or words that read alike
-  letter for letter: the measure counts whole words, and an edited cell of one to three words never reaches MERGE.
-  Elsewhere it takes MERGE, since nothing says the line was printed. Each cell that differs is its own correction request (the words, a definition's term, a
+  page and section), at MERGE, part for part with the stored row's main words. On the page a printout was printed
+  from (its from: line) it also takes words that read alike letter for letter (EDITED, 0.85, or EDITED_SHORT, 0.75,
+  for a cell of up to three words): the measure counts whole words, and an edited cell of one to three words never
+  reaches MERGE. It does not take FLAG there: a sender may cut the printed lines and keep the frontmatter, so a
+  stored row no line has is not always an edited one, and a new line beside a row taken out reads FLAG to it often
+  enough that it would be filed as nothing but a request to overwrite that row. Words that score MERGE against a
+  stored row although they say something else ('both are established' for 'only the first is') are still taken, on
+  any page, as W6 says. Each cell that differs is its own correction request (the words, a definition's term, a
   dispute's kind, a topic cell's bracket, the side), and a cell that is the same asks for nothing. W6 never takes a
   stored row whose words another line of the post has exactly, since that line is the row's (W2), whichever comes
   first. For a topic cell W6 runs before W1 and W4, as W2 does: a printed cell has no 'Own page: no' line, so an
@@ -63,8 +69,9 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   once the post gives it a page, so the reply sent back before the pull request is merged files the same page again,
   and after it names the page. The reply leaves the row's Own page: no line out as a note.
 - Words that are only a bracket holding what no key can hold ('[members-regularly-trade-industries.]', '[[key]]', a
-  dash that is not a hyphen) are a mistyped [key] (E-UNKNOWN-KEY with the nearest keys), not a new page whose words
-  are the bracket. A local name one or two letters from a key on the site makes its new page with a notice
+  dash that is not a hyphen), or that start with one before a colon or, when it holds a hyphen, before words, are a
+  mistyped [key] (E-UNKNOWN-KEY with the nearest keys), not a new page whose words hold the bracket, nor typed words
+  matched to a page and counted as a vote. A bracketed aside of several words ('[Note: see below]') is words. A local name one or two letters from a key on the site makes its new page with a notice
   (N-NEAR-KEY), since it may be that key mistyped.
 - A line that names a page by a site address in its words is compared with that page's words with the address taken
   out (G2), and is printed back that way.
@@ -86,9 +93,10 @@ Decisions, where the spec left a choice or where it and the code or the stored d
 - Opening a page moves numbers the spec's 'opening one moves no number' leaves out: reasonrank.py shares a row's
   weight among the pages it reads, so an empty relevance page halves its claim's ReasonRank; the sensitivity sweep
   counts it as one more input; and confidence.py counts a row given a page of its own as a level of depth and a claim
-  beneath its page. Truth and belief do not move. A heading with nothing under it therefore opens nothing and gives
-  a row with no page nothing (N-EMPTY); a line filed under it opens the page, and the numbers move with that line, as
-  they do for any new reason.
+  beneath its page. Truth and belief do not move. A heading with nothing filed on its page therefore opens nothing and
+  gives a row with no page nothing (N-EMPTY); a line filed under it opens the page, and the numbers move with that
+  line, as they do for any new reason. A request under it, or a fallacy its attack moves to another page (T8), files
+  as it would with the heading left out, and does not open the heading's page.
 - The reply leaves out the notes of an earlier reply sent back with the post (they are its own, by their form), prints
   the sender's own notes at the indent they were typed at, and prints a line it has no echo for without the dots and
   the bullet the reader took off it, so a stopped line sent back is read at the depth it was read at.
@@ -102,9 +110,6 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   deep as its text allows (DEPTH WITHOUT LIMIT) and puts it back after.
 - A key is cut to 60 characters (intake.fit_key), the longest a [name] or an address reads, so five long words make
   a key a post can name.
-- An importance page's 'rowkind' uses the names the stored pages and the workbook's list use (supporting finding,
-  prediction if the belief is true, work), not intake.ROW_KIND's (evidence for, prediction if true), which
-  test_intake pins and the forms still write.
 - A factor page key slugs a page's text; a page with no text (a factor page) is slugged from its key's words.
 - A new interest page made for a stored words-only row in an interest section goes under the topmost page, as every
   new interest page does (intake.new_page); the stored data has no such row.
@@ -129,22 +134,45 @@ Decisions, where the spec left a choice or where it and the code or the stored d
 - A chain of pages, each resting on the next, is walked by the scorer one call inside the last, so a chain longer than
   Python's recursion limit allows fails the build. A post that would make one longer than MAX_CHAIN (100; the stored
   tables' longest is 3, and a chain of 100 builds) stops (E-TOO-DEEP). DEPTH WITHOUT LIMIT holds for the language, and
-  this is the scorer's limit.
+  this is the scorer's limit. The tables are walked again only when the new steps could make such a chain: a post's
+  names and repeated words join its lines, so its depth in the text says nothing about how long a chain it makes.
 - similarity.opposite tells a claim from its denial by counting negating words, and reads a claim with its comparison
   turned round ('more harm than good', 'harder, not easier', 'has failed to earn') as the claim itself. W4 and W6
-  therefore also refuse a match that _reverses finds turned round (a swapped comparison, a 'failed to' or 'unable to',
-  or one word of a short list of opposites against the other); such a match is listed as a near match that reads as
-  its denial, and the line gets a page of its own. This sits here rather than in similarity.py, which the duplicate
-  report and the forms share.
+  therefore also refuse a match that _reverses finds turned round (a swapped comparison, a subject and an object
+  swapped round their verb, a 'failed to', 'rarely' or 'it is false that', or one word of a short list of opposites
+  against the other); such a match is listed as a near match that reads as its denial, and the line gets a page of
+  its own. A text's comparisons are paired with the other's in order, so an edited word in a sentence with two of
+  them is an edit and not a swap. This sits here rather than in similarity.py, which the duplicate report and the
+  forms share.
+- A label that names a kind other than the place's default and a Kind: line that names another, and a work label
+  (Book:) and a Type: line that says another type for the new work, are two values for one cell: E4's repeat, a stop
+  (E-FIELD-VALUE), as K4's bracket and a Units: line already are. A Kind: line beside the place's default label is
+  how the printer writes a tag the label cannot carry, so it is no repeat; taking that Kind: line out of a printout
+  asks for nothing, as taking out any other detail line does.
+- A correction to a row's own cells (Source:, Medium:, its side, its bracket) names the row, 'the finding (for)
+  [key] listed on [page]', since 354 claims are rows on more than one page; a correction to a claim's words or a
+  page cell names the page.
+- On a topic, an edited bracket or sign is matched to the unmatched cell with that claim before a cell an earlier
+  line already matched, since a topic may list one claim twice in a section (4 stored ones do).
+- A local name for a stored row with no page names the page a line under that row gives it; when no line does, a
+  line that points at it stops (E-NO-PAGE-YET), rather than the row being given a page by a line under another row.
+- After a stop, the reply and the notices say a match would count as a vote once nothing stops, since nothing in a
+  stopped post counts (H); Filed.votes still lists them, as Filed.pages lists the pages.
+- A detail line's repair (G) is dropped when the line it is under matched a stored row or page, as the line's own
+  repairs are, and the reply prints a detail of a new row or page as its cell holds it (repaired), so the reply sent
+  back after the merge reads back to nothing.
+- A Stack cell's own words, which the printer prints as Row text:, are compared when a matched Stack line has them.
 - The local names are read here rather than with outline_read.local_names, which also counts a detail line's [key]
   on the line above it, so an unknown key in a detail stopped twice. The rules are the same.
 - The reply indents by the tree that was read (two spaces a step), so it is valid strict input, and writes a sign
   word or a ' for' / ' against' suffix as the sign it gave. A new belief is written 'Belief: [key]: words', which reads
   back as that page once the pull request is merged and as the same new page before. It has no frontmatter, and a
   local name's line gets the note '[name] in this post is [key]'.
-- Factor pages are opened by the stored pages' conventions (argu-, evid-, pred-, inte-, medi-, imp-, uniq-, equiv- and
-  drives- keys, the nearest belief as parent, x and y as stored), not by intake.aim's, which the forms still use and
-  test_intake pins; intake.py is unchanged. Each of the 98 factor pages in the tables is rebuilt exactly by this rule.
+- Factor pages are opened by intake.factor_page, which the forms use too (intake.aim), by the stored pages'
+  conventions: argu-, evid-, pred-, inte-, medi-, imp-, uniq-, equiv- and drives- keys, the nearest belief as parent,
+  x and y as stored, and an importance page's rowkind in the words the stored pages and the workbook's list use
+  (intake.ROW_KIND: supporting finding, prediction if the belief is true, work). Each of the 98 factor pages in the
+  tables is rebuilt exactly by this rule.
 - intake.check_contribution is not called: it stops at the first problem and wants a form's fields (words and a side),
   which a Stack or Topic work cell does not have. Its test (topic sections only on topics, page sections only on
   pages) is E-TOPIC-CELL here, and the reader checks a cell's category by intake.CATEGORIES and RUNG.
@@ -196,6 +224,7 @@ CODES = {
     'N-EMPTY': 'a heading with nothing under it opens nothing',
     'N-SCRIPT': 'a word that mixes alphabets, compared with the claims as the letters it looks like',
     'N-NEAR-KEY': 'a local name a letter or two from a key on the site',
+    'E-NO-PAGE-YET': 'a local name for a row with no page, which no line under it gives one',
 }
 # the sections whose words a row keeps in its extra cell, where '|' separates one cell from the next
 EXTRA_WORDS = ('value', 'definition', 'dispute', 'motive', 'topic_values')
@@ -203,10 +232,12 @@ EXTRA_WORDS = ('value', 'definition', 'dispute', 'motive', 'topic_values')
 _LOOKALIKE = str.maketrans('аеорсухіјѕԁԛԝӏАВЕКМНОРСТХІЈЅУΑΒΕΖΗΙΚΜΝΟΡΤΥΧο',
                            'aeopcyxijsdqwlABEKMHOPCTXIJSYABEZHIKMNOPTYXo')
 _LETTERS = re.compile(r'[^\W\d_]+')
-# words that are nothing but a bracket, which a [key] cannot read: a key typed with a character it cannot hold
+# words that are nothing but a bracket, which a [key] cannot read: a key typed with a character it cannot hold; and
+# words that start with such a bracket, of one word, and a colon ('[key.]: words'), or of a hyphenated word and words
 _BRACKETED = re.compile(r'@?\[+([^\[\]]*)\]+:?$')
+_BRACKETED_LEAD = re.compile(r'@?\[+([^\[\]\s]+)\]+:|@?\[+([^\[\]\s]*-[^\[\]\s]*)\]+(?:\s|$)')
 _GREEK_CYRILLIC = re.compile('[Ͱ-ϿЀ-ԯ]')
-# an importance page's rowkind, in the words the stored pages and the workbook's list use
+# a row's factor cell, named as the messages name its page
 CELL_NAME = {'link': 'relevance', 'bearing': 'relevance', 'imp': 'importance', 'uniq': 'uniqueness', 'equiv': 'sameness',
              'drives': 'driver'}
 LOOP_SECTIONS = ('argument', 'evidence', 'prediction', 'component', 'interest_listing')
@@ -217,8 +248,14 @@ READS.update(component=('claim',), interest_listing=('claim', 'bearing'))
 # the longest chain of pages, each resting on the next, that the site's scorer evaluates within Python's default
 # recursion limit with room to spare (it takes about five calls a step; a chain of 200 fails on Python 3.12)
 MAX_CHAIN = 100
+# how alike, letter for letter, a line on the page its printout came from must read to a stored row with no page to be
+# that row edited (W6): an edit of a word or two in a sentence reads 0.87 and up, a new sentence beside a printed one
+# taken out 0.70 to 0.81; a cell of one to three words edited reads 0.75 and up ('Prudent' for 'Prudence', 0.80)
+EDITED, EDITED_SHORT = 0.85, 0.75
 LAYERS = ('worldview', 'political', 'causal', 'specific')
 SIGN = {'agree': '+', 'disagree': '-'}
+VOTED, WOULD_VOTE = 'counted as your vote to agree', 'would count as your vote to agree once nothing in the post stops'
+COUNTS, WOULD_COUNT = 'counts as your vote to agree with it.', 'would count as your vote to agree with it once nothing in the post stops.'
 _FIELD_ORDER = {(fl.store, fl.col): i for i, fl in enumerate(N.FIELDS.values())}
 
 
@@ -239,8 +276,10 @@ def _same(stored, typed, col=None):
     return _norm(stored) == _norm(typed)
 
 
-# words that deny what follows them ('failed to earn'), beyond those similarity.NEGATION counts
-_FAILS = re.compile(r"\b(?:fail(?:s|ed|ing)?|unable|refus(?:e|es|ed|ing)|lack(?:s|ed|ing)?)\b")
+# words that deny what follows them ('failed to earn', 'rarely trade', 'it is false that'), beyond those
+# similarity.NEGATION counts
+_FAILS = re.compile(r"\b(?:fail(?:s|ed|ing)?|unable|refus(?:e|es|ed|ing)|lack(?:s|ed|ing)?|rarely|seldom|hardly|scarcely)\b|"
+                    r"\b(?:false|untrue|a myth) that\b")
 # words that turn a comparison around when one text has one and the other text the other
 _ANTONYMS = {frozenset(p) for p in (
     ('good', 'bad'), ('good', 'harm'), ('better', 'worse'), ('best', 'worst'), ('easier', 'harder'), ('easy', 'hard'),
@@ -268,38 +307,58 @@ def _denials(ts):
 
 
 def _frames(ts):
-    """Each comparison in a text ('X than Y', 'X, not Y', 'X rather than Y'), as (the words before it in its clause,
-    the words after it, the nearest word before, the nearest after), stop words left out."""
+    """Each comparison in a text ('X than Y', 'X, not Y', 'X rather than Y'), as (its word, the words before it in
+    its clause, the words after it, the nearest word before, the nearest after), stop words left out."""
     cs = [w for w in ts if w not in _STOP or w in _ANCHORS]
     out, start = [], 0
     for i, w in enumerate(cs):
         if w not in _ANCHORS: continue
         before = [x for x in cs[start:i] if x not in _ANCHORS]
         after = [x for x in cs[i + 1:i + 7] if x not in _ANCHORS]
-        if before and after: out.append((set(before), set(after), before[-1], after[0]))
+        if before and after: out.append((w, set(before), set(after), before[-1], after[0]))
         start = i + 1
     return out
 
 
+def _crossed(ba, aa, bb, ab):
+    """Words before a point in one text that come after it in the other, and words after it that come before it."""
+    return bool((ba & ab) - aa - bb and (aa & bb) - ba - ab)
+
+
+def _swapped(ta, tb):
+    """Whether two texts that use one word once each have words moved across it both ways ('A will outsell B' and 'B
+    will outsell A'): a subject and an object swapped round their verb. An edit keeps the order of the words it leaves,
+    so it never moves one across a word both texts share."""
+    ca, cb = [w for w in ta if w not in _STOP], [w for w in tb if w not in _STOP]
+    for v in set(ca) & set(cb):
+        if ca.count(v) != 1 or cb.count(v) != 1: continue
+        i, j = ca.index(v), cb.index(v)
+        ba, aa, bb, ab = set(ca[:i]), set(ca[i + 1:]), set(cb[:j]), set(cb[j + 1:])
+        if ba and aa and bb and ab and _crossed(ba, aa, bb, ab): return True
+    return False
+
+
 def _reverses(a, b):
     """Whether one claim says the opposite of the other although the two read alike: one denies what the other says
-    (similarity.opposite, or 'failed to' and the like), the two sides of a comparison are swapped ('more good than
-    harm' and 'more harm than good', 'easier, not harder' and 'harder, not easier'), one says the side the other
-    puts second comes first ('more harm than good' against 'good for'), or one uses a word and the other its opposite
-    ('allowed by law' against 'against the law', 'many worlds' against 'very few'). The measure counts words, not
-    their order, so it reads each of these pairs as near copies. A subject and an object swapped with no comparison
-    word between them ('A will outsell B' and 'B will outsell A') is not found."""
+    (similarity.opposite, or 'failed to', 'rarely', 'it is false that' and the like), the two sides of a comparison are
+    swapped ('more good than harm' and 'more harm than good', 'easier, not harder' and 'harder, not easier'), one
+    says the side the other puts second comes first ('more harm than good' against 'good for'), a subject and an
+    object are swapped round their verb ('A will outsell B' and 'B will outsell A'), or one uses a word and the other
+    its opposite ('allowed by law' against 'against the law', 'many worlds' against 'very few'). The measure counts
+    words, not their order, so it reads each of these pairs as near copies. The comparisons of two texts are paired
+    in order by their word, so one word edited in a text with several comparisons is not read as a swap."""
     if opposite(a, b): return True
     ta, tb = _tokens(a), _tokens(b)
     if _denials(ta) % 2 != _denials(tb) % 2: return True
     fa, fb = _frames(ta), _frames(tb)
-    for ba, aa, _, _ in fa:
-        for bb, ab, _, _ in fb:
-            if (ba & ab) - aa - bb and (aa & bb) - ba - ab: return True
+    for w in {f[0] for f in fa} & {f[0] for f in fb}:
+        for (_, ba, aa, _, _), (_, bb, ab, _, _) in zip([f for f in fa if f[0] == w], [f for f in fb if f[0] == w]):
+            if _crossed(ba, aa, bb, ab): return True
+    if _swapped(ta, tb): return True
     sa, sb = set(ta), set(tb)
     for frames, other, others in ((fa, sb, fb), (fb, sa, fa)):
         if frames and not others:
-            for _, _, first, second in frames:
+            for _, _, _, first, second in frames:
                 if first not in other and second in other: return True
     only_a, only_b = set(Counter(ta) - Counter(tb)), set(Counter(tb) - Counter(ta))
     flips = {p for p in _ANTONYMS if len(p & only_a) == 1 and len(p & only_b) == 1 and p & only_a != p & only_b}
@@ -516,14 +575,19 @@ class _Filer:
                       (f'{s!r}' if s else 'nothing there'))
 
     # ----------------------------------------------------------------------------------------- names
-    def resolve(self, r):
-        """The key a ref names: a key on the site, or the page a local name stands for; None when it is neither (yet)."""
+    def resolve(self, r, n=None):
+        """The key a ref names: a key on the site, or the page a local name stands for; None when it is neither (yet).
+        A local name for a stored row with no page of its own names the page a line under that row gives it, so when
+        no line does, the line n that points at it stops: it names no page."""
         if r is None: return None
         v = r['value']
         if v in self.site: return v
         if v not in self.local and v in self.pending:
-            idx, n = self.pending[v]
-            self.row_page(_Row(idx, n, False), n)
+            idx, row = self.pending[v]
+            if any(c.shape in ('entry', 'heading') and not c.bad for c in row.children): self.row_page(_Row(idx, row, False), row)
+            elif n is not None and n is not row:
+                self.stop(n, 'E-NO-PAGE-YET', f'Line {n.line_no}: [{v}] is the row on line {row.line_no}, which has no page of its own, so no line '
+                                              f'can point at it. Put a line under line {row.line_no} to give it a page, or name a row that has one.')
         return self.local.get(v)
 
     def defining(self, n):
@@ -549,13 +613,16 @@ class _Filer:
 
     def bracketed(self, n):
         """Words that are only a bracket holding something that is no key (a full stop, a slash, an apostrophe, a dash
-        that is not a hyphen, or a second pair of brackets) are a mistyped [key]: E-UNKNOWN-KEY with the nearest keys,
-        rather than a new page whose words are the bracket. True when it stopped."""
-        m = _BRACKETED.match((n.typed or '').strip()) if n.ref is None and not n.escaped else None
-        if not m or not m.group(1).strip(): return False
-        guess = re.sub(r'[^a-z0-9]+', '-', unicodedata.normalize('NFKC', m.group(1)).lower()).strip('-')
+        that is not a hyphen, or a second pair of brackets), or that start with one before a colon or before words, are
+        a mistyped [key]: E-UNKNOWN-KEY with the nearest keys, rather than a new page whose words hold the bracket, or
+        words matched to a page and counted as a vote. True when it stopped."""
+        typed = (n.typed or '').strip()
+        m = (_BRACKETED.match(typed) or _BRACKETED_LEAD.match(typed)) if n.ref is None and not n.escaped else None
+        inner = next((g for g in m.groups() if g), '') if m else ''
+        if not inner.strip(): return False
+        guess = re.sub(r'[^a-z0-9]+', '-', unicodedata.normalize('NFKC', inner).lower()).strip('-')
         near = self.nearest_keys(guess) if guess else []
-        self.stop(n, 'E-UNKNOWN-KEY', f'Line {n.line_no}: {m.group().rstrip(":")} is not a [key]: a key holds only letters, digits and hyphens.'
+        self.stop(n, 'E-UNKNOWN-KEY', f'Line {n.line_no}: {m.group().strip().rstrip(":")} is not a [key]: a key holds only letters, digits and hyphens.'
                                       + (f' Nearest: {_or(f"[{k}]" for k in near)}.' if near else '') +
                                       ' To keep the words as they are, put \\ in front of them.')
         return True
@@ -666,9 +733,9 @@ class _Filer:
             if how == 'again': self.note(h, f'same words as an earlier line of this post: names [{hit}], the page that line made')
             elif r is None:
                 self.vote_for(hit, 'agree', h)
-                self.note(h, f'matched [{hit}] ({score:.2f}): counted as your vote to agree')
+                self.note(h, f'matched [{hit}] ({score:.2f}): {VOTED}')
                 self.notice(h, 'N-MATCH', f'Line {h.line_no}: the belief is already on the site as [{hit}], so its lines file on that page, '
-                                          f'and the post counts as your vote to agree with it.')
+                                          f'and the post {COUNTS}')
             self.page_fields(h, hit, self.kind_of(hit), False)
             self.out.echo[h.line_no] = f'Page: [{hit}]: {OP.after_handle(self.text_of(hit))}'
             return Ctx(hit, self.kind_of(hit), None, 'header')
@@ -726,7 +793,7 @@ class _Filer:
         for c in n.children:
             if c.shape != 'field' or c.field is None or c.bad: continue
             fv = by_line.get(c.line_no)
-            ref = self.resolve(c.ref) if c.ref and c.field.ref else None
+            ref = self.resolve(c.ref, c) if c.ref and c.field.ref else None
             out.append(FieldLine(c, c.field, c.value, fv.value if fv else c.value, ref, c.line_no))
         if n.moved_address and 'address' in n.fields and n.fields['address'].line == n.line_no:
             out.append(FieldLine(None, N.FIELDS['address'], n.moved_address, n.moved_address, None, n.line_no))
@@ -744,15 +811,16 @@ class _Filer:
                                                    f'{"a page" if n.shape != "entry" else "a row with no such cell"}. Put it under the row it belongs to.')
                 continue
             if not N.fits_field(fl, page_kind=kind):
-                self.stop(x.line, 'E-FIELD-PLACE', f'Line {x.line}: {fl.name}: is not a cell of a {kind} page.')
+                self.stop(x.line, 'E-FIELD-PLACE', f'Line {x.line}: {fl.name}: is not a cell of {_a(kind)} page.')
                 continue
-            if x.node is not None: self.out.echo[x.line] = self.echo_field(x)
+            if x.node is not None: self.out.echo[x.line] = self.echo_field(x, stored=new)
             col = fl.col
             typed = x.ref if fl.ref and x.ref else x.typed
             if page is None: continue
             stored = page.get(col)
             compare = fl.use == 'compare' or (col == 'type' and kind == 'linkage')
             if not new:
+                if x.node is not None: self.drop.update(x.node.repairs)
                 if col == 'topic' and typed and self.t.topic_key(typed) == stored: continue
                 if not _same(stored, typed, col):
                     self.correction(x.node or n, key, fl.name, stored, typed, maintainer=fl.use == 'request')
@@ -776,12 +844,15 @@ class _Filer:
                 value = hit or value
             page[col] = value
 
-    def echo_field(self, x):
-        if x.node is None: return f'{x.field.name}: {x.typed}'
+    def echo_field(self, x, stored=False):
+        """A detail line as the reply prints it: as typed, or, when stored, as its cell holds it (repaired), so the
+        reply sent back after the merge reads back to nothing."""
+        v = x.value if stored and x.value is not None else x.typed
+        if x.node is None: return f'{x.field.name}: {v}'
         name = x.node.label_text or x.field.name
         if x.typed is None: return f'{name}: -'
         if x.field.ref and x.ref: return f'{name}: [{x.ref}]'
-        return f'{name}: ' + OP.escape_value(x.typed)
+        return f'{name}: ' + OP.escape_value(v)
 
     # ----------------------------------------------------------------------------------------- where a line lands
     def dest(self, n, ctx, kid):
@@ -804,7 +875,7 @@ class _Filer:
             if ctx.kind == fk:
                 if target == 'uniq' and n.label_ref:
                     y = (self.t.by_key.get(ctx.page) or {}).get('y')
-                    other = self.resolve(n.label_ref)
+                    other = self.resolve(n.label_ref, n)
                     if y and other and other != y:
                         self.stop(n, 'E-UNIQ-TAKEN', f'Line {n.line_no}: [{ctx.page}] compares its row with [{y}], and {name} names [{other}].')
                         return None
@@ -818,7 +889,7 @@ class _Filer:
         cell = 'bearing' if target == 'link' and e.get('section') == 'interest_listing' else target
         other = None
         if target == 'uniq':
-            other = self.resolve(n.label_ref) if n.label_ref else None
+            other = self.resolve(n.label_ref, n) if n.label_ref else None
             if other is None: return None
         k = self.factor(row, cell, n, other=other)
         if k is None: return None
@@ -894,8 +965,10 @@ class _Filer:
             return None
         if have: return have
         if empty:
-            self.notice(n, 'N-EMPTY', f'Line {n.line_no}: {n.label_text or (n.head[0].name if n.head else "This heading")}: has nothing under it, '
-                                      f'so no {what} page was opened for line {row.node.line_no}. Put the lines that argue it under the heading.')
+            name = n.label_text or (n.head[0].name if n.head else 'This heading')
+            said = 'nothing under it that files on that page' if any(not c.bad for c in n.children) else 'nothing under it'
+            self.notice(n, 'N-EMPTY', f'Line {n.line_no}: {name}: has {said}, so no {what} page was opened for line {row.node.line_no}. '
+                                      f'Put the lines that argue it under the heading.')
             return ''
         if self.row_page(row, n) is None: return None
         e = self.t.edges[row.idx]
@@ -919,18 +992,20 @@ class _Filer:
                                            f'topic page, which has no factors of its own.')
             return
         cell = N.head_cell(head, e.get('section') or '')
-        other = self.resolve(other_ref) if other_ref else None
+        other = self.resolve(other_ref, n) if other_ref else None
         if head.takes_ref and other is None: return
-        named = self.resolve(n.ref) if n.ref else None
+        named = self.resolve(n.ref, n) if n.ref else None
         if n.ref and named is None: return
         bare = f'Uniqueness vs [{other}]:' if head.takes_ref else f'{head.name}:'
-        # a page opened for a heading with nothing under it would move numbers with no argument: ReasonRank shares a
+        # a page opened for a heading with nothing filed on it would move numbers with no argument: ReasonRank shares a
         # row's weight among the pages it reads, the sensitivity sweep counts it as an input, and a row given a page
-        # of its own counts in its page's confidence. So such a heading opens nothing.
-        empty = named is None and not any(not c.bad for c in n.children)
+        # of its own counts in its page's confidence. So such a heading opens nothing, and the lines under it that
+        # file elsewhere (a request, a fallacy its attack moves) are filed as if it were not there.
+        empty = named is None and not self.files_here(n)
         key = self.factor(row, cell, n, other=other, named=named, empty=empty)
         if key == '':
             self.out.echo[n.line_no] = bare
+            self.children(n, Ctx(None, None, row, head.target))
             return
         if key is None: return
         self.out.keys[n.line_no] = key
@@ -940,6 +1015,20 @@ class _Filer:
         fkind = self.kind_of(key)
         self.page_fields(n, key, fkind, key in self.new_keys)
         self.children(n, Ctx(key, fkind, row, head.target))
+
+    @staticmethod
+    def files_here(h):
+        """Whether a factor heading has a line that files on its own page: a cell of the page, or a row that is no
+        request and no fallacy its attack moves to another page (T8)."""
+        target = h.head[0].target
+        for c in h.children:
+            if c.bad: continue
+            if c.shape == 'field': return True
+            if c.shape != 'entry' or (c.label is not None and c.label.request): continue
+            t = V.BY_ID.get(c.label.id) if c.label is not None and c.label.id else None
+            if t and t['family'] == 'fallacy' and t['target'] != target: continue
+            return True
+        return False
 
     # ----------------------------------------------------------------------------------------- votes and requests
     def vote(self, n, ctx):
@@ -973,9 +1062,12 @@ class _Filer:
             about = ctx.page or ''
             if not about and ctx.row is not None:
                 e = self.t.edges[ctx.row.idx]
-                about = f'{self.thing(e.get("section") or "", e.get("side"))} on [{e.get("page")}] that reads {_main_text(e)[:60]!r}'
+                what = self.thing(e.get('section') or '', e.get('side'))
+                about = (f'{what} [{e["claim"]}] on [{e.get("page")}]' if e.get('claim') else
+                         f'{what} on [{e.get("page")}] that reads {_main_text(e)[:60]!r}')
+                if ctx.under in CELL_NAME: about = f'the {CELL_NAME[ctx.under]} of {about}'
         words = (n.words if n.words is not None else n.typed or '').strip()
-        other = self.resolve(n.label_ref) if n.label_ref else None
+        other = self.resolve(n.label_ref, n) if n.label_ref else None
         label = f'{rec.name} [{other}]' if other else (n.label_text or rec.name)
         lines = [x for x in self.field_lines(n)]
         extra = '; '.join(f'{x.field.name}: {x.ref or x.value}' for x in lines if x.value not in (None, ''))
@@ -991,10 +1083,11 @@ class _Filer:
             if x.node is not None: self.out.echo[x.line] = self.echo_field(x)
 
     # ----------------------------------------------------------------------------------------- rows
-    def main_of(self, n, section, lines):
-        """The line's main words as identity compares them, folded; None is a part the line leaves out."""
+    def main_of(self, n, section, lines, words=None):
+        """The line's main words as identity compares them, folded; None is a part the line leaves out. words, when
+        given, stands for the line's own words (repaired, for W6)."""
         by = {(x.field.store, x.field.col): x.typed for x in lines}
-        w = _wf(n.typed)
+        w = _wf(n.typed if words is None else words)
         if section == 'definition': return (_wf(n.term or by.get(('extra', 'term'))), w)
         if section == 'dispute':
             kind = n.detail or by.get(('edge', 'text'))
@@ -1070,7 +1163,7 @@ class _Filer:
                 # a topic cell is printed with no Own page: no line, so an edited one is found among the stored cells
                 # (W6) before its words are looked for among the pages (W1 and W4)
                 said = words if section != 'stack' else ' '.join(OP.one_line(x.typed) for x in lines if x.field.col in LAYERS and x.typed)
-                w6 = self.w6(page, section, said, _wf(typed)) if said else None
+                w6 = self.w6(page, section, said, _wf(typed), self.main_of(n, section, lines, words)) if said else None
                 if w6 is not None:
                     return self.matched_row(n, ctx, w6, page, pkind, section, side, kid, rowl, pagel, typed, False, edited=said, category=category)
         if idx is None and n.ref is not None and self.defining(n) and not words_only and not topic and n.ref['value'] not in self.local:
@@ -1117,22 +1210,24 @@ class _Filer:
                     return self.matched_row(n, ctx, hit, page, pkind, section, side, kid, rowl, pagel, typed, vote, category=category, named=claim)
             got = self.candidates(page, section, side, category, topic, claim=claim)
             free = [i for i in got if i not in self.used]
-            idx = free[0] if free else (got[0] if got else None)
+            idx = free[0] if free else None
             if idx is None and topic:
-                # a printed cell whose sign or bracket was edited: the same claim in the same cell of the topic (P7)
+                # a printed cell whose sign or bracket was edited: the same claim in the same cell of the topic (P7),
+                # before a cell this post already matched, since a topic may list one claim twice in a section
                 alt = [i for i in self.rows_on(page) if i not in self.used and self.t.edges[i].get('claim') == claim
                        and (self.t.edges[i].get('section') or '') == section]
                 if alt:
                     return self.matched_row(n, ctx, alt[0], page, pkind, section, side, kid, rowl, pagel, typed, vote, edited=typed, category=category)
+            if idx is None and got: idx = got[0]
         if vote:
             self.vote_for(claim, 'agree', n)
-            self.note(n, f'matched [{claim}] ({score:.2f}): counted as your vote to agree')
+            self.note(n, f'matched [{claim}] ({score:.2f}): {VOTED}')
             self.notice(n, 'N-MATCH', f'Line {n.line_no}: these words are already on the site as [{claim}], so the line names that page, and it '
-                                      f'counts as your vote to agree with it.')
+                                      f'{COUNTS}')
         if idx is not None:
             return self.matched_row(n, ctx, idx, page, pkind, section, side, kid, rowl, pagel, typed, vote, category=category)
         if claim is None and n.ref is None and typed and not topic:
-            w6 = self.w6(page, section, words, _wf(typed))
+            w6 = self.w6(page, section, words, _wf(typed), self.main_of(n, section, lines, words))
             if w6 is not None:
                 return self.matched_row(n, ctx, w6, page, pkind, section, side, kid, rowl, pagel, typed, False, edited=words)
         if claim is not None and not topic:
@@ -1164,6 +1259,7 @@ class _Filer:
         if section == 'argument': return {'agree': 'a reason to agree', 'disagree': 'a reason to disagree'}.get(side or '', 'a reason')
         if section == 'cba': return {'agree': 'a benefit', 'disagree': 'a cost'}.get(side or '', 'a cost or benefit')
         if section in K.INTEREST_SECTIONS: return 'an Interest row' if section == 'interest' else 'an At stake row'
+        if section == 'topic_media': return 'a Topic work row'
         what = K.THING.get(section, section.replace('_', ' '))
         s = ('an ' if what[0] in 'aeiou' else 'a ') + what
         return s + (f' ({"for" if side == "agree" else "against"})' if side in ('agree', 'disagree') else '')
@@ -1189,7 +1285,7 @@ class _Filer:
         if r['kind'] == 'address':
             v = r['value']
             key = v if (v in self.topics if r['topic'] else v in self.base.by_key) else None
-        else: key = self.resolve(r)
+        else: key = self.resolve(r, n)
         if key is None and self.defining(n):
             hit, how, score, near = self.identify(n, typed, words, self.kinds(section, topic), similar=section == 'similar')
             if hit:
@@ -1234,13 +1330,16 @@ class _Filer:
         w = _wf(e.get(cell[1]) if cell[0] == 'edge' else IT.parse_extra(e.get('extra')).get(cell[1]))
         return self.exact[w] > (1 if w == own else 0)
 
-    def w6(self, page, section, words, own=''):
+    def w6(self, page, section, words, own='', main=None):
         """W6: a stored words-only row on the same page and section that the words score at least MERGE against.
-        own is the line's own words, folded. On the page a printout was printed from (its frontmatter's from:), whose
-        every stored row is printed, a stored row that no line has exactly was edited or taken out, so there the words
-        need only score FLAG, or
-        read alike letter for letter (difflib's ratio at least 0.75): the measure counts whole words, and an edit of a
-        cell of one to three words ('Honest governments' for 'Honest government') can never reach MERGE."""
+        own is the line's own words, folded; main its main words (main_of), compared part for part with a stored row's,
+        so a definition's term and a dispute's kind are compared with the stored ones and a part the line leaves out is
+        not compared. On the page a printout was printed from (its frontmatter's from:), words that read alike letter
+        for letter count as MERGE too: the measure counts whole words, and an edit of a cell of one to three words
+        ('Honest governments' for 'Honest government') can never reach it. The bar is EDITED_SHORT for a cell of up to
+        three words and EDITED for a longer one, which a new sentence beside a printed one taken out can read 0.81
+        alike to: a sender may cut lines from a printout and add new ones, and a new line taken for an edit is filed as
+        nothing but a request to overwrite the row it reads like."""
         rows = [i for i in self.rows_on(page) if i < self.n0 and i not in self.used and not self.t.edges[i].get('claim')
                 and (self.t.edges[i].get('section') or '') == section and not self.reserved(self.t.edges[i], own)]
         if not rows: return None
@@ -1248,10 +1347,17 @@ class _Filer:
         if not hasattr(m, 'vector'): return None
         printed, best = self.post.frontmatter.get('from') == page, None
         for i in rows:
-            stored = ' '.join(x for x in self.stored_main(self.t.edges[i]) if x)
-            sc = _measure(m, words, stored)
-            if printed and sc < MERGE and SequenceMatcher(None, _wf(words), stored).ratio() >= 0.75: sc = max(sc, FLAG)
-            if sc >= (FLAG if printed else MERGE) and (best is None or sc > best[0]) and not _reverses(words, stored): best = (sc, i)
+            sm = self.stored_main(self.t.edges[i])
+            said, stored = words, ' '.join(x for x in sm if x)
+            if main is not None and len(main) == len(sm):
+                pairs = [(a, b) for a, b in zip(main, sm) if a is not None]
+                said, stored = ' '.join(a for a, _ in pairs if a), ' '.join(b for _, b in pairs if b)
+            if not said or not stored: continue
+            sc = _measure(m, said, stored)
+            if printed and sc < MERGE:
+                bar = EDITED_SHORT if len(stored.split()) <= 3 else EDITED
+                if SequenceMatcher(None, _wf(said), stored).ratio() >= bar: sc = MERGE
+            if sc >= MERGE and (best is None or sc > best[0]) and not _reverses(said, stored): best = (sc, i)
         return best[1] if best else None
 
     def new_claim(self, n, section, page, words, rec, lines):
@@ -1264,16 +1370,32 @@ class _Filer:
         self.dash_stops(n)
         key = self.t.new_key(words)
         p = K.new_page(f, self.t, key)
-        if section == 'media' and rec is not None and rec.name in N.WORK_TYPES: p['type'] = rec.name
+        if section == 'media' and rec is not None and rec.name in N.WORK_TYPES:
+            p['type'] = rec.name
+            x = by.get(('page', 'type'))
+            if x is not None and (x.typed or '').strip() and (x.typed or '').strip().lower() != rec.name.lower():
+                self.stop(x.line, 'E-FIELD-VALUE', f'Line {x.line}: Type: says {x.typed.strip()!r}, and line {n.line_no}\'s label {n.label_text or rec.name}: '
+                                                   f'makes the new work {_a(rec.name)}. Keep one.')
         self.add_page(p, n, words)
         return key
 
+    def place_types(self, pkind, section, page, claim):
+        """The types default_kind reads: a linkage page's, and a media row's work page's."""
+        return ((self.t.by_key.get(page) or {}).get('type') if pkind == 'linkage' else None,
+                (self.t.by_key.get(claim) or {}).get('type') if section == 'media' and claim else None)
+
     def tag_of(self, n, lines, kid, pkind, section, side, page, claim, ctx):
+        """(the tag the line stores, its Kind: line or None). A label that names a kind other than the place's own and
+        a Kind: line that names another are two values for one cell, which stops the post (E4)."""
         kind_line = next((x for x in lines if (x.field.store, x.field.col) == ('extra', 'tag')), None)
-        if kind_line is not None: return (kind_line.typed or '').strip() or None, kind_line
-        lt = (self.t.by_key.get(page) or {}).get('type') if pkind == 'linkage' else None
-        wt = (self.t.by_key.get(claim) or {}).get('type') if section == 'media' and claim else None
+        lt, wt = self.place_types(pkind, section, page, claim)
         did = N.default_kind(pkind, section, side, lt, wt, from_row=ctx.under != 'header')[0]
+        if kind_line is not None:
+            typed = (kind_line.typed or '').strip() or None
+            if kid and kid != did and typed and typed != kid:
+                self.stop(kind_line.line, 'E-FIELD-VALUE', f'Line {kind_line.line}: Kind: says {typed}, and line {n.line_no}\'s label '
+                                                           f'{n.label_text or n.label.name}: says {kid}. Keep one.')
+            return typed, kind_line
         return N.tag_to_store(kid, did), None
 
     def echo_entry(self, n, e, claim, words):
@@ -1309,35 +1431,44 @@ class _Filer:
         claim = e.get('claim')
         ex = IT.parse_extra(e.get('extra'))
         about = claim or f'{self.thing(section, e.get("side"))} on [{page}] that reads {_main_text(e)[:60]!r}'
+        # a row's own cells are named by the row, since one claim may be a row on several pages
+        row_about = f'the {self.thing(section, e.get("side")).split(" ", 1)[1]} [{claim}] listed on [{page}]' if claim else about
         if not claim and named is None:
             cell = N.words_cell(section)
             said = edited if edited is not None else typed
             if cell is not None and said:
                 stored = e.get(cell[1]) if cell[0] == 'edge' else ex.get(cell[1])
                 if not _same(stored, said): self.correction(n, about, 'the words', stored, said)
+            if section == 'stack' and typed and not any(x.field.col == 'text' for x in rowl) and not _same(e.get('text'), typed):
+                self.correction(n, about, 'the words', e.get('text') or '', typed)
             if section == 'definition' and n.term and not _same(ex.get('term'), n.term): self.correction(n, about, 'Term', ex.get('term'), n.term)
             if section == 'dispute' and n.detail and not _same(e.get('text'), n.detail): self.correction(n, about, 'Dispute kind', e.get('text'), n.detail)
         if edited is not None:
-            if pkind == 'topic' and category and not _same(e.get('category'), category):
-                self.correction(n, about, 'the category in its brackets' if (n.detail or (n.place and n.place.category)) else 'Category',
-                                e.get('category') or '', category)
-            if (e.get('side') or '') != side: self.correction(n, about, 'the side', e.get('side') or '', side)
+            # a category given on a Category: line is compared with the other detail lines below
+            bracketed = n.detail or (n.place and n.place.category)
+            if pkind == 'topic' and category and bracketed and not _same(e.get('category'), category):
+                self.correction(n, row_about, 'the category in its brackets', e.get('category') or '', category)
+            if (e.get('side') or '') != side: self.correction(n, row_about, 'the side', e.get('side') or '', side)
         bracket = n.place.category if n.place and pkind != 'topic' else ''
         if bracket and not _same(e.get('category'), bracket):
-            self.correction(n, about, N.field_name('edge', 'category', section) or 'Category', e.get('category') or '', bracket)
+            self.correction(n, row_about, N.field_name('edge', 'category', section) or 'Category', e.get('category') or '', bracket)
         for x in rowl:
             fl = x.field
+            if x.node is not None: self.drop.update(x.node.repairs)
             if (fl.store, fl.col) == ('extra', 'tag') or x.node is None: continue
             if fl.store == 'row':
-                if claim: self.correction(x.node, about, 'Own page', 'yes', 'no')
+                if claim: self.correction(x.node, row_about, 'Own page', 'yes', 'no')
                 continue
             stored = e.get(fl.col) if fl.store == 'edge' else ex.get(fl.col)
             val = x.ref if fl.ref and x.ref else x.typed
             if fl.col == 'who' and val and not x.ref: val = self.who(val) or val
-            if not _same(stored, val, fl.col): self.correction(x.node, about, fl.name, stored, val, maintainer=fl.use == 'request')
+            if not _same(stored, val, fl.col): self.correction(x.node, row_about, fl.name, stored, val, maintainer=fl.use == 'request')
         tag, kline = self.tag_of(n, rowl, kid, pkind, section, side, page, claim, ctx)
-        if (tag or '') != (ex.get('tag') or ''):
-            self.correction(kline.node if kline else n, about, 'the kind of post (its tag)', ex.get('tag') or '', tag or '')
+        # a stored tag the label cannot carry is printed on a Kind: line, and a line taken out asks for nothing
+        lt, wt = self.place_types(pkind, section, page, claim)
+        on_kind = kline is None and tag is None and N.print_label(ex.get('tag'), pkind, section, side, ctx.under, lt, wt).kind is not None
+        if (tag or '') != (ex.get('tag') or '') and not on_kind:
+            self.correction(kline.node if kline else n, row_about, 'the kind of post (its tag)', ex.get('tag') or '', tag or '')
         for x in rowl:
             if x.node is not None: self.out.echo[x.line] = self.echo_field(x)
         self.row_pages(n, claim, pagel)
@@ -1446,11 +1577,11 @@ class _Filer:
         idx = self.add_row(e, n)
         if not claim: self.words_new.add(idx)
         self.note(n, f'new row on [{page}] in {N.table_name(section, side, topic)}' + (f' ({category})' if category else ''))
-        self.section_notices(n, e, section, claim, rowl)
         self.row_pages(n, claim, pagel)
+        self.section_notices(n, e, section, claim, rowl)
         for x in rowl:
-            if x.node is not None: self.out.echo[x.line] = self.echo_field(x)
-            else: self.out.more.setdefault(n.line_no, []).append(self.echo_field(x))
+            if x.node is not None: self.out.echo[x.line] = self.echo_field(x, stored=True)
+            else: self.out.more.setdefault(n.line_no, []).append(self.echo_field(x, stored=True))
         self.out.keys[n.line_no] = claim
         self.out.echo[n.line_no] = self.echo_entry(n, e, claim, (self.said(n) or None) if self.named_site(n) else (None if claim else words))
         self.children(n, Ctx(claim, self.kind_of(claim) if claim else None, _Row(idx, n, not claim), 'row'))
@@ -1510,7 +1641,10 @@ class _Filer:
         new = range(self.n0, len(self.t.edges))
         if not new or self.out.stops: return
         before = _longest(self.base.edges)
-        if 2 * before + max(self.level.values(), default=0) + 2 <= MAX_CHAIN: return
+        # a chain uses each new step at most once, with at most `before` pages between two of them, however the post's
+        # names and repeated words join its lines; only a post that could pass MAX_CHAIN walks the tables again
+        steps = sum(len(self.reads(self.t.edges[i])) for i in new) + len(self.cow)
+        if (steps + 1) * before + steps <= MAX_CHAIN: return
         after = _longest(self.t.edges)
         if after <= max(MAX_CHAIN, before): return
         no = max((self.row_line.get(i, 0) for i in new), key=lambda x: (self.level.get(x, 0), x))
@@ -1529,6 +1663,10 @@ class _Filer:
             if (m.line, m.code) in seen or (m.code == 'E-TOPIC-CELL' and m.line in under_lost): continue
             seen.add((m.line, m.code)); stops.append(m)
         out.stops = sorted(stops, key=lambda m: m.line)
+        if out.stops:
+            # nothing in a stopped post counts (H), so a match is a vote only once the post files
+            out.notices = [m._replace(text=m.text.replace(COUNTS, WOULD_COUNT)) if m.code == 'N-MATCH' else m for m in out.notices]
+            for no, notes in out.notes.items(): out.notes[no] = [t.replace(VOTED, WOULD_VOTE) for t in notes]
         out.votes, out.local, out.unread = self.votes, dict(self.local), list(self.post.loose_text)
         out.changed = [(before, dict(self.t.edges[i])) for i, before in sorted(self.cow.items())]
         for no, text in self.post.loose_text: out.notes.setdefault(no, []).append(f'not read: {text}')

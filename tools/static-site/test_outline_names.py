@@ -182,11 +182,23 @@ class TestSides(unittest.TestCase):
         self.assertEqual(N.resolve_side(m.label, None, m.detail), ('y', None))
         self.assertEqual(N.resolve_side(N.read_label('Related linkage').label), ('', 'detail'))
 
-    def test_the_suffix_is_read_only_where_the_sign_decides(self):
+    def test_the_suffix_is_read_after_every_label_but_one_that_takes_a_term(self):
         self.assertEqual(N.read_label('Poll for').side, 'agree')
         self.assertEqual(N.read_label('prediction against').label.name, 'Prediction')
-        self.assertIsNone(N.read_label('Cost against'))
-        self.assertIsNone(N.read_label('Matters less for'))
+        self.assertEqual((N.read_label('Cost against').label.name, N.read_label('Cost against').side), ('Cost', 'disagree'))
+        self.assertEqual((N.read_label('Matters less for').label.name, N.read_label('Matters less for').side), ('Matters less', 'agree'))
+        self.assertEqual(N.read_label('Definition of for').term, 'for')
+
+    def test_every_rule_a_module_cites_is_said_in_words(self):
+        import re
+        cited = {}
+        for name in ('outline_names', 'outline_read', 'outline_print', 'outline_file'):
+            with open(os.path.join(HERE, name + '.py'), encoding='utf-8') as fh: src = fh.read()
+            if name == 'outline_names': src = src[:src.index('RULES = {')] + src[src.index('\n}\n', src.index('RULES = {')):]
+            for rule in re.findall(r'\b([ACDEGKPTW][0-9]{1,2})\b', src): cited.setdefault(rule, name)
+        self.assertGreater(len(cited), 40)
+        self.assertEqual(sorted(r for r in cited if r not in N.RULES), [])
+        self.assertTrue(all(t and '\u2014' not in t for t in N.RULES.values()))
 
     def test_labels_that_name_one_of_two_ids(self):
         L = lambda typed: N.read_label(typed).label

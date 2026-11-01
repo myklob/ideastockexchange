@@ -14,6 +14,8 @@ Every name written here comes from outline_names, which the reader reads too, so
 as that tag, and the output is valid strict input: one physical line per entry, depths in steps of 2, every child
 exactly 2 deeper than its parent, and no dots, bullets, '_', '<+' forms, wraps or repairs.
 
+The rules are cited by their ids in the language's specification (W6, K5); outline_names.RULES says each in a line.
+
 Decisions, where the spec left a choice or where it and the code or the stored data pull apart:
 - Sections are printed in intake.PAGE_SECTIONS order, then related, then category (P4), or in
   ise_tables.TOPIC_SECTIONS order on a topic. A row in a section its page cannot hold (a topic cell on a page, a page
@@ -47,14 +49,18 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   reads back different, which is a correction request, never a change. The stored tables have none.
 - A sign-only row with no words (none is stored) is written with its 'In <section> <side>' place, because a sign
   with nothing after it is not a sign (C4).
-- A page with no text (a factor page) has the header 'Page: [key]'. A key that names both a page and a topic prints
-  the topic, as intake.check_contribution reads it; the stored tables have no such key.
+- A page with no text (a factor page) has the header 'Page: [key]', and under its address a note saying what it
+  argues ('// whether [x] bears on [y]'), from its x and y, so a reader given only the printout knows what lines fit
+  it. A note is never read, so the round trip is the same. A key that names both a page and a topic prints the topic,
+  as intake.check_contribution reads it; the stored tables have no such key.
 - Words that start with a character the reader takes for a sign in another form (an en dash, a minus sign, a long
   dash, a heavy plus or minus, a full-width plus) get a backslash too, since the reader reads those as + or -.
 - A Related topic cell whose words are a topic's key (ise_tables allows it once the topic has a page) is printed as
   that topic's [key] and name, which the filer matches back to the cell.
 - 'printed:' is written in UTC as YYYY-MM-DDTHH:MMZ, as in the spec's Example 6. now may be a datetime (a naive one
-  is read as UTC), a date, or a string written as given.
+  is read as UTC), a date, or a string written as given; an empty string leaves the line out, which is how the site's
+  build prints a page when it has no revision to stamp it with (it prints the revision's commit time otherwise, never
+  the clock, so the same tables give the same bytes).
 """
 import argparse, datetime, os, re, sys
 
@@ -65,6 +71,10 @@ import intake as K
 import outline_names as N
 
 ABOVE = 'its lines are printed above'
+# what a page with no words of its own argues, as the note under its header says it: its row (x) and the page (y)
+ARGUES = {'linkage': 'whether {x} bears on {y}', 'importance': 'how much {x} matters to {y}',
+          'uniqueness': 'whether {x} makes a point that {y} does not', 'equivalence': 'whether {x} and {y} are one claim',
+          'driver': 'whether the interest {x} really drives the position on {y}'}
 PAGE_ORDER = tuple(K.PAGE_SECTIONS) + ('related', 'category')
 TOPIC_ORDER = tuple(IT.TOPIC_SECTIONS)
 # the page cells a person gets (P3, cells='words'), plus a work's type and a belief's topic
@@ -191,12 +201,15 @@ class Printer:
         page = topic if topic is not None else self.by_key.get(key)
         if page is None: raise ValueError(f'there is no page or topic with the key {key!r}')
         kind = 'topic' if topic is not None else (page.get('kind') or 'claim')
-        for x in ('===', f'reasons: {N.VERSION}', f'from: {key}', f'printed: {printed_at(now)}', f'depth: {self.depth}',
+        printed = printed_at(now)
+        for x in ('===', f'reasons: {N.VERSION}', f'from: {key}', f'printed: {printed}' if printed else '', f'depth: {self.depth}',
                   f'cells: {self.cells_mode}', '==='):
-            self.line(0, x)
+            if x: self.line(0, x)
         words = one_line(page.get('name') if topic is not None else page.get('text'))
         self.line(0, f'Page: [{key}]' + (f': {after_handle(words)}' if words else ''))
         self.note(0, address(key, topic is not None))
+        about = ARGUES.get(kind) if not words else None
+        if about and page.get('x') and page.get('y'): self.note(0, about.format(x=f'[{page["x"]}]', y=f'[{page["y"]}]'))
         self.page_cells(page, kind, 2)
         self.done[key] = 'all'
         self.rows(key, page, kind, 2, 1, 'header')

@@ -466,10 +466,10 @@ class TestFrontmatterAndNotes(unittest.TestCase):
 class TestDepth(unittest.TestCase):
 
     def test_dots_count_two_each(self):
-        p = read(f'Page: [{KEY}]\n. + One.\n.. + Two.\n... Three goes on here.')
+        p = read(f'Page: [{KEY}]\n. + One.\n.. + Two, and\n... three goes on here.')
         one = p.blocks[0].children[0]
         self.assertEqual((one.depth, one.children[0].depth), (2, 4))
-        self.assertEqual(one.children[0].words, 'Two. Three goes on here.')
+        self.assertEqual(one.children[0].words, 'Two, and three goes on here.')
         self.assertEqual(codes(p, kind='notices'), ['N-DOTS'] * 3 + ['N-WRAP'])
         self.assertEqual(codes(read(f'Page: [{KEY}]\n. + One.', 'strict')), ['E-DOTS'])
 
@@ -1092,6 +1092,91 @@ class TestWhatASecondReviewFound(unittest.TestCase):
     def test_a_printout_address_names_its_page(self):
         p = read(f'Page: https://myklob.github.io/ideastockexchange/beliefs/p/{KEY}.txt\n  + A ban is easier to check than a disclosure rule.\n')
         self.assertEqual((p.stops, p.blocks[0].ref['value']), ([], KEY))
+
+
+class TestWhatAThirdReviewFound(unittest.TestCase):
+    """Each finding of the third review that the text alone shows, as the input that showed it."""
+
+    def test_a_cell_a_label_gives_and_a_detail_gives_again_stops(self):
+        for text in (f'Page: [{KEY}]\n  Definition of Ferry: A boat that carries people across water.\n    Term: Boat',
+                     f'Page: [{KEY}]\n  Dispute (Causal): Whether the ban causes the fare rise.\n    Dispute kind: Empirical',
+                     'Page: [public-office-private-gain]\n  Common ground (shared): Both sides want ferry fares listed online.\n    Category: conflict',
+                     'Page: [public-office-private-gain]\n  In common (shared): Both sides want ferry fares listed online.\n    Category: conflict'):
+            for mode in (None, 'strict'):
+                with self.subTest(text=text.split('\n')[1], mode=mode):
+                    self.assertEqual([(m.line, m.code) for m in read(text, mode).stops], [(3, 'E-FIELD-AGAIN')])
+        self.assertEqual(read(f'Page: [{KEY}]\n  Definition of Ferry: A boat.\n    Term: ferry', 'strict').stops, [])
+
+    def test_for_or_against_after_any_label(self):
+        for line, side, section in (('+ Benefit for: Riders pay less.', 'agree', 'cba'), ('- Cost against: Riders pay more.', 'disagree', 'cba'),
+                                    ('Cost against: Riders pay more.', 'disagree', 'cba'),
+                                    ('Counterexample against: Fares fell in Norway.', 'disagree', 'argument')):
+            for mode in (None, 'strict'):
+                with self.subTest(line=line, mode=mode):
+                    p = read(f'Page: [{KEY}]\n  {line}', mode)
+                    n = p.nodes[1]
+                    self.assertEqual((p.stops, n.shape, n.section, n.side, n.typed), ([], 'entry', section, side, line.split(': ', 1)[1]))
+        p = read(f'Page: [{KEY}]\n  Cost for: Riders pay more.')
+        self.assertEqual((p.nodes[1].side, codes(p, kind='notices')), ('disagree', ['N-SIDE']))
+        self.assertIn("' for' after it was ignored", p.notices[0].text)
+        self.assertEqual(codes(read(f'Page: [{KEY}]\n  Cost for: Riders pay more.', 'strict')), ['E-SIDE'])
+        self.assertEqual(codes(read(f'Page: [{KEY}]\n  Value for: Honest government', 'strict')), ['E-SIDE'])
+
+    def test_a_line_with_no_sign_under_a_whole_sentence_or_a_bare_page_stops(self):
+        for text in (f'Page: {SITE}p/{KEY}.html\n  Members would pay brokers to sell their holdings on a fixed schedule.\n',
+                     f'Page: [{KEY}]\n  Members would pay brokers to sell their holdings.\n',
+                     'Belief: Cities should allow apartments on every residential lot.\n  Allowing apartments everywhere lowers rents over a decade.\n'
+                     '  - Apartments on every lot overload old sewer lines.\n',
+                     f'Page: [{KEY}]\n  + Members trade on what they know.\n    Studies show their trades beat the market.\n'):
+            with self.subTest(text.split('\n')[1]):
+                p = read(text)
+                self.assertEqual([(m.line, m.code) for m in p.stops], [(2 if 'Studies' not in text else 3, 'E-WRAP')])
+                self.assertIn('start it with + or -', p.stops[0].text)
+        # a line broken in the middle of a sentence, or a detail's value, still wraps
+        p = read('Belief: Cities should allow apartments on every\n  residential lot in the city.\n')
+        self.assertEqual((p.stops, p.blocks[0].typed), ([], 'Cities should allow apartments on every residential lot in the city.'))
+        p = read(f'Page: [{KEY}]\n  + Senators beat the market.\n    Source: Ziobrowski et al.\n      2004, Journal of Finance\n')
+        self.assertEqual((p.stops, p.nodes[1].fields['source'].value), ([], 'Ziobrowski et al. 2004, Journal of Finance'))
+
+    def test_dots_with_no_space_or_as_one_character_are_dots(self):
+        p = read(f'Page: [{KEY}]\n.+ [members-regularly-trade-industries]\n..- Matters less: Most trades are small next to the wealth of members.\n')
+        self.assertEqual((p.stops, [n.depth for n in p.nodes[1:]]), ([], [2, 4]))
+        self.assertIn("with no space after it; write one, as in '. + reason'", p.notices[0].text)
+        p = read(f'Page: [{KEY}]\n. + Members trade on committee knowledge.\n.. + Studies show their trades beat the market.\n'
+                 '… - Later studies found no edge after 2012.\n')
+        self.assertEqual((p.stops, [n.depth for n in p.nodes[1:]], p.nodes[3].parent.line_no), ([], [2, 4, 6], 3))
+        self.assertEqual([m.text for m in p.notices if m.code == 'N-DOTS'],
+                         ['Line 2 read its dot as one step in.', 'Line 3 read its dots as 2 steps in.',
+                          'Line 4 read its dots (a three-dot character counts as three) as 3 steps in.'])
+        self.assertEqual(codes(read(f'Page: [{KEY}]\n.+ One reason.\n', 'strict')), ['E-DOTS'])
+
+    def test_lines_of_the_outline_left_outside_its_fence_are_reported(self):
+        p = read(f'```reasons\nPage: [{KEY}]\n  + Members of Congress trade on nonpublic information.\n```\n'
+                 '  - Most trades are by spouses and brokers.\n  + Disclosure has never been enforced.\nThanks, Ann\n')
+        self.assertEqual(codes(p, kind='notices'), ['N-FENCE'])
+        self.assertEqual([no for no, _ in p.loose_text], [5, 6])
+
+    def test_a_fence_longer_than_three_backticks_is_closed_only_by_one_as_long(self):
+        p = read(f'`````reasons\nPage: [{KEY}]\n  + Members trade.\n  ````\n  + A second reason zq.\n`````\n  + Outside it.\n')
+        self.assertEqual([n.typed for n in p.nodes if n.shape == 'entry'], ['Members trade.', 'A second reason zq.'])
+        self.assertEqual([no for no, _ in p.loose_text], [7])
+
+    def test_a_site_address_a_sentence_or_a_new_belief_cites_is_kept_in_its_words(self):
+        addr = f'https://myklob.github.io/ideastockexchange/beliefs/p/{KEY}.html'
+        p = read(f'Belief: Unlike the ban argued at {addr}, a disclosure rule with real fines would cut insider trading.\n  + Fines remove the profit.\n')
+        h = p.blocks[0]
+        self.assertEqual((h.ref, h.words), (None, f'Unlike the ban argued at {addr}, a disclosure rule with real fines would cut insider trading.'))
+        self.assertIn(f'write Page: {addr} instead', [m.text for m in p.notices if m.code == 'N-ADDRESS'][0])
+        p = read(f'Page: [{KEY}]\n  + Unlike the claim at {SITE}p/disclosure-has-failed-check.html, fines that scale with the trade remove the profit.\n')
+        self.assertIsNone(p.nodes[1].ref)
+        # an address the words stop at still names the page, and two still stop
+        p = read(f'Page: [{KEY}]\n  + Disclosure has failed, see {SITE}p/disclosure-has-failed-check.html\n')
+        self.assertEqual((p.nodes[1].ref['value'], p.nodes[1].words), ('disclosure-has-failed-check', 'Disclosure has failed.'))
+        self.assertEqual(codes(read(f'Page: [{KEY}]\n  + Too slow {SITE}p/disclosure-has-failed-check.html and {SITE}p/holdings-ban-removes-conflict.html')),
+                         ['E-TWO-PAGES'])
+
+    def test_a_bracket_message_takes_an_before_a_vowel(self):
+        self.assertIn("an Engagement's bracket", read('Page: [public-office-private-gain]\n  + Engagement (5): A voter who rides ferries.').stops[0].text)
 
 
 if __name__ == '__main__':

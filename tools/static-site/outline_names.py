@@ -14,6 +14,10 @@ two), when a label takes ' for' or ' against' and the result folds to another na
 an 'In <section>' place or a 'Definition of <term>' label. A line that could be read two ways must never be read
 either way without a word, and a clash found here is one no post can ever trip over.
 
+The four outline modules cite the rules of the language's specification by id ('W6', 'K5'). The specification is not
+kept in this repository, so RULES below says each rule in a line, and test_outline_names fails when a module cites an
+id RULES does not hold.
+
 Decisions, where the spec left a choice or where it and the code or the stored data pull apart:
 - Labels that fix a side by their word (Estimated benefit, Estimated cost, Who gains, Who pays) and the labels that
   name one of two ids by the sign (Prediction, Interest, Assumption): canonical_label(id) is the first label listed
@@ -22,8 +26,10 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   label can (a prediction-if-false tag on an agree row), it is None and the printer writes Kind:.
 - At stake is one label for two ids: imp.interest under a row, under Importance: or directly under an importance
   page, interest.at-stake directly under any other page (label_id). It is the canonical label of both.
-- ' for' and ' against' after a label are read only on a label whose side is 'either'. K5 gives them a meaning
-  only there; on a label with a fixed side they could only repeat it or contradict it.
+- ' for' and ' against' after a label are read on every label but 'Definition of' and 'Two senses of' (whose term
+  could end in either word), as C5 says. K5 gives them a meaning on a label whose side is 'either'; on a label with a
+  fixed side they repeat it or contradict it, and the reader treats a contradicting one as K5 treats a contradicting
+  sign, and one on a label with no side as a sign on it.
 - Six ids have no label of their own: truth.reason-for, truth.reason-against, truth.premise-true and
   truth.premise-false (a sign alone writes them) and house.vote and house.new-belief (written as Vote: and Belief:,
   see STRUCTURE). Their canonical label is the id itself (K3). As a K3 label, house.vote and house.new-belief fit no
@@ -72,6 +78,67 @@ import intake as K
 import vocab as V
 
 VERSION = 1
+
+# the rules of the language by the ids the modules cite, each in a line: A the pre-pass, C reading one line, D plain
+# lines, E the tree, F Argdown's forms, G repairs, H all or nothing, K the kind a line names, P printing, T where a line
+# lands, W words that are already a page
+RULES = {
+    'A1': 'CR LF and CR become LF; the text is NFC; a no-break space is a space.',
+    'A2': 'With a ```reasons or ```argdown fence, only the lines inside fences are read.',
+    'A3': "With no fence, a line '--' and everything after it is a mail signature and is dropped.",
+    'A4': 'Trailing spaces are removed.', 'A5': 'A tab in an indent is four spaces: a notice in loose mode, a stop in strict.',
+    'A6': 'A line starting with > is quoted mail, dropped, and a break.',
+    'A7': 'Frontmatter between two === lines: reasons, mode, from, printed, depth and cells.',
+    'A8': 'A whole line starting with // is a note, never stored, and a break.', 'A9': 'A blank line is a break.',
+    'B': 'The shapes a line can take: a header, a heading, a detail, a vote, an entry or plain words.',
+    'C1': 'Depth is the leading spaces, and two for each leading dot followed by a space.', 'C2': 'One list bullet is dropped.',
+    'C3': 'At the left edge, Belief:, Page:, a [ref] or a site address starts a block.',
+    'C4': 'A sign counts only with a space after it; a - before another sign, a detail or a heading is a list bullet.',
+    'C5': 'The text before the first colon is looked up: sign words, headings, details, Vote, then labels (with for or against).',
+    'C6': 'An unknown label-shaped prefix near a known name stops the post; near nothing, it stays words (loose) or stops (strict).',
+    'C7': 'Words starting with a backslash lose it and are only words.',
+    'C8': 'A line with a sign, sign word or label is an entry; anything else is plain.',
+    'D1': 'A plain line pushed in under a header, an entry or a detail is the rest of that line (loose).',
+    'D2': 'A plain line at the same or a smaller depth than the line it follows is a stop.',
+    'D3': 'A first plain line with lines under it is read as Belief: (loose); otherwise it is a stop.',
+    'D4': 'Any other plain line is loose text, reported as not read.',
+    'E1': 'Each header starts a block, and counts as depth -1.',
+    'E2': 'A line belongs to the nearest earlier header, entry or heading less deep than it.',
+    'E3': 'Strict mode: two spaces a step, every child exactly two deeper.',
+    'E4': 'A cell is given once per line; a second value for it is a stop.', 'E5': 'A line before the first header is a stop.',
+    'F': "Argdown's <+, <-, <_ and @[ are read as +, -, _ and [.",
+    'G1': 'Loose mode turns long and spaced dashes in new words into commas, and an en dash between numbers into to.',
+    'G2': 'Loose mode reads a site address in the words as the page it names, and moves any other address to Address:.',
+    'G3': 'Strict mode repairs nothing: a long or spaced dash in new words is a stop.',
+    'H': 'One stop and nothing in the post is filed; no line ever deletes a row, a page or a cell.',
+    'K1': 'A sign or a sign word alone names no kind and stores no tag.', 'K2': 'A plain label names a kind of post.',
+    'K3': 'A vocab id and a colon names that kind exactly.', 'K4': "'In <section> [<side>] [(<category>)]:' names a place, not a kind.",
+    'K5': 'The side comes from the kind when it has one; otherwise from the sign, the sign word or for or against.',
+    'K6': 'Each place has a default kind, which a sign alone takes and the printer writes with no label.',
+    'K7': 'A named kind that is not the place default is stored as the row\'s tag; Kind: stores it whatever the place.',
+    'K8': 'A named kind must fit where its line sits; one that does not is a stop that says where it fits.',
+    'P1': 'A printout starts with frontmatter: reasons, from, printed (UTC), depth and cells.',
+    'P2': "The header is 'Page: [key]: words', then a note with the page's address.",
+    'P3': "The page's cells, under their plain names.", 'P4': "Each section's rows in page order, each with its cells and headings.",
+    'P5': 'A printout writes no dots, bullets, _, wraps or repairs, so it is valid strict input.',
+    'P6': "'-' as a value means the cell is empty.",
+    'P7': 'A printout sent back adds nothing; an added line adds its rows; a line taken out takes nothing out; an edited line asks for a correction.',
+    'T1': 'A kind whose target is the page or the claim files here.', 'T2': "A relevance kind files on the nearest row's relevance page.",
+    'T3': "An importance kind files on the nearest row's importance page.",
+    'T4': "A uniqueness kind files on the nearest row's uniqueness page against the row it names.",
+    'T5': "A sameness kind files on a stronger or weaker version's equivalence page.",
+    'T6': 'Directly under a header, a factor kind needs the header to be that kind of factor page.',
+    'T7': "Under a factor heading, its own family files on its page; another factor's is a stop.",
+    'T8': 'A fallacy goes where its attack picks: an undercut to the relevance page, an undermine to the row\'s own page.',
+    'T9': 'A kind with no section makes a request, not a row.',
+    'T10': 'A vote is on the page above it, or on whether the row above bears on its page.',
+    'W1': 'Words exactly equal to a page of a kind the line can point at are that page.',
+    'W2': 'Words exactly equal to a stored words-only row at the same place are that row.',
+    'W3': 'Loose repairs are made only after the exact checks.',
+    'W4': 'Words that score MERGE against a claim are that claim, unless one denies the other.',
+    'W5': 'Words equal to an earlier new line of the post name the page that line made.',
+    'W6': 'Words that score MERGE against a stored words-only row on the same page and section are a correction of it.',
+}
 
 
 def fold(s):
@@ -418,7 +485,7 @@ def check_names(names, either=(), terms=()):
 NAMES = check_names([(n, 'signword') for n, _ in _SIGNWORDS] + [(h.name, 'heading') for h in _HEADS]
                     + [(fl.name, 'field') for fl in _FIELDS] + [(w, 'word') for w in WORDS]
                     + [(rec.name, 'label') for rec in _LABELS],
-                    either=[rec.name for rec in _LABELS if rec.side == 'either'],
+                    either=[rec.name for rec in _LABELS if rec.detail != 'term'],
                     terms=[rec.name for rec in _LABELS if rec.detail == 'term'])
 SIGNWORDS = {fold(n): side for n, side in _SIGNWORDS}
 HEADS = {fold(h.name): h for h in _HEADS}
@@ -480,7 +547,7 @@ def id_label(text):
 
 def read_label(prefix):
     """The prefix of a line (the text before its first ': ') read as a label, or None: a vocab id (K3), a plain label
-    in any case, an either-side label with ' for' or ' against', a label with its brackets ('Dispute (Empirical)'),
+    in any case, a label with ' for' or ' against' after it, a label with its brackets ('Dispute (Empirical)'),
     a label naming another row ('Repeats [picks]'), or 'Definition of' and 'Two senses of' with their term. A label
     that needs a ref, a term or brackets also matches without them, so the reader can say what is missing."""
     p = str(prefix or '').strip()
@@ -489,7 +556,7 @@ def read_label(prefix):
     f = fold(p)
     if f in LABELS: return LabelMatch(LABELS[f], None, None, None, None)
     m = _SUFFIX.match(f)
-    if m and m.group(1) in LABELS and LABELS[m.group(1)].side == 'either':
+    if m and m.group(1) in LABELS and LABELS[m.group(1)].detail != 'term':
         return LabelMatch(LABELS[m.group(1)], 'agree' if m.group(2) == 'for' else 'disagree', None, None, None)
     m = _detail(p)
     if m and fold(m[0]) in LABELS and LABELS[fold(m[0])].detail in ('kind', 'category', 'xy'):

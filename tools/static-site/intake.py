@@ -58,7 +58,12 @@ Decisions on the outline form, where the spec left a choice:
 - Typed words that reach the pull request, its title, the commit message or a comment outside a code block (the
   title, the sender's note, the requests and corrections, the stops) have '#12' and '@name' written with the
   full-width number sign and at sign (inert), so a post cannot close or link another issue on merge, or notify
-  anyone. The reply itself sits in a code block, where GitHub reads neither.
+  anyone. The reply itself sits in a code block, where GitHub reads neither, fenced with more backticks than any line
+  of it starts with (fenced), so no line the sender typed can close the block early.
+- An edited issue is the post. A vote an earlier version of it counted on the default branch that this version does
+  not cast is taken back in the same commit as this version's votes, and a version that stops takes back all of
+  them, since nothing in a stopped post counts. So a line that cast a vote by mistake (a denial read as the claim it
+  denies) can be undone by editing the issue.
 """
 import argparse, csv, datetime, json, math, os, re, shutil, subprocess, sys, tempfile
 
@@ -394,8 +399,9 @@ def aim(sub, tables):
     """Where a post with a Kind of post lands, written back into its fields: the section and side the type files
     under, and the page, which is the one it was posted from, the row's own claim page, or the row's linkage,
     importance, uniqueness or equivalence page, opened here when the row has none yet. An empty factor page reads
-    the constant a row with no page reads, so opening one moves no number; only what is argued on it does.
-    Returns notes for the pull request."""
+    the constant a row with no page reads, so opening one moves no truth or belief score; ReasonRank and the
+    sensitivity count, which count the pages a row reads, do move, which is why it is opened only for the post that
+    argues on it. Returns notes for the pull request."""
     f = sub['fields']
     tag = (f.get('tag') or '').strip()
     if sub['form'] != 'contribution' or not tag: return []
@@ -775,8 +781,12 @@ def outline_text(value):
 
 
 def fenced(reply):
-    """The reply as a ```reasons block: GitHub shows its indentation, and pasted back into the form it is a post."""
-    return '```reasons\n' + reply.rstrip('\n') + '\n```'
+    """The reply as a ```reasons block: GitHub shows its indentation, and pasted back into the form it is a post. The
+    fence is longer than any run of backticks a line of the reply starts with, so no line the sender typed can close
+    it and let the rest be read as Markdown (an @name that notifies, a #12 that links)."""
+    runs = [len(m.group(1)) for m in re.finditer(r'^[ \t]*(`{3,})', reply, re.M)]
+    fence = '`' * max([3] + [r + 1 for r in runs])
+    return f'{fence}reasons\n' + reply.rstrip('\n') + f'\n{fence}'
 
 
 def cut(reply, room=REPLY_ROOM):
@@ -833,16 +843,34 @@ def process_outline(sub, tables, git, matcher, content, workbook):
         top = '\n'.join(lead + ['', 'What the site read, printed back (' + ('open a new issue to send it again' if closing else
                                                                          'edit this issue to send it again') + '):', ''])
         return top + '\n' + fenced(cut(reply, min(REPLY_ROOM, GITHUB_ROOM - len(top) - 400)))
+    votes_path = os.path.join(content, 'votes.csv')
+    # an edited issue is the post: a vote an earlier version of it counted that this version does not cast is taken
+    # back, and a post that stops casts none (H)
+    keep = set() if filed.stops else {(v['key'], v.get('on', '')) for v in filed.votes}
+    back = [(r['key'], r.get('on', '')) for r in read_votes(votes_path)
+            if r.get('issue') == str(n) and r['login'] == login and (r['key'], r.get('on', '')) not in keep]
+    def recorded(votes):
+        rows_ = [r for r in read_votes(votes_path) if not (r.get('issue') == str(n) and r['login'] == login and (r['key'], r.get('on', '')) in back)]
+        for v in votes: rows_ = record_vote(rows_, v['key'], v['login'], v['vote'], v['issue'], v['date'], v.get('on', ''))
+        write_votes(votes_path, rows_)
+    took = (f'Taken back: {len(back)} vote{"s" if len(back) > 1 else ""} an earlier version of this issue counted, which this '
+            f'version does not cast.') if back else ''
     if filed.stops:
         earlier = git.has_branch(n)
         if earlier:
             git.close_pr(n, f'#{n} was edited and now has a line that stops it, so nothing from it is filed and this pull request '
                             f'is closed. Once every stop is fixed, a new one opens.')
+        if back:
+            git.identity()
+            apply = lambda: recorded([])
+            apply()
+            git.push_master([votes_path], f'Take back {len(back)} vote{"s" if len(back) > 1 else ""} from #{n}, which was edited and now stops', apply)
         many = len(filed.stops) > 1
         lead = [f'Nothing was filed: the outline has {len(filed.stops)} stop{"s" if many else ""}, listed here with '
                 f'{"their lines" if many else "its line"}. Edit this issue to fix {"each one" if many else "it"} and save; the outline '
                 f'is read again, and nothing is filed until no line stops.']
         if earlier: lead.append('The pull request an earlier version of this issue opened is closed, so it cannot be merged by mistake.')
+        if took: lead.append(took)
         lead += [''] + bound([f'- {inert(m.text)}' for m in filed.stops], 20000)
         git.comment(n, said(lead))
         return {'did': 'stops', 'stops': [m.text for m in filed.stops], 'reply': reply, 'filed': filed}
@@ -852,17 +880,14 @@ def process_outline(sub, tables, git, matcher, content, workbook):
     added = {p['key'] for p in filed.pages}
     now = [v for v in filed.votes if v['key'] not in added and (v.get('on') or '') not in added]
     later = [v for v in filed.votes if v not in now]
-    votes_path = os.path.join(content, 'votes.csv')
-    def recorded(votes):
-        rows_ = read_votes(votes_path)
-        for v in votes: rows_ = record_vote(rows_, v['key'], v['login'], v['vote'], v['issue'], v['date'], v.get('on', ''))
-        write_votes(votes_path, rows_)
     git.identity()
-    if now:
+    if now or back:
         apply = lambda: recorded(now)
         apply()
         many = len(now) > 1
-        git.push_master([votes_path], f'Record {len(now)} vote{"s" if many else ""} from #{n}, a Reason Outline by {login}', apply)
+        what = ' and '.join(([f'record {len(now)} vote{"s" if many else ""}'] if now else []) +
+                            ([f'take back {len(back)} vote{"s" if len(back) > 1 else ""}'] if back else []))
+        git.push_master([votes_path], f'{what[0].upper() + what[1:]} from #{n}, a Reason Outline by {login}', apply)
     url, existed, closed = None, False, False
     if rows:
         git.branch(n)
@@ -904,6 +929,7 @@ def process_outline(sub, tables, git, matcher, content, workbook):
                     f'are a claim already on the site. Latest vote per person counts. {NO_MOVE}')
     if later: lead.append(f'{len(later)} vote{"s" if len(later) > 1 else ""} on pages the pull request adds count{"" if len(later) > 1 else "s"} '
                           f'once it is merged.')
+    if took: lead.append(took)
     if closed: lead.append('The pull request an earlier version of this issue opened is closed, because the outline now adds no rows.')
     # lines that were not read keep the issue open when nothing else came of the post, so the sender can fix them
     closing = not url and not asks and not (unread and not filed.votes)

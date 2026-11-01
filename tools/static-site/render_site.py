@@ -507,7 +507,9 @@ JS = "<script>document.querySelectorAll('table').forEach(function(t){var h=[].sl
 def json_ld(c, pid):
     """The page as structured data, in the schema.org words search engines and other programs already read, with
     this site's own terms (vocab.CONTEXT) for what schema.org has no word for: each row's section, side, kind of
-    post and contribution, and the numbers the page publishes. The same numbers as the page, nothing more."""
+    post and contribution, and the numbers the page publishes. The same numbers as the page, nothing more. Every '<'
+    in it is written as its JSON escape, so no claim's words ('<!--<script>') can change how the browser reads where
+    the script element ends and blank the page."""
     import vocab as V
     s = c.stats(pid); sp = c.specs[pid]; url = lambda p: PUBLIC + 'p/' + c.href(p)
     rows = []
@@ -527,7 +529,7 @@ def json_ld(c, pid):
            'confidence': round(c.conf.of(pid), 6), 'rows': rows}
     if tk: out['topic'] = PUBLIC + 't/' + c.topic_href(tk)
     return ('<link rel="alternate" type="application/json" href="' + esc(c.key[pid]) + '.json">'
-            '<script type="application/ld+json">' + json.dumps(out, ensure_ascii=False).replace('</', '<\\/') + '</script>')
+            '<script type="application/ld+json">' + json.dumps(out, ensure_ascii=False).replace('<', '\\u003c') + '</script>')
 
 
 def head(c, pid, title, ld=''):
@@ -3588,7 +3590,7 @@ textarea.share{display:block;width:100%;max-width:100%;box-sizing:border-box;fon
 .votes .vote{display:inline-block;padding:.35em .55em;margin-right:.3em;border:1px solid var(--line);border-radius:4px;background:var(--paper)}
 .votes .vn{color:var(--mute);font-weight:400;white-space:nowrap}.vnote{color:var(--mute)}
 td .votes{display:block;margin:4px 0 0;font-size:11px}td .votes .vn{white-space:normal}
-td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(--mute)}table.vocab code{font-size:11px;color:var(--mute)}ul.cq{margin:4px 0 0;padding-left:1.2em;font-size:13px}pre.brief{white-space:pre-wrap;font-size:13px;background:var(--paper);border:1px solid var(--line);padding:10px}pre.outline{white-space:pre;overflow-x:auto;font-size:13px;line-height:1.45;background:var(--paper);border:1px solid var(--line);padding:10px;margin:10px 0}ol.steps{font-size:13.5px;color:var(--ink2);padding-left:1.4em}ol.steps li{margin:3px 0}.outline-link{margin:4px 0 10px}
+td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(--mute)}table.vocab code{font-size:11px;color:var(--mute)}ul.cq{margin:4px 0 0;padding-left:1.2em;font-size:13px}pre.brief{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;background:var(--paper);border:1px solid var(--line);padding:10px}pre.outline{white-space:pre;overflow-x:auto;font-size:13px;line-height:1.45;background:var(--paper);border:1px solid var(--line);padding:10px;margin:10px 0}ol.steps{font-size:13.5px;color:var(--ink2);padding-left:1.4em}ol.steps li{margin:3px 0}.outline-link{margin:4px 0 10px}
 @media print{.add,.votes,a.argue{display:none}}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
@@ -3792,7 +3794,7 @@ def render_changes(c, H, d, title='Idea Stock Exchange'):
 def provenance(path=None):
     """What this build was made from, so a number can be cited. The repository revision and its commit date,
     not the clock: a build has to be reproducible, and "as of today" is not a citation anyone can check."""
-    import subprocess
+    import datetime, subprocess
     root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     def git(*a):
         try:
@@ -3801,7 +3803,11 @@ def provenance(path=None):
             return ''
     rev, when = git('rev-parse', '--short', 'HEAD'), git('log', '-1', '--format=%cs')
     dirty = bool(git('status', '--porcelain', '--untracked-files=no'))
-    return {'rev': rev, 'date': when, 'dirty': dirty}
+    out = {'rev': rev, 'date': when, 'dirty': dirty}
+    # the commit's time in UTC, which a printout's printed: line carries (%cs is the day where the committer was)
+    stamp = git('log', '-1', '--format=%ct')
+    if stamp.isdigit(): out['time'] = datetime.datetime.fromtimestamp(int(stamp), datetime.timezone.utc).strftime('%Y-%m-%dT%H:%MZ')
+    return out
 
 
 def take_part_foot(what):
@@ -4156,22 +4162,15 @@ VOCAB_JS = ("<script>(function(){var q=new URLSearchParams(location.search),pg=q
 # The page explains the language to a reader who has never seen it. test_render checks every label, heading and detail
 # name it shows against outline_names and reads every example on it back, and where a label files is worked out from
 # its kind, so the page cannot teach a name the reader does not know.
+# the lede says what an outline is, how one gets in and how to start; everything else is in the sections below it, so
+# a newcomer reaches the example first. {form} is the outline form's address
 OUTLINE_PARAGRAPH = (
-    'A Reason Outline is a plain-text list of reasons for and against a claim. You can write one anywhere you type, or ask an AI to write '
-    'one, and send it through the outline form on GitHub: the site reads it, turns each line into a row of its two tables, and a pull '
-    'request holds those rows until the maintainer merges it. Start with the page you are adding to: Page: and the '
-    'page\'s address copied from your browser, or Belief: and a new claim in one sentence. Then write one claim per line. Start it with + '
-    '(or Agree:) for a reason to agree, or - (or Disagree:) for a reason to disagree. Push a line in under another line and it is about that '
-    'line. + and - under a reason argue whether the reason is true, and a plain label says what else it argues: Does not follow: for whether '
-    'it really supports the claim above it, Matters more: or Matters less: for how much it counts, Repeats [other-row]: for a point already '
-    'made, Statistics: or Poll: for a finding, Cost: or Benefit:, or a named mistake such as Straw man:. Every line is a claim with a page of '
-    'its own, so you can keep going as deep as you like. Details go on their own lines, pushed in under the line they describe: Source:, '
-    'Address:, Checked:. If a box strips the spaces at the start of a line, start the line with one dot per step instead (. or ..). To use a '
-    'claim already on the site, paste its address or write its short name in square brackets, [like-this]. A line that says what a claim on '
-    'the site already says is filed as that claim and counted as your vote for it. Vote: agree under a line is a vote: it is counted and '
-    'shown, and it never moves a score. A label never moves a score either; only reasons that are argued do. Any page on the site prints in '
-    'this same form, with each of these lists under its own heading (Relevance:, Importance:), so you can copy a page, add lines and send it '
-    'back. A line you leave out is never deleted, and the reply prints your post back as it was filed, with every new page and every match.')
+    'A Reason Outline is a plain-text list of reasons for and against a claim, and any page on the site prints in this form. Start '
+    'with <code>Page:</code> and the address of the page you are adding to, or <code>Belief:</code> and a new claim in one sentence. Then '
+    'write one claim per line, starting it with <code>+</code> for a reason to agree or <code>-</code> for a reason to disagree, and push a '
+    'line in two spaces under the line it is about. Send it through the <a href="{form}" rel="nofollow">outline form on GitHub</a>: the '
+    'site replies with your post printed back, a pull request holds its rows until the maintainer merges it, and nothing you leave out '
+    'is ever deleted.')
 OUTLINE_EXAMPLE_PAGE = 'barring-members-congress-president'
 OUTLINE_EXAMPLE = (
     'Page: https://myklob.github.io/ideastockexchange/beliefs/p/barring-members-congress-president.html\n'
@@ -4278,6 +4277,8 @@ OUTLINE_MARKS_AFTER = [
      'nothing'),
     ('// a note', 'A whole line for the people reading. It is never stored; the reply prints it back, on the issue and in the pull request.',
      'nothing'),
+    ('. + reason   and   .. - reason', 'For a box that strips the spaces at the start of a line: one dot and a space for each step in, then '
+     'the sign. Each dot is read as two spaces.', 'nothing; the dots say only how far the line is pushed in'),
 ]
 OUTLINE_WHERE = {'page': 'the page above it', 'claim': 'the row&apos;s own page', 'link': 'the row&apos;s relevance page',
                  'imp': 'the row&apos;s importance page', 'uniq': 'the row&apos;s uniqueness page',
@@ -4359,7 +4360,7 @@ def render_outline(c, title):
     import vocab as V
     o = [root_head('Reason Outline', [('Home', 'index.html'), ('What a post can be', 'vocab.html'), ('Reason Outline', '')], main_class='index')]
     o.append('<p class="kind">Idea Stock Exchange</p><h1>Reason Outline</h1>')
-    o.append(f'<p class="lede">{esc(OUTLINE_PARAGRAPH)}</p>')
+    o.append(f'<p class="lede">{OUTLINE_PARAGRAPH.format(form=esc(outline_form_url()))}</p>')
     parts = (('example', 'An example'), ('marks', 'Marks and labels'), ('details', 'Details'), ('naming', 'Naming a claim already here'),
              ('post', 'Posting one'), ('reply', 'The reply'), ('argdown', 'Argdown'), ('ai', 'Asking an AI to write one'), ('programs', 'For programs'))
     o.append('<p>' + ' · '.join(f'<a href="#{a}">{esc(t)}</a>' for a, t in parts) + '</p>')
@@ -4370,7 +4371,10 @@ def render_outline(c, title):
              + ''.join(f'<li><code>{esc(w)}</code> {m}</li>' for w, m in OUTLINE_STEPS) + '</ol></section>')
     o.append('<section id="marks"><h2><span>The marks and labels used most</span></h2><p>A line starts with a sign, a label, or '
              'both. The page above a line is the page it is pushed in under: the block&apos;s page for a line one step in, a reason&apos;s own '
-             'page for a line under that reason, and the heading&apos;s page for a line under Relevance:, Importance: or Uniqueness vs. A label '
+             'page for a line under that reason, and the heading&apos;s page for a line under Relevance:, Importance: or Uniqueness vs. A line '
+             'pushed in with no sign, label or detail name is read as the rest of the line above it, for a box that breaks long lines; under a '
+             'line that ends its sentence, or that names a page and has no words, it stops the post instead, so a reason typed without its + or '
+             '- is never joined to the claim above it. A label '
              'only says where the line is filed; it never changes a score. A label is read in any letter case, and every one of the '
              f'{len(V.TYPES)} kinds on <a href="vocab.html">what a post can be</a> can be named, by its label or by its id and a colon, but two that '
              'are lines of their own: a vote, written <code>Vote:</code>, and a new belief, written <code>Belief:</code>.</p>')
@@ -4392,8 +4396,8 @@ def render_outline(c, title):
              'not typed again, in one of three ways:</p><ul class="links">'
              '<li><code>[key]</code>: its key in square brackets, the last part of its address before .html, such as '
              '<code>[members-regularly-trade-industries]</code>. Spaces and underscores in the brackets are read as hyphens. Every page&apos;s '
-             'key and exact words are in <a href="data/pages_index.json">the list of every page</a>, works and the pages that argue a row '
-             'included, and every topic&apos;s key and name in <a href="data/ise.json">the tables as data</a>.</li>'
+             'key and exact words are in <a href="data/pages_index.json">the list of every page</a> (works and the pages that argue a row '
+             'included), and every topic&apos;s key and name are in <a href="data/ise.json">the tables as data</a>.</li>'
              '<li>Its address, pasted from the browser, with or without https:// and www.</li>'
              '<li>A name given to a new line earlier in the same post: <code>[picks]: Senators&apos; stock picks beat the market in the 1990s.</code> '
              'makes a new page, and a later <code>Repeats [picks]:</code> points back at it. The reply says which key the name became.</li></ul>'
@@ -4406,7 +4410,9 @@ def render_outline(c, title):
     o.append(f'<section id="post"><h2><span>Posting one</span></h2><ol class="steps">'
              f'<li>Open the page you are adding to and follow its <em>{OUTLINE_LINK}</em> link, or start a new belief with Belief:.</li>'
              '<li>Copy it and add your lines, each pushed in under the line it is about. You can also send only the Page: line and your own '
-             'lines: nothing you leave out is deleted.</li>'
+             'lines: nothing you leave out is deleted. A printout starts with a few lines between two <code>===</code> lines that say which '
+             'page it was printed from, when, and how much of it; leave them as they are, or take them out with the rest of what you do not '
+             'send.</li>'
              f'<li>Paste it into the <a href="{esc(outline_form_url())}" rel="nofollow">outline form</a> on GitHub and submit it. You need a free '
              f'account (<a href="{SIGNUP}" rel="nofollow">sign up</a>).</li>'
              '<li>Read the reply, which comes as a comment on your issue a few minutes later. If it lists a stop, edit the issue to fix it and '
@@ -4489,6 +4495,11 @@ def outline_spec(rev=None):
                       'use is set (a new line\'s value is stored), request (only the maintainer fills it, so a post\'s value becomes a '
                       'request) or compare (intake writes it; it is compared and never applied). ref: the value names a page, as [key].',
             'codes': 'An E- code is a stop, and one stop files nothing; an N- code is a notice that travels with the rows.',
+            'frontmatter': 'Optional lines between two === lines at the top of a post, each name: value. reasons: the version of the '
+                           'language, 1. mode: loose or strict. A printout adds from: (the key of the page it was printed from; on that page a '
+                           'line edited by a letter or two is still matched to its stored row, as a correction), printed: (the revision\'s time '
+                           'in UTC, YYYY-MM-DDTHH:MMZ, left out when the build had no revision), depth: (how many levels below the page were '
+                           'printed) and cells: (words, what a person gets, or all). Any other name gets a notice.',
         },
         'signs': {'+': 'agree', '-': 'disagree', '_': 'does not bear on it (read, never printed)', '<+': 'agree', '<-': 'disagree',
                   '<_': 'does not bear on it (read, never printed)'},
@@ -4599,8 +4610,9 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     # printout sent back reads to exactly the rows it came from, even from the complete-only build
     import intake as K, outline_print as OP
     tables = K.Tables(entry, rows=c.rows if source == entry else (*read_source(entry), read_topics(entry)))
-    # the revision's date, not the clock: two builds of the same tables write the same bytes (test_invariants)
-    now = (getattr(c, 'prov', None) or {}).get('date') or OP.printed_at()
+    # the revision's time in UTC, not the clock, so two builds of the same tables write the same bytes (test_invariants);
+    # a build with no revision prints no printed: line rather than the minute it ran
+    now = (getattr(c, 'prov', None) or {}).get('time') or ''
     for pid in c.specs: _write(os.path.join(outdir, 'p', c.key[pid] + '.txt'), OP.print_page(tables, c.key[pid], 1, 'words', now))
     for tkey in c.topics: _write(os.path.join(outdir, 't', tkey + '.txt'), OP.print_page(tables, tkey, 1, 'words', now))
     with open(os.path.join(outdir, 'method.html'), 'w') as fh:

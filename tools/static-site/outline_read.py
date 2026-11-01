@@ -24,6 +24,8 @@ page, or a stored row, is matched before any repair), so a line keeps both: `typ
 checks, and `words`, repaired, for a row that turns out to be new. The repair notices are in `repairs` (and in
 post.notices), for the filer to drop when the line matched.
 
+The rules are cited by their ids in the language's specification (W6, K5); outline_names.RULES says each in a line.
+
 Decisions, where the spec left a choice or where it and the code or the stored data pull apart:
 - mode='strict' makes any post strict, and a post that says it is strict is strict whatever the caller passed;
   mode='loose' cannot make a strict post loose, because the post's own word is what a program relies on.
@@ -64,6 +66,26 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   the words turn out to be new: words that are a stored page or a stored row are not new (G), and stored texts carry
   long and spaced dashes, so a printout of their page must read back in strict mode (P7).
 - D1's wrap gets a notice (N-WRAP) in loose mode, so a line joined to the one above is never joined without a word.
+  A header or an entry whose words end a sentence, or that has none (a page named by its [key] or address alone),
+  takes no wrap: a plain line pushed in under it stops (E-WRAP) and says to start it with + or -. Forgetting the sign
+  is the likeliest slip, and joined it would become a request to replace the page's words, or a second sentence in
+  one claim (Rule 3). A detail's value still takes a wrap ('Ziobrowski et al.' then the year).
+- C1's dots are a dot and a space each; a sign straight after the dots ('.+ reason') is read too, and a phone's
+  three-dot character counts as three dots, each with a notice in loose mode (N-DOTS), which counts the steps the
+  reader was taught rather than spaces. Strict mode stops on dots, as before.
+- ' for' or ' against' after a label whose side is fixed, the same side is read as nothing more; the other side is
+  read as K5 reads a contradicting sign (ignored with a notice in loose mode, a stop in strict), and one after a label
+  with no side as a sign on it. 'Cost against:' is Cost:, not words.
+- E4 also covers a cell that a label gives and a detail line gives again with another value: Definition of <term>:
+  and Term:, Dispute (<kind>): and Dispute kind:, a topic cell's bracket and Category: (E-FIELD-AGAIN). The same
+  value twice is one value.
+- A2's fence may be longer than three backticks, closed, as in Markdown, by a line of at least as many, so the reply
+  can be fenced past any line of backticks the sender typed. A line outside the fences that reads as a line of the
+  outline (a sign or a header word at its start) is reported (N-FENCE) and listed as not read, since it is lost
+  otherwise.
+- G2 reads a site address as the page a line names only when it is the one site address and the words stop at it.
+  Words that go on past it cite that page, and so do a Belief:'s words, which start a new belief: the address is kept
+  in the words, with a notice (N-ADDRESS) saying how to file on that page instead.
 - A sign or a bullet in another form is read as itself, with a notice in loose mode and a stop in strict: an en dash,
   a minus sign or a full-width plus at the start of a line, a tab after a sign or a bullet (a list copied from a word
   processor), and a full-width colon after a name the reader knows. Read as words, such a line would be joined to the
@@ -167,8 +189,11 @@ CODES = {
 SIGNS = {'+': 'agree', '-': 'disagree', '_': 'undercut', '<+': 'agree', '<-': 'disagree', '<_': 'undercut'}
 _SIGN = re.compile(r'(<\+|<-|<_|\+|-|_) ')
 _BULLET = re.compile(r'(\*|\u2022|\u00b7|\d+[.)]) +')
-_DOTS = re.compile(r'(\.+) +')
-_FENCE = re.compile(r'[ \t]*```(reasons|argdown)$', re.I)
+# leading dots for depth: each dot (a phone's three-dot character counts three) and a space, or a sign straight after
+_DOTS = re.compile(r'([.\u2026]+)(?: +|(?=(?:<\+|<-|<_|\+|-|_) ))')
+_FENCE = re.compile(r'[ \t]*(`{3,})(reasons|argdown)$', re.I)
+# a line outside a fence that reads as a line of an outline: a sign, or a header word, at its start
+_OUTLINE_LIKE = re.compile(r'\s*(?:(?:<\+|<-|<_|\+|-|_) \S|(?:belief|page):)', re.I)
 _REASONS = re.compile(r'//\s*reasons\s+([0-9]+)(?:\s+(loose|strict))?$', re.I)
 _MARKUP_FENCE = re.compile(r'[ \t]*(```|~~~)[\w+.-]*$')
 # characters a line cannot keep: control characters, the two that XML (and so the workbook) cannot hold, halves of a
@@ -275,14 +300,24 @@ def _prepass(text, forced, post):
     for i in controls: raw[i - 1] = _CONTROL.sub('', raw[i - 1].replace('\x0b', ' ').replace('\x0c', ' '))
     seq = []
     if any(_FENCE.match(l.rstrip()) for l in raw):
-        open_at = 0
+        open_at, ticks, outside = 0, 0, []
         for i, l in enumerate(raw, 1):
             if not open_at:
-                if _FENCE.match(l.rstrip()): open_at = i; seq.append(None)
+                m = _FENCE.match(l.rstrip())
+                if m: open_at, ticks = i, len(m.group(1)); seq.append(None)
+                elif _OUTLINE_LIKE.match(l): outside.append((i, l.strip()))
                 continue
-            if l.strip() == '```': open_at = 0; seq.append(None); continue
+            # closed, as in Markdown, by a line of at least as many backticks as opened it
+            if re.fullmatch(r'`{%d,}' % ticks, l.strip()): open_at = 0; seq.append(None); continue
             seq.append((i, l))
         if open_at: post.notice(open_at, 'N-FENCE', f'The fence that opens on line {open_at} has no closing ```, so it was read to the end.')
+        if outside:
+            # only what is inside a fence is read (A2), so a line of the outline left outside one would be lost unsaid
+            more = f' and {len(outside) - 1} other line{"s" if len(outside) > 2 else ""}' if len(outside) > 1 else ''
+            post.notice(outside[0][0], 'N-FENCE', f'Line {outside[0][0]}{more} outside the ```reasons fence read as lines of the outline, and only '
+                                                  f'what is inside a fence is read, so {"they were" if more else "it was"} not. Put '
+                                                  f'{"them" if more else "it"} inside the fence to file {"them" if more else "it"}.')
+            post.loose_text.extend(outside)
     else:
         for i, l in enumerate(raw, 1):
             if l.rstrip() == '--':
@@ -435,7 +470,7 @@ def _near_ids(p):
     return tuple(sorted(V.BY_ID, key=lambda i: (N.distance(p, i), i))[:3])
 
 
-def _a(word): return ('an ' if word[:1] in 'aeiou' else 'a ') + word
+def _a(word): return ('an ' if word[:1].lower() in 'aeiou' else 'a ') + word
 
 
 def _or(names):
@@ -450,10 +485,14 @@ def _line(no, s, brk, post):
     depth, body = i, s[i:]
     m = _DOTS.match(body)
     if m:
-        dots = len(m.group(1))
-        depth += 2 * dots + len(m.group()) - dots - 1
+        dots = len(m.group(1)) + 2 * m.group(1).count('\u2026')
+        spaces = len(m.group()) - len(m.group(1))
+        depth += 2 * dots + max(0, spaces - 1)
         body = body[m.end():]
-        post.repair(no, 'N-DOTS', f'Line {no} read its {"dot" if dots == 1 else "dots"} as depth {depth}.',
+        what = ('its dot' if dots == 1 else 'its dots') + (" (a three-dot character counts as three)" if '\u2026' in m.group(1) else '')
+        said = f'{"one step" if dots == 1 else f"{dots} steps"} in'
+        if not spaces: said += f", with no space after {'it' if dots == 1 else 'them'}; write one, as in '. + reason'"
+        post.repair(no, 'N-DOTS', f'Line {no} read {what} as {said}.',
                     f'Line {no} uses dots for depth. In strict mode, indent with two spaces per step.', n.pending)
     body = _lookalikes(n, body, post)
     m = _BULLET.match(body)
@@ -768,6 +807,14 @@ def _tree(lines, post):
                 elif strict:
                     post.stop(no, 'E-WRAP', f'Line {no} continues line {wrap.line_no}, and in strict mode nothing wraps: put the whole line on one line.')
                     post.dropped.append(n)
+                elif wrap.shape != 'field' and _ends(wrap):
+                    # a line with nothing to continue, or a whole sentence, takes no wrap: a reason typed without its
+                    # sign would become the page's words, or a second sentence of one claim
+                    why = 'names a page and has no words to continue' if not wrap.typed.strip() else 'ends its sentence'
+                    post.stop(no, 'E-WRAP', f'Line {no} is pushed in under line {wrap.line_no}, which {why}, and line {no} has no + or - in '
+                                            f'front of it. To make it a reason, start it with + or -. To continue line {wrap.line_no}, put the two '
+                                            f'on one line.')
+                    post.dropped.append(n)
                 else:
                     t = n.typed.strip()
                     if wrap.shape == 'field': wrap.value = ((wrap.value or '') + ' ' + t).strip(); wrap.typed = wrap.value
@@ -832,6 +879,13 @@ def _tree(lines, post):
         after_vote = n if n.shape == 'vote' else None
 
 
+def _ends(n):
+    """Whether a header's or an entry's words leave nothing for a wrapped line to continue: there are none (a page
+    named by its [key] or address alone), or they end a sentence."""
+    t = n.typed.strip().rstrip('"\')]”’')
+    return not t or t.endswith(('.', '?', '!'))
+
+
 def _depth_check(n, parent, post):
     """E3 in strict mode: even depths, a block's rows all at 0 or all at 2, every child exactly 2 deeper."""
     no, d = n.line_no, n.depth
@@ -878,6 +932,19 @@ def _addresses(n, s, post):
         a = m.group().rstrip('.,;:!?)]')
         site = bool(a) and bool(_SITE_ONLY.match(a))
         if a and (site or n.shape != 'header'): found.append((m.start(), m.start() + len(a), a, site))
+    sites = [x for x in found if x[3]]
+    if len(sites) == 1:
+        # one site address that the words go on past, or one inside a new belief's words, cites that page: naming it
+        # would file the line's lines on that page and drop its own claim
+        start, end, a, _ = sites[0]
+        belief = n.shape == 'header' and n.word == 'Belief'
+        if belief or s[end:].strip(' .,;:!?)]"\''):
+            found.remove(sites[0])
+            fix = f'write Page: {a} instead' if belief else 'start the line with the address'
+            msg = Message(n.line_no, 'N-ADDRESS', f'Line {n.line_no} kept the site address in its words, because '
+                                                  f'{"Belief: starts a new belief" if belief else "the words go on after it"}, so it cites that page. '
+                                                  f'To file the line on that page, {fix}.')
+            n.repairs.append(msg); post.notices.append(msg)
     if not found: return None
     no, out, said = n.line_no, s, []
     for start, end, a, site in reversed(found):
@@ -955,6 +1022,17 @@ def _k5(n, post):
                                         f'label or a fallacy, and {n.label_text}: is neither. Use - instead.')
             n.bad = True
             return
+    if n.suffix and rec is not None and rec.side != 'either':
+        # ' for' or ' against' on a label whose side is fixed repeats it or contradicts it, like a sign (K5)
+        fixed = {'extreme': 'agree', 'moderate': 'disagree'}.get(rec.side, rec.side)
+        said = f"' {'for' if n.suffix == 'agree' else 'against'}' after it"
+        if fixed in ('agree', 'disagree') and n.suffix != fixed:
+            post.repair(no, 'N-SIDE', f'Line {no}: {rec.name}: is always {_side_words(rec, rec.side)}, so the {said} was ignored.',
+                        f'Line {no}: {rec.name}: is always {_side_words(rec, rec.side)}, and the {said} says {n.suffix}. In strict mode, leave it out.')
+        elif fixed not in ('agree', 'disagree'):
+            post.repair(no, 'N-SIDE', f'Line {no}: {rec.name}: has no side, so the {said} was ignored.',
+                        f'Line {no}: {rec.name}: has no side, and the line has the {said}. In strict mode, leave it out.')
+        n.suffix = None
     written = n.written
     sign_text = ' '.join(x for x in ({'agree': '+', 'disagree': '-', 'undercut': '_'}.get(n.sign), f'{n.signword}:' if n.signword else '') if x)
     if n.suffix and written and n.suffix != written:
@@ -1046,9 +1124,9 @@ def _category(n, post, typed=None):
     if not typed.strip():
         post.stop(no, 'E-CATEGORY', f'Line {no}: {name} needs its bracket, which must be {why}: write {name} ({(K.CATEGORIES.get(section) or ["A"])[0]}):.')
     elif line is not None:
-        post.stop(line.line_no, 'E-CATEGORY', f"Line {line.line_no}: {line.label_text}: on a {name} must be {why}.")
+        post.stop(line.line_no, 'E-CATEGORY', f"Line {line.line_no}: {line.label_text}: on {_a(name)} must be {why}.")
     else:
-        post.stop(no, 'E-CATEGORY', f"Line {no}: a {name}'s bracket must be {why}.")
+        post.stop(no, 'E-CATEGORY', f"Line {no}: {_a(name)}'s bracket must be {why}.")
     n.bad = True
 
 
@@ -1191,12 +1269,30 @@ def _fields(post):
                     msg = Message(c.line_no, 'N-DASH', f'Line {c.line_no} turned ' + _or(did) + '.')
                     c.repairs.append(msg); post.notices.append(msg)
             n.fields[key] = FieldValue(c.label_text, v, c.line_no, c.ref)
+        if n.shape == 'entry' and not n.bad: _given_twice(n, post)
         if n.moved_address:
             if ('extra', 'url') in cells:
                 post.stop(n.line_no, 'E-TWO-ADDRESSES', f'Line {n.line_no} has a web address in its words and an Address: on line '
                                                         f'{cells[("extra", "url")]}. Keep one.')
             else:
                 n.fields['address'] = FieldValue('Address', n.moved_address, n.line_no, None)
+
+
+def _given_twice(n, post):
+    """E4 for a cell that a label gives and a detail line gives again: a definition's term, a dispute's kind, a topic
+    cell's bracket. Two values for one cell stop the post, as two detail lines for it do; the same value twice is one."""
+    rec, place = n.label, n.place
+    given = ((n.term, ('extra', 'term'), 'term'),
+             (n.detail if rec is not None and rec.detail == 'kind' else None, ('edge', 'text'), 'kind'),
+             (n.detail if rec is not None and rec.detail == 'category' else
+              place.category if place is not None and place.section in N.TOPIC_SECTIONS and place.section not in N.PAGE_SECTIONS else None,
+              ('edge', 'category'), 'bracket'))
+    for value, cell, what in given:
+        if not (value or '').strip(): continue
+        c = next((c for c in n.children if c.shape == 'field' and c.field is not None and (c.field.store, c.field.col) == cell), None)
+        if c is None or c.value is None or ' '.join(c.value.split()).lower() == ' '.join(value.split()).lower(): continue
+        post.stop(c.line_no, 'E-FIELD-AGAIN', f'Line {c.line_no}: {c.label_text}: says {c.value.strip()!r}, and the {what} of line {n.line_no} '
+                                              f'({n.label_text}:) already says {value.strip()!r}. Give it once.')
 
 
 def _finish(post):

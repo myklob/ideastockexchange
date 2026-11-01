@@ -987,6 +987,32 @@ class TestTheOutlineForm(unittest.TestCase):
         self.assertEqual(sorted(a[:2] for a, _ in seen), [['gh', 'issue'], ['gh', 'pr']])
         self.assertTrue(all(n <= K.GITHUB_ROOM for _, n in seen))
 
+    def test_no_line_the_sender_typed_can_close_the_reply_block(self):
+        self.assertEqual(K.fenced('a\n  ````\n@octocat see #1'), '`````reasons\na\n  ````\n@octocat see #1\n`````')
+        done = self.go(outline('Page: [a]\n  + Members of Congress trade on nonpublic information.\n  ````\n  + @octocat please look, see #1'))
+        self.assertEqual(done['did'], 'stops')
+        comment = self.comment()
+        block = comment[comment.index('`````reasons\n'):]
+        self.assertTrue(block.rstrip().endswith('\n`````'))
+        self.assertIn('@octocat please look', block)
+        self.assertNotIn('@octocat', comment[:comment.index('`````reasons\n')])
+
+    def test_an_edited_issue_takes_back_the_votes_its_earlier_version_counted(self):
+        self.go(outline('Page: [b]\n  + Trees cool the streets beneath them.\n  + Parks cost more to keep than pavement.'))
+        self.assertEqual(sorted(v['key'] for v in self.votes()), ['r1', 's1'])
+        self.run = Runner(say={('gh', 'pr', 'create'): 'https://github.com/x/y/pull/9\n'})
+        done = self.go(outline('Page: [b]\n  + Trees cool the streets beneath them.\n  + Street trees drop limbs on parked cars every storm.'))
+        self.assertEqual(done['did'], 'pr')
+        self.assertEqual(sorted(v['key'] for v in self.votes()), ['r1'])
+        self.assertIn('and take back 1 vote from #7', self.run.ran('git', 'commit')[0][-1])
+        self.assertIn('Taken back: 1 vote', self.comment())
+        # a version that stops casts nothing, so it takes back every vote the issue counted
+        self.run = Runner()
+        done = self.go(outline('Page: [b]\n  + [nope]'))
+        self.assertEqual((done['did'], self.votes()), ('stops', []))
+        self.assertEqual(len(self.run.ran('git', 'push', 'origin', 'HEAD:master')), 1)
+        self.assertIn('Taken back: 1 vote', self.comment())
+
     def test_a_vote_on_a_page_the_post_adds_goes_in_its_pull_request(self):
         done = self.go(outline('Belief: Officials should publish their calendars every week.\n  Vote: agree\n'
                                '  + Public calendars let voters see who lobbies whom.'))
