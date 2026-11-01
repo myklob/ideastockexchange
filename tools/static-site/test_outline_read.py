@@ -1179,5 +1179,35 @@ class TestWhatAThirdReviewFound(unittest.TestCase):
         self.assertIn("an Engagement's bracket", read('Page: [public-office-private-gain]\n  + Engagement (5): A voter who rides ferries.').stops[0].text)
 
 
+class TestWhatAFourthReviewFound(unittest.TestCase):
+    def test_a_frontmatter_line_of_leading_spaces_reads_in_one_pass(self):
+        # 2,000 spaces took 3.9 seconds to read, and the time grew as the cube of the run
+        for run in (2000, 60000):
+            t = time.time()
+            p = read('===\n' + ' ' * run + 'a\n===\nBelief: Zebras should vote in all municipal elections.')
+            self.assertLess(time.time() - t, 1)
+        self.assertEqual((codes(p), codes(p, kind='notices')), ([], ['N-FRONTMATTER']))
+        p = read('===\n' + ' ' * 30000 + 'mode' + ' ' * 30000 + ': strict\n===\nBelief: Zebras should vote.')
+        self.assertTrue(p.strict)
+        self.assertLess(time.time() - t, 1)
+
+    def test_a_line_of_many_addresses_reads_in_one_pass_and_stops_once(self):
+        t = time.time()
+        for words in ('www.a ' * 10000, 'http://a ' * 7111, 'see http://a ' * 4615, '(http://a) ' * 6000,
+                      f'{SITE}p/{KEY}.html ' * 1000):
+            p = read('Belief: Zebras should vote.\n  + ' + words)
+            self.assertLessEqual(len(p.stops), 1)
+        self.assertLess(time.time() - t, 3)
+        p = read('Belief: Zebras should vote.\n  + Zebras pay tax, see http://a.org and http://b.org and http://c.org\n')
+        self.assertEqual(codes(p), ['E-TWO-ADDRESSES'])
+
+    def test_taking_an_address_out_never_moves_another_one_left_of_it(self):
+        # the empty brackets were taken out of the whole line at each address, which moved the ones left of it
+        p = read('Belief: Zebras should vote.\n  + words www.b.com ()www.b.com www.b.com\n')
+        self.assertEqual(p.nodes[1].words, 'words.')
+        p = read('Belief: Zebras should vote.\n  + Zebras pay tax (see http://a.org/x).\n')
+        self.assertEqual((p.nodes[1].words, p.nodes[1].moved_address), ('Zebras pay tax.', 'http://a.org/x'))
+
+
 if __name__ == '__main__':
     unittest.main()

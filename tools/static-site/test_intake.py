@@ -248,6 +248,15 @@ class TestTheFlow(unittest.TestCase):
     def test_an_unrelated_claim_matches_nothing(self):
         self.assertEqual(self.matcher.nearest('Bike lanes reduce traffic deaths.'), [])
 
+    def test_one_word_swapped_for_its_opposite_is_a_new_claim_not_a_vote(self):
+        """'warm' for 'cool' reads as a near copy to the measure, which counts shared words, and says the opposite.
+        It must get a page of its own, never be counted as a vote for the claim it contradicts."""
+        text = 'Trees warm the streets beneath them.'
+        self.assertGreaterEqual(self.matcher.nearest(text)[0]['score'], MERGE, 'the pair no longer reads alike, so this proves nothing')
+        done = self.go(contribute(text=text))
+        self.assertEqual(done['did'], 'pr')
+        self.assertEqual([p['text'] for p in done['pages']], [text])
+
     def test_a_duplicate_becomes_a_vote_for_the_existing_claim_and_adds_no_rows(self):
         before = self.tables()
         done = self.go(contribute(side='disagree', text='Trees cool the streets beneath them.'))
@@ -1110,6 +1119,120 @@ class TestTheOutlineForm(unittest.TestCase):
         self.assertNotIn('#2', commit[commit.index('-m') + 1])
         title = self.run.ran('gh', 'pr', 'create')[0]
         self.assertEqual(title[title.index('--title') + 1], 'Fixes \uff032 now')
+
+    def test_no_issue_address_gh_reference_or_ci_marker_survives_in_typed_words(self):
+        done = self.go(outline('Page: [a]\n  + Officials who trade on tips should resign at once.',
+                               note='Resolves GH-3. Closes https://github.com/x/y/issues/4 [ci skip]',
+                               title='Fixes https://github.com/x/y/issues/1 and closes gh-2 [skip ci]'))
+        self.assertEqual(done['did'], 'pr')
+        commit = self.run.ran('git', 'commit')[-1]
+        pr = self.run.ran('gh', 'pr', 'create')[0]
+        for typed in (commit[commit.index('-m') + 1], pr[pr.index('--title') + 1], self.pr_body().rsplit('Note from the sender', 1)[1]):
+            for live in (r'github\.com', r'(?i)\bgh-\d', r'(?i)\[\s*(skip ci|ci skip|no ci|skip actions|actions skip)\s*\]'):
+                self.assertIsNone(re.search(live, typed), (live, typed))
+        self.assertEqual(K.inert('[skip actions] [Actions Skip] [no ci] GH-12 MGH-2 www.github.com/x'),
+                         '\uff3bskip actions\uff3d \uff3bActions Skip\uff3d \uff3bno ci\uff3d GH\u201112 MGH-2 www.github\u2024com/x')
+        self.run.log.clear()
+        done = self.go(contribute(page='a', text='Street trees cool parked cars on hot days [skip ci].', title='Reason to agree: [skip ci]'))
+        commit = self.run.ran('git', 'commit')[-1]
+        self.assertNotIn('[skip ci]', commit[commit.index('-m') + 1])
+
+    def test_a_reply_with_a_long_run_of_backticks_still_fits_in_a_comment(self):
+        class GitHubLike(Runner):
+            def __call__(self, args, cwd=None):
+                if '--body' in args and len(args[args.index('--body') + 1]) > K.GITHUB_ROOM: return 1, 'Body is too long'
+                return super().__call__(args, cwd)
+        for text in ('Belief: Zebras should vote in every town election.\n  + Zebras pay taxes on every stripe.\n  ' + '`' * 30000,
+                     'Belief: Zebras should vote in every town election.\n  + Zebras pay taxes on every stripe.\n    ' + '`' * 30000 + '\n  + More.'):
+            self.run = GitHubLike(say={('gh', 'pr', 'create'): 'https://github.com/x/y/pull/9\n'})
+            done = self.go(outline(text))
+            self.assertEqual(done['did'], 'stops')
+            comment = self.comment()
+            self.assertLessEqual(len(comment), K.GITHUB_ROOM)
+            self.assertIn('Nothing was filed', comment)
+            self.assertRegex(comment, r'\n- Line 3\b', 'the sender gets the list of stops')
+        for room in (500, 5000, 60000):
+            self.assertLessEqual(len(K.fenced('a\n' + '`' * 30000 + '\nb', room)), room)
+        self.assertEqual(K.fenced('a\n```\nb'), '````reasons\na\n```\nb\n````')
+
+    def test_a_vote_push_rebased_onto_newer_rows_leaves_them_in_the_pull_request(self):
+        """The workflow has no concurrency group, so a run that pushes a vote can find the default branch moved on: a
+        pull request merged meanwhile. The outline's pull request must add rows to what it read and take none away."""
+        import subprocess
+        if not shutil.which('git'): self.skipTest('git is not installed')
+        g = tempfile.mkdtemp(prefix='intake-race-')
+        try:
+            def sh(*a, cwd=None):
+                r = subprocess.run(list(a), cwd=cwd, capture_output=True, text=True)
+                self.assertEqual(r.returncode, 0, f'{a}: {r.stdout}{r.stderr}')
+                return r.stdout
+            me = ['-c', 'user.name=t', '-c', 'user.email=t@example.org']
+            sh('git', 'init', '-q', '--bare', '-b', 'master', f'{g}/origin.git')
+            sh('git', 'clone', '-q', f'{g}/origin.git', f'{g}/seed')
+            shutil.copytree(self.d, f'{g}/seed/content')
+            with open(f'{g}/seed/wb.xlsx', 'w') as fh: fh.write('a workbook')
+            sh('git', *me, 'add', '-A', cwd=f'{g}/seed'); sh('git', *me, 'commit', '-qm', 'seed', cwd=f'{g}/seed')
+            sh('git', 'push', '-q', 'origin', 'HEAD:master', cwd=f'{g}/seed')
+            for c in ('runner', 'other'): sh('git', 'clone', '-q', f'{g}/origin.git', f'{g}/{c}')
+            merged = 'a,argument,agree,,A row merged while the outline run was working.'
+            with open(f'{g}/other/content/edges.csv', 'a', encoding='utf-8') as fh: fh.write(merged + '\n')
+            sh('git', *me, 'commit', '-qam', 'Merge a contribution', cwd=f'{g}/other')
+            raced = []
+            def run(args, cwd=None):
+                if args[0] == 'gh': return (0, 'https://github.com/x/y/pull/9\n') if args[1:3] == ['pr', 'create'] else (0, '')
+                if args[0] == 'python3': return 0, ''
+                if args[:2] == ['git', 'push'] and not raced:
+                    raced.append(1); sh('git', 'push', '-q', 'origin', 'HEAD:master', cwd=f'{g}/other')
+                r = subprocess.run(args, cwd=cwd, capture_output=True, text=True)
+                return r.returncode, r.stdout + r.stderr
+            done = K.process(outline('Page: [b]\n  + Trees cool the streets beneath them.\n  + Wombats would trade fewer stocks than voters do.'),
+                             content=f'{g}/runner/content', run=run, matcher=self.matcher, root=f'{g}/runner', workbook=f'{g}/runner/wb.xlsx')
+            self.assertEqual((done['did'], [v['key'] for v in done['votes']], bool(raced)), ('pr', ['r1'], True))
+            self.assertIn(merged, sh('git', 'show', 'master:content/edges.csv', cwd=f'{g}/origin.git'))
+            change = sh('git', 'diff', 'master...contrib/issue-7', '--', 'content/', cwd=f'{g}/origin.git').split('\n')
+            self.assertEqual([l for l in change if l.startswith('-') and not l.startswith('---')], [], 'the pull request takes no row out')
+            self.assertTrue(any(l.startswith('+') and 'wombats' in l for l in change), 'and it adds the post\'s rows')
+        finally:
+            shutil.rmtree(g, ignore_errors=True)
+
+
+class TestTheMatcherIsQuick(unittest.TestCase):
+    """Matcher.nearest scores only the claims an upper bound of the measure cannot rule out, and must find exactly the
+    claims that scoring every one in turn finds, with the same scores, or a text could land on the other side of FLAG
+    or MERGE from where the site's own measure puts it."""
+
+    @classmethod
+    def setUpClass(cls):
+        try:
+            import render_site  # noqa: F401
+        except ImportError as e:
+            raise unittest.SkipTest(f'openpyxl missing: {e}')
+        cls.m = K.Matcher(K.CONTENT)
+
+    def every(self, text, kinds=None):
+        from similarity import words, grams, wjaccard, opposite
+        m, w, gv = self.m, words(text), self.m.vector(grams(text))
+        out = []
+        for i, x in enumerate(m.claims):
+            if kinds and x['kind'] not in kinds: continue
+            sc = 0.5 * wjaccard(w, m._w[i], m.widf) + 0.5 * sum(v * m._gv[i].get(t, 0.0) for t, v in gv.items())
+            if sc >= FLAG: out.append({'key': x['key'], 'kind': x['kind'], 'text': x['text'], 'score': sc, 'opposite': opposite(text, x['text'])})
+        return sorted(out, key=lambda r: (-r['score'], r['key']))
+
+    def test_nearest_finds_what_scoring_every_claim_finds(self):
+        import random, time
+        rnd = random.Random(7)
+        texts = []
+        for c in rnd.sample(self.m.claims, 12):
+            ws = c['text'].split()
+            texts += [c['text'], ' '.join(ws[::-1]), ' '.join(ws[:max(1, len(ws) // 2)]), c['text'].replace('-', '').upper()]
+        texts += ['abc-def ghi-jkl', 'abcdef ghijkl', 'the of and', '', 'x']
+        for text in texts:
+            for kinds in (None, ('belief', 'claim'), ('interest',)):
+                self.assertEqual(self.m.nearest(text, k=50, kinds=kinds), self.every(text, kinds)[:50], (text, kinds))
+        t = time.time()
+        for text in texts: self.m.nearest(text)
+        self.assertLess((time.time() - t) / len(texts), 0.05, 'a line is matched in well under a tenth of a second')
 
 
 class TestTheCommandLine(unittest.TestCase):

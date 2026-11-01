@@ -116,7 +116,9 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   are taken out as a control character is, with a notice in loose mode and a stop in strict. A heavy plus or minus, a
   long dash and a double hyphen at the start of a line are read as a sign, as an en dash is.
 - An address ends before a closing bracket, square or round, so '[https://x.org]' leaves no '[.' behind. A site
-  address may end in .txt (a page's printout) as well as .html, and names the same page.
+  address may end in .txt (a page's printout) as well as .html, and names the same page. A line with three or more
+  addresses for one source, or naming three or more pages, stops once (E-TWO-ADDRESSES, E-TWO-PAGES), not once for
+  each address past the first.
 - A strict line that starts with a tab gets its tab stop and not also a depth stop for the four spaces it reads as.
 - Fields under a request (Correction: with Source:) are allowed: the request is copied with them.
 - Belief: or Page: away from the left edge is a stop and still starts a block, so the lines under it are not each
@@ -386,12 +388,15 @@ def _frontmatter(kept, at, post):
         if k is None: continue
         i, l = k
         if l.strip() == '===': return j + 1, mode
-        m = re.match(r'\s*([^:]+?)\s*:\s*(.*?)\s*$', l)
-        if not m:
+        # split at the first colon rather than by a pattern: a pattern with a lazy name between runs of white space
+        # backtracks over a long run of spaces in time cubic in its length
+        said, colon, value = l.partition(':')
+        said, value = said.strip(), value.strip()
+        if not colon or not said:
             post.notice(i, 'N-FRONTMATTER', f'Line {i} in the frontmatter is not a name and a value, so it was not read.'); continue
-        name, value = N.fold(m.group(1)), m.group(2)
+        name = N.fold(said)
         if name not in N.FRONTMATTER:
-            post.notice(i, 'N-FRONTMATTER', f'Line {i}: {m.group(1)!r} is not a frontmatter name ({", ".join(N.FRONTMATTER)}), so it was not read.'); continue
+            post.notice(i, 'N-FRONTMATTER', f'Line {i}: {said!r} is not a frontmatter name ({", ".join(N.FRONTMATTER)}), so it was not read.'); continue
         bad = None
         if name == 'reasons':
             post.version = _whole(value) or value
@@ -412,7 +417,7 @@ def _frontmatter(kept, at, post):
         elif name == 'from':
             value = N.keyfold(value.strip('[]'))
         if bad:
-            post.notice(i, 'N-FRONTMATTER', f'Line {i}: {m.group(1)} is {bad}, so {_short(value)!r} was not read.'); continue
+            post.notice(i, 'N-FRONTMATTER', f'Line {i}: {said} is {bad}, so {_short(value)!r} was not read.'); continue
         post.frontmatter[name] = value
     post.stop(opened, 'E-FRONTMATTER', f'The frontmatter that opens on line {opened} has no closing ===, so nothing after it could be read.')
     return len(kept), mode
@@ -946,28 +951,34 @@ def _addresses(n, s, post):
                                                   f'To file the line on that page, {fix}.')
             n.repairs.append(msg); post.notices.append(msg)
     if not found: return None
-    no, out, said = n.line_no, s, []
+    no, out, said, stopped = n.line_no, s, [], set()
+    # the words left of an address are never changed before it is taken out, so a lead word is looked for only in the
+    # last few letters before it, and an empty bracket only where the two sides meet, once each, and in the whole line
+    # once at the end: looking over the whole line for each address took time quadratic in a line of many addresses
     for start, end, a, site in reversed(found):
         before, after = out[:start], out[end:]
-        m = _LEAD.search(before)
+        m = _LEAD.search(before, max(0, len(before.rstrip()) - 8))
         dropped = None
         if m: dropped, before = m.group(1), before[:m.start(1)]
         before, after = before.rstrip(), after.lstrip()
-        out = (before + ('' if before.endswith(('(', '[')) or after.startswith((')', ']', ',', '.', ';', ':', '!', '?')) else ' ') + after).strip()
-        out = re.sub(r' ?(\(\)|\[\])', '', out)
+        meet = len(before)
+        out = before + ('' if before.endswith(('(', '[')) or after.startswith((')', ']', ',', '.', ';', ':', '!', '?')) else ' ') + after
+        lo = max(0, meet - 2)
+        out = (out[:lo] + re.sub(r' ?(\(\)|\[\])', '', out[lo:meet + 2]) + out[meet + 2:]).strip()
         if site:
             r = _ref(a)
-            if n.ref and n.ref['value'] != r['value']:
+            if n.ref and n.ref['value'] != r['value'] and 'E-TWO-PAGES' not in stopped:
                 post.stop(no, 'E-TWO-PAGES', f'Line {no} names two pages on the site. Put each on a line of its own.')
-                n.bad = True
+                n.bad = True; stopped.add('E-TWO-PAGES')
             n.ref = n.ref or r
             said.append(f'read {a} as the page it names' + (f" and dropped '{dropped}'" if dropped else ''))
         else:
-            if n.moved_address:
+            if n.moved_address and 'E-TWO-ADDRESSES' not in stopped:
                 post.stop(no, 'E-TWO-ADDRESSES', f'Line {no} has two web addresses for one source. Keep one, and put the other on a line of its own.')
-                n.bad = True
+                n.bad = True; stopped.add('E-TWO-ADDRESSES')
             n.moved_address = a
             said.append(f'moved {a} to Address:' + (f" and dropped '{dropped}'" if dropped else ''))
+    out = re.sub(r' ?(\(\)|\[\])', '', out)
     out = ' '.join(out.split()).rstrip(' ,:;')
     if out and out[-1] not in '.?!': out += '.'
     msg = Message(no, 'N-ADDRESS', f'Line {no} ' + '; '.join(reversed(said)) + '.')

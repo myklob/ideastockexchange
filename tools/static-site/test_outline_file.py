@@ -609,9 +609,14 @@ class TestMatches(unittest.TestCase):
                 self.assertEqual([(e['section'], e['side'], e['claim']) for e in f.edges], [('similar', side, f.pages[0]['key'])])
                 self.assertEqual(f.near[2][0]['key'], BARRING)
                 self.assertGreaterEqual(f.near[2][0]['score'], F.MERGE)
-        # the same words as a reason name the belief itself, which is no reason for itself
-        _, f, _ = file(HEAD + '  + ' + stronger)
+        # the belief's words as a reason name the belief itself, which is no reason for itself
+        _, f, _ = file(HEAD + '  + Barring members of Congress and the president from owning or trading an individual stock would reduce use of '
+                              'public office for private gain.')
         self.assertEqual([m.code for m in f.stops], ['E-SELF'])
+        # and the stronger words, which say 'end' where it says 'reduce', are a claim of their own
+        _, f, _ = file(HEAD + '  + ' + stronger)
+        self.assertEqual((f.stops, f.votes, [p['text'] for p in f.pages]), ([], [], [stronger]))
+        self.assertIn("(says 'end' where it says 'reduce')", ' '.join(f.notes[2]))
 
     def test_a_key_or_the_same_words_twice_is_not_a_vote(self):
         _, f, _ = file('Page: [public-office-usable-private]\n  + [members-regularly-trade-industries]\n')
@@ -1299,6 +1304,89 @@ class TestWhatAThirdReviewFound(unittest.TestCase):
         for mode in (None, 'strict'):
             _, g, _ = file(reply, tables=t, mode=mode)
             self.assertEqual(problems(g), {}, mode)
+
+
+class TestWhatAFourthReviewFound(unittest.TestCase):
+    LINKAGE = 'argu-members-regularly-trade-barring-members'
+    SAME = 'Same people, same decisions, same period.'
+
+    def test_a_claim_with_one_word_swapped_for_its_opposite_is_not_the_claim(self):
+        _, f, _ = file('Belief: Barring members of Congress and the president from owning or trading individual stocks would expand the use '
+                       'of public office for private gain.\n  + Officials would move their holdings into family trusts that nobody audits.\n')
+        self.assertEqual((f.stops, f.votes), ([], []))
+        self.assertFalse(any(e['page'] == BARRING for e in f.edges), 'the objection is not filed as a reason to agree with the ban')
+        self.assertIn("near: [barring-members-congress-president] 0.89 (says 'expand' where it says 'reduce')", f.notes[1])
+        _, f, _ = file('Page: [members-regularly-trade-industries]\n  + Congressional portfolios outperformed market benchmarks by roughly 2 to '
+                       '3 percent a year over 2004 to 2008.\n')
+        self.assertEqual((f.votes, [p['text'][:36] for p in f.pages]), ([], ['Congressional portfolios outperforme']))
+        self.assertNotIn('congressional-portfolios-underperformed-market', [e.get('claim') for e in f.edges])
+        for typed, stored in (('won', 'lost'), ('rose', 'fell'), ('grew', 'shrank'), ('approved', 'rejected'), ('after', 'before'),
+                              ('behind', 'ahead'), ('gained', 'lost'), ('includes', 'excludes'), ('illegal', 'legal')):
+            a = f'The city council {typed} the plan for the harbor district in 2024.'
+            b = f'The city council {stored} the plan for the harbor district in 2024.'
+            self.assertEqual(F._substitutes(a, b), (typed, stored))
+        # words moved, inflected, or added on either side are no swap, so Example 9 still counts its vote
+        for a, b in (('Rents rise in cities when zoning is strict.', 'In cities, rents rise when zoning is strict.'),
+                     ('An official traded stocks.', 'Officials trade stocks.'), ('The ban would cut corruption.', 'A ban would cut corruption.')):
+            self.assertIsNone(F._substitutes(a, b), a)
+        _, f, _ = file(EX9)
+        self.assertEqual([v['key'] for v in f.votes], ['members-regularly-trade-industries'])
+
+    def test_a_dispute_of_a_kind_the_page_has_is_numbered_so_none_is_hidden(self):
+        def shown(t):
+            specs, _ = IT.tables_to_specs(t.pages, t.edges)
+            text = t.by_key[BARRING]['text']
+            return next(sp for sp in specs.values() if sp.get('belief') == text)['disputes']
+        t = fresh()
+        before = shown(t)
+        self.assertIn('Empirical', before)
+        post, f, _ = file(HEAD + '  Dispute (Empirical): Whether the cited survey asked the same question in each year.\n'
+                                 '  Dispute: Whether the second survey did.\n    Dispute kind: Empirical\n', tables=t)
+        self.assertEqual((f.stops, [e['text'] for e in f.edges]), ([], ['Empirical 2', 'Empirical 3']))
+        after = shown(t)
+        self.assertEqual({k: v for k, v in after.items() if k in before}, before, 'every stored dispute is still shown')
+        self.assertEqual(len(after), len(before) + 2)
+        reply = F.reply(post, f)
+        self.assertIn('  Dispute (Empirical 2): Whether the cited survey asked the same question in each year.\n', reply)
+        self.assertIn('    Dispute kind: Empirical 3\n', reply)
+        _, g, _ = file(reply, tables=t)
+        self.assertEqual(problems(g), {})
+
+    def test_an_edited_line_of_a_deeper_printout_asks_for_a_correction_on_every_page_it_shows(self):
+        for key, old, new in ((BARRING, self.SAME, 'Same people, same decisions, same years.'),
+                              (TOPIC, '    Value: Honest government\n', '    Value: Honest governments\n')):
+            for depth in (2, 3):
+                printed = printout(key, depth)
+                self.assertIn(old, printed)
+                for mode in (None, 'strict'):
+                    with self.subTest(key=key, depth=depth, mode=mode):
+                        _, f, _ = file(printed.replace(old, new), mode=mode)
+                        self.assertEqual(problems(f), {'corrections': 1})
+
+    def test_a_printout_sent_back_after_a_row_was_given_a_page_adds_no_second_row(self):
+        stale = printout(self.LINKAGE)
+        lines = stale.split('\n')
+        i = next(i for i, l in enumerate(lines) if l == '  + ' + self.SAME)
+        given = lines[:end_of(lines, i)] + ['    - Zorblat committees met in different years from the trades.'] + lines[end_of(lines, i):]
+        _, f, t = file('\n'.join(given))
+        self.assertEqual((len(f.changed), f.stops), (1, []))
+        d = tempfile.mkdtemp(prefix='outline-test-')
+        try:
+            t.content = d
+            t.write()
+            merged = K.Tables(d)
+            post = R.read(stale)
+            g = F.file(post, merged, K.Matcher(d), login=LOGIN, date=DATE, issue=ISSUE)
+        finally: shutil.rmtree(d)
+        self.assertEqual(problems(g), {'corrections': 1})
+        self.assertEqual(g.corrections[0]['cell'], 'Own page')
+
+    def test_a_long_post_is_filed_in_seconds(self):
+        import time
+        t = time.time()
+        _, f, _ = file(HEAD + ''.join(f'  + Reason number {i} about zebra {i * 7} trading.\n' for i in range(400)))
+        self.assertEqual((len(f.edges), f.stops), (400, []))
+        self.assertLess(time.time() - t, 10)
 
 
 EX1 = r"""Belief: Cities should let people build apartments near train stations.

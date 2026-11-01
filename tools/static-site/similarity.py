@@ -40,7 +40,9 @@ WHY IT CHANGES NO SCORE. w_ces is read from a VCA page when one exists and is 0 
 same rule as everything else here: an input nobody has argued counts nothing. Until somebody argues that this
 lexical proxy tracks meaning well enough to act on, it does not act. It only points.
 """
-import math, os, re, sys
+import math, os, re, sys, unicodedata
+from collections import Counter
+from difflib import SequenceMatcher
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 FLAG = 0.45      # worth a human reading the pair; tuned so the list stays short enough to actually be read
@@ -71,6 +73,129 @@ def negated(text):
 
 
 def opposite(a, b): return negated(a) != negated(b)
+
+
+# Two texts that read alike can still say opposite things. opposite() counts negating words; reverses() and
+# substitutes() catch the rest the measure cannot see: a comparison turned round, an antonym, a different word put in
+# one place. Every path that turns a typed claim into a vote for a stored one asks all three (intake, outline_file).
+# words that deny what follows them ('failed to earn', 'rarely trade', 'it is false that'), beyond those
+# similarity.NEGATION counts
+_FAILS = re.compile(r"\b(?:fail(?:s|ed|ing)?|unable|refus(?:e|es|ed|ing)|lack(?:s|ed|ing)?|rarely|seldom|hardly|scarcely)\b|"
+                    r"\b(?:false|untrue|a myth) that\b")
+# words that turn a comparison around when one text has one and the other text the other
+_ANTONYMS = {frozenset(p) for p in (
+    ('good', 'bad'), ('good', 'harm'), ('better', 'worse'), ('best', 'worst'), ('easier', 'harder'), ('easy', 'hard'),
+    ('more', 'less'), ('more', 'fewer'), ('increase', 'decrease'), ('increases', 'decreases'), ('increased', 'decreased'),
+    ('increase', 'reduce'), ('increases', 'reduces'), ('raise', 'lower'), ('raises', 'lowers'), ('rise', 'fall'), ('rises', 'falls'),
+    ('help', 'hurt'), ('helps', 'hurts'), ('help', 'harm'), ('helps', 'harms'), ('benefit', 'harm'), ('benefits', 'harms'),
+    ('gain', 'loss'), ('gains', 'losses'), ('win', 'lose'), ('wins', 'loses'), ('success', 'failure'), ('legal', 'illegal'),
+    ('allowed', 'banned'), ('allowed', 'against'), ('lawful', 'unlawful'), ('true', 'false'), ('strong', 'weak'),
+    ('stronger', 'weaker'), ('higher', 'lower'), ('above', 'below'), ('support', 'oppose'), ('supports', 'opposes'),
+    ('inform', 'mislead'), ('safe', 'dangerous'), ('safer', 'riskier'), ('likely', 'unlikely'), ('possible', 'impossible'),
+    ('positive', 'negative'), ('always', 'never'), ('cheaper', 'costlier'), ('earned', 'failed'), ('worth', 'worthless'),
+    ('many', 'few'), ('more', 'same'), ('less', 'same'), ('mistake', 'right'), ('wrong', 'right'), ('most', 'least'))}
+_TOKEN = re.compile(r"[a-z0-9']+")
+_ANCHORS = ('than', 'not', 'instead', 'rather')
+
+
+def _tokens(text): return _TOKEN.findall(unicodedata.normalize('NFC', str(text or '')).lower().replace('\u2019', "'"))
+
+
+def _denials(ts):
+    """How many times a text denies what follows: similarity.NEGATION's words, 'neither ... nor' counted once, and
+    'failed to', 'unable to' and the like."""
+    t = ' '.join(ts)
+    return len(NEGATION.findall(t)) - min(ts.count('neither'), ts.count('nor')) + len(_FAILS.findall(t))
+
+
+def _frames(ts):
+    """Each comparison in a text ('X than Y', 'X, not Y', 'X rather than Y'), as (its word, the words before it in
+    its clause, the words after it, the nearest word before, the nearest after), stop words left out."""
+    cs = [w for w in ts if w not in STOP or w in _ANCHORS]
+    out, start = [], 0
+    for i, w in enumerate(cs):
+        if w not in _ANCHORS: continue
+        before = [x for x in cs[start:i] if x not in _ANCHORS]
+        after = [x for x in cs[i + 1:i + 7] if x not in _ANCHORS]
+        if before and after: out.append((w, set(before), set(after), before[-1], after[0]))
+        start = i + 1
+    return out
+
+
+def _crossed(ba, aa, bb, ab):
+    """Words before a point in one text that come after it in the other, and words after it that come before it."""
+    return bool((ba & ab) - aa - bb and (aa & bb) - ba - ab)
+
+
+def _swapped(ta, tb):
+    """Whether two texts that use one word once each have words moved across it both ways ('A will outsell B' and 'B
+    will outsell A'): a subject and an object swapped round their verb. An edit keeps the order of the words it leaves,
+    so it never moves one across a word both texts share."""
+    ca, cb = [w for w in ta if w not in STOP], [w for w in tb if w not in STOP]
+    for v in set(ca) & set(cb):
+        if ca.count(v) != 1 or cb.count(v) != 1: continue
+        i, j = ca.index(v), cb.index(v)
+        ba, aa, bb, ab = set(ca[:i]), set(ca[i + 1:]), set(cb[:j]), set(cb[j + 1:])
+        if ba and aa and bb and ab and _crossed(ba, aa, bb, ab): return True
+    return False
+
+
+def reverses(a, b):
+    """Whether one claim says the opposite of the other although the two read alike: one denies what the other says
+    (similarity.opposite, or 'failed to', 'rarely', 'it is false that' and the like), the two sides of a comparison are
+    swapped ('more good than harm' and 'more harm than good', 'easier, not harder' and 'harder, not easier'), one
+    says the side the other puts second comes first ('more harm than good' against 'good for'), a subject and an
+    object are swapped round their verb ('A will outsell B' and 'B will outsell A'), or one uses a word and the other
+    its opposite ('allowed by law' against 'against the law', 'many worlds' against 'very few'). The measure counts
+    words, not their order, so it reads each of these pairs as near copies. The comparisons of two texts are paired
+    in order by their word, so one word edited in a text with several comparisons is not read as a swap."""
+    if opposite(a, b): return True
+    ta, tb = _tokens(a), _tokens(b)
+    if _denials(ta) % 2 != _denials(tb) % 2: return True
+    fa, fb = _frames(ta), _frames(tb)
+    for w in {f[0] for f in fa} & {f[0] for f in fb}:
+        for (_, ba, aa, _, _), (_, bb, ab, _, _) in zip([f for f in fa if f[0] == w], [f for f in fb if f[0] == w]):
+            if _crossed(ba, aa, bb, ab): return True
+    if _swapped(ta, tb): return True
+    sa, sb = set(ta), set(tb)
+    for frames, other, others in ((fa, sb, fb), (fb, sa, fa)):
+        if frames and not others:
+            for _, _, _, first, second in frames:
+                if first not in other and second in other: return True
+    only_a, only_b = set(Counter(ta) - Counter(tb)), set(Counter(tb) - Counter(ta))
+    flips = {p for p in _ANTONYMS if len(p & only_a) == 1 and len(p & only_b) == 1 and p & only_a != p & only_b}
+    return len(flips) % 2 == 1
+
+
+def _inflected(x, y):
+    """Whether two words are one word inflected or spelled another way ('trade', 'traded'; 'color', 'colour'): they
+    share all but the last three letters of the shorter, and at least three. A prefix that turns a word round
+    ('underperform', 'excludes', 'illegal') shares no first letter with the word, so it never reads as one."""
+    k = 0
+    for p, q in zip(x, y):
+        if p != q: break
+        k += 1
+    return k >= max(3, min(len(x), len(y)) - 3)
+
+
+def substitutes(a, b):
+    """(a word of a, the word of b that takes its place) when the two texts put a different word in one place
+    ('would expand the use' and 'would reduce the use', 'outperformed' and 'underperformed', 'rose' and 'fell'),
+    once words moved from one place to another and words that are one word inflected are set aside; None otherwise.
+    The measure counts the words the two share, so a text with one word swapped for its opposite reads as a near copy,
+    and no list of opposites is ever complete. Words added on either side are not a swap ('Members of Congress ...
+    a private stake' and 'Members ... a private financial stake')."""
+    ca, cb = [w for w in _tokens(a) if w not in STOP], [w for w in _tokens(b) if w not in STOP]
+    na, nb = Counter(ca), Counter(cb)
+    for op, i1, i2, j1, j2 in SequenceMatcher(None, ca, cb, autojunk=False).get_opcodes():
+        if op != 'replace': continue
+        # a word the other text has as often is one moved, not swapped
+        left, right = [w for w in ca[i1:i2] if nb[w] < na[w]], [w for w in cb[j1:j2] if na[w] < nb[w]]
+        for x in list(left):
+            y = next((y for y in right if _inflected(x, y)), None)
+            if y is not None: left.remove(x); right.remove(y)
+        if left and right: return left[0], right[0]
+    return None
 
 
 def words(text):

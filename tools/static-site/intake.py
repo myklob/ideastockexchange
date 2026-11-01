@@ -57,9 +57,16 @@ Decisions on the outline form, where the spec left a choice:
   field again, as it does in a block the sender opened in any other box, so a fence left open swallows nothing.
 - Typed words that reach the pull request, its title, the commit message or a comment outside a code block (the
   title, the sender's note, the requests and corrections, the stops) have '#12' and '@name' written with the
-  full-width number sign and at sign (inert), so a post cannot close or link another issue on merge, or notify
-  anyone. The reply itself sits in a code block, where GitHub reads neither, fenced with more backticks than any line
-  of it starts with (fenced), so no line the sender typed can close the block early.
+  full-width number sign and at sign (inert), 'GH-12' with a non-breaking hyphen and an address on github.com with a
+  one-dot leader, so a post cannot close or link another issue on merge, or notify anyone; a '[skip ci]' marker and
+  its four other spellings take full-width brackets, so merging a post still runs the checks and publishes it. A
+  form's title, which is its commit message too, is made inert the same way. The reply itself sits in a code block,
+  where GitHub reads neither, fenced with more backticks than any line of it starts with (fenced), so no line the
+  sender typed can close the block early; the reply is cut so that it fits with both fences, however long they are.
+- A pull request's branch starts at the commit the tables were read from when a vote this run pushed had to be
+  rebased onto a newer default branch (Git.branch), so it adds rows and takes out none merged meanwhile. It may then
+  need the conflict any two pull requests that add rows at one place need, and says so on GitHub, rather than
+  removing a row nobody sees go.
 - An edited issue is the post. A vote an earlier version of it counted on the default branch that this version does
   not cast is taken back in the same commit as this version's votes, and a version that stops takes back all of
   them, since nothing in a stopped post counts. So a line that cast a vote by mistake (a denial read as the claim it
@@ -72,7 +79,7 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 import ise_tables as IT
 from integrity import cycles_in_tables
-from similarity import FLAG, MERGE, words, grams, idf, wjaccard, opposite
+from similarity import FLAG, MERGE, words, grams, idf, wjaccard, opposite, reverses, substitutes
 import vocab as V
 
 CONTENT = os.path.join(HERE, 'content')
@@ -642,17 +649,53 @@ class Matcher:
         self.widf = idf(self._w)
         self.gidf = idf([list(d) for d in g])
         self._gv = [self.vector(d) for d in g]
+        # where each 4-gram and each word is, so a text is scored only against the claims that could reach FLAG
+        self._gpost, self._wpost = {}, {}
+        for i, v in enumerate(self._gv):
+            for t, x in v.items(): self._gpost.setdefault(t, []).append((i, x))
+        for i, ws in enumerate(self._w):
+            for t in set(ws): self._wpost.setdefault(t, []).append(i)
+        self._gmax = {t: max(x for _, x in p) for t, p in self._gpost.items()}
+        self._wsum = [sum(self.widf.get(t, 0.0) for t in set(ws)) for ws in self._w]
 
     def vector(self, g):
         v = {t: n * self.gidf.get(t, 0.0) for t, n in g.items()}
         norm = math.sqrt(sum(x * x for x in v.values()))
         return {t: x / norm for t, x in v.items() if x} if norm else {}
 
+    # how much of a text's 4-gram weight is bounded rather than summed: under 0.9, so a claim that shares no word
+    # with the text and none of its other 4-grams reads at most half of it, below FLAG
+    BOUNDED = 0.6
+
     def nearest(self, text, k=5, kinds=None):
+        """The claims a text reads at least FLAG alike to, best first: the score of each is computed exactly as
+        before, for every claim an upper bound of its score cannot rule out. Scoring every claim in turn took a
+        tenth of a second a line, so a long post took minutes. The 4-grams found in the most claims are bounded by
+        their largest weight in any claim rather than summed, the rest are summed over the claims that hold them,
+        and the word overlap is counted over the claims that share a word; a claim whose bound is under FLAG
+        cannot reach it, and a claim neither count touches reads under half of BOUNDED."""
         w, gv = words(text), self.vector(grams(text))
+        bounded, u = set(), 0.0
+        for t in sorted(gv, key=lambda t: (-len(self._gpost.get(t, ())), t)):
+            b = gv[t] * self._gmax.get(t, 0.0)
+            if u + b > self.BOUNDED: break
+            bounded.add(t); u += b
+        part = {}
+        for t, v in gv.items():
+            if t in bounded: continue
+            for i, x in self._gpost.get(t, ()): part[i] = part.get(i, 0.0) + v * x
+        ws = set(w)
+        wq, shared = sum(self.widf.get(t, 0.0) for t in ws), {}
+        for t in ws:
+            f = self.widf.get(t, 0.0)
+            for i in self._wpost.get(t, ()): shared[i] = shared.get(i, 0.0) + f
         out = []
-        for i, x in enumerate(self.claims):
+        for i in set(part) | set(shared):
+            x = self.claims[i]
             if kinds and x['kind'] not in kinds: continue
+            it = shared.get(i, 0.0)
+            un = wq + self._wsum[i] - it
+            if 0.5 * (it / un if un > 0 else 0.0) + 0.5 * (part.get(i, 0.0) + u) < FLAG - 1e-9: continue
             gc = sum(v * self._gv[i].get(t, 0.0) for t, v in gv.items())
             sc = 0.5 * wjaccard(w, self._w[i], self.widf) + 0.5 * gc
             if sc >= FLAG: out.append({'key': x['key'], 'kind': x['kind'], 'text': x['text'], 'score': sc, 'opposite': opposite(text, x['text'])})
@@ -682,6 +725,9 @@ class Git:
     def __init__(self, run, root, repo=REPO, branch=DEFAULT_BRANCH):
         self.run, self.root, self.repo, self.base = run, root, repo, branch
         self.log = []
+        # the commit the tables were read from, and whether a vote's push was rebased onto a newer default branch,
+        # which brings that branch's rows into the working tree; the tables read before it would write them out again
+        self.start, self.rebased = None, False
 
     def __call__(self, *args, ok=True):
         code, out = self.run(list(args), cwd=self.root)
@@ -700,10 +746,14 @@ class Git:
         it lands or the tries run out. If a rebase itself cannot finish, the vote is applied again on top of
         what is there, because latest wins makes that the same answer. A push made with the workflow's own
         token starts no push-triggered run, so the publish workflow is started by hand once the vote is in."""
+        if self.start is None:
+            code, out = self('git', 'rev-parse', 'HEAD', ok=False)
+            self.start = out.strip() if code == 0 and re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', out.strip()) else ''
         self.commit(paths, message)
         for n in range(tries):
             code, _ = self('git', 'push', 'origin', f'HEAD:{self.base}', ok=n == tries - 1)
             if code == 0: break
+            self.rebased = True
             code, _ = self('git', 'pull', '--rebase', 'origin', self.base, ok=False)
             if code != 0:
                 self('git', 'rebase', '--abort', ok=False)
@@ -730,8 +780,11 @@ class Git:
 
     def branch(self, n):
         """One branch per issue, rebuilt from the default branch on every run so an edited issue replaces
-        what its first version added."""
-        self('git', 'checkout', '-B', f'contrib/issue-{n}')
+        what its first version added. When a vote this run pushed was rebased onto rows merged meanwhile, it starts
+        at the commit the tables were read from instead: the tables written on the branch do not hold those rows,
+        and the pull request would take them out. It then adds rows to what it was read from, as every pull request
+        does that waits for review while others are merged."""
+        self('git', 'checkout', '-B', f'contrib/issue-{n}', *([self.start] if self.rebased and self.start else []))
 
     def has_branch(self, n):
         code, _ = self('git', 'ls-remote', '--exit-code', '--heads', 'origin', f'contrib/issue-{n}', ok=False)
@@ -780,13 +833,19 @@ def outline_text(value):
     return '\n'.join(lines)
 
 
-def fenced(reply):
+def fenced(reply, room=None):
     """The reply as a ```reasons block: GitHub shows its indentation, and pasted back into the form it is a post. The
     fence is longer than any run of backticks a line of the reply starts with, so no line the sender typed can close
-    it and let the rest be read as Markdown (an @name that notifies, a #12 that links)."""
-    runs = [len(m.group(1)) for m in re.finditer(r'^[ \t]*(`{3,})', reply, re.M)]
-    fence = '`' * max([3] + [r + 1 for r in runs])
-    return f'{fence}reasons\n' + reply.rstrip('\n') + f'\n{fence}'
+    it and let the rest be read as Markdown (an @name that notifies, a #12 that links). With room, the reply is cut
+    (cut) so that it and both fences fit in room characters: a line of many backticks makes a fence as long, twice."""
+    budget = room
+    while True:
+        body = reply if room is None else cut(reply, budget)
+        runs = [len(m.group(1)) for m in re.finditer(r'^[ \t]*(`{3,})', body, re.M)]
+        fence = '`' * max([3] + [r + 1 for r in runs])
+        out = f'{fence}reasons\n' + body.rstrip('\n') + f'\n{fence}'
+        if room is None or len(out) <= room or budget <= 0: return out
+        budget -= len(out) - room
 
 
 def cut(reply, room=REPLY_ROOM):
@@ -809,11 +868,21 @@ def _outline_title(sub, post, filed, tables):
     return f'Reason Outline: {words[:60]}' if words else 'Reason Outline'
 
 
+# the markers in a commit message that make GitHub Actions skip the push and pull request runs
+_SKIP_CI = re.compile(r'\[(\s*(?:skip ci|ci skip|no ci|skip actions|actions skip)\s*)\]', re.I)
+
+
 def inert(text):
     """Typed words that land outside a code block, in a pull request, a commit message or a comment, with GitHub's
     references made plain: '#12' and '@name' are written with the full-width number sign and at sign, which read the
-    same and neither link, notify anyone, nor let a closing word ('Fixes #12') close another issue on merge."""
-    return re.sub(r'@(?=[A-Za-z0-9])', '\uff20', re.sub(r'#(?=\d)', '\uff03', str(text or '')))
+    same and neither link, notify anyone, nor let a closing word ('Fixes #12') close another issue on merge. 'GH-12'
+    takes a non-breaking hyphen and an address on github.com a one-dot leader for its dot, since GitHub reads either
+    as an issue too, and a '[skip ci]' marker (or [ci skip], [no ci], [skip actions], [actions skip]) takes
+    full-width brackets, so a merged post's commit still runs the checks and the publish workflow."""
+    t = re.sub(r'@(?=[A-Za-z0-9])', '\uff20', re.sub(r'#(?=\d)', '\uff03', str(text or '')))
+    t = re.sub(r'\b(gh)-(?=\d)', '\\1\u2011', t, flags=re.I)
+    t = re.sub(r'\bgithub\.com\b', lambda m: m.group().replace('.', '\u2024'), t, flags=re.I)
+    return _SKIP_CI.sub('\uff3b\\1\uff3d', t)
 
 
 def bound(lines, room):
@@ -842,7 +911,7 @@ def process_outline(sub, tables, git, matcher, content, workbook):
     def said(lead, closing=False):
         top = '\n'.join(lead + ['', 'What the site read, printed back (' + ('open a new issue to send it again' if closing else
                                                                          'edit this issue to send it again') + '):', ''])
-        return top + '\n' + fenced(cut(reply, min(REPLY_ROOM, GITHUB_ROOM - len(top) - 400)))
+        return top + '\n' + fenced(reply, min(REPLY_ROOM, GITHUB_ROOM - len(top) - 400))
     votes_path = os.path.join(content, 'votes.csv')
     # an edited issue is the post: a vote an earlier version of it counted that this version does not cast is taken
     # back, and a post that stops casts none (H)
@@ -911,7 +980,7 @@ def process_outline(sub, tables, git, matcher, content, workbook):
             tail += ['', 'Note from the sender: ' + inert(note)]
         tail += ['', f'Closes #{n}']
         room = GITHUB_ROOM - len('\n'.join(head + tail)) - 400
-        body = head + [fenced(cut(reply, min(REPLY_ROOM, room)))] + tail
+        body = head + [fenced(reply, min(REPLY_ROOM, room))] + tail
         paths = [os.path.join(content, x) for x in ('pages.csv', 'edges.csv', 'topics.csv') if os.path.exists(os.path.join(content, x))] + [workbook]
         if later: paths.append(votes_path)
         git.commit(paths, f'{title}\n\nFrom #{n} by @{login}.')
@@ -1019,7 +1088,10 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
     pages, edges, notes = [], [], []
     hit = None
     # a denial of a claim is not that claim, and a variant filed under Similar Beliefs is meant to read alike
-    if near and near[0]['score'] >= MERGE and not near[0]['opposite'] and sub['fields'].get('section') != 'similar':
+    # reads alike and says the same: not a denial, not turned round, not one word swapped ('expand' for 'reduce')
+    same = near and near[0]['score'] >= MERGE and not near[0]['opposite'] and not reverses(text, near[0]['text']) \
+        and not substitutes(text, near[0]['text'])
+    if same and sub['fields'].get('section') != 'similar':
         hit = near[0]
         placed = place_existing(sub, tables, hit)
         vote_for(hit['key'], 'agree', f'This is already on the site, so it is counted as your vote to agree with it '
@@ -1059,6 +1131,8 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
     # a title that is only the form's prefix ("Reason to agree:") is what a submission with no script arrives with
     title = sub['title'].strip()
     if not title or title.endswith(':'): title = f'{THING.get(sub["fields"].get("section"), "belief").capitalize()}: {text[:60]}'
+    # the title is the commit message's first line, and on merge the default branch's: no issue reference or CI marker
+    title = inert(title)
     paths = [os.path.join(content, f) for f in ('pages.csv', 'edges.csv', 'topics.csv') if os.path.exists(os.path.join(content, f))] + [workbook]
     git.commit(paths, f'{title}\n\nFrom #{n} by @{login}.')
     url, existed = git.open_pr(n, title, '\n'.join(body))

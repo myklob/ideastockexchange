@@ -55,13 +55,17 @@ finding, and that needs a reason, not a fix to the test.
     Truth stays in 0 to 1; a row adds at most 1        test_scoring  test_every_truth_in_range, test_contribution_is_bounded_by_one_in_magnitude
     No number is NaN or infinite                       test_invariants  TestNoNumberIsUndefined
     A circular argument is refused, not scored         test_engines  test_a_cycle_is_refused_by_name_rather_than_by_running_out_of_stack
-    No depth limit: the scorer walks the whole graph   one memoized pass over a graph with no cycles; there is no cap to test
+    The scorer walks the whole graph                   one memoized, recursive pass over a graph with no cycles; a post
+                                                       that would chain more than outline_file.MAX_CHAIN (100) pages
+                                                       is refused (E-TOO-DEEP), test_outline_file
     The order rows are stored in changes nothing       test_invariants  TestOrderChangesNothing
     A claim listed twice on a page counts once         test_invariants  TestARepeatedClaimCountsOnce
     The same tables give the same site, byte for byte  test_invariants  TestTheSameTablesGiveTheSameSite
     Who added a row moves nothing                      test_invariants  TestWhoAddedARowMovesNothing
-    Opening an empty linkage page moves nothing        test_invariants  TestOpeningAFactorPageMovesNothing
+    Opening an empty linkage page moves no score       test_invariants  TestOpeningAFactorPageMovesNothing
     A row's kind of post (its tag) moves nothing       no scorer reads `tag`; test_vocab pins where each kind files
+    A claim that reads alike but says the opposite     test_intake, test_outline_file: never merged into a vote for it
+      is never counted as a vote for the other
     A vote moves nothing                               test_render   test_no_vote_moves_any_score
     A fallacy flag moves nothing                       test_fallacy  test_a_flag_moves_no_score
     A computed similarity moves nothing                test_similarity  test_it_changes_no_score
@@ -83,7 +87,9 @@ discount and is meant to be.
     sensitivity.py       which single input, moved, would change the answer, and what it would be worth to settle it
     reasonrank.py        the damped walk from the beliefs: how much of the corpus depends on each page
     changes.py           what moved since the last revision, in claims and in scores
-    similarity.py        which claims say the same thing in different words, so padding can be seen
+    similarity.py        which claims say the same thing in different words, so padding can be seen; and which pairs read
+                         alike but say opposite things (a denial, a comparison turned round, one word swapped: 'expand' for
+                         'reduce'), which no path ever merges into a vote for the other
     integrity.py         faults the shape of the graph shows: circularity, question-begging, a page listed twice
     method.py            the reader-facing methodology page: every rule the contract enumerates, every number a page
                          prints (EVS, kind of dispute, costs and benefits, structural checks), the wiki rules the
