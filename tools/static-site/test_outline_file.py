@@ -273,14 +273,16 @@ class TestTheExamples(unittest.TestCase):
         edges = [dict(page=BARRING, section='cba', side='disagree', claim='officials-pay-capital-gains-tax', who='officials-families-need-same',
                       category='dollars of tax per affected official', magnitude='40000', mag_low='5000', mag_high='250000', extra=STAMP)]
         _, f, _ = self.filed(EX8, pages, edges, notices=[(2, 'N-ESTIMATE')])
-        self.assertEqual([(x['key'], round(x['score'], 2)) for x in f.near[2]], [('officials-sell-holdings-schedule', 0.46)])
-        self.assertIn('near: [officials-sell-holdings-schedule] 0.46', ' '.join(f.notes[2]))
+        self.assertEqual([x['key'] for x in f.near[2]], ['officials-sell-holdings-schedule'])
+        self.assertAlmostEqual(f.near[2][0]['score'], 0.46, delta=0.04)  # near, and well short of a match, as the tables grow
+        self.assertRegex(' '.join(f.notes[2]), r'near: \[officials-sell-holdings-schedule\] 0\.4\d')
 
     def test_9_a_line_that_says_what_a_claim_on_the_site_already_says(self):
         edges = [dict(page='public-office-usable-private', section='argument', side='agree', claim='members-regularly-trade-industries', extra=STAMP)]
         votes = [dict(key='members-regularly-trade-industries', login=LOGIN, vote='agree', issue=str(ISSUE), date=DATE, on='')]
         post, f, _ = self.filed(EX9, [], edges, votes=votes, notices=[(2, 'N-MATCH')])
-        self.assertIn('matched [members-regularly-trade-industries] (0.89): counted as your vote to agree', f.notes[2])
+        # the score itself moves a point or two as the tables grow, because a word counts for less the more claims use it
+        self.assertRegex(' | '.join(f.notes[2]), r'matched \[members-regularly-trade-industries\] \(0\.(8[5-9]|9\d)\): counted as your vote to agree')
         text = F.reply(post, f)
         self.assertIn('  + [members-regularly-trade-industries]: Members regularly trade in the industries', text)
         # had the row already been there, only the vote would be recorded
