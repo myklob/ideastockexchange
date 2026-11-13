@@ -51,7 +51,7 @@ barring-members-congress-president,motive,disagree,advertised-reason-what-actual
 barring-members-congress-president,obstacle,agree,people-who-bound-people,,,,,,,,,,,,,,,,
 barring-members-congress-president,obstacle,disagree,opponents-cannot-point-benefit,,,,,,,,,,,,,,,,
 barring-members-congress-president,media,agree,ziobrowski-cheng-boyd-ziobrowski,,,medi-ziobrowski-cheng-boyd-barring-members,imp-ziobrowski-cheng-boyd-barring-members,,,,,,,,,,,,url: https://ideas.repec.org/a/cup/jfinqa/v39y2004i04p661-676_00.html | checked: 2026-11-08
-barring-members-congress-president,media,agree,insider-conflicted-congress-2021,,,medi-insider-conflicted-congress-barring-members,imp-insider-conflicted-congress-barring-members,,,,,,,,,,,,
+barring-members-congress-president,media,agree,insider-conflicted-congress-2021,,,medi-insider-conflicted-congress-barring-members,imp-insider-conflicted-congress-barring-members,,,,,,,,,,,,url: https://www.businessinsider.com/congress-stock-act-violations-senate-house-trading-2021-9 | checked: 2026-11-13
 barring-members-congress-president,media,disagree,eggers-hainmueller-capitol-losses,,,medi-eggers-hainmueller-capitol-barring-members,imp-eggers-hainmueller-capitol-barring-members,,,,,,,,,,,,url: https://www.mit.edu/~jhainm/Paper/CL.pdf | checked: 2026-11-08
 barring-members-congress-president,law,agree,stock-act-2012-made,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-112publ105/html/PLAW-112publ105.htm | checked: 2026-11-08
 barring-members-congress-president,law,agree,courthouse-ethics-transparency-act,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-117publ125/html/PLAW-117publ125.htm | checked: 2026-11-08
@@ -63,8 +63,8 @@ barring-members-congress-president,downstream,disagree,congressional-staff-acces
 barring-members-congress-president,similar,extreme,members-congress-barred-owning,,,,,,,equiv-barring-members-congress-members-congress,,,,,,,,,
 barring-members-congress-president,similar,moderate,members-congress-required-place,,,,,,,equiv-barring-members-congress-members-congress-2,,,,,,,,,
 barring-members-congress-president,person,agree,senators-jeff-merkley-josh,,,,,,,,,,,,,,,,url: https://www.merkley.senate.gov/bipartisan-senate-group-pushes-ban-on-lawmaker-stock-trading | checked: 2026-11-08
-barring-members-congress-president,person,agree,representatives-chip-roy-seth,,,,,,,,,,,,,,,,
-barring-members-congress-president,person,disagree,speaker-nancy-pelosi-said,,,,,,,,,,,,,,,,
+barring-members-congress-president,person,agree,representatives-chip-roy-seth,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr5106.xml | checked: 2026-11-13
+barring-members-congress-president,person,disagree,speaker-nancy-pelosi-said,,,,,,,,,,,,,,,,url: https://speakeremeritapelosi.house.gov/newsroom/121521-0 | checked: 2026-11-13
 barring-members-congress-president,value,,,,,,,,,,,,,,,,,,value: Honest government | srank: 1 | orank: 2 | why: Supporters rank it above the cost to officials; opponents agree it matters but rank property rights first.
 barring-members-congress-president,value,,,,,,,,,,,,,,,,,,value: Property rights | srank: 3 | orank: 1 | why: Opponents treat the holding as an ordinary right; supporters treat it as a condition of a voluntary office.
 barring-members-congress-president,value,,,,,,,,,,,,,,,,,,"value: Open service to people of ordinary means | srank: 2 | orank: 3 | why: Both sides claim it: supporters say conflicts favor the wealthy, opponents say divestiture costs do."
@@ -94,7 +94,7 @@ barring-president-members-congress,argument,disagree,problem-people-actually-poi
 barring-president-members-congress,argument,disagree,president-entitled-advisers-he,,,,imp-president-entitled-advisers-barring-president,,,,,,,,,,,,
 barring-president-members-congress,argument,disagree,competence-neither-inherited-nor,,,,imp-competence-neither-inherited-barring-president,,,,,,,,,,,,
 barring-president-members-congress,evidence,agree,justice-department-concluded-federal,,"Office of Legal Counsel opinion, January 20, 2017",,,,,,,,,,,,,,url: https://www.justice.gov/olc/opinion/application-anti-nepotism-statute-presidential-appointment-white-house-office | checked: 2026-11-08
-barring-president-members-congress,evidence,agree,relatives-marriage-have-held,,"Congressional nomination records and contemporaneous reporting, 2025 to 2026",,,,,,,,,,,,,,
+barring-president-members-congress,evidence,agree,relatives-marriage-have-held,,"Congressional nomination records and contemporaneous reporting, 2025 to 2026",,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/CREC-2025-05-19/pdf/CREC-2025-05-19-dailydigest.pdf | checked: 2026-11-13
 barring-president-members-congress,evidence,disagree,relatives-who-became-federal,,Office of Government Ethics filings reported July 2017,,,,,,,,,,,,,,
 barring-president-members-congress,evidence,disagree,federal-candidates-paid-combined,,"OpenSecrets analysis, June 2020",,,,,,,,,,,,,,
 barring-president-members-congress,prediction,agree,after-bar-takes-effect,,,,,,,,,,,,,,,By 2030; nomination records and White House staff lists,
@@ -194,15 +194,15 @@ requiring-president-members-congress,bias,disagree,,Treating a document's comple
 letting-congress-overturn-presidential,argument,agree,clemency-only-executive-power,,,,imp-clemency-only-executive-letting-congress,,,,,,,,,,,,
 letting-congress-overturn-presidential,argument,agree,pardons-granted-president-s,,,,imp-pardons-granted-president-letting-congress,,,,,,,,,,,,
 letting-congress-overturn-presidential,argument,agree,two-thirds-threshold-means,,,,imp-two-thirds-threshold-letting-congress,,,,,,,,,,,,
-letting-congress-overturn-presidential,argument,agree,most-states-already-put,,,argu-most-states-already-letting-congress,imp-most-states-already-letting-congress,,,,,,,,,,,,
-letting-congress-overturn-presidential,argument,disagree,article-ii-grants-power,,,argu-article-ii-grants-letting-congress,imp-article-ii-grants-letting-congress,,,,,,,,,,,,
+letting-congress-overturn-presidential,argument,agree,most-states-already-put,,,argu-most-states-already-letting-congress,imp-most-states-already-letting-congress,,,,,,,,,,,,url: https://ccresourcecenter.org/state-restoration-profiles/50-state-comparisoncharacteristics-of-pardon-authorities-2/ | checked: 2026-11-13
+letting-congress-overturn-presidential,argument,disagree,article-ii-grants-power,,,argu-article-ii-grants-letting-congress,imp-article-ii-grants-letting-congress,,,,,,,,,,,,url: https://www.law.cornell.edu/constitution-conan/article-2/section-2/clause-1/congresss-role-in-pardons | checked: 2026-11-13
 letting-congress-overturn-presidential,argument,disagree,clemency-exists-correct-injustices,,,,imp-clemency-exists-correct-letting-congress,,,,,,,,,,,,
 letting-congress-overturn-presidential,argument,disagree,reversible-pardon-pardon-nobody,,,,imp-reversible-pardon-pardon-letting-congress,,,,,,,,,,,,
 letting-congress-overturn-presidential,argument,disagree,narrower-fix-reaches-actual,,,,imp-narrower-fix-reaches-letting-congress,,,,,,,,,,,,
-letting-congress-overturn-presidential,evidence,agree,58-percent-americans-said,,"Economist and YouGov poll, December 2025",,,,,,,,,,,,,,
-letting-congress-overturn-presidential,evidence,agree,federal-judge-unsealed-redacted,,"Opinion of Chief Judge Beryl Howell, unsealed December 1, 2020",,,,,,,,,,,,,,
-letting-congress-overturn-presidential,evidence,agree,independent-boards-hold-gate,,"Collateral Consequences Resource Center fifty-state survey, 2024 to 2025",,,,,,,,,,,,,,
-letting-congress-overturn-presidential,evidence,disagree,supreme-court-held-pardon,,"Ex parte Garland, 71 U.S. 333 (1866)",,,,,,,,,,,,,,
+letting-congress-overturn-presidential,evidence,agree,58-percent-americans-said,,"Economist and YouGov poll, December 2025",,,,,,,,,,,,,,url: https://yougov.com/en-us/articles/53702-majorities-americans-say-donald-trump-gives-too-many-pardons-want-to-limit-pardon-power-december-5-8-2025-economist-yougov-poll | checked: 2026-11-13
+letting-congress-overturn-presidential,evidence,agree,federal-judge-unsealed-redacted,,"Opinion of Chief Judge Beryl Howell, unsealed December 1, 2020",,,,,,,,,,,,,,url: https://time.com/5916954/justice-department-white-house-pardon-bribery/ | checked: 2026-11-13
+letting-congress-overturn-presidential,evidence,agree,independent-boards-hold-gate,,"Collateral Consequences Resource Center fifty-state survey, 2024 to 2025",,,,,,,,,,,,,,url: https://ccresourcecenter.org/state-restoration-profiles/50-state-comparisoncharacteristics-of-pardon-authorities-2/ | checked: 2026-11-13
+letting-congress-overturn-presidential,evidence,disagree,supreme-court-held-pardon,,"Ex parte Garland, 71 U.S. 333 (1866)",,,,,,,,,,,,,,url: https://www.law.cornell.edu/supremecourt/text/71/333 | checked: 2026-11-13
 letting-congress-overturn-presidential,evidence,disagree,proposals-let-congress-nullify,,"H.J.Res.135 (December 2025) and H.J.Res.13 (January 2025), House Judiciary Committee",evid-proposals-let-congress-letting-congress,,,,,,,,,,,,,
 letting-congress-overturn-presidential,prediction,agree,decade-after-override-mechanism,,,,,,,,,,,,,,,By 2040; Office of the Pardon Attorney records against the clemency grant list,
 letting-congress-overturn-presidential,prediction,disagree,override-never-used-because,,,,,,,,,,,,,,,By 2040; count of override votes attempted and succeeded,
@@ -281,7 +281,7 @@ taken-literally-bar-anyone,argument,disagree,,Every version actually proposed di
 members-regularly-trade-industries,argument,agree,,"Committee assignments are public and so are transaction reports, so the overlap is directly observable.",,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-113publ7/html/PLAW-113publ7.htm | checked: 2026-11-08
 members-regularly-trade-industries,argument,agree,,The conflict does not require proving intent: owning the stock is what creates it.,,,,,,,,,,,,,,,
 members-regularly-trade-industries,argument,disagree,,Overlap between a portfolio and a committee is not evidence that either the trade or the vote moved.,,,,,,,,,,,,,,,
-disclosure-has-failed-check,argument,agree,,Insider counted 78 members of the 117th Congress in violation of the reporting deadline (tally published January 2023).,,,,,,,,,,,,,,,
+disclosure-has-failed-check,argument,agree,,Insider counted 78 members of the 117th Congress in violation of the reporting deadline (tally published January 2023).,,,,,,,,,,,,,,,url: https://ca.news.yahoo.com/77-members-117th-congress-violated-111400969.html | checked: 2026-11-13
 disclosure-has-failed-check,argument,agree,,"Congress removed the searchable online database requirement for staff filings in April 2013, a year after creating it.",,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-113publ7/html/PLAW-113publ7.htm | checked: 2026-11-08
 disclosure-has-failed-check,argument,disagree,,"A late filing is a paperwork failure, which is not the same as trading on inside information.",,,,,,,,,,,,,,,
 holdings-ban-removes-conflict,argument,agree,,A rule that can be checked from an ownership list needs no investigation of intent.,,,,,,,,,,,,,,,
@@ -301,7 +301,7 @@ forced-divestiture-imposes-real,argument,agree,,Selling on a schedule set by law
 forced-divestiture-imposes-real,argument,disagree,,"Executive branch appointees already use certificates of divestiture to defer capital gains on forced sales, so the tax cost is a solved problem.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/26/1043 | checked: 2026-11-08
 forced-divestiture-imposes-real,argument,disagree,,"Congress is already far wealthier than the country it represents, so the rule mainly inconveniences people who are not of ordinary means.",,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_current_members_of_the_United_States_Congress_by_wealth | checked: 2026-11-08
 members-keep-property-rights,argument,agree,,No court has held that taking office forfeits ordinary property rights.,,,,,,,,,,,,,,,
-members-keep-property-rights,argument,disagree,,"Every federal employee below the president is already subject to the criminal conflict-of-interest statute, and judges, military officers and Fed officials accept holding restrictions.",,,,,,,,,,,,,,,
+members-keep-property-rights,argument,disagree,every-federal-employee-below-president,"Every federal employee below the president is already subject to the criminal conflict-of-interest statute, and judges, military officers and Fed officials accept holding restrictions.",,,,,,,,,,,,,,,
 members-keep-property-rights,argument,disagree,,"Nobody is compelled to take the office, and the restriction attaches to the office rather than to the person.",,,,,,,,,,,,,,,
 congress-will-enforce-ban,argument,agree,,"The STOCK Act is the precedent: Congress passed it, then weakened the disclosure provision a year later and left the penalty at $200.",,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-113publ7/html/PLAW-113publ7.htm | checked: 2026-11-08
 congress-will-enforce-ban,argument,disagree,,"A ban can be enforced by anyone reading an ownership list, unlike a reporting rule that depends on the ethics committees.",,,,,,,,,,,,,,,
@@ -341,14 +341,14 @@ officials-stop-placing-trades,argument,agree,,You cannot trade what you cannot o
 officials-stop-placing-trades,argument,disagree,,"The studies disagree about how much of this is happening now, so the base the reduction applies to is uncertain.",,,,,,,,,,,,,,,url: https://www.nber.org/papers/w26975 | checked: 2026-11-08
 voters-can-tell-compromised,argument,agree,,A bright-line ownership rule is checkable by any citizen reading a filing.,,,,,,,,,,,,,,,
 voters-can-tell-compromised,argument,disagree,,"Trust in Congress has fallen through four decades of ethics reforms, so the historical link between rules and trust is weak.",,,,,,,,,,,,,,,url: https://news.gallup.com/poll/394283/confidence-institutions-down-average-new-low.aspx | checked: 2026-11-08
-officials-get-one-rule,argument,agree,,"78 members of one Congress missed a deadline under the current regime, which is evidence that it is hard to comply with or easy to ignore.",,,,,,,,,,,,,,,
+officials-get-one-rule,argument,agree,,"78 members of one Congress missed a deadline under the current regime, which is evidence that it is hard to comply with or easy to ignore.",,,,,,,,,,,,,,,url: https://ca.news.yahoo.com/77-members-117th-congress-violated-111400969.html | checked: 2026-11-13
 officials-get-one-rule,argument,disagree,,"A ban adds preclearance and divestiture paperwork of its own, as the Fed rule shows.",,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/other20211021b.htm | checked: 2026-11-08
 officials-sell-holdings-schedule,argument,agree,,Forced sales realize gains that a holder would otherwise defer.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/26/1043 | checked: 2026-11-08
 officials-sell-holdings-schedule,argument,disagree,,"Certificates of divestiture already let executive branch appointees defer those gains, and the same mechanism can be extended.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/26/1043 | checked: 2026-11-08
 mid-career-professionals-savings,argument,agree,,Any added cost of holding office deters at the margin.,,,,,,,,,,,,,,,
 mid-career-professionals-savings,argument,disagree,,"Diversified funds remain permitted under every serious proposal, so the deterred group is people who specifically want to pick stocks while legislating.",,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/BILLS-119s1498rs/html/BILLS-119s1498rs.htm | checked: 2026-11-08
 officeholders-lose-income-currently,argument,agree,,"If the trading advantage documented for 1993 to 1998 still exists at any scale, a ban removes it.",,,,,,,,,,,,,,,url: https://www.cambridge.org/core/product/identifier/S0022109000003161/type/journal_article | checked: 2026-11-08
-officeholders-lose-income-currently,argument,disagree,,"Two of three post-2012 studies find no advantage, so the income being lost may be near zero.",,,,,,,,,,,,,,,
+officeholders-lose-income-currently,argument,disagree,two-three-post-2012-studies,"Two of three post-2012 studies find no advantage, so the income being lost may be near zero.",,,,,,,,,,,,,,,
 members-divest-move-holdings,argument,agree,,This is what happened at the Fed in 2022.,,,,,,,,,,,,,,,
 members-divest-move-holdings,argument,disagree,,"Some officials will hold assets that cannot be sold quickly, such as private partnership interests.",,,,,,,,,,,,,,,
 filing-volume-falls-because,argument,agree,,Fewer holdings means fewer periodic transaction reports.,,,,,,,,,,,,,,,
@@ -373,43 +373,43 @@ officials-respond-financial-incentives,argument,disagree,,Most officials appear 
 disclosure-alone-sufficient-when,argument,agree,,"Enforced disclosure works in other professions, such as securities analysts.",,,,,,,,,,,,,,,
 disclosure-alone-sufficient-when,argument,disagree,,"The STOCK Act has not been enforced in fourteen years, so ""actually enforced"" describes no regime that exists.",,,,,,,,,,,,,,,
 both-sides-want-officials,argument,agree,,"Even opponents of a ban argue about the means, not about whether self-dealing is acceptable.",,,,,,,,,,,,,,,
-both-sides-want-officials,argument,disagree,,"Some officials have defended trading on the merits, so the agreement is not universal.",,,,,,,,,,,,,,,
-bar-individual-stocks-sector,argument,agree,,"Each element already exists somewhere in federal practice: the Fed rule, certificates of divestiture, and scaled securities penalties.",,,,,,,,,,,,,,,
+both-sides-want-officials,argument,disagree,,"Some officials have defended trading on the merits, so the agreement is not universal.",,,,,,,,,,,,,,,url: https://www.foxbusiness.com/politics/pelosi-congressional-trade-stock-bans | checked: 2026-11-13
+bar-individual-stocks-sector,argument,agree,,"Each element already exists somewhere in federal practice: the Fed rule, certificates of divestiture, and scaled securities penalties.",,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20220218a.htm | checked: 2026-11-13
 bar-individual-stocks-sector,argument,agree,,"It answers the two strongest objections, the drafting gaps and the divestiture cost, without weakening the rule.",,,,,,,,,,,,,,,
 bar-individual-stocks-sector,argument,disagree,,"Extending the rule to spouses is the provision most likely to be stripped, and it is the one that does the work.",,,,,,,,,,,,,,,
-advertised-reason-what-actually,argument,agree,,The ETHICS Act was reported out of committee in December 2024 and died without a floor vote.,,,,,,,,,,,,,,,
-advertised-reason-what-actually,argument,disagree,,"The House actually passed a ban in July 2026, which is not the behavior of a caucus looking for a symbolic vote.",,,,,,,,,,,,,,,
+advertised-reason-what-actually,argument,agree,,The ETHICS Act was reported out of committee in December 2024 and died without a floor vote.,,,,,,,,,,,,,,,url: https://www.govinfo.gov/bulkdata/BILLSTATUS/118/s/BILLSTATUS-118s1171.xml | checked: 2026-11-13
+advertised-reason-what-actually,argument,disagree,,"The House actually passed a ban in July 2026, which is not the behavior of a caucus looking for a symbolic vote.",,,,,,,,,,,,,,,url: https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr7008.xml | checked: 2026-11-13
 advertised-reason-what-actually-2,argument,agree,,Opposition tracks portfolio activity more closely than any stated principle.,,,,,,,,,,,,,,,
 advertised-reason-what-actually-2,argument,disagree,,"Several members with no individual holdings have raised the same constitutional objection, so the interest does not predict the position perfectly.",,,,,,,,,,,,,,,
 people-who-bound-people,argument,agree,,The Senate has not scheduled a vote on the bill the House passed in July 2026.,,,,,,,,,,,,,,,
-people-who-bound-people,argument,disagree,,The House vote shows that the barrier is not absolute.,,,,,,,,,,,,,,,
+people-who-bound-people,argument,disagree,,The House vote shows that the barrier is not absolute.,,,,,,,,,,,,,,,url: https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr7008.xml | checked: 2026-11-13
 opponents-cannot-point-benefit,argument,agree,,"Every stated benefit, savings and market participation, is available through index funds.",,,,,,,,,,,,,,,
 opponents-cannot-point-benefit,argument,disagree,,Picking individual stocks is a lawful activity that does not require a justification to be permitted.,,,,,,,,,,,,,,,
 scandal-salience-handful-vivid,argument,agree,,The 2020 briefing trades are cited far more often than any systematic finding.,,,,,,,,,,,,,,,
 scandal-salience-handful-vivid,argument,disagree,,Vivid cases can also be the first observation of a real pattern.,,,,,,,,,,,,,,,
 self-interest-status-quo,argument,agree,,The people making the argument are the people who hold the assets.,,,,,,,,,,,,,,,
 self-interest-status-quo,argument,disagree,,"An argument is not refuted by who makes it, and the property-rights objection stands on its own.",,,,,,,,,,,,,,,
-stock-act-2012-made,argument,agree,,"Signed April 4, 2012.",,,,,,,,,,,,,,,
-stock-act-2012-made,argument,disagree,,Its disclosure provision for staff was repealed in April 2013 and its penalty is a $200 fee.,,,,,,,,,,,,,,,
+stock-act-2012-made,argument,agree,,"Signed April 4, 2012.",,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-112publ105/html/PLAW-112publ105.htm | checked: 2026-11-13
+stock-act-2012-made,argument,disagree,,Its disclosure provision for staff was repealed in April 2013 and its penalty is a $200 fee.,,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-113publ7/html/PLAW-113publ7.htm | checked: 2026-11-13
 courthouse-ethics-transparency-act,argument,agree,,"Signed May 13, 2022, ten months after the Wall Street Journal investigation.",,,,,,,,,,,,,,,
-courthouse-ethics-transparency-act,argument,disagree,,"Reporting, not a holdings ban, which is the thing at issue here.",,,,,,,,,,,,,,,
-criminal-conflict-interest-statute,argument,agree,,18 U.S.C. 202(c) excludes them from the definition of officer and employee for that statute.,,,,,,,,,,,,,,,
+courthouse-ethics-transparency-act,argument,disagree,,"Reporting, not a holdings ban, which is the thing at issue here.",,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-117publ125/html/PLAW-117publ125.htm | checked: 2026-11-13
+criminal-conflict-interest-statute,argument,agree,,18 U.S.C. 202(c) excludes them from the definition of officer and employee for that statute.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/18/202 | checked: 2026-11-13
 criminal-conflict-interest-statute,argument,disagree,,"That is the gap the belief proposes to close, so it is an argument for the proposal rather than against it.",,,,,,,,,,,,,,,
-citizens-keep-ordinary-rights,argument,agree,,Constitutional rights are not forfeited by public employment.,,,,,,,,,,,,,,,
+citizens-keep-ordinary-rights,argument,agree,,Constitutional rights are not forfeited by public employment.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/supct/html/04-473.ZO.html | checked: 2026-11-13
 citizens-keep-ordinary-rights,argument,disagree,,Conditions attached to a voluntary office are not a forfeiture of rights.,,,,,,,,,,,,,,,
-senior-executive-branch-officials,argument,agree,,"They already face the criminal conflict-of-interest statute, so the holding rule is a smaller step for them than for Congress.",,,,,,,,,,,,,,,
-senior-executive-branch-officials,argument,disagree,,"Appointees serve at will and can be removed, which is a check elected members do not face.",,,,,,,,,,,,,,,
-congressional-staff-access-nonpublic,argument,agree,,Staff see the same information and face weaker disclosure than members.,,,,,,,,,,,,,,,
-congressional-staff-access-nonpublic,argument,disagree,,Staff are paid far less than members and rely on savings the rule would restrict.,,,,,,,,,,,,,,,
+senior-executive-branch-officials,argument,agree,,"They already face the criminal conflict-of-interest statute, so the holding rule is a smaller step for them than for Congress.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/18/208 | checked: 2026-11-13
+senior-executive-branch-officials,argument,disagree,,"Appointees serve at will and can be removed, which is a check elected members do not face.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/5/7511 | checked: 2026-11-13
+congressional-staff-access-nonpublic,argument,agree,,Staff see the same information and face weaker disclosure than members.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/5/13101 | checked: 2026-11-13
+congressional-staff-access-nonpublic,argument,disagree,,Staff are paid far less than members and rely on savings the rule would restrict.,,,,,,,,,,,,,,,url: https://www.everycrsreport.com/reports/R44323.html | checked: 2026-11-13
 members-congress-barred-owning,argument,agree,,It closes the private-partnership and real-estate gaps that a stock-only ban leaves open.,,,,,,,,,,,,,,,
 members-congress-barred-owning,argument,disagree,,"It would force members to sell family businesses and farms, which is a different and much larger policy.",,,,,,,,,,,,,,,
-members-congress-required-place,argument,agree,,It preserves the holding while removing the official's control over trades.,,,,,,,,,,,,,,,
+members-congress-required-place,argument,agree,,It preserves the holding while removing the official's control over trades.,,,,,,,,,,,,,,,url: https://www.everycrsreport.com/reports/R43365.html | checked: 2026-11-13
 members-congress-required-place,argument,disagree,,"A blind trust is not blind at inception: the official knows the assets that went in until the trustee reports their sale, which the Congressional Research Service identifies as the central weakness.",,,,,,,,,,,,,,,
-senators-jeff-merkley-josh,argument,agree,,"The ETHICS Act, S.1171 in the 118th Congress, was reported out of the Homeland Security Committee in December 2024.",,,,,,,,,,,,,,,
+senators-jeff-merkley-josh,argument,agree,,"The ETHICS Act, S.1171 in the 118th Congress, was reported out of the Homeland Security Committee in December 2024.",,,,,,,,,,,,,,,url: https://www.congress.gov/bill/118th-congress/senate-bill/1171 | checked: 2026-11-13
 senators-jeff-merkley-josh,argument,disagree,,"Sponsorship is a public position, not evidence about the belief.",,,,,,,,,,,,,,,
 representatives-chip-roy-seth,argument,agree,,The Restore Trust in Congress Act and the TRUST in Congress Act together carry more than 200 cosponsors from both parties.,,,,,,,,,,,,,,,
-representatives-chip-roy-seth,argument,disagree,,Cosponsorship is cheap; the July 2026 floor vote is the meaningful datum.,,,,,,,,,,,,,,,
-speaker-nancy-pelosi-said,argument,agree,,"The statement was made at a press conference on December 15, 2021 and is on the record.",,,,,,,,,,,,,,,
+representatives-chip-roy-seth,argument,disagree,,Cosponsorship is cheap; the July 2026 floor vote is the meaningful datum.,,,,,,,,,,,,,,,url: https://clerk.house.gov/evs/2026/roll280.xml | checked: 2026-11-13
+speaker-nancy-pelosi-said,argument,agree,,"The statement was made at a press conference on December 15, 2021 and is on the record.",,,,,,,,,,,,,,,url: https://www.cnbc.com/2021/12/15/house-speaker-nancy-pelosi-opposes-banning-stock-buys-by-congress-members.html | checked: 2026-11-13
 speaker-nancy-pelosi-said,argument,disagree,,"She subsequently supported bringing a bill forward, so the quotation does not describe a settled position.",,,,,,,,,,,,,,,
 anti-nepotism-statute-stops,argument,agree,,"The Office of Legal Counsel concluded in January 2017 that 3 U.S.C. 105, which lets the president appoint White House staff ""without regard to any other provision of law,"" exempts those appointments from the anti-nepotism statute.",,,,,,,,,,,,,,,url: https://www.justice.gov/olc/opinion/application-anti-nepotism-statute-presidential-appointment-white-house-office | checked: 2026-11-08
 anti-nepotism-statute-stops,argument,agree,,The D.C. Circuit said in 1993 that it doubted Congress meant to include the White House in the statute at all.,,,,,,,,,,,,,,,url: https://www.justice.gov/olc/file/1085561/dl?inline | checked: 2026-11-08
@@ -454,11 +454,11 @@ relatives-continue-shape-policy,argument,agree,,Nothing prevents a president fro
 relatives-continue-shape-policy,argument,agree,,"This is what the 2017 arrangement was designed to avoid, and it is what a bar would restore.",,,,,,,,,,,,,,,
 relatives-continue-shape-policy,argument,disagree,,A rule written around function rather than title reaches an informal adviser who performs official duties.,,,,,,,,,,,,,,,
 official-decisions-stop-being,argument,agree,,The count is observable from staff lists.,,,,,,,,,,,,,,,
-official-decisions-stop-being,argument,disagree,,"Presidential advisers are all removable at will, so the ordinary chain of command is already thin.",,,,,,,,,,,,,,,
+official-decisions-stop-being,argument,disagree,,"Presidential advisers are all removable at will, so the ordinary chain of command is already thin.",,,,,,,,,,,,,,,url: https://www.justice.gov/olc/file/1085561/dl?inline | checked: 2026-11-13
 foreign-governments-lose-contact,argument,agree,,Removing the official role removes the official reason for the contact.,,,,,,,,,,,,,,,
 foreign-governments-lose-contact,argument,disagree,,A former relative-adviser remains a known channel whether or not they hold a post.,,,,,,,,,,,,,,,
-career-staff-can-raise,argument,agree,,Federal employee viewpoint surveys already measure willingness to report without fear.,,,,,,,,,,,,,,,
-career-staff-can-raise,argument,disagree,,"The survey has never been run on White House staff, so the baseline does not exist.",,,,,,,,,,,,,,,
+career-staff-can-raise,argument,agree,,Federal employee viewpoint surveys already measure willingness to report without fear.,,,,,,,,,,,,,,,url: https://www.opm.gov/fevs/reports/technical-reports/technical-report/technical-report/2023/2023-technical-report.pdf | checked: 2026-11-13
+career-staff-can-raise,argument,disagree,,"The survey has never been run on White House staff, so the baseline does not exist.",,,,,,,,,,,,,,,url: https://www.opm.gov/fevs/reports/technical-reports/technical-report/technical-report/2023/2023-technical-report.pdf | checked: 2026-11-13
 president-loses-advisers-he,argument,agree,,Trust between a principal and an adviser has real value that is hard to replace.,,,,,,,,,,,,,,,
 president-loses-advisers-he,argument,disagree,,Trust that cannot survive being unrelated to the president is not obviously the kind worth protecting.,,,,,,,,,,,,,,,
 qualified-people-excluded-public,argument,agree,,The bar is categorical and takes no account of qualifications.,,,,,,,,,,,,,,,
@@ -466,10 +466,10 @@ qualified-people-excluded-public,argument,disagree,,They remain eligible for eve
 influence-moves-informal-channels,argument,agree,,This is the documented consequence of the pre-2017 arrangement.,,,,,,,,,,,,,,,
 influence-moves-informal-channels,argument,disagree,,A rule written around function rather than title reaches them.,,,,,,,,,,,,,,,
 relative-official-role-creates,argument,agree,,No chain of command reaches a president's child or in-law.,,,,,,,,,,,,,,,
-relative-official-role-creates,argument,disagree,,"Formal appointment brought exactly those ethics rules into play in 2017, which is evidence they can reach the conflict.",,,,,,,,,,,,,,,
+relative-official-role-creates,argument,disagree,,"Formal appointment brought exactly those ethics rules into play in 2017, which is evidence they can reach the conflict.",,,,,,,,,,,,,,,url: https://www.nbcnews.com/politics/white-house/ivanka-trump-named-assistant-president-new-role-n740241 | checked: 2026-11-13
 bar-removes-influence-rather,argument,agree,,A rule reaching anyone who performs an official function does not depend on a title.,,,,,,,,,,,,,,,
 bar-removes-influence-rather,argument,disagree,,Advice given privately is not an official function by any definition a statute could enforce.,,,,,,,,,,,,,,,
-congress-can-impose-bar,argument,agree,,Congress wrote 3 U.S.C. 105 and can amend it.,,,,,,,,,,,,,,,
+congress-can-impose-bar,argument,agree,,Congress wrote 3 U.S.C. 105 and can amend it.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/3/105 | checked: 2026-11-13
 congress-can-impose-bar,argument,agree,,Ambassadors and envoys require Senate confirmation or are creatures of statute.,,,,,,,,,,,,,,,
 congress-can-impose-bar,argument,disagree,,"A president would likely assert that the choice of personal advisers is beyond congressional reach, and the question has never been litigated.",,,,,,,,,,,,,,,
 both-sides-want-relatives,argument,agree,,"The disclosure argument is made by opponents of the bar, which means both sides want the disclosure.",,,,,,,,,,,,,,,
@@ -555,7 +555,7 @@ article-ii-grants-power,argument,agree,,"Ex parte Garland (1866) held that Congr
 article-ii-grants-power,argument,agree,,Schick v. Reed (1974) held the power flows from the Constitution and cannot be modified by Congress.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/supremecourt/text/419/256 | checked: 2026-11-08
 article-ii-grants-power,argument,agree,,"The proposals actually introduced are constitutional amendments, not statutes, which concedes the point.",,,,,,,,,,,,,,,url: https://www.congress.gov/119/bills/hjres135/BILLS-119hjres135ih.htm | checked: 2026-11-08
 article-ii-grants-power,argument,disagree,,"The belief as stated does not specify a statute, so the amendment route satisfies it.",,,,,,,,,,,,,,,
-article-ii-grants-power,argument,disagree,,Some scholars argue Congress may criminalize corrupt pardon transactions without limiting the power itself.,,,,,,,,,,,,,,,
+article-ii-grants-power,argument,disagree,,Some scholars argue Congress may criminalize corrupt pardon transactions without limiting the power itself.,,,,,,,,,,,,,,,url: https://www.justsecurity.org/68900/is-the-pardon-power-unlimited/ | checked: 2026-11-13
 clemency-exists-correct-injustices,argument,agree,,The power was designed for the case where the law has worked an injustice that the majority is content with.,,,,,,,,,,,,,,,
 clemency-exists-correct-injustices,argument,agree,,Mass commutations of drug sentences were unpopular when granted and are now widely defended.,,,,,,,,,,,,,,,
 clemency-exists-correct-injustices,argument,disagree,,A two-thirds bar protects unpopular mercy: a simple majority could not reverse it.,,,,,,,,,,,,,,,
@@ -617,7 +617,7 @@ require-pardon-attorney-s,argument,disagree,,The half that needs no amendment is
 pardon-power-abolished-replaced,argument,agree,,"It is the state model, which operates in several states today.",,,,,,,,,,,,,,,url: https://ccresourcecenter.org/state-restoration-profiles/50-state-comparisoncharacteristics-of-pardon-authorities/ | checked: 2026-11-08
 pardon-power-abolished-replaced,argument,disagree,,"It removes the power entirely rather than checking it, which is a far larger change than an override.",,,,,,,,,,,,,,,
 president-barred-pardoning-relatives,argument,agree,,It reaches the private-gain cases directly and leaves ordinary clemency untouched.,,,,,,,,,,,,,,,
-president-barred-pardoning-relatives,argument,agree,,This is what one of the two introduced amendments actually does.,,,,,,,,,,,,,,,
+president-barred-pardoning-relatives,argument,agree,what-one-two-introduced-amendments,This is what one of the two introduced amendments actually does.,,,,,,,,,,,,,,,
 president-barred-pardoning-relatives,argument,disagree,,"It still requires a constitutional amendment, so it carries the same enactment problem with a narrower benefit.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/supremecourt/text/71/333 | checked: 2026-11-08
 citizens-need-government-decisions,argument,agree,,"A government whose decisions track what enriches the decider is not a government its citizens own, whatever else it does well.",,,,,,,,,Basic need,,,,,,
 citizens-need-government-decisions,argument,agree,,The criminal conflict-of-interest statute already imposes exactly this on every executive branch employee below the president.,,,,,,,,,Recognized in law,,,,,,
@@ -630,7 +630,7 @@ investors-need-markets-where,argument,agree,,Everyone with a retirement account 
 investors-need-markets-where,argument,disagree,,"The STOCK Act made insider trading law explicitly applicable to Congress in 2012, so the legal interest is already recognized.",,,,,,,,,Already met,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-112publ105/html/PLAW-112publ105.htm | checked: 2026-11-08
 investors-need-markets-where,argument,disagree,,"The measurable harm to any individual investor is close to zero, which is why nobody sues.",,,,,,,,,Held by few,,,,,,
 voters-need-enough-information,argument,agree,,"Self-government requires knowing whether the person deciding has been bought, and no other mechanism supplies it.",,,,,,,,,Basic need,,,,,,
-voters-need-enough-information,argument,agree,,The Ethics in Government Act of 1978 was passed for this interest and has never been seriously challenged.,,,,,,,,,Recognized in law,,,,,,
+voters-need-enough-information,argument,agree,ethics-government-act-1978-was,The Ethics in Government Act of 1978 was passed for this interest and has never been seriously challenged.,,,,,,,,,Recognized in law,,,,,,
 voters-need-enough-information,argument,agree,,"It is the shared premise of every disclosure rule in federal, state and local government.",,,,,,,,,Widely held,,,,,,
 voters-need-enough-information,argument,disagree,,"Satisfying it fully means publishing the finances of spouses, children and business partners who hold no office.",,,,,,,,,Claim on others' property or choices,,,,,,
 voters-need-enough-information,argument,disagree,,"Officials already file annual public disclosures listing assets, income sources, liabilities and positions.",,,,,,,,,Already met,,,,,,url: https://www.law.cornell.edu/uscode/text/5/13104 | checked: 2026-11-08
@@ -645,7 +645,7 @@ officials-need-rules-can,argument,agree,,A clearer rule costs nobody anything; i
 officials-need-rules-can,argument,disagree,,The current rule is not complex: report a transaction within 45 days.,,,,,,,,,Already met,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-112publ105/html/PLAW-112publ105.htm | checked: 2026-11-08
 officials-need-rules-can,argument,disagree,,"Complexity is invoked to explain violations that were not accidents, which is why the late filings cluster among active traders.",,,,,,,,,Pretext for another aim,,,,,,
 officials-families-need-same,argument,agree,,Property and privacy are not privileges of private life that public service is expected to purchase.,,,,,,,,,Basic need,,,,,,
-officials-families-need-same,argument,agree,,Two thirds of households hold the kind of assets these rules restrict.,,,,,,,,,Widely held,,,,,,
+officials-families-need-same,argument,agree,two-thirds-households-hold-kind,Two thirds of households hold the kind of assets these rules restrict.,,,,,,,,,Widely held,,,,,,
 officials-families-need-same,argument,agree,,No court has held that taking office forfeits ordinary property rights.,,,,,,,,,Recognized in law,,,,,,
 officials-families-need-same,argument,disagree,,"Nobody is compelled to take the office, and the restriction attaches to a job that is voluntary and temporary.",,,,,,,,,Already met,,,,,,
 officials-families-need-same,argument,disagree,,The right is invoked to protect one specific income stream and not the many other restrictions officials accept without complaint.,,,,,,,,,Pretext for another aim,,,,,,
@@ -655,13 +655,13 @@ country-needs-capable-people,argument,disagree,,"Congress is already much wealth
 country-needs-capable-people,argument,disagree,,The argument is made almost entirely by incumbents who already hold the assets in question.,,,,,,,,,Pretext for another aim,,,,,,
 president-needs-clemency-power,argument,agree,,"Article II grants it without a congressional role, and the Supreme Court has twice said Congress cannot limit it.",,,,,,,,,Recognized in law,,,,,,
 president-needs-clemency-power,argument,agree,,Mercy that requires majority approval is not mercy: the power exists for the person the majority will not forgive.,,,,,,,,,Basic need,,,,,,
-president-needs-clemency-power,argument,disagree,,"The design assumed a president who would answer politically for abuse, and impeachment has never once been used against a pardon.",,,,,,,,,Already met,,,,,,
+president-needs-clemency-power,argument,disagree,,"The design assumed a president who would answer politically for abuse, and impeachment has never once been used against a pardon.",,,,,,,,,Already met,,,,,,url: https://history.house.gov/Institution/Impeachment/Impeachment-List/ | checked: 2026-11-13
 president-needs-clemency-power,argument,disagree,,The separation-of-powers argument is pressed hardest for the pardons that benefit the president personally.,,,,,,,,,Pretext for another aim,,,,,,
 some-officeholders-want-keep,argument,agree,,Wanting to profit from one's position is common enough that every ethics statute since 1962 is written on the assumption that someone will.,,,,,,,,,Widely held,,,,,,url: https://www.govinfo.gov/content/pkg/STATUTE-76/pdf/STATUTE-76-Pg1119.pdf | checked: 2026-11-08
 some-officeholders-want-keep,argument,disagree,,It can only be satisfied by using decisions that belong to the public as private property.,,,,,,,,,Claim on others' property or choices,,,,,,
 some-officeholders-want-keep,argument,disagree,,"The paid form of it is bribery, and the rest is what the conflict-of-interest statutes exist to prevent.",,,,,,,,,Forbidden by law,,,,,,url: https://www.govinfo.gov/content/pkg/STATUTE-76/pdf/STATUTE-76-Pg1119.pdf | checked: 2026-11-08
 some-officeholders-want-keep,argument,disagree,,"It is never stated in its own name: it travels as property rights, privacy or presidential discretion.",,,,,,,,,Pretext for another aim,,,,,,
-drives-citizens-need-government-barring-members,argument,agree,,"Support for a ban is close to uniform across parties and ideologies, which is what an interest in clean decisions predicts and what no partisan interest predicts.",,,,,,,,,Predicts who holds the position,,,,,,
+drives-citizens-need-government-barring-members,argument,agree,,"Support for a ban is close to uniform across parties and ideologies, which is what an interest in clean decisions predicts and what no partisan interest predicts.",,,,,,,,,Predicts who holds the position,,,,,,url: https://publicconsultation.org/united-states/stock-trading-by-members-of-congress/ | checked: 2026-11-13
 drives-citizens-need-government-barring-members,argument,agree,,"Conflict of interest is the reason supporters give first, before any claim about returns.",,,,,,,,,Named first by holders,,,,,,
 drives-citizens-need-government-barring-members,argument,disagree,,"Support also tracks general distrust of Congress, which would produce the same polling without any specific interest in decision quality.",,,,,,,,,Tracks a different variable,,,,,,
 drives-investors-need-markets-barring-members,argument,agree,,Market integrity groups and securities lawyers have backed the bills consistently.,,,,,,,,,Money and turnout follow it,,,,,,
@@ -673,7 +673,7 @@ drives-officials-need-rules-barring-members,argument,agree,,The officials who su
 drives-officials-need-rules-barring-members,argument,disagree,,Most supporters are not officials and have no interest in how easy the rule is to follow.,,,,,,,,,Minority of holders,,,,,,
 drives-officials-families-need-barring-members,argument,agree,,The property-rights framing is the first response opponents give.,,,,,,,,,Named first by holders,,,,,,
 drives-officials-families-need-barring-members,argument,agree,,Opposition is strongest among members with the most active portfolios.,,,,,,,,,Tracks intensity,,,,,,
-drives-officials-families-need-barring-members,argument,disagree,,"The same members accept restrictions on gifts, outside income and travel without invoking property rights, which suggests the principle is selected for this case.",,,,,,,,,After-the-fact rationalization,,,,,,
+drives-officials-families-need-barring-members,argument,disagree,,"The same members accept restrictions on gifts, outside income and travel without invoking property rights, which suggests the principle is selected for this case.",,,,,,,,,After-the-fact rationalization,,,,,,url: https://ethics.house.gov/gifts/ | checked: 2026-11-13
 drives-country-needs-capable-barring-members,argument,agree,,"The recruitment argument is the second thing opponents say, and it is made by both parties.",,,,,,,,,Named first by holders,,,,,,
 drives-country-needs-capable-barring-members,argument,disagree,,"No member has left office over the proposal, and the deterrence claim has no evidence behind it.",,,,,,,,,Decorative,,,,,,
 drives-country-needs-capable-barring-members,argument,disagree,,"It is argued mostly by members who are themselves wealthy, for the benefit of hypothetical members who are not.",,,,,,,,,Minority of holders,,,,,,
@@ -695,7 +695,7 @@ argu-disclosure-has-failed-barring-members,argument,disagree,,"That disclosure f
 argu-holdings-ban-removes-barring-members,argument,agree,,Changing what has to be proven is the operative difference between a ban and every other remedy on offer.,,,,,,,,,Mechanism,,,,,,
 argu-holdings-ban-removes-barring-members,argument,disagree,,"A rule that is easier to enforce still has to be enforced, and the row assumes the enforcement follows.",,,,,,,,,Missing step,,,,,,
 argu-federal-reserve-barred-barring-members,argument,agree,,"The Fed rule is the same restriction on the same kind of asset, adopted for the same stated reason.",,,,,,,,,Scope fit,,,,,,
-argu-federal-reserve-barred-barring-members,argument,disagree,,"Fed officials are appointed and have no constituents or campaigns, so the workability finding may not transfer to elected members.",,,,,,,,,Scope mismatch,,,,,,
+argu-federal-reserve-barred-barring-members,argument,disagree,,"Fed officials are appointed and have no constituents or campaigns, so the workability finding may not transfer to elected members.",,,,,,,,,Scope mismatch,,,,,,url: https://www.federalreserve.gov/aboutthefed/section4.htm | checked: 2026-11-13
 argu-federal-reserve-barred-barring-members,argument,disagree,,That an institution survived a rule is not evidence that the rule achieved anything.,,,,,,,,,Missing step,,,,,,
 argu-trading-closed-briefing-barring-members,argument,agree,,"If intent cannot be proven, no intent-based rule can bind, and only a status rule is left.",,,,,,,,,Necessity,,,,,,
 argu-trading-closed-briefing-barring-members,argument,agree,,The row explains why the alternative remedy is unavailable rather than merely unattractive.,,,,,,,,,Mechanism,,,,,,
@@ -711,24 +711,24 @@ argu-forced-divestiture-imposes-barring-members,argument,disagree,,"This is a co
 argu-forced-divestiture-imposes-barring-members,argument,disagree,,A rule can be expensive for officials and still do exactly what it claims.,,,,,,,,,True but irrelevant,,,,,,
 argu-congress-will-enforce-barring-members,argument,agree,,"A rule nobody enforces reduces nothing, so this strikes the belief's effect directly.",,,,,,,,,Necessity,,,,,,
 argu-congress-will-enforce-barring-members,argument,agree,,It names the precedent and the mechanism by which the statute would be hollowed out.,,,,,,,,,Mechanism,,,,,,
-argu-congress-will-enforce-barring-members,argument,disagree,,"A holdings rule is checkable from a filing by any citizen, unlike a reporting rule, so the STOCK Act precedent may not transfer.",,,,,,,,,Missing step,,,,,,
+argu-congress-will-enforce-barring-members,argument,disagree,,"A holdings rule is checkable from a filing by any citizen, unlike a reporting rule, so the STOCK Act precedent may not transfer.",,,,,,,,,Missing step,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-113publ7/html/PLAW-113publ7.htm | checked: 2026-11-13
 evid-senators-stock-purchases-barring-members,argument,agree,,Abnormal returns on officials' trades are the trading advantage the belief says a ban would remove.,,,,,,,,,Mechanism,,,,,,
-evid-senators-stock-purchases-barring-members,argument,disagree,,"The period ends fourteen years before the STOCK Act and twenty-eight years before the proposal, so the regime it measures no longer exists.",,,,,,,,,Scope mismatch,,,,,,
+evid-senators-stock-purchases-barring-members,argument,disagree,,"The period ends fourteen years before the STOCK Act and twenty-eight years before the proposal, so the regime it measures no longer exists.",,,,,,,,,Scope mismatch,,,,,,url: https://www.govinfo.gov/app/details/PLAW-112publ105 | checked: 2026-11-13
 evid-senators-stock-purchases-barring-members,argument,disagree,,"Returns show trading advantage, not voting conflict, which is the other half of the belief.",,,,,,,,,Missing step,,,,,,
-evid-trades-placed-before-barring-members,argument,agree,,"Post-STOCK Act period, and it measures trades around the events officials control.",,,,,,,,,Scope fit,,,,,,
+evid-trades-placed-before-barring-members,argument,agree,,"Post-STOCK Act period, and it measures trades around the events officials control.",,,,,,,,,Scope fit,,,,,,url: https://api.crossref.org/works/10.1007/s10551-025-06108-4 | checked: 2026-11-13
 evid-trades-placed-before-barring-members,argument,agree,,Returns conditional on legislative events are the cleanest observable form of the conflict.,,,,,,,,,Mechanism,,,,,,
 evid-trades-placed-before-barring-members,argument,disagree,,A single unreplicated study conditioned on chosen events is weak support for a general claim.,,,,,,,,,Missing step,,,,,,
-evid-78-members-117th-barring-members,argument,agree,,Widespread non-compliance with the existing rule is what makes the case for replacing it.,,,,,,,,,Mechanism,,,,,,
+evid-78-members-117th-barring-members,argument,agree,,Widespread non-compliance with the existing rule is what makes the case for replacing it.,,,,,,,,,Mechanism,,,,,,url: https://ca.news.yahoo.com/77-members-117th-congress-violated-111400969.html | checked: 2026-11-13
 evid-78-members-117th-barring-members,argument,disagree,,Late filing is a paperwork failure and says nothing about whether any trade was improper.,,,,,,,,,True but irrelevant,,,,,,
 evid-78-members-117th-barring-members,argument,disagree,,"It supports ""the current rule is unenforced,"" which is a different claim from ""a ban would reduce conflicts.""",,,,,,,,,Wrong parent,,,,,,
 evid-131-federal-judges-barring-members,argument,agree,,"A disclosure-only regime failing in a nearby institution is evidence about disclosure regimes generally, and the belief is a claim about replacing one.",,,,,,,,,Monotonicity,,,,,,
-evid-131-federal-judges-barring-members,argument,disagree,,"Judges are bound by a recusal statute Congress is not, so the comparison is to a stricter regime that still failed, or to a different one entirely.",,,,,,,,,Scope mismatch,,,,,,
+evid-131-federal-judges-barring-members,argument,disagree,,"Judges are bound by a recusal statute Congress is not, so the comparison is to a stricter regime that still failed, or to a different one entirely.",,,,,,,,,Scope mismatch,,,,,,url: https://www.law.cornell.edu/uscode/text/28/455 | checked: 2026-11-13
 evid-federal-reserve-officials-barring-members,argument,agree,,It shows the exact rule the belief proposes operating in a federal institution.,,,,,,,,,Mechanism,,,,,,
-evid-federal-reserve-officials-barring-members,argument,disagree,,"It establishes that the rule can exist, not that it reduces conflicts, and four years is short.",,,,,,,,,Missing step,,,,,,
+evid-federal-reserve-officials-barring-members,argument,disagree,,"It establishes that the rule can exist, not that it reduces conflicts, and four years is short.",,,,,,,,,Missing step,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20220218a.htm | checked: 2026-11-13
 evid-congressional-portfolios-underperformed-barring-members,argument,agree,,"If portfolios underperform, the trading-advantage mechanism is absent for that period.",,,,,,,,,Necessity,,,,,,
 evid-congressional-portfolios-underperformed-barring-members,argument,disagree,,"It bears on trading advantage, not on whether holdings bias votes.",,,,,,,,,Wrong parent,,,,,,
 evid-congressional-portfolios-underperformed-barring-members,argument,disagree,,Averages cannot detect the tail behaviour the belief is about.,,,,,,,,,Missing step,,,,,,
-evid-no-evidence-members-barring-members,argument,agree,,It covers exactly the post-STOCK Act period the proposal would replace.,,,,,,,,,Scope fit,,,,,,
+evid-no-evidence-members-barring-members,argument,agree,,It covers exactly the post-STOCK Act period the proposal would replace.,,,,,,,,,Scope fit,,,,,,url: https://ideas.repec.org/a/eee/pubeco/v207y2022ics0047272722000044.html | checked: 2026-11-13
 evid-no-evidence-members-barring-members,argument,agree,,"If disclosure already removed the advantage, the marginal benefit of a ban on that channel is zero.",,,,,,,,,Necessity,,,,,,
 evid-no-evidence-members-barring-members,argument,disagree,,"It shows disclosure may have worked on trading, which is an argument for keeping disclosure, not evidence that ownership does not bias votes.",,,,,,,,,Wrong parent,,,,,,
 pred-five-years-after-barring-members,argument,agree,,Holdings falling to zero with no scandal is what the belief predicts the rule produces.,,,,,,,,,Mechanism,,,,,,
@@ -744,7 +744,7 @@ pred-reported-conflicts-migrate-barring-members,argument,agree,,It measures the 
 pred-reported-conflicts-migrate-barring-members,argument,disagree,,"Complaint counts measure attention as much as conduct, so an unchanged count is ambiguous.",,,,,,,,,Missing step,,,,,,
 pred-share-incoming-members-barring-members,argument,agree,,It measures the candidate-pool cost the opposing side claims.,,,,,,,,,Scope fit,,,,,,
 pred-share-incoming-members-barring-members,argument,disagree,,"A wealth shift would be a cost of the rule, not evidence that the rule failed to reduce conflicts.",,,,,,,,,True but irrelevant,,,,,,
-pred-post-reform-studies-barring-members,argument,agree,,Continued findings of no advantage would remove one of the belief's two mechanisms.,,,,,,,,,Necessity,,,,,,
+pred-post-reform-studies-barring-members,argument,agree,,Continued findings of no advantage would remove one of the belief's two mechanisms.,,,,,,,,,Necessity,,,,,,url: https://www.nber.org/papers/w26975 | checked: 2026-11-13
 pred-post-reform-studies-barring-members,argument,disagree,,"It reaches the trading branch only, and the voting branch would stand untouched.",,,,,,,,,Wrong parent,,,,,,
 argu-formal-appointment-what-barring-president,argument,agree,,"If formal appointment is what triggers disclosure and conflict rules, removing the appointment removes them, which is the reverse of what the belief claims.",,,,,,,,,Mechanism,,,,,,
 argu-formal-appointment-what-barring-president,argument,agree,,It attacks the load-bearing causal component rather than the premise.,,,,,,,,,Necessity,,,,,,
@@ -766,9 +766,9 @@ evid-proposals-let-congress-letting-congress,argument,disagree,,"The belief clai
 evid-proposals-let-congress-letting-congress,argument,disagree,,A proposal stalling in committee says nothing about what it would do if enacted.,,,,,,,,,True but irrelevant,,,,,,
 argu-most-states-already-letting-congress,argument,agree,,"More than a dozen working examples is stronger evidence than one, and they vary in design.",,,,,,,,,Monotonicity,,,,,,url: https://ccresourcecenter.org/state-restoration-profiles/50-state-comparisoncharacteristics-of-pardon-authorities-2/ | checked: 2026-11-08
 argu-most-states-already-letting-congress,argument,agree,,They show that clemency with a structural check still functions.,,,,,,,,,Mechanism,,,,,,
-argu-most-states-already-letting-congress,argument,disagree,,"Every state example is a prior check by an appointed board, not a subsequent veto by an elected legislature, and the incentives differ.",,,,,,,,,Scope mismatch,,,,,,
+argu-most-states-already-letting-congress,argument,disagree,every-state-example-prior-check,"Every state example is a prior check by an appointed board, not a subsequent veto by an elected legislature, and the incentives differ.",,,,,,,,,Scope mismatch,,,,,,
 argu-most-states-already-letting-congress,argument,disagree,,"State constitutions are amended by ordinary process; the federal one is not, so transplanting the design is the hard part.",,,,,,,,,Missing step,,,,,,
-inte-78-members-117th-investors-need,argument,agree,,"Late filings are failures of the disclosure regime that exists to protect market integrity, so the two are about the same system.",,,,,,,,,Scope fit,,,,,,
+inte-78-members-117th-investors-need,argument,agree,,"Late filings are failures of the disclosure regime that exists to protect market integrity, so the two are about the same system.",,,,,,,,,Scope fit,,,,,,url: https://www.govinfo.gov/content/pkg/PLAW-112publ105/html/PLAW-112publ105.htm | checked: 2026-11-13
 inte-78-members-117th-investors-need,argument,disagree,,"A missed deadline tells an investor nothing about whether anyone traded on nonpublic information, which is the interest as stated.",,,,,,,,,Missing step,,,,,,
 inte-forced-divestiture-imposes-country-needs,argument,agree,,Divestiture cost falling on officials of ordinary means is exactly the need this interest states.,,,,,,,,,Mechanism,,,,,,
 inte-forced-divestiture-imposes-country-needs,argument,disagree,,The interest is about who can afford to run; the argument is about a one-time cost to people already in office.,,,,,,,,,Scope mismatch,,,,,,
@@ -840,7 +840,7 @@ imp-narrower-fix-reaches-letting-congress,interest_listing,,crime-victims-public
 uniq-federal-reserve-officials-federal-reserve,argument,agree,,The evidence row carries the rule text and effective dates; the argument carries the institutional outcome.,,,,,,,,,Different evidence,,,,,,
 uniq-federal-reserve-officials-federal-reserve,argument,agree,,"The rule could exist exactly as described and the institution could still have lost staff, which would refute the argument and not the finding.",,,,,,,,,Independent failure,,,,,,
 uniq-federal-reserve-officials-federal-reserve,argument,disagree,,"Both rest on the same event, and a reader who accepts one has already accepted most of the other.",,,,,,,,,Shared premise,,,,,,
-uniq-federal-reserve-officials-federal-reserve,argument,disagree,,The argument states that the Fed adopted the rule and kept functioning; the finding states that the Fed adopted the rule. The second sentence is contained in the first.,,,,,,,,,Paraphrase,,,,,,
+uniq-federal-reserve-officials-federal-reserve,argument,disagree,,The argument states that the Fed adopted the rule and kept functioning; the finding states that the Fed adopted the rule. The second sentence is contained in the first.,,,,,,,,,Paraphrase,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20220218a.htm | checked: 2026-11-13
 uniq-congress-will-enforce-ban-official,argument,agree,,One says the conflict moves to uncovered vehicles; the other says the rule is never enforced. Both can be false independently.,,,,,,,,,Different conclusion,,,,,,
 uniq-congress-will-enforce-ban-official,argument,agree,,Substitution is settled by looking at where assets go; non-enforcement is settled by looking at what the ethics committees do.,,,,,,,,,Different evidence,,,,,,
 uniq-congress-will-enforce-ban-official,argument,agree,,"A perfectly enforced rule could still be evaded by substitution, and an unenforced rule could have no substitution to worry about.",,,,,,,,,Independent failure,,,,,,
@@ -854,10 +854,10 @@ equiv-barring-members-congress-members-congress-2,argument,disagree,,"A blind tr
 equiv-letting-congress-overturn-president-barred,argument,agree,,Both turn on whether grants to the president's circle are the problem worth solving.,,,,,,,,,Same evidence settles both,,,,,,
 equiv-letting-congress-overturn-president-barred,argument,disagree,,A categorical bar on pardoning relatives reaches a defined class before the fact; an override reaches any grant after it.,,,,,,,,,Different scope,,,,,,
 equiv-letting-congress-overturn-president-barred,argument,disagree,,An override would cover the relative cases; a bar on relatives would not cover a pardon sold to a stranger.,,,,,,,,,One-way implication,,,,,,
-ziobrowski-cheng-boyd-ziobrowski,argument,agree,,Built from the Senate's own disclosure filings rather than from secondary summaries.,,,,,,,,,Primary sources,,,,,,
-ziobrowski-cheng-boyd-ziobrowski,argument,agree,,Calendar-time portfolio analysis against matched benchmarks is the standard method for the question.,,,,,,,,,Well reasoned,,,,,,
+ziobrowski-cheng-boyd-ziobrowski,argument,agree,,Built from the Senate's own disclosure filings rather than from secondary summaries.,,,,,,,,,Primary sources,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
+ziobrowski-cheng-boyd-ziobrowski,argument,agree,,Calendar-time portfolio analysis against matched benchmarks is the standard method for the question.,,,,,,,,,Well reasoned,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
 ziobrowski-cheng-boyd-ziobrowski,argument,disagree,,It reports the buy portfolio's abnormal returns and says much less about the sell side.,,,,,,,,,One-sided,,,,,,
-ziobrowski-cheng-boyd-ziobrowski,argument,disagree,,Disclosure ranges rather than exact amounts force assumptions about position size that the paper cannot verify.,,,,,,,,,Errors of fact,,,,,,
+ziobrowski-cheng-boyd-ziobrowski,argument,disagree,,Disclosure ranges rather than exact amounts force assumptions about position size that the paper cannot verify.,,,,,,,,,Errors of fact,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
 ziobrowski-cheng-boyd-ziobrowski,impact,agree,,It is the citation behind nearly every subsequent claim about congressional trading.,,,,,,,,,Widely cited,,,,,,
 ziobrowski-cheng-boyd-ziobrowski,impact,agree,,It was cited repeatedly in the debate that produced the STOCK Act.,,,,,,,,,Shaped policy,,,,,,
 ziobrowski-cheng-boyd-ziobrowski,impact,disagree,,Its readership is finance academics and advocates who had already reached the conclusion.,,,,,,,,,Preaching to the converted,,,,,,
@@ -870,15 +870,15 @@ insider-conflicted-congress-2021,impact,agree,,The bills introduced in 2022 cite
 insider-conflicted-congress-2021,impact,disagree,,No academic work builds on it; it is a compilation rather than a study.,,,,,,,,,Rarely cited,,,,,,
 eggers-hainmueller-capitol-losses,argument,agree,,"Better matched benchmarks and a larger sample than the study it responds to, and it reexamines the earlier period as well.",,,,,,,,,Well reasoned,,,,,,
 eggers-hainmueller-capitol-losses,argument,agree,,"Same filings, independently coded.",,,,,,,,,Primary sources,,,,,,
-eggers-hainmueller-capitol-losses,argument,disagree,,"Portfolio averages cannot detect the small number of well-timed trades that the conflict claim is actually about, and the paper does not engage that objection at length.",,,,,,,,,One-sided,,,,,,
+eggers-hainmueller-capitol-losses,argument,disagree,,"Portfolio averages cannot detect the small number of well-timed trades that the conflict claim is actually about, and the paper does not engage that objection at length.",,,,,,,,,One-sided,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
 eggers-hainmueller-capitol-losses,impact,agree,,It is the standard citation for the skeptical position and appears in every serious review of the question.,,,,,,,,,Widely cited,,,,,,
 eggers-hainmueller-capitol-losses,impact,disagree,,Its reach outside political science is small compared with the study it corrects.,,,,,,,,,Small audience,,,,,,
-medi-ziobrowski-cheng-boyd-barring-members,argument,agree,,"The work is about the same officials, the same holdings and the same question the belief asks.",,,,,,,,,Mechanism,,,,,,
-medi-ziobrowski-cheng-boyd-barring-members,argument,disagree,,"It measures trading returns, and the belief also rests on whether holdings bias votes.",,,,,,,,,Scope mismatch,,,,,,
-medi-insider-conflicted-congress-barring-members,argument,agree,,"The work is about the same officials, the same holdings and the same question the belief asks.",,,,,,,,,Mechanism,,,,,,
+medi-ziobrowski-cheng-boyd-barring-members,argument,agree,,"The work is about the same officials, the same holdings and the same question the belief asks.",,,,,,,,,Mechanism,,,,,,url: https://www.cambridge.org/core/product/identifier/S0022109000003161/type/journal_article | checked: 2026-11-13
+medi-ziobrowski-cheng-boyd-barring-members,argument,disagree,,"It measures trading returns, and the belief also rests on whether holdings bias votes.",,,,,,,,,Scope mismatch,,,,,,url: https://www.cambridge.org/core/product/identifier/S0022109000003161/type/journal_article | checked: 2026-11-13
+medi-insider-conflicted-congress-barring-members,argument,agree,,"The work is about the same officials, the same holdings and the same question the belief asks.",,,,,,,,,Mechanism,,,,,,url: https://ca.news.yahoo.com/77-members-117th-congress-violated-111400969.html | checked: 2026-11-13
 medi-insider-conflicted-congress-barring-members,argument,disagree,,"It measures trading returns, and the belief also rests on whether holdings bias votes.",,,,,,,,,Scope mismatch,,,,,,
-medi-eggers-hainmueller-capitol-barring-members,argument,agree,,"The work is about the same officials, the same holdings and the same question the belief asks.",,,,,,,,,Mechanism,,,,,,
-medi-eggers-hainmueller-capitol-barring-members,argument,disagree,,"It measures trading returns, and the belief also rests on whether holdings bias votes.",,,,,,,,,Scope mismatch,,,,,,
+medi-eggers-hainmueller-capitol-barring-members,argument,agree,,"The work is about the same officials, the same holdings and the same question the belief asks.",,,,,,,,,Mechanism,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
+medi-eggers-hainmueller-capitol-barring-members,argument,disagree,,"It measures trading returns, and the belief also rests on whether holdings bias votes.",,,,,,,,,Scope mismatch,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
 imp-ziobrowski-cheng-boyd-barring-members,interest_listing,,investors-need-markets-where,,,,,,,,,,,,,,,,
 imp-insider-conflicted-congress-barring-members,interest_listing,,voters-need-enough-information,,,,,,,,,,,,,,,,
 imp-insider-conflicted-congress-barring-members,interest_listing,,officials-need-rules-can,,,,,,,,,,,,,,,,
@@ -951,7 +951,7 @@ company-generally-serves-public,argument,disagree,companies-treat-workers-suppli
 streaming-services-generally-pay,argument,agree,single-play-earns-almost,,,,,,,,,,,,,,,,url: https://www.gov.uk/government/news/music-streaming-report-published | checked: 2026-11-08
 streaming-services-generally-pay,argument,agree,money-split-so-most,,,,,,,,,,,,,,,,url: https://www.gov.uk/government/news/music-streaming-report-published | checked: 2026-11-08
 streaming-services-generally-pay,argument,agree,musicians-now-depend-touring,,,,,,,,,,,,,,,,
-streaming-services-generally-pay,argument,disagree,streaming-brought-paying-listeners,,,,,,,,,,,,,,,,
+streaming-services-generally-pay,argument,disagree,streaming-brought-paying-listeners,,,,,,,,,,,,,,,,url: https://www.ifpi.org/global-music-report-2026-global-recorded-music-revenues-grow-6-4-as-record-companies-drive-innovation/ | checked: 2026-11-13
 streaming-services-generally-pay,argument,disagree,before-streaming-most-musicians,,,,,,,,,,,,,,,,
 streaming-services-generally-pay,argument,disagree,low-per-play-rates,,,,,,,,,,,,,,,,
 streaming-has-clearly-done,argument,agree,any-musician-can-upload,,,,,,,,,,,,,,,,
@@ -983,7 +983,7 @@ most-working-authors-better,argument,agree,authors-who-self-publish,,,,,,,,,,,,,
 most-working-authors-better,argument,agree,publishers-put-marketing-behind,,,,,,,,,,,,,,,,
 most-working-authors-better,argument,disagree,self-publishing-turns-writer,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Self-publishing | checked: 2026-11-08
 most-working-authors-better,argument,disagree,bookstores-libraries-prizes-review,,,,,,,,,,,,,,,,url: https://janefriedman.com/key-book-publishing-path/ | checked: 2026-11-08
-most-working-authors-better,argument,disagree,advance-guaranteed-money-field,,,,,,,,,,,,,,,,
+most-working-authors-better,argument,disagree,advance-guaranteed-money-field,,,,,,,,,,,,,,,,url: https://www.justice.gov/atr/case-document/file/1549941/dl | checked: 2026-11-13
 governments-generally-require-proven,argument,agree,some-children-cannot-vaccinated,,,,,,,,,,,,,,,,url: https://www.who.int/news-room/questions-and-answers/item/herd-immunity-lockdowns-and-covid-19 | checked: 2026-11-08
 governments-generally-require-proven,argument,agree,schools-gather-many-children,,,,,,,,,,,,,,,,
 governments-generally-require-proven,argument,agree,requirement-tied-school-attendance,,,,,,,,,,,,,,,,
@@ -1015,11 +1015,11 @@ california-generally-override-local,argument,disagree,local-communities-understa
 california-generally-override-local,argument,disagree,state-mandates-have-mostly,,,,,,,,,,,,,,,,
 california-generally-override-local,argument,disagree,market-rate-construction-alone,,,,,,,,,,,,,,,,
 texas-connect-its-separate,argument,agree,when-extreme-weather-hits,,,,,,,,,,,,,,,,
-texas-connect-its-separate,argument,agree,texas-produces-more-wind,,,,,,,,,,,,,,,,
+texas-connect-its-separate,argument,agree,texas-produces-more-wind,,,,,,,,,,,,,,,,url: https://www.eia.gov/todayinenergy/detail.php?id=57100 | checked: 2026-11-13
 texas-connect-its-separate,argument,agree,investors-more-willing-build,,,,,,,,,,,,,,,,
 texas-connect-its-separate,argument,disagree,connecting-national-grids-brings,,,,,,,,,,,,,,,,url: https://www.texastribune.org/2011/02/08/texplainer-why-does-texas-have-its-own-power-grid/ | checked: 2026-11-08
 texas-connect-its-separate,argument,disagree,lines-needed-connect-grids,,,,,,,,,,,,,,,,
-texas-connect-its-separate,argument,disagree,neighboring-regions-have-had,,,,,,,,,,,,,,,,
+texas-connect-its-separate,argument,disagree,neighboring-regions-have-had,,,,,,,,,,,,,,,,url: https://aem-prod.oklahoma.gov/content/dam/ok/en/occ/documents/ajls/commissioners/spp-comprehensive-review-february-2021-winter-storm.pdf | checked: 2026-11-13
 judging-teachers-partly-students,argument,agree,without-measure-results-teacher,,,,,,,,,,,,,,,,url: https://tntp.org/publication/the-widget-effect/ | checked: 2026-11-08
 judging-teachers-partly-students,argument,agree,parents-deserve-know-whether,,,,,,,,,,,,,,,,
 judging-teachers-partly-students,argument,agree,teachers-who-consistently-help,,,,,,,,,,,,,,,,
@@ -1214,13 +1214,13 @@ banning-sale-new-gasoline,argument,agree,electric-cars-still-out,,,,,,,,,,,,,,,,
 banning-sale-new-gasoline,argument,agree,ban-new-gasoline-cars,,,,,,,,,,,,,,,,
 banning-sale-new-gasoline,argument,agree,mandates-get-ahead-what,,,,,,,,,,,,,,,,
 banning-sale-new-gasoline,argument,disagree,automakers-charging-companies-only,,,,,,,,,,,,,,,,
-banning-sale-new-gasoline,argument,disagree,every-gasoline-car-sold,,,,,,,,,,,,,,,,
+banning-sale-new-gasoline,argument,disagree,every-gasoline-car-sold,,,,,,,,,,,,,,,,url: https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/809952 | checked: 2026-11-13
 banning-sale-new-gasoline,argument,disagree,past-safety-emissions-standards,,,,,,,,,,,,,,,,
 long-prison-sentences-generally,argument,agree,most-people-who-commit,,,,,,,,,,,,,,,,url: https://academic.oup.com/aler/article-lookup/doi/10.1093/aler/4.2.295 | checked: 2026-11-08
 long-prison-sentences-generally,argument,agree,young-men-commit-most,,,,,,,,,,,,,,,,
 long-prison-sentences-generally,argument,agree,money-spent-extra-years,,,,,,,,,,,,,,,,url: https://nij.ojp.gov/topics/articles/five-things-about-deterrence | checked: 2026-11-08
 long-prison-sentences-generally,argument,disagree,person-prison-cannot-commit,,,,,,,,,,,,,,,,
-long-prison-sentences-generally,argument,disagree,small-number-repeat-offenders,,,,,,,,,,,,,,,,
+long-prison-sentences-generally,argument,disagree,small-number-repeat-offenders,,,,,,,,,,,,,,,,url: https://www.ussc.gov/sites/default/files/pdf/research-and-publications/research-publications/2017/20171207_Recidivism-Age.pdf | checked: 2026-11-13
 long-prison-sentences-generally,argument,disagree,being-caught-only-deters,,,,,,,,,,,,,,,,
 judges-allowed-keep-suspects,argument,agree,someone-arrested-violent-act,,,,,,,,,,,,,,,,
 judges-allowed-keep-suspects,argument,agree,bail-based-money-frees,,,,,,,,,,,,,,,,url: https://www.vera.org/downloads/publications/incarcerations-front-door-report_02.pdf | checked: 2026-11-08
@@ -1341,7 +1341,7 @@ governments-hold-back-spread,argument,agree,most-jobs-bundles-many,,,,,,,,,,,,,,
 governments-hold-back-spread,argument,agree,holding-back-ai-one,,,,,,,,,,,,,,,,
 governments-hold-back-spread,argument,disagree,past-machines-replaced-muscle,,,,,,,,,,,,,,,,
 governments-hold-back-spread,argument,disagree,even-when-new-jobs,,,,,,,,,,,,,,,,
-governments-hold-back-spread,argument,disagree,spread-ai-into-workplaces,,,,,,,,,,,,,,,,
+governments-hold-back-spread,argument,disagree,spread-ai-into-workplaces,,,,,,,,,,,,,,,,url: https://fraser.stlouisfed.org/files/docs/publications/frbsl_wp/2024-027.pdf | checked: 2026-11-13
 governments-generally-provide-limited,argument,agree,when-town-loses-its,,,,,,,,,,,,,,,,
 governments-generally-provide-limited,argument,agree,newspapers-did-lose-readers,,,,,,,,,,,,,,,,url: https://www.pewresearch.org/journalism/fact-sheet/newspapers/ | checked: 2026-11-08
 governments-generally-provide-limited,argument,agree,societies-already-fund-libraries,,,,,,,,,,,,,,,,
@@ -1553,7 +1553,7 @@ governments-generally-fund-efforts,argument,disagree,public-money-limited-paying
 governments-generally-fund-efforts,argument,disagree,languages-survive-mainly-when,,,,,,,,,,,,,,,,url: https://www.cso.ie/en/releasesandpublications/ep/p-cpsr/censusofpopulation2022-summaryresults/educationandirishlanguage/ | checked: 2026-11-08
 governments-generally-fund-efforts,argument,disagree,publicly-funded-programs-teach,,,,,,,,,,,,,,,,
 schools-country-one-dominant,argument,agree,sharing-one-language-lets,,,,,,,,,,,,,,,,
-schools-country-one-dominant,argument,agree,students-who-spend-most,,,,,,,,,,,,,,,,
+schools-country-one-dominant,argument,agree,students-who-spend-most,,,,,,,,,,,,,,,,url: https://edpolicyinca.org/sites/default/files/2024-10/umansky-reardon-2014-reclassification-patterns-among-latino-english-learner-students-in-bilingual-dual-immersion-and.pdf | checked: 2026-11-13
 schools-country-one-dominant,argument,agree,running-classes-many-home,,,,,,,,,,,,,,,,url: https://www.nationalacademies.org/read/24677/chapter/2 | checked: 2026-11-08
 schools-country-one-dominant,argument,disagree,children-learn-read-do,,,,,,,,,,,,,,,,url: https://www.nationalacademies.org/read/24677/chapter/2 | checked: 2026-11-08
 schools-country-one-dominant,argument,disagree,making-dominant-language-main,,,,,,,,,,,,,,,,url: https://www.nationalacademies.org/read/24677/chapter/2 | checked: 2026-11-08
@@ -1592,13 +1592,13 @@ publicly-funded-television-news,argument,agree,taxpayers-pay-public-news,,,,,,,,
 publicly-funded-television-news,argument,agree,public-broadcasters-tend-reflect,,,,,,,,,,,,,,,,
 publicly-funded-television-news,argument,agree,news-outlet-depends-government,,,,,,,,,,,,,,,,
 publicly-funded-television-news,argument,disagree,because-publicly-funded-news,,,,,,,,,,,,,,,,
-publicly-funded-television-news,argument,disagree,publicly-funded-television-news-2,,,,,,,,,,,,,,,,
+publicly-funded-television-news,argument,disagree,publicly-funded-television-news-2,,,,,,,,,,,,,,,,url: https://www.ket.org/legislature/ | checked: 2026-11-13
 publicly-funded-television-news,argument,disagree,when-people-face-countless,,,,,,,,,,,,,,,,
 social-media-platforms-required,argument,agree,social-media-platforms-earn,,,,,,,,,,,,,,,,
 social-media-platforms-required,argument,agree,reporting-expensive-produce-if,,,,,,,,,,,,,,,,
 social-media-platforms-required,argument,agree,large-social-media-platform,,,,,,,,,,,,,,,,
 social-media-platforms-required,argument,disagree,social-media-platforms-send,,,,,,,,,,,,,,,,
-social-media-platforms-required,argument,disagree,laws-force-social-media,,,,,,,,,,,,,,,,
+social-media-platforms-required,argument,disagree,laws-force-social-media,,,,,,,,,,,,,,,,url: https://cjc-ccj.ca/app/uploads/2026/08/cjc-ccj_2026-08-19_payments-to-date_fr.csv | checked: 2026-11-13
 social-media-platforms-required,argument,disagree,if-social-media-platforms,,,,,,,,,,,,,,,,
 ordinary-people-generally-better,argument,agree,warning-label-social-media,,,,,,,,,,,,,,,,
 ordinary-people-generally-better,argument,agree,platform-labels-removes-posts,,,,,,,,,,,,,,,,
@@ -1630,12 +1630,12 @@ people-generally-pay-routine,argument,agree,low-premiums-catastrophic-plans,,,,,
 people-generally-pay-routine,argument,disagree,when-people-pay-out,,,,,,,,,,,,,,,,
 people-generally-pay-routine,argument,disagree,patients-cannot-shop-medical,,,,,,,,,,,,,,,,
 people-generally-pay-routine,argument,disagree,long-term-illnesses-like,,,,,,,,,,,,,,,,
-any-registered-voter-able,argument,agree,many-working-people-cannot,,,,,,,,,,,,,,,,
+any-registered-voter-able,argument,agree,many-working-people-cannot,,,,,,,,,,,,,,,,url: https://www2.census.gov/programs-surveys/cps/tables/p20/585/table10.xlsx | checked: 2026-11-13
 any-registered-voter-able,argument,agree,voter-filling-out-mail,,,,,,,,,,,,,,,,
 any-registered-voter-able,argument,agree,making-voters-give-approved,,,,,,,,,,,,,,,,
 any-registered-voter-able,argument,disagree,ballot-filled-out-kitchen,,,,,,,,,,,,,,,,
 any-registered-voter-able,argument,disagree,when-ballots-travel-through,,,,,,,,,,,,,,,,
-any-registered-voter-able,argument,disagree,mail-ballots-get-rejected,,,,,,,,,,,,,,,,
+any-registered-voter-able,argument,disagree,mail-ballots-get-rejected,,,,,,,,,,,,,,,,url: https://www.eac.gov/sites/default/files/2023-06/2022_EAVS_Report_508c.pdf | checked: 2026-11-13
 voters-generally-required-show,argument,agree,nearly-every-other-important,,,,,,,,,,,,,,,,
 voters-generally-required-show,argument,agree,public-trust-election-depends,,,,,,,,,,,,,,,,
 voters-generally-required-show,argument,agree,photo-id-requirement-removes,,,,,,,,,,,,,,,,
@@ -1653,10 +1653,10 @@ country-generally-keep-its,argument,agree,visibly-strong-military-discourages,,,
 country-generally-keep-its,argument,agree,steady-funding-keeps-factories,,,,,,,,,,,,,,,,
 country-generally-keep-its,argument,disagree,every-dollar-spent-military,,,,,,,,,,,,,,,,
 country-generally-keep-its,argument,disagree,large-standing-military-tempts,,,,,,,,,,,,,,,,
-country-generally-keep-its,argument,disagree,military-contractors-military-bases,,,,,,,,,,,,,,,,
+country-generally-keep-its,argument,disagree,military-contractors-military-bases,,,,,,,,,,,,,,,,url: https://services.arcgis.com/xOi1kZaI0eWDREZv/arcgis/rest/services/NTAD_Military_Bases/FeatureServer/0 | checked: 2026-11-13
 united-kingdom-rejoin-european,argument,agree,british-exporters-selling-into,,,,,,,,,,,,,,,,url: https://obr.uk/forecasts-in-depth/the-economy-forecast/brexit-analysis/ | checked: 2026-11-08
-united-kingdom-rejoin-european,argument,agree,rejoining-european-single-market,,,,,,,,,,,,,,,,
-united-kingdom-rejoin-european,argument,agree,british-firms-sell-europe,,,,,,,,,,,,,,,,
+united-kingdom-rejoin-european,argument,agree,rejoining-european-single-market,,,,,,,,,,,,,,,,url: https://assets.publishing.service.gov.uk/media/649da925bb13dc0012b2e38a/Independent_Review_into_Labour_Shortages_in_the_Food_Supply_Chain_June_2023.pdf | checked: 2026-11-13
+united-kingdom-rejoin-european,argument,agree,british-firms-sell-europe,,,,,,,,,,,,,,,,url: https://www.gov.uk/guidance/placing-ce-marked-products-on-the-market-in-the-eu | checked: 2026-11-13
 united-kingdom-rejoin-european,argument,disagree,rejoining-european-single-market-2,,,,,,,,,,,,,,,,url: https://www.efta.int/eea/eea-agreement/eea-basic-features | checked: 2026-11-08
 united-kingdom-rejoin-european,argument,disagree,rejoining-european-single-market-3,,,,,,,,,,,,,,,,url: https://www.efta.int/eea/eea-agreement/eea-basic-features | checked: 2026-11-08
 united-kingdom-rejoin-european,argument,disagree,british-firms-face-second,,,,,,,,,,,,,,,,
@@ -1664,7 +1664,7 @@ japan-keep-immigration-low,argument,agree,keeping-immigration-low-helps,,,,,,,,,
 japan-keep-immigration-low,argument,agree,keeping-immigration-low-keeps,,,,,,,,,,,,,,,,
 japan-keep-immigration-low,argument,agree,even-large-rise-immigration,,,,,,,,,,,,,,,,
 japan-keep-immigration-low,argument,disagree,japan-needs-more-immigrant,,,,,,,,,,,,,,,,url: https://www.mhlw.go.jp/stf/newpage_41379.html | checked: 2026-11-08
-japan-keep-immigration-low,argument,disagree,more-young-immigrant-workers,,,,,,,,,,,,,,,,
+japan-keep-immigration-low,argument,disagree,more-young-immigrant-workers,,,,,,,,,,,,,,,,url: https://www.stat.go.jp/data/topics/pdf/topics149.pdf | checked: 2026-11-13
 japan-keep-immigration-low,argument,disagree,rural-towns-across-japan,,,,,,,,,,,,,,,,url: https://www.mext.go.jp/a_menu/shotou/zyosei/1296809.htm | checked: 2026-11-08
 children-generally-do-best,argument,agree,marriage-ties-both-parents,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Presumption_of_legitimacy | checked: 2026-11-08
 children-generally-do-best,argument,agree,marriage-public-promise-makes,,,,,,,,,,,,,,,,
@@ -1700,7 +1700,7 @@ archaeologists-generally-excavate-important,argument,agree,archaeological-sites-
 archaeologists-generally-excavate-important,argument,agree,knowledge-dug-out-archaeological,,,,,,,,,,,,,,,,
 archaeologists-generally-excavate-important,argument,agree,rescue-digs-threatened-sites,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Rescue_archaeology | checked: 2026-11-08
 archaeologists-generally-excavate-important,argument,disagree,digging-destroys-archaeological-site,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Excavation_(archaeology) | checked: 2026-11-08
-archaeologists-generally-excavate-important,argument,disagree,much-excavated-material-never,,,,,,,,,,,,,,,,
+archaeologists-generally-excavate-important,argument,disagree,much-excavated-material-never,,,,,,,,,,,,,,,,url: https://www.cambridge.org/core/product/identifier/S1380203812000219/type/journal_article | checked: 2026-11-13
 archaeologists-generally-excavate-important,argument,disagree,protecting-site-place-costs,,,,,,,,,,,,,,,,
 we-defend-our-fundamental,argument,agree,open-dialogue-vital-informed,,,,,,,,,,,,,,,,
 we-defend-our-fundamental,argument,agree,free-exchange-ideas-fosters,,,,,,,,,,,,,,,,
@@ -1753,7 +1753,7 @@ united-states-stop-outsourcing,argument,agree,manufacturing-revival-promotes-fai
 united-states-stop-outsourcing,argument,agree,manufacturing-revival-strengthens-united,,,,,,,,,,,,,,,,
 united-states-stop-outsourcing,argument,disagree,domestic-production-often-more,,,,,,,,,,,,,,,,
 united-states-stop-outsourcing,argument,disagree,reducing-outsourcing-harms-economies,,,,,,,,,,,,,,,,
-united-states-stop-outsourcing,argument,disagree,united-states-lacks-enough,,,,,,,,,,,,,,,,
+united-states-stop-outsourcing,argument,disagree,united-states-lacks-enough,,,,,,,,,,,,,,,,url: https://www.deloitte.com/us/en/insights/industry/manufacturing-industrial-products/supporting-us-manufacturing-growth-amid-workforce-challenges.html | checked: 2026-11-13
 united-states-stop-outsourcing,argument,disagree,increased-domestic-manufacturing-could,,,,,,,,,,,,,,,,
 united-states-stop-outsourcing,argument,disagree,protectionist-policies-end-outsourcing,,,,,,,,,,,,,,,,
 united-states-stop-outsourcing,argument,disagree,policies-discourage-outsourcing-may,,,,,,,,,,,,,,,,
@@ -1902,8 +1902,8 @@ we-tax-property-value,argument,disagree,land-value-tax-politically,,,,,,,,,,,,,,
 we-tax-property-value,argument,disagree,mistakes-infrequent-updates-land,,,,,,,,,,,,,,,,
 we-tax-property-value,argument,disagree,rapid-increases-land-value,,,,,,,,,,,,,,,,
 we-tax-property-value,argument,disagree,some-regions-have-laws,,,,,,,,,,,,,,,,url: https://www.lincolninst.edu/sites/default/files/pubfiles/assessing-theory-practice-land-value-taxation-full_0.pdf | checked: 2026-11-08
-we-tax-property-value,argument,disagree,land-value-tax-set,,,,,,,,,,,,,,,,
-we-tax-property-value,argument,disagree,land-value-tax-will,,,,,,,,,,,,,,,,
+we-tax-property-value,argument,disagree,land-value-tax-set,,,,,,,,,,,,,,,,url: https://www.lincolninst.edu/sites/default/files/pubfiles/assessing-theory-practice-land-value-taxation-full_0.pdf | checked: 2026-11-13
+we-tax-property-value,argument,disagree,land-value-tax-will,,,,,,,,,,,,,,,,url: https://www.lincolninst.edu/app/uploads/2024/04/lla020105.pdf | checked: 2026-11-13
 we-tax-property-value,argument,disagree,if-only-one-city,,,,,,,,,,,,,,,,
 we-tax-property-value,argument,disagree,land-value-tax-has,,,,,,,,,,,,,,,,url: https://archive.strongtowns.org/journal/2019/3/8/if-the-land-tax-is-such-a-good-idea-why-isnt-it-being-implemented | checked: 2026-11-08
 we-tax-property-value,evidence,agree,harrisburg-pennsylvania-which-taxed,,strongtowns.org,,,,,,,,,,,,,,url: https://archive.strongtowns.org/journal/2019/3/6/non-glamorous-gains-the-pennsylvania-land-tax-experiment | checked: 2026-11-08
@@ -2071,7 +2071,7 @@ good-end-does-justify,prediction,disagree,emergency-exception-powers-once,,,,,,,
 we-defend-united-states,argument,disagree,constitution-s-counter-majoritarian,,,,,,,,,,,,,,,,
 we-defend-united-states,evidence,agree,ratification-13th-17th-19th,,National Archives,,,,,,,,,,,,,,url: https://www.archives.gov/founding-docs/amendments-11-27 | checked: 2026-11-08
 we-defend-united-states,evidence,agree,united-states-has-had,,Comparative constitutional data,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Constitution_of_the_United_States | checked: 2026-11-08
-we-defend-united-states,evidence,agree,state-policy-experiments-spread,,State politics literature,,,,,,,,,,,,,,
+we-defend-united-states,evidence,agree,state-policy-experiments-spread,,State politics literature,,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1111/j.1540-5907.2006.00185.x | checked: 2026-11-13
 we-defend-united-states,evidence,disagree,no-amendment-proposed-after,,National Archives,,,,,,,,,,,,,,url: https://www.archives.gov/founding-docs/amendments-11-27 | checked: 2026-11-08
 we-defend-united-states,evidence,disagree,most-presidential-constitutions-modeled,,"Linz, ""The Perils of Presidentialism"" (1990)",,,,,,,,,,,,,,url: https://www.journalofdemocracy.org/articles/the-perils-of-presidentialism/ | checked: 2026-11-08
 we-defend-united-states,evidence,disagree,democratic-backsliding-proceeds-inside,,Levitsky & Ziblatt (2018),,,,,,,,,,,,,,url: https://www.penguinrandomhouse.com/books/562246/how-democracies-die-by-steven-levitsky-and-daniel-ziblatt/ | checked: 2026-11-08
@@ -2132,7 +2132,7 @@ representative-civic-juries-convened,argument,agree,online-civic-juries-let,,,,,
 representative-civic-juries-convened,argument,agree,online-civic-juries-produce,,,,,,,,,,,,,,,,
 representative-civic-juries-convened,argument,agree,broader-representation-gives-civic,,,,,,,,,,,,,,,,
 representative-civic-juries-convened,argument,agree,civic-juries-aim-transparent,,,,,,,,,,,,,,,,
-representative-civic-juries-convened,evidence,agree,mongolia-used-deliberative-polling,,Mongolia's Deliberative Polling Law,,,,,,,,,,,,,,
+representative-civic-juries-convened,evidence,agree,mongolia-used-deliberative-polling,,Mongolia's Deliberative Polling Law,,,,,,,,,,,,,,url: https://legalinfo.mn/mn/detail/12492 | checked: 2026-11-13
 representative-civic-juries-convened,evidence,agree,ireland-s-citizens-assembly,,Ireland's Citizens' Assembly,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Citizens%27_Assembly_(Ireland) | checked: 2026-11-08
 representative-civic-juries-convened,evidence,agree,ireland-legalized-same-sex,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Constitutional_Convention_(Ireland) | checked: 2026-11-08
 representative-civic-juries-convened,evidence,agree,2019-america-one-room,,,,,,,,,,,,,,,,url: https://www.cambridge.org/core/product/identifier/S0003055421000642/type/journal_article | checked: 2026-11-08
@@ -2496,7 +2496,7 @@ we-cannot-stand-while,evidence,agree,un-human-rights-council,,UN Human Rights Co
 we-cannot-stand-while,evidence,agree,osce-has-documented-cultural,,OSCE,,,,,,,,,,,,,,url: https://cdn.osce.org/sites/default/files/f/documents/f/a/515868.pdf | checked: 2026-11-08
 we-cannot-stand-while,evidence,agree,international-criminal-court-investigating,,ICC,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/International_Criminal_Court_investigation_in_Ukraine | checked: 2026-11-08
 we-cannot-stand-while,evidence,agree,satellite-imagery-shows-civilian,,,,,,,,,,,,,,,,url: https://www.amnesty.org/en/latest/news/2022/06/ukraine-deadly-mariupol-theatre-strike-a-clear-war-crime-by-russian-forces-new-investigation/ | checked: 2026-11-08
-we-cannot-stand-while,evidence,agree,russia-has-systematically-targeted,,,,,,,,,,,,,,,,
+we-cannot-stand-while,evidence,agree,russia-has-systematically-targeted,,,,,,,,,,,,,,,,url: https://www.hrw.org/report/2024/06/20/education-under-occupation/forced-russification-school-system-occupied-ukrainian | checked: 2026-11-13
 we-cannot-stand-while,evidence,agree,russia-has-deported-ukrainian,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/International_Criminal_Court_investigation_in_Ukraine | checked: 2026-11-08
 we-cannot-stand-while,evidence,agree,russian-forces-have-destroyed,,,,,,,,,,,,,,,,url: https://www.euronews.com/culture/2024/10/17/council-of-europe-declares-russian-destruction-of-ukrainian-cultural-heritage-genocide | checked: 2026-11-08
 we-cannot-stand-while,evidence,agree,russian-forces-carried-out,,,,,,,,,,,,,,,,url: https://www.hrw.org/news/2022/04/21/ukraine-russian-forces-trail-death-bucha | checked: 2026-11-08
@@ -2630,16 +2630,16 @@ caitlin-clark-main-reason,falsify,agree,survey-new-2024-2025,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,assumption,agree,comparing-nielsen-audiences-games,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,assumption,agree,without-caitlin-clark-wnba,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,person,agree,christine-brennan-usa-today,,,,,,,,,,,,,,,,
-caitlin-clark-main-reason,person,agree,lebron-james-said-mind,,,,,,,,,,,,,,,,
+caitlin-clark-main-reason,person,agree,lebron-james-said-mind,,,,,,,,,,,,,,,,url: https://www.foxnews.com/sports/lebron-james-credits-fevers-caitlin-clark-wnba-growth-amid-heavy-scrutiny.amp | checked: 2026-11-13
 caitlin-clark-main-reason,person,agree,ryan-brewer-finance-professor,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,media,agree,her-game-caitlin-clark,,,,,,,,,,,,,,,,
-caitlin-clark-main-reason,argument,disagree,wnba-national-viewership-was,,,,,,,,,,,,,,,,
+caitlin-clark-main-reason,argument,disagree,wnba-national-viewership-was,,,,,,,,,,,,,,,,url: https://www.wnba.com/news/2023-season-record-breaking-success-recap | checked: 2026-11-13
 caitlin-clark-main-reason,argument,disagree,wnba-games-teams-no,,,,,,,,,,,,,,,,url: https://frontofficesports.com/valkyries-set-wnba-attendance-record-in-inaugural-season/ | checked: 2026-11-08
 caitlin-clark-main-reason,argument,disagree,2024-wnba-rookie-class,,,,,,,,,,,,,,,,url: http://espnpressroom.com/press-release/the-2024-wnba-season-delivers-record-viewership-across-espn-platforms/ | checked: 2026-11-08
-caitlin-clark-main-reason,argument,disagree,more-wnba-games-were,,,,,,,,,,,,,,,,
+caitlin-clark-main-reason,argument,disagree,more-wnba-games-were,,,,,,,,,,,,,,,,url: https://pr.nba.com/wnba-broadcast-streaming-partners-2023-schedule | checked: 2026-11-13
 caitlin-clark-main-reason,argument,disagree,caitlin-clark-played-only,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,evidence,disagree,2024-wnba-finals-between,,"ESPN Press Room, ""The 2024 WNBA season delivers record viewership across ESPN platforms"", 2024",,,,,,,,,,,,,,url: http://espnpressroom.com/press-release/the-2024-wnba-season-delivers-record-viewership-across-espn-platforms/ | checked: 2026-11-08
-caitlin-clark-main-reason,evidence,disagree,wnba-national-viewership-2023,,"WNBA, ""WNBA 2023 Season Delivers with Record-Breaking Viewership, Attendance and Digital Engagement"", 2023",,,,,,,,,,,,,,
+caitlin-clark-main-reason,evidence,disagree,wnba-national-viewership-2023,,"WNBA, ""WNBA 2023 Season Delivers with Record-Breaking Viewership, Attendance and Digital Engagement"", 2023",,,,,,,,,,,,,,url: https://pr.nba.com/wnba-2023-season-delivers-with-record-breaking-viewership-attendance-and-digital-engagement | checked: 2026-11-13
 caitlin-clark-main-reason,evidence,disagree,may-2024-new-york,,"NBC News, David K. Li, ""WNBA attendance is skyrocketing, and it's not all on Caitlin Clark"", 2024",,,,,,,,,,,,,,
 caitlin-clark-main-reason,prediction,disagree,if-indiana-fever-2026,,,,,,,,,,,,,,,"By October 31, 2026; checked against the ESPN Press Room or NBC Sports viewership release for the series.",
 caitlin-clark-main-reason,prediction,disagree,least-four-wnba-teams,,,,,,,,,,,,,,,"By October 31, 2027; checked against the team attendance table at Across the Timeline.",
@@ -2651,7 +2651,7 @@ caitlin-clark-main-reason,assumption,disagree,wnba-s-2025-attendance,,,,,,,,,,,,
 caitlin-clark-main-reason,person,disagree,sheila-johnson-co-owner,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,person,disagree,angel-reese-said-june,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,media,disagree,wnba-viewership-hits-high,,,,,,,,,,,,,,,,url: https://www.sportsmediawatch.com/2025/09/wnba-regular-season-viewership-hits-high-big-data-caitlin-clark/ | checked: 2026-11-08
-caitlin-clark-main-reason,media,disagree,wnba-2025-season-numbers,,,,,,,,,,,,,,,,
+caitlin-clark-main-reason,media,disagree,wnba-2025-season-numbers,,,,,,,,,,,,,,,,url: https://www.sportspro.com/features/womens-sport/wnba-2025-season-review-tv-viewership-attendances-sponsorship-valuations/ | checked: 2026-11-13
 caitlin-clark-main-reason,media,disagree,nielsen-46-billion-minutes,,,,,,,,,,,,,,,,url: https://www.nielsen.com/news-center/2026/nielsen-46-billion-minutes-of-womens-sports-were-consumed-in-2025/ | checked: 2026-11-08
 caitlin-clark-main-reason,interest,agree,indiana-fever-season-ticket,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,interest,agree,ticket-sales-staff-eleven,,,,,,,,,,,,,,,,
@@ -2863,10 +2863,10 @@ leaving-caitlin-clark-off,media,agree,usa-basketball-defends-decision,,,,,,,,,,,
 leaving-caitlin-clark-off,media,agree,combined-olympics-average-finishes,,,,,,,,,,,,,,,,url: https://www.sportsmediawatch.com/2024/08/olympics-viewership-tops-30-million-combined-nbc-womens-basketball-final/ | checked: 2026-11-08
 leaving-caitlin-clark-off,argument,disagree,caitlin-clark-was-averaging,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,argument,disagree,diana-taurasi-42-averaged,,,,,,,,,,,,,,,,url: https://www.fiba.basketball/en/events/womens-olympic-basketball-tournament-paris-2024/teams/usa/138261-diana-taurasi | checked: 2026-11-08
-leaving-caitlin-clark-off,argument,disagree,gold-medal-game-was,,,,,,,,,,,,,,,,
+leaving-caitlin-clark-off,argument,disagree,gold-medal-game-was,,,,,,,,,,,,,,,,url: https://www.fiba.basketball/en/events/womens-olympic-basketball-tournament-paris-2024/news/eight-straight-for-usa-after-denying-fearless-france-in-final-thriller | checked: 2026-11-13
 leaving-caitlin-clark-off,argument,disagree,united-states-women-s,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,argument,disagree,casey-wasserman-president-los,,,,,,,,,,,,,,,,
-leaving-caitlin-clark-off,evidence,disagree,diana-taurasi-averaged-1,,"Yahoo Sports via New York Post, 'Farewell present': New book reveals real reason why Caitlin Clark left off Women's Olympic team, 2025, reporting Christine Brennan's On Her Game",,,,,,,,,,,,,,
+leaving-caitlin-clark-off,evidence,disagree,diana-taurasi-averaged-1,,"Yahoo Sports via New York Post, 'Farewell present': New book reveals real reason why Caitlin Clark left off Women's Olympic team, 2025, reporting Christine Brennan's On Her Game",,,,,,,,,,,,,,url: https://cdn.wnba.com/sites/1611661319/2024/08/2024-USA-Olympic-Cumulative-Stats-through-Game-5.pdf | checked: 2026-11-13
 leaving-caitlin-clark-off,evidence,disagree,united-states-france-women,,"Sports Media Watch, Combined Olympics average finishes over 30 million, 2024",,,,,,,,,,,,,,
 leaving-caitlin-clark-off,evidence,disagree,her-first-senior-national,,"Fox News, Caitlin Clark earns top honors at FIBA Women's World Cup qualifiers, 2026",,,,,,,,,,,,,,
 leaving-caitlin-clark-off,prediction,disagree,usa-basketball-will-change,,,,,,,,,,,,,,,"By December 31, 2027; USA Basketball press releases and reporting on its governance.",
@@ -3021,7 +3021,7 @@ lebron-james-has-had,assumption,disagree,winning-one-franchise-against,,,,,,,,,,
 lebron-james-has-had,person,disagree,shaquille-o-neal-said,,,,,,,,,,,,,,,,
 lebron-james-has-had,media,disagree,michael-jordan-life-roland,,,,,,,,,,,,,,,,url: https://www.hachettebookgroup.com/titles/roland-lazenby/michael-jordan/9780316194778/ | checked: 2026-11-08
 lebron-james-has-had,media,disagree,playing-keeps-michael-jordan,,,,,,,,,,,,,,,,url: https://openlibrary.org/isbn/0679415629.json | checked: 2026-11-08
-lebron-james-has-had,media,disagree,last-dance-jason-hehir,,,,,,,,,,,,,,,,
+lebron-james-has-had,media,disagree,last-dance-jason-hehir,,,,,,,,,,,,,,,,url: https://www.espn.com/nba/story/_/id/28973557/the-last-dance-updates-untold-story-michael-jordan-chicago-bulls | checked: 2026-11-13
 lebron-james-has-had,interest,agree,players-late-thirties-need,,,,,,,,,,,,,,,,
 lebron-james-has-had,interest,agree,fans-who-began-watching,,,,,,,,,,,,,,,,
 lebron-james-has-had,interest,agree,statisticians-sportswriters-need-standard,,,,,,,,,,,,,,,,
@@ -6991,7 +6991,7 @@ serena-williams-greatest-tennis,argument,agree,serena-williams-won-10,,,,,,,,,,,
 serena-williams-greatest-tennis,argument,agree,serena-williams-won-14,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Serena_Williams_career_statistics | checked: 2026-11-08
 serena-williams-greatest-tennis,argument,agree,serena-williams-won-367,,,,,,,,,,,,,,,,
 serena-williams-greatest-tennis,argument,agree,margaret-court-won-13,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Margaret_Court | checked: 2026-11-08
-serena-williams-greatest-tennis,argument,agree,serena-williams-changed-how,,,,,,,,,,,,,,,,
+serena-williams-greatest-tennis,argument,agree,serena-williams-changed-how,,,,,,,,,,,,,,,,url: https://espnpressroom.com/press-release/serenas-swan-song-espns-most-watched-tennis-telecast-on-record/ | checked: 2026-11-13
 serena-williams-greatest-tennis,evidence,agree,serena-williams-was-35,,"Guinness World Records, Oldest tennis Grand Slam singles winner (female), 2017",,,,,,,,,,,,,,
 serena-williams-greatest-tennis,evidence,agree,serena-williams-won-10-2,,"Tennis.com, Serena Williams records that may never be broken: Winning 10 majors after turning 30, 2022",,,,,,,,,,,,,,
 serena-williams-greatest-tennis,prediction,agree,next-cross-sex-all,,,,,,,,,,,,,,,"By December 31, 2030; checked against the published list and its panel.",
@@ -7020,14 +7020,14 @@ serena-williams-greatest-tennis,assumption,disagree,titles-listed-record-books,,
 serena-williams-greatest-tennis,assumption,disagree,sustained-dominance-such-weeks,,,,,,,,,,,,,,,,
 serena-williams-greatest-tennis,person,disagree,john-mcenroe-told-npr,,,,,,,,,,,,,,,,url: https://www.npr.org/2017/06/25/534149646/but-seriously-tennis-great-john-mcenroe-says-hes-seeking-inner-peace | checked: 2026-11-08
 serena-williams-greatest-tennis,media,disagree,tennis-128-no-6,,,,,,,,,,,,,,,,url: https://www.tennisabstract.com/blog/2022/12/09/the-tennis-128-no-6-serena-williams/ | checked: 2026-11-08
-serena-williams-greatest-tennis,media,disagree,but-seriously-john-mcenroe,,,,,,,,,,,,,,,,
+serena-williams-greatest-tennis,media,disagree,but-seriously-john-mcenroe,,,,,,,,,,,,,,,,url: https://text.npr.org/534149646 | checked: 2026-11-13
 serena-williams-greatest-tennis,interest,agree,women-who-play-professional,,,,,,,,,,,,,,,,
 serena-williams-greatest-tennis,interest,agree,black-girls-who-take,,,,,,,,,,,,,,,,
 serena-williams-greatest-tennis,interest,agree,fans-who-buy-tickets,,,,,,,,,,,,,,,,
 serena-williams-greatest-tennis,interest,disagree,players-fans-margaret-court,,,,,,,,,,,,,,,,
 serena-williams-greatest-tennis,cba,agree,recognizing-black-american-woman,,,,,,,,black-girls-who-take,,,percentage points of US junior tennis players who are Black girls,,,,,
-serena-williams-greatest-tennis,cba,agree,judging-women-s-champions,,,,,,,,women-who-play-professional,,,percent of combined-event prize pools paid to women,,,,,
-serena-williams-greatest-tennis,cba,disagree,comparing-woman-directly-against,,,,,,,,fans-who-buy-tickets,,,public rows a year over whether women could beat men,,,,,
+serena-williams-greatest-tennis,cba,agree,judging-women-s-champions,,,,,,,,women-who-play-professional,,,percent of combined-event prize pools paid to women,,,,,url: https://cincinnatiopen.com/visit/faqs/ | checked: 2026-11-13
+serena-williams-greatest-tennis,cba,disagree,comparing-woman-directly-against,,,,,,,,fans-who-buy-tickets,,,public rows a year over whether women could beat men,,,,,url: https://text.npr.org/534149646 | checked: 2026-11-13
 serena-williams-greatest-tennis,category,,,percent of combined-event prize pools paid to women,,,,,,,,,,,,,,,
 serena-williams-greatest-tennis,category,,,percentage points of US junior tennis players who are Black girls,,,,,,,,,,,,,,,
 serena-williams-greatest-tennis,category,,,public rows a year over whether women could beat men,,,,,,,,,,,,,,,
@@ -7090,7 +7090,7 @@ legalized-sports-betting-has,interest,disagree,fans-who-enjoy-betting,,,,,,,,,,,
 legalized-sports-betting-has,interest,disagree,teachers-other-workers-paid,,,,,,,,,,,,,,,,
 legalized-sports-betting-has,cba,agree,restricting-phone-betting-lower,,,,,,,,young-men-thin-savings,,,percent change in bankruptcy filings in affected states,-20,,,,
 legalized-sports-betting-has,cba,disagree,rolling-back-legal-betting,,,,,,,,fans-who-enjoy-betting,,,percent of sports bets placed with illegal operators,36,,,,
-legalized-sports-betting-has,cba,disagree,cutting-legal-betting-remove,,,,,,,,teachers-other-workers-paid,,,dollars a year in state sports betting taxes,3710000000,,,,
+legalized-sports-betting-has,cba,disagree,cutting-legal-betting-remove,,,,,,,,teachers-other-workers-paid,,,dollars a year in state sports betting taxes,3710000000,,,,url: https://gaming.ny.gov/statewide-sports-wagering-monthly-report-excel | checked: 2026-11-13
 legalized-sports-betting-has,cba,disagree,ending-betting-partnerships-cost,,,,,,,,teachers-other-workers-paid,,,dollars a year in league and team betting-related income,4230000000,,,,
 legalized-sports-betting-has,category,,,dollars a year in league and team betting-related income,,,,,,,,,,,,,,,
 legalized-sports-betting-has,category,,,dollars a year in state sports betting taxes,,,,,,,,,,,,,,,
@@ -8197,7 +8197,7 @@ working-home-better-most,argument,agree,office-workers-who-work,,,,,,,,,,,,,,,,u
 working-home-better-most,argument,agree,office-workers-who-allowed,,,,,,,,,,,,,,,,url: https://www.nature.com/articles/s41586-024-07500-2 | checked: 2026-11-08
 working-home-better-most,argument,agree,working-home-lets-office,,,,,,,,,,,,,,,,
 working-home-better-most,argument,agree,office-workers-long-commutes,,,,,,,,,,,,,,,,url: https://www.nature.com/articles/s41586-024-07500-2 | checked: 2026-11-08
-working-home-better-most,argument,agree,most-office-workers-who,,,,,,,,,,,,,,,,
+working-home-better-most,argument,agree,most-office-workers-who,,,,,,,,,,,,,,,,url: https://www.nber.org/system/files/working_papers/w28731/revisions/w28731.rev0.pdf | checked: 2026-11-13
 working-home-better-most,argument,agree,quiet-home-office-can,,,,,,,,,,,,,,,,url: https://www.nber.org/papers/w18871 | checked: 2026-11-08
 working-home-better-most,evidence,agree,randomized-trial-1-612,,"Nicholas Bloom, Ruobing Han and James Liang, ""Hybrid working from home improves retention without damaging performance,"" Nature, 2024",,,,,,,,,,,,,,url: https://www.nature.com/articles/s41586-024-07500-2 | checked: 2026-11-08
 working-home-better-most,evidence,agree,ctrip-call-center-employees,,"Nicholas Bloom, James Liang, John Roberts and Zhichun Jenny Ying, ""Does Working from Home Work? Evidence from a Chinese Experiment,"" Quarterly Journal of Economics, 2015",,,,,,,,,,,,,,url: https://academic.oup.com/qje/article/130/1/165/2337855 | checked: 2026-11-08
@@ -8233,7 +8233,7 @@ working-home-better-most,assumption,disagree,workers-stated-preference-working,,
 working-home-better-most,assumption,disagree,findings-part-time-hybrid,,,,,,,,,,,,,,,,
 working-home-better-most,person,disagree,jamie-dimon-chief-executive,,,,,,,,,,,,,,,,
 working-home-better-most,person,disagree,andy-jassy-chief-executive,,,,,,,,,,,,,,,,url: https://www.cnbc.com/2024/09/16/amazon-jassy-tells-employees-to-return-to-office-five-days-a-week.html | checked: 2026-11-08
-working-home-better-most,media,disagree,power-proximity-coworkers-natalia,,,,,,,,,,,,,,,,
+working-home-better-most,media,disagree,power-proximity-coworkers-natalia,,,,,,,,,,,,,,,,url: https://academic.oup.com/qje/article/141/3/1825/8676722 | checked: 2026-11-13
 working-home-better-most,media,disagree,effects-remote-work-collaboration,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.1038/s41562-021-01196-4&resultType=core&format=json | checked: 2026-11-08
 working-home-better-most,media,disagree,work-home-productivity-evidence,,,,,,,,,,,,,,,,url: https://ideas.repec.org/a/ucp/jpemic/doi10.1086-721803.html | checked: 2026-11-08
 working-home-better-most,interest,agree,parents-young-children-need-2,,,,,,,,,,,,,,,,
@@ -9124,8 +9124,8 @@ u-s-inflation-measured,dispute,,,Causal,,,,,,,,,,,,,,,what: The two sides disagr
 u-s-inflation-measured,value,,,,,,,,,,,,,,,,,,"value: Price stability | srank: 1 | orank: 1 | why: Both sides want low, steady inflation; they disagree about the forecast, not the goal."
 s-p-500-will,argument,agree,wall-street-strategists-expect,,,,,,,,,,,,,,,,url: https://www.yardeni.com/ | checked: 2026-11-08
 s-p-500-will,argument,agree,third-year-u-s,,,,,,,,,,,,,,,,url: https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html | checked: 2026-11-08
-s-p-500-will,argument,agree,high-stock-valuations-have,,,,,,,,,,,,,,,,
-s-p-500-will,argument,agree,corporate-spending-ai-data,,,,,,,,,,,,,,,,
+s-p-500-will,argument,agree,high-stock-valuations-have,,,,,,,,,,,,,,,,url: http://www.econ.yale.edu/~shiller/data/ie_data.xls | checked: 2026-11-13
+s-p-500-will,argument,agree,corporate-spending-ai-data,,,,,,,,,,,,,,,,url: https://www.sec.gov/Archives/edgar/data/1018724/000101872426000040/amzn-20260930.htm | checked: 2026-11-13
 s-p-500-will,argument,agree,u-s-economy-was,,,,,,,,,,,,,,,,url: https://federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm | checked: 2026-11-08
 s-p-500-will,evidence,agree,98-calendar-years-1928,,"Aswath Damodaran, NYU Stern School of Business, Historical Returns on Stocks, Bonds and Bills: 1928-2025, updated January 2026",,,,,,,,,,,,,,url: https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html | checked: 2026-11-08
 s-p-500-will,evidence,agree,every-one-19-pre,,"Aswath Damodaran, NYU Stern School of Business, Historical Returns on Stocks, Bonds and Bills: 1928-2025, updated January 2026",,,,,,,,,,,,,,url: https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html | checked: 2026-11-08
@@ -9137,7 +9137,7 @@ s-p-500-will,falsify,agree,largest-ai-spenders-report,,,,,,,,,,,,,,,,
 s-p-500-will,assumption,agree,s-p-500-company,,,,,,,,,,,,,,,,
 s-p-500-will,assumption,agree,long-run-tendency-s,,,,,,,,,,,,,,,,
 s-p-500-will,assumption,agree,united-states-will-avoid,,,,,,,,,,,,,,,,
-s-p-500-will,person,agree,ed-yardeni-yardeni-research,,,,,,,,,,,,,,,,
+s-p-500-will,person,agree,ed-yardeni-yardeni-research,,,,,,,,,,,,,,,,url: https://archive.yardeni.com/morning-briefing-2026/ | checked: 2026-11-13
 s-p-500-will,media,agree,stock-trader-s-almanac,,,,,,,,,,,,,,,,
 s-p-500-will,media,agree,stocks-long-run-sixth,,,,,,,,,,,,,,,,url: https://openlibrary.org/books/OL57396185M | checked: 2026-11-08
 s-p-500-will,argument,disagree,s-p-500-s,,,,,,,,,,,,,,,,url: https://www.multpl.com/shiller-pe/table/by-month | checked: 2026-11-08
@@ -9147,7 +9147,7 @@ s-p-500-will,argument,disagree,s-p-500-depends,,,,,,,,,,,,,,,,
 s-p-500-will,argument,disagree,u-s-recession-2027,,,,,,,,,,,,,,,,
 s-p-500-will,evidence,disagree,shiller-cyclically-adjusted-price,,"Dave Kovaleski, The Motley Fool, This Market Signal Seen Only Once in History Points to What Comes Next, September 18, 2026",,,,,,,,,,,,,,
 s-p-500-will,evidence,disagree,ten-calendar-years-1928,,"Aswath Damodaran, NYU Stern School of Business, Historical Returns on Stocks, Bonds and Bills: 1928-2025, updated January 2026",,,,,,,,,,,,,,url: https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html | checked: 2026-11-08
-s-p-500-will,evidence,disagree,bank-america-strategists-found,,"Senad Karaahmetovic, Investing.com via Yahoo Finance, S&P 500 EPS growth above 20% is rare. Why 2027 may be at risk, August 11, 2026",,,,,,,,,,,,,,
+s-p-500-will,evidence,disagree,bank-america-strategists-found,,"Senad Karaahmetovic, Investing.com via Yahoo Finance, S&P 500 EPS growth above 20% is rare. Why 2027 may be at risk, August 11, 2026",,,,,,,,,,,,,,url: https://www.investing.com/news/stock-market-news/sp-500-eps-growth-above-20-is-rare-why-2027-may-be-at-risk-4851013 | checked: 2026-11-13
 s-p-500-will,evidence,disagree,federal-reserve-voted-12,,"Board of Governors of the Federal Reserve System, Federal Reserve issues FOMC statement, September 16, 2026",,,,,,,,,,,,,,url: https://federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm | checked: 2026-11-08
 s-p-500-will,prediction,disagree,s-p-500-will-2,,,,,,,,,,,,,,,"By December 31, 2027; checked against S&P Dow Jones Indices daily closing levels.",
 s-p-500-will,prediction,disagree,10-year-u-s,,,,,,,,,,,,,,,"By June 30, 2027; checked against FRED series DGS10.",
@@ -9210,7 +9210,7 @@ u-s-unemployment-rate-3,assumption,agree,federal-reserve-projections-unemploymen
 u-s-unemployment-rate-3,person,agree,federal-reserve-governor-lisa-2,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/speech/cook20260928a.htm | checked: 2026-11-08
 u-s-unemployment-rate-3,media,agree,direct-stimulus-payments-individuals,,,,,,,,,,,,,,,,url: https://www.hamiltonproject.org/publication/policy-proposal/direct-stimulus-payments-to-individuals/ | checked: 2026-11-08
 u-s-unemployment-rate-3,media,agree,update-ai-economy-lisa,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/speech/cook20260928a.htm | checked: 2026-11-08
-u-s-unemployment-rate-3,argument,disagree,lower-immigration-has-slowed,,,,,,,,,,,,,,,,
+u-s-unemployment-rate-3,argument,disagree,lower-immigration-has-slowed,,,,,,,,,,,,,,,,url: https://www.brookings.edu/articles/macroeconomic-implications-of-immigration-flows-in-2025-and-2026/ | checked: 2026-11-13
 u-s-unemployment-rate-3,argument,disagree,every-federal-reserve-policymaker,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm | checked: 2026-11-08
 u-s-unemployment-rate-3,argument,disagree,u-s-layoffs-remain,,,,,,,,,,,,,,,,url: https://fred.stlouisfed.org/series/ICSA | checked: 2026-11-08
 u-s-unemployment-rate-3,argument,disagree,rise-0-8-points,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm | checked: 2026-11-08
@@ -9266,7 +9266,7 @@ bitcoin-will-trade-above,argument,agree,bitcoin-has-more-than,,,,,,,,,,,,,,,,url
 bitcoin-will-trade-above,argument,agree,us-spot-bitcoin-exchange,,,,,,,,,,,,,,,,url: https://www.theblock.co/data/crypto-markets/bitcoin-etf/spot-bitcoin-etf-assets | checked: 2026-11-08
 bitcoin-will-trade-above,argument,agree,rising-us-government-debt,,,,,,,,,,,,,,,,url: https://bitcoin.org/en/faq | checked: 2026-11-08
 bitcoin-will-trade-above,argument,agree,most-bitcoin-held-long,,,,,,,,,,,,,,,,url: https://theblock.co/news/markets/2026-08-26-bernstein-sees-bitcoin-reaching-150000-by-mid-2027-amid-debasement-trade-but-cuts-strategy-target-to-350-412778 | checked: 2026-11-08
-bitcoin-will-trade-above,argument,agree,major-bank-analysts-including,,,,,,,,,,,,,,,,
+bitcoin-will-trade-above,argument,agree,major-bank-analysts-including,,,,,,,,,,,,,,,,url: https://news.bitcoin.com/standard-chartered-cuts-btc-eth-xrp-sol-forecasts | checked: 2026-11-13
 bitcoin-will-trade-above,argument,agree,bitcoin-s-price-swings,,,,,,,,,,,,,,,,
 bitcoin-will-trade-above,evidence,agree,bitcoin-rose-about-16,,"SoFi, 'Bitcoin Price History (2009-2026)', 2026; CNBC, 'Bitcoin rises to record above $69,000, then quickly tumbles 8%', 2024",,,,,,,,,,,,,,url: https://www.hedgeco.net/news/?p=87547 | checked: 2026-11-08
 bitcoin-will-trade-above,evidence,agree,about-59-percent-bitcoin,,"The Block, 'Bernstein sees bitcoin reaching $150,000 by mid-2027 amid debasement trade, but cuts Strategy target to $350', 2026",,,,,,,,,,,,,,url: https://theblock.co/news/markets/2026-08-26-bernstein-sees-bitcoin-reaching-150000-by-mid-2027-amid-debasement-trade-but-cuts-strategy-target-to-350-412778 | checked: 2026-11-08
@@ -9279,18 +9279,18 @@ bitcoin-will-trade-above,assumption,agree,fixed-supply-21-million,,,,,,,,,,,,,,,
 bitcoin-will-trade-above,assumption,agree,federal-reserve-s-2026-2,,,,,,,,,,,,,,,,
 bitcoin-will-trade-above,media,agree,bitcoin-standard-decentralized-alternative,,,,,,,,,,,,,,,,url: https://openlibrary.org/isbn/9781119473862.json | checked: 2026-11-08
 bitcoin-will-trade-above,media,agree,broken-money-why-our,,,,,,,,,,,,,,,,url: https://openlibrary.org/isbn/9798988666318.json | checked: 2026-11-08
-bitcoin-will-trade-above,media,agree,price-tomorrow-why-deflation,,,,,,,,,,,,,,,,
+bitcoin-will-trade-above,media,agree,price-tomorrow-why-deflation,,,,,,,,,,,,,,,,url: https://openlibrary.org/isbn/1999257405.json | checked: 2026-11-13
 bitcoin-will-trade-above,argument,disagree,neither-its-last-two,,,,,,,,,,,,,,,,url: https://www.sofi.com/learn/content/bitcoin-price-history/ | checked: 2026-11-08
 bitcoin-will-trade-above,argument,disagree,federal-reserve-raised-interest,,,,,,,,,,,,,,,,url: https://wolfstreet.com/2026/09/16/fed-finally-hikes-dot-plot-sees-more-rate-hikes-new-rate-hike-cycle-starts-bond-market-breathes-small-sigh-of-relief/ | checked: 2026-11-08
 bitcoin-will-trade-above,argument,disagree,bitcoin-s-four-year,,,,,,,,,,,,,,,,url: https://www.sofi.com/learn/content/bitcoin-price-history/ | checked: 2026-11-08
-bitcoin-will-trade-above,argument,disagree,bitcoin-treasury-companies-which,,,,,,,,,,,,,,,,
+bitcoin-will-trade-above,argument,disagree,bitcoin-treasury-companies-which,,,,,,,,,,,,,,,,url: https://www.sec.gov/Archives/edgar/data/1050446/000119312526442707/mstr-20261102.htm | checked: 2026-11-13
 bitcoin-will-trade-above,argument,disagree,even-bernstein-one-most,,,,,,,,,,,,,,,,url: https://theblock.co/news/markets/2026-08-26-bernstein-sees-bitcoin-reaching-150000-by-mid-2027-amid-debasement-trade-but-cuts-strategy-target-to-350-412778 | checked: 2026-11-08
 bitcoin-will-trade-above,argument,disagree,us-senate-s-failure,,,,,,,,,,,,,,,,url: https://api.congress.gov/v3/bill/119/hr/3633/actions?format=json | checked: 2026-11-08
 bitcoin-will-trade-above,evidence,disagree,bitcoin-did-top-its,,"CNBC, 'Bitcoin rises to record above $69,000, then quickly tumbles 8%', 2024",,,,,,,,,,,,,,url: https://www.hedgeco.net/news/?p=87547 | checked: 2026-11-08
 bitcoin-will-trade-above,evidence,disagree,september-16-2026-federal,,"CNN, 'Fed raises interest rates for the first time since 2023', 2026; CNBC, 'Fed approves interest rate hike, signals one more to come this year', 2026",,,,,,,,,,,,,,url: https://wolfstreet.com/2026/09/16/fed-finally-hikes-dot-plot-sees-more-rate-hikes-new-rate-hike-cycle-starts-bond-market-breathes-small-sigh-of-relief/ | checked: 2026-11-08
 bitcoin-will-trade-above,evidence,disagree,late-september-2026-kalshi,,"OddsShopper, 'Bitcoin 250K By 2027? Kalshi's Longshot Just Woke Up', 2026",,,,,,,,,,,,,,url: https://api.elections.kalshi.com/trade-api/v2/series/KXBTC2026200/markets/KXBTC2026200-27JAN01-200000/candlesticks?period_interval=1440 | checked: 2026-11-08
 bitcoin-will-trade-above,evidence,disagree,bitcoin-s-30-day,,"CF Benchmarks, 'Week in Review', August 31, 2026 (volatility figures); probability is this page's own calculation from them",,,,,,,,,,,,,,url: https://www.cfbenchmarks.com/blog/wihaug312026 | checked: 2026-11-08
-bitcoin-will-trade-above,prediction,disagree,bitcoin-stays-below-its,,,,,,,,,,,,,,,"By June 30, 2027; checked against CF Benchmarks' published BRRNY daily values.",
+bitcoin-will-trade-above,prediction,disagree,bitcoin-stays-below-its,,,,,,,,,,,,,,,"By June 30, 2027; checked against CF Benchmarks' published BRRNY daily values.",url: https://web.archive.org/web/20251103073926/https://www.cfbenchmarks.com/data/indices/BRRNY | checked: 2026-11-13
 bitcoin-will-trade-above,prediction,disagree,federal-reserve-s-target,,,,,,,,,,,,,,,"By December 31, 2027; checked against the Federal Open Market Committee's final 2027 statement.",
 bitcoin-will-trade-above,falsify,disagree,bitcoin-falls-below-its,,,,,,,,,,,,,,,,
 bitcoin-will-trade-above,falsify,disagree,strategy-another-large-bitcoin,,,,,,,,,,,,,,,,
@@ -9307,9 +9307,9 @@ bitcoin-will-trade-above,interest,agree,long-term-bitcoin-holders,,,,,,,,,,,,,,,
 bitcoin-will-trade-above,interest,disagree,household-electricity-customers-regions,,,,,,,,,,,,,,,,
 bitcoin-will-trade-above,cba,agree,if-bitcoin-reaches-200,,,,,,,,shareholders-bitcoin-treasury-companies,,,billions of dollars of added holding value,97,,,,
 bitcoin-will-trade-above,cba,agree,200-000-coin-roughly,,,,,,,,bitcoin-miners-need-bitcoin,,,billions of dollars a year of added miner block-reward revenue,19,,,,url: https://www.cnbc.com/2024/04/19/bitcoin-network-completes-fourth-ever-halving-of-rewards-to-miners.html | checked: 2026-11-08
-bitcoin-will-trade-above,cba,agree,shareholders-us-spot-bitcoin,,,,,,,,long-term-bitcoin-holders,,,billions of dollars of gain to fund shareholders,147,,,,
+bitcoin-will-trade-above,cba,agree,shareholders-us-spot-bitcoin,,,,,,,,long-term-bitcoin-holders,,,billions of dollars of gain to fund shareholders,147,,,,url: https://www.sec.gov/Archives/edgar/data/1980994/000143774926035539/ibit20260930_10q.htm | checked: 2026-11-13
 bitcoin-will-trade-above,cba,disagree,retail-investors-who-buy,,,,,,,,bitcoin-miners-need-bitcoin,,,percent drop from peak,52,,,,url: https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=86400&start=2026-01-01T00:00:00Z&end=2026-03-31T00:00:00Z | checked: 2026-11-08
-bitcoin-will-trade-above,cba,disagree,people-who-borrow-buy,,,,,,,,bitcoin-miners-need-bitcoin,,,dollars of investor losses,,,,,
+bitcoin-will-trade-above,cba,disagree,people-who-borrow-buy,,,,,,,,bitcoin-miners-need-bitcoin,,,dollars of investor losses,,,,,url: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1d&startTime=1760054400000&limit=10 | checked: 2026-11-13
 bitcoin-will-trade-above,cba,disagree,bitcoin-price-200-000,,,,,,,,household-electricity-customers-regions,,,megawatts of added mining power demand,,,,,
 bitcoin-will-trade-above,category,,,billions of dollars a year of added miner block-reward revenue,,,,,,,,,,,,,,,
 bitcoin-will-trade-above,category,,,billions of dollars of added holding value,,,,,,,,,,,,,,,
@@ -12945,3 +12945,17 @@ national-average-price-regular,definition,,,,,,,,,,,,,,,,,,"term: Regular gasoli
 national-average-price-regular,dispute,,,Empirical,,,,,,,,,,,,,,,what: How quickly Persian Gulf oil production and tanker traffic through the Strait of Hormuz return to pre-war levels. | move: The EIA's monthly estimates of Middle East production shut-ins and ship-tracking counts of tankers through the Strait of Hormuz in the first half of 2027.
 national-average-price-regular,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether gasoline refining and retail margins return to normal or stay wide as crude oil falls. | move: The spread between the EIA's wholesale and retail gasoline prices, and gasoline crack spreads, through mid-2027."
 national-average-price-regular,value,,,,,,,,,,,,,,,,,,value: Prudence | srank: 2 | orank: 1 | why: Opponents put first planning around today's prices until supply visibly recovers; supporters value caution too but argue the futures curve and history already point to recovery.
+every-federal-employee-below-president,argument,disagree,criminal-conflict-interest-statute-18,,law.cornell.edu,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/18/208 | checked: 2026-11-13 | tag: truth.premise-false
+two-three-post-2012-studies,argument,disagree,eggers-hainmueller-2013-studied-2004,,nber.org,,,,,,,,,,,,,,url: https://www.nber.org/papers/w34524 | checked: 2026-11-13 | tag: truth.premise-false
+what-one-two-introduced-amendments,argument,disagree,h-j-res-13-rep,,govinfo.gov,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/BILLS-119hjres13ih/html/BILLS-119hjres13ih.htm | checked: 2026-11-13 | tag: truth.premise-false
+ethics-government-act-1978-was,argument,disagree,ethics-government-act-1978-was-2,,law.cornell.edu,,,,,,,,,,,,,,url: https://www.law.cornell.edu/supremecourt/text/487/654 | checked: 2026-11-13 | tag: truth.premise-false
+two-thirds-households-hold-kind,argument,disagree,2025-19-percent-u-s,,federalreserve.gov,,,,,,,,,,,,,,url: https://www.federalreserve.gov/publications/files/scf26.pdf | checked: 2026-11-13 | tag: truth.premise-false
+every-state-example-prior-check,argument,disagree,state-checks-act-before-pardon,,delcode.delaware.gov,,,,,,,,,,,,,,url: https://delcode.delaware.gov/constitution/constitution-08.shtml | checked: 2026-11-13 | tag: truth.premise-false
+without-arbitration-companies-face,argument,disagree,cfpb-s-2015-arbitration-study,,files.consumerfinance.gov,,,,,,,,,,,,,,url: https://files.consumerfinance.gov/f/201503_cfpb_arbitration-study-report-to-congress-2015.pdf | checked: 2026-11-13 | tag: truth.premise-false
+real-change-adult-s,argument,disagree,meta-analysis-92-longitudinal-samples,,pubmed.ncbi.nlm.nih.gov,,,,,,,,,,,,,,url: https://pubmed.ncbi.nlm.nih.gov/16435954/ | checked: 2026-11-13 | tag: truth.premise-false
+ranked-choice-voting-eliminates,argument,disagree,ranked-choice-voting-reduces-but,,arxiv.org,,,,,,,,,,,,,,url: https://arxiv.org/abs/2301.12075 | checked: 2026-11-13 | tag: truth.premise-false
+ranked-choice-voting-produces-3,argument,disagree,ranked-choice-voting-guarantees-majority,,arxiv.org,,,,,,,,,,,,,,url: https://arxiv.org/abs/2301.12075 | checked: 2026-11-13 | tag: truth.premise-false
+u-s-life-expectancy,argument,disagree,u-s-life-expectancy-fell,,cdc.gov,,,,,,,,,,,,,,url: https://www.cdc.gov/nchs/products/databriefs/db492.htm | checked: 2026-11-13 | tag: challenge.misquoted
+may-2024-caitlin-clark,argument,disagree,clark-shot-37-7-percent,,basketball-reference.com,,,,,,,,,,,,,,url: https://www.basketball-reference.com/wnba/players/l/loydje01w/splits/2024/ | checked: 2026-11-13 | tag: truth.premise-false
+breaking-down-caitlin-clark,argument,disagree,espn-piece-says-clark-missed,,now.core.api.espn.com,,,,,,,,,,,,,,url: https://now.core.api.espn.com/v1/sports/news/40304807 | checked: 2026-11-13 | tag: challenge.misquoted
+lebron-james-s-career,argument,disagree,basketball-reference-lebron-james-s,,basketball-reference.com,,,,,,,,,,,,,,url: https://www.basketball-reference.com/leaders/vorp_career.html | checked: 2026-11-13 | tag: challenge.misquoted

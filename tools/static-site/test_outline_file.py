@@ -108,7 +108,9 @@ class TestTheRoundTrip(unittest.TestCase):
 
     def test_every_page_and_topic_printed_with_every_cell(self):
         keys = [p['key'] for p in base().pages] + [x['key'] for x in base().topics]
-        self.assertEqual((len(base().pages), len(base().topics)), (6949, 104))
+        # a floor, not a count: nothing is ever deleted, and every contribution adds pages
+        self.assertGreaterEqual(len(base().pages), 6949)
+        self.assertGreaterEqual(len(base().topics), 104)
         self.check(keys, 1, 'all', requests=True)
 
     def test_every_belief_printed_with_its_words(self):
