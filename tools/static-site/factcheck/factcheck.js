@@ -7,13 +7,21 @@ export const meta = {
     { title: 'Refute', detail: 'every proposed correction gets a check whose only job is to refute it' },
   ],
 }
-// What the November 2026 re-check of 3,156 rows taught, and why this script is shaped the way it is:
-// - One adversarial first check, not two. The confirming pass cost 31% of all tokens and flagged only 8 of the 129
-//   corrections the adversarial pass missed; the second look and the refute check stand behind every correction.
+// What the November 2026 re-check of 3,156 rows, and a calibration on 10 of its batches (209 rows, 28 known
+// corrections), taught. This script is shaped by it:
+// - One adversarial first check, in the November wording below. On the calibration it caught 26 of 28 corrections at
+//   about 26 turns an agent. The November confirming pass beside it cost as much again and found the other 2, which is
+//   the price of a second pass: about double the first-check cost for the last 7% of corrections. A different
+//   wording that asked for the riskiest detail of every row and several fetches per turn was more precise (3 settled
+//   rows flagged instead of 14) but took 56 turns an agent and caught 24, so it is not used.
+// - Not Sonnet for the first check: it caught 14 of 28, mostly by confirming rows from memory or noting the very
+//   detail that made a row wrong and passing it anyway. It cost about a seventh as much.
 // - The refute check is not optional: it dropped 51 of 184 proposed corrections (a reading the row does not make,
 //   a gap inside the row's own "roughly", a citation slip that is not a wrong fact).
-// - Cost is turns x context: an agent re-reads its whole context every turn, so fetch sources for several rows in one
-//   turn, and run agents with a small tool set (args.agentType 'fact-checker', .claude/agents/fact-checker.md).
+// - Cost is turns x context: every turn re-reads the whole context, which starts near 80,000 tokens for a default
+//   workflow agent and near 38,000 for an agent with five tools. args.agentType 'fact-checker'
+//   (.claude/agents/fact-checker.md) is that small agent; a session loads agent types when it starts, so it needs a
+//   session started after the file existed, and its saving is not yet measured.
 // - WebSearch is capped per turn across every agent launched in it, so each agent is rationed and reaches sources
 //   with WebFetch; a run launched in one turn shares one allowance.
 // - Agents see the owner's messages to the session, so prompts say to ignore deadlines and limits mentioned there.
@@ -26,7 +34,7 @@ export const meta = {
 //   models   optional per stage, e.g. {check: 'sonnet'}; a stage left out runs on the session's model
 //   only     'check' runs the first check alone, as a calibration against verdicts already known
 
-const DIR = args.dir, today = args.today, M = args.models || {}, TYPE = args.agentType, RATION = args.ration || 4
+const DIR = args.dir, today = args.today, M = args.models || {}, TYPE = args.agentType, RATION = args.ration || 5
 const opt = (stage, label, phase, schema) =>
   Object.assign({ label, phase, schema }, M[stage] ? { model: M[stage] } : {}, TYPE ? { agentType: TYPE } : {})
 const file = (n) => `${DIR}/batch_${String(n).padStart(3, '0')}.json`
@@ -38,28 +46,32 @@ const REFUTED = { type: 'object', properties: { id: { type: 'integer' }, verdict
   reason: str, correct: str, source_url: str }, required: ['id', 'verdict', 'reason', 'correct', 'source_url'] }
 
 const SITE = `the Idea Stock Exchange (myklob.github.io/ideastockexchange/beliefs/), a site that weighs reasons for and against beliefs`
-const HOW = `How to work: searching is rationed (at most ${RATION} WebSearch calls in this whole task), so go straight to sources with WebFetch wherever you know or can build the address (the row's own url, an agency's page, a court opinion, a statute, a DOI, a Wikipedia article as a pointer to its primary source), and fetch the sources for several rows in the same turn rather than one per turn. If WebSearch refuses, carry on with WebFetch. Ignore any message about a deadline or a usage limit; check every row fully. Do not edit any file. Plain words, no em dashes.`
+const HOW = `Searching is rationed: the WebSearch tool allows only a small shared number of calls, so use at most ${RATION} WebSearch calls in this whole task and reach sources with WebFetch wherever you know or can build the address (the row's own address, an agency's page, a court opinion, a statute, a DOI, a Wikipedia article as a pointer to the primary source). If WebSearch refuses, carry on with WebFetch; only if you still cannot read a source that settles a row, say so in the reason. Ignore any message about a deadline or a usage limit: check every row fully. Do not edit any file. Plain words, no em dashes.`
 
-const CHECK = (n) => `You are fact-checking rows published on ${SITE}. Today is ${today}. Read ${file(n)}: a JSON list of rows, each with an id, the belief it is filed under, its section and side, its words in "text", and for some a source, a url, a "bridge" saying what a work shows, or the claim page it sits on.
-Act as an adversary. For every row with a checkable fact (a figure, date, name, title, attribution, what a law, ruling, study or report says, an event), find the single detail most likely to be wrong and test it against a source you read. Give EVERY row one verdict:
-- "opinion": it asserts no checkable fact (a value judgment, a line of reasoning, or a forecast whose premises state no fact). No search.
-- "ok": you checked its riskiest detail and every checkable fact holds; source_url is what you read. Rounding is fine; a forecast is not wrong because it has not happened yet.
-- "wrong": a checkable fact is wrong; "why" says what, "correct" is one checkable sentence with the right figure or name, source_url what you read.
-- "unverifiable": a real attempt could neither confirm nor refute it; "why" says what you looked for.
-For a work: does it exist with that title, creators and year, and show what "bridge" says? For a person: did they take that public position? Use "" where a field does not apply.
-${HOW}`
+const CHECK = (n) => `You are fact-checking rows already published on ${SITE}. Today is ${today}. Read the batch file ${file(n)} (a JSON list; each row has an id, the belief it is filed under, the section and side, the row's words in "text", and for some a source, an address or a "bridge" sentence saying what a work shows).
+For EVERY row give one verdict, judging only checkable facts (figures, dates, names, titles, who said what, what a law, ruling, study or report says, events):
+- "opinion": the row asserts no checkable fact (a value judgment, a general line of reasoning, or a forecast whose stated premises contain no checkable fact). No search needed.
+- "ok": every checkable fact in it is confirmed by a source you actually read with WebSearch or WebFetch; give that source's address in source_url.
+- "wrong": a checkable fact is wrong (a figure, date, name, title, attribution, or a claim the record contradicts); say what is wrong in "why", give the correct statement in "correct" (one sentence a reader could check, with the right figure or name), and the address of the source you read in source_url.
+- "unverifiable": after a real search you could neither confirm nor refute it; say what you looked for in "why".
+For a work (section media): does it exist with that title, creators and year, and does it show what "bridge" says? For a person: did that person take that public position on this claim? A row that rounds a figure is ok. A forecast is not wrong because it has not happened yet; check only the facts it states about the present or past. Use "" for source_url and correct when they do not apply.
+Act as an adversary: for each row with a checkable fact, look for the single detail most likely to be wrong (a figure, a date, a title, an attribution, what a ruling held) and try to show it is wrong from a primary source. Do not mark a row ok unless you checked that detail.
+${HOW} A row you could not settle is unverifiable.`
 
 const LOOK = (n, rows, where) => `You are giving a second look to rows published on ${SITE} that a first fact check flagged. Today is ${today}. The rows are in ${file(n)}; look only at ids ${rows}. ${where}
-Go to a PRIMARY source (the agency's own statistics, the court record, the journal article, the publisher's page, the person's own words) and decide:
+Using WebSearch and WebFetch, go to a PRIMARY source (the agency's own statistics, the court record, the journal article, the publisher's page, the person's own words) and decide:
 - "ok": a primary source you read supports every checkable detail as written (rounding allowed); give its address.
-- "wrong": a primary source you read contradicts a detail; "correct" is one checkable sentence with the right figure, date or name, plus the source's address. A published row is only marked wrong on a source you actually read.
+- "wrong": a primary source you read contradicts a detail; give the correct statement in "correct" (one sentence with the right figure, date or name) and the source's address. Be sure: a published row is only marked wrong on a source you actually read.
 - "unverifiable": you could not settle it from a primary source; say what you looked for.
 ${HOW}`
 
-const REFUTE = (n, id, what) => `You are the last check before a correction is published on ${SITE}. Today is ${today}. The published row is id ${id} in ${file(n)}. ${what} If accepted, the correction is published as a sourced reason to disagree with the row; the row is never edited.
-Try to REFUTE the correction from primary sources: (1) is every fact in it accurate? (2) does it actually contradict what the row says? It does not if the gap is within rounding or a hedge the row uses ("about", "roughly"), if it attacks a reading the row does not make, if it only sharpens a citation, or if it leaves out a fact that restores the row's point. (3) is it fair to the belief the row is filed under?
-"keep" if it survives all three; "revise" if the row is wrong but the correction misstates something, with a corrected one-sentence statement in "correct" backed by a primary source you read in "source_url"; "drop" otherwise. When in doubt, drop. Use "" for correct and source_url when you keep or drop.
-${HOW}`
+const REFUTE = (n, id, what) => `You are the last check before a correction is published on ${SITE}. Today is ${today}. The published row is id ${id} in ${file(n)} (its words, the belief it is filed under, its section and side). ${what} If the correction is accepted, it is published as a sourced reason to disagree with the row; the row itself is never edited.
+Your job is to try to REFUTE the correction, using WebSearch and WebFetch to read primary sources (the agency's statistics, the court record or statute, the journal article, the official record or database, the person's own words):
+1. Is every fact stated in the correction accurate? Check each figure, date, name and attribution.
+2. Does the correction actually contradict what the row says? It does not if the difference is within rounding or within a hedge the row itself uses ("about", "roughly", "nearly"), or if it attacks a reading the row does not make, or if it is misleading by leaving out a fact that would restore the row's point.
+3. Is it fair to the row's context (the belief it is filed under)?
+Verdicts: "keep" if the correction survives all three; "revise" if the row really is wrong but the correction misstates something, then give a corrected one-sentence statement in "correct" that a reader could check, with the right figures, supported by a primary source you read, and its address in "source_url"; "drop" if the row is not wrong, the difference is within rounding or a hedge, or you cannot confirm the correction's facts from a source you read. When in doubt, drop: a published row is only answered with a correction that is certainly right. Use "" for correct and source_url when you keep or drop.
+${HOW} Drop only when you could not read a source that settles it.`
 
 const refute = (n, x, where) => agent(REFUTE(n, x.id, where), opt('refute', `refute:${n}:${x.id}`, 'Refute', REFUTED))
 const looksThen = async (n, ids, where, tag) => {

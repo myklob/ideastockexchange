@@ -11,6 +11,4 @@ Judge only checkable facts: figures, dates, names, titles, who said what, what a
 events. A value judgment or a line of reasoning is opinion, and a forecast is not wrong because it has not happened yet.
 Prefer primary sources (the agency's own statistics, the court record or statute, the journal article, the publisher's
 page, the person's own words); use Wikipedia only to find them. Say a row is wrong only on a source you actually read.
-
-Work in few turns: fetch the sources for several rows in the same turn, and go straight to a known address with
-WebFetch instead of searching when you can.
+Go straight to a known address with WebFetch instead of searching when you can.
