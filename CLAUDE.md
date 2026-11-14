@@ -259,6 +259,25 @@ that same rule passed conformance while returning a truth starting point of 1.40
 deliberate rule change means `python3 conformance.py --write` and a reviewed diff.
 CI runs the whole suite before it will publish anything.
 
+### Running agent work on the static site (learned in the November 2026 re-check)
+
+- `sync_content.py` takes `--check` or `--to-workbook` and nothing else: with no flag, or an unknown one such as
+  `--help`, it overwrites `content/*.csv` from the workbook and silently undoes CSV edits. After editing the CSVs,
+  run `--to-workbook`, then `--check`.
+- Tests read the live tables, which only grow. Never pin their page count or a similarity score to two decimals;
+  assert a floor or a band. Three such pins broke on content alone.
+- The full suite takes about 20 minutes run serially (`test_similarity` and `test_render` are most of it); run the
+  modules in parallel. `check_assertions.py` traces the whole suite and takes over 30 minutes: run it in the
+  background with a long timeout.
+- Workflow runs: WebSearch is capped at 200 calls per turn, shared by every agent launched in that turn; agents
+  inherit the session's model unless the script names one; agent types in `.claude/agents/` load when a session
+  starts; agents see the owner's messages, so a prompt must tell them to ignore any deadline or usage limit they read;
+  a usage limit kills every agent in flight, so keep waves small and rebuild results from the run journals
+  (`factcheck/verdicts.py`).
+- Fact-checking stays on Opus for all three stages. On the calibration set (`factcheck/calibration/`, scored by
+  `factcheck/calibrate.py`) Sonnet caught 14 of 28 known corrections and the November adversarial pass on Opus
+  caught 26, at about half the cost of the two-pass method that caught all 28.
+
 ### The page/edge model (`src/lib/ise-pages/`)
 
 One claim per page, one row per edge, and **no stored scores** — every number
