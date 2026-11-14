@@ -24,6 +24,7 @@ export const meta = {
 //   dir      absolute path of the batch folder (batch_NNN.json, and owed.json written by verdicts.py)
 //   checks   batches to take from the start; looks and refutes are work verdicts.py found still owed
 //   models   optional per stage, e.g. {check: 'sonnet'}; a stage left out runs on the session's model
+//   only     'check' runs the first check alone, as a calibration against verdicts already known
 
 const DIR = args.dir, today = args.today, M = args.models || {}, TYPE = args.agentType, RATION = args.ration || 4
 const opt = (stage, label, phase, schema) =>
@@ -88,6 +89,7 @@ await pipeline(jobs, async (job) => {
   const c = await agent(CHECK(n), opt('check', `check:${n}`, 'Check', LIST(['ok', 'wrong', 'unverifiable', 'opinion'])))
   if (!c) return null
   const flagged = c.items.filter(x => x.verdict === 'wrong' || x.verdict === 'unverifiable')
+  if (args.only === 'check') { log(`batch ${n}: ${c.items.length} rows, ${flagged.length} flagged (check only)`); return null }
   const by = new Map(flagged.map(x => [x.id, x]))
   await looksThen(n, flagged.map(x => x.id), (ids) => `The first check said:\n${ids.map(i => `id ${i}: ${JSON.stringify(by.get(i))}`).join('\n')}`, '')
   log(`batch ${n}: ${c.items.length} rows, ${flagged.length} flagged`)
