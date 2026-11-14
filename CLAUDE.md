@@ -216,7 +216,10 @@ page. An empty linkage or uniqueness page starts at DEFLINK or DEFUNIQ (`evidenc
 `outline_names.py`, `outline_read.py`, `outline_print.py` and `outline_file.py` are the Reason Outline, a plain-text post of any
 number of rows (its names, its reader, the printer behind every page's `p/<key>.txt`, and the filer intake's `outline` form
 uses, explained on `outline.html`); a printout reads back to exactly the rows it was printed from, so sending one back adds
-nothing. There is no verdict module any more: a
+nothing. `factcheck/` re-checks published rows with a Workflow run (`batches.py` cuts the rows not yet judged,
+`factcheck.js` runs one adversarial check, a primary-source second look and a refute check, `verdicts.py` rebuilds every
+verdict from the run journals, `apply.py` files them); `factcheck/judged.json` is the record of every row's verdict, and a
+correction is only ever filed as a sourced reason to disagree, never as an edit. There is no verdict module any more: a
 page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
 page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed), `lists.html`
 says for every ranking what it shows, how it is worked out and why it is tracked, and every card and column that ranks
