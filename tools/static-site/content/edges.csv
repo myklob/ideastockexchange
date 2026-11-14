@@ -290,11 +290,11 @@ holdings-ban-removes-conflict,argument,disagree,,"Removing the conflict at the p
 federal-reserve-barred-its,argument,agree,,"The Fed rules took effect in May 2022 and cover individual stocks, sector funds, individual bonds, crypto and derivatives, with 45-day advance notice and a one-year holding period.",,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20220218a.htm | checked: 2026-11-08
 federal-reserve-barred-its,argument,agree,,"Two regional Fed presidents resigned in 2021 over trading, and the institution adopted the stricter rule rather than a disclosure rule.",,,,,,,,,,,,,,,url: https://www.cnbc.com/2021/09/27/dallas-fed-president-kaplan-to-retire-early-on-oct-8-citing-trading-disclosure-distraction.html | checked: 2026-11-08
 federal-reserve-barred-its,argument,disagree,,Fed officials are appointed technocrats with no constituents and no campaigns; the comparison to elected members is imperfect.,,,,,,,,,,,,,,,
-trading-closed-briefing-almost,argument,agree,,"The Justice Department closed the Loeffler, Feinstein and Inhofe inquiries in May 2020 and the Burr inquiry in January 2021; the SEC ended its Burr matter in January 2023. No charges were brought in any of them.",,,,,,,,,,,,,,,
+trading-closed-briefing-almost,argument,agree,,"The Justice Department closed the Loeffler, Feinstein and Inhofe inquiries in May 2020 and the Burr inquiry in January 2021; the SEC ended its Burr matter in January 2023. No charges were brought in any of them.",,,,,,,,,,,,,,,url: https://www.wunc.org/news/2023-01-06/ex-sen-burr-sec-probe-into-trading-over-with-no-action | checked: 2026-11-14
 trading-closed-briefing-almost,argument,disagree,,That no charges followed is consistent with there having been nothing to charge.,,,,,,,,,,,,,,,
 best-identified-studies-actual,argument,agree,,Eggers and Hainmueller (2013) found underperformance of roughly 2 to 3 percent a year over 2004 to 2008.,,,,,,,,,,,,,,,url: https://doi.org/10.1017/S0022381613000194 | checked: 2026-11-08
 best-identified-studies-actual,argument,agree,,Belmont and coauthors (2022) found no evidence of superior performance over 2012 to 2020.,,,,,,,,,,,,,,,url: https://ideas.repec.org/a/eee/pubeco/v207y2022ics0047272722000044.html | checked: 2026-11-08
-best-identified-studies-actual,argument,disagree,,"Average portfolio returns can be mediocre while a small number of trades around specific votes are highly abnormal, which is what the 2025 study of trades placed before legislative events reports.",,,,,,,,,,,,,,,
+best-identified-studies-actual,argument,disagree,,"Average portfolio returns can be mediocre while a small number of trades around specific votes are highly abnormal, which is what the 2025 study of trades placed before legislative events reports.",,,,,,,,,,,,,,,url: https://link.springer.com/article/10.1007/s10551-025-06108-4 | checked: 2026-11-14
 ban-official-leaves-conflict,argument,agree,,"Most introduced bills cover the member, the spouse and dependent children but not privately held partnerships or trusts whose holdings are not itemized.",,,,,,,,,,,,,,,
 ban-official-leaves-conflict,argument,disagree,,"The 2022 Federal Reserve rule covers the official and immediate family and does reach crypto and derivatives, so the gap is a drafting choice rather than a limit of the approach.",,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20220218a.htm | checked: 2026-11-08
 forced-divestiture-imposes-real,argument,agree,,Selling on a schedule set by law rather than by the holder can realize gains at a bad time and trigger tax.,,,,,,,,,,,,,,,
@@ -404,13 +404,13 @@ congressional-staff-access-nonpublic,argument,disagree,,Staff are paid far less 
 members-congress-barred-owning,argument,agree,,It closes the private-partnership and real-estate gaps that a stock-only ban leaves open.,,,,,,,,,,,,,,,
 members-congress-barred-owning,argument,disagree,,"It would force members to sell family businesses and farms, which is a different and much larger policy.",,,,,,,,,,,,,,,
 members-congress-required-place,argument,agree,,It preserves the holding while removing the official's control over trades.,,,,,,,,,,,,,,,url: https://www.everycrsreport.com/reports/R43365.html | checked: 2026-11-13
-members-congress-required-place,argument,disagree,,"A blind trust is not blind at inception: the official knows the assets that went in until the trustee reports their sale, which the Congressional Research Service identifies as the central weakness.",,,,,,,,,,,,,,,
+members-congress-required-place,argument,disagree,blind-trust-blind-inception-official,"A blind trust is not blind at inception: the official knows the assets that went in until the trustee reports their sale, which the Congressional Research Service identifies as the central weakness.",,,,,,,,,,,,,,,
 senators-jeff-merkley-josh,argument,agree,,"The ETHICS Act, S.1171 in the 118th Congress, was reported out of the Homeland Security Committee in December 2024.",,,,,,,,,,,,,,,url: https://www.congress.gov/bill/118th-congress/senate-bill/1171 | checked: 2026-11-13
 senators-jeff-merkley-josh,argument,disagree,,"Sponsorship is a public position, not evidence about the belief.",,,,,,,,,,,,,,,
 representatives-chip-roy-seth,argument,agree,restore-trust-congress-act-trust,The Restore Trust in Congress Act and the TRUST in Congress Act together carry more than 200 cosponsors from both parties.,,,,,,,,,,,,,,,
 representatives-chip-roy-seth,argument,disagree,,Cosponsorship is cheap; the July 2026 floor vote is the meaningful datum.,,,,,,,,,,,,,,,url: https://clerk.house.gov/evs/2026/roll280.xml | checked: 2026-11-13
 speaker-nancy-pelosi-said,argument,agree,,"The statement was made at a press conference on December 15, 2021 and is on the record.",,,,,,,,,,,,,,,url: https://www.cnbc.com/2021/12/15/house-speaker-nancy-pelosi-opposes-banning-stock-buys-by-congress-members.html | checked: 2026-11-13
-speaker-nancy-pelosi-said,argument,disagree,,"She subsequently supported bringing a bill forward, so the quotation does not describe a settled position.",,,,,,,,,,,,,,,
+speaker-nancy-pelosi-said,argument,disagree,,"She subsequently supported bringing a bill forward, so the quotation does not describe a settled position.",,,,,,,,,,,,,,,url: https://speakeremeritapelosi.house.gov/newsroom/2922-2 | checked: 2026-11-14
 anti-nepotism-statute-stops,argument,agree,,"The Office of Legal Counsel concluded in January 2017 that 3 U.S.C. 105, which lets the president appoint White House staff ""without regard to any other provision of law,"" exempts those appointments from the anti-nepotism statute.",,,,,,,,,,,,,,,url: https://www.justice.gov/olc/opinion/application-anti-nepotism-statute-presidential-appointment-white-house-office | checked: 2026-11-08
 anti-nepotism-statute-stops,argument,agree,,The D.C. Circuit said in 1993 that it doubted Congress meant to include the White House in the statute at all.,,,,,,,,,,,,,,,url: https://www.justice.gov/olc/file/1085561/dl?inline | checked: 2026-11-08
 anti-nepotism-statute-stops,argument,disagree,,"The 1993 statement was dicta in a case about something else, and the 2017 opinion binds only the executive branch, so the gap is arguable rather than settled.",,,,,,,,,,,,,,,url: https://www.justice.gov/olc/file/1085561/dl?inline | checked: 2026-11-08
@@ -593,7 +593,7 @@ prospect-vote-deters-grants,argument,agree,,Deterrence is how most constitutiona
 prospect-vote-deters-grants,argument,disagree,,"An unusable check deters nobody, and the threshold may make it unusable.",,,,,,,,,,,,,,,
 clemency-decisions-return-justice,argument,agree,,A record of review is the natural defense against an override vote.,,,,,,,,,,,,,,,
 clemency-decisions-return-justice,argument,disagree,,The process itself is slow and has a five-year waiting rule that many meritorious petitioners cannot satisfy.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/cfr/text/28/1.2 | checked: 2026-11-08
-unpopular-but-just-clemency,argument,agree,,Mass commutations were unpopular when granted.,,,,,,,,,,,,,,,
+unpopular-but-just-clemency,argument,agree,mass-commutations-were-unpopular-when,Mass commutations were unpopular when granted.,,,,,,,,,,,,,,,
 unpopular-but-just-clemency,argument,disagree,,A two-thirds bar cannot be met against merely unpopular grants.,,,,,,,,,,,,,,,
 recipients-cannot-rely-pardon,argument,agree,,Reliance is the entire legal effect of a pardon.,,,,,,,,,,,,,,,
 recipients-cannot-rely-pardon,argument,disagree,,"A fixed window of sixty days bounds this, and no proposal has to leave it open-ended.",,,,,,,,,,,,,,,
@@ -682,7 +682,7 @@ drives-some-officeholders-want-barring-members,argument,agree,members-who-trade-
 drives-some-officeholders-want-barring-members,argument,disagree,,"Most opponents hold few or no individual stocks, so whatever drives them it is not this.",,,,,,,,,Minority of holders,,,,,,
 drives-crime-victims-public-letting-congress,argument,agree,,"Supporters of an override lead with pardons granted to relatives and associates, not with clemency policy generally.",,,,,,,,,Named first by holders,,,,,,
 drives-crime-victims-public-letting-congress,argument,agree,,Support spikes immediately after each controversial grant.,,,,,,,,,Tracks intensity,,,,,,
-drives-crime-victims-public-letting-congress,argument,disagree,,Support tracks which party holds the presidency far more than it tracks any stable interest in reviewable clemency.,,,,,,,,,Tracks a different variable,,,,,,
+drives-crime-victims-public-letting-congress,argument,disagree,support-tracks-which-party-holds,Support tracks which party holds the presidency far more than it tracks any stable interest in reviewable clemency.,,,,,,,,,Tracks a different variable,,,,,,
 drives-president-needs-clemency-letting-congress,argument,agree,,Opponents lead with Article II and the two Supreme Court cases.,,,,,,,,,Named first by holders,,,,,,url: https://www.law.cornell.edu/supremecourt/text/419/256 | checked: 2026-11-08
 drives-president-needs-clemency-letting-congress,argument,agree,,Constitutional scholars of both parties take this position regardless of who holds the presidency.,,,,,,,,,Predicts who holds the position,,,,,,
 drives-president-needs-clemency-letting-congress,argument,disagree,,"Among elected officials rather than scholars, the position tracks the president's party almost perfectly.",,,,,,,,,Tracks a different variable,,,,,,
@@ -850,7 +850,7 @@ equiv-barring-members-congress-members-congress,argument,disagree,,"One bars ind
 equiv-barring-members-congress-members-congress,argument,disagree,,The candidate-pool objection is weak against the first and strong against the second.,,,,,,,,,Different magnitude,,,,,,
 equiv-barring-members-congress-members-congress-2,argument,agree,,Both remove the official's ability to act on a holding while in office.,,,,,,,,,Same truth conditions,,,,,,
 equiv-barring-members-congress-members-congress-2,argument,agree,,Evidence about whether conflicts persist would bear on both identically.,,,,,,,,,Same evidence settles both,,,,,,
-equiv-barring-members-congress-members-congress-2,argument,disagree,,"A blind trust leaves the asset in place and removes control; a ban removes the asset. The Congressional Research Service notes a trust is not blind at inception, which is a difference in effect rather than in wording.",,,,,,,,,Different mechanism,,,,,,
+equiv-barring-members-congress-members-congress-2,argument,disagree,,"A blind trust leaves the asset in place and removes control; a ban removes the asset. The Congressional Research Service notes a trust is not blind at inception, which is a difference in effect rather than in wording.",,,,,,,,,Different mechanism,,,,,,url: https://stuff.mit.edu/afs/sipb.mit.edu/contrib/wikileaks-crs/wikileaks-crs-reports/RS21656.pdf | checked: 2026-11-14
 equiv-letting-congress-overturn-president-barred,argument,agree,,Both turn on whether grants to the president's circle are the problem worth solving.,,,,,,,,,Same evidence settles both,,,,,,
 equiv-letting-congress-overturn-president-barred,argument,disagree,,A categorical bar on pardoning relatives reaches a defined class before the fact; an override reaches any grant after it.,,,,,,,,,Different scope,,,,,,
 equiv-letting-congress-overturn-president-barred,argument,disagree,,An override would cover the relative cases; a bar on relatives would not cover a pardon sold to a stranger.,,,,,,,,,One-way implication,,,,,,
@@ -862,7 +862,7 @@ ziobrowski-cheng-boyd-ziobrowski,impact,agree,,It is the citation behind nearly 
 ziobrowski-cheng-boyd-ziobrowski,impact,agree,,It was cited repeatedly in the debate that produced the STOCK Act.,,,,,,,,,Shaped policy,,,,,,
 ziobrowski-cheng-boyd-ziobrowski,impact,disagree,,Its readership is finance academics and advocates who had already reached the conclusion.,,,,,,,,,Preaching to the converted,,,,,,
 insider-conflicted-congress-2021,argument,agree,,"Compiled from the periodic transaction reports themselves, which the series published.",,,,,,,,,Primary sources,,,,,,
-insider-conflicted-congress-2021,argument,agree,,"The database was searchable and the methodology was stated, which is why other outlets could check it.",,,,,,,,,Well made,,,,,,
+insider-conflicted-congress-2021,argument,agree,,"The database was searchable and the methodology was stated, which is why other outlets could check it.",,,,,,,,,Well made,,,,,,url: https://www.yahoo.com/news/conflicted-congress-key-findings-insiders-132138913.html | checked: 2026-11-14
 insider-conflicted-congress-2021,argument,disagree,,"It counts filing failures without distinguishing a clerical late filing from a concealed trade, and the headline number is used for both.",,,,,,,,,One-sided,,,,,,url: https://ca.news.yahoo.com/77-members-117th-congress-violated-111400969.html | checked: 2026-11-14
 insider-conflicted-congress-2021,argument,disagree,,"The framing invites the inference that 78 members traded improperly, which the data do not support.",,,,,,,,,Weak reasoning,,,,,,url: https://ca.news.yahoo.com/77-members-117th-congress-violated-111400969.html | checked: 2026-11-14
 insider-conflicted-congress-2021,impact,agree,,It was the source for most mainstream coverage of congressional trading in 2022.,,,,,,,,,Reached a broad audience,,,,,,
@@ -980,7 +980,7 @@ traditional-publishers-still-generally,argument,disagree,online-reviews-recommen
 traditional-publishers-still-generally,argument,disagree,self-published-authors-can,,,,,,,,,,,,,,,,
 most-working-authors-better,argument,agree,self-published-author-keeps,,,,,,,,,,,,,,,,url: https://janefriedman.com/key-book-publishing-path/ | checked: 2026-11-08
 most-working-authors-better,argument,agree,authors-who-self-publish,,,,,,,,,,,,,,,,url: https://janefriedman.com/key-book-publishing-path/ | checked: 2026-11-08
-most-working-authors-better,argument,agree,publishers-put-marketing-behind,,,,,,,,,,,,,,,,
+most-working-authors-better,argument,agree,publishers-put-marketing-behind,,,,,,,,,,,,,,,,url: https://www.justice.gov/atr/case-document/file/1549941/dl | checked: 2026-11-14
 most-working-authors-better,argument,disagree,self-publishing-turns-writer,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Self-publishing | checked: 2026-11-08
 most-working-authors-better,argument,disagree,bookstores-libraries-prizes-review,,,,,,,,,,,,,,,,url: https://janefriedman.com/key-book-publishing-path/ | checked: 2026-11-08
 most-working-authors-better,argument,disagree,advance-guaranteed-money-field,,,,,,,,,,,,,,,,url: https://www.justice.gov/atr/case-document/file/1549941/dl | checked: 2026-11-13
@@ -997,7 +997,7 @@ routine-cancer-screening-healthy,argument,disagree,many-cancers-far-easier,,,,,,
 routine-cancer-screening-healthy,argument,disagree,patients-can-told-risks,,,,,,,,,,,,,,,,
 routine-cancer-screening-healthy,argument,disagree,harms-screening-mostly-temporary,,,,,,,,,,,,,,,,
 adults-generally-allowed-buy,argument,agree,many-prescriptions-refills-medicines,,,,,,,,,,,,,,,,
-adults-generally-allowed-buy,argument,agree,pharmacists-trained-drugs-interactions,,,,,,,,,,,,,,,,
+adults-generally-allowed-buy,argument,agree,pharmacists-trained-drugs-interactions,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC4239972/ | checked: 2026-11-14
 adults-generally-allowed-buy,argument,agree,people-who-cannot-easily,,,,,,,,,,,,,,,,url: https://www.cdc.gov/nchs/products/databriefs/db470.htm | checked: 2026-11-08
 adults-generally-allowed-buy,argument,disagree,doctor-s-visit-catches,,,,,,,,,,,,,,,,
 adults-generally-allowed-buy,argument,disagree,pharmacists-work-stores-profit,,,,,,,,,,,,,,,,url: https://www.bls.gov/ooh/healthcare/pharmacists.htm | checked: 2026-11-08
@@ -1437,7 +1437,7 @@ houston-right-go-without,argument,agree,neighborhoods-houston-can-change,,,,,,,,
 houston-right-go-without,argument,agree,without-citywide-zoning-houston,,,,,,,,,,,,,,,,
 houston-right-go-without,argument,disagree,without-zoning-steer-building,,,,,,,,,,,,,,,,url: https://projects.propublica.org/houston-cypress/ | checked: 2026-11-08
 houston-right-go-without,argument,disagree,without-citywide-plan-where,,,,,,,,,,,,,,,,
-houston-right-go-without,argument,disagree,houston-does-actually-lack,,,,,,,,,,,,,,,,
+houston-right-go-without,argument,disagree,houston-does-actually-lack,,,,,,,,,,,,,,,,url: https://www.houstontx.gov/legal/deed.html ; https://www.houstontx.gov/planning/DevelopRegs/ ; https://houstonlanding.org/no-zoning-in-houston-provides-flexibility-complications-experts-say-why-does-it-matter/ | checked: 2026-11-14
 person-s-choices-matter,argument,agree,siblings-raised-same-home,,,,,,,,,,,,,,,,
 person-s-choices-matter,argument,agree,people-who-receive-sudden,,,,,,,,,,,,,,,,
 person-s-choices-matter,argument,agree,small-chosen-habits-like,,,,,,,,,,,,,,,,
@@ -1692,7 +1692,7 @@ technology-building-intelligent-life,argument,disagree,evolution-earth-produced-
 technology-building-intelligent-life,argument,disagree,our-galaxy-holds-huge,,,,,,,,,,,,,,,,url: https://www.eso.org/public/news/eso1204/ | checked: 2026-11-08
 museums-generally-return-human,argument,agree,people-whose-ancestors-sit,,,,,,,,,,,,,,,,
 museums-generally-return-human,argument,agree,many-human-remains-sacred,,,,,,,,,,,,,,,,url: https://www.propublica.org/article/repatriation-nagpra-museums-human-remains | checked: 2026-11-08
-museums-generally-return-human,argument,agree,communities-receive-objects-back,,,,,,,,,,,,,,,,
+museums-generally-return-human,argument,agree,communities-receive-objects-back,,,,,,,,,,,,,,,,url: https://doi.org/10.1017/S0940739121000242 | checked: 2026-11-14
 museums-generally-return-human,argument,disagree,descent-people-who-lived,,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/cfr/text/43/10.10 | checked: 2026-11-08
 museums-generally-return-human,argument,disagree,museums-keep-human-remains,,,,,,,,,,,,,,,,url: https://www.spokesman.com/stories/2017/feb/20/tribes-lay-remains-of-kennewick-man-to-rest/ | checked: 2026-11-08
 museums-generally-return-human,argument,disagree,human-remains-sacred-objects,,,,,,,,,,,,,,,,
@@ -1701,7 +1701,7 @@ archaeologists-generally-excavate-important,argument,agree,knowledge-dug-out-arc
 archaeologists-generally-excavate-important,argument,agree,rescue-digs-threatened-sites,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Rescue_archaeology | checked: 2026-11-08
 archaeologists-generally-excavate-important,argument,disagree,digging-destroys-archaeological-site,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Excavation_(archaeology) | checked: 2026-11-08
 archaeologists-generally-excavate-important,argument,disagree,much-excavated-material-never,,,,,,,,,,,,,,,,url: https://www.cambridge.org/core/product/identifier/S1380203812000219/type/journal_article | checked: 2026-11-13
-archaeologists-generally-excavate-important,argument,disagree,protecting-site-place-costs,,,,,,,,,,,,,,,,
+archaeologists-generally-excavate-important,argument,disagree,protecting-site-place-costs,,,,,,,,,,,,,,,,url: https://www.milton-keynes.gov.uk/sites/default/files/2022-03/ID9%20Preserving%20Archaeological%20Remains.pdf | checked: 2026-11-14
 we-defend-our-fundamental,argument,agree,open-dialogue-vital-informed,,,,,,,,,,,,,,,,
 we-defend-our-fundamental,argument,agree,free-exchange-ideas-fosters,,,,,,,,,,,,,,,,
 we-defend-our-fundamental,argument,agree,free-speech-lets-people,,,,,,,,,,,,,,,,
@@ -1914,7 +1914,7 @@ we-tax-property-value,evidence,agree,when-several-pennsylvania-cities,,strongtow
 we-tax-property-value,evidence,agree,milton-friedman-called-tax,,iea.org.uk,,,,,,,,,,,,,,url: https://iea.org.uk/blog/time-for-a-land-value-tax | checked: 2026-11-08
 we-tax-property-value,evidence,agree,imf-oecd-have-supported,,iea.org.uk,,,,,,,,,,,,,,url: https://iea.org.uk/blog/time-for-a-land-value-tax | checked: 2026-11-08
 we-tax-property-value,evidence,agree,mirrlees-review-uk-tax,,,,,,,,,,,,,,,,url: https://landvaluetax.org/comment/current-affairs/taxation/mirrless-review-published/ | checked: 2026-11-08
-we-tax-property-value,evidence,agree,economic-model-suggested-replacing,,iea.org.uk,,,,,,,,,,,,,,
+we-tax-property-value,evidence,agree,economic-model-suggested-replacing,,iea.org.uk,,,,,,,,,,,,,,url: https://vtechworks.lib.vt.edu/server/api/core/bitstreams/c52d9b74-2c06-4a27-9491-876ddf6ccfe0/content | checked: 2026-11-14
 we-tax-property-value,evidence,agree,studies-pittsburgh-s-split,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Land_value_tax_in_the_United_States | checked: 2026-11-08
 we-tax-property-value,evidence,agree,estonia-s-national-land,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Taxation_in_Estonia | checked: 2026-11-08
 we-tax-property-value,evidence,disagree,2001-reassessment-pittsburgh-sharply,,economistwritingeveryday.com,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Land_value_tax_in_the_United_States | checked: 2026-11-08
@@ -1985,7 +1985,7 @@ america-adopt-comprehensive-scorecard,argument,agree,gdp-measures-economic-activ
 america-adopt-comprehensive-scorecard,argument,agree,comprehensive-metrics-reveal-declining,,,,,,,,,,,,,,,,
 america-adopt-comprehensive-scorecard,argument,agree,comprehensive-scorecard-enable-evidence,,,,,,,,,,,,,,,,
 america-adopt-comprehensive-scorecard,argument,agree,clear-metrics-let-citizens,,,,,,,,,,,,,,,,
-america-adopt-comprehensive-scorecard,argument,agree,surveys-show-people-care,,,,,,,,,,,,,,,,
+america-adopt-comprehensive-scorecard,argument,agree,surveys-show-people-care,,,,,,,,,,,,,,,,url: https://unstats.un.org/unsd/envaccounting/ceea/archive/Framework/nsreport_wellbeing_uk.pdf | checked: 2026-11-14
 america-adopt-comprehensive-scorecard,argument,agree,other-nations-use-broader,,,,,,,,,,,,,,,,
 america-adopt-comprehensive-scorecard,argument,disagree,comprehensive-scorecard-too-complex,,,,,,,,,,,,,,,,
 america-adopt-comprehensive-scorecard,argument,disagree,many-proposed-metrics-hard,,,,,,,,,,,,,,,,
@@ -2648,8 +2648,8 @@ caitlin-clark-main-reason,falsify,disagree,nielsen-data-showing-national,,,,,,,,
 caitlin-clark-main-reason,assumption,disagree,rise-wnba-viewership-was,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,assumption,disagree,2024-rookie-class-whole,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,assumption,disagree,wnba-s-2025-attendance,,,,,,,,,,,,,,,,
-caitlin-clark-main-reason,person,disagree,sheila-johnson-co-owner,,,,,,,,,,,,,,,,
-caitlin-clark-main-reason,person,disagree,angel-reese-said-june,,,,,,,,,,,,,,,,
+caitlin-clark-main-reason,person,disagree,sheila-johnson-co-owner,,,,,,,,,,,,,,,,url: https://ktvz.com/sports/cnn-sports/2024/12/13/caitlin-clark-should-not-have-been-singled-out-by-time-magazine-says-washington-mystics-owner-sheila-johnson/ | checked: 2026-11-14
+caitlin-clark-main-reason,person,disagree,angel-reese-said-june,,,,,,,,,,,,,,,,url: https://www.nbcchicago.com/news/national-international/angel-reese-will-take-the-bad-guy-role-if-it-means-drawing-attention-to-womens-basketball/3454029/ | checked: 2026-11-14
 caitlin-clark-main-reason,media,disagree,wnba-viewership-hits-high,,,,,,,,,,,,,,,,url: https://www.sportsmediawatch.com/2025/09/wnba-regular-season-viewership-hits-high-big-data-caitlin-clark/ | checked: 2026-11-08
 caitlin-clark-main-reason,media,disagree,wnba-2025-season-numbers,,,,,,,,,,,,,,,,url: https://www.sportspro.com/features/womens-sport/wnba-2025-season-review-tv-viewership-attendances-sponsorship-valuations/ | checked: 2026-11-13
 caitlin-clark-main-reason,media,disagree,nielsen-46-billion-minutes,,,,,,,,,,,,,,,,url: https://www.nielsen.com/news-center/2026/nielsen-46-billion-minutes-of-womens-sports-were-consumed-in-2025/ | checked: 2026-11-08
@@ -2856,7 +2856,7 @@ leaving-caitlin-clark-off,assumption,agree,only-legitimate-purpose-united,,,,,,,
 leaving-caitlin-clark-off,assumption,agree,experience-usa-basketball-s,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,assumption,agree,committee-s-stated-criteria,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,person,agree,jen-rizzotti-chair-usa,,,,,,,,,,,,,,,,url: https://www.hawaiitribune-herald.com/2024/06/12/sports/caitlin-clark-left-off-u-s-olympic-team-aja-wilson-breanna-stewart-diana-taurasi-headline-roster/ | checked: 2026-11-08
-leaving-caitlin-clark-off,person,agree,sue-bird-who-became,,,,,,,,,,,,,,,,
+leaving-caitlin-clark-off,person,agree,sue-bird-who-became,,,,,,,,,,,,,,,,url: https://api.omny.fm/orgs/e73c998e-6e60-432f-8610-ae210140c5b1/clips/313cad8f-0ae9-4b74-996a-b2d700fb5a44/transcript?format=TextWithTimestamps | checked: 2026-11-14
 leaving-caitlin-clark-off,person,agree,jemele-hill-wrote-x,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,media,agree,breaking-down-caitlin-clark,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,media,agree,usa-basketball-defends-decision,,,,,,,,,,,,,,,,url: https://www.cbsnews.com/amp/news/caitlin-clark-paris-olympics-left-off-womens-team-usa-basketball-defends-decision | checked: 2026-11-08
@@ -2865,7 +2865,7 @@ leaving-caitlin-clark-off,argument,disagree,caitlin-clark-was-averaging,,,,,,,,,
 leaving-caitlin-clark-off,argument,disagree,diana-taurasi-42-averaged,,,,,,,,,,,,,,,,url: https://www.fiba.basketball/en/events/womens-olympic-basketball-tournament-paris-2024/teams/usa/138261-diana-taurasi | checked: 2026-11-08
 leaving-caitlin-clark-off,argument,disagree,gold-medal-game-was,,,,,,,,,,,,,,,,url: https://www.fiba.basketball/en/events/womens-olympic-basketball-tournament-paris-2024/news/eight-straight-for-usa-after-denying-fearless-france-in-final-thriller | checked: 2026-11-13
 leaving-caitlin-clark-off,argument,disagree,united-states-women-s,,,,,,,,,,,,,,,,
-leaving-caitlin-clark-off,argument,disagree,casey-wasserman-president-los,,,,,,,,,,,,,,,,
+leaving-caitlin-clark-off,argument,disagree,casey-wasserman-president-los,,,,,,,,,,,,,,,,url: https://ca.sports.yahoo.com/news/l-olympics-official-leaving-caitlin-015708070.html | checked: 2026-11-14
 leaving-caitlin-clark-off,evidence,disagree,diana-taurasi-averaged-1,,"Yahoo Sports via New York Post, 'Farewell present': New book reveals real reason why Caitlin Clark left off Women's Olympic team, 2025, reporting Christine Brennan's On Her Game",,,,,,,,,,,,,,url: https://cdn.wnba.com/sites/1611661319/2024/08/2024-USA-Olympic-Cumulative-Stats-through-Game-5.pdf | checked: 2026-11-13
 leaving-caitlin-clark-off,evidence,disagree,united-states-france-women,,"Sports Media Watch, Combined Olympics average finishes over 30 million, 2024",,,,,,,,,,,,,,url: https://www.sportsmediawatch.com/2024/08/olympics-viewership-tops-30-million-combined-nbc-womens-basketball-final/ | checked: 2026-11-14
 leaving-caitlin-clark-off,evidence,disagree,her-first-senior-national,,"Fox News, Caitlin Clark earns top honors at FIBA Women's World Cup qualifiers, 2026",,,,,,,,,,,,,,url: https://www.fiba.basketball/en/news/clark-crowned-tissot-mvp-in-san-juan | checked: 2026-11-14
@@ -3012,13 +3012,13 @@ lebron-james-has-had,evidence,disagree,michael-jordan-went-6,,"StatMuse, ""LeBro
 lebron-james-has-had,evidence,disagree,michael-jordan-holds-nba,,"Basketball Reference, Michael Jordan and LeBron James player pages, 2026",,,,,,,,,,,,,,
 lebron-james-has-had,evidence,disagree,yougov-survey-5-064,,"YouGov, ""Who do you think is overall the greatest basketball player of all time?"", July 28, 2026",,,,,,,,,,,,,,url: https://yougov.com/en-us/daily-results/20260728-4a9ed-1 | checked: 2026-11-08
 lebron-james-has-had,evidence,disagree,michael-jordan-leads-lebron,,"Basketball Reference, Michael Jordan and LeBron James player pages, 2026",,,,,,,,,,,,,,url: https://www.basketball-reference.com/players/j/jordami01.html | checked: 2026-11-08
-lebron-james-has-had,prediction,disagree,yougov-s-share-us,,,,,,,,,,,,,,,"By December 31, 2027; checked against the next YouGov survey asking the same question.",
+lebron-james-has-had,prediction,disagree,yougov-s-share-us,,,,,,,,,,,,,,,"By December 31, 2027; checked against the next YouGov survey asking the same question.",url: https://yougov.com/en-us/daily-results/20260728-4a9ed-1 | checked: 2026-11-14
 lebron-james-has-had,falsify,disagree,finding-lebron-james-s,,,,,,,,,,,,,,,,
 lebron-james-has-had,falsify,disagree,athletic-s-next-anonymous,,,,,,,,,,,,,,,,
 lebron-james-has-had,assumption,disagree,best-career-belongs-player,,,,,,,,,,,,,,,,
 lebron-james-has-had,assumption,disagree,winning-final-series-season,,,,,,,,,,,,,,,,
 lebron-james-has-had,assumption,disagree,winning-one-franchise-against,,,,,,,,,,,,,,,,
-lebron-james-has-had,person,disagree,shaquille-o-neal-said,,,,,,,,,,,,,,,,
+lebron-james-has-had,person,disagree,shaquille-o-neal-said,,,,,,,,,,,,,,,,url: https://omny.fm/shows/the-big-podcast-with-shaq/shaq-jim-jones-the-truth-about-50-cent-beef-bam-s-83-point-game-the-best-knicks-of-all-time | checked: 2026-11-14
 lebron-james-has-had,media,disagree,michael-jordan-life-roland,,,,,,,,,,,,,,,,url: https://www.hachettebookgroup.com/titles/roland-lazenby/michael-jordan/9780316194778/ | checked: 2026-11-08
 lebron-james-has-had,media,disagree,playing-keeps-michael-jordan,,,,,,,,,,,,,,,,url: https://openlibrary.org/isbn/0679415629.json | checked: 2026-11-08
 lebron-james-has-had,media,disagree,last-dance-jason-hehir,,,,,,,,,,,,,,,,url: https://www.espn.com/nba/story/_/id/28973557/the-last-dance-updates-untold-story-michael-jordan-chicago-bulls | checked: 2026-11-13
@@ -7072,7 +7072,7 @@ legalized-sports-betting-has,argument,disagree,harms-attributed-legal-betting,,,
 legalized-sports-betting-has,argument,disagree,betting-has-always-been,,,,,,,,,,,,,,,,
 legalized-sports-betting-has,evidence,disagree,siena-research-institute-st,,"Siena Research Institute and St. Bonaventure University, American Sports Fanship Survey 2026, Release 2: Sports Betting, 2026",,,,,,,,,,,,,,url: https://sri.siena.edu/wp-content/uploads/2026/04/ASFS2026-Release-2-Sports-Betting-Final.pdf | checked: 2026-11-08
 legalized-sports-betting-has,evidence,disagree,nfl-averaged-18-7,,"NFL and Nielsen, 2025 regular season viewership release reported by Yahoo Sports, 2026",,,,,,,,,,,,,,url: https://www.nfl.com/news/nfl-sees-second-highest-regular-season-average-viewership-since-1988 | checked: 2026-11-08
-legalized-sports-betting-has,evidence,disagree,american-gaming-association-estimated,,"American Gaming Association, Sizing the Illegal and Unregulated Gaming Markets in the United States, 2025",,,,,,,,,,,,,,
+legalized-sports-betting-has,evidence,disagree,american-gaming-association-estimated,,"American Gaming Association, Sizing the Illegal and Unregulated Gaming Markets in the United States, 2025",,,,,,,,,,,,,,url: https://www.americangaming.org/wp-content/uploads/2025/08/Illegal-Market-Research-Report.pdf | checked: 2026-11-14
 legalized-sports-betting-has,prediction,disagree,nfl-will-average-least,,,,,,,,,,,,,,,"By January 31, 2027; checked against the NFL and Nielsen season release.",
 legalized-sports-betting-has,prediction,disagree,siena-american-sports-fanship,,,,,,,,,,,,,,,"By April 30, 2027; checked against the Siena Research Institute release.",
 legalized-sports-betting-has,falsify,disagree,2027-ncaa-athlete-survey,,,,,,,,,,,,,,,,
@@ -7080,7 +7080,7 @@ legalized-sports-betting-has,falsify,disagree,independent-estimate-finds-share,,
 legalized-sports-betting-has,assumption,disagree,choices-fans-make-freely,,,,,,,,,,,,,,,,
 legalized-sports-betting-has,assumption,disagree,americans-have-kept-betting,,,,,,,,,,,,,,,,
 legalized-sports-betting-has,assumption,disagree,rise-reported-betting-scandals,,,,,,,,,,,,,,,,
-legalized-sports-betting-has,person,disagree,nba-commissioner-adam-silver,,,,,,,,,,,,,,,,
+legalized-sports-betting-has,person,disagree,nba-commissioner-adam-silver,,,,,,,,,,,,,,,,url: https://cdcgaming.com/nba-commissioner-adam-silver-reflects-on-his-op-ed-calling-for-change-to-sports-betting-a-decade-ago/ | checked: 2026-11-14
 legalized-sports-betting-has,media,disagree,legalize-regulate-sports-betting,,,,,,,,,,,,,,,,url: https://www.nytimes.com/2014/11/14/opinion/nba-commissioner-adam-silver-legalize-sports-betting.html | checked: 2026-11-08
 legalized-sports-betting-has,media,disagree,more-than-quarter-americans,,,,,,,,,,,,,,,,url: https://sri.siena.edu/2026/04/13/more-than-a-quarter-of-americans-27-have-an-active-online-sports-betting-account-a-third-have-opened-an-account-at-least-once/ | checked: 2026-11-08
 legalized-sports-betting-has,interest,agree,college-basketball-players-need,,,,,,,,,,,,,,,,
@@ -7196,8 +7196,8 @@ superhero-movies-have-exhausted,falsify,agree,finding-marvel-s-2027,,,,,,,,,,,,,
 superhero-movies-have-exhausted,assumption,agree,superhero-box-office-peak,,,,,,,,,,,,,,,,
 superhero-movies-have-exhausted,assumption,agree,few-record-breaking-superhero,,,,,,,,,,,,,,,,
 superhero-movies-have-exhausted,assumption,agree,overall-number-people-going,,,,,,,,,,,,,,,,
-superhero-movies-have-exhausted,person,agree,steven-spielberg-told-associated,,,,,,,,,,,,,,,,
-superhero-movies-have-exhausted,person,agree,nia-dacosta-director-marvels,,,,,,,,,,,,,,,,
+superhero-movies-have-exhausted,person,agree,steven-spielberg-told-associated,,,,,,,,,,,,,,,,url: https://www.hollywoodreporter.com/heat-vision/steven-spielberg-predicts-superhero-movies-819768 | checked: 2026-11-14
+superhero-movies-have-exhausted,person,agree,nia-dacosta-director-marvels,,,,,,,,,,,,,,,,url: https://www.gamesradar.com/the-marvels-nia-dacosta-wacky-silly-superhero-fatigue-interview/ | checked: 2026-11-14
 superhero-movies-have-exhausted,media,agree,superhero-film-fatigue-up,,,,,,,,,,,,,,,,url: https://intel.morningconsult.com/mc-content/instant-intel/marvel-superhero-movies-fatigue | checked: 2026-11-14
 superhero-movies-have-exhausted,argument,disagree,deadpool-wolverine-grossed-1,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Deadpool_&_Wolverine | checked: 2026-11-14
 superhero-movies-have-exhausted,argument,disagree,2025-films-all-faced,,,,,,,,,,,,,,,,
@@ -7211,15 +7211,15 @@ superhero-movies-have-exhausted,assumption,disagree,moviegoers-judge-each-superh
 superhero-movies-have-exhausted,assumption,disagree,weak-superhero-grosses-2023,,,,,,,,,,,,,,,,
 superhero-movies-have-exhausted,person,disagree,marvel-studios-president-kevin,,,,,,,,,,,,,,,,url: https://www.yahoo.com/entertainment/articles/marvel-kevin-feige-talks-scaling-190217892.html | checked: 2026-11-14
 superhero-movies-have-exhausted,person,disagree,dc-studios-co-chief,,,,,,,,,,,,,,,,url: https://faroutmagazine.co.uk/james-gunn-explains-why-many-movies-are-mediocre-now/ | checked: 2026-11-14
-superhero-movies-have-exhausted,media,disagree,spider-man-beats-avengers,,,,,,,,,,,,,,,,
-superhero-movies-have-exhausted,media,disagree,spider-man-brand-new-2,,,,,,,,,,,,,,,,
-superhero-movies-have-exhausted,media,disagree,kevin-feige-marvel-studios,,,,,,,,,,,,,,,,
+superhero-movies-have-exhausted,media,disagree,spider-man-beats-avengers,,,,,,,,,,,,,,,,url: https://variety.com/2026/film/box-office/spider-man-brand-new-day-box-office-opening-record-avengers-endgame-1236826336/ | checked: 2026-11-14
+superhero-movies-have-exhausted,media,disagree,spider-man-brand-new-2,,,,,,,,,,,,,,,,url: https://www.the-numbers.com/movie/Spider-Man-Brand-New-Day-(2026) | checked: 2026-11-14
+superhero-movies-have-exhausted,media,disagree,kevin-feige-marvel-studios,,,,,,,,,,,,,,,,url: https://thetwingeeks.com/2025/07/25/an-ode-to-the-marvel-cinematic-universe-quantity-over-quality/ | checked: 2026-11-14
 superhero-movies-have-exhausted,interest,agree,moviegoers-who-do-follow,,,,,,,,,,,,,,,,
 superhero-movies-have-exhausted,interest,agree,independent-filmmakers-mid-budget,,,,,,,,,,,,,,,,
 superhero-movies-have-exhausted,interest,disagree,movie-theater-owners-workers,,,,,,,,,,,,,,,,
 superhero-movies-have-exhausted,interest,disagree,visual-effects-artists-production,,,,,,,,,,,,,,,,
 superhero-movies-have-exhausted,interest,disagree,comic-book-fans-need,,,,,,,,,,,,,,,,
-superhero-movies-have-exhausted,cba,agree,if-studios-stop-expecting,,,,,,,,independent-filmmakers-mid-budget,,,dollars of studio losses avoided a year,100000000,,,,
+superhero-movies-have-exhausted,cba,agree,if-studios-stop-expecting,,,,,,,,independent-filmmakers-mid-budget,,,dollars of studio losses avoided a year,100000000,,,,url: https://news.google.com/rss/search?q=Supergirl+loss+%22%24125+million%22 | checked: 2026-11-14
 superhero-movies-have-exhausted,cba,agree,if-industry-treats-superhero,,,,,,,,moviegoers-who-do-follow,,,films a year requiring no prior franchise viewing,,,,,
 superhero-movies-have-exhausted,cba,disagree,if-superhero-production-falls,,,,,,,,visual-effects-artists-production,,,visual effects jobs,,,,,
 superhero-movies-have-exhausted,cba,disagree,if-industry-concludes-audience,,,,,,,,comic-book-fans-need,,,theatrical superhero releases a year,3,,,,
@@ -7730,26 +7730,26 @@ popular-music-really-was,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides dis
 popular-music-really-was,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether the typical hit of the 1970s and 1980s, including the forgotten ones, was better than the typical hit today, or only the survivors were. | move: Comparing random samples drawn from the full Billboard Hot 100 of each era, rather than from greatest-hits lists, would settle how much survivorship explains."
 popular-music-really-was,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides weigh different things as quality, with supporters stressing craft and complexity and opponents stressing variety, reach and new voices. | move: Agreeing in advance on which measures count, and how much each counts, would turn much of the argument into a question of measurement."
 popular-music-really-was,value,,,,,,,,,,,,,,,,,,"value: Craftsmanship | srank: 1 | orank: 3 | why: Supporters value the skill of writing and playing that went into hit records, while opponents count it but see it as only one part of what makes a song good."
-hot-dog-sandwich,argument,agree,merriam-webster-defines-sandwich,,,,,,,,,,,,,,,,
-hot-dog-sandwich,argument,agree,new-york-state-s,,,,,,,,,,,,,,,,
+hot-dog-sandwich,argument,agree,merriam-webster-defines-sandwich,,,,,,,,,,,,,,,,url: https://www.merriam-webster.com/dictionary/sandwich | checked: 2026-11-14
+hot-dog-sandwich,argument,agree,new-york-state-s,,,,,,,,,,,,,,,,url: https://www.tax.ny.gov/pubs_and_bulls/tg_bulletins/st/sandwiches.htm | checked: 2026-11-14
 hot-dog-sandwich,argument,agree,test-what-counts-sandwich,,,,,,,,,,,,,,,,
 hot-dog-sandwich,evidence,agree,indiana-trial-court-ruled,,"Allen Superior Court (Indiana), Martin Quintana v. Fort Wayne Planning Commission, No. 02D02-2212-PL-000414, 2024",,,,,,,,,,,,,,
 hot-dog-sandwich,prediction,agree,nationally-representative-poll-u,,,,,,,,,,,,,,,"By December 31, 2027; checked against the published toplines of any probability-sample poll by a recognized pollster that asks both questions.",
-hot-dog-sandwich,prediction,agree,new-york-s-tax,,,,,,,,,,,,,,,"By December 31, 2027; checked on the New York State Department of Taxation and Finance website and the published guidance of the other 49 state revenue departments.",
+hot-dog-sandwich,prediction,agree,new-york-s-tax,,,,,,,,,,,,,,,"By December 31, 2027; checked on the New York State Department of Taxation and Finance website and the published guidance of the other 49 state revenue departments.",url: https://www.tax.ny.gov/pubs_and_bulls/tg_bulletins/st/sandwiches.htm | checked: 2026-11-14
 hot-dog-sandwich,falsify,agree,nationally-representative-poll-finds,,,,,,,,,,,,,,,,
 hot-dog-sandwich,falsify,agree,review-every-u-s,,,,,,,,,,,,,,,,
 hot-dog-sandwich,assumption,agree,whether-food-counts-sandwich,,,,,,,,,,,,,,,,
 hot-dog-sandwich,assumption,agree,single-roll-split-along,,,,,,,,,,,,,,,,
 hot-dog-sandwich,assumption,agree,food-can-have-its,,,,,,,,,,,,,,,,
-hot-dog-sandwich,person,agree,food-podcaster-dan-pashman,,,,,,,,,,,,,,,,
-hot-dog-sandwich,media,agree,sandwich-history-10-words,,,,,,,,,,,,,,,,
-hot-dog-sandwich,media,agree,john-hodgman-v-dan,,,,,,,,,,,,,,,,
+hot-dog-sandwich,person,agree,food-podcaster-dan-pashman,,,,,,,,,,,,,,,,url: https://www.timeout.com/newyork/comedy/the-case-for-hot-dogs-as-sandwiches | checked: 2026-11-14
+hot-dog-sandwich,media,agree,sandwich-history-10-words,,,,,,,,,,,,,,,,url: https://www.merriam-webster.com/wordplay/to-chew-on-10-kinds-of-sandwiches | checked: 2026-11-14
+hot-dog-sandwich,media,agree,john-hodgman-v-dan,,,,,,,,,,,,,,,,url: https://wnyc.org/story/john-hodgman-v-dan-pashman-are-hot-dogs-sandwiches/ | checked: 2026-11-14
 hot-dog-sandwich,argument,disagree,ordinary-american-speech-people,,,,,,,,,,,,,,,,
-hot-dog-sandwich,argument,disagree,national-hot-dog-sausage,,,,,,,,,,,,,,,,
-hot-dog-sandwich,argument,disagree,massachusetts-court-held-2006,,,,,,,,,,,,,,,,
+hot-dog-sandwich,argument,disagree,national-hot-dog-sausage,,,,,,,,,,,,,,,,url: https://www.mentalfloss.com/article/71027/hot-dog-council-says-hot-dog-not-sandwich | checked: 2026-11-14
+hot-dog-sandwich,argument,disagree,massachusetts-court-held-2006,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Sandwich | checked: 2026-11-14
 hot-dog-sandwich,argument,disagree,hot-dog-defined-its,,,,,,,,,,,,,,,,
 hot-dog-sandwich,argument,disagree,any-definition-sandwich-broad,,,,,,,,,,,,,,,,
-hot-dog-sandwich,evidence,disagree,national-hot-dog-sausage-2,,"Lindsay Deutsch, ""Is a hot dog a sandwich? Council rules once and for all,"" USA Today, November 7, 2015",,,,,,,,,,,,,,
+hot-dog-sandwich,evidence,disagree,national-hot-dog-sausage-2,,"Lindsay Deutsch, ""Is a hot dog a sandwich? Council rules once and for all,"" USA Today, November 7, 2015",,,,,,,,,,,,,,url: https://www.goodmorningamerica.com/news/story/hot-dogs-sandwiches-national-hot-dog-sausage-council-35033051 | checked: 2026-11-14
 hot-dog-sandwich,prediction,disagree,nationally-representative-poll-u-2,,,,,,,,,,,,,,,"By December 31, 2027; checked against the published toplines of any probability-sample poll by a recognized pollster that asks both questions.",
 hot-dog-sandwich,prediction,disagree,fewer-than-one-ten,,,,,,,,,,,,,,,"By June 30, 2027; checked by a menu survey of those chains' published online menus.",
 hot-dog-sandwich,falsify,disagree,nationally-representative-poll-finds-2,,,,,,,,,,,,,,,,
@@ -7757,11 +7757,11 @@ hot-dog-sandwich,falsify,disagree,review-major-english-dictionaries,,,,,,,,,,,,,
 hot-dog-sandwich,assumption,disagree,meaning-food-word-set,,,,,,,,,,,,,,,,
 hot-dog-sandwich,assumption,disagree,most-americans-call-hot,,,,,,,,,,,,,,,,
 hot-dog-sandwich,assumption,disagree,food-has-grown-its,,,,,,,,,,,,,,,,
-hot-dog-sandwich,person,disagree,janet-riley-president-national,,,,,,,,,,,,,,,,
-hot-dog-sandwich,person,disagree,humorist-john-hodgman-argued,,,,,,,,,,,,,,,,
-hot-dog-sandwich,person,disagree,chef-television-host-anthony,,,,,,,,,,,,,,,,
-hot-dog-sandwich,media,disagree,national-hot-dog-sausage-3,,,,,,,,,,,,,,,,
-hot-dog-sandwich,media,disagree,famous-people-weigh-heated,,,,,,,,,,,,,,,,
+hot-dog-sandwich,person,disagree,janet-riley-president-national,,,,,,,,,,,,,,,,url: https://www.mentalfloss.com/article/71027/hot-dog-council-says-hot-dog-not-sandwich | checked: 2026-11-14
+hot-dog-sandwich,person,disagree,humorist-john-hodgman-argued,,,,,,,,,,,,,,,,url: https://www.sporkful.com/?p=17856 | checked: 2026-11-14
+hot-dog-sandwich,person,disagree,chef-television-host-anthony,,,,,,,,,,,,,,,,url: https://hot-dog.org/culture/famous-people-weigh-in-on-the-heated-hot-dog-sandwich-debate | checked: 2026-11-14
+hot-dog-sandwich,media,disagree,national-hot-dog-sausage-3,,,,,,,,,,,,,,,,url: https://www.goodmorningamerica.com/news/story/hot-dogs-sandwiches-national-hot-dog-sausage-council-35033051 | checked: 2026-11-14
+hot-dog-sandwich,media,disagree,famous-people-weigh-heated,,,,,,,,,,,,,,,,url: https://hot-dog.org/culture/famous-people-weigh-in-on-the-heated-hot-dog-sandwich-debate | checked: 2026-11-14
 hot-dog-sandwich,interest,agree,tax-auditors-need-single,,,,,,,,,,,,,,,,
 hot-dog-sandwich,interest,agree,sandwich-shop-owners-need,,,,,,,,,,,,,,,,
 hot-dog-sandwich,interest,agree,dictionary-editors-need-definitions,,,,,,,,,,,,,,,,
@@ -8210,7 +8210,7 @@ working-home-better-most,assumption,agree,whether-working-home-better,,,,,,,,,,,
 working-home-better-most,assumption,agree,most-office-workers-have,,,,,,,,,,,,,,,,
 working-home-better-most,assumption,agree,losses-working-home-such,,,,,,,,,,,,,,,,
 working-home-better-most,person,agree,brian-chesky-chief-executive,,,,,,,,,,,,,,,,url: https://news.airbnb.com/airbnbs-design-to-live-and-work-anywhere/ | checked: 2026-11-08
-working-home-better-most,person,agree,stanford-economist-nicholas-bloom,,,,,,,,,,,,,,,,
+working-home-better-most,person,agree,stanford-economist-nicholas-bloom,,,,,,,,,,,,,,,,url: https://siepr.stanford.edu/news/hybrid-work-win-win-win-companies-workers-study-finds | checked: 2026-11-14
 working-home-better-most,media,agree,hybrid-working-home-improves,,,,,,,,,,,,,,,,url: https://www.nature.com/articles/s41586-024-07500-2 | checked: 2026-11-08
 working-home-better-most,media,agree,does-working-home-work,,,,,,,,,,,,,,,,url: https://academic.oup.com/qje/article/130/1/165/2337855 | checked: 2026-11-08
 working-home-better-most,media,agree,why-working-home-will,,,,,,,,,,,,,,,,url: https://www.nber.org/papers/w28731 | checked: 2026-11-08
@@ -8467,8 +8467,8 @@ tiktok-has-done-more,interest,disagree,independent-creators-authors-need,,,,,,,,
 tiktok-has-done-more,cba,agree,if-tiktok-users-left,,,,,,,,college-students-need-way,,,dollars per user per month,28,,,,
 tiktok-has-done-more,cba,agree,teenagers-who-cut-tiktok,,,,,,,,parents-teenagers-need-children,,,minutes per day per teen user,48,,,,url: https://www.lpm.org/news/2024-10-11/tiktok-executives-know-about-apps-effect-on-teens-lawsuit-documents-allege | checked: 2026-11-08
 tiktok-has-done-more,cba,agree,changing-how-tiktok-recommends,,,,,,,,parents-teenagers-need-children,,,share of teen test accounts shown such videos in their first 30 minutes,,,,,
-tiktok-has-done-more,cba,disagree,restricting-abandoning-tiktok-cost,,,,,,,,small-business-owners-need,,,dollars of U.S. GDP a year,24200000000,,,,
-tiktok-has-done-more,cba,disagree,restricting-abandoning-tiktok-cut,,,,,,,,independent-creators-authors-need,,,U.S. print books sold a year,59000000,,,,
+tiktok-has-done-more,cba,disagree,restricting-abandoning-tiktok-cost,,,,,,,,small-business-owners-need,,,dollars of U.S. GDP a year,24200000000,,,,url: https://www.oxfordeconomics.com/wp-content/uploads/2024/03/TikTok_US_ExecSummary_March2024.pdf | checked: 2026-11-14
+tiktok-has-done-more,cba,disagree,restricting-abandoning-tiktok-cut,,,,,,,,independent-creators-authors-need,,,U.S. print books sold a year,59000000,,,,url: https://www.publishersweekly.com/pw/by-topic/industry-news/publisher-news/article/96889-tiktok-uncertainty-prompts-the-book-business-to-envision-an-even-better-future.html | checked: 2026-11-14
 tiktok-has-done-more,cba,disagree,users-who-gave-up,,,,,,,,college-students-need-way,,,dollars per user per month,59,,,,
 tiktok-has-done-more,category,,,U.S. print books sold a year,,,,,,,,,,,,,,,
 tiktok-has-done-more,category,,,dollars of U.S. GDP a year,,,,,,,,,,,,,,,
@@ -8563,7 +8563,7 @@ ai-written-novels-will,argument,agree,large-language-models-can,,,,,,,,,,,,,,,,u
 ai-written-novels-will,argument,agree,ai-written-novels-cost,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2510.13939 | checked: 2026-11-08
 ai-written-novels-will,argument,agree,readers-fast-release-genre,,,,,,,,,,,,,,,,
 ai-written-novels-will,argument,agree,most-readers-cannot-reliably,,,,,,,,,,,,,,,,url: https://www.nature.com/articles/s41598-024-76900-1 | checked: 2026-11-08
-ai-written-novels-will,argument,agree,no-u-s-law,,,,,,,,,,,,,,,,
+ai-written-novels-will,argument,agree,no-u-s-law,,,,,,,,,,,,,,,,url: https://www.nysenate.gov/legislation/bills/2025/S1815 | checked: 2026-11-14
 ai-written-novels-will,argument,agree,ai-writing-has-improved,,,,,,,,,,,,,,,,
 ai-written-novels-will,evidence,agree,two-experiments-1-634,,"Brian Porter and Edouard Machery, ""AI-generated poetry is indistinguishable from human-written poetry and is rated more favorably,"" Scientific Reports, 2024",,,,,,,,,,,,,,url: https://www.nature.com/articles/s41598-024-76900-1 | checked: 2026-11-08
 ai-written-novels-will,evidence,agree,when-chatgpt-was-fine,,"Tuhin Chakrabarty, Jane C. Ginsburg and Paramveer Dhillon, ""Readers Prefer Outputs of AI Trained on Copyrighted Books over Expert Human Writers,"" arXiv preprint 2510.13939, 2025",,,,,,,,,,,,,,url: https://arxiv.org/abs/2510.13939 | checked: 2026-11-08
@@ -9267,7 +9267,7 @@ bitcoin-will-trade-above,argument,agree,us-spot-bitcoin-exchange,,,,,,,,,,,,,,,,
 bitcoin-will-trade-above,argument,agree,rising-us-government-debt,,,,,,,,,,,,,,,,url: https://bitcoin.org/en/faq | checked: 2026-11-08
 bitcoin-will-trade-above,argument,agree,most-bitcoin-held-long,,,,,,,,,,,,,,,,url: https://theblock.co/news/markets/2026-08-26-bernstein-sees-bitcoin-reaching-150000-by-mid-2027-amid-debasement-trade-but-cuts-strategy-target-to-350-412778 | checked: 2026-11-08
 bitcoin-will-trade-above,argument,agree,major-bank-analysts-including,,,,,,,,,,,,,,,,url: https://news.bitcoin.com/standard-chartered-cuts-btc-eth-xrp-sol-forecasts | checked: 2026-11-13
-bitcoin-will-trade-above,argument,agree,bitcoin-s-price-swings,,,,,,,,,,,,,,,,
+bitcoin-will-trade-above,argument,agree,bitcoin-s-price-swings,,,,,,,,,,,,,,,,url: https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=PriceUSD&frequency=1d&start_time=2025-01-01&page_size=1000 | checked: 2026-11-14
 bitcoin-will-trade-above,evidence,agree,bitcoin-rose-about-16,,"SoFi, 'Bitcoin Price History (2009-2026)', 2026; CNBC, 'Bitcoin rises to record above $69,000, then quickly tumbles 8%', 2024",,,,,,,,,,,,,,url: https://www.hedgeco.net/news/?p=87547 | checked: 2026-11-08
 bitcoin-will-trade-above,evidence,agree,about-59-percent-bitcoin,,"The Block, 'Bernstein sees bitcoin reaching $150,000 by mid-2027 amid debasement trade, but cuts Strategy target to $350', 2026",,,,,,,,,,,,,,url: https://theblock.co/news/markets/2026-08-26-bernstein-sees-bitcoin-reaching-150000-by-mid-2027-amid-debasement-trade-but-cuts-strategy-target-to-350-412778 | checked: 2026-11-08
 bitcoin-will-trade-above,prediction,agree,bitcoin-sets-new-all,,,,,,,,,,,,,,,"By June 30, 2027; checked against CF Benchmarks' published BRRNY daily values.",url: https://www.sofi.com/learn/content/bitcoin-price-history/ | checked: 2026-11-08
@@ -13073,3 +13073,8 @@ most-italian-pizzerias-added,argument,disagree,gino-sorbillo-put-pineapple-pizza
 once-u-s-recession,argument,disagree,within-year-each-recession-starting,,federalreserve.gov,,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/openmarket.htm | checked: 2026-11-14 | tag: truth.premise-false
 federal-reserve-governor-stephen,argument,disagree,federal-reserve-governor-stephen-miran,,finance.yahoo.com,,,,,,,,,,,,,,url: https://finance.yahoo.com/economy/article/feds-miran-says-inflation-picture-has-deteriorated--but-still-favors-multiple-rate-cuts-this-year-190100956.html | checked: 2026-11-14 | tag: challenge.misquoted
 none-19-federal-reserve,argument,disagree,none-18-federal-reserve-officials,,federalreserve.gov,,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm | checked: 2026-11-14 | tag: truth.premise-false
+blind-trust-blind-inception-official,argument,disagree,crs-reports-rs21656-2005-r43365,,everycrsreport.com,,,,,,,,,,,,,,url: https://www.everycrsreport.com/reports/RS21656.html | checked: 2026-11-14 | tag: truth.premise-false
+mass-commutations-were-unpopular-when,argument,disagree,when-biden-commuted-roughly-1,,d3nkl3psvxxpe9.cloudfront.net,,,,,,,,,,,,,,url: https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_fWe8hY3.pdf | checked: 2026-11-14 | tag: truth.premise-false
+support-tracks-which-party-holds,argument,disagree,yougov-s-identically-worded-question,,ygo-assets-websites-editorial-emea.yougov.net,,,,,,,,,,,,,,url: https://ygo-assets-websites-editorial-emea.yougov.net/documents/Presidential_Pardons_poll_results.pdf | checked: 2026-11-14 | tag: truth.premise-false
+sue-bird-clutch-sarah,argument,disagree,sue-bird-played-19-wnba,,wnba.com,,,,,,,,,,,,,,url: https://www.wnba.com/player/100720/sue-bird/bio | checked: 2026-11-14 | tag: challenge.misquoted
+ending-betting-partnerships-cost,argument,disagree,nielsen-s-2018-study-american,,cdcgaming.com,,,,,,,,,,,,,,url: https://cdcgaming.com/aga-nba-mlb-could-see-combined-1-7-billion-from-legalized-sports-betting/ | checked: 2026-11-14 | tag: truth.premise-false
