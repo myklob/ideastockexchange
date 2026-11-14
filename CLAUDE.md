@@ -266,6 +266,11 @@ CI runs the whole suite before it will publish anything.
   run `--to-workbook`, then `--check`.
 - Tests read the live tables, which only grow. Never pin their page count or a similarity score to two decimals;
   assert a floor or a band. Three such pins broke on content alone.
+- Match rendered HTML by tag and attribute (`<th\b[^>]*>`, `<table\b[^>]*class="scored mini"`), never by a literal
+  opening tag. `ths()` adds `scope="col"` and folding adds an `id` before the class, so tests looking for `<th>` or
+  `<table class="...">` stopped checking anything without failing, and `Publish site` failed from 2026-10-04 until
+  they were fixed. `check_assertions.py` catches an assertion that never runs, not one that runs and cannot fail
+  (an `assertNotIn` of a tag that no longer exists), so a loop that checks rows should end by asserting it found some.
 - The full suite takes about 20 minutes run serially (`test_similarity` and `test_render` are most of it); run the
   modules in parallel. `check_assertions.py` traces the whole suite and takes over 30 minutes: run it in the
   background with a long timeout.
