@@ -1134,16 +1134,16 @@ we-support-strengthen-democracy,argument,agree,third-parties-independents-kept,,
 we-support-strengthen-democracy,argument,disagree,specific-electoral-reforms-have,,,,,,,,,,,,,,,,
 we-support-strengthen-democracy,argument,disagree,two-party-system-has,,,,,,,,,,,,,,,,
 we-support-strengthen-democracy,argument,disagree,restoring-voter-s-voice,,,,,,,,,,,,,,,,
-we-support-strengthen-democracy,argument,disagree,campaign-finance-restrictions-collide,,,,,,,,,,,,,,,,
+we-support-strengthen-democracy,argument,disagree,campaign-finance-restrictions-collide,,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/supremecourt/text/424/1 | checked: 2026-11-14
 we-support-strengthen-democracy,argument,disagree,nonpartisan-primaries-may-weaken,,,,,,,,,,,,,,,,
-we-support-strengthen-democracy,evidence,agree,congress-polls-15-25,,"Gallup; OpenSecrets, ongoing",,,,,,,,,,,,,,
+we-support-strengthen-democracy,evidence,agree,congress-polls-15-25,,"Gallup; OpenSecrets, ongoing",,,,,,,,,,,,,,url: https://news.gallup.com/poll/708722/disapproval-congress-ties-record-high.aspx | checked: 2026-11-14
 we-support-strengthen-democracy,evidence,agree,primary-voters-measure-significantly,,"Pew Research, 2022",,,,,,,,,,,,,,
 we-support-strengthen-democracy,evidence,agree,americans-identifying-independents-reached,,"Gallup, 2023",,,,,,,,,,,,,,
 we-support-strengthen-democracy,evidence,agree,alaska-s-first-federal,,"MIT Election Lab, 2022",,,,,,,,,,,,,,
 we-support-strengthen-democracy,evidence,agree,independent-redistricting-commissions-arizona,,"NCSL, 2021",,,,,,,,,,,,,,
-we-support-strengthen-democracy,evidence,agree,policy-outcomes-correlate-preferences,,"Gilens & Page, Princeton, 2014",,,,,,,,,,,,,,
-we-support-strengthen-democracy,evidence,disagree,burlington-vermont-adopted-ranked,,"Burlington city records, 2010",,,,,,,,,,,,,,
-we-support-strengthen-democracy,evidence,disagree,evidence-whether-nonpartisan-primaries,,NBER working paper,,,,,,,,,,,,,,
+we-support-strengthen-democracy,evidence,agree,policy-outcomes-correlate-preferences,,"Gilens & Page, Princeton, 2014",,,,,,,,,,,,,,url: https://www.cambridge.org/core/journals/perspectives-on-politics/article/testing-theories-of-american-politics-elites-interest-groups-and-average-citizens/62327F513959D0A304D4893B382B992B | checked: 2026-11-14
+we-support-strengthen-democracy,evidence,disagree,burlington-vermont-adopted-ranked,,"Burlington city records, 2010",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2009_Burlington_mayoral_election | checked: 2026-11-14
+we-support-strengthen-democracy,evidence,disagree,evidence-whether-nonpartisan-primaries,,NBER working paper,,,,,,,,,,,,,,url: https://www.newamerica.org/political-reform/reports/what-we-know-about-congressional-primaries-and-congressional-primary-reform/can-primary-reform-change-who-votes-runs-and-wins/ | checked: 2026-11-14
 we-support-strengthen-democracy,interest,agree,independent-voters-about-43,,,,,,,,,,,,,,,,
 we-support-strengthen-democracy,interest,agree,voters-need-representatives-who,,,,,,,,,,,,,,,,
 we-support-strengthen-democracy,interest,agree,forward-party-other-third,,,,,,,,,,,,,,,,
@@ -1161,8 +1161,8 @@ we-support-strengthen-democracy,prediction,agree,decade-data-alaska-maine,,,,,,,
 we-support-strengthen-democracy,prediction,agree,legislators-jurisdictions-small-donor,,,,,,,,,,,,,,,Roll-call alignment studies,
 we-support-strengthen-democracy,prediction,agree,commission-drawn-maps-will,,,,,,,,,,,,,,,"Each redistricting cycle; Cook ratings, NCSL tracking",
 we-support-strengthen-democracy,prediction,agree,jurisdictions-use-ranked-choice,,,,,,,,,,,,,,,"Ongoing; ad-tone tracking, FairVote and independent replication",
-we-support-strengthen-democracy,prediction,disagree,reformed-states-will-show,,,,,,,,,,,,,,,Two full election cycles,
-we-support-strengthen-democracy,prediction,disagree,center-squeeze-other-pathological,,,,,,,,,,,,,,,,
+we-support-strengthen-democracy,prediction,disagree,reformed-states-will-show,,,,,,,,,,,,,,,Two full election cycles,url: https://www.sevendaysvt.com/vermont/irv-repeal-signed-into-law/Content?oid=2178268 | checked: 2026-11-14
+we-support-strengthen-democracy,prediction,disagree,center-squeeze-other-pathological,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2301.12075 | checked: 2026-11-14
 we-support-strengthen-democracy,prediction,disagree,representatives-reformed-states-will,,,,,,,,,,,,,,,5-10 years; roll-call ideal-point estimates by state cohort,
 public-office-private-gain,related,,,Congressional Reversal of Pardons,,,,,,,,,,child,,,,,
 public-office-private-gain,related,,,Bribery Statutes,,,,,,,,,,sibling,,,,,
@@ -2037,13 +2037,13 @@ good-end-does-justify,argument,agree,selfish-goals-do-justify,,,,,,,,,,,,,,,,
 good-end-does-justify,argument,agree,some-extreme-cases-such,,,,,,,,,,,,,,,,
 good-end-does-justify,argument,agree,god-will-require-people,,,,,,,,,,,,,,,,
 good-end-does-justify,argument,disagree,sometimes-ends-do-justify,,,,,,,,,,,,,,,,
-good-end-does-justify,evidence,agree,worst-mass-killings-20th,,,,,,,,,,,,,,,,
+good-end-does-justify,evidence,agree,worst-mass-killings-20th,,,,,,,,,,,,,,,,url: https://www.libraryofsocialscience.com/reviews/published/Weitz.html | checked: 2026-11-14
 good-end-does-justify,evidence,agree,john-stuart-mill-s,,,,,,,,,,,,,,,,
 good-end-does-justify,evidence,agree,under-social-contract-theory,,,,,,,,,,,,,,,,
 good-end-does-justify,evidence,agree,research-motivated-reasoning-consistently,,,,,,,,,,,,,,,,
-good-end-does-justify,evidence,disagree,philosophers-foot-thomson-have,,,,,,,,,,,,,,,,
+good-end-does-justify,evidence,disagree,philosophers-foot-thomson-have,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Trolley_problem | checked: 2026-11-14
 good-end-does-justify,evidence,disagree,just-war-theory-endorsed,,,,,,,,,,,,,,,,
-good-end-does-justify,evidence,disagree,rosa-parks-gandhi-broke,,,,,,,,,,,,,,,,
+good-end-does-justify,evidence,disagree,rosa-parks-gandhi-broke,,,,,,,,,,,,,,,,url: https://www.archives.gov/education/lessons/rosa-parks | checked: 2026-11-14
 good-end-does-justify,interest,agree,supporters-need-live-under,,,,,,,,,,,,,,,,
 good-end-does-justify,interest,agree,supporters-need-protection-being,,,,,,,,,,,,,,,,
 good-end-does-justify,interest,agree,supporters-need-moral-systems,,,,,,,,,,,,,,,,
@@ -2194,7 +2194,7 @@ america-strengthen-its-global,argument,disagree,u-s-global-leadership,,,,,,,,,,,
 america-strengthen-its-global,argument,disagree,many-countries-value-u,,,,,,,,,,,,,,,,
 america-strengthen-its-global,evidence,agree,freedom-house-s-freedom,,"Freedom House, Freedom in the World 2024",,,,,,,,,,,,,,
 america-strengthen-its-global,evidence,agree,pew-research-global-attitudes,,"Pew Research Global Attitudes Survey (2021, 2022, 2023)",,,,,,,,,,,,,,
-america-strengthen-its-global,evidence,agree,finding-democracies-rarely-go,,"Russett, International Security",,,,,,,,,,,,,,
+america-strengthen-its-global,evidence,agree,finding-democracies-rarely-go,,"Russett, International Security",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Democratic_peace_theory | checked: 2026-11-14
 america-strengthen-its-global,evidence,agree,2022-carnegie-endowment-analysis,,"Carnegie Endowment for International Peace, “The Costs of Democratic Backsliding for U.S. Foreign Policy” (2022)",,,,,,,,,,,,,,
 america-strengthen-its-global,evidence,disagree,nato-remained-cohesive-through,,,,,,,,,,,,,,,,
 america-strengthen-its-global,evidence,disagree,roughly-70-u-s,,National Endowment for Democracy data,,,,,,,,,,,,,,
@@ -2291,18 +2291,18 @@ we-give-our-outdated,shared_interest,,,Both sides need atrocities and genocide p
 we-give-our-outdated,shared_interest,,,Both sides need stronger alliances.,,,,,,,,,,,,,,,
 we-give-our-outdated,compromise,,,Supply weapons only under strict accountability and only when the ally demonstrates democratic integrity and protection of civilians.,,,,,,,,,,,,,,,
 we-give-our-outdated,compromise,,,"Prioritize defensive systems, such as anti-air and logistics, over offensive tools that might provoke escalation.",,,,,,,,,,,,,,,
-strong-america-good-planet,argument,agree,credible-u-s-deterrence,,,,,,,,,,,,,,,,
+strong-america-good-planet,argument,agree,credible-u-s-deterrence,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Withdrawal_of_United_States_troops_from_Afghanistan_(2020%E2%80%932021) | checked: 2026-11-14
 strong-america-good-planet,argument,agree,u-s-military-economic,,,,,,,,,,,,,,,,
 strong-america-good-planet,argument,agree,unlike-earlier-dominant-powers,,,,,,,,,,,,,,,,
-strong-america-good-planet,argument,agree,when-united-states-pulls,,,,,,,,,,,,,,,,
-strong-america-good-planet,argument,disagree,interventions-justified-u-s,,,,,,,,,,,,,,,,
-strong-america-good-planet,argument,disagree,preserve-regional-order-united,,,,,,,,,,,,,,,,
-strong-america-good-planet,argument,disagree,sustained-trillion-dollar-scale,,,,,,,,,,,,,,,,
+strong-america-good-planet,argument,agree,when-united-states-pulls,,,,,,,,,,,,,,,,url: https://jamestown.org/moscow-celebrates-as-the-us-military-pulls-away-from-northern-syria/ | checked: 2026-11-14
+strong-america-good-planet,argument,disagree,interventions-justified-u-s,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Libyan_crisis_(2011%E2%80%93present) | checked: 2026-11-14
+strong-america-good-planet,argument,disagree,preserve-regional-order-united,,,,,,,,,,,,,,,,url: https://nsarchive2.gwu.edu/news/20000919/ | checked: 2026-11-14
+strong-america-good-planet,argument,disagree,sustained-trillion-dollar-scale,,,,,,,,,,,,,,,,url: https://www.armscontrol.org/act/2026-03/news/us-defense-spending-rises-more-17-percent | checked: 2026-11-14
 strong-america-good-planet,evidence,agree,u-s-backed-security,,,,,,,,,,,,,,,,
-strong-america-good-planet,evidence,agree,u-s-navy-has,,,,,,,,,,,,,,,,
+strong-america-good-planet,evidence,agree,u-s-navy-has,,,,,,,,,,,,,,,,url: https://www.brookings.edu/articles/a-sinking-feeling-the-strait-of-hormuz-and-strains-on-us-naval-power/ | checked: 2026-11-14
 strong-america-good-planet,evidence,agree,after-1953-u-s,,,,,,,,,,,,,,,,
-strong-america-good-planet,evidence,disagree,2003-u-s-intervention,,Iraq Body Count; 2006 Lancet study,,,,,,,,,,,,,,
-strong-america-good-planet,evidence,disagree,declassified-records-document-cia,,,,,,,,,,,,,,,,
+strong-america-good-planet,evidence,disagree,2003-u-s-intervention,,Iraq Body Count; 2006 Lancet study,,,,,,,,,,,,,,url: https://www.iraqbodycount.org/database/ | checked: 2026-11-14
+strong-america-good-planet,evidence,disagree,declassified-records-document-cia,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Operation_Cyclone | checked: 2026-11-14
 strong-america-good-planet,interest,agree,supporters-need-national-security-2,,,,,,,,,,,,,,,,
 strong-america-good-planet,interest,agree,supporters-need-open-predictable,,,,,,,,,,,,,,,,
 strong-america-good-planet,interest,agree,supporters-need-rival-authoritarian,,,,,,,,,,,,,,,,
@@ -2771,41 +2771,41 @@ opposing-players-have-targeted,value,,,,,,,,,,,,,,,,,,"value: Safety | srank: 1 
 caitlin-clark-s-popularity,argument,agree,caitlin-clark-s-national,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,argument,agree,white-wnba-stars-signature,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,argument,agree,clark-s-style-play,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,argument,agree,fans-who-vote-wnba,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,argument,agree,clark-holds-ncaa-division,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,argument,agree,clark-s-television-audiences,,,,,,,,,,,,,,,,
+caitlin-clark-s-popularity,argument,agree,fans-who-vote-wnba,,,,,,,,,,,,,,,,url: https://pr.nba.com/wp-content/uploads/sites/46/2025/06/2025-WNBA-All-Star-Game-Fan-Voting-Results.pdf | checked: 2026-11-14
+caitlin-clark-s-popularity,argument,agree,clark-holds-ncaa-division,,,,,,,,,,,,,,,,url: https://www.sports-reference.com/cbb/players/caitlin-clark-1.html | checked: 2026-11-14
+caitlin-clark-s-popularity,argument,agree,clark-s-television-audiences,,,,,,,,,,,,,,,,url: https://www.sportsmediawatch.com/2026/06/wnba-viewership-caitlin-clark-fever-top-audiences-season/ | checked: 2026-11-14
 caitlin-clark-s-popularity,evidence,agree,nationally-televised-wnba-games-3,,"Nielsen figures reported by USA Today and Sports Illustrated, 'Caitlin Clark's Injury Has Had Stunning Impact on WNBA Ratings', June 13, 2025",,,,,,,,,,,,,,
-caitlin-clark-s-popularity,evidence,agree,2024-women-s-final,,"Front Office Sports viewership report, cited by Fox 4 News, 'Women's Final Four TV ratings see steep drop-off without Caitlin Clark', 2025",,,,,,,,,,,,,,
-caitlin-clark-s-popularity,prediction,agree,paige-bueckers-nationally-televised,,,,,,,,,,,,,,,"By December 31, 2027; checked against Sports Media Watch season audience tables built from Nielsen.",
-caitlin-clark-s-popularity,prediction,agree,2027-wnba-all-star,,,,,,,,,,,,,,,"By August 31, 2027; checked against the WNBA's published fan vote returns.",
+caitlin-clark-s-popularity,evidence,agree,2024-women-s-final,,"Front Office Sports viewership report, cited by Fox 4 News, 'Women's Final Four TV ratings see steep drop-off without Caitlin Clark', 2025",,,,,,,,,,,,,,url: https://frontofficesports.com/womens-final-four-delivers-nearly-4m-viewers-still-64-drop/ | checked: 2026-11-14
+caitlin-clark-s-popularity,prediction,agree,paige-bueckers-nationally-televised,,,,,,,,,,,,,,,"By December 31, 2027; checked against Sports Media Watch season audience tables built from Nielsen.",url: https://pr.nba.com/wp-content/uploads/sites/46/2025/06/2025-WNBA-All-Star-Game-Fan-Voting-Results.pdf | checked: 2026-11-14
+caitlin-clark-s-popularity,prediction,agree,2027-wnba-all-star,,,,,,,,,,,,,,,"By August 31, 2027; checked against the WNBA's published fan vote returns.",url: https://pr.nba.com/wp-content/uploads/sites/46/2025/06/2025-WNBA-All-Star-Game-Fan-Voting-Results.pdf | checked: 2026-11-14
 caitlin-clark-s-popularity,falsify,agree,game-game-study-finding,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,falsify,agree,survey-finding-clark-s,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,assumption,agree,television-audiences-women-s,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,assumption,agree,cause-stayed-same-years,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,assumption,agree,failure-earlier-white-wnba,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,person,agree,sue-bird-said-december,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,person,agree,megyn-kelly-wrote-x,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,media,agree,her-game-caitlin-clark-2,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,media,agree,clark-main-draw-but,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,argument,disagree,when-angel-reese-clark,,,,,,,,,,,,,,,,
+caitlin-clark-s-popularity,person,agree,sue-bird-said-december,,,,,,,,,,,,,,,,url: https://www.si.com/onsi/womens-fastbreak/news/sue-bird-bluntly-asserts-caitlin-clark-s-race-doesn-t-put-the-ball-in-the-hoop-01jfdatb0kv1 | checked: 2026-11-14
+caitlin-clark-s-popularity,person,agree,megyn-kelly-wrote-x,,,,,,,,,,,,,,,,url: https://awfulannouncing.com/wnba/megyn-kelly-caitlin-clark-white-privilege.html | checked: 2026-11-14
+caitlin-clark-s-popularity,media,agree,her-game-caitlin-clark-2,,,,,,,,,,,,,,,,url: https://www.kirkusreviews.com/book-reviews/christine-brennan/on-her-game/ | checked: 2026-11-14
+caitlin-clark-s-popularity,media,agree,clark-main-draw-but,,,,,,,,,,,,,,,,url: https://www.sportsmediawatch.com/2024/07/wnba-ratings-caitlin-clark-effect-million-viewer-audiences/ | checked: 2026-11-14
+caitlin-clark-s-popularity,argument,disagree,when-angel-reese-clark,,,,,,,,,,,,,,,,url: https://www.nbcnews.com/news/nbcblk/criticisms-lsus-angel-reese-called-racist-social-media-ncaa-championsh-rcna77917 | checked: 2026-11-14
 caitlin-clark-s-popularity,argument,disagree,white-americans-make-up,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,argument,disagree,clark-s-story-straight,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,argument,disagree,clark-herself-told-time,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,argument,disagree,kelsey-plum-set-ncaa,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,evidence,disagree,analysis-700-000-tweets,,"Shahill Parsons and Ian Kennedy (Rice University and University of Illinois Chicago), study published in a Sage journal, 2025, as described by Rice University News",,,,,,,,,,,,,,
-caitlin-clark-s-popularity,prediction,disagree,paige-bueckers-dallas-wings,,,,,,,,,,,,,,,"By December 31, 2027; checked against Sports Media Watch season audience tables built from Nielsen.",
+caitlin-clark-s-popularity,argument,disagree,clark-herself-told-time,,,,,,,,,,,,,,,,url: https://time.com/7200904/athlete-of-the-year-2024-caitlin-clark/ | checked: 2026-11-14
+caitlin-clark-s-popularity,argument,disagree,kelsey-plum-set-ncaa,,,,,,,,,,,,,,,,url: https://www.ncaa.com/news/basketball-women/article/2017-02-26/washingtons-kelsey-plum-breaks-ncaa-all-time-womens-scoring | checked: 2026-11-14
+caitlin-clark-s-popularity,evidence,disagree,analysis-700-000-tweets,,"Shahill Parsons and Ian Kennedy (Rice University and University of Illinois Chicago), study published in a Sage journal, 2025, as described by Rice University News",,,,,,,,,,,,,,url: https://news.rice.edu/news/2025/study-suggests-racial-bias-angel-reese-caitlin-clark-debate-examines-how-social-media | checked: 2026-11-14
+caitlin-clark-s-popularity,prediction,disagree,paige-bueckers-dallas-wings,,,,,,,,,,,,,,,"By December 31, 2027; checked against Sports Media Watch season audience tables built from Nielsen.",url: https://pr.nba.com/wp-content/uploads/sites/46/2025/06/2025-WNBA-All-Star-Game-Fan-Voting-Results.pdf | checked: 2026-11-14
 caitlin-clark-s-popularity,prediction,disagree,national-fan-survey-reporting,,,,,,,,,,,,,,,"By December 31, 2027; checked against any published National Research Group, Morning Consult or Nielsen survey with that breakdown.",
 caitlin-clark-s-popularity,falsify,disagree,controlled-study-finding-white,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,falsify,disagree,finding-black-player-matching,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,assumption,disagree,majority-white-american-audience,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,assumption,disagree,how-player-marketed-talked,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,assumption,disagree,best-test-race-factor,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,person,disagree,jemele-hill-told-los,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,person,disagree,ja-wilson-told-associated,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,person,disagree,sheila-johnson-co-owner-2,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,media,disagree,dear-black-girls-how,,,,,,,,,,,,,,,,
+caitlin-clark-s-popularity,person,disagree,jemele-hill-told-los,,,,,,,,,,,,,,,,url: https://www.thecomeback.com/wnba/jemele-hill-caitlin-clark-whoopi-goldberg.html | checked: 2026-11-14
+caitlin-clark-s-popularity,person,disagree,ja-wilson-told-associated,,,,,,,,,,,,,,,,url: https://www.foxnews.com/sports/caitlin-clarks-race-huge-thing-comes-her-popularity-wnba-star-says | checked: 2026-11-14
+caitlin-clark-s-popularity,person,disagree,sheila-johnson-co-owner-2,,,,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/mystics-owner-sheila-johnson-criticizes-times-decision-to-name-caitlin-clark-athlete-of-the-year | checked: 2026-11-14
+caitlin-clark-s-popularity,media,disagree,dear-black-girls-how,,,,,,,,,,,,,,,,url: https://www.goodreads.com/book/isbn/9781250290045 | checked: 2026-11-14
 caitlin-clark-s-popularity,media,disagree,time-athlete-year-interview,,,,,,,,,,,,,,,,
-caitlin-clark-s-popularity,media,disagree,clarkonomics-comes-wnba-frank,,,,,,,,,,,,,,,,
+caitlin-clark-s-popularity,media,disagree,clarkonomics-comes-wnba-frank,,,,,,,,,,,,,,,,"url: https://api.crossref.org/works?query.bibliographic=Clarkonomics+WNBA&rows=5&select=DOI,title,author,container-title,volume,issue,published,abstract | checked: 2026-11-14"
 caitlin-clark-s-popularity,interest,agree,girls-who-play-youth,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,interest,agree,wnba-players-every-race,,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,interest,disagree,black-wnba-players-need-2,,,,,,,,,,,,,,,,
@@ -2815,7 +2815,7 @@ caitlin-clark-s-popularity,cba,agree,youth-players-every-race,,,,,,,,girls-who-p
 caitlin-clark-s-popularity,cba,agree,fever-s-ticket-base,,,,,,,,sports-journalists-who-cover,,,percent of season tickets renewed,,,,,
 caitlin-clark-s-popularity,cba,agree,league-s-new-television,,,,,,,,wnba-players-every-race,,,percent of WNBA revenue tied to one player,25,,,,
 caitlin-clark-s-popularity,cba,disagree,reporters-who-raise-race,,,,,,,,sports-journalists-who-cover,,,number of national columns per season examining race in WNBA marketing,,,,,
-caitlin-clark-s-popularity,cba,disagree,players-who-built-wnba,,,,,,,,longtime-wnba-fans-who,,,share of league growth coverage crediting pre-2024 players,,,,,
+caitlin-clark-s-popularity,cba,disagree,players-who-built-wnba,,,,,,,,longtime-wnba-fans-who,,,share of league growth coverage crediting pre-2024 players,,,,,url: https://www.tidesport.org/_files/ugd/71e0e0_40c980bc9dcd4a7e97d04fdb1e218c7c.pdf | checked: 2026-11-14
 caitlin-clark-s-popularity,category,,,number of national columns per season examining race in WNBA marketing,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,category,,,percent of WNBA revenue tied to one player,,,,,,,,,,,,,,,
 caitlin-clark-s-popularity,category,,,percent of season tickets renewed,,,,,,,,,,,,,,,
@@ -3164,20 +3164,20 @@ shohei-ohtani-already-most,falsify,disagree,inflation-adjusted-accounting-babe,,
 shohei-ohtani-already-most,assumption,disagree,phrase-most-valuable-player,,,,,,,,,,,,,,,,
 shohei-ohtani-already-most,assumption,disagree,babe-ruth-s-statistics,,,,,,,,,,,,,,,,
 shohei-ohtani-already-most,assumption,disagree,seasons-lost-elbow-knee,,,,,,,,,,,,,,,,
-shohei-ohtani-already-most,person,disagree,derek-jeter-said-fox,,,,,,,,,,,,,,,,
-shohei-ohtani-already-most,person,disagree,baseball-writer-ryan-ferguson,,,,,,,,,,,,,,,,
-shohei-ohtani-already-most,media,disagree,best-run-ever-how,,,,,,,,,,,,,,,,
-shohei-ohtani-already-most,media,disagree,big-fella-babe-ruth,,,,,,,,,,,,,,,,
-shohei-ohtani-already-most,media,disagree,sorry-shohei-ryan-ferguson,,,,,,,,,,,,,,,,
+shohei-ohtani-already-most,person,disagree,derek-jeter-said-fox,,,,,,,,,,,,,,,,url: https://www.foxsports.com/stories/mlb/fox-mlb-crew-reacts-shohei-ohtanis-monster-game-4-best-athlete-planet | checked: 2026-11-14
+shohei-ohtani-already-most,person,disagree,baseball-writer-ryan-ferguson,,,,,,,,,,,,,,,,url: https://ryanferguson.co.uk/blogs/blog/shohei-ohtani-babe-ruth-goat | checked: 2026-11-14
+shohei-ohtani-already-most,media,disagree,best-run-ever-how,,,,,,,,,,,,,,,,url: https://www.tsn.ca/mlb/article/comparing-ohtanis-five-year-stretch-to-best-in-mlb-n1-46835087/ | checked: 2026-11-14
+shohei-ohtani-already-most,media,disagree,big-fella-babe-ruth,,,,,,,,,,,,,,,,url: https://openlibrary.org/isbn/9780062380227.json | checked: 2026-11-14
+shohei-ohtani-already-most,media,disagree,sorry-shohei-ryan-ferguson,,,,,,,,,,,,,,,,url: https://ryanferguson.co.uk/blogs/blog/shohei-ohtani-babe-ruth-goat | checked: 2026-11-14
 shohei-ohtani-already-most,interest,agree,japanese-baseball-fans-need,,,,,,,,,,,,,,,,
 shohei-ohtani-already-most,interest,agree,young-two-way-players,,,,,,,,,,,,,,,,
 shohei-ohtani-already-most,interest,disagree,fans-who-watched-earlier,,,,,,,,,,,,,,,,
 shohei-ohtani-already-most,interest,disagree,baseball-historians-hall-fame,,,,,,,,,,,,,,,,
 shohei-ohtani-already-most,interest,disagree,fans-other-29-teams,,,,,,,,,,,,,,,,
-shohei-ohtani-already-most,cba,agree,treating-ohtani-most-valuable,,,,,,,,japanese-baseball-fans-need,,,million viewers in Japan for the top MLB game of the year,25,,,,
+shohei-ohtani-already-most,cba,agree,treating-ohtani-most-valuable,,,,,,,,japanese-baseball-fans-need,,,million viewers in Japan for the top MLB game of the year,25,,,,url: https://www.ksl.com/article/51280705/dodgers-cubs-opener-in-tokyo-averages-more-than-25-million-viewers-in-japan-a-record-audience | checked: 2026-11-14
 shohei-ohtani-already-most,cba,agree,accepting-two-way-player,,,,,,,,young-two-way-players,,,two-way players on major league rosters,,,,,
-shohei-ohtani-already-most,cba,disagree,declaring-ohtani-most-valuable,,,,,,,,fans-who-watched-earlier,,,wins above replacement of career value gap between Ohtani and Ruth,124.8,,,,
-shohei-ohtani-already-most,cba,disagree,concentrating-sport-s-attention,,,,,,,,fans-other-29-teams,,,million dollars a year of revenue attributed to one player,200,,,,
+shohei-ohtani-already-most,cba,disagree,declaring-ohtani-most-valuable,,,,,,,,fans-who-watched-earlier,,,wins above replacement of career value gap between Ohtani and Ruth,124.8,,,,url: https://www.baseball-reference.com/players/o/ohtansh01.shtml | checked: 2026-11-14
+shohei-ohtani-already-most,cba,disagree,concentrating-sport-s-attention,,,,,,,,fans-other-29-teams,,,million dollars a year of revenue attributed to one player,200,,,,url: https://www.thebiglead.com/dodgers-set-records-with-1-billion-revenues-150-million-revenue-sharing-report | checked: 2026-11-14
 shohei-ohtani-already-most,category,,,million dollars a year of revenue attributed to one player,,,,,,,,,,,,,,,
 shohei-ohtani-already-most,category,,,million viewers in Japan for the top MLB game of the year,,,,,,,,,,,,,,,
 shohei-ohtani-already-most,category,,,two-way players on major league rosters,,,,,,,,,,,,,,,
@@ -7119,47 +7119,47 @@ paying-college-athletes-through,argument,agree,name-image-likeness-deals,,,,,,,,
 paying-college-athletes-through,argument,agree,paying-athletes-openly-has,,,,,,,,,,,,,,,,
 paying-college-athletes-through,argument,agree,letting-money-count-athlete,,,,,,,,,,,,,,,,
 paying-college-athletes-through,argument,agree,record-television-audiences-biggest,,,,,,,,,,,,,,,,
-paying-college-athletes-through,evidence,agree,september-2025-ipsos-poll,,"Ipsos, ""Americans show broad support for college athletes being paid through NIL and revenue sharing"", 2025",,,,,,,,,,,,,,
+paying-college-athletes-through,evidence,agree,september-2025-ipsos-poll,,"Ipsos, ""Americans show broad support for college athletes being paid through NIL and revenue sharing"", 2025",,,,,,,,,,,,,,url: https://www.ipsos.com/en-us/americans-show-broad-support-college-athletes-being-paid-through-nil-and-revenue-sharing | checked: 2026-11-14
 paying-college-athletes-through,evidence,agree,division-i-athletes-who,,"NCAA, ""Latest NCAA graduation rates remain high"", 2025",,,,,,,,,,,,,,
-paying-college-athletes-through,evidence,agree,opendorse-estimates-total-compensation,,"FootballScoop, Zach Barnett, ""Opendorse tabs NIL market at more than $4 billion, up 50 percent from previous estimate"", 2026",,,,,,,,,,,,,,
+paying-college-athletes-through,evidence,agree,opendorse-estimates-total-compensation,,"FootballScoop, Zach Barnett, ""Opendorse tabs NIL market at more than $4 billion, up 50 percent from previous estimate"", 2026",,,,,,,,,,,,,,url: https://www.footballscoop.com/2026/06/25/opendorse-tabs-nil-market-more-than-4-billion-50-percent-increase | checked: 2026-11-14
 paying-college-athletes-through,prediction,agree,nba-draft-early-entrant,,,,,,,,,,,,,,,"By May 1, 2027; checked against the NBA's published early-entrant list.",
-paying-college-athletes-through,prediction,agree,division-i-graduation-success,,,,,,,,,,,,,,,"By November 30, 2028; checked in the NCAA's annual graduation rate release.",
+paying-college-athletes-through,prediction,agree,division-i-graduation-success,,,,,,,,,,,,,,,"By November 30, 2028; checked in the NCAA's annual graduation rate release.",url: https://ncaaorg.s3.amazonaws.com/research/gradrates/2025/2025D1RES_GSRTrends.pdf | checked: 2026-11-14
 paying-college-athletes-through,falsify,agree,ncaa-sports-sponsorship-count,,,,,,,,,,,,,,,,
 paying-college-athletes-through,falsify,agree,graduation-data-showing-first,,,,,,,,,,,,,,,,
 paying-college-athletes-through,assumption,agree,whether-college-sports-good,,,,,,,,,,,,,,,,
 paying-college-athletes-through,assumption,agree,problems-came-after-nil,,,,,,,,,,,,,,,,
 paying-college-athletes-through,assumption,agree,amateur-system-before-2021,,,,,,,,,,,,,,,,
-paying-college-athletes-through,person,agree,espn-analyst-jay-bilas,,,,,,,,,,,,,,,,
-paying-college-athletes-through,person,agree,supreme-court-justice-brett,,,,,,,,,,,,,,,,
-paying-college-athletes-through,media,agree,bilas-why-nil-has,,,,,,,,,,,,,,,,
-paying-college-athletes-through,media,agree,does-personalized-pricing-increase,,,,,,,,,,,,,,,,
-paying-college-athletes-through,media,agree,indentured-inside-story-rebellion,,,,,,,,,,,,,,,,
-paying-college-athletes-through,argument,disagree,money-colleges-now-owe,,,,,,,,,,,,,,,,
+paying-college-athletes-through,person,agree,espn-analyst-jay-bilas,,,,,,,,,,,,,,,,url: https://www.foxnews.com/sports/jay-bilas-raves-impact-nil-college-basketball-dont-think-ever-better | checked: 2026-11-14
+paying-college-athletes-through,person,agree,supreme-court-justice-brett,,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/supremecourt/text/20-512 | checked: 2026-11-14
+paying-college-athletes-through,media,agree,bilas-why-nil-has,,,,,,,,,,,,,,,,url: https://www.espn.com/college-sports/story/_/id/34161311/why-nil-good-college-sports-hurdles-remain | checked: 2026-11-14
+paying-college-athletes-through,media,agree,does-personalized-pricing-increase,,,,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1287/mnsc.2024.06423 | checked: 2026-11-14
+paying-college-athletes-through,media,agree,indentured-inside-story-rebellion,,,,,,,,,,,,,,,,"url: https://openlibrary.org/search.json?q=Indentured+Nocera+Strauss&fields=title,subtitle,author_name,publisher,first_publish_year,publish_date,isbn | checked: 2026-11-14"
+paying-college-athletes-through,argument,disagree,money-colleges-now-owe,,,,,,,,,,,,,,,,url: https://news.bgov.com/business-and-practice/ncaa-settlement-forcing-cuts-to-college-teams-in-olympic-sports | checked: 2026-11-14
 paying-college-athletes-through,argument,disagree,name-image-likeness-payments,,,,,,,,,,,,,,,,
-paying-college-athletes-through,argument,disagree,most-name-image-likeness,,,,,,,,,,,,,,,,
+paying-college-athletes-through,argument,disagree,most-name-image-likeness,,,,,,,,,,,,,,,,url: https://www.deseret.com/sports/2025/09/02/college-football-players-earn-money-nil-revenue-sharing-opendorse | checked: 2026-11-14
 paying-college-athletes-through,argument,disagree,schools-spending-scholarships-roster,,,,,,,,,,,,,,,,
-paying-college-athletes-through,argument,disagree,public-support-paying-college,,,,,,,,,,,,,,,,
-paying-college-athletes-through,evidence,disagree,roughly-41-division-i,,"Bloomberg Law, Alexia Massoud, ""NCAA Settlement Forcing Cuts to College Teams in Olympic Sports"", 2025",,,,,,,,,,,,,,
-paying-college-athletes-through,evidence,disagree,record-2-320-men,,"Front Office Sports, Colin Salao, ""NCAA Transfer Portal Hits Record Numbers, Again"", 2025",,,,,,,,,,,,,,
-paying-college-athletes-through,evidence,disagree,support-paying-college-athletes,,"Ipsos, ""Americans show increased concerns about sports betting"", 2026",,,,,,,,,,,,,,
-paying-college-athletes-through,evidence,disagree,average-big-ten-school,,"FootballScoop, Zach Barnett, ""Opendorse tabs NIL market at more than $4 billion, up 50 percent from previous estimate"", 2026",,,,,,,,,,,,,,
+paying-college-athletes-through,argument,disagree,public-support-paying-college,,,,,,,,,,,,,,,,url: https://www.ipsos.com/en-us/americans-show-increased-concerns-about-sports-betting | checked: 2026-11-14
+paying-college-athletes-through,evidence,disagree,roughly-41-division-i,,"Bloomberg Law, Alexia Massoud, ""NCAA Settlement Forcing Cuts to College Teams in Olympic Sports"", 2025",,,,,,,,,,,,,,url: https://news.bgov.com/business-and-practice/ncaa-settlement-forcing-cuts-to-college-teams-in-olympic-sports | checked: 2026-11-14
+paying-college-athletes-through,evidence,disagree,record-2-320-men,,"Front Office Sports, Colin Salao, ""NCAA Transfer Portal Hits Record Numbers, Again"", 2025",,,,,,,,,,,,,,url: https://frontofficesports.com/ncaa-transfer-portal-hits-record-numbers-again/ | checked: 2026-11-14
+paying-college-athletes-through,evidence,disagree,support-paying-college-athletes,,"Ipsos, ""Americans show increased concerns about sports betting"", 2026",,,,,,,,,,,,,,url: https://www.ipsos.com/en-us/americans-show-increased-concerns-about-sports-betting | checked: 2026-11-14
+paying-college-athletes-through,evidence,disagree,average-big-ten-school,,"FootballScoop, Zach Barnett, ""Opendorse tabs NIL market at more than $4 billion, up 50 percent from previous estimate"", 2026",,,,,,,,,,,,,,url: https://footballscoop.com/2026/06/25/opendorse-tabs-nil-market-more-than-4-billion-50-percent-increase | checked: 2026-11-14
 paying-college-athletes-through,prediction,disagree,ncaa-s-sports-sponsorship,,,,,,,,,,,,,,,"By December 31, 2028; checked in the NCAA Sports Sponsorship and Participation Rates Report.",
 paying-college-athletes-through,prediction,disagree,ipsos-support-paying-college,,,,,,,,,,,,,,,"By April 30, 2027; checked in the next Ipsos sports topline that asks the NIL support question.",
 paying-college-athletes-through,falsify,disagree,full-season-nielsen-average,,,,,,,,,,,,,,,,
 paying-college-athletes-through,falsify,disagree,documented-count-showing-fbs,,,,,,,,,,,,,,,,
 paying-college-athletes-through,assumption,disagree,college-sports-valuable-mainly,,,,,,,,,,,,,,,,
 paying-college-athletes-through,assumption,disagree,team-loyalty-stable-rosters,,,,,,,,,,,,,,,,
-paying-college-athletes-through,person,disagree,former-alabama-football-coach,,,,,,,,,,,,,,,,
-paying-college-athletes-through,person,disagree,president-donald-trump-signed,,,,,,,,,,,,,,,,
-paying-college-athletes-through,media,disagree,dozens-olympic-sports-have,,,,,,,,,,,,,,,,
-paying-college-athletes-through,media,disagree,inside-big-ten-money,,,,,,,,,,,,,,,,
+paying-college-athletes-through,person,disagree,former-alabama-football-coach,,,,,,,,,,,,,,,,url: https://www.woodtv.com/news/nexstar-media-wire/nick-saban-says-nil-created-an-environment-with-no-control-no-guardrails/amp/ ; https://www.si.com/college/oregon/football/nick-saban-nil-unsustainable-oregon-ducks-ohio-state-championship-wisconsin-georgia-miami-transfer-portal | checked: 2026-11-14
+paying-college-athletes-through,person,disagree,president-donald-trump-signed,,,,,,,,,,,,,,,,url: https://www.whitehouse.gov/presidential-actions/2025/07/saving-college-sports/ | checked: 2026-11-14
+paying-college-athletes-through,media,disagree,dozens-olympic-sports-have,,,,,,,,,,,,,,,,url: https://frontofficesports.com/dozens-of-olympic-sports-have-been-cut-in-wake-of-house-v-ncaa-settlement/ | checked: 2026-11-14
+paying-college-athletes-through,media,disagree,inside-big-ten-money,,,,,,,,,,,,,,,,url: https://www.cbssports.com/college-football/news/big-ten-money-gap-teams-nil-revenue-sharing/ | checked: 2026-11-14
 paying-college-athletes-through,interest,agree,college-football-basketball-players,,,,,,,,,,,,,,,,
 paying-college-athletes-through,interest,agree,women-s-basketball-players,,,,,,,,,,,,,,,,
 paying-college-athletes-through,interest,disagree,swimmers-wrestlers-tennis-players,,,,,,,,,,,,,,,,
 paying-college-athletes-through,interest,disagree,fans-smaller-programs-need,,,,,,,,,,,,,,,,
 paying-college-athletes-through,interest,disagree,high-school-recruits-need,,,,,,,,,,,,,,,,
-paying-college-athletes-through,cba,agree,college-athletes-now-receive,,,,,,,,college-football-basketball-players,,,dollars a year,4500000000,,,,
-paying-college-athletes-through,cba,disagree,division-i-schools-cut,,,,,,,,swimmers-wrestlers-tennis-players,,,varsity teams cut,41,,,,
+paying-college-athletes-through,cba,agree,college-athletes-now-receive,,,,,,,,college-football-basketball-players,,,dollars a year,4500000000,,,,url: https://footballscoop.com/2026/06/25/opendorse-tabs-nil-market-more-than-4-billion-50-percent-increase | checked: 2026-11-14
+paying-college-athletes-through,cba,disagree,division-i-schools-cut,,,,,,,,swimmers-wrestlers-tennis-players,,,varsity teams cut,41,,,,url: https://edcircuit.com/ncaa-settlement-drives-olympic-sports-cuts/ | checked: 2026-11-14
 paying-college-athletes-through,category,,,dollars a year,,,,,,,,,,,,,,,
 paying-college-athletes-through,category,,,varsity teams cut,,,,,,,,,,,,,,,
 paying-college-athletes-through,criterion,,graduation-success-rate-ncaa,,,,,,,,,,,,,,,,"method: Read the Division I overall GSR in the NCAA's annual November release for cohorts that entered college in 2021 or later, the first classes to spend their whole career under NIL. | validity: Medium | reliability: High | linkage: Medium | importance: High | strengthen: A Division I GSR that holds at 90 percent or higher for the post-2021 cohorts. | weaken: A Division I GSR that falls to 87 percent or lower for the post-2021 cohorts."
@@ -7446,32 +7446,32 @@ sopranos-best-television-drama,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The t
 sopranos-best-television-drama,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether critics' polls that rank The Sopranos first reflect its quality or simply its fame and its place as the first prestige cable drama. | move: Compare polls of voters who rank shows blind to air date or who are asked about specific qualities, and see whether The Sopranos still comes out ahead of Breaking Bad and The Wire."
 sopranos-best-television-drama,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree about how much credit being first should carry when later dramas built on what The Sopranos started. | move: Separate the question into two rankings, one for influence and one for quality, and see whether The Sopranos leads both."
 sopranos-best-television-drama,value,,,,,,,,,,,,,,,,,,"value: Originality | srank: 1 | orank: 3 | why: Supporters count The Sopranos' role in showing what a television drama could be as central to its greatness, while opponents treat that as influence rather than quality."
-taylor-swift-most-important,argument,agree,taylor-swift-holds-biggest,,,,,,,,,,,,,,,,
-taylor-swift-most-important,argument,agree,taylor-swift-has-stayed,,,,,,,,,,,,,,,,
-taylor-swift-most-important,argument,agree,taylor-swift-principal-writer,,,,,,,,,,,,,,,,
+taylor-swift-most-important,argument,agree,taylor-swift-holds-biggest,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/The_Life_of_a_Showgirl | checked: 2026-11-14
+taylor-swift-most-important,argument,agree,taylor-swift-has-stayed,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Taylor_Swift | checked: 2026-11-14
+taylor-swift-most-important,argument,agree,taylor-swift-principal-writer,,,,,,,,,,,,,,,,url: https://uk.news.yahoo.com/taylor-swift-breaks-record-most-042859749.html | checked: 2026-11-14
 taylor-swift-most-important,argument,agree,taylor-swift-s-reach,,,,,,,,,,,,,,,,
-taylor-swift-most-important,evidence,agree,billboard-s-chart-based,,"Billboard, Top Artists of the 21st Century chart (2000 to 2024), published January 2025",,,,,,,,,,,,,,
-taylor-swift-most-important,evidence,agree,ifpi-named-taylor-swift,,"IFPI, ""Taylor Swift named IFPI's Official Biggest-Selling Global Artist of the Year for a sixth time,"" 2026",,,,,,,,,,,,,,
-taylor-swift-most-important,evidence,agree,taylor-swift-won-album,,"Variety, ""Taylor Swift Breaks the Record for Most Album of the Year Grammy Wins, as 'Midnights' Makes It Four,"" 2024",,,,,,,,,,,,,,
+taylor-swift-most-important,evidence,agree,billboard-s-chart-based,,"Billboard, Top Artists of the 21st Century chart (2000 to 2024), published January 2025",,,,,,,,,,,,,,url: https://ca.billboard.com/music/chart-beat/drake-top-artists-21st-century-chart | checked: 2026-11-14
+taylor-swift-most-important,evidence,agree,ifpi-named-taylor-swift,,"IFPI, ""Taylor Swift named IFPI's Official Biggest-Selling Global Artist of the Year for a sixth time,"" 2026",,,,,,,,,,,,,,url: https://www.ifpi.org/taylor-swift-named-ifpis-official-biggest-selling-global-artist-of-the-year-for-a-sixth-time/ | checked: 2026-11-14
+taylor-swift-most-important,evidence,agree,taylor-swift-won-album,,"Variety, ""Taylor Swift Breaks the Record for Most Album of the Year Grammy Wins, as 'Midnights' Makes It Four,"" 2024",,,,,,,,,,,,,,url: https://uk.news.yahoo.com/taylor-swift-breaks-record-most-042859749.html | checked: 2026-11-14
 taylor-swift-most-important,prediction,agree,taylor-swift-will-named,,,,,,,,,,,,,,,"By March 31, 2029; checked against IFPI's annual Global Artist of the Year announcements.",
 taylor-swift-most-important,prediction,agree,billboard-s-next-chart,,,,,,,,,,,,,,,"By December 31, 2031; checked against the ranking as published by Billboard.",
 taylor-swift-most-important,falsify,agree,large-survey-professional-songwriters,,,,,,,,,,,,,,,,
 taylor-swift-most-important,assumption,agree,how-many-people-choose,,,,,,,,,,,,,,,,
 taylor-swift-most-important,assumption,agree,songwriting-changes-how-music,,,,,,,,,,,,,,,,
 taylor-swift-most-important,assumption,agree,twenty-five-years-evidence,,,,,,,,,,,,,,,,
-taylor-swift-most-important,person,agree,sam-lansky-wrote-time,,,,,,,,,,,,,,,,
-taylor-swift-most-important,media,agree,taylor-swift-time-s,,,,,,,,,,,,,,,,
-taylor-swift-most-important,media,agree,heartbreak-national-anthem-how,,,,,,,,,,,,,,,,
+taylor-swift-most-important,person,agree,sam-lansky-wrote-time,,,,,,,,,,,,,,,,url: https://time.com/6342806/person-of-the-year-2023-taylor-swift/ | checked: 2026-11-14
+taylor-swift-most-important,media,agree,taylor-swift-time-s,,,,,,,,,,,,,,,,url: https://time.com/6343069/taylor-swift-history-person-of-the-year/ | checked: 2026-11-14
+taylor-swift-most-important,media,agree,heartbreak-national-anthem-how,,,,,,,,,,,,,,,,url: https://www.kirkusreviews.com/book-reviews/rob-sheffield/heartbreak-is-the-national-anthem/ | checked: 2026-11-14
 taylor-swift-most-important,argument,disagree,commercial-size-same-importance,,,,,,,,,,,,,,,,
-taylor-swift-most-important,argument,disagree,hip-hop-became-most,,,,,,,,,,,,,,,,
-taylor-swift-most-important,argument,disagree,beyonc-has-stronger-claim,,,,,,,,,,,,,,,,
-taylor-swift-most-important,argument,disagree,taylor-swift-s-dominance,,,,,,,,,,,,,,,,
+taylor-swift-most-important,argument,disagree,hip-hop-became-most,,,,,,,,,,,,,,,,url: https://www.nielsen.com/wp-content/uploads/sites/2/2019/04/2017-year-end-music-report-us.pdf | checked: 2026-11-14
+taylor-swift-most-important,argument,disagree,beyonc-has-stronger-claim,,,,,,,,,,,,,,,,url: https://thegrio.com/2024/12/04/billboard-names-beyonce-the-greatest-pop-star-of-the-21st-century | checked: 2026-11-14
+taylor-swift-most-important,argument,disagree,taylor-swift-s-dominance,,,,,,,,,,,,,,,,url: https://newsroom.spotify.com/2025-12-03/wrapped-top-artists-songs-albums-podcasts-audiobooks/ | checked: 2026-11-14
 taylor-swift-most-important,argument,disagree,taylor-swift-s-record,,,,,,,,,,,,,,,,
 taylor-swift-most-important,argument,disagree,too-early-name-most,,,,,,,,,,,,,,,,
-taylor-swift-most-important,evidence,disagree,billboard-s-staff-chosen,,"Billboard, Greatest Pop Stars of the 21st Century list, December 2024",,,,,,,,,,,,,,
-taylor-swift-most-important,evidence,disagree,bad-bunny-was-spotify,,"Spotify Newsroom, ""2025 Wrapped"" announcement, December 2025",,,,,,,,,,,,,,
-taylor-swift-most-important,evidence,disagree,billboard-s-top-artists,,"Billboard, Top Artists of the 2010s decade chart, with Drake named Artist of the Decade at the 2021 Billboard Music Awards",,,,,,,,,,,,,,
-taylor-swift-most-important,evidence,disagree,r-b-hip-hop,,"Nielsen Music, 2017 U.S. Music Year-End Report, January 2018",,,,,,,,,,,,,,
+taylor-swift-most-important,evidence,disagree,billboard-s-staff-chosen,,"Billboard, Greatest Pop Stars of the 21st Century list, December 2024",,,,,,,,,,,,,,url: https://thegrio.com/2024/12/04/billboard-names-beyonce-the-greatest-pop-star-of-the-21st-century | checked: 2026-11-14
+taylor-swift-most-important,evidence,disagree,bad-bunny-was-spotify,,"Spotify Newsroom, ""2025 Wrapped"" announcement, December 2025",,,,,,,,,,,,,,url: https://newsroom.spotify.com/2025-12-03/wrapped-top-artists-songs-albums-podcasts-audiobooks/ | checked: 2026-11-14
+taylor-swift-most-important,evidence,disagree,billboard-s-top-artists,,"Billboard, Top Artists of the 2010s decade chart, with Drake named Artist of the Decade at the 2021 Billboard Music Awards",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2021_Billboard_Music_Awards | checked: 2026-11-14
+taylor-swift-most-important,evidence,disagree,r-b-hip-hop,,"Nielsen Music, 2017 U.S. Music Year-End Report, January 2018",,,,,,,,,,,,,,url: https://www.nielsen.com/wp-content/uploads/sites/2/2019/04/2017-year-end-music-report-us.pdf | checked: 2026-11-14
 taylor-swift-most-important,prediction,disagree,least-two-rolling-stone,,,,,,,,,,,,,,,"By December 31, 2030; checked against the lists as published by those outlets.",
 taylor-swift-most-important,prediction,disagree,artist-who-records-mainly,,,,,,,,,,,,,,,"By December 31, 2029; checked against Spotify's annual Wrapped announcements.",
 taylor-swift-most-important,falsify,disagree,broad-poll-critics-working,,,,,,,,,,,,,,,,
@@ -7479,17 +7479,17 @@ taylor-swift-most-important,falsify,disagree,streaming-sales-data-show,,,,,,,,,,
 taylor-swift-most-important,assumption,disagree,musician-s-importance-measured,,,,,,,,,,,,,,,,
 taylor-swift-most-important,assumption,disagree,listeners-latin-america-asia,,,,,,,,,,,,,,,,
 taylor-swift-most-important,assumption,disagree,considered-judgment-critics-fellow,,,,,,,,,,,,,,,,
-taylor-swift-most-important,media,disagree,100-best-albums-2010s,,,,,,,,,,,,,,,,
-taylor-swift-most-important,media,disagree,major-labels-history-popular,,,,,,,,,,,,,,,,
+taylor-swift-most-important,media,disagree,100-best-albums-2010s,,,,,,,,,,,,,,,,url: https://yearendlists.com/2010s/rolling-stone-100-best-albums-of-the-2010s | checked: 2026-11-14
+taylor-swift-most-important,media,disagree,major-labels-history-popular,,,,,,,,,,,,,,,,url: https://www.penguinrandomhouse.com/books/576360/major-labels-by-kelefa-sanneh/ | checked: 2026-11-14
 taylor-swift-most-important,interest,agree,songwriters-need-songwriting-counted,,,,,,,,,,,,,,,,
 taylor-swift-most-important,interest,agree,recording-artists-need-ownership,,,,,,,,,,,,,,,,
 taylor-swift-most-important,interest,agree,taylor-swift-s-fans,,,,,,,,,,,,,,,,
 taylor-swift-most-important,interest,disagree,working-musicians-below-superstar,,,,,,,,,,,,,,,,
 taylor-swift-most-important,interest,disagree,concertgoers-modest-budgets-need,,,,,,,,,,,,,,,,
-taylor-swift-most-important,cba,agree,treating-taylor-swift-century,,,,,,,,recording-artists-need-ownership,,,percentage of new major-label artist contracts that give the artist master ownership,,,,,
+taylor-swift-most-important,cba,agree,treating-taylor-swift-century,,,,,,,,recording-artists-need-ownership,,,percentage of new major-label artist contracts that give the artist master ownership,,,,,url: https://www.musicbusinessworldwide.com/taylor-swift-buys-back-master-rights-to-first-six-albums-from-shamrock-capital | checked: 2026-11-14
 taylor-swift-most-important,cba,agree,naming-taylor-swift-century,,,,,,,,songwriters-need-songwriting-counted,,,percentage of major century retrospectives that cite songwriting as a reason for an artist's rank,,,,,
 taylor-swift-most-important,cba,agree,ranking-taylor-swift-top,,,,,,,,taylor-swift-s-fans,,,concertgoers whose attendance is recorded in the top-ranked tour,10168008,,,,
-taylor-swift-most-important,cba,disagree,taylor-swift-album-release,,,,,,,,working-musicians-below-superstar,,,Hot 100 top-10 places lost to other artists in one release week,10,,,,
+taylor-swift-most-important,cba,disagree,taylor-swift-album-release,,,,,,,,working-musicians-below-superstar,,,Hot 100 top-10 places lost to other artists in one release week,10,,,,url: https://www.gpb.org/node/1397081 | checked: 2026-11-14
 taylor-swift-most-important,cba,disagree,treating-taylor-swift-era,,,,,,,,concertgoers-modest-budgets-need,,,dollars per ticket above the top-100 tour average,73,,,,
 taylor-swift-most-important,category,,,Hot 100 top-10 places lost to other artists in one release week,,,,,,,,,,,,,,,
 taylor-swift-most-important,category,,,concertgoers whose attendance is recorded in the top-ranked tour,,,,,,,,,,,,,,,
@@ -8046,34 +8046,34 @@ everyday-arguments,topic_media,,sandwich-history-10-words,,,,,,,,,,,,,,,,"medium
 everyday-arguments,topic_media,,john-hodgman-v-dan,,,,,,,,,,,,,,,,"medium: Show | tone: Popular | positivity: -50 | strength: 50 | insight: A food show debate on whether hot dogs are sandwiches, filed on the side that says they are."
 everyday-arguments,topic_media,,national-hot-dog-sausage-3,,,,,,,,,,,,,,,,medium: Article | tone: Advocacy | positivity: +80 | strength: 50 | insight: The meat industry's own hot dog body declared in 2015 that a hot dog is not a sandwich but a category of its own.
 everyday-arguments,topic_media,,famous-people-weigh-heated,,,,,,,,,,,,,,,,medium: Article | tone: Advocacy | positivity: +50 | strength: 20 | insight: The National Hot Dog and Sausage Council gathers public figures' views on the hot dog sandwich debate in support of its position that a hot dog is not a sandwich.
-pineapple-belongs-pizza,argument,agree,most-americans-march-2023,,,,,,,,,,,,,,,,
+pineapple-belongs-pizza,argument,agree,most-americans-march-2023,,,,,,,,,,,,,,,,url: https://yougov.com/en-us/articles/45715-americans-favorite-pizza-topping-pepperoni-poll | checked: 2026-11-14
 pineapple-belongs-pizza,argument,agree,pineapple-s-sweetness-sharp,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,argument,agree,pizza-has-always-changed,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,argument,agree,respected-italian-pizza-makers,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,argument,agree,italian-pizzerias-already-serve,,,,,,,,,,,,,,,,
+pineapple-belongs-pizza,argument,agree,pizza-has-always-changed,,,,,,,,,,,,,,,,url: https://time.com/4814056/hawaiian-pizza-pineapple-sam-panopoulos-death/ | checked: 2026-11-14
+pineapple-belongs-pizza,argument,agree,respected-italian-pizza-makers,,,,,,,,,,,,,,,,url: https://www.thelocal.it/20240104/have-italians-finally-digested-the-idea-of-pineapple-on-pizza | checked: 2026-11-14
+pineapple-belongs-pizza,argument,agree,italian-pizzerias-already-serve,,,,,,,,,,,,,,,,url: https://www.pepeingrani.it/menu | checked: 2026-11-14
 pineapple-belongs-pizza,argument,agree,whether-topping-belongs-pizza,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,evidence,agree,yougov-poll-1-000,,"YouGov, ""Americans' favorite pizza topping is pepperoni. Their least favorite, by far: anchovies,"" May 16, 2023",,,,,,,,,,,,,,
-pineapple-belongs-pizza,evidence,agree,2017-yougov-poll-britons,,"YouGov UK, Matthew Smith, ""Does pineapple belong on a pizza?"", March 6, 2017",,,,,,,,,,,,,,
-pineapple-belongs-pizza,evidence,agree,hawaiian-pizza-was-most,,"Pizza Marketing Quarterly (PMQ), 1999, as cited in the Wikipedia article ""Hawaiian pizza""",,,,,,,,,,,,,,
+pineapple-belongs-pizza,evidence,agree,yougov-poll-1-000,,"YouGov, ""Americans' favorite pizza topping is pepperoni. Their least favorite, by far: anchovies,"" May 16, 2023",,,,,,,,,,,,,,url: https://yougov.com/en-us/articles/45715-americans-favorite-pizza-topping-pepperoni-poll | checked: 2026-11-14
+pineapple-belongs-pizza,evidence,agree,2017-yougov-poll-britons,,"YouGov UK, Matthew Smith, ""Does pineapple belong on a pizza?"", March 6, 2017",,,,,,,,,,,,,,url: https://yougov.com/en-gb/articles/17714-does-pineapple-belong-pizza | checked: 2026-11-14
+pineapple-belongs-pizza,evidence,agree,hawaiian-pizza-was-most,,"Pizza Marketing Quarterly (PMQ), 1999, as cited in the Wikipedia article ""Hawaiian pizza""",,,,,,,,,,,,,,url: http://www.pmq.com/Winter-1999/PMQ-Goes-To-Australia/ | checked: 2026-11-14
 pineapple-belongs-pizza,prediction,agree,next-yougov-national-poll,,,,,,,,,,,,,,,"By December 31, 2027; checked against YouGov's published U.S. pizza topping poll.",
-pineapple-belongs-pizza,prediction,agree,gino-sorbillo-s-pineapple,,,,,,,,,,,,,,,"By December 31, 2026; checked against the pizzeria's published menu or news coverage.",
+pineapple-belongs-pizza,prediction,agree,gino-sorbillo-s-pineapple,,,,,,,,,,,,,,,"By December 31, 2026; checked against the pizzeria's published menu or news coverage.",url: https://www.thelocal.it/20240104/have-italians-finally-digested-the-idea-of-pineapple-on-pizza | checked: 2026-11-14
 pineapple-belongs-pizza,falsify,agree,controlled-taste-test-finds,,,,,,,,,,,,,,,,
 pineapple-belongs-pizza,falsify,agree,national-poll-finds-most,,,,,,,,,,,,,,,,
 pineapple-belongs-pizza,assumption,agree,whether-food-combination-good,,,,,,,,,,,,,,,,
 pineapple-belongs-pizza,assumption,agree,pizza-broad-family-dishes,,,,,,,,,,,,,,,,
 pineapple-belongs-pizza,assumption,agree,sweet-salty-flavors-can,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,person,agree,canadian-prime-minister-justin,,,,,,,,,,,,,,,,
+pineapple-belongs-pizza,person,agree,canadian-prime-minister-justin,,,,,,,,,,,,,,,,url: https://www.narcity.com/pineapple-on-pizza-is-a-delicious-national-treasure-says-trudeau | checked: 2026-11-14
 pineapple-belongs-pizza,person,agree,franco-pepe-pizza-maker,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,media,agree,pizza-global-history-carol,,,,,,,,,,,,,,,,
+pineapple-belongs-pizza,media,agree,pizza-global-history-carol,,,,,,,,,,,,,,,,url: https://reaktionbooks.co.uk/work/pizza | checked: 2026-11-14
 pineapple-belongs-pizza,argument,disagree,pineapple-generally-releases-juice,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,argument,disagree,italians-whose-country-gave,,,,,,,,,,,,,,,,
+pineapple-belongs-pizza,argument,disagree,italians-whose-country-gave,,,,,,,,,,,,,,,,url: https://yougov.com/articles/40810-italian-food-crimes | checked: 2026-11-14
 pineapple-belongs-pizza,argument,disagree,syrup-sweet-taste-canned,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,argument,disagree,more-american-adults-disliked,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,argument,disagree,neapolitan-pizza-style-protected,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,evidence,disagree,yougov-poll-6-168,,"YouGov, ""These are the most liked - and disliked - pizza toppings in America,"" February 8, 2021",,,,,,,,,,,,,,
-pineapple-belongs-pizza,evidence,disagree,2022-yougov-survey-across,,"YouGov, ""You're doing Italian food all wrong, say Italians,"" February 3, 2022",,,,,,,,,,,,,,
-pineapple-belongs-pizza,evidence,disagree,2019-yougov-survey-24,,"YouGov, ""Pineapple remains a controversial pizza topping,"" February 4, 2019",,,,,,,,,,,,,,
-pineapple-belongs-pizza,prediction,disagree,new-yougov-poll-american,,,,,,,,,,,,,,,"By December 31, 2027; checked against YouGov's published U.S. pizza topping poll.",
+pineapple-belongs-pizza,argument,disagree,more-american-adults-disliked,,,,,,,,,,,,,,,,url: https://yougov.com/en-us/articles/34075-most-liked-disliked-pizza-toppings-poll-data | checked: 2026-11-14
+pineapple-belongs-pizza,argument,disagree,neapolitan-pizza-style-protected,,,,,,,,,,,,,,,,url: https://publications.europa.eu/resource/celex/32010R0097 | checked: 2026-11-14
+pineapple-belongs-pizza,evidence,disagree,yougov-poll-6-168,,"YouGov, ""These are the most liked - and disliked - pizza toppings in America,"" February 8, 2021",,,,,,,,,,,,,,url: https://yougov.com/en-us/articles/34075-most-liked-disliked-pizza-toppings-poll-data | checked: 2026-11-14
+pineapple-belongs-pizza,evidence,disagree,2022-yougov-survey-across,,"YouGov, ""You're doing Italian food all wrong, say Italians,"" February 3, 2022",,,,,,,,,,,,,,url: https://yougov.com/articles/40810-italian-food-crimes | checked: 2026-11-14
+pineapple-belongs-pizza,evidence,disagree,2019-yougov-survey-24,,"YouGov, ""Pineapple remains a controversial pizza topping,"" February 4, 2019",,,,,,,,,,,,,,url: https://yougov.com/en-us/articles/22421-pineapple-pizza-toppings-pepperoni-popular | checked: 2026-11-14
+pineapple-belongs-pizza,prediction,disagree,new-yougov-poll-american,,,,,,,,,,,,,,,"By December 31, 2027; checked against YouGov's published U.S. pizza topping poll.",url: https://yougov.com/en-us/articles/34075-most-liked-disliked-pizza-toppings-poll-data | checked: 2026-11-14
 pineapple-belongs-pizza,prediction,disagree,most-italian-pizzerias-added,,,,,,,,,,,,,,,"By December 31, 2027; checked against the pizzerias' published menus.",
 pineapple-belongs-pizza,falsify,disagree,controlled-taste-test-finds-2,,,,,,,,,,,,,,,,
 pineapple-belongs-pizza,falsify,disagree,sales-data-major-pizza,,,,,,,,,,,,,,,,
@@ -8081,8 +8081,8 @@ pineapple-belongs-pizza,assumption,disagree,country-created-dish-has,,,,,,,,,,,,
 pineapple-belongs-pizza,assumption,disagree,cooks-share-real-standards,,,,,,,,,,,,,,,,
 pineapple-belongs-pizza,assumption,disagree,pizza-built-around-tomato,,,,,,,,,,,,,,,,
 pineapple-belongs-pizza,person,disagree,icelandic-president-gu-ni,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,media,disagree,you-re-doing-italian,,,,,,,,,,,,,,,,
-pineapple-belongs-pizza,media,disagree,commission-regulation-eu-no,,,,,,,,,,,,,,,,
+pineapple-belongs-pizza,media,disagree,you-re-doing-italian,,,,,,,,,,,,,,,,url: https://yougov.com/articles/40810-italian-food-crimes | checked: 2026-11-14
+pineapple-belongs-pizza,media,disagree,commission-regulation-eu-no,,,,,,,,,,,,,,,,url: https://www.legislation.gov.uk/eur/2010/97/annex/II | checked: 2026-11-14
 pineapple-belongs-pizza,media,disagree,watch-gordon-ramsay-suffer,,,,,,,,,,,,,,,,
 pineapple-belongs-pizza,interest,agree,pizza-eaters-who-like,,,,,,,,,,,,,,,,
 pineapple-belongs-pizza,interest,agree,pizzeria-owners-north-america,,,,,,,,,,,,,,,,
@@ -8119,9 +8119,9 @@ tipping-american-restaurants-replaced,argument,agree,waitstaff-bartenders-who-de
 tipping-american-restaurants-replaced,argument,agree,tipping-american-restaurants-sends,,,,,,,,,,,,,,,,url: https://www.dol.gov/agencies/whd/fact-sheets/15-tipped-employees-flsa | checked: 2026-11-14
 tipping-american-restaurants-replaced,argument,agree,servers-whose-income-depends,,,,,,,,,,,,,,,,url: https://time.com/3478041/restaurant-sexual-harassment-survey | checked: 2026-11-14
 tipping-american-restaurants-replaced,argument,agree,restaurants-most-other-wealthy,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_tipping_customs_by_country | checked: 2026-11-14
-tipping-american-restaurants-replaced,evidence,agree,meta-analysis-13-studies,,"Michael Lynn and Michael McCall, ""Gratitude and Gratuity: A Meta-analysis of Research on the Service-tipping Relationship,"" Journal of Socio-Economics, 2000",,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,evidence,agree,meta-analysis-13-studies,,"Michael Lynn and Michael McCall, ""Gratitude and Gratuity: A Meta-analysis of Research on the Service-tipping Relationship,"" Journal of Socio-Economics, 2000",,,,,,,,,,,,,,url: https://ecommons.cornell.edu/server/api/core/bitstreams/ee516993-4e91-4a48-923f-7f7f2d886b5d/content | checked: 2026-11-14
 tipping-american-restaurants-replaced,evidence,agree,meta-analysis-74-studies,,"George C. Banks and colleagues, ""A meta-analytic review of tipping compensation practices: An agency theory perspective,"" Personnel Psychology, 2018",,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1111/peps.12261 | checked: 2026-11-14
-tipping-american-restaurants-replaced,evidence,agree,one-restaurant-study-white,,"Michael Lynn, Michael Sturman, Christie Ganley, Elizabeth Adams, Mathew Douglas and Jessica McNeil, ""Consumer Racial Discrimination in Tipping: A Replication and Extension,"" Journal of Applied Social Psychology, 2008",,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,evidence,agree,one-restaurant-study-white,,"Michael Lynn, Michael Sturman, Christie Ganley, Elizabeth Adams, Mathew Douglas and Jessica McNeil, ""Consumer Racial Discrimination in Tipping: A Replication and Extension,"" Journal of Applied Social Psychology, 2008",,,,,,,,,,,,,,url: https://ecommons.cornell.edu/server/api/core/bitstreams/89d09228-e5a1-48a8-bac1-cf1ffc5a9735/content | checked: 2026-11-14
 tipping-american-restaurants-replaced,evidence,agree,among-waitstaff-bartenders-18,,"Economic Policy Institute, ""Twenty-Three Years and Still Waiting for Change: Why It's Time to Give Tipped Workers the Regular Minimum Wage,"" 2014",,,,,,,,,,,,,,url: https://files.epi.org/2014/EPI-CWED-BP379.pdf | checked: 2026-11-14
 tipping-american-restaurants-replaced,prediction,agree,restaurants-adopt-service-included,,,,,,,,,,,,,,,"By December 31, 2028; checked against any published peer-reviewed or industry study comparing turnover at the two kinds of restaurants.",
 tipping-american-restaurants-replaced,prediction,agree,food-service-employment-chicago,,,,,,,,,,,,,,,"By December 31, 2030; checked against the BLS Quarterly Census of Employment and Wages for Cook County compared with the national series.",url: https://www.nbcchicago.com/news/local/chicago-eliminates-subminimum-wage-for-tipped-workers-heres-what-that-means/3244487/ | checked: 2026-11-14
@@ -8272,48 +8272,48 @@ working-home-better-most,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides 
 working-home-better-most,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides disagree about whether hybrid work with two or three home days counts as working from home, since the strongest evidence for the belief comes from hybrid trials. | move: Separating findings by number of home days a week and scoring the belief against full-time and hybrid arrangements separately would settle it."
 working-home-better-most,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree about whether daily time and flexibility should count for more than the in-person mentoring and connection that may pay off later in a career. | move: Asking workers to weigh concrete trade-offs, such as hours saved against a measured promotion gap, would show which matters more to them, though it cannot settle the question for everyone."
 working-home-better-most,value,,,,,,,,,,,,,,,,,,"value: Autonomy | srank: 1 | orank: 3 | why: Supporters put workers' control over where and when they work first, while opponents treat it as one good among several."
-smartphones-social-media-main,argument,agree,sharp-rise-depression-anxiety,,,,,,,,,,,,,,,,
-smartphones-social-media-main,argument,agree,natural-experiments-such-staggered,,,,,,,,,,,,,,,,
-smartphones-social-media-main,argument,agree,randomized-trials-which-people,,,,,,,,,,,,,,,,
-smartphones-social-media-main,argument,agree,teenage-girls-who-spend,,,,,,,,,,,,,,,,
+smartphones-social-media-main,argument,agree,sharp-rise-depression-anxiety,,,,,,,,,,,,,,,,url: https://www.pewresearch.org/internet/2015/04/09/teens-social-media-technology-2015/ | checked: 2026-11-14
+smartphones-social-media-main,argument,agree,natural-experiments-such-staggered,,,,,,,,,,,,,,,,url: https://epub.ub.uni-muenchen.de/91215/1/320.pdf | checked: 2026-11-14
+smartphones-social-media-main,argument,agree,randomized-trials-which-people,,,,,,,,,,,,,,,,url: https://www.rti.org/publication/the-effects-of-social-media-restriction-meta-analytic-evidence-fr | checked: 2026-11-14
+smartphones-social-media-main,argument,agree,teenage-girls-who-spend,,,,,,,,,,,,,,,,url: https://www.cdc.gov/yrbs/dstr/pdf/YRBS-2023-Data-Summary-Trend-Report.pdf | checked: 2026-11-14
 smartphones-social-media-main,argument,agree,smartphones-teenagers-hands-push,,,,,,,,,,,,,,,,
 smartphones-social-media-main,argument,agree,social-media-can-harm,,,,,,,,,,,,,,,,
-smartphones-social-media-main,evidence,agree,when-facebook-was-introduced,,"Braghieri, Levy and Makarin, ""Social Media and Mental Health,"" American Economic Review 112(11), 2022",,,,,,,,,,,,,,
-smartphones-social-media-main,evidence,agree,adults-randomly-paid-deactivate,,"Allcott, Braghieri, Eichmeyer and Gentzkow, ""The Welfare Effects of Social Media,"" American Economic Review 110(3), 2020",,,,,,,,,,,,,,
-smartphones-social-media-main,evidence,agree,reanalyzing-published-social-media,,"Thrul, Devkota, AlJuboori, Regan, Alomairah and Vidal, ""Social Media Reduction or Abstinence Interventions Are Providing Mental Health Benefits: Reanalysis of a Published Meta-Analysis,"" Psychology of Popular Media, 2025",,,,,,,,,,,,,,
-smartphones-social-media-main,prediction,agree,teen-depression-self-harm,,,,,,,,,,,,,,,"By December 31, 2028; checked against the published evaluation of the Australian ban and national youth survey and hospital self-harm data for both countries.",
+smartphones-social-media-main,evidence,agree,when-facebook-was-introduced,,"Braghieri, Levy and Makarin, ""Social Media and Mental Health,"" American Economic Review 112(11), 2022",,,,,,,,,,,,,,url: https://epub.ub.uni-muenchen.de/91215/1/320.pdf | checked: 2026-11-14
+smartphones-social-media-main,evidence,agree,adults-randomly-paid-deactivate,,"Allcott, Braghieri, Eichmeyer and Gentzkow, ""The Welfare Effects of Social Media,"" American Economic Review 110(3), 2020",,,,,,,,,,,,,,url: https://www.nber.org/system/files/working_papers/w25514/w25514.pdf | checked: 2026-11-14
+smartphones-social-media-main,evidence,agree,reanalyzing-published-social-media,,"Thrul, Devkota, AlJuboori, Regan, Alomairah and Vidal, ""Social Media Reduction or Abstinence Interventions Are Providing Mental Health Benefits: Reanalysis of a Published Meta-Analysis,"" Psychology of Popular Media, 2025",,,,,,,,,,,,,,url: https://scholar.usuhs.edu/en/publications/social-media-reduction-or-abstinence-interventions-are-providing-/ | checked: 2026-11-14
+smartphones-social-media-main,prediction,agree,teen-depression-self-harm,,,,,,,,,,,,,,,"By December 31, 2028; checked against the published evaluation of the Australian ban and national youth survey and hospital self-harm data for both countries.",url: https://en.wikipedia.org/wiki/Online_Safety_Amendment_(Social_Media_Minimum_Age)_Act_2024 | checked: 2026-11-14
 smartphones-social-media-main,prediction,agree,preregistered-randomized-trials-three,,,,,,,,,,,,,,,"By December 31, 2029; checked by the first meta-analysis restricted to teen trials of that length published in a peer-reviewed journal.",
 smartphones-social-media-main,falsify,agree,large-randomized-trial-removes,,,,,,,,,,,,,,,,
 smartphones-social-media-main,falsify,agree,within-country-data-show,,,,,,,,,,,,,,,,
 smartphones-social-media-main,assumption,agree,rise-teen-depression-anxiety,,,,,,,,,,,,,,,,
 smartphones-social-media-main,assumption,agree,effects-too-small-see,,,,,,,,,,,,,,,,
 smartphones-social-media-main,assumption,agree,no-other-change-arrived,,,,,,,,,,,,,,,,
-smartphones-social-media-main,person,agree,social-psychologist-jonathan-haidt,,,,,,,,,,,,,,,,
-smartphones-social-media-main,person,agree,psychologist-jean-twenge-argued,,,,,,,,,,,,,,,,
-smartphones-social-media-main,person,agree,u-s-surgeon-general,,,,,,,,,,,,,,,,
-smartphones-social-media-main,media,agree,anxious-generation-how-great,,,,,,,,,,,,,,,,
-smartphones-social-media-main,media,agree,social-media-mental-health,,,,,,,,,,,,,,,,
-smartphones-social-media-main,media,agree,social-media-youth-mental,,,,,,,,,,,,,,,,
-smartphones-social-media-main,argument,disagree,large-studies-hundreds-thousands,,,,,,,,,,,,,,,,
-smartphones-social-media-main,argument,disagree,national-academies-sciences-engineering,,,,,,,,,,,,,,,,
+smartphones-social-media-main,person,agree,social-psychologist-jonathan-haidt,,,,,,,,,,,,,,,,url: https://newrepublic.com/article/190384/cell-phones-really-destroying-kids-mental-health | checked: 2026-11-14
+smartphones-social-media-main,person,agree,psychologist-jean-twenge-argued,,,,,,,,,,,,,,,,url: https://www.mprnews.org/story/2017/08/08/npr-how-smartphones-making-kids-unhappy | checked: 2026-11-14
+smartphones-social-media-main,person,agree,u-s-surgeon-general,,,,,,,,,,,,,,,,url: https://abc7news.com/post/surgeon-general-vivek-murthy-calls-health-warnings-social/14964380/ | checked: 2026-11-14
+smartphones-social-media-main,media,agree,anxious-generation-how-great,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/The_Anxious_Generation | checked: 2026-11-14
+smartphones-social-media-main,media,agree,social-media-mental-health,,,,,,,,,,,,,,,,url: https://www.aeaweb.org/articles?id=10.1257/aer.20211218 | checked: 2026-11-14
+smartphones-social-media-main,media,agree,social-media-youth-mental,,,,,,,,,,,,,,,,url: https://abc7news.com/post/surgeon-general-vivek-murthy-calls-health-warnings-social/14964380/ | checked: 2026-11-14
+smartphones-social-media-main,argument,disagree,large-studies-hundreds-thousands,,,,,,,,,,,,,,,,url: https://doi.org/10.1038/s41562-018-0506-1 | checked: 2026-11-14
+smartphones-social-media-main,argument,disagree,national-academies-sciences-engineering,,,,,,,,,,,,,,,,url: https://nap.nationalacademies.org/read/27396/chapter/2 | checked: 2026-11-14
 smartphones-social-media-main,argument,disagree,other-changes-hit-american,,,,,,,,,,,,,,,,
 smartphones-social-media-main,argument,disagree,greater-awareness-mental-illness,,,,,,,,,,,,,,,,
 smartphones-social-media-main,argument,disagree,link-between-heavy-social,,,,,,,,,,,,,,,,
-smartphones-social-media-main,argument,disagree,studies-well-being-across,,,,,,,,,,,,,,,,
-smartphones-social-media-main,evidence,disagree,across-three-large-datasets,,"Orben and Przybylski, ""The association between adolescent well-being and digital technology use,"" Nature Human Behaviour 3, 2019",,,,,,,,,,,,,,
-smartphones-social-media-main,evidence,disagree,preregistered-meta-analysis-experiments,,"Ferguson, ""Do Social Media Experiments Prove a Link With Mental Health: A Methodological and Meta-Analytic Review,"" Psychology of Popular Media, 2024",,,,,,,,,,,,,,
-smartphones-social-media-main,evidence,disagree,comparing-well-being-mental,,"Vuorre and Przybylski, ""Global Well-Being and Mental Health in the Internet Age,"" Clinical Psychological Science, 2024 (online November 2023)",,,,,,,,,,,,,,
-smartphones-social-media-main,prediction,disagree,australia-s-under-16,,,,,,,,,,,,,,,"By December 31, 2028; checked against the published evaluation of the Australian ban and comparable New Zealand youth data.",
+smartphones-social-media-main,argument,disagree,studies-well-being-across,,,,,,,,,,,,,,,,url: https://ora.ox.ac.uk/objects/uuid:f89a1517-7585-4404-9da3-43f96ff846b6/files/r76537263k | checked: 2026-11-14
+smartphones-social-media-main,evidence,disagree,across-three-large-datasets,,"Orben and Przybylski, ""The association between adolescent well-being and digital technology use,"" Nature Human Behaviour 3, 2019",,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.1038/s41562-018-0506-1&resultType=core&format=json | checked: 2026-11-14
+smartphones-social-media-main,evidence,disagree,preregistered-meta-analysis-experiments,,"Ferguson, ""Do Social Media Experiments Prove a Link With Mental Health: A Methodological and Meta-Analytic Review,"" Psychology of Popular Media, 2024",,,,,,,,,,,,,,url: https://matthewbjane.com/blog-posts/blog-post-6.html | checked: 2026-11-14
+smartphones-social-media-main,evidence,disagree,comparing-well-being-mental,,"Vuorre and Przybylski, ""Global Well-Being and Mental Health in the Internet Age,"" Clinical Psychological Science, 2024 (online November 2023)",,,,,,,,,,,,,,url: https://ora.ox.ac.uk/objects/uuid:f89a1517-7585-4404-9da3-43f96ff846b6/files/r76537263k | checked: 2026-11-14
+smartphones-social-media-main,prediction,disagree,australia-s-under-16,,,,,,,,,,,,,,,"By December 31, 2028; checked against the published evaluation of the Australian ban and comparable New Zealand youth data.",url: https://en.wikipedia.org/wiki/Online_Safety_Amendment_(Social_Media_Minimum_Age)_Act_2024 | checked: 2026-11-14
 smartphones-social-media-main,prediction,disagree,teen-depression-rates-united,,,,,,,,,,,,,,,"By December 31, 2030; checked against the National Survey on Drug Use and Health and survey measures of teen daily social media time such as Pew Research Center's.",
 smartphones-social-media-main,falsify,disagree,teen-depression-rates-fall,,,,,,,,,,,,,,,,
 smartphones-social-media-main,falsify,disagree,well-designed-long-term,,,,,,,,,,,,,,,,
 smartphones-social-media-main,assumption,disagree,cause-strong-enough-main,,,,,,,,,,,,,,,,
 smartphones-social-media-main,assumption,disagree,teen-mental-health-shaped,,,,,,,,,,,,,,,,
 smartphones-social-media-main,assumption,disagree,public-alarm-about-new,,,,,,,,,,,,,,,,
-smartphones-social-media-main,person,disagree,psychologist-candice-odgers-wrote,,,,,,,,,,,,,,,,
-smartphones-social-media-main,media,disagree,association-between-adolescent-well,,,,,,,,,,,,,,,,
-smartphones-social-media-main,media,disagree,do-social-media-experiments,,,,,,,,,,,,,,,,
-smartphones-social-media-main,media,disagree,great-rewiring-social-media,,,,,,,,,,,,,,,,
+smartphones-social-media-main,person,disagree,psychologist-candice-odgers-wrote,,,,,,,,,,,,,,,,url: https://www.nature.com/articles/d41586-024-00902-2 | checked: 2026-11-14
+smartphones-social-media-main,media,disagree,association-between-adolescent-well,,,,,,,,,,,,,,,,url: https://www.nature.com/articles/s41562-018-0506-1 | checked: 2026-11-14
+smartphones-social-media-main,media,disagree,do-social-media-experiments,,,,,,,,,,,,,,,,url: https://matthewbjane.com/blog-posts/blog-post-6.html | checked: 2026-11-14
+smartphones-social-media-main,media,disagree,great-rewiring-social-media,,,,,,,,,,,,,,,,url: https://www.nature.com/articles/d41586-024-00902-2 | checked: 2026-11-14
 smartphones-social-media-main,interest,agree,teenage-girls-need-online,,,,,,,,,,,,,,,,
 smartphones-social-media-main,interest,agree,school-teachers-need-classrooms,,,,,,,,,,,,,,,,
 smartphones-social-media-main,interest,disagree,lgbtq-teenagers-unsupportive-towns,,,,,,,,,,,,,,,,
@@ -8323,7 +8323,7 @@ smartphones-social-media-main,cba,agree,if-social-media-main,,,,,,,,teenagers-ne
 smartphones-social-media-main,cba,agree,phone-free-school-days,,,,,,,,school-teachers-need-classrooms,,,minutes of phone-free class time per student per school day,,,,,
 smartphones-social-media-main,cba,agree,default-overnight-blocks-teen,,,,,,,,teenage-girls-need-online,,,minutes of sleep per teenager per school night,,,,,
 smartphones-social-media-main,cba,disagree,age-verification-rules-social,,,,,,,,teenagers-need-talk-friends,,,millions of users asked to verify age,,,,,
-smartphones-social-media-main,cba,disagree,cutting-teenagers-off-social,,,,,,,,lgbtq-teenagers-unsupportive-towns,,,share of LGBTQ teenagers who lose their main source of peer support,,,,,
+smartphones-social-media-main,cba,disagree,cutting-teenagers-off-social,,,,,,,,lgbtq-teenagers-unsupportive-towns,,,share of LGBTQ teenagers who lose their main source of peer support,,,,,url: https://www.thetrevorproject.org/survey-2024/ | checked: 2026-11-14
 smartphones-social-media-main,cba,disagree,treating-phones-main-cause,,,,,,,,child-psychiatrists-school-counselors,,,dollars a year of youth mental health funding diverted,,,,,
 smartphones-social-media-main,category,,,dollars a year of youth mental health funding diverted,,,,,,,,,,,,,,,
 smartphones-social-media-main,category,,,millions of users asked to verify age,,,,,,,,,,,,,,,
@@ -8993,31 +8993,31 @@ united-states-will-recession,definition,,,,,,,,,,,,,,,,,,"term: Recession | defi
 united-states-will-recession,dispute,,,Causal,,,,,,,,,,,,,,,"what: The sides disagree about whether a record oil price shock still pushes the U.S. economy into recession now that the country produces more oil than it uses. | move: Track whether real U.S. consumer spending falls by more than oil-state investment and income rise over the months after the shock, using Bureau of Economic Analysis spending and state income data through mid-2027."
 united-states-will-recession,value,,,,,,,,,,,,,,,,,,"value: Preparedness | srank: 1 | orank: 3 | why: Those who expect a recession put the most weight on workers, families and firms getting ready before job losses start, even at the cost of some needless caution."
 federal-reserve-will-cut,argument,agree,once-u-s-recession,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,argument,agree,u-s-job-market,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,argument,agree,inflation-outside-food-energy,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,argument,agree,ten-scheduled-federal-reserve,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,argument,agree,sustained-public-pressure-president,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,evidence,agree,during-2001-federal-reserve,,"Board of Governors of the Federal Reserve System, Open Market Operations Archive (federal funds target changes, 2001), 2001",,,,,,,,,,,,,,
-federal-reserve-will-cut,evidence,agree,march-2020-federal-reserve,,"Board of Governors of the Federal Reserve System, Open Market Operations (target range changes, March 4 and March 16, 2020), 2020",,,,,,,,,,,,,,
-federal-reserve-will-cut,evidence,agree,u-s-payrolls-rose,,"U.S. Bureau of Labor Statistics, The Employment Situation: September 2026, 2026",,,,,,,,,,,,,,
-federal-reserve-will-cut,evidence,agree,consumer-prices-excluding-food,,"U.S. Bureau of Labor Statistics, Consumer Price Index: August 2026, 2026",,,,,,,,,,,,,,
-federal-reserve-will-cut,prediction,agree,federal-reserve-will-lower,,,,,,,,,,,,,,,"By June 30, 2027; checked against the Federal Reserve's Open Market Operations page and FOMC statements.",
+federal-reserve-will-cut,argument,agree,u-s-job-market,,,,,,,,,,,,,,,,url: https://www.bls.gov/news.release/archives/empsit_10022026.htm | checked: 2026-11-14
+federal-reserve-will-cut,argument,agree,inflation-outside-food-energy,,,,,,,,,,,,,,,,url: https://www.bls.gov/news.release/archives/cpi_09112026.htm | checked: 2026-11-14
+federal-reserve-will-cut,argument,agree,ten-scheduled-federal-reserve,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm | checked: 2026-11-14
+federal-reserve-will-cut,argument,agree,sustained-public-pressure-president,,,,,,,,,,,,,,,,url: https://cyprus-mail.com/2026/09/17/trump-lashes-out-at-fed-after-warsh-backs-rate-hike | checked: 2026-11-14
+federal-reserve-will-cut,evidence,agree,during-2001-federal-reserve,,"Board of Governors of the Federal Reserve System, Open Market Operations Archive (federal funds target changes, 2001), 2001",,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/openmarket_archive.htm | checked: 2026-11-14
+federal-reserve-will-cut,evidence,agree,march-2020-federal-reserve,,"Board of Governors of the Federal Reserve System, Open Market Operations (target range changes, March 4 and March 16, 2020), 2020",,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/openmarket.htm | checked: 2026-11-14
+federal-reserve-will-cut,evidence,agree,u-s-payrolls-rose,,"U.S. Bureau of Labor Statistics, The Employment Situation: September 2026, 2026",,,,,,,,,,,,,,url: https://www.bls.gov/news.release/archives/empsit_10022026.htm | checked: 2026-11-14
+federal-reserve-will-cut,evidence,agree,consumer-prices-excluding-food,,"U.S. Bureau of Labor Statistics, Consumer Price Index: August 2026, 2026",,,,,,,,,,,,,,url: https://www.bls.gov/news.release/archives/cpi_09112026.htm | checked: 2026-11-14
+federal-reserve-will-cut,prediction,agree,federal-reserve-will-lower,,,,,,,,,,,,,,,"By June 30, 2027; checked against the Federal Reserve's Open Market Operations page and FOMC statements.",url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm | checked: 2026-11-14
 federal-reserve-will-cut,prediction,agree,u-s-unemployment-rate-2,,,,,,,,,,,,,,,"By September 30, 2027; checked against the Bureau of Labor Statistics Employment Situation releases.",
 federal-reserve-will-cut,falsify,agree,u-s-nonfarm-payrolls,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,falsify,agree,shipping-through-strait-hormuz-2,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,assumption,agree,u-s-recession-sharp,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,assumption,agree,oil-price-shock-iran,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,assumption,agree,federal-reserve-under-kevin-2,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,person,agree,president-donald-trump-wrote,,,,,,,,,,,,,,,,
+federal-reserve-will-cut,person,agree,president-donald-trump-wrote,,,,,,,,,,,,,,,,url: https://cyprus-mail.com/2026/09/17/trump-lashes-out-at-fed-after-warsh-backs-rate-hike | checked: 2026-11-14
 federal-reserve-will-cut,person,agree,federal-reserve-governor-stephen,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,media,agree,causes-consequences-oil-shock,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,media,agree,systematic-monetary-policy-effects,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,argument,disagree,federal-reserve-raised-its,,,,,,,,,,,,,,,,
+federal-reserve-will-cut,media,agree,causes-consequences-oil-shock,,,,,,,,,,,,,,,,url: https://www.brookings.edu/articles/causes-and-consequences-of-the-oil-shock-of-2007-08/ | checked: 2026-11-14
+federal-reserve-will-cut,media,agree,systematic-monetary-policy-effects,,,,,,,,,,,,,,,,url: https://www.brookings.edu/wp-content/uploads/1997/01/1997a_bpea_bernanke_gertler_watson_sims_friedman.pdf | checked: 2026-11-14
+federal-reserve-will-cut,argument,disagree,federal-reserve-raised-its,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm | checked: 2026-11-14
 federal-reserve-will-cut,argument,disagree,none-19-federal-reserve,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,argument,disagree,federal-funds-futures-traded,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,argument,disagree,federal-reserve-officials-project,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,argument,disagree,federal-funds-rate-below,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,evidence,disagree,september-2026-projections-median,,"Board of Governors of the Federal Reserve System, Summary of Economic Projections, September 16, 2026",,,,,,,,,,,,,,
+federal-reserve-will-cut,argument,disagree,federal-reserve-officials-project,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm | checked: 2026-11-14
+federal-reserve-will-cut,argument,disagree,federal-funds-rate-below,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm | checked: 2026-11-14
+federal-reserve-will-cut,evidence,disagree,september-2026-projections-median,,"Board of Governors of the Federal Reserve System, Summary of Economic Projections, September 16, 2026",,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm | checked: 2026-11-14
 federal-reserve-will-cut,evidence,disagree,prices-federal-funds-futures,,"Investing.com, Fed Rate Monitor Tool (based on CME Group 30-Day Fed Fund futures), 2026",,,,,,,,,,,,,,
 federal-reserve-will-cut,evidence,disagree,federal-open-market-committee,,"Board of Governors of the Federal Reserve System, Federal Reserve issues FOMC statement (press release), September 16, 2026",,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm | checked: 2026-11-14
 federal-reserve-will-cut,evidence,disagree,federal-reserve-officials-projected,,"Board of Governors of the Federal Reserve System, Summary of Economic Projections, September 16, 2026",,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm | checked: 2026-11-14
@@ -9334,12 +9334,12 @@ bitcoin-will-trade-above,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides 
 bitcoin-will-trade-above,value,,,,,,,,,,,,,,,,,,"value: Prosperity | srank: 1 | orank: 2 | why: Holders and miners want bitcoin to rise, and skeptics care about prosperity too but see bitcoin as a risk to savings rather than a source of it."
 most-cryptocurrencies-other-than,argument,agree,anyone-can-now-create,,,,,,,,,,,,,,,,
 most-cryptocurrencies-other-than,argument,agree,most-cryptocurrencies-other-than-2,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,argument,agree,large-institutional-money-arriving,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,argument,agree,failure-clarity-act-u,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,evidence,agree,coingecko-found-53-2,,"CoinGecko (Shaun Paul Lee), Dead Coins: How Many Cryptocurrencies Have Failed?, updated April 2026",,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,evidence,agree,100-largest-cryptocurrencies-july,,"CryptoRank, The 2021 Top 100 Crypto, Five Years Later, 2026",,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,evidence,agree,cryptorank-found-71-9,,"CryptoRank, analysis of former top-100 cryptocurrencies, August 2026",,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,evidence,agree,keyrock-s-analysis-more,,"Keyrock, From Locked to Liquidity: What 16,000+ Token Unlocks Teach Us, 2024",,,,,,,,,,,,,,
+most-cryptocurrencies-other-than,argument,agree,large-institutional-money-arriving,,,,,,,,,,,,,,,,url: https://api.coingecko.com/api/v3/companies/public_treasury/bitcoin | checked: 2026-11-14
+most-cryptocurrencies-other-than,argument,agree,failure-clarity-act-u,,,,,,,,,,,,,,,,url: https://thedailyrecord.com/2026/09/16/us-senate-fails-to-advance-cryptocurrency-bill/ | checked: 2026-11-14
+most-cryptocurrencies-other-than,evidence,agree,coingecko-found-53-2,,"CoinGecko (Shaun Paul Lee), Dead Coins: How Many Cryptocurrencies Have Failed?, updated April 2026",,,,,,,,,,,,,,url: https://www.coingecko.com/research/publications/how-many-cryptocurrencies-failed | checked: 2026-11-14
+most-cryptocurrencies-other-than,evidence,agree,100-largest-cryptocurrencies-july,,"CryptoRank, The 2021 Top 100 Crypto, Five Years Later, 2026",,,,,,,,,,,,,,url: https://cryptorank.io/insights/analytics/the-2021-top-100-crypto-five-years-later | checked: 2026-11-14
+most-cryptocurrencies-other-than,evidence,agree,cryptorank-found-71-9,,"CryptoRank, analysis of former top-100 cryptocurrencies, August 2026",,,,,,,,,,,,,,url: https://coinstats.app/news/e7bd4fdfe9c3b950800d1266635d76bbc9cfad55196bf24fb67b1ddb6f23b2b6_CryptoRank-719-of-Former-Top100-Cryptocurrencies-Are-Now-Defunct | checked: 2026-11-14
+most-cryptocurrencies-other-than,evidence,agree,keyrock-s-analysis-more,,"Keyrock, From Locked to Liquidity: What 16,000+ Token Unlocks Teach Us, 2024",,,,,,,,,,,,,,url: https://keyrock.com/from-locked-to-liquidity-what-16000-token-unlocks-teach-us/ | checked: 2026-11-14
 most-cryptocurrencies-other-than,prediction,agree,least-half-coins-coingecko,,,,,,,,,,,,,,,"By December 31, 2030; checked against CoinGecko's historical top-100 snapshots.",
 most-cryptocurrencies-other-than,prediction,agree,share-total-crypto-market,,,,,,,,,,,,,,,"By December 31, 2030; checked on CoinGecko's global market charts.",
 most-cryptocurrencies-other-than,falsify,agree,study-shows-most-top,,,,,,,,,,,,,,,,
@@ -9347,15 +9347,15 @@ most-cryptocurrencies-other-than,falsify,agree,u-s-courts-regulators,,,,,,,,,,,,
 most-cryptocurrencies-other-than,assumption,agree,cryptocurrency-s-long-run,,,,,,,,,,,,,,,,
 most-cryptocurrencies-other-than,assumption,agree,pattern-2018-2022-crypto,,,,,,,,,,,,,,,,
 most-cryptocurrencies-other-than,assumption,agree,judging-claim-coin-coin,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,person,agree,jpmorgan-analysts-led-nikolaos,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,media,agree,number-go-up-inside,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,media,agree,easy-money-cryptocurrency-casino,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,argument,disagree,crypto-prices-october-2026,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,argument,disagree,u-s-securities-exchange,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,argument,disagree,growing-number-crypto-projects,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,argument,disagree,stablecoin-use-reached-record,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,evidence,disagree,mid-august-2026-solana,,"24/7 Wall St. (Sam Daodu), market analysis, August 16, 2026",,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,evidence,disagree,total-value-stablecoins-reached,,"Bitcoin.com News, Stablecoin Market Cap Hits All-Time High of $318.6B, Eyes $320 Billion Milestone, April 2026",,,,,,,,,,,,,,
+most-cryptocurrencies-other-than,person,agree,jpmorgan-analysts-led-nikolaos,,,,,,,,,,,,,,,,url: https://www.theblock.co/post/401349/jpmorgan-bitcoin-ether-altcoins-crypto | checked: 2026-11-14
+most-cryptocurrencies-other-than,media,agree,number-go-up-inside,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Number_Go_Up | checked: 2026-11-14
+most-cryptocurrencies-other-than,media,agree,easy-money-cryptocurrency-casino,,,,,,,,,,,,,,,,url: https://www.abramsbooks.com/product/easy-money_9781419766398/ | checked: 2026-11-14
+most-cryptocurrencies-other-than,argument,disagree,crypto-prices-october-2026,,,,,,,,,,,,,,,,url: https://api.coingecko.com/api/v3/coins/bitcoin/history?date=01-10-2026 | checked: 2026-11-14
+most-cryptocurrencies-other-than,argument,disagree,u-s-securities-exchange,,,,,,,,,,,,,,,,url: https://www.sec.gov/newsroom/press-releases/2025-121-sec-approves-generic-listing-standards-commodity-based-trust-shares | checked: 2026-11-14
+most-cryptocurrencies-other-than,argument,disagree,growing-number-crypto-projects,,,,,,,,,,,,,,,,url: https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees | checked: 2026-11-14
+most-cryptocurrencies-other-than,argument,disagree,stablecoin-use-reached-record,,,,,,,,,,,,,,,,url: https://news.bitcoin.com/stablecoin-market-cap-hits-all-time-high-of-318-6b-eyes-320-billion-milestone/ | checked: 2026-11-14
+most-cryptocurrencies-other-than,evidence,disagree,mid-august-2026-solana,,"24/7 Wall St. (Sam Daodu), market analysis, August 16, 2026",,,,,,,,,,,,,,url: https://247wallst.com/investing/cryptocurrency/2026/08/16/xrps-1-support-hangs-by-a-thread-where-does-xrp-go/ | checked: 2026-11-14
+most-cryptocurrencies-other-than,evidence,disagree,total-value-stablecoins-reached,,"Bitcoin.com News, Stablecoin Market Cap Hits All-Time High of $318.6B, Eyes $320 Billion Milestone, April 2026",,,,,,,,,,,,,,url: https://news.bitcoin.com/stablecoin-market-cap-hits-all-time-high-of-318-6b-eyes-320-billion-milestone/ | checked: 2026-11-14
 most-cryptocurrencies-other-than,prediction,disagree,more-than-half-non,,,,,,,,,,,,,,,"By December 31, 2030; checked against CoinGecko closing prices on that date.",
 most-cryptocurrencies-other-than,prediction,disagree,total-fees-paid-users,,,,,,,,,,,,,,,"By March 31, 2031; checked against DefiLlama's annual fee data.",
 most-cryptocurrencies-other-than,falsify,disagree,study-shows-most-top-2,,,,,,,,,,,,,,,,
@@ -9363,10 +9363,10 @@ most-cryptocurrencies-other-than,falsify,disagree,data-show-new-token,,,,,,,,,,,
 most-cryptocurrencies-other-than,assumption,disagree,crypto-prices-october-2026-2,,,,,,,,,,,,,,,,
 most-cryptocurrencies-other-than,assumption,disagree,growing-use-crypto-payments,,,,,,,,,,,,,,,,
 most-cryptocurrencies-other-than,assumption,disagree,fair-set-judging-cryptocurrencies,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,person,disagree,geoff-kendrick-head-digital,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,media,disagree,read-write-own-building,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,media,disagree,cryptoassets-innovative-investor-s,,,,,,,,,,,,,,,,
-most-cryptocurrencies-other-than,media,disagree,state-crypto-2025-year,,,,,,,,,,,,,,,,
+most-cryptocurrencies-other-than,person,disagree,geoff-kendrick-head-digital,,,,,,,,,,,,,,,,url: https://finance.yahoo.com/markets/crypto/articles/xrp-price-prediction-standard-chartered-115033441.html | checked: 2026-11-14
+most-cryptocurrencies-other-than,media,disagree,read-write-own-building,,,,,,,,,,,,,,,,url: https://www.kirkusreviews.com/book-reviews/chris-dixon/read-write-own/ | checked: 2026-11-14
+most-cryptocurrencies-other-than,media,disagree,cryptoassets-innovative-investor-s,,,,,,,,,,,,,,,,url: https://www.antoinebuteau.com/cryptoassets-book-summary/ | checked: 2026-11-14
+most-cryptocurrencies-other-than,media,disagree,state-crypto-2025-year,,,,,,,,,,,,,,,,url: https://a16zfrontier.com/posts/article/state-of-crypto-report-2025/ | checked: 2026-11-14
 most-cryptocurrencies-other-than,interest,agree,small-retail-investors-need,,,,,,,,,,,,,,,,
 most-cryptocurrencies-other-than,interest,agree,hedge-fund-traders-who,,,,,,,,,,,,,,,,
 most-cryptocurrencies-other-than,interest,disagree,crypto-developers-founders-need,,,,,,,,,,,,,,,,
@@ -9398,51 +9398,51 @@ most-cryptocurrencies-other-than,definition,,,,,,,,,,,,,,,,,,"term: cryptocurren
 most-cryptocurrencies-other-than,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether October 2026 prices are a cycle low that established altcoins will climb back from, or a stop on a long decline. | move: Compare each coin on the fixed list on December 31, 2030 against its October 4, 2026 price and count how many are lower."
 most-cryptocurrencies-other-than,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether exchange-traded funds, fee buybacks and stablecoin traffic will break the old pattern in which most altcoins fell against Bitcoin. | move: Track from 2026 to 2030 whether altcoins with spot ETFs or revenue buybacks outperform comparable altcoins without them."
 most-cryptocurrencies-other-than,value,,,,,,,,,,,,,,,,,,"value: Investor protection | srank: 2 | orank: 2 | why: Both sides say buyers deserve honest information, but they disagree on whether that means warning people off altcoins or giving altcoins clear rules and regulated funds."
-end-2030-ai-systems,argument,agree,length-software-tasks-ai,,,,,,,,,,,,,,,,
+end-2030-ai-systems,argument,agree,length-software-tasks-ai,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2503.14499 | checked: 2026-11-14
 end-2030-ai-systems,argument,agree,most-work-given-entry,,,,,,,,,,,,,,,,
-end-2030-ai-systems,argument,agree,large-software-companies-already,,,,,,,,,,,,,,,,
-end-2030-ai-systems,argument,agree,employment-u-s-software,,,,,,,,,,,,,,,,
+end-2030-ai-systems,argument,agree,large-software-companies-already,,,,,,,,,,,,,,,,url: https://the-decoder.com/google-says-75-percent-of-its-new-code-is-now-written-by-ai/ | checked: 2026-11-14
+end-2030-ai-systems,argument,agree,employment-u-s-software,,,,,,,,,,,,,,,,url: https://siliconcanals.com/m-we-assume-ai-is-coming-for-everyones-job-but-a-2025-stanford-study-tracking-payroll-data-found-the-damage-is-concentrated-by-age-employment-for-22-to-25-year-olds-in-the-most-ai-exposed-roles-fell/ | checked: 2026-11-14
 end-2030-ai-systems,argument,agree,software-programming-office-job,,,,,,,,,,,,,,,,
-end-2030-ai-systems,evidence,agree,length-software-tasks-frontier,,"Thomas Kwa, Ben West, Joel Becker and others, METR, ""Measuring AI Ability to Complete Long Software Tasks,"" 2025",,,,,,,,,,,,,,
-end-2030-ai-systems,evidence,agree,79-percent-conversations-claude,,"Anthropic, ""Anthropic Economic Index: AI's impact on software development,"" 2025",,,,,,,,,,,,,,
-end-2030-ai-systems,prediction,agree,employment-u-s-software-2,,,,,,,,,,,,,,,"By December 31, 2028; checked against the Stanford Digital Economy Lab's ADP-based Canaries dashboard.",
+end-2030-ai-systems,evidence,agree,length-software-tasks-frontier,,"Thomas Kwa, Ben West, Joel Becker and others, METR, ""Measuring AI Ability to Complete Long Software Tasks,"" 2025",,,,,,,,,,,,,,url: https://arxiv.org/abs/2503.14499 | checked: 2026-11-14
+end-2030-ai-systems,evidence,agree,79-percent-conversations-claude,,"Anthropic, ""Anthropic Economic Index: AI's impact on software development,"" 2025",,,,,,,,,,,,,,url: https://www.anthropic.com/research/impact-software-development | checked: 2026-11-14
+end-2030-ai-systems,prediction,agree,employment-u-s-software-2,,,,,,,,,,,,,,,"By December 31, 2028; checked against the Stanford Digital Economy Lab's ADP-based Canaries dashboard.",url: https://dev.to/prpatel05/the-entry-level-job-is-the-canary-2m3b | checked: 2026-11-14
 end-2030-ai-systems,prediction,agree,least-three-five-largest,,,,,,,,,,,,,,,"By December 31, 2029; checked against earnings calls, official company blogs and annual reports.",
 end-2030-ai-systems,falsify,agree,study-comparing-similar-companies,,,,,,,,,,,,,,,,
 end-2030-ai-systems,falsify,agree,controlled-test-several-companies,,,,,,,,,,,,,,,,
 end-2030-ai-systems,assumption,agree,growth-length-programming-tasks,,,,,,,,,,,,,,,,
 end-2030-ai-systems,assumption,agree,companies-will-put-ai,,,,,,,,,,,,,,,,
 end-2030-ai-systems,assumption,agree,job-entry-level-programmer,,,,,,,,,,,,,,,,
-end-2030-ai-systems,person,agree,anthropic-chief-executive-dario,,,,,,,,,,,,,,,,
-end-2030-ai-systems,person,agree,meta-chief-executive-mark,,,,,,,,,,,,,,,,
-end-2030-ai-systems,media,agree,canaries-coal-mine-six,,,,,,,,,,,,,,,,
-end-2030-ai-systems,media,agree,measuring-ai-ability-complete,,,,,,,,,,,,,,,,
+end-2030-ai-systems,person,agree,anthropic-chief-executive-dario,,,,,,,,,,,,,,,,url: https://www.axios.com/2025/05/28/ai-jobs-white-collar-unemployment-anthropic | checked: 2026-11-14
+end-2030-ai-systems,person,agree,meta-chief-executive-mark,,,,,,,,,,,,,,,,url: https://www.entrepreneur.com/business-news/meta-developing-ai-engineers-to-write-code-instead-of-humans/485806 | checked: 2026-11-14
+end-2030-ai-systems,media,agree,canaries-coal-mine-six,,,,,,,,,,,,,,,,url: https://digitaleconomy.stanford.edu/publications/canaries-in-the-coal-mine/ | checked: 2026-11-14
+end-2030-ai-systems,media,agree,measuring-ai-ability-complete,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2503.14499v1 | checked: 2026-11-14
 end-2030-ai-systems,argument,disagree,most-entry-level-programmer,,,,,,,,,,,,,,,,
 end-2030-ai-systems,argument,disagree,cheaper-software-production-has,,,,,,,,,,,,,,,,
 end-2030-ai-systems,argument,disagree,drop-hiring-young-software,,,,,,,,,,,,,,,,
 end-2030-ai-systems,argument,disagree,software-companies-need-junior,,,,,,,,,,,,,,,,
 end-2030-ai-systems,argument,disagree,ai-generated-code-still,,,,,,,,,,,,,,,,
 end-2030-ai-systems,argument,disagree,banks-hospitals-governments-other,,,,,,,,,,,,,,,,
-end-2030-ai-systems,evidence,disagree,randomized-trial-16-experienced,,"Joel Becker, Nate Rush, Elizabeth Barnes and David Rein, METR, ""Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity,"" 2025",,,,,,,,,,,,,,
-end-2030-ai-systems,evidence,disagree,u-s-bureau-labor,,"U.S. Bureau of Labor Statistics, The Economics Daily, ""Artificial intelligence, information technology, and employment, 2024-34,"" 2026",,,,,,,,,,,,,,
-end-2030-ai-systems,evidence,disagree,indeed-job-postings-software,,"Indeed Hiring Lab, ""US Labor Market Snapshot, August 2026,"" 2026",,,,,,,,,,,,,,
-end-2030-ai-systems,prediction,disagree,indeed-s-software-development,,,,,,,,,,,,,,,"By December 31, 2028; checked against Indeed Hiring Lab's monthly U.S. labor market snapshot.",
-end-2030-ai-systems,prediction,disagree,unemployment-rate-recent-u,,,,,,,,,,,,,,,"By December 31, 2029; checked against the Federal Reserve Bank of New York's ""The Labor Market for Recent College Graduates"" tables.",
+end-2030-ai-systems,evidence,disagree,randomized-trial-16-experienced,,"Joel Becker, Nate Rush, Elizabeth Barnes and David Rein, METR, ""Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity,"" 2025",,,,,,,,,,,,,,url: https://arxiv.org/abs/2507.09089 | checked: 2026-11-14
+end-2030-ai-systems,evidence,disagree,u-s-bureau-labor,,"U.S. Bureau of Labor Statistics, The Economics Daily, ""Artificial intelligence, information technology, and employment, 2024-34,"" 2026",,,,,,,,,,,,,,url: https://www.bls.gov/opub/ted/2026/artificial-intelligence-information-technology-and-employment-2024-34.htm | checked: 2026-11-14
+end-2030-ai-systems,evidence,disagree,indeed-job-postings-software,,"Indeed Hiring Lab, ""US Labor Market Snapshot, August 2026,"" 2026",,,,,,,,,,,,,,url: https://raw.githubusercontent.com/hiring-lab/job_postings_tracker/master/US/job_postings_by_sector_US.csv | checked: 2026-11-14
+end-2030-ai-systems,prediction,disagree,indeed-s-software-development,,,,,,,,,,,,,,,"By December 31, 2028; checked against Indeed Hiring Lab's monthly U.S. labor market snapshot.",url: https://fred.stlouisfed.org/series/IHLIDXUSTPSOFTDEVE | checked: 2026-11-14
+end-2030-ai-systems,prediction,disagree,unemployment-rate-recent-u,,,,,,,,,,,,,,,"By December 31, 2029; checked against the Federal Reserve Bank of New York's ""The Labor Market for Recent College Graduates"" tables.",url: https://www.newyorkfed.org/research/college-labor-market | checked: 2026-11-14
 end-2030-ai-systems,falsify,disagree,employment-u-s-software-3,,,,,,,,,,,,,,,,
 end-2030-ai-systems,falsify,disagree,firms-adopted-ai-coding,,,,,,,,,,,,,,,,
 end-2030-ai-systems,assumption,disagree,making-software-cheaper-build,,,,,,,,,,,,,,,,
 end-2030-ai-systems,assumption,disagree,hardest-parts-entry-level,,,,,,,,,,,,,,,,
 end-2030-ai-systems,assumption,disagree,banks-hospitals-governments-other-2,,,,,,,,,,,,,,,,
-end-2030-ai-systems,person,disagree,amazon-web-services-chief,,,,,,,,,,,,,,,,
-end-2030-ai-systems,person,disagree,ai-researcher-andrej-karpathy,,,,,,,,,,,,,,,,
-end-2030-ai-systems,media,disagree,measuring-impact-early-2025,,,,,,,,,,,,,,,,
-end-2030-ai-systems,media,disagree,ai-normal-technology-arvind,,,,,,,,,,,,,,,,
-end-2030-ai-systems,media,disagree,2025-developer-survey-stack,,,,,,,,,,,,,,,,
+end-2030-ai-systems,person,disagree,amazon-web-services-chief,,,,,,,,,,,,,,,,url: https://www.theregister.com/2025/08/21/aws_ceo_entry_level_jobs_opinion/ | checked: 2026-11-14
+end-2030-ai-systems,person,disagree,ai-researcher-andrej-karpathy,,,,,,,,,,,,,,,,url: https://www.dwarkesh.com/p/andrej-karpathy | checked: 2026-11-14
+end-2030-ai-systems,media,disagree,measuring-impact-early-2025,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2507.09089 | checked: 2026-11-14
+end-2030-ai-systems,media,disagree,ai-normal-technology-arvind,,,,,,,,,,,,,,,,url: https://knightcolumbia.org/content/ai-as-normal-technology | checked: 2026-11-14
+end-2030-ai-systems,media,disagree,2025-developer-survey-stack,,,,,,,,,,,,,,,,url: https://survey.stackoverflow.co/2025/ai | checked: 2026-11-14
 end-2030-ai-systems,interest,agree,startup-founders-need-ship,,,,,,,,,,,,,,,,
 end-2030-ai-systems,interest,agree,small-business-owners-need-3,,,,,,,,,,,,,,,,
 end-2030-ai-systems,interest,disagree,computer-science-graduates-need,,,,,,,,,,,,,,,,
 end-2030-ai-systems,interest,disagree,hospitals-banks-other-organizations,,,,,,,,,,,,,,,,
 end-2030-ai-systems,interest,disagree,senior-software-engineers-need,,,,,,,,,,,,,,,,
-end-2030-ai-systems,cba,agree,handing-routine-programming-tasks,,,,,,,,startup-founders-need-ship,,,percent more completed tasks per developer,26,,,,
+end-2030-ai-systems,cba,agree,handing-routine-programming-tasks,,,,,,,,startup-founders-need-ship,,,percent more completed tasks per developer,26,,,,url: https://economics.mit.edu/sites/default/files/inline-files/draft_copilot_experiments.pdf | checked: 2026-11-14
 end-2030-ai-systems,cba,agree,small-businesses-able-get,,,,,,,,small-business-owners-need-3,,,dollars saved per custom application,,,,,
 end-2030-ai-systems,cba,agree,students-who-heed-early,,,,,,,,senior-software-engineers-need,,,recent graduates unemployed in their field,,,,,
 end-2030-ai-systems,cba,disagree,companies-stop-hiring-juniors,,,,,,,,hospitals-banks-other-organizations,,,senior engineers available per open senior role,,,,,
@@ -13041,3 +13041,11 @@ wnba-suspended-phoenix-s,argument,disagree,wnba-suspended-phoenix-s-alyssa,,clic
 least-one-more-2024,argument,disagree,dawn-staley-2024-selection-committee,,nbcsports.com,,,,,,,,,,,,,,url: https://nbcsports.com/olympics/news/dawn-staley-caitlin-clarks-recent-play-would-merit-olympic-team-consideration | checked: 2026-11-14 | tag: truth.premise-false
 first-month-florida-district,argument,disagree,large-florida-district-s-whole,,nber.org,,,,,,,,,,,,,,url: https://www.nber.org/system/files/working_papers/w34388/w34388.pdf | checked: 2026-11-14 | tag: challenge.misquoted
 people-who-already-aggressive,argument,disagree,evidence-selection-mixed-some-panel,,ebi.ac.uk,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.1037/a0026046&resultType=core&format=json | checked: 2026-11-14 | tag: truth.premise-false
+christine-brennan-s-caitlin,argument,disagree,anantharaman-s-july-10-2025,,defector.com,,,,,,,,,,,,,,url: https://defector.com/christine-brennans-caitlin-clark-book-is-more-about-gripes-than-greatness | checked: 2026-11-14 | tag: challenge.misquoted
+league-s-new-television,argument,disagree,ryan-brewer-associate-professor-finance,,nbcnews.com,,,,,,,,,,,,,,url: https://www.nbcnews.com/sports/wnba/caitlin-clark-wnba-business-rcna208097 | checked: 2026-11-14 | tag: truth.premise-false
+record-television-audiences-biggest,argument,disagree,2025-most-watched-regular-season,,foxsports.com,,,,,,,,,,,,,,url: https://www.foxsports.com/stories/college-football/foxs-broadcast-ohio-state-michigan-most-watched-cfb-game-regular-season | checked: 2026-11-14 | tag: truth.premise-false
+nba-draft-early-entrant,argument,disagree,nba-s-official-list-early,,nba.com,,,,,,,,,,,,,,url: https://www.nba.com/news/nba-announces-early-entry-candidates-for-nba-draft-2021 | checked: 2026-11-14 | tag: truth.premise-false
+taylor-swift-s-reach,argument,disagree,national-voter-registration-day-september,,vote.org,,,,,,,,,,,,,,url: https://www.vote.org/press-releases/NVRD_2023/ | checked: 2026-11-14 | tag: truth.premise-false
+ranking-taylor-swift-top,argument,disagree,swift-s-company-taylor-swift,,news.pollstar.com,,,,,,,,,,,,,,url: https://news.pollstar.com/2024/12/09/taylor-swifts-eras-tour-sets-all-time-touring-record-breaking-2b/ | checked: 2026-11-14 | tag: truth.premise-false
+upper-bound-federal-funds,argument,disagree,fed-s-tentative-2027-calendar,,federalreserve.gov,,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm | checked: 2026-11-14 | tag: truth.premise-false
+cutting-federal-funds-rate,argument,disagree,cut-4-00-2-75,,fdic.gov,,,,,,,,,,,,,,url: https://www.fdic.gov/national-rates-and-rate-caps | checked: 2026-11-14 | tag: truth.premise-false
