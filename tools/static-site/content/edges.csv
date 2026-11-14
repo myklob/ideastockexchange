@@ -526,12 +526,12 @@ officials-structure-finances-look,argument,agree,,"Anticipated publication chang
 officials-structure-finances-look,argument,disagree,,Structuring affairs to withstand publication is most of what the rule is trying to achieve.,,,,,,,,,,,,,,,
 returns-read-scandal-rather,argument,agree,,The 2022 release produced immediate disputes over items that were lawful.,,,,,,,,,,,,,,,
 returns-read-scandal-rather,argument,disagree,,Public argument over lawful tax positions is a legitimate subject for voters.,,,,,,,,,,,,,,,
-tax-returns-contain-conflict,argument,agree,,"The two documents can be compared directly, and they were in 2022.",,,,,,,,,,,,,,,
-tax-returns-contain-conflict,argument,disagree,,"The form carries assets and positions, which is what recusal rules actually operate on.",,,,,,,,,,,,,,,
-publication-changes-what-officials,argument,agree,,Journalists and committees acted on the 2022 release immediately.,,,,,,,,,,,,,,,
+tax-returns-contain-conflict,argument,agree,,"The two documents can be compared directly, and they were in 2022.",,,,,,,,,,,,,,,url: https://abc17news.com/?p=1076060 | checked: 2026-11-14
+tax-returns-contain-conflict,argument,disagree,,"The form carries assets and positions, which is what recusal rules actually operate on.",,,,,,,,,,,,,,,url: https://www.oge.gov/Web/278eGuide.nsf | checked: 2026-11-14
+publication-changes-what-officials,argument,agree,,Journalists and committees acted on the 2022 release immediately.,,,,,,,,,,,,,,,url: https://katv.com/news/nation-world/trumps-taxes-house-oks-bill-on-irs-audits-of-presidents-income-tax-filings-long-standing-post-watergate-norm-established-federal-policy-house-ways-and-means-committee | checked: 2026-11-14
 publication-changes-what-officials,argument,disagree,,Nothing followed from it: no rule changed and no official was sanctioned.,,,,,,,,,,,,,,,
-federal-publication-requirement-officeholders,argument,agree,,Congress already requires extensive financial disclosure from the same officials and no court has disturbed it.,,,,,,,,,,,,,,,
-federal-publication-requirement-officeholders,argument,disagree,,A requirement reaching candidates rather than officeholders runs into the qualifications problem the California case flagged.,,,,,,,,,,,,,,,
+federal-publication-requirement-officeholders,argument,agree,,Congress already requires extensive financial disclosure from the same officials and no court has disturbed it.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/5/13103 | checked: 2026-11-14
+federal-publication-requirement-officeholders,argument,disagree,,A requirement reaching candidates rather than officeholders runs into the qualifications problem the California case flagged.,,,,,,,,,,,,,,,url: https://www4.courts.ca.gov/opinions/archive/S257302.PDF | checked: 2026-11-14
 both-sides-want-conflicts,argument,agree,,"Opponents of publication defend the disclosure form, which means they accept the underlying goal.",,,,,,,,,,,,,,,
 both-sides-want-conflicts,argument,disagree,,Some opposition is to disclosure generally rather than to the choice of document.,,,,,,,,,,,,,,,
 require-exact-values-rather,argument,agree,,It targets the specific gaps the return fills rather than publishing a document built for another purpose.,,,,,,,,,,,,,,,
@@ -694,7 +694,7 @@ argu-disclosure-has-failed-barring-members,argument,agree,,The argument runs thr
 argu-disclosure-has-failed-barring-members,argument,disagree,,"That disclosure fails does not establish that a ban succeeds; both could fail for the same reason, which is that Congress does not enforce rules against itself.",,,,,,,,,Missing step,,,,,,
 argu-holdings-ban-removes-barring-members,argument,agree,,Changing what has to be proven is the operative difference between a ban and every other remedy on offer.,,,,,,,,,Mechanism,,,,,,
 argu-holdings-ban-removes-barring-members,argument,disagree,,"A rule that is easier to enforce still has to be enforced, and the row assumes the enforcement follows.",,,,,,,,,Missing step,,,,,,
-argu-federal-reserve-barred-barring-members,argument,agree,,"The Fed rule is the same restriction on the same kind of asset, adopted for the same stated reason.",,,,,,,,,Scope fit,,,,,,
+argu-federal-reserve-barred-barring-members,argument,agree,fed-rule-same-restriction-same,"The Fed rule is the same restriction on the same kind of asset, adopted for the same stated reason.",,,,,,,,,Scope fit,,,,,,
 argu-federal-reserve-barred-barring-members,argument,disagree,,"Fed officials are appointed and have no constituents or campaigns, so the workability finding may not transfer to elected members.",,,,,,,,,Scope mismatch,,,,,,url: https://www.federalreserve.gov/aboutthefed/section4.htm | checked: 2026-11-13
 argu-federal-reserve-barred-barring-members,argument,disagree,,That an institution survived a rule is not evidence that the rule achieved anything.,,,,,,,,,Missing step,,,,,,
 argu-trading-closed-briefing-barring-members,argument,agree,,"If intent cannot be proven, no intent-based rule can bind, and only a status rule is left.",,,,,,,,,Necessity,,,,,,
@@ -721,9 +721,9 @@ evid-trades-placed-before-barring-members,argument,disagree,,A single unreplicat
 evid-78-members-117th-barring-members,argument,agree,,Widespread non-compliance with the existing rule is what makes the case for replacing it.,,,,,,,,,Mechanism,,,,,,url: https://ca.news.yahoo.com/77-members-117th-congress-violated-111400969.html | checked: 2026-11-13
 evid-78-members-117th-barring-members,argument,disagree,,Late filing is a paperwork failure and says nothing about whether any trade was improper.,,,,,,,,,True but irrelevant,,,,,,
 evid-78-members-117th-barring-members,argument,disagree,,"It supports ""the current rule is unenforced,"" which is a different claim from ""a ban would reduce conflicts.""",,,,,,,,,Wrong parent,,,,,,
-evid-131-federal-judges-barring-members,argument,agree,,"A disclosure-only regime failing in a nearby institution is evidence about disclosure regimes generally, and the belief is a claim about replacing one.",,,,,,,,,Monotonicity,,,,,,
+evid-131-federal-judges-barring-members,argument,agree,disclosure-only-regime-failing-nearby,"A disclosure-only regime failing in a nearby institution is evidence about disclosure regimes generally, and the belief is a claim about replacing one.",,,,,,,,,Monotonicity,,,,,,
 evid-131-federal-judges-barring-members,argument,disagree,,"Judges are bound by a recusal statute Congress is not, so the comparison is to a stricter regime that still failed, or to a different one entirely.",,,,,,,,,Scope mismatch,,,,,,url: https://www.law.cornell.edu/uscode/text/28/455 | checked: 2026-11-13
-evid-federal-reserve-officials-barring-members,argument,agree,,It shows the exact rule the belief proposes operating in a federal institution.,,,,,,,,,Mechanism,,,,,,
+evid-federal-reserve-officials-barring-members,argument,agree,shows-exact-rule-belief-proposes,It shows the exact rule the belief proposes operating in a federal institution.,,,,,,,,,Mechanism,,,,,,
 evid-federal-reserve-officials-barring-members,argument,disagree,,"It establishes that the rule can exist, not that it reduces conflicts, and four years is short.",,,,,,,,,Missing step,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20220218a.htm | checked: 2026-11-13
 evid-congressional-portfolios-underperformed-barring-members,argument,agree,,"If portfolios underperform, the trading-advantage mechanism is absent for that period.",,,,,,,,,Necessity,,,,,,
 evid-congressional-portfolios-underperformed-barring-members,argument,disagree,,"It bears on trading advantage, not on whether holdings bias votes.",,,,,,,,,Wrong parent,,,,,,
@@ -754,9 +754,9 @@ argu-problem-people-actually-barring-president,argument,disagree,,"It argues the
 argu-problem-people-actually-barring-president,argument,disagree,,Family business dealings are governed by other rules entirely and would be unaffected either way.,,,,,,,,,True but irrelevant,,,,,,
 argu-return-shows-tax-requiring-president,argument,agree,,"If the disclosure form already carries the conflict-relevant content, the belief's first component is false.",,,,,,,,,Necessity,,,,,,
 argu-return-shows-tax-requiring-president,argument,agree,,Both documents cover the same officials and the same finances.,,,,,,,,,Scope fit,,,,,,
-argu-return-shows-tax-requiring-president,argument,disagree,,"The two documents can be compared directly, and the 2022 release showed content in the return that the form does not carry.",,,,,,,,,Missing step,,,,,,
+argu-return-shows-tax-requiring-president,argument,disagree,,"The two documents can be compared directly, and the 2022 release showed content in the return that the form does not carry.",,,,,,,,,Missing step,,,,,,url: https://abc17news.com/?p=1076060 | checked: 2026-11-14
 argu-route-constitutionally-narrow-requiring-president,argument,agree,,"If the requirement cannot be enacted, the belief's enactment component fails.",,,,,,,,,Mechanism,,,,,,
-argu-route-constitutionally-narrow-requiring-president,argument,disagree,,"The California decision struck a ballot-access condition under a state constitution and expressly did not reach federal questions, so it does not govern a federal duty on officeholders.",,,,,,,,,Scope mismatch,,,,,,
+argu-route-constitutionally-narrow-requiring-president,argument,disagree,,"The California decision struck a ballot-access condition under a state constitution and expressly did not reach federal questions, so it does not govern a federal duty on officeholders.",,,,,,,,,Scope mismatch,,,,,,url: https://www4.courts.ca.gov/opinions/archive/S257302.PDF | checked: 2026-11-14
 argu-route-constitutionally-narrow-requiring-president,argument,disagree,,"It bears on how the rule must be drafted, not on whether publication would reduce private gain.",,,,,,,,,Wrong parent,,,,,,
 argu-article-ii-grants-letting-congress,argument,agree,,"If the mechanism cannot be created, the belief cannot be true of any actual arrangement.",,,,,,,,,Necessity,,,,,,
 argu-article-ii-grants-letting-congress,argument,agree,,It identifies the specific legal barrier and the cases that impose it.,,,,,,,,,Mechanism,,,,,,
@@ -856,7 +856,7 @@ equiv-letting-congress-overturn-president-barred,argument,disagree,,A categorica
 equiv-letting-congress-overturn-president-barred,argument,disagree,,An override would cover the relative cases; a bar on relatives would not cover a pardon sold to a stranger.,,,,,,,,,One-way implication,,,,,,
 ziobrowski-cheng-boyd-ziobrowski,argument,agree,,Built from the Senate's own disclosure filings rather than from secondary summaries.,,,,,,,,,Primary sources,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
 ziobrowski-cheng-boyd-ziobrowski,argument,agree,,Calendar-time portfolio analysis against matched benchmarks is the standard method for the question.,,,,,,,,,Well reasoned,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
-ziobrowski-cheng-boyd-ziobrowski,argument,disagree,,It reports the buy portfolio's abnormal returns and says much less about the sell side.,,,,,,,,,One-sided,,,,,,
+ziobrowski-cheng-boyd-ziobrowski,argument,disagree,reports-buy-portfolio-s-abnormal,It reports the buy portfolio's abnormal returns and says much less about the sell side.,,,,,,,,,One-sided,,,,,,
 ziobrowski-cheng-boyd-ziobrowski,argument,disagree,,Disclosure ranges rather than exact amounts force assumptions about position size that the paper cannot verify.,,,,,,,,,Errors of fact,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
 ziobrowski-cheng-boyd-ziobrowski,impact,agree,,It is the citation behind nearly every subsequent claim about congressional trading.,,,,,,,,,Widely cited,,,,,,
 ziobrowski-cheng-boyd-ziobrowski,impact,agree,,It was cited repeatedly in the debate that produced the STOCK Act.,,,,,,,,,Shaped policy,,,,,,
@@ -868,15 +868,15 @@ insider-conflicted-congress-2021,argument,disagree,,"The framing invites the inf
 insider-conflicted-congress-2021,impact,agree,,It was the source for most mainstream coverage of congressional trading in 2022.,,,,,,,,,Reached a broad audience,,,,,,
 insider-conflicted-congress-2021,impact,agree,,The bills introduced in 2022 cite its findings.,,,,,,,,,Shaped policy,,,,,,
 insider-conflicted-congress-2021,impact,disagree,,No academic work builds on it; it is a compilation rather than a study.,,,,,,,,,Rarely cited,,,,,,
-eggers-hainmueller-capitol-losses,argument,agree,,"Better matched benchmarks and a larger sample than the study it responds to, and it reexamines the earlier period as well.",,,,,,,,,Well reasoned,,,,,,
-eggers-hainmueller-capitol-losses,argument,agree,,"Same filings, independently coded.",,,,,,,,,Primary sources,,,,,,
+eggers-hainmueller-capitol-losses,argument,agree,better-matched-benchmarks-larger-sample,"Better matched benchmarks and a larger sample than the study it responds to, and it reexamines the earlier period as well.",,,,,,,,,Well reasoned,,,,,,
+eggers-hainmueller-capitol-losses,argument,agree,same-filings-independently-coded,"Same filings, independently coded.",,,,,,,,,Primary sources,,,,,,
 eggers-hainmueller-capitol-losses,argument,disagree,,"Portfolio averages cannot detect the small number of well-timed trades that the conflict claim is actually about, and the paper does not engage that objection at length.",,,,,,,,,One-sided,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
 eggers-hainmueller-capitol-losses,impact,agree,,It is the standard citation for the skeptical position and appears in every serious review of the question.,,,,,,,,,Widely cited,,,,,,
 eggers-hainmueller-capitol-losses,impact,disagree,,Its reach outside political science is small compared with the study it corrects.,,,,,,,,,Small audience,,,,,,
 medi-ziobrowski-cheng-boyd-barring-members,argument,agree,,"The work is about the same officials, the same holdings and the same question the belief asks.",,,,,,,,,Mechanism,,,,,,url: https://www.cambridge.org/core/product/identifier/S0022109000003161/type/journal_article | checked: 2026-11-13
 medi-ziobrowski-cheng-boyd-barring-members,argument,disagree,,"It measures trading returns, and the belief also rests on whether holdings bias votes.",,,,,,,,,Scope mismatch,,,,,,url: https://www.cambridge.org/core/product/identifier/S0022109000003161/type/journal_article | checked: 2026-11-13
 medi-insider-conflicted-congress-barring-members,argument,agree,,"The work is about the same officials, the same holdings and the same question the belief asks.",,,,,,,,,Mechanism,,,,,,url: https://ca.news.yahoo.com/77-members-117th-congress-violated-111400969.html | checked: 2026-11-13
-medi-insider-conflicted-congress-barring-members,argument,disagree,,"It measures trading returns, and the belief also rests on whether holdings bias votes.",,,,,,,,,Scope mismatch,,,,,,
+medi-insider-conflicted-congress-barring-members,argument,disagree,measures-trading-returns-belief-also,"It measures trading returns, and the belief also rests on whether holdings bias votes.",,,,,,,,,Scope mismatch,,,,,,
 medi-eggers-hainmueller-capitol-barring-members,argument,agree,,"The work is about the same officials, the same holdings and the same question the belief asks.",,,,,,,,,Mechanism,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
 medi-eggers-hainmueller-capitol-barring-members,argument,disagree,,"It measures trading returns, and the belief also rests on whether holdings bias votes.",,,,,,,,,Scope mismatch,,,,,,url: https://andy.egge.rs/papers/EggMueller_capitol_losses_jop_2013.pdf | checked: 2026-11-13
 imp-ziobrowski-cheng-boyd-barring-members,interest_listing,,investors-need-markets-where,,,,,,,,,,,,,,,,
@@ -2589,13 +2589,13 @@ requiring-president-members-congress,long_term,,over-decade-required-publication
 requiring-president-members-congress,assumption,agree,officials-less-likely-use,,,,,,,,,,,,,,,,
 requiring-president-members-congress,assumption,agree,voters-reporters-ethics-investigators,,,,,,,,,,,,,,,,
 requiring-president-members-congress,assumption,disagree,official-who-determined-profit,,,,,,,,,,,,,,,,
-requiring-president-members-congress,person,agree,senator-ron-wyden-oregon,,,,,,,,,,,,,,,,
-requiring-president-members-congress,person,agree,representative-anna-eshoo-california,,,,,,,,,,,,,,,,
-requiring-president-members-congress,person,disagree,california-governor-jerry-brown,,,,,,,,,,,,,,,,
-requiring-president-members-congress,media,agree,long-concealed-records-show,,,,,,,,,,,,,,,,
-requiring-president-members-congress,media,agree,lucky-loser-how-donald,,,,,,,,,,,,,,,,
-requiring-president-members-congress,media,disagree,more-than-you-wanted,,,,,,,,,,,,,,,,
-requiring-president-members-congress,media,disagree,full-disclosure-perils-promise,,,,,,,,,,,,,,,,
+requiring-president-members-congress,person,agree,senator-ron-wyden-oregon,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/BILLS-115s26is/html/BILLS-115s26is.htm | checked: 2026-11-14
+requiring-president-members-congress,person,agree,representative-anna-eshoo-california,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/BILLS-115hr305ih/html/BILLS-115hr305ih.htm | checked: 2026-11-14
+requiring-president-members-congress,person,disagree,california-governor-jerry-brown,,,,,,,,,,,,,,,,url: https://www.cbsnews.com/sacramento/news/tax-disclosure-vetoed | checked: 2026-11-14
+requiring-president-members-congress,media,agree,long-concealed-records-show,,,,,,,,,,,,,,,,url: https://portside.org/node/23943/printable/print | checked: 2026-11-14
+requiring-president-members-congress,media,agree,lucky-loser-how-donald,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Lucky_Loser_(book) | checked: 2026-11-14
+requiring-president-members-congress,media,disagree,more-than-you-wanted,,,,,,,,,,,,,,,,url: https://press.princeton.edu/books/hardcover/9780691161709/more-than-you-wanted-to-know | checked: 2026-11-14
+requiring-president-members-congress,media,disagree,full-disclosure-perils-promise,,,,,,,,,,,,,,,,url: https://doi.org/10.1017/9780521699617 | checked: 2026-11-14
 barring-president-members-congress,criterion,,number-conflict-interest-inquiries,,,,,,,,,,,,,,,,"method: Tally inquiries involving relatives from inspector general semiannual reports to Congress and from House and Senate ethics committee records, and compare the years before and after a family bar takes effect. | validity: Medium | reliability: Medium | linkage: Medium | importance: Medium | strengthen: Inquiries involving relatives fall after the family bar, and the cases do not reappear as complaints about informal advisers. | weaken: Inquiries involving relatives fall only because relatives moved to informal roles that inspectors general and ethics offices cannot investigate."
 barring-president-members-congress,falsify,agree,federal-agencies-already-covered,,,,,,,,,,,,,,,,
 barring-president-members-congress,falsify,agree,records-show-presidential-relative,,,,,,,,,,,,,,,,
@@ -2691,33 +2691,33 @@ caitlin-clark-main-reason,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides di
 caitlin-clark-main-reason,dispute,,,Definitional,,,,,,,,,,,,,,,"what: Supporters read 'main reason' as the largest single cause, while opponents answer as if it meant the only cause or more than half the growth. | move: Agreeing in advance that the belief is true if Clark's share of the growth exceeds every other single cause's share would settle which readings count as a win."
 caitlin-clark-main-reason,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether the WNBA's 2025 viewership records, set while Clark missed most of the season, show real growth or mostly reflect Nielsen's switch to Big Data + Panel measurement. | move: Nielsen or the networks publishing 2024 and 2025 WNBA averages on the same measurement basis would show whether 2025 actually grew without her."
 caitlin-clark-main-reason,value,,,,,,,,,,,,,,,,,,"value: Accuracy | srank: 1 | orank: 2 | why: Supporters say the numbers plainly show a three-to-one gap and that pretending otherwise is dishonest, while opponents say attributing a league's growth to one person oversimplifies what the data can show."
-opposing-players-have-targeted,argument,agree,caitlin-clark-drew-six,,,,,,,,,,,,,,,,
+opposing-players-have-targeted,argument,agree,caitlin-clark-drew-six,,,,,,,,,,,,,,,,url: https://statsurge.substack.com/p/flagrant-fouls-in-the-2024-wnba-season | checked: 2026-11-14
 opposing-players-have-targeted,argument,agree,opposing-coaches-have-said,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,argument,agree,several-hardest-hits-caitlin,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,argument,agree,caitlin-clark-has-drawn,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,argument,agree,caitlin-clark-s-own,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,evidence,agree,players-fouling-caitlin-clark,,"Vaughn Hajra, StatSurge (Substack), ""Analysis of Flagrant Fouls in the 2024 WNBA season,"" 2024",,,,,,,,,,,,,,
-opposing-players-have-targeted,evidence,agree,caitlin-clark-had-drawn,,"Jack Maloney, CBS Sports, ""Sophie Cunningham says players are 'definitely targeting' Caitlin Clark. What does the data say?"", 2026",,,,,,,,,,,,,,
+opposing-players-have-targeted,argument,agree,several-hardest-hits-caitlin,,,,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/sophie-cunningham-players-definitely-targeting-caitlin-clark/ | checked: 2026-11-14
+opposing-players-have-targeted,argument,agree,caitlin-clark-has-drawn,,,,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/sophie-cunningham-players-definitely-targeting-caitlin-clark/ | checked: 2026-11-14
+opposing-players-have-targeted,argument,agree,caitlin-clark-s-own,,,,,,,,,,,,,,,,url: https://www.clickondetroit.com/sports/2024/06/04/caitlin-clark-physical-play-and-questions-about-fouls-dominating-discussions-around-the-wnba/ | checked: 2026-11-14
+opposing-players-have-targeted,evidence,agree,players-fouling-caitlin-clark,,"Vaughn Hajra, StatSurge (Substack), ""Analysis of Flagrant Fouls in the 2024 WNBA season,"" 2024",,,,,,,,,,,,,,url: https://statsurge.substack.com/p/flagrant-fouls-in-the-2024-wnba-season | checked: 2026-11-14
+opposing-players-have-targeted,evidence,agree,caitlin-clark-had-drawn,,"Jack Maloney, CBS Sports, ""Sophie Cunningham says players are 'definitely targeting' Caitlin Clark. What does the data say?"", 2026",,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/sophie-cunningham-players-definitely-targeting-caitlin-clark/ | checked: 2026-11-14
 opposing-players-have-targeted,evidence,agree,wnba-suspended-phoenix-s,,"CBS News, ""WNBA suspends Alyssa Thomas for hitting Caitlin Clark in the throat,"" 2026",,,,,,,,,,,,,,
-opposing-players-have-targeted,evidence,agree,chicago-sky-committed-four,,"Sports Illustrated, Women's Fastbreak, ""Chicago Is Committing Flagrant Fouls Against Caitlin Clark At a Sky High Rate,"" 2024",,,,,,,,,,,,,,
-opposing-players-have-targeted,prediction,agree,caitlin-clark-will-still,,,,,,,,,,,,,,,"By October 1, 2027; checked against official WNBA box scores and league upgrade announcements compiled for every player.",
+opposing-players-have-targeted,evidence,agree,chicago-sky-committed-four,,"Sports Illustrated, Women's Fastbreak, ""Chicago Is Committing Flagrant Fouls Against Caitlin Clark At a Sky High Rate,"" 2024",,,,,,,,,,,,,,url: https://www.si.com/onsi/womens-fastbreak/wnba/chicago-is-committing-flagrant-fouls-against-caitlin-clark-at-a-sky-high-rate-01j6n4zm50yw | checked: 2026-11-14
+opposing-players-have-targeted,prediction,agree,caitlin-clark-will-still,,,,,,,,,,,,,,,"By October 1, 2027; checked against official WNBA box scores and league upgrade announcements compiled for every player.",url: https://www.cbssports.com/wnba/news/sophie-cunningham-players-definitely-targeting-caitlin-clark/ | checked: 2026-11-14
 opposing-players-have-targeted,prediction,agree,wnba-will-upgrade-least,,,,,,,,,,,,,,,"By October 1, 2027; checked against the league's public announcements of post-game upgrades.",
 opposing-players-have-targeted,falsify,agree,review-every-flagrant-foul,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,falsify,agree,former-wnba-player-coach,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,assumption,agree,flagrant-fouls-called-upgraded,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,assumption,agree,opposing-players-coaches-can,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,assumption,agree,caitlin-clark-s-high,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,person,agree,indiana-fever-coach-christie,,,,,,,,,,,,,,,,
+opposing-players-have-targeted,person,agree,indiana-fever-coach-christie,,,,,,,,,,,,,,,,url: https://www.clickondetroit.com/sports/2024/06/04/caitlin-clark-physical-play-and-questions-about-fouls-dominating-discussions-around-the-wnba/ | checked: 2026-11-14
 opposing-players-have-targeted,person,agree,indiana-fever-general-manager,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,person,agree,indiana-fever-coach-stephanie,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,media,agree,analysis-flagrant-fouls-2024,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,media,agree,fever-s-stephanie-white,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,argument,disagree,june-2024-caitlin-clark,,,,,,,,,,,,,,,,
+opposing-players-have-targeted,person,agree,indiana-fever-coach-stephanie,,,,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/fevers-stephanie-white-says-physicality-allowed-against-caitlin-clark-is-a-factor-in-her-injury-issues/ | checked: 2026-11-14
+opposing-players-have-targeted,media,agree,analysis-flagrant-fouls-2024,,,,,,,,,,,,,,,,url: https://statsurge.substack.com/p/flagrant-fouls-in-the-2024-wnba-season | checked: 2026-11-14
+opposing-players-have-targeted,media,agree,fever-s-stephanie-white,,,,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/fevers-stephanie-white-says-physicality-allowed-against-caitlin-clark-is-a-factor-in-her-injury-issues/ | checked: 2026-11-14
+opposing-players-have-targeted,argument,disagree,june-2024-caitlin-clark,,,,,,,,,,,,,,,,url: https://www.clickondetroit.com/sports/2024/06/04/caitlin-clark-physical-play-and-questions-about-fouls-dominating-discussions-around-the-wnba/ | checked: 2026-11-14
 opposing-players-have-targeted,argument,disagree,caitlin-clark-s-playing,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,argument,disagree,veteran-wnba-players-longtime,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,argument,disagree,heightened-attention-caitlin-clark,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,evidence,disagree,june-4-2024-caitlin,,"Doug Feinberg, The Associated Press, ""Caitlin Clark, physical play and questions about fouls dominating discussions around the WNBA,"" 2024",,,,,,,,,,,,,,
-opposing-players-have-targeted,evidence,disagree,caitlin-clark-attempted-4,,"Basketball-Reference, Caitlin Clark WNBA player page, 2024 season",,,,,,,,,,,,,,
+opposing-players-have-targeted,evidence,disagree,june-4-2024-caitlin,,"Doug Feinberg, The Associated Press, ""Caitlin Clark, physical play and questions about fouls dominating discussions around the WNBA,"" 2024",,,,,,,,,,,,,,url: https://www.clickondetroit.com/sports/2024/06/04/caitlin-clark-physical-play-and-questions-about-fouls-dominating-discussions-around-the-wnba/ | checked: 2026-11-14
+opposing-players-have-targeted,evidence,disagree,caitlin-clark-attempted-4,,"Basketball-Reference, Caitlin Clark WNBA player page, 2024 season",,,,,,,,,,,,,,url: https://www.basketball-reference.com/wnba/players/c/clarkca02w.html | checked: 2026-11-14
 opposing-players-have-targeted,prediction,disagree,least-one-other-wnba,,,,,,,,,,,,,,,"By October 1, 2027; checked by dividing each player's flagrant fouls drawn by games played using official box scores and league announcements.",
 opposing-players-have-targeted,prediction,disagree,caitlin-clark-will-rank,,,,,,,,,,,,,,,"By October 1, 2027; checked against the season's fouls-drawn leaderboard on Basketball-Reference or WNBA.com.",
 opposing-players-have-targeted,falsify,disagree,per-minute-count-shows,,,,,,,,,,,,,,,,
@@ -8350,14 +8350,14 @@ smartphones-social-media-main,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two side
 smartphones-social-media-main,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about how much of the measured rise in teen depression is real change and how much is a shift in diagnosis, awareness and willingness to report. | move: Tracking measures that do not depend on self-reporting, such as emergency room visits for self-harm and suicide rates by age and sex, against survey trends would show how much of the rise is real."
 smartphones-social-media-main,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides disagree about whether 'main cause' means the largest single cause or a cause responsible for most of the rise, and about whether screen time in general or social media in particular is the thing being tested. | move: Agreeing in advance to test social media use specifically and to define 'main' as a stated share of the rise would let both sides judge the same evidence by the same standard."
 smartphones-social-media-main,value,,,,,,,,,,,,,,,,,,"value: Child safety | srank: 1 | orank: 2 | why: People who hold the belief would rather restrict phones early and risk being wrong than wait for proof while children are harmed, while skeptics share the concern but worry about acting on the wrong cause."
-schools-ban-phones-during,argument,agree,phones-class-pull-students,,,,,,,,,,,,,,,,
+schools-ban-phones-during,argument,agree,phones-class-pull-students,,,,,,,,,,,,,,,,url: https://www.nber.org/system/files/working_papers/w34388/w34388.pdf | checked: 2026-11-14
 schools-ban-phones-during,argument,agree,school-wide-phone-ban,,,,,,,,,,,,,,,,
-schools-ban-phones-during,argument,agree,removing-phones-middle-schools,,,,,,,,,,,,,,,,
+schools-ban-phones-during,argument,agree,removing-phones-middle-schools,,,,,,,,,,,,,,,,url: https://jhr.uwpress.org/lookup/doi/10.3368/jhr.0224-13403R2 | checked: 2026-11-14
 schools-ban-phones-during,argument,agree,when-every-student-without,,,,,,,,,,,,,,,,
-schools-ban-phones-during,argument,agree,students-low-income-families,,,,,,,,,,,,,,,,
+schools-ban-phones-during,argument,agree,students-low-income-families,,,,,,,,,,,,,,,,url: https://ideas.repec.org/a/eee/labeco/v41y2016icp61-76.html | checked: 2026-11-14
 schools-ban-phones-during,argument,agree,school-day-without-phones,,,,,,,,,,,,,,,,
-schools-ban-phones-during,evidence,agree,large-florida-urban-school,,"David N. Figlio and Umut Özek, ""The Impact of Cellphone Bans in Schools on Student Outcomes: Evidence from Florida,"" NBER Working Paper 34388, 2025",,,,,,,,,,,,,,
-schools-ban-phones-during,evidence,agree,survey-317-dutch-secondary,,"Evaluation commissioned by the Dutch Ministry of Education, Culture and Science, reported by The Guardian, July 4, 2025",,,,,,,,,,,,,,
+schools-ban-phones-during,evidence,agree,large-florida-urban-school,,"David N. Figlio and Umut Özek, ""The Impact of Cellphone Bans in Schools on Student Outcomes: Evidence from Florida,"" NBER Working Paper 34388, 2025",,,,,,,,,,,,,,url: https://www.nber.org/papers/w34388 | checked: 2026-11-14
+schools-ban-phones-during,evidence,agree,survey-317-dutch-secondary,,"Evaluation commissioned by the Dutch Ministry of Education, Culture and Science, reported by The Guardian, July 4, 2025",,,,,,,,,,,,,,url: https://kohnstamminstituut.nl/wp-content/uploads/2025/07/1147-Factsheet-Monitoring-landelijke-afspraak-mobiele-telefoons-en-andere-devices-in-de-klas.pdf | checked: 2026-11-14
 schools-ban-phones-during,prediction,agree,follow-up-studies-u,,,,,,,,,,,,,,,"By December 31, 2028; checked against NBER working papers and peer-reviewed follow-ups of the Florida and national pouch studies.",
 schools-ban-phones-during,prediction,agree,least-one-study-outside,,,,,,,,,,,,,,,"By December 31, 2028; checked by a search of peer-reviewed journals and NBER, IZA and similar working paper series.",
 schools-ban-phones-during,falsify,agree,randomized-trial-which-some,,,,,,,,,,,,,,,,
@@ -8365,16 +8365,16 @@ schools-ban-phones-during,falsify,agree,several-u-s-districts,,,,,,,,,,,,,,,,
 schools-ban-phones-during,assumption,agree,students-phone-use-during,,,,,,,,,,,,,,,,
 schools-ban-phones-during,assumption,agree,schools-have-rightful-authority,,,,,,,,,,,,,,,,
 schools-ban-phones-during,assumption,agree,single-school-wide-phone,,,,,,,,,,,,,,,,
-schools-ban-phones-during,person,agree,social-psychologist-jonathan-haidt-2,,,,,,,,,,,,,,,,
-schools-ban-phones-during,person,agree,new-york-governor-kathy,,,,,,,,,,,,,,,,
-schools-ban-phones-during,person,agree,california-governor-gavin-newsom,,,,,,,,,,,,,,,,
-schools-ban-phones-during,media,agree,anxious-generation-how-great,,,,,,,,,,,,,,,,
-schools-ban-phones-during,media,agree,ill-communication-technology-distraction,,,,,,,,,,,,,,,,
-schools-ban-phones-during,media,agree,smartphone-bans-student-outcomes,,,,,,,,,,,,,,,,
-schools-ban-phones-during,argument,disagree,largest-recent-u-s,,,,,,,,,,,,,,,,
+schools-ban-phones-during,person,agree,social-psychologist-jonathan-haidt-2,,,,,,,,,,,,,,,,url: https://www.anxiousgeneration.com/resources/four-norms | checked: 2026-11-14
+schools-ban-phones-during,person,agree,new-york-governor-kathy,,,,,,,,,,,,,,,,url: https://www.governor.ny.gov/news/distraction-free-schools-governor-hochul-announces-new-york-become-largest-state-nation | checked: 2026-11-14
+schools-ban-phones-during,person,agree,california-governor-gavin-newsom,,,,,,,,,,,,,,,,url: https://calmatters.digitaldemocracy.org/bills/ca_202320240ab3216 | checked: 2026-11-14
+schools-ban-phones-during,media,agree,anxious-generation-how-great,,,,,,,,,,,,,,,,url: https://www.penguinrandomhouse.com/books/729231/the-anxious-generation-by-jonathan-haidt/ | checked: 2026-11-14
+schools-ban-phones-during,media,agree,ill-communication-technology-distraction,,,,,,,,,,,,,,,,url: https://ideas.repec.org/a/eee/labeco/v41y2016icp61-76.html | checked: 2026-11-14
+schools-ban-phones-during,media,agree,smartphone-bans-student-outcomes,,,,,,,,,,,,,,,,url: https://jhr.uwpress.org/lookup/doi/10.3368/jhr.0224-13403R2 | checked: 2026-11-14
+schools-ban-phones-during,argument,disagree,largest-recent-u-s,,,,,,,,,,,,,,,,url: https://wtop.com/education/2026/05/five-things-to-know-about-largest-cell-phone-ban-study/ | checked: 2026-11-14
 schools-ban-phones-during,argument,disagree,parents-need-able-reach,,,,,,,,,,,,,,,,
-schools-ban-phones-during,argument,disagree,enforcing-new-school-phone,,,,,,,,,,,,,,,,
-schools-ban-phones-during,argument,disagree,ban-phones-during-school,,,,,,,,,,,,,,,,
+schools-ban-phones-during,argument,disagree,enforcing-new-school-phone,,,,,,,,,,,,,,,,url: https://www.nber.org/papers/w34388 | checked: 2026-11-14
+schools-ban-phones-during,argument,disagree,ban-phones-during-school,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.1016/j.lanepe.2025.101211&resultType=core&format=json | checked: 2026-11-14
 schools-ban-phones-during,argument,disagree,students-who-never-practice,,,,,,,,,,,,,,,,
 schools-ban-phones-during,argument,disagree,rule-bans-phones-only,,,,,,,,,,,,,,,,
 schools-ban-phones-during,evidence,disagree,among-1-227-students,,"Victoria Goodyear and colleagues, ""School phone policies and their association with mental wellbeing, phone use, and social media use (SMART Schools): a cross-sectional observational study,"" The Lancet Regional Health, Europe, 2025",,,,,,,,,,,,,,
@@ -8640,12 +8640,12 @@ ai-written-novels-will,dispute,,,Empirical,,,,,,,,,,,,,,,what: The two sides dis
 ai-written-novels-will,value,,,,,,,,,,,,,,,,,,"value: Access | srank: 1 | orank: 3 | why: Supporters put cheap, plentiful books for every reader first, while opponents weigh it below who gets paid and who gets credit."
 video-games-art-form,argument,agree,video-games-tell-stories,,,,,,,,,,,,,,,,
 video-games-art-form,argument,agree,interactivity-lets-video-game,,,,,,,,,,,,,,,,
-video-games-art-form,argument,agree,film-was-widely-treated,,,,,,,,,,,,,,,,
-video-games-art-form,argument,agree,major-cultural-institutions-including,,,,,,,,,,,,,,,,
+video-games-art-form,argument,agree,film-was-widely-treated,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Film_d%27art | checked: 2026-11-14
+video-games-art-form,argument,agree,major-cultural-institutions-including,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Video_games_as_an_art_form | checked: 2026-11-14
 video-games-art-form,argument,agree,major-video-game-combines,,,,,,,,,,,,,,,,
-video-games-art-form,argument,agree,governments-france-germany-have,,,,,,,,,,,,,,,,
-video-games-art-form,evidence,agree,u-s-supreme-court,,"Supreme Court of the United States, Brown v. Entertainment Merchants Association, 564 U.S. 786, 2011",,,,,,,,,,,,,,
-video-games-art-form,evidence,agree,smithsonian-american-art-museum,,"Smithsonian American Art Museum, The Art of Video Games exhibition record, 2012 (as summarized in Wikipedia, The Art of Video Games)",,,,,,,,,,,,,,
+video-games-art-form,argument,agree,governments-france-germany-have,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Video_games_as_an_art_form | checked: 2026-11-14
+video-games-art-form,evidence,agree,u-s-supreme-court,,"Supreme Court of the United States, Brown v. Entertainment Merchants Association, 564 U.S. 786, 2011",,,,,,,,,,,,,,url: https://www.law.cornell.edu/supct/html/08-1448.ZO.html | checked: 2026-11-14
+video-games-art-form,evidence,agree,smithsonian-american-art-museum,,"Smithsonian American Art Museum, The Art of Video Games exhibition record, 2012 (as summarized in Wikipedia, The Art of Video Games)",,,,,,,,,,,,,,url: https://americanart.si.edu/exhibitions/games | checked: 2026-11-14
 video-games-art-form,prediction,agree,national-poll-u-s,,,,,,,,,,,,,,,"By December 31, 2032; checked against a published probability-sample poll from Pew Research Center, Gallup or YouGov.",
 video-games-art-form,prediction,agree,least-one-major-art,,,,,,,,,,,,,,,"By December 31, 2031; checked against the museum's published collection records or acquisition announcement.",
 video-games-art-form,falsify,agree,blind-study-finds-critics,,,,,,,,,,,,,,,,
@@ -8653,18 +8653,18 @@ video-games-art-form,falsify,agree,study-finds-players-remember,,,,,,,,,,,,,,,,
 video-games-art-form,assumption,agree,art-form-judged-its,,,,,,,,,,,,,,,,
 video-games-art-form,assumption,agree,player-s-choices-inside,,,,,,,,,,,,,,,,
 video-games-art-form,assumption,agree,artistic-merit-can-compared,,,,,,,,,,,,,,,,
-video-games-art-form,person,agree,justice-antonin-scalia-wrote,,,,,,,,,,,,,,,,
-video-games-art-form,person,agree,kellee-santiago-co-founder,,,,,,,,,,,,,,,,
-video-games-art-form,person,agree,paola-antonelli-senior-curator,,,,,,,,,,,,,,,,
-video-games-art-form,media,agree,games-agency-art-c,,,,,,,,,,,,,,,,
-video-games-art-form,media,agree,art-videogames-grant-tavinor,,,,,,,,,,,,,,,,
-video-games-art-form,media,agree,art-video-games-pac,,,,,,,,,,,,,,,,
-video-games-art-form,argument,disagree,most-video-games-built,,,,,,,,,,,,,,,,
+video-games-art-form,person,agree,justice-antonin-scalia-wrote,,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/supct/html/08-1448.ZO.html | checked: 2026-11-14
+video-games-art-form,person,agree,kellee-santiago-co-founder,,,,,,,,,,,,,,,,url: https://kotaku.com/my-response-to-roger-ebert-video-game-skeptic-5520437 | checked: 2026-11-14
+video-games-art-form,person,agree,paola-antonelli-senior-curator,,,,,,,,,,,,,,,,url: https://www.theregister.com/2012/12/01/moma_begins_video_game_collection/ | checked: 2026-11-14
+video-games-art-form,media,agree,games-agency-art-c,,,,,,,,,,,,,,,,url: https://global.oup.com/academic/product/games-9780190052089 | checked: 2026-11-14
+video-games-art-form,media,agree,art-videogames-grant-tavinor,,,,,,,,,,,,,,,,url: https://www.wiley-vch.de/en/areas-interest/humanities-social-sciences/the-art-of-videogames-978-1-4051-8789-3 | checked: 2026-11-14
+video-games-art-form,media,agree,art-video-games-pac,,,,,,,,,,,,,,,,url: https://openlibrary.org/search.json?q=the+art+of+video+games+pac-man+mass+effect | checked: 2026-11-14
+video-games-art-form,argument,disagree,most-video-games-built,,,,,,,,,,,,,,,,url: https://www.pocketgamer.com/features/the-escapist-bulletin-ebert-and-the-games-as-art-debate | checked: 2026-11-14
 video-games-art-form,argument,disagree,handing-control-story-player,,,,,,,,,,,,,,,,
-video-games-art-form,argument,disagree,best-selling-video-games,,,,,,,,,,,,,,,,
+video-games-art-form,argument,disagree,best-selling-video-games,,,,,,,,,,,,,,,,url: https://www.operationsports.com/nba-2k26-leads-sports-games-on-circanas-2025-sales-rankings/ | checked: 2026-11-14
 video-games-art-form,argument,disagree,after-about-fifty-years,,,,,,,,,,,,,,,,
-video-games-art-form,argument,disagree,museums-collect-video-games,,,,,,,,,,,,,,,,
-video-games-art-form,evidence,disagree,2015-national-survey-26,,"Pew Research Center, Gaming and Gamers (Maeve Duggan), 2015",,,,,,,,,,,,,,
+video-games-art-form,argument,disagree,museums-collect-video-games,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_video_games_in_the_Museum_of_Modern_Art | checked: 2026-11-14
+video-games-art-form,evidence,disagree,2015-national-survey-26,,"Pew Research Center, Gaming and Gamers (Maeve Duggan), 2015",,,,,,,,,,,,,,url: https://www.pewresearch.org/internet/2015/12/15/gaming-and-gamers/ | checked: 2026-11-14
 video-games-art-form,evidence,disagree,seven-ten-best-selling,,"Circana, U.S. best-selling premium games of 2024, 2025 (as listed in Wikipedia, 2024 in video games)",,,,,,,,,,,,,,url: https://videogameschronicle.com/news/call-of-duty-was-the-uss-best-selling-series-for-the-16th-year-running | checked: 2026-11-08
 video-games-art-form,evidence,disagree,among-u-s-adult,,"Entertainment Software Association, 2025 Essential Facts About the U.S. Video Game Industry, 2025",,,,,,,,,,,,,,url: https://www.theesa.com/resources/essential-facts-about-the-us-video-game-industry/2025-data/ | checked: 2026-11-08
 video-games-art-form,evidence,disagree,when-museum-modern-art,,"Museum of Modern Art, video game acquisition, 2012 (as summarized in Wikipedia, Museum of Modern Art)",,,,,,,,,,,,,,url: https://www.nbcnews.com/tech/tech-news/moma-acquires-14-video-games-permanent-collection-flna1c7342403 | checked: 2026-11-08
@@ -8946,9 +8946,9 @@ united-states-will-recession,argument,disagree,professional-forecasters-put-chan
 united-states-will-recession,argument,disagree,real-time-sahm-rule-2,,,,,,,,,,,,,,,,
 united-states-will-recession,argument,disagree,sharp-slowdown-u-s,,,,,,,,,,,,,,,,
 united-states-will-recession,evidence,disagree,u-s-real-gdp,,"U.S. Bureau of Economic Analysis, ""GDP (Third Estimate), Industries, Corporate Profits, State GDP, and State Personal Income, 2nd Quarter 2026,"" released September 30, 2026",,,,,,,,,,,,,,
-united-states-will-recession,evidence,disagree,atlanta-fed-s-gdpnow,,"Federal Reserve Bank of Atlanta, GDPNow (via FRED series GDPNOW), updated October 1, 2026",,,,,,,,,,,,,,
-united-states-will-recession,evidence,disagree,thirty-two-professional-forecasters,,"Federal Reserve Bank of Philadelphia, ""Third Quarter 2026 Survey of Professional Forecasters,"" August 14, 2026",,,,,,,,,,,,,,
-united-states-will-recession,evidence,disagree,real-time-sahm-rule-3,,"Federal Reserve Bank of St. Louis, FRED, ""Real-time Sahm Rule Recession Indicator"" (SAHMREALTIME), updated October 2, 2026",,,,,,,,,,,,,,
+united-states-will-recession,evidence,disagree,atlanta-fed-s-gdpnow,,"Federal Reserve Bank of Atlanta, GDPNow (via FRED series GDPNOW), updated October 1, 2026",,,,,,,,,,,,,,url: https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=GDPNOW&cosd=2026-04-01&vintage_date=2026-10-01 | checked: 2026-11-14
+united-states-will-recession,evidence,disagree,thirty-two-professional-forecasters,,"Federal Reserve Bank of Philadelphia, ""Third Quarter 2026 Survey of Professional Forecasters,"" August 14, 2026",,,,,,,,,,,,,,url: https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/spf-q3-2026 | checked: 2026-11-14
+united-states-will-recession,evidence,disagree,real-time-sahm-rule-3,,"Federal Reserve Bank of St. Louis, FRED, ""Real-time Sahm Rule Recession Indicator"" (SAHMREALTIME), updated October 2, 2026",,,,,,,,,,,,,,url: https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=SAHMREALTIME&cosd=2026-06-01&vintage_date=2026-10-02 | checked: 2026-11-14
 united-states-will-recession,prediction,disagree,u-s-unemployment-rate,,,,,,,,,,,,,,,"By January 31, 2028; checked against BLS Employment Situation reports.",
 united-states-will-recession,prediction,disagree,bea-advance-estimates-show,,,,,,,,,,,,,,,"By January 31, 2028; checked against the BEA advance estimate for the fourth quarter of 2027 and earlier quarters.",
 united-states-will-recession,falsify,disagree,shipping-through-strait-hormuz,,,,,,,,,,,,,,,,
@@ -8956,10 +8956,10 @@ united-states-will-recession,falsify,disagree,monthly-u-s-payroll,,,,,,,,,,,,,,,
 united-states-will-recession,assumption,disagree,business-spending-artificial-intelligence,,,,,,,,,,,,,,,,
 united-states-will-recession,assumption,disagree,world-oil-prices-will,,,,,,,,,,,,,,,,
 united-states-will-recession,assumption,disagree,federal-reserve-will-reverse,,,,,,,,,,,,,,,,
-united-states-will-recession,person,disagree,goldman-sachs-economists-led,,,,,,,,,,,,,,,,
-united-states-will-recession,person,disagree,torsten-slok-chief-economist,,,,,,,,,,,,,,,,
-united-states-will-recession,person,disagree,american-bankers-association-s,,,,,,,,,,,,,,,,
-united-states-will-recession,media,disagree,direct-stimulus-payments-individuals,,,,,,,,,,,,,,,,
+united-states-will-recession,person,disagree,goldman-sachs-economists-led,,,,,,,,,,,,,,,,url: https://www.itiger.com/news/2645902115 | checked: 2026-11-14
+united-states-will-recession,person,disagree,torsten-slok-chief-economist,,,,,,,,,,,,,,,,url: https://www.apollo.com/insights-news/insights/podcast/the-allocation/2026/06/2026-mid-year-outlook | checked: 2026-11-14
+united-states-will-recession,person,disagree,american-bankers-association-s,,,,,,,,,,,,,,,,url: https://www.aba.com/about-us/press-room/press-releases/economic-advisory-committee-forecast-september-2026 | checked: 2026-11-14
+united-states-will-recession,media,disagree,direct-stimulus-payments-individuals,,,,,,,,,,,,,,,,url: https://www.hamiltonproject.org/publication/policy-proposal/direct-stimulus-payments-to-individuals/ | checked: 2026-11-14
 united-states-will-recession,interest,agree,hourly-workers-trucking-airlines,,,,,,,,,,,,,,,,
 united-states-will-recession,interest,agree,families-paying-far-more,,,,,,,,,,,,,,,,
 united-states-will-recession,interest,agree,retirees-savers-holding-long,,,,,,,,,,,,,,,,
@@ -8968,7 +8968,7 @@ united-states-will-recession,interest,disagree,workers-saving-retirement-stock,,
 united-states-will-recession,cba,agree,u-s-households-build,,,,,,,,hourly-workers-trucking-airlines,,,months of household expenses saved,3,,,,
 united-states-will-recession,cba,agree,if-federal-reserve-stops,,,,,,,,families-paying-far-more,,,percentage points of unemployment avoided,0.5,,,,
 united-states-will-recession,cba,agree,savers-who-move-money,,,,,,,,retirees-savers-holding-long,,,percent return on bond holdings,,,,,
-united-states-will-recession,cba,disagree,u-s-recession-before,,,,,,,,small-business-owners-need-2,,,percentage points of unemployment,2,,,,
+united-states-will-recession,cba,disagree,u-s-recession-before,,,,,,,,small-business-owners-need-2,,,percentage points of unemployment,2,,,,url: https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=UNRATE&cosd=2026-06-01&vintage_date=2026-10-15 | checked: 2026-11-14
 united-states-will-recession,cba,disagree,if-u-s-businesses,,,,,,,,small-business-owners-need-2,,,percentage points of GDP growth,,,,,
 united-states-will-recession,cba,disagree,investors-who-sell-stocks,,,,,,,,workers-saving-retirement-stock,,,percent of portfolio return,,,,,
 united-states-will-recession,category,,,months of household expenses saved,,,,,,,,,,,,,,,
@@ -13015,3 +13015,17 @@ interest-cited-bill-findings-almost,argument,disagree,none-about-50-congressiona
 opposition-strongest-among-members-most,argument,disagree,nine-house-members-most-transactions,,govinfo.gov,,,,,,,,,,,,,,url: https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr5106.xml | checked: 2026-11-14 | tag: truth.premise-false
 members-who-trade-most-members,argument,disagree,ro-khanna-house-member-most,,congress.gov,,,,,,,,,,,,,,url: https://www.congress.gov/bill/119th-congress/house-bill/5106/cosponsors | checked: 2026-11-14 | tag: truth.premise-false
 former-professional-players-who,argument,disagree,athletic-s-survey-former-professional,,sportbible.com,,,,,,,,,,,,,,url: https://www.sportbible.com/football/cristiano-ronaldo-lionel-messi-man-united-psg-20221007 | checked: 2026-11-14 | tag: truth.premise-false
+clemency-only-executive-power,argument,disagree,federal-pardon-final-when-signed,,law.resource.org,,,,,,,,,,,,,,url: https://law.resource.org/pub/us/case/reporter/F.Cas/0007.f.cas/0007.f.cas.0506.2.html | checked: 2026-11-14 | tag: truth.premise-false
+proposals-let-congress-nullify,argument,disagree,two-resolutions-row-cites-only,,govinfo.gov,,,,,,,,,,,,,,url: https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hjres/BILLSTATUS-119hjres13.xml | checked: 2026-11-14 | tag: challenge.misquoted
+fed-rule-same-restriction-same,argument,disagree,fed-s-2022-rule-bars,,federalreserve.gov,,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/files/FOMC_InvestmentPolicy.pdf | checked: 2026-11-14 | tag: truth.premise-false
+disclosure-only-regime-failing-nearby,argument,disagree,federal-judges-under-disclosure-only,,law.cornell.edu,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/28/455 | checked: 2026-11-14 | tag: truth.premise-false
+shows-exact-rule-belief-proposes,argument,disagree,since-2022-federal-reserve-has,,federalreserve.gov,,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/files/FOMC_InvestmentPolicy.pdf | checked: 2026-11-14 | tag: truth.premise-false
+reports-buy-portfolio-s-abnormal,argument,disagree,ziobrowski-et-al-2004-report,,gwern.net,,,,,,,,,,,,,,url: https://www.gwern.net/doc/economics/2004-ziobrowski.pdf | checked: 2026-11-14 | tag: truth.premise-false
+better-matched-benchmarks-larger-sample,argument,disagree,eggers-hainmueller-2013-deliberately-used,,mit.edu,,,,,,,,,,,,,,url: https://www.mit.edu/~jhainm/Paper/CL.pdf | checked: 2026-11-14 | tag: truth.premise-false
+same-filings-independently-coded,argument,disagree,eggers-hainmueller-analysed-newly-collected,,mit.edu,,,,,,,,,,,,,,url: https://www.mit.edu/~jhainm/Paper/CL.pdf | checked: 2026-11-14 | tag: truth.premise-false
+measures-trading-returns-belief-also,argument,disagree,insider-s-conflicted-congress-counted,,finance.yahoo.com,,,,,,,,,,,,,,url: https://finance.yahoo.com/news/75-members-congress-violated-law-160918370.html | checked: 2026-11-14 | tag: truth.premise-false
+most-teachers-were-never,argument,disagree,rand-s-american-instructional-resources,,cdn.edreports.org,,,,,,,,,,,,,,url: https://cdn.edreports.org/media/2023/11/State_of_the_Market_Teachers_Weigh_in_120423.pdf | checked: 2026-11-14 | tag: truth.premise-false
+every-major-u-s,argument,disagree,census-linked-research-finds-descendants,,doi.org,,,,,,,,,,,,,,url: https://doi.org/10.1016/j.ssresearch.2012.01.010 | checked: 2026-11-14 | tag: truth.premise-false
+more-than-70-percent,argument,disagree,undp-s-june-2023-energy,,undp.org,,,,,,,,,,,,,,url: https://www.undp.org/sites/g/files/zskgke326/files/2023-06/undp-ua-energy-damage-assessment.pdf | checked: 2026-11-14 | tag: challenge.misquoted
+qualified-blind-trust-already-removes,argument,disagree,under-5-cfr-2634-403,,law.cornell.edu,,,,,,,,,,,,,,url: https://www.law.cornell.edu/cfr/text/5/2634.403 | checked: 2026-11-14 | tag: truth.premise-false
+100-greatest-tv-series,argument,disagree,bbc-culture-s-october-2021,,bbc.com,,,,,,,,,,,,,,url: https://www.bbc.com/culture/article/20211015-the-tv-shows-that-have-shaped-us | checked: 2026-11-14 | tag: challenge.misquoted

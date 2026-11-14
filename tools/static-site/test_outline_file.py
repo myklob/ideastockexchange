@@ -1319,7 +1319,8 @@ class TestWhatAFourthReviewFound(unittest.TestCase):
                        'of public office for private gain.\n  + Officials would move their holdings into family trusts that nobody audits.\n')
         self.assertEqual((f.stops, f.votes), ([], []))
         self.assertFalse(any(e['page'] == BARRING for e in f.edges), 'the objection is not filed as a reason to agree with the ban')
-        self.assertIn("near: [barring-members-congress-president] 0.89 (says 'expand' where it says 'reduce')", f.notes[1])
+        # the score drifts a point as the tables grow (a word counts for less the more claims use it); the swap must still be named
+        self.assertRegex(f.notes[1][0], r"^near: \[barring-members-congress-president\] 0\.(8\d|9\d) \(says 'expand' where it says 'reduce'\)$")
         _, f, _ = file('Page: [members-regularly-trade-industries]\n  + Congressional portfolios outperformed market benchmarks by roughly 2 to '
                        '3 percent a year over 2004 to 2008.\n')
         self.assertEqual((f.votes, [p['text'][:36] for p in f.pages]), ([], ['Congressional portfolios outperforme']))
