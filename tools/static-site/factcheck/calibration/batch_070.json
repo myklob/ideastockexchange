@@ -1,0 +1,187 @@
+[
+ {
+  "id": 9399,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "length-software-tasks-ai",
+  "text": "The length of software tasks that AI agents can finish on their own has doubled roughly every seven months for six years, a pace that would put multi-day programming tasks within reach of AI agents well before 2030."
+ },
+ {
+  "id": 9400,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "most-work-given-entry",
+  "text": "Most of the work given to entry-level programmers is small, well-specified, self-contained tasks, which is the kind of programming work today's AI coding agents handle best."
+ },
+ {
+  "id": 9401,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "large-software-companies-already",
+  "text": "Large software companies already report that AI writes most of their new code, with Google saying in April 2026 that 75 percent of its new code was AI-generated and approved by engineers."
+ },
+ {
+  "id": 9402,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "employment-u-s-software",
+  "text": "Employment of U.S. software developers aged 22 to 25 has fallen about 20 percent from its late-2022 peak while employment of older developers grew, which is the pattern AI taking over junior tasks would produce."
+ },
+ {
+  "id": 9403,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "software-programming-office-job",
+  "text": "Software programming is the office job where AI output is easiest to check automatically, because compilers and tests tell an AI agent whether its code works, so programming should be automated before most other desk work."
+ },
+ {
+  "id": 9404,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "evidence",
+  "side": "agree",
+  "claim": "length-software-tasks-frontier",
+  "text": "The length of software tasks that frontier AI agents can complete with 50 percent reliability has doubled about every seven months over the past six years.",
+  "source": "Thomas Kwa, Ben West, Joel Becker and others, METR, \"Measuring AI Ability to Complete Long Software Tasks,\" 2025"
+ },
+ {
+  "id": 9405,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "evidence",
+  "side": "agree",
+  "claim": "79-percent-conversations-claude",
+  "text": "79 percent of conversations on Claude Code, an AI coding agent, were classified as automation (the AI doing the task directly) rather than augmentation, compared with 49 percent of coding conversations on the regular Claude.ai chat site.",
+  "source": "Anthropic, \"Anthropic Economic Index: AI's impact on software development,\" 2025"
+ },
+ {
+  "id": 9406,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "prediction",
+  "side": "agree",
+  "claim": "employment-u-s-software-2",
+  "text": "Employment of U.S. software developers aged 22 to 25 will be at least 35 percent below its late-2022 peak."
+ },
+ {
+  "id": 9407,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "prediction",
+  "side": "agree",
+  "claim": "least-three-five-largest",
+  "text": "At least three of the five largest U.S. technology companies by market value will publicly report that AI writes 90 percent or more of their new code while cutting new-graduate engineering hiring below 2022 levels."
+ },
+ {
+  "id": 9413,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "person",
+  "side": "agree",
+  "claim": "anthropic-chief-executive-dario",
+  "text": "Anthropic chief executive Dario Amodei told Axios in May 2025 that AI could eliminate half of all entry-level white-collar jobs within one to five years and push U.S. unemployment to 10 to 20 percent."
+ },
+ {
+  "id": 9414,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "person",
+  "side": "agree",
+  "claim": "meta-chief-executive-mark",
+  "text": "Meta chief executive Mark Zuckerberg said on The Joe Rogan Experience in January 2025 that Meta and other companies would probably have AI in 2025 that could effectively work as a mid-level software engineer."
+ },
+ {
+  "id": 9415,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "media",
+  "side": "agree",
+  "claim": "canaries-coal-mine-six",
+  "text": "Canaries in the Coal Mine? Six Facts about the Recent Employment Effects of Artificial Intelligence, Erik Brynjolfsson, Bharat Chandar and Ruyu Chen, 2025 (revised August 2026)",
+  "source": "Stanford Digital Economy Lab",
+  "bridge": "Payroll records covering millions of U.S. workers show employment of 22-to-25-year-olds in the most AI-exposed jobs, software developers among them, running well below that of less-exposed peers, mostly through less hiring rather than layoffs."
+ },
+ {
+  "id": 9416,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "media",
+  "side": "agree",
+  "claim": "measuring-ai-ability-complete",
+  "text": "Measuring AI Ability to Complete Long Tasks, Thomas Kwa, Ben West and others (METR), 2025",
+  "source": "METR, posted on arXiv",
+  "bridge": "The study measures how long a software task, timed by how long it takes skilled people, AI agents can finish half the time, and finds that length has doubled about every seven months since 2019."
+ },
+ {
+  "id": 9417,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "most-entry-level-programmer",
+  "text": "Most of an entry-level programmer's working day is spent understanding what people want, tracking down bugs, reading other people's code and coordinating with teammates, not typing new code, and AI does that other work far less reliably."
+ },
+ {
+  "id": 9418,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "cheaper-software-production-has",
+  "text": "Cheaper software production has historically raised demand for programmers rather than cut it, because lower costs make worthwhile many projects that were too expensive to build before."
+ },
+ {
+  "id": 9419,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "drop-hiring-young-software",
+  "text": "The drop in hiring of young software developers since 2022 is largely explained by higher interest rates and companies correcting for pandemic over-hiring, both of which began before AI coding tools were widely used."
+ },
+ {
+  "id": 9420,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "software-companies-need-junior",
+  "text": "Software companies need junior programmers to train into the senior engineers they will need later, so most firms will keep hiring beginners even when AI could do many of their current tasks."
+ },
+ {
+  "id": 9421,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "ai-generated-code-still",
+  "text": "AI-generated code still needs careful human review for security and correctness, so AI coding tools mostly move a junior programmer's hours from writing code to checking it rather than eliminating them."
+ },
+ {
+  "id": 9422,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "banks-hospitals-governments-other",
+  "text": "Banks, hospitals, governments and other large organizations adopt new tools slowly because of old code, regulation and legal liability, so AI will not take over most junior programming work across the whole economy by 2030 even if the technology is ready."
+ },
+ {
+  "id": 9423,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "randomized-trial-16-experienced",
+  "text": "In a randomized trial, 16 experienced open-source developers took 19 percent longer to finish real tasks when allowed to use early-2025 AI tools, even though they believed the tools had sped them up by 20 percent.",
+  "source": "Joel Becker, Nate Rush, Elizabeth Barnes and David Rein, METR, \"Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity,\" 2025"
+ },
+ {
+  "id": 9424,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "u-s-bureau-labor",
+  "text": "The U.S. Bureau of Labor Statistics projects employment of software developers to grow 15.8 percent from 2024 to 2034, adding about 267,700 jobs, the largest gain among computer occupations.",
+  "source": "U.S. Bureau of Labor Statistics, The Economics Daily, \"Artificial intelligence, information technology, and employment, 2024-34,\" 2026"
+ },
+ {
+  "id": 9425,
+  "belief_text": "By the end of 2030, AI systems will do most of the work now done by entry-level software programmers.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "indeed-job-postings-software",
+  "text": "Indeed job postings for software development rose from a low of 61.1 in May 2025 to 74.4 in August 2026, on an index where February 1, 2020 equals 100.",
+  "source": "Indeed Hiring Lab, \"US Labor Market Snapshot, August 2026,\" 2026"
+ }
+]
