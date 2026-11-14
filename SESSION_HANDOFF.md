@@ -29,8 +29,10 @@ Verified on this commit:
 
 - `sync_content.py --check`, `integrity.py`, `tools/check_templates.py`, `conformance.py` and the build all pass, with 0
   broken links.
-- The full static-site suite was run in parallel. The result is in the PR.
-- `check_assertions.py` was run. The result is in the PR.
+- The full static-site suite passes: 805 tests in 20 modules, run four at a time.
+- `check_assertions.py` over the whole suite first found 4 of 2,527 assertions that never ran, all in `test_render.py`
+  (see Blockers). After the fix, a traced run of `test_render.py` alone runs all 648 of its assertions. The full audit
+  takes about 80 minutes and was not repeated end to end. `pages.yml` runs it again before it publishes.
 - `npx tsc --noEmit` and ESLint were not rerun. No TypeScript changed on this branch, and ESLint ignores `tools/**`.
 
 Engine invariants, checked against the code:
@@ -73,9 +75,11 @@ Hardcoded depth limits are the one exception (see Blockers).
   Three never ran because the markup gained `scope="col"` on header cells and an `id` on folded tables, while the tests
   still looked for the bare tags. The fourth checks a build that holds no belief down, which the live tables never are.
   This branch fixes all five. The same stale patterns also left two assertions that ran unable to fail, and two table
-  finders skipping every folded table. Those are fixed too. Merging this branch is what republishes the site.
+  finders skipping every folded table. Those are fixed too. With its pattern fixed, the tied-ranks test found a real fault:
+  two books printing +0.05 were ranked 6 and 7. The works lists now rank on the printed value, and no score moves.
+  Merging this branch is what republishes the site.
 - **The branch is not merged.** `pages.yml` publishes only on a push to `master` that touches `tools/static-site/**`.
-  The branch carries 40 commits since `master` was last merged, on 2026-10-10.
+  The branch carries 42 commits since `master` was last merged, on 2026-10-10.
 - **Three docs named in the wrap-up checklist do not exist:** `REASONRANK_EQUATIONS.md`, `ISE_scores_inventory.md` and
   `CONFLICT_RESOLUTION_SCORING.md`. Scoring is documented in `tools/static-site/README.md`, `CLAUDE.md` and
   `tools/static-site/conformance.py`, and those match the code. The three were not created, because `CLAUDE.md` forbids
