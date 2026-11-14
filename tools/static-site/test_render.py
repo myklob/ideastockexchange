@@ -631,11 +631,11 @@ class TestTheMethodPageDescribesThisBuild(unittest.TestCase):
     def test_the_held_beliefs_are_counted_from_the_build(self):
         import method
         held = [b for b in self.c.beliefs if self.c.stats(b)['weakest'] is not None and self.c.stats(b)['weakest'] < self.c.stats(b)['raw'] - 1e-9]
-        if not held:
-            self.assertIn('no belief is held below what its rows argue', self.text); return
         cited = sum(self.c.stats(b)['nsupp'] + self.c.stats(b)['nweak'] for b in held)
-        self.assertIn(f'{method.count_words(len(held))} belief', self.text)
-        self.assertIn(f'citing {cited} finding', self.text)
+        # the live tables hold beliefs down, so the sentence for a build that holds none is checked on the small corpus
+        # in TestEveryBeliefIsPublishedAndTheCompleteOnesComeFirst
+        want = [f'{method.count_words(len(held))} belief', f'citing {cited} finding'] if held else ['no belief is held below what its rows argue']
+        for w in want: self.assertIn(w, self.text)
 
     def test_the_corpus_and_the_sweep_are_counted_from_the_build(self):
         topics = {self.c.topic_of(b) for b in self.c.beliefs if self.c.topic_of(b)}
@@ -788,10 +788,13 @@ class TestTheInterestsAreFiledByParty(unittest.TestCase):
 
     def test_counts_are_plural_only_when_plural_and_empty_columns_are_dropped(self):
         self.assertNotRegex(self.page, r'>1 pages<')
-        for t in re.findall(r'<table class="scored">.*?</table>', self.page, re.S):
-            if '<th>Value it serves</th>' not in t: continue
+        valued = 0
+        for t in re.findall(r'<table\b[^>]*class="scored"[^>]*>.*?</table>', self.page, re.S):
+            if not re.search(r'<th\b[^>]*>Value it serves</th>', t): continue
+            valued += 1
             cells = re.findall(r'</a></td><td class="u">([^<]*)</td><td>', t)
             self.assertTrue(any(x.strip() for x in cells), 'a Value it serves column is printed with every cell empty')
+        self.assertGreater(valued, 0, 'no table prints a Value it serves column, so the check above never ran')
         self.assertIn('Listed on counts every page that lists the interest', readable(self.page))
 
 
@@ -1058,6 +1061,13 @@ class TestEveryBeliefIsPublishedAndTheCompleteOnesComeFirst(unittest.TestCase):
         self.assertIn('never thrown away', lede)
         with open(os.path.join(self.out, 'data', 'drafts.json')) as fh: d = json.load(fh)
         self.assertEqual([x['key'] for x in d['drafts']], ['b'])
+
+    def test_a_build_that_holds_no_belief_down_says_so(self):
+        c = self.c
+        self.assertEqual([b for b in c.beliefs if c.stats(b)['weakest'] is not None and c.stats(b)['weakest'] < c.stats(b)['raw'] - 1e-9], [],
+                         'this corpus marks no premise load-bearing, so nothing can hold a belief down')
+        with open(os.path.join(self.out, 'method.html')) as fh: text = readable(fh.read())
+        self.assertIn('no belief is held below what its rows argue', text)
 
 
 class TestANewcomerKnowsWhereToStart(unittest.TestCase):
@@ -1361,17 +1371,21 @@ class TestTheBestWorksAreBestByAYardstick(unittest.TestCase):
                     if vals: self.assertIn(f'>{name.lower()}</a> (all ', sec, f'{a}: the tie on {name} is not named')
             # the table by title is not a ranking, and carries no rank column
             t = sec[sec.find('by title</h3>'):]
-            self.assertNotIn('<th class="rk">', t[:t.find('</thead>')], f'{a}: the list by title is numbered')
+            self.assertNotRegex(t[:t.find('</thead>')], r'<th\b[^>]*class="rk"', f'{a}: the list by title is numbered')
             for mp in ps: self.assertIn(f'href="p/{self.c.href(mp)}"', t, f'{a}: a work is missing from the list by title')
 
     def test_works_that_tie_share_a_rank(self):
         self.assertEqual(self.RS.comp_ranks([3, 1, 1, 0]), [1, 2, 2, 4])
+        pairs = ties = 0
         for a, (k, ps, sec) in self._sections().items():
-            for m in re.finditer(r'<table class="scored mini">.*?</table>', sec, re.S):
+            for m in re.finditer(r'<table\b[^>]*class="scored mini"[^>]*>.*?</table>', sec, re.S):
                 rows = re.findall(r'<td class="rk">(\d+)</td>.*?<td class="sc">([^<]+)</td>', m.group(0), re.S)
                 for (r1, v1), (r2, v2) in zip(rows, rows[1:]):
+                    pairs += 1; ties += v1 == v2
                     if v1 == v2: self.assertEqual(r1, r2, f'{a}: two works with {v1} have ranks {r1} and {r2}')
                     else: self.assertLess(int(r1), int(r2))
+        self.assertGreater(ties, 0, 'no two ranked works tie, so shared ranks are untested')
+        self.assertGreater(pairs - ties, 0, 'every ranked pair ties, so the order of ranks is untested')
 
     def test_a_yardstick_nobody_measures_is_named_and_left_empty(self):
         RS = self.RS
@@ -1917,7 +1931,7 @@ class TestTheBeliefPageFollowsTheTemplate(unittest.TestCase):
                 rows = re.findall(r'<tr\b[^>]*>', table[table.find('<tbody>'):])
                 self.assertEqual(len(rows), n, f'{pid}: the label says {n} rows and the table has {len(rows)}')
                 self.assertEqual(sum(1 for r in rows if 'xtra' in r), n - 5, f'{pid}: the wrong number of rows is folded')
-            self.assertNotRegex(h, r'class="xt"[^<]*<label[^<]*</label><table class="plain engine"', f'{pid} folded its derivation table')
+            self.assertNotRegex(h, r'class="xt"[^<]*<label[^<]*</label><table\b[^>]*class="plain engine"', f'{pid} folded its derivation table')
         self.assertGreater(folded, 0, 'no table on the site has more than five rows, so folding is untested')
 
     def test_every_belief_page_carries_the_invitation(self):
@@ -2626,7 +2640,7 @@ class TestTheBeliefPageReadsInPlainOrder(unittest.TestCase):
         i = h.find(f'<span>{section}</span>')
         if i < 0: return []
         block = h[i:h.find('</section>', i)]
-        return re.findall(r'<table class="scored"[^>]*>.*?</table>', block, re.S)
+        return re.findall(r'<table\b[^>]*class="scored"[^>]*>.*?</table>', block, re.S)
 
     def _column(self, table, name):
         heads = [htmlmod.unescape(re.sub(r'<[^>]+>', '', x)).strip() for x in re.findall(r'<th[^>]*>(.*?)</th>', table, re.S)]
@@ -2705,7 +2719,7 @@ class TestTheBeliefPageReadsInPlainOrder(unittest.TestCase):
         """A table with no header row leaves a bare number at the right of every row, and on a phone the cells
         have no labels at all, because the labels are read from the header."""
         for b in self.beliefs:
-            for t in re.findall(r'<table class="plain[^"]*"[^>]*>.*?</table>', self.html[b], re.S):
+            for t in re.findall(r'<table\b[^>]*class="plain[^"]*"[^>]*>.*?</table>', self.html[b], re.S):
                 self.assertIn('<thead>', t, f'{self.c.key[b]}: a plain table has no header row: {t[:120]}')
 
     def test_the_invitation_sends_a_reader_who_disagrees_to_the_disagreeing_column(self):

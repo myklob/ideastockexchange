@@ -67,8 +67,15 @@ Hardcoded depth limits are the one exception (see Blockers).
   `E-TOO-DEEP`). It exists because `score_reference.py` walks a chain of pages one recursive call per page (`truth`,
   `evaluate` and `_contrib` from line 145), and a chain of about 200 exceeds Python's recursion limit. The guard is the
   symptom. The recursive scorer is the cause.
-- **The branch is not merged, so none of this is live.** `pages.yml` publishes only on a push to `master` that touches
-  `tools/static-site/**`. The branch carries 39 commits since `master` was last merged, on 2026-10-10.
+- **The live site has not been updated since 2026-10-04.** The last successful `Publish site` run was run 74, for PR
+  #239. Every run since, for PRs #240 to #251, failed or was cancelled. The latest failure, run 86, was
+  `check_assertions.py`, with five assertions in `test_render.py` that never ran. One was fixed earlier on this branch.
+  Three never ran because the markup gained `scope="col"` on header cells and an `id` on folded tables, while the tests
+  still looked for the bare tags. The fourth checks a build that holds no belief down, which the live tables never are.
+  This branch fixes all five. The same stale patterns also left two assertions that ran unable to fail, and two table
+  finders skipping every folded table. Those are fixed too. Merging this branch is what republishes the site.
+- **The branch is not merged.** `pages.yml` publishes only on a push to `master` that touches `tools/static-site/**`.
+  The branch carries 40 commits since `master` was last merged, on 2026-10-10.
 - **Three docs named in the wrap-up checklist do not exist:** `REASONRANK_EQUATIONS.md`, `ISE_scores_inventory.md` and
   `CONFLICT_RESOLUTION_SCORING.md`. Scoring is documented in `tools/static-site/README.md`, `CLAUDE.md` and
   `tools/static-site/conformance.py`, and those match the code. The three were not created, because `CLAUDE.md` forbids
