@@ -481,11 +481,11 @@ relatives-president-barred-senate,argument,disagree,,Unpaid advisers with access
 return-shows-what-financial,argument,agree,,"The disclosure form reports assets and income in broad ranges, with a top band of ""over $50,000,000.""",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/5/13104 | checked: 2026-11-14
 return-shows-what-financial,argument,agree,,"Character of income is what revealed how one presidential candidate's wealth was structured in 2012, and the disclosure form does not carry it.",,,,,,,,,,,,,,,
 return-shows-what-financial,argument,disagree,,"Conflict screening needs to know what an official owns, which the disclosure form does carry, more than it needs to know what rate they paid.",,,,,,,,,,,,,,,
-internal-check-failed-one,argument,agree,,"The Ways and Means Committee reported in December 2022 that the program, required by the Internal Revenue Manual since 1977, was ""dormant, at best,"" and that the 2015 and 2016 audit opened on April 3, 2019, the day the chairman sent his request.",,,,,,,,,,,,,,,
-internal-check-failed-one,argument,agree,,Only one of the six years was completed while the president was in office.,,,,,,,,,,,,,,,
+internal-check-failed-one,argument,agree,ways-means-committee-reported-december,"The Ways and Means Committee reported in December 2022 that the program, required by the Internal Revenue Manual since 1977, was ""dormant, at best,"" and that the 2015 and 2016 audit opened on April 3, 2019, the day the chairman sent his request.",,,,,,,,,,,,,,,
+internal-check-failed-one,argument,agree,only-one-six-years-was,Only one of the six years was completed while the president was in office.,,,,,,,,,,,,,,,
 internal-check-failed-one,argument,disagree,,"One administration is one data point, and the audit program has no statutory backing to fail against.",,,,,,,,,,,,,,,url: https://democrats-waysandmeans.house.gov/sites/evo-subsites/democrats-waysandmeans.house.gov/files/documents/2022.12.20%20Final%20Report%20House%20Ways%20and%20Means.pdf | checked: 2026-11-14
 every-president-carter-through,argument,agree,,"The practice began after Nixon released his returns in December 1973 and the Joint Committee on Taxation found roughly $465,000 in back taxes owed.",,,,,,,,,,,,,,,
-every-president-carter-through,argument,agree,,A norm that survived nine presidencies and then failed is the standard case for codifying it.,,,,,,,,,,,,,,,
+every-president-carter-through,argument,agree,norm-survived-nine-presidencies-then,A norm that survived nine presidencies and then failed is the standard case for codifying it.,,,,,,,,,,,,,,,
 every-president-carter-through,argument,disagree,,"A voluntary norm that a president may decline is different in kind from a legal command, and the case for the first is not automatically a case for the second.",,,,,,,,,,,,,,,
 published-return-can-checked,argument,agree,,"The IRS commissioner is a presidential appointee, which is the structural problem the audit episode illustrates.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/26/7803 | checked: 2026-11-14
 published-return-can-checked,argument,agree,,Journalists and accountants found the significant items in the 2022 release within days.,,,,,,,,,,,,,,,url: https://www.bangordailynews.com/2022/12/30/news/nation/trump-tax-returns-takeaways/ | checked: 2026-11-14
@@ -493,14 +493,14 @@ published-return-can-checked,argument,disagree,,Public review is not adjudicatio
 return-shows-tax-positions,argument,agree,,The Ethics in Government Act form was designed for this purpose and is filed annually by every senior official.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/5/13103 | checked: 2026-11-14
 return-shows-tax-positions,argument,agree,,Nothing on a return identifies which decisions an official participates in.,,,,,,,,,,,,,,,
 return-shows-tax-positions,argument,disagree,,"Ranges hide magnitude, and magnitude is what distinguishes a nominal interest from a controlling one.",,,,,,,,,,,,,,,
-return-shows-tax-positions,argument,disagree,,"The form does not show foreign income or the identity of lenders, which are the two conflicts people most want to see.",,,,,,,,,,,,,,,
+return-shows-tax-positions,argument,disagree,form-does-show-foreign-income,"The form does not show foreign income or the identity of lenders, which are the two conflicts people most want to see.",,,,,,,,,,,,,,,
 publication-exposes-spouses-children,argument,agree,,A joint return contains the spouse's complete finances.,,,,,,,,,,,,,,,url: https://www.irs.gov/publications/p501 | checked: 2026-11-14
 publication-exposes-spouses-children,argument,agree,,Pass-through entities name partners who hold no office.,,,,,,,,,,,,,,,url: https://www.irs.gov/instructions/i1065sk1 | checked: 2026-11-14
 publication-exposes-spouses-children,argument,disagree,,"Filing separately, or redacting identified third parties, answers most of this without giving up the disclosure.",,,,,,,,,,,,,,,
 route-constitutionally-narrow-disclosure,argument,agree,,The California Supreme Court struck the state's five-year return requirement for presidential primary candidates in November 2019.,,,,,,,,,,,,,,,url: https://www4.courts.ca.gov/opinions/archive/S257302.PDF | checked: 2026-11-14
 route-constitutionally-narrow-disclosure,argument,disagree,,"That decision rested on the California constitution's ballot-access provision and expressly did not reach federal questions, so it says little about a federal statute imposing a duty on officeholders rather than a condition on candidates.",,,,,,,,,,,,,,,url: https://www4.courts.ca.gov/opinions/archive/S257302.PDF | checked: 2026-11-14
 sophisticated-wealth-sits-pass,argument,agree,,"A personal return reports a distributive share, not the entity's transactions or counterparties.",,,,,,,,,,,,,,,url: https://www.irs.gov/instructions/i1065sk1 | checked: 2026-11-14
-sophisticated-wealth-sits-pass,argument,agree,,"The 2022 release required the related business returns to be informative, and those are not what any proposal would publish.",,,,,,,,,,,,,,,
+sophisticated-wealth-sits-pass,argument,agree,2022-release-required-related-business,"The 2022 release required the related business returns to be informative, and those are not what any proposal would publish.",,,,,,,,,,,,,,,
 sophisticated-wealth-sits-pass,argument,disagree,,"A proposal can require the related entity returns, as the committee obtained them in 2022.",,,,,,,,,,,,,,,url: https://democrats-waysandmeans.house.gov/sites/evo-subsites/democrats-waysandmeans.house.gov/files/documents/2022.12.20%20Final%20Report%20House%20Ways%20and%20Means.pdf | checked: 2026-11-14
 mandatory-irs-audit-presidential,argument,agree,,The committee obtained the returns under 26 U.S.C. 6103(f) and published its findings with them.,,,,,,,,,,,,,,,url: https://democrats-waysandmeans.house.gov/sites/evo-subsites/democrats-waysandmeans.house.gov/files/documents/2022.12.20%20Final%20Report%20House%20Ways%20and%20Means.pdf | checked: 2026-11-14
 mandatory-irs-audit-presidential,argument,disagree,,"A committee report by the opposing party is an interested source, though the audit dates are documentary.",,,,,,,,,,,,,,,url: https://democrats-waysandmeans.house.gov/sites/evo-subsites/democrats-waysandmeans.house.gov/files/documents/2022.12.20%20Final%20Report%20House%20Ways%20and%20Means.pdf | checked: 2026-11-14
@@ -513,8 +513,8 @@ state-law-requiring-five,argument,disagree,,"It turned on a state ballot-access 
 within-two-election-cycles,argument,agree,,The 2022 release produced findings within days of publication.,,,,,,,,,,,,,,,url: https://www.yahoo.com/news/president-donald-trumps-tax-returns-100012833.html | checked: 2026-11-14
 within-two-election-cycles,argument,disagree,,"Officials who expect publication will structure their affairs to be unremarkable, which is partly the point and partly a reason the prediction fails.",,,,,,,,,,,,,,,
 published-returns-add-nothing,argument,agree,,The form is designed for conflict screening and the return is not.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/cfr/text/5/2634.104 | checked: 2026-11-14
-published-returns-add-nothing,argument,disagree,,The 2022 release contained foreign income and loss carryforwards the form did not carry.,,,,,,,,,,,,,,,
-foreign-income-lender-relationships,argument,agree,,Returns report foreign income and foreign tax credits that the disclosure form does not.,,,,,,,,,,,,,,,
+published-returns-add-nothing,argument,disagree,2022-release-contained-foreign-income,The 2022 release contained foreign income and loss carryforwards the form did not carry.,,,,,,,,,,,,,,,
+foreign-income-lender-relationships,argument,agree,returns-report-foreign-income-foreign,Returns report foreign income and foreign tax credits that the disclosure form does not.,,,,,,,,,,,,,,,
 foreign-income-lender-relationships,argument,disagree,,"Entity-level returns, not personal ones, carry the detail that matters.",,,,,,,,,,,,,,,
 voters-can-judge-official,argument,agree,,Publication precedes the election; investigations follow it by years.,,,,,,,,,,,,,,,
 voters-can-judge-official,argument,disagree,,"Most voters will never read a return, so the benefit runs through intermediaries.",,,,,,,,,,,,,,,
@@ -529,7 +529,7 @@ returns-read-scandal-rather,argument,disagree,,Public argument over lawful tax p
 tax-returns-contain-conflict,argument,agree,,"The two documents can be compared directly, and they were in 2022.",,,,,,,,,,,,,,,url: https://abc17news.com/?p=1076060 | checked: 2026-11-14
 tax-returns-contain-conflict,argument,disagree,,"The form carries assets and positions, which is what recusal rules actually operate on.",,,,,,,,,,,,,,,url: https://www.oge.gov/Web/278eGuide.nsf | checked: 2026-11-14
 publication-changes-what-officials,argument,agree,,Journalists and committees acted on the 2022 release immediately.,,,,,,,,,,,,,,,url: https://katv.com/news/nation-world/trumps-taxes-house-oks-bill-on-irs-audits-of-presidents-income-tax-filings-long-standing-post-watergate-norm-established-federal-policy-house-ways-and-means-committee | checked: 2026-11-14
-publication-changes-what-officials,argument,disagree,,Nothing followed from it: no rule changed and no official was sanctioned.,,,,,,,,,,,,,,,
+publication-changes-what-officials,argument,disagree,nothing-followed-no-rule-changed,Nothing followed from it: no rule changed and no official was sanctioned.,,,,,,,,,,,,,,,
 federal-publication-requirement-officeholders,argument,agree,,Congress already requires extensive financial disclosure from the same officials and no court has disturbed it.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/5/13103 | checked: 2026-11-14
 federal-publication-requirement-officeholders,argument,disagree,,A requirement reaching candidates rather than officeholders runs into the qualifications problem the California case flagged.,,,,,,,,,,,,,,,url: https://www4.courts.ca.gov/opinions/archive/S257302.PDF | checked: 2026-11-14
 both-sides-want-conflicts,argument,agree,,"Opponents of publication defend the disclosure form, which means they accept the underlying goal.",,,,,,,,,,,,,,,
@@ -2692,7 +2692,7 @@ caitlin-clark-main-reason,dispute,,,Definitional,,,,,,,,,,,,,,,"what: Supporters
 caitlin-clark-main-reason,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether the WNBA's 2025 viewership records, set while Clark missed most of the season, show real growth or mostly reflect Nielsen's switch to Big Data + Panel measurement. | move: Nielsen or the networks publishing 2024 and 2025 WNBA averages on the same measurement basis would show whether 2025 actually grew without her."
 caitlin-clark-main-reason,value,,,,,,,,,,,,,,,,,,"value: Accuracy | srank: 1 | orank: 2 | why: Supporters say the numbers plainly show a three-to-one gap and that pretending otherwise is dishonest, while opponents say attributing a league's growth to one person oversimplifies what the data can show."
 opposing-players-have-targeted,argument,agree,caitlin-clark-drew-six,,,,,,,,,,,,,,,,url: https://statsurge.substack.com/p/flagrant-fouls-in-the-2024-wnba-season | checked: 2026-11-14
-opposing-players-have-targeted,argument,agree,opposing-coaches-have-said,,,,,,,,,,,,,,,,
+opposing-players-have-targeted,argument,agree,opposing-coaches-have-said,,,,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/valkyries-coach-sounds-off-on-caitlin-clarks-worst-game-of-season-we-know-she-doesnt-like-physicality/ | checked: 2026-11-14
 opposing-players-have-targeted,argument,agree,several-hardest-hits-caitlin,,,,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/sophie-cunningham-players-definitely-targeting-caitlin-clark/ | checked: 2026-11-14
 opposing-players-have-targeted,argument,agree,caitlin-clark-has-drawn,,,,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/sophie-cunningham-players-definitely-targeting-caitlin-clark/ | checked: 2026-11-14
 opposing-players-have-targeted,argument,agree,caitlin-clark-s-own,,,,,,,,,,,,,,,,url: https://www.clickondetroit.com/sports/2024/06/04/caitlin-clark-physical-play-and-questions-about-fouls-dominating-discussions-around-the-wnba/ | checked: 2026-11-14
@@ -2708,13 +2708,13 @@ opposing-players-have-targeted,assumption,agree,flagrant-fouls-called-upgraded,,
 opposing-players-have-targeted,assumption,agree,opposing-players-coaches-can,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,assumption,agree,caitlin-clark-s-high,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,person,agree,indiana-fever-coach-christie,,,,,,,,,,,,,,,,url: https://www.clickondetroit.com/sports/2024/06/04/caitlin-clark-physical-play-and-questions-about-fouls-dominating-discussions-around-the-wnba/ | checked: 2026-11-14
-opposing-players-have-targeted,person,agree,indiana-fever-general-manager,,,,,,,,,,,,,,,,
+opposing-players-have-targeted,person,agree,indiana-fever-general-manager,,,,,,,,,,,,,,,,url: https://www.foxnews.com/sports/fever-gm-irate-over-caitlin-clark-treatment-latest-incident-it-needs-stop | checked: 2026-11-14
 opposing-players-have-targeted,person,agree,indiana-fever-coach-stephanie,,,,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/fevers-stephanie-white-says-physicality-allowed-against-caitlin-clark-is-a-factor-in-her-injury-issues/ | checked: 2026-11-14
 opposing-players-have-targeted,media,agree,analysis-flagrant-fouls-2024,,,,,,,,,,,,,,,,url: https://statsurge.substack.com/p/flagrant-fouls-in-the-2024-wnba-season | checked: 2026-11-14
 opposing-players-have-targeted,media,agree,fever-s-stephanie-white,,,,,,,,,,,,,,,,url: https://www.cbssports.com/wnba/news/fevers-stephanie-white-says-physicality-allowed-against-caitlin-clark-is-a-factor-in-her-injury-issues/ | checked: 2026-11-14
 opposing-players-have-targeted,argument,disagree,june-2024-caitlin-clark,,,,,,,,,,,,,,,,url: https://www.clickondetroit.com/sports/2024/06/04/caitlin-clark-physical-play-and-questions-about-fouls-dominating-discussions-around-the-wnba/ | checked: 2026-11-14
 opposing-players-have-targeted,argument,disagree,caitlin-clark-s-playing,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,argument,disagree,veteran-wnba-players-longtime,,,,,,,,,,,,,,,,
+opposing-players-have-targeted,argument,disagree,veteran-wnba-players-longtime,,,,,,,,,,,,,,,,url: https://preview.reviewjournal.com/sports/aces/had-to-grow-tough-skin-aces-plum-relates-to-clarks-start-in-wnba-2872520 | checked: 2026-11-14
 opposing-players-have-targeted,argument,disagree,heightened-attention-caitlin-clark,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,evidence,disagree,june-4-2024-caitlin,,"Doug Feinberg, The Associated Press, ""Caitlin Clark, physical play and questions about fouls dominating discussions around the WNBA,"" 2024",,,,,,,,,,,,,,url: https://www.clickondetroit.com/sports/2024/06/04/caitlin-clark-physical-play-and-questions-about-fouls-dominating-discussions-around-the-wnba/ | checked: 2026-11-14
 opposing-players-have-targeted,evidence,disagree,caitlin-clark-attempted-4,,"Basketball-Reference, Caitlin Clark WNBA player page, 2024 season",,,,,,,,,,,,,,url: https://www.basketball-reference.com/wnba/players/c/clarkca02w.html | checked: 2026-11-14
@@ -2725,11 +2725,11 @@ opposing-players-have-targeted,falsify,disagree,comparison-rookie-seasons-shows,
 opposing-players-have-targeted,assumption,disagree,attention-caitlin-clark-changes,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,assumption,disagree,wnba-has-always-been,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,assumption,disagree,hard-defense-stays-within,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,person,disagree,wnba-commissioner-cathy-engelbert,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,person,disagree,espn-analyst-rebecca-lobo,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,person,disagree,connecticut-sun-guard-natasha,,,,,,,,,,,,,,,,
+opposing-players-have-targeted,person,disagree,wnba-commissioner-cathy-engelbert,,,,,,,,,,,,,,,,url: https://www.yardbarker.com/r/20240613/0/ar/40477926_17236 | checked: 2026-11-14
+opposing-players-have-targeted,person,disagree,espn-analyst-rebecca-lobo,,,,,,,,,,,,,,,,url: https://www.si.com/onsi/womens-fastbreak/wnba/rebecca-lobo-addresses-viral-caitlin-clark-flagrant-foul-concerns-01j6qakq3f8s | checked: 2026-11-14
+opposing-players-have-targeted,person,disagree,connecticut-sun-guard-natasha,,,,,,,,,,,,,,,,url: https://www.youtube.com/watch?v=lI_pvvZAUN8 | checked: 2026-11-14
 opposing-players-have-targeted,media,disagree,touch-more-sue-bird,,,,,,,,,,,,,,,,
-opposing-players-have-targeted,media,disagree,pivot-episode-natasha-cloud,,,,,,,,,,,,,,,,
+opposing-players-have-targeted,media,disagree,pivot-episode-natasha-cloud,,,,,,,,,,,,,,,,url: https://www.youtube.com/watch?v=lI_pvvZAUN8 | checked: 2026-11-14
 opposing-players-have-targeted,media,disagree,christine-brennan-s-caitlin,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,interest,agree,indiana-fever-season-ticket-2,,,,,,,,,,,,,,,,
 opposing-players-have-targeted,interest,agree,wnba-players-need-rules,,,,,,,,,,,,,,,,
@@ -2741,7 +2741,7 @@ opposing-players-have-targeted,cba,agree,if-wnba-accepts-caitlin,,,,,,,,wnba-pla
 opposing-players-have-targeted,cba,agree,if-opponents-stop-hitting,,,,,,,,indiana-fever-season-ticket-2,,,games Clark plays per season,,,,,
 opposing-players-have-targeted,cba,agree,if-league-publishes-per,,,,,,,,wnba-referees-need-judged,,,public per-player officiating reports per season,1,,,,
 opposing-players-have-targeted,cba,disagree,if-league-treats-contact,,,,,,,,wnba-veteran-players-need,,,suspensions and fines per season for plays involving Clark,1,,,,
-opposing-players-have-targeted,cba,disagree,if-every-hard-foul,,,,,,,,black-wnba-players-need,,,players reporting threats or doxxing per season,,,,,
+opposing-players-have-targeted,cba,disagree,if-every-hard-foul,,,,,,,,black-wnba-players-need,,,players reporting threats or doxxing per season,,,,,url: https://www.nbcsports.com/wnba/news/mercurys-thomas-says-she-has-received-online-abuse-following-suspension-for-caitlin-clark-incident | checked: 2026-11-14
 opposing-players-have-targeted,cba,disagree,if-referees-told-watch,,,,,,,,wnba-referees-need-judged,,,free throw attempts per game above the league rate for comparable usage,,,,,
 opposing-players-have-targeted,category,,,flagrant fouls upgraded after review per season,,,,,,,,,,,,,,,
 opposing-players-have-targeted,category,,,free throw attempts per game above the league rate for comparable usage,,,,,,,,,,,,,,,
@@ -2867,8 +2867,8 @@ leaving-caitlin-clark-off,argument,disagree,gold-medal-game-was,,,,,,,,,,,,,,,,u
 leaving-caitlin-clark-off,argument,disagree,united-states-women-s,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,argument,disagree,casey-wasserman-president-los,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,evidence,disagree,diana-taurasi-averaged-1,,"Yahoo Sports via New York Post, 'Farewell present': New book reveals real reason why Caitlin Clark left off Women's Olympic team, 2025, reporting Christine Brennan's On Her Game",,,,,,,,,,,,,,url: https://cdn.wnba.com/sites/1611661319/2024/08/2024-USA-Olympic-Cumulative-Stats-through-Game-5.pdf | checked: 2026-11-13
-leaving-caitlin-clark-off,evidence,disagree,united-states-france-women,,"Sports Media Watch, Combined Olympics average finishes over 30 million, 2024",,,,,,,,,,,,,,
-leaving-caitlin-clark-off,evidence,disagree,her-first-senior-national,,"Fox News, Caitlin Clark earns top honors at FIBA Women's World Cup qualifiers, 2026",,,,,,,,,,,,,,
+leaving-caitlin-clark-off,evidence,disagree,united-states-france-women,,"Sports Media Watch, Combined Olympics average finishes over 30 million, 2024",,,,,,,,,,,,,,url: https://www.sportsmediawatch.com/2024/08/olympics-viewership-tops-30-million-combined-nbc-womens-basketball-final/ | checked: 2026-11-14
+leaving-caitlin-clark-off,evidence,disagree,her-first-senior-national,,"Fox News, Caitlin Clark earns top honors at FIBA Women's World Cup qualifiers, 2026",,,,,,,,,,,,,,url: https://www.fiba.basketball/en/news/clark-crowned-tissot-mvp-in-san-juan | checked: 2026-11-14
 leaving-caitlin-clark-off,prediction,disagree,usa-basketball-will-change,,,,,,,,,,,,,,,"By December 31, 2027; USA Basketball press releases and reporting on its governance.",
 leaving-caitlin-clark-off,prediction,disagree,least-one-more-2024,,,,,,,,,,,,,,,"By the start of the 2028 Olympics; published interviews, podcasts or books.",
 leaving-caitlin-clark-off,falsify,disagree,confirmation-committee-member-diana,,,,,,,,,,,,,,,,
@@ -2876,12 +2876,12 @@ leaving-caitlin-clark-off,falsify,disagree,evidence-committee-weighed-how,,,,,,,
 leaving-caitlin-clark-off,assumption,disagree,growing-audience-women-s,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,assumption,disagree,team-won-its-first,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,assumption,disagree,caitlin-clark-s-turnovers,,,,,,,,,,,,,,,,
-leaving-caitlin-clark-off,person,disagree,christine-brennan-usa-today-2,,,,,,,,,,,,,,,,
-leaving-caitlin-clark-off,person,disagree,lisa-leslie-four-time,,,,,,,,,,,,,,,,
+leaving-caitlin-clark-off,person,disagree,christine-brennan-usa-today-2,,,,,,,,,,,,,,,,url: https://www.poynter.org/commentary/2024/why-is-caitlin-clark-not-on-olympic-basketball-team/ | checked: 2026-11-14
+leaving-caitlin-clark-off,person,disagree,lisa-leslie-four-time,,,,,,,,,,,,,,,,url: https://www.si.com/college/2024/04/12/lisa-leslie-caitlin-clark-olymipcs-paris-team-usa | checked: 2026-11-14
 leaving-caitlin-clark-off,person,disagree,charles-barkley-said-bill,,,,,,,,,,,,,,,,
-leaving-caitlin-clark-off,media,disagree,her-game-caitlin-clark,,,,,,,,,,,,,,,,
-leaving-caitlin-clark-off,media,disagree,leaving-caitlin-clark-off-2,,,,,,,,,,,,,,,,
-leaving-caitlin-clark-off,media,disagree,media-jumps-all-another,,,,,,,,,,,,,,,,
+leaving-caitlin-clark-off,media,disagree,her-game-caitlin-clark,,,,,,,,,,,,,,,,url: https://openlibrary.org/isbn/9781668090190.json | checked: 2026-11-14
+leaving-caitlin-clark-off,media,disagree,leaving-caitlin-clark-off-2,,,,,,,,,,,,,,,,url: https://www.poynter.org/commentary/2024/why-is-caitlin-clark-not-on-olympic-basketball-team/ | checked: 2026-11-14
+leaving-caitlin-clark-off,media,disagree,media-jumps-all-another,,,,,,,,,,,,,,,,url: https://www.poynter.org/commentary/2024/why-is-caitlin-clark-not-on-olympic-basketball-team/ | checked: 2026-11-14
 leaving-caitlin-clark-off,interest,agree,veteran-wnba-players-who,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,interest,agree,american-basketball-fans-who,,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,interest,agree,national-team-coaches-need,,,,,,,,,,,,,,,,
@@ -2891,7 +2891,7 @@ leaving-caitlin-clark-off,interest,disagree,rookies-who-outplay-draft,,,,,,,,,,,
 leaving-caitlin-clark-off,cba,agree,picking-olympic-roster-senior,,,,,,,,american-basketball-fans-who,,,Olympic gold medals won per cycle,1,,,,
 leaving-caitlin-clark-off,cba,agree,rookie-left-off-olympic,,,,,,,,national-team-coaches-need,,,points per game gained after the break,6.4,,,,
 leaving-caitlin-clark-off,cba,agree,players-who-have-spent,,,,,,,,veteran-wnba-players-who,,,roster spots held by players with prior senior national team gold,12,,,,
-leaving-caitlin-clark-off,cba,disagree,united-states-women-s-2,,,,,,,,new-wnba-fans-who,,,millions of viewers of the gold medal game,7.8,,,,
+leaving-caitlin-clark-off,cba,disagree,united-states-women-s-2,,,,,,,,new-wnba-fans-who,,,millions of viewers of the gold medal game,7.8,,,,url: https://www.sportsmediawatch.com/2024/08/olympics-viewership-tops-30-million-combined-nbc-womens-basketball-final/ | checked: 2026-11-14
 leaving-caitlin-clark-off,cba,disagree,usa-basketball-its-coach,,,,,,,,rookies-who-outplay-draft,,,news stories about the omission,,,,,
 leaving-caitlin-clark-off,category,,,Olympic gold medals won per cycle,,,,,,,,,,,,,,,
 leaving-caitlin-clark-off,category,,,millions of viewers of the gold medal game,,,,,,,,,,,,,,,
@@ -3085,18 +3085,18 @@ lionel-messi-better-soccer,argument,disagree,cristiano-ronaldo-scores-headers,,,
 lionel-messi-better-soccer,argument,disagree,former-professional-players-who,,,,,,,,,,,,,,,,
 lionel-messi-better-soccer,evidence,disagree,september-28-2026-cristiano,,"messivsronaldo.app, All-Time Career Stats, 2026",,,,,,,,,,,,,,url: https://www.messivsronaldo.app/match-histories/ronaldo-match-history/ | checked: 2026-11-08
 lionel-messi-better-soccer,evidence,disagree,cristiano-ronaldo-has-won,,"messivsronaldo.app, All-Time Career Stats, 2026",,,,,,,,,,,,,,url: https://www.messivsronaldo.app/ | checked: 2026-11-08
-lionel-messi-better-soccer,evidence,disagree,2026-statistical-study-time,,"Samsul Anwar, Siti Munawarah and Radhiah Radhiah, Cristiano Ronaldo or Lionel Messi, who is more consistent (arXiv:2603.27502), 2026",,,,,,,,,,,,,,
+lionel-messi-better-soccer,evidence,disagree,2026-statistical-study-time,,"Samsul Anwar, Siti Munawarah and Radhiah Radhiah, Cristiano Ronaldo or Lionel Messi, who is more consistent (arXiv:2603.27502), 2026",,,,,,,,,,,,,,url: https://arxiv.org/abs/2603.27502 | checked: 2026-11-14
 lionel-messi-better-soccer,prediction,disagree,cristiano-ronaldo-will-reach,,,,,,,,,,,,,,,By 2028-06-30; checked against the career totals on messivsronaldo.app and Transfermarkt.,
-lionel-messi-better-soccer,prediction,disagree,surveys-former-professional-players,,,,,,,,,,,,,,,By 2029-12-31; checked against any published survey of at least 100 former professionals.,
+lionel-messi-better-soccer,prediction,disagree,surveys-former-professional-players,,,,,,,,,,,,,,,By 2029-12-31; checked against any published survey of at least 100 former professionals.,url: https://bolavip.com/en/soccer/messi-or-ronaldo-who-has-had-better-career-as-per-retired-legends-20221008-0012.html | checked: 2026-11-14
 lionel-messi-better-soccer,falsify,disagree,full-career-study-found,,,,,,,,,,,,,,,,
 lionel-messi-better-soccer,falsify,disagree,global-survey-former-current,,,,,,,,,,,,,,,,
 lionel-messi-better-soccer,assumption,disagree,career-totals-goals-major,,,,,,,,,,,,,,,,
 lionel-messi-better-soccer,assumption,disagree,proving-yourself-several-leagues,,,,,,,,,,,,,,,,
 lionel-messi-better-soccer,assumption,disagree,lasting-top-twenty-years,,,,,,,,,,,,,,,,
-lionel-messi-better-soccer,person,disagree,cristiano-ronaldo-asked-2025,,,,,,,,,,,,,,,,
-lionel-messi-better-soccer,media,disagree,cristiano-ronaldo-biography-guillem,,,,,,,,,,,,,,,,
-lionel-messi-better-soccer,media,disagree,ronaldo-directed-anthony-wonke,,,,,,,,,,,,,,,,
-lionel-messi-better-soccer,media,disagree,messi-vs-ronaldo-one,,,,,,,,,,,,,,,,
+lionel-messi-better-soccer,person,disagree,cristiano-ronaldo-asked-2025,,,,,,,,,,,,,,,,url: https://gulfnews.com/sport/football/i-dont-agree-cristiano-ronaldos-stern-reply-when-asked-if-lionel-messi-is-better-1.500333293 | checked: 2026-11-14
+lionel-messi-better-soccer,media,disagree,cristiano-ronaldo-biography-guillem,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/British_Sports_Book_Awards | checked: 2026-11-14
+lionel-messi-better-soccer,media,disagree,ronaldo-directed-anthony-wonke,,,,,,,,,,,,,,,,url: https://www.partizan.com/film/ronaldo | checked: 2026-11-14
+lionel-messi-better-soccer,media,disagree,messi-vs-ronaldo-one,,,,,,,,,,,,,,,,url: https://www.kirkusreviews.com/book-reviews/jonathan-clegg/messi-vs-ronaldo/ | checked: 2026-11-14
 lionel-messi-better-soccer,interest,agree,youth-soccer-coaches-need,,,,,,,,,,,,,,,,
 lionel-messi-better-soccer,interest,agree,argentine-fans-need-player,,,,,,,,,,,,,,,,
 lionel-messi-better-soccer,interest,agree,sports-statisticians-need-per,,,,,,,,,,,,,,,,
@@ -3106,8 +3106,8 @@ lionel-messi-better-soccer,interest,disagree,record-keepers-fifa-uefa,,,,,,,,,,,
 lionel-messi-better-soccer,cba,agree,coaching-treats-lionel-messi,,,,,,,,youth-soccer-coaches-need,,,share of youth coaching sessions devoted to passing and creation,,,,,
 lionel-messi-better-soccer,cba,agree,settling-comparison-per-game,,,,,,,,sports-statisticians-need-per,,,share of published all-time rankings that use rate measures,,,,,
 lionel-messi-better-soccer,cba,disagree,ranking-lionel-messi-first,,,,,,,,record-keepers-fifa-uefa,,,number of official records whose holder is not ranked first,,,,,
-lionel-messi-better-soccer,cba,disagree,treating-peak-level-more,,,,,,,,late-career-professional-athletes,,,average retirement age of top-division forwards,,,,,
-lionel-messi-better-soccer,cba,disagree,verdict-lionel-messi-tells,,,,,,,,portuguese-fans-need-player,,,share of Portuguese fans who accept the ranking as fair,,,,,
+lionel-messi-better-soccer,cba,disagree,treating-peak-level-more,,,,,,,,late-career-professional-athletes,,,average retirement age of top-division forwards,,,,,url: https://en.wikipedia.org/wiki/2025_UEFA_Nations_League_final | checked: 2026-11-14
+lionel-messi-better-soccer,cba,disagree,verdict-lionel-messi-tells,,,,,,,,portuguese-fans-need-player,,,share of Portuguese fans who accept the ranking as fair,,,,,url: https://en.wikipedia.org/wiki/UEFA_Euro_2016_final | checked: 2026-11-14
 lionel-messi-better-soccer,category,,,average retirement age of top-division forwards,,,,,,,,,,,,,,,
 lionel-messi-better-soccer,category,,,number of official records whose holder is not ranked first,,,,,,,,,,,,,,,
 lionel-messi-better-soccer,category,,,share of Portuguese fans who accept the ranking as fair,,,,,,,,,,,,,,,
@@ -7515,35 +7515,35 @@ taylor-swift-most-important,dispute,,,Definitional,,,,,,,,,,,,,,,"what: Supporte
 taylor-swift-most-important,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether Taylor Swift's lead holds worldwide or only in English-speaking markets. | move: Comparing IFPI's global charts with country-by-country streaming data for every year from 2001 to 2025 to see who led outside the United States, Britain and Australia."
 taylor-swift-most-important,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether Taylor Swift's re-recordings and master buyback changed standard record contracts or were a one-off only a superstar could afford. | move: A study of new major-label contract terms before and after 2019, checking for changes in master ownership and re-recording limits."
 taylor-swift-most-important,value,,,,,,,,,,,,,,,,,,"value: Reach | srank: 1 | orank: 3 | why: Supporters treat how many people a musician moves as the core of importance, while opponents see it as easier to inflate and less telling."
-beatles-overrated,argument,agree,beatles-generally-credited-ideas,,,,,,,,,,,,,,,,
+beatles-overrated,argument,agree,beatles-generally-credited-ideas,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Please_Please_Me | checked: 2026-11-14
 beatles-overrated,argument,agree,beatles-standing-greatest-band,,,,,,,,,,,,,,,,
 beatles-overrated,argument,agree,beatles-were-capable-rather,,,,,,,,,,,,,,,,
-beatles-overrated,argument,agree,much-sound-credited-beatles,,,,,,,,,,,,,,,,
-beatles-overrated,argument,agree,several-innovations-popularly-credited,,,,,,,,,,,,,,,,
-beatles-overrated,argument,agree,rise-hip-hop-changed,,,,,,,,,,,,,,,,
-beatles-overrated,evidence,agree,audio-analysis-about-17,,"Mauch, MacCallum, Levy and Leroi, ""The evolution of popular music: USA 1960-2010,"" Royal Society Open Science 2:150081, 2015",,,,,,,,,,,,,,
-beatles-overrated,evidence,agree,same-2015-study-found,,"Mauch, MacCallum, Levy and Leroi, ""The evolution of popular music: USA 1960-2010,"" Royal Society Open Science 2:150081, 2015",,,,,,,,,,,,,,
-beatles-overrated,evidence,agree,rolling-stone-s-500,,"Rolling Stone, ""The 500 Greatest Albums of All Time,"" 2003, 2012 and 2020 editions (as summarized in Wikipedia, ""Rolling Stone's 500 Greatest Albums of All Time"")",,,,,,,,,,,,,,
-beatles-overrated,evidence,agree,beatles-widely-repeated-sales,,"Wikipedia, ""List of best-selling music artists"" (compiled from RIAA and other certification bodies), accessed October 2026",,,,,,,,,,,,,,
+beatles-overrated,argument,agree,much-sound-credited-beatles,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Geoff_Emerick | checked: 2026-11-14
+beatles-overrated,argument,agree,several-innovations-popularly-credited,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/In_the_Wee_Small_Hours | checked: 2026-11-14
+beatles-overrated,argument,agree,rise-hip-hop-changed,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC4453253/ | checked: 2026-11-14
+beatles-overrated,evidence,agree,audio-analysis-about-17,,"Mauch, MacCallum, Levy and Leroi, ""The evolution of popular music: USA 1960-2010,"" Royal Society Open Science 2:150081, 2015",,,,,,,,,,,,,,url: https://arxiv.org/abs/1502.05417 | checked: 2026-11-14
+beatles-overrated,evidence,agree,same-2015-study-found,,"Mauch, MacCallum, Levy and Leroi, ""The evolution of popular music: USA 1960-2010,"" Royal Society Open Science 2:150081, 2015",,,,,,,,,,,,,,url: https://arxiv.org/abs/1502.05417 | checked: 2026-11-14
+beatles-overrated,evidence,agree,rolling-stone-s-500,,"Rolling Stone, ""The 500 Greatest Albums of All Time,"" 2003, 2012 and 2020 editions (as summarized in Wikipedia, ""Rolling Stone's 500 Greatest Albums of All Time"")",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Rolling_Stone%27s_500_Greatest_Albums_of_All_Time | checked: 2026-11-14
+beatles-overrated,evidence,agree,beatles-widely-repeated-sales,,"Wikipedia, ""List of best-selling music artists"" (compiled from RIAA and other certification bodies), accessed October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_best-selling_music_artists | checked: 2026-11-14
 beatles-overrated,prediction,agree,beatles-daily-spotify-streams,,,,,,,,,,,,,,,"By December 31, 2030; compare the daily total on kworb.net's Beatles songs page with the October 3, 2026 figure.",
 beatles-overrated,prediction,agree,next-edition-rolling-stone-2,,,,,,,,,,,,,,,"By December 31, 2032; check the edition if Rolling Stone publishes one by then.",
 beatles-overrated,falsify,agree,blind-listening-experiment-finds,,,,,,,,,,,,,,,,
 beatles-overrated,falsify,agree,follow-up-audio-analysis,,,,,,,,,,,,,,,,
 beatles-overrated,assumption,agree,band-s-ranking-among,,,,,,,,,,,,,,,,
 beatles-overrated,assumption,agree,judgments-about-quality-popular,,,,,,,,,,,,,,,,
-beatles-overrated,person,agree,frank-zappa-mothers-invention,,,,,,,,,,,,,,,,
-beatles-overrated,media,agree,how-beatles-destroyed-rock,,,,,,,,,,,,,,,,
-beatles-overrated,media,agree,here-there-everywhere-my,,,,,,,,,,,,,,,,
+beatles-overrated,person,agree,frank-zappa-mothers-invention,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/We%27re_Only_in_It_for_the_Money | checked: 2026-11-14
+beatles-overrated,media,agree,how-beatles-destroyed-rock,,,,,,,,,,,,,,,,url: https://www.timeshighereducation.com/node/81549 | checked: 2026-11-14
+beatles-overrated,media,agree,here-there-everywhere-my,,,,,,,,,,,,,,,,"url: https://openlibrary.org/search.json?q=here+there+and+everywhere+emerick&fields=title,author_name,publisher,first_publish_year,subtitle&limit=5 | checked: 2026-11-14"
 beatles-overrated,argument,disagree,beatles-wrote-unusually-large,,,,,,,,,,,,,,,,
-beatles-overrated,argument,disagree,beatles-changed-about-seven,,,,,,,,,,,,,,,,
-beatles-overrated,argument,disagree,beatles-helped-make-normal,,,,,,,,,,,,,,,,
+beatles-overrated,argument,disagree,beatles-changed-about-seven,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Abbey_Road | checked: 2026-11-14
+beatles-overrated,argument,disagree,beatles-helped-make-normal,,,,,,,,,,,,,,,,url: https://www.statsignificant.com/p/do-music-stars-write-their-own-songs | checked: 2026-11-14
 beatles-overrated,argument,disagree,beatles-often-sound-ordinary,,,,,,,,,,,,,,,,
-beatles-overrated,argument,disagree,musicians-very-different-styles,,,,,,,,,,,,,,,,
+beatles-overrated,argument,disagree,musicians-very-different-styles,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Eleanor_Rigby | checked: 2026-11-14
 beatles-overrated,argument,disagree,borrowing-american-rhythm-blues,,,,,,,,,,,,,,,,
-beatles-overrated,evidence,disagree,beatles-have-20-number,,"Billboard Hot 100 chart records (Wikipedia, ""List of Billboard Hot 100 chart achievements and milestones""), accessed October 2026",,,,,,,,,,,,,,
-beatles-overrated,evidence,disagree,beatles-hold-217-25,,"Wikipedia, ""List of best-selling music artists"" (RIAA certification data), accessed October 2026",,,,,,,,,,,,,,
+beatles-overrated,evidence,disagree,beatles-have-20-number,,"Billboard Hot 100 chart records (Wikipedia, ""List of Billboard Hot 100 chart achievements and milestones""), accessed October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_chart_achievements_and_milestones | checked: 2026-11-14
+beatles-overrated,evidence,disagree,beatles-hold-217-25,,"Wikipedia, ""List of best-selling music artists"" (RIAA certification data), accessed October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_best-selling_music_artists | checked: 2026-11-14
 beatles-overrated,evidence,disagree,october-3-2026-beatles,,"kworb.net, ""The Beatles: Spotify songs"" page, data as of October 3, 2026",,,,,,,,,,,,,,
-beatles-overrated,evidence,disagree,january-1986-beatles-yesterday,,"Guinness World Records, as reported in Wikipedia, ""Yesterday (Beatles song)"", accessed October 2026",,,,,,,,,,,,,,
+beatles-overrated,evidence,disagree,january-1986-beatles-yesterday,,"Guinness World Records, as reported in Wikipedia, ""Yesterday (Beatles song)"", accessed October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Yesterday_(Beatles_song) | checked: 2026-11-14
 beatles-overrated,prediction,disagree,beatles-daily-spotify-streams-2,,,,,,,,,,,,,,,"By December 31, 2028; compare the daily total on kworb.net's Beatles songs page with the October 3, 2026 figure.",
 beatles-overrated,prediction,disagree,blind-listening-study-will,,,,,,,,,,,,,,,"By December 31, 2030; check for a published study in a peer-reviewed music cognition or psychology journal.",
 beatles-overrated,falsify,disagree,audio-analysis-finds-songs,,,,,,,,,,,,,,,,
@@ -7551,10 +7551,10 @@ beatles-overrated,falsify,disagree,platform-data-shows-listeners,,,,,,,,,,,,,,,,
 beatles-overrated,assumption,disagree,how-long-songs-stay,,,,,,,,,,,,,,,,
 beatles-overrated,assumption,disagree,songwriting-studio-invention-count,,,,,,,,,,,,,,,,
 beatles-overrated,assumption,disagree,beatles-place-top-critics,,,,,,,,,,,,,,,,
-beatles-overrated,person,disagree,william-mann-classical-music,,,,,,,,,,,,,,,,
-beatles-overrated,person,disagree,brian-wilson-beach-boys,,,,,,,,,,,,,,,,
-beatles-overrated,person,disagree,composer-ned-rorem-praised,,,,,,,,,,,,,,,,
-beatles-overrated,media,disagree,revolution-head-beatles-records,,,,,,,,,,,,,,,,
+beatles-overrated,person,disagree,william-mann-classical-music,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Not_a_Second_Time | checked: 2026-11-14
+beatles-overrated,person,disagree,brian-wilson-beach-boys,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Pet_Sounds | checked: 2026-11-14
+beatles-overrated,person,disagree,composer-ned-rorem-praised,,,,,,,,,,,,,,,,url: https://www.nybooks.com/articles/1968/01/18/the-music-of-the-beatles/ | checked: 2026-11-14
+beatles-overrated,media,disagree,revolution-head-beatles-records,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Revolution_in_the_Head | checked: 2026-11-14
 beatles-overrated,interest,agree,rhythm-blues-rock-roll,,,,,,,,,,,,,,,,
 beatles-overrated,interest,agree,young-musicians-need-hear,,,,,,,,,,,,,,,,
 beatles-overrated,interest,disagree,owners-beatles-recordings-song,,,,,,,,,,,,,,,,
@@ -7657,32 +7657,32 @@ streaming-has-made-harder,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether the t
 streaming-has-made-harder,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether low recording income is caused by streaming itself or by record contracts, piracy and the sheer number of new releases. | move: Comparing what independent artists who own their recordings earn per stream with what signed artists receive would show how much of the gap is the contract rather than the platform."
 streaming-has-made-harder,dispute,,,Definitional,,,,,,,,,,,,,,,what: Whether 'harder to earn a living' should be judged by the typical musician's income or by how many musicians can earn anything at all from recordings. | move: Both sides agreeing in advance to report both the median income and the count of musicians above a living-wage threshold would turn the disagreement into numbers.
 streaming-has-made-harder,value,,,,,,,,,,,,,,,,,,value: Fairness | srank: 1 | orank: 2 | why: Supporters care most that the people who make the music get a fair share of what listeners pay; opponents care too but weigh it against other gains.
-popular-music-really-was,argument,agree,critics-musicians-asked-name,,,,,,,,,,,,,,,,
-popular-music-really-was,argument,agree,english-language-pop-lyrics,,,,,,,,,,,,,,,,
-popular-music-really-was,argument,agree,songs-1970s-1980s-still,,,,,,,,,,,,,,,,
-popular-music-really-was,argument,agree,streaming-pays-play-rewards,,,,,,,,,,,,,,,,
+popular-music-really-was,argument,agree,critics-musicians-asked-name,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Rolling_Stone%27s_500_Greatest_Albums_of_All_Time | checked: 2026-11-14
+popular-music-really-was,argument,agree,english-language-pop-lyrics,,,,,,,,,,,,,,,,url: https://europepmc.org/article/PMC/PMC10978890 | checked: 2026-11-14
+popular-music-really-was,argument,agree,songs-1970s-1980s-still,,,,,,,,,,,,,,,,url: https://mediaweek.com.au/media-1/vevo-launches-nostalgia-targeting-as-gen-z-embraces-a-past-it-never-lived | checked: 2026-11-14
+popular-music-really-was,argument,agree,streaming-pays-play-rewards,,,,,,,,,,,,,,,,url: https://dev.to/tonywangca/are-songs-really-getting-shorter-6618-hot-100-hits-1959-2025-4cdg | checked: 2026-11-14
 popular-music-really-was,argument,agree,albums-1970s-1980s-were,,,,,,,,,,,,,,,,
-popular-music-really-was,evidence,agree,rolling-stone-s-2020,,"Rolling Stone, The 500 Greatest Albums of All Time (2020 revision), decade counts as tabulated by Wikipedia, ""Rolling Stone's 500 Greatest Albums of All Time""",,,,,,,,,,,,,,
+popular-music-really-was,evidence,agree,rolling-stone-s-2020,,"Rolling Stone, The 500 Greatest Albums of All Time (2020 revision), decade counts as tabulated by Wikipedia, ""Rolling Stone's 500 Greatest Albums of All Time""",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Rolling_Stone%27s_500_Greatest_Albums_of_All_Time | checked: 2026-11-14
 popular-music-really-was,prediction,agree,blind-listening-study-using,,,,,,,,,,,,,,,"By December 31, 2030; checked by searching peer-reviewed music-psychology journals for a blind, random-sample comparison of decades.",
-popular-music-really-was,prediction,agree,albums-1970s-will-still,,,,,,,,,,,,,,,"By December 31, 2032; checked against the decade counts of the next published revision of the list.",
+popular-music-really-was,prediction,agree,albums-1970s-will-still,,,,,,,,,,,,,,,"By December 31, 2032; checked against the decade counts of the next published revision of the list.",url: https://en.wikipedia.org/wiki/Rolling_Stone%27s_500_Greatest_Albums_of_All_Time | checked: 2026-11-14
 popular-music-really-was,falsify,agree,blind-study-finding-teenagers,,,,,,,,,,,,,,,,
 popular-music-really-was,falsify,agree,audio-study-random-chart,,,,,,,,,,,,,,,,
 popular-music-really-was,assumption,agree,quality-popular-music-can,,,,,,,,,,,,,,,,
 popular-music-really-was,assumption,agree,listener-s-preference-1970s,,,,,,,,,,,,,,,,
 popular-music-really-was,assumption,agree,musical-complexity-rich-lyrics,,,,,,,,,,,,,,,,
-popular-music-really-was,person,agree,rick-beato-record-producer,,,,,,,,,,,,,,,,
-popular-music-really-was,person,agree,simon-reynolds-british-music,,,,,,,,,,,,,,,,
-popular-music-really-was,media,agree,measuring-evolution-contemporary-western,,,,,,,,,,,,,,,,
-popular-music-really-was,media,agree,song-lyrics-have-become,,,,,,,,,,,,,,,,
-popular-music-really-was,media,agree,retromania-pop-culture-s,,,,,,,,,,,,,,,,
+popular-music-really-was,person,agree,rick-beato-record-producer,,,,,,,,,,,,,,,,url: https://www.hypebot.com/why-is-music-getting-worse-rick-beato-has-two-answers/ | checked: 2026-11-14
+popular-music-really-was,person,agree,simon-reynolds-british-music,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Simon_Reynolds | checked: 2026-11-14
+popular-music-really-was,media,agree,measuring-evolution-contemporary-western,,,,,,,,,,,,,,,,url: https://europepmc.org/article/PMC/PMC3405292 | checked: 2026-11-14
+popular-music-really-was,media,agree,song-lyrics-have-become,,,,,,,,,,,,,,,,url: https://europepmc.org/article/PMC/PMC10978890 | checked: 2026-11-14
+popular-music-really-was,media,agree,retromania-pop-culture-s,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Simon_Reynolds | checked: 2026-11-14
 popular-music-really-was,argument,disagree,only-best-songs-1970s,,,,,,,,,,,,,,,,
-popular-music-really-was,argument,disagree,measured-audio-us-charts,,,,,,,,,,,,,,,,
-popular-music-really-was,argument,disagree,far-more-music-released,,,,,,,,,,,,,,,,
+popular-music-really-was,argument,disagree,measured-audio-us-charts,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC4453253/ | checked: 2026-11-14
+popular-music-really-was,argument,disagree,far-more-music-released,,,,,,,,,,,,,,,,url: https://www.musicbusinessworldwide.com/there-are-now-120000-new-tracks-hitting-music-streaming-services-each-day/ | checked: 2026-11-14
 popular-music-really-was,argument,disagree,whether-one-decade-s,,,,,,,,,,,,,,,,
-popular-music-really-was,argument,disagree,popular-music-today-draws,,,,,,,,,,,,,,,,
-popular-music-really-was,evidence,disagree,audio-analysis-about-17-2,,"Mauch M, MacCallum RM, Levy M, Leroi AM, ""The evolution of popular music: USA 1960-2010,"" Royal Society Open Science, 2015",,,,,,,,,,,,,,
-popular-music-really-was,evidence,disagree,study-4-824-people,,"Renwick J, Woolhouse MH, ""Reminiscence bump invariance with respect to genre, age, and country,"" Psychology of Music, 2023",,,,,,,,,,,,,,
-popular-music-really-was,evidence,disagree,average-120-000-new,,"Luminate figures reported in Music Business Worldwide, ""There are now 120,000 new tracks hitting music streaming services each day,"" May 25, 2023",,,,,,,,,,,,,,
+popular-music-really-was,argument,disagree,popular-music-today-draws,,,,,,,,,,,,,,,,url: https://www.euronews.com/culture/2024/01/11/the-rise-of-world-music-young-listeners-in-the-us-are-falling-for-non-english-speaking-art | checked: 2026-11-14
+popular-music-really-was,evidence,disagree,audio-analysis-about-17-2,,"Mauch M, MacCallum RM, Levy M, Leroi AM, ""The evolution of popular music: USA 1960-2010,"" Royal Society Open Science, 2015",,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC4453253/ | checked: 2026-11-14
+popular-music-really-was,evidence,disagree,study-4-824-people,,"Renwick J, Woolhouse MH, ""Reminiscence bump invariance with respect to genre, age, and country,"" Psychology of Music, 2023",,,,,,,,,,,,,,url: https://europepmc.org/article/PMC/PMC10357890 | checked: 2026-11-14
+popular-music-really-was,evidence,disagree,average-120-000-new,,"Luminate figures reported in Music Business Worldwide, ""There are now 120,000 new tracks hitting music streaming services each day,"" May 25, 2023",,,,,,,,,,,,,,url: https://www.musicbusinessworldwide.com/there-are-now-120000-new-tracks-hitting-music-streaming-services-each-day/ | checked: 2026-11-14
 popular-music-really-was,prediction,disagree,albums-2010s-will-hold,,,,,,,,,,,,,,,"By December 31, 2035; checked against the decade counts of the next published revision of the list.",
 popular-music-really-was,prediction,disagree,audio-study-extending-mauch,,,,,,,,,,,,,,,"By December 31, 2030; checked by searching peer-reviewed journals for an extension of the Billboard Hot 100 audio analysis.",url: https://pmc.ncbi.nlm.nih.gov/articles/PMC4453253/ | checked: 2026-11-08
 popular-music-really-was,falsify,disagree,survey-finding-people-who,,,,,,,,,,,,,,,,
@@ -8113,47 +8113,47 @@ pineapple-belongs-pizza,definition,,,,,,,,,,,,,,,,,,"term: Belongs on pizza | de
 pineapple-belongs-pizza,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree over whether a dish's proper ingredients are set by the people who eat it today or by the tradition of the place it came from. | move: It is settled only by each reader choosing which standard to apply, though it helps to separate the claim about Neapolitan pizza, where tradition has legal force, from the claim about pizza in general."
 pineapple-belongs-pizza,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides often mean different things by pizza, with one side meaning the Neapolitan original and the other meaning any pizza sold anywhere. | move: Agreeing at the start which pizza is meant would remove much of the argument."
 pineapple-belongs-pizza,value,,,,,,,,,,,,,,,,,,"value: Personal choice | srank: 1 | orank: 3 | why: Those who back pineapple on pizza put the diner's own taste first, while critics accept people can eat what they like but deny that makes it good pizza."
-tipping-american-restaurants-replaced,argument,agree,tip-size-american-restaurants,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,argument,agree,customer-tipping-american-restaurants,,,,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,argument,agree,tip-size-american-restaurants,,,,,,,,,,,,,,,,url: https://ecommons.cornell.edu/server/api/core/bitstreams/ee516993-4e91-4a48-923f-7f7f2d886b5d/content | checked: 2026-11-14
+tipping-american-restaurants-replaced,argument,agree,customer-tipping-american-restaurants,,,,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1111/peps.12261 | checked: 2026-11-14
 tipping-american-restaurants-replaced,argument,agree,waitstaff-bartenders-who-depend,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,argument,agree,tipping-american-restaurants-sends,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,argument,agree,servers-whose-income-depends,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,argument,agree,restaurants-most-other-wealthy,,,,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,argument,agree,tipping-american-restaurants-sends,,,,,,,,,,,,,,,,url: https://www.dol.gov/agencies/whd/fact-sheets/15-tipped-employees-flsa | checked: 2026-11-14
+tipping-american-restaurants-replaced,argument,agree,servers-whose-income-depends,,,,,,,,,,,,,,,,url: https://time.com/3478041/restaurant-sexual-harassment-survey | checked: 2026-11-14
+tipping-american-restaurants-replaced,argument,agree,restaurants-most-other-wealthy,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_tipping_customs_by_country | checked: 2026-11-14
 tipping-american-restaurants-replaced,evidence,agree,meta-analysis-13-studies,,"Michael Lynn and Michael McCall, ""Gratitude and Gratuity: A Meta-analysis of Research on the Service-tipping Relationship,"" Journal of Socio-Economics, 2000",,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,evidence,agree,meta-analysis-74-studies,,"George C. Banks and colleagues, ""A meta-analytic review of tipping compensation practices: An agency theory perspective,"" Personnel Psychology, 2018",,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,evidence,agree,meta-analysis-74-studies,,"George C. Banks and colleagues, ""A meta-analytic review of tipping compensation practices: An agency theory perspective,"" Personnel Psychology, 2018",,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1111/peps.12261 | checked: 2026-11-14
 tipping-american-restaurants-replaced,evidence,agree,one-restaurant-study-white,,"Michael Lynn, Michael Sturman, Christie Ganley, Elizabeth Adams, Mathew Douglas and Jessica McNeil, ""Consumer Racial Discrimination in Tipping: A Replication and Extension,"" Journal of Applied Social Psychology, 2008",,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,evidence,agree,among-waitstaff-bartenders-18,,"Economic Policy Institute, ""Twenty-Three Years and Still Waiting for Change: Why It's Time to Give Tipped Workers the Regular Minimum Wage,"" 2014",,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,evidence,agree,among-waitstaff-bartenders-18,,"Economic Policy Institute, ""Twenty-Three Years and Still Waiting for Change: Why It's Time to Give Tipped Workers the Regular Minimum Wage,"" 2014",,,,,,,,,,,,,,url: https://files.epi.org/2014/EPI-CWED-BP379.pdf | checked: 2026-11-14
 tipping-american-restaurants-replaced,prediction,agree,restaurants-adopt-service-included,,,,,,,,,,,,,,,"By December 31, 2028; checked against any published peer-reviewed or industry study comparing turnover at the two kinds of restaurants.",
-tipping-american-restaurants-replaced,prediction,agree,food-service-employment-chicago,,,,,,,,,,,,,,,"By December 31, 2030; checked against the BLS Quarterly Census of Employment and Wages for Cook County compared with the national series.",
+tipping-american-restaurants-replaced,prediction,agree,food-service-employment-chicago,,,,,,,,,,,,,,,"By December 31, 2030; checked against the BLS Quarterly Census of Employment and Wages for Cook County compared with the national series.",url: https://www.nbcchicago.com/news/local/chicago-eliminates-subminimum-wage-for-tipped-workers-heres-what-that-means/3244487/ | checked: 2026-11-14
 tipping-american-restaurants-replaced,falsify,agree,study-finds-servers-total,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,falsify,agree,study-using-post-2020,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,assumption,agree,diners-united-states-will,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,assumption,agree,restaurant-owners-who-stop,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,assumption,agree,server-s-pay-depend,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,person,agree,amanda-cohen-chef-owner,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,person,agree,brian-palmer-argued-his,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,media,agree,black-white-earnings-gap,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,media,agree,glass-floor-sexual-harassment,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,media,agree,tipping-abomination-brian-palmer,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,argument,disagree,most-american-diners-rather,,,,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,person,agree,amanda-cohen-chef-owner,,,,,,,,,,,,,,,,url: https://www.huffpost.com/entry/dirt-candy-tips_n_6760302 | checked: 2026-11-14
+tipping-american-restaurants-replaced,person,agree,brian-palmer-argued-his,,,,,,,,,,,,,,,,url: https://slate.com/business/2013/07/abolish-tipping-its-bad-for-servers-customers-and-restaurants.html | checked: 2026-11-14
+tipping-american-restaurants-replaced,media,agree,black-white-earnings-gap,,,,,,,,,,,,,,,,url: https://api.crossref.org/works?query.bibliographic=Black-White+Earnings+Gap+among+Restaurant+Servers+Brewster+Lynn&rows=3 | checked: 2026-11-14
+tipping-american-restaurants-replaced,media,agree,glass-floor-sexual-harassment,,,,,,,,,,,,,,,,url: https://time.com/3478041/restaurant-sexual-harassment-survey | checked: 2026-11-14
+tipping-american-restaurants-replaced,media,agree,tipping-abomination-brian-palmer,,,,,,,,,,,,,,,,url: https://slate.com/business/2013/07/abolish-tipping-its-bad-for-servers-customers-and-restaurants.html | checked: 2026-11-14
+tipping-american-restaurants-replaced,argument,disagree,most-american-diners-rather,,,,,,,,,,,,,,,,url: https://www.fsrmagazine.com/industry-news/study-finds-most-consumers-not-ready-stop-tipping/ | checked: 2026-11-14
 tipping-american-restaurants-replaced,argument,disagree,experienced-servers-busy-american,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,argument,disagree,tipping-lets-american-diners,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,argument,disagree,replacing-tips-wages-cost,,,,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,argument,disagree,replacing-tips-wages-cost,,,,,,,,,,,,,,,,url: https://www.irs.gov/newsroom/one-big-beautiful-bill-act-tax-deductions-for-working-americans-and-seniors | checked: 2026-11-14
 tipping-american-restaurants-replaced,argument,disagree,small-independent-american-restaurants,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,evidence,disagree,joe-s-crab-shack,,"NBC News, ""Joe's Crab Shack Ditches No-Tip Policy at Customer Request,"" May 13, 2016",,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,evidence,disagree,massachusetts-voters-rejected-question,,"Ballotpedia, ""Massachusetts Question 5, Minimum Wage for Tipped Employees Initiative (2024)""",,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,evidence,disagree,joe-s-crab-shack,,"NBC News, ""Joe's Crab Shack Ditches No-Tip Policy at Customer Request,"" May 13, 2016",,,,,,,,,,,,,,url: https://www.nbcnews.com/business/business-news/60-percent-customers-disliked-groundbreaking-no-tip-trial-n573521 | checked: 2026-11-14
+tipping-american-restaurants-replaced,evidence,disagree,massachusetts-voters-rejected-question,,"Ballotpedia, ""Massachusetts Question 5, Minimum Wage for Tipped Employees Initiative (2024)""",,,,,,,,,,,,,,url: https://electionstats.state.ma.us/ballot_questions/search/year_from:2024/year_to:2024 | checked: 2026-11-14
 tipping-american-restaurants-replaced,prediction,disagree,most-u-s-restaurants,,,,,,,,,,,,,,,"By December 31, 2031; checked by counting announced reversals in trade press such as Restaurant Business and Nation's Restaurant News.",
-tipping-american-restaurants-replaced,prediction,disagree,new-within-restaurant-study,,,,,,,,,,,,,,,"By December 31, 2028; checked in hospitality and consumer research journals.",
+tipping-american-restaurants-replaced,prediction,disagree,new-within-restaurant-study,,,,,,,,,,,,,,,"By December 31, 2028; checked in hospitality and consumer research journals.",url: https://doi.org/10.1111/joca.12171 | checked: 2026-11-14
 tipping-american-restaurants-replaced,falsify,disagree,study-finds-diners-american,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,falsify,disagree,study-finds-experienced-servers,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,assumption,disagree,diners-judge-restaurant-prices,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,assumption,disagree,customers-better-placed-than,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,assumption,disagree,best-paid-servers-busy,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,person,disagree,danny-meyer-chief-executive,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,person,disagree,joshua-chaisson-maine-server,,,,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,person,disagree,danny-meyer-chief-executive,,,,,,,,,,,,,,,,url: https://www.restaurantdive.com/news/danny-meyers-restaurant-group-eliminates-no-tipping-policy/581964/ | checked: 2026-11-14
+tipping-american-restaurants-replaced,person,disagree,joshua-chaisson-maine-server,,,,,,,,,,,,,,,,url: https://www.restaurantbusinessonline.com/workforce/restaurants-find-ally-their-fight-keep-tip-credit-servers | checked: 2026-11-14
 tipping-american-restaurants-replaced,person,disagree,tom-colicchio-chef-owner,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,media,disagree,tipping-culture-america-public,,,,,,,,,,,,,,,,
-tipping-american-restaurants-replaced,media,disagree,danny-meyer-s-restaurant,,,,,,,,,,,,,,,,
+tipping-american-restaurants-replaced,media,disagree,tipping-culture-america-public,,,,,,,,,,,,,,,,url: https://www.pewresearch.org/2023/11/09/tipping-culture-in-america-public-sees-a-changed-landscape/ | checked: 2026-11-14
+tipping-american-restaurants-replaced,media,disagree,danny-meyer-s-restaurant,,,,,,,,,,,,,,,,url: https://www.restaurantdive.com/news/danny-meyers-restaurant-group-eliminates-no-tipping-policy/581964/ | checked: 2026-11-14
 tipping-american-restaurants-replaced,interest,agree,waitstaff-bartenders-slow-low,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,interest,agree,black-servers-need-pay,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,interest,agree,restaurant-cooks-dishwashers-need,,,,,,,,,,,,,,,,
@@ -8161,11 +8161,11 @@ tipping-american-restaurants-replaced,interest,disagree,experienced-servers-busy
 tipping-american-restaurants-replaced,interest,disagree,owners-small-independent-restaurants,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,interest,disagree,diners-need-way-reward,,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,cba,agree,replacing-tips-steady-wages,,,,,,,,waitstaff-bartenders-slow-low,,,percentage points of poverty rate among waitstaff and bartenders,7.8,,,,
-tipping-american-restaurants-replaced,cba,agree,ending-tipping-american-restaurants,,,,,,,,black-servers-need-pay,,,percentage points of the bill in tips for top-rated service,6.8,,,,
+tipping-american-restaurants-replaced,cba,agree,ending-tipping-american-restaurants,,,,,,,,black-servers-need-pay,,,percentage points of the bill in tips for top-rated service,6.8,,,,url: https://api.crossref.org/works/10.1111/j.1559-1816.2008.00338.x | checked: 2026-11-14
 tipping-american-restaurants-replaced,cba,agree,pricing-service-into-american,,,,,,,,restaurant-cooks-dishwashers-need,,,dollars an hour for kitchen workers,,,,,
 tipping-american-restaurants-replaced,cba,disagree,service-included-pricing-american,,,,,,,,owners-small-independent-restaurants,,,percent of customers at test restaurants who disliked the change,60,,,,
 tipping-american-restaurants-replaced,cba,disagree,flat-wages-cut-take,,,,,,,,experienced-servers-busy-restaurants,,,dollars an hour for servers at high-volume restaurants,,,,,
-tipping-american-restaurants-replaced,cba,disagree,replacing-tips-wages-take,,,,,,,,experienced-servers-busy-restaurants,,,dollars of deductible tip income a year per worker (maximum),25000,,,,
+tipping-american-restaurants-replaced,cba,disagree,replacing-tips-wages-take,,,,,,,,experienced-servers-busy-restaurants,,,dollars of deductible tip income a year per worker (maximum),25000,,,,url: https://www.irs.gov/newsroom/one-big-beautiful-bill-act-tax-deductions-for-working-americans-and-seniors | checked: 2026-11-14
 tipping-american-restaurants-replaced,cba,disagree,ending-tipping-american-restaurants-2,,,,,,,,diners-need-way-reward,,,percent of adults who say service quality is a major factor in tipping,77,,,,
 tipping-american-restaurants-replaced,category,,,dollars an hour for kitchen workers,,,,,,,,,,,,,,,
 tipping-american-restaurants-replaced,category,,,dollars an hour for servers at high-volume restaurants,,,,,,,,,,,,,,,
@@ -8377,7 +8377,7 @@ schools-ban-phones-during,argument,disagree,enforcing-new-school-phone,,,,,,,,,,
 schools-ban-phones-during,argument,disagree,ban-phones-during-school,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.1016/j.lanepe.2025.101211&resultType=core&format=json | checked: 2026-11-14
 schools-ban-phones-during,argument,disagree,students-who-never-practice,,,,,,,,,,,,,,,,
 schools-ban-phones-during,argument,disagree,rule-bans-phones-only,,,,,,,,,,,,,,,,
-schools-ban-phones-during,evidence,disagree,among-1-227-students,,"Victoria Goodyear and colleagues, ""School phone policies and their association with mental wellbeing, phone use, and social media use (SMART Schools): a cross-sectional observational study,"" The Lancet Regional Health, Europe, 2025",,,,,,,,,,,,,,
+schools-ban-phones-during,evidence,disagree,among-1-227-students,,"Victoria Goodyear and colleagues, ""School phone policies and their association with mental wellbeing, phone use, and social media use (SMART Schools): a cross-sectional observational study,"" The Lancet Regional Health, Europe, 2025",,,,,,,,,,,,,,url: https://research.birmingham.ac.uk/en/publications/school-phone-policies-and-their-association-with-mental-wellbeing/ | checked: 2026-11-14
 schools-ban-phones-during,evidence,disagree,first-month-florida-district,,"David N. Figlio and Umut Özek, ""The Impact of Cellphone Bans in Schools on Student Outcomes: Evidence from Florida,"" NBER Working Paper 34388, 2025",,,,,,,,,,,,,,
 schools-ban-phones-during,prediction,disagree,follow-up-studies-u-2,,,,,,,,,,,,,,,"By December 31, 2028; checked against NBER working papers and peer-reviewed follow-ups of the Florida and national pouch studies.",
 schools-ban-phones-during,prediction,disagree,studies-comparing-u-s,,,,,,,,,,,,,,,"By December 31, 2029; checked against state results from the CDC Youth Risk Behavior Survey and published analyses of them.",
@@ -8386,21 +8386,21 @@ schools-ban-phones-during,falsify,disagree,study-finds-students-schools,,,,,,,,,
 schools-ban-phones-during,assumption,disagree,parents-need-direct-instant,,,,,,,,,,,,,,,,
 schools-ban-phones-during,assumption,disagree,teaching-students-manage-phones,,,,,,,,,,,,,,,,
 schools-ban-phones-during,assumption,disagree,school-rule-adds-discipline,,,,,,,,,,,,,,,,
-schools-ban-phones-during,person,disagree,new-york-city-mayor,,,,,,,,,,,,,,,,
-schools-ban-phones-during,person,disagree,victoria-goodyear-university-birmingham,,,,,,,,,,,,,,,,
-schools-ban-phones-during,media,disagree,effects-school-phone-bans,,,,,,,,,,,,,,,,
-schools-ban-phones-during,media,disagree,school-phone-policies-association,,,,,,,,,,,,,,,,
-schools-ban-phones-during,media,disagree,impact-banning-mobile-phones,,,,,,,,,,,,,,,,
+schools-ban-phones-during,person,disagree,new-york-city-mayor,,,,,,,,,,,,,,,,url: https://www.edweek.org/education/new-york-city-to-lift-long-standing-ban-on-cellphones-in-schools/2015/01 | checked: 2026-11-14
+schools-ban-phones-during,person,disagree,victoria-goodyear-university-birmingham,,,,,,,,,,,,,,,,url: https://research.birmingham.ac.uk/en/publications/school-phone-policies-and-their-association-with-mental-wellbeing/ | checked: 2026-11-14
+schools-ban-phones-during,media,disagree,effects-school-phone-bans,,,,,,,,,,,,,,,,url: https://www.nber.org/papers/w35132 | checked: 2026-11-14
+schools-ban-phones-during,media,disagree,school-phone-policies-association,,,,,,,,,,,,,,,,url: https://research.birmingham.ac.uk/en/publications/school-phone-policies-and-their-association-with-mental-wellbeing/ | checked: 2026-11-14
+schools-ban-phones-during,media,disagree,impact-banning-mobile-phones,,,,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1016/j.econedurev.2020.102009 | checked: 2026-11-14
 schools-ban-phones-during,interest,agree,high-school-teachers-need,,,,,,,,,,,,,,,,
 schools-ban-phones-during,interest,agree,middle-school-girls-need,,,,,,,,,,,,,,,,
 schools-ban-phones-during,interest,agree,students-low-income-families-2,,,,,,,,,,,,,,,,
 schools-ban-phones-during,interest,disagree,parents-need-reach-children,,,,,,,,,,,,,,,,
 schools-ban-phones-during,interest,disagree,black-students-need-school,,,,,,,,,,,,,,,,
 schools-ban-phones-during,interest,disagree,students-diabetes-disabilities-limited,,,,,,,,,,,,,,,,
-schools-ban-phones-during,cba,agree,full-day-school-phone,,,,,,,,high-school-teachers-need,,,percentage points of students using phones in class for personal reasons,48,,,,
-schools-ban-phones-during,cba,agree,full-day-school-phone-2,,,,,,,,students-low-income-families-2,,,percentile points of test score,1.1,,,,
-schools-ban-phones-during,cba,agree,middle-school-smartphone-ban,,,,,,,,middle-school-girls-need,,,percent reduction in reported bullying,46,,,,
-schools-ban-phones-during,cba,disagree,enforcing-new-school-phone-2,,,,,,,,black-students-need-school,,,percent increase in suspension rate in the year of adoption,16,,,,
+schools-ban-phones-during,cba,agree,full-day-school-phone,,,,,,,,high-school-teachers-need,,,percentage points of students using phones in class for personal reasons,48,,,,url: https://www.nber.org/system/files/working_papers/w35132/w35132.pdf | checked: 2026-11-14
+schools-ban-phones-during,cba,agree,full-day-school-phone-2,,,,,,,,students-low-income-families-2,,,percentile points of test score,1.1,,,,url: https://www.nber.org/system/files/working_papers/w34388/w34388.pdf | checked: 2026-11-14
+schools-ban-phones-during,cba,agree,middle-school-smartphone-ban,,,,,,,,middle-school-girls-need,,,percent reduction in reported bullying,46,,,,url: https://swopec.hhs.se/nhheco/abs/nhheco2024_001.htm | checked: 2026-11-14
+schools-ban-phones-during,cba,disagree,enforcing-new-school-phone-2,,,,,,,,black-students-need-school,,,percent increase in suspension rate in the year of adoption,16,,,,url: https://www.nber.org/system/files/working_papers/w34388/w34388.pdf | checked: 2026-11-14
 schools-ban-phones-during,cba,disagree,full-day-phone-ban,,,,,,,,parents-need-reach-children,,,minutes of delay in parent-child contact during an emergency,,,,,
 schools-ban-phones-during,cba,disagree,full-day-phone-ban-2,,,,,,,,students-diabetes-disabilities-limited,,,students per school losing needed phone access,,,,,
 schools-ban-phones-during,category,,,minutes of delay in parent-child contact during an emergency,,,,,,,,,,,,,,,
@@ -8717,15 +8717,15 @@ video-games-art-form,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides d
 video-games-art-form,dispute,,,Empirical,,,,,,,,,,,,,,,what: The two sides disagree about whether critics and scholars outside the game industry actually rank particular video games alongside great films and novels. | move: A survey of general arts critics and literature and film scholars asking whether any games belong beside the classics of film and literature would settle it.
 video-games-art-form,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree about whether art requires one author's controlling vision or can come from a designer and a player shaping the experience together. | move: This is a values question that evidence cannot fully settle, but comparing how critics treat other shared-control works, such as improvised theater and jazz, would show whether the authorship standard is applied consistently."
 video-games-art-form,value,,,,,,,,,,,,,,,,,,"value: Creativity | srank: 1 | orank: 3 | why: Supporters value new ways of making expressive work, while opponents value creativity too but doubt that game design channels it into art."
-violent-video-games-do,argument,agree,best-designed-long-term,,,,,,,,,,,,,,,,
-violent-video-games-do,argument,agree,lab-experiments-claimed-violent,,,,,,,,,,,,,,,,
-violent-video-games-do,argument,agree,most-research-labeled-showing,,,,,,,,,,,,,,,,
-violent-video-games-do,argument,agree,violent-video-games-became,,,,,,,,,,,,,,,,
+violent-video-games-do,argument,agree,best-designed-long-term,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7428266/fullTextXML | checked: 2026-11-14
+violent-video-games-do,argument,agree,lab-experiments-claimed-violent,,,,,,,,,,,,,,,,url: https://doi.org/10.1037/bul0000074 | checked: 2026-11-14
+violent-video-games-do,argument,agree,most-research-labeled-showing,,,,,,,,,,,,,,,,url: https://www.apa.org/about/policy/resolution-violent-video-games.pdf | checked: 2026-11-14
+violent-video-games-do,argument,agree,violent-video-games-became,,,,,,,,,,,,,,,,url: https://div46amplifier.com/news-media-public-education-and-public-policy-committee/ | checked: 2026-11-14
 violent-video-games-do,argument,agree,time-spent-playing-video,,,,,,,,,,,,,,,,
 violent-video-games-do,argument,agree,people-who-already-aggressive,,,,,,,,,,,,,,,,
-violent-video-games-do,evidence,agree,meta-analysis-28-longitudinal,,"Drummond A, Sauer JD, Ferguson CJ, ""Do longitudinal studies support long-term relationships between aggressive game play and youth aggressive behaviour? A meta-analytic examination,"" Royal Society Open Science, 2020",,,,,,,,,,,,,,
-violent-video-games-do,evidence,agree,adults-randomly-assigned-play,,"Kühn S, Kugler DT, Schmalen K, Weichenberger M, Witt C, Gallinat J, ""Does playing violent video games cause aggression? A longitudinal intervention study,"" Molecular Psychiatry, 2019",,,,,,,,,,,,,,
-violent-video-games-do,evidence,agree,preregistered-study-1-004,,"Przybylski AK, Weinstein N, ""Violent video game engagement is not associated with adolescents' aggressive behaviour: evidence from a registered report,"" Royal Society Open Science, 2019",,,,,,,,,,,,,,
+violent-video-games-do,evidence,agree,meta-analysis-28-longitudinal,,"Drummond A, Sauer JD, Ferguson CJ, ""Do longitudinal studies support long-term relationships between aggressive game play and youth aggressive behaviour? A meta-analytic examination,"" Royal Society Open Science, 2020",,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7428266/fullTextXML | checked: 2026-11-14
+violent-video-games-do,evidence,agree,adults-randomly-assigned-play,,"Kühn S, Kugler DT, Schmalen K, Weichenberger M, Witt C, Gallinat J, ""Does playing violent video games cause aggression? A longitudinal intervention study,"" Molecular Psychiatry, 2019",,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.1038/s41380-018-0031-7&resultType=core&format=json | checked: 2026-11-14
+violent-video-games-do,evidence,agree,preregistered-study-1-004,,"Przybylski AK, Weinstein N, ""Violent video game engagement is not associated with adolescents' aggressive behaviour: evidence from a registered report,"" Royal Society Open Science, 2019",,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.1098/rsos.171474&resultType=core&format=json | checked: 2026-11-14
 violent-video-games-do,prediction,agree,preregistered-longitudinal-studies-violent,,,,,,,,,,,,,,,By 2030-12-31; checked by counting preregistered longitudinal studies indexed in PubMed or Europe PMC and the share reporting a nonsignificant effect.,
 violent-video-games-do,prediction,agree,no-new-meta-analysis,,,,,,,,,,,,,,,By 2030-12-31; checked by reviewing meta-analyses on violent video games and aggression published in peer-reviewed journals since 2026.,
 violent-video-games-do,falsify,agree,preregistered-multi-lab-study,,,,,,,,,,,,,,,,
@@ -8733,19 +8733,19 @@ violent-video-games-do,falsify,agree,long-term-randomized-trial,,,,,,,,,,,,,,,,
 violent-video-games-do,assumption,agree,link-between-violent-video,,,,,,,,,,,,,,,,
 violent-video-games-do,assumption,agree,lab-measures-such-blasting,,,,,,,,,,,,,,,,
 violent-video-games-do,assumption,agree,when-people-who-play,,,,,,,,,,,,,,,,
-violent-video-games-do,person,agree,supreme-court-justice-antonin,,,,,,,,,,,,,,,,
-violent-video-games-do,person,agree,psychologist-christopher-j-ferguson,,,,,,,,,,,,,,,,
-violent-video-games-do,person,agree,psychologist-patrick-m-markey,,,,,,,,,,,,,,,,
-violent-video-games-do,media,agree,moral-combat-why-war,,,,,,,,,,,,,,,,
-violent-video-games-do,media,agree,do-longitudinal-studies-support,,,,,,,,,,,,,,,,
-violent-video-games-do,media,agree,violent-video-game-engagement,,,,,,,,,,,,,,,,
-violent-video-games-do,argument,disagree,every-major-meta-analysis,,,,,,,,,,,,,,,,
-violent-video-games-do,argument,disagree,studies-follow-children-months,,,,,,,,,,,,,,,,
+violent-video-games-do,person,agree,supreme-court-justice-antonin,,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/supct/html/08-1448.ZO.html | checked: 2026-11-14
+violent-video-games-do,person,agree,psychologist-christopher-j-ferguson,,,,,,,,,,,,,,,,url: https://benbellabooks.com/shop/moral-combat/ | checked: 2026-11-14
+violent-video-games-do,person,agree,psychologist-patrick-m-markey,,,,,,,,,,,,,,,,url: https://www.psychologytoday.com/us/blog/checkpoints/201810/new-proof-video-games-boost-aggression-not-so-fast | checked: 2026-11-14
+violent-video-games-do,media,agree,moral-combat-why-war,,,,,,,,,,,,,,,,url: https://openlibrary.org/books/OL34636780M.json | checked: 2026-11-14
+violent-video-games-do,media,agree,do-longitudinal-studies-support,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7428266/fullTextXML | checked: 2026-11-14
+violent-video-games-do,media,agree,violent-video-game-engagement,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.1098/rsos.171474&resultType=core&format=json | checked: 2026-11-14
+violent-video-games-do,argument,disagree,every-major-meta-analysis,,,,,,,,,,,,,,,,url: https://doi.org/10.1177/1745691619850104 | checked: 2026-11-14
+violent-video-games-do,argument,disagree,studies-follow-children-months,,,,,,,,,,,,,,,,url: https://doi.org/10.1073/pnas.1611617114 | checked: 2026-11-14
 violent-video-games-do,argument,disagree,hitting-pushing-biting-violent,,,,,,,,,,,,,,,,
 violent-video-games-do,argument,disagree,small-increase-aggression-spread,,,,,,,,,,,,,,,,
 violent-video-games-do,argument,disagree,violent-video-games-reward,,,,,,,,,,,,,,,,
-violent-video-games-do,argument,disagree,american-psychological-association-s,,,,,,,,,,,,,,,,
-violent-video-games-do,evidence,disagree,meta-analysis-98-independent,,"Greitemeyer T, Mügge DO, ""Video games do affect social outcomes: a meta-analytic review of the effects of violent and prosocial video game play,"" Personality and Social Psychology Bulletin, 2014",,,,,,,,,,,,,,
+violent-video-games-do,argument,disagree,american-psychological-association-s,,,,,,,,,,,,,,,,url: https://www.apa.org/news/press/releases/2015/08/violent-video-games | checked: 2026-11-14
+violent-video-games-do,evidence,disagree,meta-analysis-98-independent,,"Greitemeyer T, Mügge DO, ""Video games do affect social outcomes: a meta-analytic review of the effects of violent and prosocial video game play,"" Personality and Social Psychology Bulletin, 2014",,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID:24458215&resultType=core&format=json | checked: 2026-11-14
 violent-video-games-do,prediction,disagree,large-preregistered-longitudinal-study,,,,,,,,,,,,,,,"By 2030-12-31; checked by searching peer-reviewed journals for preregistered studies with at least 1,000 children and a one-year follow-up.",
 violent-video-games-do,prediction,disagree,randomized-trial-lasting-least,,,,,,,,,,,,,,,By 2030-12-31; checked by searching trial registries and peer-reviewed journals for randomized trials with behavioral aggression outcomes.,
 violent-video-games-do,falsify,disagree,preregistered-long-term-study,,,,,,,,,,,,,,,,
@@ -8753,12 +8753,12 @@ violent-video-games-do,falsify,disagree,randomized-trial-lasting-months,,,,,,,,,
 violent-video-games-do,assumption,disagree,pushing-hitting-other-everyday,,,,,,,,,,,,,,,,
 violent-video-games-do,assumption,disagree,small-average-effect-each,,,,,,,,,,,,,,,,
 violent-video-games-do,assumption,disagree,pooled-results-many-lab,,,,,,,,,,,,,,,,
-violent-video-games-do,person,disagree,psychologist-craig-anderson-iowa,,,,,,,,,,,,,,,,
-violent-video-games-do,person,disagree,psychologist-brad-j-bushman,,,,,,,,,,,,,,,,
-violent-video-games-do,person,disagree,supreme-court-justice-stephen,,,,,,,,,,,,,,,,
-violent-video-games-do,media,disagree,violent-video-game-effects,,,,,,,,,,,,,,,,
-violent-video-games-do,media,disagree,metaanalysis-relationship-between-violent,,,,,,,,,,,,,,,,
-violent-video-games-do,media,disagree,finding-common-ground-meta,,,,,,,,,,,,,,,,
+violent-video-games-do,person,disagree,psychologist-craig-anderson-iowa,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID:20192553&resultType=core&format=json | checked: 2026-11-14
+violent-video-games-do,person,disagree,psychologist-brad-j-bushman,,,,,,,,,,,,,,,,url: https://news.osu.edu/violent-video-games-more-playing-time-equals-more-aggression/ | checked: 2026-11-14
+violent-video-games-do,person,disagree,supreme-court-justice-stephen,,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/supct/html/08-1448.ZD1.html | checked: 2026-11-14
+violent-video-games-do,media,disagree,violent-video-game-effects,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID:20192553&resultType=core&format=json | checked: 2026-11-14
+violent-video-games-do,media,disagree,metaanalysis-relationship-between-violent,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC6176643/ | checked: 2026-11-14
+violent-video-games-do,media,disagree,finding-common-ground-meta,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=TITLE:%22finding%20common%20ground%20in%20meta-analysis%22&resultType=core&format=json | checked: 2026-11-14
 violent-video-games-do,interest,agree,game-developers-studio-workers,,,,,,,,,,,,,,,,
 violent-video-games-do,interest,agree,families-people-killed-shootings,,,,,,,,,,,,,,,,
 violent-video-games-do,interest,disagree,parents-young-children-need-4,,,,,,,,,,,,,,,,
@@ -8767,7 +8767,7 @@ violent-video-games-do,cba,agree,if-violent-video-games,,,,,,,,families-people-k
 violent-video-games-do,cba,agree,if-violent-video-games-2,,,,,,,,parents-young-children-need-4,,,school disciplinary referrals tied to video game interests (count a year),,,,,
 violent-video-games-do,cba,agree,if-violent-video-games-3,,,,,,,,game-developers-studio-workers,,,dollars a year in legal and compliance costs,,,,,
 violent-video-games-do,cba,disagree,if-violent-video-games-4,,,,,,,,parents-young-children-need-4,,,standard deviations of physical aggression (standardized beta),0.08,,,,
-violent-video-games-do,cba,disagree,if-violent-video-games-5,,,,,,,,pediatricians-need-sound-guidance,,,percentage of pediatric visits that include media-use advice,,,,,
+violent-video-games-do,cba,disagree,if-violent-video-games-5,,,,,,,,pediatricians-need-sound-guidance,,,percentage of pediatric visits that include media-use advice,,,,,url: https://www.apa.org/news/press/releases/2015/08/violent-video-games | checked: 2026-11-14
 violent-video-games-do,category,,,dollars a year in legal and compliance costs,,,,,,,,,,,,,,,
 violent-video-games-do,category,,,percentage of pediatric visits that include media-use advice,,,,,,,,,,,,,,,
 violent-video-games-do,category,,,school disciplinary referrals tied to video game interests (count a year),,,,,,,,,,,,,,,
@@ -8920,32 +8920,32 @@ art-and-machines,topic_media,,can-computers-create-art,,,,,,,,,,,,,,,,medium: Ar
 art-and-machines,topic_media,,art-artifice-large-language,,,,,,,,,,,,,,,,medium: Study | tone: Academic | positivity: -60 | strength: 80 | insight: Stories from large language models passed 3 to 10 times fewer Torrance creative writing tests than stories by professional writers.
 art-and-machines,topic_media,,why-i-isn-t,,,,,,,,,,,,,,,,"medium: Article | tone: Advocacy | positivity: -80 | strength: 50 | insight: Argues that AI is not going to make art, and is cited against both prompt-made images as art and AI novels outselling human ones."
 art-and-machines,topic_media,,copyright-artificial-intelligence-part,,,,,,,,,,,,,,,,"medium: Report | tone: Official | positivity: -50 | strength: 80 | insight: Sets out the U.S. Copyright Office position that work generated solely by a machine cannot be registered, a position a federal appeals court upheld in 2025."
-united-states-will-recession,argument,agree,2026-war-around-strait,,,,,,,,,,,,,,,,
-united-states-will-recession,argument,agree,federal-reserve-raising-interest,,,,,,,,,,,,,,,,
-united-states-will-recession,argument,agree,economists-forecasting-surveys-have,,,,,,,,,,,,,,,,
-united-states-will-recession,argument,agree,u-s-economic-expansion,,,,,,,,,,,,,,,,
-united-states-will-recession,evidence,agree,2026-middle-east-war,,"World Bank, ""Middle East War to Spark Biggest Energy Price Surge in Four Years"" (Commodity Markets Outlook press release), April 28, 2026",,,,,,,,,,,,,,
-united-states-will-recession,evidence,agree,all-but-one-11,,"James D. Hamilton, ""Historical Oil Shocks,"" NBER Working Paper 16790, February 2011",,,,,,,,,,,,,,
-united-states-will-recession,evidence,agree,u-s-employers-added,,"U.S. Bureau of Labor Statistics, ""The Employment Situation, September 2026,"" released October 2, 2026",,,,,,,,,,,,,,
-united-states-will-recession,evidence,agree,153-recessions-63-countries,,"Zidong An, Joao Tovar Jalles and Prakash Loungani, ""How Well Do Economists Forecast Recessions?"" IMF Working Paper WP/18/39, 2018",,,,,,,,,,,,,,
+united-states-will-recession,argument,agree,2026-war-around-strait,,,,,,,,,,,,,,,,url: https://sofiaglobe.com/?p=127418 | checked: 2026-11-14
+united-states-will-recession,argument,agree,federal-reserve-raising-interest,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm | checked: 2026-11-14
+united-states-will-recession,argument,agree,economists-forecasting-surveys-have,,,,,,,,,,,,,,,,url: https://www.imf.org/-/media/files/publications/wp/2018/wp1839.pdf.md | checked: 2026-11-14
+united-states-will-recession,argument,agree,u-s-economic-expansion,,,,,,,,,,,,,,,,url: https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions | checked: 2026-11-14
+united-states-will-recession,evidence,agree,2026-middle-east-war,,"World Bank, ""Middle East War to Spark Biggest Energy Price Surge in Four Years"" (Commodity Markets Outlook press release), April 28, 2026",,,,,,,,,,,,,,url: https://sofiaglobe.com/?p=127418 | checked: 2026-11-14
+united-states-will-recession,evidence,agree,all-but-one-11,,"James D. Hamilton, ""Historical Oil Shocks,"" NBER Working Paper 16790, February 2011",,,,,,,,,,,,,,url: https://www.nber.org/system/files/working_papers/w16790/w16790.pdf | checked: 2026-11-14
+united-states-will-recession,evidence,agree,u-s-employers-added,,"U.S. Bureau of Labor Statistics, ""The Employment Situation, September 2026,"" released October 2, 2026",,,,,,,,,,,,,,url: https://www.bls.gov/news.release/archives/empsit_10022026.htm | checked: 2026-11-14
+united-states-will-recession,evidence,agree,153-recessions-63-countries,,"Zidong An, Joao Tovar Jalles and Prakash Loungani, ""How Well Do Economists Forecast Recessions?"" IMF Working Paper WP/18/39, 2018",,,,,,,,,,,,,,url: https://www.imf.org/-/media/files/publications/wp/2018/wp1839.pdf.md | checked: 2026-11-14
 united-states-will-recession,prediction,agree,real-time-sahm-rule,,,,,,,,,,,,,,,"By January 31, 2028; checked on FRED series SAHMREALTIME after the December 2027 jobs report.",
 united-states-will-recession,prediction,agree,bureau-economic-analysis-advance,,,,,,,,,,,,,,,"By October 31, 2027; checked against BEA advance GDP releases for those four quarters.",
 united-states-will-recession,falsify,agree,u-s-nonfarm-payroll,,,,,,,,,,,,,,,,
 united-states-will-recession,falsify,agree,federal-reserve-raises-interest,,,,,,,,,,,,,,,,
 united-states-will-recession,assumption,agree,harm-record-oil-price,,,,,,,,,,,,,,,,
 united-states-will-recession,assumption,agree,federal-reserve-under-kevin,,,,,,,,,,,,,,,,
-united-states-will-recession,person,agree,mark-zandi-chief-economist,,,,,,,,,,,,,,,,
-united-states-will-recession,person,agree,david-rosenberg-president-rosenberg,,,,,,,,,,,,,,,,
-united-states-will-recession,media,agree,historical-oil-shocks-james,,,,,,,,,,,,,,,,
-united-states-will-recession,media,agree,how-well-do-economists,,,,,,,,,,,,,,,,
-united-states-will-recession,media,agree,systematic-monetary-policy-effects,,,,,,,,,,,,,,,,
-united-states-will-recession,argument,disagree,u-s-economy-grew,,,,,,,,,,,,,,,,
-united-states-will-recession,argument,disagree,united-states-produces-more,,,,,,,,,,,,,,,,
-united-states-will-recession,argument,disagree,heavy-u-s-business,,,,,,,,,,,,,,,,
-united-states-will-recession,argument,disagree,professional-forecasters-put-chance,,,,,,,,,,,,,,,,
-united-states-will-recession,argument,disagree,real-time-sahm-rule-2,,,,,,,,,,,,,,,,
-united-states-will-recession,argument,disagree,sharp-slowdown-u-s,,,,,,,,,,,,,,,,
-united-states-will-recession,evidence,disagree,u-s-real-gdp,,"U.S. Bureau of Economic Analysis, ""GDP (Third Estimate), Industries, Corporate Profits, State GDP, and State Personal Income, 2nd Quarter 2026,"" released September 30, 2026",,,,,,,,,,,,,,
+united-states-will-recession,person,agree,mark-zandi-chief-economist,,,,,,,,,,,,,,,,url: https://fortune.com/2026/03/25/moodys-mark-zandi-recession-risk-50-percent-jobs-data-iran-war/ | checked: 2026-11-14
+united-states-will-recession,person,agree,david-rosenberg-president-rosenberg,,,,,,,,,,,,,,,,url: https://en.oninvest.com/article/wobbly-crutches-why-does-a-renowned-economist-see-the-risk-of-a-us-crisis-in-2027 | checked: 2026-11-14
+united-states-will-recession,media,agree,historical-oil-shocks-james,,,,,,,,,,,,,,,,url: https://www.nber.org/papers/w16790 | checked: 2026-11-14
+united-states-will-recession,media,agree,how-well-do-economists,,,,,,,,,,,,,,,,url: https://ideas.repec.org/p/imf/imfwpa/2018-039.html | checked: 2026-11-14
+united-states-will-recession,media,agree,systematic-monetary-policy-effects,,,,,,,,,,,,,,,,url: https://www.brookings.edu/articles/systematic-monetary-policy-and-the-effects-of-oil-price-shocks/ | checked: 2026-11-14
+united-states-will-recession,argument,disagree,u-s-economy-grew,,,,,,,,,,,,,,,,url: https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=GDPNOW&vintage_date=2026-10-05 | checked: 2026-11-14
+united-states-will-recession,argument,disagree,united-states-produces-more,,,,,,,,,,,,,,,,url: https://www.eia.gov/energyexplained/oil-and-petroleum-products/imports-and-exports.php | checked: 2026-11-14
+united-states-will-recession,argument,disagree,heavy-u-s-business,,,,,,,,,,,,,,,,url: https://www.bea.gov/sites/default/files/2026-10/gdp3q26-adv.pdf | checked: 2026-11-14
+united-states-will-recession,argument,disagree,professional-forecasters-put-chance,,,,,,,,,,,,,,,,url: https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/spf-q3-2026 | checked: 2026-11-14
+united-states-will-recession,argument,disagree,real-time-sahm-rule-2,,,,,,,,,,,,,,,,url: https://fred.stlouisfed.org/series/SAHMREALTIME | checked: 2026-11-14
+united-states-will-recession,argument,disagree,sharp-slowdown-u-s,,,,,,,,,,,,,,,,url: https://www.dallasfed.org/research/economics/2026/0623 | checked: 2026-11-14
+united-states-will-recession,evidence,disagree,u-s-real-gdp,,"U.S. Bureau of Economic Analysis, ""GDP (Third Estimate), Industries, Corporate Profits, State GDP, and State Personal Income, 2nd Quarter 2026,"" released September 30, 2026",,,,,,,,,,,,,,url: https://www.bea.gov/news/2026/gdp-third-estimate-industries-corporate-profits-state-gdp-and-state-personal-income-2nd | checked: 2026-11-14
 united-states-will-recession,evidence,disagree,atlanta-fed-s-gdpnow,,"Federal Reserve Bank of Atlanta, GDPNow (via FRED series GDPNOW), updated October 1, 2026",,,,,,,,,,,,,,url: https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=GDPNOW&cosd=2026-04-01&vintage_date=2026-10-01 | checked: 2026-11-14
 united-states-will-recession,evidence,disagree,thirty-two-professional-forecasters,,"Federal Reserve Bank of Philadelphia, ""Third Quarter 2026 Survey of Professional Forecasters,"" August 14, 2026",,,,,,,,,,,,,,url: https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/spf-q3-2026 | checked: 2026-11-14
 united-states-will-recession,evidence,disagree,real-time-sahm-rule-3,,"Federal Reserve Bank of St. Louis, FRED, ""Real-time Sahm Rule Recession Indicator"" (SAHMREALTIME), updated October 2, 2026",,,,,,,,,,,,,,url: https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=SAHMREALTIME&cosd=2026-06-01&vintage_date=2026-10-02 | checked: 2026-11-14
@@ -9019,8 +9019,8 @@ federal-reserve-will-cut,argument,disagree,federal-reserve-officials-project,,,,
 federal-reserve-will-cut,argument,disagree,federal-funds-rate-below,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,evidence,disagree,september-2026-projections-median,,"Board of Governors of the Federal Reserve System, Summary of Economic Projections, September 16, 2026",,,,,,,,,,,,,,
 federal-reserve-will-cut,evidence,disagree,prices-federal-funds-futures,,"Investing.com, Fed Rate Monitor Tool (based on CME Group 30-Day Fed Fund futures), 2026",,,,,,,,,,,,,,
-federal-reserve-will-cut,evidence,disagree,federal-open-market-committee,,"Board of Governors of the Federal Reserve System, Federal Reserve issues FOMC statement (press release), September 16, 2026",,,,,,,,,,,,,,
-federal-reserve-will-cut,evidence,disagree,federal-reserve-officials-projected,,"Board of Governors of the Federal Reserve System, Summary of Economic Projections, September 16, 2026",,,,,,,,,,,,,,
+federal-reserve-will-cut,evidence,disagree,federal-open-market-committee,,"Board of Governors of the Federal Reserve System, Federal Reserve issues FOMC statement (press release), September 16, 2026",,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm | checked: 2026-11-14
+federal-reserve-will-cut,evidence,disagree,federal-reserve-officials-projected,,"Board of Governors of the Federal Reserve System, Summary of Economic Projections, September 16, 2026",,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm | checked: 2026-11-14
 federal-reserve-will-cut,prediction,disagree,federal-reserve-will-raise,,,,,,,,,,,,,,,"By December 31, 2026; checked against the FOMC statements of October 28 and December 9, 2026.",
 federal-reserve-will-cut,prediction,disagree,upper-bound-federal-funds,,,,,,,,,,,,,,,"By December 9, 2027; checked against the FOMC statement for the December 7-8, 2027 meeting.",
 federal-reserve-will-cut,falsify,disagree,core-pce-inflation-rises,,,,,,,,,,,,,,,,
@@ -9028,18 +9028,18 @@ federal-reserve-will-cut,falsify,disagree,december-2026-summary-economic,,,,,,,,
 federal-reserve-will-cut,assumption,disagree,federal-reserve-projections-federal,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,assumption,disagree,u-s-inflation-above,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,assumption,disagree,strong-productivity-growth-business,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,person,disagree,federal-reserve-chair-kevin,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,person,disagree,bank-america-economist-aditya,,,,,,,,,,,,,,,,
+federal-reserve-will-cut,person,disagree,federal-reserve-chair-kevin,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20260916.pdf | checked: 2026-11-14
+federal-reserve-will-cut,person,disagree,bank-america-economist-aditya,,,,,,,,,,,,,,,,url: https://www.investing.com/news/economy-news/bofa-now-sees-no-fed-rate-cuts-until-2028-4752098 | checked: 2026-11-14
 federal-reserve-will-cut,person,disagree,morningstar-senior-u-s,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,media,disagree,summary-economic-projections-federal,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,media,disagree,bofa-now-sees-no,,,,,,,,,,,,,,,,
+federal-reserve-will-cut,media,disagree,summary-economic-projections-federal,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm | checked: 2026-11-14
+federal-reserve-will-cut,media,disagree,bofa-now-sees-no,,,,,,,,,,,,,,,,url: https://www.investing.com/news/economy-news/bofa-now-sees-no-fed-rate-cuts-until-2028-4752098 | checked: 2026-11-14
 federal-reserve-will-cut,interest,agree,homebuyers-homeowners-hoping-refinance,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,interest,agree,households-carrying-credit-card,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,interest,agree,construction-workers-factory-workers,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,interest,disagree,retirees-living-savings-need,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,interest,disagree,low-income-families-who,,,,,,,,,,,,,,,,
 federal-reserve-will-cut,interest,disagree,workers-industries-lay-off,,,,,,,,,,,,,,,,
-federal-reserve-will-cut,cba,agree,because-most-credit-card,,,,,,,,households-carrying-credit-card,,,percentage points off variable credit card interest rates,1.25,,,,
+federal-reserve-will-cut,cba,agree,because-most-credit-card,,,,,,,,households-carrying-credit-card,,,percentage points off variable credit card interest rates,1.25,,,,url: https://www.consumerfinance.gov/about-us/blog/credit-card-interest-rate-margins-at-all-time-high/ | checked: 2026-11-14
 federal-reserve-will-cut,cba,agree,lower-borrowing-costs-after,,,,,,,,construction-workers-factory-workers,,,jobs in construction and manufacturing,,,,,
 federal-reserve-will-cut,cba,disagree,cutting-federal-funds-rate,,,,,,,,retirees-living-savings-need,,,percentage points of yield on money market funds,1.25,,,,
 federal-reserve-will-cut,category,,,jobs in construction and manufacturing,,,,,,,,,,,,,,,
@@ -13029,3 +13029,15 @@ every-major-u-s,argument,disagree,census-linked-research-finds-descendants,,doi.
 more-than-70-percent,argument,disagree,undp-s-june-2023-energy,,undp.org,,,,,,,,,,,,,,url: https://www.undp.org/sites/g/files/zskgke326/files/2023-06/undp-ua-energy-damage-assessment.pdf | checked: 2026-11-14 | tag: challenge.misquoted
 qualified-blind-trust-already-removes,argument,disagree,under-5-cfr-2634-403,,law.cornell.edu,,,,,,,,,,,,,,url: https://www.law.cornell.edu/cfr/text/5/2634.403 | checked: 2026-11-14 | tag: truth.premise-false
 100-greatest-tv-series,argument,disagree,bbc-culture-s-october-2021,,bbc.com,,,,,,,,,,,,,,url: https://www.bbc.com/culture/article/20211015-the-tv-shows-that-have-shaped-us | checked: 2026-11-14 | tag: challenge.misquoted
+ways-means-committee-reported-december,argument,disagree,committee-found-program-dormant-best,,democrats-waysandmeans.house.gov,,,,,,,,,,,,,,url: https://democrats-waysandmeans.house.gov/sites/evo-subsites/democrats-waysandmeans.house.gov/files/documents/2022.12.20%20Final%20Report%20House%20Ways%20and%20Means.pdf | checked: 2026-11-14 | tag: truth.premise-false
+only-one-six-years-was,argument,disagree,none-six-years-audits-was,,democrats-waysandmeans.house.gov,,,,,,,,,,,,,,url: https://democrats-waysandmeans.house.gov/sites/evo-subsites/democrats-waysandmeans.house.gov/files/documents/2022.12.20%20Final%20Report%20House%20Ways%20and%20Means.pdf | checked: 2026-11-14 | tag: truth.premise-false
+norm-survived-nine-presidencies-then,argument,disagree,norm-covers-most-eight-presidencies,,democrats-waysandmeans.house.gov,,,,,,,,,,,,,,url: https://democrats-waysandmeans.house.gov/sites/evo-subsites/democrats-waysandmeans.house.gov/files/documents/Attachment%20B%20-%20Thorndike%20Testimony.pdf | checked: 2026-11-14 | tag: truth.premise-false
+form-does-show-foreign-income,argument,disagree,federal-financial-disclosure-form-does,,law.cornell.edu,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/5/13104 | checked: 2026-11-14 | tag: truth.premise-false
+2022-release-required-related-business,argument,disagree,sec-1201-protecting-our-democracy,,govinfo.gov,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/BILLS-117hr5314ih/html/BILLS-117hr5314ih.htm | checked: 2026-11-14 | tag: truth.premise-false
+2022-release-contained-foreign-income,argument,disagree,2022-release-showed-loss-carryforwards,,extapps2.oge.gov,,,,,,,,,,,,,,"url: https://extapps2.oge.gov/201/Presiden.nsf/PAS+Index/6E78B163F816EF6A852586630075291D/%24FILE/Trump,%20Donald%20J.%202021Termination%20278.pdf | checked: 2026-11-14 | tag: truth.premise-false"
+returns-report-foreign-income-foreign,argument,disagree,returns-report-foreign-taxes-paid,,extapps2.oge.gov,,,,,,,,,,,,,,"url: https://extapps2.oge.gov/201/Presiden.nsf/PAS+Index/6E78B163F816EF6A852586630075291D/%24FILE/Trump,%20Donald%20J.%202021Termination%20278.pdf | checked: 2026-11-14 | tag: truth.premise-false"
+nothing-followed-no-rule-changed,argument,disagree,no-law-irs-manual-rule,,clerk.house.gov,,,,,,,,,,,,,,url: https://clerk.house.gov/evs/2022/roll539.xml | checked: 2026-11-14 | tag: truth.premise-false
+wnba-suspended-phoenix-s,argument,disagree,wnba-suspended-phoenix-s-alyssa,,clickondetroit.com,,,,,,,,,,,,,,url: https://www.clickondetroit.com/sports/2026/06/25/wnba-suspends-alyssa-thomas-1-game-for-hit-to-caitlin-clarks-throat/ | checked: 2026-11-14 | tag: challenge.misquoted
+least-one-more-2024,argument,disagree,dawn-staley-2024-selection-committee,,nbcsports.com,,,,,,,,,,,,,,url: https://nbcsports.com/olympics/news/dawn-staley-caitlin-clarks-recent-play-would-merit-olympic-team-consideration | checked: 2026-11-14 | tag: truth.premise-false
+first-month-florida-district,argument,disagree,large-florida-district-s-whole,,nber.org,,,,,,,,,,,,,,url: https://www.nber.org/system/files/working_papers/w34388/w34388.pdf | checked: 2026-11-14 | tag: challenge.misquoted
+people-who-already-aggressive,argument,disagree,evidence-selection-mixed-some-panel,,ebi.ac.uk,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.1037/a0026046&resultType=core&format=json | checked: 2026-11-14 | tag: truth.premise-false
