@@ -138,18 +138,18 @@ barring-president-members-congress,category,,,number of otherwise qualified peop
 barring-president-members-congress,category,,,number of advisers operating with access but no disclosure,,,,,,,,,,,,,,,
 barring-president-members-congress,bias,agree,,Partisan selection: the examples cited are almost always from the other party's administrations.,,,,,,,,,,,,,,,
 barring-president-members-congress,bias,disagree,,Loyalty framing: treating criticism of a relative's role as an attack on the family rather than on the arrangement.,,,,,,,,,,,,,,,
-requiring-president-members-congress,argument,agree,return-shows-what-financial,,,,imp-return-shows-what-requiring-president,,,,,,,,,,,,
+requiring-president-members-congress,argument,agree,return-shows-what-financial,,,,imp-return-shows-what-requiring-president,,,,,,,,,,,,url: https://rollcall.com/2017/06/26/what-voters-can-learn-from-tax-returns/ | checked: 2026-11-14
 requiring-president-members-congress,argument,agree,internal-check-failed-one,,,,imp-internal-check-failed-requiring-president,,,,,,,,,,,,
-requiring-president-members-congress,argument,agree,every-president-carter-through,,,,imp-every-president-carter-requiring-president,,,,,,,,,,,,
+requiring-president-members-congress,argument,agree,every-president-carter-through,,,,imp-every-president-carter-requiring-president,,,,,,,,,,,,url: https://co-equal.org/guide-to-congressional-oversight/tax-records | checked: 2026-11-14
 requiring-president-members-congress,argument,agree,published-return-can-checked,,,,imp-published-return-can-requiring-president,,,,,,,,,,,,
-requiring-president-members-congress,argument,disagree,return-shows-tax-positions,,,argu-return-shows-tax-requiring-president,imp-return-shows-tax-requiring-president,,,,,,,,,,,,
+requiring-president-members-congress,argument,disagree,return-shows-tax-positions,,,argu-return-shows-tax-requiring-president,imp-return-shows-tax-requiring-president,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/5/13104 | checked: 2026-11-14
 requiring-president-members-congress,argument,disagree,publication-exposes-spouses-children,,,,imp-publication-exposes-spouses-requiring-president,,,,,,,,,,,,
-requiring-president-members-congress,argument,disagree,route-constitutionally-narrow-disclosure,,,argu-route-constitutionally-narrow-requiring-president,imp-route-constitutionally-narrow-requiring-president,,,,,,,,,,,,
-requiring-president-members-congress,argument,disagree,sophisticated-wealth-sits-pass,,,,imp-sophisticated-wealth-sits-requiring-president,,,,,,,,,,,,
+requiring-president-members-congress,argument,disagree,route-constitutionally-narrow-disclosure,,,argu-route-constitutionally-narrow-requiring-president,imp-route-constitutionally-narrow-requiring-president,,,,,,,,,,,,url: https://www4.courts.ca.gov/opinions/archive/S257302.PDF | checked: 2026-11-14
+requiring-president-members-congress,argument,disagree,sophisticated-wealth-sits-pass,,,,imp-sophisticated-wealth-sits-requiring-president,,,,,,,,,,,,url: https://www.irs.gov/forms-pubs/about-form-1065 | checked: 2026-11-14
 requiring-president-members-congress,evidence,agree,mandatory-irs-audit-presidential,,"House Ways and Means Committee report and release of tax years 2015 to 2020, December 2022",,,,,,,,,,,,,,
 requiring-president-members-congress,evidence,agree,nixon-released-his-returns,,"Joint Committee on Taxation review, April 1974",,,,,,,,,,,,,,
-requiring-president-members-congress,evidence,disagree,public-financial-disclosure-form,,"Office of Government Ethics, Public Financial Disclosure Guide (2024)",,,,,,,,,,,,,,
-requiring-president-members-congress,evidence,disagree,state-law-requiring-five,,"Patterson v. Padilla, California Supreme Court, November 21, 2019",,,,,,,,,,,,,,
+requiring-president-members-congress,evidence,disagree,public-financial-disclosure-form,,"Office of Government Ethics, Public Financial Disclosure Guide (2024)",,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/5/13104 | checked: 2026-11-14
+requiring-president-members-congress,evidence,disagree,state-law-requiring-five,,"Patterson v. Padilla, California Supreme Court, November 21, 2019",,,,,,,,,,,,,,url: https://www4.courts.ca.gov/opinions/archive/S257302.PDF | checked: 2026-11-14
 requiring-president-members-congress,prediction,agree,within-two-election-cycles,,,,,,,,,,,,,,,By 2032; published returns compared against the same officials' disclosure filings,
 requiring-president-members-congress,prediction,disagree,published-returns-add-nothing,,,,,,,,,,,,,,,By 2032; independent review of both documents for the same officials,
 requiring-president-members-congress,cba,agree,foreign-income-lender-relationships,,,,,,,,voters-need-enough-information,,,number of previously unreported foreign income sources identified per official,1,,,,
@@ -171,8 +171,8 @@ requiring-president-members-congress,shared_interest,,both-sides-want-conflicts,
 requiring-president-members-congress,compromise,,require-exact-values-rather,,,,,,,,,,,,,,,,"premise: Both sides agree the current ranges are too coarse to screen conflicts. | difficult: Officials would have to agree to disclose exact figures, which is the thing the ranges were designed to avoid."
 requiring-president-members-congress,obstacle,agree,,The requirement would be enacted by the officials it binds.,,,,,,,,,,,,,,,
 requiring-president-members-congress,obstacle,disagree,,Opponents have no answer to the audit failure other than trusting the same agency again.,,,,,,,,,,,,,,,
-requiring-president-members-congress,law,agree,,"26 U.S.C. 6103(f) lets the tax-writing committees obtain and, by vote, publish any return.",,,,,,,,,,,,,,,
-requiring-president-members-congress,law,disagree,,"26 U.S.C. 6103 makes tax returns confidential as a general rule, with criminal penalties for unauthorized disclosure.",,,,,,,,,,,,,,,
+requiring-president-members-congress,law,agree,,"26 U.S.C. 6103(f) lets the tax-writing committees obtain and, by vote, publish any return.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/26/6103 | checked: 2026-11-14
+requiring-president-members-congress,law,disagree,,"26 U.S.C. 6103 makes tax returns confidential as a general rule, with criminal penalties for unauthorized disclosure.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/26/6103 | checked: 2026-11-14
 requiring-president-members-congress,upstream,agree,public-office-usable-private,,,,,,,,,,,,,,,,
 requiring-president-members-congress,similar,extreme,all-senior-federal-officials,,,,,,,,,,,,,,,,
 requiring-president-members-congress,value,,,,,,,,,,,,,,,,,,value: Transparency | srank: 1 | orank: 3 | why: Supporters treat publication as the default for public power; opponents treat it as a burden requiring justification.
@@ -356,17 +356,17 @@ filing-volume-falls-because,argument,disagree,,Preclearance filings replace tran
 conflict-complaints-shift-trading,argument,agree,,Whatever is left uncovered becomes the new focus of complaints.,,,,,,,,,,,,,,,
 conflict-complaints-shift-trading,argument,disagree,,That is a sign the rule worked on what it covered.,,,,,,,,,,,,,,,
 rule-becomes-unremarkable-judicial,argument,agree,,Restrictions on judges and executive appointees are no longer politically contested.,,,,,,,,,,,,,,,
-rule-becomes-unremarkable-judicial,argument,disagree,,"Those restrictions apply to appointed officials, not to elected ones who can repeal them.",,,,,,,,,,,,,,,
+rule-becomes-unremarkable-judicial,argument,disagree,,"Those restrictions apply to appointed officials, not to elected ones who can repeal them.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/18/202 | checked: 2026-11-14
 officials-financial-holdings-currently,argument,agree,,Members hold stock in industries their committees oversee at rates higher than chance.,,,,,,,,,,,,,,,
-officials-financial-holdings-currently,argument,agree,,"The 2025 event study finds abnormal returns concentrated around legislative events, which is influence running in the other direction.",,,,,,,,,,,,,,,
+officials-financial-holdings-currently,argument,agree,,"The 2025 event study finds abnormal returns concentrated around legislative events, which is influence running in the other direction.",,,,,,,,,,,,,,,url: https://doi.org/10.1007/s10551-025-06108-4 | checked: 2026-11-14
 officials-financial-holdings-currently,argument,disagree,,"No study has shown a member's vote changing with their holdings after controlling for party and constituency, which are the dominant predictors.",,,,,,,,,,,,,,,
-removing-holding-removes-influence,argument,agree,,"The Fed rule covers immediate family, which closes the largest substitution channel.",,,,,,,,,,,,,,,
+removing-holding-removes-influence,argument,agree,,"The Fed rule covers immediate family, which closes the largest substitution channel.",,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20220218a.htm | checked: 2026-11-14
 removing-holding-removes-influence,argument,disagree,,"The revolving door is the largest uncovered channel, and no holdings rule touches it.",,,,,,,,,,,,,,,
 removing-holding-removes-influence,argument,disagree,,Every previous financial restriction on officials has produced substitution into less visible vehicles.,,,,,,,,,,,,,,,
-holdings-ban-can-enacted,argument,agree,,"The House passed a trading ban 232 to 198 in July 2026, the first time either chamber has voted one through.",,,,,,,,,,,,,,,
-holdings-ban-can-enacted,argument,agree,,"The Fed, the judiciary and the executive branch all operate under holding or recusal rules today.",,,,,,,,,,,,,,,
+holdings-ban-can-enacted,argument,agree,,"The House passed a trading ban 232 to 198 in July 2026, the first time either chamber has voted one through.",,,,,,,,,,,,,,,url: https://abc7news.com/post/house-passes-bill-would-ban-members-buying-stock/19562103/ | checked: 2026-11-14
+holdings-ban-can-enacted,argument,agree,,"The Fed, the judiciary and the executive branch all operate under holding or recusal rules today.",,,,,,,,,,,,,,,url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20220218a.htm | checked: 2026-11-14
 holdings-ban-can-enacted,argument,disagree,,"The Senate has not voted, and the STOCK Act precedent is that Congress weakens its own ethics rules after passing them.",,,,,,,,,,,,,,,
-reducing-conflicts-worth-narrower,argument,agree,,The cost falls on a few hundred officials and the benefit is claimed for the public.,,,,,,,,,,,,,,,
+reducing-conflicts-worth-narrower,argument,agree,,The cost falls on a few hundred officials and the benefit is claimed for the public.,,,,,,,,,,,,,,,url: https://www.house.gov/the-house-explained | checked: 2026-11-14
 reducing-conflicts-worth-narrower,argument,disagree,,"Whether it is worth it depends on how large the conflict effect is, which is exactly what is disputed.",,,,,,,,,,,,,,,
 officials-respond-financial-incentives,argument,agree,,This is the assumption behind every conflict-of-interest rule in federal law.,,,,,,,,,,,,,,,
 officials-respond-financial-incentives,argument,disagree,,Most officials appear to vote their party and their district regardless of holdings.,,,,,,,,,,,,,,,
@@ -432,26 +432,26 @@ problem-people-actually-point,argument,agree,,"Campaign committees may pay relat
 problem-people-actually-point,argument,disagree,,That a proposal does not solve every adjacent problem is not an argument that it solves nothing.,,,,,,,,,,,,,,,
 president-entitled-advisers-he,argument,agree,,The 2017 OLC opinion rests on a statute Congress wrote giving the president unusually free rein over White House staffing.,,,,,,,,,,,,,,,url: https://www.justice.gov/olc/file/1085561/dl?inline | checked: 2026-11-08
 president-entitled-advisers-he,argument,agree,,Courts have been reluctant to police the president's choice of advisers.,,,,,,,,,,,,,,,
-president-entitled-advisers-he,argument,disagree,,"Congress created that staffing latitude and can narrow it, and ambassadors require Senate confirmation regardless.",,,,,,,,,,,,,,,
+president-entitled-advisers-he,argument,disagree,,"Congress created that staffing latitude and can narrow it, and ambassadors require Senate confirmation regardless.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/3/105 | checked: 2026-11-14
 competence-neither-inherited-nor,argument,agree,,Some relatives of officials have relevant qualifications independent of the relationship.,,,,,,,,,,,,,,,
 competence-neither-inherited-nor,argument,disagree,,The bar is not a judgment about ability; it is a rule about the structural problem of an unsupervisable subordinate.,,,,,,,,,,,,,,,
 competence-neither-inherited-nor,argument,disagree,,Anyone qualified can serve in any administration other than their relative's.,,,,,,,,,,,,,,,
-justice-department-concluded-federal,argument,agree,,The opinion is published and was relied upon for an actual appointment.,,,,,,,,,,,,,,,
-justice-department-concluded-federal,argument,disagree,,"An OLC opinion is the executive branch's view of its own powers, not a judicial holding.",,,,,,,,,,,,,,,
-relatives-marriage-have-held,argument,agree,,Nominations and designations are documented in the public record.,,,,,,,,,,,,,,,
+justice-department-concluded-federal,argument,agree,,The opinion is published and was relied upon for an actual appointment.,,,,,,,,,,,,,,,url: https://www.justice.gov/olc/opinion/application-anti-nepotism-statute-presidential-appointment-white-house-office | checked: 2026-11-14
+justice-department-concluded-federal,argument,disagree,,"An OLC opinion is the executive branch's view of its own powers, not a judicial holding.",,,,,,,,,,,,,,,url: https://www.justice.gov/olc | checked: 2026-11-14
+relatives-marriage-have-held,argument,agree,,Nominations and designations are documented in the public record.,,,,,,,,,,,,,,,url: https://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_119_1.htm | checked: 2026-11-14
 relatives-marriage-have-held,argument,agree,,"These posts sit outside the White House Office, so the 2017 staffing rationale does not cover them.",,,,,,,,,,,,,,,
-relatives-marriage-have-held,argument,disagree,,"Senate confirmation is itself a check that White House staffing lacks, so the clearest cases are the ones with the most oversight.",,,,,,,,,,,,,,,
-relatives-who-became-federal,argument,agree,,The filings are public and the amendments are on the record.,,,,,,,,,,,,,,,
-relatives-who-became-federal,argument,agree,,None of it would have been disclosed by a private adviser with the same access.,,,,,,,,,,,,,,,
+relatives-marriage-have-held,argument,disagree,,"Senate confirmation is itself a check that White House staffing lacks, so the clearest cases are the ones with the most oversight.",,,,,,,,,,,,,,,url: https://www.law.cornell.edu/constitution/articleii | checked: 2026-11-14
+relatives-who-became-federal,argument,agree,,The filings are public and the amendments are on the record.,,,,,,,,,,,,,,,url: https://www.upi.com/Top_News/US/2017/07/22/Jared-Kushner-reveals-77-previously-undisclosed-assets-in-new-filing/9641500736686/ | checked: 2026-11-14
+relatives-who-became-federal,argument,agree,,None of it would have been disclosed by a private adviser with the same access.,,,,,,,,,,,,,,,url: https://www.law.cornell.edu/uscode/text/5/13103 | checked: 2026-11-14
 relatives-who-became-federal,argument,disagree,,"That disclosure was necessary at all is a point about the size of the conflict, not an argument for keeping relatives inside government.",,,,,,,,,,,,,,,
 federal-candidates-paid-combined,argument,agree,,Compiled from Federal Election Commission disbursement filings.,,,,,,,,,,,,,,,
-federal-candidates-paid-combined,argument,disagree,,Campaign payments for real work at market rates are lawful and are a different practice from performing government functions.,,,,,,,,,,,,,,,
+federal-candidates-paid-combined,argument,disagree,,Campaign payments for real work at market rates are lawful and are a different practice from performing government functions.,,,,,,,,,,,,,,,url: https://www.fec.gov/help-candidates-and-committees/making-disbursements/personal-use/ | checked: 2026-11-14
 after-bar-takes-effect,argument,agree,,"Appointments are public, so compliance is directly observable.",,,,,,,,,,,,,,,
 after-bar-takes-effect,argument,disagree,,"Informal roles leave no record, so the metric would show compliance whether or not behavior changed.",,,,,,,,,,,,,,,
 documented-contacts-which-foreign,argument,agree,,Oversight letters and IG referrals are a countable record.,,,,,,,,,,,,,,,
 documented-contacts-which-foreign,argument,disagree,,"The count measures oversight activity, which tracks which party holds the majority more than it tracks conduct.",,,,,,,,,,,,,,,
-relatives-continue-shape-policy,argument,agree,,Nothing prevents a president from taking advice from a relative at dinner.,,,,,,,,,,,,,,,
-relatives-continue-shape-policy,argument,agree,,"This is what the 2017 arrangement was designed to avoid, and it is what a bar would restore.",,,,,,,,,,,,,,,
+relatives-continue-shape-policy,argument,agree,,Nothing prevents a president from taking advice from a relative at dinner.,,,,,,,,,,,,,,,url: https://www.justice.gov/olc/file/1085561/dl?inline | checked: 2026-11-14
+relatives-continue-shape-policy,argument,agree,,"This is what the 2017 arrangement was designed to avoid, and it is what a bar would restore.",,,,,,,,,,,,,,,url: https://www.justice.gov/olc/file/1085561/dl?inline | checked: 2026-11-14
 relatives-continue-shape-policy,argument,disagree,,A rule written around function rather than title reaches an informal adviser who performs official duties.,,,,,,,,,,,,,,,
 official-decisions-stop-being,argument,agree,,The count is observable from staff lists.,,,,,,,,,,,,,,,
 official-decisions-stop-being,argument,disagree,,"Presidential advisers are all removable at will, so the ordinary chain of command is already thin.",,,,,,,,,,,,,,,url: https://www.justice.gov/olc/file/1085561/dl?inline | checked: 2026-11-13
@@ -2607,12 +2607,12 @@ barring-president-members-congress,short_term,,within-year-two-law,,,,,,,,,,,,,,
 barring-president-members-congress,assumption,agree,official-title-gives-relative,,,,,,,,,,,,,,,,
 barring-president-members-congress,assumption,disagree,relative-s-influence-over,,,,,,,,,,,,,,,,
 barring-president-members-congress,assumption,disagree,voters-rather-than-federal,,,,,,,,,,,,,,,,
-barring-president-members-congress,person,agree,representative-ruben-gallego-arizona,,,,,,,,,,,,,,,,
-barring-president-members-congress,person,agree,representative-neal-smith-iowa,,,,,,,,,,,,,,,,
-barring-president-members-congress,media,agree,nepotism-conflicts-interest-jared,,,,,,,,,,,,,,,,
-barring-president-members-congress,media,agree,kushner-inc-greed-ambition,,,,,,,,,,,,,,,,
-barring-president-members-congress,media,disagree,praise-nepotism-natural-history,,,,,,,,,,,,,,,,
-barring-president-members-congress,media,disagree,application-anti-nepotism-statute,,,,,,,,,,,,,,,,
+barring-president-members-congress,person,agree,representative-ruben-gallego-arizona,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/BILLS-115hr2314ih/html/BILLS-115hr2314ih.htm | checked: 2026-11-14
+barring-president-members-congress,person,agree,representative-neal-smith-iowa,,,,,,,,,,,,,,,,url: https://www.eenews.net/?p=12441 | checked: 2026-11-14
+barring-president-members-congress,media,agree,nepotism-conflicts-interest-jared,,,,,,,,,,,,,,,,url: https://www.citizensforethics.org/reports-investigations/crew-reports/nepotism-and-conflicts-of-interest-jared-kushner-and-ivanka-trump/ | checked: 2026-11-14
+barring-president-members-congress,media,agree,kushner-inc-greed-ambition,,,,,,,,,,,,,,,,url: https://www.kirkusreviews.com/book-reviews/vicky-ward/kushner-inc/ | checked: 2026-11-14
+barring-president-members-congress,media,disagree,praise-nepotism-natural-history,,,,,,,,,,,,,,,,url: https://www.kirkusreviews.com/book-reviews/adam-bellow/in-praise-of-nepotism/ | checked: 2026-11-14
+barring-president-members-congress,media,disagree,application-anti-nepotism-statute,,,,,,,,,,,,,,,,url: https://www.justice.gov/opinion/file/930116/download | checked: 2026-11-14
 barring-members-congress-president,argument,disagree,qualified-blind-trust-already-removes,,,,,,,,,,,,,,,,
 caitlin-clark-main-reason,argument,agree,nationally-televised-wnba-games,,,,,,,,,,,,,,,,url: https://frontofficesports.com/wnba-viewership-up-across-all-networks-compared-to-2024/ | checked: 2026-11-08
 caitlin-clark-main-reason,argument,agree,league-wide-wnba-television,,,,,,,,,,,,,,,,url: https://www.pbs.org/newshour/show/christine-brennans-new-book-on-her-game-chronicles-rise-of-caitlin-clark | checked: 2026-11-08
@@ -12984,3 +12984,19 @@ unauthorized-population-has-stood,argument,disagree,pew-research-center-s-august
 may-2024-new-york,argument,disagree,through-early-june-2024-games,,nbcnews.com,,,,,,,,,,,,,,url: https://www.nbcnews.com/news/sports/wnba-attendance-skyrocketing-not-caitlin-clark-rcna156422 | checked: 2026-11-13 | tag: challenge.misquoted
 caitlin-clark-was-averaging,argument,disagree,clark-was-named-2024-wnba,,pr.nba.com,,,,,,,,,,,,,,url: https://pr.nba.com/indiana-fevers-caitlin-clark-wins-2024-kia-wnba-rookie-of-the-year-award | checked: 2026-11-13 | tag: truth.premise-false
 serena-williams-was-35,argument,disagree,serena-williams-was-35-years,,guinnessworldrecords.com,,,,,,,,,,,,,,url: https://www.guinnessworldrecords.com/world-records/112555-oldest-us-open-singles-tennis-champion-female | checked: 2026-11-13 | tag: challenge.misquoted
+foreign-trained-physicians-must,argument,disagree,most-states-still-require-foreign,,law.lis.virginia.gov,,,,,,,,,,,,,,url: https://law.lis.virginia.gov/vacode/title54.1/chapter29/section54.1-2933.1/ | checked: 2026-11-14 | tag: challenge.misquoted
+research-finds-firms-use,argument,disagree,finding-older-incumbent-stem-workers,,nber.org,,,,,,,,,,,,,,url: https://www.nber.org/papers/w19658 | checked: 2026-11-14 | tag: challenge.misquoted
+donor-nations-have-committed,argument,disagree,kiel-institute-counts-eur-267,,kielinstitut.de,,,,,,,,,,,,,,url: https://www.kielinstitut.de/fileadmin/Dateiverwaltung/Subject_Dossiers_Topics/Ukraine/Ukraine_Support_Tracker/3rd_Aniv_Report.pdf | checked: 2026-11-14 | tag: challenge.misquoted
+united-states-women-s,argument,disagree,2024-south-carolina-iowa-national,,nielsen.com,,,,,,,,,,,,,,url: https://www.nielsen.com/news-center/2024/womens-college-basketball-championship-draws-record-breaking-18-9-million-viewers/ | checked: 2026-11-14 | tag: truth.premise-false
+nick-wright-fox-sports,argument,disagree,nick-wright-laid-out-case,,foxsports.com,,,,,,,,,,,,,,url: https://www.foxsports.com/stories/nba/case-against-michael-jordan-lebron-james-goat-debate | checked: 2026-11-14 | tag: challenge.misquoted
+lionel-messi-won-2022,argument,disagree,lionel-messi-won-2022-world,,fifa.com,,,,,,,,,,,,,,url: https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/cristiano-ronaldo-farewell | checked: 2026-11-14 | tag: truth.premise-false
+cristiano-ronaldo-succeeded-top,argument,disagree,cristiano-ronaldo-won-league-titles,,rsssf.org,,,,,,,,,,,,,,url: https://www.rsssf.org/tablesp/port03.html | checked: 2026-11-14 | tag: truth.premise-false
+cristiano-ronaldo-scores-headers,argument,disagree,messivsronaldo-app-s-match-match,,messivsronaldo.app,,,,,,,,,,,,,,url: https://www.messivsronaldo.app/ | checked: 2026-11-14 | tag: truth.premise-false
+serena-williams-won-10,argument,disagree,serena-williams-won-10-grand,,tennisfame.com,,,,,,,,,,,,,,url: https://www.tennisfame.com/hall-of-famers/inductees/molla-bjurstedt-mallory/ | checked: 2026-11-14 | tag: truth.premise-false
+serena-williams-won-367,argument,disagree,serena-williams-has-won-367,,wtatennis.com,,,,,,,,,,,,,,url: https://www.wtatennis.com/news/4528691/maya-joint-fulfills-lifelong-dream-in-besting-serena-williams-at-wimbledon | checked: 2026-11-14 | tag: truth.premise-false
+serena-williams-won-10-2,argument,disagree,serena-williams-won-10-grand-2,,tennisfame.com,,,,,,,,,,,,,,url: https://www.tennisfame.com/hall-of-famers/inductees/molla-bjurstedt-mallory | checked: 2026-11-14 | tag: challenge.misquoted
+steffi-graf-held-no,argument,disagree,wta-s-own-profile-gives,,wtatennis.com,,,,,,,,,,,,,,url: https://www.wtatennis.com/players/70044/steffi-graf | checked: 2026-11-14 | tag: challenge.misquoted
+if-tiktok-users-left,argument,disagree,published-bursztyn-handel-jimenez-duran,,nber.org,,,,,,,,,,,,,,url: https://www.nber.org/system/files/working_papers/w31771/w31771.pdf | checked: 2026-11-14 | tag: truth.premise-false
+u-s-households-spend,argument,disagree,eia-s-short-term-energy,,eia.gov,,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/archives/nov26.pdf | checked: 2026-11-14 | tag: truth.premise-false
+shiller-cyclically-adjusted-price,argument,disagree,robert-shiller-s-data-cape,,econ.yale.edu,,,,,,,,,,,,,,url: http://www.econ.yale.edu/~shiller/data/ie_data.xls | checked: 2026-11-14 | tag: challenge.misquoted
+u-s-unemployment-rate-6,argument,disagree,u-s-unemployment-rate-fell,,data.bls.gov,,,,,,,,,,,,,,url: https://data.bls.gov/timeseries/LNS14000000 | checked: 2026-11-14 | tag: truth.premise-false
