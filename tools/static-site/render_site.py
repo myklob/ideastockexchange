@@ -3379,7 +3379,8 @@ def works_table(c, ps, key, note=None, prefix='p/', mini_=True):
     yardstick means; anything longer than a number goes under the title."""
     vals = [work_value(c, mp, key) for mp in ps]
     order = sorted(range(len(ps)), key=lambda i: (-(vals[i] if vals[i] is not None else -9), c.standalone(ps[i]).lower()))
-    ranks = comp_ranks([vals[i] if vals[i] is not None else -9 for i in order])
+    # ranked as printed: two works that read +0.05 share a rank, though one is +0.0512 and the other +0.0487
+    ranks = comp_ranks([-9 if vals[i] is None else vals[i] if key == 'cited' else round(vals[i], 2) for i in order])
     _, name, col, *_ = MEASURE[key]
     o = [f'<table class="scored{" mini" if mini_ else ""}"><thead><tr><th class="rk">#</th><th>Work</th><th><a href="lists.html#works-{key}">{esc(col)}</a></th></tr></thead><tbody>']
     for r, i in zip(ranks, order):
