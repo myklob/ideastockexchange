@@ -31,7 +31,7 @@ BANNED = re.compile(r'\b(corpus|readout|provenance|conformance|epistemic|damped|
 
 
 def clean(s):
-    s = re.sub(r'\s*—\s*', ', ', str(s or '').strip())
+    s = re.sub(r'\s*\u2014\s*', ', ', str(s or '').strip())  # an em dash becomes a comma
     s = re.sub(r'(?<=\d)–(?=\d)', '-', s).replace('–', '-')
     return re.sub(r'\s+', ' ', s)
 

@@ -120,7 +120,7 @@ class TestFilingAVerdict(unittest.TestCase):
 
     def test_a_confirmed_row_gains_its_source_and_a_date_and_a_correction_becomes_a_reason_to_disagree(self):
         ok, wrong = self.ids[0], self.ids[1]
-        v = [dict(it(ok, 'ok', url='https://www.example.gov/a')), dict(it(wrong, 'wrong', url='https://pubmed.ncbi.nlm.nih.gov/1/', correct='The right figure — 12.'))]
+        v = [dict(it(ok, 'ok', url='https://www.example.gov/a')), dict(it(wrong, 'wrong', url='https://pubmed.ncbi.nlm.nih.gov/1/', correct='The right figure \u2014 12.'))]
         pages, edges, report, filed = A.apply(self.tables, self.rows, v, '2026-11-14')
         x = IT.parse_extra(self.tables.edges[ok]['extra'])
         self.assertEqual((x['url'], x['checked']), ('https://www.example.gov/a', '2026-11-14'))
