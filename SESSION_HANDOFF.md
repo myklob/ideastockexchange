@@ -1,6 +1,6 @@
 # Session handoff
 
-Written 2026-11-14 at the end of the session on branch `claude/beautiful-volta-kpxvpw`. Replace this file at the end of
+Written 2026-11-14 and updated 2026-11-15 at the end of the session on branch `claude/beautiful-volta-kpxvpw`. Replace this file at the end of
 each session rather than appending to it.
 
 ## Shipped and verified
@@ -46,7 +46,23 @@ Engine invariants, checked against the code:
 - **The validity and feasibility firewall holds.** Truth scores and the cost-benefit tables stay separate.
 - **The passion and evidence firewall holds.** Votes are shown beside the score, never in it.
 
-Hardcoded depth limits are the one exception (see Blockers).
+- **No hardcoded depth limit.** As of 2026-11-15 the scorer scores a chain of pages of any length (see below).
+
+The scorer no longer limits depth. `Model.evaluate` in `score_reference.py` scores everything a page reads before the
+page itself, deepest first, with an explicit stack (`_warm`). So a page finds its inputs already scored and recurses
+one call. Only the order changes: `conformance.py` conforms, and a loop is still refused by name. A chain of 2,500
+pages builds the whole site under the default recursion limit. `MAX_CHAIN`, `E-TOO-DEEP` and the filer's chain check
+are gone. `test_engines.py::test_a_chain_of_any_length_is_scored_without_the_stack` scores 3,000 pages against a
+page-by-page pass, and it fails without the change. The filer still raises the recursion limit for its own walk of a
+post, sized to the post's depth. That is not a ceiling, so it stays.
+
+The 2026 election calls are filed as findings on the forecast pages they settle, typed `news` and checked 2026-11-15:
+
+- The AP story republished by the Inquirer, updated November 4, says Democrats won control of the House. It is
+  filed for "AP will project Democrats have won at least 218 House seats" and against its Republican twin.
+- Al Jazeera, citing AP projections, says Democrats regained the Senate with at least 54 seats. It is filed for
+  "Democrats and the independents who caucus with them hold at least 51 Senate seats".
+- The AP's own site refuses automated reading, so these are the best sources reachable.
 
 ## Partial, mocked or placeholder
 
@@ -57,18 +73,21 @@ Hardcoded depth limits are the one exception (see Blockers).
 - **Seven topics with beliefs beneath them have no cell rows of their own:** `us-economy`, `crypto`, `ai-progress`,
   `colorado`, `climate-outcomes`, `world-conflicts` and `tech-giants`. Their pages fill from the beliefs beneath, as
   designed, so this is a data gap, not a bug.
-- **The November 3, 2026 midterms have been held.** `democrats-will-win-majority` and `republicans-will-keep-majority`
-  still read as open forecasts, with no result filed as evidence.
+- **An election that has happened barely moves its forecast.**
+  - Each filed call lifts its prediction page from 0.50 to 0.507, short of the tracker's 0.55 "came true" line, so all
+    three read "recorded, still unclear".
+  - `democrats-will-win-majority` stays at 0.50: its rows argue it to 0.503, and a load-bearing premise nobody has
+    argued caps it there.
+  - `republicans-will-keep-majority` moves from 0.4519 to 0.4515.
+  - This is open decisions 2 and 6 in `CLAUDE.md` seen on a real case: one `news` finding is weak evidence by design,
+    and the cap holds a belief at the weakest unargued premise.
+  - Certified results, typed `record`, arrive as states certify through December.
 - **Every cost and benefit is a point estimate.** `mag_low` and `mag_high` are empty (open decision 3 in `CLAUDE.md`).
 - **No score in the content tables is a placeholder.** The content holds none: every printed number comes from
   `score_reference.py` at build. The Next.js app's Prisma seed data was not audited this session.
 
 ## Known bugs, data gaps and blockers
 
-- **`MAX_CHAIN = 100` conflicts with "no hardcoded depth limits"** (`tools/static-site/outline_file.py:266`, error
-  `E-TOO-DEEP`). It exists because `score_reference.py` walks a chain of pages one recursive call per page (`truth`,
-  `evaluate` and `_contrib` from line 145), and a chain of about 200 exceeds Python's recursion limit. The guard is the
-  symptom. The recursive scorer is the cause.
 - **The live site has not been updated since 2026-10-04.** The last successful `Publish site` run was run 74, for PR
   #239. Every run since, for PRs #240 to #251, failed or was cancelled. The latest failure, run 86, was
   `check_assertions.py`, with five assertions in `test_render.py` that never ran. One was fixed earlier on this branch.
@@ -79,7 +98,7 @@ Hardcoded depth limits are the one exception (see Blockers).
   two books printing +0.05 were ranked 6 and 7. The works lists now rank on the printed value, and no score moves.
   Merging this branch is what republishes the site.
 - **The branch is not merged.** `pages.yml` publishes only on a push to `master` that touches `tools/static-site/**`.
-  The branch carries 42 commits since `master` was last merged, on 2026-10-10.
+  The branch carries 45 commits since `master` was last merged, on 2026-10-10.
 - **Three docs named in the wrap-up checklist do not exist:** `REASONRANK_EQUATIONS.md`, `ISE_scores_inventory.md` and
   `CONFLICT_RESOLUTION_SCORING.md`. Scoring is documented in `tools/static-site/README.md`, `CLAUDE.md` and
   `tools/static-site/conformance.py`, and those match the code. The three were not created, because `CLAUDE.md` forbids
@@ -88,24 +107,20 @@ Hardcoded depth limits are the one exception (see Blockers).
 
 ## Next tasks
 
-1. **Make the scorer iterative and remove the depth guard.**
-   - In `tools/static-site/score_reference.py`, replace the recursion through `truth`, `evaluate`, `pg` and `_contrib` with
-     an explicit work stack: post-order over pages, memoized by page id, keeping the existing cycle refusal.
-   - Delete `MAX_CHAIN`, the `E-TOO-DEEP` stop and the recursion-limit raise in `outline_file.py` (lines 144 to 146, 230,
-     266, 1608 to 1620 and 1690 to 1694), and their tests.
-   - Add a test that builds a 500-page chain and scores it without touching `sys.setrecursionlimit`.
-   - Acceptance: `conformance.py` shows no diff, and `test_engines.py` and `test_outline_file.py` pass.
-   - Port the same change to `src/lib/ise-pages/` only if it recurses the same way.
-2. **Measure the small agent type.**
+1. **Measure the small agent type. This is a Workflow run of ten Opus agents, so ask the owner first.**
    - In a session started after `.claude/agents/fact-checker.md` existed, run `tools/static-site/factcheck/factcheck.js`
      with `{dir: <absolute path of factcheck/calibration>, today, checks: [12, 25, 26, 48, 53, 66, 70, 88, 110, 145],
      only: 'check', agentType: 'fact-checker'}` on Opus.
    - Score it with `python3 tools/static-site/factcheck/calibrate.py <run transcript dir>`.
    - Adopt it as the default if it catches at least 26 of 28 and its starting context is under 50,000. Record the
      result in the header of `factcheck.js`.
-3. **File the midterm results, then re-check the 1,166 rows.**
-   - Add the certified House and Senate results as evidence rows (etype `record`, source the official state or
-     Clerk of the House tallies) under the two forecast beliefs.
-   - Then run the three-stage check on the unjudged rows in waves of 10 batches, harvesting with `verdicts.py` after each
-     wave and filing with `apply.py`.
+2. **File the certified results as states certify them (December 2026).**
+   - Add each chamber's certified result as a finding (etype `record`, the state or Clerk of the House tallies) on the
+     prediction pages that name certification, beside the `news` rows filed on 2026-11-15:
+     - `democrats-independents-who-caucus`;
+     - `republicans-win-least-four`;
+     - `democrats-win-least-two`.
    - Then run `sync_content.py --to-workbook` and `--check`.
+3. **Re-check the 1,166 unjudged rows. This is the expensive one, so ask the owner first.**
+   - Run the three-stage check in waves of 10 batches.
+   - Harvest with `verdicts.py` after each wave, file with `apply.py`, then sync.
