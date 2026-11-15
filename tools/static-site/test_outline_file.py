@@ -863,11 +863,11 @@ class TestWhatAReviewFound(unittest.TestCase):
             self.assertEqual([m.code for m in f.stops], ['E-FIELD-VALUE'], text)
             self.assertIn("'|' cannot be kept", f.stops[0].text)
 
-    def test_a_post_as_deep_as_a_post_can_be_is_read_and_stops_past_what_the_scorer_walks(self):
+    def test_a_post_as_deep_as_a_post_can_be_is_read_and_filed(self):
         lines = [HEAD.rstrip()] + ['\t' * (i // 4) + ' ' * (i % 4) + f'+ Deep step {i} zq.' for i in range(1, 801)]
         old = sys.getrecursionlimit()
         _, f, _ = file('\n'.join(lines))
-        self.assertEqual(([m.code for m in f.stops], len(f.edges)), (['E-TOO-DEEP'], 800))
+        self.assertEqual(([m.code for m in f.stops], len(f.edges)), ([], 800))
         self.assertEqual(sys.getrecursionlimit(), old)
 
     def test_every_key_a_post_makes_fits_a_name_a_post_can_write(self):
@@ -967,14 +967,6 @@ class TestWhatASecondReviewFound(unittest.TestCase):
                 _, f, _ = file(text)
                 self.assertEqual([m.code for m in f.stops], ['E-LOOP'])
                 self.assertFalse(f.filed)
-
-    def test_a_chain_longer_than_the_scorer_can_walk_stops(self):
-        deep = lambda k: HEAD + ''.join(' ' * (i + 1) + f'+ Qzx{i} wibbles frob{i} gadget{i}.\n' for i in range(k))
-        _, f, _ = file(deep(F.MAX_CHAIN + 5))
-        self.assertEqual([m.code for m in f.stops], ['E-TOO-DEEP'])
-        _, f, t = file(deep(F.MAX_CHAIN - 1))
-        self.assertEqual(f.stops, [])
-        self.assertEqual(F._longest(t.edges), F.MAX_CHAIN)
 
     def test_related_linkage_names_another_linkage_page_and_only_on_a_linkage_page(self):
         page = 'argu-members-regularly-trade-barring-members'
@@ -1276,7 +1268,7 @@ class TestWhatAThirdReviewFound(unittest.TestCase):
                 _, f, _ = file(printout(key))
                 self.assertEqual((problems(f), [m for m in f.notices if m.code == 'N-DASH']), ({}, []))
 
-    def test_names_that_join_short_chains_into_a_long_one_stop(self):
+    def test_names_that_join_short_chains_into_a_long_one_file(self):
         lines = ['Belief: The chain root claims that zoning reform lowers rents in every city zq.']
         for s in range(6):
             for j in range(20): lines.append('  ' * (j + 1) + f'+ [s{s}l{j}]: Segment q{s}x{j} holds zq.')
@@ -1284,7 +1276,8 @@ class TestWhatAThirdReviewFound(unittest.TestCase):
         post = R.read('\n'.join(lines))
         self.assertEqual(post.stops, [])
         f = F.file(post, fresh(), self.NoMeasure(), login=LOGIN, date=DATE, issue=ISSUE)
-        self.assertEqual([m.code for m in f.stops], ['E-TOO-DEEP'])
+        self.assertEqual(f.stops, [])
+        self.assertTrue(f.filed)
 
     def test_a_mistyped_key_before_words_stops_and_casts_no_vote(self):
         words = ('Members regularly trade in the industries their own committees oversee, which puts a private financial stake on both sides '

@@ -55,9 +55,7 @@ finding, and that needs a reason, not a fix to the test.
     Truth stays in 0 to 1; a row adds at most 1        test_scoring  test_every_truth_in_range, test_contribution_is_bounded_by_one_in_magnitude
     No number is NaN or infinite                       test_invariants  TestNoNumberIsUndefined
     A circular argument is refused, not scored         test_engines  test_a_cycle_is_refused_by_name_rather_than_by_running_out_of_stack
-    The scorer walks the whole graph                   one memoized, recursive pass over a graph with no cycles; a post
-                                                       that would chain more than outline_file.MAX_CHAIN (100) pages
-                                                       is refused (E-TOO-DEEP), test_outline_file
+    The scorer walks a chain of any length             test_engines  test_a_chain_of_any_length_is_scored_without_the_stack
     The order rows are stored in changes nothing       test_invariants  TestOrderChangesNothing
     A claim listed twice on a page counts once         test_invariants  TestARepeatedClaimCountsOnce
     The same tables give the same site, byte for byte  test_invariants  TestTheSameTablesGiveTheSameSite

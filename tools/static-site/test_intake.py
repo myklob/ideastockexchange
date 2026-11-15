@@ -1078,14 +1078,9 @@ class TestTheOutlineForm(unittest.TestCase):
         self.assertLessEqual(len(self.comment()), K.GITHUB_ROOM)
 
     def test_a_post_nested_as_deep_as_the_form_allows_gets_a_reply(self):
-        # the filer walks it; the site's scorer could not, so it stops with the reason rather than failing the build
         lines = ['Page: [a]'] + ['\t' * (i // 4) + ' ' * (i % 4) + f'+ c{i}.' for i in range(1, 401)]
         done = self.go(outline('\n'.join(lines)))
-        self.assertEqual(done['did'], 'stops')
-        self.assertIn('the site can score a chain of at most', self.comment())
-        lines = ['Page: [a]'] + ['\t' * (i // 4) + ' ' * (i % 4) + f'+ c{i}.' for i in range(1, 91)]
-        done = self.go(outline('\n'.join(lines)))
-        self.assertEqual((done['did'], len(done['edges'])), ('pr', 90))
+        self.assertEqual((done['did'], len(done['edges'])), ('pr', 400))
         self.assertTrue(self.comment())
 
     def test_a_control_character_never_reaches_the_tables(self):

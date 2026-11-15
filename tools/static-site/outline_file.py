@@ -140,11 +140,9 @@ Decisions, where the spec left a choice or where it and the code or the stored d
   the scorer reads for the row (a relevance, importance or uniqueness page, and an At stake row's relevance page,
   READS), since score_reference refuses a loop through either and integrity's check follows only claims. Every new row
   that closes a loop is a stop of its own, and loops already in the tables are not this post's.
-- A chain of pages, each resting on the next, is walked by the scorer one call inside the last, so a chain longer than
-  Python's recursion limit allows fails the build. A post that would make one longer than MAX_CHAIN (100; the stored
-  tables' longest is 3, and a chain of 100 builds) stops (E-TOO-DEEP). DEPTH WITHOUT LIMIT holds for the language, and
-  this is the scorer's limit. The tables are walked again only when the new steps could make such a chain: a post's
-  names and repeated words join its lines, so its depth in the text says nothing about how long a chain it makes.
+- DEPTH WITHOUT LIMIT holds for the tables as well as the language: the scorer scores a chain of pages of any length,
+  deepest first with a stack of its own (score_reference.Model._warm), so a post is never stopped for how long a chain
+  of pages it makes.
 - similarity.opposite tells a claim from its denial by counting negating words, and reads a claim with its comparison
   turned round ('more harm than good', 'harder, not easier', 'has failed to earn') as the claim itself. W4 and W6
   therefore also refuse a match that _reverses finds turned round (a swapped comparison, a subject and an object
@@ -227,7 +225,7 @@ CODES = {
     'E-ELSEWHERE': 'a claim already listed on the page in another section or on the other side',
     'E-KIND': 'a page of the wrong kind for the section', 'E-NEEDS-ROW': 'a factor kind with no row to argue',
     'E-TOPIC-CELL': 'a topic cell on a page, or a page row on a topic', 'E-SELF': 'a page listed as a row on itself',
-    'E-LOOP': 'a row that would make an argument circular', 'E-TOO-DEEP': 'a chain of pages longer than the site can score',
+    'E-LOOP': 'a row that would make an argument circular',
     'E-WRONG-PAGE': 'a line on a kind of page that does not hold it', 'E-FIELD-PLACE': 'a detail that is no cell of its line',
     'E-NO-PAGE-HERE': 'a line under a row that has no page and cannot be given one',
     'E-VOTE-PLACE': 'a vote with nothing to vote on', 'E-NOT-A-KIND': 'Kind: with something that is not a vocab id',
@@ -261,9 +259,6 @@ LOOP_SECTIONS = ('argument', 'evidence', 'prediction', 'component', 'interest_li
 # loop through any of them, a factor page's included, is one the scorer refuses (CircularSupport)
 READS = {s: ('claim', 'link', 'imp', 'uniq') for s in ('argument', 'evidence', 'prediction', 'impact')}
 READS.update(component=('claim',), interest_listing=('claim', 'bearing'))
-# the longest chain of pages, each resting on the next, that the site's scorer evaluates within Python's default
-# recursion limit with room to spare (it takes about five calls a step; a chain of 200 fails on Python 3.12)
-MAX_CHAIN = 100
 # how alike, letter for letter, a line on the page its printout came from must read to a stored row with no page to be
 # that row edited (W6): an edit of a word or two in a sentence reads 0.87 and up, a new sentence beside a printed one
 # taken out 0.70 to 0.81; a cell of one to three words edited reads 0.75 and up ('Prudent' for 'Prudence', 0.80)
@@ -628,7 +623,6 @@ class _Filer:
             ctx = self.header(h)
             if ctx is not None: self.children(h, ctx)
         self.loops()
-        self.chain()
         return self.finish()
 
     def children(self, n, ctx):
@@ -1603,22 +1597,6 @@ class _Filer:
                     self.stop(no, 'E-LOOP', f'Line {no}: this row would make a circular argument: ' + ' -> '.join(f'[{k}]' for k in loop) + '.')
                     break
 
-    def chain(self):
-        """DEPTH WITHOUT LIMIT meets the scorer, which walks a chain of pages one call inside the last: a post that would
-        make a chain longer than MAX_CHAIN, and longer than any already there, stops on its deepest new row."""
-        new = range(self.n0, len(self.t.edges))
-        if not new or self.out.stops: return
-        before = _longest(self.base.edges)
-        # a chain uses each new step at most once, with at most `before` pages between two of them, however the post's
-        # names and repeated words join its lines; only a post that could pass MAX_CHAIN walks the tables again
-        steps = sum(len(self.reads(self.t.edges[i])) for i in new) + len(self.cow)
-        if (steps + 1) * before + steps <= MAX_CHAIN: return
-        after = _longest(self.t.edges)
-        if after <= max(MAX_CHAIN, before): return
-        no = max((self.row_line.get(i, 0) for i in new), key=lambda x: (self.level.get(x, 0), x))
-        self.stop(no, 'E-TOO-DEEP', f'Line {no} would make a chain of {after} pages, each resting on the one under it, and the site can score '
-                                    f'a chain of at most {MAX_CHAIN}. Argue the deepest lines under a page nearer the top.')
-
     def finish(self):
         out = self.out
         out.notices = sorted([m for m in self.post.notices if m not in self.drop] + self.notices, key=lambda m: m.line)
@@ -1646,31 +1624,6 @@ class _Filer:
             self.base.keys |= self.t.keys
             out.filed = True
         return out
-
-
-def _longest(edges):
-    """The most pages in one chain of the tables, each resting on the next by a row the scorer reads (_Filer.reads),
-    walked without recursion; a loop is not followed round."""
-    key = ('longest', id(edges), len(edges))
-    if _CACHE.get('longest', (None,))[0] == key[1:]: return _CACHE['longest'][1]
-    out = {}
-    for e in edges:
-        for c in _Filer.reads(e): out.setdefault(e.get('page'), set()).add(c)
-    height = {}
-    for top in out:
-        if top in height: continue
-        stack, on = [(top, iter(out[top]))], {top}
-        while stack:
-            k, it = stack[-1]
-            nxt = next(it, None)
-            if nxt is None:
-                height[k] = 1 + max((height.get(c, 1) for c in out.get(k, ()) if c not in on), default=0)
-                stack.pop(); on.discard(k)
-            elif nxt not in height and nxt not in on:
-                on.add(nxt); stack.append((nxt, iter(out.get(nxt, ()))))
-    best = max(height.values(), default=0)
-    _CACHE['longest'] = (key[1:], best)
-    return best
 
 
 class _Row:

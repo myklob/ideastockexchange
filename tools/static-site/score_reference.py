@@ -195,7 +195,46 @@ class Model:
         pos, neg = [v for v in vals if v > 0], [v for v in vals if v < 0]
         return (math.fsum(pos) if pos else 0), (-math.fsum(neg) if neg else 0)
 
+    def _reads(self, pid):
+        """Every page whose truth _evaluate(pid) reads, as it reads them. A pinned page is read without being
+        evaluated, so it is left out."""
+        p = self.pages.get(pid)
+        if p is None: return []
+        kind, out = p['kind'], []
+        def row(e): out.extend(e.get(k) for k in ('claim_id', 'link_id', 'imp_id', 'uniq_id'))
+        if kind == 'importance':
+            for e in self.rows(pid, 'interest_listing'):
+                if is_page(e.get('claim_id')): out.extend((e['claim_id'], e.get('bearing_id')))
+        else:
+            sections = ('argument', 'impact') if kind == 'media' else ('argument',) if kind in SPECIAL else ('argument', 'evidence', 'prediction')
+            for s in sections:
+                for side in ('agree', 'disagree'):
+                    for e in self.rows(pid, s, side): row(e)
+            if kind not in SPECIAL:
+                out.extend(e['claim_id'] for e in self.rows(pid, 'component')
+                           if is_page(e.get('claim_id')) and str(e.get('attrs', {}).get('lb', '')).upper() == 'Y')
+        return [v for v in out if is_page(v) and v not in self.pinned_truth]
+
+    def _warm(self, pid):
+        """Score everything pid rests on before pid, deepest first, with an explicit stack. Each page then finds
+        what it reads already scored and goes one call deep, so a chain of pages of any length is scored without
+        a Python call per page in it. Nothing here decides a number: a page on a loop is left for _evaluate to
+        refuse by name, exactly as if this had not run."""
+        stack, opened = [(pid, iter(self._reads(pid)))], {pid}
+        while stack:
+            q, todo = stack[-1]
+            for r in todo:
+                if r not in self.memo and r not in opened:
+                    opened.add(r); stack.append((r, iter(self._reads(r)))); break
+            else:
+                stack.pop()
+                if q != pid and q not in self.memo: self._evaluate(q)
+
     def evaluate(self, pid, _seen=()):
+        if not _seen and pid not in self.memo: self._warm(pid)
+        return self._evaluate(pid, _seen)
+
+    def _evaluate(self, pid, _seen=()):
         # A pin is honoured here as well as in truth(), so the two entry points cannot disagree about a page's
         # score. Only the truth is held; everything else about the page is still what its own rows say.
         if pid in self.memo: return self.memo[pid]
