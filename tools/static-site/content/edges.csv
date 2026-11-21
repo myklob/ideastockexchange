@@ -9655,12 +9655,12 @@ voting-third-party-candidate,person,agree,mark-baisley-republican-nominee-2,,,,,
 voting-third-party-candidate,person,agree,jon-caldara-president-independence,,,,,,,,,,,,,,,,
 voting-third-party-candidate,media,agree,making-votes-count-strategic,,,,,,,,,,,,,,,,
 voting-third-party-candidate,media,agree,two-party-system-duverger,,,,,,,,,,,,,,,,
-voting-third-party-candidate,media,agree,spoilers-caldara-jon-caldara,,,,,,,,,,,,,,,,
-voting-third-party-candidate,argument,disagree,race-every-forecaster-rates,,,,,,,,,,,,,,,,
-voting-third-party-candidate,argument,disagree,statewide-third-party-vote,,,,,,,,,,,,,,,,
-voting-third-party-candidate,argument,disagree,third-party-vote-shares,,,,,,,,,,,,,,,,
-voting-third-party-candidate,evidence,disagree,colorado-keeps-minor-party,,"Colorado Secretary of State, press release: Colorado Forward Party recognized as minor party, January 25, 2024",,,,,,,,,,,,,,
-voting-third-party-candidate,prediction,disagree,colorado-major-party-will,,,,,,,,,,,,,,,"By March 31, 2028; checked in Colorado Politics, the Colorado Sun and the state parties' published resolutions and agreements.",
+voting-third-party-candidate,media,agree,spoilers-caldara-jon-caldara,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2022/11/20/spoilers-caldara-804b48a8-67a6-11ed-b17d-af0f14693069/ | checked: 2026-11-21
+voting-third-party-candidate,argument,disagree,race-every-forecaster-rates,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2026_United_States_Senate_election_in_Colorado | checked: 2026-11-21
+voting-third-party-candidate,argument,disagree,statewide-third-party-vote,,,,,,,,,,,,,,,,url: https://coloradosos.gov/pubs/newsRoom/pressReleases/2024/PR20240125ColoradoForward.html | checked: 2026-11-21
+voting-third-party-candidate,argument,disagree,third-party-vote-shares,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2023/06/18/colorados-libertarian-lets-make-a-deal-caldara-69e0b364-0c92-11ee-809d-6bc8c85264f7/ | checked: 2026-11-21
+voting-third-party-candidate,evidence,disagree,colorado-keeps-minor-party,,"Colorado Secretary of State, press release: Colorado Forward Party recognized as minor party, January 25, 2024",,,,,,,,,,,,,,url: https://coloradosos.gov/pubs/newsRoom/pressReleases/2024/PR20240125ColoradoForward.html | checked: 2026-11-21
+voting-third-party-candidate,prediction,disagree,colorado-major-party-will,,,,,,,,,,,,,,,"By March 31, 2028; checked in Colorado Politics, the Colorado Sun and the state parties' published resolutions and agreements.",url: https://www.coloradopolitics.com/2023/06/18/colorados-libertarian-lets-make-a-deal-caldara-69e0b364-0c92-11ee-809d-6bc8c85264f7/ | checked: 2026-11-21
 voting-third-party-candidate,prediction,disagree,bob-chew-will-receive,,,,,,,,,,,,,,,"By December 15, 2026; checked against the certified abstract and the Colorado Secretary of State's list of recognized minor parties.",
 voting-third-party-candidate,falsify,disagree,forward-party-other-minor,,,,,,,,,,,,,,,,
 voting-third-party-candidate,falsify,disagree,colorado-major-party-documents,,,,,,,,,,,,,,,,
@@ -9705,17 +9705,17 @@ united-states-keep-sending,falsify,agree,credible-reporting-shows-russian,,,,,,,
 united-states-keep-sending,assumption,agree,russia-will-keep-ceasefire,,,,,,,,,,,,,,,,
 united-states-keep-sending,assumption,agree,enough-us-weapons-over,,,,,,,,,,,,,,,,
 united-states-keep-sending,assumption,agree,united-states-has-lasting,,,,,,,,,,,,,,,,
-united-states-keep-sending,person,agree,joe-biden-president-repeatedly,,,,,,,,,,,,,,,,
-united-states-keep-sending,person,agree,senator-mitch-mcconnell-then,,,,,,,,,,,,,,,,
-united-states-keep-sending,media,agree,russo-ukrainian-war-return,,,,,,,,,,,,,,,,
-united-states-keep-sending,argument,disagree,each-additional-year-fighting,,,,,,,,,,,,,,,,
+united-states-keep-sending,person,agree,joe-biden-president-repeatedly,,,,,,,,,,,,,,,,url: https://bidenwhitehouse.archives.gov/briefing-room/speeches-remarks/2023/07/12/remarks-by-president-biden-on-supporting-ukraine-defending-democratic-values-and-taking-action-to-address-global-challenges-vilnius-lithuania/ | checked: 2026-11-21
+united-states-keep-sending,person,agree,senator-mitch-mcconnell-then,,,,,,,,,,,,,,,,url: https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00154.htm | checked: 2026-11-21
+united-states-keep-sending,media,agree,russo-ukrainian-war-return,,,,,,,,,,,,,,,,url: https://www.harvardmagazine.com/2023/09/features-serhii-plokhy-ukriaine | checked: 2026-11-21
+united-states-keep-sending,argument,disagree,each-additional-year-fighting,,,,,,,,,,,,,,,,url: https://www.csis.org/analysis/russias-grinding-war-ukraine | checked: 2026-11-21
 united-states-keep-sending,argument,disagree,making-us-military-aid,,,,,,,,,,,,,,,,
-united-states-keep-sending,argument,disagree,open-ended-us-military,,,,,,,,,,,,,,,,
+united-states-keep-sending,argument,disagree,open-ended-us-military,,,,,,,,,,,,,,,,url: https://news.gallup.com/poll/654575/half-americans-quick-end-russia-ukraine-war.aspx | checked: 2026-11-21
 united-states-keep-sending,argument,disagree,continued-us-supply-long,,,,,,,,,,,,,,,,
-united-states-keep-sending,evidence,disagree,russia-controlled-about-116,,"Reuters (Guy Faulconbridge and Anton Kolodyazhnyy), citing pro-Ukrainian maps, distributed by Australian Associated Press as 'Russia has taken 1700 square km of Ukraine in 2026', April 2026; aid figure from Congressional Research Service, U.S. Security Assistance to Ukraine Since 2022 (IF12040), updated August 31, 2026",,,,,,,,,,,,,,
-united-states-keep-sending,evidence,disagree,congress-has-made-no,,"Congressional Research Service, U.S. Security Assistance to Ukraine Since 2022 (IF12040), updated August 31, 2026, citing the Special Inspector General for Operation Atlantic Resolve and GAO",,,,,,,,,,,,,,
-united-states-keep-sending,evidence,disagree,ukraine-suffered-estimated-500,,"Center for Strategic and International Studies (Seth G. Jones and Riley McCabe), Russia's Grinding War in Ukraine: Massive Losses and Tiny Gains for a Declining Power, January 27, 2026",,,,,,,,,,,,,,
-united-states-keep-sending,evidence,disagree,russia-spent-estimated-190,,"Stockholm International Peace Research Institute, Trends in World Military Expenditure, 2025, April 2026; compared with Congressional Research Service IF12040, August 31, 2026 ($68.2 billion committed)",,,,,,,,,,,,,,
+united-states-keep-sending,evidence,disagree,russia-controlled-about-116,,"Reuters (Guy Faulconbridge and Anton Kolodyazhnyy), citing pro-Ukrainian maps, distributed by Australian Associated Press as 'Russia has taken 1700 square km of Ukraine in 2026', April 2026; aid figure from Congressional Research Service, U.S. Security Assistance to Ukraine Since 2022 (IF12040), updated August 31, 2026",,,,,,,,,,,,,,url: https://aapnews.aap.com.au/news/russia-has-taken-1700-square-km-of-ukraine-in-2026 | checked: 2026-11-21
+united-states-keep-sending,evidence,disagree,congress-has-made-no,,"Congressional Research Service, U.S. Security Assistance to Ukraine Since 2022 (IF12040), updated August 31, 2026, citing the Special Inspector General for Operation Atlantic Resolve and GAO",,,,,,,,,,,,,,url: https://www.everycrsreport.com/reports/IF12040.html | checked: 2026-11-21
+united-states-keep-sending,evidence,disagree,ukraine-suffered-estimated-500,,"Center for Strategic and International Studies (Seth G. Jones and Riley McCabe), Russia's Grinding War in Ukraine: Massive Losses and Tiny Gains for a Declining Power, January 27, 2026",,,,,,,,,,,,,,url: https://www.csis.org/analysis/russias-grinding-war-ukraine | checked: 2026-11-21
+united-states-keep-sending,evidence,disagree,russia-spent-estimated-190,,"Stockholm International Peace Research Institute, Trends in World Military Expenditure, 2025, April 2026; compared with Congressional Research Service IF12040, August 31, 2026 ($68.2 billion committed)",,,,,,,,,,,,,,url: https://www.sipri.org/media/press-release/2026/global-military-spending-rise-continues-european-and-asian-expenditures-surge | checked: 2026-11-21
 united-states-keep-sending,prediction,disagree,if-full-russian-withdrawal,,,,,,,,,,,,,,,"By December 31, 2028; checked against DeepState maps as reported by Reuters.",
 united-states-keep-sending,prediction,disagree,if-withdrawal-condition-unrealistic,,,,,,,,,,,,,,,"By December 31, 2027; checked against the text of any signed agreement and ISW reporting on combat.",
 united-states-keep-sending,falsify,disagree,independent-estimates-show-russia,,,,,,,,,,,,,,,,
@@ -10763,13 +10763,13 @@ people-will-land-mars,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides dis
 people-will-land-mars,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether the 2026 shift of NASA and SpaceX toward a Moon base speeds a Mars landing by testing its systems or delays it by absorbing money and attention. | move: Tracking whether lunar hardware and funding lines are designed to carry over to Mars, or are spent on Moon-only systems, through the early 2030s would show which effect dominates."
 people-will-land-mars,dispute,,,Values,,,,,,,,,,,,,,,what: The two sides disagree about how much risk of death and cancer a first Mars crew should be allowed to accept. | move: A published NASA or company decision on the radiation and loss-of-crew limits that will apply to the first Mars crew would settle what risk the mission is allowed to carry.
 people-will-land-mars,value,,,,,,,,,,,,,,,,,,"value: Exploration | srank: 1 | orank: 3 | why: Supporters see reaching another planet as a defining human goal worth pursuing on an aggressive schedule, while opponents value it but not above the other concerns."
-spacex-starship-will-fly,argument,agree,spacex-has-already-caught,,,,,,,,,,,,,,,,
-spacex-starship-will-fly,argument,agree,spacex-took-falcon-9,,,,,,,,,,,,,,,,
+spacex-starship-will-fly,argument,agree,spacex-has-already-caught,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Starship_launches | checked: 2026-11-21
+spacex-starship-will-fly,argument,agree,spacex-took-falcon-9,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Falcon_9_first-stage_landing_tests | checked: 2026-11-21
 spacex-starship-will-fly,argument,agree,elon-musk-said-starship,,,,,,,,,,,,,,,,
-spacex-starship-will-fly,argument,agree,spacex-builds-starship-boosters,,,,,,,,,,,,,,,,
-spacex-starship-will-fly,evidence,agree,super-heavy-boosters-were,,"Wikipedia, ""SpaceX Starship flight tests"", revision of October 2026",,,,,,,,,,,,,,
-spacex-starship-will-fly,evidence,agree,falcon-9-s-first,,"Wikipedia, ""Falcon 9 first-stage landing tests"", 2026",,,,,,,,,,,,,,
-spacex-starship-will-fly,evidence,agree,starship-upper-stages-made,,"Wikipedia, ""SpaceX Starship flight tests"", revision of October 2026",,,,,,,,,,,,,,
+spacex-starship-will-fly,argument,agree,spacex-builds-starship-boosters,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/SpaceX_Starbase | checked: 2026-11-21
+spacex-starship-will-fly,evidence,agree,super-heavy-boosters-were,,"Wikipedia, ""SpaceX Starship flight tests"", revision of October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Starship_launches | checked: 2026-11-21
+spacex-starship-will-fly,evidence,agree,falcon-9-s-first,,"Wikipedia, ""Falcon 9 first-stage landing tests"", 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Falcon_9_first-stage_landing_tests | checked: 2026-11-21
+spacex-starship-will-fly,evidence,agree,starship-upper-stages-made,,"Wikipedia, ""SpaceX Starship flight tests"", revision of October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/SpaceX_Starship_flight_tests | checked: 2026-11-21
 spacex-starship-will-fly,evidence,agree,starship-upper-stage-s42,,"Wikipedia, ""SpaceX Starship flight tests"", revision of October 2026",,,,,,,,,,,,,,
 spacex-starship-will-fly,prediction,agree,spacex-catches-lands-intact,,,,,,,,,,,,,,,"By June 30, 2027; checked against SpaceX's flight announcements and the Wikipedia ""SpaceX Starship flight tests"" list.",
 spacex-starship-will-fly,prediction,agree,block-3-super-heavy,,,,,,,,,,,,,,,"By December 31, 2027; checked against the booster numbers and flight histories in the Wikipedia ""SpaceX Starship flight tests"" list.",
@@ -10778,8 +10778,8 @@ spacex-starship-will-fly,falsify,agree,spacex-catches-block-3,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,assumption,agree,spacex-s-past-pace,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,assumption,agree,starship-heat-shield-problem,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,assumption,agree,no-serious-accident-long,,,,,,,,,,,,,,,,
-spacex-starship-will-fly,media,agree,reentry-spacex-elon-musk-2,,,,,,,,,,,,,,,,
-spacex-starship-will-fly,media,agree,liftoff-elon-musk-desperate,,,,,,,,,,,,,,,,
+spacex-starship-will-fly,media,agree,reentry-spacex-elon-musk-2,,,,,,,,,,,,,,,,url: https://www.benbellabooks.com/shop/reentry/ | checked: 2026-11-21
+spacex-starship-will-fly,media,agree,liftoff-elon-musk-desperate,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Liftoff:_Elon_Musk_and_the_Desperate_Early_Days_That_Launched_SpaceX | checked: 2026-11-21
 spacex-starship-will-fly,argument,disagree,spacex-s-own-forecasts,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,argument,disagree,no-super-heavy-booster,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,argument,disagree,starship-upper-stage-has,,,,,,,,,,,,,,,,
@@ -11895,7 +11895,7 @@ supreme-court-will-have,assumption,agree,either-republicans-keep-senate,,,,,,,,,
 supreme-court-will-have,argument,disagree,senate-controlled-party-opposite,,,,,,,,,,,,,,,,
 supreme-court-will-have,argument,disagree,clarence-thomas-will-pass,,,,,,,,,,,,,,,,
 supreme-court-will-have,argument,disagree,supreme-court-justices-who,,,,,,,,,,,,,,,,
-supreme-court-will-have,argument,disagree,republican-appointed-federal-appeals,,,,,,,,,,,,,,,,
+supreme-court-will-have,argument,disagree,republican-appointed-federal-appeals,,,,,,,,,,,,,,,,url: https://www.brookings.edu/articles/paucity-of-vacancies-slows-trumps-effort-to-reshape-courts/ | checked: 2026-11-21
 supreme-court-will-have,evidence,disagree,traders-kalshi-gave-democrats,,"Kalshi News, 'Who Will Control the Senate in 2026? Midterm Odds and Key Races,' October 16, 2026",,,,,,,,,,,,,,url: https://news.kalshi.com/p/who-will-control-the-senate-2026 | checked: 2026-10-24
 supreme-court-will-have,evidence,disagree,study-every-supreme-court,,"Ross M. Stolzenberg and James Lindgren, 'Retirement and Death in Office of U.S. Supreme Court Justices,' Demography, vol. 47, no. 2, 2010",,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC3000028/ | checked: 2026-10-24
 supreme-court-will-have,evidence,disagree,sources-close-justice-samuel,,"ABC News, Devin Dwyer and Katherine Faulders, 'Supreme Court Justices Alito, Thomas not expected to retire this year: Sources,' April 17, 2026",,,,,,,,,,,,,,url: https://abcnews.com/Politics/supreme-court-justices-alito-thomas-expected-retire-year/story?id=132154865 | checked: 2026-10-24
@@ -11910,15 +11910,15 @@ supreme-court-will-have,assumption,disagree,thomas-alito-other-seven,,,,,,,,,,,,
 supreme-court-will-have,assumption,disagree,any-supreme-court-vacancy,,,,,,,,,,,,,,,,
 supreme-court-will-have,prediction,agree,supreme-court-will-announce,,,,,,,,,,,,,,,"October 1, 2028, checked against press releases on supremecourt.gov",
 supreme-court-will-have,prediction,agree,senate-judiciary-committee-will,,,,,,,,,,,,,,,"December 1, 2028, checked against the Senate Judiciary Committee's hearing records",
-supreme-court-will-have,prediction,disagree,nine-justices-serving-october,,,,,,,,,,,,,,,"January 1, 2029, checked against the Current Members page on supremecourt.gov",
-supreme-court-will-have,prediction,disagree,if-supreme-court-seat,,,,,,,,,,,,,,,"November 7, 2028, checked against Senate roll-call vote records",
+supreme-court-will-have,prediction,disagree,nine-justices-serving-october,,,,,,,,,,,,,,,"January 1, 2029, checked against the Current Members page on supremecourt.gov",url: https://www.supremecourt.gov/about/biographies.aspx | checked: 2026-11-21
+supreme-court-will-have,prediction,disagree,if-supreme-court-seat,,,,,,,,,,,,,,,"November 7, 2028, checked against Senate roll-call vote records",url: https://en.wikipedia.org/wiki/2028_United_States_presidential_election | checked: 2026-11-21
 supreme-court-will-have,interest,agree,litigants-cases-before-supreme,,,,,,,,,,,,,,,,
 supreme-court-will-have,interest,agree,conservative-voters-who-backed,,,,,,,,,,,,,,,,
 supreme-court-will-have,interest,disagree,senate-democrats-seeking-majority,,,,,,,,,,,,,,,,
 supreme-court-will-have,interest,disagree,abortion-rights-voting-rights,,,,,,,,,,,,,,,,
 supreme-court-will-have,cba,agree,filling-supreme-court-vacancy,,,,,,,,litigants-cases-before-supreme,,,equally divided decisions per term,,,,,
-supreme-court-will-have,cba,agree,replacing-supreme-court-justice,,,,,,,,conservative-voters-who-backed,,,expected years of service of the new justice,,,,,
-supreme-court-will-have,cba,disagree,fourth-trump-appointee-supreme,,,,,,,,abortion-rights-voting-rights,,,cases won at the Supreme Court per term,,,,,
+supreme-court-will-have,cba,agree,replacing-supreme-court-justice,,,,,,,,conservative-voters-who-backed,,,expected years of service of the new justice,,,,,url: https://www.supremecourt.gov/about/biographies.aspx | checked: 2026-11-21
+supreme-court-will-have,cba,disagree,fourth-trump-appointee-supreme,,,,,,,,abortion-rights-voting-rights,,,cases won at the Supreme Court per term,,,,,url: https://www.supremecourt.gov/about/biographies.aspx | checked: 2026-11-21
 supreme-court-will-have,cba,disagree,supreme-court-confirmation-fight,,,,,,,,,,,Senate floor days spent on the confirmation,,,,,
 supreme-court-will-have,cba,disagree,supreme-court-confirmation-pushed,,,,,,,,,,,partisan gap in Supreme Court approval in national polls,,,,,
 supreme-court-will-have,category,,,Senate floor days spent on the confirmation,,,,,,,,,,,,,,,
@@ -12281,9 +12281,9 @@ kansas-city-chiefs-will,definition,,,,,,,,,,,,,,,,,,term: starting quarterback |
 kansas-city-chiefs-will,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether the Chiefs' 6-11 collapse in 2025, with a 1-9 record in one-score games and Mahomes out for the final games, was mainly bad luck and injury or the start of a lasting decline. | move: The Chiefs' record in close games and point differential over the full 2026 season, and how Mahomes performs across 17 games after surgery."
 kansas-city-chiefs-will,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether a tight salary cap and an aging core of Travis Kelce (37) and Andy Reid (68) will drain the roster faster than Mahomes's play and additions like Kenneth Walker III can make up for it. | move: Over The Cap figures and the Chiefs' roster moves in the 2027 offseason, along with any retirement announcement from Reid or Kelce."
 kansas-city-chiefs-will,value,,,,,,,,,,,,,,,,,,value: Track record | srank: 1 | orank: 2 | why: Supporters lean on Mahomes's three titles and 17-4 playoff record; opponents accept that record but argue past titles do not carry over to a 31-year-old quarterback coming off knee surgery.
-team-outside-europe-south,argument,agree,morocco-now-strong-enough,,,,,,,,,,,,,,,,
-team-outside-europe-south,argument,agree,playing-2030-world-cup,,,,,,,,,,,,,,,,
-team-outside-europe-south,argument,agree,morocco-s-2025-under,,,,,,,,,,,,,,,,
+team-outside-europe-south,argument,agree,morocco-now-strong-enough,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Morocco_national_football_team | checked: 2026-11-21
+team-outside-europe-south,argument,agree,playing-2030-world-cup,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2030_FIFA_World_Cup | checked: 2026-11-21
+team-outside-europe-south,argument,agree,morocco-s-2025-under,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2025_FIFA_U-20_World_Cup | checked: 2026-11-21
 team-outside-europe-south,argument,agree,low-scoring-football-knockout,,,,,,,,,,,,,,,,
 team-outside-europe-south,argument,agree,more-national-teams-outside,,,,,,,,,,,,,,,,
 team-outside-europe-south,evidence,agree,fifa-men-s-world,,"Wikipedia, ""FIFA Men's World Ranking"", top-20 table for the ranking released October 7, 2026 (accessed October 2026)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/FIFA_Men%27s_World_Ranking | checked: 2026-10-24
@@ -12294,10 +12294,10 @@ team-outside-europe-south,media,agree,france-ends-morocco-s,,,,,,,,,,,,,,,,url: 
 team-outside-europe-south,falsify,agree,team-outside-europe-south-2,,,,,,,,,,,,,,,,
 team-outside-europe-south,falsify,agree,team-outside-europe-south-3,,,,,,,,,,,,,,,,
 team-outside-europe-south,assumption,agree,gap-between-best-teams,,,,,,,,,,,,,,,,
-team-outside-europe-south,argument,disagree,european-teams-have-historically,,,,,,,,,,,,,,,,
-team-outside-europe-south,argument,disagree,saudi-arabia-2034-world,,,,,,,,,,,,,,,,
-team-outside-europe-south,argument,disagree,winning-48-team-world,,,,,,,,,,,,,,,,
-team-outside-europe-south,argument,disagree,2026-world-cup-four,,,,,,,,,,,,,,,,
+team-outside-europe-south,argument,disagree,european-teams-have-historically,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_FIFA_World_Cup_finals | checked: 2026-11-21
+team-outside-europe-south,argument,disagree,saudi-arabia-2034-world,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2034_FIFA_World_Cup | checked: 2026-11-21
+team-outside-europe-south,argument,disagree,winning-48-team-world,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2026_FIFA_World_Cup | checked: 2026-11-21
+team-outside-europe-south,argument,disagree,2026-world-cup-four,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2026_FIFA_World_Cup | checked: 2026-11-21
 team-outside-europe-south,evidence,disagree,all-23-men-s,,"Wikipedia, ""FIFA World Cup"", list of winners and history sections (accessed October 2026)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/FIFA_World_Cup | checked: 2026-10-24
 team-outside-europe-south,evidence,disagree,draftkings-opening-odds-2030,,"Iain MacMillan, Sports Illustrated, ""2030 World Cup Opening Odds (Spain is Favored to Go Back-to-Back)"", July 20, 2026",,,,,,,,,,,,,,url: https://www.si.com/betting/2030-world-cup-opening-odds-spain-is-favored-to-go-back-to-back-01kxzwc65hab | checked: 2026-10-24
 team-outside-europe-south,evidence,disagree,october-1-2026-hard,,"Nick Chappell, Hard Rock Bet, ""2030 World Cup Odds: Co-Host Spain Opens as Early Favorite to Repeat"", updated October 1, 2026",,,,,,,,,,,,,,url: https://www.hardrock.bet/news/2030-world-cup-odds-co-host-spain-opens-as-early-favorite-to-repeat/ | checked: 2026-10-24
@@ -12309,7 +12309,7 @@ team-outside-europe-south,falsify,disagree,no-team-outside-europe,,,,,,,,,,,,,,,
 team-outside-europe-south,prediction,agree,least-one-team-outside,,,,,,,,,,,,,,,"July 2030, settled against FIFA's official 2030 World Cup results (final scheduled for July 21, 2030).",
 team-outside-europe-south,prediction,agree,team-outside-europe-south-4,,,,,,,,,,,,,,,"June 2030, settled against the FIFA Men's World Ranking releases from November 2026 to the last release before the June 8, 2030 kickoff.",
 team-outside-europe-south,prediction,disagree,all-four-semifinalists-2030,,,,,,,,,,,,,,,"July 2030, settled against FIFA's official 2030 World Cup results.",
-team-outside-europe-south,prediction,disagree,2034-world-cup-saudi,,,,,,,,,,,,,,,"The 2034 final (dates not yet set by FIFA as of October 2026), settled against FIFA's official 2034 World Cup results.",
+team-outside-europe-south,prediction,disagree,2034-world-cup-saudi,,,,,,,,,,,,,,,"The 2034 final (dates not yet set by FIFA as of October 2026), settled against FIFA's official 2034 World Cup results.",url: https://en.wikipedia.org/wiki/2034_FIFA_World_Cup | checked: 2026-11-21
 team-outside-europe-south,interest,agree,moroccan-football-fans-need,,,,,,,,,,,,,,,,
 team-outside-europe-south,interest,agree,youth-football-academies-africa,,,,,,,,,,,,,,,,
 team-outside-europe-south,interest,agree,broadcasters-sponsors-africa-asia,,,,,,,,,,,,,,,,
@@ -12317,11 +12317,11 @@ team-outside-europe-south,interest,disagree,sportsbooks-need-price-long,,,,,,,,,
 team-outside-europe-south,interest,disagree,european-south-american-football,,,,,,,,,,,,,,,,
 team-outside-europe-south,interest,disagree,sports-ministries-outside-europe,,,,,,,,,,,,,,,,
 team-outside-europe-south,cba,agree,youth-football-academies-outside,,,,,,,,youth-football-academies-africa,,,academy enrollment and funding per year,,,,,
-team-outside-europe-south,cba,agree,moroccan-fans-see-home,,,,,,,,moroccan-football-fans-need,,,visitor spending in dollars during the tournament,,,,,
+team-outside-europe-south,cba,agree,moroccan-fans-see-home,,,,,,,,moroccan-football-fans-need,,,visitor spending in dollars during the tournament,,,,,url: https://en.wikipedia.org/wiki/2030_FIFA_World_Cup | checked: 2026-11-21
 team-outside-europe-south,cba,agree,broadcasters-africa-asia-north,,,,,,,,broadcasters-sponsors-africa-asia,,,viewers per knockout match,,,,,
 team-outside-europe-south,cba,disagree,sportsbooks-offered-long-odds,,,,,,,,sportsbooks-need-price-long,,,dollars paid out on World Cup winner bets,,,,,
 team-outside-europe-south,cba,disagree,governments-outside-europe-south,,,,,,,,sports-ministries-outside-europe,,,share of public sport budgets spent on national-team programs,,,,,
-team-outside-europe-south,cba,disagree,european-south-american-federations,,,,,,,,european-south-american-football,,,sponsorship revenue in dollars a year,,,,,
+team-outside-europe-south,cba,disagree,european-south-american-federations,,,,,,,,european-south-american-football,,,sponsorship revenue in dollars a year,,,,,url: https://en.wikipedia.org/wiki/List_of_FIFA_World_Cup_finals | checked: 2026-11-21
 team-outside-europe-south,category,,,academy enrollment and funding per year,,,,,,,,,,,,,,,
 team-outside-europe-south,category,,,dollars paid out on World Cup winner bets,,,,,,,,,,,,,,,
 team-outside-europe-south,category,,,share of public sport budgets spent on national-team programs,,,,,,,,,,,,,,,
