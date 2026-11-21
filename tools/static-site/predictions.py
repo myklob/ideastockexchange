@@ -5,8 +5,9 @@ a way of checking. Until now nothing read the deadlines. This file does: it read
 every prediction into overdue, coming due, resolved and later, and gives each one a form to record what happened.
 
 Recording an outcome uses the machinery the site already has. A prediction is a claim with its own page; what
-happened is a finding filed on that page, with its source, and the finding moves the prediction's truth score by the
-ordinary rules. So "came true" means the prediction's own page has an outcome recorded and its truth has risen above
+happened is a finding posted on that page as a report that it came true or did not (outcome.records), with its source,
+and the finding moves the prediction's truth score by the ordinary rules. Any other finding there is evidence about
+whether it will happen, and does not make the prediction settled. So "came true" means the prediction's own page has an outcome recorded and its truth has risen above
 the line, and "did not" means it has fallen below. Nothing here is typed in as a verdict, and a resolved prediction
 reaches the belief above it through the same row it always sat on.
 
@@ -14,6 +15,8 @@ reaches the belief above it through the same row it always sat on.
 """
 import datetime as _dt
 import re
+
+import outcome as OUTCOME
 
 MONTHS = {m: i for i, m in enumerate(('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september',
                                       'october', 'november', 'december'), 1)}
@@ -84,8 +87,7 @@ def tracker(c, today=None):
             for d in sp.get(key, []):
                 pid = d.get('id')
                 if pid not in c.specs: continue
-                ps = c.specs[pid]
-                recorded = bool(ps['evid']['for'] or ps['evid']['against'])
+                recorded = OUTCOME.settled(c, pid) is not None   # a report of what happened, not any finding on the page
                 t = c.truth(pid)
                 outcome = None
                 if recorded:

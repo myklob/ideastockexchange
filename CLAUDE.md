@@ -202,8 +202,10 @@ not parse is a defect whose fix requires knowing what the code was meant to say.
 ### The static site's modules
 
 `score_reference.py` is the scorer; `tally.py` the owner's count-every-reason rule printed beside it; `outcome.py` a third
-reading printed beside both once a belief's prediction has an outcome recorded (the observation counts ahead of the evidence
-that only forecast it; read by no other number); `evidence.py` sets where a page starts;
+reading printed beside both once a belief's prediction has an outcome recorded (the observation is counted first, ahead of the
+evidence that only forecast it; read by no other number). An outcome is a finding on the prediction's page posted as
+`test.came-true` or `test.came-false`, which is what the forms on the predictions page post; any other finding there is a
+forecast of the prediction, and neither `outcome.py` nor the tracker in `predictions.py` counts it as what happened; `evidence.py` sets where a page starts;
 `confidence.py` how much a page's score counts; `sensitivity.py` which single
 input would change the answer; `reasonrank.py` how much of the corpus depends on
 a page; `similarity.py` which claims say the same thing; `integrity.py` the

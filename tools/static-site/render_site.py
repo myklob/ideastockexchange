@@ -219,7 +219,7 @@ class Corpus:
             s['npred'] = len(PT) + len(PF)
             s['share'] = (s['pos'] / (s['pos'] + s['neg'])) if s['pos'] + s['neg'] > 0 else None
             s['tally'] = TALLY.tally(rows, self.specs, {'agree': A, 'disagree': D, 'for': EF, 'against': EA, 'pt': PT, 'pf': PF}, EV.prior(sp, K))
-            s['outcome'] = OUTCOME.reading(self, pid)
+            s['outcome'] = OUTCOME.reading(self, pid) if self.kind(pid) == 'belief' else None
             comps = [(c, self.truth(c['id'])) for c in sp.get('components', []) if str(c.get('lb', '')).upper() == 'Y' and is_page(c.get('id'))]
             s['weakest'] = min((t for _, t in comps), default=None)
             s['weakest_comp'] = min(comps, key=lambda ct: ct[1])[0] if comps else None
@@ -774,15 +774,35 @@ def render_belief(c, pid):
                      f'{f2(t["findings_for"])} for and {f2(t["findings_against"])} against. A second rule shown beside the truth score '
                      '<a href="../method.html#tally">so the two can be compared</a>: here a reason counts from the moment it is posted.'))
     oc = s.get('outcome')
-    if oc and oc['up'] + oc['down'] > 0:
-        r0 = OUTCOME.lead(c, oc); n = len(oc['rows'])
-        way = 'toward' if r0['settles'] > 0 else 'against'
-        read.append(('Counting what has happened',
-                     f'{pct(oc["after"])} for. {n} prediction{"" if n == 1 else "s"} on this page {"has" if n == 1 else "have"} an outcome '
-                     f'recorded. The one that settles most is {H.a(r0["page"], c.short(r0["page"], 70))}: what is recorded there settles '
-                     f'{f2(abs(r0["settles"]))} of the question {way} this belief, and the truth score keeps the other {f2(oc["rest"])}. '
-                     'A reading shown beside the truth score <a href="../method.html#outcome">so the two can be compared</a>: here what '
-                     'was predicted and then observed outweighs the evidence that only forecast it.'))
+    if oc:
+        n = len(oc['rows'])
+        recorded = f'{n} prediction{"" if n == 1 else "s"} on this page {"has" if n == 1 else "have"} an outcome recorded'
+        compare = ('A reading shown beside the truth score <a href="../method.html#outcome">so the two can be compared</a>: here what was '
+                   'predicted and then observed is counted first, ahead of the evidence that only forecast it.')
+        named = lambda r: H.a(r['page'], strip_period(c.standalone(r['page'])))
+        if oc['up'] + oc['down'] == 0:
+            why = ('the records for and against cancel' if oc['toward'] > 0 else
+                   'a record weighs once its finding names the kind of source it rests on')
+            read.append(('Counting what has happened',
+                         f'{recorded}, but what is recorded weighs nothing yet ({why}), so this reading is the truth score, '
+                         f'{f2(s["truth"])}. ' + compare))
+        else:
+            way = 'toward' if oc['up'] > 0 else 'against'
+            r0, ties = OUTCOME.lead(c, oc, way)
+            net = oc['up'] + oc['down']
+            if oc['toward'] > 0 and oc['against'] > 0:
+                r1, _ = OUTCOME.lead(c, oc, 'against' if way == 'toward' else 'toward')
+                body = (f'The records point both ways. The strongest {way} this belief weighs {f2(oc[way])} ({named(r0)}) and the '
+                        f'strongest the other way weighs {f2(oc["against" if way == "toward" else "toward"])} ({named(r1)}), which '
+                        f'leaves {f2(net)} of the question settled {way} it, and the truth score keeps the other {f2(oc["rest"])}.')
+            else:
+                which = 'The strongest is' if ties == 1 else f'{ties} of them weigh the same; one is'
+                body = (f'{which} {named(r0)}: what is recorded there settles {f2(net)} of the question {way} this belief, and the '
+                        f'truth score keeps the other {f2(oc["rest"])}.')
+            if not r0['argued']:
+                body += (' How far that prediction tells the two sides apart has not been argued on its linkage page, so it is '
+                         'counted in full.')
+            read.append(('Counting what has happened', f'{pct(oc["after"])} for. {recorded[0].upper() + recorded[1:]}. {body} {compare}'))
     read.append(('Confidence', pct(kv) + '. Weakest parts: ' + ' · '.join(f'{k.replace("_"," ")} {pct(v)}' for k, v in weak_first)))
     read.append(('Relied on', rank_note(c, pid)))
     for side, lab in (('agree', 'Strongest reason for'), ('disagree', 'Strongest reason against')):
@@ -3066,13 +3086,14 @@ def render_compare(c, title):
     return ''.join(o)
 
 
-def outcome_urls(c, pid):
-    """Two prefilled forms on a prediction's own page: a finding that it happened, and a finding that it did not."""
-    key = c.key[pid]
-    def u(side, lead):
-        return f'{NEW_ISSUE}?' + _q([('template', 'contribute.yml'), ('labels', 'contribution'), ('title', 'Evidence: '), ('page', key),
-                                     ('section', 'evidence'), ('side', side), ('text', lead)])
-    return u('agree', 'It happened: '), u('disagree', 'It did not happen: ')
+def outcome_urls(c, pid, belief):
+    """Two prefilled forms for a prediction listed on a belief: a report that it came true, and one that it did not.
+    Each is posted as that kind (vocab test.came-true, test.came-false), which files it on the prediction's own page
+    and marks it as a record of what happened, not one more forecast of it."""
+    def u(tag, side, lead):
+        return f'{NEW_ISSUE}?' + _q([('template', 'contribute.yml'), ('labels', 'contribution'), ('title', 'Evidence: '), ('page', c.key[belief]),
+                                     ('tag', tag), ('row', c.key[pid]), ('section', 'evidence'), ('side', side), ('text', lead)])
+    return u('test.came-true', 'agree', 'It happened: '), u('test.came-false', 'disagree', 'It did not happen: ')
 
 
 def render_predictions(c, title):
@@ -3095,25 +3116,27 @@ def render_predictions(c, title):
             follows = 'follows if the belief is true' if r['side'] == 'true' else 'follows if the belief is false'
             under = (f'<div class="src">On <a href="p/{c.href(r["belief"])}">{esc(c.short(r["belief"], 90))}</a>; {follows}. '
                      f'{esc(r["deadline"]) if r["deadline"] else "No deadline stated."}</div>')
+            st = OUTCOME.settled(c, r['page'])
+            if st:
+                how = ' (<a href="method.html#outcome">how a record is weighed</a>)'
+                if st['net']: under += (f'<div class="src">What is recorded weighs {f2(abs(st["net"]))} toward '
+                                        f'{"it happened" if st["net"] > 0 else "it did not"}{how}.</div>')
+                elif st['happened']: under += f'<div class="src">The records that it happened and that it did not cancel{how}.</div>'
+                else: under += f'<div class="src">What is recorded weighs nothing yet: its finding names no kind of source{how}.</div>'
             cells = []
             for col in cols:
                 if col == 'Due': cells.append(f'<td>{r["due"].isoformat() if r["due"] else ""}</td>')
-                elif col == 'Outcome':
-                    st = OUTCOME.settled(c, r['page'])
-                    weighs = (f'<div class="src">What is recorded weighs {f2(abs(st["net"]))} toward '
-                              f'{"it happened" if st["net"] > 0 else "it did not"} (<a href="method.html#outcome">how</a>)</div>'
-                              if st and abs(st['net']) > 0 else '')
-                    cells.append(f'<td>{esc(r["outcome"])}<div class="src">{esc(PRED.record(r))}</div>{weighs}</td>')
+                elif col == 'Outcome': cells.append(f'<td>{esc(r["outcome"])}<div class="src">{esc(PRED.record(r))}</div></td>')
                 elif col == 'Truth': cells.append(f'<td>{f2(r["truth"])}</td>')
                 elif col == 'Record it':
-                    yes, no = outcome_urls(c, r['page'])
+                    yes, no = outcome_urls(c, r['page'], r['belief'])
                     cells.append(f'<td class="u"><a href="{esc(yes)}" rel="nofollow">It happened</a><br><a href="{esc(no)}" rel="nofollow">It did not</a></td>')
             h.append(f'<tr><td class="t"><a href="p/{c.href(r["page"])}">{esc(c.standalone(r["page"]))}</a>{under}</td>{"".join(cells)}</tr>')
         return ''.join(h) + '</tbody></table>'
     for key, head, blurb, cols in (
         ('overdue', 'Overdue', 'The date has passed and no outcome is recorded yet. These are the most useful forms on the site to fill in.', ('Due', 'Record it')),
         ('soon', f'Coming due in the next {PRED.SOON} days', 'Worth watching now.', ('Due', 'Record it')),
-        ('resolved', 'Settled', 'An outcome is recorded on the prediction&rsquo;s page. Came true means its truth score has risen to '
+        ('resolved', 'Settled', 'A report of what happened is recorded on the prediction&rsquo;s page. Came true means its truth score has risen to '
          f'{PRED.CAME_TRUE:.2f} or more on that evidence, did not means it has fallen to {1 - PRED.CAME_TRUE:.2f} or less.', ('Outcome', 'Truth')),
         ('later', 'Later', 'Due after the next three months, soonest first.', ('Due', 'Record it')),
         ('undated', 'No date yet', 'A prediction with no date cannot be held to one. Adding a date is a contribution in itself.', ('Record it',)),
@@ -3702,11 +3725,11 @@ def page_json(c, pid):
                    weight_for=round(s['pos'], 6), weight_against=round(s['neg'], 6),
                    counting_every_reason={k: (round(v, 6) if v is not None else None) for k, v in s['tally'].items()},
                    counting_what_happened=(None if not s.get('outcome') else dict(
-                       after=round(s['outcome']['after'], 6), up=round(s['outcome']['up'], 6), down=round(s['outcome']['down'], 6),
-                       rest=round(s['outcome']['rest'], 6),
+                       {k: round(s['outcome'][k], 6) for k in ('after', 'toward', 'against', 'up', 'down', 'rest')},
                        predictions=[dict(page=c.key[r['page']], follows_if='true' if r['side'] > 0 else 'false', linkage=round(r['link'], 6),
-                                         happened=round(r['happened'], 6), did_not=round(r['did_not'], 6), settles=round(r['settles'], 6),
-                                         finding=c.key.get(r['finding'])) for r in s['outcome']['rows']])),
+                                         linkage_argued=r['argued'], happened=round(r['happened'], 6), did_not=round(r['did_not'], 6),
+                                         settles=round(r['settles'], 6) + 0.0, finding=c.key.get(r['finding']))
+                                    for r in s['outcome']['rows']])),
                    possible_fallacies=[{'row': c.key.get(d['id']) if d.get('id') in c.specs else None, 'side': side, 'fallacy': n, 'words': w}
                                        for d, side, fl in FALLACY.page_flags(c, pid) for n, _, w in fl],
                    capped_by=[d['id'] for d in c.specs[pid].get('components', [])

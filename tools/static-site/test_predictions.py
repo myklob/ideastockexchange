@@ -22,7 +22,8 @@ def corpus(outcome=None):
     if outcome:
         pages.append(dict(key='o1', kind='claim', text='The forestry report for 2026 counts 10,400 trees planted.', parent='p1',
                           etype='record', erq='3', erp='100'))
-        edges.append(dict(page='p1', section='evidence', side=outcome, claim='o1', source='City forestry report, 2026'))
+        edges.append(dict(page='p1', section='evidence', side=outcome, claim='o1', source='City forestry report, 2026',
+                          extra='tag: test.came-true' if outcome == 'agree' else 'tag: test.came-false'))
     d = tempfile.mkdtemp(prefix='pred-')
     IT.write_csv(pages, edges, d, topics=[dict(key='t', name='Trees', parent='', definition='', scope='', axis='more trees')])
     c = RS.Corpus(d, 'x'); c.prov = {'rev': 'r', 'date': '2026-10-17', 'dirty': False}
@@ -73,7 +74,8 @@ class TestTracker(unittest.TestCase):
         for k in ('p1', 'p2', 'p3'):
             self.assertIn(c.href(c.tabs[k]), h)
         self.assertIn('It%20happened', h)
-        self.assertIn('page=p2', h)
+        self.assertIn('page=b&amp;tag=test.came-true&amp;row=p2', h, 'the form posts a report that the prediction came true, about that row')
+        self.assertIn('page=b&amp;tag=test.came-false&amp;row=p2', h)
 
 
 

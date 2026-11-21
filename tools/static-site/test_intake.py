@@ -201,6 +201,20 @@ class TestTheFlow(unittest.TestCase):
         self.assertEqual(pages[new[0]['claim']]['parent'], lp['key'])
         self.assertTrue(any('Opened the linkage page' in n for n in done['notes']))
 
+    def test_a_report_that_a_prediction_came_true_files_on_the_predictions_own_page_as_a_record_of_what_happened(self):
+        """The two forms on the predictions page post this kind, about the prediction's row on its belief."""
+        import outcome as O, render_site as RS
+        done = self.tagged('test.came-true', row='p1', section='evidence', text='It happened: the 2031 heat map shows planted blocks two degrees cooler.',
+                           source='City heat map, 2031')
+        self.assertEqual(done['did'], 'pr')
+        pages, edges = self.tables()
+        new = [e for e in edges if e['page'] == 'p1']
+        self.assertEqual([(e['section'], e['side'], IT.parse_extra(e['extra']).get('tag')) for e in new], [('evidence', 'agree', 'test.came-true')])
+        c = RS.Corpus(self.d, 'x')
+        yes, no = O.records(c, c.tabs['p1'])
+        self.assertEqual(([c.key[d['id']] for d in yes], no), ([new[0]['claim']], []))
+        self.assertIsNotNone(c.stats(c.tabs['a'])['outcome'])
+
     def test_a_second_challenge_to_the_same_row_uses_the_page_the_first_opened(self):
         self.tagged('link.irrelevant')
         self.tagged('fallacy.straw-man', text='The reason answers a claim nobody on the other side makes.', number=8)
