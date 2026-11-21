@@ -328,6 +328,16 @@ class TestItCanBeRead(unittest.TestCase):
                         r = ratio(v[fg], v[bg])
                         self.assertGreaterEqual(round(r, 2), 4.5, f'{fg} {v[fg]} on {bg} {v[bg]} is {r:.2f}:1')
 
+    def test_a_title_runs_the_width_of_the_page(self):
+        """Balancing a title's lines makes them the same length by breaking each one early, so on a wide screen
+        every title of more than one line stood beside a blank strip about a fifth of the page wide."""
+        import render_site
+        rules = [(sel.strip(), body) for sel, body in re.findall(r'([^{}]+)\{([^{}]*)\}', render_site.CSS)
+                 if re.search(r'\bh1\b', sel)]
+        self.assertIn('h1', [sel for sel, _ in rules], 'the stylesheet has no rule for the page title')
+        for sel, body in rules:
+            self.assertNotIn('text-wrap:balance', body, f'{sel} balances its lines')
+
 
 class TestTheCaveatsReachThePage(unittest.TestCase):
     """A disclosure computed and not rendered is the same as no disclosure, and it is harder to notice. These
