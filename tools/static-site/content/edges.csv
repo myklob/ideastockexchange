@@ -10083,13 +10083,13 @@ western-sanctions-russia-have,dispute,,,Definitional,,,,,,,,,,,,,,,what: The two
 western-sanctions-russia-have,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether Russia's demands would have been larger or the same without Western sanctions. | move: Track whether Russia's stated terms soften in the months after large sanctions shocks, such as the October 2025 U.S. sanctions on Rosneft and Lukoil, compared with months without such shocks."
 western-sanctions-russia-have,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether Russia's economy is approaching a point where the cost of the war forces the Kremlin to scale back its demands. | move: Watch Russia's budget deficit, the liquid assets left in its National Wealth Fund and its inflation and growth figures through 2027, alongside its terms in any talks."
 western-sanctions-russia-have,value,,,,,,,,,,,,,,,,,,"value: Resolve | srank: 3 | orank: 1 | why: Critics of the belief prize keeping steady pressure on Russia for years, while holders of the belief worry that resolve can become a reason never to judge a policy by results."
-large-share-american-aid,argument,agree,ukraine-was-one-europe,,,,,,,,,,,,,,,,
-large-share-american-aid,argument,agree,u-s-officials-could,,,,,,,,,,,,,,,,
-large-share-american-aid,argument,agree,pentagon-s-own-records,,,,,,,,,,,,,,,,
-large-share-american-aid,argument,agree,tens-billions-dollars-u,,,,,,,,,,,,,,,,
-large-share-american-aid,evidence,agree,pentagon-delivered-least-10,,"U.S. Government Accountability Office, Ukraine: DOD Should Improve Data for Both Defense Article Delivery and End-Use Monitoring (GAO-24-106289), 2024",,,,,,,,,,,,,,
-large-share-american-aid,evidence,agree,u-s-military-services,,"U.S. Government Accountability Office, Ukraine: DOD Should Improve Data for Both Defense Article Delivery and End-Use Monitoring (GAO-24-106289), 2024",,,,,,,,,,,,,,
-large-share-american-aid,evidence,agree,ukraine-s-national-anti,,"Wikipedia, Corruption in Ukraine (citing Reuters, The Washington Post and The Economist, November 2025), accessed 2026",,,,,,,,,,,,,,
+large-share-american-aid,argument,agree,ukraine-was-one-europe,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Corruption_in_Ukraine | checked: 2026-11-21
+large-share-american-aid,argument,agree,u-s-officials-could,,,,,,,,,,,,,,,,url: https://www.gao.gov/assets/d24106289.pdf | checked: 2026-11-21
+large-share-american-aid,argument,agree,pentagon-s-own-records,,,,,,,,,,,,,,,,url: https://www.lawfaremedia.org/article/pentagon-improperly-tracked-1-billion-of-arms-to-ukraine-per-watchdog-report | checked: 2026-11-21
+large-share-american-aid,argument,agree,tens-billions-dollars-u,,,,,,,,,,,,,,,,url: https://www.gao.gov/products/GAO-25-107057 | checked: 2026-11-21
+large-share-american-aid,evidence,agree,pentagon-delivered-least-10,,"U.S. Government Accountability Office, Ukraine: DOD Should Improve Data for Both Defense Article Delivery and End-Use Monitoring (GAO-24-106289), 2024",,,,,,,,,,,,,,url: https://www.gao.gov/assets/d24106289.pdf | checked: 2026-11-21
+large-share-american-aid,evidence,agree,u-s-military-services,,"U.S. Government Accountability Office, Ukraine: DOD Should Improve Data for Both Defense Article Delivery and End-Use Monitoring (GAO-24-106289), 2024",,,,,,,,,,,,,,url: https://www.gao.gov/products/gao-24-106934 | checked: 2026-11-21
+large-share-american-aid,evidence,agree,ukraine-s-national-anti,,"Wikipedia, Corruption in Ukraine (citing Reuters, The Washington Post and The Economist, November 2025), accessed 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Corruption_in_Ukraine | checked: 2026-11-21
 large-share-american-aid,prediction,agree,u-s-inspectors-general,,,,,,,,,,,,,,,"By December 31, 2028; checked against Special Inspector General for Operation Atlantic Resolve and Defense Department inspector general reports and Justice Department announcements.",
 large-share-american-aid,prediction,agree,u-s-audit-conducted,,,,,,,,,,,,,,,"By December 31, 2028; checked against Defense Department inspector general or GAO end-use-monitoring reports.",
 large-share-american-aid,falsify,agree,u-s-javelin-stinger,,,,,,,,,,,,,,,,
@@ -10097,23 +10097,23 @@ large-share-american-aid,falsify,agree,audit-finds-billions-dollars,,,,,,,,,,,,,
 large-share-american-aid,assumption,agree,u-s-weapon-aid,,,,,,,,,,,,,,,,
 large-share-american-aid,assumption,agree,country-ukraine-s-record,,,,,,,,,,,,,,,,
 large-share-american-aid,assumption,agree,u-s-inspectors-general-2,,,,,,,,,,,,,,,,
-large-share-american-aid,media,agree,ukraine-dod-improve-data,,,,,,,,,,,,,,,,
-large-share-american-aid,media,agree,corruption-perceptions-index-2025,,,,,,,,,,,,,,,,
-large-share-american-aid,argument,disagree,large-part-what-congress,,,,,,,,,,,,,,,,
-large-share-american-aid,argument,disagree,u-s-defense-officials,,,,,,,,,,,,,,,,
+large-share-american-aid,media,agree,ukraine-dod-improve-data,,,,,,,,,,,,,,,,url: https://www.gao.gov/products/gao-24-106289 | checked: 2026-11-21
+large-share-american-aid,media,agree,corruption-perceptions-index-2025,,,,,,,,,,,,,,,,url: https://www.transparency.org/en/countries/ukraine | checked: 2026-11-21
+large-share-american-aid,argument,disagree,large-part-what-congress,,,,,,,,,,,,,,,,url: https://www.csis.org/analysis/where-missing-100-billion-us-aid-ukraine | checked: 2026-11-21
+large-share-american-aid,argument,disagree,u-s-defense-officials,,,,,,,,,,,,,,,,url: https://www.gao.gov/assets/gao-24-106289.pdf | checked: 2026-11-21
 large-share-american-aid,argument,disagree,weapon-was-counted-schedule,,,,,,,,,,,,,,,,
-large-share-american-aid,evidence,disagree,defense-department-officials-told,,"U.S. Government Accountability Office, Ukraine: DOD Should Improve Data for Both Defense Article Delivery and End-Use Monitoring (GAO-24-106289), 2024",,,,,,,,,,,,,,
+large-share-american-aid,evidence,disagree,defense-department-officials-told,,"U.S. Government Accountability Office, Ukraine: DOD Should Improve Data for Both Defense Article Delivery and End-Use Monitoring (GAO-24-106289), 2024",,,,,,,,,,,,,,url: https://www.gao.gov/assets/gao-24-106289.pdf | checked: 2026-11-21
 large-share-american-aid,evidence,disagree,113-4-billion-appropriated,,"U.S. Government Accountability Office, Ukraine: Status and Use of Supplemental U.S. Funding, as of First Quarter, Fiscal Year 2024 (GAO-24-107232), 2024; and GAO-24-106289, 2024",,,,,,,,,,,,,,
-large-share-american-aid,prediction,disagree,total-losses-u-s,,,,,,,,,,,,,,,"By December 31, 2028; checked by adding the confirmed losses in inspector general reports and Justice Department cases.",
+large-share-american-aid,prediction,disagree,total-losses-u-s,,,,,,,,,,,,,,,"By December 31, 2028; checked by adding the confirmed losses in inspector general reports and Justice Department cases.",url: https://oig.usaid.gov/node/8199 | checked: 2026-11-21
 large-share-american-aid,prediction,disagree,audits-world-bank-project,,,,,,,,,,,,,,,"By December 31, 2027; checked against the project's published verification reports and USAID or State inspector general reviews.",
 large-share-american-aid,falsify,disagree,full-serial-number-reconciliation,,,,,,,,,,,,,,,,
 large-share-american-aid,falsify,disagree,independent-verification-world-bank,,,,,,,,,,,,,,,,
 large-share-american-aid,assumption,disagree,years-work-defense-state,,,,,,,,,,,,,,,,
 large-share-american-aid,assumption,disagree,money-congress-counted-aid,,,,,,,,,,,,,,,,
 large-share-american-aid,assumption,disagree,u-s-weapons-destroyed,,,,,,,,,,,,,,,,
-large-share-american-aid,media,disagree,aid-ukraine-explained-six,,,,,,,,,,,,,,,,
-large-share-american-aid,media,disagree,here-s-how-much,,,,,,,,,,,,,,,,
-large-share-american-aid,media,disagree,ukraine-support-tracker-kiel,,,,,,,,,,,,,,,,
+large-share-american-aid,media,disagree,aid-ukraine-explained-six,,,,,,,,,,,,,,,,url: https://www.csis.org/analysis/aid-ukraine-explained-six-charts | checked: 2026-11-21
+large-share-american-aid,media,disagree,here-s-how-much,,,,,,,,,,,,,,,,url: https://www.cfr.org/article/how-much-us-aid-going-ukraine | checked: 2026-11-21
+large-share-american-aid,media,disagree,ukraine-support-tracker-kiel,,,,,,,,,,,,,,,,url: https://www.kielinstitut.de/topics/war-against-ukraine/ukraine-support-tracker/ | checked: 2026-11-21
 large-share-american-aid,interest,agree,american-taxpayers-need-proof,,,,,,,,,,,,,,,,
 large-share-american-aid,interest,agree,ukrainian-anti-corruption-investigators,,,,,,,,,,,,,,,,
 large-share-american-aid,interest,agree,ukrainian-front-line-soldiers,,,,,,,,,,,,,,,,
@@ -10121,10 +10121,10 @@ large-share-american-aid,interest,disagree,ukrainian-civilians-cities-under,,,,,
 large-share-american-aid,interest,disagree,american-defense-workers-need,,,,,,,,,,,,,,,,
 large-share-american-aid,interest,disagree,poles-lithuanians-latvians-estonians-3,,,,,,,,,,,,,,,,
 large-share-american-aid,cba,agree,tighter-audits-payment-conditions,,,,,,,,american-taxpayers-need-proof,,,dollars recovered or saved,,,,,
-large-share-american-aid,cba,agree,making-u-s-aid,,,,,,,,ukrainian-anti-corruption-investigators,,,anti-corruption reforms kept or enacted,,,,,
+large-share-american-aid,cba,agree,making-u-s-aid,,,,,,,,ukrainian-anti-corruption-investigators,,,anti-corruption reforms kept or enacted,,,,,url: https://en.wikipedia.org/wiki/2025_anti-corruption_protests_in_Ukraine | checked: 2026-11-21
 large-share-american-aid,cba,agree,serial-number-tracking-every,,,,,,,,ukrainian-front-line-soldiers,,,percent of sensitive weapons accounted for,,,,,
 large-share-american-aid,cba,disagree,cutting-u-s-aid,,,,,,,,ukrainian-civilians-cities-under,,,air-defense interceptors delivered per month,,,,,
-large-share-american-aid,cba,disagree,cutting-u-s-aid-2,,,,,,,,american-defense-workers-need,,,dollars of U.S. defense orders a year,,,,,
+large-share-american-aid,cba,disagree,cutting-u-s-aid-2,,,,,,,,american-defense-workers-need,,,dollars of U.S. defense orders a year,,,,,url: https://www.cfr.org/article/how-much-us-aid-going-ukraine | checked: 2026-11-21
 large-share-american-aid,cba,disagree,pulling-back-u-s,,,,,,,,poles-lithuanians-latvians-estonians-3,,,percentage points of risk of a Russian military victory,,,,,
 large-share-american-aid,category,,,air-defense interceptors delivered per month,,,,,,,,,,,,,,,
 large-share-american-aid,category,,,anti-corruption reforms kept or enacted,,,,,,,,,,,,,,,
@@ -10700,48 +10700,48 @@ astronauts-will-land-moon,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides
 astronauts-will-land-moon,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether political pressure (a presidential order and the race with China) actually speeds up hardware readiness or only moves the dates on paper. | move: Comparing how often past politically set NASA deadlines, such as Apollo's 1969 date and Artemis's 2024 date, were met would show which pattern is more common."
 astronauts-will-land-moon,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides weigh the risk of rushing a first landing against the cost of slipping again and letting China close the gap differently. | move: This is settled by argument rather than data, but NASA publishing the risk level it is willing to accept for the first crewed landing would let both sides judge the date against an agreed standard."
 astronauts-will-land-moon,value,,,,,,,,,,,,,,,,,,"value: Safety | srank: 2 | orank: 1 | why: Opponents put crew safety first and expect it to push the date, while supporters value it too but believe a 2028 landing can be safe."
-people-will-land-mars,argument,agree,spacex-s-starship-fully,,,,,,,,,,,,,,,,
-people-will-land-mars,argument,agree,apollo-program-showed-funded,,,,,,,,,,,,,,,,
-people-will-land-mars,argument,agree,crewed-moon-base-built,,,,,,,,,,,,,,,,
-people-will-land-mars,argument,agree,even-after-spacex-s,,,,,,,,,,,,,,,,
+people-will-land-mars,argument,agree,spacex-s-starship-fully,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Starship_launches | checked: 2026-11-21
+people-will-land-mars,argument,agree,apollo-program-showed-funded,,,,,,,,,,,,,,,,url: https://www.nasa.gov/history/the-decision-to-go-to-the-moon/ | checked: 2026-11-21
+people-will-land-mars,argument,agree,crewed-moon-base-built,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/SpaceX_Mars_colonization_program | checked: 2026-11-21
+people-will-land-mars,argument,agree,even-after-spacex-s,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/SpaceX_Mars_colonization_program | checked: 2026-11-21
 people-will-land-mars,argument,agree,reusable-rockets-have-cut,,,,,,,,,,,,,,,,
-people-will-land-mars,evidence,agree,starship-flew-14-integrated,,"Wikipedia, ""SpaceX Starship"" (flight test history, accessed October 2026)",,,,,,,,,,,,,,
-people-will-land-mars,evidence,agree,artemis-ii-carried-four,,"Wikipedia, ""Artemis program"" (Artemis II section, accessed October 2026)",,,,,,,,,,,,,,
-people-will-land-mars,evidence,agree,about-eight-years-passed,,"NASA History Office, Apollo program records",,,,,,,,,,,,,,
-people-will-land-mars,evidence,agree,nasa-states-working-send,,"NASA, ""Humans to Mars"" web page (accessed October 2026)",,,,,,,,,,,,,,
+people-will-land-mars,evidence,agree,starship-flew-14-integrated,,"Wikipedia, ""SpaceX Starship"" (flight test history, accessed October 2026)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Starship_launches | checked: 2026-11-21
+people-will-land-mars,evidence,agree,artemis-ii-carried-four,,"Wikipedia, ""Artemis program"" (Artemis II section, accessed October 2026)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Artemis_II | checked: 2026-11-21
+people-will-land-mars,evidence,agree,about-eight-years-passed,,"NASA History Office, Apollo program records",,,,,,,,,,,,,,url: https://www.nasa.gov/history/the-decision-to-go-to-the-moon/ | checked: 2026-11-21
+people-will-land-mars,evidence,agree,nasa-states-working-send,,"NASA, ""Humans to Mars"" web page (accessed October 2026)",,,,,,,,,,,,,,url: https://www.nasa.gov/humans-in-space/humans-to-mars/ | checked: 2026-11-21
 people-will-land-mars,prediction,agree,spacex-another-operator-will,,,,,,,,,,,,,,,"By December 31, 2028; checked against SpaceX and NASA flight reports.",
 people-will-land-mars,prediction,agree,least-one-uncrewed-crew,,,,,,,,,,,,,,,"By December 31, 2031; checked against the operator's landing announcement and released surface data.",
 people-will-land-mars,falsify,agree,uncrewed-starship-lands-intact,,,,,,,,,,,,,,,,
 people-will-land-mars,falsify,agree,congress-passes-multiyear-appropriation,,,,,,,,,,,,,,,,
-people-will-land-mars,person,agree,elon-musk-wrote-september,,,,,,,,,,,,,,,,
-people-will-land-mars,media,agree,case-mars-plan-settle,,,,,,,,,,,,,,,,
-people-will-land-mars,media,agree,making-humans-multi-planetary,,,,,,,,,,,,,,,,
-people-will-land-mars,media,agree,moon-mars-architecture-definition,,,,,,,,,,,,,,,,
-people-will-land-mars,argument,disagree,elon-musk-s-dates,,,,,,,,,,,,,,,,
-people-will-land-mars,argument,disagree,crewed-mars-landing-needs,,,,,,,,,,,,,,,,
-people-will-land-mars,argument,disagree,no-government-has-funded,,,,,,,,,,,,,,,,
-people-will-land-mars,argument,disagree,because-launch-windows-mars,,,,,,,,,,,,,,,,
-people-will-land-mars,argument,disagree,spacex-s-february-2026,,,,,,,,,,,,,,,,
-people-will-land-mars,evidence,disagree,spacex-s-public-mars,,"Wikipedia, ""SpaceX Mars program"" (citing ABC News 2016, NPR 2022, SpaceX 2025, and ABC News and CNN 2026; accessed October 2026)",,,,,,,,,,,,,,
-people-will-land-mars,evidence,disagree,independent-study-nasa-found,,"IDA Science and Technology Policy Institute, ""Evaluation of a Human Mission to Mars by 2033"" (2019)",,,,,,,,,,,,,,
-people-will-land-mars,evidence,disagree,radiation-detector-aboard-curiosity,,"Zeitlin et al., ""Measurements of Energetic Particle Radiation in Transit to Mars on the Mars Science Laboratory,"" Science (2013)",,,,,,,,,,,,,,
-people-will-land-mars,evidence,disagree,late-september-2026-starship,,"Wikipedia, ""SpaceX Starship"" (accessed October 2026)",,,,,,,,,,,,,,
+people-will-land-mars,person,agree,elon-musk-wrote-september,,,,,,,,,,,,,,,,url: https://dawn.com/news/1857706 | checked: 2026-11-21
+people-will-land-mars,media,agree,case-mars-plan-settle,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Mars_Direct | checked: 2026-11-21
+people-will-land-mars,media,agree,making-humans-multi-planetary,,,,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1089/space.2017.29009.emu | checked: 2026-11-21
+people-will-land-mars,media,agree,moon-mars-architecture-definition,,,,,,,,,,,,,,,,url: https://ntrs.nasa.gov/citations/20230002706 | checked: 2026-11-21
+people-will-land-mars,argument,disagree,elon-musk-s-dates,,,,,,,,,,,,,,,,url: https://www.nbcnews.com/science/space/spacex-prioritizes-moon-before-mars-musk-says-rcna258168 | checked: 2026-11-21
+people-will-land-mars,argument,disagree,crewed-mars-landing-needs,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Starship_launches | checked: 2026-11-21
+people-will-land-mars,argument,disagree,no-government-has-funded,,,,,,,,,,,,,,,,url: https://www.nasa.gov/humans-in-space/humans-to-mars/ | checked: 2026-11-21
+people-will-land-mars,argument,disagree,because-launch-windows-mars,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Exploration_of_Mars | checked: 2026-11-21
+people-will-land-mars,argument,disagree,spacex-s-february-2026,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/SpaceX_Mars_program | checked: 2026-11-21
+people-will-land-mars,evidence,disagree,spacex-s-public-mars,,"Wikipedia, ""SpaceX Mars program"" (citing ABC News 2016, NPR 2022, SpaceX 2025, and ABC News and CNN 2026; accessed October 2026)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/SpaceX_Mars_program | checked: 2026-11-21
+people-will-land-mars,evidence,disagree,independent-study-nasa-found,,"IDA Science and Technology Policy Institute, ""Evaluation of a Human Mission to Mars by 2033"" (2019)",,,,,,,,,,,,,,url: https://spacepolicyonline.com/news/stpi-human-mission-to-orbit-mars-in-2033-infeasible/ | checked: 2026-11-21
+people-will-land-mars,evidence,disagree,radiation-detector-aboard-curiosity,,"Zeitlin et al., ""Measurements of Energetic Particle Radiation in Transit to Mars on the Mars Science Laboratory,"" Science (2013)",,,,,,,,,,,,,,url: https://www.nationalgeographic.com/science/article/130530-mars-space-astronaut-radiation-science | checked: 2026-11-21
+people-will-land-mars,evidence,disagree,late-september-2026-starship,,"Wikipedia, ""SpaceX Starship"" (accessed October 2026)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Starship_launches | checked: 2026-11-21
 people-will-land-mars,prediction,disagree,no-government-company-will,,,,,,,,,,,,,,,"By December 31, 2034; checked against NASA, SpaceX and China National Space Administration announcements.",
 people-will-land-mars,falsify,disagree,spacex-announces-its-first,,,,,,,,,,,,,,,,
 people-will-land-mars,falsify,disagree,nasa-health-studies-conclude,,,,,,,,,,,,,,,,
 people-will-land-mars,assumption,disagree,first-its-kind-crewed,,,,,,,,,,,,,,,,
 people-will-land-mars,assumption,disagree,moon-base-late-2020s,,,,,,,,,,,,,,,,
 people-will-land-mars,assumption,disagree,radiation-limits-lack-proven,,,,,,,,,,,,,,,,
-people-will-land-mars,media,disagree,measurements-energetic-particle-radiation,,,,,,,,,,,,,,,,
-people-will-land-mars,media,disagree,city-mars-can-we,,,,,,,,,,,,,,,,
+people-will-land-mars,media,disagree,measurements-energetic-particle-radiation,,,,,,,,,,,,,,,,url: https://www.swri.org/newsroom/press-releases/swri-led-team-calculates-the-radiation-exposure-associated-trip-mars | checked: 2026-11-21
+people-will-land-mars,media,disagree,city-mars-can-we,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/A_City_on_Mars | checked: 2026-11-21
 people-will-land-mars,interest,agree,planetary-scientists-need-people,,,,,,,,,,,,,,,,
 people-will-land-mars,interest,agree,aerospace-workers-texas-florida,,,,,,,,,,,,,,,,
 people-will-land-mars,interest,agree,students-considering-engineering-careers,,,,,,,,,,,,,,,,
 people-will-land-mars,interest,disagree,weather-forecasters-farmers-need,,,,,,,,,,,,,,,,
-people-will-land-mars,cba,agree,geologists-working-martian-surface,,,,,,,,planetary-scientists-need-people,,,sites studied per year,,,,,
+people-will-land-mars,cba,agree,geologists-working-martian-surface,,,,,,,,planetary-scientists-need-people,,,sites studied per year,,,,,url: https://en.wikipedia.org/wiki/Curiosity_(rover) | checked: 2026-11-21
 people-will-land-mars,cba,agree,crewed-mars-landing-program,,,,,,,,aerospace-workers-texas-florida,,,aerospace jobs sustained,,,,,
 people-will-land-mars,cba,agree,visible-crewed-landing-before,,,,,,,,students-considering-engineering-careers,,,engineering degree enrollments,,,,,
-people-will-land-mars,cba,disagree,crewed-mars-landing-program-2,,,,,,,,,,,billion dollars,500,,,,
+people-will-land-mars,cba,disagree,crewed-mars-landing-program-2,,,,,,,,,,,billion dollars,500,,,,url: https://en.wikipedia.org/wiki/Human_mission_to_Mars | checked: 2026-11-21
 people-will-land-mars,cba,disagree,federal-dollars-spent-racing,,,,,,,,weather-forecasters-farmers-need,,,billion dollars a year,,,,,
 people-will-land-mars,category,,,aerospace jobs sustained,,,,,,,,,,,,,,,
 people-will-land-mars,category,,,billion dollars,,,,,,,,,,,,,,,
@@ -10901,38 +10901,38 @@ world-health-organization-will,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two 
 world-health-organization-will,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether funding cuts, the United States withdrawal and post-COVID political backlash have raised the bar the WHO applies before declaring a new emergency. | move: Counting how many IHR emergency committees the WHO convenes for new events between now and 2028, and how many end in a declaration, compared with the record since 2009, would show whether the bar has moved."
 world-health-organization-will,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides may disagree about whether the spread of an already declared disease to new countries, or a regional declaration by a body such as Africa CDC, counts as another WHO emergency. | move: Applying the resolution rule as written, a new formal declaration by the WHO Director-General after October 10, 2026, settles it."
 world-health-organization-will,value,,,,,,,,,,,,,,,,,,"value: Preparedness | srank: 1 | orank: 2 | why: Supporters put the most weight on readying for an emergency they expect soon, while opponents value preparedness too but doubt a declaration is near."
-peer-reviewed-mathematics-journal,argument,agree,charles-fefferman-s-official,,,,,,,,,,,,,,,,
+peer-reviewed-mathematics-journal,argument,agree,charles-fefferman-s-official,,,,,,,,,,,,,,,,url: https://www.claymath.org/wp-content/uploads/2022/06/navierstokes.pdf | checked: 2026-11-21
 peer-reviewed-mathematics-journal,argument,agree,machine-checked-lean-formalization,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,argument,agree,ai-mathematics-has-moved,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,evidence,agree,openai-reported-about-10,,"Quanta Magazine (Konstantin Kakaes), ""AI Has Solved One of Math's $1 Million Millennium Prize Problems"", 2026",,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,evidence,agree,annals-mathematics-published-andrew,,"Wikipedia, ""Wiles's proof of Fermat's Last Theorem"", accessed 2026",,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,evidence,agree,terence-tao-s-tracking,,"Terence Tao and contributors, ""AI contributions to Erdős problems"" (erdosproblems GitHub wiki), data as of 2026-06-30",,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,prediction,agree,refereed-mathematics-journal-will,,,,,,,,,,,,,,,"By December 31, 2027; checked on the journal's website, the paper's arXiv comment field, or an OpenAI announcement naming the journal.",
-peer-reviewed-mathematics-journal,prediction,agree,least-one-group-mathematicians,,,,,,,,,,,,,,,"By June 30, 2027; checked by searching arXiv and journal records for papers or reports that state a full verification of the OpenAI proof.",
+peer-reviewed-mathematics-journal,argument,agree,ai-mathematics-has-moved,,,,,,,,,,,,,,,,url: https://deepmind.google/discover/blog/advanced-version-of-gemini-with-deep-think-officially-achieves-gold-medal-standard-at-the-international-mathematical-olympiad/ | checked: 2026-11-21
+peer-reviewed-mathematics-journal,evidence,agree,openai-reported-about-10,,"Quanta Magazine (Konstantin Kakaes), ""AI Has Solved One of Math's $1 Million Millennium Prize Problems"", 2026",,,,,,,,,,,,,,url: https://quantamagazine.org/ai-has-solved-one-of-maths-1-million-millennium-prize-problems-20260908 | checked: 2026-11-21
+peer-reviewed-mathematics-journal,evidence,agree,annals-mathematics-published-andrew,,"Wikipedia, ""Wiles's proof of Fermat's Last Theorem"", accessed 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Wiles%27s_proof_of_Fermat%27s_Last_Theorem | checked: 2026-11-21
+peer-reviewed-mathematics-journal,evidence,agree,terence-tao-s-tracking,,"Terence Tao and contributors, ""AI contributions to Erdős problems"" (erdosproblems GitHub wiki), data as of 2026-06-30",,,,,,,,,,,,,,url: https://github.com/teorth/erdosproblems/wiki/AI-contributions-to-Erd%C5%91s-problems | checked: 2026-11-21
+peer-reviewed-mathematics-journal,prediction,agree,refereed-mathematics-journal-will,,,,,,,,,,,,,,,"By December 31, 2027; checked on the journal's website, the paper's arXiv comment field, or an OpenAI announcement naming the journal.",url: https://openai.com/index/navier-stokes-solution/ | checked: 2026-11-21
+peer-reviewed-mathematics-journal,prediction,agree,least-one-group-mathematicians,,,,,,,,,,,,,,,"By June 30, 2027; checked by searching arXiv and journal records for papers or reports that state a full verification of the OpenAI proof.",url: https://text.npr.org/nx-s1-5968588 | checked: 2026-11-21
 peer-reviewed-mathematics-journal,falsify,agree,journal-editor-confirms-publicly,,,,,,,,,,,,,,,,
 peer-reviewed-mathematics-journal,falsify,agree,independent-team-fluid-equation,,,,,,,,,,,,,,,,
 peer-reviewed-mathematics-journal,assumption,agree,journal-paper-whose-proof,,,,,,,,,,,,,,,,
 peer-reviewed-mathematics-journal,assumption,agree,proof-finite-time-blowup,,,,,,,,,,,,,,,,
 peer-reviewed-mathematics-journal,assumption,agree,openai-s-166-page,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,person,agree,charles-fefferman-who-wrote,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,media,agree,existence-smoothness-navier-stokes,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,media,agree,advanced-version-gemini-deep,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,argument,disagree,refereeing-long-new-proof,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,argument,disagree,lean-formalization-openai-s,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,argument,disagree,most-mathematicians-who-work,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,argument,disagree,openai-has-said-will,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,evidence,disagree,bastounis-circelli-hansen-found,,"A. Bastounis, F. Circelli and A. C. Hansen, ""Navier–Stokes lost in translation – Why Lean verification of AI autoformalisation does not guarantee correct natural language proofs"", arXiv:2610.08144, 2026",,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,evidence,disagree,thomas-hales-announced-his,,"Wikipedia, ""Kepler conjecture"", accessed 2026",,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,evidence,disagree,grigori-perelman-posted-his,,"Wikipedia, ""Poincaré conjecture"", accessed 2026",,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,prediction,disagree,gap-will-found-written,,,,,,,,,,,,,,,"By December 31, 2027; checked through arXiv preprints, OpenAI's paper revisions, and coverage in Quanta Magazine or Nature.",
+peer-reviewed-mathematics-journal,person,agree,charles-fefferman-who-wrote,,,,,,,,,,,,,,,,url: https://quantamagazine.org/ai-has-solved-one-of-maths-1-million-millennium-prize-problems-20260908 | checked: 2026-11-21
+peer-reviewed-mathematics-journal,media,agree,existence-smoothness-navier-stokes,,,,,,,,,,,,,,,,url: https://www.claymath.org/wp-content/uploads/2022/06/navierstokes.pdf | checked: 2026-11-21
+peer-reviewed-mathematics-journal,media,agree,advanced-version-gemini-deep,,,,,,,,,,,,,,,,url: https://deepmind.google/discover/blog/advanced-version-of-gemini-with-deep-think-officially-achieves-gold-medal-standard-at-the-international-mathematical-olympiad/ | checked: 2026-11-21
+peer-reviewed-mathematics-journal,argument,disagree,refereeing-long-new-proof,,,,,,,,,,,,,,,,url: https://text.npr.org/nx-s1-5968588 | checked: 2026-11-21
+peer-reviewed-mathematics-journal,argument,disagree,lean-formalization-openai-s,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2610.08144 | checked: 2026-11-21
+peer-reviewed-mathematics-journal,argument,disagree,most-mathematicians-who-work,,,,,,,,,,,,,,,,url: https://www.scientificamerican.com/article/did-openai-solve-the-wrong-navier-stokes-problem/ | checked: 2026-11-21
+peer-reviewed-mathematics-journal,argument,disagree,openai-has-said-will,,,,,,,,,,,,,,,,url: https://openai.com/index/navier-stokes-solution/ | checked: 2026-11-21
+peer-reviewed-mathematics-journal,evidence,disagree,bastounis-circelli-hansen-found,,"A. Bastounis, F. Circelli and A. C. Hansen, ""Navier–Stokes lost in translation – Why Lean verification of AI autoformalisation does not guarantee correct natural language proofs"", arXiv:2610.08144, 2026",,,,,,,,,,,,,,url: https://arxiv.org/pdf/2610.08144 | checked: 2026-11-21
+peer-reviewed-mathematics-journal,evidence,disagree,thomas-hales-announced-his,,"Wikipedia, ""Kepler conjecture"", accessed 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Kepler_conjecture | checked: 2026-11-21
+peer-reviewed-mathematics-journal,evidence,disagree,grigori-perelman-posted-his,,"Wikipedia, ""Poincaré conjecture"", accessed 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Poincar%C3%A9_conjecture | checked: 2026-11-21
+peer-reviewed-mathematics-journal,prediction,disagree,gap-will-found-written,,,,,,,,,,,,,,,"By December 31, 2027; checked through arXiv preprints, OpenAI's paper revisions, and coverage in Quanta Magazine or Nature.",url: https://raw.githubusercontent.com/openai/NavierStokesAndEuler/main/README.md | checked: 2026-11-21
 peer-reviewed-mathematics-journal,falsify,disagree,referee-outside-mathematician-finds,,,,,,,,,,,,,,,,
 peer-reviewed-mathematics-journal,falsify,disagree,openai-states-will-submit,,,,,,,,,,,,,,,,
 peer-reviewed-mathematics-journal,assumption,disagree,refereeing-long-new-proof-2,,,,,,,,,,,,,,,,
 peer-reviewed-mathematics-journal,assumption,disagree,company-has-already-announced,,,,,,,,,,,,,,,,
 peer-reviewed-mathematics-journal,assumption,disagree,millennium-problem-counted-settled,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,person,disagree,anders-c-hansen-co,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,media,disagree,proof-kepler-conjecture-thomas,,,,,,,,,,,,,,,,
-peer-reviewed-mathematics-journal,media,disagree,notes-perelman-s-papers,,,,,,,,,,,,,,,,
+peer-reviewed-mathematics-journal,person,disagree,anders-c-hansen-co,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2610.08144 | checked: 2026-11-21
+peer-reviewed-mathematics-journal,media,disagree,proof-kepler-conjecture-thomas,,,,,,,,,,,,,,,,url: https://annals.math.princeton.edu/2005/162-3/p01 | checked: 2026-11-21
+peer-reviewed-mathematics-journal,media,disagree,notes-perelman-s-papers,,,,,,,,,,,,,,,,url: https://msp.org/gt/2008/12-5/p03.xhtml | checked: 2026-11-21
 peer-reviewed-mathematics-journal,interest,agree,ai-researchers-need-refereed,,,,,,,,,,,,,,,,
 peer-reviewed-mathematics-journal,interest,agree,mathematicians-who-study-fluid,,,,,,,,,,,,,,,,
 peer-reviewed-mathematics-journal,interest,agree,university-mathematics-departments-need,,,,,,,,,,,,,,,,
@@ -11032,26 +11032,26 @@ h5n1-bird-flu-will,definition,,,,,,,,,,,,,,,,,,"term: Sustained human-to-human t
 h5n1-bird-flu-will,dispute,,,Empirical,,,,,,,,,,,,,,,what: The two sides disagree about how many independent genetic changes H5N1 needs to spread efficiently between people and how likely those changes are to assemble before 2030. | move: Ongoing genetic surveillance that watches whether the key adapting mutations are appearing and spreading in mammals and people would settle it.
 h5n1-bird-flu-will,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether the recent surge of mammalian infections, especially in dairy cattle, has truly raised the chance of human adaptation or has mainly raised the visible case count. | move: Tracking whether human-adapting mutations accumulate faster in the cattle era than they did before would settle it."
 h5n1-bird-flu-will,value,,,,,,,,,,,,,,,,,,"value: Safety | srank: 1 | orank: 2 | why: Supporters put protecting people from a catastrophic pandemic first, while opponents also value safety but weigh it against the cost of acting on a threat that may not arrive."
-more-than-one-five,argument,agree,share-american-adults-currently,,,,,,,,,,,,,,,,
-more-than-one-five,argument,agree,number-american-adults-who,,,,,,,,,,,,,,,,
-more-than-one-five,argument,agree,medicare-glp-1-bridge,,,,,,,,,,,,,,,,
-more-than-one-five,argument,agree,glp-1-drugs-keep,,,,,,,,,,,,,,,,
-more-than-one-five,evidence,agree,about-12-u-s,,"KFF, ""Poll: 1 in 8 Adults Say They Are Currently Taking a GLP-1 Drug for Weight Loss, Diabetes or Another Condition, Even as Half Say the Drugs Are Difficult to Afford,"" November 14, 2025",,,,,,,,,,,,,,
-more-than-one-five,evidence,agree,40-3-u-s,,"CDC National Center for Health Statistics, NCHS Data Brief No. 508, ""Obesity and Severe Obesity Prevalence in Adults: United States, August 2021-August 2023,"" Emmerich, Fryar, Stierman and Ogden, September 2024",,,,,,,,,,,,,,
-more-than-one-five,evidence,agree,22-u-s-adults,,"KFF, ""Poll: 1 in 8 Adults Say They Are Currently Taking a GLP-1 Drug for Weight Loss, Diabetes or Another Condition, Even as Half Say the Drugs Are Difficult to Afford,"" November 14, 2025",,,,,,,,,,,,,,
+more-than-one-five,argument,agree,share-american-adults-currently,,,,,,,,,,,,,,,,url: https://www.kff.org/public-opinion/kff-health-tracking-poll-prescription-drug-costs-views-on-trump-administration-actions-and-glp-1-use/ | checked: 2026-11-21
+more-than-one-five,argument,agree,number-american-adults-who,,,,,,,,,,,,,,,,url: https://www.cdc.gov/nchs/products/databriefs/db508.htm | checked: 2026-11-21
+more-than-one-five,argument,agree,medicare-glp-1-bridge,,,,,,,,,,,,,,,,url: https://www.cms.gov/newsroom/press-releases/coming-soon-cms-provide-50-monthly-access-glp-1-medications-medicare-beneficiaries | checked: 2026-11-21
+more-than-one-five,argument,agree,glp-1-drugs-keep,,,,,,,,,,,,,,,,url: https://www.acc.org/Latest-in-Cardiology/Clinical-Trials/2023/11/09/15/04/select | checked: 2026-11-21
+more-than-one-five,evidence,agree,about-12-u-s,,"KFF, ""Poll: 1 in 8 Adults Say They Are Currently Taking a GLP-1 Drug for Weight Loss, Diabetes or Another Condition, Even as Half Say the Drugs Are Difficult to Afford,"" November 14, 2025",,,,,,,,,,,,,,url: https://www.kff.org/public-opinion/poll-1-in-8-adults-say-they-are-currently-taking-a-glp-1-drug-for-weight-loss-diabetes-or-another-condition-even-as-half-say-the-drugs-are-difficult-to-afford/ | checked: 2026-11-21
+more-than-one-five,evidence,agree,40-3-u-s,,"CDC National Center for Health Statistics, NCHS Data Brief No. 508, ""Obesity and Severe Obesity Prevalence in Adults: United States, August 2021-August 2023,"" Emmerich, Fryar, Stierman and Ogden, September 2024",,,,,,,,,,,,,,url: https://www.cdc.gov/nchs/products/databriefs/db508.htm | checked: 2026-11-21
+more-than-one-five,evidence,agree,22-u-s-adults,,"KFF, ""Poll: 1 in 8 Adults Say They Are Currently Taking a GLP-1 Drug for Weight Loss, Diabetes or Another Condition, Even as Half Say the Drugs Are Difficult to Afford,"" November 14, 2025",,,,,,,,,,,,,,url: https://www.kff.org/public-opinion/poll-1-in-8-adults-say-they-are-currently-taking-a-glp-1-drug-for-weight-loss-diabetes-or-another-condition-even-as-half-say-the-drugs-are-difficult-to-afford/ | checked: 2026-11-21
 more-than-one-five,prediction,agree,kff-gallup-national-survey,,,,,,,,,,,,,,,"By December 31, 2027; checked against the published KFF Health Tracking Poll or Gallup release.",
-more-than-one-five,prediction,agree,medicare-will-continue-covering,,,,,,,,,,,,,,,"By January 31, 2028; checked against CMS announcements on cms.gov or Medicare.gov.",
+more-than-one-five,prediction,agree,medicare-will-continue-covering,,,,,,,,,,,,,,,"By January 31, 2028; checked against CMS announcements on cms.gov or Medicare.gov.",url: https://www.cms.gov/priorities/innovation/innovation-models/medicare-glp-1-bridge | checked: 2026-11-21
 more-than-one-five,falsify,agree,large-pharmacy-claims-study,,,,,,,,,,,,,,,,
 more-than-one-five,falsify,agree,national-prescription-data-show,,,,,,,,,,,,,,,,
 more-than-one-five,assumption,agree,lower-cash-prices-daily,,,,,,,,,,,,,,,,
 more-than-one-five,assumption,agree,drug-makers-will-able,,,,,,,,,,,,,,,,
 more-than-one-five,assumption,agree,national-surveys-asking-american,,,,,,,,,,,,,,,,
-more-than-one-five,media,agree,poll-1-8-adults,,,,,,,,,,,,,,,,
-more-than-one-five,media,agree,semaglutide-cardiovascular-outcomes-obesity,,,,,,,,,,,,,,,,
-more-than-one-five,argument,disagree,most-americans-who-start,,,,,,,,,,,,,,,,
-more-than-one-five,argument,disagree,even-149-350-month,,,,,,,,,,,,,,,,
-more-than-one-five,evidence,disagree,only-8-commercially-insured,,"Prime Therapeutics, ""Prime Therapeutics' leading research shows only 1 in 12 remain on a GLP-1 drug for obesity at three years,"" press release, June 2025",,,,,,,,,,,,,,
-more-than-one-five,evidence,disagree,among-125-474-u,,"Rodriguez PJ et al., ""Discontinuation and Reinitiation of Dual-Labeled GLP-1 Receptor Agonists Among US Adults With Overweight or Obesity,"" JAMA Network Open, 2025",,,,,,,,,,,,,,
+more-than-one-five,media,agree,poll-1-8-adults,,,,,,,,,,,,,,,,url: https://www.kff.org/public-opinion/poll-1-in-8-adults-say-they-are-currently-taking-a-glp-1-drug-for-weight-loss-diabetes-or-another-condition-even-as-half-say-the-drugs-are-difficult-to-afford/ | checked: 2026-11-21
+more-than-one-five,media,agree,semaglutide-cardiovascular-outcomes-obesity,,,,,,,,,,,,,,,,url: https://www.acc.org/Latest-in-Cardiology/Clinical-Trials/2023/11/09/15/04/select | checked: 2026-11-21
+more-than-one-five,argument,disagree,most-americans-who-start,,,,,,,,,,,,,,,,url: https://www.biospace.com/press-releases/prime-therapeutics-leading-research-shows-only-1-in-12-remain-on-a-glp-1-drug-for-obesity-at-three-years | checked: 2026-11-21
+more-than-one-five,argument,disagree,even-149-350-month,,,,,,,,,,,,,,,,url: https://www.wegovy.com/coverage-and-savings/save-on-wegovy.html | checked: 2026-11-21
+more-than-one-five,evidence,disagree,only-8-commercially-insured,,"Prime Therapeutics, ""Prime Therapeutics' leading research shows only 1 in 12 remain on a GLP-1 drug for obesity at three years,"" press release, June 2025",,,,,,,,,,,,,,url: https://www.primetherapeutics.com/w/prime-therapeutics-leading-research-shows-only-1-in-12-remain-on-a-glp-1-drug-for-obesity-at-three-years | checked: 2026-11-21
+more-than-one-five,evidence,disagree,among-125-474-u,,"Rodriguez PJ et al., ""Discontinuation and Reinitiation of Dual-Labeled GLP-1 Receptor Agonists Among US Adults With Overweight or Obesity,"" JAMA Network Open, 2025",,,,,,,,,,,,,,url: https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2829779 | checked: 2026-11-21
 more-than-one-five,prediction,disagree,every-kff-gallup-national,,,,,,,,,,,,,,,"By December 31, 2027; checked against the published KFF Health Tracking Poll and Gallup releases.",
 more-than-one-five,prediction,disagree,fewer-than-13-state,,,,,,,,,,,,,,,"By December 31, 2028; checked against KFF's tracking of state Medicaid coverage of obesity drugs.",
 more-than-one-five,falsify,disagree,repeated-national-surveys-2026,,,,,,,,,,,,,,,,
@@ -11059,17 +11059,17 @@ more-than-one-five,falsify,disagree,newly-confirmed-serious-health,,,,,,,,,,,,,,
 more-than-one-five,assumption,disagree,high-rates-which-americans,,,,,,,,,,,,,,,,
 more-than-one-five,assumption,disagree,rapid-rise-glp-1,,,,,,,,,,,,,,,,
 more-than-one-five,assumption,disagree,employers-state-medicaid-programs,,,,,,,,,,,,,,,,
-more-than-one-five,person,disagree,greg-justice-estimated-asterisk,,,,,,,,,,,,,,,,
-more-than-one-five,media,disagree,discontinuation-reinitiation-dual-labeled,,,,,,,,,,,,,,,,
-more-than-one-five,media,disagree,how-long-til-we,,,,,,,,,,,,,,,,
+more-than-one-five,person,disagree,greg-justice-estimated-asterisk,,,,,,,,,,,,,,,,url: https://asteriskmag.com/issues/07/how-long-til-were-all-on-ozempic | checked: 2026-11-21
+more-than-one-five,media,disagree,discontinuation-reinitiation-dual-labeled,,,,,,,,,,,,,,,,url: https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2829779 | checked: 2026-11-21
+more-than-one-five,media,disagree,how-long-til-we,,,,,,,,,,,,,,,,url: https://asteriskmag.com/issues/07/how-long-til-were-all-on-ozempic | checked: 2026-11-21
 more-than-one-five,interest,agree,adults-obesity-need-weight,,,,,,,,,,,,,,,,
 more-than-one-five,interest,agree,adults-heart-disease-type,,,,,,,,,,,,,,,,
 more-than-one-five,interest,agree,eli-lilly-novo-nordisk,,,,,,,,,,,,,,,,
 more-than-one-five,interest,disagree,small-business-owners-who,,,,,,,,,,,,,,,,
 more-than-one-five,interest,disagree,state-taxpayers-need-medicaid,,,,,,,,,,,,,,,,
-more-than-one-five,cba,agree,wider-glp-1-use,,,,,,,,adults-heart-disease-type,,,percent fewer major cardiovascular events among treated adults,20,,,,
+more-than-one-five,cba,agree,wider-glp-1-use,,,,,,,,adults-heart-disease-type,,,percent fewer major cardiovascular events among treated adults,20,,,,url: https://www.acc.org/Latest-in-Cardiology/Clinical-Trials/2023/11/09/15/04/select | checked: 2026-11-21
 more-than-one-five,cba,agree,more-than-one-five-2,,,,,,,,eli-lilly-novo-nordisk,,,billions of dollars a year,156,,,,
-more-than-one-five,cba,disagree,americans-who-stop-taking,,,,,,,,adults-obesity-need-weight,,,percent of lost weight regained within a year of stopping,67,,,,
+more-than-one-five,cba,disagree,americans-who-stop-taking,,,,,,,,adults-obesity-need-weight,,,percent of lost weight regained within a year of stopping,67,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9542252/ | checked: 2026-11-21
 more-than-one-five,category,,,billions of dollars a year,,,,,,,,,,,,,,,
 more-than-one-five,category,,,percent fewer major cardiovascular events among treated adults,,,,,,,,,,,,,,,
 more-than-one-five,category,,,percent of lost weight regained within a year of stopping,,,,,,,,,,,,,,,
@@ -11740,10 +11740,10 @@ democrats-will-win-majority,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether 202
 democrats-will-win-majority,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether the roughly nine-seat redistricting shift toward Republicans is large enough to offset a national Democratic lead of about 9 points. | move: District-level polls and results in the newly drawn seats in Texas, Florida, Ohio, North Carolina and California."
 democrats-will-win-majority,value,,,,,,,,,,,,,,,,,,"value: Accuracy | srank: 1 | orank: 1 | why: Supporters rest their case on poll averages and forecast models, while opponents rest theirs on the record of polls missing Republican voters in 2020; both sides claim to be reading the numbers more accurately."
 democrats-will-win-majority,value,,,,,,,,,,,,,,,,,,"value: Accountability | srank: 2 | orank: 3 | why: Supporters see the midterm as voters checking an unpopular president, as they have in most midterms; opponents argue voters will also judge Democrats on their own record and put less weight on the midterm as a referendum on Trump."
-republicans-will-keep-majority,argument,agree,republicans-can-lose-net,,,,,,,,,,,,,,,,
-republicans-will-keep-majority,argument,agree,beyond-north-carolina-maine,,,,,,,,,,,,,,,,
-republicans-will-keep-majority,argument,agree,polls-have-understated-republican,,,,,,,,,,,,,,,,
-republicans-will-keep-majority,argument,agree,senator-susan-collins-maine,,,,,,,,,,,,,,,,
+republicans-will-keep-majority,argument,agree,republicans-can-lose-net,,,,,,,,,,,,,,,,url: https://www.senate.gov/about/officers-staff/vice-president.htm | checked: 2026-11-21
+republicans-will-keep-majority,argument,agree,beyond-north-carolina-maine,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2024_United_States_presidential_election_in_Ohio | checked: 2026-11-21
+republicans-will-keep-majority,argument,agree,polls-have-understated-republican,,,,,,,,,,,,,,,,url: https://abcnews.com/538/2024-polls-accurate-underestimated-trump/story?id=115652118 | checked: 2026-11-21
+republicans-will-keep-majority,argument,agree,senator-susan-collins-maine,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2020_United_States_Senate_election_in_Maine | checked: 2026-11-21
 republicans-will-keep-majority,argument,agree,senator-switching-parties-after,,,,,,,,,,,,,,,,
 republicans-will-keep-majority,evidence,agree,2018-midterm-elections-democrats,,"Wikipedia, ""2018 United States House of Representatives elections"" and ""2018 United States Senate elections"" (citing the Clerk of the House), read October 24, 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2018_United_States_House_of_Representatives_elections | checked: 2026-10-24
 republicans-will-keep-majority,evidence,agree,2020-polls-senate-governor,,"American Association for Public Opinion Research, ""Task Force on 2020 Pre-Election Polling: An Evaluation of the 2020 General Election Polls,"" 2021",,,,,,,,,,,,,,url: https://aapor.org/wp-content/uploads/2022/11/AAPOR-Task-Force-on-2020-Pre-Election-Polling_Report-FNL.pdf | checked: 2026-10-24
@@ -11757,12 +11757,12 @@ republicans-will-keep-majority,person,agree,senator-tim-scott-chair,,,,,,,,,,,,,
 republicans-will-keep-majority,falsify,agree,certified-results-show-republicans,,,,,,,,,,,,,,,,
 republicans-will-keep-majority,assumption,agree,polls-2026-still-understate,,,,,,,,,,,,,,,,
 republicans-will-keep-majority,assumption,agree,voters-states-trump-carried,,,,,,,,,,,,,,,,
-republicans-will-keep-majority,argument,disagree,forecasting-models-betting-markets,,,,,,,,,,,,,,,,
-republicans-will-keep-majority,argument,disagree,democrats-lead-polling-averages,,,,,,,,,,,,,,,,
-republicans-will-keep-majority,argument,disagree,2026-national-political-mood,,,,,,,,,,,,,,,,
-republicans-will-keep-majority,argument,disagree,president-s-party-has-2,,,,,,,,,,,,,,,,
-republicans-will-keep-majority,argument,disagree,main-republican-senate-super,,,,,,,,,,,,,,,,
-republicans-will-keep-majority,argument,disagree,democrats-nominated-proven-statewide,,,,,,,,,,,,,,,,
+republicans-will-keep-majority,argument,disagree,forecasting-models-betting-markets,,,,,,,,,,,,,,,,url: https://federalnewsnetwork.com/prediction-markets/2026/10/tracking-us-senate-odds-midterms-two-weeks-away/ | checked: 2026-11-21
+republicans-will-keep-majority,argument,disagree,democrats-lead-polling-averages,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2026_United_States_Senate_election_in_Kansas | checked: 2026-11-21
+republicans-will-keep-majority,argument,disagree,2026-national-political-mood,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2018_United_States_House_of_Representatives_elections | checked: 2026-11-21
+republicans-will-keep-majority,argument,disagree,president-s-party-has-2,,,,,,,,,,,,,,,,url: https://www.presidency.ucsb.edu/statistics/data/seats-congress-gainedlost-the-presidents-party-mid-term-elections | checked: 2026-11-21
+republicans-will-keep-majority,argument,disagree,main-republican-senate-super,,,,,,,,,,,,,,,,url: https://www.pbs.org/newshour/politics/senate-republicans-move-cash-from-north-carolina-to-kansas-as-battle-for-majority-shifts | checked: 2026-11-21
+republicans-will-keep-majority,argument,disagree,democrats-nominated-proven-statewide,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2026_United_States_Senate_elections | checked: 2026-11-21
 republicans-will-keep-majority,evidence,disagree,nate-silver-s-silver,,"Political Wire, ""House and Senate Are Now 'Likely Democratic',"" October 19, 2026",,,,,,,,,,,,,,url: https://politicalwire.com/2026/10/19/house-and-senate-are-now-likely-democratic/ | checked: 2026-10-24
 republicans-will-keep-majority,evidence,disagree,kalshi-prediction-market-contract,,"Kalshi, ""Will Democrats win the U.S. Senate in 2026?"" (market CONTROLS-2026), public market data read October 24, 2026",,,,,,,,,,,,,,url: https://api.elections.kalshi.com/trade-api/v2/events/CONTROLS-2026?with_nested_markets=true | checked: 2026-10-24
 republicans-will-keep-majority,evidence,disagree,senate-polls-reported-mid,,"Adrian Beaumont, ""Democrats remain clear favourites to gain control of Congress at midterms,"" The Conversation, October 18, 2026",,,,,,,,,,,,,,url: https://theconversation.com/democrats-remain-clear-favourites-to-gain-control-of-congress-at-midterms-294465 | checked: 2026-10-24
@@ -11775,16 +11775,16 @@ republicans-will-keep-majority,falsify,disagree,democrat-becomes-senate-majority
 republicans-will-keep-majority,falsify,disagree,democrat-takes-office-senate,,,,,,,,,,,,,,,,
 republicans-will-keep-majority,assumption,disagree,polls-2026-about-right,,,,,,,,,,,,,,,,
 republicans-will-keep-majority,assumption,disagree,national-mood-against-president,,,,,,,,,,,,,,,,
-republicans-will-keep-majority,prediction,agree,republicans-win-least-four,,,,,,,,,,,,,,,"By state certification in December 2026, checked against Associated Press race calls and state certified results.",
-republicans-will-keep-majority,prediction,disagree,democrats-independents-who-caucus,,,,,,,,,,,,,,,"By mid-December 2026, per Associated Press race calls and state certifications.",
-republicans-will-keep-majority,prediction,disagree,democrats-win-least-two,,,,,,,,,,,,,,,"By state certification in December 2026, per state election offices.",
+republicans-will-keep-majority,prediction,agree,republicans-win-least-four,,,,,,,,,,,,,,,"By state certification in December 2026, checked against Associated Press race calls and state certified results.",url: https://en.wikipedia.org/w/index.php?title=2026_United_States_Senate_elections&oldid=1381274517 | checked: 2026-11-21
+republicans-will-keep-majority,prediction,disagree,democrats-independents-who-caucus,,,,,,,,,,,,,,,"By mid-December 2026, per Associated Press race calls and state certifications.",url: https://aljazeera.com/news/2026/11/4/democratic-party-flips-us-senate-in-2026-midterm-elections | checked: 2026-11-21
+republicans-will-keep-majority,prediction,disagree,democrats-win-least-two,,,,,,,,,,,,,,,"By state certification in December 2026, per state election offices.",url: https://en.wikipedia.org/wiki/2024_United_States_presidential_election | checked: 2026-11-21
 republicans-will-keep-majority,interest,agree,federal-judicial-nominees-named,,,,,,,,,,,,,,,,
 republicans-will-keep-majority,interest,disagree,democratic-senators-who-want,,,,,,,,,,,,,,,,
 republicans-will-keep-majority,cba,agree,president-trump-s-judicial,,,,,,,,federal-judicial-nominees-named,,,judges confirmed per year,,,,,
 republicans-will-keep-majority,cba,agree,business-owners-can-plan,,,,,,,,,,,dollars a year in federal tax per business,,,,,
 republicans-will-keep-majority,cba,disagree,senate-democrats-lack-committee,,,,,,,,democratic-senators-who-want,,,oversight hearings held per year,,,,,
-republicans-will-keep-majority,cba,disagree,pollsters-face-another-trump,,,,,,,,,,,points of average signed polling error,,,,,
-republicans-will-keep-majority,cba,disagree,democratic-donors-who-spent,,,,,,,,,,,dollars spent per seat won,,,,,
+republicans-will-keep-majority,cba,disagree,pollsters-face-another-trump,,,,,,,,,,,points of average signed polling error,,,,,url: https://en.wikipedia.org/wiki/Historical_polling_for_United_States_presidential_elections | checked: 2026-11-21
+republicans-will-keep-majority,cba,disagree,democratic-donors-who-spent,,,,,,,,,,,dollars spent per seat won,,,,,url: https://en.wikipedia.org/wiki/2026_United_States_Senate_special_election_in_Ohio | checked: 2026-11-21
 republicans-will-keep-majority,category,,,dollars a year in federal tax per business,,,,,,,,,,,,,,,
 republicans-will-keep-majority,category,,,dollars spent per seat won,,,,,,,,,,,,,,,
 republicans-will-keep-majority,category,,,judges confirmed per year,,,,,,,,,,,,,,,
@@ -11942,11 +11942,11 @@ supreme-court-will-have,definition,,,,,,,,,,,,,,,,,,"term: before the end of 202
 supreme-court-will-have,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether a Democratic Senate majority seated in January 2027 would refuse to confirm any Trump Supreme Court nominee for up to two years, going well beyond the roughly ten-month Garland blockade. | move: The November 3, 2026 Senate results and, if Democrats win, public commitments by their new majority leader and Judiciary Committee chair on whether they would hold hearings."
 supreme-court-will-have,value,,,,,,,,,,,,,,,,,,"value: Letting voters decide | srank: 2 | orank: 1 | why: Both sides appeal to elections: people who expect a confirmation point to the 2024 presidential vote, while people who expect a blockade point to a Senate elected in 2026 and argue the 2028 winner should fill a late seat."
 supreme-court-will-have,value,,,,,,,,,,,,,,,,,,"value: A full Court | srank: 1 | orank: 3 | why: People who expect a seat to be filled stress that an eight-member Court can split 4-4, while people who expect a blockade accept a temporarily empty seat, as Republicans did in 2016."
-russia-ukraine-will-have,argument,agree,russia-ukraine-united-states,,,,,,,,,,,,,,,,
-russia-ukraine-will-have,argument,agree,ukraine-s-government-has,,,,,,,,,,,,,,,,
-russia-ukraine-will-have,argument,agree,russia-s-advances-battlefield,,,,,,,,,,,,,,,,
-russia-ukraine-will-have,argument,agree,russia-s-economy-has,,,,,,,,,,,,,,,,
-russia-ukraine-will-have,argument,agree,russian-ukrainian-militaries-can,,,,,,,,,,,,,,,,
+russia-ukraine-will-have,argument,agree,russia-ukraine-united-states,,,,,,,,,,,,,,,,url: https://www.fox19.com/2026/10/21/trump-envoy-witkoff-meets-putin-st-petersburg-ukraine-war-talks/?outputType=amp | checked: 2026-11-21
+russia-ukraine-will-have,argument,agree,ukraine-s-government-has,,,,,,,,,,,,,,,,url: https://www.kyivpost.com/post/88043 | checked: 2026-11-21
+russia-ukraine-will-have,argument,agree,russia-s-advances-battlefield,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2026_Ukrainian_counteroffensive | checked: 2026-11-21
+russia-ukraine-will-have,argument,agree,russia-s-economy-has,,,,,,,,,,,,,,,,url: https://api.worldbank.org/v2/country/RUS/indicator/NY.GDP.MKTP.KD.ZG?format=json&date=2021:2026 | checked: 2026-11-21
+russia-ukraine-will-have,argument,agree,russian-ukrainian-militaries-can,,,,,,,,,,,,,,,,url: https://kyivindependent.com/local-ceasefire-in-besieged-oleshky-begins-ukrainian-russian-officials-say/ | checked: 2026-11-21
 russia-ukraine-will-have,evidence,agree,october-24-2026-polymarket,,"Polymarket, 'Russia x Ukraine Ceasefire by...?' and 'Russia x Ukraine ceasefire agreement by...?' markets, read October 24, 2026",,,,,,,,,,,,,,url: https://polymarket.com/event/russia-x-ukraine-ceasefire-by | checked: 2026-10-24
 russia-ukraine-will-have,evidence,agree,russian-advances-have-slowed,,"Al Jazeera (citing AFP and Reuters), 'Russia-Ukraine Orthodox Easter ceasefire begins,' April 11, 2026",,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2026/4/11/russia-ukraine-orthodox-easter-ceasefire-begins | checked: 2026-10-24
 russia-ukraine-will-have,evidence,agree,imf-s-figures-show,,"International Monetary Fund, DataMapper, Real GDP growth, Russian Federation (World Economic Outlook data), read October 24, 2026",,,,,,,,,,,,,,url: https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH/RUS | checked: 2026-10-24
@@ -11956,11 +11956,11 @@ russia-ukraine-will-have,person,agree,ukrainian-president-volodymyr-zelensky-2,,
 russia-ukraine-will-have,falsify,agree,kremlin-ukraine-s-presidential,,,,,,,,,,,,,,,,
 russia-ukraine-will-have,assumption,agree,russia-s-leaders-will,,,,,,,,,,,,,,,,
 russia-ukraine-will-have,assumption,agree,united-states-will-keep,,,,,,,,,,,,,,,,
-russia-ukraine-will-have,argument,disagree,russia-s-government-insists,,,,,,,,,,,,,,,,
-russia-ukraine-will-have,argument,disagree,most-ukrainians-reject-withdrawing,,,,,,,,,,,,,,,,
-russia-ukraine-will-have,argument,disagree,vladimir-putin-has-said,,,,,,,,,,,,,,,,
-russia-ukraine-will-have,argument,disagree,none-russia-ukraine-truces,,,,,,,,,,,,,,,,
-russia-ukraine-will-have,argument,disagree,united-states-eased-pressure,,,,,,,,,,,,,,,,
+russia-ukraine-will-have,argument,disagree,russia-s-government-insists,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Peace_negotiations_in_the_Russo-Ukrainian_war_(2022%E2%80%93present) | checked: 2026-11-21
+russia-ukraine-will-have,argument,disagree,most-ukrainians-reject-withdrawing,,,,,,,,,,,,,,,,url: https://www.kiis.com.ua/?lang=eng&cat=reports&id=1608&page=1 | checked: 2026-11-21
+russia-ukraine-will-have,argument,disagree,vladimir-putin-has-said,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Peace_negotiations_in_the_Russo-Ukrainian_war_(2022%E2%80%93present) | checked: 2026-11-21
+russia-ukraine-will-have,argument,disagree,none-russia-ukraine-truces,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Peace_negotiations_in_the_Russo-Ukrainian_war_(2022%E2%80%93present) | checked: 2026-11-21
+russia-ukraine-will-have,argument,disagree,united-states-eased-pressure,,,,,,,,,,,,,,,,url: https://www.clearygottlieb.com/news-and-insights/publication-listing/president-trump-waives-lindsey-graham-act-sanctions | checked: 2026-11-21
 russia-ukraine-will-have,evidence,disagree,kiis-poll-1-031,,"Kyiv International Institute of Sociology, 'Opinions and views of Ukrainians on issues of war and peace: results of a survey conducted on October 8-16, 2026,' October 19, 2026",,,,,,,,,,,,,,url: https://www.kiis.com.ua/?lang=eng&cat=reports&id=1643&page=1 | checked: 2026-10-24
 russia-ukraine-will-have,person,disagree,russian-president-vladimir-putin,,,,,,,,,,,,,,,,url: https://www.themoscowtimes.com/2026/10/23/putin-says-renewed-peace-talks-must-focus-on-security-for-russia-ukraine-and-europe-overall-a94061 | checked: 2026-10-24
 russia-ukraine-will-have,person,disagree,kremlin-spokesman-dmitry-peskov,,,,,,,,,,,,,,,,url: https://www.cbsnews.com/news/russia-ukraine-war-witkoff-putin-trump-zelenskyy/ | checked: 2026-10-24
@@ -11971,16 +11971,16 @@ russia-ukraine-will-have,assumption,disagree,ukraine-will-keep-enough,,,,,,,,,,,
 russia-ukraine-will-have,prediction,agree,if-general-ceasefire-takes,,,,,,,,,,,,,,,"January 10, 2028, checked against the Ukrainian Air Force's daily statements.",
 russia-ukraine-will-have,prediction,agree,if-general-ceasefire-takes-2,,,,,,,,,,,,,,,"June 30, 2028, checked against announcements by Ukraine's Central Election Commission.",
 russia-ukraine-will-have,prediction,disagree,if-no-general-ceasefire,,,,,,,,,,,,,,,"December 31, 2027, checked against the Institute for the Study of War's daily Russian Offensive Campaign Assessments.",
-russia-ukraine-will-have,prediction,disagree,if-no-general-ceasefire-2,,,,,,,,,,,,,,,"January 2028, checked against the contract's resolution on Polymarket.",
+russia-ukraine-will-have,prediction,disagree,if-no-general-ceasefire-2,,,,,,,,,,,,,,,"January 2028, checked against the contract's resolution on Polymarket.",url: https://gamma-api.polymarket.com/public-search?q=Russia%20x%20Ukraine%20ceasefire%202027 | checked: 2026-11-21
 russia-ukraine-will-have,interest,agree,civilians-ukrainian-frontline-cities,,,,,,,,,,,,,,,,
 russia-ukraine-will-have,interest,agree,soldiers-both-sides-front,,,,,,,,,,,,,,,,
 russia-ukraine-will-have,interest,agree,american-truck-drivers-farmers,,,,,,,,,,,,,,,,
 russia-ukraine-will-have,interest,disagree,ukrainians-living-part-donetsk,,,,,,,,,,,,,,,,
 russia-ukraine-will-have,interest,disagree,governments-poland-baltic-states,,,,,,,,,,,,,,,,
 russia-ukraine-will-have,cba,agree,halt-fighting-stop-daily,,,,,,,,soldiers-both-sides-front,,,soldiers killed or wounded avoided per month,,,,,
-russia-ukraine-will-have,cba,disagree,ceasefire-meets-russia-s,,,,,,,,ukrainians-living-part-donetsk,,,people placed under occupation,,,,,
+russia-ukraine-will-have,cba,disagree,ceasefire-meets-russia-s,,,,,,,,ukrainians-living-part-donetsk,,,people placed under occupation,,,,,url: https://en.wikipedia.org/wiki/Peace_negotiations_in_the_Russo-Ukrainian_war_(2022%E2%80%93present) | checked: 2026-11-21
 russia-ukraine-will-have,cba,disagree,ceasefire-without-binding-security,,,,,,,,governments-poland-baltic-states,,,chance of renewed war within five years,,,,,
-russia-ukraine-will-have,cba,disagree,frozen-front-line-leave,,,,,,,,,,,square miles of Ukrainian land left under occupation,,,,,
+russia-ukraine-will-have,cba,disagree,frozen-front-line-leave,,,,,,,,,,,square miles of Ukrainian land left under occupation,,,,,url: https://en.wikipedia.org/wiki/Russian-occupied_territories_of_Ukraine | checked: 2026-11-21
 russia-ukraine-will-have,category,,,chance of renewed war within five years,,,,,,,,,,,,,,,
 russia-ukraine-will-have,category,,,people placed under occupation,,,,,,,,,,,,,,,
 russia-ukraine-will-have,category,,,soldiers killed or wounded avoided per month,,,,,,,,,,,,,,,
@@ -12175,14 +12175,14 @@ israel-saudi-arabia-will,assumption,disagree,no-israeli-government-office,,,,,,,
 israel-saudi-arabia-will,prediction,agree,israeli-prime-minister-foreign,,,,,,,,,,,,,,,"December 31, 2028, settled by announcements from the Israeli Prime Minister's Office or the Saudi Press Agency.",
 israel-saudi-arabia-will,prediction,agree,israel-s-government-will,,,,,,,,,,,,,,,"December 31, 2028, settled by Israeli cabinet records and the published text of any agreement with Saudi Arabia.",
 israel-saudi-arabia-will,prediction,disagree,next-washington-institute-poll,,,,,,,,,,,,,,,"The first Washington Institute Saudi poll published after October 24, 2026, and no later than December 31, 2027.",url: https://www.inss.org.il/publication/saudi-israel-2026/ | checked: 2026-11-21
-israel-saudi-arabia-will,prediction,disagree,kalshi-s-contract-israel,,,,,,,,,,,,,,,"December 31, 2027, settled by Kalshi's published price history for contract KXABRAHAMSA-29-JAN20.",
+israel-saudi-arabia-will,prediction,disagree,kalshi-s-contract-israel,,,,,,,,,,,,,,,"December 31, 2027, settled by Kalshi's published price history for contract KXABRAHAMSA-29-JAN20.",url: https://kalshi.com/markets/kxabrahamsa/abraham-accord-saudi-arabia/kxabrahamsa-29 | checked: 2026-11-21
 israel-saudi-arabia-will,interest,agree,saudi-vision-2030-planners,,,,,,,,,,,,,,,,
 israel-saudi-arabia-will,interest,agree,israeli-exporters-travelers-need,,,,,,,,,,,,,,,,
 israel-saudi-arabia-will,interest,agree,trump-administration-officials-need,,,,,,,,,,,,,,,,
 israel-saudi-arabia-will,interest,disagree,palestinians-west-bank-gaza,,,,,,,,,,,,,,,,
 israel-saudi-arabia-will,interest,disagree,saudi-arabia-s-royal,,,,,,,,,,,,,,,,
 israel-saudi-arabia-will,interest,disagree,israeli-parties-oppose-any,,,,,,,,,,,,,,,,
-israel-saudi-arabia-will,cba,agree,us-saudi-civil-nuclear,,,,,,,,saudi-vision-2030-planners,,,dollars of US-Saudi nuclear and defense contracts signed,,,,,
+israel-saudi-arabia-will,cba,agree,us-saudi-civil-nuclear,,,,,,,,saudi-vision-2030-planners,,,dollars of US-Saudi nuclear and defense contracts signed,,,,,url: https://www.aljazeera.com/news/2026/7/23/trump-says-saudi-nuclear-pact-hinges-on-kingdom-joining-abraham-accords | checked: 2026-11-21
 israel-saudi-arabia-will,cba,disagree,palestinians-could-lose-main,,,,,,,,palestinians-west-bank-gaza,,,binding statehood commitments secured,,,,,
 israel-saudi-arabia-will,cba,disagree,israeli-governing-coalition-could,,,,,,,,israeli-parties-oppose-any,,,Knesset seats lost from the governing coalition,,,,,
 israel-saudi-arabia-will,category,,,Knesset seats lost from the governing coalition,,,,,,,,,,,,,,,
@@ -12207,12 +12207,12 @@ israel-saudi-arabia-will,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether Saudi 
 israel-saudi-arabia-will,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether the October 27, 2026 Israeli election will produce a government able to offer Saudi Arabia a statehood commitment. | move: The coalition guidelines and first public statements of the government formed after the election."
 israel-saudi-arabia-will,value,,,,,,,,,,,,,,,,,,value: Regional security | srank: 1 | orank: 2 | why: Supporters expect a US-Saudi-Israeli alignment against Iran and its allies to pull a deal through; opponents also value security but argue Iran's weakening since 2025 has reduced that pull.
 israel-saudi-arabia-will,value,,,,,,,,,,,,,,,,,,value: Palestinian self-determination | srank: 3 | orank: 1 | why: Opponents treat Saudi Arabia's statehood condition as binding; supporters think it can be met with pathway language Israel could accept.
-kansas-city-chiefs-will,argument,agree,patrick-mahomes-has-played,,,,,,,,,,,,,,,,
-kansas-city-chiefs-will,argument,agree,patrick-mahomes-has-won,,,,,,,,,,,,,,,,
-kansas-city-chiefs-will,argument,agree,patrick-mahomes-s-contract,,,,,,,,,,,,,,,,
-kansas-city-chiefs-will,argument,agree,andy-reid-who-coached,,,,,,,,,,,,,,,,
-kansas-city-chiefs-will,argument,agree,2026-chiefs-no-longer,,,,,,,,,,,,,,,,
-kansas-city-chiefs-will,argument,agree,nfl-quarterbacks-have-won,,,,,,,,,,,,,,,,
+kansas-city-chiefs-will,argument,agree,patrick-mahomes-has-played,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2026_Kansas_City_Chiefs_season | checked: 2026-11-21
+kansas-city-chiefs-will,argument,agree,patrick-mahomes-has-won,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Patrick_Mahomes | checked: 2026-11-21
+kansas-city-chiefs-will,argument,agree,patrick-mahomes-s-contract,,,,,,,,,,,,,,,,url: https://overthecap.com/player/patrick-mahomes/5594 | checked: 2026-11-21
+kansas-city-chiefs-will,argument,agree,andy-reid-who-coached,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Andy_Reid | checked: 2026-11-21
+kansas-city-chiefs-will,argument,agree,2026-chiefs-no-longer,,,,,,,,,,,,,,,,url: https://www.teamrankings.com/nfl/stat/opponent-points-per-game?date=2026-10-20 | checked: 2026-11-21
+kansas-city-chiefs-will,argument,agree,nfl-quarterbacks-have-won,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Tom_Brady | checked: 2026-11-21
 kansas-city-chiefs-will,evidence,agree,patrick-mahomes-s-103,,"Kansas City Chiefs, ""Five Things to Watch on Sunday | Chiefs vs. Seahawks,"" Chiefs.com, October 24, 2026",,,,,,,,,,,,,,url: https://www.chiefs.com/news/five-things-to-watch-on-sunday-chiefs-vs-seahawks | checked: 2026-10-24
 kansas-city-chiefs-will,evidence,agree,patrick-mahomes-has-17,,"Wikipedia, ""Patrick Mahomes"" (career playoff record), as read October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Patrick_Mahomes | checked: 2026-10-24
 kansas-city-chiefs-will,evidence,agree,october-23-2026-five,,"VegasInsider, ""2026-27 Super Bowl & NFL Futures Odds: 49ers The New Favorite,"" odds as of October 23, 2026",,,,,,,,,,,,,,url: https://www.vegasinsider.com/nfl/odds/futures/ | checked: 2026-10-24
@@ -12226,11 +12226,11 @@ kansas-city-chiefs-will,falsify,agree,chiefs-win-super-bowl,,,,,,,,,,,,,,,,
 kansas-city-chiefs-will,falsify,agree,chiefs-win-any-later,,,,,,,,,,,,,,,,
 kansas-city-chiefs-will,assumption,agree,patrick-mahomes-s-surgically,,,,,,,,,,,,,,,,
 kansas-city-chiefs-will,assumption,agree,chiefs-will-keep-enough,,,,,,,,,,,,,,,,
-kansas-city-chiefs-will,argument,disagree,even-best-nfl-teams,,,,,,,,,,,,,,,,
-kansas-city-chiefs-will,argument,disagree,only-three-quarterbacks-nfl,,,,,,,,,,,,,,,,
-kansas-city-chiefs-will,argument,disagree,patrick-mahomes-turned-31,,,,,,,,,,,,,,,,
-kansas-city-chiefs-will,argument,disagree,key-members-chiefs-title,,,,,,,,,,,,,,,,
-kansas-city-chiefs-will,argument,disagree,chiefs-went-6-11,,,,,,,,,,,,,,,,
+kansas-city-chiefs-will,argument,disagree,even-best-nfl-teams,,,,,,,,,,,,,,,,url: https://www.covers.com/sportsoddshistory/nfl-reg/?y=2026&sa=nfl&a=sb&p=reg | checked: 2026-11-21
+kansas-city-chiefs-will,argument,disagree,only-three-quarterbacks-nfl,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Super_Bowl_starting_quarterbacks | checked: 2026-11-21
+kansas-city-chiefs-will,argument,disagree,patrick-mahomes-turned-31,,,,,,,,,,,,,,,,url: https://www.cbssports.com/betting/news/chiefs-week-1-quarterback-odds-sportsbook-clearly-favoring-patrick-mahomes-to-be-ready-off-major-knee-injury/ | checked: 2026-11-21
+kansas-city-chiefs-will,argument,disagree,key-members-chiefs-title,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Travis_Kelce | checked: 2026-11-21
+kansas-city-chiefs-will,argument,disagree,chiefs-went-6-11,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2025_Kansas_City_Chiefs_season | checked: 2026-11-21
 kansas-city-chiefs-will,evidence,disagree,chiefs-finished-2025-season,,"Wikipedia, ""2025 Kansas City Chiefs season,"" as read October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2025_Kansas_City_Chiefs_season | checked: 2026-10-24
 kansas-city-chiefs-will,evidence,disagree,patrick-mahomes-tore-acl,,"Kansas City Chiefs, ""Injury Update on QB Patrick Mahomes,"" Chiefs.com, December 14 and 15, 2025",,,,,,,,,,,,,,url: https://www.chiefs.com/news/injury-update-on-qb-patrick-mahomes | checked: 2026-10-24
 kansas-city-chiefs-will,evidence,disagree,october-23-2026-chiefs,,"Jordan Dajani, ""Should the Chiefs trade for Garrett Wilson? Why blockbuster deal makes sense, and why it probably won't happen,"" CBS Sports, October 23, 2026",,,,,,,,,,,,,,url: https://www.cbssports.com/nfl/news/garrett-wilson-trade-chiefs-jets-star-receiver-2026/ | checked: 2026-10-24
@@ -12253,8 +12253,8 @@ kansas-city-chiefs-will,interest,disagree,rival-afc-teams-such,,,,,,,,,,,,,,,,
 kansas-city-chiefs-will,interest,disagree,sportsbooks-such-betmgm-need,,,,,,,,,,,,,,,,
 kansas-city-chiefs-will,cba,agree,kansas-city-area-hotels-2,,,,,,,,kansas-city-area-hotels,,,dollars of added local sales per playoff run,,,,,
 kansas-city-chiefs-will,cba,agree,chiefs-season-ticket-holders-2,,,,,,,,chiefs-season-ticket-holders,,,home playoff games per season,,,,,
-kansas-city-chiefs-will,cba,agree,fans-who-bought-chiefs,,,,,,,,,,,dollars of profit per dollar wagered,,,,,
-kansas-city-chiefs-will,cba,disagree,fans-who-act-belief,,,,,,,,,,,dollars lost per dollar wagered,,,,,
+kansas-city-chiefs-will,cba,agree,fans-who-bought-chiefs,,,,,,,,,,,dollars of profit per dollar wagered,,,,,url: https://arrowheadaddict.com/chiefs-super-bowl-61-odds-remain-surprisingly-strong-after-another-loss | checked: 2026-11-21
+kansas-city-chiefs-will,cba,disagree,fans-who-act-belief,,,,,,,,,,,dollars lost per dollar wagered,,,,,url: https://arrowheadaddict.com/chiefs-super-bowl-61-odds-remain-surprisingly-strong-after-another-loss | checked: 2026-11-21
 kansas-city-chiefs-will,cba,disagree,pushing-salary-into-later,,,,,,,,chiefs-front-office-needs,,,dollars of salary cap space,,,,,
 kansas-city-chiefs-will,cba,disagree,each-additional-chiefs-trip,,,,,,,,rival-afc-teams-such,,,AFC championships won,,,,,
 kansas-city-chiefs-will,category,,,AFC championships won,,,,,,,,,,,,,,,
@@ -12345,11 +12345,11 @@ team-outside-europe-south,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether Moroc
 team-outside-europe-south,dispute,,,Causal,,,,,,,,,,,,,,,"what: How much home advantage a co-host like Morocco in 2030, or a host like Saudi Arabia in 2034, actually gets in a 48-team tournament. | move: Where Morocco's 2030 matches are scheduled, and how recent hosts fared: co-host South Korea reached the 2002 semifinals, while Canada, Mexico and the United States all went out by the round of 16 in 2026."
 team-outside-europe-south,value,,,,,,,,,,,,,,,,,,"value: Merit | srank: 2 | orank: 1 | why: Both sides want the trophy to go to the best team on the field; opponents lean on merit to argue that the deepest squads, still mostly European and South American, will keep winning, while supporters argue merit is now spread more widely."
 team-outside-europe-south,value,,,,,,,,,,,,,,,,,,"value: Opportunity | srank: 1 | orank: 2 | why: Supporters stress that talent and coaching have spread worldwide, giving more countries a real shot; opponents accept that the spread is real but say it has not yet reached the level of getting through eight matches and winning all five knockout rounds against the strongest teams."
-someone-will-break-usain,argument,agree,carbon-plated-sprint-spikes,,,,,,,,,,,,,,,,
-someone-will-break-usain,argument,agree,seven-men-have-run,,,,,,,,,,,,,,,,
-someone-will-break-usain,argument,agree,rare-sprinter-can-appear,,,,,,,,,,,,,,,,
-someone-will-break-usain,argument,agree,statistical-studies-human-sprint,,,,,,,,,,,,,,,,
-someone-will-break-usain,argument,agree,los-angeles-2028-brisbane,,,,,,,,,,,,,,,,
+someone-will-break-usain,argument,agree,carbon-plated-sprint-spikes,,,,,,,,,,,,,,,,url: https://www.tntsports.co.uk/athletics/world-championships/2025/usain-bolt-super-spikes-world-championship-record_sto23220689/story.shtml | checked: 2026-11-21
+someone-will-break-usain,argument,agree,seven-men-have-run,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/100_metres | checked: 2026-11-21
+someone-will-break-usain,argument,agree,rare-sprinter-can-appear,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Men%27s_100_metres_world_record_progression | checked: 2026-11-21
+someone-will-break-usain,argument,agree,statistical-studies-human-sprint,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2502.04085 | checked: 2026-11-21
+someone-will-break-usain,argument,agree,los-angeles-2028-brisbane,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2032_Summer_Olympics | checked: 2026-11-21
 someone-will-break-usain,evidence,agree,kishane-thompson-ran-9,,"World Athletics, All-time men's 100 metres top list (accessed October 2026)",,,,,,,,,,,,,,url: https://worldathletics.org/records/all-time-toplists/sprints/100-metres/all/men/senior | checked: 2026-10-24
 someone-will-break-usain,evidence,agree,six-12-men-who,,"World Athletics, All-time men's 100 metres top list (accessed October 2026)",,,,,,,,,,,,,,url: https://worldathletics.org/records/all-time-toplists/sprints/100-metres/all/men/senior | checked: 2026-10-24
 someone-will-break-usain,evidence,agree,australian-sprinter-gout-gout,,"Athletics Weekly, ""The sprints are wide open again: who actually has a claim on the 100m throne in 2026?"", June 11, 2026",,,,,,,,,,,,,,url: https://athleticsweekly.com/aw-promotion/the-sprints-are-wide-open-again-who-actually-has-a-claim-on-the-100m-throne-in-2026-1040011613/ | checked: 2026-10-24
@@ -12361,10 +12361,10 @@ someone-will-break-usain,person,agree,jamaican-sprinter-kishane-thompson,,,,,,,,
 someone-will-break-usain,falsify,agree,world-athletics-ratifies-men,,,,,,,,,,,,,,,,
 someone-will-break-usain,assumption,agree,anyone-who-accepts-belief,,,,,,,,,,,,,,,,
 someone-will-break-usain,assumption,agree,anyone-who-accepts-belief-2,,,,,,,,,,,,,,,,
-someone-will-break-usain,argument,disagree,usain-bolt-s-9,,,,,,,,,,,,,,,,
-someone-will-break-usain,argument,disagree,men-s-100m-times,,,,,,,,,,,,,,,,
-someone-will-break-usain,argument,disagree,newest-statistical-estimate-ultimate,,,,,,,,,,,,,,,,
-someone-will-break-usain,argument,disagree,modern-carbon-plated-spikes,,,,,,,,,,,,,,,,
+someone-will-break-usain,argument,disagree,usain-bolt-s-9,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Men%27s_100_metres_world_record_progression | checked: 2026-11-21
+someone-will-break-usain,argument,disagree,men-s-100m-times,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/100_metres | checked: 2026-11-21
+someone-will-break-usain,argument,disagree,newest-statistical-estimate-ultimate,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2502.04085 | checked: 2026-11-21
+someone-will-break-usain,argument,disagree,modern-carbon-plated-spikes,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/100_metres | checked: 2026-11-21
 someone-will-break-usain,argument,disagree,bigger-financial-rewards-cannot,,,,,,,,,,,,,,,,
 someone-will-break-usain,evidence,disagree,apart-usain-bolt-himself,,"World Athletics, All-time men's 100 metres top list (accessed October 2026)",,,,,,,,,,,,,,url: https://worldathletics.org/records/all-time-toplists/sprints/100-metres/all/men/senior | checked: 2026-10-24
 someone-will-break-usain,evidence,disagree,fastest-wind-legal-men,,"World Athletics, men's 100m preview (September 8, 2026) and race report (September 12, 2026), World Athletics Ultimate Championship Budapest 26",,,,,,,,,,,,,,url: https://worldathletics.org/competitions/world-athletics-ultimate-championship/2026/news/preview/preview-men-100m-world-ultimate-championship-budapest-26 | checked: 2026-10-24
@@ -12382,11 +12382,11 @@ someone-will-break-usain,prediction,disagree,every-yearly-world-leading,,,,,,,,,
 someone-will-break-usain,interest,agree,organizers-broadcasters-los-angeles,,,,,,,,,,,,,,,,
 someone-will-break-usain,interest,agree,teenage-sprinters-such-gout,,,,,,,,,,,,,,,,
 someone-will-break-usain,interest,disagree,usain-bolt-companies-pay,,,,,,,,,,,,,,,,
-someone-will-break-usain,cba,agree,olympic-organizers-broadcasters-get,,,,,,,,organizers-broadcasters-los-angeles,,,viewers of the men's 100m final,,,,,
+someone-will-break-usain,cba,agree,olympic-organizers-broadcasters-get,,,,,,,,organizers-broadcasters-los-angeles,,,viewers of the men's 100m final,,,,,url: https://en.wikipedia.org/wiki/List_of_Olympic_Games_host_cities | checked: 2026-11-21
 someone-will-break-usain,cba,agree,spike-maker-whose-shoe,,,,,,,,,,,dollars of sprint-spike sales a year,,,,,
 someone-will-break-usain,cba,agree,teenage-sprinters-have-living,,,,,,,,teenage-sprinters-such-gout,,,elite under-20 sprinters choosing the 100m,,,,,
-someone-will-break-usain,cba,disagree,usain-bolt-his-sponsors,,,,,,,,usain-bolt-companies-pay,,,dollars of endorsement value a year,,,,,
-someone-will-break-usain,cba,disagree,anti-doping-investigators-face,,,,,,,,,,,doping investigations opened per new record,,,,,
+someone-will-break-usain,cba,disagree,usain-bolt-his-sponsors,,,,,,,,usain-bolt-companies-pay,,,dollars of endorsement value a year,,,,,url: https://en.wikipedia.org/wiki/Men%27s_100_metres_world_record_progression | checked: 2026-11-21
+someone-will-break-usain,cba,disagree,anti-doping-investigators-face,,,,,,,,,,,doping investigations opened per new record,,,,,url: https://en.wikipedia.org/wiki/Men%27s_100_metres_world_record_progression | checked: 2026-11-21
 someone-will-break-usain,category,,,dollars of endorsement value a year,,,,,,,,,,,,,,,
 someone-will-break-usain,category,,,dollars of sprint-spike sales a year,,,,,,,,,,,,,,,
 someone-will-break-usain,category,,,doping investigations opened per new record,,,,,,,,,,,,,,,
@@ -12604,10 +12604,10 @@ film-released-first-streaming,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether Netf
 film-released-first-streaming,value,,,,,,,,,,,,,,,,,,"value: Artistic merit | srank: 1 | orank: 2 | why: Both sides say Best Picture should go to the best film; supporters argue a streaming release no longer gets in the way, while opponents doubt voters separate a film from how it reached audiences."
 nvidia-will-most-valuable,argument,agree,nvidia-was-most-valuable,,,,,,,,,,,,,,,,
 nvidia-will-most-valuable,argument,agree,nvidia-s-revenue-growing,,,,,,,,,,,,,,,,
-nvidia-will-most-valuable,argument,agree,nvidia-s-stock-trades,,,,,,,,,,,,,,,,
-nvidia-will-most-valuable,argument,agree,ai-developers-have-used,,,,,,,,,,,,,,,,
+nvidia-will-most-valuable,argument,agree,nvidia-s-stock-trades,,,,,,,,,,,,,,,,url: https://companiesmarketcap.com/nvidia/pe-ratio/ | checked: 2026-11-21
+nvidia-will-most-valuable,argument,agree,ai-developers-have-used,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/CUDA | checked: 2026-11-21
 nvidia-will-most-valuable,argument,agree,large-cloud-companies-ai,,,,,,,,,,,,,,,,
-nvidia-will-most-valuable,argument,agree,nvidia-s-blackwell-chips,,,,,,,,,,,,,,,,
+nvidia-will-most-valuable,argument,agree,nvidia-s-blackwell-chips,,,,,,,,,,,,,,,,url: https://blogs.nvidia.com/blog/blackwell-mlperf-training-6-0/ | checked: 2026-11-21
 nvidia-will-most-valuable,evidence,agree,nvidia-was-most-valuable-2,,"Wikipedia, ""List of public corporations by market capitalization"" (quarterly rankings for 2025 and 2026), accessed October 24, 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_public_corporations_by_market_capitalization | checked: 2026-10-24
 nvidia-will-most-valuable,evidence,agree,nvidia-reported-revenue-96,,"Nvidia, ""NVIDIA Announces Financial Results for Second Quarter Fiscal 2027,"" August 26, 2026",,,,,,,,,,,,,,url: https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027 | checked: 2026-10-24
 nvidia-will-most-valuable,evidence,agree,october-2026-nvidia-s,,"CompaniesMarketCap, ""NVIDIA (NVDA) P/E ratio"" and ""Apple (AAPL) P/E ratio,"" October 2026",,,,,,,,,,,,,,url: https://companiesmarketcap.com/nvidia/pe-ratio/ | checked: 2026-10-24
@@ -12619,11 +12619,11 @@ nvidia-will-most-valuable,person,agree,goldman-sachs-strategist-peter,,,,,,,,,,,
 nvidia-will-most-valuable,falsify,agree,nvidia-s-closing-market,,,,,,,,,,,,,,,,
 nvidia-will-most-valuable,assumption,agree,spending-ai-data-centers,,,,,,,,,,,,,,,,
 nvidia-will-most-valuable,assumption,agree,no-rival-including-apple,,,,,,,,,,,,,,,,
-nvidia-will-most-valuable,argument,disagree,nvidia-s-lead-over,,,,,,,,,,,,,,,,
-nvidia-will-most-valuable,argument,disagree,nvidia-depends-small-number,,,,,,,,,,,,,,,,
-nvidia-will-most-valuable,argument,disagree,google-amazon-microsoft-meta,,,,,,,,,,,,,,,,
+nvidia-will-most-valuable,argument,disagree,nvidia-s-lead-over,,,,,,,,,,,,,,,,url: https://247wallst.com/investing/2026/10/24/apple-just-passed-nvidia-as-the-worlds-most-valuable-company-on-iphone-duo-day/ | checked: 2026-11-21
+nvidia-will-most-valuable,argument,disagree,nvidia-depends-small-number,,,,,,,,,,,,,,,,url: https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm | checked: 2026-11-21
+nvidia-will-most-valuable,argument,disagree,google-amazon-microsoft-meta,,,,,,,,,,,,,,,,url: https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm | checked: 2026-11-21
 nvidia-will-most-valuable,argument,disagree,nvidia-s-market-value,,,,,,,,,,,,,,,,
-nvidia-will-most-valuable,argument,disagree,government-decisions-can-cut,,,,,,,,,,,,,,,,
+nvidia-will-most-valuable,argument,disagree,government-decisions-can-cut,,,,,,,,,,,,,,,,url: https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027 | checked: 2026-11-21
 nvidia-will-most-valuable,evidence,disagree,october-23-2026-nvidia,,"CompaniesMarketCap, ""NVIDIA (NVDA) Market capitalization"" and ""Apple (AAPL) Market capitalization,"" data as of October 23, 2026",,,,,,,,,,,,,,url: https://companiesmarketcap.com/nvidia/marketcap/ | checked: 2026-10-24
 nvidia-will-most-valuable,evidence,disagree,nvidia-s-quarterly-report,,"Nvidia, Form 10-Q for the quarter ended July 26, 2026, filed with the US Securities and Exchange Commission on August 26, 2026",,,,,,,,,,,,,,url: https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm | checked: 2026-10-24
 nvidia-will-most-valuable,evidence,disagree,nvidia-s-market-value-2,,"Wikipedia, ""List of public corporations by market capitalization"" (peak values table), accessed October 24, 2026; CompaniesMarketCap, ""NVIDIA (NVDA) Market capitalization,"" October 23, 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_public_corporations_by_market_capitalization | checked: 2026-10-24
@@ -12635,7 +12635,7 @@ nvidia-will-most-valuable,person,disagree,julien-garran-research-firm,,,,,,,,,,,
 nvidia-will-most-valuable,falsify,disagree,another-public-company-closes,,,,,,,,,,,,,,,,
 nvidia-will-most-valuable,assumption,disagree,nvidia-s-lower-price,,,,,,,,,,,,,,,,
 nvidia-will-most-valuable,prediction,agree,nvidia-will-rank-first,,,,,,,,,,,,,,,"September 30, 2027, checked against Wikipedia's quarterly list of public corporations by market capitalization, which records companiesmarketcap.com rankings at each quarter end.",
-nvidia-will-most-valuable,prediction,agree,nvidia-will-report-quarterly,,,,,,,,,,,,,,,"Nvidia's third-quarter fiscal 2028 earnings release, expected in November 2027.",
+nvidia-will-most-valuable,prediction,agree,nvidia-will-report-quarterly,,,,,,,,,,,,,,,"Nvidia's third-quarter fiscal 2028 earnings release, expected in November 2027.",url: https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027 | checked: 2026-11-21
 nvidia-will-most-valuable,prediction,disagree,apple-another-company-will,,,,,,,,,,,,,,,"December 31, 2027, checked against quarter-end closing market values in Wikipedia's quarterly list of public corporations by market capitalization, which records companiesmarketcap.com values at each quarter end.",
 nvidia-will-most-valuable,interest,agree,nvidia-employees-paid-partly,,,,,,,,,,,,,,,,
 nvidia-will-most-valuable,interest,agree,investors-who-bought-nvidia,,,,,,,,,,,,,,,,
@@ -12643,11 +12643,11 @@ nvidia-will-most-valuable,interest,agree,companies-rent-out-nvidia,,,,,,,,,,,,,,
 nvidia-will-most-valuable,interest,disagree,retirement-savers-s-p,,,,,,,,,,,,,,,,
 nvidia-will-most-valuable,interest,disagree,cloud-companies-building-own,,,,,,,,,,,,,,,,
 nvidia-will-most-valuable,interest,disagree,rival-chipmakers-such-amd,,,,,,,,,,,,,,,,
-nvidia-will-most-valuable,cba,agree,nvidia-shareholders-keep-gains,,,,,,,,investors-who-bought-nvidia,,,dollars of shareholder value,,,,,
+nvidia-will-most-valuable,cba,agree,nvidia-shareholders-keep-gains,,,,,,,,investors-who-bought-nvidia,,,dollars of shareholder value,,,,,url: https://stockanalysis.com/stocks/nvda/history/ | checked: 2026-11-21
 nvidia-will-most-valuable,cba,agree,nvidia-employees-paid-stock,,,,,,,,nvidia-employees-paid-partly,,,dollars of stock pay per employee a year,,,,,
 nvidia-will-most-valuable,cba,agree,companies-rent-out-nvidia-2,,,,,,,,companies-rent-out-nvidia,,,dollars of rental revenue a year,,,,,
 nvidia-will-most-valuable,cba,disagree,retirement-savers-index-funds,,,,,,,,retirement-savers-s-p,,,percent of index fund value held in one stock,,,,,
-nvidia-will-most-valuable,cba,disagree,cloud-companies-keep-paying,,,,,,,,cloud-companies-building-own,,,dollars a year spent on AI chips,,,,,
+nvidia-will-most-valuable,cba,disagree,cloud-companies-keep-paying,,,,,,,,cloud-companies-building-own,,,dollars a year spent on AI chips,,,,,url: https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/default.aspx | checked: 2026-11-21
 nvidia-will-most-valuable,cba,disagree,rival-chipmakers-find-harder,,,,,,,,rival-chipmakers-such-amd,,,dollars of data center chip revenue a year,,,,,
 nvidia-will-most-valuable,category,,,dollars a year spent on AI chips,,,,,,,,,,,,,,,
 nvidia-will-most-valuable,category,,,dollars of data center chip revenue a year,,,,,,,,,,,,,,,
@@ -12808,9 +12808,9 @@ apple-will-sell-pair,value,,,,,,,,,,,,,,,,,,"value: Quality | srank: 2 | orank: 
 apple-will-sell-pair,value,,,,,,,,,,,,,,,,,,"value: Timeliness | srank: 1 | orank: 3 | why: Those who expect a 2027 sale think Meta's fast sales pressure Apple to enter soon; doubters note that Apple has often entered markets late and done well, so speed weighs less with it."
 median-price-existing-us,argument,agree,us-homeowners-generally-hold,,,,,,,,,,,,,,,,
 median-price-existing-us,argument,agree,general-inflation-raises-dollar,,,,,,,,,,,,,,,,
-median-price-existing-us,argument,agree,us-still-has-fewer,,,,,,,,,,,,,,,,
-median-price-existing-us,argument,agree,sales-expensive-us-homes,,,,,,,,,,,,,,,,
-median-price-existing-us,argument,agree,prices-same-us-homes,,,,,,,,,,,,,,,,
+median-price-existing-us,argument,agree,us-still-has-fewer,,,,,,,,,,,,,,,,url: https://www.nar.realtor/newsroom/existing-home-sales-decreased-5-5-percent-october-nar-report | checked: 2026-11-21
+median-price-existing-us,argument,agree,sales-expensive-us-homes,,,,,,,,,,,,,,,,url: https://www.nar.realtor/sites/default/files/2026-11/ehs-10-2026-supplemental-data-2026-11-12.pdf | checked: 2026-11-21
+median-price-existing-us,argument,agree,prices-same-us-homes,,,,,,,,,,,,,,,,url: https://fred.stlouisfed.org/data/CSUSHPISA.txt | checked: 2026-11-21
 median-price-existing-us,evidence,agree,nar-s-median-existing,,"National Association of Realtors, 'Existing-Home Sales Increased 1.5% in September, According to NAR Report,' October 13, 2026",,,,,,,,,,,,,,url: https://www.nar.realtor/newsroom/existing-home-sales-increased-1-5-in-september-according-to-nar-report | checked: 2026-10-24
 median-price-existing-us,evidence,agree,nar-s-annual-median,,"Admirals (Admiral Markets), 'US Existing Home Sales September 2026: Forecast and Mortgage Rate Risks,' table of NAR annual medians, October 12, 2026",,,,,,,,,,,,,,url: https://admiralmarkets.com/analytics/traders-blog/us-existing-home-sales-september-2026 | checked: 2026-10-24
 median-price-existing-us,evidence,agree,fhfa-s-house-price,,"Federal Housing Finance Agency, 'FHFA House Price Index Up 0.3 Percent in July; Up 2.6 Percent from Last Year,' September 29, 2026 (January figure from FHFA's March 31, 2026 release)",,,,,,,,,,,,,,url: https://www.fhfa.gov/news/news-release/fhfa-house-price-index-up-0.3-percent-in-july-up-2.6-percent-from-last-year | checked: 2026-10-24
@@ -12822,11 +12822,11 @@ median-price-existing-us,falsify,agree,nar-s-january-2028,,,,,,,,,,,,,,,,
 median-price-existing-us,falsify,agree,nar-s-monthly-median,,,,,,,,,,,,,,,,
 median-price-existing-us,assumption,agree,mortgage-rates-2027-will,,,,,,,,,,,,,,,,
 median-price-existing-us,assumption,agree,us-economy-will-avoid,,,,,,,,,,,,,,,,
-median-price-existing-us,argument,disagree,mortgage-rates-above-7,,,,,,,,,,,,,,,,
-median-price-existing-us,argument,disagree,pending-home-sales-which,,,,,,,,,,,,,,,,
+median-price-existing-us,argument,disagree,mortgage-rates-above-7,,,,,,,,,,,,,,,,url: https://www.freddiemac.com/pmms | checked: 2026-11-21
+median-price-existing-us,argument,disagree,pending-home-sales-which,,,,,,,,,,,,,,,,url: https://www.nar.realtor/newsroom/pending-home-sales-decreased-4-7-percent-october-2026 | checked: 2026-11-21
 median-price-existing-us,argument,disagree,builders-cutting-prices-new,,,,,,,,,,,,,,,,
-median-price-existing-us,argument,disagree,yearly-gain-us-median,,,,,,,,,,,,,,,,
-median-price-existing-us,argument,disagree,asking-prices-us-homes,,,,,,,,,,,,,,,,
+median-price-existing-us,argument,disagree,yearly-gain-us-median,,,,,,,,,,,,,,,,url: https://www.nar.realtor/newsroom/existing-home-sales-decreased-5-5-percent-october-nar-report | checked: 2026-11-21
+median-price-existing-us,argument,disagree,asking-prices-us-homes,,,,,,,,,,,,,,,,url: https://www.redfin.com/news/housing-market-update-asking-prices-decline-october/ | checked: 2026-11-21
 median-price-existing-us,evidence,disagree,nar-s-pending-home,,"National Association of Realtors, Pending Home Sales data page (September 2026 data), October 2026",,,,,,,,,,,,,,url: https://www.nar.realtor/research-and-statistics/housing-statistics/pending-home-sales | checked: 2026-10-24
 median-price-existing-us,evidence,disagree,freddie-mac-s-average,,"Freddie Mac, Primary Mortgage Market Survey, October 22, 2026",,,,,,,,,,,,,,url: https://www.freddiemac.com/pmms | checked: 2026-10-24
 median-price-existing-us,evidence,disagree,nahb-wells-fargo-builder,,"National Association of Home Builders, NAHB/Wells Fargo Housing Market Index, October 2026",,,,,,,,,,,,,,url: https://www.nahb.org/news-and-economics/housing-economics/indices/housing-market-index | checked: 2026-10-24
@@ -12842,7 +12842,7 @@ median-price-existing-us,assumption,disagree,slump-pending-home-sales,,,,,,,,,,,
 median-price-existing-us,assumption,disagree,sellers-existing-homes-will,,,,,,,,,,,,,,,,
 median-price-existing-us,prediction,agree,nar-s-median-existing-2,,,,,,,,,,,,,,,"July 2027, NAR's existing-home sales release covering June 2027",
 median-price-existing-us,prediction,agree,nar-will-report-year,,,,,,,,,,,,,,,"January 2028, NAR's existing-home sales release covering December 2027",
-median-price-existing-us,prediction,disagree,nar-will-report-year-2,,,,,,,,,,,,,,,"January 2028, NAR's existing-home sales release covering December 2027",
+median-price-existing-us,prediction,disagree,nar-will-report-year-2,,,,,,,,,,,,,,,"January 2028, NAR's existing-home sales release covering December 2027",url: https://www.nar.realtor/newsroom/existing-home-sales-increased-1-5-in-september-according-to-nar-report | checked: 2026-11-21
 median-price-existing-us,prediction,disagree,fhfa-s-house-price-2,,,,,,,,,,,,,,,"February 2028, FHFA's quarterly House Price Index release (with monthly tables) covering December 2027",
 median-price-existing-us,interest,agree,homeowners-planning-sell-existing,,,,,,,,,,,,,,,,
 median-price-existing-us,interest,agree,real-estate-agents-paid,,,,,,,,,,,,,,,,
@@ -12854,7 +12854,7 @@ median-price-existing-us,cba,agree,mortgage-lenders-bond-investors,,,,,,,,mortga
 median-price-existing-us,cba,agree,real-estate-agents-earn,,,,,,,,real-estate-agents-paid,,,dollars of commission per sale,,,,,
 median-price-existing-us,cba,disagree,first-time-buyers-need-2,,,,,,,,first-time-buyers-need,,,dollars a month in mortgage payment per buyer household,,,,,
 median-price-existing-us,cba,disagree,renters-saving-first-home,,,,,,,,renters-saving-first-down,,,dollars of down payment needed,,,,,
-median-price-existing-us,cba,disagree,buyers-who-rush-beat,,,,,,,,first-time-buyers-need,,,dollars of extra interest a year per household,,,,,
+median-price-existing-us,cba,disagree,buyers-who-rush-beat,,,,,,,,first-time-buyers-need,,,dollars of extra interest a year per household,,,,,url: https://fred.stlouisfed.org/data/MORTGAGE30US.txt | checked: 2026-11-21
 median-price-existing-us,category,,,dollars a month in mortgage payment per buyer household,,,,,,,,,,,,,,,
 median-price-existing-us,category,,,dollars of commission per sale,,,,,,,,,,,,,,,
 median-price-existing-us,category,,,dollars of down payment needed,,,,,,,,,,,,,,,
@@ -12880,12 +12880,12 @@ median-price-existing-us,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether mortgage 
 median-price-existing-us,dispute,,,Definitional,,,,,,,,,,,,,,,"what: Whether a rise in NAR's median reflects higher prices for the same homes or only a shift toward more expensive homes being sold. | move: Comparing NAR's median with repeat-sales indexes such as FHFA's and Case-Shiller's through 2027, alongside NAR's counts of sales by price range."
 median-price-existing-us,value,,,,,,,,,,,,,,,,,,"value: Prosperity | srank: 1 | orank: 2 | why: Supporters point to the wealth owners gain as prices rise; opponents point to the higher cost rising prices put on buyers, so both argue from household prosperity but count different households first."
 median-price-existing-us,value,,,,,,,,,,,,,,,,,,value: Prudence | srank: 2 | orank: 1 | why: Opponents warn that counting on gains with mortgage rates above 7% is a risky bet for buyers; supporters reply that betting against a 39-month streak of gains is just as risky.
-national-average-price-regular,argument,agree,oil-price-spikes-caused,,,,,,,,,,,,,,,,
+national-average-price-regular,argument,agree,oil-price-spikes-caused,,,,,,,,,,,,,,,,url: https://www.dallasfed.org/~/media/documents/research/swe/1991/swe9102a.pdf | checked: 2026-11-21
 national-average-price-regular,argument,agree,oil-futures-fall-2026,,,,,,,,,,,,,,,,
-national-average-price-regular,argument,agree,before-2026-iran-war,,,,,,,,,,,,,,,,
-national-average-price-regular,argument,agree,december-usually-one-cheapest,,,,,,,,,,,,,,,,
-national-average-price-regular,argument,agree,u-s-crude-oil,,,,,,,,,,,,,,,,
-national-average-price-regular,argument,agree,u-s-gasoline-consumption,,,,,,,,,,,,,,,,
+national-average-price-regular,argument,agree,before-2026-iran-war,,,,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/archives/feb26.pdf | checked: 2026-11-21
+national-average-price-regular,argument,agree,december-usually-one-cheapest,,,,,,,,,,,,,,,,url: https://www.eia.gov/energyexplained/gasoline/price-fluctuations.php | checked: 2026-11-21
+national-average-price-regular,argument,agree,u-s-crude-oil,,,,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/ | checked: 2026-11-21
+national-average-price-regular,argument,agree,u-s-gasoline-consumption,,,,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/tables/pdf/4atab.pdf | checked: 2026-11-21
 national-average-price-regular,evidence,agree,february-2026-before-iran,,"U.S. Energy Information Administration, Short-Term Energy Outlook, February 2026 (released February 10, 2026), Table 4c and overview table",,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/archives/feb26.pdf | checked: 2026-10-24
 national-average-price-regular,evidence,agree,eia-s-september-2026,,"U.S. Energy Information Administration, Short-Term Energy Outlook, September 2026 (released September 9, 2026), monthly data tables, Table 2",,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/archives/sep26_base.xlsx | checked: 2026-10-24
 national-average-price-regular,evidence,agree,september-2026-nearest-month,,"U.S. Energy Information Administration, Short-Term Energy Outlook, October 2026, Table a2, Crude Oil and Petroleum Product Price Data (based on ICE data)",,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/archives/oct26.pdf | checked: 2026-10-24
@@ -12893,12 +12893,12 @@ national-average-price-regular,evidence,agree,aaa-s-national-average,,"Scripps N
 national-average-price-regular,media,agree,causes-consequences-oil-shock-2,,,,,,,,,,,,,,,,url: https://www.brookings.edu/wp-content/uploads/2009/03/2009a_bpea_hamilton.pdf | checked: 2026-10-24
 national-average-price-regular,falsify,agree,tanker-traffic-through-strait-2,,,,,,,,,,,,,,,,
 national-average-price-regular,assumption,agree,someone-who-accepts-belief,,,,,,,,,,,,,,,,
-national-average-price-regular,argument,disagree,u-s-energy-information,,,,,,,,,,,,,,,,
-national-average-price-regular,argument,disagree,brent-crude-above-110,,,,,,,,,,,,,,,,
-national-average-price-regular,argument,disagree,2026-iran-war-drained,,,,,,,,,,,,,,,,
-national-average-price-regular,argument,disagree,gasoline-retailers-whose-margins,,,,,,,,,,,,,,,,
-national-average-price-regular,argument,disagree,attacks-gulf-oil-export,,,,,,,,,,,,,,,,
-national-average-price-regular,argument,disagree,oil-simple-forecast-prices,,,,,,,,,,,,,,,,
+national-average-price-regular,argument,disagree,u-s-energy-information,,,,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/archives/oct26.pdf | checked: 2026-11-21
+national-average-price-regular,argument,disagree,brent-crude-above-110,,,,,,,,,,,,,,,,url: https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=RBRTE&f=M | checked: 2026-11-21
+national-average-price-regular,argument,disagree,2026-iran-war-drained,,,,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/archives/oct26.pdf | checked: 2026-11-21
+national-average-price-regular,argument,disagree,gasoline-retailers-whose-margins,,,,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/archives/oct26.pdf | checked: 2026-11-21
+national-average-price-regular,argument,disagree,attacks-gulf-oil-export,,,,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/archives/oct26.pdf | checked: 2026-11-21
+national-average-price-regular,argument,disagree,oil-simple-forecast-prices,,,,,,,,,,,,,,,,url: https://www.federalreserve.gov/pubs/ifdp/2011/1022/ifdp1022.htm | checked: 2026-11-21
 national-average-price-regular,evidence,disagree,eia-s-october-2026,,"U.S. Energy Information Administration, Short-Term Energy Outlook, October 2026 (released October 6, 2026), Table 2 and monthly data tables",,,,,,,,,,,,,,url: https://www.eia.gov/outlooks/steo/archives/oct26.pdf | checked: 2026-10-24
 national-average-price-regular,evidence,disagree,aaa-s-national-average-2,,"AAA Gas Prices, national average page, October 24, 2026",,,,,,,,,,,,,,url: https://gasprices.aaa.com/ | checked: 2026-10-24
 national-average-price-regular,evidence,disagree,brent-crude-rose-2,,"Associated Press (Damian J. Troise), ""Oil prices hit levels not seen since March,"" via Transport Topics, October 23, 2026",,,,,,,,,,,,,,url: https://ttnews.com/articles/oil-prices-levels-may | checked: 2026-10-24
@@ -12918,9 +12918,9 @@ national-average-price-regular,interest,agree,gas-station-owners-need,,,,,,,,,,,
 national-average-price-regular,interest,disagree,u-s-shale-oil,,,,,,,,,,,,,,,,
 national-average-price-regular,interest,disagree,electric-vehicle-makers-need,,,,,,,,,,,,,,,,
 national-average-price-regular,interest,disagree,governments-oil-producing-states,,,,,,,,,,,,,,,,
-national-average-price-regular,cba,agree,commuting-households-pay-least,,,,,,,,households-commute-car-need,,,dollars a year per household,,,,,
+national-average-price-regular,cba,agree,commuting-households-pay-least,,,,,,,,households-commute-car-need,,,dollars a year per household,,,,,url: https://gasprices.aaa.com/2026/10/ | checked: 2026-11-21
 national-average-price-regular,cba,agree,drivers-paid-trip-keep,,,,,,,,rideshare-delivery-drivers-who,,,dollars a week per driver,,,,,
-national-average-price-regular,cba,agree,gas-stations-rebuild-per,,,,,,,,gas-station-owners-need,,,cents per gallon of retail margin,,,,,
+national-average-price-regular,cba,agree,gas-stations-rebuild-per,,,,,,,,gas-station-owners-need,,,cents per gallon of retail margin,,,,,url: https://www.adn.com/business-economy/2026/04/02/dizzying-fuel-prices-are-determined-by-factors-largely-outside-of-a-gas-stations-control/ | checked: 2026-11-21
 national-average-price-regular,cba,disagree,cheaper-gasoline-weaken-fuel,,,,,,,,electric-vehicle-makers-need,,,electric vehicles sold per year,,,,,
 national-average-price-regular,cba,disagree,oil-state-budgets-collect,,,,,,,,governments-oil-producing-states,,,dollars a year of state revenue,,,,,
 national-average-price-regular,category,,,cents per gallon of retail margin,,,,,,,,,,,,,,,
@@ -13094,3 +13094,6 @@ colorado-governor-jared-polis,argument,disagree,polis-signed-sb-21-238,,colorado
 compensation-payments-colorado-generally,argument,disagree,colorado-s-wolf-compensation-program,,cpw.state.co.us,,,,,,,,,,,,,,url: https://cpw.state.co.us/wolf-depredation | checked: 2026-11-21 | tag: truth.premise-false
 across-united-states-dairy,argument,disagree,70-us-human-h5-cases,,cdc.gov,,,,,,,,,,,,,,url: https://www.cdc.gov/bird-flu/spotlights/h5n1-response-03192025.html | checked: 2026-11-21 | tag: challenge.misquoted
 associated-press-will-project-2,argument,disagree,associated-press-projected-democrats-republicans,,scrippsnews.com,,,,,,,,,,,,,,url: https://www.scrippsnews.com/politics/america-votes/democrats-will-win-control-of-us-house-retaking-control-from-republicans | checked: 2026-11-21 | tag: truth.premise-false
+113-4-billion-appropriated,argument,disagree,25-9-billion-congress-appropriated,,gao.gov,,,,,,,,,,,,,,url: https://www.gao.gov/assets/gao-24-106289.pdf | checked: 2026-11-21 | tag: challenge.misquoted
+nvidia-was-most-valuable,argument,disagree,nvidia-was-most-valuable-public,,arynews.tv,,,,,,,,,,,,,,url: https://arynews.tv/apple-hits-five-trillion-dollar-valuation-to-overtake-nvidia-in-global-market-cap | checked: 2026-11-21 | tag: truth.premise-false
+nvidia-s-revenue-growing,argument,disagree,nvidia-s-revenue-grew-103,,stockanalysis.com,,,,,,,,,,,,,,url: https://stockanalysis.com/list/biggest-companies/ | checked: 2026-11-21 | tag: truth.premise-false
