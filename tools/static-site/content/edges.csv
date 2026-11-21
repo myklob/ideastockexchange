@@ -9535,37 +9535,37 @@ bob-chew-forward-party,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Chew's campaign 
 bob-chew-forward-party,dispute,,,Values,,,,,,,,,,,,,,,"what: Supporters hold that independence from party leaders and donors is the most important trait in a senator, while opponents hold that a tested voting record, seniority and caucus standing matter more for a six-year term. | move: Nothing settles a difference in values, but publishing side by side what Hickenlooper's committee seats delivered for Colorado and what a caucus-free senator could have delivered would narrow what each side is actually trading away."
 bob-chew-forward-party,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree whether a vote for Chew changes which major-party candidate wins (the spoiler claim) or mainly signals voter demand for a debt plan without affecting the result. | move: A poll asking Chew's supporters their second choice, or a county-level comparison of Chew's vote with the Hickenlooper-Baisley margin after November 3, 2026, would show which effect actually occurred."
 bob-chew-forward-party,value,,,,,,,,,,,,,,,,,,"value: Independence | srank: 1 | orank: 3 | why: Supporters rank a senator who owes nothing to a party or donor first, while opponents see independence as untested and worth less than proven conduct."
-forward-party-candidate-can,argument,agree,forward-party-member-already,,,,,,,,,,,,,,,,
-forward-party-candidate-can,argument,agree,colorado-s-electorate-unusually,,,,,,,,,,,,,,,,
-forward-party-candidate-can,argument,agree,forward-party-has-secured,,,,,,,,,,,,,,,,
-forward-party-candidate-can,argument,agree,colorado-s-minor-party,,,,,,,,,,,,,,,,
+forward-party-candidate-can,argument,agree,forward-party-member-already,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Emily_Buss_(politician) | checked: 2026-11-21
+forward-party-candidate-can,argument,agree,colorado-s-electorate-unusually,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/06/21/registered-voters-on-the-eve-of-the-2026-primaries-cronin-loevy/ | checked: 2026-11-21
+forward-party-candidate-can,argument,agree,forward-party-has-secured,,,,,,,,,,,,,,,,url: https://www.sos.state.co.us/pubs/elections/vote/generalCandidates.html | checked: 2026-11-21
+forward-party-candidate-can,argument,agree,colorado-s-minor-party,,,,,,,,,,,,,,,,url: https://colorado.public.law/statutes/crs_1-4-1304 | checked: 2026-11-21
 forward-party-candidate-can,evidence,agree,2024-colorado-house-district,,"Wikipedia, 2024 Colorado House of Representatives election, citing Colorado Secretary of State results, 2024",,,,,,,,,,,,,,
-forward-party-candidate-can,evidence,agree,utah-senate-district-11,,"Ballotpedia, Emily Buss; KPCW, The Forward Party of Utah has a new senator. Can they hold on in 2026?, December 2025",,,,,,,,,,,,,,
+forward-party-candidate-can,evidence,agree,utah-senate-district-11,,"Ballotpedia, Emily Buss; KPCW, The Forward Party of Utah has a new senator. Can they hold on in 2026?, December 2025",,,,,,,,,,,,,,url: https://www.kpcw.org/state-regional/2025-12-19/the-forward-party-of-utah-has-a-new-senator-can-they-hold-on-in-2026 | checked: 2026-11-21
 forward-party-candidate-can,assumption,agree,enough-voters-least-one,,,,,,,,,,,,,,,,
 forward-party-candidate-can,assumption,agree,dissatisfaction-both-major-parties,,,,,,,,,,,,,,,,
 forward-party-candidate-can,assumption,agree,saying-forward-party-candidate,,,,,,,,,,,,,,,,
-forward-party-candidate-can,person,agree,andrew-yang-who-founded,,,,,,,,,,,,,,,,
-forward-party-candidate-can,person,agree,greg-lopez-former-republican,,,,,,,,,,,,,,,,
-forward-party-candidate-can,person,agree,michelle-quist-chair-forward,,,,,,,,,,,,,,,,
-forward-party-candidate-can,media,agree,forward-notes-future-our,,,,,,,,,,,,,,,,
-forward-party-candidate-can,media,agree,forward-party-utah-has,,,,,,,,,,,,,,,,
-forward-party-candidate-can,media,agree,utah-forward-party-s,,,,,,,,,,,,,,,,
-forward-party-candidate-can,argument,disagree,forward-party-has-exactly,,,,,,,,,,,,,,,,
-forward-party-candidate-can,argument,disagree,no-candidate-outside-two,,,,,,,,,,,,,,,,
-forward-party-candidate-can,argument,disagree,forward-party-s-one,,,,,,,,,,,,,,,,
-forward-party-candidate-can,evidence,disagree,colorado-secretary-state-s,,"Colorado Secretary of State, General Election Official Candidate List, 2026",,,,,,,,,,,,,,
-forward-party-candidate-can,evidence,disagree,house-district-4-had,,"Colorado Secretary of State, September 2026 Voter Registration Statistics, State House Districts sheet, 2026; Wikipedia, Colorado's 4th House of Representatives district, 2024 result",,,,,,,,,,,,,,
-forward-party-candidate-can,evidence,disagree,statewide-451-active-voters,,"Colorado Secretary of State, September 2026 Voter Registration Statistics, Party and Status sheet, 2026",,,,,,,,,,,,,,
-forward-party-candidate-can,evidence,disagree,forward-party-nominees-virginia,,"Wikipedia, 2025 Virginia House of Delegates election; Virginia Public Access Project, 2025 House of Delegates District 72 Regular General, 2025",,,,,,,,,,,,,,
-forward-party-candidate-can,prediction,disagree,democrat-cecelia-espenoza-will,,,,,,,,,,,,,,,"By December 15, 2026; checked against the Colorado Secretary of State's certified 2026 general election results for House District 4.",
-forward-party-candidate-can,prediction,disagree,colorado-forward-party-will,,,,,,,,,,,,,,,"By August 1, 2028; checked against the FWD column of the Colorado Secretary of State's July 2028 voter registration statistics.",
+forward-party-candidate-can,person,agree,andrew-yang-who-founded,,,,,,,,,,,,,,,,url: https://www.fox13now.com/news/politics/the-forward-party-sees-opportunity-in-utahs-upcoming-elections | checked: 2026-11-21
+forward-party-candidate-can,person,agree,greg-lopez-former-republican,,,,,,,,,,,,,,,,url: https://www.kunc.org/politics/2026-08-27/can-independent-candidates-gain-traction-maybe-not-but-its-not-stopping-them-from-trying | checked: 2026-11-21
+forward-party-candidate-can,person,agree,michelle-quist-chair-forward,,,,,,,,,,,,,,,,url: https://www.kuer.org/politics-government/2025-12-16/the-forward-party-of-utah-has-a-new-senator-can-they-hold-on-in-2026 | checked: 2026-11-21
+forward-party-candidate-can,media,agree,forward-notes-future-our,,,,,,,,,,,,,,,,url: https://www.penguinrandomhouse.com/books/667341/forward-by-andrew-yang/ | checked: 2026-11-21
+forward-party-candidate-can,media,agree,forward-party-utah-has,,,,,,,,,,,,,,,,url: https://www.kuer.org/politics-government/2025-12-16/the-forward-party-of-utah-has-a-new-senator-can-they-hold-on-in-2026 | checked: 2026-11-21
+forward-party-candidate-can,media,agree,utah-forward-party-s,,,,,,,,,,,,,,,,url: https://www.standard.net/news/2025/dec/13/utah-forward-partys-first-of-its-kind-preference-poll-picks-a-winner-to-replace-sen-thatcher | checked: 2026-11-21
+forward-party-candidate-can,argument,disagree,forward-party-has-exactly,,,,,,,,,,,,,,,,url: https://www.sos.state.co.us/pubs/elections/vote/generalCandidates.html | checked: 2026-11-21
+forward-party-candidate-can,argument,disagree,no-candidate-outside-two,,,,,,,,,,,,,,,,url: https://ballot-access.org/?p=16482 | checked: 2026-11-21
+forward-party-candidate-can,argument,disagree,forward-party-s-one,,,,,,,,,,,,,,,,url: https://www.sos.state.co.us/pubs/elections/vote/generalCandidates.html | checked: 2026-11-21
+forward-party-candidate-can,evidence,disagree,colorado-secretary-state-s,,"Colorado Secretary of State, General Election Official Candidate List, 2026",,,,,,,,,,,,,,url: https://www.sos.state.co.us/pubs/elections/vote/generalCandidates.html | checked: 2026-11-21
+forward-party-candidate-can,evidence,disagree,house-district-4-had,,"Colorado Secretary of State, September 2026 Voter Registration Statistics, State House Districts sheet, 2026; Wikipedia, Colorado's 4th House of Representatives district, 2024 result",,,,,,,,,,,,,,url: https://www.sos.state.co.us/pubs/elections/VoterRegNumbers/2026/SeptemberStatistics2026.xlsx | checked: 2026-11-21
+forward-party-candidate-can,evidence,disagree,statewide-451-active-voters,,"Colorado Secretary of State, September 2026 Voter Registration Statistics, Party and Status sheet, 2026",,,,,,,,,,,,,,url: https://www.sos.state.co.us/pubs/elections/VoterRegNumbers/2026/SeptemberStatistics2026.xlsx | checked: 2026-11-21
+forward-party-candidate-can,evidence,disagree,forward-party-nominees-virginia,,"Wikipedia, 2025 Virginia House of Delegates election; Virginia Public Access Project, 2025 House of Delegates District 72 Regular General, 2025",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2025_Virginia_House_of_Delegates_election | checked: 2026-11-21
+forward-party-candidate-can,prediction,disagree,democrat-cecelia-espenoza-will,,,,,,,,,,,,,,,"By December 15, 2026; checked against the Colorado Secretary of State's certified 2026 general election results for House District 4.",url: https://en.wikipedia.org/wiki/2026_Colorado_House_of_Representatives_election | checked: 2026-11-21
+forward-party-candidate-can,prediction,disagree,colorado-forward-party-will,,,,,,,,,,,,,,,"By August 1, 2028; checked against the FWD column of the Colorado Secretary of State's July 2028 voter registration statistics.",url: https://colorado.public.law/statutes/crs_1-4-1303 | checked: 2026-11-21
 forward-party-candidate-can,assumption,disagree,party-labels-straight-ticket,,,,,,,,,,,,,,,,
 forward-party-candidate-can,assumption,disagree,past-colorado-legislative-results,,,,,,,,,,,,,,,,
-forward-party-candidate-can,person,disagree,art-goodtimes-who-was,,,,,,,,,,,,,,,,
-forward-party-candidate-can,media,disagree,third-parties-america-citizen,,,,,,,,,,,,,,,,
-forward-party-candidate-can,media,disagree,breaking-two-party-doom,,,,,,,,,,,,,,,,
+forward-party-candidate-can,person,disagree,art-goodtimes-who-was,,,,,,,,,,,,,,,,url: https://www.kunc.org/politics/2026-08-27/can-independent-candidates-gain-traction-maybe-not-but-its-not-stopping-them-from-trying | checked: 2026-11-21
+forward-party-candidate-can,media,disagree,third-parties-america-citizen,,,,,,,,,,,,,,,,url: https://press.princeton.edu/books/paperback/9780691026138/third-parties-in-america | checked: 2026-11-21
+forward-party-candidate-can,media,disagree,breaking-two-party-doom,,,,,,,,,,,,,,,,url: https://global.oup.com/academic/product/breaking-the-two-party-doom-loop-9780190913854 | checked: 2026-11-21
 forward-party-candidate-can,interest,disagree,residents-colorado-house-district,,,,,,,,,,,,,,,,
-forward-party-candidate-can,cba,disagree,colorado-district-decided-few,,,,,,,,,,,legislative seats whose winner changes because of a third candidate,,,,,
+forward-party-candidate-can,cba,disagree,colorado-district-decided-few,,,,,,,,,,,legislative seats whose winner changes because of a third candidate,,,,,url: https://en.wikipedia.org/wiki/Kathleen_Curry | checked: 2026-11-21
 forward-party-candidate-can,category,,,legislative seats whose winner changes because of a third candidate,,,,,,,,,,,,,,,
 forward-party-candidate-can,criterion,,forward-party-nominee-being,,,,,,,,,,,,,,,,"method: Read the Secretary of State's certified 2026 general election results for all 65 House and 21 Senate districts and check the party label of each winner; only a candidate listed as Forward Party on the official candidate list counts, not an affiliated Democrat or Republican. | validity: High | reliability: High | linkage: High | importance: High | strengthen: Bill Hare or any other Forward Party nominee is certified the winner of a legislative district. | weaken: No Forward Party nominee wins any district, and the belief resolves false for 2026."
 forward-party-candidate-can,criterion,,number-active-colorado-voters,,,,,,,,,,,,,,,,"method: Read the FWD column of the Party and Status sheet in the Secretary of State's monthly voter registration statistics for December 2026 and for the month before the 2028 primary, and compare with the 451 active registrants on October 1, 2026. | validity: Medium | reliability: High | linkage: Medium | importance: Medium | strengthen: Forward registration passes 1,000 active voters, the threshold the state uses for keeping minor-party status without a 1% statewide vote. | weaken: Forward registration stays below 500 and the party keeps its status only through a statewide candidate's vote share."
@@ -9952,30 +9952,30 @@ ceasefire-leaves-russia-holding,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two si
 ceasefire-leaves-russia-holding,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree about how to weigh the Ukrainian lives lost each year of fighting against the risk of a larger war later. | move: Evidence cannot fully settle it, but agreeing on estimates of both costs, deaths per year now against the probability and size of a future war, would narrow it."
 ceasefire-leaves-russia-holding,value,,,,,,,,,,,,,,,,,,"value: Life | srank: 3 | orank: 1 | why: Opponents rank stopping the deaths of soldiers and civilians highest, while supporters accept those losses as the price of preventing worse ones later."
 european-countries-united-states,argument,agree,russia-s-war-ukraine,,,,,,,,,,,,,,,,
-european-countries-united-states,argument,agree,decades-united-states-carried,,,,,,,,,,,,,,,,
+european-countries-united-states,argument,agree,decades-united-states-carried,,,,,,,,,,,,,,,,url: https://www.nato.int/cps/en/natohq/topics_67655.htm | checked: 2026-11-21
 european-countries-united-states,argument,agree,united-states-has-keep,,,,,,,,,,,,,,,,
 european-countries-united-states,argument,agree,when-european-countries-pay,,,,,,,,,,,,,,,,
-european-countries-united-states,argument,agree,european-funding-ukraine-has,,,,,,,,,,,,,,,,
+european-countries-united-states,argument,agree,european-funding-ukraine-has,,,,,,,,,,,,,,,,url: https://www.kielinstitut.de/publications/news/european-support-for-ukraine-continues-steadily-us-assistance-stalls | checked: 2026-11-21
 european-countries-united-states,evidence,agree,european-donors-allocated-about,,"Kiel Institute for the World Economy, Ukraine Support Tracker, Release 31 dataset, Figure A14 (Military allocations, Europe vs US), 2026",,,,,,,,,,,,,,
-european-countries-united-states,evidence,agree,european-donors-allocated-average,,"Kiel Institute for the World Economy, Ukraine Support Tracker, Release 31 dataset, Figure A31 (Monthly Average of Aid Allocations by Donor Group, 2022 to August 2026), 2026",,,,,,,,,,,,,,
+european-countries-united-states,evidence,agree,european-donors-allocated-average,,"Kiel Institute for the World Economy, Ukraine Support Tracker, Release 31 dataset, Figure A31 (Monthly Average of Aid Allocations by Donor Group, 2022 to August 2026), 2026",,,,,,,,,,,,,,url: https://www.kielinstitut.de/media/news/ukraine-support-tracker-europe-leads-on-aid-us-weapons-remain-key/ | checked: 2026-11-21
 european-countries-united-states,evidence,agree,european-countries-had-allocated,,"Kiel Institute for the World Economy, Ukraine Support Tracker, Release 31 dataset, Figure A23 (Cumulative Military Procurement Allocations per Month), 2026",,,,,,,,,,,,,,
 european-countries-united-states,prediction,agree,european-donors-will-have,,,,,,,,,,,,,,,"By December 31, 2027; checked against the Kiel Institute Ukraine Support Tracker's cumulative military allocations and monthly-average figures.",
-european-countries-united-states,prediction,agree,share-european-military-procurement,,,,,,,,,,,,,,,"By December 31, 2027; checked against the Kiel Institute Ukraine Support Tracker's reporting on US-sourced European military aid.",
+european-countries-united-states,prediction,agree,share-european-military-procurement,,,,,,,,,,,,,,,"By December 31, 2027; checked against the Kiel Institute Ukraine Support Tracker's reporting on US-sourced European military aid.",url: https://www.kielinstitut.de/media/news/ukraine-support-tracker-europe-leads-on-aid-us-weapons-remain-key/ | checked: 2026-11-21
 european-countries-united-states,falsify,agree,european-factories-begin-turning,,,,,,,,,,,,,,,,
 european-countries-united-states,falsify,agree,ukraine-holds-its-front,,,,,,,,,,,,,,,,
 european-countries-united-states,assumption,agree,europe-s-money-spent,,,,,,,,,,,,,,,,
 european-countries-united-states,assumption,agree,how-much-country-pays,,,,,,,,,,,,,,,,
 european-countries-united-states,assumption,agree,united-states-faces-more,,,,,,,,,,,,,,,,
-european-countries-united-states,person,agree,july-2025-president-donald,,,,,,,,,,,,,,,,
-european-countries-united-states,media,agree,strategy-denial-american-defense,,,,,,,,,,,,,,,,
-european-countries-united-states,media,agree,defending-europe-without-us,,,,,,,,,,,,,,,,
-european-countries-united-states,media,agree,rebuilding-u-s-inventories,,,,,,,,,,,,,,,,
+european-countries-united-states,person,agree,july-2025-president-donald,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/DCPD-202500763/html/DCPD-202500763.htm | checked: 2026-11-21
+european-countries-united-states,media,agree,strategy-denial-american-defense,,,,,,,,,,,,,,,,url: https://yalebooks.yale.edu/book/9780300268027/the-strategy-of-denial/ | checked: 2026-11-21
+european-countries-united-states,media,agree,defending-europe-without-us,,,,,,,,,,,,,,,,url: https://www.bruegel.org/analysis/defending-europe-without-us-first-estimates-what-needed | checked: 2026-11-21
+european-countries-united-states,media,agree,rebuilding-u-s-inventories,,,,,,,,,,,,,,,,url: https://www.csis.org/analysis/rebuilding-us-inventories-six-critical-systems | checked: 2026-11-21
 european-countries-united-states,argument,disagree,if-united-states-visibly,,,,,,,,,,,,,,,,
-european-countries-united-states,argument,disagree,1994-budapest-memorandum-united,,,,,,,,,,,,,,,,
-european-countries-united-states,argument,disagree,much-american-money-ukraine,,,,,,,,,,,,,,,,
+european-countries-united-states,argument,disagree,1994-budapest-memorandum-united,,,,,,,,,,,,,,,,url: https://treaties.un.org/doc/Publication/UNTS/Volume%203007/Part/volume-3007-I-52241.pdf | checked: 2026-11-21
+european-countries-united-states,argument,disagree,much-american-money-ukraine,,,,,,,,,,,,,,,,url: https://www.csis.org/analysis/where-missing-100-billion-us-aid-ukraine | checked: 2026-11-21
 european-countries-united-states,argument,disagree,making-ukraine-s-aid,,,,,,,,,,,,,,,,
-european-countries-united-states,argument,disagree,europe-acts-through-more,,,,,,,,,,,,,,,,
-european-countries-united-states,evidence,disagree,us-stockpiles-supplied-more,,"Kiel Institute for the World Economy, ""Ukraine Support Tracker: Europe leads on aid, US weapons remain key"", press release, 13 August 2026",,,,,,,,,,,,,,
+european-countries-united-states,argument,disagree,europe-acts-through-more,,,,,,,,,,,,,,,,url: https://www.kielinstitut.de/fileadmin/Dateiverwaltung/IfW-Publications/fis-import/dd24a73f-4270-46c5-9c40-bcc9df4f1672-KPB2023_EN.pdf | checked: 2026-11-21
+european-countries-united-states,evidence,disagree,us-stockpiles-supplied-more,,"Kiel Institute for the World Economy, ""Ukraine Support Tracker: Europe leads on aid, US weapons remain key"", press release, 13 August 2026",,,,,,,,,,,,,,url: https://www.kielinstitut.de/media/news/ukraine-support-tracker-europe-leads-on-aid-us-weapons-remain-key/ | checked: 2026-11-21
 european-countries-united-states,evidence,disagree,about-77-long-range,,"Kiel Institute for the World Economy, Ukraine Support Tracker, Release 31 dataset, Figure A29 (US Dependency Rate by Weapon Types), 2026",,,,,,,,,,,,,,
 european-countries-united-states,evidence,disagree,european-donors-had-delivered,,"Kiel Institute for the World Economy, Ukraine Support Tracker, Release 31 dataset, Aggregates by Country Group, 2026",,,,,,,,,,,,,,
 european-countries-united-states,prediction,disagree,total-military-aid-ukraine,,,,,,,,,,,,,,,"By December 31, 2027; checked against the Kiel Institute Ukraine Support Tracker's monthly-average military allocations.",
@@ -9984,14 +9984,14 @@ european-countries-united-states,falsify,disagree,military-historians-defense-ag
 european-countries-united-states,falsify,disagree,evidence-emerges-china-russia,,,,,,,,,,,,,,,,
 european-countries-united-states,assumption,disagree,europe-s-arms-industry,,,,,,,,,,,,,,,,
 european-countries-united-states,assumption,disagree,united-states-took-particular,,,,,,,,,,,,,,,,
-european-countries-united-states,media,disagree,ukraine-aid-s-best,,,,,,,,,,,,,,,,
+european-countries-united-states,media,disagree,ukraine-aid-s-best,,,,,,,,,,,,,,,,url: https://usukraine.org/blog/ukraine-aids-best-kept-secret | checked: 2026-11-21
 european-countries-united-states,interest,agree,american-taxpayers-need-federal-2,,,,,,,,,,,,,,,,
 european-countries-united-states,interest,agree,european-arms-workers-need,,,,,,,,,,,,,,,,
 european-countries-united-states,interest,disagree,ukrainian-soldiers-civilians-need,,,,,,,,,,,,,,,,
 european-countries-united-states,interest,disagree,taiwanese-japanese-south-koreans,,,,,,,,,,,,,,,,
 european-countries-united-states,cba,agree,shifting-ukraine-s-military,,,,,,,,american-taxpayers-need-federal-2,,,billion euros a year of US federal spending,17.3,,,,
 european-countries-united-states,cba,agree,european-spending-buy-new,,,,,,,,european-arms-workers-need,,,billion euros a year of military procurement for Ukraine by European donors,20.1,,,,
-european-countries-united-states,cba,agree,carrying-larger-share-ukraine,,,,,,,,,,,percentage points of GDP of defense spending by NATO's European members and Canada,1.2,,,,
+european-countries-united-states,cba,agree,carrying-larger-share-ukraine,,,,,,,,,,,percentage points of GDP of defense spending by NATO's European members and Canada,1.2,,,,url: https://www.nato.int/cps/en/natohq/official_texts_236705.htm | checked: 2026-11-21
 european-countries-united-states,cba,disagree,without-full-replacement-us,,,,,,,,ukrainian-soldiers-civilians-need,,,billion euros a year less military aid reaching Ukraine than in 2024,6.2,,,,
 european-countries-united-states,cba,disagree,european-taxpayers-carry-cost,,,,,,,,,,,billion euros a year of European military aid to Ukraine,26.7,,,,
 european-countries-united-states,category,,,billion euros a year less military aid reaching Ukraine than in 2024,,,,,,,,,,,,,,,
@@ -10214,21 +10214,21 @@ colorado-repeal-taxpayer-s,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two side
 colorado-repeal-taxpayer-s,value,,,,,,,,,,,,,,,,,,"value: Opportunity | srank: 1 | orank: 3 | why: Repeal supporters put adequately funded schools and services first, while opponents believe services can be funded within the limit."
 colorado-override-local-zoning,argument,agree,housing-costs-denver-metro,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,argument,agree,allowing-apartments-right-near,,,,,,,,,,,,,,,,
-colorado-override-local-zoning,argument,agree,colorado-taxpayers-have-spent,,,,,,,,,,,,,,,,
+colorado-override-local-zoning,argument,agree,colorado-taxpayers-have-spent,,,,,,,,,,,,,,,,url: https://www.rtd-denver.com/fastracks | checked: 2026-11-21
 colorado-override-local-zoning,argument,agree,colorado-s-2024-transit,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,argument,agree,one-statewide-set-rules,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,evidence,agree,median-rent-city-denver,,"Apartment List, ""Denver Rent Report: October 2026"" and ""National Rent Report"" (Chris Salviati and Rob Warnock), 2026",,,,,,,,,,,,,,
 colorado-override-local-zoning,evidence,agree,2023-colorado-bill-have,,"Colorado General Assembly, ""SB23-213 Land Use"" bill history, 2023",,,,,,,,,,,,,,
-colorado-override-local-zoning,prediction,agree,colorado-cities-rezone-station,,,,,,,,,,,,,,,"By December 31, 2030; checked against city permit records matched to DOLA's transit-area map.",
-colorado-override-local-zoning,prediction,agree,least-three-communities-covered,,,,,,,,,,,,,,,"By December 31, 2027; checked against DOLA's published list of certified transit-oriented communities.",
+colorado-override-local-zoning,prediction,agree,colorado-cities-rezone-station,,,,,,,,,,,,,,,"By December 31, 2030; checked against city permit records matched to DOLA's transit-area map.",url: https://leg.colorado.gov/bills/hb24-1313 | checked: 2026-11-21
+colorado-override-local-zoning,prediction,agree,least-three-communities-covered,,,,,,,,,,,,,,,"By December 31, 2027; checked against DOLA's published list of certified transit-oriented communities.",url: https://content.leg.colorado.gov/sites/default/files/2024a_1313_signed.pdf | checked: 2026-11-21
 colorado-override-local-zoning,falsify,agree,permit-records-show-parcels,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,falsify,agree,colorado-cities-declined-hb24,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,assumption,agree,colorado-city-councils-generally,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,assumption,agree,adding-apartments-near-colorado,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,assumption,agree,statewide-colorado-zoning-rule,,,,,,,,,,,,,,,,
-colorado-override-local-zoning,person,agree,colorado-state-reps-steven,,,,,,,,,,,,,,,,
-colorado-override-local-zoning,media,agree,economic-implications-housing-supply,,,,,,,,,,,,,,,,
-colorado-override-local-zoning,argument,disagree,colorado-s-constitution-gives,,,,,,,,,,,,,,,,
+colorado-override-local-zoning,person,agree,colorado-state-reps-steven,,,,,,,,,,,,,,,,url: https://leg.colorado.gov/bills/hb24-1313 | checked: 2026-11-21
+colorado-override-local-zoning,media,agree,economic-implications-housing-supply,,,,,,,,,,,,,,,,url: https://www.aeaweb.org/articles?id=10.1257/jep.32.1.3 | checked: 2026-11-21
+colorado-override-local-zoning,argument,disagree,colorado-s-constitution-gives,,,,,,,,,,,,,,,,url: https://en.wikisource.org/wiki/Constitution_of_the_State_of_Colorado_(2020) | checked: 2026-11-21
 colorado-override-local-zoning,argument,disagree,many-front-range-towns,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,argument,disagree,rezoning-land-near-transit,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,argument,disagree,colorado-s-2024-transit-2,,,,,,,,,,,,,,,,
@@ -10309,11 +10309,11 @@ colorado-build-front-range,falsify,disagree,starter-service-ridership-its,,,,,,,
 colorado-build-front-range,assumption,disagree,remote-work-other-changes,,,,,,,,,,,,,,,,
 colorado-build-front-range,assumption,disagree,buses-express-lanes-highway,,,,,,,,,,,,,,,,
 colorado-build-front-range,assumption,disagree,front-range-passenger-rail-2,,,,,,,,,,,,,,,,
-colorado-build-front-range,person,disagree,randal-o-toole-director,,,,,,,,,,,,,,,,
-colorado-build-front-range,person,disagree,u-s-representative-lauren,,,,,,,,,,,,,,,,
-colorado-build-front-range,media,disagree,front-range-railroaded-randal,,,,,,,,,,,,,,,,
-colorado-build-front-range,media,disagree,romance-rails-why-passenger,,,,,,,,,,,,,,,,
-colorado-build-front-range,media,disagree,notice-election-increase-taxes,,,,,,,,,,,,,,,,
+colorado-build-front-range,person,disagree,randal-o-toole-director,,,,,,,,,,,,,,,,url: https://www.denvergazette.com/?p=553432 | checked: 2026-11-21
+colorado-build-front-range,person,disagree,u-s-representative-lauren,,,,,,,,,,,,,,,,url: https://www.rtands.com/wp-content/uploads/2025/04/rep-boebert-front-range-passenger-rail-letter-to-doge.pdf | checked: 2026-11-21
+colorado-build-front-range,media,disagree,front-range-railroaded-randal,,,,,,,,,,,,,,,,url: https://gazette.com/2026/05/24/perspective-front-range-railroaded/ | checked: 2026-11-21
+colorado-build-front-range,media,disagree,romance-rails-why-passenger,,,,,,,,,,,,,,,,url: https://books.google.com/books?vid=ISBN9781944424947 | checked: 2026-11-21
+colorado-build-front-range,media,disagree,notice-election-increase-taxes,,,,,,,,,,,,,,,,url: https://content.leg.colorado.gov/sites/default/files/2026-blue-book-en-accessible.pdf | checked: 2026-11-21
 colorado-build-front-range,interest,agree,front-range-commuters-i,,,,,,,,,,,,,,,,
 colorado-build-front-range,interest,agree,older-adults-students-people,,,,,,,,,,,,,,,,
 colorado-build-front-range,interest,agree,families-living-denver-north,,,,,,,,,,,,,,,,
@@ -10321,9 +10321,9 @@ colorado-build-front-range,interest,disagree,sales-tax-payers-front,,,,,,,,,,,,,
 colorado-build-front-range,interest,disagree,low-income-households-front,,,,,,,,,,,,,,,,
 colorado-build-front-range,interest,disagree,colorado-farmers-miners-manufacturers,,,,,,,,,,,,,,,,
 colorado-build-front-range,cba,agree,denver-fort-collins-ride,,,,,,,,older-adults-students-people,,,dollars saved per Denver to Fort Collins trip versus driving,41,,,,
-colorado-build-front-range,cba,disagree,building-colorado-connector-starter,,,,,,,,sales-tax-payers-front,,,dollars of construction cost,4732000000,,,,
+colorado-build-front-range,cba,disagree,building-colorado-connector-starter,,,,,,,,sales-tax-payers-front,,,dollars of construction cost,4732000000,,,,url: https://coloradoconnector.com/finance | checked: 2026-11-21
 colorado-build-front-range,cba,disagree,running-fully-built-colorado,,,,,,,,sales-tax-payers-front,,,dollars a year of operating cost,100000000,,,,
-colorado-build-front-range,cba,disagree,adding-passenger-trains-bnsf,,,,,,,,colorado-farmers-miners-manufacturers,,,hours of freight delay a year,,,,,
+colorado-build-front-range,cba,disagree,adding-passenger-trains-bnsf,,,,,,,,colorado-farmers-miners-manufacturers,,,hours of freight delay a year,,,,,url: https://coloradoconnector.com/faq/ | checked: 2026-11-21
 colorado-build-front-range,category,,,dollars a year of operating cost,,,,,,,,,,,,,,,
 colorado-build-front-range,category,,,dollars of construction cost,,,,,,,,,,,,,,,
 colorado-build-front-range,category,,,dollars saved per Denver to Fort Collins trip versus driving,,,,,,,,,,,,,,,
@@ -10359,28 +10359,28 @@ colorado-s-reintroduction-gray,assumption,agree,three-years-data-colorado,,,,,,,
 colorado-s-reintroduction-gray,media,agree,decade-wolf-returning-wild,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,media,agree,last-stand-pack-critical,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,argument,disagree,colorado-s-wolves-have,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,argument,disagree,yellowstone-ecological-benefits-used,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,argument,disagree,wolves-had-already-crossed,,,,,,,,,,,,,,,,
+colorado-s-reintroduction-gray,argument,disagree,yellowstone-ecological-benefits-used,,,,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1002/ecm.1598 | checked: 2026-11-21
+colorado-s-reintroduction-gray,argument,disagree,wolves-had-already-crossed,,,,,,,,,,,,,,,,url: https://docs.google.com/document/d/e/2PACX-1vTM3qrkYjvWR142mnWlKNmU_lnKMKo6WRtfrwzfJdXLOrYOXznlwf3mZQcXcGAPrEhrA5mjHK7zdRzp/pub | checked: 2026-11-21
 colorado-s-reintroduction-gray,argument,disagree,compensation-payments-colorado-generally,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,evidence,disagree,20-year-field-experiment,,"N. Thompson Hobbs, Danielle B. Johnston, Kristin N. Marshall, Evan C. Wolf and David J. Cooper, 'Does restoring apex predators to food webs restore ecosystems? Large carnivores in Yellowstone as a model system', Ecological Monographs 94(2), 2024",,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,evidence,disagree,study-yellowstone-aspen-found,,"Elaine M. Brice, Eric J. Larsen and Daniel R. MacNulty, 'Sampling bias exaggerates a textbook example of a trophic cascade', Ecology Letters 25(1):177-188, 2022",,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,prediction,disagree,colorado-parks-wildlife-s-2,,,,,,,,,,,,,,,"By June 30, 2028; checked against the Colorado Gray Wolf Annual Report posted on cpw.state.co.us.",
+colorado-s-reintroduction-gray,evidence,disagree,20-year-field-experiment,,"N. Thompson Hobbs, Danielle B. Johnston, Kristin N. Marshall, Evan C. Wolf and David J. Cooper, 'Does restoring apex predators to food webs restore ecosystems? Large carnivores in Yellowstone as a model system', Ecological Monographs 94(2), 2024",,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1002/ecm.1598 | checked: 2026-11-21
+colorado-s-reintroduction-gray,evidence,disagree,study-yellowstone-aspen-found,,"Elaine M. Brice, Eric J. Larsen and Daniel R. MacNulty, 'Sampling bias exaggerates a textbook example of a trophic cascade', Ecology Letters 25(1):177-188, 2022",,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1111/ele.13915 | checked: 2026-11-21
+colorado-s-reintroduction-gray,prediction,disagree,colorado-parks-wildlife-s-2,,,,,,,,,,,,,,,"By June 30, 2028; checked against the Colorado Gray Wolf Annual Report posted on cpw.state.co.us.",url: https://cpw.state.co.us/news/05072026/cpw-releases-gray-wolf-annual-report-biological-year-2025-2026 | checked: 2026-11-21
 colorado-s-reintroduction-gray,falsify,disagree,hair-loss-cpw-found,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,falsify,disagree,survey-western-slope-cattle,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,assumption,disagree,livelihoods-way-life-colorado,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,assumption,disagree,state-program-judged-its,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,person,disagree,former-u-s-representative,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,person,disagree,colorado-state-representative-matt,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,person,disagree,former-colorado-state-senator,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,media,disagree,wolves-saving-yellowstone-s,,,,,,,,,,,,,,,,
+colorado-s-reintroduction-gray,person,disagree,former-u-s-representative,,,,,,,,,,,,,,,,url: https://pagetwo.completecolorado.com/2020/08/30/beauprez-no-on-prop-114-the-case-against-forced-wolf-introduction/ | checked: 2026-11-21
+colorado-s-reintroduction-gray,person,disagree,colorado-state-representative-matt,,,,,,,,,,,,,,,,url: https://leg.colorado.gov/bills/hb21-1037 | checked: 2026-11-21
+colorado-s-reintroduction-gray,person,disagree,former-colorado-state-senator,,,,,,,,,,,,,,,,url: https://www.markhillman.com/overview-of-2020-ballot-questions-in-colorado/ | checked: 2026-11-21
+colorado-s-reintroduction-gray,media,disagree,wolves-saving-yellowstone-s,,,,,,,,,,,,,,,,url: https://api.openalex.org/works/doi:10.1890/09-1949.1 | checked: 2026-11-21
 colorado-s-reintroduction-gray,interest,agree,members-wildlife-conservation-groups,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,interest,agree,wildlife-watchers-guides-who,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,interest,disagree,western-slope-cattle-sheep,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,cba,agree,colorado-s-reintroduction-has,,,,,,,,members-wildlife-conservation-groups,,,wolves in CPW's spring minimum count,32,,,,
-colorado-s-reintroduction-gray,cba,agree,carrying-out-proposition-114,,,,,,,,,,,votes cast for Proposition 114,1590299,,,,
-colorado-s-reintroduction-gray,cba,agree,wolves-living-public-land,,,,,,,,wildlife-watchers-guides-who,,,dollars a year of visitor spending,,,,,
-colorado-s-reintroduction-gray,cba,agree,wolf-program-has-brought,,,,,,,,western-slope-cattle-sheep,,,dollars made available to producers,2500000,,,,
-colorado-s-reintroduction-gray,cba,disagree,people-have-killed-many,,,,,,,,members-wildlife-conservation-groups,,,wolves killed by people in a year,6,,,,
+colorado-s-reintroduction-gray,cba,agree,colorado-s-reintroduction-has,,,,,,,,members-wildlife-conservation-groups,,,wolves in CPW's spring minimum count,32,,,,url: https://cpw.state.co.us/news/07222026/colorado-parks-and-wildlife-confirms-establishment-new-gray-wolf-pack | checked: 2026-11-21
+colorado-s-reintroduction-gray,cba,agree,carrying-out-proposition-114,,,,,,,,,,,votes cast for Proposition 114,1590299,,,,url: https://content.leg.colorado.gov/sites/default/files/documents/2021A/bills/fn/2021a_hb1037_00.pdf | checked: 2026-11-21
+colorado-s-reintroduction-gray,cba,agree,wolves-living-public-land,,,,,,,,wildlife-watchers-guides-who,,,dollars a year of visitor spending,,,,,url: https://www.denver7.com/news/local-news/cause-of-death-released-for-2-of-colorados-gray-wolves | checked: 2026-11-21
+colorado-s-reintroduction-gray,cba,agree,wolf-program-has-brought,,,,,,,,western-slope-cattle-sheep,,,dollars made available to producers,2500000,,,,url: https://nrcs-prod.azureedge.us/programs-initiatives/regional-conservation-partnership-program/colorado/regional-conservation-0 | checked: 2026-11-21
+colorado-s-reintroduction-gray,cba,disagree,people-have-killed-many,,,,,,,,members-wildlife-conservation-groups,,,wolves killed by people in a year,6,,,,url: https://coloradooutdoorsmag.com/2025-2026-wolf-year-annual-report | checked: 2026-11-21
 colorado-s-reintroduction-gray,category,,,dollars a year of visitor spending,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,category,,,dollars made available to producers,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,category,,,votes cast for Proposition 114,,,,,,,,,,,,,,,
@@ -10471,21 +10471,21 @@ united-states-put-price,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Supporters and 
 united-states-put-price,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether dividends can protect a carbon price from repeal, given that rebates in Canada did not prevent the end of its consumer carbon price in 2025. | move: Tracking public support and survival of carbon prices with visible, separately mailed rebates against those without, across countries and over time, would test whether dividends buy durability."
 united-states-put-price,dispute,,,Values,,,,,,,,,,,,,,,"what: Some critics accept a carbon price but disagree about whether the revenue should go back to households or into public clean-energy investment. | move: This is a judgment about priorities, but cost-per-ton comparisons of dividend-funded and investment-funded designs would show what each choice gives up."
 united-states-put-price,value,,,,,,,,,,,,,,,,,,"value: Fairness | srank: 1 | orank: 2 | why: Supporters see charging polluters and paying equal dividends as fair, while opponents stress that rural and fossil-dependent households pay more than they get back."
-fully-driverless-robotaxis-will,argument,agree,sun-belt-states-such,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,evidence,agree,waymo-reports-271-3,,"Waymo, Safety Impact data hub, through June 2026",,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,evidence,agree,tesla-carried-paying-passengers,,"Wikipedia, Tesla Robotaxi (accessed October 2026), citing The New York Times and Texas records",,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,evidence,agree,national-highway-traffic-safety,,"TechCrunch, Zoox clears final federal hurdle to launch paid robotaxi service, July 30, 2026",,,,,,,,,,,,,,
+fully-driverless-robotaxis-will,argument,agree,sun-belt-states-such,,,,,,,,,,,,,,,,url: https://capitol.texas.gov/tlodocs/89R/billtext/html/SB02807F.htm | checked: 2026-11-21
+fully-driverless-robotaxis-will,evidence,agree,waymo-reports-271-3,,"Waymo, Safety Impact data hub, through June 2026",,,,,,,,,,,,,,url: https://waymo.com/safety/impact/ | checked: 2026-11-21
+fully-driverless-robotaxis-will,evidence,agree,tesla-carried-paying-passengers,,"Wikipedia, Tesla Robotaxi (accessed October 2026), citing The New York Times and Texas records",,,,,,,,,,,,,,url: https://en.wikipedia.org/w/index.php?title=Tesla_Robotaxi&oldid=1380581994 | checked: 2026-11-21
+fully-driverless-robotaxis-will,evidence,agree,national-highway-traffic-safety,,"TechCrunch, Zoox clears final federal hurdle to launch paid robotaxi service, July 30, 2026",,,,,,,,,,,,,,url: https://techcrunch.com/2026/07/30/zoox-clears-final-federal-hurdle-to-launch-paid-robotaxi-service/ | checked: 2026-11-21
 fully-driverless-robotaxis-will,prediction,agree,waymo-will-carry-paying,,,,,,,,,,,,,,,"By December 31, 2027; checked against Waymo's launch announcements and state permits",
 fully-driverless-robotaxis-will,prediction,agree,least-one-tesla-zoox,,,,,,,,,,,,,,,"By June 30, 2028; checked against the operator's announcement and the relevant state permit or federal exemption",
 fully-driverless-robotaxis-will,falsify,agree,new-york-massachusetts-illinois,,,,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,assumption,agree,enough-u-s-metro,,,,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,assumption,agree,no-single-crash-recall,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,person,agree,waymo-co-ceo-tekedra,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,media,agree,do-autonomous-vehicles-outperform,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,media,agree,comparison-waymo-rider-only,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,media,agree,waymo-goes-driverless-las,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,argument,disagree,single-bad-crash-can,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,evidence,disagree,general-motors-ended-cruise,,"NBC / CNBC, GM cuts 50% of Cruise staff after ending robotaxi business, 2025; Audacy, GM axes robotaxi project Cruise after more than USD10B losses, December 2024",,,,,,,,,,,,,,
+fully-driverless-robotaxis-will,person,agree,waymo-co-ceo-tekedra,,,,,,,,,,,,,,,,url: https://www.claimsjournal.com/news/national/2026/02/12/335668.htm | checked: 2026-11-21
+fully-driverless-robotaxis-will,media,agree,do-autonomous-vehicles-outperform,,,,,,,,,,,,,,,,url: https://waymo.com/research/do-autonomous-vehicles-outperform-latest-generation-human-driven-vehicles-25-million-miles/ | checked: 2026-11-21
+fully-driverless-robotaxis-will,media,agree,comparison-waymo-rider-only,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2312.12675 | checked: 2026-11-21
+fully-driverless-robotaxis-will,media,agree,waymo-goes-driverless-las,,,,,,,,,,,,,,,,url: https://electrek.co/2026/07/08/waymo-driverless-las-vegas-four-new-cities/ | checked: 2026-11-21
+fully-driverless-robotaxis-will,argument,disagree,single-bad-crash-can,,,,,,,,,,,,,,,,url: https://www.nbcbayarea.com/news/tech/gm-retreat-robotaxis-stop-funding-cruise/3732825/ | checked: 2026-11-21
+fully-driverless-robotaxis-will,evidence,disagree,general-motors-ended-cruise,,"NBC / CNBC, GM cuts 50% of Cruise staff after ending robotaxi business, 2025; Audacy, GM axes robotaxi project Cruise after more than USD10B losses, December 2024",,,,,,,,,,,,,,url: https://www.cnbc.com/2025/02/04/gm-cuts-50percent-of-cruise-staff-after-ending-robotaxi-business.html | checked: 2026-11-21
 fully-driverless-robotaxis-will,evidence,disagree,new-york-governor-kathy-2,,"TechCrunch, New York governor clears path for robotaxis everywhere with one notable exception, January 13, 2026; CleanTechnica, New York Pulls Back on Robotaxi Legislation, February 20, 2026",,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,evidence,disagree,washington-d-c-s,,"Axios, D.C. holds first hearing on legalizing Waymo and robotaxis, July 13, 2026; Axios, Waymo expects D.C. robotaxi talks to continue this summer, July 20, 2026",,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,prediction,disagree,waymo-s-count-paid,,,,,,,,,,,,,,,"By December 31, 2027; checked by comparing Waymo's announced service list to the October 2026 list of about fifteen",
@@ -10496,13 +10496,13 @@ fully-driverless-robotaxis-will,assumption,disagree,serious-robotaxi-crash-likel
 fully-driverless-robotaxis-will,assumption,disagree,vehicle-supply-cost-depots,,,,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,person,disagree,teamsters-general-president-sean,,,,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,media,disagree,autonorama-illusory-promise-high,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,media,disagree,what-self-driving-cars,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,media,disagree,new-york-s-robotaxi,,,,,,,,,,,,,,,,
+fully-driverless-robotaxis-will,media,disagree,what-self-driving-cars,,,,,,,,,,,,,,,,url: https://spectrum.ieee.org/self-driving-cars-2662494269 | checked: 2026-11-21
+fully-driverless-robotaxis-will,media,disagree,new-york-s-robotaxi,,,,,,,,,,,,,,,,url: https://techcrunch.com/2026/02/19/new-york-hits-the-brakes-on-robotaxi-expansion-plan/ | checked: 2026-11-21
 fully-driverless-robotaxis-will,interest,agree,alphabet-tesla-shareholders-need,,,,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,interest,disagree,parents-children-who-walk,,,,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,interest,disagree,pedestrians-cyclists-cities-have,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,cba,agree,reaching-25-metros-2028,,,,,,,,alphabet-tesla-shareholders-need,,,distinct U.S. metro areas with paid driverless service,25,,,,
-fully-driverless-robotaxis-will,cba,agree,25-metro-footprint-give,,,,,,,,,,,metro areas with locally collected driverless crash data,25,,,,
+fully-driverless-robotaxis-will,cba,agree,reaching-25-metros-2028,,,,,,,,alphabet-tesla-shareholders-need,,,distinct U.S. metro areas with paid driverless service,25,,,,url: https://waymo.com/about/ | checked: 2026-11-21
+fully-driverless-robotaxis-will,cba,agree,25-metro-footprint-give,,,,,,,,,,,metro areas with locally collected driverless crash data,25,,,,url: https://waymo.com/safety/impact/ | checked: 2026-11-21
 fully-driverless-robotaxis-will,cba,disagree,each-new-robotaxi-metro,,,,,,,,,,,share of ride-hail trips in served metros taken by driverless vehicles,,,,,
 fully-driverless-robotaxis-will,category,,,distinct U.S. metro areas with paid driverless service,,,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,category,,,metro areas with locally collected driverless crash data,,,,,,,,,,,,,,,
@@ -11620,24 +11620,24 @@ electric-vehicles-will-more,argument,agree,public-fast-charging-united,,,,,,,,,,
 electric-vehicles-will-more,argument,agree,gasoline-price-spikes-like,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,argument,agree,california-kept-zero-emission,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,argument,agree,fast-growing-supply-used,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,evidence,agree,average-lithium-ion-battery,,"BloombergNEF, 2025 Lithium-Ion Battery Price Survey, 2025",,,,,,,,,,,,,,
+electric-vehicles-will-more,evidence,agree,average-lithium-ion-battery,,"BloombergNEF, 2025 Lithium-Ion Battery Price Survey, 2025",,,,,,,,,,,,,,url: https://about.bnef.com/insights/clean-transport/lithium-ion-battery-pack-prices-fall-to-108-per-kilowatt-hour-despite-rising-metal-prices-bloombergnef/ | checked: 2026-11-21
 electric-vehicles-will-more,falsify,agree,battery-electric-car-priced,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,assumption,agree,falling-battery-costs-will,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,assumption,agree,us-electric-car-market,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,assumption,agree,automakers-will-offer-electric,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,media,agree,multi-pollutant-emissions-standards,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,media,agree,x-change-cars-rmi,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,media,agree,rethinking-transportation-2020-2030,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,argument,disagree,major-us-automakers-pulling,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,argument,disagree,american-interest-buying-electric,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,evidence,disagree,electric-cars-were-about,,"Cox Automotive, EV Sales in the U.S. Continue to Rise: Q3 2026 Hits Highest Volume in a Year (Kelley Blue Book estimates), 2026",,,,,,,,,,,,,,
+electric-vehicles-will-more,media,agree,multi-pollutant-emissions-standards,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/FR-2024-04-18/html/2024-06214.htm | checked: 2026-11-21
+electric-vehicles-will-more,media,agree,x-change-cars-rmi,,,,,,,,,,,,,,,,url: https://rmi.org/insight/x-change-cars/ | checked: 2026-11-21
+electric-vehicles-will-more,media,agree,rethinking-transportation-2020-2030,,,,,,,,,,,,,,,,url: https://www.rethinkx.com/transportation | checked: 2026-11-21
+electric-vehicles-will-more,argument,disagree,major-us-automakers-pulling,,,,,,,,,,,,,,,,url: https://fortune.com/2025/12/15/ford-scrapping-ev-f150-lightning-19-billion-pivot/ | checked: 2026-11-21
+electric-vehicles-will-more,argument,disagree,american-interest-buying-electric,,,,,,,,,,,,,,,,url: https://newsroom.aaa.com/2025/06/aaa-ev-survey/ | checked: 2026-11-21
+electric-vehicles-will-more,evidence,disagree,electric-cars-were-about,,"Cox Automotive, EV Sales in the U.S. Continue to Rise: Q3 2026 Hits Highest Volume in a Year (Kelley Blue Book estimates), 2026",,,,,,,,,,,,,,url: https://www.coxautoinc.com/market-insights/q3-2026-ev-sales/ | checked: 2026-11-21
 electric-vehicles-will-more,prediction,disagree,battery-electric-vehicles-will,,,,,,,,,,,,,,,"By January 31, 2029; checked against Cox Automotive's full-year 2028 EV sales report.",
 electric-vehicles-will-more,prediction,disagree,gasoline-hybrids-will-outsell,,,,,,,,,,,,,,,"By January 31, 2030; checked against Cox Automotive or Wards Intelligence full-year 2029 sales by powertrain.",
 electric-vehicles-will-more,falsify,disagree,general-motors-ford-stellantis,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,assumption,disagree,federal-policy-tariffs-loss,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,assumption,disagree,gasoline-hybrids-will-satisfy,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,assumption,disagree,public-charging-home-charging,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,media,disagree,annual-energy-outlook-2023,,,,,,,,,,,,,,,,
+electric-vehicles-will-more,media,disagree,annual-energy-outlook-2023,,,,,,,,,,,,,,,,url: https://www.eia.gov/todayinenergy/detail.php?id=56480 | checked: 2026-11-21
 electric-vehicles-will-more,interest,agree,families-living-near-busy,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,interest,agree,workers-american-battery-electric,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,interest,disagree,rural-drivers-who-tow,,,,,,,,,,,,,,,,
@@ -11692,7 +11692,7 @@ democrats-will-win-majority,assumption,agree,polling-averages-fall-2026,,,,,,,,,
 democrats-will-win-majority,assumption,agree,voters-2026-will-treat,,,,,,,,,,,,,,,,
 democrats-will-win-majority,argument,disagree,mid-decade-redistricting-2025,,,,,,,,,,,,,,,,
 democrats-will-win-majority,argument,disagree,republican-incumbents-swing-districts,,,,,,,,,,,,,,,,
-democrats-will-win-majority,argument,disagree,national-republican-congressional-committee,,,,,,,,,,,,,,,,
+democrats-will-win-majority,argument,disagree,national-republican-congressional-committee,,,,,,,,,,,,,,,,url: https://api.open.fec.gov/v1/committee/C00075820/reports/?api_key=DEMO_KEY&cycle=2026&sort=-coverage_end_date&per_page=6 | checked: 2026-11-21
 democrats-will-win-majority,evidence,disagree,mid-decade-redistricting-shifted,,"James M. Lindsay, Council on Foreign Relations, ""A Dozen Numbers That Explain the Midterms,"" October 20, 2026",,,,,,,,,,,,,,url: https://www.cfr.org/articles/a-dozen-numbers-that-explain-the-midterms | checked: 2026-10-24
 democrats-will-win-majority,evidence,disagree,nbc-news-analysis-found,,"Stephen Pettigrew and John Lapinski, NBC News, ""How Democrats could win the House, how the GOP could hang on, and where to look for a wave,"" October 24, 2026",,,,,,,,,,,,,,url: https://www.nbcnews.com/politics/2026-election/house-majority-math-democrats-win-republicans-scenarios-rcna604404 | checked: 2026-10-24
 democrats-will-win-majority,evidence,disagree,2020-election-polls-had,,"AAPOR Task Force on 2020 Pre-Election Polling, ""An Evaluation of the 2020 General Election Polls,"" American Association for Public Opinion Research, 2021",,,,,,,,,,,,,,url: https://aapor.org/wp-content/uploads/2022/11/AAPOR-Task-Force-on-2020-Pre-Election-Polling_Report-FNL.pdf | checked: 2026-10-24
@@ -11705,10 +11705,10 @@ democrats-will-win-majority,person,disagree,national-republican-congressional-co
 democrats-will-win-majority,person,disagree,president-donald-trump-told,,,,,,,,,,,,,,,,url: https://www.adn.com/nation-world/2026/01/06/trump-tries-to-rally-house-republicans-but-meanders-along-the-way-as-the-partys-majority-narrows/ | checked: 2026-10-24
 democrats-will-win-majority,falsify,disagree,republicans-hold-most-republican,,,,,,,,,,,,,,,,
 democrats-will-win-majority,assumption,disagree,roughly-nine-seat-redistricting,,,,,,,,,,,,,,,,
-democrats-will-win-majority,prediction,agree,associated-press-will-project,,,,,,,,,,,,,,,"November 30, 2026, settled against the Associated Press race calls.",
-democrats-will-win-majority,prediction,agree,house-will-elect-democrat,,,,,,,,,,,,,,,"January 2027, settled against the Clerk of the House roll call vote for Speaker.",
+democrats-will-win-majority,prediction,agree,associated-press-will-project,,,,,,,,,,,,,,,"November 30, 2026, settled against the Associated Press race calls.",url: https://www.scrippsnews.com/politics/america-votes/democrats-will-win-control-of-us-house-retaking-control-from-republicans | checked: 2026-11-21
+democrats-will-win-majority,prediction,agree,house-will-elect-democrat,,,,,,,,,,,,,,,"January 2027, settled against the Clerk of the House roll call vote for Speaker.",url: https://en.wikipedia.org/wiki/2027_Speaker_of_the_United_States_House_of_Representatives_election | checked: 2026-11-21
 democrats-will-win-majority,prediction,disagree,associated-press-will-project-2,,,,,,,,,,,,,,,"December 31, 2026, settled against the Associated Press race calls, allowing for late counts and contests decided after November 3.",
-democrats-will-win-majority,prediction,disagree,house-will-elect-republican,,,,,,,,,,,,,,,"January 2027, settled against the Clerk of the House roll call vote for Speaker.",
+democrats-will-win-majority,prediction,disagree,house-will-elect-republican,,,,,,,,,,,,,,,"January 2027, settled against the Clerk of the House roll call vote for Speaker.",url: https://en.wikipedia.org/wiki/120th_United_States_Congress | checked: 2026-11-21
 democrats-will-win-majority,interest,agree,house-democratic-committee-ranking,,,,,,,,,,,,,,,,
 democrats-will-win-majority,interest,agree,democratic-challengers-republican-held,,,,,,,,,,,,,,,,
 democrats-will-win-majority,interest,disagree,house-republican-committee-chairs,,,,,,,,,,,,,,,,
@@ -11717,7 +11717,7 @@ democrats-will-win-majority,cba,agree,democratic-challengers-republican-held-2,,
 democrats-will-win-majority,cba,agree,democratic-committee-ranking-members,,,,,,,,house-democratic-committee-ranking,,,committee staff hired,,,,,
 democrats-will-win-majority,cba,disagree,democratic-voters-who-treat,,,,,,,,democratic-challengers-republican-held,,,votes cast,,,,,
 democrats-will-win-majority,cba,disagree,republican-incumbents-swing-districts-3,,,,,,,,republican-incumbents-swing-districts-2,,,dollars raised per campaign,,,,,
-democrats-will-win-majority,cba,disagree,house-republican-committee-chairs-2,,,,,,,,house-republican-committee-chairs,,,committee gavels held,,,,,
+democrats-will-win-majority,cba,disagree,house-republican-committee-chairs-2,,,,,,,,house-republican-committee-chairs,,,committee gavels held,,,,,url: https://www.everycrsreport.com/reports/RL34679.html | checked: 2026-11-21
 democrats-will-win-majority,category,,,committee gavels held,,,,,,,,,,,,,,,
 democrats-will-win-majority,category,,,committee staff hired,,,,,,,,,,,,,,,
 democrats-will-win-majority,category,,,dollars raised per campaign,,,,,,,,,,,,,,,
@@ -12469,10 +12469,10 @@ someone-will-break-usain,value,,,,,,,,,,,,,,,,,,"value: Fairness | srank: 2 | or
 2028-los-angeles-olympics,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether the long record of Olympic budget overruns applies to a Los Angeles Games that builds almost no new permanent venues. | move: LA28 budget updates through 2028 comparing actual with budgeted spending line by line, especially temporary venues, operations and workforce."
 2028-los-angeles-olympics,value,,,,,,,,,,,,,,,,,,"value: Protecting taxpayers | srank: 1 | orank: 1 | why: Both sides want no public losses: supporters point to the LA28 private funding model as the protection, while skeptics point to the city and state backstops as proof that taxpayers still carry the risk."
 2028-los-angeles-olympics,value,,,,,,,,,,,,,,,,,,"value: Civic pride | srank: 2 | orank: 3 | why: Supporters see a second Los Angeles surplus as proof the city hosts better than anyone, while skeptics rank pride well below the cost of being wrong."
-film-released-2027-will,argument,agree,half-release-years-2015,,,,,,,,,,,,,,,,
-film-released-2027-will,argument,agree,avengers-secret-wars-scheduled,,,,,,,,,,,,,,,,
-film-released-2027-will,argument,agree,worldwide-theatrical-market-recovered,,,,,,,,,,,,,,,,
-film-released-2027-will,argument,agree,2-billion-line-fixed,,,,,,,,,,,,,,,,
+film-released-2027-will,argument,agree,half-release-years-2015,,,,,,,,,,,,,,,,url: https://www.boxofficemojo.com/chart/ww_top_lifetime_gross/ | checked: 2026-11-21
+film-released-2027-will,argument,agree,avengers-secret-wars-scheduled,,,,,,,,,,,,,,,,url: https://au.variety.com/2025/film/news/avengers-delayed-doomsday-secret-wars-december-22910/ | checked: 2026-11-21
+film-released-2027-will,argument,agree,worldwide-theatrical-market-recovered,,,,,,,,,,,,,,,,url: https://www.boxofficemojo.com/year/world/2026/ | checked: 2026-11-21
+film-released-2027-will,argument,agree,2-billion-line-fixed,,,,,,,,,,,,,,,,url: https://www.timeslive.co.za/lifestyle/2026-08-05-analysis-the-us-box-office-is-booming-but-fewer-people-are-going-to-the-movies/ | checked: 2026-11-21
 film-released-2027-will,evidence,agree,six-twelve-release-years,,"Box Office Mojo (IMDbPro), Top Lifetime Grosses, worldwide chart, read October 24, 2026",,,,,,,,,,,,,,url: https://www.boxofficemojo.com/chart/ww_top_lifetime_gross/ | checked: 2026-10-24
 film-released-2027-will,evidence,agree,spider-man-brand-new-3,,"Rebecca Rubin, Variety, 'Spider-Man: Brand New Day Hits $2 Billion Worldwide in Three Weeks', August 17, 2026; Box Office Mojo worldwide chart, read October 24, 2026",,,,,,,,,,,,,,url: https://au.variety.com/2026/film/news/spider-man-brand-new-day-2-billion-worldwide-box-office-second-fastest-milestone-39442/ | checked: 2026-10-24
 film-released-2027-will,evidence,agree,avengers-infinity-war-grossed,,"Box Office Mojo (IMDbPro), 2019 worldwide yearly chart and Top Lifetime Grosses chart, read October 24, 2026",,,,,,,,,,,,,,url: https://www.boxofficemojo.com/year/world/2019/ | checked: 2026-10-24
@@ -12486,10 +12486,10 @@ film-released-2027-will,falsify,agree,box-office-mojo-lists,,,,,,,,,,,,,,,,
 film-released-2027-will,falsify,agree,2027-release-passes-1,,,,,,,,,,,,,,,,
 film-released-2027-will,assumption,agree,avengers-secret-wars-keeps,,,,,,,,,,,,,,,,
 film-released-2027-will,assumption,agree,audience-demand-big-franchise,,,,,,,,,,,,,,,,
-film-released-2027-will,argument,disagree,passing-2-billion-rare,,,,,,,,,,,,,,,,
-film-released-2027-will,argument,disagree,sequels-2-billion-films,,,,,,,,,,,,,,,,
-film-released-2027-will,argument,disagree,china-s-box-office,,,,,,,,,,,,,,,,
-film-released-2027-will,argument,disagree,worldwide-box-office-still,,,,,,,,,,,,,,,,
+film-released-2027-will,argument,disagree,passing-2-billion-rare,,,,,,,,,,,,,,,,url: https://www.boxofficemojo.com/chart/ww_top_lifetime_gross/ | checked: 2026-11-21
+film-released-2027-will,argument,disagree,sequels-2-billion-films,,,,,,,,,,,,,,,,url: https://www.boxofficemojo.com/chart/ww_top_lifetime_gross/ | checked: 2026-11-21
+film-released-2027-will,argument,disagree,china-s-box-office,,,,,,,,,,,,,,,,url: https://gower.st/articles/solid-september-closes-best-quarter-decade-global-box-office/ | checked: 2026-11-21
+film-released-2027-will,argument,disagree,worldwide-box-office-still,,,,,,,,,,,,,,,,url: https://gower.st/articles/solid-september-closes-best-quarter-decade-global-box-office/ | checked: 2026-11-21
 film-released-2027-will,evidence,disagree,only-eight-films-have,,"Box Office Mojo (IMDbPro), Top Lifetime Grosses and 2023 and 2024 worldwide yearly charts, read October 24, 2026",,,,,,,,,,,,,,url: https://www.boxofficemojo.com/chart/ww_top_lifetime_gross/ | checked: 2026-10-24
 film-released-2027-will,evidence,disagree,avatar-fire-ash-grossed,,"Box Office Mojo (IMDbPro), 2025 worldwide yearly chart and Top Lifetime Grosses chart, read October 24, 2026",,,,,,,,,,,,,,url: https://www.boxofficemojo.com/year/world/2025/ | checked: 2026-10-24
 film-released-2027-will,evidence,disagree,china-s-box-office-2,,"Gower Street Analytics (Thomas Beranek), 'Solid September Closes Best Quarter of the Decade at Global Box Office', October 11, 2026",,,,,,,,,,,,,,url: https://gower.st/articles/solid-september-closes-best-quarter-decade-global-box-office/ | checked: 2026-10-24
@@ -12508,7 +12508,7 @@ film-released-2027-will,interest,agree,walt-disney-company-shareholders,,,,,,,,,
 film-released-2027-will,interest,disagree,independent-mid-budget-filmmakers,,,,,,,,,,,,,,,,
 film-released-2027-will,cba,agree,theater-chains-add-screens,,,,,,,,movie-theater-owners-need,,,dollars of box office and concession revenue per year,,,,,
 film-released-2027-will,cba,agree,film-passing-2-billion,,,,,,,,walt-disney-company-shareholders,,,dollars of studio theatrical revenue,,,,,
-film-released-2027-will,cba,disagree,studios-budget-schedule-around,,,,,,,,,,,dollars of revenue shortfall per film,,,,,
+film-released-2027-will,cba,disagree,studios-budget-schedule-around,,,,,,,,,,,dollars of revenue shortfall per film,,,,,url: https://www.boxofficemojo.com/title/tt1757678/ | checked: 2026-11-21
 film-released-2027-will,cba,disagree,smaller-films-released-near,,,,,,,,independent-mid-budget-filmmakers,,,dollars of box office per smaller film,,,,,
 film-released-2027-will,category,,,dollars of box office and concession revenue per year,,,,,,,,,,,,,,,
 film-released-2027-will,category,,,dollars of box office per smaller film,,,,,,,,,,,,,,,
@@ -12675,11 +12675,11 @@ nvidia-will-most-valuable,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether spend
 nvidia-will-most-valuable,dispute,,,Empirical,,,,,,,,,,,,,,,what: Whether Nvidia's lower price-to-earnings ratio than Apple's (about 26.7 against 39.6 as of October 2026) gives Nvidia's stock room to rise or shows that investors expect its profits to peak. | move: Whether Nvidia's earnings keep growing through 2027 while its gross margin holds near 75%.
 nvidia-will-most-valuable,value,,,,,,,,,,,,,,,,,,"value: Prudence | srank: 2 | orank: 1 | why: Supporters see backing the company with the fastest-growing profits as the careful choice, while opponents see a thin lead and a business that depends on a few buyers as the bigger risk."
 nvidia-will-most-valuable,value,,,,,,,,,,,,,,,,,,"value: Rewarding results | srank: 1 | orank: 2 | why: Both sides agree market value should follow real earnings; supporters point to Nvidia's 106% revenue growth, and opponents ask whether earnings that fast can last."
-court-ordered-breakup-google,argument,agree,two-federal-judges-have,,,,,,,,,,,,,,,,
-court-ordered-breakup-google,argument,agree,european-commission-has-stated,,,,,,,,,,,,,,,,
-court-ordered-breakup-google,argument,agree,justice-department-can-still,,,,,,,,,,,,,,,,
-court-ordered-breakup-google,argument,agree,separate-ad-tech-lawsuit,,,,,,,,,,,,,,,,
-court-ordered-breakup-google,argument,agree,judge-amit-mehta-s,,,,,,,,,,,,,,,,
+court-ordered-breakup-google,argument,agree,two-federal-judges-have,,,,,,,,,,,,,,,,url: https://storage.courtlistener.com/recap/gov.uscourts.vaed.533508/gov.uscourts.vaed.533508.1410.0.pdf | checked: 2026-11-21
+court-ordered-breakup-google,argument,agree,european-commission-has-stated,,,,,,,,,,,,,,,,url: https://ec.europa.eu/commission/presscorner/api/documents?reference=IP/25/1992&language=en | checked: 2026-11-21
+court-ordered-breakup-google,argument,agree,justice-department-can-still,,,,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2026/9/2/us-judge-rejects-bid-to-break-up-googles-ad-business | checked: 2026-11-21
+court-ordered-breakup-google,argument,agree,separate-ad-tech-lawsuit,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/United_States_v._Google_LLC_(2023) | checked: 2026-11-21
+court-ordered-breakup-google,argument,agree,judge-amit-mehta-s,,,,,,,,,,,,,,,,url: https://storage.courtlistener.com/recap/gov.uscourts.dcd.223205/gov.uscourts.dcd.223205.1462.0.pdf | checked: 2026-11-21
 court-ordered-breakup-google,evidence,agree,judge-amit-mehta-found,,"U.S. Department of Justice and co-plaintiff states, Response Brief and Opening Brief on Cross-Appeal, D.C. Circuit No. 26-5023, filed July 28, 2026 (quoting the liability opinion at page 156)",,,,,,,,,,,,,,url: https://www.justice.gov/atr/media/1454586/dl?inline | checked: 2026-10-24
 court-ordered-breakup-google,evidence,agree,european-commission-fined-google,,"European Commission, 'Commission fines Google 2.95 billion euros over abusive practices in online advertising technology', press release IP/25/1992, September 5, 2025",,,,,,,,,,,,,,url: https://ec.europa.eu/commission/presscorner/detail/en/ip_25_1992 | checked: 2026-10-24
 court-ordered-breakup-google,evidence,agree,judge-mehta-s-december,,"U.S. District Court for the District of Columbia, Final Judgment, United States v. Google LLC, No. 1:20-cv-3010, December 5, 2025, Sections VIII and XI",,,,,,,,,,,,,,url: https://www.justice.gov/atr/media/1421546/dl?inline | checked: 2026-10-24
@@ -12689,9 +12689,9 @@ court-ordered-breakup-google,person,agree,gail-slater-justice-department,,,,,,,,
 court-ordered-breakup-google,falsify,agree,google-signs-consent-decree,,,,,,,,,,,,,,,,
 court-ordered-breakup-google,assumption,agree,appeals-court-european-commission,,,,,,,,,,,,,,,,
 court-ordered-breakup-google,assumption,agree,any-new-order-requiring,,,,,,,,,,,,,,,,
-court-ordered-breakup-google,argument,disagree,judge-amit-mehta-refused,,,,,,,,,,,,,,,,
-court-ordered-breakup-google,argument,disagree,justice-department-states-chose,,,,,,,,,,,,,,,,
-court-ordered-breakup-google,argument,disagree,two-best-known-modern,,,,,,,,,,,,,,,,
+court-ordered-breakup-google,argument,disagree,judge-amit-mehta-refused,,,,,,,,,,,,,,,,url: https://storage.courtlistener.com/recap/gov.uscourts.dcd.223205/gov.uscourts.dcd.223205.1436.0_1.pdf | checked: 2026-11-21
+court-ordered-breakup-google,argument,disagree,justice-department-states-chose,,,,,,,,,,,,,,,,url: https://www.justice.gov/atr/media/1470911/dl | checked: 2026-11-21
+court-ordered-breakup-google,argument,disagree,two-best-known-modern,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Breakup_of_the_Bell_System | checked: 2026-11-21
 court-ordered-breakup-google,argument,disagree,rapid-change-search-advertising,,,,,,,,,,,,,,,,
 court-ordered-breakup-google,evidence,disagree,judge-mehta-s-september,,"U.S. Department of Justice and co-plaintiff states, Response Brief and Opening Brief on Cross-Appeal, D.C. Circuit No. 26-5023, filed July 28, 2026, page 34",,,,,,,,,,,,,,url: https://www.justice.gov/atr/media/1454586/dl?inline | checked: 2026-10-24
 court-ordered-breakup-google,evidence,disagree,government-s-july-28,,"U.S. Department of Justice and co-plaintiff states, Response Brief and Opening Brief on Cross-Appeal, D.C. Circuit No. 26-5023, filed July 28, 2026",,,,,,,,,,,,,,url: https://www.justice.gov/atr/media/1454586/dl?inline | checked: 2026-10-24
@@ -12700,7 +12700,7 @@ court-ordered-breakup-google,evidence,disagree,judge-thomas-penfield-jackson,,"W
 court-ordered-breakup-google,person,disagree,lee-anne-mulholland-google,,,,,,,,,,,,,,,,url: https://www.seroundtable.com/google-ad-tech-business-ruling-42008.html | checked: 2026-10-24
 court-ordered-breakup-google,falsify,disagree,january-1-2031-google,,,,,,,,,,,,,,,,
 court-ordered-breakup-google,assumption,disagree,google-will-comply-well,,,,,,,,,,,,,,,,
-court-ordered-breakup-google,prediction,agree,justice-department-plaintiff-states,,,,,,,,,,,,,,,"By December 31, 2026, settled against the Fourth Circuit docket and the Antitrust Division's press releases.",
+court-ordered-breakup-google,prediction,agree,justice-department-plaintiff-states,,,,,,,,,,,,,,,"By December 31, 2026, settled against the Fourth Circuit docket and the Antitrust Division's press releases.",url: https://techpolicy.press/can-the-eu-still-break-up-google | checked: 2026-11-21
 court-ordered-breakup-google,prediction,agree,european-commission-will-adopt,,,,,,,,,,,,,,,"By December 31, 2028, settled against the Commission's press releases for case AT.40670.",
 court-ordered-breakup-google,prediction,disagree,european-commission-will-close,,,,,,,,,,,,,,,"By December 31, 2028, settled against the Commission's press releases for case AT.40670.",
 court-ordered-breakup-google,interest,agree,online-news-publishers-sell,,,,,,,,,,,,,,,,
@@ -12710,10 +12710,10 @@ court-ordered-breakup-google,interest,disagree,small-website-owners-who,,,,,,,,,
 court-ordered-breakup-google,interest,disagree,alphabet-shareholders-need-company,,,,,,,,,,,,,,,,
 court-ordered-breakup-google,interest,disagree,people-who-use-chrome,,,,,,,,,,,,,,,,
 court-ordered-breakup-google,cba,agree,independent-chrome-could-pick,,,,,,,,rival-search-engines-ai,,,share of U.S. search queries,,,,,
-court-ordered-breakup-google,cba,agree,advertisers-could-pay-lower,,,,,,,,advertisers-buy-display-ads,,,dollars a year in ad tech fees,,,,,
-court-ordered-breakup-google,cba,disagree,small-publishers-could-face,,,,,,,,small-website-owners-who,,,dollars a year per publisher,,,,,
+court-ordered-breakup-google,cba,agree,advertisers-could-pay-lower,,,,,,,,advertisers-buy-display-ads,,,dollars a year in ad tech fees,,,,,url: https://storage.courtlistener.com/recap/gov.uscourts.vaed.533508/gov.uscourts.vaed.533508.1410.0_2.pdf | checked: 2026-11-21
+court-ordered-breakup-google,cba,disagree,small-publishers-could-face,,,,,,,,small-website-owners-who,,,dollars a year per publisher,,,,,url: https://support.google.com/admanager/answer/6214526?hl=en | checked: 2026-11-21
 court-ordered-breakup-google,cba,disagree,alphabet-shareholders-could-lose,,,,,,,,alphabet-shareholders-need-company,,,dollars of market value,,,,,
-court-ordered-breakup-google,cba,disagree,spun-off-chrome-need,,,,,,,,people-who-use-chrome,,,dollars a year of browser development spending,,,,,
+court-ordered-breakup-google,cba,disagree,spun-off-chrome-need,,,,,,,,people-who-use-chrome,,,dollars a year of browser development spending,,,,,url: https://storage.courtlistener.com/recap/gov.uscourts.dcd.223205/gov.uscourts.dcd.223205.1436.0_1.pdf | checked: 2026-11-21
 court-ordered-breakup-google,category,,,dollars a year in ad tech fees,,,,,,,,,,,,,,,
 court-ordered-breakup-google,category,,,dollars a year of browser development spending,,,,,,,,,,,,,,,
 court-ordered-breakup-google,category,,,dollars a year per publisher,,,,,,,,,,,,,,,
