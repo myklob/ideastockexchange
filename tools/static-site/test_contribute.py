@@ -207,6 +207,57 @@ class TestTheScoringPort(unittest.TestCase):
         for label in intake.FIELDS['contribution']: self.assertIn(f"'{label}'", src, f'Copy as text does not write the heading {label!r}')
 
 
+OPENER = r"""
+var shown = [], scrolled = [];
+function form(id, attrs) {
+  return {id: id, showPopover: function () { shown.push(id); }, hasAttribute: function (a) { return attrs.indexOf(a) >= 0; }};
+}
+var forms = {'add-argument-agree': form('add-argument-agree', ['popover', 'data-wired']),
+             'add-evidence': form('add-evidence', ['popover']), 'add-old': form('add-old', ['data-wired'])};
+global.document = {
+  getElementById: function (id) { return forms[id] || null; },
+  querySelector: function (sel) { return {scrollIntoView: function () { scrolled.push(sel); }}; }
+};
+var C = require(process.argv[2]), out = {};
+out.wired = C.openForm('add-argument-agree');
+out.unwired = C.openForm('add-evidence');
+out.notPopover = C.openForm('add-old');
+out.missing = C.openForm('add-nothing');
+out.empty = C.openForm('');
+out.shown = shown; out.scrolled = scrolled;
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+class TestALinkToAFormOpensIt(unittest.TestCase):
+    """A form is a popover behind a one-line link, so a link to its id has nowhere on the page to scroll to.
+    The script opens the form instead, with the table the row would join behind it. It leaves alone a form it
+    has not wired (which the styles then show in place) and anything that is not a popover."""
+
+    @classmethod
+    def setUpClass(cls):
+        if not shutil.which('node'): raise unittest.SkipTest('node is not on PATH')
+        d = tempfile.mkdtemp(prefix='ise-open-')
+        try:
+            runner = os.path.join(d, 'run.js')
+            with open(runner, 'w', encoding='utf-8') as fh: fh.write(OPENER)
+            r = subprocess.run(['node', runner, JS], capture_output=True, text=True, timeout=60)
+            if r.returncode: raise AssertionError('node failed: ' + r.stderr)
+            cls.out = json.loads(r.stdout)
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+
+    def test_a_wired_popover_opens_over_its_table(self):
+        self.assertTrue(self.out['wired'])
+        self.assertEqual(self.out['shown'], ['add-argument-agree'], 'only the wired popover is opened, and once')
+        self.assertEqual(self.out['scrolled'], ['[popovertarget="add-argument-agree"]:not(.x)'],
+                         'the page does not move to the link that opens the form, or moves to its close button')
+
+    def test_anything_else_is_left_to_the_browser(self):
+        for case in ('unwired', 'notPopover', 'missing', 'empty'):
+            self.assertFalse(self.out[case], f'{case}: the script claims a link it cannot serve, so the click goes nowhere')
+
+
 class TestItIsPlainScript(unittest.TestCase):
 
     def test_no_em_dashes_and_no_es6_syntax(self):
