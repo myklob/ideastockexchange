@@ -9586,40 +9586,40 @@ forward-party-candidate-can,dispute,,,Definitional,,,,,,,,,,,,,,,"what: Whether 
 forward-party-candidate-can,dispute,,,Causal,,,,,,,,,,,,,,,what: Whether Colorado's majority-unaffiliated registration translates into votes for minor-party legislative candidates or mostly into votes for Democrats and Republicans. | move: Comparing each district's unaffiliated registration share with the minor-party vote share in the 2024 and 2026 Colorado legislative returns would settle it.
 forward-party-candidate-can,value,,,,,,,,,,,,,,,,,,"value: Representation | srank: 2 | orank: 2 | why: Both sides care that Colorado's 52% unaffiliated voters are represented, but they disagree about whether a Forward seat or a major-party seat does that better."
 electing-forward-party-candidates,argument,agree,legislator-who-belongs-neither,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,argument,agree,colorado-s-legislature-grew,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,argument,agree,alaska-s-cross-party,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,argument,agree,when-majority-party-splits,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,evidence,agree,colorado-sun-s-count,,"Colorado Sun, 89% of bills that became law in Colorado this year had bipartisan support, party-line voting was rare, 2024",,,,,,,,,,,,,,
-electing-forward-party-candidates,evidence,agree,open-primaries-reported-2015,,"Open Primaries, The Myth of the Red State: Policy Over Party in the Nebraska State Capitol, 2015",,,,,,,,,,,,,,
+electing-forward-party-candidates,argument,agree,colorado-s-legislature-grew,,,,,,,,,,,,,,,,url: https://coloradosun.com/2024/07/29/colorado-legislature-bipartisan-votes-2024/ | checked: 2026-11-21
+electing-forward-party-candidates,argument,agree,alaska-s-cross-party,,,,,,,,,,,,,,,,url: https://thelawmakers.org/wp-content/uploads/2026/06/Highlights-from-the-33rd-Alaska-Legislature-State-Legislative-Effectiveness-Scores.pdf | checked: 2026-11-21
+electing-forward-party-candidates,argument,agree,when-majority-party-splits,,,,,,,,,,,,,,,,url: https://www.kunc.org/politics/2026-05-19/the-six-biggest-themes-of-colorados-2026-legislative-session | checked: 2026-11-21
+electing-forward-party-candidates,evidence,agree,colorado-sun-s-count,,"Colorado Sun, 89% of bills that became law in Colorado this year had bipartisan support, party-line voting was rare, 2024",,,,,,,,,,,,,,url: https://coloradosun.com/2024/07/29/colorado-legislature-bipartisan-votes-2024/ | checked: 2026-11-21
+electing-forward-party-candidates,evidence,agree,open-primaries-reported-2015,,"Open Primaries, The Myth of the Red State: Policy Over Party in the Nebraska State Capitol, 2015",,,,,,,,,,,,,,url: https://d3n8a8pro7vhmx.cloudfront.net/openprimaries/pages/544/attachments/original/1443559603/Nebraska9.29.15.compressed.pdf?1443559603 | checked: 2026-11-21
 electing-forward-party-candidates,falsify,agree,study-u-s-state,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,falsify,agree,record-showing-forward-party,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,assumption,agree,most-party-line-voting,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,assumption,agree,legislator-elected-forward-party,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,assumption,agree,small-number-members-outside,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,person,agree,bob-chew-forward-party-2,,,,,,,,,,,,,,,,
+electing-forward-party-candidates,person,agree,bob-chew-forward-party-2,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/07/14/forward-party-nominee-for-colorados-us-senate-seat-puts-1-1-million-into-his-campaign/ | checked: 2026-11-21
 electing-forward-party-candidates,person,agree,andrew-yang-co-founder,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,media,agree,politics-industry-how-political-2,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,media,agree,forward-notes-future-our-2,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,media,agree,breaking-two-party-doom-2,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,argument,disagree,colorado-s-legislature-already,,,,,,,,,,,,,,,,
+electing-forward-party-candidates,media,agree,politics-industry-how-political-2,,,,,,,,,,,,,,,,url: https://store.hbr.org/product/the-politics-industry-how-political-innovation-can-break-partisan-gridlock-and-save-our-democracy/10367 | checked: 2026-11-21
+electing-forward-party-candidates,media,agree,forward-notes-future-our-2,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Andrew_Yang | checked: 2026-11-21
+electing-forward-party-candidates,media,agree,breaking-two-party-doom-2,,,,,,,,,,,,,,,,url: https://global.oup.com/academic/product/breaking-the-two-party-doom-loop-9780190913854 | checked: 2026-11-21
+electing-forward-party-candidates,argument,disagree,colorado-s-legislature-already,,,,,,,,,,,,,,,,url: https://www.colorado.gov/governor/news/governor-polis-completes-state-wide-bill-signing-tour-signing-new-laws-reduce-housing-costs | checked: 2026-11-21
 electing-forward-party-candidates,argument,disagree,legislature-one-two-third,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,argument,disagree,third-party-candidate-colorado,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,argument,disagree,third-party-legislators-tend,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,argument,disagree,power-sharing-legislatures-slower,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,evidence,disagree,minnesota-s-house-tied,,"KSTP, Minnesota Legislature making historically slow progress with one month to go, 2025",,,,,,,,,,,,,,
+electing-forward-party-candidates,argument,disagree,third-party-legislators-tend,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Daniel_Thatcher | checked: 2026-11-21
+electing-forward-party-candidates,argument,disagree,power-sharing-legislatures-slower,,,,,,,,,,,,,,,,url: https://kstp.com/kstp-news/top-news/minnesota-legislature-making-historically-slow-progress-with-one-month-to-go/ | checked: 2026-11-21
+electing-forward-party-candidates,evidence,disagree,minnesota-s-house-tied,,"KSTP, Minnesota Legislature making historically slow progress with one month to go, 2025",,,,,,,,,,,,,,url: https://kstp.com/kstp-news/top-news/minnesota-legislature-making-historically-slow-progress-with-one-month-to-go/ | checked: 2026-11-21
 electing-forward-party-candidates,prediction,disagree,any-forward-party-member,,,,,,,,,,,,,,,"By December 31, 2027; checked against legislative caucus rosters and bill databases in Utah and any other state with a seated Forward member.",
 electing-forward-party-candidates,falsify,disagree,vote-records-showing-forward,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,falsify,disagree,colorado-session-which-seated,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,assumption,disagree,party-labels-give-voters,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,assumption,disagree,colorado-s-legislature-already-2,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,assumption,disagree,partisanship-legislature-mostly-reflects,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,person,disagree,mark-baisley-republican-state,,,,,,,,,,,,,,,,
-electing-forward-party-candidates,media,disagree,centrist-third-parties-like,,,,,,,,,,,,,,,,
+electing-forward-party-candidates,person,disagree,mark-baisley-republican-state,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/08/12/ticked-off-third-party-u-s-senate-candidate-in-colorado-launches-1-3-million-tv-ad-campaign/ | checked: 2026-11-21
+electing-forward-party-candidates,media,disagree,centrist-third-parties-like,,,,,,,,,,,,,,,,url: https://blogs.lse.ac.uk/usappblog/2024/04/18/centrist-third-parties-like-no-labels-are-not-the-solution-for-americans-unhappy-with-the-two-party-system | checked: 2026-11-21
 electing-forward-party-candidates,interest,agree,colorado-small-business-owners,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,interest,disagree,colorado-democratic-voters-need,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,interest,disagree,colorado-voters-competitive-districts,,,,,,,,,,,,,,,,
 electing-forward-party-candidates,cba,agree,legislature-needs-forward-member,,,,,,,,colorado-small-business-owners,,,major laws repealed or reversed within four years of passage,,,,,
-electing-forward-party-candidates,cba,disagree,chamber-must-assemble-cross,,,,,,,,colorado-voters-competitive-districts,,,bills passed in the first three months of a session,-15,,,,
+electing-forward-party-candidates,cba,disagree,chamber-must-assemble-cross,,,,,,,,colorado-voters-competitive-districts,,,bills passed in the first three months of a session,-15,,,,url: https://en.wikipedia.org/wiki/94th_Minnesota_Legislature | checked: 2026-11-21
 electing-forward-party-candidates,category,,,bills passed in the first three months of a session,,,,,,,,,,,,,,,
 electing-forward-party-candidates,category,,,major laws repealed or reversed within four years of passage,,,,,,,,,,,,,,,
 electing-forward-party-candidates,criterion,,share-laws-enacted-colorado,,,,,,,,,,,,,,,,"method: Take the Colorado Sun's annual tally of final third-reading votes on every bill that became law, or recompute it from leg.colorado.gov vote records, and compare sessions with a seated Forward member against the 2019 to 2024 range of 88.2 to 95.9 percent. | validity: High | reliability: High | linkage: High | importance: High | strengthen: The share rises above 92 percent in the first full session with a Forward Party member seated. | weaken: The share stays within the 88 to 90 percent range of 2023 and 2024 or falls below it."
@@ -10149,45 +10149,45 @@ large-share-american-aid,definition,,,,,,,,,,,,,,,,,,"term: American aid to Ukra
 large-share-american-aid,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides disagree about whether late inventories, untrackable weapons, combat losses and accounting errors count as aid lost to waste. | move: Agreeing on a definition of lost (for example stolen, diverted, or paid for without delivery) before counting, and then reporting each category separately, would settle it."
 large-share-american-aid,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether undetected losses in a war zone are large, since by their nature they do not appear in any audit. | move: Random-sample physical inspections of serial-numbered U.S. weapons in Ukraine and forensic audits of the payroll and pension payments reimbursed with U.S. budget support would show whether hidden losses are big or small."
 large-share-american-aid,value,,,,,,,,,,,,,,,,,,"value: Accountability | srank: 1 | orank: 2 | why: Those who hold the belief put first that taxpayers see proof of where their money went, while those who reject it value accountability too but think the audits so far have supplied it."
-colorado-repeal-taxpayer-s,argument,agree,colorado-s-tabor-limit,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,argument,agree,tabor-forces-colorado-refund,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,evidence,agree,tax-year-2024-colorado,,"Colorado Department of Revenue, Income Tax Topics: State Sales Tax Refund, 2025",,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,evidence,agree,colorado-s-nonpartisan-forecasters,,"Colorado Legislative Council Staff, Economic and Revenue Forecast, September 2026, 2026",,,,,,,,,,,,,,
+colorado-repeal-taxpayer-s,argument,agree,colorado-s-tabor-limit,,,,,,,,,,,,,,,,url: https://content.leg.colorado.gov/agencies/legislative-council-staff/tabor | checked: 2026-11-21
+colorado-repeal-taxpayer-s,argument,agree,tabor-forces-colorado-refund,,,,,,,,,,,,,,,,url: https://content.leg.colorado.gov/sites/default/files/2026-09/sept2026-forecast-with-cover-for-remediation-and-posting-accessible.pdf | checked: 2026-11-21
+colorado-repeal-taxpayer-s,evidence,agree,tax-year-2024-colorado,,"Colorado Department of Revenue, Income Tax Topics: State Sales Tax Refund, 2025",,,,,,,,,,,,,,url: https://tax.colorado.gov/income-tax-topics-state-sales-tax-refund | checked: 2026-11-21
+colorado-repeal-taxpayer-s,evidence,agree,colorado-s-nonpartisan-forecasters,,"Colorado Legislative Council Staff, Economic and Revenue Forecast, September 2026, 2026",,,,,,,,,,,,,,url: https://content.leg.colorado.gov/sites/default/files/2026-09/sept2026-forecast-with-cover-for-remediation-and-posting-accessible.pdf | checked: 2026-11-21
 colorado-repeal-taxpayer-s,prediction,agree,colorado-will-pay-tabor,,,,,,,,,,,,,,,"By June 30, 2029; checked against the State Controller's TABOR certification for FY 2027-28 and the Joint Budget Committee's FY 2027-28 appropriations report.",
-colorado-repeal-taxpayer-s,prediction,agree,if-colorado-voters-approve,,,,,,,,,,,,,,,"By December 31, 2028; checked against the state auditor's and school districts' spending reports that Proposition NN requires.",
+colorado-repeal-taxpayer-s,prediction,agree,if-colorado-voters-approve,,,,,,,,,,,,,,,"By December 31, 2028; checked against the state auditor's and school districts' spending reports that Proposition NN requires.",url: https://www.kunc.org/news/2026-11-04/colorado-voters-pass-proposition-nn-sending-tabor-refunds-to-k-12-schools | checked: 2026-11-21
 colorado-repeal-taxpayer-s,falsify,agree,peer-reviewed-study-finds,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,falsify,agree,colorado-state-audit-finds,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,assumption,agree,colorado-s-public-services,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,assumption,agree,colorado-s-legislature-spend,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,assumption,agree,regular-legislative-elections-hold,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,person,agree,roy-romer-former-democratic,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,person,agree,andy-kerr-democratic-colorado,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,media,agree,tabor-surplus-outlook-joshua,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,argument,disagree,colorado-can-fix-tabor,,,,,,,,,,,,,,,,
+colorado-repeal-taxpayer-s,person,agree,roy-romer-former-democratic,,,,,,,,,,,,,,,,url: https://coloradopols.com/?p=66856 | checked: 2026-11-21
+colorado-repeal-taxpayer-s,person,agree,andy-kerr-democratic-colorado,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/app/details/USCOURTS-cod-1_11-cv-01350 | checked: 2026-11-21
+colorado-repeal-taxpayer-s,media,agree,tabor-surplus-outlook-joshua,,,,,,,,,,,,,,,,url: https://www.bellpolicy.org/?p=12963 | checked: 2026-11-21
+colorado-repeal-taxpayer-s,argument,disagree,colorado-can-fix-tabor,,,,,,,,,,,,,,,,url: https://content.leg.colorado.gov/sites/default/files/sept2026-forecast-with-cover-for-remediation-and-posting-accessible_0.pdf | checked: 2026-11-21
 colorado-repeal-taxpayer-s,argument,disagree,colorado-s-recent-budget,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,evidence,disagree,under-referendum-c-colorado,,"Colorado Legislative Council Staff, Economic and Revenue Forecast, September 2026, 2026",,,,,,,,,,,,,,
+colorado-repeal-taxpayer-s,evidence,disagree,under-referendum-c-colorado,,"Colorado Legislative Council Staff, Economic and Revenue Forecast, September 2026, 2026",,,,,,,,,,,,,,url: https://content.leg.colorado.gov/sites/default/files/sept2026-forecast-with-cover-for-remediation-and-posting-accessible_0.pdf | checked: 2026-11-21
 colorado-repeal-taxpayer-s,evidence,disagree,colorado-s-total-k,,"The Colorado Sun, Proposition NN: Colorado TABOR refunds would be diverted to K-12 education, 2026",,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,evidence,disagree,colorado-s-joint-budget,,"The Colorado Sun, How the Colorado legislature contributed to the state's budget crisis, 2026",,,,,,,,,,,,,,
+colorado-repeal-taxpayer-s,evidence,disagree,colorado-s-joint-budget,,"The Colorado Sun, How the Colorado legislature contributed to the state's budget crisis, 2026",,,,,,,,,,,,,,url: https://coloradosun.com/2026/01/22/colorado-legislature-structural-deficit-cause/ | checked: 2026-11-21
 colorado-repeal-taxpayer-s,prediction,disagree,colorado-will-close-its,,,,,,,,,,,,,,,"By June 30, 2028; checked against the FY 2027-28 Long Bill and the Legislative Council Staff school finance forecast.",
 colorado-repeal-taxpayer-s,falsify,disagree,peer-reviewed-study-finds-2,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,falsify,disagree,evidence-shows-u-s,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,assumption,disagree,government-spending-tends-grow,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,assumption,disagree,colorado-voters-better-judges,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,assumption,disagree,colorado-s-budget-problems,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,person,disagree,douglas-bruce-who-wrote,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,person,disagree,barry-w-poulson-emeritus,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,media,disagree,blue-colorado-taxpayer-s,,,,,,,,,,,,,,,,
+colorado-repeal-taxpayer-s,person,disagree,douglas-bruce-who-wrote,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Douglas_Bruce | checked: 2026-11-21
+colorado-repeal-taxpayer-s,person,disagree,barry-w-poulson-emeritus,,,,,,,,,,,,,,,,url: https://i2i.org/in-blue-colorado-the-taxpayers-bill-of-rights-matters-more-than-ever/ | checked: 2026-11-21
+colorado-repeal-taxpayer-s,media,disagree,blue-colorado-taxpayer-s,,,,,,,,,,,,,,,,url: https://i2i.org/in-blue-colorado-the-taxpayers-bill-of-rights-matters-more-than-ever/ | checked: 2026-11-21
 colorado-repeal-taxpayer-s,interest,agree,colorado-public-school-students,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,interest,agree,colorado-medicaid-patients-clinics,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,interest,agree,colorado-drivers-commuters-need,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,interest,disagree,colorado-voters-need-direct,,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,interest,disagree,colorado-small-business-owners-2,,,,,,,,,,,,,,,,
-colorado-repeal-taxpayer-s,cba,agree,repealing-tabor-let-colorado,,,,,,,,colorado-public-school-students,,,millions of dollars a year retained by the state,490.7,,,,
-colorado-repeal-taxpayer-s,cba,agree,repealing-tabor-let-colorado-2,,,,,,,,colorado-medicaid-patients-clinics,,,millions of dollars of additional reserves available in a downturn,,,,,
-colorado-repeal-taxpayer-s,cba,agree,repealing-tabor-let-colorado-3,,,,,,,,colorado-drivers-commuters-need,,,dollars a year for transportation,,,,,
-colorado-repeal-taxpayer-s,cba,disagree,repealing-tabor-end-tabor,,,,,,,,,,,"dollars a year per single filer at $100,000 income",28,,,,
-colorado-repeal-taxpayer-s,cba,disagree,repealing-tabor-remove-colorado,,,,,,,,colorado-voters-need-direct,,,statewide tax votes held per decade,,,,,
-colorado-repeal-taxpayer-s,cba,disagree,repealing-tabor-allow-colorado,,,,,,,,colorado-small-business-owners-2,,,percent of Colorado personal income paid in state taxes,,,,,
+colorado-repeal-taxpayer-s,cba,agree,repealing-tabor-let-colorado,,,,,,,,colorado-public-school-students,,,millions of dollars a year retained by the state,490.7,,,,url: https://content.leg.colorado.gov/sites/default/files/2026-09/sept2026-forecast-with-cover-for-remediation-and-posting-accessible.pdf | checked: 2026-11-21
+colorado-repeal-taxpayer-s,cba,agree,repealing-tabor-let-colorado-2,,,,,,,,colorado-medicaid-patients-clinics,,,millions of dollars of additional reserves available in a downturn,,,,,url: https://leg.colorado.gov/ballots/keep-and-spend-money-for-education-and-other-purposes/files/blue-book | checked: 2026-11-21
+colorado-repeal-taxpayer-s,cba,agree,repealing-tabor-let-colorado-3,,,,,,,,colorado-drivers-commuters-need,,,dollars a year for transportation,,,,,url: https://en.wikipedia.org/wiki/List_of_Colorado_ballot_measures | checked: 2026-11-21
+colorado-repeal-taxpayer-s,cba,disagree,repealing-tabor-end-tabor,,,,,,,,,,,"dollars a year per single filer at $100,000 income",28,,,,url: https://leg.colorado.gov/ballots/keep-and-spend-money-for-education-and-other-purposes/files/blue-book | checked: 2026-11-21
+colorado-repeal-taxpayer-s,cba,disagree,repealing-tabor-remove-colorado,,,,,,,,colorado-voters-need-direct,,,statewide tax votes held per decade,,,,,url: https://en.wikipedia.org/wiki/Taxpayer_Bill_of_Rights | checked: 2026-11-21
+colorado-repeal-taxpayer-s,cba,disagree,repealing-tabor-allow-colorado,,,,,,,,colorado-small-business-owners-2,,,percent of Colorado personal income paid in state taxes,,,,,url: https://leg.colorado.gov/ballots/keep-and-spend-money-for-education-and-other-purposes/files/blue-book | checked: 2026-11-21
 colorado-repeal-taxpayer-s,category,,,dollars a year for transportation,,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,category,,,"dollars a year per single filer at $100,000 income",,,,,,,,,,,,,,,
 colorado-repeal-taxpayer-s,category,,,millions of dollars a year retained by the state,,,,,,,,,,,,,,,
@@ -10231,18 +10231,18 @@ colorado-override-local-zoning,media,agree,economic-implications-housing-supply,
 colorado-override-local-zoning,argument,disagree,colorado-s-constitution-gives,,,,,,,,,,,,,,,,url: https://en.wikisource.org/wiki/Constitution_of_the_State_of_Colorado_(2020) | checked: 2026-11-21
 colorado-override-local-zoning,argument,disagree,many-front-range-towns,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,argument,disagree,rezoning-land-near-transit,,,,,,,,,,,,,,,,
-colorado-override-local-zoning,argument,disagree,colorado-s-2024-transit-2,,,,,,,,,,,,,,,,
+colorado-override-local-zoning,argument,disagree,colorado-s-2024-transit-2,,,,,,,,,,,,,,,,url: https://leg.colorado.gov/bills/hb24-1313 | checked: 2026-11-21
 colorado-override-local-zoning,argument,disagree,zoning-permission-does-build,,,,,,,,,,,,,,,,
-colorado-override-local-zoning,argument,disagree,some-places-counted-near,,,,,,,,,,,,,,,,
-colorado-override-local-zoning,evidence,disagree,chicago-s-upzoning-land,,"Yonah Freemark, ""Upzoning Chicago: Impacts of a Zoning Reform on Property Values and Housing Construction,"" Urban Affairs Review, 2019 (published online 2019; volume 56, 2020)",,,,,,,,,,,,,,
+colorado-override-local-zoning,argument,disagree,some-places-counted-near,,,,,,,,,,,,,,,,url: https://content.leg.colorado.gov/sites/default/files/2024a_1313_signed.pdf | checked: 2026-11-21
+colorado-override-local-zoning,evidence,disagree,chicago-s-upzoning-land,,"Yonah Freemark, ""Upzoning Chicago: Impacts of a Zoning Reform on Property Values and Housing Construction,"" Urban Affairs Review, 2019 (published online 2019; volume 56, 2020)",,,,,,,,,,,,,,url: https://api.openalex.org/works/doi:10.1177/1078087418824672 | checked: 2026-11-21
 colorado-override-local-zoning,prediction,disagree,nearly-every-community-covered,,,,,,,,,,,,,,,"By December 31, 2027; checked against DOLA's published list of certified transit-oriented communities.",
 colorado-override-local-zoning,prediction,disagree,apartment-permits-rezoned-colorado,,,,,,,,,,,,,,,"By December 31, 2030; checked against Census Building Permits Survey data and city permit records matched to DOLA's transit-area map.",
 colorado-override-local-zoning,falsify,disagree,studies-colorado-station-areas,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,assumption,disagree,colorado-city-county-officials,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,assumption,disagree,grants-reporting-requirements-like,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,assumption,disagree,new-market-rate-apartments,,,,,,,,,,,,,,,,
-colorado-override-local-zoning,person,disagree,colorado-state-sen-rachel,,,,,,,,,,,,,,,,
-colorado-override-local-zoning,media,disagree,capital-city-gentrification-real,,,,,,,,,,,,,,,,
+colorado-override-local-zoning,person,disagree,colorado-state-sen-rachel,,,,,,,,,,,,,,,,url: https://www.leg.colorado.gov/bill_votes/12370 | checked: 2026-11-21
+colorado-override-local-zoning,media,disagree,capital-city-gentrification-real,,,,,,,,,,,,,,,,url: https://lareviewofbooks.org/article/unmaking-the-real-estate-state/ | checked: 2026-11-21
 colorado-override-local-zoning,interest,agree,renters-denver-metro-area,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,interest,agree,workers-who-commute-rtd,,,,,,,,,,,,,,,,
 colorado-override-local-zoning,interest,agree,young-colorado-families-need,,,,,,,,,,,,,,,,
@@ -10342,23 +10342,23 @@ colorado-build-front-range,definition,,,,,,,,,,,,,,,,,,"term: Front Range passen
 colorado-build-front-range,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Supporters expect strong demand for Front Range trains, while opponents expect few riders because the trains are slower than driving outside rush hour and run only a few times a day. | move: An independent, investment-grade ridership forecast for the planned schedule, followed by actual ridership counts in the first years after 2029, would settle it."
 colorado-build-front-range,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether Front Range passenger trains or expanded Bustang bus service would move more people and remove more cars per public dollar. | move: A head-to-head cost-per-rider and cost-per-car-removed comparison of the Colorado Connector and an expanded Bustang on the same corridor, using the same assumptions, would settle it."
 colorado-build-front-range,value,,,,,,,,,,,,,,,,,,"value: Mobility | srank: 1 | orank: 3 | why: Supporters put the highest value on giving Front Range residents, including people who cannot drive, a travel choice that does not depend on highway traffic."
-colorado-s-reintroduction-gray,argument,agree,colorado-voters-approved-gray,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,argument,agree,gray-wolves-native-colorado,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,argument,agree,colorado-s-wolf-population,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,argument,agree,confirmed-livestock-losses-wolves,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,evidence,agree,colorado-parks-wildlife-counted,,"Colorado Parks and Wildlife, 'CPW releases Gray Wolf Annual Report for biological year 2025-2026', May 7, 2026",,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,evidence,agree,colorado-parks-wildlife-detected,,"Colorado Parks and Wildlife, 'CPW addresses current gray wolf survival rates, temporarily suspends current chronic depredation directive', September 30, 2026",,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,evidence,agree,2025-26-year-cpw,,"Colorado Outdoors magazine (Colorado Parks and Wildlife), '2025-2026 Colorado Gray Wolf Annual Report Q&A', May 7, 2026",,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,evidence,agree,after-wolves-returned-yellowstone,,"William J. Ripple and Robert L. Beschta, 'Trophic cascades in Yellowstone: The first 15 years after wolf reintroduction', Biological Conservation 145:205-213, 2012",,,,,,,,,,,,,,
+colorado-s-reintroduction-gray,argument,agree,colorado-voters-approved-gray,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2020_Colorado_Proposition_114 | checked: 2026-11-21
+colorado-s-reintroduction-gray,argument,agree,gray-wolves-native-colorado,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2020_Colorado_Proposition_114 | checked: 2026-11-21
+colorado-s-reintroduction-gray,argument,agree,colorado-s-wolf-population,,,,,,,,,,,,,,,,url: https://cpw.state.co.us/news/05072026/cpw-releases-gray-wolf-annual-report-biological-year-2025-2026 | checked: 2026-11-21
+colorado-s-reintroduction-gray,argument,agree,confirmed-livestock-losses-wolves,,,,,,,,,,,,,,,,url: https://cpw.state.co.us/wolf-depredation | checked: 2026-11-21
+colorado-s-reintroduction-gray,evidence,agree,colorado-parks-wildlife-counted,,"Colorado Parks and Wildlife, 'CPW releases Gray Wolf Annual Report for biological year 2025-2026', May 7, 2026",,,,,,,,,,,,,,url: https://cpw.state.co.us/news/05072026/cpw-releases-gray-wolf-annual-report-biological-year-2025-2026 | checked: 2026-11-21
+colorado-s-reintroduction-gray,evidence,agree,colorado-parks-wildlife-detected,,"Colorado Parks and Wildlife, 'CPW addresses current gray wolf survival rates, temporarily suspends current chronic depredation directive', September 30, 2026",,,,,,,,,,,,,,url: https://cpw.state.co.us/news/09302026/cpw-addresses-current-gray-wolf-survival-rates-temporarily-suspends-current-chronic | checked: 2026-11-21
+colorado-s-reintroduction-gray,evidence,agree,2025-26-year-cpw,,"Colorado Outdoors magazine (Colorado Parks and Wildlife), '2025-2026 Colorado Gray Wolf Annual Report Q&A', May 7, 2026",,,,,,,,,,,,,,url: https://coloradooutdoorsmag.com/2025-2026-wolf-year-annual-report | checked: 2026-11-21
+colorado-s-reintroduction-gray,evidence,agree,after-wolves-returned-yellowstone,,"William J. Ripple and Robert L. Beschta, 'Trophic cascades in Yellowstone: The first 15 years after wolf reintroduction', Biological Conservation 145:205-213, 2012",,,,,,,,,,,,,,url: https://www.sciencedaily.com/releases/2011/12/111221140710.htm | checked: 2026-11-21
 colorado-s-reintroduction-gray,prediction,agree,colorado-parks-wildlife-s,,,,,,,,,,,,,,,"By June 30, 2028; checked against the Colorado Gray Wolf Annual Report posted on cpw.state.co.us.",
 colorado-s-reintroduction-gray,falsify,agree,peer-reviewed-study-colorado,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,falsify,agree,independent-audit-finds-colorado,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,assumption,agree,restoring-native-animal-people,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,assumption,agree,costs-fall-small-number,,,,,,,,,,,,,,,,
 colorado-s-reintroduction-gray,assumption,agree,three-years-data-colorado,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,media,agree,decade-wolf-returning-wild,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,media,agree,last-stand-pack-critical,,,,,,,,,,,,,,,,
-colorado-s-reintroduction-gray,argument,disagree,colorado-s-wolves-have,,,,,,,,,,,,,,,,
+colorado-s-reintroduction-gray,media,agree,decade-wolf-returning-wild,,,,,,,,,,,,,,,,url: https://www.publishersweekly.com/9781592287000 | checked: 2026-11-21
+colorado-s-reintroduction-gray,media,agree,last-stand-pack-critical,,,,,,,,,,,,,,,,url: https://www.google.com/books/feeds/volumes/kiFBDwAAQBAJ | checked: 2026-11-21
+colorado-s-reintroduction-gray,argument,disagree,colorado-s-wolves-have,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/10/01/cpw-halts-removal-of-problem-wolves-sparking-rural-outcry/ | checked: 2026-11-21
 colorado-s-reintroduction-gray,argument,disagree,yellowstone-ecological-benefits-used,,,,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1002/ecm.1598 | checked: 2026-11-21
 colorado-s-reintroduction-gray,argument,disagree,wolves-had-already-crossed,,,,,,,,,,,,,,,,url: https://docs.google.com/document/d/e/2PACX-1vTM3qrkYjvWR142mnWlKNmU_lnKMKo6WRtfrwzfJdXLOrYOXznlwf3mZQcXcGAPrEhrA5mjHK7zdRzp/pub | checked: 2026-11-21
 colorado-s-reintroduction-gray,argument,disagree,compensation-payments-colorado-generally,,,,,,,,,,,,,,,,
@@ -10486,16 +10486,16 @@ fully-driverless-robotaxis-will,media,agree,comparison-waymo-rider-only,,,,,,,,,
 fully-driverless-robotaxis-will,media,agree,waymo-goes-driverless-las,,,,,,,,,,,,,,,,url: https://electrek.co/2026/07/08/waymo-driverless-las-vegas-four-new-cities/ | checked: 2026-11-21
 fully-driverless-robotaxis-will,argument,disagree,single-bad-crash-can,,,,,,,,,,,,,,,,url: https://www.nbcbayarea.com/news/tech/gm-retreat-robotaxis-stop-funding-cruise/3732825/ | checked: 2026-11-21
 fully-driverless-robotaxis-will,evidence,disagree,general-motors-ended-cruise,,"NBC / CNBC, GM cuts 50% of Cruise staff after ending robotaxi business, 2025; Audacy, GM axes robotaxi project Cruise after more than USD10B losses, December 2024",,,,,,,,,,,,,,url: https://www.cnbc.com/2025/02/04/gm-cuts-50percent-of-cruise-staff-after-ending-robotaxi-business.html | checked: 2026-11-21
-fully-driverless-robotaxis-will,evidence,disagree,new-york-governor-kathy-2,,"TechCrunch, New York governor clears path for robotaxis everywhere with one notable exception, January 13, 2026; CleanTechnica, New York Pulls Back on Robotaxi Legislation, February 20, 2026",,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,evidence,disagree,washington-d-c-s,,"Axios, D.C. holds first hearing on legalizing Waymo and robotaxis, July 13, 2026; Axios, Waymo expects D.C. robotaxi talks to continue this summer, July 20, 2026",,,,,,,,,,,,,,
+fully-driverless-robotaxis-will,evidence,disagree,new-york-governor-kathy-2,,"TechCrunch, New York governor clears path for robotaxis everywhere with one notable exception, January 13, 2026; CleanTechnica, New York Pulls Back on Robotaxi Legislation, February 20, 2026",,,,,,,,,,,,,,url: https://techcrunch.com/2026/02/19/new-york-hits-the-brakes-on-robotaxi-expansion-plan/ | checked: 2026-11-21
+fully-driverless-robotaxis-will,evidence,disagree,washington-d-c-s,,"Axios, D.C. holds first hearing on legalizing Waymo and robotaxis, July 13, 2026; Axios, Waymo expects D.C. robotaxi talks to continue this summer, July 20, 2026",,,,,,,,,,,,,,url: https://wtop.com/dc/2026/07/future-of-driverless-vehicles-robotaxis-to-be-debated-by-dc-council/ | checked: 2026-11-21
 fully-driverless-robotaxis-will,prediction,disagree,waymo-s-count-paid,,,,,,,,,,,,,,,"By December 31, 2027; checked by comparing Waymo's announced service list to the October 2026 list of about fifteen",
 fully-driverless-robotaxis-will,prediction,disagree,federal-state-regulator-will,,,,,,,,,,,,,,,"By December 31, 2028; checked against National Highway Traffic Safety Administration orders and state DMV or public utilities commission permit records",
 fully-driverless-robotaxis-will,falsify,disagree,regulator-ordered-halt-waymo,,,,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,assumption,disagree,easiest-u-s-metro,,,,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,assumption,disagree,serious-robotaxi-crash-likely,,,,,,,,,,,,,,,,
 fully-driverless-robotaxis-will,assumption,disagree,vehicle-supply-cost-depots,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,person,disagree,teamsters-general-president-sean,,,,,,,,,,,,,,,,
-fully-driverless-robotaxis-will,media,disagree,autonorama-illusory-promise-high,,,,,,,,,,,,,,,,
+fully-driverless-robotaxis-will,person,disagree,teamsters-general-president-sean,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/CHRG-119shrg61704/html/CHRG-119shrg61704.htm | checked: 2026-11-21
+fully-driverless-robotaxis-will,media,disagree,autonorama-illusory-promise-high,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Peter_Norton_(historian) | checked: 2026-11-21
 fully-driverless-robotaxis-will,media,disagree,what-self-driving-cars,,,,,,,,,,,,,,,,url: https://spectrum.ieee.org/self-driving-cars-2662494269 | checked: 2026-11-21
 fully-driverless-robotaxis-will,media,disagree,new-york-s-robotaxi,,,,,,,,,,,,,,,,url: https://techcrunch.com/2026/02/19/new-york-hits-the-brakes-on-robotaxi-expansion-plan/ | checked: 2026-11-21
 fully-driverless-robotaxis-will,interest,agree,alphabet-tesla-shareholders-need,,,,,,,,,,,,,,,,
@@ -10966,28 +10966,28 @@ peer-reviewed-mathematics-journal,definition,,,,,,,,,,,,,,,,,,"term: AI-produced
 peer-reviewed-mathematics-journal,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether OpenAI's 166-page Navier-Stokes blowup proof is actually correct, given a preprint showing its Lean formalization does not match the written proof line for line. | move: An independent referee report on the written proof, or a corrected Lean formalization that outside mathematicians confirm matches the written theorem, would settle it."
 peer-reviewed-mathematics-journal,dispute,,,Definitional,,,,,,,,,,,,,,,what: The two sides disagree about whether a blowup that depends on a smooth external force settles the Navier-Stokes Millennium Problem or only a side version of it. | move: A public ruling by the Clay Mathematics Institute on whether a proof of Fefferman's alternative C qualifies would settle it.
 peer-reviewed-mathematics-journal,value,,,,,,,,,,,,,,,,,,"value: Progress | srank: 1 | orank: 3 | why: People who hold the belief put the most weight on how fast AI is opening problems that stood for decades, while people who reject it see speed as less important than getting the record right."
-h5n1-bird-flu-will,argument,agree,h5n1-has-infected-unusually,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,argument,agree,laboratory-work-recent-bovine,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,argument,agree,serologic-surveys-dairy-workers,,,,,,,,,,,,,,,,
+h5n1-bird-flu-will,argument,agree,h5n1-has-infected-unusually,,,,,,,,,,,,,,,,url: https://www.cidrap.umn.edu/avian-influenza-bird-flu/cdc-expands-avian-flu-testing-farm-workers-notes-7-infection-rate-those | checked: 2026-11-21
+h5n1-bird-flu-will,argument,agree,laboratory-work-recent-bovine,,,,,,,,,,,,,,,,url: https://pubmed.ncbi.nlm.nih.gov/39636969/ | checked: 2026-11-21
+h5n1-bird-flu-will,argument,agree,serologic-surveys-dairy-workers,,,,,,,,,,,,,,,,url: https://www.cdc.gov/mmwr/volumes/73/wr/mm7344a3.htm | checked: 2026-11-21
 h5n1-bird-flu-will,argument,agree,influenza-viruses-swap-whole,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,argument,agree,major-public-health-bodies,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,evidence,agree,single-amino-acid-change,,"Lin, Zhu, Wang et al., ""A Single Mutation in Bovine Influenza H5N1 Hemagglutinin Switches Specificity to Human Receptors,"" Science (2024), 386:1128-1134",,,,,,,,,,,,,,
-h5n1-bird-flu-will,evidence,agree,115-dairy-workers-sampled,,"US Centers for Disease Control and Prevention, MMWR, ""Serologic Evidence of Recent Infection with Highly Pathogenic Avian Influenza A(H5) Virus Among Dairy Workers, Michigan and Colorado, June-August 2024"" (2024)",,,,,,,,,,,,,,
+h5n1-bird-flu-will,argument,agree,major-public-health-bodies,,,,,,,,,,,,,,,,url: https://www.nih.gov/news-events/news-releases/single-mutation-h5n1-influenza-surface-protein-could-enable-easier-human-infection | checked: 2026-11-21
+h5n1-bird-flu-will,evidence,agree,single-amino-acid-change,,"Lin, Zhu, Wang et al., ""A Single Mutation in Bovine Influenza H5N1 Hemagglutinin Switches Specificity to Human Receptors,"" Science (2024), 386:1128-1134",,,,,,,,,,,,,,url: https://pubmed.ncbi.nlm.nih.gov/39636969/ | checked: 2026-11-21
+h5n1-bird-flu-will,evidence,agree,115-dairy-workers-sampled,,"US Centers for Disease Control and Prevention, MMWR, ""Serologic Evidence of Recent Infection with Highly Pathogenic Avian Influenza A(H5) Virus Among Dairy Workers, Michigan and Colorado, June-August 2024"" (2024)",,,,,,,,,,,,,,url: https://www.cdc.gov/mmwr/volumes/73/wr/mm7344a3.htm | checked: 2026-11-21
 h5n1-bird-flu-will,prediction,agree,if-h5n1-heading-toward,,,,,,,,,,,,,,,By 1 January 2030; checked against WHO Disease Outbreak News and national agency case investigations.,
 h5n1-bird-flu-will,prediction,agree,if-belief-true-least,,,,,,,,,,,,,,,By 1 January 2030; checked against GISAID sequence deposits and WHO or CDC genomic reports.,
 h5n1-bird-flu-will,falsify,agree,confirmed-epidemiologic-report-chain,,,,,,,,,,,,,,,,
 h5n1-bird-flu-will,falsify,agree,repeated-isolation-human-patients,,,,,,,,,,,,,,,,
 h5n1-bird-flu-will,assumption,agree,holding-belief-assumes-large,,,,,,,,,,,,,,,,
 h5n1-bird-flu-will,assumption,agree,holding-belief-assumes-number,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,media,agree,airborne-transmission-influenza-h5n1,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,media,agree,single-mutation-bovine-influenza,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,media,agree,deadliest-enemy-our-war,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,argument,disagree,despite-more-than-1,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,argument,disagree,h5n1-hemagglutinin-prefers-avian,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,argument,disagree,single-mutation-receptor-study,,,,,,,,,,,,,,,,
+h5n1-bird-flu-will,media,agree,airborne-transmission-influenza-h5n1,,,,,,,,,,,,,,,,url: https://www.cidrap.umn.edu/avian-influenza-bird-flu/fouchier-study-reveals-changes-enabling-airborne-spread-h5n1 | checked: 2026-11-21
+h5n1-bird-flu-will,media,agree,single-mutation-bovine-influenza,,,,,,,,,,,,,,,,url: https://pubmed.ncbi.nlm.nih.gov/39636969/ | checked: 2026-11-21
+h5n1-bird-flu-will,media,agree,deadliest-enemy-our-war,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Deadliest_Enemy | checked: 2026-11-21
+h5n1-bird-flu-will,argument,disagree,despite-more-than-1,,,,,,,,,,,,,,,,url: https://www.who.int/emergencies/disease-outbreak-news/item/2025-DON575 | checked: 2026-11-21
+h5n1-bird-flu-will,argument,disagree,h5n1-hemagglutinin-prefers-avian,,,,,,,,,,,,,,,,url: https://www.nih.gov/news-events/news-releases/single-mutation-h5n1-influenza-surface-protein-could-enable-easier-human-infection | checked: 2026-11-21
+h5n1-bird-flu-will,argument,disagree,single-mutation-receptor-study,,,,,,,,,,,,,,,,url: https://www.scripps.edu/news-events/news/20241205-wilson-paulson-h5n1/ | checked: 2026-11-21
 h5n1-bird-flu-will,argument,disagree,efficient-airborne-spread-between,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,argument,disagree,united-states-dairy-cattle,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,argument,disagree,current-world-health-organization,,,,,,,,,,,,,,,,
+h5n1-bird-flu-will,argument,disagree,united-states-dairy-cattle,,,,,,,,,,,,,,,,url: https://www.cdc.gov/bird-flu/situation-summary/index.html | checked: 2026-11-21
+h5n1-bird-flu-will,argument,disagree,current-world-health-organization,,,,,,,,,,,,,,,,url: https://www.cdc.gov/bird-flu/situation-summary/index.html | checked: 2026-11-21
 h5n1-bird-flu-will,evidence,disagree,across-united-states-dairy,,"US Centers for Disease Control and Prevention, H5 bird flu situation reporting (2026)",,,,,,,,,,,,,,
 h5n1-bird-flu-will,prediction,disagree,if-belief-false-reported,,,,,,,,,,,,,,,By 1 January 2030; checked against WHO and CDC case exposure classifications.,
 h5n1-bird-flu-will,prediction,disagree,if-belief-false-who,,,,,,,,,,,,,,,By 1 January 2030; checked against WHO avian influenza risk assessments.,
@@ -10995,8 +10995,8 @@ h5n1-bird-flu-will,falsify,disagree,large-serologic-surveys-across,,,,,,,,,,,,,,
 h5n1-bird-flu-will,falsify,disagree,experimental-work-showing-recent,,,,,,,,,,,,,,,,
 h5n1-bird-flu-will,assumption,disagree,rejecting-belief-assumes-long,,,,,,,,,,,,,,,,
 h5n1-bird-flu-will,assumption,disagree,rejecting-belief-assumes-control,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,media,disagree,updated-joint-fao-who,,,,,,,,,,,,,,,,
-h5n1-bird-flu-will,media,disagree,h5-bird-flu-current,,,,,,,,,,,,,,,,
+h5n1-bird-flu-will,media,disagree,updated-joint-fao-who,,,,,,,,,,,,,,,,url: https://www.woah.org/app/uploads/2026/05/2026-05-18-fao-woah-who-h5-assessment.pdf | checked: 2026-11-21
+h5n1-bird-flu-will,media,disagree,h5-bird-flu-current,,,,,,,,,,,,,,,,url: https://www.cdc.gov/bird-flu/spotlights/h5n1-response-02262025.html | checked: 2026-11-21
 h5n1-bird-flu-will,interest,agree,nurses-hospital-staff-need,,,,,,,,,,,,,,,,
 h5n1-bird-flu-will,interest,agree,poultry-dairy-workers-need,,,,,,,,,,,,,,,,
 h5n1-bird-flu-will,interest,agree,parents-young-children-need-5,,,,,,,,,,,,,,,,
@@ -11089,45 +11089,45 @@ more-than-one-five,dispute,,,Empirical,,,,,,,,,,,,,,,what: The two sides disagre
 more-than-one-five,dispute,,,Causal,,,,,,,,,,,,,,,what: The two sides disagree about whether cheaper prices and daily pills bring in new users or mostly move existing users from one GLP-1 drug to another. | move: National prescription data through 2027 separating patients new to any GLP-1 from patients switching between them would settle it.
 more-than-one-five,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides could disagree about whether self-reported survey answers, which may include compounded and cash-pay drugs, or insurer and pharmacy prescription counts, which may miss them, decide whether the share passed one in five. | move: Agreeing in advance on one named source, such as the KFF Health Tracking Poll's question on currently taking a GLP-1, would settle it."
 more-than-one-five,value,,,,,,,,,,,,,,,,,,"value: Health | srank: 1 | orank: 3 | why: People who expect wide uptake put weight on how many adults could benefit medically, while doubters accept the benefit but think it will not decide how many actually take the drugs."
-glp-1-drugs-will,argument,agree,self-reported-obesity-among,,,,,,,,,,,,,,,,
-glp-1-drugs-will,argument,agree,daily-glp-1-pills,,,,,,,,,,,,,,,,
-glp-1-drugs-will,argument,agree,one-year-persistence-glp,,,,,,,,,,,,,,,,
-glp-1-drugs-will,argument,agree,tirzepatide-strongest-widely-used,,,,,,,,,,,,,,,,
-glp-1-drugs-will,evidence,agree,gallup-s-national-health,,"Gallup, National Health and Well-Being Index report on obesity and GLP-1 use, October 2025",,,,,,,,,,,,,,
-glp-1-drugs-will,evidence,agree,epic-research-s-cosmos,,"Epic Research, ""GLP-1 Use Has More Than Quadrupled Since 2021 as Obesity Rates Continue to Show Signs of Decline,"" 2026",,,,,,,,,,,,,,
-glp-1-drugs-will,evidence,agree,analysis-about-16-7,,"Rader B, Hazan R, Brownstein JS, research letter on BMI and obesity prevalence trends, JAMA Health Forum, 2024;5(12):e243685",,,,,,,,,,,,,,
-glp-1-drugs-will,evidence,agree,surmount-1-trial-2,,"Jastreboff AM et al., ""Tirzepatide Once Weekly for the Treatment of Obesity,"" New England Journal of Medicine, 2022",,,,,,,,,,,,,,
+glp-1-drugs-will,argument,agree,self-reported-obesity-among,,,,,,,,,,,,,,,,url: https://news.gallup.com/poll/696599/obesity-rate-declining.aspx | checked: 2026-11-21
+glp-1-drugs-will,argument,agree,daily-glp-1-pills,,,,,,,,,,,,,,,,url: https://www.fda.gov/news-events/press-announcements/fda-approves-first-new-molecular-entity-under-national-priority-voucher-program | checked: 2026-11-21
+glp-1-drugs-will,argument,agree,one-year-persistence-glp,,,,,,,,,,,,,,,,url: https://primetherapeutics.com/w/prime-therapeutics-leading-research-shows-only-1-in-12-remain-on-a-glp-1-drug-for-obesity-at-three-years | checked: 2026-11-21
+glp-1-drugs-will,argument,agree,tirzepatide-strongest-widely-used,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=ext_id:35658024&resultType=core&format=json | checked: 2026-11-21
+glp-1-drugs-will,evidence,agree,gallup-s-national-health,,"Gallup, National Health and Well-Being Index report on obesity and GLP-1 use, October 2025",,,,,,,,,,,,,,url: https://news.gallup.com/poll/696599/obesity-rate-declining.aspx | checked: 2026-11-21
+glp-1-drugs-will,evidence,agree,epic-research-s-cosmos,,"Epic Research, ""GLP-1 Use Has More Than Quadrupled Since 2021 as Obesity Rates Continue to Show Signs of Decline,"" 2026",,,,,,,,,,,,,,url: https://epicresearch.org/articles/glp-1-use-has-more-than-quadrupled-since-2021-as-obesity-rates-continue-to-show-signs-of-decline | checked: 2026-11-21
+glp-1-drugs-will,evidence,agree,analysis-about-16-7,,"Rader B, Hazan R, Brownstein JS, research letter on BMI and obesity prevalence trends, JAMA Health Forum, 2024;5(12):e243685",,,,,,,,,,,,,,url: https://jamanetwork.com/journals/jama-health-forum/fullarticle/2827712 | checked: 2026-11-21
+glp-1-drugs-will,evidence,agree,surmount-1-trial-2,,"Jastreboff AM et al., ""Tirzepatide Once Weekly for the Treatment of Obesity,"" New England Journal of Medicine, 2022",,,,,,,,,,,,,,url: https://www.acc.org/Latest-in-Cardiology/Clinical-Trials/2022/08/04/15/32/SURMOUNT-1 | checked: 2026-11-21
 glp-1-drugs-will,falsify,agree,large-claims-health-record,,,,,,,,,,,,,,,,
 glp-1-drugs-will,falsify,agree,first-nhanes-estimate-after,,,,,,,,,,,,,,,,
 glp-1-drugs-will,assumption,agree,millions-american-adults-who,,,,,,,,,,,,,,,,
 glp-1-drugs-will,assumption,agree,many-american-glp-1,,,,,,,,,,,,,,,,
-glp-1-drugs-will,person,agree,gallup-researchers-dan-witters,,,,,,,,,,,,,,,,
-glp-1-drugs-will,person,agree,john-brownstein-his-co,,,,,,,,,,,,,,,,
-glp-1-drugs-will,media,agree,obesity-rate-declining-u,,,,,,,,,,,,,,,,
-glp-1-drugs-will,media,agree,changes-adult-obesity-trends,,,,,,,,,,,,,,,,
-glp-1-drugs-will,media,agree,tirzepatide-once-weekly-treatment,,,,,,,,,,,,,,,,
-glp-1-drugs-will,argument,disagree,most-americans-who-start-2,,,,,,,,,,,,,,,,
-glp-1-drugs-will,argument,disagree,people-who-stop-semaglutide,,,,,,,,,,,,,,,,
-glp-1-drugs-will,argument,disagree,semaglutide-s-average-weight,,,,,,,,,,,,,,,,
-glp-1-drugs-will,argument,disagree,measured-adult-obesity-united,,,,,,,,,,,,,,,,
-glp-1-drugs-will,evidence,disagree,measured-adult-obesity-was,,"CDC National Center for Health Statistics, ""Obesity and Severe Obesity Prevalence in Adults: United States, August 2021–August 2023,"" NCHS Data Brief No. 508, 2024",,,,,,,,,,,,,,
-glp-1-drugs-will,evidence,disagree,one-year-after-stopping,,"Wilding JPH et al., ""Weight regain and cardiometabolic effects after withdrawal of semaglutide: The STEP 1 trial extension,"" Diabetes, Obesity and Metabolism, 2022",,,,,,,,,,,,,,
-glp-1-drugs-will,evidence,disagree,before-glp-1-drugs,,"Ward ZJ et al., ""Projected U.S. State-Level Prevalence of Adult Obesity and Severe Obesity,"" New England Journal of Medicine, 2019",,,,,,,,,,,,,,
+glp-1-drugs-will,person,agree,gallup-researchers-dan-witters,,,,,,,,,,,,,,,,url: https://news.gallup.com/poll/696599/obesity-rate-declining.aspx | checked: 2026-11-21
+glp-1-drugs-will,person,agree,john-brownstein-his-co,,,,,,,,,,,,,,,,url: https://jamanetwork.com/journals/jama-health-forum/fullarticle/2827712 | checked: 2026-11-21
+glp-1-drugs-will,media,agree,obesity-rate-declining-u,,,,,,,,,,,,,,,,url: https://news.gallup.com/poll/696599/obesity-rate-declining.aspx | checked: 2026-11-21
+glp-1-drugs-will,media,agree,changes-adult-obesity-trends,,,,,,,,,,,,,,,,url: https://jamanetwork.com/journals/jama-health-forum/fullarticle/2827712 | checked: 2026-11-21
+glp-1-drugs-will,media,agree,tirzepatide-once-weekly-treatment,,,,,,,,,,,,,,,,url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=ext_id:35658024&resultType=core&format=json | checked: 2026-11-21
+glp-1-drugs-will,argument,disagree,most-americans-who-start-2,,,,,,,,,,,,,,,,url: https://primetherapeutics.com/w/prime-therapeutics-leading-research-shows-only-1-in-12-remain-on-a-glp-1-drug-for-obesity-at-three-years | checked: 2026-11-21
+glp-1-drugs-will,argument,disagree,people-who-stop-semaglutide,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9542252/ | checked: 2026-11-21
+glp-1-drugs-will,argument,disagree,semaglutide-s-average-weight,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9542252/ | checked: 2026-11-21
+glp-1-drugs-will,argument,disagree,measured-adult-obesity-united,,,,,,,,,,,,,,,,url: https://www.cdc.gov/nchs/products/databriefs/db508.htm | checked: 2026-11-21
+glp-1-drugs-will,evidence,disagree,measured-adult-obesity-was,,"CDC National Center for Health Statistics, ""Obesity and Severe Obesity Prevalence in Adults: United States, August 2021–August 2023,"" NCHS Data Brief No. 508, 2024",,,,,,,,,,,,,,url: https://www.cdc.gov/nchs/products/databriefs/db508.htm | checked: 2026-11-21
+glp-1-drugs-will,evidence,disagree,one-year-after-stopping,,"Wilding JPH et al., ""Weight regain and cardiometabolic effects after withdrawal of semaglutide: The STEP 1 trial extension,"" Diabetes, Obesity and Metabolism, 2022",,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9542252/ | checked: 2026-11-21
+glp-1-drugs-will,evidence,disagree,before-glp-1-drugs,,"Ward ZJ et al., ""Projected U.S. State-Level Prevalence of Adult Obesity and Severe Obesity,"" New England Journal of Medicine, 2019",,,,,,,,,,,,,,url: https://hsph.harvard.edu/news/half-of-us-to-have-obesity-by-2030 | checked: 2026-11-21
 glp-1-drugs-will,prediction,disagree,nhanes-2025-2027-cycle,,,,,,,,,,,,,,,"By December 31, 2029; checked against the NCHS data brief on adult obesity for the 2025 to 2027 NHANES cycle.",
 glp-1-drugs-will,falsify,disagree,first-nhanes-estimate-after-2,,,,,,,,,,,,,,,,
 glp-1-drugs-will,falsify,disagree,epic-research-s-cosmos-2,,,,,,,,,,,,,,,,
 glp-1-drugs-will,assumption,disagree,recent-declines-self-reported,,,,,,,,,,,,,,,,
-glp-1-drugs-will,media,disagree,obesity-severe-obesity-prevalence,,,,,,,,,,,,,,,,
-glp-1-drugs-will,media,disagree,weight-regain-cardiometabolic-effects,,,,,,,,,,,,,,,,
-glp-1-drugs-will,media,disagree,national-level-state-level,,,,,,,,,,,,,,,,
+glp-1-drugs-will,media,disagree,obesity-severe-obesity-prevalence,,,,,,,,,,,,,,,,url: https://www.cdc.gov/nchs/products/databriefs/db508.htm | checked: 2026-11-21
+glp-1-drugs-will,media,disagree,weight-regain-cardiometabolic-effects,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9542252/ | checked: 2026-11-21
+glp-1-drugs-will,media,disagree,national-level-state-level,,,,,,,,,,,,,,,,url: https://www.acc.org/Latest-in-Cardiology/ten-points-to-remember/2024/11/25/15/02/national-level-and-state | checked: 2026-11-21
 glp-1-drugs-will,interest,disagree,workers-retirees-who-pay,,,,,,,,,,,,,,,,
 glp-1-drugs-will,interest,disagree,adults-who-cannot-tolerate,,,,,,,,,,,,,,,,
 glp-1-drugs-will,interest,disagree,packaged-food-snack-company,,,,,,,,,,,,,,,,
-glp-1-drugs-will,cba,agree,bringing-measured-u-s,,,,,,,,,,,millions of adults no longer classed as having obesity,14,,,,
+glp-1-drugs-will,cba,agree,bringing-measured-u-s,,,,,,,,,,,millions of adults no longer classed as having obesity,14,,,,url: https://news.gallup.com/poll/696599/obesity-rate-declining.aspx | checked: 2026-11-21
 glp-1-drugs-will,cba,agree,falling-obesity-rate-reduce,,,,,,,,,,,new type 2 diabetes cases avoided per year,,,,,
-glp-1-drugs-will,cba,disagree,covering-glp-1-drugs,,,,,,,,workers-retirees-who-pay,,,billions of dollars a year in net federal spending,3.9,,,,
-glp-1-drugs-will,cba,disagree,keeping-u-s-obesity,,,,,,,,workers-retirees-who-pay,,,dollars per user per year,2940,,,,
-glp-1-drugs-will,cba,disagree,gastrointestinal-side-effects-lead,,,,,,,,adults-who-cannot-tolerate,,,percentage points of users stopping for side effects,3.7,,,,
+glp-1-drugs-will,cba,disagree,covering-glp-1-drugs,,,,,,,,workers-retirees-who-pay,,,billions of dollars a year in net federal spending,3.9,,,,url: https://schaeffer.usc.edu/research/cbo-report-medicare-obesity-drugs-coverage/ | checked: 2026-11-21
+glp-1-drugs-will,cba,disagree,keeping-u-s-obesity,,,,,,,,workers-retirees-who-pay,,,dollars per user per year,2940,,,,url: https://www.cms.gov/medicare/coverage/prescription-drug-coverage/medicare-glp-1-bridge/information-part-d-plans | checked: 2026-11-21
+glp-1-drugs-will,cba,disagree,gastrointestinal-side-effects-lead,,,,,,,,adults-who-cannot-tolerate,,,percentage points of users stopping for side effects,3.7,,,,url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=33567185&rettype=abstract&retmode=text | checked: 2026-11-21
 glp-1-drugs-will,category,,,billions of dollars a year in net federal spending,,,,,,,,,,,,,,,
 glp-1-drugs-will,category,,,dollars per user per year,,,,,,,,,,,,,,,
 glp-1-drugs-will,category,,,millions of adults no longer classed as having obesity,,,,,,,,,,,,,,,
@@ -11554,38 +11554,38 @@ new-medicine,topic_media,,weight-regain-cardiometabolic-effects,,,,,,,,,,,,,,,,"
 2027-will-hotter-than,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about how much heat an El Niño larger than any that models have been checked against will actually add to the 2027 global average. | move: Copernicus monthly global anomalies for January through June 2027, compared with the same months of 2024, would show whether 2027 is running ahead of the record pace."
 2027-will-hotter-than,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether the unexplained part of the 2023 and 2024 heat came from lasting changes, such as fewer low clouds and less sulfur pollution, or from temporary variation that will fade. | move: Satellite measurements of Earth's reflectivity through 2027 would show whether the record-low reflectivity of 2023 has persisted or recovered."
 2027-will-hotter-than,value,,,,,,,,,,,,,,,,,,"value: Accuracy | srank: 1 | orank: 1 | why: Both sides want the forecast judged by the published numbers, so the belief is a test of who reads the evidence better."
-global-carbon-dioxide-emissions,argument,agree,clean-power-now-growing,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,argument,agree,global-energy-carbon-dioxide,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,argument,agree,2026-oil-price-shock-2,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,argument,agree,electric-vehicle-sales-setting,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,evidence,agree,china-s-carbon-dioxide,,"International Energy Agency, Global Energy Review 2026, 2026; Lauri Myllyvirta (CREA) for Carbon Brief, ""Analysis: China's CO2 emissions have now been 'flat or falling' for 21 months"", 2026; Global Carbon Project, Global Carbon Budget 2025, 2025",,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,evidence,agree,global-electricity-generation-fossil,,"Ember, Global Electricity Review 2026, 2026",,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,evidence,agree,global-fossil-carbon-dioxide,,"Simon Evans, Carbon Brief, ""Analysis: Global fossil-fuel emissions set to fall in 2026 amid Hormuz crisis"", 2026",,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,evidence,agree,thirty-five-countries-reduced,,"CSIRO, ""Global Carbon Budget 2025"" (news release on the Global Carbon Project's Global Carbon Budget 2025), 2025",,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,prediction,agree,global-energy-related-carbon,,,,,,,,,,,,,,,"By April 30, 2028; checked against the IEA Global Energy Review 2028.",
+global-carbon-dioxide-emissions,argument,agree,clean-power-now-growing,,,,,,,,,,,,,,,,url: https://ember-energy.org/latest-insights/global-electricity-review-2026/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,argument,agree,global-energy-carbon-dioxide,,,,,,,,,,,,,,,,url: https://www.industrialinfo.com/news/article/iea-global-electric-demand-grew-faster-than-overall-energy-use-in-2025--356803 | checked: 2026-11-21
+global-carbon-dioxide-emissions,argument,agree,2026-oil-price-shock-2,,,,,,,,,,,,,,,,url: https://www.carbonbrief.org/analysis-global-fossil-fuel-emissions-set-to-fall-in-2026-amid-hormuz-crisis/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,argument,agree,electric-vehicle-sales-setting,,,,,,,,,,,,,,,,url: https://www.carbonbrief.org/analysis-global-fossil-fuel-emissions-set-to-fall-in-2026-amid-hormuz-crisis/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,evidence,agree,china-s-carbon-dioxide,,"International Energy Agency, Global Energy Review 2026, 2026; Lauri Myllyvirta (CREA) for Carbon Brief, ""Analysis: China's CO2 emissions have now been 'flat or falling' for 21 months"", 2026; Global Carbon Project, Global Carbon Budget 2025, 2025",,,,,,,,,,,,,,url: https://www.carbonbrief.org/analysis-chinas-co2-emissions-have-now-been-flat-or-falling-for-21-months/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,evidence,agree,global-electricity-generation-fossil,,"Ember, Global Electricity Review 2026, 2026",,,,,,,,,,,,,,url: https://ember-energy.org/latest-insights/global-electricity-review-2026/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,evidence,agree,global-fossil-carbon-dioxide,,"Simon Evans, Carbon Brief, ""Analysis: Global fossil-fuel emissions set to fall in 2026 amid Hormuz crisis"", 2026",,,,,,,,,,,,,,url: https://www.carbonbrief.org/analysis-global-fossil-fuel-emissions-set-to-fall-in-2026-amid-hormuz-crisis/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,evidence,agree,thirty-five-countries-reduced,,"CSIRO, ""Global Carbon Budget 2025"" (news release on the Global Carbon Project's Global Carbon Budget 2025), 2025",,,,,,,,,,,,,,url: https://globalcarbonbudget.org/fossil-fuel-co2-emissions-hit-record-high-in-2025/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,prediction,agree,global-energy-related-carbon,,,,,,,,,,,,,,,"By April 30, 2028; checked against the IEA Global Energy Review 2028.",url: https://adiconsum.it/wp-content/uploads/2026/04/GlobalEnergyReview2026.pdf | checked: 2026-11-21
 global-carbon-dioxide-emissions,prediction,agree,global-electricity-generation-fossil-2,,,,,,,,,,,,,,,"By June 30, 2028; checked against Ember's Global Electricity Review 2028.",
 global-carbon-dioxide-emissions,falsify,agree,iea-reports-global-energy,,,,,,,,,,,,,,,,
 global-carbon-dioxide-emissions,falsify,agree,india-s-coal-fired,,,,,,,,,,,,,,,,
 global-carbon-dioxide-emissions,assumption,agree,china-s-plateau-carbon,,,,,,,,,,,,,,,,
 global-carbon-dioxide-emissions,assumption,agree,clean-power-electric-vehicles,,,,,,,,,,,,,,,,
 global-carbon-dioxide-emissions,assumption,agree,governments-will-roll-back,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,media,agree,global-electricity-review-2026,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,argument,disagree,global-energy-carbon-dioxide-2,,,,,,,,,,,,,,,,
+global-carbon-dioxide-emissions,media,agree,global-electricity-review-2026,,,,,,,,,,,,,,,,url: https://ember-energy.org/latest-insights/global-electricity-review-2026/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,argument,disagree,global-energy-carbon-dioxide-2,,,,,,,,,,,,,,,,url: https://globalcarbonbudget.org/fossil-fuel-co2-emissions-hit-record-high-in-2025/ | checked: 2026-11-21
 global-carbon-dioxide-emissions,argument,disagree,fast-growing-energy-demand,,,,,,,,,,,,,,,,
 global-carbon-dioxide-emissions,argument,disagree,electricity-demand-ai-data,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,argument,disagree,high-gas-prices-push,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,evidence,disagree,global-fossil-carbon-dioxide-2,,"Global Carbon Project, Global Carbon Budget 2025, 2025; International Energy Agency, Global Energy Review 2026, 2026",,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,evidence,disagree,global-fossil-carbon-dioxide-3,,"Global Carbon Project, Global Carbon Budget 2021, 2021",,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,evidence,disagree,global-greenhouse-gas-emissions,,"Climate TRACE, ""Climate TRACE Data Show Marginal Increase in Global Emissions in the First Half of 2026"", 2026",,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,prediction,disagree,global-energy-related-carbon-2,,,,,,,,,,,,,,,"By April 30, 2028; checked against the IEA Global Energy Review 2028.",
+global-carbon-dioxide-emissions,argument,disagree,high-gas-prices-push,,,,,,,,,,,,,,,,url: https://oilprice.com/Energy/Coal/Hormuz-Crisis-to-Push-Global-Coal-Demand-to-Record-High.html | checked: 2026-11-21
+global-carbon-dioxide-emissions,evidence,disagree,global-fossil-carbon-dioxide-2,,"Global Carbon Project, Global Carbon Budget 2025, 2025; International Energy Agency, Global Energy Review 2026, 2026",,,,,,,,,,,,,,url: https://adiconsum.it/wp-content/uploads/2026/04/GlobalEnergyReview2026.pdf | checked: 2026-11-21
+global-carbon-dioxide-emissions,evidence,disagree,global-fossil-carbon-dioxide-3,,"Global Carbon Project, Global Carbon Budget 2021, 2021",,,,,,,,,,,,,,url: https://essd.copernicus.org/articles/14/1917/2022/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,evidence,disagree,global-greenhouse-gas-emissions,,"Climate TRACE, ""Climate TRACE Data Show Marginal Increase in Global Emissions in the First Half of 2026"", 2026",,,,,,,,,,,,,,url: https://climatetrace.org/news/climate-trace-data-show-marginal-increase-in-global-emissions-in-the-first-half-of-2026 | checked: 2026-11-21
+global-carbon-dioxide-emissions,prediction,disagree,global-energy-related-carbon-2,,,,,,,,,,,,,,,"By April 30, 2028; checked against the IEA Global Energy Review 2028.",url: https://globalcarbonbudget.org/fossil-fuel-co2-emissions-hit-record-high-in-2025/ | checked: 2026-11-21
 global-carbon-dioxide-emissions,prediction,disagree,china-s-carbon-dioxide-2,,,,,,,,,,,,,,,"By March 31, 2028; checked against the CREA analysis for Carbon Brief and the Global Carbon Budget 2027.",
 global-carbon-dioxide-emissions,falsify,disagree,iea-s-oil-market,,,,,,,,,,,,,,,,
 global-carbon-dioxide-emissions,assumption,disagree,2026-drop-oil-use,,,,,,,,,,,,,,,,
 global-carbon-dioxide-emissions,assumption,disagree,energy-demand-fast-growing,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,person,disagree,saudi-aramco-chief-executive,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,media,disagree,global-carbon-budget-2025,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,media,disagree,world-energy-outlook-2025,,,,,,,,,,,,,,,,
-global-carbon-dioxide-emissions,media,disagree,how-world-really-works,,,,,,,,,,,,,,,,
+global-carbon-dioxide-emissions,person,disagree,saudi-aramco-chief-executive,,,,,,,,,,,,,,,,url: https://phys.org/news/2024-03-saudi-aramco-ceo-energy-transition.html | checked: 2026-11-21
+global-carbon-dioxide-emissions,media,disagree,global-carbon-budget-2025,,,,,,,,,,,,,,,,url: https://globalcarbonbudget.org/fossil-fuel-co2-emissions-hit-record-high-in-2025/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,media,disagree,world-energy-outlook-2025,,,,,,,,,,,,,,,,url: https://www.carbonbrief.org/iea-fossil-fuel-use-will-peak-before-2030-unless-stated-policies-are-abandoned/ | checked: 2026-11-21
+global-carbon-dioxide-emissions,media,disagree,how-world-really-works,,,,,,,,,,,,,,,,url: https://www.kirkusreviews.com/book-reviews/vaclav-smil/how-the-world-really-works/ | checked: 2026-11-21
 global-carbon-dioxide-emissions,interest,agree,coastal-homeowners-need-global,,,,,,,,,,,,,,,,
 global-carbon-dioxide-emissions,interest,agree,solar-wind-battery-workers,,,,,,,,,,,,,,,,
 global-carbon-dioxide-emissions,interest,agree,farmers-south-asia-need,,,,,,,,,,,,,,,,
@@ -11614,12 +11614,12 @@ global-carbon-dioxide-emissions,similar,moderate,global-carbon-dioxide-emissions
 global-carbon-dioxide-emissions,definition,,,,,,,,,,,,,,,,,,"term: Peak | definition: The year with the highest annual total in the series, counting only if no later year through the end of the record exceeds it; a single down year followed by a new record is not a peak."
 global-carbon-dioxide-emissions,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether the expected 2026 fall in emissions comes mainly from lasting clean energy growth or mainly from a temporary oil and gas price spike that will reverse. | move: Comparing 2027 and 2028 oil demand and fossil power generation after prices normalize, against their 2025 levels, would show how much of the drop stayed."
 global-carbon-dioxide-emissions,value,,,,,,,,,,,,,,,,,,value: Safety | srank: 1 | orank: 3 | why: People who expect an early peak tend to stress that every year emissions keep rising adds to long-term warming risk.
-electric-vehicles-will-more,argument,agree,brand-new-electric-cars,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,argument,agree,ford-building-low-cost,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,argument,agree,public-fast-charging-united,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,argument,agree,gasoline-price-spikes-like,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,argument,agree,california-kept-zero-emission,,,,,,,,,,,,,,,,
-electric-vehicles-will-more,argument,agree,fast-growing-supply-used,,,,,,,,,,,,,,,,
+electric-vehicles-will-more,argument,agree,brand-new-electric-cars,,,,,,,,,,,,,,,,url: https://www.kbb.com/chevrolet/bolt/ | checked: 2026-11-21
+electric-vehicles-will-more,argument,agree,ford-building-low-cost,,,,,,,,,,,,,,,,url: https://www.fromtheroad.ford.com/us/en/articles/2025/ford-affordable-electric-vehicle-platform-midsize-electric-truck | checked: 2026-11-21
+electric-vehicles-will-more,argument,agree,public-fast-charging-united,,,,,,,,,,,,,,,,url: https://www.paren.app/reports/state-of-the-industry-report-us-ev-fast-charging-full-year-2025 | checked: 2026-11-21
+electric-vehicles-will-more,argument,agree,gasoline-price-spikes-like,,,,,,,,,,,,,,,,url: https://www.energy.ca.gov/news/2026-07/ev-sales-rebound-trumps-war-iran-rages | checked: 2026-11-21
+electric-vehicles-will-more,argument,agree,california-kept-zero-emission,,,,,,,,,,,,,,,,url: https://www.energy.ca.gov/news/2026-10/california-zev-sales-maintain-strong-performance-q3-12000-drivers-benefit-new | checked: 2026-11-21
+electric-vehicles-will-more,argument,agree,fast-growing-supply-used,,,,,,,,,,,,,,,,url: https://www.coxautoinc.com/insights-hub/ev-market-monitor-october-2026 | checked: 2026-11-21
 electric-vehicles-will-more,evidence,agree,average-lithium-ion-battery,,"BloombergNEF, 2025 Lithium-Ion Battery Price Survey, 2025",,,,,,,,,,,,,,url: https://about.bnef.com/insights/clean-transport/lithium-ion-battery-pack-prices-fall-to-108-per-kilowatt-hour-despite-rising-metal-prices-bloombergnef/ | checked: 2026-11-21
 electric-vehicles-will-more,falsify,agree,battery-electric-car-priced,,,,,,,,,,,,,,,,
 electric-vehicles-will-more,assumption,agree,falling-battery-costs-will,,,,,,,,,,,,,,,,
@@ -11671,11 +11671,11 @@ electric-vehicles-will-more,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides 
 electric-vehicles-will-more,dispute,,,Definitional,,,,,,,,,,,,,,,"what: Some forecasts and market reports count plug-in hybrids as electric vehicles while others count only battery-electric cars, so the same market can read as under or over half depending on the definition. | move: Agreeing in advance that this belief counts battery-electric cars, and separately reporting plug-in hybrids, would remove the ambiguity."
 electric-vehicles-will-more,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether gasoline hybrids are a stepping stone that gets buyers used to electric drive or a lasting substitute that captures fuel-cost-conscious buyers. | move: Survey and registration data on what hybrid owners buy next, over the next three to four years, would show which pattern holds."
 electric-vehicles-will-more,value,,,,,,,,,,,,,,,,,,"value: Prosperity | srank: 1 | orank: 1 | why: Both sides argue mainly about cost: supporters expect cheaper running and building costs to win, opponents point to higher purchase prices and lost subsidies."
-democrats-will-win-majority,argument,agree,democrats-lead-generic-congressional,,,,,,,,,,,,,,,,
-democrats-will-win-majority,argument,agree,president-s-party-has,,,,,,,,,,,,,,,,
-democrats-will-win-majority,argument,agree,president-trump-s-approval,,,,,,,,,,,,,,,,
-democrats-will-win-majority,argument,agree,democrats-have-run-about,,,,,,,,,,,,,,,,
-democrats-will-win-majority,argument,agree,leading-election-forecast-models,,,,,,,,,,,,,,,,
+democrats-will-win-majority,argument,agree,democrats-lead-generic-congressional,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections | checked: 2026-11-21
+democrats-will-win-majority,argument,agree,president-s-party-has,,,,,,,,,,,,,,,,url: https://www.presidency.ucsb.edu/statistics/data/seats-congress-gainedlost-the-presidents-party-mid-term-elections | checked: 2026-11-21
+democrats-will-win-majority,argument,agree,president-trump-s-approval,,,,,,,,,,,,,,,,url: https://www.brookings.edu/articles/democrats-on-track-to-outperform-2026-house-forecasts/ | checked: 2026-11-21
+democrats-will-win-majority,argument,agree,democrats-have-run-about,,,,,,,,,,,,,,,,url: https://www.the-downballot.com/p/100-specials-since-trumps-return | checked: 2026-11-21
+democrats-will-win-majority,argument,agree,leading-election-forecast-models,,,,,,,,,,,,,,,,url: https://www.natesilver.net/p/will-republican-gerrymanders-become | checked: 2026-11-21
 democrats-will-win-majority,evidence,agree,silver-bulletin-s-generic,,"Silver Bulletin (Nate Silver), ""Generic Congressional Ballot: Latest Polls,"" updated October 23, 2026",,,,,,,,,,,,,,url: https://www.natesilver.net/p/generic-ballot-average-2026-nate-silver-bulletin-congress-polls | checked: 2026-10-24
 democrats-will-win-majority,evidence,agree,decision-desk-hq-s,,"Decision Desk HQ forecast, published by The Hill, ""2026 House Election Predictions,"" updated October 14, 2026",,,,,,,,,,,,,,url: https://elections2026.thehill.com/forecast/2026/house/ | checked: 2026-10-24
 democrats-will-win-majority,evidence,agree,1934-through-2022-president,,"The American Presidency Project, UC Santa Barbara, ""Seats in Congress Gained/Lost by the President's Party in Mid-Term Elections""",,,,,,,,,,,,,,url: https://www.presidency.ucsb.edu/statistics/data/seats-congress-gainedlost-the-presidents-party-mid-term-elections | checked: 2026-10-24
@@ -12066,27 +12066,27 @@ china-will-blockade-invade,definition,,,,,,,,,,,,,,,,,,"term: Before the end of 
 china-will-blockade-invade,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether China's larger and more frequent drills around Taiwan are preparation for an attack within a few years or pressure meant to deter Taiwanese independence without fighting. | move: Signs of mobilization beyond exercises, such as reserve call-ups, requisitioned civilian ships, and stockpiles of fuel and blood, reported by US or Taiwanese intelligence."
 china-will-blockade-invade,value,,,,,,,,,,,,,,,,,,"value: Safety | srank: 1 | orank: 2 | why: Those who expect a move by 2030 put preparing for the worst first, since a blockade with little warning would cost lives; those who doubt it also prize safety but see calm diplomacy and avoiding alarm as the safer path."
 china-will-blockade-invade,value,,,,,,,,,,,,,,,,,,value: Prosperity | srank: 3 | orank: 1 | why: Doubters stress that treating an attack as likely scares off investment and raises costs for Taiwan and its trading partners; those who expect a move weigh economic costs below survival.
-iran-will-test-nuclear,argument,agree,iran-s-roughly-440,,,,,,,,,,,,,,,,
-iran-will-test-nuclear,argument,agree,two-rounds-us-israeli,,,,,,,,,,,,,,,,
-iran-will-test-nuclear,argument,agree,religious-ruling-against-nuclear,,,,,,,,,,,,,,,,
-iran-will-test-nuclear,argument,agree,iaea-inspectors-kept-out,,,,,,,,,,,,,,,,
-iran-will-test-nuclear,argument,agree,new-nuclear-states-have,,,,,,,,,,,,,,,,
-iran-will-test-nuclear,argument,agree,senior-iranian-officials-have,,,,,,,,,,,,,,,,
+iran-will-test-nuclear,argument,agree,iran-s-roughly-440,,,,,,,,,,,,,,,,url: https://www.pbs.org/newshour/world/un-nuclear-watchdog-says-its-unable-to-verify-whether-iran-has-suspended-all-uranium-enrichment | checked: 2026-11-21
+iran-will-test-nuclear,argument,agree,two-rounds-us-israeli,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Assassination_of_Ali_Khamenei | checked: 2026-11-21
+iran-will-test-nuclear,argument,agree,religious-ruling-against-nuclear,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Ali_Khamenei%27s_fatwa_against_nuclear_weapons | checked: 2026-11-21
+iran-will-test-nuclear,argument,agree,iaea-inspectors-kept-out,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Nuclear_program_of_Iran | checked: 2026-11-21
+iran-will-test-nuclear,argument,agree,new-nuclear-states-have,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_nuclear_weapons_tests | checked: 2026-11-21
+iran-will-test-nuclear,argument,agree,senior-iranian-officials-have,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Nuclear_program_of_Iran | checked: 2026-11-21
 iran-will-test-nuclear,evidence,agree,restricted-report-sent-member,,"IAEA Director General restricted report, as reported by Kurdistan24, 'IAEA Says It Cannot Verify Iran's Enriched Uranium Stockpile,' September 3, 2026",,,,,,,,,,,,,,url: https://www.kurdistan24.net/en/story/936953 | checked: 2026-10-24
 iran-will-test-nuclear,evidence,agree,iaea-estimates-iran-s,,"Congressional Research Service, Paul K. Kerr, 'Iran and Nuclear Weapons Production' (IF12106), updated October 13, 2026",,,,,,,,,,,,,,url: https://www.congress.gov/crs-product/IF12106 | checked: 2026-10-24
 iran-will-test-nuclear,evidence,agree,may-2025-before-strikes,,"Congressional Research Service, Paul K. Kerr, 'Iran and Nuclear Weapons Production' (IF12106), updated October 13, 2026",,,,,,,,,,,,,,url: https://www.congress.gov/crs-product/IF12106 | checked: 2026-10-24
 iran-will-test-nuclear,evidence,agree,remarks-reported-october-21,,"Al Jazeera English, Maziar Motamedi, 'Iran determined to keep uranium amid increased war odds, flurry of meetings,' October 21, 2026",,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2026/10/21/iran-determined-to-keep-uranium-amid-increased-war-odds-flurry-of-meetings | checked: 2026-10-24
 iran-will-test-nuclear,media,agree,iran-determined-keep-uranium,,,,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2026/10/21/iran-determined-to-keep-uranium-amid-increased-war-odds-flurry-of-meetings | checked: 2026-10-24
-iran-will-test-nuclear,media,agree,after-u-s-strikes,,,,,,,,,,,,,,,,
+iran-will-test-nuclear,media,agree,after-u-s-strikes,,,,,,,,,,,,,,,,url: https://www.memeorandum.com/250622/p57 | checked: 2026-11-21
 iran-will-test-nuclear,person,agree,ali-larijani-longtime-senior,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Ali_Larijani | checked: 2026-10-24
 iran-will-test-nuclear,person,agree,ali-shamkhani-former-iranian,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Nuclear_program_of_Iran | checked: 2026-10-24
 iran-will-test-nuclear,person,agree,mohsen-rezaei-said-remarks,,,,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2026/10/21/iran-determined-to-keep-uranium-amid-increased-war-odds-flurry-of-meetings | checked: 2026-10-24
 iran-will-test-nuclear,falsify,agree,ctbto-s-international-monitoring,,,,,,,,,,,,,,,,
 iran-will-test-nuclear,assumption,agree,iran-can-recover-its,,,,,,,,,,,,,,,,
 iran-will-test-nuclear,assumption,agree,iran-s-leaders-once,,,,,,,,,,,,,,,,
-iran-will-test-nuclear,argument,disagree,us-israeli-strikes-2025,,,,,,,,,,,,,,,,
-iran-will-test-nuclear,argument,disagree,nuclear-test-announce-iran,,,,,,,,,,,,,,,,
-iran-will-test-nuclear,argument,disagree,preparing-underground-nuclear-test,,,,,,,,,,,,,,,,
+iran-will-test-nuclear,argument,disagree,us-israeli-strikes-2025,,,,,,,,,,,,,,,,url: https://isis-online.org/isis-reports/comprehensive-analysis-of-nuclear-facilities-targeted-during-the-second-phase-of-the-iran-war | checked: 2026-11-21
+iran-will-test-nuclear,argument,disagree,nuclear-test-announce-iran,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/South_Africa_and_weapons_of_mass_destruction | checked: 2026-11-21
+iran-will-test-nuclear,argument,disagree,preparing-underground-nuclear-test,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/South_Africa_and_weapons_of_mass_destruction | checked: 2026-11-21
 iran-will-test-nuclear,argument,disagree,iran-has-stood-edge,,,,,,,,,,,,,,,,
 iran-will-test-nuclear,evidence,disagree,june-2026-us-iran,,"Congressional Research Service, Paul K. Kerr, 'Iran and Nuclear Weapons Production' (IF12106), updated October 13, 2026",,,,,,,,,,,,,,url: https://www.congress.gov/crs-product/IF12106 | checked: 2026-10-24
 iran-will-test-nuclear,evidence,disagree,iaea-reports-have-indicated,,"Congressional Research Service, Paul K. Kerr, 'Iran and Nuclear Weapons Production' (IF12106), updated October 13, 2026",,,,,,,,,,,,,,url: https://www.congress.gov/crs-product/IF12106 | checked: 2026-10-24
@@ -12109,8 +12109,8 @@ iran-will-test-nuclear,interest,disagree,iranian-civilians-need-avoid,,,,,,,,,,,
 iran-will-test-nuclear,interest,disagree,oil-importers-shipping-companies,,,,,,,,,,,,,,,,
 iran-will-test-nuclear,cba,agree,building-shelters-missile-defenses,,,,,,,,israeli-civilians-need-warning,,,deaths avoided,,,,,
 iran-will-test-nuclear,cba,agree,gulf-governments-plan-early,,,,,,,,,,,new nuclear-armed states avoided,,,,,
-iran-will-test-nuclear,cba,disagree,acting-expected-iranian-test,,,,,,,,iranian-civilians-need-avoid,,,civilian deaths,,,,,
-iran-will-test-nuclear,cba,disagree,treating-iranian-test-coming,,,,,,,,oil-importers-shipping-companies,,,dollars per barrel of oil,,,,,
+iran-will-test-nuclear,cba,disagree,acting-expected-iranian-test,,,,,,,,iranian-civilians-need-avoid,,,civilian deaths,,,,,url: https://en.wikipedia.org/wiki/Casualties_of_the_2026_Iran_war | checked: 2026-11-21
+iran-will-test-nuclear,cba,disagree,treating-iranian-test-coming,,,,,,,,oil-importers-shipping-companies,,,dollars per barrel of oil,,,,,url: https://en.wikipedia.org/wiki/2026_Strait_of_Hormuz_crisis | checked: 2026-11-21
 iran-will-test-nuclear,cba,disagree,if-iran-s-leaders,,,,,,,,,,,months of IAEA access in Iran,,,,,
 iran-will-test-nuclear,category,,,civilian deaths,,,,,,,,,,,,,,,
 iran-will-test-nuclear,category,,,deaths avoided,,,,,,,,,,,,,,,
@@ -12136,11 +12136,11 @@ iran-will-test-nuclear,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether Iran's r
 iran-will-test-nuclear,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether the strikes and the killing of Ali Khamenei pushed Iran's leaders toward a bomb or convinced them that any visible bomb effort invites destruction. | move: Iran's actions over the next two years: resumed enrichment, a notice of withdrawal from the Non-Proliferation Treaty, or restored IAEA access."
 iran-will-test-nuclear,value,,,,,,,,,,,,,,,,,,"value: Security | srank: 1 | orank: 1 | why: Those who expect a test put the danger of a nuclear-armed Iran first, while those who doubt it put first the danger of wars started on the expectation of a bomb that may never come."
 iran-will-test-nuclear,value,,,,,,,,,,,,,,,,,,"value: Prudence | srank: 2 | orank: 1 | why: Those who expect a test say planning for the worst is prudent, while those who doubt it say acting on an uncertain forecast that can justify war is the imprudent choice."
-israel-saudi-arabia-will,argument,agree,saudi-crown-prince-mohammed,,,,,,,,,,,,,,,,
-israel-saudi-arabia-will,argument,agree,united-states-has-tied,,,,,,,,,,,,,,,,
-israel-saudi-arabia-will,argument,agree,israeli-prime-minister-benjamin,,,,,,,,,,,,,,,,
-israel-saudi-arabia-will,argument,agree,israel-saudi-arabia-came,,,,,,,,,,,,,,,,
-israel-saudi-arabia-will,argument,agree,president-trump-pressing-saudi,,,,,,,,,,,,,,,,
+israel-saudi-arabia-will,argument,agree,saudi-crown-prince-mohammed,,,,,,,,,,,,,,,,url: https://news.google.com/rss/search?q=crown+prince+%22want+to+be+part+of+the+Abraham+Accords%22&hl=en-US&gl=US&ceid=US:en | checked: 2026-11-21
+israel-saudi-arabia-will,argument,agree,united-states-has-tied,,,,,,,,,,,,,,,,url: https://www.opb.org/article/2026/07/23/trump-says-saudi-arabia-nuclear-deal-hinges-on-saudi-ties-with-israel/ | checked: 2026-11-21
+israel-saudi-arabia-will,argument,agree,israeli-prime-minister-benjamin,,,,,,,,,,,,,,,,url: https://www.al-monitor.com/originals/2026/09/how-netanyahu-leveraging-houthi-threat-secret-saudi-normalization-push | checked: 2026-11-21
+israel-saudi-arabia-will,argument,agree,israel-saudi-arabia-came,,,,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2023/9/21/saudi-crown-prince-mbs-says-israel-normalisation-getting-closer | checked: 2026-11-21
+israel-saudi-arabia-will,argument,agree,president-trump-pressing-saudi,,,,,,,,,,,,,,,,url: https://www.timesofisrael.com/saudi-crown-princes-pushback-on-israel-normalization-reportedly-irked-trump/ | checked: 2026-11-21
 israel-saudi-arabia-will,evidence,agree,november-18-2025-oval,,"Washington Free Beacon (Adam Kredo), ""Trump Says He and Saudi Crown Prince Have 'Reached an Agreement' for Country To Join Abraham Accords,"" November 18, 2025",,,,,,,,,,,,,,url: https://freebeacon.com/latest-news/trump-says-he-and-saudi-crown-prince-have-reached-an-agreement-for-country-to-join-abraham-accords/ | checked: 2026-10-24
 israel-saudi-arabia-will,evidence,agree,july-22-2026-united,,"Al Jazeera, ""Trump says 'it's time' for Saudi Arabia to normalise ties with Israel,"" July 24, 2026",,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2026/7/24/trump-says-its-time-for-saudi-arabia-to-normalise-ties-with-israel | checked: 2026-10-24
 israel-saudi-arabia-will,evidence,agree,two-sources-told-haaretz,,"Haaretz (Liza Rozovsky and Ben Samuels), ""Netanyahu Wants Israel-Saudi Arabia Normalization Before Elections, Sources Say,"" July 30, 2026",,,,,,,,,,,,,,url: https://www.haaretz.com/middle-east-news/2026-07-30/ty-article/.premium/netanyahu-plans-israel-saudi-arabia-normalization-before-elections-sources-say/0000019f-b289-de01-a5bf-f7c9f4010000 | checked: 2026-10-24
@@ -12154,10 +12154,10 @@ israel-saudi-arabia-will,falsify,agree,saudi-arabia-s-foreign,,,,,,,,,,,,,,,,
 israel-saudi-arabia-will,falsify,agree,israel-s-government-formed,,,,,,,,,,,,,,,,
 israel-saudi-arabia-will,assumption,agree,saudi-arabia-will-accept,,,,,,,,,,,,,,,,
 israel-saudi-arabia-will,assumption,agree,us-rewards-such-defense,,,,,,,,,,,,,,,,
-israel-saudi-arabia-will,argument,disagree,saudi-arabia-has-repeatedly,,,,,,,,,,,,,,,,
-israel-saudi-arabia-will,argument,disagree,israel-s-knesset-its,,,,,,,,,,,,,,,,
-israel-saudi-arabia-will,argument,disagree,saudi-public-opinion-overwhelmingly,,,,,,,,,,,,,,,,
-israel-saudi-arabia-will,argument,disagree,saudi-arabia-has-won,,,,,,,,,,,,,,,,
+israel-saudi-arabia-will,argument,disagree,saudi-arabia-has-repeatedly,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Israel%E2%80%93Saudi_Arabia_relations | checked: 2026-11-21
+israel-saudi-arabia-will,argument,disagree,israel-s-knesset-its,,,,,,,,,,,,,,,,url: https://www.timesofisrael.com/knesset-votes-overwhelmingly-against-palestinian-statehood-days-before-pms-us-trip/ | checked: 2026-11-21
+israel-saudi-arabia-will,argument,disagree,saudi-public-opinion-overwhelmingly,,,,,,,,,,,,,,,,url: https://www.inss.org.il/publication/saudi-israel-2026/ | checked: 2026-11-21
+israel-saudi-arabia-will,argument,disagree,saudi-arabia-has-won,,,,,,,,,,,,,,,,url: https://www.whitehouse.gov/fact-sheets/2025/11/fact-sheet-president-donald-j-trump-solidifies-economic-and-defense-partnership-with-the-kingdom-of-saudi-arabia/ | checked: 2026-11-21
 israel-saudi-arabia-will,evidence,disagree,washington-institute-national-poll,,"Catherine Cleveland, ""Saudi Public Opinion in a Changing Middle East,"" Policy Note 160, The Washington Institute for Near East Policy, August 2025",,,,,,,,,,,,,,url: https://www.washingtoninstitute.org/sites/default/files/pdf/PolicyNote160Cleveland.pdf | checked: 2026-10-24
 israel-saudi-arabia-will,evidence,disagree,july-18-2024-israel,,"Al Jazeera, ""Israel's Knesset votes to reject Palestinian statehood,"" July 18, 2024",,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2024/7/18/israels-knesset-votes-to-reject-palestinian-statehood | checked: 2026-10-24
 israel-saudi-arabia-will,evidence,disagree,february-7-2024-saudi,,"Gulf News, ""Saudi Arabia says no Israel ties without independent Palestinian state,"" February 7, 2024",,,,,,,,,,,,,,url: https://gulfnews.com/amp/story/world%2Fgulf%2Fsaudi%2Fsaudi-arabia-says-no-israel-ties-without-independent-palestinian-state-1.1707288569156 | checked: 2026-10-24
@@ -12174,7 +12174,7 @@ israel-saudi-arabia-will,assumption,disagree,saudi-arabia-s-demand,,,,,,,,,,,,,,
 israel-saudi-arabia-will,assumption,disagree,no-israeli-government-office,,,,,,,,,,,,,,,,
 israel-saudi-arabia-will,prediction,agree,israeli-prime-minister-foreign,,,,,,,,,,,,,,,"December 31, 2028, settled by announcements from the Israeli Prime Minister's Office or the Saudi Press Agency.",
 israel-saudi-arabia-will,prediction,agree,israel-s-government-will,,,,,,,,,,,,,,,"December 31, 2028, settled by Israeli cabinet records and the published text of any agreement with Saudi Arabia.",
-israel-saudi-arabia-will,prediction,disagree,next-washington-institute-poll,,,,,,,,,,,,,,,"The first Washington Institute Saudi poll published after October 24, 2026, and no later than December 31, 2027.",
+israel-saudi-arabia-will,prediction,disagree,next-washington-institute-poll,,,,,,,,,,,,,,,"The first Washington Institute Saudi poll published after October 24, 2026, and no later than December 31, 2027.",url: https://www.inss.org.il/publication/saudi-israel-2026/ | checked: 2026-11-21
 israel-saudi-arabia-will,prediction,disagree,kalshi-s-contract-israel,,,,,,,,,,,,,,,"December 31, 2027, settled by Kalshi's published price history for contract KXABRAHAMSA-29-JAN20.",
 israel-saudi-arabia-will,interest,agree,saudi-vision-2030-planners,,,,,,,,,,,,,,,,
 israel-saudi-arabia-will,interest,agree,israeli-exporters-travelers-need,,,,,,,,,,,,,,,,
@@ -12533,9 +12533,9 @@ film-released-2027-will,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether the 202
 film-released-2027-will,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether Avengers: Secret Wars will draw crowds on the scale of Avengers: Endgame and keep its December 17, 2027 date. | move: Avengers: Doomsday's final worldwide gross in spring 2027 and any Disney schedule change announced during 2027."
 film-released-2027-will,value,,,,,,,,,,,,,,,,,,value: Prosperity | srank: 1 | orank: 2 | why: Supporters stress what a $2 billion hit does for theaters and studios; opponents agree theaters need hits but put caution ahead of the upside.
 film-released-2027-will,value,,,,,,,,,,,,,,,,,,"value: Prudence | srank: 2 | orank: 1 | why: Opponents stress that only eight films have ever reached $2 billion, so expecting one is risky; supporters accept the risk because half of recent release years produced one."
-film-released-first-streaming,argument,agree,apple-s-coda-won,,,,,,,,,,,,,,,,
-film-released-first-streaming,argument,agree,netflix-has-had-best,,,,,,,,,,,,,,,,
-film-released-first-streaming,argument,agree,netflix-has-begun-giving,,,,,,,,,,,,,,,,
+film-released-first-streaming,argument,agree,apple-s-coda-won,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/CODA_(2021_film) | checked: 2026-11-21
+film-released-first-streaming,argument,agree,netflix-has-had-best,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Academy_Award_for_Best_Picture | checked: 2026-11-21
+film-released-first-streaming,argument,agree,netflix-has-begun-giving,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/La_bola_negra | checked: 2026-11-21
 film-released-first-streaming,evidence,agree,next-best-picture-s,,"Robert Dougherty, Next Best Picture, ""Ranking The Strength Of The Best Picture Oscar Contenders After The 2026 Fall Film Festivals,"" October 13, 2026",,,,,,,,,,,,,,url: https://nextbestpicture.com/ranking-the-strength-of-the-best-picture-oscar-contenders-after-the-2026-fall-film-festivals/ | checked: 2026-10-24
 film-released-first-streaming,evidence,agree,la-bola-negra-won,,"Wikipedia, ""Toronto International Film Festival People's Choice Award,"" read October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Toronto_International_Film_Festival_People%27s_Choice_Award | checked: 2026-10-24
 film-released-first-streaming,evidence,agree,netflix-has-been-nominated,,"Chris Katje, Benzinga, ""Netflix, Apple Land Best Picture Oscar Nominations, But Prediction Markets Give Them Little Chance Of Winning,"" January 22, 2026 (republished by Finviz)",,,,,,,,,,,,,,url: https://finviz.com/news/284221/netflix-apple-land-best-picture-oscar-nominations-but-prediction-markets-give-them-little-chance-of-winning | checked: 2026-10-24
@@ -12546,11 +12546,11 @@ film-released-first-streaming,person,agree,robert-dougherty-next-best,,,,,,,,,,,
 film-released-first-streaming,falsify,agree,film-distributed-united-states,,,,,,,,,,,,,,,,
 film-released-first-streaming,assumption,agree,academy-voters-judge-best,,,,,,,,,,,,,,,,
 film-released-first-streaming,assumption,agree,streaming-services-will-keep,,,,,,,,,,,,,,,,
-film-released-first-streaming,argument,disagree,netflix-has-received-12,,,,,,,,,,,,,,,,
-film-released-first-streaming,argument,disagree,every-best-picture-winner,,,,,,,,,,,,,,,,
-film-released-first-streaming,argument,disagree,streaming-companies-now-send,,,,,,,,,,,,,,,,
-film-released-first-streaming,argument,disagree,only-one-film-english,,,,,,,,,,,,,,,,
-film-released-first-streaming,argument,disagree,coda-s-2022-win,,,,,,,,,,,,,,,,
+film-released-first-streaming,argument,disagree,netflix-has-received-12,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Academy_Award_for_Best_Picture | checked: 2026-11-21
+film-released-first-streaming,argument,disagree,every-best-picture-winner,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/98th_Academy_Awards | checked: 2026-11-21
+film-released-first-streaming,argument,disagree,streaming-companies-now-send,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/F1_(film) | checked: 2026-11-21
+film-released-first-streaming,argument,disagree,only-one-film-english,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/La_bola_negra | checked: 2026-11-21
+film-released-first-streaming,argument,disagree,coda-s-2022-win,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/94th_Academy_Awards | checked: 2026-11-21
 film-released-first-streaming,evidence,disagree,march-16-2026-netflix,,"Kasey Moore, What's on Netflix, ""Netflix at the Oscars: How Many Nominations and Wins Does The Streamer Have?"", March 16, 2026",,,,,,,,,,,,,,url: https://www.whats-on-netflix.com/news/netflix-oscar-wins-nominations/ | checked: 2026-10-24
 film-released-first-streaming,evidence,disagree,january-2026-prediction-market,,"Chris Katje, Benzinga, ""Netflix, Apple Land Best Picture Oscar Nominations, But Prediction Markets Give Them Little Chance Of Winning,"" January 22, 2026 (republished by Finviz)",,,,,,,,,,,,,,url: https://finviz.com/news/284221/netflix-apple-land-best-picture-oscar-nominations-but-prediction-markets-give-them-little-chance-of-winning | checked: 2026-10-24
 film-released-first-streaming,evidence,disagree,march-2025-oscars-netflix,,"Wikipedia, ""97th Academy Awards,"" read October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/97th_Academy_Awards | checked: 2026-10-24
@@ -12562,8 +12562,8 @@ film-released-first-streaming,falsify,disagree,102nd-academy-awards-2030,,,,,,,,
 film-released-first-streaming,assumption,disagree,netflix-s-record-12,,,,,,,,,,,,,,,,
 film-released-first-streaming,assumption,disagree,streaming-services-best-future,,,,,,,,,,,,,,,,
 film-released-first-streaming,prediction,agree,season-streaming-first-film,,,,,,,,,,,,,,,"By the 102nd Academy Awards in 2030, checked against the Producers Guild, Directors Guild and BAFTA winner lists.",
-film-released-first-streaming,prediction,disagree,no-streaming-first-film,,,,,,,,,,,,,,,"After the 102nd Academy Awards in 2030, checked against the Academy's official awards database.",
-film-released-first-streaming,prediction,disagree,netflix-s-count-best,,,,,,,,,,,,,,,"After the 102nd Academy Awards in 2030, checked against the Academy's official awards database.",
+film-released-first-streaming,prediction,disagree,no-streaming-first-film,,,,,,,,,,,,,,,"After the 102nd Academy Awards in 2030, checked against the Academy's official awards database.",url: https://en.wikipedia.org/wiki/94th_Academy_Awards | checked: 2026-11-21
+film-released-first-streaming,prediction,disagree,netflix-s-count-best,,,,,,,,,,,,,,,"After the 102nd Academy Awards in 2030, checked against the Academy's official awards database.",url: https://en.wikipedia.org/wiki/List_of_accolades_received_by_Netflix | checked: 2026-11-21
 film-released-first-streaming,interest,agree,independent-filmmakers-selling-finished,,,,,,,,,,,,,,,,
 film-released-first-streaming,interest,agree,viewers-who-live-far,,,,,,,,,,,,,,,,
 film-released-first-streaming,interest,agree,filmmakers-working-languages-other,,,,,,,,,,,,,,,,
@@ -13086,3 +13086,11 @@ democrats-win-least-two,evidence,agree,associated-press-reported-november-4-2,,"
 democrats-win-least-two,evidence,agree,south-carolina-s-state-election,,"South Carolina State Election Commission release, November 12, 2026; Associated Press, November 4, 2026",,,,,,,,,,,,,,url: https://scvotes.gov/state-election-commission-certifies-2026-statewide-general-election/ | checked: 2026-11-21 | tag: test.came-true
 measure-intelligence-fran-ois,argument,disagree,chollet-s-2019-paper-defines,,arcprize.org,,,,,,,,,,,,,,url: https://arcprize.org/leaderboard | checked: 2026-11-21 | tag: challenge.misquoted
 spacex-s-uncrewed-starship,argument,disagree,nasa-s-march-3-2026,,ntrs.nasa.gov,,,,,,,,,,,,,,url: https://ntrs.nasa.gov/citations/20260009199 | checked: 2026-11-21 | tag: challenge.misquoted
+2024-colorado-house-district,argument,disagree,2024-colorado-house-district-36,,coloradopolitics.com,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2024/06/25/michael-carter-beats-bryan-lindstrom-in-state-house-district-36-race | checked: 2026-11-21 | tag: challenge.misquoted
+colorado-s-2024-transit,argument,disagree,hb24-1313-says-transit-oriented,,content.leg.colorado.gov,,,,,,,,,,,,,,url: https://content.leg.colorado.gov/sites/default/files/2024a_1313_signed.pdf | checked: 2026-11-21 | tag: truth.premise-false
+2023-colorado-bill-have,argument,disagree,version-sb23-213-senate-passed,,leg.colorado.gov,,,,,,,,,,,,,,url: https://leg.colorado.gov/bill_files/91487/download | checked: 2026-11-21 | tag: challenge.misquoted
+widening-i-25-alone,argument,disagree,colorado-state-demography-office-s,,gis.dola.colorado.gov,,,,,,,,,,,,,,"url: https://gis.dola.colorado.gov/lookups/components_region?reg_num=0&year=2023,2050 | checked: 2026-11-21 | tag: truth.premise-false"
+colorado-governor-jared-polis,argument,disagree,polis-signed-sb-21-238,,coloradosun.com,,,,,,,,,,,,,,url: https://coloradosun.com/2026/08/28/sales-tax-ballot-question-2026-front-range-train/ | checked: 2026-11-21 | tag: challenge.misquoted
+compensation-payments-colorado-generally,argument,disagree,colorado-s-wolf-compensation-program,,cpw.state.co.us,,,,,,,,,,,,,,url: https://cpw.state.co.us/wolf-depredation | checked: 2026-11-21 | tag: truth.premise-false
+across-united-states-dairy,argument,disagree,70-us-human-h5-cases,,cdc.gov,,,,,,,,,,,,,,url: https://www.cdc.gov/bird-flu/spotlights/h5n1-response-03192025.html | checked: 2026-11-21 | tag: challenge.misquoted
+associated-press-will-project-2,argument,disagree,associated-press-projected-democrats-republicans,,scrippsnews.com,,,,,,,,,,,,,,url: https://www.scrippsnews.com/politics/america-votes/democrats-will-win-control-of-us-house-retaking-control-from-republicans | checked: 2026-11-21 | tag: truth.premise-false
