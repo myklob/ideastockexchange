@@ -21,6 +21,8 @@ from sensitivity import Sensitivity, INERT
 from reasonrank import ReasonRank, DAMPING as RR_DAMPING
 from similarity import Similarity
 from integrity import Integrity
+import fallacy as FALLACY
+import predictions as PRED
 import method
 import changes as CHANGES
 import publish as PUBLISH
@@ -49,7 +51,9 @@ class Corpus:
         pages, edges = read_source(entry_path)
         self.specs, self.beliefs = tables_to_specs(pages, edges)
         # the third table: one row per topic page, the home a belief is filed under
-        self.topics = {t['key']: t for t in read_topics(entry_path)}
+        topics = read_topics(entry_path)
+        self.topics = {t['key']: t for t in topics}
+        self.rows = (pages, edges, topics)    # the tables as read, which every page's Reason Outline is printed from
         self.topic_rows = topic_rows(edges, self.topics)
         self.tabs = entry_keys(pages); self.key = {t: k for k, t in self.tabs.items()}
         self.name = name
@@ -196,6 +200,20 @@ class Corpus:
                     'for': [self.row(d, 1) for d in EF], 'against': [self.row(d, -1) for d in EA],
                     'pt': [self.row(d, 1) for d in PT], 'pf': [self.row(d, -1) for d in PF]}
             s['rows'] = rows
+            # the scorer counts a claim page once per page and side, at its strongest reading
+            # (score_reference.Model._once); the rows it drops print as +0.00 and say so, so the table still adds up
+            best = {}
+            for sec, filed, specs_ in (('agree', 'agree', A), ('disagree', 'disagree', D), ('for', 'agree', EF),
+                                       ('against', 'disagree', EA), ('pt', 'agree', PT), ('pf', 'disagree', PF)):
+                for d, r in zip(specs_, rows[sec]):
+                    if not is_page(d.get('id')): continue
+                    k = (d['id'], filed)
+                    if k not in best: best[k] = r
+                    elif abs(r['score']) > abs(best[k]['score']): best[k]['repeat'] = True; best[k] = r
+                    else: r['repeat'] = True
+            for sec in rows:
+                for r in rows[sec]:
+                    if r.get('repeat'): r['score'] = 0.0; r['stake'] = 0.0
             s['nagree'], s['ndis'], s['nsupp'], s['nweak'] = len(A), len(D), len(EF), len(EA)
             s['npred'] = len(PT) + len(PF)
             s['share'] = (s['pos'] / (s['pos'] + s['neg'])) if s['pos'] + s['neg'] > 0 else None
@@ -336,7 +354,11 @@ class Corpus:
             chain.append(p); seen.add(p); p = self.specs[p].get('supports')
         return list(reversed(chain))
 
-def provenance_line(d):
+def user_slug(login):
+    """A GitHub login as a file name: logins are letters, digits and hyphens, and nothing else gets through."""
+    return re.sub(r'[^A-Za-z0-9_-]', '', str(login or '').lstrip('@'))
+
+def provenance_line(d, up='../'):
     """Where a row's source can be read and the day that was checked, then who added the row and when: the named
     fields intake writes into a row's extra cell. Nothing when a row carries none, as rows typed before the
     fields existed do."""
@@ -346,7 +368,7 @@ def provenance_line(d):
     if d.get('checked'): parts.append(f'checked {esc(d["checked"])}')
     if d.get('added_by'):
         who = str(d['added_by']).lstrip('@')
-        parts.append(f'added by <a href="https://github.com/{esc(who)}" rel="nofollow">@{esc(who)}</a>' + (f' on {esc(d["added"])}' if d.get('added') else ''))
+        parts.append(f'added by <a href="{up}u/{user_slug(who)}.html">@{esc(who)}</a>' + (f' on {esc(d["added"])}' if d.get('added') else ''))
     elif d.get('added'): parts.append(f'added {esc(d["added"])}')
     if not parts: return ''
     text = '; '.join(parts)
@@ -418,7 +440,11 @@ def blurbs_below(markup):
         out.append(markup[i:j]); out.append(body)
         i = k
     return ''.join(out)
-def f2(v): return '' if v is None else f'{v:.2f}'
+def f2(v): return '' if v is None else ('0.00' if abs(v) < 0.005 else f'{v:.2f}')
+def repeat_note(r):
+    """Under a row the scorer does not count because the same claim is listed again on the page."""
+    return ('<div class="src">Listed again on this page, so counted once, at its strongest reading.</div>'
+            if r.get('repeat') else '')
 def sf(v):
     # a value that rounds to zero prints as +0.00 whichever side of zero it came from: zero has one spelling
     return '' if v is None else ('+0.00' if abs(v) < 0.005 else f'{v:+.2f}')
@@ -428,6 +454,12 @@ def smoney(v): return '' if v is None else ('+' if v >= 0 else '-') + money(abs(
 def share_pct(v):
     """A share of the whole site (all shares add up to 1) as a percent, with enough places to tell neighbours apart."""
     return '' if v is None else f'{v * 100:.3f}%'
+def times_avg(c, v):
+    """A share of the whole site as a multiple of the average page's share, for the home page, where 0.073% means
+    nothing to a newcomer and 3.1x (three times what rests on a page picked at random) does. Same order as the share."""
+    if v is None: return ''
+    m = v * len(c.specs)
+    return f'{m:.0f}&times;' if m >= 10 else (f'{m:.1f}&times;' if m >= 1 else f'{m:.2f}&times;')
 
 # Every column header that names a factor, spelled out. Where a table is narrow enough that the full word would
 # squeeze its text column, the short form is printed with the full word as its expansion.
@@ -459,7 +491,7 @@ class Html:
     def rowtext(self, d):
         if is_page(d.get('id')): t = self.a(d['id'])
         else: t = f'<span class="typed">{esc(d.get("text") or d.get("advertised") or "")}</span>'
-        return t + (f'<div class="src">{esc(d["source"])}</div>' if d.get('source') else '') + provenance_line(d)
+        return t + (f'<div class="src">{esc(d["source"])}</div>' if d.get('source') else '') + provenance_line(d, self.up)
     def method(self, target):
         """A site-relative method-page link, resolved from wherever this page sits."""
         return target if target.startswith('http') else self.up + target
@@ -472,7 +504,35 @@ class Html:
 # ------------------------------------------------------------------------------------------------ page renderers
 JS = "<script>document.querySelectorAll('table').forEach(function(t){var h=[].slice.call(t.querySelectorAll('thead th')).map(function(x){return x.textContent.trim()});if(!h.length)return;t.querySelectorAll('tbody tr').forEach(function(r){[].slice.call(r.children).forEach(function(c,i){if(h[i]&&!c.classList.contains('t')&&!c.classList.contains('rk'))c.setAttribute('data-l',h[i])})})})</script>"
 
-def head(c, pid, title):
+def json_ld(c, pid):
+    """The page as structured data, in the schema.org words search engines and other programs already read, with
+    this site's own terms (vocab.CONTEXT) for what schema.org has no word for: each row's section, side, kind of
+    post and contribution, and the numbers the page publishes. The same numbers as the page, nothing more. Every '<'
+    in it is written as its JSON escape, so no claim's words ('<!--<script>') can change how the browser reads where
+    the script element ends and blank the page."""
+    import vocab as V
+    s = c.stats(pid); sp = c.specs[pid]; url = lambda p: PUBLIC + 'p/' + c.href(p)
+    rows = []
+    for (sec, side, lst), key in ((('argument', 'agree', sp['args']['agree']), 'agree'), (('argument', 'disagree', sp['args']['disagree']), 'disagree'),
+                                  (('evidence', 'agree', sp['evid']['for']), 'for'), (('evidence', 'disagree', sp['evid']['against']), 'against'),
+                                  (('prediction', 'agree', sp.get('pred_true', [])), 'pt'), (('prediction', 'disagree', sp.get('pred_false', [])), 'pf')):
+        for d, r in zip(lst, s['rows'].get(key, [])):
+            if not (is_page(d.get('id')) and d['id'] in c.key): continue
+            row = {'@type': 'Row', 'section': sec, 'side': side, 'claim': url(d['id']), 'text': c.standalone(d['id']),
+                   'contribution': round(r['score'], 6) + 0.0, 'linkage': round(r['link'], 6), 'importance': round(r['imp'], 6),
+                   'uniqueness': round(r['uniq'], 6)}
+            if d.get('tag'): row['tag'] = d['tag']
+            rows.append(row)
+    tk = c.topic_of(pid)
+    out = {'@context': V.CONTEXT, '@type': ['Claim', 'Belief'] if c.kind(pid) == 'belief' else 'Claim', '@id': url(pid),
+           'text': c.standalone(pid), 'truthScore': round(s['truth'], 6), 'beliefScore': round(s['belief'], 6) + 0.0,
+           'confidence': round(c.conf.of(pid), 6), 'rows': rows}
+    if tk: out['topic'] = PUBLIC + 't/' + c.topic_href(tk)
+    return ('<link rel="alternate" type="application/json" href="' + esc(c.key[pid]) + '.json">'
+            '<script type="application/ld+json">' + json.dumps(out, ensure_ascii=False).replace('<', '\\u003c') + '</script>')
+
+
+def head(c, pid, title, ld=''):
     crumbs = c.crumbs(pid)
     parts = ['<a href="../index.html">Home</a>']
     tk = c.topic_of(pid)
@@ -488,7 +548,7 @@ def head(c, pid, title):
     parts.append(f'<strong>{esc(KINDNAME[c.kind(pid)])}: {esc(c.short(pid, 60))}</strong>')
     crumb = '<p class="crumb"><em>' + ' › '.join(parts) + '</em></p>'
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(title)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="../ise.css"></head><body><a class="skip" href="#claim">Skip to the claim</a><main id="claim">{crumb}'''
+<title>{esc(title)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="../ise.css">{ld}</head><body><a class="skip" href="#claim">Skip to the claim</a><main id="claim">{crumb}'''
 
 FIND = ("<script>(function(){var t=document.getElementById('all');if(!t)return;var rows=[].slice.call(t.tBodies[0].rows);"
         "var w=document.createElement('p');w.className='find';"
@@ -527,7 +587,7 @@ def scored_table(H, c, side_rows, specs_rows, headers, key_label, votes=False):
     for rank, i in enumerate(order, 1):
         d, r = specs_rows[i], side_rows[i]
         vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if votes and is_page(d.get('id')) else ''
-        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{vl}</td>'
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{repeat_note(r)}{vl}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{conf_cell(H, c, d)}</td>'
                    f'<td>{H.num(r["link"], d.get("link"), const_label="No linkage page yet: presumed relevant, reads " + str(DEFLINK))}</td>'
@@ -557,7 +617,7 @@ def evidence_table(H, c, side_rows, specs_rows, bears=None, votes=False):
         # Starts at cell; the same sentence under every row was the loudest thing in a draft's ledger
         rests = f'<div class="src">Rests on: {esc(EV.label(sp).split(", starts at")[0])}</div>' if b['grounded'] else ''
         vl = (vote_links(c, d['id']) + edge_vote_links(c, d, home)) if votes and is_page(d.get('id')) else ''
-        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{rests}{vl}</td><td class="u">{on}</td><td>{p0}</td>'
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{rests}{repeat_note(r)}{vl}</td><td class="u">{on}</td><td>{p0}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{conf_cell(H, c, d)}</td>'
                    f'<td>{H.num(r["link"], d.get("link"), const_label="No linkage page yet: presumed relevant")}</td>'
@@ -652,7 +712,7 @@ def simple_rows(H, c, items, extra=None, votes=False, head='Claim', extra_head='
 
 def render_belief(c, pid):
     H = Html(c); H.pid = pid; sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid)
-    o = [head(c, pid, c.short(pid, 80, full=True))]
+    o = [head(c, pid, c.short(pid, 80, full=True), json_ld(c, pid))]
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid)}</h1>')
     tk = c.topic_of(pid)
     meta = [f'Topic: <a href="../t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>'] if tk else []
@@ -703,8 +763,11 @@ def render_belief(c, pid):
     t = s['tally']
     if t['share'] is not None:
         nn = lambda v: f'{v:g}' if v == int(v) else f'{v:.2f}'
+        start = EV.prior(sp, K)
+        begins = (f'starting where the truth score starts, at {f2(start["p0"])} because of what the page rests on'
+                  if start['grounded'] else 'starting from the same even split as the truth score')
         read.append(('Counting every reason until it is argued down',
-                     f'{pct(t["share"])} for, starting from the same even vote as the truth score: {nn(t["reasons_for"])} independent reason'
+                     f'{pct(t["share"])} for, {begins}: {nn(t["reasons_for"])} independent reason'
                      f'{"" if t["reasons_for"] == 1 else "s"} for and {nn(t["reasons_against"])} against, findings weighing '
                      f'{f2(t["findings_for"])} for and {f2(t["findings_against"])} against. A second rule shown beside the truth score '
                      '<a href="../method.html#tally">so the two can be compared</a>: here a reason counts from the moment it is posted.'))
@@ -760,7 +823,7 @@ def render_belief(c, pid):
     # ---- arguments
     o.append(H.section('Argument Trees', 'Each reason is a claim with its own page. Score = sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq, and every column is here so the row can be multiplied out and checked. A reason argued false scores negative and counts against the side it is filed on; a reason nobody has argued yet scores exactly 0, and so does one whose own page has no work behind it.', ('How arguments are scored', WIKI['reasons'])))
     key = c.key[pid]
-    o.append(take_part(H.up, 'belief' if k == 'belief' else 'claim'))
+    o.append(take_part(H.up, 'belief' if k == 'belief' else 'claim', key))
     o.append(two_sided(H, c, 'Reasons to agree', 'Reasons to disagree',
                        scored_table(H, c, s['rows']['agree'], sp['args']['agree'], None, 'Argument', votes=True) + add_form(H.up, 'argument', 'agree', key),
                        scored_table(H, c, s['rows']['disagree'], sp['args']['disagree'], None, 'Argument', votes=True) + add_form(H.up, 'argument', 'disagree', key)))
@@ -797,7 +860,7 @@ def render_belief(c, pid):
         for d, r in ((specs_rows[i], side_rows[i]) for i in order):
             dl = f'<div class="src">By when, and how it is checked: {esc(d["deadline"])}</div>' if d.get('deadline') else '<div class="src">No deadline or method stated yet.</div>'
             vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
-            out.append(f'<tr><td class="t">{H.rowtext(d)}{dl}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td><td>{f2(r["stake"])}</td></tr>')
+            out.append(f'<tr><td class="t">{H.rowtext(d)}{dl}{repeat_note(r)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td><td>{f2(r["stake"])}</td></tr>')
         if not specs_rows: out.append('<tr><td colspan="8" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
     # ---- falsifiability: the evidence that would strengthen or weaken, as a bet, before any of it exists
@@ -1015,28 +1078,83 @@ def render_belief(c, pid):
     o.append(H.section('What the numbers are made of'))
     o.append(readout)
     o.append('</section>')
+    if k == 'belief': o.append(share_section(c, pid))
     o.append(checks_section(H, c, pid))
     o.append(engine_table(H, c, pid))
     o.append(contribute_script(H.up))
     o.append(FOOT)
     return ''.join(o)
 
+PUBLIC = 'https://myklob.github.io/ideastockexchange/beliefs/'
+
+def share_text(c, pid):
+    """A belief page as plain text a reader can paste into a reply anywhere: the claim, both scores, the two strongest
+    reasons on each side, and the link. Strongest is the weight under the count-every-reason rule, so a reason counts
+    here before anyone has argued it, as it does in that readout."""
+    s = c.stats(pid); sp = c.specs[pid]; t = s['tally']
+    lines = [strip_period(c.standalone(pid)) + '?', '']
+    lines.append(f'Truth score so far: {f2(c.truth(pid))}' + (f'. Counting every reason until it is argued down: {pct(t["share"])} for.' if t['share'] is not None else '.'))
+    for side, head in (('agree', 'Strongest reasons for'), ('disagree', 'Strongest reasons against')):
+        pairs = sorted(zip(sp['args'][side], s['rows'][side]), key=lambda x: -TALLY.weight(x[1]))[:2]
+        if pairs:
+            lines += ['', head + ':'] + [f'- {strip_period(c.rowtext(d))}.' for d, _ in pairs]
+    lines += ['', 'Every reason, the evidence under each one, and a form to add your own: ' + PUBLIC + 'p/' + c.href(pid)]
+    return '\n'.join(lines)
+
+
+def share_section(c, pid):
+    """Carry the argument to where people are already arguing. Plain text to copy, and share links that need no account
+    on this site."""
+    url = PUBLIC + 'p/' + c.href(pid)
+    text = share_text(c, pid)
+    from urllib.parse import quote
+    title = strip_period(c.standalone(pid))
+    links = [('Facebook', f'https://www.facebook.com/sharer/sharer.php?u={quote(url, safe="")}'),
+             ('X', f'https://twitter.com/intent/tweet?text={quote(title + "? Both sides, scored:", safe="")}&url={quote(url, safe="")}'),
+             ('Reddit', f'https://www.reddit.com/submit?url={quote(url, safe="")}&title={quote(title + "? Both sides, scored", safe="")}'),
+             ('Email', f'mailto:?subject={quote(title + "?", safe="")}&body={quote(text, safe="")}')]
+    return ('<section id="share"><h2><span>Share this argument</span></h2>'
+            '<p class="blurb">An argument settles nothing on a page nobody reads. Paste this into a reply wherever this question is being fought '
+            'over, or share the page itself. Both sides go with it, so nobody is handed half the case.</p>'
+            f'<textarea class="share" readonly rows="{text.count(chr(10)) + 2}" aria-label="The argument as plain text, to copy">{esc(text)}</textarea>'
+            '<p class="fine">' + ' · '.join(f'<a href="{esc(h)}" rel="nofollow noopener" target="_blank">{n}</a>' for n, h in links) + '</p></section>')
+
+
 def checks_section(H, c, pid):
     """What the shape of the argument shows. No finding here moves a score; each one names something to look at."""
     fs = c.integ.of(pid)
-    if not fs: return ''
+    flagged = FALLACY.page_flags(c, pid)
+    if not fs and not flagged: return ''
     out = [H.section('Structural Checks',
                      'Faults the shape of the argument can show without reading a word of it: a claim used to '
                      'support itself, a conclusion listed among its own premises, the same page counted twice. '
-                     'None of these changes a score. Matching the wording against a list of named fallacies is '
-                     'deliberately not done here. A matcher looking for '
-                     '“attacking the person rather than the argument” would fire on the central legitimate '
-                     'argument on this whole site, and a score moved by a word pattern has no page to '
-                     'appeal to.')]
-    out.append('<table class="plain"><thead><tr><th>Finding</th><th>How serious</th><th>What it means</th></tr></thead><tbody>')
-    for sev, title, why in fs:
-        out.append(f'<tr><td class="t"><strong>{esc(title)}</strong></td><td class="u">{esc(sev)}</td><td class="u">{esc(why)}</td></tr>')
-    return ''.join(out) + '</tbody></table></section>'
+                     'Below them, reasons whose wording suggests a named fallacy. None of these changes a score. A '
+                     'flag is a question, not a verdict: the same words that mark a personal attack also open an '
+                     'honest argument about a conflict of interest, so each flag says which words set it off and '
+                     'opens a form on the flagged claim&rsquo;s own page to argue that it is, or is not, the fallacy. '
+                     '<a href="../method.html#checks">The phrases that raise a flag</a>.')]
+    if fs:
+        out.append('<table class="plain"><thead><tr><th>Finding</th><th>How serious</th><th>What it means</th></tr></thead><tbody>')
+        for sev, title, why in fs:
+            out.append(f'<tr><td class="t"><strong>{esc(title)}</strong></td><td class="u">{esc(sev)}</td><td class="u">{esc(why)}</td></tr>')
+        out.append('</tbody></table>')
+    if flagged:
+        out.append('<table class="plain"><thead><tr><th>Reason</th><th>Possible fallacy</th><th>Argue it</th></tr></thead><tbody>')
+        for d, side, fl in flagged:
+            key = c.key.get(d['id']) if d.get('id') in c.specs else ''
+            for name, what, words in fl:
+                if key:
+                    is_it = f'{NEW_ISSUE}?' + _q([('template', 'contribute.yml'), ('labels', 'contribution'), ('title', f'Reason to disagree: it is {name.lower()}'),
+                                                   ('page', key), ('section', 'argument'), ('side', 'disagree'), ('text', f'This is {name.lower()}: it {what}, because ')])
+                    is_not = f'{NEW_ISSUE}?' + _q([('template', 'contribute.yml'), ('labels', 'contribution'), ('title', f'Reason to agree: it is not {name.lower()}'),
+                                                    ('page', key), ('section', 'argument'), ('side', 'agree'), ('text', f'This is not {name.lower()}, because ')])
+                    argue = f'<a href="{esc(is_it)}" rel="nofollow">It is</a> · <a href="{esc(is_not)}" rel="nofollow">It is not</a>'
+                else:
+                    argue = 'give the reason a page of its own first'
+                out.append(f'<tr><td class="t">{H.rowtext(d)}<br><span class="u">{"reason to agree" if side == "agree" else "reason to disagree"}; the words “{esc(words)}”</span></td>'
+                           f'<td class="u"><strong>{esc(name)}?</strong> It {esc(what)}.</td><td class="u">{argue}</td></tr>')
+        out.append('</tbody></table>')
+    return ''.join(out) + '</section>'
 
 
 
@@ -1051,14 +1169,16 @@ def cite(c, pid):
     # and the reader still needs them; what they also need is to be told the build has no name, because that is
     # the difference between a number somebody can reproduce and one they have to take on trust.
     which = f'revision {rev}' + (f' of {date}' if date else '') if rev else 'revision unidentified'
-    ref = (f'{strip_period(c.standalone(pid))}. Idea Stock Exchange, {KINDNAME[c.kind(pid)].lower()} page '
+    m = getattr(c, 'maintainer', None)
+    by = f', maintained by {c.users[m].get("name") or "@" + m}' if m else ''
+    ref = (f'{strip_period(c.standalone(pid))}. Idea Stock Exchange{by}, {KINDNAME[c.kind(pid)].lower()} page '
            f'{c.key[pid]}, truth {f2(c.truth(pid))}, confidence {pct(c.conf.of(pid))}, {which}.')
     note = ('The revision is what makes this quotable: these numbers move as the argument is worked on, and '
             'rebuilding that revision reproduces them exactly.' if rev else
             'This build carries no revision, so the numbers above cannot be tied to a state of the argument '
             'and cannot be reproduced from one. Build from a checkout if you need to cite them.')
     return (f'<p class="cite"><span class="lab">Cite this page</span> {esc(ref)} '
-            f'<span class="u">{esc(note)}</span></p>')
+            f'<span class="u">{esc(note)}</span></p>') + credit(c, '../')
 
 
 def rank_note(c, pid):
@@ -1236,10 +1356,10 @@ def render_special(c, pid):
             d, r = specs_rows[i], side_rows[i]
             pat = f'<span class="patl">{esc(d["pattern"])}</span>' if d.get('pattern') else ''
             vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
-            out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
+            out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{repeat_note(r)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
         if not specs_rows: out.append(f'<tr><td colspan="8" class="empty">Nothing here yet. Starter patterns: {esc(", ".join(pats))}.</td></tr>')
         return ''.join(out) + '</tbody></table>'
-    o.append(take_part(H.up, KINDNAME[k].lower() + ' page'))
+    o.append(take_part(H.up, KINDNAME[k].lower() + ' page', c.key[pid]))
     if k == 'importance':
         o.append(H.section(KD['section'], KD['blurb'], KD['wiki']))
         o.append('<table class="scored"><thead><tr><th class="rk">#</th><th>Interest</th><th>Validity</th><th>Bears</th><th>Effective</th><th>Relative</th><th>Value</th></tr></thead><tbody>')
@@ -1337,7 +1457,7 @@ def media_pat_table(H, c, specs_rows, side_rows, pats):
         d, r = specs_rows[i], side_rows[i]
         pat = f'<span class="patl">{esc(d["pattern"])}</span>' if d.get('pattern') else ''
         vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
-        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
+        out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{repeat_note(r)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
     if not specs_rows: out.append(f'<tr><td colspan="8" class="empty">No reason on this side yet. Starter patterns: {esc(", ".join(pats))}.</td></tr>')
     return ''.join(out) + '</tbody></table>'
 
@@ -1373,7 +1493,7 @@ def render_media(c, pid):
     o.append('<p class="lede">Two questions, kept apart on purpose. Is it well made? That is argued on this page, under Quality Arguments. '
              'Is what it backs true? That is argued on the belief pages that cite it, and this page only reads their scores. '
              'A third question, whether it changed anything, is argued under Influence Arguments.</p>')
-    o.append(take_part(H.up, 'work page'))
+    o.append(take_part(H.up, 'work page', c.key[pid]))
     # ---- beliefs this work carries
     cites = work_cites(c, pid)
     o.append(H.section('Beliefs This Work Carries', 'Each row is a belief page that cites this work, and which way the work bears on it. Centrality is how much of the work rides on that belief: '
@@ -1767,6 +1887,8 @@ def edge_vote_links(c, d, on=None):
     out = []
     if on is not None and is_page(d.get('id')) and d['id'] != on: out.append(relevance_links(c, d['id'], on))
     if is_page(d.get('imp')): out.append(vote_links(c, d['imp'], ('yes', 'no'), 'Matters here:', gap=False))
+    if on is not None and is_page(d.get('id')) and d['id'] != on and d['id'] in c.key:
+        out.append(f'<a class="argue" href="../vocab.html?page={esc(c.key[on])}&amp;row={esc(c.key[d["id"]])}" rel="nofollow">argue about this row</a>')
     return ''.join(out)
 
 
@@ -1839,14 +1961,34 @@ def forms_grid(up, page, sections, first=True):
     return '<div class="forms">' + ''.join(add_form(up, s, 'agree', page, first=first) for s in sections) + '</div>'
 
 
-def take_part(up, page_kind='page'):
+def take_part(up, page_kind='page', key=None):
     """The one paragraph above the first form on a page: what a form does, the account it needs, the way in for
-    someone who would rather use git, and what happens after the button."""
+    someone who would rather use git, and what happens after the button; then, for a page with a key, the page as
+    a Reason Outline."""
     return (f'<p class="take" id="take-part"><strong>Add to this {esc(page_kind)}.</strong> Every table below has a form. Submitting opens a prefilled '
-            f'GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE} '
+            f'GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). To question one row (whether it bears on '
+            f'the claim, how much it matters, whether it repeats another, or a mistake in its reasoning), use the <em>argue about this row</em> '
+            f'link beside it; <a href="{up}vocab.html">every kind of post</a> is listed with what it can move. {NEXT_NOTE} '
             f'{GIT_NOTE}. Without an account, the Copy as text button under any form puts your submission on the clipboard so you can send it another way.</p>'
             '<noscript><p class="fine">With scripts turned off, each form still opens GitHub with this page and its table filled in; '
-            'the check for a claim already on the site and the Copy as text button need scripts.</p></noscript>')
+            'the check for a claim already on the site and the Copy as text button need scripts.</p></noscript>'
+            + (outline_link(key, up) if key else ''))
+
+
+OUTLINE_LINK = 'This page as a Reason Outline'
+
+
+def outline_form_url(key=None):
+    """The outline form on GitHub, its title naming the page the outline is for."""
+    from urllib.parse import urlencode
+    return NEW_ISSUE + '?' + urlencode({'template': 'outline.yml', 'labels': 'outline', 'title': 'Reason Outline: ' + (key or '')})
+
+
+def outline_link(key, up):
+    """The page printed as a Reason Outline (p/<key>.txt or t/<key>.txt beside it), and how to send it back."""
+    return (f'<p class="fine outline-link"><a href="{esc(key)}.txt">{OUTLINE_LINK}</a>: copy it, add your own lines under the ones they are '
+            f'about, and post it back with the <a href="{esc(outline_form_url(key))}" rel="nofollow">outline form</a> '
+            f'(<a href="{up}outline.html">how to write one</a>).</p>')
 
 
 def contribute_script(up):
@@ -2086,9 +2228,10 @@ def render_topic(c, tkey, title):
         o.append('<h2 class="th">Contribute</h2>')
         if not has_content:
             o.append('<p class="cap">Once a belief is filed here, this page takes the full topic layout: where each belief sits, what it assumes, what the two sides value, and the evidence beneath it all.</p>')
+        o.append(outline_link(tkey, H.up))
         o.append(add_form(H.up, 'belief', topic=tkey))
         o.append(f'<p class="cap">{GIT_NOTE}: a belief is a page row with the topic <code>{esc(tkey)}</code>.</p>')
-        o.append(stamp(c)); o.append(contribute_script(H.up)); o.append(FOOT)
+        o.append(stamp(c, H.up)); o.append(contribute_script(H.up)); o.append(FOOT)
         return ''.join(o)
     # ---- topic metrics: the ones that can be computed, each counted from the same rows the tables below show.
     # Importance has no computation behind it yet, so it is left off rather than printed as a blank.
@@ -2113,9 +2256,9 @@ def render_topic(c, tkey, title):
              'so the thousand ways of saying the same thing collapse into a single entry. Then the real reasons to agree or disagree '
              'can be counted and weighed by evidence instead of by how often they get repeated. The address has three parts, one '
              'per table below: <a href="#direction">Direction</a> (which way it runs), <a href="#claim-strength">Claim Strength</a> '
-             '(how absolute), and <a href="#specificity">Specificity</a> (where it sits on the general-to-specific tree). Same address '
-             'means the same claim, so it merges; nearly the same address is flagged as a <a href="../method.html#equivalency">possible '
-             'duplicate</a> for someone to argue.</div>')
+             '(how absolute), and <a href="#specificity">Specificity</a> (where it sits on the general-to-specific tree). The address '
+             'places a claim; it merges nothing by itself. Two claims worded nearly alike are flagged as a <a href="../grouping.html">possible '
+             'duplicate</a> for someone to argue, and only an argued uniqueness or equivalence page changes how they count.</div>')
 
     # ---- continuum 1: direction
     o.append('<h2 id="direction" class="th">Continuum 1: Direction (Oppose &harr; Support)</h2>')
@@ -2128,6 +2271,9 @@ def render_topic(c, tkey, title):
     def band_of(pos):
         return '+100' if pos >= 75 else '+50' if pos >= 25 else '0' if pos > -25 else '-50' if pos > -75 else '-100'
     unlabelled = [b for b in beliefs if c.specs[b].get('positivity') is None]
+    def leans(b):
+        p = c.specs[b].get('positivity')
+        return None if p is None else ('pro' if p >= 0 else 'anti')
     for band, label in DIRECTION_BANDS:
         typed = section_rows('direction', band)
         auto = sorted((b for b in beliefs if c.specs[b].get('positivity') is not None and band_of(c.specs[b]['positivity']) == band), key=lambda b: -c.stats(b)['belief'])
@@ -2159,16 +2305,20 @@ def render_topic(c, tkey, title):
              'whether it is true. Two beliefs match on this axis when they are equally bold.</p>')
     o.append('<table class="tpl"><thead><tr><th style="width:16%">Claim Strength</th><th style="width:32%">Pro Belief at This Strength</th><th style="width:32%">Anti Belief at This Strength</th><th style="width:20%">Scope &amp; Telltale Words</th></tr></thead><tbody>')
     for band, pc, sub, words in STRENGTH_ROWS:
-        pro = [cell(d) for d in section_rows('strength', band, 'agree')] + [belief_cell(b) for b in beliefs if (c.specs[b].get('strength') or '') == band and (c.specs[b].get('positivity') or 0) >= 0]
-        con = [cell(d) for d in section_rows('strength', band, 'disagree')] + [belief_cell(b) for b in beliefs if (c.specs[b].get('strength') or '') == band and (c.specs[b].get('positivity') or 0) < 0]
+        pro = [cell(d) for d in section_rows('strength', band, 'agree')] + [belief_cell(b) for b in beliefs if (c.specs[b].get('strength') or '') == band and leans(b) == 'pro']
+        con = [cell(d) for d in section_rows('strength', band, 'disagree')] + [belief_cell(b) for b in beliefs if (c.specs[b].get('strength') or '') == band and leans(b) == 'anti']
         o.append(f'<tr><td class="band"><strong>{band} ({pc})</strong><br>{sub}</td><td>{"<br>".join(pro) or EMPTY}</td><td>{"<br>".join(con) or EMPTY}</td><td class="u">{words}</td></tr>')
-    o.append('</tbody></table>' + add_form(H.up, 'strength', 'agree', tkey))
+    o.append('</tbody></table>')
+    if unlabelled:
+        o.append('<p class="tot">No position typed yet, so in neither column: '
+                 + '; '.join(belief_cell(b) + (f' ({esc(c.specs[b]["strength"])})' if c.specs[b].get('strength') else '') for b in unlabelled) + '.</p>')
+    o.append(add_form(H.up, 'strength', 'agree', tkey))
 
     # ---- continuum 3: general to specific
     o.append('<h2 id="specificity" class="th">Continuum 3: General to Specific, with Branching Subcategories (General &harr; Specific)</h2>')
     o.append('<p class="cap">The same topic holds claims at every altitude, from a sweeping worldview down to one line-item policy. A general belief '
-             '<strong>branches</strong> into subcategories, and each subcategory holds the specific beliefs beneath it. A belief only merges with '
-             'another that shares its branch <em>and</em> its rung, so a worldview never gets double-counted with the policy it implies.</p>')
+             '<strong>branches</strong> into subcategories, and each subcategory holds the specific beliefs beneath it. A worldview and the '
+             'policy it implies sit on different rungs, so a reader can see which is which; nothing here merges them.</p>')
     o.append('<table class="tpl"><thead><tr><th style="width:24%">Rung / Branch</th><th style="width:38%">Pro-Topic Belief</th><th style="width:38%">Anti-Topic Belief</th></tr></thead><tbody>')
     rung_rows = section_rows('rung')
     def two(lst_pro, lst_con):
@@ -2189,8 +2339,8 @@ def render_topic(c, tkey, title):
     else:
         bparent = {b: c.specs[b].get('supports') for b in beliefs}
         roots = [b for b in beliefs if bparent[b] not in beliefs]
-        sides = lambda lst: ([belief_cell(b) + f' <span class="tn" title="Truth score">{f2(c.truth(b))}</span>' for b in lst if (c.specs[b].get('positivity') or 0) >= 0],
-                             [belief_cell(b) + f' <span class="tn" title="Truth score">{f2(c.truth(b))}</span>' for b in lst if (c.specs[b].get('positivity') or 0) < 0])
+        sides = lambda lst: ([belief_cell(b) + f' <span class="tn" title="Truth score">{f2(c.truth(b))}</span>' for b in lst if leans(b) == 'pro'],
+                             [belief_cell(b) + f' <span class="tn" title="Truth score">{f2(c.truth(b))}</span>' for b in lst if leans(b) == 'anti'])
         o.append(f'<tr><td class="band b-gen"><strong>Most General</strong><br>(Worldview)</td>{two(*sides(roots))}</tr>')
         if any(bparent[b] in roots for b in beliefs):
             o.append('<tr><td colspan="3" class="branch">branches into the specific beliefs beneath &darr;</td></tr>')
@@ -2213,10 +2363,16 @@ def render_topic(c, tkey, title):
             x = _extra(d)
             parts += [f'<strong>{lab}:</strong> {esc(x[f])}' for f, lab in zip(fields, labels) if x.get(f)]
             if d.get('text'): parts.append(esc(d['text']))
-        if key == 'support' and lb:
+        mine = [d for b, d in lb if {'pro': 'support', 'anti': 'oppose'}.get(leans(b)) == key]
+        if mine:
             parts.append('<strong>Load-bearing parts of the beliefs here, each with its own page:</strong> '
-                         + '; '.join(H.rowtext(d) + (f' <span class="tn" title="Truth score">{f2(c.truth(d["id"]))}</span>' if is_page(d.get('id')) else '') for _, d in lb))
+                         + '; '.join(H.rowtext(d) + (f' <span class="tn" title="Truth score">{f2(c.truth(d["id"]))}</span>' if is_page(d.get('id')) else '') for d in mine))
         stack_rows.append((parts, f'<tr><td class="band {colour}"><strong>{rng}</strong><br>({label})</td><td class="u">{"<br>".join(parts) or EMPTY}</td></tr>'))
+    loose = [d for b, d in lb if leans(b) is None]
+    if loose:
+        parts = ['<strong>Load-bearing parts of beliefs with no position typed yet:</strong> '
+                 + '; '.join(H.rowtext(d) + (f' <span class="tn" title="Truth score">{f2(c.truth(d["id"]))}</span>' if is_page(d.get('id')) else '') for d in loose)]
+        stack_rows.append((parts, f'<tr><td class="band"><strong>Position not labelled yet</strong></td><td class="u">{"<br>".join(parts)}</td></tr>'))
     if any(p_ for p_, _ in stack_rows):
         o.append('<table class="tpl"><thead><tr><th style="width:15%">To Hold Position</th><th style="width:85%">You Must Accept These Assumptions (General to Specific)</th></tr></thead><tbody>'
                  + ''.join(r_ for _, r_ in stack_rows) + '</tbody></table>')
@@ -2321,9 +2477,10 @@ def render_topic(c, tkey, title):
     # ---- contribute
     o.append('<h2 class="th">Contribute</h2>')
     o.append(f'<p class="cap">Every table above has a form under it that files a row in that table. Submitting opens a prefilled GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE}</p>')
+    o.append(outline_link(tkey, H.up))
     o.append(add_form(H.up, 'belief', topic=tkey))
     o.append(f'<p class="cap">{GIT_NOTE}. A belief is a page row with the topic <code>{esc(tkey)}</code>. A cell on this page is an edges row with page <code>{esc(tkey)}</code> and one of the topic sections.</p>')
-    o.append(stamp(c))
+    o.append(stamp(c, H.up))
     o.append(contribute_script(H.up))
     o.append(FOOT)
     return ''.join(o)
@@ -2532,14 +2689,24 @@ EXPLAIN = [
      'method.html#dispute'),
     ('relied', 'Most relied on',
      'The claims the most of this site depends on: the reasons, findings and assumptions that the most beliefs rest on, directly or through other claims.',
-     'Picture a reader who starts at a belief, follows one of its reasons to that reason\'s page, then follows one of the reasons there, and so on. Each next step is picked in proportion to how relevant, important and distinct that row is argued to be. Now and then (' + f'{round((1 - RR_DAMPING) * 100)}' + '% of the time) the reader jumps back to a belief picked at random and starts again. Relied on is the share of that reader\'s time spent on each claim; all the shares add up to 1. Whether a claim is true is deliberately left out, so a claim does not drop off the list the moment it is argued false.',
+     'Picture a reader who starts at a belief, follows one of its reasons to that reason\'s page, then follows one of the reasons there, and so on. Each next step is picked in proportion to how relevant, important and distinct that row is argued to be. Now and then (' + f'{round((1 - RR_DAMPING) * 100)}' + '% of the time) the reader jumps back to a belief picked at random and starts again. Relied on is the share of that reader\'s time spent on each claim; all the shares add up to 1. The home page prints each share as a multiple of the average page\'s share, so 3x means three times as much of the site rests on the claim as on a page picked at random; the full list prints the share itself. Whether a claim is true is deliberately left out, so a claim does not drop off the list the moment it is argued false.',
      'Because a claim many beliefs rest on is where one piece of work moves the most: settle it and every belief above it moves. It is also the honest stand-in for "popular". Nobody\'s votes or views are counted here, so this says how much rests on a claim, not how many people like it.',
      'method.html#reasonrank'),
     ('next', 'What to argue next',
      'The claims where one more hour of work would move the most.',
-     'Relied on times the share of the work still undone (one minus confidence). A claim everything rests on but nobody has worked on comes first; a claim everything rests on and that is already well argued drops down.',
+     'Relied on times the share of the work still undone (one minus confidence). A claim everything rests on but nobody has worked on comes first; a claim everything rests on and that is already well argued drops down. The home page prints it on the same scale as Relied on, a multiple of the average page; the full list prints the share.',
      'To point the next contributor at the work that matters, instead of at whatever is most talked about.',
      'method.html#confidence'),
+    ('predictions', 'Predictions coming due',
+     'Every prediction a belief makes, sorted by when it falls due: overdue first, then the next ninety days, then the rest, with those already settled listed apart.',
+     'Each prediction states a deadline in words. The site reads the date out of it (a full date as written, a month or quarter to its last day, a year to 31 December) and compares it with the date of the revision the site was built from. A prediction is settled once a finding about what happened is filed on its own page; it came true if that evidence has raised its truth score to 0.55 or more, and did not if it has lowered it to 0.45 or less.',
+     'Because a claim that predicts something checkable can be caught out, and catching it out is the best test of whether the arguments behind it were any good. A record of predictions that came true and failed is the closest thing this site has to a track record.',
+     ''),
+    ('compare', 'Where the two rules disagree',
+     'Every belief with a reason listed, ordered by how far apart its two strength numbers are: the truth score and the share for when every reason is counted until it is argued down.',
+     'The truth score counts a row as two times its truth minus one, times its confidence, linkage, importance and uniqueness, so a reason nobody has argued counts zero. The second rule counts a reason as its truth times its linkage, importance and uniqueness, and a finding as that times one plus its uncapped evidence strength, then takes the share for from the same starting point the truth score uses (an even split, unless the page declares what it rests on). The gap is the second number minus the first.',
+     'Which rule should lead a page is an open question, and the owner asked for it to be settled on real cases rather than in the abstract. The beliefs where the rules disagree most are the cases that settle it.',
+     'method.html#tally'),
     ('stake', 'Who has a stake',
      'The groups of people with something at stake in the beliefs here (voters, investors, officials, parents, workers), and what each group needs, like "voters need enough information to judge an official".',
      'Every interest on the site is written as a group and a need, "<who> need <what>", so the group is read off the sentence and filed under the party it names: the role it leads with (parents, workers, farmers, voters, officials), or for "members of" a group the role named after it, or else the nationality it names (Americans, Ukrainians); a subject that names none of these is a group of its own. Each interest keeps its own wording, so the exact people stay on the row. Groups are ranked by how many beliefs list one of their interests, then by how many interests they have; under each group, its needs are ranked by how valid each is argued to be on its own page. Validity asks whether the need should be honored, and is settled by the mirror test: would the group accept the same need honored for its opponents, and what happens if everyone pursues it? It is never set by who holds the need, how many of them there are or how much power they have. On each belief page a second number, Drives, asks whether the need is really why that side holds its position, settled by the side\'s record rather than its rhetoric (the scoring methodology calls it Linkage Accuracy), and Validity x Drives names the one interest actually driving each side. A need that is real and does not hold up is scored, not deleted, and the same suspicion is applied to both sides. A group that is only a belief\'s supporters or opponents is a side rather than a party, so it is kept but listed last.',
@@ -2655,13 +2822,21 @@ def hardest(c):
     bs = [b for b in c.beliefs if c.stats(b).get('dispute') in HARDEST]
     return sorted(bs, key=lambda b: (HARDEST[c.stats(b)['dispute']], -c.stats(b)['nrows'], c.standalone(b)))
 
+# Beliefs come first among the hits, each hit says what kind of page it is (and that a belief is a draft), and
+# a reader without scripts is told where the full list is instead of being left with a box that does nothing.
 SEARCH = ("<form class=\"find\" role=\"search\" onsubmit=\"return false\"><label for=\"q\">Find a claim</label>"
-          "<input id=\"q\" type=\"search\" autocomplete=\"off\" placeholder=\"Type a few words\"></form><ol id=\"hits\" class=\"hits\"></ol>"
-          "<script>(function(){var q=document.getElementById('q'),out=document.getElementById('hits'),rows=null;"
-          "function show(){var w=q.value.toLowerCase().split(/\\s+/).filter(Boolean);out.innerHTML='';if(!w.length||!rows)return;"
-          "rows.filter(function(r){var t=(r.standalone||r.text||'').toLowerCase();return w.every(function(x){return t.indexOf(x)>=0})})"
-          ".slice(0,8).forEach(function(r){var li=document.createElement('li'),a=document.createElement('a');a.href=r.page;"
-          "a.textContent=r.standalone||r.text;li.appendChild(a);out.appendChild(li)})}"
+          "<input id=\"q\" type=\"search\" autocomplete=\"off\" placeholder=\"Type a few words\"></form>"
+          "<noscript><p class=\"u\">The search box needs scripts. <a href=\"all.html\">Every page is listed here</a>, and your "
+          "browser&apos;s find (Ctrl+F) searches that list.</p></noscript><p id=\"nhits\" class=\"u\" aria-live=\"polite\"></p><ol id=\"hits\" class=\"hits\"></ol>"
+          "<script>(function(){var q=document.getElementById('q'),out=document.getElementById('hits'),n=document.getElementById('nhits'),rows=null,"
+          "KIND=" + json.dumps(KINDNAME) + ";"
+          "function show(){var w=q.value.toLowerCase().split(/\\s+/).filter(Boolean);out.innerHTML='';n.textContent='';if(!w.length||!rows)return;"
+          "var hit=rows.filter(function(r){var t=(r.standalone||r.text||'').toLowerCase();return w.every(function(x){return t.indexOf(x)>=0})});"
+          "hit.sort(function(a,b){return (a.kind!=='belief')-(b.kind!=='belief')});"
+          "n.textContent=hit.length?(hit.length>8?hit.length+' pages match; the first 8, beliefs first.':''):'No page matches all of those words.';"
+          "hit.slice(0,8).forEach(function(r){var li=document.createElement('li'),a=document.createElement('a'),k=document.createElement('span');a.href=r.page;"
+          "a.textContent=r.standalone||r.text;k.className='tk';k.textContent=' '+(KIND[r.kind]||r.kind)+(r.draft?', draft':'');"
+          "li.appendChild(a);li.appendChild(k);out.appendChild(li)})}"
           "q.addEventListener('input',function(){if(rows)return show();fetch('data/pages_index.json').then(function(x){return x.json()})"
           ".then(function(d){rows=d.pages;show()})})})()</script>")
 
@@ -2674,6 +2849,29 @@ MASONRY = ("<script>(function(){var g=document.querySelector('.cards');if(!g)ret
            "if(n===1){cards.forEach(function(c){cols[0].appendChild(c)});return}"
            "cards.forEach(function(c){var s=cols[0];cols.forEach(function(d){if(d.offsetHeight<s.offsetHeight)s=d});s.appendChild(c)})}"
            "lay();window.addEventListener('resize',lay)})()</script>")
+
+def start_here(c):
+    """One first click for each reason to arrive: to read an argument worked all the way through, to add to one,
+    or to check the arithmetic. Read off the same rankings the cards below print, so it can never point at a
+    page the lists would not."""
+    ranked = best_beliefs(c)
+    doors = []
+    if ranked:
+        b = ranked[0]
+        doors.append(f'<li><strong>Read one argument {"worked all the way through" if c.complete(b) else "from start to finish"}.</strong> '
+                     f'<a href="p/{c.href(b)}">{esc(c.standalone(b))}</a> Every reason for it and against it, the evidence under each, '
+                     'and what would change the answer.</li>')
+    queue = c.rank.work_queue(1)
+    if queue:
+        p = queue[0]['page']
+        gaps = page_gaps(Html(c, 'p/'), c, p) if c.kind(p) in ('belief', 'claim') else []
+        need = (f' What it needs first: {gaps[0][0][0].lower() + gaps[0][0][1:]} (<a href="p/{c.href(p)}#{gaps[0][3]}">the form for it</a>).'
+                if gaps else '')
+        doors.append(f'<li><strong>Add to the claim where an hour of work moves the most.</strong> <a href="p/{c.href(p)}">{esc(c.standalone(p))}</a>{need} '
+                     'You do not have to agree with it to help.</li>')
+    doors.append('<li><strong>Check the arithmetic.</strong> <a href="method.html">How every number is worked out</a>, and '
+                 '<a href="compare.html">where the two rules for how strong a belief is disagree</a>.</li>')
+    return card('Start here', 'Three ways in, depending on what you came for.', '<ol class="doors">' + ''.join(doors) + '</ol>')
 
 WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
 
@@ -2701,12 +2899,19 @@ def render_index(c, title):
              f'Anyone can add a reason, a finding or a vote on any page. A claim that is already here becomes a vote for it, not a second copy. '
              f'<a href="lists.html">What each list means</a> · <a href="method.html">how the scores are worked out</a>.</p>')
     TOP = 3
-    cards = [card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
-    cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts.',
+    cards = [start_here(c), card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
+    cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
+                      'for the belief minus the weight against it, open ended, where 0 means balanced or not yet argued. The truth score under each '
+                      'belief is the one its own page shows, 0 to 1, where 0.50 means the evidence so far has not moved it either way.',
                       mini(c, best_beliefs(c, TOP), 'Belief score', lambda p: sf(c.stats(p)['belief']), 'best', what='Belief',
                            note=lambda p: f'truth score {f2(c.truth(p))}'), see_all('best.html', None, 'beliefs, ranked'), 'best'))
     con, n = contested(c)
-    cards.append(card('Most argued over', 'The most reasons for and against, counted at every level beneath the belief.',
+    ranked = best_beliefs(c)
+    volume = ''
+    if con and ranked.index(con[0]) > 0:
+        volume = (f' Counting reasons is not scoring them: the belief with the most reasons here is number {ranked.index(con[0]) + 1} '
+                  f'of {len(ranked)} on the best-beliefs list.')
+    cards.append(card('Most argued over', 'The most reasons for and against, counted at every level beneath the belief.' + volume,
                       mini(c, con[:TOP], 'Reasons', lambda p: str(n[p]), 'argued', what='Belief'), see_all('contested.html', len(con), 'beliefs with a reason, by reasons argued'), 'argued'))
     hard = hardest(c)
     cards.append(card('Hardest to resolve', 'A disagreement over values first, because no measurement settles it; a factual one last, because one can.',
@@ -2727,11 +2932,19 @@ def render_index(c, title):
     relied_all =[r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) != 'belief']
     cards.append(card('Most relied on', 'The claims the most of this site depends on. The nearest thing to "popular" that can be measured here: '
                       'nobody\'s votes or views are counted, so it says how much rests on a claim, not how many people like it. '
-                      'Each number is that claim\'s share of the whole site.',
-                      mini(c, relied_all[:TOP], 'Relied on', lambda p: share_pct(c.rank.of(p)), 'relied'), see_all('relied.html', min(len(relied_all), RELIED_SHOWN), 'most relied on'), 'relied'))
+                      'Each number compares the claim with the average page: 3&times; means three times as much of the site rests on it.',
+                      mini(c, relied_all[:TOP], 'Relied on', lambda p: times_avg(c, c.rank.of(p)), 'relied'), see_all('relied.html', min(len(relied_all), RELIED_SHOWN), 'most relied on'), 'relied'))
     queue = c.rank.work_queue(TOP); work = {r['page']: r['work'] for r in queue}
-    cards.append(card('What to argue next', 'Where one more hour of work would move the most: the share of the site resting on a claim, times the share of its work still undone.',
-                      mini(c, [r['page'] for r in queue], 'Work value', lambda p: share_pct(work[p]), 'next'), see_all('next.html', len(c.rank.work_queue(40)), 'claims, in order'), 'next'))
+    cards.append(card('What to argue next', 'Where one more hour of work would move the most: how much rests on a claim, as a multiple of the average '
+                      'page, times the share of its work still undone.',
+                      mini(c, [r['page'] for r in queue], 'Work value', lambda p: times_avg(c, work[p]), 'next'), see_all('next.html', len(c.rank.work_queue(40)), 'claims, in order'), 'next'))
+    tr = PRED.tracker(c)
+    due = tr['overdue'] + tr['soon']
+    if due or tr['resolved'] or tr['later']:
+        show = (due or tr['later'])[:TOP]
+        cards.append(card('Predictions coming due', 'What the beliefs here said we would see, and when. Overdue first; recording what happened is one form.',
+                          mini(c, [r['page'] for r in show], 'Due', lambda p: next((r['due'].isoformat() for r in show if r['page'] == p and r['due']), ''), 'predictions'),
+                          f'<p class="more"><a href="predictions.html">{len(tr["overdue"])} overdue, {len(tr["soon"])} due soon, {len(tr["resolved"])} settled &rarr;</a></p>', 'predictions'))
     ints = sorted((p for p in c.specs if c.kind(p) == 'interest'), key=lambda q: -c.truth(q))
     named, generic = stake_groups(c)
     cards.append(card('Who has a stake', 'The people with something at stake, ranked by how many beliefs touch them; under each, their best argued need.',
@@ -2753,7 +2966,7 @@ def render_index(c, title):
     recent_all = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))
     if recent_all:
         cards.append(card('Changed in this revision', 'Edited or moved since the last published revision.',
-                          mini(c, recent_all[:TOP], 'Relied on', lambda p: share_pct(c.rank.of(p)), 'relied'), see_all('changes.html', len(recent_all), 'changes, row by row'), 'changed'))
+                          mini(c, recent_all[:TOP], 'Relied on', lambda p: times_avg(c, c.rank.of(p)), 'relied'), see_all('changes.html', len(recent_all), 'changes, row by row'), 'changed'))
     else:
         cards.append(card('Changed in this revision', 'Nothing has changed since the last published revision'
                           + (', or no previous revision was available to compare with' if getattr(c, 'changes', None) is None else '')
@@ -2768,7 +2981,8 @@ def render_index(c, title):
     o.append(MASONRY)
     # The plumbing stays off the cards: a reader comes for the arguments, and the tables and the method are one
     # line at the foot of the page for the reader who wants to check them.
-    o.append('<p class="under"><a href="changes.html">What changed</a> since the last revision · '
+    o.append('<p class="under"><a href="contributors.html">Who takes part</a> · <a href="vocab.html">What a post can be</a> · '
+             '<a href="outline.html">Reason Outline</a>, many rows in one post · <a href="changes.html">What changed</a> since the last revision · '
              '<a href="method.html#data">The tables behind every page</a>, free to download and check.</p>')
     o.append(stamp(c))
     o.append(contribute_script(''))
@@ -2799,6 +3013,95 @@ def render_next(c, title):
                  f'<td>{share_pct(r["rank"])}</td><td>{f2(c.truth(r["page"]))}</td><td>{pct(r["conf"])}</td><td>{r["beliefs"]}</td><td class="sc">{share_pct(r["work"])}</td></tr>')
     shared = [r for r in rr.top(len(c.specs)) if r['beliefs'] > 1]
     o.append(f'</tbody></table><p class="tot">{len(shared)} claims sit beneath more than one belief, so settling any of those moves all of them.</p></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+def rule_gaps(c):
+    """Beliefs where the two rules for belief strength disagree most: the argued truth score, and the share for when
+    every reason counts until it is argued down. Widest gap first."""
+    out = []
+    for b in c.beliefs:
+        t = c.stats(b)['tally']
+        if t['share'] is None: continue
+        out.append((b, c.truth(b), t['share'], t['share'] - c.truth(b)))
+    return sorted(out, key=lambda r: (-abs(r[3]), c.standalone(r[0])))
+
+
+def render_compare(c, title):
+    """The two rules side by side on every belief, so which one should lead can be judged on real pages."""
+    rows = rule_gaps(c)
+    o = [root_head('Where the two rules disagree', [('Home', 'index.html'), ('Where the two rules disagree', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Where the two rules disagree</h1>')
+    moved = sum(1 for r in rows if abs(r[1] - 0.5) > 0.005)
+    o.append(f'<p class="lede">Every belief page prints two numbers for how strong the belief is. The truth score counts a reason only once it '
+             f'has been argued, so an unargued reason is worth nothing; it has moved {moved} of these {len(rows)} beliefs off an even split. The '
+             'second rule counts every reason from the moment it is posted and lets argument lower it from there, with evidence weighing more '
+             'and no ceiling on how much more. Neither is settled as the one that should lead. This page lists the beliefs where they part '
+             'ways most, so the choice can be made by looking at real cases: where the second rule looks right, volume of honest reasons is '
+             'telling us something; where it looks wrong, it is being padded.</p>')
+    o.append(EXPLAIN_BLOCK['compare'])
+    o.append('<section><table class="scored"><thead><tr><th class="rk">#</th><th>Belief</th><th>Truth score</th><th>Counting every reason</th>'
+             '<th>Gap</th></tr></thead><tbody>')
+    for i, (b, tr, sh, gap) in enumerate(rows, 1):
+        t = c.stats(b)['tally']
+        nn = lambda v: f'{v:g}' if v == int(v) else f'{v:.2f}'
+        under = (f'<div class="src">{nn(t["reasons_for"])} independent reasons for, {nn(t["reasons_against"])} against; findings weigh '
+                 f'{f2(t["findings_for"])} for and {f2(t["findings_against"])} against</div>')
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(b)}">{esc(c.standalone(b))}</a>{draft_mark(c, b)}{under}</td>'
+                 f'<td>{f2(tr)}</td><td>{pct(sh)}</td><td class="sc">{sf(gap)}</td></tr>')
+    o.append('</tbody></table></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+def outcome_urls(c, pid):
+    """Two prefilled forms on a prediction's own page: a finding that it happened, and a finding that it did not."""
+    key = c.key[pid]
+    def u(side, lead):
+        return f'{NEW_ISSUE}?' + _q([('template', 'contribute.yml'), ('labels', 'contribution'), ('title', 'Evidence: '), ('page', key),
+                                     ('section', 'evidence'), ('side', side), ('text', lead)])
+    return u('agree', 'It happened: '), u('disagree', 'It did not happen: ')
+
+
+def render_predictions(c, title):
+    """The track record: every dated prediction, sorted into overdue, coming due, resolved and later."""
+    tr = PRED.tracker(c)
+    today = PRED.today_of(c)
+    n = sum(len(v) for v in tr.values())
+    o = [root_head('Predictions and how they turned out', [('Home', 'index.html'), ('Predictions', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Predictions and how they turned out</h1>')
+    o.append(f'<p class="lede">Every belief here says what we should see if it is true and what if it is false, with a date and a way to check. '
+             f'This page holds the site to those dates. {n} predictions are listed, as of {today.isoformat()}: what is overdue, what comes due in the '
+             f'next {PRED.SOON} days, what has already been settled, and what comes later. Recording what happened takes one form: '
+             'it files a finding, with its source, on the prediction&rsquo;s own page, and that finding moves the prediction&rsquo;s truth score '
+             'and the belief above it by the ordinary rules. Nobody types in a verdict.</p>')
+    o.append(EXPLAIN_BLOCK['predictions'])
+    def table(rows, cols):
+        if not rows: return '<p class="empty">None.</p>'
+        h = ['<table class="scored"><thead><tr><th>Prediction</th>' + ''.join(f'<th>{esc(x)}</th>' for x in cols) + '</tr></thead><tbody>']
+        for r in rows:
+            follows = 'follows if the belief is true' if r['side'] == 'true' else 'follows if the belief is false'
+            under = (f'<div class="src">On <a href="p/{c.href(r["belief"])}">{esc(c.short(r["belief"], 90))}</a>; {follows}. '
+                     f'{esc(r["deadline"]) if r["deadline"] else "No deadline stated."}</div>')
+            cells = []
+            for col in cols:
+                if col == 'Due': cells.append(f'<td>{r["due"].isoformat() if r["due"] else ""}</td>')
+                elif col == 'Outcome': cells.append(f'<td>{esc(r["outcome"])}<div class="src">{esc(PRED.record(r))}</div></td>')
+                elif col == 'Truth': cells.append(f'<td>{f2(r["truth"])}</td>')
+                elif col == 'Record it':
+                    yes, no = outcome_urls(c, r['page'])
+                    cells.append(f'<td class="u"><a href="{esc(yes)}" rel="nofollow">It happened</a><br><a href="{esc(no)}" rel="nofollow">It did not</a></td>')
+            h.append(f'<tr><td class="t"><a href="p/{c.href(r["page"])}">{esc(c.standalone(r["page"]))}</a>{under}</td>{"".join(cells)}</tr>')
+        return ''.join(h) + '</tbody></table>'
+    for key, head, blurb, cols in (
+        ('overdue', 'Overdue', 'The date has passed and no outcome is recorded yet. These are the most useful forms on the site to fill in.', ('Due', 'Record it')),
+        ('soon', f'Coming due in the next {PRED.SOON} days', 'Worth watching now.', ('Due', 'Record it')),
+        ('resolved', 'Settled', 'An outcome is recorded on the prediction&rsquo;s page. Came true means its truth score has risen to '
+         f'{PRED.CAME_TRUE:.2f} or more on that evidence, did not means it has fallen to {1 - PRED.CAME_TRUE:.2f} or less.', ('Outcome', 'Truth')),
+        ('later', 'Later', 'Due after the next three months, soonest first.', ('Due', 'Record it')),
+        ('undated', 'No date yet', 'A prediction with no date cannot be held to one. Adding a date is a contribution in itself.', ('Record it',)),
+    ):
+        o.append(f'<section id="{key}"><h2><span>{esc(head)}</span></h2><p class="blurb">{blurb}</p>{table(tr[key], cols)}</section>')
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 
@@ -3076,7 +3379,8 @@ def works_table(c, ps, key, note=None, prefix='p/', mini_=True):
     yardstick means; anything longer than a number goes under the title."""
     vals = [work_value(c, mp, key) for mp in ps]
     order = sorted(range(len(ps)), key=lambda i: (-(vals[i] if vals[i] is not None else -9), c.standalone(ps[i]).lower()))
-    ranks = comp_ranks([vals[i] if vals[i] is not None else -9 for i in order])
+    # ranked as printed: two works that read +0.05 share a rank, though one is +0.0512 and the other +0.0487
+    ranks = comp_ranks([-9 if vals[i] is None else vals[i] if key == 'cited' else round(vals[i], 2) for i in order])
     _, name, col, *_ = MEASURE[key]
     o = [f'<table class="scored{" mini" if mini_ else ""}"><thead><tr><th class="rk">#</th><th>Work</th><th><a href="lists.html#works-{key}">{esc(col)}</a></th></tr></thead><tbody>']
     for r, i in zip(ranks, order):
@@ -3273,6 +3577,7 @@ table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl
 .add{display:block;width:100%;max-width:100%;min-width:0;border:2px solid var(--navy);background:color-mix(in srgb,var(--navy) 6%,var(--paper));padding:12px 14px;margin:12px 0 0;font-size:13.5px}
 .add label{display:block;font-weight:600;margin:0 0 4px}.add label.lab{margin-top:4px}
 .add textarea,.add input:not([type=hidden]),.add select{display:block;width:100%;max-width:100%;min-width:0;font:inherit;padding:7px 9px;margin:0 0 6px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
+textarea.share{display:block;width:100%;max-width:100%;box-sizing:border-box;font:inherit;font-size:.92em;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);resize:vertical}
 .add textarea{min-height:3.4em;resize:vertical}.add textarea:focus-visible,.add input:focus-visible,.add select:focus-visible{outline:2px solid var(--navy2);outline-offset:1px}
 .add button{max-width:100%;font:600 13px/1.3 var(--sans);padding:7px 12px;border:1px solid var(--navy);border-radius:4px;background:var(--navy);color:var(--paper);cursor:pointer}
 .add button:hover{background:var(--navy2);border-color:var(--navy2)}.add button:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
@@ -3286,7 +3591,8 @@ table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl
 .votes .vote{display:inline-block;padding:.35em .55em;margin-right:.3em;border:1px solid var(--line);border-radius:4px;background:var(--paper)}
 .votes .vn{color:var(--mute);font-weight:400;white-space:nowrap}.vnote{color:var(--mute)}
 td .votes{display:block;margin:4px 0 0;font-size:11px}td .votes .vn{white-space:normal}
-@media print{.add,.votes{display:none}}
+td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(--mute)}table.vocab code{font-size:11px;color:var(--mute)}ul.cq{margin:4px 0 0;padding-left:1.2em;font-size:13px}pre.brief{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;background:var(--paper);border:1px solid var(--line);padding:10px}pre.outline{white-space:pre;overflow-x:auto;font-size:13px;line-height:1.45;background:var(--paper);border:1px solid var(--line);padding:10px;margin:10px 0}ol.steps{font-size:13.5px;color:var(--ink2);padding-left:1.4em}ol.steps li{margin:3px 0}.outline-link{margin:4px 0 10px}
+@media print{.add,.votes,a.argue{display:none}}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35}td.u{color:var(--ink2);font-size:13px}
@@ -3314,7 +3620,7 @@ tr.lb td{background:color-mix(in srgb,var(--head) 60%,transparent)}
 @media (max-width:640px){table thead{display:none}table tr{display:flex;flex-wrap:wrap;gap:3px 14px;padding:8px 6px;border-top:1px solid var(--line)}table td{border:0;padding:0;width:auto!important;white-space:normal!important;text-align:left!important}td.t,td.u,td.dl,td.ex,td.lab,.check td.lab,.conn td.lab{flex:1 1 100%;width:auto!important}td.rk{display:none}td[data-l]::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}td.u[data-l]::before,td.dl[data-l]::before,td.ex[data-l]::before{display:inline;margin-right:6px}tr.lb td{background:none}tr.lb{background:color-mix(in srgb,var(--head) 60%,transparent)}}
 main.index h1{font-size:clamp(24px,3vw,36px)}.lede{font-size:15px;color:var(--ink2);max-width:720px}
 .beliefs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
-.pop{font-size:13.5px;margin:0 0 10px;padding:8px 10px;background:color-mix(in srgb,var(--navy) 6%,var(--paper));border-left:3px solid var(--navy)}.under{font-size:13px;color:var(--ink2);margin:6px 0 0}.dm{display:inline-block;font:600 10.5px/1.4 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--line);border-radius:3px;padding:0 5px;vertical-align:middle;margin-left:4px}.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.cards{column-width:320px;column-gap:18px;margin-top:18px}.cards.js{column-width:auto;display:flex;gap:18px;align-items:flex-start}.cards.js>.col{flex:1 1 0;min-width:0}.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:0 0 18px;break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box}.card h2{margin-top:2px}.card .dir{grid-template-columns:1fr;gap:8px}.mini{font-size:13px}.mini td.t{min-width:0}.mini td.sc{white-space:normal;min-width:4em}.find label{display:block;font-size:13px;color:var(--ink2)}.find input{width:100%;box-sizing:border-box;padding:8px;font:inherit;border:1px solid var(--line);border-radius:4px}.hits{padding-left:20px;font-size:14px}.links{padding-left:18px;font-size:14px}.links li{margin:4px 0}
+.pop{font-size:13.5px;margin:0 0 10px;padding:8px 10px;background:color-mix(in srgb,var(--navy) 6%,var(--paper));border-left:3px solid var(--navy)}.under{font-size:13px;color:var(--ink2);margin:6px 0 0}.dm{display:inline-block;font:600 10.5px/1.4 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--line);border-radius:3px;padding:0 5px;vertical-align:middle;margin-left:4px}.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.cards{column-width:320px;column-gap:18px;margin-top:18px}.cards.js{column-width:auto;display:flex;gap:18px;align-items:flex-start}.cards.js>.col{flex:1 1 0;min-width:0}.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:0 0 18px;break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box}.card h2{margin-top:2px}.card .dir{grid-template-columns:1fr;gap:8px}.mini{font-size:13px}.mini td.t{min-width:0}.mini td.sc{white-space:normal;min-width:4em}.find label{display:block;font-size:13px;color:var(--ink2)}.find input{width:100%;box-sizing:border-box;padding:8px;font:inherit;border:1px solid var(--line);border-radius:4px}.hits{padding-left:20px;font-size:14px}.doors{padding-left:20px;font-size:14px;margin:6px 0}.doors li{margin:0 0 8px}.links{padding-left:18px;font-size:14px}.links li{margin:4px 0}
 .bcard{display:block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px;color:var(--ink)}.bcard:hover{border-color:var(--navy)}
 .bcard .bt{font-family:var(--serif);font-size:16px;line-height:1.35;font-weight:600;margin-bottom:8px}.bcard .bn{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}.bcard .bn b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}.bcard .bb{margin-top:8px;font-size:13px;color:var(--ink2)}
 ul.tree,ul.tree ul{list-style:none;margin:0;padding-left:0}ul.tree ul{padding-left:18px;border-left:1px solid var(--line);margin-left:6px}
@@ -3378,6 +3684,8 @@ def page_json(c, pid):
         out.update(argued_truth=round(s['raw'], 6), belief_score=round(s['belief'], 6),
                    weight_for=round(s['pos'], 6), weight_against=round(s['neg'], 6),
                    counting_every_reason={k: (round(v, 6) if v is not None else None) for k, v in s['tally'].items()},
+                   possible_fallacies=[{'row': c.key.get(d['id']) if d.get('id') in c.specs else None, 'side': side, 'fallacy': n, 'words': w}
+                                       for d, side, fl in FALLACY.page_flags(c, pid) for n, _, w in fl],
                    capped_by=[d['id'] for d in c.specs[pid].get('components', [])
                               if str(d.get('lb', '')).upper() == 'Y' and is_page(d.get('id'))
                               and s['weakest'] is not None and abs(c.truth(d['id']) - s['weakest']) < 1e-9]
@@ -3487,7 +3795,7 @@ def render_changes(c, H, d, title='Idea Stock Exchange'):
 def provenance(path=None):
     """What this build was made from, so a number can be cited. The repository revision and its commit date,
     not the clock: a build has to be reproducible, and "as of today" is not a citation anyone can check."""
-    import subprocess
+    import datetime, subprocess
     root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     def git(*a):
         try:
@@ -3496,7 +3804,11 @@ def provenance(path=None):
             return ''
     rev, when = git('rev-parse', '--short', 'HEAD'), git('log', '-1', '--format=%cs')
     dirty = bool(git('status', '--porcelain', '--untracked-files=no'))
-    return {'rev': rev, 'date': when, 'dirty': dirty}
+    out = {'rev': rev, 'date': when, 'dirty': dirty}
+    # the commit's time in UTC, which a printout's printed: line carries (%cs is the day where the committer was)
+    stamp = git('log', '-1', '--format=%ct')
+    if stamp.isdigit(): out['time'] = datetime.datetime.fromtimestamp(int(stamp), datetime.timezone.utc).strftime('%Y-%m-%dT%H:%MZ')
+    return out
 
 
 def take_part_foot(what):
@@ -3505,7 +3817,735 @@ def take_part_foot(what):
             f'<a href="{REPO}">GitHub</a>, and a duplicate becomes a vote for what is already here.</p>')
 
 
-def stamp(c):
+def load_people(c, content):
+    """Who takes part, read from the tables and nothing else: the profiles in users.csv and user_links.csv, every
+    row a contributor added (its added_by), and every vote cast. Nothing here reaches a scorer."""
+    users, links = IT.read_users(content) if content and os.path.isdir(content) else ([], [])
+    c.users = {user_slug(u['login']): u for u in users if user_slug(u.get('login'))}
+    c.user_links = {}
+    for l in links: c.user_links.setdefault(user_slug(l.get('login')), []).append(l)
+    c.maintainer = next((k for k, u in c.users.items() if u.get('maintainer', '').upper() == 'Y'), None)
+    c.added = {}
+    if content and os.path.isdir(content):
+        for e in IT.read_csv(content)[1]:
+            x = IT.parse_extra(e.get('extra'))
+            who = user_slug(x.get('added_by'))
+            if who and who != 'anonymous': c.added.setdefault(who, []).append((e, x.get('added', '')))
+    c.voted = {}
+    for v in getattr(c, 'vote_rows', []):
+        who = user_slug(v.get('login'))
+        if who and who != 'anonymous': c.voted.setdefault(who, []).append(v)
+    c.people = sorted(set(c.users) | set(c.added) | set(c.voted), key=lambda k: (k != c.maintainer, (c.users.get(k, {}).get('name') or k).lower()))
+
+
+def person_name(c, login):
+    return (getattr(c, 'users', {}).get(login, {}).get('name')) or '@' + login
+
+
+def render_user(c, login, title):
+    """A contributor's page: who they are and where to reach them when they have said, then everything they have
+    added and every vote they have cast, read off the tables. Every login that appears anywhere gets one."""
+    u = c.users.get(login, {}); name = person_name(c, login)
+    o = [root_head(name, [('Home', '../index.html'), ('Contributors', '../contributors.html'), (name, '')], up='../', main_class='index')]
+    o.append(f'<p class="kind">{"Maintainer" if login == c.maintainer else "Contributor"}</p><h1>{esc(name)}</h1>')
+    meta = [esc(u['role'])] if u.get('role') else []
+    meta.append(f'<a href="https://github.com/{esc(login)}" rel="nofollow">@{esc(login)} on GitHub</a>')
+    o.append('<p class="meta">' + ' · '.join(meta) + '</p>')
+    if u.get('about'):
+        about = esc(u['about']).replace('Idea Stock Exchange', '<a href="../index.html">Idea Stock Exchange</a>', 1)
+        o.append(f'<p class="lede">{about}</p>')
+    if login == c.maintainer:
+        done = [b for b in c.beliefs if c.complete(b)]
+        filed = {c.topic_of(b) for b in c.beliefs if c.topic_of(b)}
+        o.append(f'<section><h2><span>What {esc(name)} built</span></h2><p>This site and everything on it: '
+                 f'<a href="../best.html">{len(c.beliefs):,} beliefs</a> across <a href="../topics.html">{len(filed)} topics</a>, '
+                 f'{len(done):,} of them worked all the way through, and {len(c.specs):,} pages in all, with the rules that score them '
+                 f'and <a href="../method.html">the method page</a> that explains every number. Every row that carries no other '
+                 f'contributor&apos;s name was entered by the maintainer.</p>'
+                 + (f'<p>{esc(u["method"])}</p>' if u.get('method') else '') + '</section>')
+    groups = []
+    for l in c.user_links.get(login, []):
+        g = l.get('group') or 'Where to find me'
+        if g not in groups: groups.append(g)
+    for g in groups:
+        o.append(f'<section><h2><span>{esc(g)}</span></h2><table class="plain"><thead><tr><th>Platform</th><th>Best for</th><th>Link</th></tr></thead><tbody>')
+        for l in c.user_links[login]:
+            if (l.get('group') or 'Where to find me') != g: continue
+            url = l.get('url', '')
+            link = f'<a href="{esc(url)}" rel="me noopener">{esc(l.get("label") or url)}</a>' if re.match(r'^https?://', url) else esc(l.get('label', ''))
+            o.append(f'<tr><td class="t"><strong>{esc(l.get("platform", ""))}</strong></td><td class="u">{esc(l.get("best_for", ""))}</td><td>{link}</td></tr>')
+        o.append('</tbody></table></section>')
+    rows = c.added.get(login, [])
+    if rows:
+        o.append(f'<section><h2><span>Rows added</span></h2><table class="plain"><thead><tr><th>On the page</th><th>Where</th><th>Added</th></tr></thead><tbody>')
+        for e, when in sorted(rows, key=lambda r: r[1], reverse=True):
+            pg = e.get('page'); where = (e.get('section') or '') + (f', {e["side"]}' if e.get('side') else '')
+            page = (f'<a href="../p/{c.href(c.tabs[pg])}">{esc(c.standalone(c.tabs[pg]))}</a>' if pg in getattr(c, 'tabs', {})
+                    else (f'<a href="../t/{c.topic_href(pg)}">{esc(c.topics[pg]["name"])}</a>' if pg in c.topics else esc(pg or '')))
+            o.append(f'<tr><td class="t">{page}</td><td class="u">{esc(where)}</td><td class="u">{esc(when)}</td></tr>')
+        o.append('</tbody></table></section>')
+    votes = c.voted.get(login, [])
+    if votes:
+        o.append(f'<section><h2><span>Votes cast</span></h2><table class="plain"><thead><tr><th>Claim</th><th>Vote</th><th>On</th></tr></thead><tbody>')
+        for v in sorted(votes, key=lambda v: v.get('date', ''), reverse=True):
+            k = v.get('key'); claim = f'<a href="../p/{c.href(c.tabs[k])}">{esc(c.standalone(c.tabs[k]))}</a>' if k in getattr(c, 'tabs', {}) else esc(k or '')
+            what = esc(v.get('vote', '')) + (' that it bears on the page above' if v.get('on') else '')
+            o.append(f'<tr><td class="t">{claim}</td><td class="u">{what}</td><td class="u">{esc(v.get("date", ""))}</td></tr>')
+        o.append('</tbody></table></section>')
+    if not (rows or votes or login == c.maintainer):
+        o.append('<p class="empty">Nothing added or voted on yet.</p>')
+    o.append('<p class="tot">Who added a row never changes its score, and a vote never moves one: the site checks both on every build.</p>')
+    if u.get('closing'): o.append(f'<p class="consts">{esc(u["closing"])}</p>')
+    o.append(stamp(c, '../') + FOOT)
+    return ''.join(o)
+
+
+def render_grouping(c, title):
+    """How the site decides what counts as the same claim, and how every belief is placed on its topic, with live
+    examples read off the tables this build was made from. Every number and example below is computed here, so
+    the page cannot describe a rule the code does not run."""
+    import similarity as SIM
+    o = [root_head('How claims are grouped and placed', [('Home', 'index.html'), ('Method', 'method.html'), ('Grouped and placed', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>How claims are grouped and placed</h1>')
+    o.append('<p class="lede">A debate is won by a loud side when the same point can be counted twice. So the first question this site asks of '
+             'anything new is whether it is a claim already here, and the second is where it belongs. This page says exactly how both are '
+             'decided, with examples taken from the tables as they stand today. Grouping and placing move no score, except in the two '
+             'places marked below.</p>')
+    a = lambda pid, n=90: f'<a href="p/{c.href(pid)}">{esc(c.short(pid, n))}</a>'
+    pairs = c.sim.pairs()
+
+    # 1. before a claim is added
+    o.append('<section id="duplicates"><h2><span>Before a claim is added: is it already here?</span></h2>')
+    o.append(f'<p>Every form on the site checks what is typed against every claim in the tables, drafts included, as the reader types, and '
+             f'the check runs again when the submission arrives. The measure reads wording, not meaning: half of it is how many of the '
+             f'informative words two claims share, and half is how many four-letter runs of their spelling they share, each weighted by how '
+             f'rare it is, so a phrase on every page counts for almost nothing. Two claims that read {SIM.FLAG:.2f} alike or more are shown '
+             f'as possible matches. At {SIM.MERGE:.2f} or more the new text is treated as the claim already here: the submitter&apos;s '
+             f'agreement is recorded as a vote for it, and if it was offered on a page where that claim is not yet a row, the row is added '
+             f'pointing at the existing page. A vote never moves a score.</p>')
+    deny_a, deny_b = 'Officials should trade stocks.', 'Officials should not trade stocks.'
+    o.append(f'<p>Two exceptions keep the check honest. A denial is never the claim it denies, however alike they read: "{deny_a}" and '
+             f'"{deny_b}" share every informative word and read {SIM.ces(deny_a, deny_b):.2f} alike, because words like not and no carry '
+             f'no weight in the measure, so the site counts the negating words and never merges two claims whose counts disagree. And a '
+             f'variant filed under Similar Beliefs is meant to read alike, so it is never merged with the belief it varies.</p>')
+    ex = next((r for r in pairs if not r['opposite'] and r['scored_parent']), None)
+    if ex:
+        on = ex['scored_parent'][0]
+        o.append(f'<p class="tot">Example from today&apos;s tables, both on {a(on)}: &ldquo;{a(ex["a"], 400)}&rdquo; and '
+                 f'&ldquo;{a(ex["b"], 400)}&rdquo; read {ex["ces"]:.2f} alike, and the duplicate check calls the pair '
+                 f'&ldquo;{esc(ex["verdict"])}&rdquo;.</p>')
+    o.append('</section>')
+
+    # 2. the same point twice on one page
+    flagged = len({q for r in c.sim.unguarded() for q in r['scored_parent']})
+    uniq = sorted((p for p in c.specs if c.kind(p) == 'uniqueness'), key=lambda p: c.key[p])
+    o.append('<section id="repeats"><h2><span>The same point twice on one page</span></h2>')
+    o.append('<p><strong>The same claim listed again</strong> counts once, at its strongest reading, whichever table it sits in. Listing a '
+             'claim five times weighs exactly what listing it once does, and the extra rows print +0.00 with a note saying why. '
+             '<em>This moves a score.</em></p>')
+    o.append(f'<p><strong>A reworded copy</strong> is a different page, so it counts in full until somebody argues the overlap. The '
+             f'duplicate check flags it on the page ("Rows that may be the same point twice"; {flagged} page{"s" if flagged != 1 else ""} '
+             f'carry the flag today), and the way to answer it is a uniqueness page: a claim of its own, "this reason makes a different '
+             f'point from that one", argued like any other. Its truth score multiplies the row, so a reason argued to repeat another adds '
+             f'little or nothing. <em>This moves a score.</em> A row with no uniqueness page counts in full.</p>')
+    if uniq:
+        o.append('<p class="tot">Uniqueness pages today: ' + '; '.join(f'{a(p)} reads {f2(c.truth(p))}' for p in uniq) + '.</p>')
+    o.append('<p>Independent findings that agree are not repeats. A finding replicated by many studies is one page with its replication '
+             'count recorded, and replication raises how much the finding weighs, which is the opposite of the uniqueness discount and '
+             'meant to be.</p></section>')
+
+    # 3. ways of saying the same thing
+    eq = sorted((p for p in c.specs if c.kind(p) == 'equivalence'), key=lambda p: c.key[p])
+    o.append('<section id="wordings"><h2><span>Ways of saying the same thing</span></h2>')
+    o.append(f'<p>Whether two wordings are one claim is itself a claim, so it gets a page: "this makes the same claim as that", argued for '
+             f'and against. Once such a page reads {EQUIV_MERGE:.2f} or more, the shortest wording stands in for the page wherever space '
+             f'is short, and the page lists every wording under Ways of Saying the Same Thing. Nothing else changes: an equivalence page '
+             f'moves no score.</p>')
+    if eq:
+        argued = [p for p in eq if abs(c.truth(p) - 0.5) > 0.005]
+        o.append(f'<p class="tot">{len(eq)} equivalence page{"s" if len(eq) != 1 else ""} today, '
+                 + (f'{len(argued)} argued off the starting point: ' if argued else 'none argued off the starting point yet: ')
+                 + '; '.join(f'{a(p, 400)} ({f2(c.truth(p))})' for p in eq[:3]) + '.</p>')
+    o.append('</section>')
+
+    # 4. stronger and weaker
+    var = next((b for b in best_beliefs(c) if c.specs[b].get('similar_extreme') and c.specs[b].get('similar_moderate')), None)
+    o.append('<section id="variants"><h2><span>More extreme and more moderate wordings</span></h2>')
+    o.append('<p>A belief and a bolder or more cautious version of it are different claims, and often one is true and the other is not. '
+             'Each belief page links its variants under Similar Beliefs, each variant has its own page and its own score, and the '
+             'duplicate check leaves them apart.</p>')
+    if var:
+        ext = [d['id'] for d in c.specs[var]['similar_extreme'] if is_page(d.get('id'))][:1]
+        mod = [d['id'] for d in c.specs[var]['similar_moderate'] if is_page(d.get('id'))][:1]
+        o.append(f'<p class="tot">Example: {a(var, 140)} ({f2(c.truth(var))})'
+                 + (f'; more extreme: {a(ext[0], 140)} ({f2(c.truth(ext[0]))})' if ext else '')
+                 + (f'; more moderate: {a(mod[0], 140)} ({f2(c.truth(mod[0]))})' if mod else '') + '.</p>')
+    o.append('</section>')
+
+    # 5. topics
+    tops = [k for k, t in c.topics.items() if not t.get('parent')]
+    sided = [k for k, t in c.topics.items() if (t.get('axis') or '').strip() and c.topic_beliefs(k)]
+    plain = [k for k, t in c.topics.items() if not (t.get('axis') or '').strip() and c.topic_beliefs(k)]
+    depth = lambda k: 1 if not c.topics[k].get('parent') or c.topics[k]['parent'] not in c.topics else 1 + depth(c.topics[k]['parent'])
+    tl = lambda k: f'<a href="t/{c.topic_href(k)}">{esc(c.topics[k]["name"])}</a>'
+    o.append('<section id="topics"><h2><span>Topics and sub-topics</span></h2>')
+    o.append(f'<p>Every belief is filed under one topic, like a book on a library shelf, and topics nest: {len(tops)} categories, '
+             f'{len(c.topics) - len(tops)} topics beneath them, at most {max((depth(k) for k in c.topics), default=0)} levels deep. A topic '
+             f'people take sides on as a whole (taxes, immigration, a candidate) says what a positive position means, and its page places '
+             f'every belief on the three scales below. A subject nobody is for or against (history, music) says no such thing, and its page '
+             f'is a directory of what is filed beneath it. Filing moves no score.</p>')
+    if sided and plain:
+        o.append(f'<p class="tot">Today {len(sided)} topics with beliefs filed take sides, for example {tl(sided[0])}, and {len(plain)} are '
+                 f'subjects, for example {tl(plain[0])}.</p>')
+    o.append('</section>')
+
+    # 6-8. the three scales
+    show = max(sided, key=lambda k: len(c.topic_beliefs(k)), default=None)
+    o.append('<section id="direction"><h2><span>Which way a belief points</span></h2>')
+    o.append('<p>On a topic that takes sides, each belief carries a position from -100 to +100, typed by its author, saying which way it points '
+             'on that topic&apos;s axis. It is a label, not a score: it says nothing about whether the belief is true, and no number on the '
+             'site reads it. The topic page sorts beliefs into five bands, ' + ', '.join(f'{lab} ({pc}%)' for pc, lab in DIRECTION_BANDS)
+             + ', and a belief with no position typed is listed apart as not labelled yet rather than filed as neutral.</p>')
+    if show:
+        bs = sorted(c.topic_beliefs(show), key=lambda b: (c.specs[b].get('positivity') is None, -(c.specs[b].get('positivity') or 0)))
+        o.append(f'<p class="tot">On {tl(show)} positive means: {esc(c.topics[show]["axis"])}. '
+                 + '; '.join(f'{a(b, 70)} ' + (f'{c.specs[b]["positivity"]:+d}' if isinstance(c.specs[b].get("positivity"), int) else 'not labelled')
+                             for b in bs[:5]) + '.</p>')
+    o.append('</section>')
+    counts = {band: sum(1 for b in c.beliefs if c.specs[b].get('strength') == band) for band, *_ in STRENGTH_ROWS}
+    o.append('<section id="strength"><h2><span>How strongly it is worded</span></h2>')
+    o.append('<p>Separately from which way it points, each belief carries how absolute it is, in four bands with the words that give each away: '
+             + '; '.join(f'{band} ({pc}, {re.sub("<[^>]+>", "", words)})' for band, pc, _sub, words in STRENGTH_ROWS)
+             + '. Two beliefs can point the same way and differ only in this, which is what Similar Beliefs records. It is typed, and no '
+             'number reads it.</p>')
+    o.append('<p class="tot">Today: ' + ', '.join(f'{counts[b]} {b}' for b in counts) + f', of {len(c.beliefs)} beliefs.</p></section>')
+    o.append('<section id="specificity"><h2><span>General to specific</span></h2>')
+    o.append('<p>The same topic holds claims at every altitude, from a worldview down to one line-item policy. A topic page draws them as a '
+             'tree: the most general beliefs at the top, branches beneath, specific beliefs at the leaves, from rows typed on the topic or, '
+             'where there are none, from which belief sits under which. A worldview and the policy it implies sit on different rows, so a '
+             'reader can see which is which. Placement moves no score.</p></section>')
+
+    # 9. what moves a score
+    o.append('<section id="moves"><h2><span>What moves a score and what does not</span></h2><table class="plain"><thead><tr><th>Mechanism</th><th>Moves a score?</th><th>How</th></tr></thead><tbody>')
+    for m, yes, how in (
+            ('The duplicate check', 'No', 'A match becomes a vote, and a vote is shown beside the score, never inside it.'),
+            ('The same claim listed again on a page', 'Yes', 'It counts once, at its strongest reading.'),
+            ('A reworded copy', 'Only once argued', 'It counts in full until a uniqueness page argues the overlap.'),
+            ('A uniqueness page', 'Yes', 'Its truth score multiplies the row it is attached to.'),
+            ('An equivalence page', 'No', 'At 0.90 or more it decides which wording is shown.'),
+            ('How alike two claims read', 'No', 'It flags pairs for somebody to argue and decides nothing.'),
+            ('Topic, position, strength, rung', 'No', 'They place a belief; nothing reads them into a number.')):
+        o.append(f'<tr><td class="t">{m}</td><td>{yes}</td><td class="u">{how}</td></tr>')
+    o.append('</tbody></table></section>')
+
+    # 10. not built
+    o.append('<section id="not-built"><h2><span>Not built yet</span></h2>')
+    o.append('<p>Four things the project&apos;s writing describes are not run here, and nothing on the site should be read as if they were. '
+             'Two beliefs at the same address on a topic (the same direction band, strength and rung) are not merged or flagged by it; only '
+             'their wording is compared. How alike two claims read never sets a uniqueness score by itself; a person has to open the page. '
+             'There is no clustering of many restatements into one entry with a summary. And the measure reads spelling, not meaning: two '
+             'claims that say the same thing in entirely different words are missed, which is why the uniqueness and equivalence pages exist '
+             'for people to argue.</p></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+VOCAB_WHERE = {'page': 'this page', 'claim': 'the row&apos;s own page', 'link': 'the row&apos;s linkage page',
+               'imp': 'the row&apos;s importance page', 'uniq': 'the row&apos;s uniqueness page',
+               'equiv': 'the page asking whether two claims are the same'}
+VOCAB_TABLE = {'argument': 'Reasons', 'evidence': 'Evidence', 'prediction': 'Predictions', 'falsify': 'Falsifiability test',
+               'criterion': 'Objective criteria', 'cba': 'Costs and benefits', 'short_term': 'Short-term effects',
+               'long_term': 'Long-term effects', 'component': 'Components', 'assumption': 'Assumptions', 'interest': 'Interests',
+               'interest_listing': 'Interests at stake', 'value': 'Shared values', 'shared_interest': 'Shared interests',
+               'compromise': 'Compromises', 'motive': 'Motives', 'dispute': 'Core disputes', 'obstacle': 'Obstacles', 'bias': 'Biases',
+               'media': 'Media', 'law': 'Laws', 'upstream': 'Broader beliefs', 'downstream': 'Narrower beliefs',
+               'similar': 'Similar beliefs', 'definition': 'Definitions', 'person': 'People on the record', 'impact': 'Influence'}
+VOCAB_SIDE = {'agree': ', for', 'disagree': ', against', 'either': ', for or against', '': ''}
+VOCAB_MOVES = {'truth': 'the truth score of the page it is filed on', 'link': 'the row&apos;s linkage', 'imp': 'the row&apos;s importance',
+               'uniq': 'the row&apos;s uniqueness', '': 'nothing; it is listed, not scored'}
+VOCAB_NONE = {'house.vote': ('the yes and no beside any claim', None), 'house.new-belief': ('the propose-a-belief form', 'belief.yml'),
+              'meaning.opposite': ('the propose-a-belief form, then a link to it as a reason against', 'belief.yml')}
+
+
+def vocab_post_url(t):
+    """The GitHub form, opened with the section, side and kind of post filled in; the chooser adds the page and the
+    row it was opened from."""
+    from urllib.parse import urlencode
+    side = t['side'] if t['side'] in ('agree', 'disagree') else 'agree'
+    q = {'template': 'contribute.yml', 'labels': 'contribution', 'title': t['label'] + ': ',
+         'section': t['section'], 'side': side, 'tag': t['id']}
+    return NEW_ISSUE + '?' + urlencode(q)
+
+
+def render_vocab(c, title):
+    """Every kind of post, where it is filed and what it can move, with the names the published standards for
+    exchanging arguments give the same thing. Opened from a row's "argue about this row" link, it fills in the
+    page and the row, so each "post one" link opens the form ready to type."""
+    import vocab as V
+    o = [root_head('What a post can be', [('Home', 'index.html'), ('Method', 'method.html'), ('What a post can be', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>What a post can be</h1>')
+    o.append(f'<p class="lede">Every post on this site is one of the {len(V.TYPES)} kinds below. Naming the kind is what lets millions of separate '
+             'posts add up instead of piling up: the site knows where each one goes and which number it can move, and a program anywhere '
+             'reads it the same way. Naming the kind moves nothing by itself. A post counts once its claim is argued, exactly like '
+             'every other row.</p>')
+    o.append('<p class="take" id="row" hidden></p>')
+    o.append('<p>' + ' · '.join(f'<a href="#{f}">{esc(q)}</a>' for f, q, _ in V.FAMILIES) + ' · <a href="#programs">For programs and AI assistants</a></p>')
+    by = {}
+    for t in V.TYPES: by.setdefault(t['family'], []).append(t)
+    for fam, q, about in V.FAMILIES:
+        o.append(f'<section id="{fam}"><h2><span>{esc(q)}</span></h2><p class="blurb">{esc(about)}</p>')
+        o.append('<table class="vocab"><thead><tr><th>Kind of post</th><th>Filed in</th><th>Moves, once argued</th><th>Post one</th></tr></thead><tbody>')
+        for t in by.get(fam, []):
+            if t['target'] == 'none':
+                how, form = VOCAB_NONE.get(t['id'], ('an ordinary issue on the repository', None))
+                where = 'Not a row'
+                post = (f'<a href="{NEW_ISSUE}?template={form}&amp;labels=belief" rel="nofollow">use {esc(how)}</a>' if form else
+                        (esc('use ' + how) if t['id'] == 'house.vote' else f'<a href="{NEW_ISSUE}" rel="nofollow">use {esc(how)}</a>'))
+            else:
+                where = f'{VOCAB_WHERE[t["target"]]}: {VOCAB_TABLE.get(t["section"], t["section"])}{VOCAB_SIDE[t["side"]]}'
+                post = (f'<a class="post" data-target="{t["target"]}" href="{esc(vocab_post_url(t))}" rel="nofollow" target="_blank">post one</a>')
+            extra = ''
+            if t.get('questions'):
+                extra = '<ul class="cq">' + ''.join(
+                    f'<li>{esc(x["q"])} If not, that is <a href="#{x["files"]}">{esc(V.BY_ID[x["files"]]["label"].lower())}</a>.</li>'
+                    for x in t['questions']) + '</ul>'
+            names = ' · '.join(x for x in (
+                f'AIF {t["aif"]}-node' if t['aif'] else '', t['attack'] if t['attack'] else '',
+                f'schema.org {t["schema"]}' if t['schema'] else '') if x)
+            o.append(f'<tr id="{esc(t["id"])}"><td class="t"><strong>{esc(t["label"])}</strong> <code>{esc(t["id"])}</code>'
+                     f'<div class="u">{esc(t["example"])}</div>{extra}'
+                     + (f'<div class="src">{esc(names)}</div>' if names else '') +
+                     f'</td><td>{where}</td><td>{VOCAB_MOVES[t["moves"]]}</td><td>{post}</td></tr>')
+        o.append('</tbody></table></section>')
+    o.append('<section id="programs"><h2><span>For programs and AI assistants</span></h2>')
+    o.append('<p>The same list as data: <a href="data/vocab.json">data/vocab.json</a>. Every claim page carries its numbers and rows as '
+             'structured data in the page itself, in the schema.org vocabulary search engines read, with the terms schema.org has no word '
+             'for defined in <a href="data/ise-context.jsonld">data/ise-context.jsonld</a>; the full numbers for a page are beside it at '
+             '<code>p/&lt;key&gt;.json</code>, and the two tables behind everything are on the <a href="method.html#data">method page</a>.</p>')
+    o.append('<p>The outside names in small type under each kind line this site up with the published standards for exchanging arguments: '
+             'the Argument Interchange Format (Chesñevar, Rahwan, Reed and others, 2006), whose I-node is a claim, RA-node a reason for, '
+             'CA-node a reason against, PA-node a preference and MA-node a rewording; the three ways ASPIC+ (Prakken, 2010) says an '
+             'objection lands, a rebut against the conclusion, an undercut against the step from reason to conclusion (what a linkage page '
+             'argues) and an undermine against the reason itself (what its own page argues); and the argumentation schemes and critical '
+             'questions of Walton, Reed and Macagno (2008).</p>')
+    o.append('<p><strong>Asking an AI to help.</strong> An AI assistant writes posts best as a <a href="outline.html">Reason Outline</a>, '
+             'the plain-text form every page is also printed in: one line per claim, any number of them in one post. <a href="outline.html#ai">The '
+             'brief on that page</a> can be pasted into any assistant with a page&apos;s address, and the outline it returns is posted with one form. '
+             'In an outline, any kind below but two is written by its label or by its id and a colon (<code>link.irrelevant:</code>); '
+             'the labels are listed on <a href="outline.html#marks">the outline page</a>. The two are lines of their own: a vote is written '
+             '<code>Vote:</code> and a new belief <code>Belief:</code>.</p>')
+    o.append('<p class="fine">What an assistant drafts goes through the same check as anything a person types: a claim already here becomes '
+             'a vote for it, and nothing is published until a person merges it.</p>')
+    o.append(f'<p><strong>Run your own.</strong> Everything here is free to copy under the MIT License: fork the <a href="{REPO}">repository</a>, '
+             'change the tables, the pages or the scoring rule, and publish your own site on GitHub Pages. Keep the two tables and this list of '
+             'kinds of post and your site can read the same arguments as this one, so two rules can be compared on the same pages, which is '
+             'the fair test of which one ranks good ideas higher. <a href="data/conformance_expected.json">A small set of pages with the numbers '
+             'this site&apos;s rule gives them</a> pins what the rule computes, so a copy can say exactly where its rule differs.</p></section>')
+    o.append(VOCAB_JS)
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+# The chooser: opened as vocab.html?page=KEY&row=KEY from a row's "argue about this row" link, it names the row and
+# adds the page and the row to every "post one" link, so the form opens with both filled in.
+VOCAB_JS = ("<script>(function(){var q=new URLSearchParams(location.search),pg=q.get('page'),row=q.get('row');if(!pg)return;"
+            "[].forEach.call(document.querySelectorAll('a.post'),function(a){var u=new URL(a.href);u.searchParams.set('page',pg);"
+            "if(row&&a.getAttribute('data-target')!=='page')u.searchParams.set('row',row);a.href=u.toString()});"
+            "var b=document.getElementById('row');b.hidden=false;"
+            "function say(t){b.innerHTML='';var s=document.createElement('strong');s.textContent=row?'Arguing about one row. ':'Posting to one page. ';"
+            "b.appendChild(s);b.appendChild(document.createTextNode(t+' Every \\u201cpost one\\u201d link below opens the form with '+(row?'the page and the row':'the page')+' filled in.'))}"
+            "say(row?'The row: '+row+', on the page '+pg+'.':'The page: '+pg+'.');"
+            "fetch('data/claims_index.json').then(function(r){return r.json()}).then(function(d){var m={};(d.claims||d).forEach(function(x){m[x.key]=x.text});"
+            "if(row&&m[row])say('The row: \\u201c'+m[row]+'\\u201d, on the page \\u201c'+(m[pg]||pg)+'\\u201d.');else if(m[pg])say('The page: \\u201c'+m[pg]+'\\u201d.')}).catch(function(){})})()</script>")
+
+
+# ------------------------------------------------------------------------------------------------ the Reason Outline page
+# The page explains the language to a reader who has never seen it. test_render checks every label, heading and detail
+# name it shows against outline_names and reads every example on it back, and where a label files is worked out from
+# its kind, so the page cannot teach a name the reader does not know.
+# the lede says what an outline is, how one gets in and how to start; everything else is in the sections below it, so
+# a newcomer reaches the example first. {form} is the outline form's address
+OUTLINE_PARAGRAPH = (
+    'A Reason Outline is a plain-text list of reasons for and against a claim, and any page on the site prints in this form. Start '
+    'with <code>Page:</code> and the address of the page you are adding to, or <code>Belief:</code> and a new claim in one sentence. Then '
+    'write one claim per line, starting it with <code>+</code> for a reason to agree or <code>-</code> for a reason to disagree, and push a '
+    'line in two spaces under the line it is about. Send it through the <a href="{form}" rel="nofollow">outline form on GitHub</a>: the '
+    'site replies with your post printed back, a pull request holds its rows until the maintainer merges it, and nothing you leave out '
+    'is ever deleted.')
+OUTLINE_EXAMPLE_PAGE = 'barring-members-congress-president'
+OUTLINE_EXAMPLE = (
+    'Page: https://myklob.github.io/ideastockexchange/beliefs/p/barring-members-congress-president.html\n'
+    '  + [members-regularly-trade-industries]\n'
+    '    - Matters less: Most trades are small next to members\' total wealth.\n'
+    '    Does not follow: Holding a stock in an industry is not the same as voting to help it.\n'
+    '  + Statistics: Dozens of members of the 117th Congress filed trade reports after the 45-day deadline.\n'
+    '    Source: Insider, Conflicted Congress, 2021\n'
+    '    Checked: 2026-10-31\n')
+# what the filer replied to OUTLINE_EXAMPLE on 2026-10-31 (outline_file.reply); test_render reads it back as a post
+OUTLINE_REPLY = (
+    '// Filed: 3 new pages and 3 new rows.\n'
+    '// Until the pull request is merged, edit the original issue rather than sending this back: its new keys are not on the site yet.\n'
+    'Page: [barring-members-congress-president]\n'
+    '  + [members-regularly-trade-industries]: Members regularly trade in the industries their own committees oversee, which puts a private '
+    'financial stake on both sides of decisions they control.\n'
+    '  // already on the page: nothing added\n'
+    '    - Matters less: [most-trades-small-next-members]: Most trades are small next to members\' total wealth.\n'
+    '    // new page [most-trades-small-next-members] (claim)\n'
+    '    // new row on [imp-members-regularly-trade-barring-members] in Reasons to disagree\n'
+    '    - Does not follow: [holding-stock-industry-same-voting]: Holding a stock in an industry is not the same as voting to help it.\n'
+    '    // new page [holding-stock-industry-same-voting] (claim)\n'
+    '    // new row on [argu-members-regularly-trade-barring-members] in Reasons to disagree\n'
+    '  + Statistics: [dozens-members-117th-congress-filed]: Dozens of members of the 117th Congress filed trade reports after the 45-day deadline.\n'
+    '  // new page [dozens-members-117th-congress-filed] (claim)\n'
+    '  // new row on [barring-members-congress-president] in Evidence, for\n'
+    '  // notice: Line 5: the finding has no evidence type yet, so it starts at a coin flip until the maintainer fills one in.\n'
+    '    Source: Insider, Conflicted Congress, 2021\n'
+    '    Checked: 2026-10-31\n')
+OUTLINE_STEPS = [
+    ('Page:', 'and the page&apos;s address, pasted from the browser, say which page the lines under it are about.'),
+    ('+ [members-regularly-trade-industries]', 'names a reason already on that page by its key, the last part of its address. It is already '
+     'there, so it adds nothing; it is there so the next two lines can sit under it.'),
+    ('- Matters less:', 'pushed in under that reason, argues that the reason matters less than it looks. It is filed on the reason&apos;s '
+     'importance page, which is opened, empty, when the reason has none.'),
+    ('Does not follow:', 'argues that the reason does not carry the conclusion, even if it is true. It is filed on the reason&apos;s relevance '
+     'page. The label says which side it is on, so it needs no sign.'),
+    ('+ Statistics:', 'is a new finding for the page. It gets a page of its own, with a key made from its first words.'),
+    ('Source: and Checked:', 'pushed in under the finding, are details of that row.'),
+]
+# (what you write, what it means, where it files); the structure of a post, before the labels
+OUTLINE_MARKS = [
+    ('Belief: <one sentence>', 'Starts a block for a new belief, at the left edge. When its words are already a page here, that page is used '
+     'instead, and it counts as your vote to agree with it.', 'a new belief page'),
+    ('Page: <address>   or   Page: [key]', 'Starts a block for a page already on the site, at the left edge. Paste the address from your browser.',
+     'nothing by itself; the lines under it file on that page'),
+    ('+', 'For: a reason to agree with the line above. Under a heading, for its question: it bears, it matters more, it is a new point.',
+     'the page above it: Reasons, for'),
+    ('-', 'Against: a reason to disagree with the line above, or against the heading&apos;s question.', 'the page above it: Reasons, against'),
+    ('Agree: / Disagree:', 'The same as + and -, in words. Pro:, Con:, For: and Against: are read the same.', 'the same as + and -'),
+    ('Relevance:', 'A heading under a row. The lines under it argue whether the row bears on the page it is listed on.',
+     'the row&apos;s relevance page (the site calls it its Linkage page), opened for the first line filed under the heading'),
+    ('Importance:', 'A heading under a row. The lines under it argue how much the row matters; At stake: lines name the interests it bears on.',
+     'the row&apos;s importance page, opened for the first line filed under the heading'),
+    ('Uniqueness vs [other]:', 'A heading under a row. The lines under it argue whether the row makes a new point or repeats [other], another '
+     'row on the same page.', 'the row&apos;s uniqueness page against [other]'),
+]
+# (the labels a row is about, what you write, what it means); where each files is worked out from its kind
+OUTLINE_LABELS = [
+    (('Does not follow',), 'Does not follow:', 'The row does not carry the conclusion, even if it is true. Bears on it: says it does.'),
+    (('Matters more', 'Matters less'), 'Matters more: / Matters less:', 'The row counts for more, or for less, than it looks. Many people:, '
+     'Few people:, Lasting: and Easy to undo: say why.'),
+    (('At stake',), 'At stake: [interest] or words', 'An interest the row bears on, by the [key] of an interest page or in words, which make a '
+     'new interest page. These are what an importance page weighs.'),
+    (('Repeats',), 'Repeats [other]:', 'The row makes the same point as [other], another row on the same page, named by its key or by a name '
+     'given earlier in the post. Overlaps [other]: says it does in part.'),
+    (('Evidence',), 'Evidence:', 'A finding whose kind of source is not named. Its sign, or for or against after the label, gives the side.'),
+    (('Statistics', 'Poll'), 'Statistics: / Poll:', 'A finding by the kind of source it rests on; Official record:, Trial:, Expert says: and '
+     'Anecdote: are others. The label is kept with the row, and never sets the finding&apos;s evidence type, which only the maintainer fills.'),
+    (('Small sample',), 'Small sample:', 'A reason a finding is weaker than it looks; Out of date:, Picked to suit:, Source has a stake: and '
+     'Not replicated: are others.'),
+    (('Counterexample',), 'Counterexample:', 'A case that a general claim gets wrong.'),
+    (('Prediction',), 'Prediction: (with + or -)', 'Something that will happen if the belief is true (+) or false (-). Settled by: under it '
+     'says when and how it is settled.'),
+    (('Would confirm', 'Would refute'), 'Would confirm: / Would refute:', 'Something that would strongly confirm the belief, or refute it.'),
+    (('Measure',), 'Measure:', 'A measure that would settle the question.'),
+    (('Benefit', 'Cost'), 'Benefit: / Cost:', 'A benefit or a cost if the belief is true and acted on. Estimate:, Low end:, High end:, Units: '
+     'and Who: go under it.'),
+    (('Interest',), 'Interest: (with + or -)', 'A group whose need is served (+) or harmed (-) if the belief is true. New words make an '
+     'interest page.'),
+    (('Assumption',), 'Assumption: (with + or -)', 'Something a supporter (+) or an opponent (-) takes for granted.'),
+    (('Definition of',), 'Definition of <term>:', 'What a word the page turns on means. It is words only, with no page of its own.'),
+    (('Stronger version', 'Weaker version'), 'Stronger version: / Weaker version:', 'A stronger or a weaker version of the belief. It is never '
+     'merged with a page it reads like, because the two are meant to read alike.'),
+    (('Book', 'Study'), 'Book: / Study: / Report:', 'A work as a source. New words make a work page of that type; Where to find it: goes under it.'),
+    (('Person', 'Law'), 'Person: / Law:', 'A person on the record, or a law or ruling, that bears on the claim.'),
+    (('Straw man',), 'Straw man:', 'A named mistake in the row&apos;s reasoning, one of {fallacies} named mistakes, such as Red herring:, Slippery '
+     'slope: or False choice:. It is a claim like any other, and moves nothing until it is argued.'),
+    (('From expert opinion',), 'From expert opinion:', 'A reason that follows one of {schemes} named patterns, such as From analogy: or From cause to '
+     'effect:, each with the questions that test it.'),
+    (('Needs a source', 'Correction'), 'Needs a source: / Correction:', 'A request for a source, or a correction to a figure, a date or a '
+     'name, with its source. The maintainer reads it.'),
+    (('Duplicate of',), 'Duplicate of [key]:', 'The page above and [key] are the same claim. The maintainer decides.'),
+]
+# the structure that closes the table
+OUTLINE_MARKS_AFTER = [
+    ('Vote: agree   or   Vote: disagree', 'A vote on whether the line it is under is true. It is counted and shown, and never moves a score.',
+     'the votes, never a row'),
+    ('Vote: bears on it', 'A vote on whether the row it is under bears on the page it sits on (Vote: does not bear on it, the other way).',
+     'the votes, never a row'),
+    ('[name]: words', 'A new page, called name inside this post so later lines can point back at it. The reply gives its real key.',
+     'a new page'),
+    ('\\', 'At the start of the words: the words after it are only words, so words that begin with a word and a colon are not read as a label.',
+     'nothing'),
+    ('// a note', 'A whole line for the people reading. It is never stored; the reply prints it back, on the issue and in the pull request.',
+     'nothing'),
+    ('. + reason   and   .. - reason', 'For a box that strips the spaces at the start of a line: one dot and a space for each step in, then '
+     'the sign. Each dot is read as two spaces.', 'nothing; the dots say only how far the line is pushed in'),
+]
+OUTLINE_WHERE = {'page': 'the page above it', 'claim': 'the row&apos;s own page', 'link': 'the row&apos;s relevance page',
+                 'imp': 'the row&apos;s importance page', 'uniq': 'the row&apos;s uniqueness page',
+                 'equiv': 'the sameness page of a stronger or weaker version'}
+OUTLINE_SIDE = {'agree': ', for', 'disagree': ', against', 'either': ', for or against by the sign', '': '',
+                'extreme': ', stronger', 'moderate': ', weaker', 'xy': ''}
+# (detail name, what it holds, an example); the names are checked against outline_names
+OUTLINE_DETAILS = [
+    ('Source', 'Who produced it, the year, and where to find it.', 'Source: Insider, Conflicted Congress, 2021'),
+    ('Address', 'Where the source can be read. In an outline that is not strict, a bare web address in new words moves here by itself.',
+     'Address: https://www.example.org/report'),
+    ('Checked', 'The day the address was checked, as YYYY-MM-DD.', 'Checked: 2026-10-31'),
+    ('Settled by', 'When and how a prediction is settled.', 'Settled by: Annual financial disclosure reports filed in 2032'),
+    ('Estimate', 'The central estimate of a cost or benefit, as a number, written positive: the side says whether it is a cost.', 'Estimate: 40000'),
+    ('Low end', 'The low end of the estimate; High end: is the high end.', 'Low end: 5000'),
+    ('Units', 'What the estimate counts.', 'Units: dollars of tax per affected official'),
+    ('Who', 'The interest that gains or pays, by its [key] or its exact words.', 'Who: [officials-families-need-same]'),
+    ('Topic', 'Under a Belief: line, the topic the new belief is filed under, by key or by name.', 'Topic: public-office-private-gain'),
+    ('Question', 'The one question a belief dissects. Hook:, Ask:, Bottom line: and Full wording: are the other cells people write.',
+     'Question: Would a ban reduce the use of office for private gain?'),
+    ('Term', 'The word a definition defines, when it is not in the label.', 'Term: Individual stock'),
+    ('Kind', 'Any kind of post, by its id, whatever the place. For programs.', 'Kind: link.relevant'),
+    ('Own page', 'Printed under a row that is only words, with no page of its own. Leave it as it is.', 'Own page: no'),
+]
+OUTLINE_MAINTAINER = ('Evidence type', 'Replication count', 'Replication agreement', 'Strength', 'Positivity', 'Load-bearing')
+OUTLINE_BRIEF = (
+    'You are writing a Reason Outline for the Idea Stock Exchange (https://myklob.github.io/ideastockexchange/beliefs/). The site reads it '
+    'into its two tables and replies with the post printed back. The language is explained at '
+    'https://myklob.github.io/ideastockexchange/beliefs/outline.html.\n'
+    'The page to add to: [paste its address here]. Read it as an outline at the same address with .txt in place of .html. Add up to five '
+    'lines it does not already have, the strongest ones on whichever side is thinner, and argue each side as its best advocate would.\n'
+    '1 Start with frontmatter: \'===\', \'reasons: 1\', \'mode: strict\', \'===\'. Strict mode never guesses, so any mistake comes back as a '
+    'stop with its line number.\n'
+    '2 Write one block per page. Start it at the left edge with \'Page: [key]: <the page\'s exact words>\' for a page on the site, or '
+    '\'Belief: <one sentence>\' for a new belief. Every page\'s key and exact words are in '
+    'https://myklob.github.io/ideastockexchange/beliefs/data/pages_index.json, and every topic\'s key and name in '
+    'https://myklob.github.io/ideastockexchange/beliefs/data/ise.json. Never retype a claim the site has: name it by [key].\n'
+    '3 Every claim is one complete, atomic sentence that could headline its own page. Never write a topic fragment (\'long-term cost\'). '
+    'Never join two claims with \'and\'; post them as two lines.\n'
+    '4 Indent two spaces per step. One physical line per entry. Never wrap a line, and never use tabs, dots or bullets.\n'
+    '5 Start each reason with + or -. Add a label only when the line is not a plain reason, using the labels in '
+    'https://myklob.github.io/ideastockexchange/beliefs/data/outline-spec.json or the ids in '
+    'https://myklob.github.io/ideastockexchange/beliefs/data/vocab.json (\'- Small sample:\', \'+ Statistics:\', \'- link.does-not-follow:\'). '
+    'A label only files the line; it never changes a score.\n'
+    '6 To argue a row\'s factors, put a heading under the row: \'Relevance:\' (does it bear?), \'Importance:\' (how much does it matter? list '
+    'the interests with \'At stake: [interest-key]\'), \'Uniqueness vs [other-row-key]:\' (is it a repeat?). Then add + and - lines under the '
+    'heading. Leave the heading\'s [key] out unless you are copying a printout, and never name another row\'s factor page.\n'
+    '7 Use \'[name]: words\' to make a new page that later lines point back at (\'Repeats [name]:\'). Define a name before you use it.\n'
+    '8 Put details on their own lines, two spaces under their entry: Source:, Address:, Checked: (YYYY-MM-DD), Settled by: for predictions, '
+    'and Estimate:, Low end:, High end:, Units: and Who: for costs and benefits. Never invent a source, a number, a date, a quotation, a '
+    'person or an address. If you lack one, leave the line out, and add \'Needs a source: <what is missing>\' under the claim.\n'
+    '9 Never write Evidence type:, Replication count:, Replication agreement:, Strength:, Positivity: or Load-bearing:. Only the maintainer '
+    'fills these, and a post\'s values are not applied.\n'
+    '10 Never use a long dash or a spaced en dash; write a comma, a colon or parentheses. Put a backslash before any words that start with a '
+    'word and a colon, a bracket, a sign or a dot.\n'
+    '11 Nothing you leave out is deleted, so send only what you add. To change words already on the site, write \'Correction:\' with the source.\n'
+    '12 Return only the outline, in one block, so it can be pasted into the outline form as it is. When the site\'s reply is pasted back to '
+    'you, fix every stop it lists and write the whole outline again.')
+
+
+def outline_files_on(names):
+    """Where a label's line files, from the kind it names: the page it lands on, seen from the line it is under, the
+    table and the side. Labels shown together that share a page and a table differ only in the side their words
+    decide; labels that do not are each said in turn."""
+    import outline_names as N
+    recs = [N.LABELS[N.fold(n)] for n in names]
+    if all(r.request for r in recs): return 'no row: a request for the maintainer, in the pull request, or on the issue when the post adds no row'
+    places = list(dict.fromkeys((r.target, r.section) for r in recs))
+    if len(places) > 1: return '; '.join(outline_files_on((r.name,)) for r in recs)
+    sides = list(dict.fromkeys(r.side for r in recs))
+    side = OUTLINE_SIDE[sides[0]] if len(sides) == 1 else (', stronger or weaker by the label' if 'extreme' in sides else ', for or against by the label')
+    return f'{OUTLINE_WHERE[recs[0].target]}: {VOCAB_TABLE.get(recs[0].section, recs[0].section)}{side}'
+
+
+def render_outline(c, title):
+    """The Reason Outline explained to a reader: what it is, an example and its reply, the marks and labels used most,
+    the details, how to name a claim already here, how to post one, how it relates to Argdown, the brief for an AI
+    assistant, and what a program needs."""
+    import vocab as V
+    o = [root_head('Reason Outline', [('Home', 'index.html'), ('What a post can be', 'vocab.html'), ('Reason Outline', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Reason Outline</h1>')
+    o.append(f'<p class="lede">{OUTLINE_PARAGRAPH.format(form=esc(outline_form_url()))}</p>')
+    parts = (('example', 'An example'), ('marks', 'Marks and labels'), ('details', 'Details'), ('naming', 'Naming a claim already here'),
+             ('post', 'Posting one'), ('reply', 'The reply'), ('argdown', 'Argdown'), ('ai', 'Asking an AI to write one'), ('programs', 'For programs'))
+    o.append('<p>' + ' · '.join(f'<a href="#{a}">{esc(t)}</a>' for a, t in parts) + '</p>')
+    there = f'<a href="p/{c.href(c.tabs[OUTLINE_EXAMPLE_PAGE])}">a page already on the site</a>' if OUTLINE_EXAMPLE_PAGE in c.tabs else 'a page already on the site'
+    o.append(f'<section id="example"><h2><span>An example</span></h2><p>Three lines added to {there}: two under one of its reasons, '
+             'and a new finding. What each line does is said under it.</p>')
+    o.append(f'<pre class="outline">{esc(OUTLINE_EXAMPLE)}</pre><ol class="steps">'
+             + ''.join(f'<li><code>{esc(w)}</code> {m}</li>' for w, m in OUTLINE_STEPS) + '</ol></section>')
+    o.append('<section id="marks"><h2><span>The marks and labels used most</span></h2><p>A line starts with a sign, a label, or '
+             'both. The page above a line is the page it is pushed in under: the block&apos;s page for a line one step in, a reason&apos;s own '
+             'page for a line under that reason, and the heading&apos;s page for a line under Relevance:, Importance: or Uniqueness vs. A line '
+             'pushed in with no sign, label or detail name is read as the rest of the line above it, for a box that breaks long lines; under a '
+             'line that ends its sentence, or that names a page and has no words, it stops the post instead, so a reason typed without its + or '
+             '- is never joined to the claim above it. A label '
+             'only says where the line is filed; it never changes a score. A label is read in any letter case, and every one of the '
+             f'{len(V.TYPES)} kinds on <a href="vocab.html">what a post can be</a> can be named, by its label or by its id and a colon, but two that '
+             'are lines of their own: a vote, written <code>Vote:</code>, and a new belief, written <code>Belief:</code>.</p>')
+    rows = list(OUTLINE_MARKS) + [(w, m.format(fallacies=len(V.FALLACIES), schemes=len(V.SCHEMES)), outline_files_on(names))
+                                  for names, w, m in OUTLINE_LABELS] + list(OUTLINE_MARKS_AFTER)
+    o.append('<table class="plain outline-marks"><thead><tr><th>You write</th><th>It means</th><th>It is filed on</th></tr></thead><tbody>'
+             + ''.join(f'<tr><td class="t"><code>{esc(w)}</code></td><td class="u">{m}</td><td class="u">{f}</td></tr>' for w, m, f in rows)
+             + '</tbody></table></section>')
+    o.append('<section id="details"><h2><span>Details</span></h2><p>A detail goes on a line of its own, pushed in two spaces under '
+             'the line it describes, as a name, a colon and its value. A name that is close to one of these and is not one stops the post and '
+             'suggests the names it is near.</p>')
+    o.append('<table class="plain"><thead><tr><th>Detail</th><th>What it holds</th><th>For example</th></tr></thead><tbody>'
+             + ''.join(f'<tr><td class="t"><code>{esc(n)}:</code></td><td class="u">{esc(m)}</td><td class="u"><code>{esc(x)}</code></td></tr>'
+                       for n, m, x in OUTLINE_DETAILS) + '</tbody></table>')
+    o.append('<p>Never write ' + ', '.join(f'<code>{esc(n)}:</code>' for n in OUTLINE_MAINTAINER[:-1])
+             + f' or <code>{esc(OUTLINE_MAINTAINER[-1])}:</code>. Only the maintainer fills these, because they set where a page&apos;s score '
+             'starts or what it reads; a post that carries one gets a request, not a change.</p></section>')
+    o.append('<section id="naming"><h2><span>Naming a claim already here</span></h2><p>A claim the site already has is named, '
+             'not typed again, in one of three ways:</p><ul class="links">'
+             '<li><code>[key]</code>: its key in square brackets, the last part of its address before .html, such as '
+             '<code>[members-regularly-trade-industries]</code>. Spaces and underscores in the brackets are read as hyphens. Every page&apos;s '
+             'key and exact words are in <a href="data/pages_index.json">the list of every page</a> (works and the pages that argue a row '
+             'included), and every topic&apos;s key and name are in <a href="data/ise.json">the tables as data</a>.</li>'
+             '<li>Its address, pasted from the browser, with or without https:// and www.</li>'
+             '<li>A name given to a new line earlier in the same post: <code>[picks]: Senators&apos; stock picks beat the market in the 1990s.</code> '
+             'makes a new page, and a later <code>Repeats [picks]:</code> points back at it. The reply says which key the name became.</li></ul>'
+             '<p>Words typed after a [key] are compared with the page&apos;s words, and a difference becomes a correction request '
+             'for the maintainer, never an edit. A line typed without a key is checked against every claim on the site first: one that says the '
+             'same thing names that page and counts as your vote to agree with it, and one that only reads close is listed in the reply as a near '
+             'match and gets a page of its own. A [key] written alone that names no page stops the post and lists the nearest keys, so a slip of '
+             'the keyboard there never makes a new page. Written with words after it, as in <code>[picks]: words</code>, a name that is no key '
+             'makes a new page, and the reply says so when the name is a letter or two from a key on the site.</p></section>')
+    o.append(f'<section id="post"><h2><span>Posting one</span></h2><ol class="steps">'
+             f'<li>Open the page you are adding to and follow its <em>{OUTLINE_LINK}</em> link, or start a new belief with Belief:.</li>'
+             '<li>Copy it and add your lines, each pushed in under the line it is about. You can also send only the Page: line and your own '
+             'lines: nothing you leave out is deleted. A printout starts with a few lines between two <code>===</code> lines that say which '
+             'page it was printed from, when, and how much of it; leave them as they are, or take them out with the rest of what you do not '
+             'send.</li>'
+             f'<li>Paste it into the <a href="{esc(outline_form_url())}" rel="nofollow">outline form</a> on GitHub and submit it. You need a free '
+             f'account (<a href="{SIGNUP}" rel="nofollow">sign up</a>).</li>'
+             '<li>Read the reply, which comes as a comment on your issue a few minutes later. If it lists a stop, edit the issue to fix it and '
+             'save, and the outline is read again. Otherwise a pull request carries your rows until the maintainer merges it, and any votes in '
+             'it count at once, except a vote on a page the post itself adds, which counts once that page is merged.</li></ol>'
+             '<p>An outline can also ride inside other text, such as an email or a document: put it between a line '
+             '<code>```reasons</code> and a line <code>```</code>, and only the lines between them are read. Quoted mail (lines starting with '
+             '&gt;) and a signature after a line <code>--</code> are left out.</p></section>')
+    o.append('<section id="reply"><h2><span>The reply</span></h2><p>The reply prints your post back as it was filed, each new page '
+             'under its real key, and under each line a note starting with // that says what became of it. Notes are never read, so the reply is '
+             'itself an outline you can edit and send again. Its first line says what was filed, or that nothing was and why: a single stop and '
+             'nothing in the post is filed. This is the reply to the example above:</p>')
+    o.append(f'<pre class="outline">{esc(OUTLINE_REPLY)}</pre>')
+    notes = ('// new page [key] (claim)', '// new row on [page] in Reasons to agree', '// already on the page: nothing added',
+             '// matched [key] (0.89): counted as your vote to agree', '// near: [key] 0.52',
+             '// opened [key], the relevance page of this row (its Linkage page)',
+             '// notice: ...', '// stop: ...', '// not read: ...')
+    o.append('<p>The notes you will see: ' + ', '.join(f'<code>{esc(x)}</code>' for x in notes) + '. A near match is a claim '
+             'that reads close, listed so the maintainer can decide whether yours is the same; a line that is not read is one that was not part '
+             'of the outline, such as a greeting.</p></section>')
+    o.append('<section id="argdown"><h2><span>Argdown</span></h2><p>Reason Outline is built on <a href="https://argdown.org/">Argdown</a>, '
+             'a plain-text language for maps of arguments by Christian Voigt.</p><ul class="links">'
+             '<li>+ and - under a line, with indentation, mean what they mean in Argdown: the line pushed in supports, or attacks, the line '
+             'above it. Argdown&apos;s spelled-out <code>&lt;+</code>, <code>&lt;-</code> and <code>&lt;_</code> are read the same, and so is its '
+             'mention <code>@[name]</code>.</li>'
+             '<li><code>[name]: words</code> makes a statement and <code>[name]</code> refers to it, as in Argdown, and <code>===</code> '
+             'frontmatter, whole-line // notes and a backslash escape are Argdown&apos;s too. An outline that uses only these is an Argdown '
+             'document, and Argdown&apos;s tools draw the same tree. Every printout writes its rows as <code>[key]: words</code>, so its tree of '
+             'statements is Argdown&apos;s.</li>'
+             '<li>What does not carry over: Argdown reads a label, a detail or a heading as part of a statement&apos;s words, so its tree is the '
+             'same but it does not know what they say. Argdown&apos;s <code>_</code>, which attacks a step of reasoning, is read here and never '
+             'printed, because here it argues the row&apos;s relevance page, which a printout writes as a Relevance: list. Argdown&apos;s braces, '
+             '#tags, block comments and argument names are only words here. And where Argdown merges every <code>[same title]</code> into one '
+             'statement with several wordings, here a different wording under a key on the site is a correction request.</li></ul></section>')
+    o.append('<section id="ai"><h2><span>Asking an AI to write one</span></h2><p>Any AI assistant can write an outline. Paste this '
+             'to it with the address of the page you want it to add to, read what it returns, and paste the outline into the outline form. You '
+             'are the one posting it, so check each line first.</p>')
+    o.append(f'<pre class="brief">{esc(OUTLINE_BRIEF)}</pre>')
+    o.append('<p class="fine">What an assistant writes goes through the same checks as anything a person types: a claim already here becomes a '
+             'vote for it, and nothing is published until a person merges it.</p></section>')
+    o.append('<section id="programs"><h2><span>For programs</span></h2><p>A program writes strict outlines: frontmatter that says '
+             '<code>mode: strict</code>, two spaces a step, and every name exact, so a mistake is a stop and never a guess. Every name the '
+             'language reads (each label with the kind it names and where it files, the sign words, the headings and the details) is in '
+             '<a href="data/outline-spec.json">data/outline-spec.json</a>, and the kinds themselves in <a href="data/vocab.json">data/vocab.json</a>. '
+             'A kind can be written by its id and a colon (<code>link.irrelevant:</code>), and a place by <code>In &lt;table&gt; &lt;side&gt;:</code> '
+             'with a table&apos;s name from the two tables (<code>In evidence agree:</code>). Every page is printed as an outline at '
+             '<code>p/&lt;key&gt;.txt</code>, and every topic at <code>t/&lt;key&gt;.txt</code>; a printout read back matches every one of '
+             'its lines to the row it was printed from, so it adds nothing.</p></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+def outline_spec(rev=None):
+    """The closed lists of the Reason Outline (outline_names) as data, so a program can read and write the language
+    without this repository: every label with the kind of post it names and where it files, the sign words, the
+    factor headings, the detail names, the votes, and every stop and notice the reader and the filer give."""
+    import outline_names as N, outline_read as R, outline_file as F
+    return {
+        'name': 'Reason Outline', 'version': N.VERSION, 'built_from': rev, 'explained_at': PUBLIC + 'outline.html',
+        'how_to_read': {
+            'folding': 'A name matches any text that folds to the same string: lower case, apostrophes removed, hyphens and underscores '
+                       'read as spaces, every run of spaces one space. A name in brackets is a key: lower case, each run of spaces and '
+                       'underscores one hyphen. Names are kept without their colon.',
+            'labels': 'id is the kind of post the label names (vocab.json), or null for a label that names only a place; ids is every kind '
+                      'it can name (Prediction names one of two by the sign). section and side are where it files: side is agree or '
+                      'disagree when the label decides it, extreme or moderate for a stronger or weaker version, xy when its brackets '
+                      'decide, either when the sign or a for or against after the label decides, empty for none. target is the page it '
+                      'files on, seen from the line it is under: page, the page above; claim, the row\'s own page; link, imp, uniq and '
+                      'equiv, the row\'s relevance, importance, uniqueness or sameness page. takes_ref: it names another row, as in '
+                      'Repeats [other]. detail: what its brackets or the words after it hold (term, kind, category, xy). request: it makes '
+                      'no row, only a request. topic: a cell of a topic page. canonical: the label a printout writes for its kind.',
+            'ids': 'Every kind of post in vocab.json but house.vote and house.new-belief is also a label, written as its id and a colon '
+                   '(link.irrelevant:), matched exactly. Those two are lines of their own, written Vote: and Belief:.',
+            'places': 'In <section> [<side>] [(<category>)]: names a place, not a kind, with a section from sections and a side from '
+                      'side_words. It stores no tag.',
+            'headings': 'cell is the row cell the heading\'s page fills (Relevance under an At stake row fills bearing), kind the kind of page '
+                        'it opens, target the kinds that file on that page, sections the rows it may sit under.',
+            'fields': 'store is edge (an edges column), extra (a name in the row\'s extra cell), row (Own page) or page (a pages column, or a '
+                      'topics column on a topic). sections are the rows a row field applies to, kinds the pages a page field applies to. '
+                      'use is set (a new line\'s value is stored), request (only the maintainer fills it, so a post\'s value becomes a '
+                      'request) or compare (intake writes it; it is compared and never applied). ref: the value names a page, as [key].',
+            'codes': 'An E- code is a stop, and one stop files nothing; an N- code is a notice that travels with the rows.',
+            'frontmatter': 'Optional lines between two === lines at the top of a post, each name: value. reasons: the version of the '
+                           'language, 1. mode: loose or strict. A printout adds from: (the key of the page it was printed from; on that page a '
+                           'line edited by a letter or two is still matched to its stored row, as a correction), printed: (the revision\'s time '
+                           'in UTC, YYYY-MM-DDTHH:MMZ, left out when the build had no revision), depth: (how many levels below the page were '
+                           'printed) and cells: (words, what a person gets, or all). Any other name gets a notice.',
+        },
+        'signs': {'+': 'agree', '-': 'disagree', '_': 'does not bear on it (read, never printed)', '<+': 'agree', '<-': 'disagree',
+                  '<_': 'does not bear on it (read, never printed)'},
+        'words': list(N.WORDS),
+        'sign_words': [{'name': N.NAMES[f][0], 'side': s} for f, s in N.SIGNWORDS.items()],
+        'votes': [{'name': k, 'vote': v.vote, 'on_row': v.on_row} for k, v in N.VOTES.items()],
+        'headings': [dict(h._asdict(), sections=list(h.sections)) for h in N.HEADS.values()],
+        'labels': [dict(r._asdict(), ids=list(r.ids)) for r in N.LABELS.values()],
+        'fields': [dict(f._asdict(), sections=list(f.sections), kinds=list(f.kinds)) for f in N.FIELDS.values()],
+        'sections': {'page': list(N.PAGE_SECTIONS), 'topic': list(N.TOPIC_SECTIONS), 'words_only': list(N.WORDS_ONLY)},
+        'side_words': list(N.SIDE_WORDS), 'work_types': list(N.WORK_TYPES),
+        'frontmatter': list(N.FRONTMATTER), 'modes': list(N.MODES), 'cells': list(N.CELLS),
+        'codes': {**R.CODES, **F.CODES},
+        'brief': OUTLINE_BRIEF,
+    }
+
+
+def render_contributors(c, title):
+    """Everybody who takes part, the maintainer first, each linked to their page."""
+    o = [root_head('Contributors', [('Home', 'index.html'), ('Contributors', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Contributors</h1>')
+    o.append('<p class="lede">Everyone who has added a row or cast a vote here, and whoever maintains the site. Each has a page listing '
+             'what they added. Who added a row never changes its score.</p>')
+    o.append('<section><table class="plain"><thead><tr><th>Who</th><th>Role</th><th>Rows added</th><th>Votes cast</th></tr></thead><tbody>')
+    for k in getattr(c, 'people', []):
+        role = 'Maintainer' if k == c.maintainer else (c.users.get(k, {}).get('role') or 'Contributor')
+        o.append(f'<tr><td class="t"><a href="u/{user_slug(k)}.html">{esc(person_name(c, k))}</a></td><td class="u">{esc(role)}</td>'
+                 f'<td>{len(c.added.get(k, []))}</td><td>{len(c.voted.get(k, []))}</td></tr>')
+    if not getattr(c, 'people', []): o.append('<tr><td colspan="4" class="empty">Nobody yet.</td></tr>')
+    o.append('</tbody></table></section>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+def credit(c, up=''):
+    """Who built and maintains the site, linked to their page. Nothing when no maintainer is named."""
+    m = getattr(c, 'maintainer', None)
+    if not m: return ''
+    name = c.users[m].get('name') or '@' + m
+    return f'<p class="consts">Built and maintained by <a href="{up}u/{user_slug(m)}.html">{esc(name)}</a>.</p>'
+
+def stamp(c, up=''):
+    return _stamp(c) + credit(c, up)
+
+def _stamp(c):
     p = c.prov
     if not p.get('rev'):
         return ('<p class="consts">Built from an unidentified revision: this copy is not a git checkout, so the '
@@ -3536,9 +4576,11 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     c.prov = provenance(entry)
     content = entry if os.path.isdir(entry) else os.path.join(os.path.dirname(os.path.abspath(entry)), 'content')
     c.votes, c.vote_latest, c.vote_rows, c.relevance = read_votes(content, detail=True) if os.path.isdir(content) else ({}, {}, [], {})
+    load_people(c, content)
     if os.path.isdir(outdir): shutil.rmtree(outdir)
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
     index = []
+    c.changes = CHANGES.since(content, c) if os.path.isdir(content) else None
     for pid in c.specs:
         h = collapse_tables(blurbs_below(ths(render_belief(c, pid) if c.kind(pid) in ('belief', 'claim') else render_special(c, pid))))
         with open(os.path.join(outdir, 'p', c.href(pid)), 'w') as fh: fh.write(h)
@@ -3549,15 +4591,31 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
         index.append({'key': c.key[pid], 'id': pid, 'kind': c.kind(pid), 'text': c.text(pid), 'standalone': c.standalone(pid),
                       'truth': j['truth'], 'confidence': j['confidence'],
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
-    c.changes = CHANGES.since(content, c) if os.path.isdir(content) else None
+        if c.kind(pid) == 'belief' and not c.complete(pid): index[-1]['draft'] = True
     with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
         fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
-    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists)):
+    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
+    os.makedirs(os.path.join(outdir, 'u'))
+    for login in getattr(c, 'people', []):
+        with open(os.path.join(outdir, 'u', user_slug(login) + '.html'), 'w') as fh: fh.write(blurbs_below(ths(render_user(c, login, title))))
+    with open(os.path.join(outdir, 'contributors.html'), 'w') as fh: fh.write(blurbs_below(ths(render_contributors(c, title))))
+    with open(os.path.join(outdir, 'grouping.html'), 'w') as fh: fh.write(blurbs_below(ths(render_grouping(c, title))))
+    with open(os.path.join(outdir, 'vocab.html'), 'w') as fh: fh.write(blurbs_below(ths(render_vocab(c, title))))
+    with open(os.path.join(outdir, 'outline.html'), 'w') as fh: fh.write(blurbs_below(ths(render_outline(c, title))))
     os.makedirs(os.path.join(outdir, 't'))
     for tkey in c.topics:
         with open(os.path.join(outdir, 't', c.topic_href(tkey)), 'w') as fh: fh.write(blurbs_below(ths(render_topic(c, tkey, title))))
+    # every page and topic as a Reason Outline beside its page, printed from the full tables intake files against, so a
+    # printout sent back reads to exactly the rows it came from, even from the complete-only build
+    import intake as K, outline_print as OP
+    tables = K.Tables(entry, rows=c.rows if source == entry else (*read_source(entry), read_topics(entry)))
+    # the revision's time in UTC, not the clock, so two builds of the same tables write the same bytes (test_invariants);
+    # a build with no revision prints no printed: line rather than the minute it ran
+    now = (getattr(c, 'prov', None) or {}).get('time') or ''
+    for pid in c.specs: _write(os.path.join(outdir, 'p', c.key[pid] + '.txt'), OP.print_page(tables, c.key[pid], 1, 'words', now))
+    for tkey in c.topics: _write(os.path.join(outdir, 't', tkey + '.txt'), OP.print_page(tables, tkey, 1, 'words', now))
     with open(os.path.join(outdir, 'method.html'), 'w') as fh:
         fh.write(blurbs_below(ths(method.render(c, Html(c, 'p/'), esc, f2, pct, CONST, CONST_MEANING, WIKI, JS))))
     _write(os.path.join(outdir, 'ise.css'), CSS)
@@ -3566,6 +4624,13 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     # and the script that runs it is copied beside the pages
     with open(os.path.join(outdir, 'data', 'claims_index.json'), 'w', encoding='utf-8') as fh:
         json.dump(claims_index(c, entry), fh, indent=1, ensure_ascii=False)
+    import vocab as V
+    with open(os.path.join(outdir, 'data', 'vocab.json'), 'w', encoding='utf-8') as fh:
+        json.dump(V.as_json(c.prov.get('rev')), fh, indent=1, ensure_ascii=False)
+    with open(os.path.join(outdir, 'data', 'ise-context.jsonld'), 'w', encoding='utf-8') as fh:
+        json.dump({'@context': V.CONTEXT}, fh, indent=1, ensure_ascii=False)
+    with open(os.path.join(outdir, 'data', 'outline-spec.json'), 'w', encoding='utf-8') as fh:
+        json.dump(outline_spec(c.prov.get('rev')), fh, indent=1, ensure_ascii=False)
     js = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'contribute.js')
     if os.path.exists(js): shutil.copy(js, os.path.join(outdir, 'contribute.js'))
     # the two tables plus constants, in every export shape: JSON, XML, SQL schema and SQL data
@@ -3590,14 +4655,15 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     files = set(os.listdir(os.path.join(outdir, 'p')))
     roots = ['../' + f for f in os.listdir(outdir) if f.endswith('.html')]
     tops = ['../t/' + f for f in os.listdir(os.path.join(outdir, 't'))]
+    users = ['../u/' + f for f in os.listdir(os.path.join(outdir, 'u'))]
     broken = []
-    for fn in list(files) + roots + tops:
+    for fn in list(files) + roots + tops + users:
         path = os.path.join(outdir, 'p', fn) if not fn.startswith('../') else os.path.join(outdir, fn[3:])
-        base = 'p' if not fn.startswith('../') else ('t' if fn.startswith('../t/') else '')
+        base = 'p' if not fn.startswith('../') else ('t' if fn.startswith('../t/') else ('u' if fn.startswith('../u/') else ''))
         with open(path) as fh: page = fh.read()
         for href in re.findall(r'href="([^"#]+)"', page):
-            if href.startswith('http'): continue
-            target = os.path.normpath(os.path.join(outdir, base, href))
+            if href.startswith(('http', 'mailto:')): continue
+            target = os.path.normpath(os.path.join(outdir, base, href.split('?')[0]))
             if not os.path.exists(target): broken.append((fn, href))
     return c, broken
 

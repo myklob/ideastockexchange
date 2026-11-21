@@ -18,6 +18,11 @@ names the rows that caused it.
 
 None of them changes a score. They are a panel on the page saying what to go and look at.
 
+The owner's direction since (October 2026) is that nothing is final: software may flag a possible fallacy as long
+as the flag is a claim people argue for and against and moves no score. fallacy.py does that, beside these checks:
+it flags by a short published phrase list, says which words set each flag off, and opens forms on the flagged
+claim's own page to argue it is or is not the fallacy. The deduction described above is still not done.
+
 Two of them, circular support and assuming its own conclusion, are worse than a note: the scorer refuses a
 corpus containing either, because a loop can hold any value at all and stay consistent, so there is no number
 to publish. That refusal arrives as an exception in the middle of a build, which is a bad way to learn it. Run
@@ -34,7 +39,7 @@ SEVERITY = ('serious', 'worth checking', 'a note')
 CHECKS = (
     ('serious', 'Circular support', 'Following the reasons beneath a claim leads back to the claim itself.'),
     ('serious', 'Assumes its own conclusion', 'A load-bearing premise rests on the claim, or is argued to be the same claim (equivalence 0.90 or more).'),
-    ('worth checking', 'The same page listed more than once', 'Two or more reason or evidence rows on one page read the same claim page.'),
+    ('worth checking', 'The same page listed more than once', 'Two or more reason or evidence rows on one page read the same claim page. The scorer counts it once, at its strongest reading.'),
     ('worth checking', 'Rows that may be the same point twice', 'Two rows on one page read alike to the duplicate detector and no uniqueness page argues the overlap.'),
     ('worth checking', 'Rests only on authority or experience', 'Every claim beneath the page is classified as an expert claim, expert testimony, an anecdote, a norm or a hunch.'),
     ('worth checking', 'Evidence filed above the premise it bears on', 'The page cites findings and argues higher than it reads, because a load-bearing premise beneath it cites nothing.'),
@@ -160,7 +165,7 @@ class Integrity:
         dupes = sorted({i for i in ids if ids.count(i) > 1})
         for i in dupes:
             out.append(('worth checking', 'The same page listed more than once',
-                        f'{ids.count(i)} rows here read the same page, so one claim is counted several times: '
+                        f'{ids.count(i)} rows here read the same page; the scorer counts it once, at its strongest reading: '
                         f'{c.brief(i)[0]}'))
 
         alike = [r for r in c.sim.by_parent().get(pid, ()) if not r['uniq']]

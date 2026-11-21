@@ -69,6 +69,18 @@ body:
         - disagree
     validations:
       required: true
+  - type: input
+    id: tag
+    attributes:
+      label: Kind of post
+      description: Optional. What this post is, by its name in the list at https://myklob.github.io/ideastockexchange/beliefs/vocab.html, such as link.irrelevant (this reason does not bear on the conclusion) or fallacy.straw-man. When it is given it decides the section and side, and the post can be about one row of the page rather than the page.
+      placeholder: link.irrelevant
+  - type: input
+    id: row
+    attributes:
+      label: Row
+      description: Optional, for a post about one row (its relevance, its importance, whether it repeats another row, or a mistake in it). The key of that row's claim, the last part of its page's address before .html.
+      placeholder: members-regularly-trade-industries
   - type: textarea
     id: text
     attributes:

@@ -52,7 +52,8 @@ class TestCountingEveryReason(unittest.TestCase):
         self.assertAlmostEqual(s['tally']['share'], 0.5)
 
     def test_a_reason_shown_to_repeat_another_adds_nothing(self):
-        """Independence comes from the uniqueness page: argued to 0, the duplicate counts for nothing."""
+        """Independence comes from the uniqueness page: argued below 1, the duplicate counts for less. An empty
+        uniqueness page starts at DEFUNIQ (1), so it is the objection argued there that lowers it."""
         pages, edges = belief(('argument', 'agree'), ('argument', 'agree'))
         pages.append(dict(key='u', kind='uniqueness', text='The second reason makes a different point from the first.', parent='b'))
         pages.append(dict(key='u1', kind='claim', text='Both reasons are the same claim about shade, worded twice.', parent='u'))
@@ -63,7 +64,7 @@ class TestCountingEveryReason(unittest.TestCase):
         edges[1]['uniq'] = 'u'
         c, s = self.stats(pages, edges)
         u = c.truth(c.tabs['u'])
-        self.assertLess(u, 0.5)
+        self.assertLess(u, 1.0)
         self.assertAlmostEqual(s['tally']['reasons_for'], 1.0 + u)
 
     def test_evidence_outweighs_argument_with_no_ceiling(self):
@@ -93,6 +94,38 @@ class TestCountingEveryReason(unittest.TestCase):
         r = dict(truth=0.8, link=0.5, imp=0.5, uniq=1.0)
         self.assertAlmostEqual(T.weight(r), 0.2)
         self.assertAlmostEqual(T.weight(r, strength=9.0), 2.0)
+
+
+
+class TestTheComparisonPage(unittest.TestCase):
+    def test_beliefs_are_listed_widest_gap_first(self):
+        pages = [dict(key='b', kind='belief', text='Cities should plant more trees.', topic='t'),
+                 dict(key='c', kind='belief', text='Cities should pave their parks.', topic='t')]
+        edges = []
+        for k, n in (('b', 3), ('c', 1)):
+            for i in range(n):
+                pages.append(dict(key=f'{k}{i}', kind='claim', text=f'Reason {i} on page {k} about trees and parks.', parent=k))
+                edges.append(dict(page=k, section='argument', side='agree', claim=f'{k}{i}'))
+        c = corpus(pages, edges)
+        rows = RS.rule_gaps(c)
+        self.assertEqual([c.key[r[0]] for r in rows], ['b', 'c'])
+        self.assertGreater(rows[0][3], rows[1][3])
+        h = RS.render_compare(c, 'x')
+        self.assertLess(h.find(c.href(c.tabs['b'])), h.find(c.href(c.tabs['c'])))
+
+
+class TestTheSecondRuleSaysWhereItStarts(unittest.TestCase):
+    def test_a_page_with_a_source_type_names_its_starting_point(self):
+        pages, edges = belief(('argument', 'agree'))
+        pages[0].update(etype='statistics', erq='1', erp='100')
+        c = corpus(pages, edges)
+        h = RS.render_belief(c, c.tabs['b'])
+        self.assertIn('starting where the truth score starts, at 0.95', h)
+        self.assertNotIn('even split', h[h.find('Counting every reason'):h.find('Counting every reason') + 400])
+
+    def test_a_page_with_none_starts_from_an_even_split(self):
+        c = corpus(*belief(('argument', 'agree')))
+        self.assertIn('starting from the same even split as the truth score', RS.render_belief(c, c.tabs['b']))
 
 
 if __name__ == '__main__':

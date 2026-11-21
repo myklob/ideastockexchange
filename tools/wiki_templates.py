@@ -102,10 +102,13 @@ CATALOGUE = [
 
 # The explanation pages of the live wiki (github.com/myklob/ideastockexchange/wiki), by title, in sidebar order.
 WIKI_PAGES = [
-    'Home', 'ReasonRank', "ReasonRank: Google's PageRank for Arguments", 'Truth Score',
+    'Home', 'Pros and Cons on the Same Page', 'One Page per Debate Topic', 'ReasonRank',
+    "ReasonRank: Google's PageRank for Arguments", 'Argument Scores from Sub-Argument Scores', 'Truth Score',
     'Quantifying Reason: The Power of Truth Scores', 'Evidence Verification Score (EVS)',
-    'Evidence to Conclusion Relevance Score', 'Equivalency Score:', 'Confidence Stability Scores', 'Media',
-    'Automated Conflict Resolution Platform', 'Electronic Democracy', 'Evidence‐based policy',
+    'Evidence to Conclusion Relevance Score', 'Linkage Scores', 'Equivalency Score:', 'The Redundancy Problem',
+    'Assumptions', 'Confidence Stability Scores', 'Likelihood of Costs and Benefits',
+    'Likely Interests of Those Who Agree and Disagree', 'Automated Conflict Resolution Platform', 'Media',
+    'Belief Web Navigation', 'Electronic Democracy', 'Evidence‐based policy',
 ]
 
 CURRENCY = ('`tools/check_templates.py` refuses a template that uses the retired column names Argument Score or Evidence Score (the current '

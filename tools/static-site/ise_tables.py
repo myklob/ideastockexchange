@@ -96,6 +96,8 @@ EXTRA = {'component': ['type', 'stated', 'lb', 'assumes'], 'motive': ['advertise
 # what any row can carry about where it came from, in the same cell: the address its source can be read at, the
 # day that was checked, the login that added the row and the day it was added (intake writes all four)
 PROVENANCE = ['url', 'checked', 'added_by', 'added']
+# what kind of post a row is, by its id in vocab.py ("link.irrelevant", "fallacy.straw-man"); never scored
+TAGS = ['tag']
 STOP = {'the', 'a', 'an', 'of', 'to', 'in', 'on', 'and', 'or', 'that', 'is', 'are', 'be', 'would', 'should',
         'for', 'from', 'it', 'they', 'their', 'not', 'by', 'with', 'as', 'at', 'this'}
 
@@ -183,7 +185,7 @@ def specs_to_tables(specs, beliefs=None):
                         e[col] = v
                     ex = {f: d[f] for f in EXTRA.get(section, []) if d.get(f) not in (None, '')}
                     if section == 'interest': ex = {f: v for f, v in ex.items() if not is_page(d.get('id'))}
-                    ex.update({f: d[f] for f in PROVENANCE if d.get(f) not in (None, '')})
+                    ex.update({f: d[f] for f in PROVENANCE + TAGS if d.get(f) not in (None, '')})
                     if ex: e['extra'] = fmt_extra(ex)
                     if any(e.get(c) not in (None, '') for c in EDGE_COLS[3:]): edges.append(e)
     return pages, edges
@@ -478,6 +480,21 @@ def read_topics(path):
         d = {h: v for h, v in zip(head, r) if h and v not in (None, '')}
         if d: rows.append(d)
     return rows
+
+
+def read_users(path):
+    """The people who take part, from content/users.csv (one row per GitHub login: name, role, a few sentences,
+    and maintainer Y for whoever maintains the site) and content/user_links.csv (where to reach each one, grouped
+    the way their own contact page groups them). Both are optional and neither is read by any scorer: who wrote a
+    row never changes what it is worth. Returns (users, links), each a list of dicts, [] when absent."""
+    import csv, os
+    out = []
+    for name in ('users.csv', 'user_links.csv'):
+        fn = os.path.join(path, name) if os.path.isdir(path) else ''
+        if not fn or not os.path.exists(fn): out.append([]); continue
+        with open(fn, newline='', encoding='utf-8') as fh:
+            out.append([{k: (v or '').strip() for k, v in d.items() if k} for d in csv.DictReader(fh) if any((v or '').strip() for v in d.values())])
+    return tuple(out)
 
 
 def read_entry(path):

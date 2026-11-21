@@ -205,10 +205,21 @@ not parse is a defect whose fix requires knowing what the code was meant to say.
 `confidence.py` how much a page's score counts; `sensitivity.py` which single
 input would change the answer; `reasonrank.py` how much of the corpus depends on
 a page; `similarity.py` which claims say the same thing; `integrity.py` the
-structural faults the graph can show, and a pre-publish cycle check CI runs first;
+structural faults the graph can show, and a pre-publish cycle check CI runs first; `fallacy.py` flags a
+possible fallacy by a published phrase list, as a question argued on the flagged claim's page that moves no score;
 `changes.py` what moved
 since the last revision; `method.py` the reader-facing methodology page;
-`sync_content.py` keeps the workbook and the reviewable CSVs in step. There is no verdict module any more: a
+`sync_content.py` keeps the workbook and the reviewable CSVs in step; `vocab.py` what a post can be (197 kinds, each mapped to
+where intake files it and to AIF, ASPIC+, Walton's schemes and schema.org), behind `vocab.html`, `data/vocab.json`, the JSON-LD
+on every claim page, and intake's `Kind of post` and `Row` fields, which can open a row's linkage, importance or uniqueness
+page. An empty linkage or uniqueness page starts at DEFLINK or DEFUNIQ (`evidence.FACTOR_START`), so opening one moves nothing.
+`outline_names.py`, `outline_read.py`, `outline_print.py` and `outline_file.py` are the Reason Outline, a plain-text post of any
+number of rows (its names, its reader, the printer behind every page's `p/<key>.txt`, and the filer intake's `outline` form
+uses, explained on `outline.html`); a printout reads back to exactly the rows it was printed from, so sending one back adds
+nothing. `factcheck/` re-checks published rows with a Workflow run (`batches.py` cuts the rows not yet judged,
+`factcheck.js` runs one adversarial check, a primary-source second look and a refute check, `verdicts.py` rebuilds every
+verdict from the run journals, `apply.py` files them); `factcheck/judged.json` is the record of every row's verdict, and a
+correction is only ever filed as a sourced reason to disagree, never as an edit. There is no verdict module any more: a
 page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
 page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed), `lists.html`
 says for every ranking what it shows, how it is worked out and why it is tracked, and every card and column that ranks
@@ -235,18 +246,42 @@ through GitHub, because there is no server: every belief page carries a form und
 propose-a-belief form (also on the home and topic pages), each a plain GET to a prefilled GitHub issue form, and
 `contribute.js` checks what is typed against `data/claims_index.json` (written by `build()` from the full tables, drafts
 included) so a duplicate becomes a vote for the claim already there; `intake.py` does the same check on the issue and
-records a vote in `content/votes.csv` or opens a pull request. A vote never moves a score: the page shows the counts on the
+records a vote in `content/votes.csv` or opens a pull request. Every login that adds a row (its `added_by`) or votes gets a page at `u/<login>.html`, and `content/users.csv` with `user_links.csv` give a person a profile; the one marked maintainer (the owner, Mike Laub) is credited in every page footer and citation. No scorer reads any of it. A vote never moves a score: the page shows the counts on the
 heading line after the score badge, and a home card ranks the gap between the vote share and the truth score only once
 anyone has voted. Reader-facing pages use plain words;
 `test_render.py::TestThePagesSpeakPlainly` fails the build on engine words like "corpus" anywhere but the
 method page. `conformance.py` holds the cross-implementation
-contract: twenty-four pages with their expected numbers, the five constants and
+contract: a small corpus with its expected numbers, the five constants and
 the eighteen evidence tiers checked in, so a port in any language can be held to
-the same rules without reading this repository's source. Eight of those pages exist
+the same rules without reading this repository's source. Several of its pages exist
 because the contract stated a rule the corpus did not exercise, and the SQL port of
 that same rule passed conformance while returning a truth starting point of 1.40. A
 deliberate rule change means `python3 conformance.py --write` and a reviewed diff.
 CI runs the whole suite before it will publish anything.
+
+### Running agent work on the static site (learned in the November 2026 re-check)
+
+- `sync_content.py` takes `--check` or `--to-workbook` and nothing else: with no flag, or an unknown one such as
+  `--help`, it overwrites `content/*.csv` from the workbook and silently undoes CSV edits. After editing the CSVs,
+  run `--to-workbook`, then `--check`.
+- Tests read the live tables, which only grow. Never pin their page count or a similarity score to two decimals;
+  assert a floor or a band. Three such pins broke on content alone.
+- Match rendered HTML by tag and attribute (`<th\b[^>]*>`, `<table\b[^>]*class="scored mini"`), never by a literal
+  opening tag. `ths()` adds `scope="col"` and folding adds an `id` before the class, so tests looking for `<th>` or
+  `<table class="...">` stopped checking anything without failing, and `Publish site` failed from 2026-10-04 until
+  they were fixed. `check_assertions.py` catches an assertion that never runs, not one that runs and cannot fail
+  (an `assertNotIn` of a tag that no longer exists), so a loop that checks rows should end by asserting it found some.
+- The full suite takes about 20 minutes run serially (`test_similarity` and `test_render` are most of it); run the
+  modules in parallel. `check_assertions.py` traces the whole suite and takes over 30 minutes: run it in the
+  background with a long timeout.
+- Workflow runs: WebSearch is capped at 200 calls per turn, shared by every agent launched in that turn; agents
+  inherit the session's model unless the script names one; agent types in `.claude/agents/` load when a session
+  starts; agents see the owner's messages, so a prompt must tell them to ignore any deadline or usage limit they read;
+  a usage limit kills every agent in flight, so keep waves small and rebuild results from the run journals
+  (`factcheck/verdicts.py`).
+- Fact-checking stays on Opus for all three stages. On the calibration set (`factcheck/calibration/`, scored by
+  `factcheck/calibrate.py`) Sonnet caught 14 of 28 known corrections and the November adversarial pass on Opus
+  caught 26, at about half the cost of the two-pass method that caught all 28.
 
 ### The page/edge model (`src/lib/ise-pages/`)
 

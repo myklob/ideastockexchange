@@ -4,7 +4,7 @@ Every command intake.py would run goes through a runner. The tests hand it one t
 asked and answers what the test needs (a push rejected once, a pull request refused), so the whole flow is
 exercised, including the parts that only happen when GitHub says no, without a token or a repository.
 """
-import contextlib, io, json, os, shutil, sys, tempfile, unittest
+import contextlib, io, json, os, re, shutil, sys, tempfile, unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ise_tables as IT
 import intake as K
@@ -108,7 +108,7 @@ class TestReadingTheForm(unittest.TestCase):
                                          'text': 'Street trees drop limbs on parked cars.', 'category': '',
                                          'source': 'City works log, 2025', 'url': 'https://city.example/works', 'date': '2026-09-28',
                                          'magnitude': '', 'mag_low': '', 'mag_high': '', 'units': '', 'who': '',
-                                         'why': 'It is a cost of planting.'})
+                                         'why': 'It is a cost of planting.', 'tag': '', 'row': ''})
         self.assertEqual((sub['number'], sub['login'], sub['date']), (7, 'ann', '2026-09-29'))
 
     def test_a_form_from_before_the_new_fields_still_parses(self):
@@ -179,6 +179,60 @@ class TestTheFlow(unittest.TestCase):
         p, e = IT.read_csv(self.d)
         return {r['key']: r for r in p}, e
 
+    # ---------------------------------------------------------------- a kind of post
+    def tagged(self, tag, row='r1', text='Cool streets in one summer do not show trees pay for themselves.', side='agree', **kw):
+        body = contribute(side=side, text=text, **kw)
+        body['issue']['body'] += f'\n\n### Kind of post\n\n{tag}\n\n### Row\n\n{row}'
+        return self.go(body)
+
+    def test_a_relevance_challenge_opens_the_rows_linkage_page_and_files_there(self):
+        done = self.tagged('link.irrelevant')
+        self.assertEqual(done['did'], 'pr')
+        pages, edges = self.tables()
+        row = next(e for e in edges if e['page'] == 'a' and e['claim'] == 'r1')
+        lp = pages[row['link']]
+        self.assertEqual((lp['kind'], lp['x'], lp['y'], lp['type'], lp['direction']), ('linkage', 'r1', 'a', 'Argument', 'Supports'))
+        # named and parented as the stored pages are, the same way a Reason Outline opens one (intake.factor_page)
+        self.assertTrue(lp['key'].startswith('argu-trees-cool-streets-'), lp['key'])
+        self.assertEqual(lp['parent'], 'a')
+        new = [e for e in edges if e['page'] == lp['key']]
+        self.assertEqual([(e['section'], e['side']) for e in new], [('argument', 'disagree')])
+        self.assertEqual(IT.parse_extra(new[0]['extra'])['tag'], 'link.irrelevant')
+        self.assertEqual(pages[new[0]['claim']]['parent'], lp['key'])
+        self.assertTrue(any('Opened the linkage page' in n for n in done['notes']))
+
+    def test_a_second_challenge_to_the_same_row_uses_the_page_the_first_opened(self):
+        self.tagged('link.irrelevant')
+        self.tagged('fallacy.straw-man', text='The reason answers a claim nobody on the other side makes.', number=8)
+        pages, edges = self.tables()
+        self.assertEqual(sum(1 for p in pages.values() if p['kind'] == 'linkage'), 1)
+        lk = next(e for e in edges if e['page'] == 'a' and e['claim'] == 'r1')['link']
+        self.assertEqual(sorted(IT.parse_extra(e['extra'])['tag'] for e in edges if e['page'] == lk), ['fallacy.straw-man', 'link.irrelevant'])
+
+    def test_an_importance_challenge_opens_an_importance_page(self):
+        self.tagged('imp.less', row='e1', text='The survey covered three blocks in one city.')
+        pages, edges = self.tables()
+        ip = pages[next(e for e in edges if e['page'] == 'a' and e['claim'] == 'e1')['imp']]
+        self.assertEqual((ip['kind'], ip['rowkind']), ('importance', 'supporting finding'))
+
+    def test_a_premise_challenge_lands_on_the_rows_own_page(self):
+        self.tagged('truth.premise-false', text='Street trees in dense downtowns cool the air by less than a degree.')
+        pages, edges = self.tables()
+        new = [e for e in edges if e['page'] == 'r1']
+        self.assertEqual([(e['section'], e['side']) for e in new], [('argument', 'disagree')])
+
+    def test_a_type_with_one_side_files_on_it_whatever_side_was_picked(self):
+        self.tagged('link.irrelevant', side='agree')
+        _, edges = self.tables()
+        lk = next(e for e in edges if e['page'] == 'a' and e['claim'] == 'r1')['link']
+        self.assertEqual({e['side'] for e in edges if e['page'] == lk}, {'disagree'})
+
+    def test_an_unknown_kind_or_a_missing_row_is_refused_with_the_reason(self):
+        with self.assertRaisesRegex(K.IntakeError, 'not a kind of post'): self.tagged('link.nonsense')
+        with self.assertRaisesRegex(K.IntakeError, 'Row field'): self.tagged('link.irrelevant', row=NONE)
+        with self.assertRaisesRegex(K.IntakeError, 'not a row on'): self.tagged('link.irrelevant', row='s1')
+        with self.assertRaisesRegex(K.IntakeError, 'not a row on a page'): self.tagged('house.vote')
+
     # ---------------------------------------------------------------- duplicates
     def test_the_measure_puts_an_exact_duplicate_first_at_or_above_merge(self):
         near = self.matcher.nearest('Trees cool the streets beneath them.')
@@ -193,6 +247,15 @@ class TestTheFlow(unittest.TestCase):
 
     def test_an_unrelated_claim_matches_nothing(self):
         self.assertEqual(self.matcher.nearest('Bike lanes reduce traffic deaths.'), [])
+
+    def test_one_word_swapped_for_its_opposite_is_a_new_claim_not_a_vote(self):
+        """'warm' for 'cool' reads as a near copy to the measure, which counts shared words, and says the opposite.
+        It must get a page of its own, never be counted as a vote for the claim it contradicts."""
+        text = 'Trees warm the streets beneath them.'
+        self.assertGreaterEqual(self.matcher.nearest(text)[0]['score'], MERGE, 'the pair no longer reads alike, so this proves nothing')
+        done = self.go(contribute(text=text))
+        self.assertEqual(done['did'], 'pr')
+        self.assertEqual([p['text'] for p in done['pages']], [text])
 
     def test_a_duplicate_becomes_a_vote_for_the_existing_claim_and_adds_no_rows(self):
         before = self.tables()
@@ -209,6 +272,19 @@ class TestTheFlow(unittest.TestCase):
         self.assertIn('already on the site', comment); self.assertIn('p/r1.html', comment)
         self.assertIn('never moves a score', comment)
         self.assertFalse(self.run.ran('gh', 'pr', 'create'))
+
+    def test_a_denial_of_a_claim_is_never_counted_as_agreeing_with_it(self):
+        """'Not' is a stop word to the measure, so a denial reads almost exactly like the claim it denies. It used to
+        be recorded as an agree vote for that claim and the issue closed; it is filed as its own claim instead."""
+        done = self.go(contribute(side='disagree', text='Trees do not cool the streets beneath them.'))
+        self.assertEqual(done['did'], 'pr')
+        self.assertTrue(done['near'] and done['near'][0]['key'] == 'r1' and done['near'][0]['opposite'])
+        self.assertFalse(os.path.exists(os.path.join(self.d, 'votes.csv')) and K.read_votes(os.path.join(self.d, 'votes.csv')),
+                         'the denial was recorded as a vote')
+
+    def test_a_variant_filed_under_similar_beliefs_is_kept_and_not_turned_into_a_vote(self):
+        done = self.go(contribute(page='a', section='similar', side='agree', text='Trees cool the streets beneath them.'))
+        self.assertEqual(done['did'], 'pr', 'a deliberately near-identical variant was swallowed as a duplicate')
 
     def test_a_near_match_still_opens_the_pull_request_and_names_the_candidates(self):
         done = self.go(contribute(text='The streets beneath trees are cooler.'))
@@ -699,6 +775,459 @@ class TestTheFlow(unittest.TestCase):
         close = run.ran('gh', 'pr', 'close')
         self.assertEqual(close[0][3], 'contrib/issue-7'); self.assertIn('--delete-branch', close[0]); self.assertIn('counted as a vote', close[0][close[0].index('--comment') + 1])
         self.assertFalse(self.run.ran('gh', 'pr', 'close'), 'a fresh duplicate has no pull request to close')
+
+
+OUTLINE = '### The outline\n\n```text\n{text}\n```\n\n### Note\n\n{note}'
+
+
+def outline(text, note=NONE, **kw):
+    """An outline issue as GitHub renders the form: its box is a code block (render: text in outline.yml)."""
+    kw.setdefault('title', 'Reason Outline: ')
+    return event(OUTLINE.format(text=text, note=note), 'outline', **kw)
+
+
+class TestTheOutlineForm(unittest.TestCase):
+    """The fourth form: a Reason Outline, any number of rows in one post. Each test gets its own copy of the small
+    content folder, as TestTheFlow does."""
+
+    @classmethod
+    def setUpClass(cls):
+        try:
+            import render_site  # noqa: F401
+        except ImportError as e:
+            raise unittest.SkipTest(f'openpyxl missing: {e}')
+        cls.src = small_corpus()
+        cls.matcher = K.Matcher(cls.src)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.src, ignore_errors=True)
+
+    def setUp(self):
+        self.d = tempfile.mkdtemp(prefix='intake-')
+        for f in os.listdir(self.src): shutil.copy(os.path.join(self.src, f), self.d)
+        self.run = Runner(say={('gh', 'pr', 'create'): 'https://github.com/x/y/pull/9\n'})
+
+    def tearDown(self):
+        shutil.rmtree(self.d, ignore_errors=True)
+
+    def go(self, ev, run=None):
+        return K.process(ev, content=self.d, run=run or self.run, matcher=self.matcher, root=self.d, workbook='/x/ISE_Data_Entry.xlsx')
+
+    def tables(self):
+        p, e = IT.read_csv(self.d)
+        return {r['key']: r for r in p}, e
+
+    def votes(self):
+        return K.read_votes(os.path.join(self.d, 'votes.csv'))
+
+    def comment(self, n=7):
+        return self.run.ran('gh', 'issue', 'comment', str(n))[-1][-1]
+
+    def pr_body(self):
+        a = self.run.ran('gh', 'pr', 'create')[0]
+        return a[a.index('--body') + 1]
+
+    # ---------------------------------------------------------------- reading the form
+    def test_the_form_parses_its_box_comes_off_and_a_line_inside_it_is_never_a_heading(self):
+        sub = K.submission(outline('Page: [a]\n  + One.\n### Not a heading', note='For the maintainer.')['issue'])
+        self.assertEqual(sub['form'], 'outline')
+        self.assertEqual(sub['fields'], {'text': '```text\nPage: [a]\n  + One.\n### Not a heading\n```', 'note': 'For the maintainer.'})
+        self.assertEqual(K.outline_text(sub['fields']['text']), 'Page: [a]\n  + One.\n### Not a heading')
+        self.assertEqual(K.outline_text('```reasons\nPage: [a]\n```'), '```reasons\nPage: [a]\n```', "the language's own fence is the reader's")
+        self.assertEqual(K.outline_text('Page: [a]\n  + One.'), 'Page: [a]\n  + One.')
+        ev = outline('Page: [a]'); ev['issue']['labels'] = []
+        self.assertEqual(K.submission(ev['issue'])['form'], 'outline', 'the heading did not stand in for a label that did not stick')
+
+    def test_the_form_has_the_fields_intake_reads_and_the_workflow_runs_on_it(self):
+        root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+        with open(os.path.join(root, '.github', 'ISSUE_TEMPLATE', 'outline.yml')) as fh: yml = fh.read()
+        self.assertIn('labels: [outline]', yml)
+        self.assertEqual(set(re.findall(r'^\s+label: (.+)$', yml, re.M)), set(K.FIELDS['outline']))
+        self.assertEqual(set(re.findall(r'^\s+id: ([a-z_]+)$', yml, re.M)), {'outline', 'note'})
+        self.assertIn('render: text', yml, 'without a code block GitHub shows the outline as a list and loses its indentation')
+        with open(os.path.join(root, '.github', 'workflows', 'intake.yml')) as fh: wf = fh.read()
+        self.assertIn("contains(github.event.issue.labels.*.name, 'outline')", wf)
+        self.assertIn("contains(github.event.issue.body, '### The outline')", wf)
+        self.assertIn('gh label create outline', wf)
+
+    # ---------------------------------------------------------------- filed
+    def test_an_outline_files_its_rows_in_one_pull_request_whose_body_is_the_reply(self):
+        text = ('Page: [a]\n  + Street trees drop limbs on parked cars every storm.\n'
+                '    - Most limbs fall in storms that would break them off anyway.\n'
+                '  - Prediction: Planted blocks will need new sidewalks within ten years.\n    Settled by: The 2036 city sidewalk survey')
+        done = self.go(outline(text, note='Two reasons and a prediction.'))
+        self.assertEqual(done['did'], 'pr'); self.assertEqual(done['url'], 'https://github.com/x/y/pull/9')
+        pages, edges = self.tables()
+        k = 'street-trees-drop-limbs-parked'
+        self.assertEqual(pages[k]['parent'], 'a')
+        self.assertEqual(bare(edges[-3]), {'page': 'a', 'section': 'argument', 'side': 'agree', 'claim': k})
+        self.assertEqual((edges[-2]['page'], edges[-2]['section'], edges[-2]['side']), (k, 'argument', 'disagree'))
+        self.assertEqual(bare(edges[-1]), {'page': 'a', 'section': 'prediction', 'side': 'disagree', 'claim': edges[-1]['claim'],
+                                           'deadline': 'The 2036 city sidewalk survey'})
+        self.assertEqual(IT.parse_extra(edges[-1]['extra'])['added_by'], 'ann')
+        self.assertEqual(self.run.ran('git', 'checkout', '-B')[0][-1], 'contrib/issue-7')
+        self.assertEqual([a[2] for a in self.run.log if a[1].endswith('sync_content.py')], ['--to-workbook', '--check'])
+        self.assertTrue(any(a[1].endswith('integrity.py') for a in self.run.log))
+        body = self.pr_body()
+        for want in ('```reasons\n// Filed: 3 new pages and 3 new rows.', f'// new page [{k}] (claim)', 'Note from the sender: Two reasons and a prediction.',
+                     'Closes #7', 'Settled by: The 2036 city sidewalk survey'):
+            self.assertIn(want, body)
+        title = self.run.ran('gh', 'pr', 'create')[0]
+        self.assertEqual(title[title.index('--title') + 1], 'Reason Outline: Cities should plant more trees.', 'a title that is only the prefix names the page')
+        comment = self.comment()
+        self.assertIn('A pull request now carries your rows: https://github.com/x/y/pull/9', comment)
+        self.assertIn(f'// new page [{k}] (claim)', comment)
+        self.assertIn('edit this issue rather than opening a new one', comment)
+        self.assertFalse(self.run.ran('gh', 'issue', 'close'), 'the pull request closes the issue when it is merged')
+        self.assertFalse(self.run.ran('git', 'push', 'origin', 'HEAD:master'), 'nothing went straight to master')
+
+    def test_the_reply_reads_back_as_a_post_and_sending_it_back_after_the_merge_adds_nothing(self):
+        import outline_read as R
+        self.go(outline('Page: [a]\n  + Street trees drop limbs on parked cars every storm.'))
+        reply = self.comment()
+        inner = reply[reply.index('```reasons\n') + len('```reasons\n'):reply.rindex('\n```')]
+        self.assertEqual(R.read(inner, mode='strict').stops, [], 'the reply is not a valid post')
+        self.run = Runner(say={('gh', 'pr', 'create'): 'https://github.com/x/y/pull/10\n'})
+        before = self.tables()
+        done = self.go(outline(inner, number=8))
+        self.assertEqual(done['did'], 'nothing'); self.assertEqual(self.tables(), before)
+        self.assertIn('Nothing new', self.comment(8))
+        self.assertEqual(self.run.ran('gh', 'issue', 'close', '8')[0][-1], 'not planned')
+        self.assertFalse(self.run.ran('git', 'commit'))
+
+    def test_typed_words_already_on_the_site_are_a_vote_recorded_in_one_commit_on_the_default_branch(self):
+        text = 'Page: [b]\n  + Trees cool the streets beneath them.\n  + Parks cost more to keep than pavement.\n\nPage: [r2]\n  Vote: disagree'
+        done = self.go(outline(text))
+        self.assertEqual(done['did'], 'pr', 'r1 is not yet a row on b, so the row files it there')
+        self.assertEqual(sorted((v['key'], v['vote'], v['on']) for v in self.votes()), [('r1', 'agree', ''), ('r2', 'disagree', ''), ('s1', 'agree', '')])
+        pushes = self.run.ran('git', 'push', 'origin', 'HEAD:master')
+        self.assertEqual(len(pushes), 1, "a post's votes are one commit, not one push each")
+        self.assertIn('Record 3 votes from #7', self.run.ran('git', 'commit')[0][-1])
+        self.assertTrue(self.run.ran('gh', 'workflow', 'run', 'pages.yml', '--ref', 'master'))
+        _, edges = self.tables()
+        self.assertEqual(bare(edges[-1]), {'page': 'b', 'section': 'argument', 'side': 'agree', 'claim': 'r1'})
+        self.assertNotIn('votes.csv', ' '.join(self.run.ran('git', 'add')[-1]), 'the votes rode in the pull request as well')
+        comment = self.comment()
+        self.assertIn('Counted: 3 votes', comment); self.assertIn('never moves a score', comment)
+        self.assertIn('// matched [r1] (1.00): counted as your vote to agree', comment)
+        self.assertIn('already recorded on master', self.pr_body())
+
+    def test_a_post_of_votes_alone_opens_no_pull_request_and_closes_the_issue(self):
+        done = self.go(outline('Page: [r1]\n  Vote: agree', number=4))
+        self.assertEqual(done['did'], 'vote')
+        self.assertEqual([(v['key'], v['vote'], v['issue']) for v in self.votes()], [('r1', 'agree', '4')])
+        self.assertFalse(self.run.ran('gh', 'pr', 'create'))
+        self.assertEqual(self.run.ran('gh', 'issue', 'close', '4')[0][-1], 'completed')
+
+    def test_a_post_of_requests_alone_files_nothing_and_leaves_the_issue_open_for_the_maintainer(self):
+        before = self.tables()
+        done = self.go(outline('Page: [r1]\n  Needs a source: Which survey measured the street temperatures?'))
+        self.assertEqual(done['did'], 'request'); self.assertEqual(self.tables(), before)
+        self.assertIn('left on this issue for the maintainer', self.comment())
+        self.assertFalse(self.run.ran('gh', 'issue', 'close')); self.assertFalse(self.run.ran('gh', 'pr', 'create'))
+
+    # ---------------------------------------------------------------- stops
+    def test_a_post_with_stops_files_nothing_and_the_comment_lists_every_stop(self):
+        before = self.tables()
+        text = 'Page: [a]\n  + Street trees drop limbs on parked cars every storm.\n  + [nope]\n  Matter less: Most limbs are small.\n  Vote: agree'
+        done = self.go(outline(text))
+        self.assertEqual(done['did'], 'stops'); self.assertEqual(len(done['stops']), 2)
+        self.assertEqual(self.tables(), before)
+        self.assertFalse(os.path.exists(os.path.join(self.d, 'votes.csv')), 'a vote in a post that stopped was counted')
+        comment = self.comment()
+        self.assertIn('the outline has 2 stops', comment)
+        self.assertIn('- Line 3: there is no page [nope]', comment); self.assertIn("- Line 4: 'Matter less:' is not a label", comment)
+        self.assertIn('// stop: Line 3', comment)
+        for cmd in (('git', 'commit'), ('git', 'push'), ('gh', 'pr', 'create'), ('gh', 'issue', 'close')): self.assertFalse(self.run.ran(*cmd), cmd)
+
+    def test_an_issue_edited_into_a_stop_closes_the_pull_request_its_first_version_opened(self):
+        run = Runner(say={('git', 'ls-remote'): 'abc\trefs/heads/contrib/issue-7\n'})
+        done = self.go(outline('Page: [a]\n  + [nope]'), run=run)
+        self.assertEqual(done['did'], 'stops')
+        close = run.ran('gh', 'pr', 'close')
+        self.assertEqual(close[0][3], 'contrib/issue-7'); self.assertIn('--delete-branch', close[0])
+        self.assertIn('earlier version of this issue opened is closed', run.ran('gh', 'issue', 'comment', '7')[0][-1])
+
+    def test_an_edited_issue_brings_its_pull_request_up_to_date(self):
+        run = Runner(fail={('gh', 'pr', 'create'): 1},
+                     say={('gh', 'pr', 'create'): 'a pull request for branch "contrib/issue-7" into branch "master" already exists:\nhttps://github.com/x/y/pull/9'})
+        done = self.go(outline('Page: [a]\n  + Street trees drop limbs on parked cars every storm.'), run=run)
+        self.assertEqual(done['url'], 'https://github.com/x/y/pull/9')
+        edit = run.ran('gh', 'pr', 'edit')
+        self.assertEqual(edit[0][3], 'contrib/issue-7'); self.assertIn('Street trees drop limbs', edit[0][edit[0].index('--body') + 1])
+        comments = run.ran('gh', 'issue', 'comment', '7')
+        self.assertEqual(len(comments), 1); self.assertIn('Updated', comments[0][-1])
+
+    def test_a_reply_too_long_for_github_is_cut_with_a_note_and_every_stop_is_still_listed(self):
+        reply = '\n'.join(f'  + Line {i} of a long reply.' for i in range(9000))
+        short = K.cut(reply)
+        self.assertLessEqual(len(short), K.REPLY_ROOM)
+        self.assertTrue(short.endswith('the pull request carries every row'))
+        self.assertEqual(K.cut('short'), 'short')
+        self.assertEqual(K.fenced('a\n'), '```reasons\na\n```')
+
+    def test_a_checkout_that_already_loops_is_refused_before_a_vote_or_a_row_is_written(self):
+        pages, edges = IT.read_csv(self.d)
+        edges.append({'page': 'r1', 'section': 'argument', 'side': 'agree', 'claim': 'a'})
+        IT.write_csv(pages, edges, self.d, topics=IT.read_topics(self.d))
+        before = self.tables()
+        with self.assertRaisesRegex(K.IntakeError, 'circular'):
+            self.go(outline('Page: [b]\n  + Trees cool the streets beneath them.\n  + Street trees drop limbs on parked cars every storm.'))
+        self.assertEqual(self.tables(), before)
+        self.assertFalse(os.path.exists(os.path.join(self.d, 'votes.csv')))
+        self.assertFalse(self.run.ran('git', 'commit')); self.assertFalse(self.run.ran('git', 'push'))
+
+    # ---------------------------------------------------------------- what a review found
+    def test_a_body_too_long_for_one_argument_goes_to_gh_in_a_file(self):
+        import random
+        rnd = random.Random(7)
+        lines = ['Page: [a]'] + ['  + ' + ''.join(chr(0x4E00 + rnd.randrange(3000)) for _ in range(400)) + '\u3002' for _ in range(150)]
+        seen = []
+        class Reading(Runner):
+            def __call__(inner, args, cwd=None):
+                for a in args: self.assertLessEqual(len(str(a).encode('utf-8')), K.ARG_ROOM)
+                if '--body-file' in args:
+                    with open(args[args.index('--body-file') + 1], encoding='utf-8') as fh: seen.append((args[:3], len(fh.read())))
+                return Runner.__call__(inner, args, cwd)
+        run = Reading(say={('gh', 'pr', 'create'): 'https://github.com/x/y/pull/9\n'})
+        done = self.go(outline('\n'.join(lines)), run=run)
+        self.assertEqual(done['did'], 'pr')
+        self.assertEqual(sorted(a[:2] for a, _ in seen), [['gh', 'issue'], ['gh', 'pr']])
+        self.assertTrue(all(n <= K.GITHUB_ROOM for _, n in seen))
+
+    def test_no_line_the_sender_typed_can_close_the_reply_block(self):
+        self.assertEqual(K.fenced('a\n  ````\n@octocat see #1'), '`````reasons\na\n  ````\n@octocat see #1\n`````')
+        done = self.go(outline('Page: [a]\n  + Members of Congress trade on nonpublic information.\n  ````\n  + @octocat please look, see #1'))
+        self.assertEqual(done['did'], 'stops')
+        comment = self.comment()
+        block = comment[comment.index('`````reasons\n'):]
+        self.assertTrue(block.rstrip().endswith('\n`````'))
+        self.assertIn('@octocat please look', block)
+        self.assertNotIn('@octocat', comment[:comment.index('`````reasons\n')])
+
+    def test_an_edited_issue_takes_back_the_votes_its_earlier_version_counted(self):
+        self.go(outline('Page: [b]\n  + Trees cool the streets beneath them.\n  + Parks cost more to keep than pavement.'))
+        self.assertEqual(sorted(v['key'] for v in self.votes()), ['r1', 's1'])
+        self.run = Runner(say={('gh', 'pr', 'create'): 'https://github.com/x/y/pull/9\n'})
+        done = self.go(outline('Page: [b]\n  + Trees cool the streets beneath them.\n  + Street trees drop limbs on parked cars every storm.'))
+        self.assertEqual(done['did'], 'pr')
+        self.assertEqual(sorted(v['key'] for v in self.votes()), ['r1'])
+        self.assertIn('and take back 1 vote from #7', self.run.ran('git', 'commit')[0][-1])
+        self.assertIn('Taken back: 1 vote', self.comment())
+        # a version that stops casts nothing, so it takes back every vote the issue counted
+        self.run = Runner()
+        done = self.go(outline('Page: [b]\n  + [nope]'))
+        self.assertEqual((done['did'], self.votes()), ('stops', []))
+        self.assertEqual(len(self.run.ran('git', 'push', 'origin', 'HEAD:master')), 1)
+        self.assertIn('Taken back: 1 vote', self.comment())
+
+    def test_a_vote_on_a_page_the_post_adds_goes_in_its_pull_request(self):
+        done = self.go(outline('Belief: Officials should publish their calendars every week.\n  Vote: agree\n'
+                               '  + Public calendars let voters see who lobbies whom.'))
+        self.assertEqual(done['did'], 'pr')
+        self.assertFalse(self.run.ran('git', 'push', 'origin', 'HEAD:master'), 'a vote on a page not yet on the site went to master')
+        commit = [a for a in self.run.ran('git', 'add')][-1]
+        self.assertIn(os.path.join(self.d, 'votes.csv'), commit)
+        self.assertEqual([(v['key'], v['vote']) for v in self.votes()], [('officials-publish-calendars-every-week', 'agree')])
+        self.assertIn('on pages this pull request adds', self.pr_body())
+        self.assertIn('counts once it is merged', self.comment())
+
+    def test_a_heading_inside_the_senders_own_fence_stays_in_the_outline(self):
+        text = ('```reasons\nPage: [a]\n### Reasons to agree\n  + Street trees drop limbs on parked cars every storm.\n'
+                '  + Shade lowers summer power bills for nearby homes.\n```')
+        parsed = K.parse_body(OUTLINE.format(text=text, note=NONE))
+        self.assertEqual(sorted(parsed), ['Note', 'The outline'])
+        self.assertIn('### Reasons to agree', parsed['The outline'])
+        done = self.go(outline(text))
+        self.assertEqual(done['did'], 'stops', 'the outline lost its lines and was closed as nothing new')
+        self.assertIn('### Reasons to agree', self.comment()); self.assertIn('Shade lowers summer power bills', self.comment())
+        self.assertFalse(self.run.ran('gh', 'issue', 'close'))
+        self.assertEqual(K.parse_body('### The outline\n\n```text\nPage: [a]\n```\n\n### Note\n\nSee you.'), {'The outline': '```text\nPage: [a]\n```', 'Note': 'See you.'})
+        import time
+        t = time.time(); K.parse_body('### a' + ' ' * 40000 + 'b\n### Note\n\n### a' + ' ' * 40000 + 'b')
+        self.assertLess(time.time() - t, 1, 'a heading with a long run of spaces is read in one pass')
+
+    def test_lines_that_were_not_read_keep_the_issue_open(self):
+        done = self.go(outline('Page: [a]\n\nI think street trees are great because they cool the sidewalks in July.\nAlso they make the block look nicer.'))
+        self.assertEqual(done['did'], 'nothing')
+        self.assertFalse(self.run.ran('gh', 'issue', 'close'))
+        comment = self.comment()
+        self.assertNotIn('every line is already on the site', comment)
+        self.assertIn('2 lines of the outline were not read', comment)
+        self.assertIn('edit this issue to send it again', comment)
+        self.run = Runner()
+        done = self.go(outline('Hi Mike,\n\nPage: [r1]\n  Vote: agree', number=4))
+        self.assertEqual(self.run.ran('gh', 'issue', 'close', '4')[0][-1], 'completed')
+        self.assertIn('open a new issue to send it again', self.comment(4))
+        self.assertNotIn('edit this issue', self.comment(4))
+
+    def test_no_body_sent_to_github_is_longer_than_it_takes(self):
+        text = '\n'.join(f'- Point {i}: the city should plant trees on block {i} because shade cuts summer heat there.' for i in range(300))
+        done = self.go(outline(text))
+        self.assertEqual(done['did'], 'stops')
+        self.assertLessEqual(len(self.comment()), K.GITHUB_ROOM)
+        self.assertIn('more, each marked at its line in the reply', self.comment())
+        self.run = Runner(say={('gh', 'pr', 'create'): 'https://github.com/x/y/pull/9\n'})
+        text = 'Page: [a]\n' + '\n'.join(f'  + Street trees on block {i} lower the summer heat by about {i % 9 + 1} degrees for walkers there.'
+                                         for i in range(200))
+        done = self.go(outline(text, note='n' * 29700))
+        self.assertEqual(done['did'], 'pr')
+        self.assertLessEqual(len(self.pr_body()), K.GITHUB_ROOM)
+        self.assertIn('the note is cut here', self.pr_body())
+        self.assertLessEqual(len(self.comment()), K.GITHUB_ROOM)
+
+    def test_a_post_nested_as_deep_as_the_form_allows_gets_a_reply(self):
+        lines = ['Page: [a]'] + ['\t' * (i // 4) + ' ' * (i % 4) + f'+ c{i}.' for i in range(1, 401)]
+        done = self.go(outline('\n'.join(lines)))
+        self.assertEqual((done['did'], len(done['edges'])), ('pr', 400))
+        self.assertTrue(self.comment())
+
+    def test_a_control_character_never_reaches_the_tables(self):
+        done = self.go(outline('Page: [a]\n  + Street trees drop limbs\x0bon parked cars every storm.'))
+        self.assertEqual(done['did'], 'pr')
+        pages, edges = self.tables()
+        self.assertIn('Street trees drop limbs on parked cars every storm.', [p['text'] for p in pages.values()])
+        IT.write_entry(*IT.read_csv(self.d), os.path.join(self.d, 'wb.xlsx'), topics=IT.read_topics(self.d))
+
+    def test_an_empty_outline_is_refused(self):
+        with self.assertRaises(K.IntakeError): self.go(outline(''))
+
+    def test_a_form_heading_typed_inside_the_outline_box_is_part_of_the_outline(self):
+        for head in ('Source', 'Note', 'The outline', 'Why'):
+            with self.subTest(head):
+                text = (f'Page: [a]\n  + Officials who trade on tips should resign at once.\n### {head}\n'
+                        f'  + Officials who front-run votes betray voters every single time.')
+                parsed = K.parse_body(OUTLINE.format(text=text, note='Thanks.'))
+                self.assertEqual(sorted(parsed), ['Note', 'The outline'])
+                self.assertIn('front-run votes', parsed['The outline'])
+                self.assertEqual(parsed['Note'], 'Thanks.')
+
+    def test_typed_words_outside_a_code_block_cannot_close_or_mention(self):
+        done = self.go(outline('Page: [a]\n  + Officials who trade on tips should resign at once.', note='Fixes #1\n\nAlso @octocat look',
+                               title='Fixes #2 now'))
+        self.assertEqual(done['did'], 'pr')
+        body = self.pr_body()
+        self.assertNotIn('#1', body); self.assertNotIn('@octocat', body)
+        self.assertIn('Fixes \uff031', body); self.assertIn('Closes #7', body)
+        commit = self.run.ran('git', 'commit')[-1]
+        self.assertNotIn('#2', commit[commit.index('-m') + 1])
+        title = self.run.ran('gh', 'pr', 'create')[0]
+        self.assertEqual(title[title.index('--title') + 1], 'Fixes \uff032 now')
+
+    def test_no_issue_address_gh_reference_or_ci_marker_survives_in_typed_words(self):
+        done = self.go(outline('Page: [a]\n  + Officials who trade on tips should resign at once.',
+                               note='Resolves GH-3. Closes https://github.com/x/y/issues/4 [ci skip]',
+                               title='Fixes https://github.com/x/y/issues/1 and closes gh-2 [skip ci]'))
+        self.assertEqual(done['did'], 'pr')
+        commit = self.run.ran('git', 'commit')[-1]
+        pr = self.run.ran('gh', 'pr', 'create')[0]
+        for typed in (commit[commit.index('-m') + 1], pr[pr.index('--title') + 1], self.pr_body().rsplit('Note from the sender', 1)[1]):
+            for live in (r'github\.com', r'(?i)\bgh-\d', r'(?i)\[\s*(skip ci|ci skip|no ci|skip actions|actions skip)\s*\]'):
+                self.assertIsNone(re.search(live, typed), (live, typed))
+        self.assertEqual(K.inert('[skip actions] [Actions Skip] [no ci] GH-12 MGH-2 www.github.com/x'),
+                         '\uff3bskip actions\uff3d \uff3bActions Skip\uff3d \uff3bno ci\uff3d GH\u201112 MGH-2 www.github\u2024com/x')
+        self.run.log.clear()
+        done = self.go(contribute(page='a', text='Street trees cool parked cars on hot days [skip ci].', title='Reason to agree: [skip ci]'))
+        commit = self.run.ran('git', 'commit')[-1]
+        self.assertNotIn('[skip ci]', commit[commit.index('-m') + 1])
+
+    def test_a_reply_with_a_long_run_of_backticks_still_fits_in_a_comment(self):
+        class GitHubLike(Runner):
+            def __call__(self, args, cwd=None):
+                if '--body' in args and len(args[args.index('--body') + 1]) > K.GITHUB_ROOM: return 1, 'Body is too long'
+                return super().__call__(args, cwd)
+        for text in ('Belief: Zebras should vote in every town election.\n  + Zebras pay taxes on every stripe.\n  ' + '`' * 30000,
+                     'Belief: Zebras should vote in every town election.\n  + Zebras pay taxes on every stripe.\n    ' + '`' * 30000 + '\n  + More.'):
+            self.run = GitHubLike(say={('gh', 'pr', 'create'): 'https://github.com/x/y/pull/9\n'})
+            done = self.go(outline(text))
+            self.assertEqual(done['did'], 'stops')
+            comment = self.comment()
+            self.assertLessEqual(len(comment), K.GITHUB_ROOM)
+            self.assertIn('Nothing was filed', comment)
+            self.assertRegex(comment, r'\n- Line 3\b', 'the sender gets the list of stops')
+        for room in (500, 5000, 60000):
+            self.assertLessEqual(len(K.fenced('a\n' + '`' * 30000 + '\nb', room)), room)
+        self.assertEqual(K.fenced('a\n```\nb'), '````reasons\na\n```\nb\n````')
+
+    def test_a_vote_push_rebased_onto_newer_rows_leaves_them_in_the_pull_request(self):
+        """The workflow has no concurrency group, so a run that pushes a vote can find the default branch moved on: a
+        pull request merged meanwhile. The outline's pull request must add rows to what it read and take none away."""
+        import subprocess
+        if not shutil.which('git'): self.skipTest('git is not installed')
+        g = tempfile.mkdtemp(prefix='intake-race-')
+        try:
+            def sh(*a, cwd=None):
+                r = subprocess.run(list(a), cwd=cwd, capture_output=True, text=True)
+                self.assertEqual(r.returncode, 0, f'{a}: {r.stdout}{r.stderr}')
+                return r.stdout
+            me = ['-c', 'user.name=t', '-c', 'user.email=t@example.org']
+            sh('git', 'init', '-q', '--bare', '-b', 'master', f'{g}/origin.git')
+            sh('git', 'clone', '-q', f'{g}/origin.git', f'{g}/seed')
+            shutil.copytree(self.d, f'{g}/seed/content')
+            with open(f'{g}/seed/wb.xlsx', 'w') as fh: fh.write('a workbook')
+            sh('git', *me, 'add', '-A', cwd=f'{g}/seed'); sh('git', *me, 'commit', '-qm', 'seed', cwd=f'{g}/seed')
+            sh('git', 'push', '-q', 'origin', 'HEAD:master', cwd=f'{g}/seed')
+            for c in ('runner', 'other'): sh('git', 'clone', '-q', f'{g}/origin.git', f'{g}/{c}')
+            merged = 'a,argument,agree,,A row merged while the outline run was working.'
+            with open(f'{g}/other/content/edges.csv', 'a', encoding='utf-8') as fh: fh.write(merged + '\n')
+            sh('git', *me, 'commit', '-qam', 'Merge a contribution', cwd=f'{g}/other')
+            raced = []
+            def run(args, cwd=None):
+                if args[0] == 'gh': return (0, 'https://github.com/x/y/pull/9\n') if args[1:3] == ['pr', 'create'] else (0, '')
+                if args[0] == 'python3': return 0, ''
+                if args[:2] == ['git', 'push'] and not raced:
+                    raced.append(1); sh('git', 'push', '-q', 'origin', 'HEAD:master', cwd=f'{g}/other')
+                r = subprocess.run(args, cwd=cwd, capture_output=True, text=True)
+                return r.returncode, r.stdout + r.stderr
+            done = K.process(outline('Page: [b]\n  + Trees cool the streets beneath them.\n  + Wombats would trade fewer stocks than voters do.'),
+                             content=f'{g}/runner/content', run=run, matcher=self.matcher, root=f'{g}/runner', workbook=f'{g}/runner/wb.xlsx')
+            self.assertEqual((done['did'], [v['key'] for v in done['votes']], bool(raced)), ('pr', ['r1'], True))
+            self.assertIn(merged, sh('git', 'show', 'master:content/edges.csv', cwd=f'{g}/origin.git'))
+            change = sh('git', 'diff', 'master...contrib/issue-7', '--', 'content/', cwd=f'{g}/origin.git').split('\n')
+            self.assertEqual([l for l in change if l.startswith('-') and not l.startswith('---')], [], 'the pull request takes no row out')
+            self.assertTrue(any(l.startswith('+') and 'wombats' in l for l in change), 'and it adds the post\'s rows')
+        finally:
+            shutil.rmtree(g, ignore_errors=True)
+
+
+class TestTheMatcherIsQuick(unittest.TestCase):
+    """Matcher.nearest scores only the claims an upper bound of the measure cannot rule out, and must find exactly the
+    claims that scoring every one in turn finds, with the same scores, or a text could land on the other side of FLAG
+    or MERGE from where the site's own measure puts it."""
+
+    @classmethod
+    def setUpClass(cls):
+        try:
+            import render_site  # noqa: F401
+        except ImportError as e:
+            raise unittest.SkipTest(f'openpyxl missing: {e}')
+        cls.m = K.Matcher(K.CONTENT)
+
+    def every(self, text, kinds=None):
+        from similarity import words, grams, wjaccard, opposite
+        m, w, gv = self.m, words(text), self.m.vector(grams(text))
+        out = []
+        for i, x in enumerate(m.claims):
+            if kinds and x['kind'] not in kinds: continue
+            sc = 0.5 * wjaccard(w, m._w[i], m.widf) + 0.5 * sum(v * m._gv[i].get(t, 0.0) for t, v in gv.items())
+            if sc >= FLAG: out.append({'key': x['key'], 'kind': x['kind'], 'text': x['text'], 'score': sc, 'opposite': opposite(text, x['text'])})
+        return sorted(out, key=lambda r: (-r['score'], r['key']))
+
+    def test_nearest_finds_what_scoring_every_claim_finds(self):
+        import random, time
+        rnd = random.Random(7)
+        texts = []
+        for c in rnd.sample(self.m.claims, 12):
+            ws = c['text'].split()
+            texts += [c['text'], ' '.join(ws[::-1]), ' '.join(ws[:max(1, len(ws) // 2)]), c['text'].replace('-', '').upper()]
+        texts += ['abc-def ghi-jkl', 'abcdef ghijkl', 'the of and', '', 'x']
+        for text in texts:
+            for kinds in (None, ('belief', 'claim'), ('interest',)):
+                self.assertEqual(self.m.nearest(text, k=50, kinds=kinds), self.every(text, kinds)[:50], (text, kinds))
+        t = time.time()
+        for text in texts: self.m.nearest(text)
+        self.assertLess((time.time() - t) / len(texts), 0.05, 'a line is matched in well under a tenth of a second')
 
 
 class TestTheCommandLine(unittest.TestCase):

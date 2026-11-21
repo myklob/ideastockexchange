@@ -1,0 +1,129 @@
+[
+ {
+  "id": 8745,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "american-psychological-association-s",
+  "text": "The American Psychological Association's own task force reviewed the research and concluded that violent video game use is a risk factor for aggressive behavior and reduced empathy."
+ },
+ {
+  "id": 8746,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "meta-analysis-98-independent",
+  "text": "A meta-analysis of 98 independent studies with 36,965 participants found that violent video games increase aggression and decrease prosocial behavior, with effects showing up in experimental, correlational and longitudinal studies.",
+  "source": "Greitemeyer T, Mügge DO, \"Video games do affect social outcomes: a meta-analytic review of the effects of violent and prosocial video game play,\" Personality and Social Psychology Bulletin, 2014"
+ },
+ {
+  "id": 8747,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "prediction",
+  "side": "disagree",
+  "claim": "large-preregistered-longitudinal-study",
+  "text": "A large preregistered longitudinal study of children will find that heavier violent video game play predicts more teacher-reported or parent-reported physical aggression a year later, after controlling for earlier aggression."
+ },
+ {
+  "id": 8748,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "prediction",
+  "side": "disagree",
+  "claim": "randomized-trial-lasting-least",
+  "text": "A randomized trial lasting at least a month will find that people assigned to play violent video games show more observed physical aggression than people assigned to nonviolent games."
+ },
+ {
+  "id": 8754,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "person",
+  "side": "disagree",
+  "claim": "psychologist-craig-anderson-iowa",
+  "text": "Psychologist Craig A. Anderson of Iowa State University, lead author of a 2010 Psychological Bulletin meta-analysis, has concluded that exposure to violent video games is a causal risk factor for aggressive behavior in the people who play them."
+ },
+ {
+  "id": 8755,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "person",
+  "side": "disagree",
+  "claim": "psychologist-brad-j-bushman",
+  "text": "Psychologist Brad J. Bushman of Ohio State University has argued in his research and public writing that playing violent video games increases aggression in players."
+ },
+ {
+  "id": 8756,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "person",
+  "side": "disagree",
+  "claim": "supreme-court-justice-stephen",
+  "text": "Supreme Court Justice Stephen Breyer, dissenting in Brown v. Entertainment Merchants Association (2011), wrote that the research gave California's legislature a reasonable basis to conclude that violent video games can harm children."
+ },
+ {
+  "id": 8757,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "media",
+  "side": "disagree",
+  "claim": "violent-video-game-effects",
+  "text": "Violent video game effects on aggression, empathy, and prosocial behavior in Eastern and Western countries: A meta-analytic review, by Craig A. Anderson, Akiko Shibuya, Nobuko Ihori, Edward L. Swing, Brad J. Bushman, Akira Sakamoto, Hannah R. Rothstein and Muniba Saleem (2010)",
+  "source": "Psychological Bulletin",
+  "bridge": "This large pooled analysis concluded that playing violent video games is a causal risk factor for more aggressive behavior and thoughts and for less empathy, in both Eastern and Western countries."
+ },
+ {
+  "id": 8758,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "media",
+  "side": "disagree",
+  "claim": "metaanalysis-relationship-between-violent",
+  "text": "Metaanalysis of the relationship between violent video game play and physical aggression over time, by Anna T. Prescott, James D. Sargent and Jay G. Hull (2018)",
+  "source": "Proceedings of the National Academy of Sciences (PNAS)",
+  "bridge": "Pooling long-term studies that controlled for earlier aggression, the authors found that violent game play still predicted later physical aggression."
+ },
+ {
+  "id": 8759,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "media",
+  "side": "disagree",
+  "claim": "finding-common-ground-meta",
+  "text": "Finding common ground in meta-analysis \"wars\" on violent video games, by Maya B. Mathur and Tyler J. VanderWeele (2019)",
+  "source": "Perspectives on Psychological Science",
+  "bridge": "Two outside statisticians reanalyzed the rival pooled studies and found they agree that violent games raise aggressive behavior in most settings, while also agreeing the effects are almost always small."
+ },
+ {
+  "id": 8764,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "cba",
+  "side": "agree",
+  "claim": "if-violent-video-games",
+  "text": "If violent video games do not make players more violent, lawmakers who stop blaming them after mass shootings can spend that attention on causes of violence the evidence supports."
+ },
+ {
+  "id": 8765,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "cba",
+  "side": "agree",
+  "claim": "if-violent-video-games-2",
+  "text": "If violent video games do not make players more violent, teenagers who enjoy them are spared being treated as suspects by schools and adults because of what they play."
+ },
+ {
+  "id": 8766,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "cba",
+  "side": "agree",
+  "claim": "if-violent-video-games-3",
+  "text": "If violent video games do not make players more violent, game studios avoid lawsuits and laws that blame their products for violence they did not cause."
+ },
+ {
+  "id": 8767,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "cba",
+  "side": "disagree",
+  "claim": "if-violent-video-games-4",
+  "text": "If violent video games do raise physical aggression slightly and parents act on this belief, children will on average become a little more physically aggressive than they would have been."
+ },
+ {
+  "id": 8768,
+  "belief_text": "Violent video games do not make the people who play them more violent.",
+  "section": "cba",
+  "side": "disagree",
+  "claim": "if-violent-video-games-5",
+  "text": "If violent video games do reduce empathy as some reviews report, pediatricians who stop advising families about violent game content will lose a tool for protecting children's social development."
+ }
+]

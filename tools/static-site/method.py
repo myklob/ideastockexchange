@@ -15,6 +15,7 @@ from sensitivity import FLIP, STEPS, INERT, DEPTH
 from reasonrank import DAMPING
 from similarity import FLAG, MERGE, NGRAM
 import integrity as IG
+import fallacy as FALLACY
 
 NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve']
 
@@ -47,7 +48,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     ]:
         o.append(f'<tr><td class="t"><strong>{esc(name)}</strong></td><td class="u">{esc(rng)}</td><td class="u">{esc(what)}</td><td class="u">{esc(absent)}</td></tr>')
     o.append('</tbody></table>')
-    o.append('<p class="tot">Positive contributions are added into POS and negative ones into NEG as magnitudes, so a row lands on the side its sign puts it on and not the side it was filed on: a refuted objection counts as support. The belief score is POS − NEG, open ended. It is a quantity of argued weight, not a probability, and comparing it between a page with forty rows and a page with four is comparing volumes.</p></section>')
+    o.append('<p class="tot">Positive contributions are added into POS and negative ones into NEG as magnitudes, so a row lands on the side its sign puts it on and not the side it was filed on: a refuted objection counts as support. A claim page listed more than once on the same page and side, as a reason, a finding or a prediction, counts once, at its strongest reading, so listing a claim five times weighs what listing it once does. The belief score is POS − NEG, open ended. It is a quantity of argued weight, not a probability, and comparing it between a page with forty rows and a page with four is comparing volumes.</p></section>')
 
     # ---------------------------------------------------------------- where a page starts
     o.append(sec('Where a page starts, and why it has to start somewhere',
@@ -116,7 +117,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
              'zeroes a row with no work behind it. Nothing else on the site reads this number: it is shown so that whether volume '
              f'should count can be judged on real pages. Today it moves {moved} of the {len(shares)} beliefs with anything listed '
              'away from an even split. Which choices to act on is a different question, answered by costs and benefits across the '
-             'interests at stake, in each page&rsquo;s cost-benefit section.</p>')
+             'interests at stake, in each page&rsquo;s cost-benefit section. <a href="compare.html">The beliefs where the two rules disagree most</a>.</p>')
 
     # ---------------------------------------------------------------- confidence
     ks = sorted((c.conf.of(p) for p in c.specs))
@@ -126,11 +127,11 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     for name, why in [
         ('grounding', 'Whether this claim is actually established, taking the better of its own cited source and the average confidence of the claims argued beneath it. Recursive, and the reason a tree of bare assertions scores near zero however many rows it lists.'),
         ('two_sided', 'Whether anyone has argued the other side at all. Not applicable to an importance page, which has no sides by design.'),
-        ('scrutiny', 'Of the multipliers on each row, how many have been argued on a page of their own rather than resting on a starting constant.'),
+        ('scrutiny', 'Of the multipliers on each row, how many have been argued on a page of their own rather than resting on a starting constant. A page with nothing on it still reads its constant, so it counts only once a reason or an interest is on it.'),
         ('breadth', 'How much has been brought to bear. Saturating, so volume never overtakes reasoning quality.'),
         ('depth', 'How far down the tree goes.'),
         ('sourcing', 'Of the findings cited on this page, how many cite a source and say what kind of source it is. An uncategorised citation is a reference, not a verification.'),
-        ('testability', 'Of the predictions listed, how many are dated and have a linkage page arguing how diagnostic they are. This counts whether the linkage page exists, because confidence never reads a score. The line under a belief page’s Testable Predictions table counts something close but different: predictions that are dated and whose linkage reads 0.50 or more, the labelled constant included. Both say which they count.'),
+        ('testability', 'Of the predictions listed, how many are dated and have a linkage page arguing how diagnostic they are. This counts whether anything has been put on the linkage page, because confidence never reads a score. The line under a belief page’s Testable Predictions table counts something close but different: predictions that are dated and whose linkage reads 0.50 or more, the labelled constant included. Both say which they count.'),
     ]:
         w = CF.STRUCTURAL[name]
         o.append(f'<tr><td class="t"><strong>{esc(name.replace("_", " "))}</strong></td><td>{w:.2f}</td><td class="u">{esc(why)}</td></tr>')
@@ -149,6 +150,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     # ---------------------------------------------------------------- duplicates
     sim = c.sim; rep = sim.report(); pairs = rep['shown']
     o.append(sec('Computed equivalency, and what it gets wrong', 'The wiki splits the equivalency score into a computed half and an argued half. The argued half is the equivalence page. This is the computed one.', a='equivalency'))
+    o.append('<p class="tot"><a href="grouping.html">How claims are grouped and placed</a> puts this beside the rest of the grouping and placement, with live examples.</p>')
     o.append(f'<p class="blurb">Two lexical signals over the claim text, each weighted by inverse document frequency across this corpus and averaged: overlap of content words, and cosine over character {NGRAM}-grams. Pairs above {f2(FLAG)} are flagged for a human to read; above {f2(MERGE)} they are probably one page. It measures wording, not meaning. It will flag two claims that share a long subject phrase and say different things, and it will miss two claims that share no words and say the same thing.</p>')
     o.append(f'<p class="blurb"><strong>It changes no score and cannot.</strong> The wiki blends the computed and argued halves with weights set by a validity comparison argument. No such argument exists, so the computed weight is 0 and the argued page decides, which is the same rule as everywhere else here: an input nobody has argued counts nothing. The same goes for the uniqueness multiplier. The wiki defines it as one minus the highest similarity to any other row, computed; this site leaves it presumed distinct and flags the overlap instead, because a number that silently discounts an argument and has no page behind it cannot be audited, and every other number on this site is a link to the page that argues it.</p>')
     if pairs:
@@ -206,6 +208,17 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
             if sev_ != sev: continue
             o.append(f'<tr><td class="t"><strong>{esc(title)}</strong></td><td class="u">{esc(sev)}</td><td class="u">{esc(fires)}</td><td>{counts.get(title, 0)}</td></tr>')
     o.append('</tbody></table>')
+    o.append('<p class="blurb"><strong>Possible fallacies.</strong> A reason or objection whose wording matches one of the phrases below is flagged on its belief page as a question, with the words that set it off and two prefilled forms on the flagged claim&rsquo;s own page: a reason to disagree saying it is the fallacy, and a reason to agree saying it is not. Nothing is final: the same words that mark a personal attack also open an honest argument about a conflict of interest, so the flag decides nothing and moves no score, and whatever the argument on that page concludes reaches the score through the ordinary rules. The phrases are listed in full so a flag can always be answered.</p>')
+    o.append('<table class="plain"><thead><tr><th>Possible fallacy</th><th>What it is</th><th>Phrases that raise the flag</th><th>Flagged here</th></tr></thead><tbody>')
+    fcount = {}
+    for pid in c.specs:
+        if c.kind(pid) in ('belief', 'claim'):
+            for _, _, fl in FALLACY.page_flags(c, pid):
+                for n, _, _ in fl: fcount[n] = fcount.get(n, 0) + 1
+    for name, what, pats in FALLACY.PATTERNS:
+        shown = ' · '.join('<code>' + esc(p) + '</code>' for p in pats)
+        o.append(f'<tr><td class="t"><strong>{esc(name)}</strong></td><td class="u">{esc(what)}</td><td class="u">{shown}</td><td>{fcount.get(name, 0)}</td></tr>')
+    o.append('</tbody></table>')
     o.append('<p class="blurb">The two serious ones are also refused outright: before anything is published, a check over the two tables looks for a claim that supports itself, because a loop can hold any value at all and stay consistent, so there is no number to publish. <strong>Fallacy detection is not done.</strong> The wiki specifies pattern-matching the prose for ten named fallacies, each deducting from a score. On a site whose subject is often officials acting on their own interests, a matcher looking for &ldquo;attacking the person rather than the argument&rdquo; would fire on the central legitimate argument on page after page, and a score moved by a pattern match has no page anyone can argue with. A fallacy is argued instead, as a reason to disagree on the linkage page of the row it infects.</p></section>')
 
     # ---------------------------------------------------------------- the wiki rules not run
@@ -216,7 +229,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
         ('Evidence quality from four ratings (internal validity, statistical soundness, replicability, bias resistance)', 'ALGORITHMS.md 2', 'Source type, number of replications and the share that agreed set where a finding&rsquo;s page starts; nothing else.'),
         ('Evidence start values by kind (meta-analysis 1.0, peer-reviewed 0.8, anecdote 0.1)', 'wiki: ReasonRank', 'The sixteen evidence tiers above, which keep every starting point between 0.05 and 0.95.'),
         ('Truth score on a scale from &minus;1 to +1, built from logical validity, evidence quality and verification', 'ALGORITHMS.md 5; wiki: Truth Score', 'Truth runs from 0 to 1 by the argued-truth rule. The &minus;1 to +1 scale appears only inside a row, as 2 × Truth &minus; 1.'),
-        ('Logical validity from weighted fallacy deductions', 'ALGORITHMS.md 8; wiki: Truth Score', 'Not computed. The structural checks above name faults and move no score.'),
+        ('Logical validity from weighted fallacy deductions', 'ALGORITHMS.md 8; wiki: Truth Score', 'Not computed. The structural checks above name faults, and possible fallacies are flagged by wording and argued on the flagged claim&rsquo;s page; neither moves a score.'),
         ('Topic overlap and TopicRank', 'ALGORITHMS.md 6', 'Each belief is filed under one topic by an author; topic lists are ordered by counts of reasons.'),
         ('ReasonRank restarting evenly across every argument', 'ALGORITHMS.md 7', 'The walk restarts at the beliefs only and steps in proportion to Link × Imp × Uniq.'),
         ('Importance from scope, magnitude, reversibility and urgency', 'ALGORITHMS.md 9', 'An importance page: the largest validity × bears among the interests it lists.'),
@@ -224,7 +237,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
         ('Equivalency as a blend of a computed and an argued half', 'wiki: Equivalency Score', 'The argued equivalence page alone; the computed half carries weight zero.'),
         ('Lifecycle multipliers (active 1.0, weakened 0.7, conditional 0.8, outdated 0.3, refuted 0.1)', 'wiki: Scoring System', 'None. A row argued false scores below zero through 2 × Truth &minus; 1.'),
         ('Only the first of several rows making one point counts, plus a corroboration boost', 'wiki: Redundancy Problem', 'Neither. Each row has a uniqueness factor, and replications of a finding are rewarded up to twice k and no more.'),
-        ('Linkage as the agree share of all argued strength', 'wiki: Evidence to Conclusion Relevance Score', 'The agree share of the scored weight on the linkage page, shrunk toward its starting point: (POS + w × p₀) / (POS + NEG + w), the argued-truth rule, which on a linkage page that cites nothing has p₀ = 0.50 and w = k.'),
+        ('Linkage as the agree share of all argued strength', 'wiki: Evidence to Conclusion Relevance Score', 'The agree share of the scored weight on the linkage page, shrunk toward its starting point: (POS + w × p₀) / (POS + NEG + w), the argued-truth rule, which on a linkage page that cites nothing has p₀ = DEFLINK (1.00) and w = k: an empty linkage page reads what no linkage page reads, so opening one to question a row moves nothing until somebody argues there.'),
         ('Likelihood as the winning estimate among competing ones, with a status and an interval', 'ALGORITHMS.md 11; wiki: Likelihood of Cost and Benefits', 'The truth score of the cost or benefit&rsquo;s own page.'),
         ('A necessity score argued for each assumption', 'wiki: Assumptions', 'A typed load-bearing flag.'),
         ('Behavioural confidence signals (votes, visitors, dwell time and four more)', 'wiki: Confidence and Stability Scores', 'Weight zero, as the confidence section says; votes are shown and never scored.'),
@@ -269,8 +282,11 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append('<ul class="links"><li>The two tables, the topics and the votes, in every shape: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> or a <a href="data/ise.sqlite">SQLite database</a>.</li>'
              '<li><a href="data/pages_index.json">Every page\'s computed numbers</a>, indexed, and <a href="data/claims_index.json">every claim in the tables</a>, drafts included.</li>'
              '<li><a href="data/drafts.json">Every draft and what it still needs</a>.</li>'
+             '<li>Every page and topic as a <a href="outline.html">Reason Outline</a>, the plain text a post is written in, beside it at '
+             '<code>p/&lt;key&gt;.txt</code> and <code>t/&lt;key&gt;.txt</code>; a printout read back matches every row it was printed from, so '
+             'sending one back adds nothing. The names the outline reads are in <a href="data/outline-spec.json">outline-spec.json</a>.</li>'
              '<li><a href="changes.html">What changed</a> since the last revision, row by row.</li></ul></section>')
-    o.append('<section><h2><span>Where the code is</span></h2><p class="blurb">Every rule above is one short module, and a conformance corpus of twenty-four pages, their expected numbers, the five constants and the evidence tiers, published as <a href="data/conformance_corpus.json">conformance_corpus.json</a> and <a href="data/conformance_expected.json">conformance_expected.json</a> so an implementation in any other language can be held to the same contract without cloning anything. The data behind every page is in the section above as JSON, XML, SQL and a loaded SQLite database. <a href="https://github.com/myklob/ideastockexchange">The repository</a> holds all of it.</p></section>')
+    o.append('<section><h2><span>Where the code is</span></h2><p class="blurb">Every rule above is one short module, and a small conformance corpus built to exercise every rule, with its expected numbers, the five constants and the evidence tiers, published as <a href="data/conformance_corpus.json">conformance_corpus.json</a> and <a href="data/conformance_expected.json">conformance_expected.json</a> so an implementation in any other language can be held to the same contract without cloning anything. The data behind every page is in the section above as JSON, XML, SQL and a loaded SQLite database. <a href="https://github.com/myklob/ideastockexchange">The repository</a> holds all of it.</p></section>')
     prov = getattr(c, 'prov', {})
     if prov.get('rev'):
         o.append(f'<p class="consts">Built from revision <code>{esc(prov["rev"])}</code>'
