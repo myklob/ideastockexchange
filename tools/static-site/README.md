@@ -316,14 +316,18 @@ fills both into every "post one" link. `vocab.html` also says that the repositor
 to run a copy with a rule of their own over the same tables, and points an AI assistant at the brief on `outline.html`.
 
 A vote never moves a score. `render_site.py` reads `votes.csv` when it is present (it is not in the workbook and
-`sync_content.py` does not check it), shows the counts on the heading line after the score badge with the words
-"votes, not a score" and a link to the issues that recorded them, and every row that is a page (a reason, a
-finding, a prediction, a criterion, a cost, an interest, a law, a person) carries its own Agree and Disagree. A
-reason or finding also carries "Bears on this: yes / no", a vote on the argument as an argument rather than on its
-claim: it is stored as a vote on the claim with `on` set to the page the row sits on, counted apart from the votes
-on whether the claim is true, and the linkage page for that row (when there is one) takes the same vote on its
-heading with the same counts. A row with an importance page also carries "Matters here: yes / no", a vote on that
-page. `on` is the last column of `votes.csv`, so a file written before it existed reads as the same table. Once anyone has voted the home page gets a "Recently voted" card
+`sync_content.py` does not check it) and shows a vote as a thumb up and a thumb down, each with its count, zero
+included. The heading line carries them after the labelled score badge ("Truth score 0.50"), with a "who voted"
+link to the issues that recorded them, and every row that is a page (a reason, a finding, a prediction, a
+criterion, a cost, an interest, a law, a person) carries its own pair. A reason or finding also carries "Bears on
+this:" thumbs, a vote on the argument as an argument rather than on its claim: it is stored as a vote on the claim
+with `on` set to the page the row sits on, counted apart from the votes on whether the claim is true, and the
+linkage page for that row (when there is one) takes the same vote on its heading with the same counts. A row with
+an importance page also carries "Matters here:" thumbs, a vote on that page; a row with either labels its first
+pair "True:". A thumb opens `vote.yml` prefilled, under a title that repeats the thumb and names the claim in words
+(`vote_title`, mirrored in `contribute.js`); the form says at its top that nothing needs filling in. Keep every
+value in the issue forms a word YAML 1.1 reads as a string: a bare `on`, `yes` or `no` is a boolean, GitHub then
+rejects the whole form and opens a blank issue instead, and `test_contribute.py` checks for it. `on` is the last column of `votes.csv`, so a file written before it existed reads as the same table. Once anyone has voted the home page gets a "Recently voted" card
 (newest vote first, counts each way) and, once three people have voted on a claim, "Votes vs the analysis",
 which ranks voted-on claims by how far the share of votes to agree sits from the truth score. The votes ride
 along in the exports as a `vote` table. No votes: no cards, no counts. The engine rule stands: a claim nobody
