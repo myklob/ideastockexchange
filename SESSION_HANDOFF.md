@@ -73,14 +73,19 @@ The 2026 election calls are filed as findings on the forecast pages they settle,
 - **Seven topics with beliefs beneath them have no cell rows of their own:** `us-economy`, `crypto`, `ai-progress`,
   `colorado`, `climate-outcomes`, `world-conflicts` and `tech-giants`. Their pages fill from the beliefs beneath, as
   designed, so this is a data gap, not a bug.
-- **An election that has happened barely moves its forecast.**
+- **An election that has happened barely moves its forecast. The cause is attenuation, not the load-bearing cap.**
   - Each filed call lifts its prediction page from 0.50 to 0.507, short of the tracker's 0.55 "came true" line, so all
     three read "recorded, still unclear".
-  - `democrats-will-win-majority` stays at 0.50: its rows argue it to 0.503, and a load-bearing premise nobody has
-    argued caps it there.
+  - On the prediction page, the finding contributes (2 x 0.65 - 1) x 0.10 x 1 x 0.50 x 1 = 0.015. Its `news` type
+    starts it at 0.65, a one-row page has confidence 0.10, and an unargued importance reads 0.50.
+  - The prediction then passes (2 x 0.507 - 1) x 0.18 x 0.50 = 0.0013 to the belief, so the same attenuation applies
+    twice.
+  - `democrats-will-win-majority`: the pre-election polls and models filed on both sides still count at full weight and
+    roughly cancel, at 0.503 argued. Three load-bearing premises at 0.50 then cap it at 0.500. The cap costs 0.003.
   - `republicans-will-keep-majority` moves from 0.4519 to 0.4515.
-  - This is open decisions 2 and 6 in `CLAUDE.md` seen on a real case: one `news` finding is weak evidence by design,
-    and the cap holds a belief at the weakest unargued premise.
+  - In my view the open question for the owner is whether a recorded outcome should screen off the evidence that only
+    predicted it. Once the result is known, a poll says nothing more about who won. The engine has no such rule. Per
+    the owner's direction it would be published beside the current rule and compared, not swapped in.
   - Certified results, typed `record`, arrive as states certify through December.
 - **Every cost and benefit is a point estimate.** `mag_low` and `mag_high` are empty (open decision 3 in `CLAUDE.md`).
 - **No score in the content tables is a placeholder.** The content holds none: every printed number comes from
