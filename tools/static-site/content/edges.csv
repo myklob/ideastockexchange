@@ -9471,48 +9471,48 @@ end-2030-ai-systems,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disag
 end-2030-ai-systems,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether the fall in hiring of young software developers since 2022 is caused mainly by AI or mainly by higher interest rates and the end of pandemic over-hiring. | move: Comparing junior hiring at firms that adopted AI coding agents heavily against similar firms that did not, as interest rates move, would separate the two causes."
 end-2030-ai-systems,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides disagree about whether AI writing most of the new code counts as AI doing most of a junior programmer's work. | move: Agreeing in advance to judge the belief by employment of programmers and developers under 30, or by time-use studies of whole workdays, rather than by lines of code would settle what is being measured."
 end-2030-ai-systems,value,,,,,,,,,,,,,,,,,,"value: Prosperity | srank: 1 | orank: 2 | why: People who hold the belief stress the cheaper software and higher output AI coding promises, while people who reject it care about prosperity too but doubt it will arrive this fast."
-bob-chew-forward-party,argument,agree,bob-chew-has-made,,,,,,,,,,,,,,,,
-bob-chew-forward-party,argument,agree,bob-chew-s-campaign,,,,,,,,,,,,,,,,
-bob-chew-forward-party,argument,agree,bob-chew-co-founded,,,,,,,,,,,,,,,,
+bob-chew-forward-party,argument,agree,bob-chew-has-made,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/10/02/mark-baisley-john-hickenlooper-us-senate/ | checked: 2026-11-21
+bob-chew-forward-party,argument,agree,bob-chew-s-campaign,,,,,,,,,,,,,,,,url: https://api.open.fec.gov/v1/committee/C00944298/reports/?api_key=DEMO_KEY&per_page=20 | checked: 2026-11-21
+bob-chew-forward-party,argument,agree,bob-chew-co-founded,,,,,,,,,,,,,,,,url: https://bobchew2026.com/about-bob/ | checked: 2026-11-21
 bob-chew-forward-party,argument,agree,bob-chew-s-positions,,,,,,,,,,,,,,,,
-bob-chew-forward-party,argument,agree,bob-chew-publishes-13,,,,,,,,,,,,,,,,
-bob-chew-forward-party,evidence,agree,through-june-30-2026,,"Colorado Politics (Ernest Luning), 'Forward Party nominee for Colorado's U.S. Senate seat puts $1.1 million into his campaign', July 14, 2026, citing the campaign's FEC filing for the quarter ended June 30, 2026",,,,,,,,,,,,,,
-bob-chew-forward-party,evidence,agree,september-1-2026-colorado,,"Colorado Secretary of State registration figures as reported by Colorado Politics, 'Colorado U.S. Senate: Baisley looks to unseat Hickenlooper', October 2, 2026",,,,,,,,,,,,,,
-bob-chew-forward-party,evidence,agree,2026-social-security-trustees,,"Social Security Board of Trustees, 2026 Annual Report, June 9, 2026, as reported by 401(k) Specialist and NBC Palm Springs",,,,,,,,,,,,,,
-bob-chew-forward-party,prediction,agree,bob-chew-will-win,,,,,,,,,,,,,,,"By December 15, 2026; checked against the certified U.S. Senate results published by the Colorado Secretary of State.",
+bob-chew-forward-party,argument,agree,bob-chew-publishes-13,,,,,,,,,,,,,,,,url: https://bobchew2026.com/issues/ | checked: 2026-11-21
+bob-chew-forward-party,evidence,agree,through-june-30-2026,,"Colorado Politics (Ernest Luning), 'Forward Party nominee for Colorado's U.S. Senate seat puts $1.1 million into his campaign', July 14, 2026, citing the campaign's FEC filing for the quarter ended June 30, 2026",,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/07/14/forward-party-nominee-for-colorados-u-s-senate-seat-puts-1-1-million-into-his-campaign/ | checked: 2026-11-21
+bob-chew-forward-party,evidence,agree,september-1-2026-colorado,,"Colorado Secretary of State registration figures as reported by Colorado Politics, 'Colorado U.S. Senate: Baisley looks to unseat Hickenlooper', October 2, 2026",,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/10/02/mark-baisley-john-hickenlooper-us-senate/ | checked: 2026-11-21
+bob-chew-forward-party,evidence,agree,2026-social-security-trustees,,"Social Security Board of Trustees, 2026 Annual Report, June 9, 2026, as reported by 401(k) Specialist and NBC Palm Springs",,,,,,,,,,,,,,url: https://home.treasury.gov/system/files/136/2026-Message-to-the-Public.pdf | checked: 2026-11-21
+bob-chew-forward-party,prediction,agree,bob-chew-will-win,,,,,,,,,,,,,,,"By December 15, 2026; checked against the certified U.S. Senate results published by the Colorado Secretary of State.",url: https://clerk.house.gov/member_info/electionInfo/2016/statistics2016.pdf | checked: 2026-11-21
 bob-chew-forward-party,prediction,agree,least-one-independent-non,,,,,,,,,,,,,,,"By November 3, 2026; checked against the polling tables compiled by RealClearPolling and Wikipedia for the 2026 Colorado Senate race.",
 bob-chew-forward-party,falsify,agree,nonpartisan-poll-likely-colorado,,,,,,,,,,,,,,,,
 bob-chew-forward-party,falsify,agree,independent-budget-group-scores,,,,,,,,,,,,,,,,
 bob-chew-forward-party,assumption,agree,candidate-no-voting-record,,,,,,,,,,,,,,,,
 bob-chew-forward-party,assumption,agree,national-debt-most-important,,,,,,,,,,,,,,,,
 bob-chew-forward-party,assumption,agree,senator-who-belongs-neither,,,,,,,,,,,,,,,,
-bob-chew-forward-party,person,agree,lindsey-drath-chief-executive,,,,,,,,,,,,,,,,
-bob-chew-forward-party,person,agree,andrew-yang-christie-todd,,,,,,,,,,,,,,,,
-bob-chew-forward-party,media,agree,breaking-two-party-doom,,,,,,,,,,,,,,,,
-bob-chew-forward-party,media,agree,politics-industry-how-political,,,,,,,,,,,,,,,,
-bob-chew-forward-party,argument,disagree,bob-chew-has-never,,,,,,,,,,,,,,,,
-bob-chew-forward-party,argument,disagree,bob-chew-s-campaign-2,,,,,,,,,,,,,,,,
-bob-chew-forward-party,argument,disagree,bob-chew-lists-13,,,,,,,,,,,,,,,,
+bob-chew-forward-party,person,agree,lindsey-drath-chief-executive,,,,,,,,,,,,,,,,url: https://www.forwardparty.com/media/blog/forward-party-endorses-four-independent-senate-candidates-across-four-states/ | checked: 2026-11-21
+bob-chew-forward-party,person,agree,andrew-yang-christie-todd,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/07/14/forward-party-nominee-for-colorados-us-senate-seat-puts-1-1-million-into-his-campaign/ | checked: 2026-11-21
+bob-chew-forward-party,media,agree,breaking-two-party-doom,,,,,,,,,,,,,,,,url: https://global.oup.com/academic/product/breaking-the-two-party-doom-loop-9780190913854 | checked: 2026-11-21
+bob-chew-forward-party,media,agree,politics-industry-how-political,,,,,,,,,,,,,,,,url: https://store.hbr.org/product/the-politics-industry-how-political-innovation-can-break-partisan-gridlock-and-save-our-democracy/10367 | checked: 2026-11-21
+bob-chew-forward-party,argument,disagree,bob-chew-has-never,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/08/12/ticked-off-third-party-u-s-senate-candidate-in-colorado-launches-1-3-million-tv-ad-campaign/ | checked: 2026-11-21
+bob-chew-forward-party,argument,disagree,bob-chew-s-campaign-2,,,,,,,,,,,,,,,,url: https://www.ssa.gov/OACT/TR/2026/II_A_highlights.html | checked: 2026-11-21
+bob-chew-forward-party,argument,disagree,bob-chew-lists-13,,,,,,,,,,,,,,,,url: https://bobchew2026.com/issues/ | checked: 2026-11-21
 bob-chew-forward-party,argument,disagree,colorado-senator-no-party,,,,,,,,,,,,,,,,
-bob-chew-forward-party,argument,disagree,bob-chew-was-registered,,,,,,,,,,,,,,,,
-bob-chew-forward-party,evidence,disagree,john-hickenlooper-ranked-27th,,"The Lugar Center and Georgetown University McCourt School of Public Policy, Bipartisan Index, 2023 Senate scores and 117th Congress Senate scores",,,,,,,,,,,,,,
-bob-chew-forward-party,prediction,disagree,bob-chew-will-finish,,,,,,,,,,,,,,,"By December 15, 2026; checked against the certified results published by the Colorado Secretary of State.",
+bob-chew-forward-party,argument,disagree,bob-chew-was-registered,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/07/14/forward-party-nominee-for-colorados-us-senate-seat-puts-1-1-million-into-his-campaign/ | checked: 2026-11-21
+bob-chew-forward-party,evidence,disagree,john-hickenlooper-ranked-27th,,"The Lugar Center and Georgetown University McCourt School of Public Policy, Bipartisan Index, 2023 Senate scores and 117th Congress Senate scores",,,,,,,,,,,,,,url: https://www.thelugarcenter.org/ourwork-85.html | checked: 2026-11-21
+bob-chew-forward-party,prediction,disagree,bob-chew-will-finish,,,,,,,,,,,,,,,"By December 15, 2026; checked against the certified results published by the Colorado Secretary of State.",url: https://clerk.house.gov/member_info/electionInfo/2020/statistics2020.pdf | checked: 2026-11-21
 bob-chew-forward-party,falsify,disagree,fec-filings-news-reporting,,,,,,,,,,,,,,,,
 bob-chew-forward-party,assumption,disagree,six-year-senate-term,,,,,,,,,,,,,,,,
 bob-chew-forward-party,assumption,disagree,senator-delivers-colorado-mainly,,,,,,,,,,,,,,,,
-bob-chew-forward-party,person,disagree,mark-baisley-republican-nominee,,,,,,,,,,,,,,,,
-bob-chew-forward-party,person,disagree,jess-cohen-spokesman-john,,,,,,,,,,,,,,,,
-bob-chew-forward-party,media,disagree,3rd-party-u-s,,,,,,,,,,,,,,,,
-bob-chew-forward-party,media,disagree,can-third-party-candidates,,,,,,,,,,,,,,,,
+bob-chew-forward-party,person,disagree,mark-baisley-republican-nominee,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/08/12/ticked-off-third-party-us-senate-candidate-in-colorado-launches-1-3-million-tv-ad-campaign/ | checked: 2026-11-21
+bob-chew-forward-party,person,disagree,jess-cohen-spokesman-john,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/09/30/3rd-party-us-senate-candidate-bob-chew-boosts-colorado-ads-by-1-5m-4/ | checked: 2026-11-21
+bob-chew-forward-party,media,disagree,3rd-party-u-s,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/09/30/3rd-party-us-senate-candidate-bob-chew-boosts-colorado-ads-by-1-5m-4/ | checked: 2026-11-21
+bob-chew-forward-party,media,disagree,can-third-party-candidates,,,,,,,,,,,,,,,,url: https://www.kunc.org/politics/2026-08-27/can-independent-candidates-gain-traction-maybe-not-but-its-not-stopping-them-from-trying | checked: 2026-11-21
 bob-chew-forward-party,interest,agree,workers-who-will-retire,,,,,,,,,,,,,,,,
 bob-chew-forward-party,interest,agree,colorado-taxpayers-under-40,,,,,,,,,,,,,,,,
 bob-chew-forward-party,interest,disagree,colorado-river-farmers-city,,,,,,,,,,,,,,,,
 bob-chew-forward-party,interest,disagree,colorado-republican-voters-need,,,,,,,,,,,,,,,,
 bob-chew-forward-party,interest,disagree,colorado-democrats-need-hickenlooper,,,,,,,,,,,,,,,,
 bob-chew-forward-party,cba,agree,electing-bob-chew-place,,,,,,,,,,,Senate votes outside party control,1,,,,
-bob-chew-forward-party,cba,agree,electing-bob-chew-put,,,,,,,,colorado-taxpayers-under-40,,,debt reduction bills introduced in the first year,1,,,,
-bob-chew-forward-party,cba,disagree,electing-bob-chew-cost,,,,,,,,colorado-river-farmers-city,,,years of Senate seniority,6,,,,
-bob-chew-forward-party,cba,disagree,senator-no-party-caucus,,,,,,,,colorado-democrats-need-hickenlooper,,,committee seats held by Colorado's junior senator,,,,,
+bob-chew-forward-party,cba,agree,electing-bob-chew-put,,,,,,,,colorado-taxpayers-under-40,,,debt reduction bills introduced in the first year,1,,,,url: https://bobchew2026.com/issues/ | checked: 2026-11-21
+bob-chew-forward-party,cba,disagree,electing-bob-chew-cost,,,,,,,,colorado-river-farmers-city,,,years of Senate seniority,6,,,,url: https://www.senate.gov/states/CO/senators.htm | checked: 2026-11-21
+bob-chew-forward-party,cba,disagree,senator-no-party-caucus,,,,,,,,colorado-democrats-need-hickenlooper,,,committee seats held by Colorado's junior senator,,,,,url: https://www.senate.gov/about/origins-foundations/committee-system/committee-assignments.htm | checked: 2026-11-21
 bob-chew-forward-party,category,,,Senate votes outside party control,,,,,,,,,,,,,,,
 bob-chew-forward-party,category,,,committee seats held by Colorado's junior senator,,,,,,,,,,,,,,,
 bob-chew-forward-party,category,,,debt reduction bills introduced in the first year,,,,,,,,,,,,,,,
@@ -9896,25 +9896,25 @@ ukraine-admitted-nato-once,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides d
 ukraine-admitted-nato-once,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree about how much risk of war with a nuclear-armed Russia NATO's current members should accept to protect Ukraine. | move: No finding settles it, but stating plainly what each side expects the risk of renewed war to be with and without membership would show whether the fight is over facts or over how much risk is worth taking."
 ukraine-admitted-nato-once,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether guarantees short of membership, such as those in the January 2026 Paris Declaration, can deter Russia as well as NATO membership would. | move: Watching whether the guarantor countries actually station forces and commit funds in Ukraine after a ceasefire, and whether Russia tests them, would show how credible the alternatives are."
 ukraine-admitted-nato-once,value,,,,,,,,,,,,,,,,,,"value: Self-determination | srank: 1 | orank: 3 | why: Supporters put first Ukraine's right to choose its own alliances, which opponents accept in principle but rank below avoiding a wider war."
-ceasefire-leaves-russia-holding,argument,agree,minsk-ceasefires-2014-2015,,,,,,,,,,,,,,,,
+ceasefire-leaves-russia-holding,argument,agree,minsk-ceasefires-2014-2015,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Minsk_agreements | checked: 2026-11-21
 ceasefire-leaves-russia-holding,argument,agree,ceasefire-lets-russia-keep,,,,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,argument,agree,ceasefire-let-russia-move,,,,,,,,,,,,,,,,
+ceasefire-leaves-russia-holding,argument,agree,ceasefire-let-russia-move,,,,,,,,,,,,,,,,url: https://www.kielinstitut.de/fileadmin/Dateiverwaltung/IfW-Publications/fis-import/1f9c7f5f-15d2-45c4-8b85-9bb550cd449d-Kiel_Report_no1.pdf | checked: 2026-11-21
 ceasefire-leaves-russia-holding,argument,agree,ceasefire-current-line-likely,,,,,,,,,,,,,,,,
 ceasefire-leaves-russia-holding,argument,agree,ceasefire-without-strong-enforcement,,,,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,evidence,agree,between-evenings-february-18,,"OSCE Special Monitoring Mission to Ukraine, Daily Report, 21 February 2022",,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,prediction,agree,if-ceasefire-along-current,,,,,,,,,,,,,,,"By December 31, 2029; checked against SIPRI's Military Expenditure Database and SIPRI's annual analysis of the Russian budget.",
+ceasefire-leaves-russia-holding,evidence,agree,between-evenings-february-18,,"OSCE Special Monitoring Mission to Ukraine, Daily Report, 21 February 2022",,,,,,,,,,,,,,url: https://www.osce.org/special-monitoring-mission-to-ukraine/512683 | checked: 2026-11-21
+ceasefire-leaves-russia-holding,prediction,agree,if-ceasefire-along-current,,,,,,,,,,,,,,,"By December 31, 2029; checked against SIPRI's Military Expenditure Database and SIPRI's annual analysis of the Russian budget.",url: https://www.sipri.org/publications/2026/sipri-fact-sheets/trends-world-military-expenditure-2025 | checked: 2026-11-21
 ceasefire-leaves-russia-holding,prediction,agree,if-ceasefire-along-current-2,,,,,,,,,,,,,,,"By December 31, 2032; checked against Institute for the Study of War maps and NATO and EU government statements.",
 ceasefire-leaves-russia-holding,assumption,agree,russia-s-government-still,,,,,,,,,,,,,,,,
 ceasefire-leaves-russia-holding,assumption,agree,ukraine-its-backers-can,,,,,,,,,,,,,,,,
 ceasefire-leaves-russia-holding,assumption,agree,how-other-governments-judge,,,,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,media,agree,fit-war-decades-europe,,,,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,media,agree,putin-s-wars-chechnya,,,,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,argument,disagree,since-2023-front-line,,,,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,argument,disagree,ceasefire-give-europe-years,,,,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,argument,disagree,ceasefires-backed-strong-mechanisms,,,,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,argument,disagree,continued-war-keeps-alive,,,,,,,,,,,,,,,,
+ceasefire-leaves-russia-holding,media,agree,fit-war-decades-europe,,,,,,,,,,,,,,,,url: https://www.kielinstitut.de/publications/fit-for-war-in-decades-europes-and-germanys-slow-rearmament-vis-a-vis-russia-33234/ | checked: 2026-11-21
+ceasefire-leaves-russia-holding,media,agree,putin-s-wars-chechnya,,,,,,,,,,,,,,,,url: https://www.publishersweekly.com/9781472847546 | checked: 2026-11-21
+ceasefire-leaves-russia-holding,argument,disagree,since-2023-front-line,,,,,,,,,,,,,,,,url: https://novayagazeta.eu/en/articles/2026/01/03/analysis-shows-russia-made-most-territorial-gains-in-2025-since-first-year-of-war-en-news | checked: 2026-11-21
+ceasefire-leaves-russia-holding,argument,disagree,ceasefire-give-europe-years,,,,,,,,,,,,,,,,url: https://www.nato.int/cps/en/natohq/official_texts_236705.htm | checked: 2026-11-21
+ceasefire-leaves-russia-holding,argument,disagree,ceasefires-backed-strong-mechanisms,,,,,,,,,,,,,,,,url: https://www.cambridge.org/core/product/identifier/S0020818303572046/type/journal_article | checked: 2026-11-21
+ceasefire-leaves-russia-holding,argument,disagree,continued-war-keeps-alive,,,,,,,,,,,,,,,,url: https://www.airandspaceforces.com/nato-fighters-shoot-down-russian-drones-over-poland/ | checked: 2026-11-21
 ceasefire-leaves-russia-holding,argument,disagree,american-support-uncertain-continued,,,,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,evidence,disagree,center-strategic-international-studies,,"Center for Strategic and International Studies (CSIS), estimate of Russian and Ukrainian battlefield casualties, January 2026",,,,,,,,,,,,,,
+ceasefire-leaves-russia-holding,evidence,disagree,center-strategic-international-studies,,"Center for Strategic and International Studies (CSIS), estimate of Russian and Ukrainian battlefield casualties, January 2026",,,,,,,,,,,,,,url: https://www.csis.org/analysis/russias-grinding-war-ukraine | checked: 2026-11-21
 ceasefire-leaves-russia-holding,prediction,disagree,if-ceasefire-along-current-3,,,,,,,,,,,,,,,"By December 31, 2032; checked against Institute for the Study of War maps and any international monitoring mission's reports.",
 ceasefire-leaves-russia-holding,prediction,disagree,if-ceasefire-along-current-4,,,,,,,,,,,,,,,"By December 31, 2030; checked against SIPRI's Military Expenditure Database.",
 ceasefire-leaves-russia-holding,assumption,disagree,russia-can-deterred-restarting,,,,,,,,,,,,,,,,
@@ -9926,11 +9926,11 @@ ceasefire-leaves-russia-holding,interest,agree,moldovans-georgians-need-proof,,,
 ceasefire-leaves-russia-holding,interest,disagree,ukrainian-soldiers-families-need,,,,,,,,,,,,,,,,
 ceasefire-leaves-russia-holding,interest,disagree,ukrainian-civilians-cities-such,,,,,,,,,,,,,,,,
 ceasefire-leaves-russia-holding,interest,disagree,ukrainian-refugees-living-europe,,,,,,,,,,,,,,,,
-ceasefire-leaves-russia-holding,cba,agree,refusing-ceasefire-current-line,,,,,,,,residents-estonia-latvia-lithuania,,,Russian personnel kept in the war zone,700000,,,,
+ceasefire-leaves-russia-holding,cba,agree,refusing-ceasefire-current-line,,,,,,,,residents-estonia-latvia-lithuania,,,Russian personnel kept in the war zone,700000,,,,url: https://janiskluge.substack.com/p/the-composition-of-russian-forces | checked: 2026-11-21
 ceasefire-leaves-russia-holding,cba,agree,refusing-freeze-line-keeps,,,,,,,,ukrainians-living-under-russian-2,,,percentage points of Ukraine's territory returned to Kyiv's control within five years,,,,,
-ceasefire-leaves-russia-holding,cba,disagree,continued-fighting-adds-well,,,,,,,,ukrainian-soldiers-families-need,,,Ukrainian military casualties a year,140000,,,,
-ceasefire-leaves-russia-holding,cba,disagree,continued-fighting-kills-ukrainian,,,,,,,,ukrainian-civilians-cities-such,,,"Ukrainian civilians killed a year, as verified by the UN",2200,,,,
-ceasefire-leaves-russia-holding,cba,disagree,continued-fighting-destroys-ukrainian,,,,,,,,ukrainian-refugees-living-europe,,,dollars of direct physical damage a year,50000000000,,,,
+ceasefire-leaves-russia-holding,cba,disagree,continued-fighting-adds-well,,,,,,,,ukrainian-soldiers-families-need,,,Ukrainian military casualties a year,140000,,,,url: https://www.csis.org/analysis/russias-grinding-war-ukraine | checked: 2026-11-21
+ceasefire-leaves-russia-holding,cba,disagree,continued-fighting-kills-ukrainian,,,,,,,,ukrainian-civilians-cities-such,,,"Ukrainian civilians killed a year, as verified by the UN",2200,,,,url: https://ukraine.ohchr.org/en/Protection-of-Civilians-in-Armed-Conflict-October-2026 | checked: 2026-11-21
+ceasefire-leaves-russia-holding,cba,disagree,continued-fighting-destroys-ukrainian,,,,,,,,ukrainian-refugees-living-europe,,,dollars of direct physical damage a year,50000000000,,,,url: https://www.worldbank.org/en/news/press-release/2026/02/23/updated-ukraine-recovery-and-reconstruction-needs-assessment-released | checked: 2026-11-21
 ceasefire-leaves-russia-holding,category,,,Russian personnel kept in the war zone,,,,,,,,,,,,,,,
 ceasefire-leaves-russia-holding,category,,,"Ukrainian civilians killed a year, as verified by the UN",,,,,,,,,,,,,,,
 ceasefire-leaves-russia-holding,category,,,Ukrainian military casualties a year,,,,,,,,,,,,,,,
@@ -10280,14 +10280,14 @@ colorado-override-local-zoning,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two 
 colorado-override-local-zoning,dispute,,,Legal,,,,,,,,,,,,,,,"what: The two sides disagree about whether Colorado's home-rule cities can be required by state law to allow apartments near transit, or whether zoning is a local matter the constitution reserves to them. | move: A Colorado Supreme Court ruling on a challenge to a state transit-area zoning requirement would settle how far the legislature can go."
 colorado-override-local-zoning,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree about how much weight residents' control over their own neighborhoods should get against the housing needs of people across the region who do not yet live there. | move: Evidence cannot settle this alone, but a rule both sides could accept in advance, such as state action only after a city misses its HB24-1313 goal, would narrow the fight to the cases that matter."
 colorado-override-local-zoning,value,,,,,,,,,,,,,,,,,,"value: Affordability | srank: 1 | orank: 2 | why: Supporters see lower rents and home prices as the main reason to act, while opponents share the goal but doubt a state override would deliver it."
-colorado-build-front-range,argument,agree,colorado-can-start-front,,,,,,,,,,,,,,,,
+colorado-build-front-range,argument,agree,colorado-can-start-front,,,,,,,,,,,,,,,,url: https://coloradoconnector.com/faq/ | checked: 2026-11-21
 colorado-build-front-range,argument,agree,widening-i-25-alone,,,,,,,,,,,,,,,,
 colorado-build-front-range,argument,agree,front-range-passenger-train,,,,,,,,,,,,,,,,
-colorado-build-front-range,argument,agree,front-range-travelers-have,,,,,,,,,,,,,,,,
-colorado-build-front-range,evidence,agree,among-ten-state-supported,,"Front Range Passenger Rail District, Delivery Plan for Colorado Connector (CoCo), August 31, 2026",,,,,,,,,,,,,,
-colorado-build-front-range,evidence,agree,when-fully-built-out,,"Southwest Energy Efficiency Project (SWEEP), Quantifying the Environmental Benefits of the Colorado Connector, 2026, as reported in the FRPR District Delivery Plan, August 31, 2026",,,,,,,,,,,,,,
-colorado-build-front-range,evidence,agree,front-range-drivers-lose,,"Texas A&M Transportation Institute, 2025 Urban Mobility Report, as reported in the FRPR District Delivery Plan, August 31, 2026",,,,,,,,,,,,,,
-colorado-build-front-range,prediction,agree,colorado-connector-starter-service,,,,,,,,,,,,,,,"By December 31, 2029; checked against Front Range Passenger Rail District and Amtrak service announcements.",
+colorado-build-front-range,argument,agree,front-range-travelers-have,,,,,,,,,,,,,,,,url: https://www.codot.gov/news/2025/july/bustang-celebrates-decade-of-serving-colorado | checked: 2026-11-21
+colorado-build-front-range,evidence,agree,among-ten-state-supported,,"Front Range Passenger Rail District, Delivery Plan for Colorado Connector (CoCo), August 31, 2026",,,,,,,,,,,,,,url: https://drive.google.com/file/d/163-SpQikBc9tVWD3qwaJiGGPzgwtEWy0/view | checked: 2026-11-21
+colorado-build-front-range,evidence,agree,when-fully-built-out,,"Southwest Energy Efficiency Project (SWEEP), Quantifying the Environmental Benefits of the Colorado Connector, 2026, as reported in the FRPR District Delivery Plan, August 31, 2026",,,,,,,,,,,,,,url: https://www.swenergy.org/?p=16207 | checked: 2026-11-21
+colorado-build-front-range,evidence,agree,front-range-drivers-lose,,"Texas A&M Transportation Institute, 2025 Urban Mobility Report, as reported in the FRPR District Delivery Plan, August 31, 2026",,,,,,,,,,,,,,url: https://static.tti.tamu.edu/tti.tamu.edu/documents/mobility-report-2025.pdf | checked: 2026-11-21
+colorado-build-front-range,prediction,agree,colorado-connector-starter-service,,,,,,,,,,,,,,,"By December 31, 2029; checked against Front Range Passenger Rail District and Amtrak service announcements.",url: https://www.frprdistrict.com/plan | checked: 2026-11-21
 colorado-build-front-range,prediction,agree,colorado-connector-starter-service-2,,,,,,,,,,,,,,,"By June 30, 2032; checked against published Amtrak or Front Range Passenger Rail District annual ridership.",
 colorado-build-front-range,falsify,agree,independent-cost-per-rider,,,,,,,,,,,,,,,,
 colorado-build-front-range,falsify,agree,starter-service-trains-between,,,,,,,,,,,,,,,,
@@ -10295,14 +10295,14 @@ colorado-build-front-range,assumption,agree,travel-between-front-range,,,,,,,,,,
 colorado-build-front-range,assumption,agree,ridership-front-range-passenger,,,,,,,,,,,,,,,,
 colorado-build-front-range,assumption,agree,public-subsidy-front-range,,,,,,,,,,,,,,,,
 colorado-build-front-range,person,agree,colorado-governor-jared-polis,,,,,,,,,,,,,,,,
-colorado-build-front-range,person,agree,u-s-representative-joe,,,,,,,,,,,,,,,,
-colorado-build-front-range,media,agree,front-range-passenger-rail,,,,,,,,,,,,,,,,
-colorado-build-front-range,argument,disagree,front-range-passenger-trains,,,,,,,,,,,,,,,,
-colorado-build-front-range,argument,disagree,colorado-has-poor-record,,,,,,,,,,,,,,,,
-colorado-build-front-range,argument,disagree,running-passenger-trains-bnsf,,,,,,,,,,,,,,,,
-colorado-build-front-range,argument,disagree,sales-tax-pay-front,,,,,,,,,,,,,,,,
+colorado-build-front-range,person,agree,u-s-representative-joe,,,,,,,,,,,,,,,,url: https://neguse.house.gov/media/press-releases/neguse-leads-colorado-delegation-letter-dot-fra-urges-funding-colorados-front | checked: 2026-11-21
+colorado-build-front-range,media,agree,front-range-passenger-rail,,,,,,,,,,,,,,,,url: https://gazette.com/news/front-range-passenger-rail-to-cost-up-to-2-8-billion-for-first-phase-report/ | checked: 2026-11-21
+colorado-build-front-range,argument,disagree,front-range-passenger-trains,,,,,,,,,,,,,,,,url: https://coloradoconnector.com/faq/ | checked: 2026-11-21
+colorado-build-front-range,argument,disagree,colorado-has-poor-record,,,,,,,,,,,,,,,,url: https://www.rtd-denver.com/open-records/reports-and-policies/facts-and-figures/b-line | checked: 2026-11-21
+colorado-build-front-range,argument,disagree,running-passenger-trains-bnsf,,,,,,,,,,,,,,,,url: https://coloradoconnector.com/faq/ | checked: 2026-11-21
+colorado-build-front-range,argument,disagree,sales-tax-pay-front,,,,,,,,,,,,,,,,url: https://itep.org/whopays/colorado-who-pays-7th-edition/ | checked: 2026-11-21
 colorado-build-front-range,evidence,disagree,district-s-full-build,,"Front Range Passenger Rail District, Delivery Plan for Colorado Connector (CoCo), August 31, 2026 (division by this page)",,,,,,,,,,,,,,
-colorado-build-front-range,evidence,disagree,utah-s-frontrunner-diesel,,"The Antiplanner (Thoreau Institute), ""Front Range Rail: Expensive and Insignificant,"" May 8, 2026, citing the 2024 National Transit Database",,,,,,,,,,,,,,
+colorado-build-front-range,evidence,disagree,utah-s-frontrunner-diesel,,"The Antiplanner (Thoreau Institute), ""Front Range Rail: Expensive and Insignificant,"" May 8, 2026, citing the 2024 National Transit Database",,,,,,,,,,,,,,url: https://ti.org/antiplanner/?p=23868 | checked: 2026-11-21
 colorado-build-front-range,prediction,disagree,colorado-connector-starter-service-3,,,,,,,,,,,,,,,"By June 30, 2032; checked against published Amtrak or Front Range Passenger Rail District annual ridership.",
 colorado-build-front-range,falsify,disagree,union-pacific-declines-sign,,,,,,,,,,,,,,,,
 colorado-build-front-range,falsify,disagree,starter-service-ridership-its,,,,,,,,,,,,,,,,
@@ -10521,37 +10521,37 @@ fully-driverless-robotaxis-will,definition,,,,,,,,,,,,,,,,,,"term: Metropolitan 
 fully-driverless-robotaxis-will,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether Waymo's 2026 pace of opening new metros can continue now that the remaining unserved metros face harder laws, harsher winters and a thin vehicle supply. | move: A count of new metros with paid driverless service opened in 2027, from company and regulator announcements, would show whether the pace held."
 fully-driverless-robotaxis-will,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether a serious robotaxi crash during rapid expansion would stall launches nationwide or stay a local, one-company setback. | move: How regulators and other operators responded to the next serious robotaxi crash, measured by launches paused or delayed, would settle it."
 fully-driverless-robotaxis-will,value,,,,,,,,,,,,,,,,,,"value: Safety | srank: 2 | orank: 1 | why: Supporters see robotaxis as safer than human drivers, while opponents put the risk of untested systems in new cities first."
-ai-will-have-destroyed,argument,agree,early-career-workers-occupations,,,,,,,,,,,,,,,,
+ai-will-have-destroyed,argument,agree,early-career-workers-occupations,,,,,,,,,,,,,,,,url: https://digitaleconomy.stanford.edu/publications/canaries-in-the-coal-mine/ | checked: 2026-11-21
 ai-will-have-destroyed,argument,agree,job-creation-new-technology,,,,,,,,,,,,,,,,
 ai-will-have-destroyed,argument,agree,companies-have-incentive-hold,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,evidence,agree,early-career-workers-aged,,"Erik Brynjolfsson, Bharat Chandar and Ruyu Chen, Canaries in the Coal Mine? Six Facts about the Recent Employment Effects of Artificial Intelligence, Stanford Digital Economy Lab working paper, 2025",,,,,,,,,,,,,,
-ai-will-have-destroyed,evidence,agree,employers-cited-artificial-intelligence,,"Challenger, Gray & Christmas, June 2026 Job Cuts Report, 2026",,,,,,,,,,,,,,
-ai-will-have-destroyed,evidence,agree,september-2026-survey-123,,"Indeed Hiring Lab, Q3 2026 Labor Market Outlook Survey, 2026",,,,,,,,,,,,,,
+ai-will-have-destroyed,evidence,agree,early-career-workers-aged,,"Erik Brynjolfsson, Bharat Chandar and Ruyu Chen, Canaries in the Coal Mine? Six Facts about the Recent Employment Effects of Artificial Intelligence, Stanford Digital Economy Lab working paper, 2025",,,,,,,,,,,,,,url: https://digitaleconomy.stanford.edu/wp-content/uploads/2025/08/Canaries_BrynjolfssonChandarChen.pdf | checked: 2026-11-21
+ai-will-have-destroyed,evidence,agree,employers-cited-artificial-intelligence,,"Challenger, Gray & Christmas, June 2026 Job Cuts Report, 2026",,,,,,,,,,,,,,url: https://www.challengergray.com/blog/challenger-report-june-layoffs-cool-to-45849-down-53-from-may-ai-leads-reasons-for-fourth-consecutive-month/ | checked: 2026-11-21
+ai-will-have-destroyed,evidence,agree,september-2026-survey-123,,"Indeed Hiring Lab, Q3 2026 Labor Market Outlook Survey, 2026",,,,,,,,,,,,,,url: https://hiringlab.indeed.com/2026/09/24/q3-labor-market-outlook-survey/ | checked: 2026-11-21
 ai-will-have-destroyed,prediction,agree,employment-customer-service-representatives,,,,,,,,,,,,,,,By June 2029; checked against the BLS Occupational Employment and Wage Statistics national tables for May 2025 and May 2028.,
 ai-will-have-destroyed,prediction,agree,challenger-gray-christmas-will,,,,,,,,,,,,,,,By January 2028; checked against the Challenger December 2027 Job Cuts Report year-end total for the artificial intelligence reason.,
 ai-will-have-destroyed,falsify,agree,follow-up-stanford-payroll,,,,,,,,,,,,,,,,
 ai-will-have-destroyed,assumption,agree,fall-entry-level-hiring,,,,,,,,,,,,,,,,
 ai-will-have-destroyed,assumption,agree,ai-systems-will-keep,,,,,,,,,,,,,,,,
 ai-will-have-destroyed,assumption,agree,most-u-s-firms,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,person,agree,anthropic-chief-executive-dario-2,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,person,agree,ford-chief-executive-jim,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,person,agree,geoffrey-hinton-who-shared,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,media,agree,canaries-coal-mine-six,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,media,agree,power-progress-our-thousand,,,,,,,,,,,,,,,,
+ai-will-have-destroyed,person,agree,anthropic-chief-executive-dario-2,,,,,,,,,,,,,,,,url: https://www.theregister.com/2025/05/29/anthropic_ceo_ai_job_threat/ | checked: 2026-11-21
+ai-will-have-destroyed,person,agree,ford-chief-executive-jim,,,,,,,,,,,,,,,,url: https://fortune.com/2025/07/05/ford-ceo-jim-farley-ai-white-collar-jobs-essential-economy-skilled-trade-jobs-shortage/ | checked: 2026-11-21
+ai-will-have-destroyed,person,agree,geoffrey-hinton-who-shared,,,,,,,,,,,,,,,,url: https://singjupost.com/transcript-of-godfather-of-ai-i-tried-to-warn-them-but-weve-already-lost-control | checked: 2026-11-21
+ai-will-have-destroyed,media,agree,canaries-coal-mine-six,,,,,,,,,,,,,,,,url: https://digitaleconomy.stanford.edu/app/uploads/2026/08/Canaries_August2026.pdf | checked: 2026-11-21
+ai-will-have-destroyed,media,agree,power-progress-our-thousand,,,,,,,,,,,,,,,,url: https://shapingwork.mit.edu/power-and-progress/ | checked: 2026-11-21
 ai-will-have-destroyed,argument,disagree,ai-generally-raises-output,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,argument,disagree,u-s-population-aging,,,,,,,,,,,,,,,,
+ai-will-have-destroyed,argument,disagree,u-s-population-aging,,,,,,,,,,,,,,,,url: https://www.bls.gov/emp/tables/civilian-labor-force-summary.htm | checked: 2026-11-21
 ai-will-have-destroyed,argument,disagree,counting-jobs-ai-destroyed,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,evidence,disagree,thirty-three-months-after,,"Yale Budget Lab and the Brookings Institution, Evaluating the Impact of AI on the Labor Market: Current State of Affairs, 2025",,,,,,,,,,,,,,
-ai-will-have-destroyed,evidence,disagree,u-s-unemployment-rate-11,,"U.S. Bureau of Labor Statistics, The Employment Situation, September 2026, 2026",,,,,,,,,,,,,,
+ai-will-have-destroyed,evidence,disagree,thirty-three-months-after,,"Yale Budget Lab and the Brookings Institution, Evaluating the Impact of AI on the Labor Market: Current State of Affairs, 2025",,,,,,,,,,,,,,url: https://budgetlab.yale.edu/sites/default/files/page_to_pdf/1154/publication_1154.pdf | checked: 2026-11-21
+ai-will-have-destroyed,evidence,disagree,u-s-unemployment-rate-11,,"U.S. Bureau of Labor Statistics, The Employment Situation, September 2026, 2026",,,,,,,,,,,,,,url: https://www.bls.gov/news.release/archives/empsit_10022026.htm | checked: 2026-11-21
 ai-will-have-destroyed,prediction,disagree,employment-software-developers-may,,,,,,,,,,,,,,,By June 2029; checked against the BLS Occupational Employment and Wage Statistics national tables for May 2025 and May 2028.,
 ai-will-have-destroyed,prediction,disagree,unemployment-rate-recent-college,,,,,,,,,,,,,,,By March 2029; checked against the Federal Reserve Bank of New York's Labor Market for Recent College Graduates page.,
 ai-will-have-destroyed,falsify,disagree,2026-bls-occupational-employment,,,,,,,,,,,,,,,,
 ai-will-have-destroyed,falsify,disagree,payroll-data-study-finds,,,,,,,,,,,,,,,,
 ai-will-have-destroyed,assumption,disagree,demand-most-goods-services,,,,,,,,,,,,,,,,
 ai-will-have-destroyed,assumption,disagree,weak-hiring-young-college,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,person,disagree,nvidia-chief-executive-jensen,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,media,disagree,large-language-models-small,,,,,,,,,,,,,,,,
-ai-will-have-destroyed,media,disagree,new-frontiers-origins-content,,,,,,,,,,,,,,,,
+ai-will-have-destroyed,person,disagree,nvidia-chief-executive-jensen,,,,,,,,,,,,,,,,url: https://fortune.com/2025/06/11/nvidia-jensen-huang-disagress-anthropic-ceo-dario-amodei-ai-jobs/ | checked: 2026-11-21
+ai-will-have-destroyed,media,disagree,large-language-models-small,,,,,,,,,,,,,,,,url: https://bfi.uchicago.edu/wp-content/uploads/2025/04/BFI_WP_2025-56-1.pdf | checked: 2026-11-21
+ai-will-have-destroyed,media,disagree,new-frontiers-origins-content,,,,,,,,,,,,,,,,url: https://www.nber.org/papers/w30389 | checked: 2026-11-21
 ai-will-have-destroyed,interest,agree,customer-service-representatives-claims,,,,,,,,,,,,,,,,
 ai-will-have-destroyed,interest,agree,recent-college-graduates-need,,,,,,,,,,,,,,,,
 ai-will-have-destroyed,interest,disagree,small-business-owners-need-4,,,,,,,,,,,,,,,,
@@ -10578,36 +10578,36 @@ ai-will-have-destroyed,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disag
 ai-will-have-destroyed,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides disagree about whether an opening that was never posted counts as a destroyed job and whether a job in a firm that grew because AI made it cheaper counts as a created job. | move: Agreeing in advance on one measure, such as employment in the most AI-exposed fifth of occupations compared with the least exposed fifth on Bureau of Labor Statistics data, would settle what gets counted."
 ai-will-have-destroyed,dispute,,,Empirical,,,,,,,,,,,,,,,what: The two sides disagree about how quickly new occupations and new firms built on AI will hire enough people to offset losses in exposed occupations. | move: Tracking job postings and employment in new occupation codes and in firms founded after 2022 through 2030 would show whether creation is keeping pace.
 ai-will-have-destroyed,value,,,,,,,,,,,,,,,,,,value: Security | srank: 1 | orank: 3 | why: People who hold the belief put the most weight on workers who could lose a livelihood before any new jobs appear.
-artificial-general-intelligence-meaning,argument,agree,leaders-three-largest-ai,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,argument,agree,training-compute-frontier-models,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,evidence,agree,metr-s-time-horizon,,"METR, Time Horizon 1.1, January 29, 2026",,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,evidence,agree,epoch-ai-s-2024,,"Epoch AI, Can AI scaling continue through 2030?, August 2024",,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,prediction,agree,metaculus-weakly-general-ai,,,,,,,,,,,,,,,"By January 1, 2030; checked on the question's page at metaculus.com.",
+artificial-general-intelligence-meaning,argument,agree,leaders-three-largest-ai,,,,,,,,,,,,,,,,url: https://www.anthropic.com/news/paris-ai-summit | checked: 2026-11-21
+artificial-general-intelligence-meaning,argument,agree,training-compute-frontier-models,,,,,,,,,,,,,,,,url: https://epoch.ai/blog/can-ai-scaling-continue-through-2030 | checked: 2026-11-21
+artificial-general-intelligence-meaning,evidence,agree,metr-s-time-horizon,,"METR, Time Horizon 1.1, January 29, 2026",,,,,,,,,,,,,,url: https://metr.org/blog/2026-1-29-time-horizon-1-1/ | checked: 2026-11-21
+artificial-general-intelligence-meaning,evidence,agree,epoch-ai-s-2024,,"Epoch AI, Can AI scaling continue through 2030?, August 2024",,,,,,,,,,,,,,url: https://epoch.ai/blog/can-ai-scaling-continue-through-2030 | checked: 2026-11-21
+artificial-general-intelligence-meaning,prediction,agree,metaculus-weakly-general-ai,,,,,,,,,,,,,,,"By January 1, 2030; checked on the question's page at metaculus.com.",url: https://www.metaculus.com/questions/3479/date-weakly-general-ai-is-publicly-known/ | checked: 2026-11-21
 artificial-general-intelligence-meaning,prediction,agree,metr-will-publish-50,,,,,,,,,,,,,,,"By January 1, 2030; checked against METR's published time horizon reports.",
 artificial-general-intelligence-meaning,falsify,agree,frontier-ai-system-publicly,,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,falsify,agree,ai-system-designs-runs,,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,assumption,agree,adding-more-compute-data,,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,assumption,agree,gaps-today-s-ai,,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,assumption,agree,most-thinking-jobs-can,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,person,agree,dario-amodei-chief-executive,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,person,agree,sam-altman-chief-executive-2,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,media,agree,singularity-nearer-when-we,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,media,agree,situational-awareness-decade-ahead,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,argument,disagree,largest-survey-ai-researchers,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,argument,disagree,three-quarters-ai-researchers,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,argument,disagree,every-past-prediction-human,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,evidence,disagree,2023-expert-survey-progress,,"Grace, Sandkühler, Stewart, Thomas, Weinstein-Raun and Brauner, 2023 Expert Survey on Progress in AI, AI Impacts, January 2024",,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,evidence,disagree,aaai-2025-presidential-panel,,"AAAI, 2025 Presidential Panel on the Future of AI Research, March 2025",,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,prediction,disagree,no-publicly-announced-ai,,,,,,,,,,,,,,,"By January 1, 2031; checked on the question's page and in its comment thread at metaculus.com.",
+artificial-general-intelligence-meaning,person,agree,dario-amodei-chief-executive,,,,,,,,,,,,,,,,url: https://www.darioamodei.com/essay/machines-of-loving-grace | checked: 2026-11-21
+artificial-general-intelligence-meaning,person,agree,sam-altman-chief-executive-2,,,,,,,,,,,,,,,,url: https://blog.samaltman.com/reflections | checked: 2026-11-21
+artificial-general-intelligence-meaning,media,agree,singularity-nearer-when-we,,,,,,,,,,,,,,,,url: https://www.penguinrandomhouse.com/books/535433/the-singularity-is-nearer-by-ray-kurzweil/ | checked: 2026-11-21
+artificial-general-intelligence-meaning,media,agree,situational-awareness-decade-ahead,,,,,,,,,,,,,,,,url: https://situational-awareness.ai/ | checked: 2026-11-21
+artificial-general-intelligence-meaning,argument,disagree,largest-survey-ai-researchers,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2401.02843 | checked: 2026-11-21
+artificial-general-intelligence-meaning,argument,disagree,three-quarters-ai-researchers,,,,,,,,,,,,,,,,url: https://futurism.com/ai-researchers-tech-industry-dead-end | checked: 2026-11-21
+artificial-general-intelligence-meaning,argument,disagree,every-past-prediction-human,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Artificial_general_intelligence | checked: 2026-11-21
+artificial-general-intelligence-meaning,evidence,disagree,2023-expert-survey-progress,,"Grace, Sandkühler, Stewart, Thomas, Weinstein-Raun and Brauner, 2023 Expert Survey on Progress in AI, AI Impacts, January 2024",,,,,,,,,,,,,,url: https://wiki.aiimpacts.org/ai_timelines/predictions_of_human-level_ai_timelines/ai_timeline_surveys/2023_expert_survey_on_progress_in_ai | checked: 2026-11-21
+artificial-general-intelligence-meaning,evidence,disagree,aaai-2025-presidential-panel,,"AAAI, 2025 Presidential Panel on the Future of AI Research, March 2025",,,,,,,,,,,,,,url: https://aaai.org/about-aaai/presidential-panel-on-the-future-of-ai-research/ | checked: 2026-11-21
+artificial-general-intelligence-meaning,prediction,disagree,no-publicly-announced-ai,,,,,,,,,,,,,,,"By January 1, 2031; checked on the question's page and in its comment thread at metaculus.com.",url: https://manifold.markets/Tetraspace/when-will-the-first-general-ai-syst | checked: 2026-11-21
 artificial-general-intelligence-meaning,falsify,disagree,metr-s-measured-doubling,,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,assumption,disagree,high-ai-scores-written,,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,assumption,disagree,human-level-ai-requires,,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,assumption,disagree,limits-electric-power-chips,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,person,disagree,andrej-karpathy-founding-member,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,person,disagree,yann-lecun-meta-s,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,person,disagree,gary-marcus-bet-miles,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,media,disagree,ai-normal-technology-arvind,,,,,,,,,,,,,,,,
-artificial-general-intelligence-meaning,media,disagree,rebooting-ai-building-artificial,,,,,,,,,,,,,,,,
+artificial-general-intelligence-meaning,person,disagree,andrej-karpathy-founding-member,,,,,,,,,,,,,,,,url: https://www.dwarkesh.com/p/andrej-karpathy | checked: 2026-11-21
+artificial-general-intelligence-meaning,person,disagree,yann-lecun-meta-s,,,,,,,,,,,,,,,,url: https://bdtechtalks.substack.com/p/what-we-know-about-yann-lecun-vision | checked: 2026-11-21
+artificial-general-intelligence-meaning,person,disagree,gary-marcus-bet-miles,,,,,,,,,,,,,,,,url: https://garymarcus.substack.com/p/where-will-ai-be-at-the-end-of-2027 | checked: 2026-11-21
+artificial-general-intelligence-meaning,media,disagree,ai-normal-technology-arvind,,,,,,,,,,,,,,,,url: https://knightcolumbia.org/content/ai-as-normal-technology | checked: 2026-11-21
+artificial-general-intelligence-meaning,media,disagree,rebooting-ai-building-artificial,,,,,,,,,,,,,,,,url: https://www.penguinrandomhouse.com/books/603982/rebooting-ai-by-gary-marcus-and-ernest-davis/ | checked: 2026-11-21
 artificial-general-intelligence-meaning,media,disagree,measure-intelligence-fran-ois,,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,interest,agree,patients-rare-diseases-need,,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,interest,agree,ai-lab-employees-investors,,,,,,,,,,,,,,,,
@@ -10616,7 +10616,7 @@ artificial-general-intelligence-meaning,interest,disagree,households-near-new-da
 artificial-general-intelligence-meaning,cba,agree,ai-can-do-nearly,,,,,,,,,,,percent of world GDP over ten years,7,,,,
 artificial-general-intelligence-meaning,cba,agree,ai-can-do-thinking,,,,,,,,patients-rare-diseases-need,,,new drug approvals per year,,,,,
 artificial-general-intelligence-meaning,cba,disagree,ai-can-do-nearly-2,,,,,,,,early-career-office-workers,,,"percentage points of employment, ages 22 to 25 in AI-exposed occupations",19,,,,
-artificial-general-intelligence-meaning,cba,disagree,data-centers-built-ai,,,,,,,,households-near-new-data,,,terawatt-hours per year,945,,,,
+artificial-general-intelligence-meaning,cba,disagree,data-centers-built-ai,,,,,,,,households-near-new-data,,,terawatt-hours per year,945,,,,url: https://www.publicpower.org/periodical/article/electricity-demand-data-centers-worldwide-set-more-double-2030-iea | checked: 2026-11-21
 artificial-general-intelligence-meaning,category,,,new drug approvals per year,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,category,,,percent of world GDP over ten years,,,,,,,,,,,,,,,
 artificial-general-intelligence-meaning,category,,,"percentage points of employment, ages 22 to 25 in AI-exposed occupations",,,,,,,,,,,,,,,
@@ -10636,14 +10636,14 @@ artificial-general-intelligence-meaning,definition,,,,,,,,,,,,,,,,,,"term: Artif
 artificial-general-intelligence-meaning,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides often mean different things by AGI, from passing a set of written and coding tests to doing every job better and cheaper than people, so they can agree on the facts and still disagree on the date. | move: Agree in advance on one public resolution rule, such as a named Metaculus AGI question, before arguing about when it will be met."
 artificial-general-intelligence-meaning,dispute,,,Causal,,,,,,,,,,,,,,,"what: Supporters expect scaling and incremental fixes to supply continual learning and reliability, while opponents expect those abilities to need a new design whose timing nobody can predict. | move: See whether a frontier AI system shows measurable improvement from its own on-the-job experience after deployment, without retraining, within the next few years."
 artificial-general-intelligence-meaning,value,,,,,,,,,,,,,,,,,,"value: Progress | srank: 1 | orank: 3 | why: Supporters weigh the speed of measured gains most heavily, while opponents rank recent progress below the long record of missed AI forecasts."
-astronauts-will-land-moon,argument,agree,nasa-s-artemis-ii,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,argument,agree,nasa-s-february-2026,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,argument,agree,us-government-has-made,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,argument,agree,china-s-announced-goal,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,argument,agree,nasa-keeping-two-lander,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,evidence,agree,artemis-ii-launched-april,,"Wikipedia, ""Artemis II"" (mission record citing NASA), accessed October 2026",,,,,,,,,,,,,,
-astronauts-will-land-moon,evidence,agree,starship-flight-14-september,,"Wikipedia, ""SpaceX Starship flight tests"", accessed October 2026",,,,,,,,,,,,,,
-astronauts-will-land-moon,evidence,agree,nasa-states-continues-target,,"NASA, ""Artemis"" program page, 2026",,,,,,,,,,,,,,
+astronauts-will-land-moon,argument,agree,nasa-s-artemis-ii,,,,,,,,,,,,,,,,url: https://www.nasa.gov/news-release/nasa-welcomes-record-setting-artemis-ii-moonfarers-back-to-earth/ | checked: 2026-11-21
+astronauts-will-land-moon,argument,agree,nasa-s-february-2026,,,,,,,,,,,,,,,,url: https://www.nasa.gov/news-release/nasa-adds-mission-to-artemis-lunar-program-updates-architecture/ | checked: 2026-11-21
+astronauts-will-land-moon,argument,agree,us-government-has-made,,,,,,,,,,,,,,,,url: https://www.appropriations.senate.gov/download/isaacman-testimony-fy27%26download%3D1 | checked: 2026-11-21
+astronauts-will-land-moon,argument,agree,china-s-announced-goal,,,,,,,,,,,,,,,,url: https://spacenews.com/china-sets-out-preliminary-crewed-lunar-landing-plan/ | checked: 2026-11-21
+astronauts-will-land-moon,argument,agree,nasa-keeping-two-lander,,,,,,,,,,,,,,,,url: https://www.nasa.gov/news-release/nasa-adds-mission-to-artemis-lunar-program-updates-architecture/ | checked: 2026-11-21
+astronauts-will-land-moon,evidence,agree,artemis-ii-launched-april,,"Wikipedia, ""Artemis II"" (mission record citing NASA), accessed October 2026",,,,,,,,,,,,,,url: https://www.nasa.gov/news-release/nasa-welcomes-record-setting-artemis-ii-moonfarers-back-to-earth/ | checked: 2026-11-21
+astronauts-will-land-moon,evidence,agree,starship-flight-14-september,,"Wikipedia, ""SpaceX Starship flight tests"", accessed October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Starship_flight_test_14 | checked: 2026-11-21
+astronauts-will-land-moon,evidence,agree,nasa-states-continues-target,,"NASA, ""Artemis"" program page, 2026",,,,,,,,,,,,,,url: https://www.nasa.gov/directorates/esdmd/nasa-strengthens-artemis-adds-mission-refines-overall-architecture/ | checked: 2026-11-21
 astronauts-will-land-moon,prediction,agree,spacex-will-complete-successful,,,,,,,,,,,,,,,"By June 30, 2027; checked against NASA and SpaceX announcements of a completed transfer that NASA calls successful.",
 astronauts-will-land-moon,prediction,agree,uncrewed-human-landing-system,,,,,,,,,,,,,,,"By December 31, 2027; checked against NASA mission updates and SpaceX or Blue Origin reports.",
 astronauts-will-land-moon,falsify,agree,spacex-moves-enough-propellant,,,,,,,,,,,,,,,,
@@ -10651,17 +10651,17 @@ astronauts-will-land-moon,falsify,agree,artemis-iii-docking-test,,,,,,,,,,,,,,,,
 astronauts-will-land-moon,assumption,agree,earlier-slips-artemis-landing,,,,,,,,,,,,,,,,
 astronauts-will-land-moon,assumption,agree,spacex-s-practice-flying,,,,,,,,,,,,,,,,
 astronauts-will-land-moon,assumption,agree,nasa-will-shrink-simplify,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,person,agree,nasa-administrator-jared-isaacman,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,person,agree,president-donald-trump-signed-2,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,media,agree,reentry-spacex-elon-musk,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,media,agree,executive-order-14369-ensuring,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,argument,disagree,every-crewed-artemis-landing,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,argument,disagree,spacex-s-starship-lander,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,argument,disagree,nasa-moved-spacex-s,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,argument,disagree,china-unlikely-land-astronauts,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,argument,disagree,first-artemis-landing-near,,,,,,,,,,,,,,,,
+astronauts-will-land-moon,person,agree,nasa-administrator-jared-isaacman,,,,,,,,,,,,,,,,url: https://api.fxtwitter.com/NASAAdmin/status/2028808303799566684 | checked: 2026-11-21
+astronauts-will-land-moon,person,agree,president-donald-trump-signed-2,,,,,,,,,,,,,,,,url: https://www.presidency.ucsb.edu/documents/executive-order-14369-ensuring-american-space-superiority | checked: 2026-11-21
+astronauts-will-land-moon,media,agree,reentry-spacex-elon-musk,,,,,,,,,,,,,,,,url: https://benbellabooks.com/shop/reentry/ | checked: 2026-11-21
+astronauts-will-land-moon,media,agree,executive-order-14369-ensuring,,,,,,,,,,,,,,,,url: https://www.federalregister.gov/documents/2025/12/23/2025-23845/ensuring-american-space-superiority | checked: 2026-11-21
+astronauts-will-land-moon,argument,disagree,every-crewed-artemis-landing,,,,,,,,,,,,,,,,url: https://www.nasa.gov/missions/artemis/nasa-strengthens-artemis-adds-mission-refines-overall-architecture/ | checked: 2026-11-21
+astronauts-will-land-moon,argument,disagree,spacex-s-starship-lander,,,,,,,,,,,,,,,,url: https://oig.nasa.gov/wp-content/uploads/2026/03/final-report-ig-26-004-nasas-management-of-the-human-landing-system-contracts.pdf | checked: 2026-11-21
+astronauts-will-land-moon,argument,disagree,nasa-moved-spacex-s,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Starship_HLS | checked: 2026-11-21
+astronauts-will-land-moon,argument,disagree,china-unlikely-land-astronauts,,,,,,,,,,,,,,,,url: https://news.cgtn.com/news/2026-11-01/China-unveils-detailed-two-launch-plan-for-first-manned-moon-landing-1RIAlmmOVgI/p.html | checked: 2026-11-21
+astronauts-will-land-moon,argument,disagree,first-artemis-landing-near,,,,,,,,,,,,,,,,url: https://www.nasa.gov/mission/artemis-iv/ | checked: 2026-11-21
 astronauts-will-land-moon,argument,disagree,after-columbia-accident-nasa,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,evidence,disagree,september-2023-nasa-s,,"US Government Accountability Office, ""NASA Artemis Programs: Crewed Moon Landing Faces Multiple Challenges"" (GAO-24-106256), November 30, 2023",,,,,,,,,,,,,,
+astronauts-will-land-moon,evidence,disagree,september-2023-nasa-s,,"US Government Accountability Office, ""NASA Artemis Programs: Crewed Moon Landing Faces Multiple Challenges"" (GAO-24-106256), November 30, 2023",,,,,,,,,,,,,,url: https://www.gao.gov/products/gao-24-106256 | checked: 2026-11-21
 astronauts-will-land-moon,evidence,disagree,spacex-s-uncrewed-starship,,"Wikipedia, ""Starship HLS"" (citing NASA and SpaceX), accessed October 2026",,,,,,,,,,,,,,
 astronauts-will-land-moon,prediction,disagree,nasa-will-announce-december,,,,,,,,,,,,,,,"By December 31, 2027; checked against NASA press releases, NASA's Artemis program page and Artemis IV mission page.",
 astronauts-will-land-moon,prediction,disagree,no-ship-ship-propellant,,,,,,,,,,,,,,,"By December 31, 2027; checked against NASA and SpaceX announcements and the Wikipedia Starship flight test record.",
@@ -10669,15 +10669,15 @@ astronauts-will-land-moon,falsify,disagree,uncrewed-starship-lunar-landing,,,,,,
 astronauts-will-land-moon,falsify,disagree,nasa-s-aerospace-safety,,,,,,,,,,,,,,,,
 astronauts-will-land-moon,assumption,disagree,space-program-s-own,,,,,,,,,,,,,,,,
 astronauts-will-land-moon,assumption,disagree,moving-super-cold-propellant,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,media,disagree,nasa-artemis-programs-crewed,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,media,disagree,acting-nasa-chief-says,,,,,,,,,,,,,,,,
+astronauts-will-land-moon,media,disagree,nasa-artemis-programs-crewed,,,,,,,,,,,,,,,,url: https://www.gao.gov/products/gao-24-106256 | checked: 2026-11-21
+astronauts-will-land-moon,media,disagree,acting-nasa-chief-says,,,,,,,,,,,,,,,,url: https://pipedot.org/5EB8K | checked: 2026-11-21
 astronauts-will-land-moon,interest,agree,planetary-scientists-need-fresh,,,,,,,,,,,,,,,,
 astronauts-will-land-moon,interest,agree,us-national-security-officials,,,,,,,,,,,,,,,,
 astronauts-will-land-moon,interest,disagree,space-scientists-who-run,,,,,,,,,,,,,,,,
-astronauts-will-land-moon,cba,agree,us-landing-2028-put,,,,,,,,us-national-security-officials,,,years of lead over China's first crewed landing,1.5,,,,
-astronauts-will-land-moon,cba,agree,2028-landing-return-first,,,,,,,,planetary-scientists-need-fresh,,,kilograms of south-pole samples returned,,,,,
-astronauts-will-land-moon,cba,agree,landing-2028-show-results,,,,,,,,,,,crewed landings completed for the money spent,1,,,,
-astronauts-will-land-moon,cba,disagree,pressure-meet-political-2028,,,,,,,,,,,crewed missions flown with unresolved safety findings,,,,,
+astronauts-will-land-moon,cba,agree,us-landing-2028-put,,,,,,,,us-national-security-officials,,,years of lead over China's first crewed landing,1.5,,,,url: https://spacenews.com/china-sets-sights-on-crewed-lunar-landing-before-2030/ | checked: 2026-11-21
+astronauts-will-land-moon,cba,agree,2028-landing-return-first,,,,,,,,planetary-scientists-need-fresh,,,kilograms of south-pole samples returned,,,,,url: https://www.nasa.gov/news-release/nasa-identifies-candidate-regions-for-landing-next-americans-on-moon/ | checked: 2026-11-21
+astronauts-will-land-moon,cba,agree,landing-2028-show-results,,,,,,,,,,,crewed landings completed for the money spent,1,,,,url: https://oig.nasa.gov/docs/IG-22-003.pdf | checked: 2026-11-21
+astronauts-will-land-moon,cba,disagree,pressure-meet-political-2028,,,,,,,,,,,crewed missions flown with unresolved safety findings,,,,,url: https://govinfo.library.unt.edu/caib/news/report/pdf/vol1/chapters/chapter6.pdf | checked: 2026-11-21
 astronauts-will-land-moon,cba,disagree,concentrating-nasa-s-budget,,,,,,,,space-scientists-who-run,,,dollars a year shifted away from NASA science,,,,,
 astronauts-will-land-moon,category,,,crewed landings completed for the money spent,,,,,,,,,,,,,,,
 astronauts-will-land-moon,category,,,crewed missions flown with unresolved safety findings,,,,,,,,,,,,,,,
@@ -11499,33 +11499,33 @@ new-medicine,topic_media,,poll-1-8-adults,,,,,,,,,,,,,,,,"medium: Report | tone:
 new-medicine,topic_media,,semaglutide-cardiovascular-outcomes-obesity,,,,,,,,,,,,,,,,"medium: Study | tone: Academic | positivity: +70 | strength: 100 | insight: In the SELECT trial, semaglutide cut heart attacks, strokes and cardiovascular deaths by 20% among overweight adults with heart disease."
 new-medicine,topic_media,,tirzepatide-once-weekly-treatment,,,,,,,,,,,,,,,,"medium: Study | tone: Academic | positivity: +70 | strength: 100 | insight: In SURMOUNT-1, among 2,539 adults with a mean BMI of 38.0, tirzepatide 15 mg cut body weight by 20.9 percent at 72 weeks, against 3.1 percent on placebo."
 new-medicine,topic_media,,weight-regain-cardiometabolic-effects,,,,,,,,,,,,,,,,"medium: Study | tone: Academic | positivity: -60 | strength: 80 | insight: One year after stopping semaglutide, STEP 1 participants had regained about two-thirds of the weight they had lost, with cardiometabolic gains largely reversed."
-2027-will-hotter-than,argument,agree,noaa-s-climate-prediction,,,,,,,,,,,,,,,,
-2027-will-hotter-than,argument,agree,human-caused-warming-raises,,,,,,,,,,,,,,,,
-2027-will-hotter-than,argument,agree,global-temperatures-2026-were,,,,,,,,,,,,,,,,
-2027-will-hotter-than,evidence,agree,noaa-s-climate-prediction-2,,"NOAA Climate Prediction Center, ENSO Diagnostic Discussion, 8 October 2026",,,,,,,,,,,,,,
-2027-will-hotter-than,evidence,agree,zeke-hausfather-s-forecast,,"Zeke Hausfather, ""Higher warming predictions for 2026 and 2027,"" The Climate Brink, 30 April 2026",,,,,,,,,,,,,,
-2027-will-hotter-than,evidence,agree,james-hansen-colleagues-projected,,"James Hansen, Pushker Kharecha, Dylan Morgan and Jasen Vest, ""Global Temperature in 2025, 2026, 2027,"" 18 December 2025",,,,,,,,,,,,,,
+2027-will-hotter-than,argument,agree,noaa-s-climate-prediction,,,,,,,,,,,,,,,,url: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_disc_oct2026/ensodisc.shtml | checked: 2026-11-21
+2027-will-hotter-than,argument,agree,human-caused-warming-raises,,,,,,,,,,,,,,,,url: https://essd.copernicus.org/articles/17/2641/2025/ | checked: 2026-11-21
+2027-will-hotter-than,argument,agree,global-temperatures-2026-were,,,,,,,,,,,,,,,,url: https://climate.copernicus.eu/surface-air-temperature-august-2026 | checked: 2026-11-21
+2027-will-hotter-than,evidence,agree,noaa-s-climate-prediction-2,,"NOAA Climate Prediction Center, ENSO Diagnostic Discussion, 8 October 2026",,,,,,,,,,,,,,url: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_disc_oct2026/ensodisc.shtml | checked: 2026-11-21
+2027-will-hotter-than,evidence,agree,zeke-hausfather-s-forecast,,"Zeke Hausfather, ""Higher warming predictions for 2026 and 2027,"" The Climate Brink, 30 April 2026",,,,,,,,,,,,,,url: https://www.theclimatebrink.com/p/higher-warming-predictions-for-2026 | checked: 2026-11-21
+2027-will-hotter-than,evidence,agree,james-hansen-colleagues-projected,,"James Hansen, Pushker Kharecha, Dylan Morgan and Jasen Vest, ""Global Temperature in 2025, 2026, 2027,"" 18 December 2025",,,,,,,,,,,,,,url: https://www.columbia.edu/~jeh1/mailings/2025/GlobalTemperaturePrediction2025.12.18.pdf | checked: 2026-11-21
 2027-will-hotter-than,prediction,agree,average-copernicus-era5-global,,,,,,,,,,,,,,,By 15 July 2027; checked against the Copernicus monthly climate bulletins for those months.,
 2027-will-hotter-than,falsify,agree,noaa-s-climate-prediction-3,,,,,,,,,,,,,,,,
 2027-will-hotter-than,falsify,agree,copernicus-reports-new-monthly,,,,,,,,,,,,,,,,
 2027-will-hotter-than,assumption,agree,most-extra-heat-behind,,,,,,,,,,,,,,,,
 2027-will-hotter-than,assumption,agree,no-large-volcanic-eruption,,,,,,,,,,,,,,,,
-2027-will-hotter-than,person,agree,climate-scientist-zeke-hausfather,,,,,,,,,,,,,,,,
-2027-will-hotter-than,person,agree,james-hansen-pushker-kharecha,,,,,,,,,,,,,,,,
-2027-will-hotter-than,person,agree,leon-hermanson-lead-author,,,,,,,,,,,,,,,,
-2027-will-hotter-than,media,agree,global-temperature-2025-2026,,,,,,,,,,,,,,,,
-2027-will-hotter-than,media,agree,state-climate-rapidly-developing,,,,,,,,,,,,,,,,
-2027-will-hotter-than,media,agree,new-report-suggests-more,,,,,,,,,,,,,,,,
-2027-will-hotter-than,argument,disagree,2024-record-high-bar,,,,,,,,,,,,,,,,
-2027-will-hotter-than,argument,disagree,forecasts-record-strength-el,,,,,,,,,,,,,,,,
+2027-will-hotter-than,person,agree,climate-scientist-zeke-hausfather,,,,,,,,,,,,,,,,url: https://www.carbonbrief.org/state-of-the-climate-rapidly-developing-el-nino-raises-chance-of-record-warm-2026/ | checked: 2026-11-21
+2027-will-hotter-than,person,agree,james-hansen-pushker-kharecha,,,,,,,,,,,,,,,,url: https://www.columbia.edu/~jeh1/mailings/2025/GlobalTemperaturePrediction2025.12.18.pdf | checked: 2026-11-21
+2027-will-hotter-than,person,agree,leon-hermanson-lead-author,,,,,,,,,,,,,,,,url: https://wmo.int/news/media-centre/new-report-suggests-more-global-temperature-records-ahead | checked: 2026-11-21
+2027-will-hotter-than,media,agree,global-temperature-2025-2026,,,,,,,,,,,,,,,,url: https://www.columbia.edu/~jeh1/mailings/2025/GlobalTemperaturePrediction2025.12.18.pdf | checked: 2026-11-21
+2027-will-hotter-than,media,agree,state-climate-rapidly-developing,,,,,,,,,,,,,,,,url: https://www.carbonbrief.org/state-of-the-climate-rapidly-developing-el-nino-raises-chance-of-record-warm-2026/ | checked: 2026-11-21
+2027-will-hotter-than,media,agree,new-report-suggests-more,,,,,,,,,,,,,,,,url: https://wmo.int/news/media-centre/new-report-suggests-more-global-temperature-records-ahead | checked: 2026-11-21
+2027-will-hotter-than,argument,disagree,2024-record-high-bar,,,,,,,,,,,,,,,,url: https://climate.copernicus.eu/global-climate-highlights-2024 | checked: 2026-11-21
+2027-will-hotter-than,argument,disagree,forecasts-record-strength-el,,,,,,,,,,,,,,,,url: https://yaleclimateconnections.org/2026/07/this-could-be-the-strongest-el-nino-on-record/ | checked: 2026-11-21
 2027-will-hotter-than,argument,disagree,if-2026-27-el,,,,,,,,,,,,,,,,
-2027-will-hotter-than,evidence,disagree,berkeley-earth-s-estimate,,"Berkeley Earth, monthly temperature updates, March 2026 and ""July 2026 Temperature Update"" (Robert Rohde and Zeke Hausfather, 13 August 2026)",,,,,,,,,,,,,,
-2027-will-hotter-than,evidence,disagree,hausfather-noted-no-model,,"Bob Henson, ""This could be the strongest El Niño on record,"" Yale Climate Connections, 14 July 2026",,,,,,,,,,,,,,
-2027-will-hotter-than,prediction,disagree,copernicus-global-climate-highlights,,,,,,,,,,,,,,,By 31 January 2028; checked against the Copernicus Global Climate Highlights 2027 report.,
+2027-will-hotter-than,evidence,disagree,berkeley-earth-s-estimate,,"Berkeley Earth, monthly temperature updates, March 2026 and ""July 2026 Temperature Update"" (Robert Rohde and Zeke Hausfather, 13 August 2026)",,,,,,,,,,,,,,url: https://berkeleyearth.org/july-2026-temperature-update/ | checked: 2026-11-21
+2027-will-hotter-than,evidence,disagree,hausfather-noted-no-model,,"Bob Henson, ""This could be the strongest El Niño on record,"" Yale Climate Connections, 14 July 2026",,,,,,,,,,,,,,url: https://yaleclimateconnections.org/2026/07/this-could-be-the-strongest-el-nino-on-record/ | checked: 2026-11-21
+2027-will-hotter-than,prediction,disagree,copernicus-global-climate-highlights,,,,,,,,,,,,,,,By 31 January 2028; checked against the Copernicus Global Climate Highlights 2027 report.,url: https://climate.copernicus.eu/global-climate-highlights-2024 | checked: 2026-11-21
 2027-will-hotter-than,prediction,disagree,average-copernicus-era5-global-2,,,,,,,,,,,,,,,By 15 July 2027; checked against the Copernicus monthly climate bulletins for those months.,
 2027-will-hotter-than,falsify,disagree,noaa-s-climate-prediction-4,,,,,,,,,,,,,,,,
 2027-will-hotter-than,assumption,disagree,heat-2024-included-temporary,,,,,,,,,,,,,,,,
-2027-will-hotter-than,media,disagree,climate-models-can-t,,,,,,,,,,,,,,,,
+2027-will-hotter-than,media,disagree,climate-models-can-t,,,,,,,,,,,,,,,,url: https://www.nature.com/articles/d41586-024-00816-z | checked: 2026-11-21
 2027-will-hotter-than,interest,agree,city-public-health-departments,,,,,,,,,,,,,,,,
 2027-will-hotter-than,interest,agree,farmers-drought-prone-el,,,,,,,,,,,,,,,,
 2027-will-hotter-than,interest,disagree,electricity-customers-hot-regions,,,,,,,,,,,,,,,,
@@ -11533,7 +11533,7 @@ new-medicine,topic_media,,weight-regain-cardiometabolic-effects,,,,,,,,,,,,,,,,"
 2027-will-hotter-than,cba,agree,cities-expand-heat-alerts,,,,,,,,city-public-health-departments,,,heat-related deaths avoided,,,,,
 2027-will-hotter-than,cba,agree,farmers-food-agencies-el,,,,,,,,farmers-drought-prone-el,,,tons of crop losses avoided,,,,,
 2027-will-hotter-than,cba,agree,2027-record-arrives-forecast,,,,,,,,,,,percentage points of public trust in climate forecasts,,,,,
-2027-will-hotter-than,cba,disagree,record-hot-2027-raises,,,,,,,,electricity-customers-hot-regions,,,dollars a year per household,,,,,
+2027-will-hotter-than,cba,disagree,record-hot-2027-raises,,,,,,,,electricity-customers-hot-regions,,,dollars a year per household,,,,,url: https://www.eia.gov/todayinenergy/detail.php?id=65544 | checked: 2026-11-21
 2027-will-hotter-than,category,,,dollars a year per household,,,,,,,,,,,,,,,
 2027-will-hotter-than,category,,,heat-related deaths avoided,,,,,,,,,,,,,,,
 2027-will-hotter-than,category,,,percentage points of public trust in climate forecasts,,,,,,,,,,,,,,,
@@ -11809,10 +11809,10 @@ republicans-will-keep-majority,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether 
 republicans-will-keep-majority,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether a national Democratic lead of 8 to 9 points on the generic ballot carries over to Senate races in states Trump carried by 11 to 16 points. | move: Results in Ohio, Texas, Iowa, Alaska and Kansas, compared with earlier wave years such as 2018, when a large Democratic House win came with Republican Senate gains."
 republicans-will-keep-majority,value,,,,,,,,,,,,,,,,,,"value: Accuracy | srank: 1 | orank: 1 | why: Both sides claim to read the evidence correctly: supporters weight past polling misses toward Democrats, opponents weight current polls, models and markets."
 republicans-will-keep-majority,value,,,,,,,,,,,,,,,,,,"value: Accountability | srank: 3 | orank: 2 | why: Opponents often frame the midterm as voters checking an unpopular president, while supporters stress that each state picks its own senator on local terms, so national mood should count for less."
-candidate-who-neither-democrat,argument,agree,record-45-percent-american,,,,,,,,,,,,,,,,
-candidate-who-neither-democrat,argument,agree,single-candidate-outside-two,,,,,,,,,,,,,,,,
-candidate-who-neither-democrat,argument,agree,tucker-carlson-prominent-conservative,,,,,,,,,,,,,,,,
-candidate-who-neither-democrat,argument,agree,presidential-candidate-great-personal,,,,,,,,,,,,,,,,
+candidate-who-neither-democrat,argument,agree,record-45-percent-american,,,,,,,,,,,,,,,,url: https://news.gallup.com/poll/700499/new-high-identify-political-independents.aspx | checked: 2026-11-21
+candidate-who-neither-democrat,argument,agree,single-candidate-outside-two,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_third-party_and_independent_performances_in_United_States_presidential_elections | checked: 2026-11-21
+candidate-who-neither-democrat,argument,agree,tucker-carlson-prominent-conservative,,,,,,,,,,,,,,,,url: https://gvwire.com/2026/07/02/tucker-carlson-who-broke-with-trump-plans-to-help-build-a-third-party/ | checked: 2026-11-21
+candidate-who-neither-democrat,argument,agree,presidential-candidate-great-personal,,,,,,,,,,,,,,,,url: https://www.presidency.ucsb.edu/statistics/elections/1992 | checked: 2026-11-21
 candidate-who-neither-democrat,argument,agree,third-party-presidential-votes,,,,,,,,,,,,,,,,
 candidate-who-neither-democrat,evidence,agree,gallup-telephone-survey-taken,,"Gallup, ""Americans See Need for Third Party, but Offer Soft Support,"" by Jeffrey M. Jones, October 20, 2025",,,,,,,,,,,,,,url: https://news.gallup.com/poll/696521/americans-need-third-party-offer-soft-support.aspx | checked: 2026-10-24
 candidate-who-neither-democrat,evidence,agree,gallup-panel-web-survey,,"Gallup, ""Americans See Need for Third Party, but Offer Soft Support,"" by Jeffrey M. Jones, October 20, 2025",,,,,,,,,,,,,,url: https://news.gallup.com/poll/696521/americans-need-third-party-offer-soft-support.aspx | checked: 2026-10-24
@@ -11824,12 +11824,12 @@ candidate-who-neither-democrat,person,agree,megyn-kelly-said-megyn,,,,,,,,,,,,,,
 candidate-who-neither-democrat,person,agree,mike-cernovich-wrote-march,,,,,,,,,,,,,,,,url: https://justthenews.com/politics-policy/wkdcould-carlson-mtg-third-party-make-it-big-or-doom-gop-2028 | checked: 2026-10-24
 candidate-who-neither-democrat,assumption,agree,voters-who-tell-pollsters,,,,,,,,,,,,,,,,
 candidate-who-neither-democrat,assumption,agree,2026-break-between-donald,,,,,,,,,,,,,,,,
-candidate-who-neither-democrat,argument,disagree,no-candidate-outside-two-2,,,,,,,,,,,,,,,,
-candidate-who-neither-democrat,argument,disagree,all-presidential-candidates-other,,,,,,,,,,,,,,,,
+candidate-who-neither-democrat,argument,disagree,no-candidate-outside-two-2,,,,,,,,,,,,,,,,url: https://www.presidency.ucsb.edu/statistics/elections/2024 | checked: 2026-11-21
+candidate-who-neither-democrat,argument,disagree,all-presidential-candidates-other,,,,,,,,,,,,,,,,url: https://www.fec.gov/resources/cms-content/documents/2024presgeresults.pdf | checked: 2026-11-21
 candidate-who-neither-democrat,argument,disagree,winner-take-all-presidential,,,,,,,,,,,,,,,,
-candidate-who-neither-democrat,argument,disagree,presidential-candidate-outside-two,,,,,,,,,,,,,,,,
-candidate-who-neither-democrat,argument,disagree,since-commission-presidential-debates,,,,,,,,,,,,,,,,
-candidate-who-neither-democrat,argument,disagree,october-2026-no-nationally,,,,,,,,,,,,,,,,
+candidate-who-neither-democrat,argument,disagree,presidential-candidate-outside-two,,,,,,,,,,,,,,,,url: https://www.nass.org/sites/default/files/reports/summary-ballot-access-laws-president-072924.pdf | checked: 2026-11-21
+candidate-who-neither-democrat,argument,disagree,since-commission-presidential-debates,,,,,,,,,,,,,,,,url: https://www.debates.org/about-cpd/overview/ | checked: 2026-11-21
+candidate-who-neither-democrat,argument,disagree,october-2026-no-nationally,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2028_United_States_presidential_election | checked: 2026-11-21
 candidate-who-neither-democrat,evidence,disagree,presidential-candidates-other-than,,"The American Presidency Project, University of California, Santa Barbara, 2024 presidential election results table",,,,,,,,,,,,,,url: https://www.presidency.ucsb.edu/statistics/elections/2024 | checked: 2026-10-24
 candidate-who-neither-democrat,evidence,disagree,2016-libertarian-gary-johnson,,"The American Presidency Project, University of California, Santa Barbara, 2016 presidential election results table",,,,,,,,,,,,,,url: https://www.presidency.ucsb.edu/statistics/elections/2016 | checked: 2026-10-24
 candidate-who-neither-democrat,evidence,disagree,gallup-s-september-2025,,"Gallup, ""Americans See Need for Third Party, but Offer Soft Support,"" by Jeffrey M. Jones, October 20, 2025",,,,,,,,,,,,,,url: https://news.gallup.com/poll/696521/americans-need-third-party-offer-soft-support.aspx | checked: 2026-10-24
@@ -11850,12 +11850,12 @@ candidate-who-neither-democrat,interest,agree,minor-parties-such-libertarian,,,,
 candidate-who-neither-democrat,interest,agree,anti-war-conservatives-who,,,,,,,,,,,,,,,,
 candidate-who-neither-democrat,interest,disagree,democratic-republican-presidential-campaigns,,,,,,,,,,,,,,,,
 candidate-who-neither-democrat,interest,disagree,republican-party-leaders-need,,,,,,,,,,,,,,,,
-candidate-who-neither-democrat,cba,agree,minor-party-whose-nominee,,,,,,,,minor-parties-such-libertarian,,,dollars of federal general-election funding for the party's 2032 nominee,,,,,
+candidate-who-neither-democrat,cba,agree,minor-party-whose-nominee,,,,,,,,minor-parties-such-libertarian,,,dollars of federal general-election funding for the party's 2032 nominee,,,,,url: https://www.law.cornell.edu/cfr/text/11/9004.2 | checked: 2026-11-21
 candidate-who-neither-democrat,cba,agree,voters-who-dislike-both,,,,,,,,voters-who-view-both,,,share of the national popular vote won by the outside candidate,,,,,
 candidate-who-neither-democrat,cba,agree,anti-war-conservatives-have,,,,,,,,anti-war-conservatives-who,,,votes cast nationally for an anti-war presidential candidate,,,,,
 candidate-who-neither-democrat,cba,disagree,major-party-nominee-could,,,,,,,,democratic-republican-presidential-campaigns,,,electoral votes in states decided by less than the outside candidate's share,,,,,
-candidate-who-neither-democrat,cba,disagree,some-voters-who-cast,,,,,,,,,,,voters whose least favored nominee carried their state,,,,,
-candidate-who-neither-democrat,cba,disagree,republican-party-leaders-could,,,,,,,,republican-party-leaders-need,,,share of 2024 Trump voters who vote outside the two major parties in 2028,,,,,
+candidate-who-neither-democrat,cba,disagree,some-voters-who-cast,,,,,,,,,,,voters whose least favored nominee carried their state,,,,,url: https://news.gallup.com/poll/696521/americans-need-third-party-offer-soft-support.aspx | checked: 2026-11-21
+candidate-who-neither-democrat,cba,disagree,republican-party-leaders-could,,,,,,,,republican-party-leaders-need,,,share of 2024 Trump voters who vote outside the two major parties in 2028,,,,,url: https://justthenews.com/politics-policy/wkdcould-carlson-mtg-third-party-make-it-big-or-doom-gop-2028 | checked: 2026-11-21
 candidate-who-neither-democrat,category,,,dollars of federal general-election funding for the party's 2032 nominee,,,,,,,,,,,,,,,
 candidate-who-neither-democrat,category,,,electoral votes in states decided by less than the outside candidate's share,,,,,,,,,,,,,,,
 candidate-who-neither-democrat,category,,,share of 2024 Trump voters who vote outside the two major parties in 2028,,,,,,,,,,,,,,,
@@ -12001,10 +12001,10 @@ russia-ukraine-will-have,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether rising co
 russia-ukraine-will-have,dispute,,,Definitional,,,,,,,,,,,,,,,"what: Whether short holiday truces, local pauses like Oleshky or energy-only deals count as having 'a ceasefire in effect.' | move: Agreeing on a front-wide, 10-day standard; Polymarket's looser 'agreement' contract (about 72%) and stricter 'in effect' contract (about 53%) as of October 24, 2026 show how much the answer turns on the definition."
 russia-ukraine-will-have,value,,,,,,,,,,,,,,,,,,"value: Safety | srank: 1 | orank: 2 | why: Supporters stress that the death toll and costs push both sides toward a halt, while opponents also value safety but argue a ceasefire without guarantees only delays the next war."
 russia-ukraine-will-have,value,,,,,,,,,,,,,,,,,,"value: Self-determination | srank: 2 | orank: 1 | why: Opponents stress that Ukrainians refuse to hand over land Russia has not conquered, which blocks Russia's terms, while supporters argue a freeze can stop the fighting without anyone giving up a legal claim."
-china-will-blockade-invade,argument,agree,xi-jinping-has-ordered,,,,,,,,,,,,,,,,
-china-will-blockade-invade,argument,agree,china-s-military-drills,,,,,,,,,,,,,,,,
+china-will-blockade-invade,argument,agree,xi-jinping-has-ordered,,,,,,,,,,,,,,,,url: https://www.cbsnews.com/news/william-burns-cia-director-face-the-nation-transcript-02-26-2023/ | checked: 2026-11-21
+china-will-blockade-invade,argument,agree,china-s-military-drills,,,,,,,,,,,,,,,,url: https://www.chinadaily.com.cn/a/202512/29/WS6951c167a310d6866eb30d67.html | checked: 2026-11-21
 china-will-blockade-invade,argument,agree,china-can-pressure-taiwan,,,,,,,,,,,,,,,,
-china-will-blockade-invade,argument,agree,blockade-could-squeeze-taiwan,,,,,,,,,,,,,,,,
+china-will-blockade-invade,argument,agree,blockade-could-squeeze-taiwan,,,,,,,,,,,,,,,,url: https://features.csis.org/chinapower/china-blockade-taiwan/ | checked: 2026-11-21
 china-will-blockade-invade,argument,agree,china-s-leaders-may,,,,,,,,,,,,,,,,
 china-will-blockade-invade,evidence,agree,during-its-justice-mission,,"Wikipedia, ""Justice Mission-2025,"" citing Taiwan's Ministry of National Defense and China's CCTV (read October 2026)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Justice_Mission-2025 | checked: 2026-10-24
 china-will-blockade-invade,evidence,agree,chinese-military-aircraft-entered,,"CSIS ChinaPower Project, ""Tracking China's Increased Military Activities in the Indo-Pacific in 2025,"" February 5, 2026",,,,,,,,,,,,,,url: https://chinapower.csis.org/china-increased-military-activities-indo-pacific-2025/ | checked: 2026-10-24
@@ -12015,11 +12015,11 @@ china-will-blockade-invade,person,agree,scholars-hal-brands-michael,,,,,,,,,,,,,
 china-will-blockade-invade,falsify,agree,china-s-maritime-safety,,,,,,,,,,,,,,,,
 china-will-blockade-invade,assumption,agree,xi-jinping-willing-accept,,,,,,,,,,,,,,,,
 china-will-blockade-invade,assumption,agree,china-s-drills-its,,,,,,,,,,,,,,,,
-china-will-blockade-invade,argument,disagree,amphibious-invasion-taiwan-likely,,,,,,,,,,,,,,,,
-china-will-blockade-invade,argument,disagree,purges-have-removed-most,,,,,,,,,,,,,,,,
+china-will-blockade-invade,argument,disagree,amphibious-invasion-taiwan-likely,,,,,,,,,,,,,,,,url: https://www.dni.gov/files/ODNI/documents/assessments/ATA-2026-Unclassified-Report.pdf | checked: 2026-11-21
+china-will-blockade-invade,argument,disagree,purges-have-removed-most,,,,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2026/9/21/china-expels-two-top-disloyal-military-leaders-from-communist-party | checked: 2026-11-21
 china-will-blockade-invade,argument,disagree,blockade-invasion-taiwan-bring,,,,,,,,,,,,,,,,
-china-will-blockade-invade,argument,disagree,beijing-has-held-eight,,,,,,,,,,,,,,,,
-china-will-blockade-invade,argument,disagree,summit-meetings-between-donald,,,,,,,,,,,,,,,,
+china-will-blockade-invade,argument,disagree,beijing-has-held-eight,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Chinese_military_exercises_around_Taiwan | checked: 2026-11-21
+china-will-blockade-invade,argument,disagree,summit-meetings-between-donald,,,,,,,,,,,,,,,,url: https://english.www.gov.cn/news/202609/23/content_WS6ab396dcc6d00ca5f9a0d652.html | checked: 2026-11-21
 china-will-blockade-invade,evidence,disagree,us-intelligence-community-s,,"Office of the Director of National Intelligence, ""Annual Threat Assessment of the U.S. Intelligence Community,"" March 2026",,,,,,,,,,,,,,url: https://archive.dni.gov/files/ODNI/documents/assessments/ATA-2026-Unclassified-Report.pdf | checked: 2026-10-24
 china-will-blockade-invade,evidence,disagree,october-24-2026-polymarket-2,,"Polymarket, market page ""Will China invade Taiwan by end of 2026?"", read October 24, 2026",,,,,,,,,,,,,,url: https://polymarket.com/event/will-china-invade-taiwan-before-2027 | checked: 2026-10-24
 china-will-blockade-invade,evidence,disagree,24-runs-csis-war,,"CSIS, Mark F. Cancian, Matthew Cancian and Eric Heginbotham, ""The First Battle of the Next War: Wargaming a Chinese Invasion of Taiwan,"" January 9, 2023",,,,,,,,,,,,,,url: https://www.csis.org/analysis/first-battle-next-war-wargaming-chinese-invasion-taiwan | checked: 2026-10-24
@@ -12030,7 +12030,7 @@ china-will-blockade-invade,assumption,disagree,beijing-still-believes-pressure,,
 china-will-blockade-invade,assumption,disagree,american-allied-deterrence-including,,,,,,,,,,,,,,,,
 china-will-blockade-invade,prediction,agree,taiwan-s-ministry-finance,,,,,,,,,,,,,,,"December 31, 2030, settled against Taiwan Ministry of Finance monthly trade statistics published by February 2031.",
 china-will-blockade-invade,prediction,agree,taiwan-s-government-will,,,,,,,,,,,,,,,"December 31, 2030, settled against announcements by Taiwan's Executive Yuan or Ministry of Economic Affairs.",
-china-will-blockade-invade,prediction,disagree,us-intelligence-community-s-2,,,,,,,,,,,,,,,"March 31, 2028, settled against the published ODNI Annual Threat Assessments.",
+china-will-blockade-invade,prediction,disagree,us-intelligence-community-s-2,,,,,,,,,,,,,,,"March 31, 2028, settled against the published ODNI Annual Threat Assessments.",url: https://archive.dni.gov/files/ODNI/documents/assessments/ATA-2026-Unclassified-Report.pdf | checked: 2026-11-21
 china-will-blockade-invade,prediction,disagree,every-large-chinese-military,,,,,,,,,,,,,,,"December 31, 2030, settled against Taiwan Ministry of National Defense and Maritime and Port Bureau reports.",
 china-will-blockade-invade,interest,agree,taiwan-s-23-million,,,,,,,,,,,,,,,,
 china-will-blockade-invade,interest,agree,electronics-car-makers-rely,,,,,,,,,,,,,,,,
@@ -12411,12 +12411,12 @@ someone-will-break-usain,dispute,,,Causal,,,,,,,,,,,,,,,"what: How many hundredt
 someone-will-break-usain,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether Bolt's 9.58 sits at or very near the human limit or is a reachable outlier that the next rare talent can pass. | move: Any wind-legal time under 9.69, which no one but Bolt has run, plus updated extreme-value estimates that include the 2024 to 2026 seasons."
 someone-will-break-usain,value,,,,,,,,,,,,,,,,,,"value: Achievement | srank: 1 | orank: 2 | why: Supporters prize the idea that human limits keep moving, while opponents honor Bolt's 9.58 as an achievement that may not be repeatable."
 someone-will-break-usain,value,,,,,,,,,,,,,,,,,,"value: Fairness | srank: 2 | orank: 1 | why: Opponents stress that earlier 100m records were rescinded for doping and that any big leap must be checked, while supporters stress that new spikes are legal under rules every sprinter races by."
-2028-los-angeles-olympics,argument,agree,la28-organizing-committee-secured,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,agree,2028-los-angeles-olympics-2,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,agree,ticket-demand-2028-los,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,agree,international-olympic-committee-committed,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,agree,most-police-security-costs,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,agree,olympic-organizing-committee-can,,,,,,,,,,,,,,,,
+2028-los-angeles-olympics,argument,agree,la28-organizing-committee-secured,,,,,,,,,,,,,,,,url: https://www.thestar.com.my/sport/others/2025/12/05/olympics-los-angeles-2028-olympic-organizers-top-2-billion-in-commercial-revenue | checked: 2026-11-21
+2028-los-angeles-olympics,argument,agree,2028-los-angeles-olympics-2,,,,,,,,,,,,,,,,url: https://lao.ca.gov/Publications/Report/3622 | checked: 2026-11-21
+2028-los-angeles-olympics,argument,agree,ticket-demand-2028-los,,,,,,,,,,,,,,,,url: https://srnnews.com/olympics-la28-olympic-ticket-sales-top-6-million-next-public-sale-set-for-2027/ | checked: 2026-11-21
+2028-los-angeles-olympics,argument,agree,international-olympic-committee-committed,,,,,,,,,,,,,,,,url: https://www.swimmingworldmagazine.com/news/los-angeles-agrees-to-host-2028-summer-olympics-paris-awarded-2024/ | checked: 2026-11-21
+2028-los-angeles-olympics,argument,agree,most-police-security-costs,,,,,,,,,,,,,,,,url: https://www.deseret.com/utah/2025/07/07/how-billion-dollars-for-la-2028-olympics-in-big-beautiful-bill-could-be-spent/ | checked: 2026-11-21
+2028-los-angeles-olympics,argument,agree,olympic-organizing-committee-can,,,,,,,,,,,,,,,,url: https://www.swimmingworldmagazine.com/news/final-cost-of-paris-olympics-and-paralympics-6-6-billion-euros/ | checked: 2026-11-21
 2028-los-angeles-olympics,evidence,agree,la28-reported-surpassed-2,,"LA28, 'More than 5 Million Fans Around the World Have Registered for the LA28 Ticket Draw,' press release, February 23, 2026",,,,,,,,,,,,,,url: https://la28.org/en/newsroom/more-than-5-million-fans-around-the-world-registered-for-la28-ticket-draw.html | checked: 2026-10-24
 2028-los-angeles-olympics,evidence,agree,la28-reported-olympic-ticket,,"LA28, 'Record Demand Sets the Stage for First-Come, First-Served LA28 Olympic Ticket Sales to Open in 2027,' press release, August 21, 2026",,,,,,,,,,,,,,url: https://la28.org/en/newsroom/record-demand-sets-the-stage-for-first-come-first-served-la28-olympic-ticket-sales-to-open-in-2027.html | checked: 2026-10-24
 2028-los-angeles-olympics,evidence,agree,paris-2024-organizing-committee,,"Wikipedia, 'Cost of the Olympic Games,' citing Le Monde, 'Paris 2024 Olympics report a €76 million budget surplus,' June 9, 2025",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Cost_of_the_Olympic_Games | checked: 2026-10-24
@@ -12428,12 +12428,12 @@ someone-will-break-usain,value,,,,,,,,,,,,,,,,,,"value: Fairness | srank: 2 | or
 2028-los-angeles-olympics,falsify,agree,la28-organizing-committee-hands,,,,,,,,,,,,,,,,
 2028-los-angeles-olympics,assumption,agree,federal-agencies-will-pay,,,,,,,,,,,,,,,,
 2028-los-angeles-olympics,assumption,agree,ticket-sponsorship-revenue-2028,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,disagree,every-olympic-games-since,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,disagree,1984-los-angeles-organizers,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,disagree,much-1984-los-angeles,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,disagree,1984-los-angeles-organizers-2,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,disagree,la28-organizing-committee-s-2,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,argument,disagree,los-angeles-city-council,,,,,,,,,,,,,,,,
+2028-los-angeles-olympics,argument,disagree,every-olympic-games-since,,,,,,,,,,,,,,,,url: https://arxiv.org/abs/2009.14682 | checked: 2026-11-21
+2028-los-angeles-olympics,argument,disagree,1984-los-angeles-organizers,,,,,,,,,,,,,,,,url: https://luskincenter.history.ucla.edu/wp-content/uploads/sites/66/2021/08/Lessons-Learned-from-the-1984-Olympic-Games.pdf | checked: 2026-11-21
+2028-los-angeles-olympics,argument,disagree,much-1984-los-angeles,,,,,,,,,,,,,,,,url: https://fred.stlouisfed.org/data/CD3M.txt | checked: 2026-11-21
+2028-los-angeles-olympics,argument,disagree,1984-los-angeles-organizers-2,,,,,,,,,,,,,,,,url: https://luskincenter.history.ucla.edu/wp-content/uploads/sites/66/2021/08/Lessons-Learned-from-the-1984-Olympic-Games.pdf | checked: 2026-11-21
+2028-los-angeles-olympics,argument,disagree,la28-organizing-committee-s-2,,,,,,,,,,,,,,,,url: https://www.governing.com/finance/can-los-angeles-keep-the-2028-olympics-from-breaking-the-bank | checked: 2026-11-21
+2028-los-angeles-olympics,argument,disagree,los-angeles-city-council,,,,,,,,,,,,,,,,url: https://www.audacy.com/knxnews/news/local/l-a-city-council-finalizes-agreement-on-contingency-fund-for-potential-olympic-losses | checked: 2026-11-21
 2028-los-angeles-olympics,evidence,disagree,olympic-games-have-run,,"Bent Flyvbjerg, Alexander Budzier and Daniel Lunn, 'Regression to the Tail: Why the Olympics Blow Up,' arXiv, September 28, 2020",,,,,,,,,,,,,,url: https://arxiv.org/abs/2009.14682 | checked: 2026-10-24
 2028-los-angeles-olympics,evidence,disagree,august-2026-los-angeles,,"KNX News (Audacy), 'L.A. City Council finalizes agreement on contingency fund for potential Olympic losses,' August 13, 2026",,,,,,,,,,,,,,url: https://www.audacy.com/knxnews/news/local/l-a-city-council-finalizes-agreement-on-contingency-fund-for-potential-olympic-losses | checked: 2026-10-24
 2028-los-angeles-olympics,evidence,disagree,kpmg-review-los-angeles,,"California Legislative Analyst's Office, 'Update on Los Angeles' Bid for the 2024 Olympics,' March 23, 2017",,,,,,,,,,,,,,url: https://lao.ca.gov/Publications/Report/3622 | checked: 2026-10-24
@@ -12445,11 +12445,11 @@ someone-will-break-usain,value,,,,,,,,,,,,,,,,,,"value: Fairness | srank: 2 | or
 2028-los-angeles-olympics,assumption,disagree,overrun-record-past-olympics,,,,,,,,,,,,,,,,
 2028-los-angeles-olympics,prediction,agree,la28-organizing-committee-s-4,,,,,,,,,,,,,,,"By December 31, 2030, settled against LA28's audited financial statements for 2028 and 2029 (its Games Budget and cashflow forecast run through 2029), which LA28 gives the City of Los Angeles each year in the annual report required by Section 13.2 of the Games Agreement and which the City Administrative Officer transmits to the City Council.",
 2028-los-angeles-olympics,prediction,agree,city-los-angeles-will,,,,,,,,,,,,,,,"By December 31, 2029, settled against Los Angeles City Council files and city budget documents.",
-2028-los-angeles-olympics,prediction,disagree,la28-organizing-committee-will,,,,,,,,,,,,,,,"By December 31, 2029, settled against Los Angeles City Council files and City Administrative Officer reports.",
+2028-los-angeles-olympics,prediction,disagree,la28-organizing-committee-will,,,,,,,,,,,,,,,"By December 31, 2029, settled against Los Angeles City Council files and City Administrative Officer reports.",url: https://d22tgksh1zpp6f.cloudfront.net/OnlineDocs/2015/15-0989-s68_rpt_cao_6-25-26.pdf | checked: 2026-11-21
 2028-los-angeles-olympics,interest,agree,southern-california-youth-sports,,,,,,,,,,,,,,,,
 2028-los-angeles-olympics,interest,disagree,los-angeles-residents-who,,,,,,,,,,,,,,,,
-2028-los-angeles-olympics,cba,agree,southern-california-youth-sports-2,,,,,,,,southern-california-youth-sports,,,dollars granted to youth sports a year,,,,,
-2028-los-angeles-olympics,cba,disagree,headline-operating-surplus-la28,,,,,,,,,,,dollars of public spending outside the LA28 budget,,,,,
+2028-los-angeles-olympics,cba,agree,southern-california-youth-sports-2,,,,,,,,southern-california-youth-sports,,,dollars granted to youth sports a year,,,,,url: https://la84.org/about/ | checked: 2026-11-21
+2028-los-angeles-olympics,cba,disagree,headline-operating-surplus-la28,,,,,,,,,,,dollars of public spending outside the LA28 budget,,,,,url: https://laist.com/news/politics/la-city-council-approves-deal-with-la28-on-olympics-spending-huge-financial-risks-remain | checked: 2026-11-21
 2028-los-angeles-olympics,category,,,dollars granted to youth sports a year,,,,,,,,,,,,,,,
 2028-los-angeles-olympics,category,,,dollars of public spending outside the LA28 budget,,,,,,,,,,,,,,,
 2028-los-angeles-olympics,criterion,,revenue-already-contracted-la28,,,,,,,,,,,,,,,,"method: Add up sponsorship, ticket, licensing and International Olympic Committee revenue reported by LA28 and the Los Angeles City Administrative Officer in each budget update through 2028, and compare the total with budgeted spending. | validity: Medium | reliability: Medium | linkage: Medium | importance: Medium | strengthen: Contracted revenue reaches or passes budgeted spending before the Games open in July 2028. | weaken: LA28 reports a revenue gap, cuts planned spending, or draws down its $330 million unallocated contingency before the Games open."
@@ -12736,12 +12736,12 @@ court-ordered-breakup-google,dispute,,,Legal,,,,,,,,,,,,,,,"what: Whether a cour
 court-ordered-breakup-google,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether the six-year conduct remedies in both U.S. cases will restore competition in search and ad tech without a breakup. | move: Compliance reports and market data from 2026 through 2029, such as rivals' share of ad exchange transactions, use of the court-ordered Prebid integrations, and rival search engines' share of U.S. queries."
 court-ordered-breakup-google,value,,,,,,,,,,,,,,,,,,value: Fair competition | srank: 1 | orank: 2 | why: Supporters see a monopoly that only a split can undo; opponents accept the monopoly findings but argue that conduct rules restore competition faster and with less risk.
 court-ordered-breakup-google,value,,,,,,,,,,,,,,,,,,"value: Stability | srank: 3 | orank: 1 | why: Opponents, including Judge Brinkema, weighed the disruption and higher costs a forced sale could bring publishers, including small publishers and the more than 90 percent of Google's ad server customers who use it for free; supporters see that risk as smaller than the harm of leaving the monopoly intact."
-apple-will-sell-pair,argument,agree,bloomberg-s-mark-gurman,,,,,,,,,,,,,,,,
-apple-will-sell-pair,argument,agree,analyst-ming-chi-kuo,,,,,,,,,,,,,,,,
-apple-will-sell-pair,argument,agree,apple-has-moved-engineers,,,,,,,,,,,,,,,,
-apple-will-sell-pair,argument,agree,meta-s-sales-more,,,,,,,,,,,,,,,,
-apple-will-sell-pair,argument,agree,apple-s-first-glasses,,,,,,,,,,,,,,,,
-apple-will-sell-pair,argument,agree,apple-s-top-leadership,,,,,,,,,,,,,,,,
+apple-will-sell-pair,argument,agree,bloomberg-s-mark-gurman,,,,,,,,,,,,,,,,url: https://www.macrumors.com/2026/07/26/apple-smart-glasses-wwdc-2027-report/ | checked: 2026-11-21
+apple-will-sell-pair,argument,agree,analyst-ming-chi-kuo,,,,,,,,,,,,,,,,url: https://www.macrumors.com/2026/06/03/kuo-vision-pro-successors-nixed/ | checked: 2026-11-21
+apple-will-sell-pair,argument,agree,apple-has-moved-engineers,,,,,,,,,,,,,,,,url: https://www.macrumors.com/2025/10/01/apple-ai-smart-glasses-focus/ | checked: 2026-11-21
+apple-will-sell-pair,argument,agree,meta-s-sales-more,,,,,,,,,,,,,,,,url: https://roadtovr.com/meta-ray-ban-smart-glasses-sales-tripled-2025/ | checked: 2026-11-21
+apple-will-sell-pair,argument,agree,apple-s-first-glasses,,,,,,,,,,,,,,,,url: https://www.macrumors.com/2026/05/31/apple-glasses-late-2027-report/ | checked: 2026-11-21
+apple-will-sell-pair,argument,agree,apple-s-top-leadership,,,,,,,,,,,,,,,,url: https://www.apple.com/newsroom/2026/04/tim-cook-to-become-apple-executive-chairman-john-ternus-to-become-apple-ceo/ | checked: 2026-11-21
 apple-will-sell-pair,evidence,agree,bloomberg-s-mark-gurman-2,,"MacRumors (Joe Rossignol), ""Apple Planning to Unveil Privacy-Focused Smart Glasses at WWDC 2027,"" July 26, 2026, relaying Bloomberg's Power On newsletter",,,,,,,,,,,,,,url: https://www.macrumors.com/2026/07/26/apple-smart-glasses-wwdc-2027-report/ | checked: 2026-10-24
 apple-will-sell-pair,evidence,agree,analyst-ming-chi-kuo-2,,"MacRumors (Juli Clover), ""Kuo: Apple's Vision Pro Successors Off the Table as Focus Shifts to Smart Glasses,"" June 3, 2026",,,,,,,,,,,,,,url: https://www.macrumors.com/2026/06/03/kuo-vision-pro-successors-nixed | checked: 2026-10-24
 apple-will-sell-pair,evidence,agree,essilorluxottica-reported-selling-more,,"UploadVR (David Heaney), ""Meta & EssilorLuxottica Sold 7 Million Smart Glasses In 2025,"" February 11, 2026, citing EssilorLuxottica's fourth-quarter 2025 results",,,,,,,,,,,,,,url: https://uploadvr.com/meta-essilorluxottica-sold-7-million-smart-glasses-in-2025/ | checked: 2026-10-24
@@ -12753,11 +12753,11 @@ apple-will-sell-pair,person,agree,apple-analyst-ming-chi,,,,,,,,,,,,,,,,url: htt
 apple-will-sell-pair,falsify,agree,apple-issues-press-release,,,,,,,,,,,,,,,,
 apple-will-sell-pair,falsify,agree,customers-least-one-country,,,,,,,,,,,,,,,,
 apple-will-sell-pair,assumption,agree,apple-rather-ship-glasses,,,,,,,,,,,,,,,,
-apple-will-sell-pair,argument,disagree,apple-s-smart-glasses,,,,,,,,,,,,,,,,
-apple-will-sell-pair,argument,disagree,apple-s-reported-late,,,,,,,,,,,,,,,,
-apple-will-sell-pair,argument,disagree,apple-s-smart-glasses-2,,,,,,,,,,,,,,,,
-apple-will-sell-pair,argument,disagree,apple-has-canceled-hardware,,,,,,,,,,,,,,,,
-apple-will-sell-pair,argument,disagree,july-2026-apple-had,,,,,,,,,,,,,,,,
+apple-will-sell-pair,argument,disagree,apple-s-smart-glasses,,,,,,,,,,,,,,,,url: https://www.macrumors.com/2026/05/31/apple-glasses-late-2027-report/ | checked: 2026-11-21
+apple-will-sell-pair,argument,disagree,apple-s-reported-late,,,,,,,,,,,,,,,,url: https://www.macrumors.com/2026/07/26/apple-smart-glasses-wwdc-2027-report/ | checked: 2026-11-21
+apple-will-sell-pair,argument,disagree,apple-s-smart-glasses-2,,,,,,,,,,,,,,,,url: https://www.macrumors.com/2026/11/15/apple-smart-glasses-hinge-on-siri/ | checked: 2026-11-21
+apple-will-sell-pair,argument,disagree,apple-has-canceled-hardware,,,,,,,,,,,,,,,,url: https://techcrunch.com/2019/03/29/apple-cancels-airpower-product-citing-inability-to-meet-its-high-standards-for-hardware/ | checked: 2026-11-21
+apple-will-sell-pair,argument,disagree,july-2026-apple-had,,,,,,,,,,,,,,,,url: https://www.macrumors.com/2026/07/26/apple-smart-glasses-wwdc-2027-report/ | checked: 2026-11-21
 apple-will-sell-pair,evidence,disagree,bloomberg-reported-may-2025,,"MacRumors (Juli Clover), ""Apple Smart Glasses: Everything We Know About Apple's Answer to Meta Ray-Bans,"" guide updated August 6, 2026",,,,,,,,,,,,,,url: https://www.macrumors.com/guide/apple-glasses/ | checked: 2026-10-24
 apple-will-sell-pair,evidence,disagree,apple-announced-vision-pro,,"Apple Newsroom, ""Introducing Apple Vision Pro,"" June 5, 2023, and ""Apple Vision Pro available in the U.S. on February 2,"" January 8, 2024",,,,,,,,,,,,,,url: https://www.apple.com/newsroom/2023/06/introducing-apple-vision-pro/ | checked: 2026-10-24
 apple-will-sell-pair,evidence,disagree,apple-spokeswoman-jacqueline-roy,,"Daring Fireball (John Gruber), ""Apple Is Delaying the 'More Personalized Siri' Apple Intelligence Features,"" March 7, 2025",,,,,,,,,,,,,,url: https://daringfireball.net/2025/03/apple_is_delaying_the_more_personalized_siri_apple_intelligence_features | checked: 2026-10-24
@@ -12773,15 +12773,15 @@ apple-will-sell-pair,assumption,disagree,product-slipped-once-because,,,,,,,,,,,
 apple-will-sell-pair,assumption,disagree,apple-will-follow-its,,,,,,,,,,,,,,,,
 apple-will-sell-pair,prediction,agree,apple-will-publicly-announce,,,,,,,,,,,,,,,"October 31, 2027, checked against Apple Newsroom press releases and Apple event keynotes.",
 apple-will-sell-pair,prediction,agree,apple-s-online-store,,,,,,,,,,,,,,,"December 31, 2027, checked against apple.com and Apple Newsroom.",
-apple-will-sell-pair,prediction,disagree,bloomberg-s-mark-gurman-3,,,,,,,,,,,,,,,"July 31, 2027, checked against Bloomberg's Power On newsletter and reports relaying it.",
+apple-will-sell-pair,prediction,disagree,bloomberg-s-mark-gurman-3,,,,,,,,,,,,,,,"July 31, 2027, checked against Bloomberg's Power On newsletter and reports relaying it.",url: https://petapixel.com/2026/11/16/apples-smart-glasses-could-arrive-by-the-end-of-2027-with-multiple-cameras/ | checked: 2026-11-21
 apple-will-sell-pair,prediction,disagree,if-apple-unveils-its,,,,,,,,,,,,,,,"December 31, 2027, checked against Apple Newsroom press releases.",
 apple-will-sell-pair,interest,agree,iphone-users-who-wear,,,,,,,,,,,,,,,,
 apple-will-sell-pair,interest,disagree,people-recorded-public-camera,,,,,,,,,,,,,,,,
 apple-will-sell-pair,interest,disagree,meta-essilorluxottica-need-time,,,,,,,,,,,,,,,,
-apple-will-sell-pair,cba,agree,apple-begin-recording-smart,,,,,,,,,,,dollars of revenue per quarter,,,,,
+apple-will-sell-pair,cba,agree,apple-begin-recording-smart,,,,,,,,,,,dollars of revenue per quarter,,,,,url: https://www.apple.com/newsroom/2026/01/apple-reports-first-quarter-results/ | checked: 2026-11-21
 apple-will-sell-pair,cba,agree,iphone-users-who-wear-2,,,,,,,,iphone-users-who-wear,,,months of waiting for a compatible product,,,,,
 apple-will-sell-pair,cba,disagree,apple-s-entry-put,,,,,,,,people-recorded-public-camera,,,reported complaints of hidden recording per year,,,,,
-apple-will-sell-pair,cba,disagree,apple-launch-late-2027,,,,,,,,meta-essilorluxottica-need-time,,,share of smart-glasses units sold,,,,,
+apple-will-sell-pair,cba,disagree,apple-launch-late-2027,,,,,,,,meta-essilorluxottica-need-time,,,share of smart-glasses units sold,,,,,url: https://fashionunited.com/news/business/dtc-and-wearables-propel-essilorluxottica-to-7-49-billion-euros-in-q3/2026102175293 | checked: 2026-11-21
 apple-will-sell-pair,category,,,dollars of revenue per quarter,,,,,,,,,,,,,,,
 apple-will-sell-pair,category,,,months of waiting for a compatible product,,,,,,,,,,,,,,,
 apple-will-sell-pair,category,,,reported complaints of hidden recording per year,,,,,,,,,,,,,,,
@@ -13084,3 +13084,5 @@ democrats-independents-who-caucus,evidence,agree,associated-press-projected-late
 republicans-win-least-four,evidence,disagree,associated-press-reported-november-4-2,,"Associated Press, republished by The Philadelphia Inquirer, updated November 4, 2026",,,,,,,,,,,,,,url: https://www.inquirer.com/politics/election/2026-us-midterm-elections-democrats-house-20261103.html | checked: 2026-11-21 | tag: test.came-false
 democrats-win-least-two,evidence,agree,associated-press-reported-november-4-2,,"Associated Press, republished by The Philadelphia Inquirer, updated November 4, 2026",,,,,,,,,,,,,,url: https://www.inquirer.com/politics/election/2026-us-midterm-elections-democrats-house-20261103.html | checked: 2026-11-21 | tag: test.came-true
 democrats-win-least-two,evidence,agree,south-carolina-s-state-election,,"South Carolina State Election Commission release, November 12, 2026; Associated Press, November 4, 2026",,,,,,,,,,,,,,url: https://scvotes.gov/state-election-commission-certifies-2026-statewide-general-election/ | checked: 2026-11-21 | tag: test.came-true
+measure-intelligence-fran-ois,argument,disagree,chollet-s-2019-paper-defines,,arcprize.org,,,,,,,,,,,,,,url: https://arcprize.org/leaderboard | checked: 2026-11-21 | tag: challenge.misquoted
+spacex-s-uncrewed-starship,argument,disagree,nasa-s-march-3-2026,,ntrs.nasa.gov,,,,,,,,,,,,,,url: https://ntrs.nasa.gov/citations/20260009199 | checked: 2026-11-21 | tag: challenge.misquoted
