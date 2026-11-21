@@ -201,7 +201,9 @@ not parse is a defect whose fix requires knowing what the code was meant to say.
 
 ### The static site's modules
 
-`score_reference.py` is the scorer; `tally.py` the owner's count-every-reason rule printed beside it; `evidence.py` sets where a page starts;
+`score_reference.py` is the scorer; `tally.py` the owner's count-every-reason rule printed beside it; `outcome.py` a third
+reading printed beside both once a belief's prediction has an outcome recorded (the observation counts ahead of the evidence
+that only forecast it; read by no other number); `evidence.py` sets where a page starts;
 `confidence.py` how much a page's score counts; `sensitivity.py` which single
 input would change the answer; `reasonrank.py` how much of the corpus depends on
 a page; `similarity.py` which claims say the same thing; `integrity.py` the
@@ -271,6 +273,9 @@ CI runs the whole suite before it will publish anything.
   `<table class="...">` stopped checking anything without failing, and `Publish site` failed from 2026-10-04 until
   they were fixed. `check_assertions.py` catches an assertion that never runs, not one that runs and cannot fail
   (an `assertNotIn` of a tag that no longer exists), so a loop that checks rows should end by asserting it found some.
+- A test run that is killed (a timeout, `pkill`, a usage limit) leaves its built site behind as `/tmp/ise-render-*`, about
+  470 MB each. Forty of them filled the session's disk allowance, and then every tool call failed with no output. Before a
+  long run, clear the stale ones: `find /tmp -maxdepth 1 -name 'ise-render-*' -mmin +120 -exec rm -rf {} +`.
 - The full suite takes about 20 minutes run serially (`test_similarity` and `test_render` are most of it); run the
   modules in parallel. `check_assertions.py` traces the whole suite and takes over 30 minutes: run it in the
   background with a long timeout.

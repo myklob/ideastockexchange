@@ -68,6 +68,7 @@ finding, and that needs a reason, not a fix to the test.
     A fallacy flag moves nothing                       test_fallacy  test_a_flag_moves_no_score
     A computed similarity moves nothing                test_similarity  test_it_changes_no_score
     The second strength rule moves nothing else        test_tally    test_it_moves_no_other_number
+    The outcome reading moves nothing else             test_outcome  test_it_moves_no_other_number
     Every port gives the same numbers                  conformance.py, run in CI
 
 Two things the list does not promise, on purpose. Two different claims that say nearly the same thing still count

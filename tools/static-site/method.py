@@ -119,6 +119,33 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
              'away from an even split. Which choices to act on is a different question, answered by costs and benefits across the '
              'interests at stake, in each page&rsquo;s cost-benefit section. <a href="compare.html">The beliefs where the two rules disagree most</a>.</p>')
 
+    # ---------------------------------------------------------------- a recorded outcome, shown beside the truth score
+    settled_now = [b for b in c.beliefs if (c.stats(b).get('outcome') or {}).get('up', 0) + (c.stats(b).get('outcome') or {}).get('down', 0) > 0]
+    news_w, record_w = (2 * EV.prior({'etype': e}, CONST['K'])['p0'] - 1 for e in ('news', 'record'))
+    o.append(sec('Counting what has happened',
+                 'A third reading of belief strength, printed beside the truth score on a belief page once one of its predictions has an '
+                 'outcome recorded. In the truth score a recorded outcome is one more row: a single report on a page with one row passes '
+                 'almost nothing to the prediction, and the prediction passes less to the belief, where every poll and forecast filed '
+                 'before the event still counts in full. So an election that has been held leaves the page that forecast it where the '
+                 'polls left it. This reading uses the rule probability gives: once what a belief predicted has been observed, the '
+                 'observation answers the question, and evidence that only predicted the answer has nothing left to add.',
+                 a='outcome'))
+    o.append('<p class="form"><span class="lab">A finding about what happened weighs</span> max(0, 2 × Truth − 1) × Linkage, from the finding&rsquo;s own page</p>')
+    o.append('<p class="form"><span class="lab">A prediction is settled by</span> its strongest finding that it happened − its strongest that it did not</p>')
+    o.append('<p class="form"><span class="lab">It settles the belief by</span> that × the prediction&rsquo;s Linkage to the belief</p>')
+    o.append('<p class="form"><span class="lab">After the outcome</span> (up + rest × Truth) / (up + down + rest), rest = max(0, 1 − up − down)</p>')
+    o.append('<p class="blurb">Up is the strongest settling toward the belief over its predictions and down the strongest against: a prediction '
+             'that follows from the belief and came true settles toward it, as does one that follows from its denial and did not; the other '
+             'two cases settle against. Up counts as 1, down as 0, and the page&rsquo;s ordinary truth score keeps only what is left. The '
+             'strongest and not the sum, because one event recorded under two predictions is still one event. A finding is a claim with a '
+             f'page like any other, so its source type sets how far it can settle (a news report {f2(news_w)}, an official record '
+             f'{f2(record_w)}), a report argued down settles less, and one argued false settles nothing: a report that was wrong does not show '
+             'the opposite happened. What this leaves out of the truth score&rsquo;s rule, for these findings only, is the confidence that '
+             'zeroes a page with one row and the importance factor; neither is the question once the thing itself has been observed. '
+             f'Nothing else on the site reads this number. Today {count_words(len(settled_now))} belief{"" if len(settled_now) == 1 else "s"} '
+             f'{"has" if len(settled_now) == 1 else "have"} an outcome that weighs anything. Whether a recorded outcome should lead the page, '
+             'and how far, is to be judged on those cases.</p>')
+
     # ---------------------------------------------------------------- confidence
     ks = sorted((c.conf.of(p) for p in c.specs))
     o.append(sec('Confidence: how much a score has earned the right to count',
