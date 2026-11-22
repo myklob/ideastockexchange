@@ -16,89 +16,64 @@ Or manually create issues using the GitHub web interface.
 
 ## Active TODOs
 
+Re-checked against the code on 2026-11-22. Items 2 and 3 of the earlier list are done or superseded and are under
+Completed TODOs, so `scripts/create-issues.sh` no longer files them.
+
 ### Core Implementation
 
 #### 1. HTML Parsing for Topic Updates
-- **Location**: `src/core/ai/generator.py:166`
-- **Priority**: Medium
-- **Description**: Implement parsing of existing HTML to extract data when updating topics, rather than always regenerating with new beliefs.
+- **Location**: `src/core/ai/generator.py:165-178`
+- **Priority**: Low
+- **Status**: Not done. The code is unwired: nothing outside `src/core/ai/` imports `generator.py`, and the published site
+  updates pages from `content/*.csv` through `intake.py`, never by re-parsing HTML. Its fate goes with CLAUDE.md open
+  decision 5 (restore or delete `src/core/ai/`). If it is kept, store each topic's input as JSON beside the HTML and
+  merge on update rather than parsing HTML.
 - **Labels**: `enhancement`, `core`
 
-### Scoring System
+### Fallacy flags
 
-#### 2. Sub-Argument Scoring Logic
-- **Location**: `docs/wiki/Truth-Score.md:46` (reference implementation)
-- **Priority**: High
-- **Description**: Implement the scoring logic for sub-arguments using evidence. This is critical for the Truth Score calculation.
-- **Labels**: `enhancement`, `scoring`, `priority-high`
+#### 2. Carry a fallacy accusation to near-duplicate claims
+- **Location**: `tools/static-site/fallacy.py`, `tools/static-site/similarity.py`; app: `src/lib/fallacy/claims.ts`
+- **Priority**: Medium
+- **Status**: Not done (GitHub issue #8, step 4). An accusation is filed on one row's linkage page and argued there;
+  nothing shows it on claims `similarity.py` finds to say the same thing. Add it to the flagged claim's "Possible
+  fallacy" table as a question that moves no score, the same rule every other flag follows. The app's explainer
+  used to say a confirmed fallacy stays confirmed for the whole cluster; it now says what the code does.
+- **Labels**: `enhancement`, `fallacy`
 
-#### 3. ML Fallacy Detection
-- **Location**: `docs/wiki/Truth-Score.md:60` (reference implementation)
-- **Priority**: Low
-- **Description**: Implement machine learning-based fallacy detection for arguments. Currently returns an empty array.
-- **Labels**: `enhancement`, `ml`, `future`
+### Contributions
+
+#### 3. Issue #252 needs a page
+- **Status**: Owner decision. The issue arrived labelled `contribution` with the claim text and none of the form's
+  fields, so intake could not tell which belief it belongs to (Intake run 43607873198 failed with "the submitted
+  text is empty"). Name the belief page, then edit the issue into the form or file the row by hand. Intake now
+  replies on any issue it cannot read (`intake.py` `tell_the_sender`, pinned by
+  `test_intake.TestTheCommandLine.test_a_post_it_cannot_read_is_answered_on_the_issue`), so this no longer fails
+  silently.
+
+### Issue #8 can be closed
+
+Every step of GitHub issue #8 ("Truth Score", 2023) except step 4 (item 2 above) is done or replaced: a phrase list
+of fallacies (`fallacy.py`, 44 named kinds in `vocab.py`), accusations filed as rows (`vocab.py` `fallacy` family,
+`intake.py` Row field), a place to argue each one (`render_site.py` "Possible fallacy" table), and the argued
+accusation's own truth score in place of a five-band Logical Fallacy Score. The evidence half is `evidence.py`'s
+eighteen tiers and prior.
 
 ---
 
 ## Issue Creation Script
 
-The following issues should be created:
-
-```bash
-# Issue 1: HTML Parsing for Topic Updates
-gh issue create \
-  --title "feat(ai): Implement HTML parsing for topic updates" \
-  --body "**Location**: \`src/core/ai/generator.py:166\`
-
-When updating an existing topic, parse the existing HTML to extract data rather than always regenerating with new beliefs. This will preserve existing content while allowing incremental updates.
-
-**Acceptance Criteria**:
-- [ ] Parse existing HTML file to extract belief data
-- [ ] Merge new beliefs with existing data
-- [ ] Preserve manually edited content where appropriate" \
-  --label "enhancement" \
-  --label "core"
-
-# Issue 2: Sub-Argument Scoring Implementation
-gh issue create \
-  --title "feat(scoring): Implement evidence-based sub-argument scoring" \
-  --body "**Reference**: \`docs/wiki/Truth-Score.md:46\`
-
-Implement the scoring logic for sub-arguments that uses evidence quality and relevance to compute scores.
-
-**Acceptance Criteria**:
-- [ ] Integrate evidence verification scores (EVS)
-- [ ] Apply fallacy penalties to sub-arguments
-- [ ] Recursive scoring for nested sub-arguments
-- [ ] Unit tests for scoring edge cases" \
-  --label "enhancement" \
-  --label "scoring" \
-  --label "priority-high"
-
-# Issue 3: ML Fallacy Detection
-gh issue create \
-  --title "feat(ml): Implement ML-based fallacy detection" \
-  --body "**Reference**: \`docs/wiki/Truth-Score.md:60\`
-
-Replace the placeholder fallacy detection with an ML-based system that can identify common logical fallacies in arguments.
-
-**Potential Approaches**:
-- Fine-tuned LLM for fallacy classification
-- Rule-based detection for common patterns
-- Hybrid approach with confidence scores
-
-**Acceptance Criteria**:
-- [ ] Detect at least 5 common fallacy types
-- [ ] Return confidence score for each detection
-- [ ] Provide explanation for detected fallacies
-- [ ] Integration with scoring engine" \
-  --label "enhancement" \
-  --label "ml" \
-  --label "future"
-```
+`scripts/create-issues.sh` files item 1 only.
 
 ---
 
 ## Completed TODOs
 
-_Move items here when corresponding GitHub Issues are created and linked._
+- **Evidence-based sub-argument scoring** (was item 2). Done: `tools/static-site/score_reference.py` (one
+  contribution formula for reasons, evidence and predictions, recursion through `evaluate`), `evidence.py` (tiers
+  and the evidence prior); app: `src/core/scoring/scoring-engine.ts`. A fallacy penalty is refused by design on the
+  published site: a flag moves no score (owner direction, October 2026; `fallacy.py`).
+- **ML fallacy detection** (was item 3). Replaced: the published site flags possible fallacies by a published phrase
+  list, deliberately not a model, so a flag can say why it fired (`fallacy.py`), and the flag is argued like any
+  other claim. The app's ingest path uses six regexes (`src/lib/agent-ingest/fallacy-detector.ts`). Nothing returns
+  an empty placeholder any more.

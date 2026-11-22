@@ -33,41 +33,6 @@ When updating an existing topic, parse the existing HTML to extract data rather 
 - [ ] Preserve manually edited content where appropriate" \
   --label "enhancement"
 
-# Issue 2: Sub-Argument Scoring Implementation
-echo "Creating Issue 2: Sub-Argument Scoring Implementation..."
-gh issue create \
-  --title "feat(scoring): Implement evidence-based sub-argument scoring" \
-  --body "**Reference**: \`docs/wiki/Truth-Score.md:46\`
-
-Implement the scoring logic for sub-arguments that uses evidence quality and relevance to compute scores.
-
-**Acceptance Criteria**:
-- [ ] Integrate evidence verification scores (EVS)
-- [ ] Apply fallacy penalties to sub-arguments
-- [ ] Recursive scoring for nested sub-arguments
-- [ ] Unit tests for scoring edge cases" \
-  --label "enhancement"
-
-# Issue 3: ML Fallacy Detection
-echo "Creating Issue 3: ML Fallacy Detection..."
-gh issue create \
-  --title "feat(ml): Implement ML-based fallacy detection" \
-  --body "**Reference**: \`docs/wiki/Truth-Score.md:60\`
-
-Replace the placeholder fallacy detection with an ML-based system that can identify common logical fallacies in arguments.
-
-**Potential Approaches**:
-- Fine-tuned LLM for fallacy classification
-- Rule-based detection for common patterns
-- Hybrid approach with confidence scores
-
-**Acceptance Criteria**:
-- [ ] Detect at least 5 common fallacy types
-- [ ] Return confidence score for each detection
-- [ ] Provide explanation for detected fallacies
-- [ ] Integration with scoring engine" \
-  --label "enhancement"
-
 echo ""
-echo "Done! Created 3 issues."
+echo "Done! Created 1 issue."
 echo "View issues at: gh issue list"

@@ -1150,6 +1150,27 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
     return {'did': 'placed' if hit is not None else 'pr', 'key': hit['key'] if hit else None, 'pages': pages, 'edges': edges, 'near': near, 'url': url, 'notes': notes}
 
 
+NOT_FILED = ('Nothing from this issue was filed: {why}. Edit the issue so it carries the form\'s fields '
+             '(the page, the section, the side and the claim) and it is read again, or reply here and the '
+             'maintainer files it by hand. Nothing typed here is lost.')
+
+
+def tell_the_sender(event, error, run):
+    """A post the intake cannot read used to fail with only a red workflow run, which the person who sent it
+    never sees. Say why on the issue itself. An issue that did not come from a form is not ours to answer,
+    and a comment that cannot be posted must not hide the error it was reporting."""
+    issue = event.get('issue') or {}
+    n = issue.get('number')
+    if not n or "did not come from one of the site's forms" in str(error): return False
+    repo = (event.get('repository') or {}).get('html_url') or REPO
+    try:
+        Git(run, ROOT, repo).comment(n, NOT_FILED.format(why=str(error).rstrip('.')))
+    except Exception as e:  # noqa: BLE001
+        print(f'::warning::could not comment on issue {n}: {e}')
+        return False
+    return True
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--event', required=True, help='the GitHub event payload (a JSON file)')
@@ -1161,6 +1182,7 @@ def main(argv=None):
         done = process(event, content=a.content, run=dry_runner if a.dry_run else subprocess_runner)
     except IntakeError as e:
         print(f'::error::{e}')
+        tell_the_sender(event, e, dry_runner if a.dry_run else subprocess_runner)
         return 1
     print(json.dumps({k: v for k, v in done.items() if k in ('did', 'key', 'vote', 'on', 'score', 'url', 'why')}))
     return 0
