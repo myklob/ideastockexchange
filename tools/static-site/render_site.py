@@ -3490,15 +3490,16 @@ def render_resolve(c, title):
 # ------------------------------------------------------------------------------------------------ play money
 PLAY_NOTE = ('Play money, shown beside the analysis and never read by it: no amount invested or bet moves a score.')
 
-def stake_url(key, kind, side):
-    """A prefilled stake issue: play money for or against a page, as an investment or as a bet."""
+def stake_url(key, kind, side, text=None):
+    """A prefilled stake issue: play money for or against a page, as an investment or as a bet. `text` is the claim
+    in words, for the title, so the GitHub page says what the money is going on; intake reads only the fields."""
     what = {'invest': 'Invest', 'bet': 'Bet'}[kind] + (' for' if side == 'agree' else ' against')
-    return f'{NEW_ISSUE}?' + _q([('template', 'stake.yml'), ('labels', 'stake'), ('title', f'{what}: {key}'), ('page', key), ('kind', kind),
+    return f'{NEW_ISSUE}?' + _q([('template', 'stake.yml'), ('labels', 'stake'), ('title', f'{what}: {clip(text or key, 110)}'), ('page', key), ('kind', kind),
                                  ('side', 'for' if side == 'agree' else 'against')])
 
 def stake_links(c, pid, kind, words):
     key = c.key[pid]
-    return ' · '.join(f'<a href="{esc(stake_url(key, kind, s))}" rel="nofollow">{esc(w)}</a>' for s, w in zip(('agree', 'disagree'), words))
+    return ' · '.join(f'<a href="{esc(stake_url(key, kind, s, c.standalone(pid)))}" rel="nofollow">{esc(w)}</a>' for s, w in zip(('agree', 'disagree'), words))
 
 def book_of(c):
     """The ledger against this build's scores, made once. A build with no ledger has an empty book."""
