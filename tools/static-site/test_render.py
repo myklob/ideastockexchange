@@ -2530,8 +2530,8 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
 
 
 class TestEveryContributorHasAPage(unittest.TestCase):
-    """Every login that adds a row or casts a vote gets a page listing what they did; the maintainer's page carries
-    their profile and every page credits them. None of it reaches a score."""
+    """Every login that proposes a belief, adds a row or casts a vote gets a page listing what they did; the
+    maintainer's page carries their profile and every page credits them. None of it reaches a score."""
 
     @classmethod
     def setUpClass(cls):
@@ -2598,6 +2598,86 @@ class TestEveryContributorHasAPage(unittest.TestCase):
             self.assertEqual(idx[0], idx[1], 'naming a maintainer moved a published number')
         finally:
             for d in [src] + outs: shutil.rmtree(d, ignore_errors=True)
+
+    def people_table(self, out):
+        """contributors.html as {login: {column heading: cell}}, read by heading so a column added or moved does
+        not change what a test below is looking at."""
+        page = self.read(out, 'contributors.html')
+        heads = [strip(h).strip() for h in re.findall(r'<th\b[^>]*>(.*?)</th>', page, re.S)]
+        rows = {}
+        for tr in re.findall(r'<tr\b[^>]*>(.*?)</tr>', page, re.S):
+            who = re.search(r'href="u/([^"]+)\.html"', tr)
+            if who: rows[who.group(1)] = dict(zip(heads, [strip(x).strip() for x in re.findall(r'<td\b[^>]*>(.*?)</td>', tr, re.S)]))
+        return rows
+
+    def built_with(self, proposals, gate=False):
+        """The votes fixture's tables with zed named maintainer and the given proposals.csv rows (None for no
+        file), every belief published unless gate: (corpus, broken links, output folder, {page key: published numbers})."""
+        import ise_tables as IT, render_site as RS
+        src, out = tempfile.mkdtemp(), tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, src, True); self.addCleanup(shutil.rmtree, out, True)
+        for f in os.listdir(self.v.without): shutil.copy(os.path.join(self.v.without, f), src)
+        with open(os.path.join(src, 'users.csv'), 'w') as fh:
+            fh.write('login,name,maintainer,role,about\nzed,Zed Example,Y,Maintainer,Builds things.\n')
+        if proposals is not None:
+            IT.write_proposals([dict(zip(IT.PROPOSAL_COLS, r)) for r in proposals], src)
+        c, broken = RS.build(src, out, gate=gate)
+        with open(os.path.join(out, 'data', 'pages_index.json')) as fh:
+            numbers = {r['key']: (r['truth'], r['confidence']) for r in json.load(fh)['pages']}
+        return c, broken, out, numbers
+
+    def test_a_belief_counts_for_whoever_proposed_it_and_not_for_the_maintainer(self):
+        """A belief proposed with no reason attached has no row to carry its author, so it used to be nobody's and
+        the maintainer's by default. proposals.csv names the proposer, and the count follows it."""
+        _, broken, before, _ = self.built_with(None)
+        self.assertEqual(broken, [])
+        t = self.people_table(before)
+        self.assertEqual((t['zed']['Beliefs started'], t['ann']['Beliefs started']), ('2', '0'),
+                         'with nobody named, both beliefs are the maintainer\'s and a row adder has started none')
+        self.assertNotIn('bea', t)
+        # r1 is a claim and `gone` is no page at all: neither is a belief anybody started
+        c, broken, after, _ = self.built_with([('b', 'bea', '2026-10-02', '31'), ('r1', 'mallory', '2026-10-03', '32'), ('gone', 'mallory', '2026-10-03', '33')])
+        self.assertEqual(broken, [], 'a link on a contributor page points at a page that was not written')
+        t = self.people_table(after)
+        self.assertEqual(t['bea']['Beliefs started'], '1', 'the proposer is not credited with the belief they proposed')
+        self.assertEqual(t['zed']['Beliefs started'], '1', 'a belief somebody else proposed is still counted on the maintainer\'s line')
+        self.assertEqual((t['bea']['Rows added'], t['ann']['Beliefs started'], t['ann']['Rows added']), ('0', '0', '1'))
+        self.assertNotIn('mallory', t, 'a proposal for a page that is not a belief made a contributor')
+        self.assertFalse(os.path.exists(os.path.join(after, 'u', 'mallory.html')))
+        page = self.read(after, 'u/bea.html')
+        self.assertRegex(page, r'<h2\b[^>]*><span>Beliefs started</span></h2>')
+        self.assertIn(f'<a href="../p/{c.href(c.tabs["b"])}">Cities should pave their parks.</a>', page)
+        self.assertIn('2026-10-02', page)
+        self.assertNotIn('Nothing added or voted on yet', page)
+        self.assertNotIn('Beliefs started', self.read(after, 'u/ann.html'), 'a page lists beliefs for somebody who started none')
+        zed = readable(self.read(after, 'u/zed.html'))
+        self.assertIn('Every belief and every row that carries no other contributor\'s name was entered by the maintainer', zed)
+        self.assertIn('other contributors started 1 of the beliefs', zed)
+        self.assertNotIn('other contributors started', readable(self.read(before, 'u/zed.html')))
+
+    def test_the_complete_only_build_credits_the_same_people_and_links_no_draft(self):
+        """The gated site leaves a draft belief out. Whoever proposed it is still credited, with its words and no
+        link, as a row pointing at a draft keeps its words there."""
+        c, broken, out, _ = self.built_with([('b', 'bea', '2026-10-02', '31')], gate=True)
+        self.assertNotIn('b', c.tabs, 'the second belief of the fixture is meant to be a draft this build leaves out')
+        self.assertEqual(broken, [], 'a contributor page links a belief the complete-only build did not write')
+        t = self.people_table(out)
+        self.assertEqual((t['bea']['Beliefs started'], t['zed']['Beliefs started']), ('1', '1'))
+        self.assertRegex(self.read(out, 'u/bea.html'), r'<td\b[^>]*>Cities should pave their parks\.</td>')
+
+    def test_a_belief_proposed_by_nobody_named_is_credited_to_nobody(self):
+        """An issue with no account behind it is recorded as anonymous. That belief was not entered by the
+        maintainer, so it is not counted as theirs, and nobody gets a page for it."""
+        _, broken, out, _ = self.built_with([('a', 'anonymous', '2026-10-02', '31'), ('b', 'bea', '2026-10-02', '32')])
+        self.assertEqual(broken, [])
+        t = self.people_table(out)
+        self.assertEqual((t['zed']['Beliefs started'], t['bea']['Beliefs started']), ('0', '1'))
+        self.assertNotIn('anonymous', t)
+
+    def test_who_proposed_a_belief_moves_no_published_number(self):
+        plain, named = self.built_with(None)[3], self.built_with([('a', 'bea', '2026-10-02', '31'), ('b', 'a-famous-expert', '2026-10-02', '32')])[3]
+        self.assertGreater(len(plain), 5)
+        self.assertEqual(plain, named, 'naming who proposed a belief moved a published number')
 
 
 class TestTheGroupingMethodIsPublished(unittest.TestCase):

@@ -3819,23 +3819,43 @@ def take_part_foot(what):
 
 def load_people(c, content):
     """Who takes part, read from the tables and nothing else: the profiles in users.csv and user_links.csv, every
-    row a contributor added (its added_by), and every vote cast. Nothing here reaches a scorer."""
+    belief somebody proposed (proposals.csv), every row a contributor added (its added_by), and every vote cast.
+    Nothing here reaches a scorer."""
     users, links = IT.read_users(content) if content and os.path.isdir(content) else ([], [])
     c.users = {user_slug(u['login']): u for u in users if user_slug(u.get('login'))}
     c.user_links = {}
     for l in links: c.user_links.setdefault(user_slug(l.get('login')), []).append(l)
     c.maintainer = next((k for k, u in c.users.items() if u.get('maintainer', '').upper() == 'Y'), None)
-    c.added = {}
+    # started: login -> [(belief key, day, the belief's words)]. unclaimed: how many beliefs name no proposer at all.
+    # Both are counted over the full tables, as the rows are, so the complete-only build credits the same people the
+    # full one does; the words are kept because that build shows a draft's words and not its link
+    c.added, c.started, c.unclaimed = {}, {}, 0
     if content and os.path.isdir(content):
-        for e in IT.read_csv(content)[1]:
+        pages, edges = IT.read_csv(content)
+        for e in edges:
             x = IT.parse_extra(e.get('extra'))
             who = user_slug(x.get('added_by'))
             if who and who != 'anonymous': c.added.setdefault(who, []).append((e, x.get('added', '')))
+        beliefs = {p['key']: p.get('standalone') or p.get('text') or p['key'] for p in pages if p.get('kind') == 'belief'}
+        named = {r['key']: r for r in IT.read_proposals(content) if r['key'] in beliefs}
+        for key, r in named.items():
+            who = user_slug(r['login'])
+            if who and who != 'anonymous': c.started.setdefault(who, []).append((key, r['date'], beliefs[key]))
+        c.unclaimed = len(beliefs) - len(named)
     c.voted = {}
     for v in getattr(c, 'vote_rows', []):
         who = user_slug(v.get('login'))
         if who and who != 'anonymous': c.voted.setdefault(who, []).append(v)
-    c.people = sorted(set(c.users) | set(c.added) | set(c.voted), key=lambda k: (k != c.maintainer, (c.users.get(k, {}).get('name') or k).lower()))
+    c.people = sorted(set(c.users) | set(c.added) | set(c.started) | set(c.voted),
+                      key=lambda k: (k != c.maintainer, (c.users.get(k, {}).get('name') or k).lower()))
+
+
+def beliefs_started(c, login):
+    """How many beliefs a person started: the ones proposals.csv names them for and, for the maintainer, every
+    belief it names nobody for. That second half is the site's standing rule (what carries no other name was
+    entered by the maintainer), so a belief somebody else proposed must be named in the table or it is counted
+    here as the maintainer's."""
+    return len(c.started.get(login, [])) + (c.unclaimed if login == getattr(c, 'maintainer', None) else 0)
 
 
 def person_name(c, login):
@@ -3857,11 +3877,13 @@ def render_user(c, login, title):
     if login == c.maintainer:
         done = [b for b in c.beliefs if c.complete(b)]
         filed = {c.topic_of(b) for b in c.beliefs if c.topic_of(b)}
+        others = sum(len(v) for k, v in c.started.items() if k != login)
         o.append(f'<section><h2><span>What {esc(name)} built</span></h2><p>This site and everything on it: '
                  f'<a href="../best.html">{len(c.beliefs):,} beliefs</a> across <a href="../topics.html">{len(filed)} topics</a>, '
                  f'{len(done):,} of them worked all the way through, and {len(c.specs):,} pages in all, with the rules that score them '
-                 f'and <a href="../method.html">the method page</a> that explains every number. Every row that carries no other '
-                 f'contributor&apos;s name was entered by the maintainer.</p>'
+                 f'and <a href="../method.html">the method page</a> that explains every number. Every belief and every row that '
+                 f'carries no other contributor&apos;s name was entered by the maintainer'
+                 + (f'; <a href="../contributors.html">other contributors</a> started {others:,} of the beliefs' if others else '') + '.</p>'
                  + (f'<p>{esc(u["method"])}</p>' if u.get('method') else '') + '</section>')
     groups = []
     for l in c.user_links.get(login, []):
@@ -3875,6 +3897,17 @@ def render_user(c, login, title):
             link = f'<a href="{esc(url)}" rel="me noopener">{esc(l.get("label") or url)}</a>' if re.match(r'^https?://', url) else esc(l.get('label', ''))
             o.append(f'<tr><td class="t"><strong>{esc(l.get("platform", ""))}</strong></td><td class="u">{esc(l.get("best_for", ""))}</td><td>{link}</td></tr>')
         o.append('</tbody></table></section>')
+    began = c.started.get(login, [])
+    if began:
+        o.append('<section><h2><span>Beliefs started</span></h2><table class="plain"><thead><tr><th>Belief</th><th>Proposed</th></tr></thead><tbody>')
+        for key, when, words in sorted(began, key=lambda r: (r[1], r[0]), reverse=True):
+            belief = (f'<a href="../p/{c.href(c.tabs[key])}">{esc(c.standalone(c.tabs[key]))}</a>' if key in getattr(c, 'tabs', {}) else esc(words))
+            o.append(f'<tr><td class="t">{belief}</td><td class="u">{esc(when)}</td></tr>')
+        o.append('</tbody></table>')
+        if login == c.maintainer and c.unclaimed:
+            o.append(f'<p class="tot">These are the beliefs proposed through a form. The {c.unclaimed:,} that name no proposer were '
+                     f'entered by the maintainer as well.</p>')
+        o.append('</section>')
     rows = c.added.get(login, [])
     if rows:
         o.append(f'<section><h2><span>Rows added</span></h2><table class="plain"><thead><tr><th>On the page</th><th>Where</th><th>Added</th></tr></thead><tbody>')
@@ -3892,9 +3925,9 @@ def render_user(c, login, title):
             what = esc(v.get('vote', '')) + (' that it bears on the page above' if v.get('on') else '')
             o.append(f'<tr><td class="t">{claim}</td><td class="u">{what}</td><td class="u">{esc(v.get("date", ""))}</td></tr>')
         o.append('</tbody></table></section>')
-    if not (rows or votes or login == c.maintainer):
+    if not (began or rows or votes or login == c.maintainer):
         o.append('<p class="empty">Nothing added or voted on yet.</p>')
-    o.append('<p class="tot">Who added a row never changes its score, and a vote never moves one: the site checks both on every build.</p>')
+    o.append('<p class="tot">Who started a belief or added a row never changes a score, and a vote never moves one: the site checks each on every build.</p>')
     if u.get('closing'): o.append(f'<p class="consts">{esc(u["closing"])}</p>')
     o.append(stamp(c, '../') + FOOT)
     return ''.join(o)
@@ -4522,14 +4555,15 @@ def render_contributors(c, title):
     """Everybody who takes part, the maintainer first, each linked to their page."""
     o = [root_head('Contributors', [('Home', 'index.html'), ('Contributors', '')], main_class='index')]
     o.append('<p class="kind">Idea Stock Exchange</p><h1>Contributors</h1>')
-    o.append('<p class="lede">Everyone who has added a row or cast a vote here, and whoever maintains the site. Each has a page listing '
-             'what they added. Who added a row never changes its score.</p>')
-    o.append('<section><table class="plain"><thead><tr><th>Who</th><th>Role</th><th>Rows added</th><th>Votes cast</th></tr></thead><tbody>')
+    o.append('<p class="lede">Everyone who has started a belief, added a row or cast a vote here, and whoever maintains the site. Each '
+             'has a page listing what they added. A belief counts for whoever proposed it, and one that names no proposer was entered '
+             'by the maintainer. Who added something never changes its score.</p>')
+    o.append('<section><table class="plain"><thead><tr><th>Who</th><th>Role</th><th>Beliefs started</th><th>Rows added</th><th>Votes cast</th></tr></thead><tbody>')
     for k in getattr(c, 'people', []):
         role = 'Maintainer' if k == c.maintainer else (c.users.get(k, {}).get('role') or 'Contributor')
         o.append(f'<tr><td class="t"><a href="u/{user_slug(k)}.html">{esc(person_name(c, k))}</a></td><td class="u">{esc(role)}</td>'
-                 f'<td>{len(c.added.get(k, []))}</td><td>{len(c.voted.get(k, []))}</td></tr>')
-    if not getattr(c, 'people', []): o.append('<tr><td colspan="4" class="empty">Nobody yet.</td></tr>')
+                 f'<td>{beliefs_started(c, k)}</td><td>{len(c.added.get(k, []))}</td><td>{len(c.voted.get(k, []))}</td></tr>')
+    if not getattr(c, 'people', []): o.append('<tr><td colspan="5" class="empty">Nobody yet.</td></tr>')
     o.append('</tbody></table></section>')
     o.append(stamp(c) + FOOT)
     return ''.join(o)

@@ -22,7 +22,9 @@ whether that row bears on that page, which is a vote on the argument as an argum
 
 Every row a submission adds says who added it and when (`added_by`, `added`) and, for a source, where it can be
 read and the day it was checked (`url`, `checked`), as named fields in the row's extra cell, so the exports
-carry them and the page shows them under the row.
+carry them and the page shows them under the row. A proposed belief is the one page a submission adds that no row
+points at, so no row can say who proposed it: content/proposals.csv does (key, login, date, issue), written in the
+same pull request as the belief (record_proposals). Like votes.csv it is outside the two scored tables.
 
 Nothing here runs gh or git directly. Every command goes through a runner that a test replaces and that
 --dry-run replaces with print, so the whole flow can be exercised without a token or a repository.
@@ -315,6 +317,18 @@ def stamp(e, sub):
     return e
 
 
+def record_proposals(content, pages, sub):
+    """Who proposed each belief among the pages a submission adds, written to content/proposals.csv. A new belief
+    has no row pointing at it for stamp() to mark, and the pages table names no author on purpose (no scorer may
+    read one), so without this a belief proposed with no reason attached says nowhere who proposed it. Returns the
+    file written, for the commit, or None when the submission proposes no belief."""
+    new = [p['key'] for p in pages if p.get('kind') == 'belief']
+    if not new: return None
+    rows = [r for r in IT.read_proposals(content) if r['key'] not in new]
+    rows += [{'key': k, 'login': str(sub['login']).strip(), 'date': sub['date'], 'issue': str(sub['number'])} for k in new]
+    return IT.write_proposals(rows, content)
+
+
 def _number(v):
     try: x = float(str(v).replace(',', '').strip())
     except ValueError: return None
@@ -578,6 +592,7 @@ def rows_for(sub, tables):
         elif f['topic']: notes.append(f'No topic matches {f["topic"]!r} by key or name, so the topic is left empty.')
         else: notes.append('No topic was given, so the topic is left empty.')
         notes.append('Strength and positivity are left empty; both are typed by a person, never scored.')
+        notes.append('Who proposed the belief, and when, is one new line in content/proposals.csv: no row points at a new belief to carry it.')
         pages.append(row)
         for side in SIDES:
             reason = f[side]
@@ -962,6 +977,7 @@ def process_outline(sub, tables, git, matcher, content, workbook):
         git.branch(n)
         tables.write()
         if later: recorded(later)
+        proposed = record_proposals(content, filed.pages, sub)
         git('python3', os.path.join(HERE, 'sync_content.py'), '--to-workbook')
         git('python3', os.path.join(HERE, 'sync_content.py'), '--check')
         git('python3', os.path.join(HERE, 'integrity.py'), content)
@@ -972,6 +988,7 @@ def process_outline(sub, tables, git, matcher, content, workbook):
                              f'review and never moves a score.']
         if later: tail += ['', f'{len(later)} vote{"s are" if len(later) > 1 else " is"} on pages this pull request adds, so '
                                f'{"they are" if len(later) > 1 else "it is"} in it, and count{"" if len(later) > 1 else "s"} once it is merged.']
+        if proposed: tail += ['', 'Who proposed each new belief, and when, is in content/proposals.csv: no row points at a new belief to carry it.']
         if filed.requests: tail += ['', 'Requests, which add no row:'] + bound([f'- line {r["line"]}: {inert(r["text"])}' for r in filed.requests], 12000)
         if filed.corrections:
             tail += ['', 'Correction requests (nothing stored was changed):'] + bound([f'- line {r["line"]}: {inert(r["text"])}' for r in filed.corrections], 12000)
@@ -983,6 +1000,7 @@ def process_outline(sub, tables, git, matcher, content, workbook):
         body = head + [fenced(reply, min(REPLY_ROOM, room))] + tail
         paths = [os.path.join(content, x) for x in ('pages.csv', 'edges.csv', 'topics.csv') if os.path.exists(os.path.join(content, x))] + [workbook]
         if later: paths.append(votes_path)
+        if proposed: paths.append(proposed)
         git.commit(paths, f'{title}\n\nFrom #{n} by @{login}.')
         url, existed = git.open_pr(n, title, '\n'.join(body))
     elif git.has_branch(n):
@@ -1115,6 +1133,7 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
     git.identity()
     git.branch(n)
     tables.write()
+    proposed = record_proposals(content, pages, sub)
     git('python3', os.path.join(HERE, 'sync_content.py'), '--to-workbook')
     git('python3', os.path.join(HERE, 'sync_content.py'), '--check')
     git('python3', os.path.join(HERE, 'integrity.py'), content)
@@ -1122,7 +1141,7 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
     def row_line(e):
         where = f'- {e["page"]} / {e["section"]}' + (f' / {e["side"]}' if e.get('side') else '') + (f' / {e["category"]}' if e.get('category') else '')
         return where + (f' -> `{e["claim"]}`' if e.get('claim') else f': {e.get("text") or e.get("extra") or ""}')
-    body = [f'From #{n}, submitted by @{login}.', '', 'Pages added:', listing, '', 'Rows added:', '\n'.join(row_line(e) for e in edges)]
+    body = [f'From #{n}, submitted by @{login}.', '', 'Pages added:', listing, '', 'Rows added:', '\n'.join(row_line(e) for e in edges) or '- none']
     if notes: body += ['', 'Notes:'] + [f'- {x}' for x in notes]
     if near and hit is None:
         body += ['', 'Near matches already on the site (read wording, not meaning; decide whether this is one of them):']
@@ -1134,6 +1153,7 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
     # the title is the commit message's first line, and on merge the default branch's: no issue reference or CI marker
     title = inert(title)
     paths = [os.path.join(content, f) for f in ('pages.csv', 'edges.csv', 'topics.csv') if os.path.exists(os.path.join(content, f))] + [workbook]
+    if proposed: paths.append(proposed)
     git.commit(paths, f'{title}\n\nFrom #{n} by @{login}.')
     url, existed = git.open_pr(n, title, '\n'.join(body))
     if existed:

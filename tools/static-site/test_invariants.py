@@ -225,7 +225,25 @@ class TestWhoAddedARowMovesNothing(unittest.TestCase):
 
     def test_no_table_column_names_an_author(self):
         for col in IT.PAGE_COLS + IT.EDGE_COLS:
-            self.assertNotRegex(col, r'author|contributor|account|login|user|submitted', f'{col} looks like an author column a scorer could read')
+            self.assertNotRegex(col, r'author|contributor|account|login|user|submitted|added|proposed|started',
+                                f'{col} looks like an author column a scorer could read')
+
+    def test_who_proposed_a_belief_moves_no_number(self):
+        """A proposed belief has no row to carry its author, so proposals.csv does, beside the two scored tables
+        and never in them. The same tables score the same with the file, without it, and whoever it names."""
+        pages, edges = trees(['argument'])
+        def proposed(who):
+            d = tempfile.mkdtemp(prefix='inv-')
+            try:
+                IT.write_csv(pages, edges, d, topics=TOPIC)
+                if who: IT.write_proposals([{'key': 'b', 'login': who, 'date': '2026-11-22', 'issue': '1'}], d)
+                return numbers(RS.Corpus(d, 'x'))
+            finally:
+                shutil.rmtree(d, ignore_errors=True)
+        base = proposed(None)
+        self.assertGreater(base['b'][1], 0, 'the belief carries no weight, so the test proves nothing')
+        for who in ('ann', 'a-famous-expert', 'anonymous'):
+            self.assertEqual(proposed(who), base, f'a belief proposed by {who} scores differently')
 
 
 if __name__ == '__main__':

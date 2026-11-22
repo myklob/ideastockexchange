@@ -60,6 +60,7 @@ finding, and that needs a reason, not a fix to the test.
     A claim listed twice on a page counts once         test_invariants  TestARepeatedClaimCountsOnce
     The same tables give the same site, byte for byte  test_invariants  TestTheSameTablesGiveTheSameSite
     Who added a row moves nothing                      test_invariants  TestWhoAddedARowMovesNothing
+    Who proposed a belief moves nothing                test_invariants  test_who_proposed_a_belief_moves_no_number
     Opening an empty linkage page moves no score       test_invariants  TestOpeningAFactorPageMovesNothing
     A row's kind of post (its tag) moves nothing       no scorer reads `tag`; test_vocab pins where each kind files
     A claim that reads alike but says the opposite     test_intake, test_outline_file: never merged into a vote for it
@@ -106,9 +107,12 @@ discount and is meant to be.
     outline_print.py     prints any page or topic as an outline (p/<key>.txt, t/<key>.txt) that reads back to its rows
     outline_file.py      files a read outline against the tables, all or nothing, and writes the reply that prints it back
     content/votes.csv    the fourth table, one row per (page key, on, GitHub login), latest wins; shown on the page, never scored
+    content/proposals.csv  who proposed a belief and when, one row per belief (key, login, date, issue); written by
+                         intake, counted on contributors.html as Beliefs started; never scored
     content/users.csv    who takes part: one row per GitHub login (name, role, a few sentences, maintainer Y), with
-    content/user_links.csv  where to reach each one, grouped as on their own contact page; every login that adds a
-                         row or votes gets a page at u/<login>.html, listed on contributors.html; never scored
+    content/user_links.csv  where to reach each one, grouped as on their own contact page; every login that proposes
+                         a belief, adds a row or votes gets a page at u/<login>.html, listed on contributors.html;
+                         never scored
     ise_tables.py        the table format: pages, edges and topics; specs_to_tables / tables_to_specs, and both read surfaces
     export_db.py         SQL schema and data, a loaded SQLite database, JSON and XML, plus the analyst views
     build_pages.py       the Excel belief-page renderer (also supplies the constants and wiki link map to the site)
@@ -292,6 +296,19 @@ and who gains or pays (each optional; intake copies a number onto the row only w
 fields in its `extra` cell: `url` and `checked` for a source, and `added_by` and `added` for who added the row and
 when. They ride along in every export (an edge's `attrs`), and the page shows them in a line under the row. They
 live in `extra` rather than in columns of their own so that adding them did not change the shape of the tables.
+
+A proposed belief is the one page a submission adds that no row points at, so no `extra` cell can say who proposed
+it. `content/proposals.csv` does: one row per belief (`key`, `login`, `date`, `issue`), written by intake in the same
+pull request as the belief, whether it came through the belief form or a `Belief:` line of a Reason Outline
+(`intake.record_proposals`). `contributors.html` counts Beliefs started from it and `u/<login>.html` lists them, so a
+belief proposed with no reason attached is credited to whoever proposed it. A belief the table names nobody for is
+counted on the maintainer's line, which is the site's rule for everything that carries no other name; a belief typed
+straight into the tables on somebody else's behalf therefore needs a row in `proposals.csv`, or it reads as the
+maintainer's. A belief recorded as proposed by `anonymous` is credited to nobody. The table sits beside `votes.csv`
+and outside `pages` and `edges` on purpose: a column of either that named a person is a column a scorer could read,
+and `test_invariants.py::TestWhoAddedARowMovesNothing` refuses one. It is not in the workbook, `sync_content.py` does
+not check it, a Reason Outline printout does not print it, and the JSON, XML and SQL exports do not carry it yet.
+
 Above the first form a page says once what happens next, where to get an account, and the git
 path. With `contribute.js` (copied beside the pages by `render_site.build`), what a reader types is scored as
 they type against every claim in `data/claims_index.json`, which `build()` writes from the FULL tables, drafts
