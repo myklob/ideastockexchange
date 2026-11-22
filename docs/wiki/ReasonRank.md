@@ -97,7 +97,7 @@ Each of those five sub-scores has a real status now, and two of the five are not
 
 ### What the Belief Score is, numerically
 
-On the published site the belief score is **POS - NEG**, open-ended and signed (score_reference.py lines 21 and 210). POS is the sum of every row whose signed contribution came out positive and NEG the magnitude of every row that came out negative, from either side of the table: a refuted objection counts as support, a refuted reason counts against. It is the number the Best beliefs list ranks by ("Belief score is the weight for minus the weight against", render_site.py `render_best`). The method page is blunt about what it is: "a quantity of argued weight, not a probability, and comparing it between a page with forty rows and a page with four is comparing volumes."
+On the published site the belief score is **POS - NEG**, open-ended and signed (score_reference.py lines 21 and 210). POS is the sum of every row whose signed contribution came out positive and NEG the magnitude of every row that came out negative, from either side of the table: a refuted objection counts as support, a refuted reason counts against. It is the number the Highest belief scores list ranks by ("Belief score is the weight for minus the weight against", render_site.py `render_best`). The method page is blunt about what it is: "a quantity of argued weight, not a probability, and comparing it between a page with forty rows and a page with four is comparing volumes."
 
 But it is not the number in the heading. The badge beside every claim on the published site is the **truth score**, and it is what every parent row reads:
 

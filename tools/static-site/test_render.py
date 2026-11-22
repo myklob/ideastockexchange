@@ -1096,7 +1096,7 @@ class TestANewcomerKnowsWhereToStart(unittest.TestCase):
         self.assertNotRegex(card, r'<a [^>]*>[^<]*<a ', 'a link is nested inside another link')
 
     def test_the_best_beliefs_card_says_what_each_number_is(self):
-        card = self.card('Best beliefs')
+        card = self.card('Highest belief scores')
         self.assertIn('The number is the belief score', card)
         self.assertIn('0 to 1, where 0.50 means', card)
 
@@ -1171,7 +1171,7 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         self.assertEqual(h[:i].count('<section'), 0, 'a section sits above the card grid')
         self.assertGreaterEqual(h.count('<section class="card"'), 6, 'fewer than six ways in')
         self.assertEqual(h.count('<section'), h.count('<section class="card"'), 'a section on the home page is not a card')
-        for way in ('Search', 'Best beliefs', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'What to argue next', 'Who has a stake', 'Best books, studies and reports', 'Topics'):
+        for way in ('Search', 'Highest belief scores', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'What to argue next', 'Who has a stake', 'Best books, studies and reports', 'Topics'):
             self.assertIn(f'<span>{way}</span>', h, f'{way} is not a way in')
 
     def test_every_ranking_on_the_home_page_links_to_what_it_means(self):
@@ -1264,10 +1264,10 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
             self.assertNotIn(gone, self.text, f'"{gone}" is back on the home page')
 
     def test_the_four_lists_are_there_and_ranked(self):
-        for heading in ('Best beliefs', 'Most argued over', 'Most relied on', 'Changed in this revision'):
+        for heading in ('Highest belief scores', 'Most argued over', 'Most relied on', 'Changed in this revision'):
             i = self.text.find(heading)
             self.assertGreater(i, 0, f'{heading} is missing')
-        for heading in ('Best beliefs', 'Most argued over', 'Most relied on'):
+        for heading in ('Highest belief scores', 'Most argued over', 'Most relied on'):
             i = self.text.find(heading)
             self.assertRegex(self.text[i:i + 900], r'\b1\b', f'{heading} printed no ranked rows')
 
@@ -1275,8 +1275,8 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         """The list used to rank every page by truth score, so a court record at 0.95 came first and no belief
         appeared at all. A reader opening a debate site wants the best argued positions, not the best sourced
         footnotes."""
-        i = self.text.find('Best beliefs'); j = self.text.find('Most argued over')
-        block = self.c['index.html'][self.c['index.html'].find('Best beliefs'):self.c['index.html'].find('Most argued over')]
+        i = self.text.find('Highest belief scores'); j = self.text.find('Most argued over')
+        block = self.c['index.html'][self.c['index.html'].find('Highest belief scores'):self.c['index.html'].find('Most argued over')]
         linked = re.findall(r'href="p/([^"#]+)"', block)
         self.assertTrue(linked, 'the best-beliefs list is empty')
         keys = {self.corpus.key[b] + '.html' for b in self.corpus.beliefs}
@@ -1291,7 +1291,7 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         """Three rows a list on the home page; the whole ranking lives on its own page. A home page that
         prints ten of everything is the all-pages list again."""
         h = self.c['index.html']
-        for heading, href in (('Best beliefs', 'best.html'), ('Most argued over', 'contested.html'), ('Most relied on', 'relied.html')):
+        for heading, href in (('Highest belief scores', 'best.html'), ('Most argued over', 'contested.html'), ('Most relied on', 'relied.html')):
             i = h.find(f'<span>{heading}</span>'); j = h.find('</section>', i)
             block = h[i:j]
             self.assertLessEqual(len(re.findall(r'<td class="rk">', block)), 3, f'{heading} prints more than three rows on the home page')
