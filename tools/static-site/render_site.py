@@ -2871,7 +2871,7 @@ def start_here(c):
                      'You do not have to agree with it to help.</li>')
     doors.append('<li><strong>Check the arithmetic.</strong> <a href="method.html">How every number is worked out</a>, and '
                  '<a href="compare.html">where the two rules for how strong a belief is disagree</a>.</li>')
-    return card('Start here', 'Three ways in, depending on what you came for.', '<ol class="doors">' + ''.join(doors) + '</ol>')
+    return card('What brought you here?', 'Read an argument, add to one, or check the arithmetic.', '<ol class="doors">' + ''.join(doors) + '</ol>')
 
 WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
 

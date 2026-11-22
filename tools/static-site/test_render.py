@@ -1085,10 +1085,10 @@ class TestANewcomerKnowsWhereToStart(unittest.TestCase):
     def card(self, name):
         i = self.h.find(f'<span>{name}</span>'); return self.h[i:self.h.find('</section>', i)]
 
-    def test_start_here_is_the_first_card_and_follows_the_rankings(self):
+    def test_the_ways_in_are_the_first_card_and_follows_the_rankings(self):
         import render_site as RS
-        self.assertLess(self.h.find('<span>Start here</span>'), self.h.find('<span>Search</span>'))
-        card = self.card('Start here')
+        self.assertLess(self.h.find('<span>What brought you here?</span>'), self.h.find('<span>Search</span>'))
+        card = self.card('What brought you here?')
         self.assertIn(f'href="p/{self.c.href(RS.best_beliefs(self.c)[0])}"', card, 'the first door is not the best belief')
         top = self.c.rank.work_queue(1)
         if top: self.assertIn(f'href="p/{self.c.href(top[0]["page"])}', card, 'the second door is not the top of the work queue')
