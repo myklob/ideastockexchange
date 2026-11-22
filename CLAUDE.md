@@ -220,7 +220,7 @@ nothing. `factcheck/` re-checks published rows with a Workflow run (`batches.py`
 verdict from the run journals, `apply.py` files them); `factcheck/judged.json` is the record of every row's verdict, and a
 correction is only ever filed as a sourced reason to disagree, never as an edit. There is no verdict module any more: a
 page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
-page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed), `lists.html`
+page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed; the cards come first, and what the site is takes two sentences at the foot with a More link to `about.html`), `lists.html`
 says for every ranking what it shows, how it is worked out and why it is tracked, and every card and column that ranks
 links there; in tables, columns hold numbers and short labels and any sentence goes on a line under the row's main text. `t/<topic>.html` is
 one page per row of the third table `content/topics.csv`, laid out section for section like

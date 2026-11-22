@@ -1066,9 +1066,13 @@ class TestEveryBeliefIsPublishedAndTheCompleteOnesComeFirst(unittest.TestCase):
         self.assertNotIn('Still needs', self.f['a'][self.f['a'].find('<p class="meta">'):self.f['a'].find('</p>', self.f['a'].find('<p class="meta">'))])
 
     def test_the_home_page_counts_both_and_says_the_finished_ones_come_first(self):
-        lede = self.f['index.html'][self.f['index.html'].find('<p class="lede">'):]; lede = lede[:lede.find('</p>')]
+        lede = self.f['index.html'][self.f['index.html'].find('<p class="lede"'):]; lede = lede[:lede.find('</p>')]
         self.assertIn('Two beliefs', lede); self.assertIn('one of them worked all the way through', lede)
-        self.assertIn('never thrown away', lede)
+        self.assertIn('href="about.html"', lede)
+        self.assertGreater(self.f['index.html'].find('<p class="lede"'), self.f['index.html'].find('<div class="cards">'),
+                           'the explanation is above the cards again')
+        with open(os.path.join(self.out, 'about.html')) as fh: about = fh.read()
+        self.assertIn('Two beliefs', about); self.assertIn('never thrown away', about)
         with open(os.path.join(self.out, 'data', 'drafts.json')) as fh: d = json.load(fh)
         self.assertEqual([x['key'] for x in d['drafts']], ['b'])
 
