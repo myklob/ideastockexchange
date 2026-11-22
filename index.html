@@ -235,7 +235,7 @@
         <h1>Idea Stock Exchange</h1>
         <p class="tagline">A prediction market for ideas, where arguments are scored, not just shouted.</p>
         <p class="deck">A claim is scored from the arguments and evidence beneath it (<strong>ReasonRank</strong>), recursively, with every factor read from the page that argues it. A second layer, a <strong>Market Price</strong> set by what people will bet, is designed and not yet built; where this page describes it, read it as a plan. <a href="beliefs/">The live belief pages</a> are the part that exists, and every number on them is computed at build time from two tables.</p>
-        <p class="deck"><a href="beliefs/"><strong>Browse the scored belief pages</strong></a>: five beliefs on government ethics across 261 pages, argued on both sides, every number computed from two tables at build time and linked to the page that produced it. Each page opens by saying what it supports doing, and all five currently say &ldquo;not yet&rdquo; and then say exactly what is missing.</p>
+        <p class="deck"><a href="beliefs/"><strong>Browse the scored belief pages</strong></a>: every belief on the site, argued on both sides, every number computed from the tables at build time and linked to the page that produced it. A belief that does not yet meet the bar is published anyway, marked draft, with a list of what it still needs.</p>
         <p class="deck">Alongside them: <a href="beliefs/method.html">the method</a>, every rule on one page including ten things the tool cannot do &middot; and the data behind all of it as <a href="beliefs/data/ise.json">JSON</a>, <a href="beliefs/data/ise_data.sql">SQL</a> and a loaded <a href="beliefs/data/ise.sqlite">SQLite database</a>.</p>
       </header>
 
@@ -584,13 +584,13 @@
         <h2>Read the methodology</h2>
         <p>Every rule the engine runs is stated on the published site&rsquo;s own method page, generated from the same modules the pages use:</p>
         <ul>
-          <li><a href="https://myklob.github.io/ideastockexchange/method.html">How every number is computed</a> &mdash; the whole methodology on one page</li>
-          <li><a href="https://myklob.github.io/ideastockexchange/method.html#formula">The one formula</a> &mdash; what a scored row contributes</li>
-          <li><a href="https://myklob.github.io/ideastockexchange/method.html#starts">Where a page starts</a> &mdash; the evidence prior and the eighteen source tiers</li>
-          <li><a href="https://myklob.github.io/ideastockexchange/method.html#confidence">Confidence</a> &mdash; how much a score has earned the right to count</li>
-          <li><a href="https://myklob.github.io/ideastockexchange/method.html#sensitivity">What would change the answer</a> &mdash; the single-input sweep</li>
-          <li><a href="https://myklob.github.io/ideastockexchange/method.html#reasonrank">ReasonRank</a> &mdash; how much of the corpus depends on a claim</li>
-          <li><a href="https://myklob.github.io/ideastockexchange/method.html#limits">What this cannot do</a> &mdash; the limits</li>
+          <li><a href="beliefs/method.html">How every number is computed</a> &mdash; the whole methodology on one page</li>
+          <li><a href="beliefs/method.html#formula">The one formula</a> &mdash; what a scored row contributes</li>
+          <li><a href="beliefs/method.html#starts">Where a page starts</a> &mdash; the evidence prior and the eighteen source tiers</li>
+          <li><a href="beliefs/method.html#confidence">Confidence</a> &mdash; how much a score has earned the right to count</li>
+          <li><a href="beliefs/method.html#sensitivity">What would change the answer</a> &mdash; the single-input sweep</li>
+          <li><a href="beliefs/method.html#reasonrank">ReasonRank</a> &mdash; how much of the corpus depends on a claim</li>
+          <li><a href="beliefs/method.html#limits">What this cannot do</a> &mdash; the limits</li>
         </ul>
       </section>
 
