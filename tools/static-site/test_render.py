@@ -1741,7 +1741,8 @@ class TestThePagesSpeakPlainly(unittest.TestCase):
         cls.corpus = cls.parent.c
         cls.pages = dict(cls.parent.html)
         del cls.pages['method.html']
-        for name in ('all', 'next', 'interests', 'media', 'topics', 'changes', 'outline', 'vocab'):
+        for name in ('all', 'next', 'interests', 'media', 'topics', 'changes', 'outline', 'vocab', 'costs', 'invest', 'bets', 'resolve',
+                     'motives', 'gain', 'factors', 'contributors'):
             with open(os.path.join(cls.parent.dir, name + '.html')) as fh: cls.pages[name + '.html'] = fh.read()
         for k in cls.corpus.topics:
             with open(os.path.join(cls.parent.dir, 't', cls.corpus.topic_href(k))) as fh: cls.pages['t/' + k] = fh.read()
@@ -2564,7 +2565,8 @@ class TestEveryContributorHasAPage(unittest.TestCase):
         for login in ('u1', 'u2', 'u3', 'u4', 'ann'):
             self.assertTrue(os.path.exists(os.path.join(out, 'u', login + '.html')), f'{login} has no page')
             self.assertIn(f'href="u/{login}.html"', people)
-        self.assertIn('Rows added', self.read(out, 'u/ann.html'))
+        self.assertIn('What @ann added', self.read(out, 'u/ann.html'))
+        self.assertNotIn('Rows added', self.read(out, 'u/ann.html') + people, 'a reader adds a reason or a finding, not a row')
         self.assertIn('Votes cast', self.read(out, 'u/u1.html'))
         self.assertEqual(self.v.broken_v, [], 'a contributor link points at a page that was not written')
 

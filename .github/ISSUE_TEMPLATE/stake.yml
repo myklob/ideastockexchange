@@ -1,0 +1,41 @@
+name: Put play money on a claim
+description: Buy shares for or against a belief, or bet on whether a dated prediction comes true. What happens next, in one sentence, is that the stake is recorded against your GitHub login and shown on the investing and betting pages; it is play money, and it never moves a score.
+title: "Invest for: "
+labels: [stake]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The key of the page (the last part of its address, before .html). A belief or a claim for an investment; a prediction for a bet.
+      placeholder: barring-members-congress-president
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      description: Invest buys shares at today's price, the page's truth score, and has no end date. Bet puts money in the pool on a dated prediction, and is paid out when what happened is recorded.
+      options:
+        - invest
+        - bet
+    validations:
+      required: true
+  - type: dropdown
+    id: side
+    attributes:
+      label: Side
+      description: For means the claim is true, or the prediction happens. Against means it is false, or it does not.
+      options:
+        - for
+        - against
+    validations:
+      required: true
+  - type: input
+    id: amount
+    attributes:
+      label: Amount
+      description: Play dollars. Every account starts with 10,000, and the smallest stake is 1.
+      placeholder: "100"
+    validations:
+      required: true

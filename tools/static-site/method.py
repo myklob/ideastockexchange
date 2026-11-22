@@ -16,6 +16,9 @@ from reasonrank import DAMPING
 from similarity import FLAG, MERGE, NGRAM
 import integrity as IG
 import fallacy as FALLACY
+import views as VW
+import market as MARKET
+import predictions as PRED
 
 NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve']
 
@@ -117,7 +120,39 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
              'zeroes a row with no work behind it. Nothing else on the site reads this number: it is shown so that whether volume '
              f'should count can be judged on real pages. Today it moves {moved} of the {len(shares)} beliefs with anything listed '
              'away from an even split. Which choices to act on is a different question, answered by costs and benefits across the '
-             'interests at stake, in each page&rsquo;s cost-benefit section. <a href="compare.html">The beliefs where the two rules disagree most</a>.</p>')
+             'interests at stake, in each page&rsquo;s cost-benefit section. <a href="compare.html">The beliefs where the two rules disagree most</a>.</p></section>')
+
+    # ---------------------------------------------------------------- the two parts of a truth score
+    K = CONST['K']
+    parts = {p: VW.truth_parts(c, p, K) for p in c.specs}
+    argued = sum(1 for t in parts.values() if t['argued']); verified = sum(1 for t in parts.values() if t['verified'])
+    both = sum(1 for t in parts.values() if t['argued'] and t['verified'])
+    o.append(sec('The two parts of a truth score',
+                 'A truth score holds two different kinds of support, and the list of every page prints them apart. Neither is a second '
+                 'rule: each is the truth rule above, run on some of the page&rsquo;s rows instead of all of them.', a='parts'))
+    o.append('<p class="form"><span class="lab">Logical validity</span> (weight of the reasons for + 0.5 × k) / (weight of the reasons for and against + k)</p>')
+    o.append('<p class="form"><span class="lab">Verification</span> (weight of the findings and predictions for + w × p₀) / (weight of the findings and predictions for and against + w)</p>')
+    o.append('<p class="blurb">Logical validity is what the page would score on its reasons alone, so it starts from an even split: the source '
+             'a page rests on is evidence, not argument, and is left to the other part. Verification is what it would score on what has been '
+             'checked against the world alone: it starts where the page starts (p₀ and w, from the source the page declares), and then counts '
+             'the findings in its ledger and its predictions. The truth score counts every one of those rows together in one share, which is why '
+             'it holds both, and it is then held to the weakest part the claim depends on, so it can sit below both. A part with nothing '
+             'behind it yet is its starting point and is printed in grey. '
+             f'In this build, {argued:,} of {len(parts):,} pages have a reason that carries weight, {verified:,} cite a source or have a scored '
+             f'finding or prediction, and {both:,} have both. <a href="all.html">Every page with both parts</a>.</p></section>')
+
+    # ---------------------------------------------------------------- how much a belief matters
+    imps = {b: VW.importance(c, b) for b in c.beliefs}
+    listed = sum(1 for v in imps.values() if v); worked = sum(1 for v in imps.values() if v and v['argued'])
+    o.append(sec('How much a belief matters', 'The importance printed for a belief, by the rule an importance page already uses.', a='importance'))
+    o.append('<p class="form"><span class="lab">Importance of a belief</span> the highest validity among the interests listed on its page, on either side</p>')
+    o.append('<p class="blurb">A row&rsquo;s importance page scores the most valid interest the row speaks to. A belief is given the same '
+             'reading from the interests listed on its own page, for supporters and for opponents alike, because a need is at stake whichever '
+             'side holds it. It is left blank when no interest is listed, and printed in grey while the leading interest&rsquo;s own page has '
+             'nothing argued on it. It says whether what is at stake deserves weight, not how much is at stake: size is what the costs and '
+             f'benefits carry. In this build, {listed} of the {len(imps)} beliefs list an interest, and on {worked} of them the leading '
+             'interest has been argued. A claim used as a reason has no importance of its own: its importance and its linkage belong to each '
+             'page it is used on, and are printed beside that page.</p></section>')
 
     # ---------------------------------------------------------------- confidence
     ks = sorted((c.conf.of(p) for p in c.specs))
@@ -181,8 +216,49 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append(sec('Costs and benefits', 'What the cost-benefit table on a belief page computes from what is typed into it.', a='cba'))
     o.append('<p class="form"><span class="lab">Expected value of a row</span> the typed estimate × Likelihood, where Likelihood is the truth score of the cost or benefit&rsquo;s own page</p>')
     o.append('<p class="form"><span class="lab">Net</span> the expected values of the benefits minus those of the costs, added up within each unit of measure</p>')
-    o.append('<p class="blurb">The estimate is typed in the row&rsquo;s own units (dollars, lives, hours) with, where the author gives one, a low and a high end; each end is multiplied by the same Likelihood. The band under a net takes every benefit at its low end and every cost at its high end for the bottom, and the reverse for the top, and a row with no range adds its single figure at both ends, which is why the page counts how many rows state one. Net by category adds the rows within each unit and never across units, so a page priced in two units shows two nets and no single one; benefit to cost is printed only when everything is in one unit. Who gains, who pays adds the same expected values by the interest each row names as the one that collects or pays it.</p>')
+    o.append('<p class="blurb">The estimate is typed in the row&rsquo;s own units (dollars, lives, hours) with, where the author gives one, a low and a high end; each end is multiplied by the same Likelihood. The band under a net takes every benefit at its low end and every cost at its high end for the bottom, and the reverse for the top, and a row with no range adds its single figure at both ends, which is why the page counts how many rows state one. Net by unit adds the rows within each unit and never across units, so a page priced in two units shows two nets and no single one; benefit to cost is printed only when everything is in one unit. Who gains, who pays adds the same expected values by the interest each row names as the one that collects or pays it.</p>')
     o.append('<p class="blurb"><strong>Not computed.</strong> The wiki&rsquo;s likelihood (<code>docs/wiki/Likelihood_Of_Cost_And_Benefits.md</code>, <code>docs/ALGORITHMS.md</code> section 11) is a winning estimate among several competing ones, each argued, with a status and a confidence interval. Here there is one estimate per row, and its likelihood is simply its page&rsquo;s truth score: a cost nobody has argued is taken at 0.50.</p></section>')
+
+    # ---------------------------------------------------------------- categories of cost and benefit
+    crow = [r for b in c.beliefs for r in VW.cba_rows(c, b)]
+    per = {n: sum(1 for r in crow if r['category'] == n) for n in VW.CATEGORY_NAMES}
+    o.append(sec('Categories of cost and benefit', 'Every cost and benefit is filed under a category by the unit it is counted in, and by nothing else.', a='categories'))
+    o.append('<table class="plain"><thead><tr><th class="rk">#</th><th>Category</th><th>Filed here when</th><th>Words looked for in the unit</th></tr></thead><tbody>')
+    for i, (name, when, words, where) in enumerate(VW.RULES, 1):
+        shown = ' · '.join('<code>' + esc(w) + '</code>' for w in VW.rule_words(words))
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><strong>{esc(name)}</strong></td><td class="u">{esc(when)}'
+                 + (', and only there' if where == 'start' else '') + f'</td><td class="u">{shown}</td></tr>')
+    o.append(f'<tr><td class="rk">{len(VW.RULES) + 1}</td><td class="t"><strong>{esc(VW.OTHER)}</strong></td><td class="u">none of the rules above matches</td><td class="u"></td></tr>')
+    o.append('</tbody></table>')
+    o.append('<p class="blurb">The rules run in the order shown and the first that matches wins. What the number counts comes first (a currency, '
+             'lives, a stretch of time), because a dollar figure about schools still adds only to other dollar figures; what the row is about '
+             'comes after. A word ending in a hyphen matches anything that starts with it. A unit no rule recognises is filed under Other rather '
+             'than guessed at, and the fix for a row filed wrongly is a clearer unit or a word added to this list, both of which anyone can '
+             'propose. In this build: ' + ', '.join(f'{esc(n)} {per[n]}' for n in VW.CATEGORY_NAMES if per[n]) + f', of {len(crow)} rows.</p>')
+    o.append('<p class="form"><span class="lab">Totals for a category</span> the number of benefits and of costs; expected values added only among rows that share a unit</p>')
+    o.append('<p class="blurb">Counts always add. Expected values do not add across units, so a category whose rows are priced in more than one '
+             'unit prints no total and says how many units it holds. The most likely benefit and the most likely cost of a belief are the rows '
+             'with the highest likelihood on each side; rows in different units cannot be ranked by size, so size never breaks a tie. '
+             '<a href="costs.html">Every belief by cost and benefit</a>.</p></section>')
+
+    # ---------------------------------------------------------------- play money
+    o.append(sec('Play money: shares and bets', 'What the investing and betting views compute. None of it is read by any score: the scorer '
+                 'publishes scores and the ledger reads them, never the other way round.', a='market'))
+    o.append('<p class="form"><span class="lab">A share for</span> costs the page&rsquo;s truth score, in play dollars</p>')
+    o.append('<p class="form"><span class="lab">A share against</span> costs 1 − the truth score</p>')
+    o.append('<p class="form"><span class="lab">A holding is worth</span> the amount put in ÷ the price paid × today&rsquo;s price</p>')
+    o.append('<p class="form"><span class="lab">A bet pays</span> the stake × the whole pool ÷ the money on the side that was right</p>')
+    o.append(f'<p class="blurb">Every account starts with {MARKET.START:,.0f} play dollars, and the smallest stake is {MARKET.MIN_STAKE:,.0f}. '
+             'An investment buys shares in a claim at that day&rsquo;s price, which is written in the ledger beside the amount. Money never moves '
+             'the price: a share for and a share against always cost one play dollar together and are always worth one together, so the only '
+             'gain is in the score moving, and the only things that move a score are the rows on its page. A bet is on a dated prediction. All '
+             'the money on it is one pool, and when an outcome is recorded the pool goes to the side that was right, in proportion to what each '
+             'person put in; if nobody backed that side, every stake is returned. A prediction is settled exactly as the predictions page reads '
+             f'it: a finding about what happened is filed, and came true means its truth score has reached {PRED.CAME_TRUE:.2f} or more, did not means '
+             f'{1 - PRED.CAME_TRUE:.2f} or less. The pool says is the share of the money saying it will happen, printed only once the pool holds something. '
+             'A share cannot be sold back yet, so a holding is marked at today&rsquo;s price and a gain cannot be spent. The ledger is '
+             f'<code>content/stakes.csv</code>, one row per stake, published as <a href="data/stakes.csv">data/stakes.csv</a>; it holds '
+             f'{len(getattr(c, "stakes", []))} today.</p></section>')
 
     # ---------------------------------------------------------------- kind of dispute
     o.append(sec('Kind of dispute', 'Each belief page names what kind of disagreement it is, from four numbers read off its own tables. None of them changes a score.', a='dispute'))
@@ -273,6 +349,8 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
         ('The sensitivity sweep stops a fixed number of levels down.', 'Each page says how deep it looked and how many pages sit below that. ' + deep_note + ' On a deeper graph a claim below the line can still be the thing the conclusion rests on, and the sweep will not have touched it.'),
         ('The revision page compares against the previous revision only.', 'It answers what this revision changed, not what has changed since some earlier state a reader cares about. A number that drifts across twenty revisions drifts invisibly.'),
         ('The duplicate detector has a work limit.', 'A word is skipped only when it carries no weight in the score, which is when almost every claim has it, so how common a word is cannot on its own hide a duplicate. What remains is a limit on how many candidate pairs are held at once and a bar on how little two claims may share before the expensive half of the score is computed for them. Both are stated, and whatever the limit stopped it from examining is named rather than left out.'),
+        ('The price of a share is the truth score, not a market price.', 'Shares and bets are play money. A share costs what the argument on the page is worth today, so it says nothing about what people expect, and it cannot be sold back yet: a holding is marked at today’s price and a gain cannot be spent. What people expect is the pool on a prediction, which is empty until somebody bets. No score reads either.'),
+        ('Cost and benefit categories are read off the words of a unit.', f'A row is filed under Money, Lives or Time by what its unit says it counts, and under the other categories by a short list of words. A unit the list does not recognise is filed under Other, which today holds {per[VW.OTHER]} of {len(crow)} rows, and a unit can be filed under a category a reader would not have chosen. Nothing is added across units, so a wrong category moves a row between lines of a table and changes no total that mixes units.'),
         ('A truth score is not a probability.', 'It is a share of argued weight around a starting point. It has the shape of a probability and does not have the calibration of one. Nothing here has been checked against outcomes.'),
         ('The corpus is small.', f'{len(c.specs)} pages, {len(c.beliefs)} of them beliefs, filed under {len(filed)} topics and written by very few people. A rule that behaves well here has not been shown to behave well at scale or on a topic where the evidence is worse.'),
     ]
@@ -282,6 +360,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append('<ul class="links"><li>The two tables, the topics and the votes, in every shape: <a href="data/ise.json">JSON</a>, <a href="data/ise.xml">XML</a>, <a href="data/schema.sql">SQL schema</a>, <a href="data/ise_data.sql">SQL data</a> or a <a href="data/ise.sqlite">SQLite database</a>.</li>'
              '<li><a href="data/pages_index.json">Every page\'s computed numbers</a>, indexed, and <a href="data/claims_index.json">every claim in the tables</a>, drafts included.</li>'
              '<li><a href="data/drafts.json">Every draft and what it still needs</a>.</li>'
+             '<li><a href="data/stakes.csv">The play-money ledger</a>, one row per stake; no score reads it.</li>'
              '<li>Every page and topic as a <a href="outline.html">Reason Outline</a>, the plain text a post is written in, beside it at '
              '<code>p/&lt;key&gt;.txt</code> and <code>t/&lt;key&gt;.txt</code>; a printout read back matches every row it was printed from, so '
              'sending one back adds nothing. The names the outline reads are in <a href="data/outline-spec.json">outline-spec.json</a>.</li>'
