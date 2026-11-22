@@ -36,7 +36,7 @@ WIKI = {k: 'method.html#' + a for k, a in {
     'assumptions': 'starts', 'media': 'starts', 'laws': 'formula', 'general': 'formula',
     'values': 'formula', 'linkage_template': 'formula', 'one_page': 'equivalency',
     'reasonrank': 'reasonrank', 'confidence': 'confidence', 'sensitivity': 'sensitivity',
-    'constants': 'constants', 'limits': 'limits',
+    'constants': 'constants', 'limits': 'limits', 'criteria': 'criteria',
 }.items()}
 END = 'V'
 MIRROR_TRUTH, MIRROR_SCORE = '$W$1', '$X$1'

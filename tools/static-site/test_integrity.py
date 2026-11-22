@@ -197,6 +197,20 @@ class TestEachCheckFires(unittest.TestCase):
         c2 = Stub({1: page('one', agree=[2], disagree=[3]), 2: page('two'), 3: page('three')})
         self.assertNotIn('Nobody has argued the other side', titles(Integrity(c2).of(1)))
 
+    def test_criteria_with_none_that_fails_are_noted(self):
+        """Rules doc item 3: every page names at least one criterion that fails. Typed Low on validity or linkage
+        counts, and so does a criterion page argued below 0.50; a Low reliability does not."""
+        def corpus(criteria, truths=None):
+            sp = page('one'); sp['criteria'] = criteria
+            return Stub({1: sp, 2: page('a yardstick')}, truths=truths)
+        name = 'No criterion that fails'
+        self.assertIn(name, titles(Integrity(corpus([{'id': 2}])).of(1)))
+        self.assertIn(name, titles(Integrity(corpus([{'id': 2, 'reliability': 'Low'}])).of(1)))
+        self.assertNotIn(name, titles(Integrity(corpus([{'id': 2, 'validity': 'Low'}])).of(1)))
+        self.assertNotIn(name, titles(Integrity(corpus([{'id': 2, 'linkage': 'low'}])).of(1)))
+        self.assertNotIn(name, titles(Integrity(corpus([{'id': 2}], truths={2: 0.3})).of(1)))
+        self.assertNotIn(name, titles(Integrity(corpus([])).of(1)), 'a page with no criteria has a different gap')
+
     def test_findings_are_ordered_worst_first(self):
         c = Stub({1: page('one', agree=[1, 1]), 2: page('two')}, kinds={1: 'belief'})
         sevs = [s for s, _, _ in Integrity(c).of(1)]

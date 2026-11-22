@@ -45,9 +45,24 @@ CHECKS = (
     ('worth checking', 'Evidence filed above the premise it bears on', 'The page cites findings and argues higher than it reads, because a load-bearing premise beneath it cites nothing.'),
     ('worth checking', 'Costs and benefits given as single figures', 'A priced cost or benefit states one number and no range.'),
     ('a note', 'Nothing stated would show it false', 'A belief lists no testable prediction.'),
+    ('a note', 'No criterion that fails', 'The page names objective criteria and none of them fails: none has its validity or linkage typed Low, and none is argued below 0.50.'),
     ('a note', 'Nobody has argued the other side', 'Every reason and finding on the page is on one side.'),
 )
 AUTHORITY = ('expert_claim', 'expert_data', 'anecdote', 'intuition', 'norm')
+
+
+def failing_criterion(c, d):
+    """A criterion that fails: its validity or linkage typed Low, or its own page argued below 0.50. A Low
+    reliability does not count: a yardstick two observers read differently can still be the right one."""
+    low = any((d.get(k) or '').strip().lower() == 'low' for k in ('validity', 'linkage'))
+    return low or (_is(d.get('id')) and c.truth(d['id']) < 0.5)
+
+
+def criteria_none_fail(c, sp):
+    """True when a page names criteria and none of them fails: a rubric with no failing example does not show a
+    reader where the line is."""
+    crit = [d for d in sp.get('criteria', []) if d.get('text') or _is(d.get('id'))]
+    return bool(crit) and not any(failing_criterion(c, d) for d in crit)
 
 
 def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
@@ -218,6 +233,12 @@ class Integrity:
             out.append(('a note', 'Nothing stated would show it false',
                         'No testable prediction is listed, so as written there is no observation that would '
                         'count against this belief.'))
+
+        if criteria_none_fail(c, sp):
+            out.append(('a note', 'No criterion that fails',
+                        'Every objective criterion here is one the belief passes or has not been read against: none '
+                        'has its validity or linkage typed Low and none is argued below 0.50. A list of yardsticks '
+                        'with no failing example does not show where the line is.'))
 
         if rows and not any(s in ('disagree', 'against') for _, s in rows):
             out.append(('a note', 'Nobody has argued the other side',
