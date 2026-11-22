@@ -32,6 +32,15 @@ export * from './duplication-scoring';
 // The evidence-based ranking input (engagement is never a ranking input).
 export * from './grounding';
 
+// Retraction Exposure — how much of a belief's score rests on evidence whose
+// standing nobody has established? The evidence-side complement to leverage.
+export * from './evidence-exposure';
+
+// Decision Leverage — which argument edge is worth arguing about next?
+// Ranks edges by points of conclusion score still at stake (transmission
+// weight × unresolved range), so attention lands on the cruxes.
+export * from './decision-leverage';
+
 // The Denominator — score a belief against its counterclaims (contrast class).
 // Layer 1 (justification, internal) + Layer 2 (opportunity cost, external).
 export * from './contrast-class';

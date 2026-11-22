@@ -1,5 +1,104 @@
-<p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">Belief Equivalence Scorecard</span></p>
-<p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 14px;">Comparing two beliefs to determine if they should be merged, linked, or kept separate.</span></p>
+<!--
+  ===== ISE BELIEF EQUIVALENCE PAGE TEMPLATE (October 2026: brought to the page the static site builds) =====
+  Whether two beliefs make the same claim is itself a claim, so it gets a page and is argued like any other:
+  reasons to agree that X and Y are the same claim, reasons to disagree, and a score computed from them by the
+  same row rule as every page (sign x (2 x Truth - 1) x Confidence x Linkage x Importance x Uniqueness), starting
+  at 0.50. Reasons here are about whether the two claims have the same truth conditions, never about whether
+  either is true. A score of 0.90 or more marks a merge candidate; below that both pages stay.
+
+  SECTION ORDER (built site):
+    Header (the question as the title, the equivalence score on the heading line, Used on)
+    The two beliefs (Belief X and Belief Y, each with its truth score)
+    1. Equivalence Arguments (two stacked tables, # / Reason (pattern) / Truth / Confidence / Linkage /
+       Importance / Uniqueness / Score; a totals line; a Pattern note)
+    2. Check Table (exact X, exact Y, what separates them (typed), the computed score, the verdict with the
+       0.90 merge line, the bottom line (typed))
+    3. Hidden assumptions and bias risks (when either has rows: required for the two to be the same / to
+       differ; biases toward merging / splitting)
+    4. Definitions, Where This Page Is Used, Scoring Engine, Contribute
+
+  The seventeen-step weighted scorecard further down is a SOFTWARE DESIGN, kept for reference. The built site
+  does not run it: none of its weights (overlap 0.25 / 0.35 / 0.20 / 0.20, final 0.40 / 0.40 / 0.20, verdict
+  bands 90 / 75 / 50) feeds any published number.
+-->
+<p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">The belief: [X] makes the same claim as: [Y] <span style="font-size: 14px; font-weight: normal; color: #555;">[Equivalence_Score]</span></span></p>
+<p style="font-size: 12px; color: #777;">Used on: [The belief page whose Similar Beliefs or Ways of Saying the Same Thing table reads this score]</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<tbody>
+<tr><td width="20%"><strong>Belief X</strong></td><td width="68%">[X, linked to its own page]</td><td width="12%" align="center">Truth [X_Truth]</td></tr>
+<tr><td><strong>Belief Y</strong></td><td>[Y, linked to its own page]</td><td align="center">Truth [Y_Truth]</td></tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h1>⚖️ Equivalence Arguments</h1>
+<p style="font-size: 13px;">One page per belief. Reasons here are about whether the two claims have the same truth conditions, never about whether either is true. Each reason is a claim with its own page, scored by the same row rule as every page, so a reason nobody has argued reads exactly 0. The four rows per side are starter patterns; rows enter and rank by their own scores.</p>
+<h3>✅ Reasons to agree that X and Y are the same claim</h3>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6; font-size: 12px;"><th width="5%">#</th> <th width="53%">Reason (pattern)</th> <th width="7%">Truth</th> <th width="7%">Confidence</th> <th width="7%">Linkage</th> <th width="7%">Importance</th> <th width="7%">Uniqueness</th> <th width="7%">Score</th></tr>
+</thead>
+<tbody>
+<tr><td align="center">1</td><td><strong>Same truth conditions:</strong> in any world where X holds, Y holds, and the other way round: [show it].</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+<tr><td align="center">2</td><td><strong>Same evidence settles both:</strong> no finding could support one and weaken the other: [name the evidence both turn on].</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+<tr><td align="center">3</td><td><strong>Interchangeable in arguments:</strong> swapping one for the other changes no argument tree: [show an argument that reads the same with either].</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+<tr><td align="center">4</td><td><strong>Same scope:</strong> same people, place and time: [show the match].</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+</tbody>
+</table>
+<h3>❌ Reasons to disagree (X and Y differ)</h3>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6; font-size: 12px;"><th width="5%">#</th> <th width="53%">Reason (pattern)</th> <th width="7%">Truth</th> <th width="7%">Confidence</th> <th width="7%">Linkage</th> <th width="7%">Importance</th> <th width="7%">Uniqueness</th> <th width="7%">Score</th></tr>
+</thead>
+<tbody>
+<tr><td align="center">1</td><td><strong>Different scope:</strong> X and Y cover different people, places, times or assets: [name the difference].</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+<tr><td align="center">2</td><td><strong>Different mechanism:</strong> X and Y claim the same result by different routes, so different evidence settles each: [name the routes].</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+<tr><td align="center">3</td><td><strong>One-way implication:</strong> X implies Y but Y does not imply X: [show the case that separates them].</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+<tr><td align="center">4</td><td><strong>Different magnitude:</strong> X and Y differ in how much they claim, so an objection that sinks one leaves the other standing: [name it].</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+</tbody>
+</table>
+<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;">Total agree [Agree_Total] &middot; total disagree [Disagree_Total] &middot; equivalence score [Equivalence_Score]. The score is this page&rsquo;s truth: the agree share of the scored weight, shrunk toward the 0.50 starting point by weight k. <strong>Pattern:</strong> Same truth conditions: any world where one holds, the other holds. Same evidence settles both: no finding could split them. Interchangeable in arguments: swapping them changes no argument tree. Same scope: same people, place, time. Different scope, mechanism or magnitude: a nameable difference. One-way implication: X implies Y but not back.</p>
+<p>&nbsp;</p>
+<h1>✅ Check Table</h1>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;"><th width="6%">Step</th> <th width="30%">Question</th> <th width="64%">Answer for this pair</th></tr>
+</thead>
+<tbody>
+<tr><td align="center"><strong>1</strong></td><td>Exact wording of X, read from its page</td><td>[Verbatim. No paraphrase.]</td></tr>
+<tr><td align="center"><strong>2</strong></td><td>Exact wording of Y, read from its page</td><td>[Verbatim. No paraphrase.]</td></tr>
+<tr><td align="center"><strong>3</strong></td><td>What separates them, in one sentence (typed)</td><td>[The single difference that would make a reader keep both pages, or "nothing".]</td></tr>
+<tr><td align="center"><strong>4</strong></td><td>Computed equivalence score</td><td>[Score], read from the two tables above, never typed</td></tr>
+<tr><td align="center"><strong>5</strong></td><td>Verdict</td><td>[Merge candidate (0.90 or more) / Overlapping: keep both, name the difference on each page (0.50 to 0.90) / Distinct claims: keep both pages, cross-link (below 0.50)]</td></tr>
+<tr><td align="center"><strong>6</strong></td><td>Bottom line, typed by the author after the tables above</td><td>[Optional. One sentence.]</td></tr>
+</tbody>
+</table>
+<p style="font-size: 13px; padding: 8px; background-color: #f0f3f6; border: 1px solid #ccc;"><strong>The merge line is 0.90.</strong> At or above it the two pages are one claim: the shorter wording may stand in for the other where space is short, and the pages are merge candidates. Between 0.50 and 0.90 both pages stay and each names the difference. Below 0.50 they are distinct claims, cross-linked. Only the one-sentence bridge and the bottom line are typed; everything else is read from the pages it names.</p>
+<p>&nbsp;</p>
+<h2>Hidden Assumptions and Bias Risks</h2>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;"><th width="42%">Required for the two claims to be the same</th> <th width="8%">Score</th> <th width="42%">Required for them to differ</th> <th width="8%">Score</th></tr>
+</thead>
+<tbody>
+<tr><td>&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td><td align="center">&nbsp;</td></tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;"><th width="42%">Biases toward merging</th> <th width="8%">Score</th> <th width="42%">Biases toward splitting</th> <th width="8%">Score</th></tr>
+</thead>
+<tbody>
+<tr><td>&nbsp;</td><td align="center">&nbsp;</td><td>&nbsp;</td><td align="center">&nbsp;</td></tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h2>Definitions</h2>
+<p style="font-size: 13px;"><strong>Equivalence score:</strong> this page&rsquo;s truth score. The Similar Beliefs table on X&rsquo;s page shows it as Equiv. Near 1 marks a merge candidate, not a new page.</p>
+<p>&nbsp;</p>
+<hr />
+<p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 20px; font-weight: bold;">Software design: the seventeen-step equivalence scorecard</span></p>
+<p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 14px;">A proposed procedure for comparing two beliefs to decide whether they should be merged, linked, or kept separate. It is a design for the ISE software and is not run by the built site: none of the weights, bands or verdicts below feeds a published number. The argued page above is what the site builds.</span></p>
 <p><span style="font-size: 150%;"><strong>Index</strong></span></p>
 <p><img class="pluginslug" src="/plugin_helper.php?plugin=toc&amp;depth=3" alt="" /></p>
 <p>&nbsp;</p>

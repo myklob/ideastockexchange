@@ -2,8 +2,10 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { fetchBeliefBySlug, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
 import { computeConflictReadout, deriveCbaItems } from '@/features/belief-analysis/lib/conflict-pipeline'
+import { fetchBeliefLeverage, hasLeverageToShow } from '@/features/belief-analysis/lib/leverage'
 import ScorecardSection from '@/features/belief-analysis/components/ScorecardSection'
 import ArgumentTreesSection from '@/features/belief-analysis/components/ArgumentTreesSection'
+import DecisionLeverageSection from '@/features/belief-analysis/components/DecisionLeverageSection'
 import ContrastClassSection from '@/features/belief-analysis/components/ContrastClassSection'
 import EvidenceSection from '@/features/belief-analysis/components/EvidenceSection'
 import ConflictResolutionSection from '@/features/belief-analysis/components/ConflictResolutionSection'
@@ -11,7 +13,6 @@ import ObjectiveCriteriaSection from '@/features/belief-analysis/components/Obje
 import FalsifiabilityTestSection from '@/features/belief-analysis/components/FalsifiabilityTestSection'
 import AssumptionsSection from '@/features/belief-analysis/components/AssumptionsSection'
 import CostBenefitSection from '@/features/belief-analysis/components/CostBenefitSection'
-import BiasesSection from '@/features/belief-analysis/components/BiasesSection'
 import MediaResourcesSection from '@/features/belief-analysis/components/MediaResourcesSection'
 import LegalSection from '@/features/belief-analysis/components/LegalSection'
 import BeliefMappingSection from '@/features/belief-analysis/components/BeliefMappingSection'
@@ -21,6 +22,12 @@ import ScoreHistorySection from '@/features/belief-analysis/components/ScoreHist
 import MarketPointer from '@/features/belief-analysis/components/MarketPointer'
 import ContributeSection from '@/features/belief-analysis/components/ContributeSection'
 import DefinitionsSection from '@/features/belief-analysis/components/DefinitionsSection'
+import PeopleOnRecordSection from '@/features/belief-analysis/components/PeopleOnRecordSection'
+import RelatedTopicsSection from '@/features/belief-analysis/components/RelatedTopicsSection'
+import InvitationBlock from '@/features/belief-analysis/components/InvitationBlock'
+import WhatThisPageNeedsSection from '@/features/belief-analysis/components/WhatThisPageNeedsSection'
+import { pageGaps } from '@/features/belief-analysis/lib/gaps'
+import { truthShare } from '@/core/scoring/contrast-class'
 import { openContractsForBelief } from '@/lib/markets/belief-pointer'
 import { fetchTopicsForBelief } from '@/features/topics/data/fetch-topics'
 
@@ -46,10 +53,6 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
   }
 
   const scores = computeBeliefScores(belief)
-  const net = scores.totalPro - scores.totalCon
-  const hasArgs = scores.totalPro > 0 || scores.totalCon > 0
-  const netLabel = hasArgs ? `${net >= 0 ? '+' : ''}${net.toFixed(1)}` : 'To be calculated'
-
   const related = splitList(belief.relatedBeliefs)
   const supports = splitList(belief.supportsBeliefs)
   const category = belief.category || 'Uncategorized'
@@ -65,10 +68,20 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
   // The belief→market half of the engagement loop (display only; the market
   // firewall guarantees nothing flows the other way).
-  const [openContracts, topicHubs] = await Promise.all([
+  const [openContracts, topicHubs, leverage] = await Promise.all([
     openContractsForBelief(belief.id),
     fetchTopicsForBelief(belief.id),
+    // Which edge is worth settling next: points of conclusion score still at
+    // stake per argument (src/core/scoring/decision-leverage.ts).
+    fetchBeliefLeverage(belief.id),
   ])
+  // What the page needs, read off its own tables: the invitation's slot and the
+  // "What This Page Needs Right Now" table both come from this one list.
+  const gaps = pageGaps(belief.arguments, belief.evidence, belief.objectiveCriteria)
+  // The heading line's single truth score: the only number above the arguments.
+  // Blank until arguments are scored (Rule 6); what it is made of is read out
+  // after What This Page Needs Right Now.
+  const headlineTruth = truthShare(scores.totalPro, scores.totalCon)
 
   return (
     <div className="min-h-screen bg-white">
@@ -92,29 +105,54 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
       </nav>
 
       <main className="max-w-[960px] mx-auto px-4 py-8 leading-7 text-[#333]">
-        {/* Breadcrumb (new template) */}
+        {/* Breadcrumb (new template): Home › Topics › Category › This Belief */}
         <p className="text-right text-xs text-[var(--muted-foreground)] mb-2">
           <Link href="/" className="text-[var(--accent)] hover:underline">Home</Link> ›{' '}
           <Link href="/beliefs" className="text-[var(--accent)] hover:underline">Topics</Link> ›{' '}
-          {category} › {belief.statement}
+          {belief.category ? (
+            <Link
+              href={`/beliefs?category=${encodeURIComponent(belief.category)}`}
+              className="text-[var(--accent)] hover:underline"
+            >
+              {category}
+            </Link>
+          ) : (
+            category
+          )}{' '}
+          › {belief.statement}
         </p>
 
         {/*
-          Header per the new canonical template (docs/BELIEF_PAGE_RULES.md):
-            Belief statement → metadata line (Topic / Dewey / Positivity / Net Belief
-            Score / Related) → "Beliefs this supports" → straight to Argument Trees.
-            NO summary/background/hook (Rule 2).
+          Header per the canonical template (docs/BELIEF_PAGE_RULES.md):
+            Belief statement, with its single truth score on the heading line (the only
+            number above the arguments) → invitation block (hook, question, promise, one
+            named slot; not a summary, Rule 2) → metadata line (Topic / Dewey / Positivity /
+            Related) → "Beliefs this supports" → Argument Trees. The readout of what the
+            numbers are made of comes after What This Page Needs Right Now.
         */}
         <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2 leading-tight">
           Belief: {belief.statement}
+          {headlineTruth != null && (
+            <span
+              className="ml-3 text-base font-normal text-[#555] whitespace-nowrap"
+              title="The pro share of argued weight on this page. What it is made of is read out after What This Page Needs Right Now."
+            >
+              Truth score {Math.round(headlineTruth * 100)}%
+            </span>
+          )}
         </h1>
+        <InvitationBlock hook={belief.hook} question={belief.question} ask={belief.ask} gaps={gaps} />
+        {/* Net Belief Score lives in What the numbers are made of, at the back,
+            not here: the metadata line carries only Topic / Dewey / Positivity /
+            Related. Dewey is a typed number; the rules doc says a typed number
+            without a source stays blank, and the belief record carries no source
+            field yet, so the number is shown as stored. */}
         <p className="text-xs text-[var(--muted-foreground)] mb-3">
           <Link href="/beliefs" className="text-[var(--accent)] hover:underline">Topic</Link>:{' '}
           {category}
           {belief.subcategory && <> &gt; {belief.subcategory}</>}
           {belief.deweyNumber && <> · Dewey {belief.deweyNumber}</>}
           {' '}· Positivity {belief.positivity > 0 ? '+' : ''}{belief.positivity}%
-          {' '}· Net Belief Score {netLabel}
           {related.length > 0 && (
             <> · Related: {related.join(' | ')}</>
           )}
@@ -138,11 +176,167 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
           </p>
         )}
 
-        {/* Belief→market pointer — an affordance, not a summary (Rule 2 intact) */}
+        {/* Belief→market pointer: an affordance, not a summary (Rule 2 intact) */}
         <MarketPointer contracts={openContracts} />
 
         <div className="space-y-12">
-          {/* 0. Scorecard — a readout of the top-scoring rows below, not a prose summary */}
+          {/* 1. Argument Trees. Nothing scored sits above them: the readout of what
+              the numbers are made of is section 14, after What This Page Needs. */}
+          <ArgumentTreesSection
+            arguments={belief.arguments}
+            totalPro={scores.totalPro}
+            totalCon={scores.totalCon}
+            netInterpretation={belief.netInterpretation}
+          />
+
+          {belief.contrastClass && belief.contrastClass.options.length > 0 && (
+            <>
+              <hr className="border-gray-200" />
+              {/* The denominator, made visible: rivals this belief is priced against. */}
+              <ContrastClassSection contrastClass={belief.contrastClass} />
+            </>
+          )}
+
+          {/* 1c. Decision Leverage: the argument table read sideways, which
+              edge still holds unsettled conclusion score. Renders only when
+              something is actually at stake. 1d, What Would Change the Answer
+              (the sensitivity sweep), is in the template and the rules doc but
+              not here yet: src/core/scoring has no sensitivity engine, and the
+              static site is the only implementation that computes it. */}
+          {hasLeverageToShow(leverage) && (
+            <>
+              <hr className="border-gray-200" />
+              <DecisionLeverageSection leverage={leverage} />
+            </>
+          )}
+
+          <hr className="border-gray-200" />
+
+          {/* 2. Evidence Ledger */}
+          <EvidenceSection evidence={belief.evidence} />
+
+          <hr className="border-gray-200" />
+
+          {/* 3. Objective Criteria */}
+          <ObjectiveCriteriaSection criteria={belief.objectiveCriteria} />
+
+          <hr className="border-gray-200" />
+
+          {/* 4. Falsifiability Test + Testable Predictions */}
+          <FalsifiabilityTestSection
+            items={belief.falsifiabilityItems ?? []}
+            confirm={belief.falsifiabilityConfirm}
+            falsify={belief.falsifiabilityFalsify}
+            legacy={belief.falsifiability}
+            predictions={belief.testablePredictions}
+          />
+
+          <hr className="border-gray-200" />
+
+          {/* 5. Logical Anatomy & Foundational Assumptions */}
+          <AssumptionsSection
+            assumptions={belief.assumptions}
+            componentClaims={belief.componentClaims ?? []}
+            logicalForm={belief.logicalForm ?? null}
+          />
+
+          <hr className="border-gray-200" />
+
+          {/* 6. Cost-Benefit Analysis (+ Short vs. Long-Term Impacts) */}
+          <CostBenefitSection
+            cba={belief.costBenefitAnalysis}
+            items={derivedCbaItems}
+            impact={belief.impactAnalysis}
+            impactEntries={belief.impactEntries ?? []}
+          />
+
+          <hr className="border-gray-200" />
+
+          {/* 7. Conflict Resolution Framework: the scored cost-benefit trees
+              read sideways: values rankings, interests, shared/conflicting,
+              compromises, advertised vs. actual, dispute types, obstacles,
+              biases. */}
+          <ConflictResolutionSection
+            values={belief.valuesAnalysis}
+            interests={belief.interestsAnalysis}
+            valueRankings={belief.valueRankings}
+            interestEntries={belief.interestEntries}
+            sharedInterests={belief.sharedInterests}
+            disputeTypes={belief.disputeTypes}
+            obstacles={belief.obstacles}
+            compromises={belief.compromises}
+            biases={belief.biases}
+            interestsDashboardHref={`/beliefs/${belief.slug}/interests`}
+            readout={conflictReadout}
+          />
+
+          <hr className="border-gray-200" />
+
+          {/* 8. Media Resources */}
+          <MediaResourcesSection media={belief.mediaResources} />
+
+          <hr className="border-gray-200" />
+
+          {/* 9. Legal Framework */}
+          <LegalSection legal={belief.legalEntries} />
+
+          <hr className="border-gray-200" />
+
+          {/* 10. General to Specific Belief Mapping */}
+          <BeliefMappingSection
+            upstreamMappings={belief.upstreamMappings}
+            downstreamMappings={belief.downstreamMappings}
+          />
+
+          <hr className="border-gray-200" />
+
+          {/* 11. Similar Beliefs */}
+          <SimilarBeliefsSection
+            similarTo={belief.similarTo}
+            similarFrom={belief.similarFrom}
+            currentBeliefId={belief.id}
+          />
+
+          {/* 11b. Where This Belief Is Used: what-links-here (renders only when used) */}
+          {(belief.usedIn?.length ?? 0) > 0 && (
+            <>
+              <hr className="border-gray-200" />
+              <UsedAsReasonSection usedIn={belief.usedIn ?? []} />
+            </>
+          )}
+
+          {/* 11c. Score History: the accumulation ledger (renders only when events exist) */}
+          {(belief.scoreEvents?.length ?? 0) > 0 && (
+            <>
+              <hr className="border-gray-200" />
+              <ScoreHistorySection events={belief.scoreEvents ?? []} />
+            </>
+          )}
+
+          <hr className="border-gray-200" />
+
+          {/* 12. Definitions: last analysis section (Rule 1) */}
+          <DefinitionsSection definitions={belief.definitions} />
+
+          {/* 12b. People on the Record: history, never weight (renders only
+              when positions are on record). */}
+          {(belief.peopleOnRecord?.length ?? 0) > 0 && (
+            <>
+              <hr className="border-gray-200" />
+              <PeopleOnRecordSection people={belief.peopleOnRecord ?? []} />
+            </>
+          )}
+
+          <hr className="border-gray-200" />
+
+          {/* 13. What This Page Needs Right Now: the gaps, read off the tables above. */}
+          <WhatThisPageNeedsSection gaps={gaps} />
+
+          <hr className="border-gray-200" />
+
+          {/* 14. What the numbers are made of (formerly the Scorecard): a readout
+              of the top-scoring rows above, not a prose summary. It sits here so
+              that no score or verdict is announced before the arguments. */}
           <ScorecardSection
             arguments={belief.arguments}
             totalPro={scores.totalPro}
@@ -155,140 +349,21 @@ export default async function BeliefAnalysisPage({ params }: BeliefPageProps) {
 
           <hr className="border-gray-200" />
 
-          {/* 1. Argument Trees */}
-          <ArgumentTreesSection
-            arguments={belief.arguments}
-            totalPro={scores.totalPro}
-            totalCon={scores.totalCon}
-            netInterpretation={belief.netInterpretation}
-          />
-
-          {belief.contrastClass && belief.contrastClass.options.length > 0 && (
-            <>
-              <hr className="border-gray-200" />
-              {/* The denominator, made visible — rivals this belief is priced against. */}
-              <ContrastClassSection contrastClass={belief.contrastClass} />
-            </>
-          )}
-
-          <hr className="border-gray-200" />
-
-          {/* 2. Evidence Ledger */}
-          <EvidenceSection evidence={belief.evidence} />
-
-          <hr className="border-gray-200" />
-
-          {/* 3. Conflict Resolution Framework (values rankings, interests, dispute types, obstacles) */}
-          <ConflictResolutionSection
-            values={belief.valuesAnalysis}
-            interests={belief.interestsAnalysis}
-            valueRankings={belief.valueRankings}
-            interestEntries={belief.interestEntries}
-            sharedInterests={belief.sharedInterests}
-            disputeTypes={belief.disputeTypes}
-            obstacles={belief.obstacles}
-            interestsDashboardHref={`/beliefs/${belief.slug}/interests`}
-            readout={conflictReadout}
-          />
-
-          <hr className="border-gray-200" />
-
-          {/* 4. Objective Criteria */}
-          <ObjectiveCriteriaSection criteria={belief.objectiveCriteria} />
-
-          <hr className="border-gray-200" />
-
-          {/* 5. Falsifiability Test + Testable Predictions */}
-          <FalsifiabilityTestSection
-            items={belief.falsifiabilityItems ?? []}
-            confirm={belief.falsifiabilityConfirm}
-            falsify={belief.falsifiabilityFalsify}
-            legacy={belief.falsifiability}
-            predictions={belief.testablePredictions}
-          />
-
-          <hr className="border-gray-200" />
-
-          {/* 6. Logical Anatomy & Foundational Assumptions */}
-          <AssumptionsSection
-            assumptions={belief.assumptions}
-            componentClaims={belief.componentClaims ?? []}
-            logicalForm={belief.logicalForm ?? null}
-          />
-
-          <hr className="border-gray-200" />
-
-          {/* 7. Cost-Benefit Analysis (+ Short/Long-Term + Best Compromise Solutions) */}
-          <CostBenefitSection
-            cba={belief.costBenefitAnalysis}
-            items={derivedCbaItems}
-            impact={belief.impactAnalysis}
-            impactEntries={belief.impactEntries ?? []}
-            compromises={belief.compromises}
-          />
-
-          <hr className="border-gray-200" />
-
-          {/* 8. Biases */}
-          <BiasesSection biases={belief.biases} />
-
-          <hr className="border-gray-200" />
-
-          {/* 9. Media Resources */}
-          <MediaResourcesSection media={belief.mediaResources} />
-
-          <hr className="border-gray-200" />
-
-          {/* 10. Legal Framework */}
-          <LegalSection legal={belief.legalEntries} />
-
-          <hr className="border-gray-200" />
-
-          {/* 11. General to Specific Belief Mapping */}
-          <BeliefMappingSection
-            upstreamMappings={belief.upstreamMappings}
-            downstreamMappings={belief.downstreamMappings}
-          />
-
-          <hr className="border-gray-200" />
-
-          {/* 12. Similar Beliefs */}
-          <SimilarBeliefsSection
-            similarTo={belief.similarTo}
-            similarFrom={belief.similarFrom}
-            currentBeliefId={belief.id}
-          />
-
-          {/* 12b. Where This Belief Is Used — what-links-here (renders only when used) */}
-          {(belief.usedIn?.length ?? 0) > 0 && (
-            <>
-              <hr className="border-gray-200" />
-              <UsedAsReasonSection usedIn={belief.usedIn ?? []} />
-            </>
-          )}
-
-          {/* 12c. Score History — the accumulation ledger (renders only when events exist) */}
-          {(belief.scoreEvents?.length ?? 0) > 0 && (
-            <>
-              <hr className="border-gray-200" />
-              <ScoreHistorySection events={belief.scoreEvents ?? []} />
-            </>
-          )}
-
-          <hr className="border-gray-200" />
-
-          {/* 13. Definitions — LAST before footer (Rule 1) */}
-          <DefinitionsSection definitions={belief.definitions} />
-
-          <hr className="border-gray-200" />
-
-          {/* 14. Contribute / footer — the add-a-row move, with speed bumps on
+          {/* 15. Contribute / footer: the add-a-row move, with speed bumps on
               high-stakes beliefs (steelman acknowledgment + principle check). */}
           <ContributeSection
             beliefId={belief.id}
             beliefSlug={belief.slug}
             highStakes={belief.highStakes ?? false}
             arguments={belief.arguments}
+          />
+
+          {/* 16. Related Topics: the category cluster, current page unlinked
+              (renders only when siblings exist). */}
+          <RelatedTopicsSection
+            category={belief.category}
+            siblings={belief.siblingBeliefs ?? []}
+            currentBeliefId={belief.id}
           />
         </div>
       </main>

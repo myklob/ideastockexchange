@@ -1,0 +1,429 @@
+# Static site generator: belief pages from two tables
+
+`ISE_Data_Entry.xlsx` is the content: a `pages` sheet (one row per page) and an `edges` sheet (one row per row of
+every table on every page). Nothing typed in it is a score. Everything else here is generated from those two tables.
+
+    python3 render_site.py ISE_Data_Entry.xlsx site/   the website (index, one page per claim, ise.css, and data/)
+    python3 render_site.py content/ site/              the same site, built from the reviewable CSVs instead
+    python3 sync_content.py [--check]                  rewrite content/*.csv from the workbook, or verify
+    python3 export_db.py  ISE_Data_Entry.xlsx db/      schema.sql, data.sql, a loaded ise.sqlite, JSON and XML
+    python3 conformance.py                             check the engine against the expected numbers
+    python3 check_assertions.py                        which assertions in the suite never ran
+    python3 -m unittest discover -p 'test_*.py'        the whole suite; CI runs this before it publishes anything
+    python3 build_example.py ISE_Data_Entry.xlsx       the formatted Excel workbook (LibreOffice for the recalc step)
+
+## The rules
+
+`score_reference.py` is the scorer of record. It computes every number from the two tables:
+
+    row contribution    = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq
+                          signed, so a claim argued false counts against the side it was filed on and a
+                          claim nobody has argued contributes exactly 0
+    page start          = p0 = 0.5 + 0.5 x ESIW x (2 x ERP/100 - 1),  w = k x 2 x ERQ / (ERQ + 1)
+    page truth (argued) = (POS + w x p0) / (POS + NEG + w), k = 1
+    page truth          = min(argued, weakest load-bearing component that has its own page)
+    cost or benefit     = expected value = magnitude x the claim's truth, with the range magnitude_low to
+                          magnitude_high carried through where one is stated; the worst case is every benefit
+                          low and every cost high
+    belief score        = POS - NEG, open ended, where POS and NEG are the positive and negative
+                          contributions as magnitudes (a row lands on the side its sign puts it on)
+    a repeated claim    = counts once: a claim page read by more than one reason, finding or prediction
+                          row on the same page and side counts at its strongest reading and no more
+    importance page     = max over listed interests of Validity x Bears
+
+A multiplier with no page reads a labelled constant (UNARG 0.5, DEFLINK 1, DEFIMP 0.5, DEFUNIQ 1), and the site shows
+those in grey so the reader can see which factors nobody has argued yet. A linkage or uniqueness page that cites
+nothing starts at that same constant rather than at 0.50 (`evidence.FACTOR_START`), so opening the page to question a
+row's relevance moves nothing until somebody argues there. It used to start at 0.50, which halved every row the moment
+its linkage page existed; all 39 such pages on the site had nothing argued on them and were doing exactly that.
+
+**The starting point is load-bearing, not decoration.** A row contributes `(2 x Truth - 1)`, so a page with no rows
+reads 0.50 and contributes nothing, so every page above it also reads 0.50, and by induction every page of any
+unsourced argument graph reads exactly 0.50 forever. Argument about argument never touches the world. What touches
+the world is evidence, so a page may declare what it rests on (`etype`, `erq`, `erp`) and that sets where its truth
+starts. A page that declares nothing starts at 0.50 with weight k, which is the rule as it always was.
+`test_engines.py` pins the fixed point, so anything that later lets a score move without evidence has to say why.
+
+## The guarantees, and the test that pins each
+
+Outside reviewers keep asking where the invariants are written down. Here, each with the test that fails if a
+change breaks it. A failure in any of them means a score has moved for a reason that is not an argument or a
+finding, and that needs a reason, not a fix to the test.
+
+    A reason nobody has argued adds exactly 0          test_engines  test_argument_alone_can_never_leave_the_neutral_point
+    Only evidence moves a page off its start           test_engines  (the same test)
+    Truth stays in 0 to 1; a row adds at most 1        test_scoring  test_every_truth_in_range, test_contribution_is_bounded_by_one_in_magnitude
+    No number is NaN or infinite                       test_invariants  TestNoNumberIsUndefined
+    A circular argument is refused, not scored         test_engines  test_a_cycle_is_refused_by_name_rather_than_by_running_out_of_stack
+    The scorer walks a chain of any length             test_engines  test_a_chain_of_any_length_is_scored_without_the_stack
+    The order rows are stored in changes nothing       test_invariants  TestOrderChangesNothing
+    A claim listed twice on a page counts once         test_invariants  TestARepeatedClaimCountsOnce
+    The same tables give the same site, byte for byte  test_invariants  TestTheSameTablesGiveTheSameSite
+    Who added a row moves nothing                      test_invariants  TestWhoAddedARowMovesNothing
+    Opening an empty linkage page moves no score       test_invariants  TestOpeningAFactorPageMovesNothing
+    A row's kind of post (its tag) moves nothing       no scorer reads `tag`; test_vocab pins where each kind files
+    A claim that reads alike but says the opposite     test_intake, test_outline_file: never merged into a vote for it
+      is never counted as a vote for the other
+    A vote moves nothing                               test_render   test_no_vote_moves_any_score
+    A fallacy flag moves nothing                       test_fallacy  test_a_flag_moves_no_score
+    A computed similarity moves nothing                test_similarity  test_it_changes_no_score
+    The second strength rule moves nothing else        test_tally    test_it_moves_no_other_number
+    Every port gives the same numbers                  conformance.py, run in CI
+
+Two things the list does not promise, on purpose. Two different claims that say nearly the same thing still count
+twice until somebody argues the overlap on a uniqueness page: the duplicate detector flags the pair on the page and
+moves nothing, because a lexical match is a guess about meaning. And independent findings that agree are not
+duplicates at all: replication raises a finding's weight through ERQ, which is the opposite of the uniqueness
+discount and is meant to be.
+
+## Files
+
+    render_site.py       the site generator; prints an internal link check (must be 0 broken) and each belief's truth
+    score_reference.py   the scorer and normalize() (specs -> pages + edges)
+    evidence.py          the evidence tiers, and where a claim's truth starts because of what it cites
+    confidence.py        how much of the work behind a page has been done, and how much its score therefore counts
+    sensitivity.py       which single input, moved, would change the answer, and what it would be worth to settle it
+    reasonrank.py        the damped walk from the beliefs: how much of the corpus depends on each page
+    similarity.py        which claims say the same thing in different words, so padding can be seen; and which pairs read
+                         alike but say opposite things (a denial, a comparison turned round, one word swapped: 'expand' for
+                         'reduce'), which no path ever merges into a vote for the other
+    integrity.py         faults the shape of the graph shows: circularity, question-begging, a page listed twice
+    method.py            the reader-facing methodology page: every rule the contract enumerates, every number a page
+                         prints (EVS, kind of dispute, costs and benefits, structural checks), the wiki rules the
+                         engine does not run, and what the tool cannot do; every count on it is read from the build
+    conformance.py       the cross-implementation contract: conformance/corpus.json and conformance/expected.json
+    check_assertions.py  which assertions in the suite never ran; CI fails if any of them does not
+    sync_content.py      keeps ISE_Data_Entry.xlsx and content/*.csv in step; --check runs in CI
+    contribute.js        the browser side of taking part: the duplicate check as a reader types, and the prefilled issue URLs
+    intake.py            the GitHub Action side: parses a submitted issue form, re-checks for duplicates, records a vote or opens a PR
+    vocab.py             what a post can be: 197 kinds in 14 families, each with where it files, what it can move once argued,
+                         and its names in AIF, ASPIC+, Walton's schemes (65 critical questions) and schema.org; vocab.html,
+                         data/vocab.json, and the JSON-LD context every claim page's structured data uses
+    outline_names.py     the Reason Outline's closed lists: the labels (each naming a kind from vocab.py or a place), the
+                         sign words, the factor headings and the details; data/outline-spec.json is these lists as data
+    outline_read.py      reads an outline into a tree of lines, every stop and notice at once, with nothing looked up
+    outline_print.py     prints any page or topic as an outline (p/<key>.txt, t/<key>.txt) that reads back to its rows
+    outline_file.py      files a read outline against the tables, all or nothing, and writes the reply that prints it back
+    content/votes.csv    the fourth table, one row per (page key, on, GitHub login), latest wins; shown on the page, never scored
+    content/users.csv    who takes part: one row per GitHub login (name, role, a few sentences, maintainer Y), with
+    content/user_links.csv  where to reach each one, grouped as on their own contact page; every login that adds a
+                         row or votes gets a page at u/<login>.html, listed on contributors.html; never scored
+    ise_tables.py        the table format: pages, edges and topics; specs_to_tables / tables_to_specs, and both read surfaces
+    export_db.py         SQL schema and data, a loaded SQLite database, JSON and XML, plus the analyst views
+    build_pages.py       the Excel belief-page renderer (also supplies the constants and wiki link map to the site)
+    build_subpages.py    the Excel renderer for linkage, importance, interest, uniqueness, equivalence, driver, media
+    build_example.py     builds the workbook, recalculates it and checks every engine cell against score_reference
+    test_scoring.py      the scoring rules, the confidence rules and the workbook formula strings
+    test_engines.py      evidence, sensitivity, ReasonRank and the conformance fixture
+    test_similarity.py   the duplicate detector: that it finds duplicates and that it does not cry wolf
+    test_integrity.py    each structural check, with a case built to trip it and a case built not to
+    test_render.py       the rendered HTML: tiles against the engine table, links, and prose that has rotted
+    test_content.py      that the workbook and the reviewable CSVs cannot drift apart
+    test_outline_*.py    the outline's names, reader, printer and filer, and the round trip: every page printed and read
+                         back adds nothing
+    make_artifact.py     variant of the built site with the stylesheet inlined (for hosted previews)
+    requirements.txt     openpyxl
+
+## Where each thing belongs
+
+One question keeps coming back: should the rules live in a spreadsheet, in SQL, in PHP, or in code? They have lived
+in all four here, and four implementations of a rule is four chances to be wrong in private. The split now is:
+
+- **Author** in the two flat sheets. They are a boring, wide CSV that happens to live in `.xlsx` for the dropdowns
+  and the column comments. No formulas, no formatting to maintain, keys instead of numbers so nothing renumbers.
+- **Review** in `content/pages.csv` and `content/edges.csv`, the same two tables as text. A spreadsheet is a good
+  place to type a hundred claims and a bad place to review one: a change to a belief shows up in git as
+  `Bin 98313 -> 98414 bytes`, which is not a record of anything. The CSVs diff line by line, so
+  `git log -p content/pages.csv` is the history of the claims themselves. Either surface builds the site, and CI
+  fails if they disagree. Neither is the master; `sync_content.py` writes in both directions.
+- **Compute** in Python, in `score_reference.py` and the four engines beside it. The recursive part has to live in
+  code: a page's truth is a ratio over its children and then a minimum over them, which no recursive query can
+  aggregate its way to, and a spreadsheet can only do it by carrying one sheet per page.
+- **Store and query** in SQL. `export_db.py` emits the schema, the data, and a loaded `ise.sqlite` with the views an
+  analyst actually opens a database for: `page_start`, `page_coverage`, `page_one_sided`, `page_inert`,
+  `evidence_ledger`, `page_orphan`, `page_uses`. `page_start` is the starting-point rule written in SQL, which is
+  there to show the non-recursive parts port in a few lines, and `test_engines.py::TestTheSqlPortIsTheSameRule`
+  holds it to that by running both on the same input. It had to: the view agreed with the scorer on all 261
+  rows of this corpus and disagreed the moment it was given anything the corpus does not contain, because the
+  corpus exercises none of the three coercions the rule makes. A replication percentage typed as 150 came back
+  as a truth starting point of 1.40, which is not a probability. A port checked only against the data that
+  happens to exist is not a port, it is a coincidence.
+- **Price with a range, not a point.** A cost or benefit row carries `magnitude`, and optionally `mag_low` and
+  `mag_high` in the same units. A row that states one figure and no range is marked as such on the page and in
+  the structural checks, because a decision cannot be checked against a point estimate: the reader cannot tell
+  whether the net survives the estimate being wrong, which is usually the whole question. None of the rows in
+  this corpus state a range yet, so every belief page says so.
+- **Publish numbers two people can get the same answer for.** Nothing published carries more precision than
+  the engine's own tolerance of 1e-9, and `test_render.py::TestThePublishedNumbersAreReproducible` fails the
+  build if anything does. One field did: the confidence inside each page's verdict went out raw while every
+  other number went through `round()`, so it published seventeen significant digits of a quantity compared to
+  nine. Two honest builds of one revision, on two machines, then disagreed in the last bit on 133 of 261
+  pages, which reads as the site being irreproducible and was not. With it rounded, a local build of the
+  deployed revision reproduces all 261 pages of published numbers exactly, fetched from the live site and
+  compared field by field.
+- **One set of tables, five shapes, checked against each other.** The same `page` and `edge` rows go out as
+  the reviewable CSVs, JSON, XML, a SQL data file and a loaded SQLite database. An analyst picks one and works
+  from it, so a field the XML writer drops or the SQL escaper mangles is wrong data with the site's name on it
+  in a shape nobody reading the JSON would ever see. `test_render.py::TestEveryExportCarriesTheSameTwoTables`
+  compares them row by row and field by field, and was checked by dropping a column from the XML writer to see
+  it fail.
+- **Publish as data, not only as pages.** Every page writes its computed numbers beside it as
+  `p/<key>.json`, indexed at `data/pages_index.json`: truth, confidence, starting point, ReasonRank, work value,
+  the structural checks and the sensitivity summary. A score somebody has to scrape out of HTML is a score
+  nobody checks.
+- **Serve** as static HTML today. A PHP, Node or Next front end reading `page` and `edge` is a drop-in replacement
+  for the renderer; it does not need permission from this toolchain, it needs to pass conformance.
+- **The Excel workbook is an output, not an authority.** It is still built and its formulas still match, but it is
+  no longer how the rules are checked. LibreOffice cannot be driven in a build container, so a check that depends on
+  it is a check that stops running.
+
+**The conformance suite is what makes any of that safe.** `conformance/corpus.json` is a small corpus
+built to exercise every rule once, plus the five constants and the eighteen evidence tiers, so a
+port needs nothing from this repository's source to run it; `conformance/expected.json` is what they score. Any
+implementation in any language loads the first, computes, and compares against the second, and both are published beside the site at
+`data/conformance_corpus.json` and `data/conformance_expected.json`, because a contract somebody has to clone a
+repository to run is a contract that gets read about rather than run. `conformance.py --write`
+regenerates them, so a deliberate rule change arrives as a reviewed diff and an accidental one arrives as a failing
+test.
+
+Five of those pages are there because of a failure this suite did not catch. The starting-point rule makes three
+coercions, and none of them appeared in the corpus, so the SQL port of that rule passed on all 261 pages of the
+live corpus and returned a truth starting point of 1.40 the first time it was handed a replication percentage of
+150. A rule the conformance corpus does not exercise is a rule nothing enforces, whatever the contract says in
+prose. Pages 17 to 21 exercise the three, and a test checks that each of them differs from what a port skipping
+the coercion would produce, because a case that agrees either way is testing nothing.
+
+Three more cover the branches where a rule is supposed to do nothing, which is the other way a port goes wrong:
+an importance page with nothing listed under it, a load-bearing premise better established than the conclusion
+it holds up (the cap is a minimum, not a replacement), and a premise stated in words that nobody has opened a
+page for yet (which caps nothing, rather than capping at zero).
+
+## Reading it
+
+The site is proposed for public use, so it has to clear WCAG A, and it did not. Four failures, all now fixed
+and all pinned by `test_render.py::TestItCanBeRead`, which checks the rendered output rather than the intent:
+
+- No way past the breadcrumb, on all 261 pages. There is a skip link.
+- Table cells whose header a screen reader had to infer from the layout. `ths()` is applied once to each
+  finished page, so a column header added anywhere gets its `scope` without the author remembering.
+- Links whose entire text was `0.50`. They carry an `aria-label` naming the page the number was argued on.
+- The grey that marks an unargued factor was the least readable thing on the page, at 2.5:1 against white. It
+  carries information, so it now clears 4.5:1 against every background it sits on, in both themes.
+
+## Scale
+
+Measured on a synthetic corpus of 14,480 pages and as many edges, 55 times the published one:
+
+    corpus load, scoring, confidence and ReasonRank              4.5 s
+    every page's stats                                          1.3 s
+    every structural check, the duplicate sweep included        9.0 s
+    sensitivity, one belief with 361 inputs                     0.4 s
+    a full publish, 28,970 files, 207 MB                      107   s
+
+Four things had to change to get there, each of them a rule rather than a tuning. Page ids ran to 10,000 and
+then raised a bare `StopIteration`. Every page scanned the whole edge table to list what it reads. Every page
+scanned the whole duplicate list to find its own pairs. And a what-if cleared the entire memo, so pinning one
+input recomputed a belief's whole subtree; it now invalidates only the pages that read the pinned page, which
+took sensitivity from 24 seconds a page to 0.4. `test_engines.py::TestItScales` pins all four as bounds on work
+rather than on the clock.
+
+Two of the cheap answers were cheap because they had stopped answering, and both are worth naming because
+neither failed loudly. "Does this premise rest on its own conclusion" was a search that gave up after four
+thousand steps and returned False, so on the corpus this section is about, the check silently stopped firing;
+it is now a strongly-connected-component lookup, which is exact and costs nothing. And the duplicate detector
+skipped any word carried by more than sixty pages, which made two pages with identical text invisible to each
+other as soon as the words they shared sat on sixty-one. The rule is now the one the score already implies,
+that a word is skipped only when it carries no weight in it.
+
+That second one is why the structural checks read 9.0 s here and 1.1 s in an earlier version of this table.
+The 1.1 s was fast because the detector was not looking: on this corpus, which is fifty-five near-copies of
+every claim, it now examines every pair that shares an informative word, six hundred thousand of them in full,
+and finds them all. The cost came back down by paying for each half of the score separately. The word half is
+exact for every candidate pair straight out of the inverted index; the character half, which is a hundred
+times dearer, is computed only for pairs the word half says are worth it, and from vectors built once per page
+rather than once per comparison.
+
+## How it publishes
+
+Everything. Every belief in the tables gets its page, however far along it is, and nothing anyone has drafted is ever
+deleted: a belief that meets `publish.CORE_BAR` (reasons both ways, evidence, objective criteria, predictions or a
+falsifiability test, costs and benefits, interests) is complete and comes first in every ranking; the rest are marked
+`draft`, each saying what it still needs, and `data/drafts.json` lists them. `render_site.py --complete-only` builds
+only the complete beliefs and the pages beneath them, for a build that has to be finished work only.
+
+`.github/workflows/pages.yml` runs the test suite and then `render_site.py` on every push to `master` that touches
+this folder or the root `index.html`, then deploys: the root `index.html` becomes the site front page and the
+generated pages sit under `beliefs/`. The repository's Pages source must be set to "GitHub Actions" (Settings, Pages,
+Build and deployment).
+
+To change the content, edit `ISE_Data_Entry.xlsx` (the how-to-use sheet inside it explains the columns), run
+`python3 sync_content.py`, and push both. Or edit `content/*.csv` directly and run `sync_content.py --to-workbook`.
+To add a page, add a row to `pages` with a new key, then refer to that key from `edges`; keys are slugs, never
+numbers, so nothing renumbers. To ground a claim in evidence, fill its `etype` on the `pages` sheet, and `erq` and
+`erp` when replications are known.
+
+## How people take part
+
+There is no server, so GitHub is the backend. Every belief and claim page carries a form under every table it
+has (`render_site.BELIEF_FORMS` lists the twenty-five: reasons by side, findings, what would move it, predictions,
+criteria, costs and benefits, short and long-term effects, components, assumptions, interests, values, shared
+interests, compromises, motives, disputes, obstacles, biases, works, laws, broader and narrower beliefs, similar
+beliefs, definitions, people on the record) and a propose-a-belief form under Related Beliefs; a part of the
+template nobody has filled in gets a form for its first row, under "Not filled in yet". Linkage, importance,
+uniqueness, interest, equivalence and media pages carry forms under their argued tables (an importance page for an
+interest at stake) and a Contribute line. A work's page follows templates/media-analysis-template.html: its Influence
+table, findings and yardsticks for a great work, predictions it made, who gains, assumptions and biases each take a
+first row from a form, and `media.html` takes a proposed yardstick for best (filed on the work picked from a list) and a
+proposed work (filed on the belief picked from a list). Every topic page carries a
+form under each of its cell tables that files a row with the topic as its page, plus the propose-a-belief form.
+Each form is a plain GET to GitHub's new-issue address, prefilled from the fields the issue forms in
+`.github/ISSUE_TEMPLATE/` declare, so it works with no script; a form whose source is a work also takes an address
+and the date it was checked, and the cost or benefit form takes a best estimate, a low and a high end, the units
+and who gains or pays (each optional; intake copies a number onto the row only when it is one, the units into
+`category`, and who pays into `who` when it names an interest page). Every row a submission adds carries named
+fields in its `extra` cell: `url` and `checked` for a source, and `added_by` and `added` for who added the row and
+when. They ride along in every export (an edge's `attrs`), and the page shows them in a line under the row. They
+live in `extra` rather than in columns of their own so that adding them did not change the shape of the tables.
+Above the first form a page says once what happens next, where to get an account, and the git
+path. With `contribute.js` (copied beside the pages by `render_site.build`), what a reader types is scored as
+they type against every claim in `data/claims_index.json`, which `build()` writes from the FULL tables, drafts
+included, beliefs, claims and interests each with its kind (an interest form matches interests only). A
+near-identical claim (`similarity.MERGE`) that is already a row on the page turns the button into "open it and
+vote"; one that is elsewhere on the site turns it into "add it here as well"; a close one (`similarity.FLAG`) is
+shown with an agree and a disagree link while the button stays. "Copy as text" puts the submission on the
+clipboard, in the shape the intake parses, for a reader without an account. The intake Action (`intake.py`, on
+issue open or edit) re-checks with the Python engine and either records a vote in `content/votes.csv`, converts a
+duplicate into a vote (and, when the claim is not yet a row on the page it was filed on, opens a pull request
+adding just that row), or opens a pull request with the new rows. An edited issue brings its pull request up to
+date rather than opening a second; an issue edited into a duplicate closes the one its first version opened.
+`.github/workflows/check.yml` runs the test suite, the templates check, the contract and a full render on every
+pull request that touches the site, so "merge when its checks pass" has a check to mean.
+
+A post can name its kind (`Kind of post`, an id from `vocab.py` such as `link.irrelevant` or `fallacy.straw-man`) and
+the row it is about (`Row`, the row's claim key). The kind decides the section and side, and where it lands: the page,
+the row's own claim page, or the row's linkage, importance, uniqueness or equivalence page, which intake opens when the
+row has none (`intake.aim`). The kind rides on the new row as `tag` in its `extra` cell and nothing scores it. Every
+reason and finding row carries an "argue about this row" link to `vocab.html?page=...&row=...`, which names the row and
+fills both into every "post one" link. `vocab.html` also says that the repository is MIT-licensed for anyone who wants
+to run a copy with a rule of their own over the same tables, and points an AI assistant at the brief on `outline.html`.
+
+A vote never moves a score. `render_site.py` reads `votes.csv` when it is present (it is not in the workbook and
+`sync_content.py` does not check it) and shows a vote as a thumb up and a thumb down, each with its count, zero
+included. The heading line carries them after the labelled score badge ("Truth score 0.50"), with a "who voted"
+link to the issues that recorded them, and every row that is a page (a reason, a finding, a prediction, a
+criterion, a cost, an interest, a law, a person) carries its own pair. A reason or finding also carries "Bears on
+this:" thumbs, a vote on the argument as an argument rather than on its claim: it is stored as a vote on the claim
+with `on` set to the page the row sits on, counted apart from the votes on whether the claim is true, and the
+linkage page for that row (when there is one) takes the same vote on its heading with the same counts. A row with
+an importance page also carries "Matters here:" thumbs, a vote on that page; a row with either labels its first
+pair "True:". A thumb opens `vote.yml` prefilled, under a title that repeats the thumb and names the claim in words
+(`vote_title`, mirrored in `contribute.js`); the form says at its top that nothing needs filling in. Keep every
+value in the issue forms a word YAML 1.1 reads as a string: a bare `on`, `yes` or `no` is a boolean, GitHub then
+rejects the whole form and opens a blank issue instead, and `test_contribute.py` checks for it. `on` is the last column of `votes.csv`, so a file written before it existed reads as the same table. Once anyone has voted the home page gets a "Recently voted" card
+(newest vote first, counts each way) and, once three people have voted on a claim, "Votes vs the analysis",
+which ranks voted-on claims by how far the share of votes to agree sits from the truth score. The votes ride
+along in the exports as a `vote` table. No votes: no cards, no counts. The engine rule stands: a claim nobody
+has argued is worth exactly nothing, however many people like it.
+
+## Reason Outline
+
+A form takes one row; a Reason Outline takes any number, as plain text a person can write anywhere (or ask an AI to
+write) and send through the outline issue form on GitHub, the one way in. A block starts at the left edge with `Page:` and a page's address or `[key]`, or with
+`Belief:` and a new claim; every line under it is one claim, pushed in two spaces under the line it is about, with `+`
+or `-` for its side, an optional label for its kind (`Does not follow:`, `Matters less:`, `Statistics:`, `Cost:`, or any
+vocab.py id and a colon but `house.vote` and `house.new-belief`, which are written as a `Vote:` line and a `Belief:`
+header) and its details on lines of their own (`Source:`, `Checked:`, `Estimate:`). `Relevance:`, `Importance:` and
+`Uniqueness vs [k]:` under a row argue that row's factor pages, opened empty for the first line filed under them, to
+any depth. It is built on Argdown: `+`, `-`, indentation and `[name]: words` mean what they mean there.
+
+`outline_names.py` holds every name, `outline_read.py` reads the text alone, `outline_file.py` settles what needs the
+tables (which page a line lands on, whether its words are already a page or a stored row, what it may set and what it
+may only compare) and `outline_print.py` writes any page back in the same form. `build()` writes every page as
+`p/<key>.txt` and every topic as `t/<key>.txt`, and every page links its printout next to the take-part paragraph; a
+printout sent back matches every line to the row it came from and adds nothing, a line added to it adds its own rows,
+a line left out deletes nothing, and a line edited in it becomes a correction request. `outline.html` explains the
+language to a reader, with the brief for an AI assistant, and `data/outline-spec.json` carries the closed lists for a
+program. The fourth issue form (`.github/ISSUE_TEMPLATE/outline.yml`, label `outline`) is filed by
+`intake.process_outline`: one stop and nothing is filed, and the reply on the issue lists every stop by its line;
+otherwise the post's votes go to the default branch in one commit (a vote on a page the post itself adds goes in the
+pull request instead, since that page is not on the site until it is merged), its rows to one pull request whose body is the reply,
+and the reply on the issue shows every new key, every match and every near match. Where the four modules make a choice
+the language left open, or part from it to follow the stored data, their docstrings say so under Decisions.
+
+## What a mutation sweep found that reading did not
+
+Every check here passing says the suite noticed nothing wrong. It does not say the suite would notice. So each
+numeric constant in the five scoring modules was changed, one at a time, and the whole suite re-run. Seven
+changes to rules survived, meaning each could be made and every check in this repository would still pass.
+
+Three were the labelled constants DEFLINK, DEFIMP and DEFUNIQ, which are the multipliers most rows in this
+corpus actually read, because almost no row has a linkage, importance or uniqueness page yet. They survived
+for a reason worth keeping: this repository held the five constants twice, once in `score_reference.py` and
+once in `build_pages.py`, and the copy the site reads was the second one. Changing the scorer's copy moved
+nothing and nothing said so. The numbers now live once, in the scorer; `build_pages.py` keeps the labels and
+the meanings and reads the values, and `conformance.py` checks the scorer's copy against the one the corpus
+file declares.
+
+One was the sign on the agree side of the evidence table. The conformance corpus had exactly one evidence-agree
+row and it pointed at a claim sitting on the neutral line, so it contributed exactly 0 and the sign it was read
+with had no consequence. A row pointing at an established finding is in the corpus now.
+
+One was the confidence the scorer defaults to when nothing attaches a real one. Two paths use it that way, the
+command line this file documents and `build_example.py` with no corpus to gate on, and neither was exercised
+anywhere. Both are now.
+
+Two more were rules held up by a coincidence, which is the same defect wearing a different face. The contract
+says a row pointing at no page reads UNARG for truth and 0 for confidence, so it contributes exactly nothing.
+UNARG is 0.5 here, so the truth term is 2 x 0.5 - 1 = 0 and the row contributes nothing whatever the confidence
+factor says; setting that factor to 2 changed no number anywhere. The test that pins it now moves UNARG off the
+neutral point, which separates the two halves of the rule so each has to hold on its own. The same went for the
+starting weight `prior()` returns when nobody passes k: every caller that reads the weight passes it, and the
+ones that do not only ask whether the page is classified, so the default was free to be anything.
+
+The first sweep of this kind reported 527 of 527 caught, which was a measurement with no control and no
+meaning: see the section above on a build that cannot name itself.
+
+## The gates, and whether they can fail
+
+Four commands stand between a bad change and the live site: `sync_content.py --check`, `integrity.py content`,
+`conformance.py --check`, and the link count the render prints. Each was trusted because it had always passed,
+which is the weakest reason to trust anything, so `test_gates.py` breaks the thing each gate is for and checks
+the gate says so, and says it usefully: the sync gate has to print the row, the column and both versions; the
+cycle gate has to name the loop; the conformance gate has to print the number it expected; the link gate has to
+name the link it could not resolve. All four pass.
+
+Writing that file produced a false finding worth keeping. The first link-gate injection changed `href`, which
+renames the output file as well as the link, so the link resolved and the gate looked broken when it was not.
+A control can be wrong in the direction of reporting a defect that does not exist, and the way to catch that is
+to read the message the gate prints rather than only its exit code.
+
+## A build that cannot name itself says so
+
+`cite()` and the build stamp read the revision from git, and when there is no revision, both used to render
+nothing at all. So a build from an export, a tarball, or any copy that is not a checkout produced 261 pages
+with no citation block and no provenance line, and looked exactly like an ordinary build. The numbers were
+right and nothing on the page said they could not be tied to a state of the argument or reproduced from one,
+which is the whole reason the citation exists.
+
+Both now render either way and name the build as unidentified when it is. The tests cover both, because the
+one that only checked the in-repo case was also what hid this: a copy of this directory outside the repository
+failed two tests, which is how a mutation sweep run against copies scored a meaningless 527 out of 527.
+
+## What a green suite does not say
+
+It says how many tests passed. It does not say how much was checked, and the difference is not academic here.
+An assertion inside a loop over a collection that turns out to be empty, or in a branch this corpus never
+reaches, reads in the file exactly like one that can fail and verifies nothing. `check_assertions.py` runs the
+suite under a line tracer and fails the build if any assertion did not execute. CI runs it before publishing.
+
+Two were live the first time it ran, and both were in checks written to catch real defects. The sensitivity
+suite asserted that no input is ever reported as flipping a page whose range does not straddle the line; every
+belief in this corpus sits on the neutral line with nothing decisive beneath it, so no row carried a flip value
+and the assertion never executed. The range readout asserted that the structural check stays silent when every
+priced row states a range; no row in this corpus states one. Both now run against a corpus built to reach them,
+and each ends by asserting it got there.
+
+That is the same failure as the SQL port agreeing on 261 pages and returning 1.40 on the first typed input, and
+the same as the duplicate detector passing a test that it finds what a full sweep finds on a corpus where no
+word sat on more than sixty pages. A check that can only pass is not a check, and the corpus you happen to have
+is not a test suite.

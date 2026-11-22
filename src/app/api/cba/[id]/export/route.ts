@@ -2,7 +2,7 @@
  * CBA Export API
  * GET /api/cba/[id]/export?format=html|markdown
  *
- * Exports a CBA analysis as PBworks-compatible HTML or Markdown.
+ * Exports a CBA analysis as portable HTML or Markdown.
  * Implements output formats from docs/automated-cba/references/output-templates.md
  */
 
@@ -35,7 +35,7 @@ export async function GET(
     })
   }
 
-  // Default: PBworks-compatible HTML
+  // Default: portable HTML
   const html = generateHTML(cba)
   return new NextResponse(html, {
     headers: {
@@ -45,7 +45,7 @@ export async function GET(
   })
 }
 
-// ─── HTML Export (PBworks-compatible) ─────────────────────────
+// ─── HTML Export (portable, inline styles only) ───────────────
 // All styles MUST be inline. No <style> blocks, no class attributes.
 // See docs/automated-cba/references/output-templates.md
 
@@ -216,7 +216,7 @@ ${deduplicationRows}
 
 <h2>Methodology</h2>
 <p style="font-size:90%;color:#6b7280;">
-  This analysis uses the <a href="https://myclob.pbworks.com/w/page/156187122/cost-benefit%20analysis">Idea Stock Exchange Cost-Benefit Analysis</a> framework.
+  This analysis uses the <a href="/cba/about">Idea Stock Exchange Cost-Benefit Analysis</a> framework.
   Each impact's likelihood is derived from its argument tree: <strong>likelihood = pro_total / (pro_total + con_total)</strong>.
   Arguments are scored as: <strong>truth × linkage × importance</strong> (with depth attenuation 0.5^(depth-1) for sub-arguments).
   Expected value = magnitude × likelihood. Scores are computed, never manually assigned.
@@ -334,6 +334,6 @@ ${deduplicationSection}
 Likelihood = pro\_total / (pro\_total + con\_total) from argument trees.
 Argument score = truth × linkage × importance (depth attenuation: 0.5^(depth−1)).
 Expected value = magnitude × likelihood.
-See the [ISE Cost-Benefit Analysis](https://myclob.pbworks.com/w/page/156187122/cost-benefit%20analysis) framework.
+See the [ISE Cost-Benefit Analysis](/cba/about) framework.
 `
 }

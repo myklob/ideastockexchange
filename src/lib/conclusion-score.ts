@@ -1,9 +1,7 @@
 /**
  * Conclusion Score — the original Idea Stock Exchange scoring process.
  *
- * A faithful implementation of the algorithm in the founding Excel workbook
- * ("Conclusions about the Church with arguments in separate columns";
- * an early copy lives at docs/Example Argument, using excel, LDS Church.xlsx).
+ * A faithful implementation of the algorithm in the founding Excel workbook.
  * Every conclusion gets a page with reasons to agree and reasons to disagree
  * in separate columns; each reason may itself be a conclusion with its own
  * page, so scores are recursive:
@@ -21,14 +19,15 @@
  * counts one point toward its column whether or not it has its own page; the
  * recursive term only adds what the reason's own debate has earned.
  *
- * The modern engine (src/core/scoring/scoring-engine.ts) generalizes every
- * term of this process: the linkage ratio became scoreLinkageDebate, the
- * multiplier became damping/depth attenuation, and raw counts became
- * truth × linkage × importance × uniqueness. This module keeps the original
- * process runnable and testable; the SQL twin is
+ * Two engines generalize this process. src/core/scoring/scoring-engine.ts
+ * turned the linkage ratio into scoreLinkageDebate and the multiplier into
+ * damping; src/lib/ise-pages/ implements the current page/edge model, where
+ * raw counts became truth × linkage × importance × uniqueness and every
+ * multiplier is itself an argued page (examples/ise-zoning/). This module
+ * keeps the original process runnable and testable; the SQL twin is
  * sql/conclusion_score_process.sql and the PHP twin is
  * examples/php-score-retrieval/. The three must produce identical numbers on
- * the shared example data.
+ * the shared example data, which is the zoning argument tree.
  */
 
 export interface ConclusionNode {

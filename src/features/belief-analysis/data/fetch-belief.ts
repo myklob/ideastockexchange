@@ -11,6 +11,7 @@ import {
 import { calculateEVS, getEvidenceTypeWeight } from '@/core/scoring/scoring-engine'
 import { applyStrengthPenalty } from '@/core/scoring/claim-strength'
 import { resolveContrastClass } from './contrast-classes'
+import { VERIFICATION_SCORES } from '@/core/reasonrank/types'
 
 /**
  * Standard ordering for score-ranked table rows: highest relationship score
@@ -83,10 +84,31 @@ const BELIEF_INCLUDE = {
         select: { id: true, name: true, operator: true },
       },
       linkageFiveStepCheck: true,
+      // Confirmed claims only: an unconfirmed accusation changes nothing and
+      // is not rendered. Confirmed ones are noted inline in the argument cell.
+      fallacyClaims: {
+        where: { status: 'confirmed' },
+        select: { id: true, fallacyType: true, targetFactor: true, severity: true },
+      },
     },
     orderBy: { impactScore: 'desc' as const },
   },
-  evidence: { orderBy: { impactScore: 'desc' as const } },
+  evidence: {
+    include: {
+      // The "Bears On" cell: the argument this evidence bears on, named by its
+      // opening words. Null renders as "this belief".
+      bearsOnArgument: {
+        select: {
+          id: true,
+          claim: true,
+          side: true,
+          belief: { select: { slug: true, statement: true } },
+        },
+      },
+    },
+    orderBy: { impactScore: 'desc' as const },
+  },
+  peopleOnRecord: { orderBy: { sortOrder: 'asc' as const } },
   objectiveCriteria: { orderBy: { totalScore: 'desc' as const } },
   valuesAnalysis: true,
   interestsAnalysis: true,
@@ -151,9 +173,11 @@ export async function fetchBeliefBySlug(slug: string): Promise<BeliefWithRelatio
 
   // Page-only extras, fetched here rather than in BELIEF_INCLUDE so score
   // propagation (which reuses the include) stays lean:
-  //   scoreEvents — the accumulation ledger behind Score History.
-  //   usedIn      — every parent debate using this belief as a reason.
-  const [scoreEvents, usedIn] = await Promise.all([
+  //   scoreEvents    — the accumulation ledger behind Score History.
+  //   usedIn         — every parent debate using this belief as a reason.
+  //   siblingBeliefs — the category cluster behind the Related Topics footer
+  //                    (includes this belief, rendered as plain text).
+  const [scoreEvents, usedIn, siblingBeliefs] = await Promise.all([
     prisma.beliefScoreEvent.findMany({
       where: { beliefId: belief.id },
       orderBy: { createdAt: 'desc' },
@@ -169,9 +193,23 @@ export async function fetchBeliefBySlug(slug: string): Promise<BeliefWithRelatio
         parentBelief: { select: { id: true, slug: true, statement: true } },
       },
     }),
+    belief.category
+      ? prisma.belief.findMany({
+          where: { category: belief.category },
+          select: { id: true, slug: true, statement: true },
+          orderBy: { statement: 'asc' },
+          take: 12,
+        })
+      : Promise.resolve([]),
   ])
 
-  return { ...belief, contrastClass, scoreEvents, usedIn } as BeliefWithRelations | null
+  return {
+    ...belief,
+    contrastClass,
+    scoreEvents,
+    usedIn,
+    siblingBeliefs,
+  } as BeliefWithRelations | null
 }
 
 /** Fetch a belief by numeric ID */
@@ -287,16 +325,18 @@ export async function fetchBeliefCategories(): Promise<string[]> {
 
 /** Compute all 12 ReasonRank scores for a belief */
 /**
- * Verification lifecycle weight, mirroring the reasonrank engine's
- * VERIFICATION_WEIGHTS: FALSIFIED evidence contributes nothing (the
- * retraction propagates to every score built on it), UNVERIFIED and
- * DISPUTED count at half weight, VERIFIED at full. Legacy rows (null
- * status) predate the lifecycle and keep full weight, so existing seeded
- * scores are unchanged until a row's status is actually set.
+ * Verification lifecycle weight, taken from the engine's own
+ * VERIFICATION_SCORES: FALSIFIED evidence contributes nothing (the retraction
+ * propagates to every score built on it), UNVERIFIED and DISPUTED count at
+ * half weight, VERIFIED at full. Legacy rows (null status) predate the
+ * lifecycle and keep full weight, so existing seeded scores are unchanged
+ * until a row's status is actually set — which is exactly the exposure
+ * reported by src/core/scoring/evidence-exposure.ts.
  */
 function verificationWeight(status: string | null | undefined): number {
-  if (status === 'FALSIFIED') return 0
-  if (status === 'DISPUTED' || status === 'UNVERIFIED') return 0.5
+  if (status != null && status in VERIFICATION_SCORES) {
+    return VERIFICATION_SCORES[status as keyof typeof VERIFICATION_SCORES]
+  }
   return 1
 }
 

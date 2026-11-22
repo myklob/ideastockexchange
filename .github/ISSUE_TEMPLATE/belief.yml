@@ -1,0 +1,37 @@
+name: Propose a belief
+description: Propose a belief for the site to analyze. What happens next, in one sentence, is that a check runs for a page already saying the same thing and then either counts this as your vote for it or opens a pull request that adds the belief, with any reasons you gave, for the maintainer to merge.
+title: "Belief: "
+labels: [belief]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A belief is a claim someone could agree or disagree with, written as one complete sentence. It starts as a draft and is published once it has reasons on both sides, evidence, criteria, predictions, costs and benefits, and interests.
+  - type: textarea
+    id: text
+    attributes:
+      label: The belief
+      description: One complete sentence.
+      placeholder: Cities should plant more trees.
+    validations:
+      required: true
+  - type: input
+    id: topic
+    attributes:
+      label: Topic
+      description: Optional. The key or the name of the topic it is filed under, from the topics page.
+  - type: textarea
+    id: agree
+    attributes:
+      label: A reason to agree
+      description: Optional. One complete sentence.
+  - type: textarea
+    id: disagree
+    attributes:
+      label: A reason to disagree
+      description: Optional. One complete sentence.
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: Optional. Where the belief or its reasons can be checked.

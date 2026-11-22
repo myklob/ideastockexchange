@@ -98,38 +98,61 @@ To modify the templates:
 }
 ```
 
-## Media Templates (New)
+## Media Templates
 
-Four new templates for the Media Analysis system, which tracks the best books, movies, songs, poems, images, and other content that support or weaken each belief:
+The Media Analysis system tracks the books, films, songs, studies and other works that carry each belief, and scores each work on one page:
 
-- **media_index.html** - Media index page: browse all media sorted by epistemic impact, quality score, reach, category, etc. Includes media type overview (Books, Films, Songs, Poems, Images, Scientific Papers, etc.) and category groupings.
+- **media-analysis-template.html** - The per-work page (ISE Media Analysis template v4, 2026-10-03, GitHub form). One work, one page, the media-side twin of the Media Resources table on belief pages. Sections in order: header line, the two questions kept apart (is it well made? is what it carries true?), Scorecard, Beliefs This Work Carries, Quality Arguments, Influence Arguments, The Strongest Case the Work Leaves Out, Persuasion Patterns, Who Gains if the Audience Believes It, Is It a Great Work? (the evidence ledger and objective criteria for the quality claim, carried over from the retired quality template), Predictions the Work Made, Hidden Assumptions and Bias Risks, Worked Examples and Definitions, Scoring Engine, Contribute. The published static site renders it in that order with no score above the arguments: the Scorecard's values are rows of its Scoring Engine at the foot of the page. Nothing typed on the page is a score; Reach is the one typed number and carries its source. Authoring rules are in the hidden paragraph at the top of the markup; every link points at this site's own routes.
 
-- **media-belief-argument-template.html** - Individual media detail page with two parts:
-  1. **Belief Arguments**: The beliefs/claims this media supports or weakens, with linkage scores showing how central each belief is to the work's narrative
-  2. **Quality Arguments**: Pro/con arguments about the media's quality as a work (craft, originality, entertainment value), independent of its ideological message
+- **media_index.html** - The list of best works (media.html on the static site). Every work is best until shown otherwise, and best by what is argued too: a table of the yardsticks (most accurate, most important, best made, most entertaining, most cited here, and any a reader proposes), then each kind of work ranked under every yardstick that tells its works apart, the tied and unmeasured yardsticks named rather than numbered, and every work of the kind by title; forms to propose a yardstick or a work.
 
-- **media-quality-template.html** - Full quality analysis page applying the ISE belief-analysis template to the question "Is [Media Title] a great [type]?" Includes argument trees, evidence ledger, and objective quality criteria.
+- **why_pro_con_media_per_belief.html** - Explanatory page with the rationale for tracking media per belief: the influence gap between how true a work is and how far it reaches, and why both the best supporting and the best opposing work for every belief are worth naming.
 
-- **why_pro_con_media_per_belief.html** - Explanatory page with the rationale for tracking media per belief. Covers the influence gap (truth score vs. reach), two key reasons (understanding cultural influence and finding educational content), the danger of low directness of advocacy, and ISE's six scoring dimensions for media.
+- **media-belief-argument-template.html** and **media-quality-template.html** - Retired. Each is now a one-paragraph stub pointing at media-analysis-template.html, kept so old links do not break. Their content moved into the v4 page: belief arguments became Beliefs This Work Carries, the quality argument trees became Quality Arguments, and the quality evidence ledger and objective quality criteria became the Is It a Great Work? section. Directness of Advocacy was dropped as a multiplier (how a work carries a claim is now a description that points the centrality debate at the right evidence), and the claim-strength adjustment on the quality page is not part of the v4 Scoring Engine.
 
-### Key Media Scoring Dimensions
+### Key Media Scoring Quantities
 
-| Dimension | Range | Description |
-|-----------|-------|-------------|
-| Quality Score | 0 - 1.0 | Technical merit regardless of ideology |
-| Truth Score | -1.0 to +1.0 | Accuracy of central claims |
-| Linkage Score | 0 - 1.0 | How central a belief is to the work |
-| Reach | 0 - infinity | Estimated audience size |
-| Epistemic Impact | computed | Truth Score x Reach |
-| Directness of Advocacy | 0% - 100% | How explicitly the media argues |
+| Quantity | Range | Read from |
+|----------|-------|-----------|
+| Quality Score | 0 to 1 | The Quality Arguments table: accurate, well reasoned, well made, built on primary sources. Says nothing about whether the message is true. |
+| Influence Score | 0 to 1 | The Influence Arguments table: citations, minds changed on record, policy that traces to the work. |
+| Reach | people | Typed once, with its source (admissions, copies sold, views, circulation). The only measurement on the page. |
+| Centrality | 0 to 1 | The media linkage page for the work and one belief: how much of the work rides on that claim. |
+| Belief truth | -1 to +1 | Read from the belief page; 0 when no page exists yet. |
+| Media Truth Score | -1 to +1 | Sum of (belief truth x centrality) / sum of centrality over the Beliefs table. |
+| Epistemic Impact | signed, truth-weighted exposures | Media Truth Score x Reach; per row, belief truth x centrality x Reach, which the Beliefs table ranks by. |
+
+Quality Score and Influence Score are smoothed, (Pro Total + 0.5k) / (Pro Total + |Con Total| + k) with k = 1, so an empty table reads 0.5 rather than a verdict. The engine is `src/core/scoring/media-truth.ts`; where it and a page disagree, the engine is canonical.
 
 ### React Implementation
 
-These templates are implemented as React pages:
-- `/media` - Media index (browse all media)
-- `/media/[id]` - Individual media review (belief arguments + quality arguments)
-- `/media/[id]/quality` - Full quality analysis page
+- `/media` - Media index (browse all works)
+- `/media/[id]` - One work's page
+- `/media/[id]/quality` - The quality arguments on their own (the v4 template folds this into the work's page)
 - `/media/why-pro-con-media` - Explanatory rationale page
+- `/algorithms/media-truth-score` - The Media Truth Score explainer
+
+## Interest Templates
+
+An interest is a need with a subject ("renters need housing they can afford"), and that one sentence is argued two ways that never borrow from each other: is this really why the side holds its position (Linkage Accuracy, the Drives column on belief pages, settled by behavior through the alibi test), and should it be honored (Interest Validity, settled by the six mirror-test criteria: reciprocity, the universal test, asks no loss from others, alternative satisfaction, scope and reversibility, unmet and shared; never by the holder's power). Drive = Linkage Accuracy x Validity / 100 is computed and typed nowhere. Every interest starts at the opening prior of its Maslow rung (physiological 85 to 100 down to curiosity and play 30 to 50, with needs that fail the criteria outright below the floor at 0 to 20) and the arguments move it from there. A motive that is real and illegitimate is scored and kept, not deleted, with the same suspicion for one's own side. All three templates below carry these rules, the alibi test table, the mirror test, the Maslow priors, the outputs table (shared interests at or above the Resolution Floor of 70, the Primary Conflict Pair, solution scores of 2 x S x O / (S + O), argument importance set by the most valid interest a reason bears on, and every cost and benefit naming the interest that pays or collects it) and a Contribute block in which no step asks anyone to type a score. They are in GitHub form (leading builder comment, hidden authoring-rules paragraph, inline styles, links only to routes that exist). The word "stakeholder" survives only in two file names, kept so links do not break; the pages say "who has a stake", "the people involved" or "groups".
+
+- **interest-validity-debate-template.html** - The argument tree under one interest's Validity score, for when the validity itself is the fight. Sections in order: the interest and the ground rules, the three scores and which one the page argues, what belongs on the other track (the alibi test), the mirror test, where the score starts (the Maslow rungs), three scopes of validity (valid at all; more or less valid than other interests in general; validity inside a specific conflict), bad motives are scored not deleted, where the validity score goes, objective criteria, related pages, contribute. Retired: the rule that an interest starts valid until challenged, the loose seven-item criteria list, the Conflict Resolution Pipeline steps, and the line that the engine was still on the roadmap.
+
+- **stakeholder-profile.html** - The group profile: one page per group of people with a stake (renters, officeholders, voters). Who they are, with size and sources and a note on how well the record speaks for them; every need filed for the group ranked by Linkage Accuracy with Prevalence, Validity and Drive beside it; the alibi test applied to the group's own record; the mirror test; the Maslow rungs; bad motives scored not deleted; the beliefs the group has a stake in and whether its need is in each belief's Primary Conflict Pair; where the scores go; contribute. Retired: the Power Dynamics section and its Influence average, the Composite column (Validity x 0.6 + Linkage x 0.4), the "Invalid / Zero-Sum, de-weighted" marker, Representation Confidence as a number, and clickable rows to routes that never existed.
+
+- **stakeholder-index.html** - The way into every group, the template twin of the published site's interests.html. Groups ranked by how many beliefs list one of their needs, then by how many needs they have; under each group its needs ranked by Validity with Linkage Accuracy and Drive beside them; supporters and opponents "as such" listed last; the shared needs across the site at or above the Resolution Floor; the Primary Conflict Pair on each belief; power never counts and bad motives are scored not deleted; where the scores go; contribute. Retired: the Power and Primary Power Lever columns, the Representation Confidence score, the directory grouped by kind of entity with a count chip for each, and clickable rows to a route that never existed.
+
+### Key Interest Scoring Quantities
+
+| Quantity | Range | Read from |
+|----------|-------|-----------|
+| Linkage Accuracy | 0 to 100 | The alibi test on the interest's own page: does this need predict the side's votes, spending and past positions with fewer exceptions than any rival? Shown as Drives on belief pages. |
+| Interest Validity | 0 to 100 | The mirror test on the interest's validity page, starting from its Maslow rung's opening prior. Never the holder's power, never feasibility. |
+| Drive | 0 to 100 | Linkage Accuracy x Validity / 100. Computed, never typed. |
+| Prevalence | percent | A survey reading with its source: the share of the side the need actually drives. Not a score; multiplies into nothing. |
+| Shared interest | pair | Opposite-side needs that say the same thing, both at or above the Resolution Floor of 70; combined validity is the harmonic mean. |
+| Primary Conflict Pair | pair | The highest-Drive unshared need on each side. |
+| Solution score | 0 to 1 | 2 x S x O / (S + O), where each side's total is the sum over satisfied needs of fraction met x validity. |
 
 ## Future Enhancements
 

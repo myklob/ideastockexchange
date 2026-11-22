@@ -268,7 +268,7 @@ export default function CandidateEvaluationPage() {
             : which qualifications matter most for this office, which policy domains carry
             the highest{' '}
             <a
-              href="https://myclob.pbworks.com/importance%20score"
+              href="/algorithms/importance-score"
               className="text-[var(--accent)] hover:underline"
             >
               Importance Scores
@@ -290,7 +290,7 @@ export default function CandidateEvaluationPage() {
                   <th className="px-3 py-2 text-left font-semibold w-[45%]">Criterion</th>
                   <th className="px-3 py-2 text-center font-semibold w-[16%]">
                     <Link
-                      href="https://myclob.pbworks.com/importance%20score"
+                      href="/algorithms/importance-score"
                       className="text-[var(--accent)] hover:underline"
                     >
                       Importance
@@ -352,19 +352,19 @@ export default function CandidateEvaluationPage() {
             {[
               {
                 label: 'Truth Score',
-                href: 'https://myclob.pbworks.com/w/page/21960078/truth',
+                href: '/algorithms/truth-scores',
                 description: 'Is the claim factually accurate and supported by linked evidence?',
                 color: 'blue' as const,
               },
               {
                 label: 'Linkage Score',
-                href: 'https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores',
+                href: '/algorithms/linkage-scores',
                 description: 'Does this argument actually connect to the question of qualification for this office?',
                 color: 'green' as const,
               },
               {
                 label: 'Importance Score',
-                href: 'https://myclob.pbworks.com/importance%20score',
+                href: '/algorithms/importance-score',
                 description: 'How central is this criterion within the pre-defined evaluation framework?',
                 color: 'orange' as const,
               },
@@ -401,7 +401,7 @@ export default function CandidateEvaluationPage() {
           <SectionAnchor id="reasonrank">
             <span>⚡</span>{' '}
             <a
-              href="https://myclob.pbworks.com/ReasonRank"
+              href="/algorithms/reason-rank"
               className="text-[var(--accent)] hover:underline"
             >
               ReasonRank

@@ -200,6 +200,68 @@ async function resolveEffectiveImportance(arg: {
   return deriveImportanceFromBeliefScore(overallScore)
 }
 
+export interface ArgumentImpactPreview {
+  argumentId: number
+  parentBeliefId: number
+  side: string
+  linkageScore: number
+  effectiveImportance: number
+  uniqueness: number
+  currentImpactScore: number
+  projectedImpactScore: number
+}
+
+/**
+ * Dry-run twin of the per-argument recompute inside propagateBeliefScores:
+ * the same truth, effective-importance, and sibling-uniqueness inputs, with
+ * no writes. The GET propagate route serves this, so the preview cannot
+ * drift from what POST applies.
+ */
+export async function previewArgumentImpacts(
+  beliefId: number,
+): Promise<ArgumentImpactPreview[]> {
+  const truthScoreCache = new Map<number, number>()
+  const uniquenessCache = new Map<number, Map<number, number>>()
+
+  const truthEdges = await prisma.argument.findMany({
+    where: { beliefId },
+    select: { ...ARGUMENT_EDGE_SELECT, impactScore: true },
+  })
+  const importanceEdges = await prisma.argument.findMany({
+    where: { importanceBeliefId: beliefId },
+    select: { ...ARGUMENT_EDGE_SELECT, impactScore: true },
+  })
+  const affected = new Map<number, ArgumentEdge & { impactScore: number }>()
+  for (const arg of [...truthEdges, ...importanceEdges]) {
+    affected.set(arg.id, arg)
+  }
+
+  const previews: ArgumentImpactPreview[] = []
+  for (const arg of affected.values()) {
+    const truth = await truthScoreFor(arg.beliefId, truthScoreCache)
+    const importance = await resolveEffectiveImportance(arg)
+    const siblingUniqueness = await siblingUniquenessFor(arg.parentBeliefId, uniquenessCache)
+    const uniqueness = siblingUniqueness.get(arg.id) ?? 1
+    previews.push({
+      argumentId: arg.id,
+      parentBeliefId: arg.parentBeliefId,
+      side: arg.side,
+      linkageScore: arg.linkageScore,
+      effectiveImportance: importance,
+      uniqueness,
+      currentImpactScore: arg.impactScore,
+      projectedImpactScore: computeArgumentImpactScore(
+        arg.side,
+        truth,
+        arg.linkageScore,
+        importance,
+        uniqueness,
+      ),
+    })
+  }
+  return previews
+}
+
 /**
  * Propagate score changes upward through the belief dependency graph.
  *

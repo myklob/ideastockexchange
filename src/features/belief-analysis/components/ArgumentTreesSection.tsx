@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import type { ArgumentWithBelief } from '../types'
-import { TABLE_TOP_LIMIT } from '../lib/ranking'
+import type { ArgumentWithBelief, ConfirmedFallacyNote } from '../types'
+import { TABLE_TOP_LIMIT, byScoreDesc } from '../lib/ranking'
 import ExpandableRows from './ExpandableRows'
 import { justificationScore, truthShare, argumentMass } from '@/core/scoring/contrast-class'
 
@@ -35,10 +35,16 @@ function impCell(arg: ArgumentWithBelief): string {
   return arg.importanceScore.toFixed(1)
 }
 
+/** Confidence and Uniqueness columns: blank until the engine computes them (Rule 6). */
+function ratioCell(value: number | null | undefined): string {
+  if (value == null) return ''
+  return value.toFixed(2)
+}
+
 /**
  * "Show the work" trace for agent-submitted arguments: the submitting agent,
  * its rationale, the five-step check answers, and the evidence provenance.
- * Provenance display only — none of this feeds any score.
+ * Provenance display only; none of this feeds any score.
  */
 function AgentWorkTrace({ arg }: { arg: ArgumentWithBelief }) {
   const agent = arg.submittedByAgent
@@ -63,7 +69,7 @@ function AgentWorkTrace({ arg }: { arg: ArgumentWithBelief }) {
             {check.sourceWording && <p>2. Claim wording: &ldquo;{check.sourceWording}&rdquo;</p>}
             {check.mechanismSentence && <p>3. Mechanism: {check.mechanismSentence}</p>}
             {check.provisionalEstimate != null && (
-              <p>4. Author bracket: [{check.provisionalEstimate}] &mdash; superseded by the engine</p>
+              <p>4. Author bracket: [{check.provisionalEstimate}], superseded by the engine</p>
             )}
             {check.flagNote && <p>5. Flag: {check.flagNote}</p>}
           </div>
@@ -82,7 +88,7 @@ function AgentWorkTrace({ arg }: { arg: ArgumentWithBelief }) {
                   {e.doi && <span className="font-mono"> doi:{e.doi}</span>}
                   {e.tierClaim && (
                     <span>
-                      {' '}&mdash; claimed {e.tierClaim}
+                      {' '}, claimed {e.tierClaim}
                       {e.tierVerified ? `, verified ${e.tierVerified}` : ', unverified'}
                     </span>
                   )}
@@ -93,6 +99,43 @@ function AgentWorkTrace({ arg }: { arg: ArgumentWithBelief }) {
         )}
       </div>
     </details>
+  )
+}
+
+/** Which factor a confirmed fallacy of this kind damages, for the inline note. */
+function fallacyTargetLabel(targetFactor: string): string {
+  switch (targetFactor) {
+    case 'relevance': return 'Linkage'
+    case 'logical-validity': return 'Argument Score (validity)'
+    case 'evidence-quality': return 'Evidence Quality'
+    default: return targetFactor
+  }
+}
+
+function fallacyTypeLabel(slug: string): string {
+  return slug.replace(/-/g, ' ')
+}
+
+/**
+ * Inline note for community-confirmed fallacy claims. A confirmed fallacy
+ * damages exactly the factor its type targets; the damage itself flows
+ * through the linkage sub-debate's published counter-argument; this note just
+ * makes it visible in the cell. Unconfirmed accusations are never rendered.
+ */
+function ConfirmedFallacyNotes({ notes }: { notes: ConfirmedFallacyNote[] | undefined }) {
+  if (!notes || notes.length === 0) return null
+  return (
+    <span className="block text-xs text-[#c0392b] not-italic">
+      {notes.map(n => (
+        <span key={n.id} className="mr-2">
+          ⚠{' '}
+          <Link href="/algorithms/fallacy-detection" className="text-[#c0392b] underline decoration-dotted hover:decoration-solid">
+            {fallacyTypeLabel(n.fallacyType)}
+          </Link>{' '}
+          confirmed, dents {fallacyTargetLabel(n.targetFactor)}
+        </span>
+      ))}
+    </span>
   )
 }
 
@@ -119,6 +162,7 @@ function ArgumentCell({ arg }: { arg: ArgumentWithBelief }) {
           )}
         </span>
       )}
+      <ConfirmedFallacyNotes notes={arg.fallacyClaims} />
       <AgentWorkTrace arg={arg} />
     </>
   )
@@ -133,6 +177,8 @@ function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
         <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
         <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
         <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
       </>
     )
   }
@@ -142,7 +188,7 @@ function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
         {/* Every score is a doorway (Rule 6 keeps unscored cells blank, so a
             blank is never a link). The Score is the child belief's own tree
-            score — clicking it drops into the sub-debate that produced it. */}
+            score; clicking it drops into the sub-debate that produced it. */}
         {scoreCell(arg) ? (
           <Link
             href={`/beliefs/${arg.belief.slug}`}
@@ -154,6 +200,11 @@ function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
         ) : (
           ''
         )}
+      </td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
+        {/* Confidence: how much of the work behind the argument's page has been
+            done. Blank until the engine computes it. */}
+        {ratioCell(arg.confidenceScore)}
       </td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
         {/* The linkage value links to the edge's own page: the debate about
@@ -184,6 +235,11 @@ function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
           impCell(arg)
         )}
       </td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
+        {/* Uniqueness: whether this row makes a point no other row has made.
+            Blank until the engine computes it. */}
+        {ratioCell(arg.uniquenessScore)}
+      </td>
       <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs font-semibold">
         {/* Impact links to the score-provenance page: the full derivation of
             this edge's contribution, factor by factor. */}
@@ -209,8 +265,14 @@ export default function ArgumentTreesSection({
   totalCon,
   netInterpretation,
 }: ArgumentTreesSectionProps) {
-  const proArgs = args.filter(a => a.side === 'agree')
-  const conArgs = args.filter(a => a.side === 'disagree')
+  // impactScore is stored SIGNED (negative for 'disagree'), so the DB's
+  // `impactScore desc` ordering lists con arguments weakest-first. Rank each
+  // side by magnitude: the strongest argument of either side comes first.
+  const byImpactMagnitude = byScoreDesc<ArgumentWithBelief>(a =>
+    a.impactScore == null ? null : Math.abs(a.impactScore),
+  )
+  const proArgs = args.filter(a => a.side === 'agree').sort(byImpactMagnitude)
+  const conArgs = args.filter(a => a.side === 'disagree').sort(byImpactMagnitude)
   const rowCount = Math.max(proArgs.length, conArgs.length, 1)
   const rows = Array.from({ length: rowCount }, (_, i) => i)
   const topRows = rows.slice(0, TABLE_TOP_LIMIT)
@@ -220,7 +282,7 @@ export default function ArgumentTreesSection({
   const netLabel = `${net >= 0 ? '+' : ''}${net.toFixed(1)}`
 
   // §4 of THE_DENOMINATOR: a bare net "+9.2" floats free. Divide it by the
-  // belief's own total argument weight to get the justification score — the
+  // belief's own total argument weight to get the justification score: the
   // share (implied probability) and margin a reader can actually act on.
   const hasArgs = totalPro > 0 || totalCon > 0
   const share = truthShare(totalPro, totalCon)
@@ -234,44 +296,69 @@ export default function ArgumentTreesSection({
         Argument Trees
       </h2>
       <p className="text-sm text-[var(--muted-foreground)] mb-4">
-        Each argument is a belief with its own page. Scores are recursive: Argument Score ×{' '}
-        <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
-        <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link> ×{' '}
-        <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>{' '}
-        = Impact. Every score is a doorway — click it to enter the sub-debate that
-        produced it. Pro and con impacts sum to the Net Belief Score.
+        Each argument is a belief with its own page, and its Score is that page&apos;s truth score.
+        A row contributes{' '}
+        <strong>
+          sign × (2 × Truth − 1) × Confidence ×{' '}
+          <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
+          <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link> ×{' '}
+          <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>
+        </strong>
+        , and that is the Impact column. A reason nobody has argued sits at Truth 0.50, so it
+        reads exactly 0: listing a claim is worth nothing until it is argued. Confidence is how
+        much of the work behind the argument&apos;s page has been done; Uniqueness is whether this
+        row makes a point no other row has made. Both stay blank until the engine computes them.
+        Every score is a doorway: click it to enter the sub-debate that
+        produced it. Pro and con impacts sum to the Net Belief Score. A true-but-irrelevant
+        argument scores high on truth and near zero on linkage, so it contributes nothing.{' '}
+        <Link href="/algorithms/fallacy-detection" className="text-[var(--accent)] hover:underline">
+          Confirmed fallacy claims
+        </Link>{' '}
+        feed these factors too: a community-confirmed fallacy damages exactly the factor its type
+        targets (relevance fallacies hit Linkage, formal fallacies hit the validity component of
+        the Argument Score, evidence fallacies hit Evidence Quality) and is noted inline in the
+        argument cell. A fallacy accusation that has not been confirmed changes nothing.
       </p>
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
             <tr>
-              <th className="border border-gray-300 bg-green-100 text-center font-semibold px-3 py-2" colSpan={5}>
+              <th className="border border-gray-300 bg-green-100 text-center font-semibold px-3 py-2" colSpan={7}>
                 ✅ Reasons to Agree
               </th>
-              <th className="border border-gray-300 bg-red-100 text-center font-semibold px-3 py-2" colSpan={5}>
+              <th className="border border-gray-300 bg-red-100 text-center font-semibold px-3 py-2" colSpan={7}>
                 ❌ Reasons to Disagree
               </th>
             </tr>
+            {/* Spelled-out headers: no abbreviated column names. */}
             <tr className="bg-gray-100 text-xs">
-              <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Argument</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[20%]">Argument</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Score</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Confidence</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Imp</Link>
+                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link>
               </th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Impact</th>
-              <th className="border border-gray-300 px-2 py-1.5 text-left w-[22%]">Argument</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
+                <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[20%]">Argument</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Score</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Confidence</th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Link</Link>
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link>
               </th>
               <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
-                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Imp</Link>
+                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link>
               </th>
-              <th className="border border-gray-300 px-2 py-1.5 w-[6%]">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
+                <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Impact</th>
             </tr>
           </thead>
           <tbody>
@@ -281,7 +368,7 @@ export default function ArgumentTreesSection({
                 <HalfRow arg={conArgs[i]} />
               </tr>
             ))}
-            <ExpandableRows moreCount={restRows.length} colSpan={10}>
+            <ExpandableRows moreCount={restRows.length} colSpan={14}>
               {restRows.map(i => (
                 <tr key={i}>
                   <HalfRow arg={proArgs[i]} />
@@ -290,11 +377,11 @@ export default function ArgumentTreesSection({
               ))}
             </ExpandableRows>
             <tr className="bg-gray-100 italic text-[#666]">
-              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={4}>Pro Total:</td>
+              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={6}>Pro Total:</td>
               <td className="border border-gray-300 px-2 py-2 text-center font-mono text-green-700">
                 {totalPro > 0 ? `+${totalPro.toFixed(1)}` : ''}
               </td>
-              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={4}>Con Total:</td>
+              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={6}>Con Total:</td>
               <td className="border border-gray-300 px-2 py-2 text-center font-mono text-red-700">
                 {totalCon > 0 ? `-${totalCon.toFixed(1)}` : ''}
               </td>
@@ -320,7 +407,7 @@ export default function ArgumentTreesSection({
         {netInterpretation ?? (
           <span className="text-[var(--muted-foreground)] italic">
             {hasArgs
-              ? 'This is the internal denominator only — how lopsided the belief is versus its own rebuttals, not whether it beats its rivals.'
+              ? 'This is the internal denominator only: how lopsided the belief is versus its own rebuttals, not whether it beats its rivals.'
               : 'Interpretation appears once arguments are scored.'}
           </span>
         )}

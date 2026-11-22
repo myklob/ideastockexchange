@@ -1,0 +1,93 @@
+name: Publish site
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'tools/static-site/**'
+      - 'templates/**'
+      - 'tools/check_templates.py'
+      - 'tools/wiki_templates.py'
+      - 'index.html'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Enable Pages if the repository has no site yet
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Check that the Pages source is GitHub Actions
+        # The workflow token may read the site's configuration but not change it (the API answers 403), and
+        # deploy-pages cannot deliver to a site that still deploys from a branch, so fail here with the fix.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          site=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '{build_type, source, html_url, status}'); echo "Pages site: $site"
+          if [ "$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .build_type)" != workflow ]; then
+            echo '::error::This repository still deploys Pages from a branch. Open Settings, Pages, Build and deployment, and set Source to "GitHub Actions", then re-run this workflow.'
+            exit 1
+          fi
+      - run: pip install -r tools/static-site/requirements.txt
+      - name: Check the workbook and the reviewable CSVs are in step
+        # The CSVs are the record a person can read. If they lag the workbook, the diff a reviewer sees is not
+        # the change that shipped.
+        run: python3 tools/static-site/sync_content.py --check
+      - name: Refuse a circular argument before spending a build on it
+        # The scorer raises on a loop, part way through rendering. This says the same thing in one line,
+        # names the loop, and says it first.
+        run: python3 tools/static-site/integrity.py tools/static-site/content
+      - name: Test the scoring engine before anything is published
+        run: python3 -m unittest discover -s tools/static-site -p 'test_*.py' -v
+      - name: Check the page templates are the current ones
+        # A template is copied, not imported, so a stale one breaks nothing and quietly teaches the next
+        # dozen pages the wrong shape. Twelve of fourteen were stale when this step was added.
+        run: python3 tools/check_templates.py
+      - name: Check the wiki copies of the templates match the HTML
+        run: python3 tools/wiki_templates.py --check
+      - name: Check the suite actually checked something
+        # A green suite reports how many tests passed, not how much was checked. An assertion in a loop over
+        # an empty collection, or in a branch the corpus never reaches, passes and verifies nothing. Two of
+        # those were live when this step was added.
+        run: python3 tools/static-site/check_assertions.py
+      - name: Show the conformance corpus and its numbers
+        # The contract every implementation of the rules is checked against. Printed so a rule change is
+        # visible in the build log, not only in the diff.
+        run: python3 tools/static-site/conformance.py --print --check
+      - name: Render the belief pages from the two tables
+        run: |
+          python3 tools/static-site/render_site.py tools/static-site/ISE_Data_Entry.xlsx _site/beliefs | tee render.log
+          grep -q 'broken internal links: 0' render.log
+          cp index.html _site/index.html
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    # deploy-pages refuses to run outside an environment. If this job dies before its first step, the
+    # github-pages environment's branch policy is rejecting master: Settings, Environments, github-pages.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

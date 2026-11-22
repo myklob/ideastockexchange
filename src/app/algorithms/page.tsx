@@ -78,6 +78,12 @@ const groups: AlgorithmGroup[] = [
           'The redundancy penalty. Making one point five different ways scores as one point, not five.',
       },
       {
+        name: 'Decision Leverage',
+        href: '/algorithms/decision-leverage',
+        description:
+          'Which argument is worth settling next: the points of conclusion score still at stake on each edge, and which gap would close it.',
+      },
+      {
         name: 'Evidence Scores',
         href: '/algorithms/evidence-scores',
         description:
@@ -145,6 +151,19 @@ const groups: AlgorithmGroup[] = [
         href: '/cba/about',
         description:
           'How competing probability estimates for each predicted cost and benefit are scored, and the winner selected.',
+      },
+    ],
+  },
+  {
+    heading: 'The Narrative Layer',
+    blurb:
+      'Stories make claims too. These scores run the same pipeline over media — books, films, articles, podcasts — so genre never protects a work from evaluation.',
+    entries: [
+      {
+        name: 'Media Truth Score',
+        href: '/algorithms/media-truth-score',
+        description:
+          'A work’s signed score (-1 to +1): the centrality-weighted average of its extracted claims’ truth, starting from a genre prior. Epistemic Impact = truth × reach.',
       },
     ],
   },
