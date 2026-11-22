@@ -323,7 +323,7 @@ The 2025 page promised to keep improving the ESS and related measures by:
 
 | Promise | Status | What serves it |
 |---|---|---|
-| Highlight well-established beliefs | Built | The site labels Confidence of 0.75 or more "established" and lists Best beliefs with complete beliefs (meeting `publish.CORE_BAR`) first and drafts marked; the app labels a stabilityScore of 0.75 or more "robust". |
+| Highlight well-established beliefs | Built | The site labels Confidence of 0.75 or more "established" and lists Highest belief scores with complete beliefs (meeting `publish.CORE_BAR`) first and drafts marked; the app labels a stabilityScore of 0.75 or more "robust". |
 | Focus attention on unresolved issues | Built, three ways | (1) The site's What to argue next queue (each ranking is explained on the [lists page](https://myklob.github.io/ideastockexchange/beliefs/lists.html)) ranks pages by `work = ReasonRank x (1 - Confidence)`, beliefs left out because "work on the conclusion is not a work plan". (2) The sensitivity sweep reports what each input could do now and what it could do once settled. (3) The app's Decision Leverage and its [`/leverage`](https://github.com/myklob/ideastockexchange/blob/master/src/app/leverage/page.tsx) work queue. All three are described below. |
 | Promote reasoned debate by showing where consensus exists and where more scrutiny is needed | Built | Every site page prints a sensitivity headline naming what its conclusion rests on, its Confidence with the two weakest parts, and the Not filled in yet list. The app's page names each edge's widest gap ("Needs evidence", "Linkage undebated", "Sub-debate unscored", "No opposition yet") and the Evidence Ledger's retraction exposure. |
 

@@ -2640,7 +2640,7 @@ def render_contested(c, title):
     o = [root_head('Most argued over', [('Home', 'index.html'), ('Most argued over', '')], main_class='index')]
     o.append('<p class="kind">Idea Stock Exchange</p><h1>Most argued over</h1>')
     o.append('<p class="lede">The beliefs with the most reasons for and against, counted at every level beneath them. '
-             'This measures how much has been argued, not how well; the best argued are on <a href="best.html">Best beliefs</a>. '
+             'This measures how much has been argued, not how well; the best argued are on the <a href="best.html">Highest belief scores</a> list. '
              f'{explain("argued", "What this list means, how it is counted, and why it is tracked")}</p>')
     o.append(ranked(c, 'Ranked by reasons for and against', None, rows, 'Reasons', lambda p: str(n[p])) or '<section><p class="empty">Nothing is argued yet.</p></section>')
     o.append(stamp(c) + FOOT)
@@ -2691,8 +2691,8 @@ def best_table(c, bs, prefix='p/'):
     return ''.join(o)
 
 def render_best(c, title):
-    o = [root_head('Best beliefs', [('Home', 'index.html'), ('Best beliefs', '')], main_class='index')]
-    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Best beliefs</h1>')
+    o = [root_head('Highest belief scores', [('Home', 'index.html'), ('Highest belief scores', '')], main_class='index')]
+    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Highest belief scores</h1>')
     o.append('<p class="lede">Every belief on the site, the best argued first. Belief score is the weight for minus the weight against, from the '
              'reasons, findings and predictions beneath it; scored rows is how many of those there are. Truth is capped by the weakest '
              'load-bearing part that has a page, which is why a well-argued belief can still read 0.50.</p>')
@@ -2702,7 +2702,7 @@ def render_best(c, title):
     return ''.join(o)
 
 EXPLAIN = [
-    ('best', 'Best beliefs',
+    ('best', 'Highest belief scores',
      'Beliefs ranked by belief score: the weight of the rows for a belief minus the weight of the rows against it.',
      'Every reason, finding and prediction under a belief is a row, and every row gets a signed score. The score starts from the row\'s direction and how far its own page has been argued from 50-50 (two times its truth score minus one). That is multiplied by how much work stands behind the page (confidence), how relevant the row is (linkage), how much it matters (importance) and how little it repeats another row (uniqueness). Each of those numbers is argued on a page of its own. A row argued true adds weight to its side; a row argued false counts against it; a row nobody has argued sits at 50-50 and adds nothing. Ties go to the belief with more scored rows beneath it.',
      'So the best supported positions come first, and so that volume cannot buy a place: listing twenty reasons nobody has argued moves a belief exactly as far as listing none.',
@@ -2710,7 +2710,7 @@ EXPLAIN = [
     ('argued', 'Most argued over',
      'Beliefs with the most reasons for and against, counted at every level beneath them.',
      'Every reason under the belief is counted, then every reason under each of those, and so on down, each row once. A reason that appears in two places beneath the same belief is counted once.',
-     'To show where the debate has actually been worked through in depth, and where it has barely started. It measures how much has been argued, not how well, which is what Best beliefs is for. Hours spent arguing are not recorded anywhere, so they are not counted; the count of reasons is the part that can be checked.',
+     'To show where the debate has actually been worked through in depth, and where it has barely started. It measures how much has been argued, not how well, which is what the Highest belief scores list is for. Hours spent arguing are not recorded anywhere, so they are not counted; the count of reasons is the part that can be checked.',
      None),
     ('hardest', 'Hardest to resolve',
      'Beliefs ordered by the kind of disagreement they are, from the kind no measurement can settle to the kind one measurement could.',
@@ -2944,7 +2944,7 @@ def render_index(c, title):
     o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
     TOP = 3
     cards = [start_here(c), card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
-    cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
+    cards.append(card('Highest belief scores', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
                       'for the belief minus the weight against it, open ended, where 0 means balanced or not yet argued. The truth score under each '
                       'belief is the one its own page shows, 0 to 1, where 0.50 means the evidence so far has not moved it either way.',
                       mini(c, best_beliefs(c, TOP), 'Belief score', lambda p: sf(c.stats(p)['belief']), 'best', what='Belief',
