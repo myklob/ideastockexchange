@@ -22,6 +22,7 @@ Tables
              long_term, component, assumption, interest, shared_interest, compromise, motive, obstacle, bias, media,
              law, upstream, downstream, similar, person, value, definition, used, dispute, category, impact,
              interest_listing, related.
+  vote       key, on_page, login, vote, issue, date         what people said, from content/votes.csv; read by nothing that scores
   Scores are never stored: they are computed from these tables (score_reference.Model), so nothing typed is a score.
 """
 import json, sys, os, sqlite3, re
@@ -145,6 +146,19 @@ CREATE TABLE IF NOT EXISTS topic_row (
   attrs        TEXT                    -- JSON: the named extras (branch, argument, advertised, critics, validity, ...)
 );
 
+-- What people said, kept apart from what the analysis says. One row per (page key, on_page, GitHub login), the
+-- latest vote by that login on that question; the issue is where it was cast. Nothing reads this into a score.
+CREATE TABLE IF NOT EXISTS vote (
+  key          VARCHAR(64) NOT NULL,   -- the page key (page.id is the tab number; the key is the address)
+  on_page      VARCHAR(64) NOT NULL DEFAULT '',  -- empty: a vote on whether the claim is true; a page key: on whether
+                                                 -- the claim bears on that page, a vote on the argument as an argument
+  login        VARCHAR(64) NOT NULL,
+  vote         VARCHAR(8) NOT NULL,    -- agree or disagree; for a vote with on_page, agree means it bears there
+  issue        INTEGER,
+  date         DATE,
+  PRIMARY KEY (key, on_page, login)
+);
+
 CREATE INDEX IF NOT EXISTS edge_claim ON edge(claim_id);
 CREATE INDEX IF NOT EXISTS edge_page_section ON edge(page_id, section);
 
@@ -177,9 +191,16 @@ CREATE VIEW page_uses AS
 -- its normalised name, so "Meta Analysis" and "meta_analysis" are the same tier rather than a tier and
 -- nothing. The Python scorer does all three, and this view claims to be the same rule; a port that agrees on
 -- every row of one corpus and disagrees on typed input is a port that has not been checked.
+--
+-- A linkage or uniqueness page that names no tier and has one look starts at DEFLINK or DEFUNIQ, what a row
+-- with no such page reads, so opening the page to argue a row's relevance moves nothing until someone argues.
 CREATE VIEW page_start AS
   SELECT q.id, q.kind, q.etype, q.esiw, q.erq, q.erp,
-         0.5 + 0.5 * q.esiw * (2.0 * q.erp / 100.0 - 1)                  AS p0,
+         CASE WHEN q.esiw = 0 AND q.erq <= 1 AND q.kind = 'linkage'
+                THEN (SELECT value FROM constant WHERE name = 'DEFLINK')
+              WHEN q.esiw = 0 AND q.erq <= 1 AND q.kind = 'uniqueness'
+                THEN (SELECT value FROM constant WHERE name = 'DEFUNIQ')
+              ELSE 0.5 + 0.5 * q.esiw * (2.0 * q.erp / 100.0 - 1) END   AS p0,
          (SELECT value FROM constant WHERE name = 'K')
            * 2.0 * q.erq / (q.erq + 1)                                   AS weight
   FROM (SELECT p.id, p.kind, p.etype,
@@ -272,6 +293,7 @@ def build_sqlite(path, data_sql, schema=None):
 
 TOPIC_COLS = ['key', 'name', 'parent', 'definition', 'scope', 'axis']
 TOPIC_ROW_COLS = ['id', 'topic', 'section', 'category', 'side', 'claim_id', 'text', 'source', 'attrs']
+VOTE_COLS = ['key', 'on_page', 'login', 'vote', 'issue', 'date']
 
 def topic_tables(topics, topic_rows, tabs):
     """The topics table and a topic's rows in the export's shape: a claim key becomes the page id it names,
@@ -288,12 +310,14 @@ def topic_tables(topics, topic_rows, tabs):
                          'source': e.get('source') or None, 'attrs': parse_extra(e.get('extra')) if e.get('extra') else None})
     return ts, rows
 
-def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, beliefs=None, topics=None, topic_rows=None, tabs=None):
+def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, beliefs=None, topics=None, topic_rows=None, tabs=None, votes=None):
     pages, edges = normalize(specs, beliefs)
     ts, trows = topic_tables(topics, topic_rows, tabs)
+    vs = [{'key': v['key'], 'on_page': v.get('on') or '', 'login': v['login'], 'vote': v['vote'],
+           'issue': (int(v['issue']) if str(v.get('issue') or '').isdigit() else None), 'date': v.get('date') or None} for v in (votes or [])]
     constants = [{'name': k, 'value': v, 'meaning': (const_meanings or {}).get(k, '')} for k, v in consts.items()]
     os.makedirs(outdir, exist_ok=True)
-    data = {'constants': constants, 'pages': pages, 'edges': edges, 'topics': ts, 'topic_rows': trows}
+    data = {'constants': constants, 'pages': pages, 'edges': edges, 'topics': ts, 'topic_rows': trows, 'votes': vs}
     _write(os.path.join(outdir, stem + '.json'), json.dumps(data, indent=1, ensure_ascii=False))
     # XML
     def el(tag, d, cols):
@@ -302,7 +326,8 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
         return f'  <{tag}{attrs}>{inner}</{tag}>' if inner else f'  <{tag}{attrs}/>'
     xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<ise>', ' <constants>'] + [el('constant', c, ['name', 'value', 'meaning']) for c in constants] + [' </constants>', ' <pages>'] \
         + [el('page', p, PAGE_COLS) for p in pages] + [' </pages>', ' <edges>'] + [el('edge', e, EDGE_COLS) for e in edges] + [' </edges>', ' <topics>'] \
-        + [el('topic', t, TOPIC_COLS) for t in ts] + [' </topics>', ' <topic_rows>'] + [el('topic_row', r, TOPIC_ROW_COLS) for r in trows] + [' </topic_rows>', '</ise>']
+        + [el('topic', t, TOPIC_COLS) for t in ts] + [' </topics>', ' <topic_rows>'] + [el('topic_row', r, TOPIC_ROW_COLS) for r in trows] + [' </topic_rows>', ' <votes>'] \
+        + [el('vote', v, VOTE_COLS) for v in vs] + [' </votes>', '</ise>']
     _write(os.path.join(outdir, stem + '.xml'), '\n'.join(xml))
     # SQL
     _write(os.path.join(outdir, 'schema.sql'), SCHEMA)
@@ -322,6 +347,9 @@ def export(specs, consts, outdir, stem='ise_zoning', const_meanings=None, belief
     for r in trows:
         cols = [c for c in TOPIC_ROW_COLS if r.get(c) is not None]
         lines.append(f"INSERT INTO topic_row ({', '.join(cols)}) VALUES ({', '.join(sqlval(json.dumps(r[c], ensure_ascii=False) if c == 'attrs' else r[c]) for c in cols)});")
+    for v in vs:
+        cols = [c for c in VOTE_COLS if v.get(c) is not None]
+        lines.append(f"INSERT INTO vote ({', '.join(cols)}) VALUES ({', '.join(sqlval(v[c]) for c in cols)});")
     lines.append('COMMIT;')
     data_sql = '\n'.join(lines) + '\n'
     _write(os.path.join(outdir, stem + '_data.sql'), data_sql)

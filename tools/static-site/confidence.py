@@ -59,6 +59,13 @@ class Confidence:
     def of(self, pid):
         return self.parts(pid)['confidence']
 
+    def _worked(self, v):
+        """Has anything been put on this multiplier's page: a reason either way, or an interest listed?"""
+        sp = self.c.specs.get(v) if _is(v) else None
+        if not sp: return False
+        a = sp.get('args') or {}
+        return bool(a.get('agree') or a.get('disagree') or sp.get('interests'))
+
     def parts(self, pid, _seen=()):
         if pid in self._memo: return self._memo[pid]
         if pid in _seen: return {'confidence': 0.0, 'components': {}, 'na': [], 'cycle': True}
@@ -89,9 +96,10 @@ class Confidence:
         # scrutiny: of the multipliers on each row, how many have been argued on a page of their own
         # A listing row's only multiplier is its bearing page. It has no link, imp or uniq slot, so counting
         # those three as unfilled would cap an importance page's scrutiny at a quarter however complete it is.
+        # A page with nothing on it reads its starting constant, so it is a slot still resting on that constant.
         argued_rows = [d for d in rows if not any(d is x for x in listings)]
         slots = [d.get(k) for d in argued_rows + preds for k in ('link', 'imp', 'uniq')] + [d.get('addresses') for d in listings]
-        comp['scrutiny'] = (sum(1 for v in slots if _is(v)) / len(slots)) if slots else 0.0
+        comp['scrutiny'] = (sum(1 for v in slots if self._worked(v)) / len(slots)) if slots else 0.0
         # grounding: a claim is established either because the world backs it or because the claims beneath it
         # are themselves established. Whichever is stronger; a claim needs one of the two, not both.
         #   - own: how far its own cited source grounds it, which is the ESIW tier and nothing else. Finding a
@@ -113,7 +121,7 @@ class Confidence:
         else: na.append('sourcing')
         # structural only: dated, and someone has opened a linkage page to argue how diagnostic it is.
         # Deliberately never reads a truth score, so confidence cannot recurse through the scorer.
-        if preds: comp['testability'] = sum(1 for d in preds if d.get('deadline') and _is(d.get('link'))) / len(preds)
+        if preds: comp['testability'] = sum(1 for d in preds if d.get('deadline') and self._worked(d.get('link'))) / len(preds)
         else: na.append('testability')
 
         num = sum(STRUCTURAL[k] * v for k, v in comp.items())

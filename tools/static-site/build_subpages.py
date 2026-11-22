@@ -25,7 +25,7 @@ TYPES_MEDIA = 'Book,Study,Article,Report,Film,Podcast,Video,Other'
 VALUES = 'Fairness,Accountability,Rule of law,Liberty,Security,Opportunity,Free enterprise,Community,Stability,Privacy,Health,Sustainability,Status'
 
 def _defs_linkage():
-    return ['Linkage score: this page\'s truth score, the agree share of the scored weight here. Y\'s page reads it as the Link multiplier on X\'s row. The wiki\'s (A - D) / (A + D) form is 2 x this score - 1.',
+    return ['Linkage score: this page\'s truth score, the agree share of the scored weight here, shrunk toward the 0.50 starting point by weight k. Y\'s page reads it as the Link multiplier on X\'s row. The wiki\'s (A - D) / (A + D) form is 2 x this score - 1, once enough is argued here that the starting point no longer matters.',
             'The Type field changes the question. Prediction asks "if it were observed" (diagnosticity: a result both sides expect scores low). Interest makes this a bearing page: whether the row really speaks to an interest listed on its importance page. Media asks whether a work supports the conclusion at all.',
             'A relevance fallacy (straw man, whataboutism, ad hominem) is a reason to disagree on this page, scored like any other row. An accusation with no support changes nothing.']
 

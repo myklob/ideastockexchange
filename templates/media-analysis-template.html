@@ -14,24 +14,44 @@
   of the markup. Links point at this site's own routes; a page that has no
   route yet is named in plain text.
 
-  SECTION ORDER:
-    Breadcrumb (Home > Media > Title)
+  SECTION ORDER (the published static site, tools/static-site/render_site.py
+  render_media, follows it; where the two differ the line says "built site"):
+    Breadcrumb (Home > Media > Title; built site: Home > Books, studies and
+        reports > Best [kind] > Title, linking the list of best works)
     Header line (Creator, Year, Kind, Where to find it, Reviewed by)
     The two questions, kept apart on purpose
     Scorecard (Quality Score, Influence Score, Reach, Media Truth Score,
-        Epistemic Impact, Bottom line)
-    Beliefs This Work Carries
+        Epistemic Impact, Bottom line) (built site: no score sits above the
+        arguments, so the same values are rows of the Scoring Engine at the
+        foot of the page, with the Bottom line just above it. Reach and
+        Epistemic Impact are software only until a work carries a typed Reach
+        with its source; the site prints "not recorded" rather than a guess.
+        Media Truth Score is printed as "Accuracy of what it backs".)
+    Beliefs This Work Carries (built site: read from the belief pages that
+        cite the work under Media Resources; centrality is that row's Bears
+        linkage page)
     Quality Arguments
     Influence Arguments
-    The Strongest Case the Work Leaves Out
+    The Strongest Case the Work Leaves Out (built site: the best-scoring
+        reason on the other side of each belief page, read from that page)
     Persuasion Patterns
-    Who Gains if the Audience Believes It
+    Who Gains if the Audience Believes It (built site: the interests each
+        belief page lists for the side the work takes, plus rows on the page)
     Is It a Great Work? Evidence and Objective Criteria (carried over from the
         retired quality template)
-    Worked Examples and Definitions
+    Predictions the Work Made (from the owner's book analysis page)
+    Hidden Assumptions and Bias Risks
+    Worked Examples and Definitions (built site: Definitions only; the worked
+        examples have no route there yet)
     Scoring Engine
-    Contribute
+    Contribute (built site: a form under every table, and Agree and Disagree
+        vote links on the heading line; a vote never moves a score)
     Version line
+
+  A work is best until shown otherwise, and best by what is argued too. The
+  list of works (templates/media_index.html, media.html on the built site)
+  ranks each kind of work under every yardstick for best; a criterion typed
+  in this page's Objective Criteria table is one of those yardsticks.
 -->
 <div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
 <p style="display: none;">AUTHORING RULES (hidden text; leave in place, readers never see this). This is the per-work media page: one work, one page, the media-side twin of the Media Resources table on belief pages. 1. Nothing typed on this page is a score. Every number is read from a page (a belief page, a linkage page, the pro/con tables below) or computed from those. The one typed number is Reach, and it carries its source. 2. Enter every belief the work carries as the claim it actually advocates, in positive form, one row per belief. A work that mocks a position is entered as the claim its mockery advances. No topic-label cells: each row must read as a complete claim whose truth can be argued. 3. Rows rank by their score column, never by editorial placement. A row without a page is plain text and contributes 0 until its page exists. 4. No worked numbers on this page. Examples live on their own pages (the worked media evaluation and the Hamlet pages); link when the page exists, do not restate. 5. Naming a persuasion pattern (strawman, incoherent character, rewarded choice) is an argument like any other: it enters a table, gets replies, and changes nothing until it outscores them. No automatic penalty. 6. Craft and truth are scored on different tables and never mixed. A beautifully made work can carry false claims; a dull one can carry true ones. 7. Link this site's own routes (/media, /beliefs/[slug], /algorithms/*). Never link to a page that does not exist; use plain text until it does. Contact routes to /contact or the GitHub repository, never an email address. No em dashes anywhere on the page; use commas, parentheses, or separate sentences.</p>
@@ -325,6 +345,46 @@
 <tr style="background-color: #f9f9f9;">
 <td><em>[Failing criterion: one that feels relevant and is not, for example opening-weekend gross or chart position]</em><br /><span style="font-size: 85%; color: #666;">[why it tracks marketing spend or release timing rather than the work]</span></td><td>[How it would be measured]</td><td style="text-align: center;">Low</td><td style="text-align: center;">Low</td><td>&nbsp;</td><td style="text-align: center; color: #c0392b;"><strong>[low]</strong></td>
 </tr>
+</tbody>
+</table>
+<hr />
+<h2>🔮 Predictions the Work Made</h2>
+<p style="font-size: .85em; color: #666;">What the work said would happen, and how it turned out. Shown, not counted: a prediction that failed is a reason to disagree under Quality Arguments (Errors of fact or Weak reasoning), where it is scored. Rows stay out until the work actually made the prediction; quote or cite where.</p>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<thead>
+<tr style="background-color: #f0f3f6;">
+<th style="width: 44%;">Prediction (where in the work)</th><th style="width: 16%;">By when</th><th style="width: 40%;">How it turned out (source)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[What the work said would happen, as one sentence (chapter, scene or page)]</td><td>[Date or event]</td><td>[Borne out / Not borne out / Not settled yet, with the source that settles it]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>🧱 Hidden Assumptions and Bias Risks</h2>
+<p style="font-size: .85em; color: #666;">What has to be true for the Quality and Influence scores above to hold, and the habits of thought that could be inflating or deflating them. Each is a claim with its own page, scored like any other; enter a premise the work's message needs as a belief row above, carried "assumed in the premise".</p>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<thead>
+<tr>
+<th style="width: 50%; background-color: #e9f7ea; color: #2e6f40;">Required for the scores to hold</th>
+<th style="width: 50%; background-color: #fbeaea; color: #a23b3b;">Required for them to fail</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>[Assumption, as a complete sentence]</td><td>[Assumption, as a complete sentence]</td></tr>
+</tbody>
+</table>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse; margin-top: 8px;">
+<thead>
+<tr>
+<th style="width: 50%; background-color: #e9f7ea; color: #2e6f40;">Biases that inflate this work's scores</th>
+<th style="width: 50%; background-color: #fbeaea; color: #a23b3b;">Biases that deflate them</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>[Bias, and where it shows]</td><td>[Bias, and where it shows]</td></tr>
 </tbody>
 </table>
 <hr />

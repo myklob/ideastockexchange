@@ -330,6 +330,25 @@ class TestTheThingsReviewFound(unittest.TestCase):
         m = Model(pages, CONSTS, edges=edges); m.conf = lambda pid: 1.0
         with self.assertRaises(CircularSupport): m.truth(1)
 
+    def test_a_chain_of_any_length_is_scored_without_the_stack(self):
+        """The scorer read a chain one Python call inside the last, five calls a page, so a chain of about 200
+        failed and the filer refused any post that would make one. It now scores what a page rests on first,
+        deepest first, so length costs no stack and the numbers are the ones a page-by-page pass gives."""
+        import evidence
+        n, old = 3000, sys.getrecursionlimit()
+        pages = [{'id': i, 'kind': 'belief' if i == 1 else 'claim', 'text': f'p{i}'} for i in range(1, n + 1)]
+        pages[-1].update(etype=next(iter(evidence.ESIW)), erq=3, erp=90)
+        edges = [{'id': i, 'page_id': i, 'section': 'argument', 'side': 'agree' if i % 3 else 'disagree', 'position': 1,
+                  'claim_id': i + 1} for i in range(1, n)]
+        m = Model(pages, CONSTS, edges=edges); m.conf = lambda pid: 1.0
+        top = m.truth(1)
+        self.assertEqual(sys.getrecursionlimit(), old)
+        ref = Model(pages, CONSTS, edges=edges); ref.conf = lambda pid: 1.0
+        for i in range(n, 0, -1): ref.truth(i)
+        self.assertEqual([m.truth(i) for i in range(1, n + 1)], [ref.truth(i) for i in range(1, n + 1)])
+        self.assertNotEqual(round(m.truth(n - 1), 6), 0.5, 'the leaf cites nothing that moves it, so this checks nothing')
+        self.assertTrue(0 < top < 1)
+
     def test_confidence_does_not_depend_on_which_page_is_asked_first(self):
         """A result computed with a cycle truncated below it is path-dependent, so caching one of the two
         answers publishes whichever happened to be asked first."""
@@ -352,11 +371,15 @@ class TestTheThingsReviewFound(unittest.TestCase):
         pages = [{'id': 1, 'kind': 'importance', 'x_id': 3, 'y_id': 4},
                  {'id': 2, 'kind': 'interest', 'text': 'an interest'},
                  {'id': 3, 'kind': 'claim', 'text': 'x'}, {'id': 4, 'kind': 'belief', 'text': 'y'},
-                 {'id': 5, 'kind': 'linkage', 'x_id': 3, 'y_id': 2}]
+                 {'id': 5, 'kind': 'linkage', 'x_id': 3, 'y_id': 2}, {'id': 6, 'kind': 'claim', 'text': 'z'}]
         edges = [{'id': 1, 'page_id': 1, 'section': 'interest_listing', 'side': None, 'position': 1,
-                  'claim_id': 2, 'bearing_id': 5}]
+                  'claim_id': 2, 'bearing_id': 5},
+                 {'id': 2, 'page_id': 5, 'section': 'argument', 'side': 'agree', 'position': 1, 'claim_id': 6}]
         k = Confidence(TableCorpus(pages, edges))
         self.assertAlmostEqual(k.parts(1)['components']['scrutiny'], 1.0)
+        # a bearing page nobody has put anything on still reads its starting constant, so it earns nothing
+        k = Confidence(TableCorpus(pages, edges[:1]))
+        self.assertEqual(k.parts(1)['components']['scrutiny'], 0.0)
         self.assertNotIn('two_sided', k.parts(1)['components'], 'an importance page has no sides to argue')
 
     def test_the_two_ways_into_the_scorer_agree_about_a_pinned_page(self):

@@ -70,7 +70,7 @@ weights. Two notes an auditor should have:
     unclassified; nothing else depends on it.
 
 The wiki's own Overall EVS, ESIW x ECRS x ERQ x (ERP/100) summed over a page's evidence, is still computed and
-reported by evs() below. Nothing reads it. It is unbounded on purpose and is good at the one thing a bounded
+reported by evs() below. Every Evidence Ledger shows it, for comparison; no score reads it. It is unbounded on purpose and is good at the one thing a bounded
 score cannot show: a page whose Overall EVS is 30 rests on a body of replicated work, and a page whose Overall
 EVS is 0.4 rests on one uncorroborated claim.
 """
@@ -100,6 +100,10 @@ NOSOURCE = 0.0   # no source type named: no pull either way, so the page starts 
 DEFESIW = NOSOURCE
 REP_CAP = 2.0    # the most replication can be worth: a prior replicated without limit weighs double k, never more
 FIELDS = ('etype', 'erq', 'erp')
+# A linkage or uniqueness page that cites nothing starts where a row with no such page reads (DEFLINK, DEFUNIQ in
+# score_reference.CONSTS, and a test keeps the two equal), so opening the page to argue a row's relevance moves
+# nothing until somebody argues on it. It used to start at 0.5, which halved a row the moment its page existed.
+FACTOR_START = {'linkage': 1.0, 'uniqueness': 1.0}
 
 
 def replication(n):
@@ -141,13 +145,15 @@ def prior(page, k=1.0):
     """Where this page's truth starts, and how heavily, before any of its own rows are counted.
 
     Returns p0 in [0,1] and weight > 0. A page that declares nothing returns exactly (0.5, k), which is the
-    neutral start the engine always had."""
+    neutral start the engine always had, except a linkage or uniqueness page, which starts at FACTOR_START."""
     c = classify(page)
     c['p0'] = 0.5 + 0.5 * c['esiw'] * (2.0 * c['erp'] / 100.0 - 1.0)
     c['rep'] = replication(c['erq'])
     c['weight'] = k * c['rep']
     c['classified'] = c['key'] is not None
     c['grounded'] = c['classified'] or c['erq'] > 1
+    c['factor'] = not c['grounded'] and (page or {}).get('kind') in FACTOR_START
+    if c['factor']: c['p0'] = FACTOR_START[page['kind']]
     return c
 
 
@@ -158,9 +164,13 @@ def evs(row, ecrs):
     return c['esiw'] * float(ecrs) * c['erq'] * (c['erp'] / 100.0)
 
 
-def label(page):
-    """One line describing what a page rests on, for the page itself and for any row that cites it."""
-    c = prior(page or {})
+def label(page, k=1.0):
+    """One line describing what a page rests on, for the page itself and for any row that cites it, ending with
+    the tier weight and both formulas with this page's own numbers filled in, so the starting point printed beside
+    it can be checked without the method page."""
+    c = prior(page or {}, k)
+    if c['factor']:
+        return f'Nothing argued yet, so it starts at {c["p0"]:.2f}, what a row with no {page["kind"]} page reads, and only arguments here move it'
     if not c['grounded']:
         return 'Nothing observed: no source type recorded, so this claim starts at a coin flip'
     bits = [c['meaning']]
@@ -170,7 +180,14 @@ def label(page):
         shown = str(int(n)) if n == int(n) else f'{n:g}'
         bits.append(f"{shown} independent replication{'' if n == 1 else 's'}, {c['erp']:.0f}% consistent")
     bits.append(f"starts at {c['p0']:.2f} with weight {c['weight']:.2f}")
-    return ', '.join(bits)
+    return ', '.join(bits) + ' (' + working(c, k) + ')'
+
+
+def working(c, k=1.0):
+    """The arithmetic behind a starting point, from a prior() result: tier weight, then p0 and w worked out."""
+    n = lambda v: f'{v:g}'
+    return (f"tier weight {c['esiw']:.2f}; starting point 0.5 + 0.5 x {c['esiw']:.2f} x (2 x {n(c['erp'])}/100 - 1) = {c['p0']:.2f}; "
+            f"weight {n(k)} x 2 x {n(c['erq'])} / ({n(c['erq'])} + 1) = {c['weight']:.2f}")
 
 
 def tiers():

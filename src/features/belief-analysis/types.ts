@@ -5,7 +5,7 @@
  * Every per-row table on the belief page carries a nullable relationship
  * score: the ReasonRank performance of that row's own pro/con sub-debate
  * about its relationship to the belief. Rows enter and rank only by this
- * score — never by editorial placement. Null renders blank (Rule 6);
+ * score, never by editorial placement. Null renders blank (Rule 6);
  * tables sort by score descending with the highest-scoring content first.
  */
 export interface DefinitionItem {
@@ -93,13 +93,13 @@ export interface BeliefWithRelations {
    * Claim Strength (0-1): how much this belief asserts, and therefore how much evidence
    * it requires to be defensible. Four bands: Weak (0.2) / Moderate (0.5) / Strong (0.8) / Extreme (1.0).
    * A weak claim can achieve a high score with modest evidence. An extreme claim must earn its
-   * score through extraordinary evidence — or it scores near zero. See /algorithms/strong-to-weak.
+   * score through extraordinary evidence, or it scores near zero. See /algorithms/strong-to-weak.
    */
   claimStrength: number
   /**
    * Specificity (0-1): position on the abstraction ladder, where 0 is a highly general
    * principle and 1 is a single concrete instance. The same evidence can support a
-   * specific belief strongly while supporting its general parent only weakly — so
+   * specific belief strongly while supporting its general parent only weakly, so
    * specificity has to live alongside valence and claim strength, not be folded into them.
    */
   specificity: number
@@ -142,7 +142,7 @@ export interface BeliefWithRelations {
   impactEntries?: ImpactEntryItem[]
 
   /**
-   * The contrast class — the mutually exclusive rivals this belief is priced
+   * The contrast class, the mutually exclusive rivals this belief is priced
    * against (the denominator made visible). Optional so existing beliefs keep
    * flowing; populate via seed as topic option sets land. See
    * docs/THE_DENOMINATOR.md and src/core/scoring/contrast-class.ts.
@@ -150,7 +150,7 @@ export interface BeliefWithRelations {
   contrastClass?: ContrastClassData | null
 
   /**
-   * Recorded movements of this belief's engine-computed scores, latest first —
+   * Recorded movements of this belief's engine-computed scores, latest first , 
    * the accumulation ledger rendered as Score History. Optional so existing
    * callers keep flowing; populated by fetchBeliefBySlug for the page.
    */
@@ -237,6 +237,10 @@ export interface ArgumentWithBelief {
    *  Null until the engine computes it at scoring time (Rule 6). Optional so
    *  existing Prisma data still flows. */
   uniquenessScore?: number | null
+  /** Confidence (0-1): how much of the work behind the argument's own page has
+   *  been done. Null until the engine computes it (Rule 6). Optional so
+   *  existing Prisma data still flows. */
+  confidenceScore?: number | null
   linkageType: string
   /** ECLS = Evidence-to-Conclusion, ACLS = Argument-to-Conclusion */
   linkageScoreType: string
@@ -271,7 +275,7 @@ export interface ArgumentWithBelief {
   fallacyClaims?: ConfirmedFallacyNote[]
 
   /** Agent-ingestion provenance (all optional so existing data still flows).
-   *  Display and audit only — never a scoring input. */
+   *  Display and audit only, never a scoring input. */
   rationale?: string | null
   submittedByAgent?: { id: string; name: string; operator: string | null } | null
   linkageFiveStepCheck?: {
@@ -323,6 +327,10 @@ export interface EvidenceItem {
   evsScore: number
   linkageScore: number
   impactScore: number
+  /** Confidence (0-1) and Uniqueness (0-1), the ledger's two engine columns.
+   *  Null until the engine computes them (Rule 6); optional so existing data flows. */
+  confidenceScore?: number | null
+  uniquenessScore?: number | null
   /** Ledger display "Finding (Producer, Year)". Optional so existing data flows. */
   producer?: string | null
   year?: number | null
@@ -357,6 +365,12 @@ export interface PersonOnRecordItem {
   side: string // "agree" | "disagree"
   name: string
   sourceUrl: string | null
+  /** Where the position was stated (the bill, the floor statement, the column,
+   *  the interview) and its date, for the Source column. Optional so existing
+   *  Prisma data still flows; the cell falls back to the link and otherwise
+   *  stays blank. A name with no source is a rumour, not a record. */
+  sourceLabel?: string | null
+  sourceDate?: string | null
   /** The listing itself is a debatable claim; contested rows carry the dispute note. */
   contested: boolean
   contestedNote: string | null
@@ -382,25 +396,25 @@ export interface ObjectiveCriteriaItem {
   /** How the criterion is measured (new template column). */
   howToMeasure?: string | null
   /**
-   * Where the metric currently sits — e.g., "labor-force participation flat at 62.5%".
+   * Where the metric currently sits, e.g., "labor-force participation flat at 62.5%".
    * Optional; renders blank if not provided.
    */
   currentStatus?: string | null
   /** The target/threshold that would settle the debate (new template column). */
   target?: string | null
-  /** Reading supporters predict — falls back to `target` when unset. */
+  /** Reading supporters predict, falls back to `target` when unset. */
   strengthenReading?: string | null
   /** Reading opponents predict; a criterion both sides expect to read the same tests nothing. */
   weakenReading?: string | null
   /**
-   * The threshold both sides agreed (or could agree) constitutes resolution —
+   * The threshold both sides agreed (or could agree) constitutes resolution , 
    * e.g., "+2pp sustained over 3 years would settle the debate".
    */
   thresholdForAgreement?: string | null
 }
 
 /**
- * One mutually exclusive option in a belief's contrast class — a rival answer
+ * One mutually exclusive option in a belief's contrast class, a rival answer
  * to the same topic question, competing for the same slot. The denominator for
  * the focal belief is the rest of this set (its best rival, in particular).
  */
@@ -413,12 +427,12 @@ export interface ContrastClassOption {
   oneLine?: string | null
   /**
    * S(o): the option's argument-tree score on a common scale. May be signed.
-   * Null renders blank (Rule 6) — the class is still shown, just without OCV.
+   * Null renders blank (Rule 6), the class is still shown, just without OCV.
    */
   score: number | null
   /** Slug to the option's own belief page; plain text when null (Rule 5). */
   slug?: string | null
-  /** True for the focal belief — the page this contrast class lives on. */
+  /** True for the focal belief, the page this contrast class lives on. */
   isFocal?: boolean
 }
 
@@ -494,13 +508,13 @@ export interface ValuesAnalysisData {
   /** Answer to "What would shift these rankings?" beneath the Shared Values table. */
   whatWouldShift?: string | null
   /**
-   * Optional structured rankings — top-3 values per side with cross-ranking and gap.
+   * Optional structured rankings, top-3 values per side with cross-ranking and gap.
    * Empty array means "not yet collected"; the section renders placeholder rows.
    */
   priorityRankings?: ValuePriorityRankingItem[]
   /** Values both sides hold but rank differently here, with per-side context. */
   sharedPriorities?: SharedValuePriorityItem[]
-  /** Where each side defends the value they deprioritize on this topic — hypocrisy detector. */
+  /** Where each side defends the value they deprioritize on this topic, hypocrisy detector. */
   crossContextChecks?: CrossContextConsistencyItem[]
 }
 
@@ -553,7 +567,7 @@ export interface InterestsAnalysisData {
   primaryPairOpponentValidity?: number | null
   primaryPairOpponentClaim?: string | null
   primaryPairOpponentDrives?: string | null
-  /** Optional structured rankings — same shape as Value Priority Rankings. */
+  /** Optional structured rankings, same shape as Value Priority Rankings. */
   priorityRankings?: InterestPriorityRankingItem[]
   /** Per-conflict explanation of why the conflict exists. */
   sharedVsConflicting?: SharedConflictingInterestItem[]
@@ -571,14 +585,14 @@ export interface InterestsAnalysisData {
 /**
  * A single interest's validity debate across the three scopes (valid at all,
  * generally more/less valid than other interests, valid within a specific
- * scenario). Validity traces entirely to the scored reasons below — never to who
+ * scenario). Validity traces entirely to the scored reasons below, never to who
  * holds the interest or how loudly it is asserted. All scores are nullable so
  * cells render blank until grounded in real sub-arguments (Rule 6).
  */
 export interface InterestValidityDebate {
   /** The interest stated as a need, fear, or desire. */
   interest: string
-  /** Maslow band this interest starts from — a prior, not a verdict. e.g. "Safety 70-85". */
+  /** Maslow band this interest starts from, a prior, not a verdict. e.g. "Safety 70-85". */
   maslowPrior?: string | null
 
   // ── Scope 1: Is this interest valid at all? ───────────────────────────────
@@ -788,7 +802,7 @@ export interface SimilarBeliefItem {
   toBelief: { id: number; slug: string; statement: string }
 }
 
-// Computed scores for a belief — all 11 ReasonRank score dimensions
+// Computed scores for a belief, all 11 ReasonRank score dimensions
 export interface BeliefScores {
   // ── Raw totals (unchanged from original) ───────────────────────────────
   totalPro: number

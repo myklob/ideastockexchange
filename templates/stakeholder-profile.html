@@ -1,375 +1,200 @@
-<!DOCTYPE html>
-<!-- ISE TEMPLATE: Individual Stakeholder Profile
-     Usage: One page per stakeholder. Replace [BRACKETED] placeholders.
-     Sections:
-       1. Demographics & Representation
-       2. Power Dynamics (5 dimensions)
-       3. Active Conflict Nodes (cross-links)
-       4. Interest Profile (ranked by composite score across all conflicts)
+<!-- page=Group Profile Template -->
+<!-- content-type=text/html -->
+<!--
+  ===== ISE GROUP PROFILE TEMPLATE (2026-10-04, GitHub form) =====
+  One page per group of people with a stake in the beliefs here: renters,
+  current homeowners, officeholders, voters, workers. The file keeps its old
+  name so links do not break; the word "stakeholder" does not appear on the
+  page a reader sees. A group is read off its interests: every interest is a
+  need with a subject ("renters need housing they can afford"), and the
+  subject is the group. This page collects every need filed for one group,
+  across every belief that lists it, and the three scores each need carries.
+
+  Brought to the Interest Scoring Methodology (owner's page, 2026-10-03).
+  Retired by that methodology, and gone from this template: the Power
+  Dynamics section (five power dimensions averaged into an Influence score;
+  power never sets a score, and what a group can do without a deal is read
+  on its own track); the Composite column (Validity x 0.6 + Linkage x 0.4,
+  replaced by Drive = Linkage Accuracy x Validity / 100, computed and never
+  typed); the "Invalid / Zero-Sum, de-weighted" marker (a real motive that
+  fails the mirror test is scored and kept, not de-weighted or deleted);
+  Representation Confidence as a 0 to 100 score (how well the record speaks
+  for the group is now a note with its sources, not a number); and the
+  clickable rows pointing at /conflict/[id] and /stk/[id], routes that never
+  existed.
+
+  The authoring rules readers never see are in the hidden paragraph at the
+  top of the markup. Links point at this site's own routes; a page that has
+  no route yet is named in plain text.
+
+  SECTION ORDER:
+    Breadcrumb
+    Who they are (size with source, how organised, how well the record speaks for them)
+    The three scores every need carries
+    What this group needs (every interest filed for it, ranked by Linkage Accuracy)
+    The alibi test: does the record bear out each need?
+    The mirror test: six criteria
+    Where a need starts: the Maslow rungs
+    Bad motives are scored, not deleted
+    Beliefs this group has a stake in
+    Where the scores go
+    Related pages
+    Contribute
+    Version line
 -->
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<title>[Stakeholder Name], Stakeholder Profile, ISE</title>
-<style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; background: #f4f6f9; margin: 0; padding: 0; }
-  .page { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
-  h1 { font-size: 22px; color: #1a365d; margin-bottom: 6px; }
-  h2 { font-size: 17px; color: #1a365d; margin: 26px 0 8px; font-family: 'Segoe UI', Arial, sans-serif; }
-  a  { color: #2b6cb0; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-
-  .breadcrumb { font-size: 12px; color: #666; margin-bottom: 14px; }
-  .meta-box   { background: #f9f9f9; border: 1px solid #ddd; border-left: 4px solid #2b6cb0; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-  .meta-box .right { text-align: right; font-size: 12px; color: #666; }
-
-  .badge { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 10px; background: #e2e8f0; color: #333; border: 1px solid #cbd5e0; margin-right: 4px; }
-  .badge-blue  { background: #ebf8ff; color: #2b6cb0; border-color: #bee3f8; }
-  .badge-green { background: #f0fff4; color: #276749; border-color: #9ae6b4; }
-
-  table { border-collapse: collapse; width: 100%; margin-bottom: 8px; font-size: 13px; }
-  th { background: #f0f3f6; font-weight: 600; text-align: left; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px; }
-  td { padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; }
-  tr:hover td { background: #f8fafc; }
-  .clickable:hover td { background: #f0f7ff; cursor: pointer; }
-  .sub { font-size: 11px; color: #777; margin-top: 2px; }
-
-  .score-high { color: #2e7d32; font-weight: bold; }
-  .score-mid  { color: #f57c00; font-weight: bold; }
-  .score-low  { color: #c62828; font-weight: bold; }
-
-  /* Power bar */
-  .pbar-wrap  { display: flex; align-items: center; gap: 6px; }
-  .pbar-track { width: 80px; height: 7px; background: #e2e8f0; border-radius: 4px; flex-shrink: 0; }
-  .pbar-fill  { height: 7px; border-radius: 4px; }
-
-  /* Maslow badge */
-  .maslow { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 3px; border: 1px solid rgba(0,0,0,.1); white-space: nowrap; }
-  .maslow-physio  { background: #c8e6c9; }
-  .maslow-safety  { background: #b3e5fc; }
-  .maslow-belong  { background: #fff9c4; }
-  .maslow-esteem  { background: #ffe0b2; }
-  .maslow-self    { background: #e1bee7; }
-  .maslow-invalid { background: #ffcdd2; }
-
-  /* Position badge */
-  .pos-supp { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
-  .pos-opp  { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
-  .pos-mix  { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #fff9c4; color: #f57c00; border: 1px solid #ffe082; }
-
-  .callout-grey   { background: #f7fafc; border: 1px solid #e2e8f0; border-left: 4px solid #718096; padding: 12px 16px; font-size: 13px; margin-top: 10px; }
-  .callout-blue   { background: #f4f9ff; border: 1px solid #bee3f8; border-left: 4px solid #2b6cb0; padding: 12px 16px; font-size: 13px; margin-top: 16px; }
-  .callout-yellow { background: #fefce8; border: 1px solid #fde68a; border-left: 4px solid #eab308; padding: 12px 16px; font-size: 13px; margin-top: 10px; }
-  hr { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
-  .invalid-note { font-size: 11px; color: #c62828; margin-top: 2px; }
-</style>
-</head>
-<body>
-<div class="page">
-
-  <!-- Breadcrumb -->
-  <p class="breadcrumb">
-    <a href="/">Home</a> ›
-    Stakeholder Directory ›
-    <strong>[Stakeholder Name]</strong>
-  </p>
-
-  <!-- ── PAGE HEADER ── -->
-  <div class="meta-box">
-    <div>
-      <p style="margin:0;">
-        <strong>Type:</strong> [e.g., Government Institution]
-        &nbsp;|&nbsp;
-        <strong>Primary Power:</strong> [e.g., Military / Institutional]
-      </p>
-      <p style="margin:4px 0 0;">
-        <span class="badge badge-blue">Influence: <strong>[N]/100</strong></span>
-        <span class="badge badge-green">Rep. Confidence: <strong>[N]/100</strong></span>
-        <span class="badge">Conflicts: <strong>[N]</strong></span>
-      </p>
-    </div>
-    <div class="right">
-      Framework: ISE Interest Analysis<br />
-      <a href="https://github.com/myklob/ideastockexchange">GitHub</a>
-    </div>
-  </div>
-
-  <h1>Stakeholder Profile: [Stakeholder Name]</h1>
-  <p style="font-size:13px; color:#555; margin-top:4px; margin-bottom:20px;">
-    [Full description, 2-4 sentences covering who this group is, how they are organized,
-    and what distinguishes them from similar groups.]
-  </p>
-
-  <!-- ════════════════════════════════════════════════
-       SECTION 1, DEMOGRAPHICS & REPRESENTATION
-       ════════════════════════════════════════════════ -->
-  <h2>👥 Demographics &amp; Representation</h2>
-  <p style="font-size:13px; color:#555;">
-    How large is this group, and how accurately does the ISE data capture their interests?
-    Representation Confidence reflects the quality and breadth of evidence used to map this stakeholder.
-  </p>
-
-  <table>
-    <thead>
-      <tr>
-        <th width="30%">Stakeholder Group</th>
-        <th width="30%">Description</th>
-        <th width="15%">Population Estimate</th>
-        <th width="10%">% of Total</th>
-        <th width="15%">Representation Confidence</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>[Stakeholder Name]</strong></td>
-        <td>[Brief description]</td>
-        <td>[e.g., ~75,000]</td>
-        <td>[e.g., &lt;0.1%]</td>
-        <td class="score-high">[e.g., 82]/100</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="callout-grey">
-    <strong>Note on representation:</strong>
-    [Explain any limitations, e.g., "Diaspora voices may not accurately represent
-    the preferences of Iranians inside Iran" or "Polling data from authoritarian states
-    is subject to social desirability bias."]
-  </div>
-
-  <hr />
-
-  <!-- ════════════════════════════════════════════════
-       SECTION 2, POWER DYNAMICS
-       ════════════════════════════════════════════════ -->
-  <h2>⚡ Power Dynamics</h2>
-  <p style="font-size:13px; color:#555;">
-    Scores (0-100) across five dimensions. Total Influence = simple average.
-    <em>Power determines who can force an outcome, not whose interests are most legitimate.</em>
-  </p>
-
-  <table>
-    <thead>
-      <tr>
-        <th title="Electoral and legislative influence">Political</th>
-        <th title="Financial resources, sanctions, trade">Economic</th>
-        <th title="Armed force, coercive capacity">Military</th>
-        <th title="Media, public opinion, soft power">Narrative</th>
-        <th title="Legal, treaty, procedural authority">Institutional</th>
-        <th>Total Influence (avg)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <!-- Replace [N] and barcolor (#2e7d32 high / #f57c00 mid / #c62828 low) -->
-        <td>
-          <div class="pbar-wrap">
-            <div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:[barcolor];"></div></div>
-            <span class="score-high">[N]</span>
-          </div>
-        </td>
-        <td>
-          <div class="pbar-wrap">
-            <div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:[barcolor];"></div></div>
-            <span class="score-mid">[N]</span>
-          </div>
-        </td>
-        <td>
-          <div class="pbar-wrap">
-            <div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:[barcolor];"></div></div>
-            <span class="score-high">[N]</span>
-          </div>
-        </td>
-        <td>
-          <div class="pbar-wrap">
-            <div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:[barcolor];"></div></div>
-            <span class="score-mid">[N]</span>
-          </div>
-        </td>
-        <td>
-          <div class="pbar-wrap">
-            <div class="pbar-track"><div class="pbar-fill" style="width:[N]%; background:[barcolor];"></div></div>
-            <span class="score-high">[N]</span>
-          </div>
-        </td>
-        <td style="font-size:1.2em;" class="score-high"><strong>[avg]/100</strong></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="callout-grey">
-    <strong>How this stakeholder exercises power:</strong>
-    [2-3 sentences, e.g., "Controls military force authorization and intelligence operations.
-    Narrative power through classified briefings and selective press leaks.
-    Institutional leverage via security council procedures and interagency processes."]
-  </div>
-
-  <hr />
-
-  <!-- ════════════════════════════════════════════════
-       SECTION 3, ACTIVE CONFLICT NODES
-       ════════════════════════════════════════════════ -->
-  <h2>⚔️ Active Conflict Nodes</h2>
-  <p style="font-size:13px; color:#555;">
-    Every debate or policy conflict this stakeholder is mapped to.
-    Click a conflict to view the full interest analysis for that context.
-  </p>
-
-  <table>
-    <thead>
-      <tr>
-        <th width="40%">Conflict / Policy Debate</th>
-        <th width="20%">Role</th>
-        <th width="15%">Position</th>
-        <th width="10%">Interests Mapped</th>
-        <th width="15%">Top Interest Validity</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="clickable" onclick="location.href='/conflict/[id]'">
-        <td>
-          <strong>[Conflict Name]</strong>
-          <div class="sub">[Parent topic, e.g., "Iran › Nuclear Policy"]</div>
-        </td>
-        <td>[e.g., Maximum Pressure Advocate]</td>
-        <td><span class="pos-supp">Supporter</span></td>
-        <td>[N]</td>
-        <td class="score-high">[e.g., 90]/100</td>
-      </tr>
-      <tr class="clickable" onclick="location.href='/conflict/[id]'">
-        <td>
-          <strong>[Conflict Name]</strong>
-          <div class="sub">[Parent topic]</div>
-        </td>
-        <td>[e.g., Affected Civilian]</td>
-        <td><span class="pos-mix">Mixed</span></td>
-        <td>[N]</td>
-        <td class="score-mid">[e.g., 72]/100</td>
-      </tr>
-      <!-- Add one row per conflict -->
-    </tbody>
-  </table>
-
-  <hr />
-
-  <!-- ════════════════════════════════════════════════
-       SECTION 4, INTEREST PROFILE
-       Ranked by Composite Score (default).
-       Composite = Validity × 0.6 + Linkage × 0.4
-       ════════════════════════════════════════════════ -->
-  <h2>🎯 Interest Profile (Across All Conflicts)</h2>
-  <p style="font-size:13px; color:#555;">
-    All interests attributed to this stakeholder, de-duplicated across conflicts and ranked by
-    <strong>Composite Score</strong> (Validity × 0.6 + Confidence × 0.4).
-    The highest-legitimacy, best-evidenced motivations appear first.<br />
-    <em>Sort by: <a href="?sort=composite">Composite ▼</a> &nbsp;|&nbsp;
-    <a href="?sort=validity">Validity</a> &nbsp;|&nbsp;
-    <a href="?sort=linkage">Confidence</a></em>
-  </p>
-
-  <table>
-    <thead>
-      <tr>
-        <th width="3%">#</th>
-        <th width="22%">Interest</th>
-        <th width="14%">Maslow Level</th>
-        <th width="12%">
-          <a href="?sort=validity">Validity ▼</a>
-          <div style="font-size:10px; font-weight:normal;">(Legitimacy, 0-100)</div>
-        </th>
-        <th width="14%">
-          <a href="?sort=linkage">Confidence ↕</a>
-          <div style="font-size:10px; font-weight:normal;">(True Motivation?, 0-100)</div>
-        </th>
-        <th width="10%">% Motivated</th>
-        <th width="10%">
-          <a href="?sort=composite">Composite ↕</a>
-        </th>
-        <th width="15%">Conflict Context</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- ── Repeat one <tr> per interest ── -->
-      <tr>
-        <td style="color:#888; text-align:center;">1</td>
-        <td>
-          <strong>[Interest Name]</strong>
-          <div class="sub">[One-line description]</div>
-        </td>
-        <td><span class="maslow maslow-physio">Physiological</span></td>
-        <td class="score-high">[e.g., 96]</td>
-        <td>
-          <span class="score-high">[e.g., 88]</span>
-          <div class="sub">[e.g., 2 evidence items]</div>
-        </td>
-        <td>[e.g., 90%]</td>
-        <td style="font-size:1.1em;" class="score-high"><strong>[e.g., 93]</strong></td>
-        <td class="sub">[Conflict Name]</td>
-      </tr>
-
-      <tr>
-        <td style="color:#888; text-align:center;">2</td>
-        <td>
-          <strong>[Interest Name]</strong>
-          <div class="sub">[One-line description]</div>
-        </td>
-        <td><span class="maslow maslow-safety">Safety</span></td>
-        <td class="score-high">[e.g., 85]</td>
-        <td>
-          <span class="score-high">[e.g., 82]</span>
-          <div class="sub">[e.g., 3 evidence items]</div>
-        </td>
-        <td>[e.g., 75%]</td>
-        <td style="font-size:1.1em;" class="score-high"><strong>[e.g., 84]</strong></td>
-        <td class="sub">[Conflict Name]</td>
-      </tr>
-
-      <!-- Invalid / zero-sum interest example -->
-      <tr style="background:#fff8f8; opacity:.85;">
-        <td style="color:#888; text-align:center;">N</td>
-        <td>
-          <strong>[Interest Name]</strong>
-          <div class="sub">[One-line description]</div>
-          <div class="invalid-note">⚠ Zero-sum / invalid, de-weighted in analysis</div>
-        </td>
-        <td><span class="maslow maslow-invalid">Invalid / Zero-Sum</span></td>
-        <td class="score-low">[e.g., 12]</td>
-        <td class="score-high">[e.g., 88]</td>
-        <td>[e.g., 35%]</td>
-        <td style="font-size:1.1em;" class="score-low"><strong>[e.g., 42]</strong></td>
-        <td class="sub">[Conflict Name]</td>
-      </tr>
-
-    </tbody>
-  </table>
-
-  <div class="callout-yellow">
-    <strong>Key insight on this stakeholder:</strong>
-    [One paragraph, e.g., "The US National Security Establishment's highest-validity interest
-    (nuclear nonproliferation, 90) is also well-evidenced (88 confidence). However,
-    domestic political capital (esteem-level, validity 42) also appears in their profile
-    with high confidence (70). The ISE framework surfaces both, legitimate and
-    less-legitimate motivations are scored separately rather than collapsed."]
-  </div>
-
-  <hr />
-
-  <!-- ── CONTRIBUTE ── -->
-  <h2>📬 Contribute to This Profile</h2>
-  <p style="font-size:13px;">
-    This profile is dynamic and crowd-sourced. You can:
-  </p>
-  <ul style="font-size:13px; padding-left:20px;">
-    <li><strong>Submit evidence</strong> to correct a Linkage Accuracy score, prove or disprove a claimed motivation</li>
-    <li><strong>Challenge an interest's validity</strong>, argue that an interest deserves a higher or lower ethical score</li>
-    <li><strong>Flag misrepresentation</strong>, if this stakeholder's interests have been strawmanned</li>
-    <li><strong>Add a conflict</strong>, map this stakeholder to a policy debate not yet listed above</li>
-  </ul>
-  <p style="font-size:13px;">
-    <a href="/contact">Contact us</a> &nbsp;|&nbsp;
-    <a href="https://github.com/myklob/ideastockexchange">GitHub, scoring algorithm and data schema</a>
-  </p>
-
-</div><!-- /page -->
-</body>
-</html>
+<div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
+<p style="display: none;">AUTHORING RULES (hidden text; leave in place, readers never see this). This page is one group of people and every need filed for it. 1. The group is the subject of its interests. Write every interest as a need with a subject, who needs what: "current homeowners need to protect the value of their homes", never "property values". A need written at a different rung is a different interest with its own page. 2. Each need carries three scores and they never borrow from each other. Linkage Accuracy (the Drives column on belief pages) asks whether the need is really why the group holds its positions and is settled by the group's record, on the interest's own page. Interest Validity asks whether the need should be honored and is settled by the six mirror-test criteria, on the interest's validity page. Drive = Linkage Accuracy x Validity / 100 is computed from the two and typed nowhere. 3. Validity is never set by who holds the need, how many of them there are, how much power they have, or how loudly they assert it. Power does not appear on this page as a score. 4. Prevalence, the share of the group a need actually drives, is a reading from a survey with its source; it is not a score and multiplies into nothing. 5. Scores stay [bracketed] until the engine reads them from the tables. Never fill a score cell for an empty row, never freeze a live score into prose, and no step on this page asks anyone to type a score. 6. A need that is real and fails the mirror test stays in the table with its low validity. It is scored, not deleted, and the same move is made against the groups you favour or the page is propaganda. 7. Every table ranks by its score column, never by editorial placement. 8. No em dashes. No empty anchors and no links to pages that do not exist: link this site's own routes and use plain text until a target exists. Contact routes to /contact or the GitHub repository, never an email address. 9. Inline styles only, no scripts, so the markup survives any renderer it is pasted into. Table header rows are #f0f3f6.</p>
+<p style="text-align: right; font-size: .9em; color: #666;"><em><a href="/">Home</a> &rsaquo; <a href="https://myklob.github.io/ideastockexchange/beliefs/interests.html">Who has a stake</a> &rsaquo; <strong>[Group name]</strong></em></p>
+<h1>Who has a stake: [Group name]</h1>
+<p>[Two to four sentences: who this group is, how it is organised, and what distinguishes it from groups it is easily confused with. "Current homeowners" and "homeowners who bought in the last three years" can need different things.]</p>
+<div style="border: 1px solid #ccc; padding: 10px; background-color: #f9f9f9;">
+<p style="text-align: center; margin: 0;"><strong>At a glance</strong><br />Needs filed: <strong>[N]</strong> | Beliefs with a stake: <strong>[N]</strong> | Highest Drive: <strong>[Score]</strong> on [need, as who needs what] | Highest Validity: <strong>[Score]</strong> on [need]</p>
+<p style="text-align: center; margin: 6px 0 0 0; font-size: 11px; color: #777;">Every bracketed number on this page is read from the need's own pages or computed from them. Nothing here is typed.</p>
+</div>
+<hr />
+<h2 style="font-size: 20px;">Who They Are</h2>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<tbody>
+<tr><td style="width: 28%; background-color: #f0f3f6;"><strong>How many</strong></td><td>[e.g. about 75,000 households in the county, 2024 housing survey, with a link to the source]</td></tr>
+<tr><td style="background-color: #f0f3f6;"><strong>How they are organised</strong></td><td>[e.g. a neighbourhood association that speaks for some of them, a trade body, no organisation at all]</td></tr>
+<tr><td style="background-color: #f0f3f6;"><strong>Who speaks for them on the record</strong></td><td>[the letters, testimony, surveys and votes the alibi test below reads, each with a source]</td></tr>
+<tr><td style="background-color: #f0f3f6;"><strong>How well the record speaks for them</strong></td><td>[a note, not a number: e.g. "the association's letters come from about 400 of 75,000 households; the only survey of the whole group is from 2019." Where the people who speak are not the people with the stake, say so.]</td></tr>
+</tbody>
+</table>
+<hr />
+<h2 style="font-size: 20px;">The Three Scores Every Need Carries</h2>
+<p>One sentence, two questions with different evidence, and a third number computed from the two. The questions are never allowed to borrow from each other: a need can be the real reason a group acts and still not deserve to be honored, or deserve to be honored and move nobody.</p>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<thead>
+<tr style="background-color: #f0f3f6;"><th style="width: 22%;">Score</th><th style="width: 33%;">The question</th><th style="width: 45%;">What settles it</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Linkage Accuracy</strong> (0 to 100)<br /><span style="font-size: .85em; color: #666;">The Drives column on belief pages</span></td><td>Is this really why they hold the position, or a cover story?</td><td>Behavior. The candidate motive that best predicts what the group actually does wins, argued pro and con like any claim, on the need's own page.</td></tr>
+<tr><td><strong>Interest Validity</strong> (0 to 100)</td><td>Even if it is real, should it be honored, and how far?</td><td>Objective criteria (reciprocity, the universal test, and the rest of the mirror test below), argued pro and con on the need's validity page. Never the holder's power.</td></tr>
+<tr><td><strong>Drive</strong> (0 to 100)</td><td>What is actually powering this group?</td><td>Linkage Accuracy x Validity / 100. Computed, never typed. The engine uses it to name the one conflict that matters on each belief page.</td></tr>
+</tbody>
+</table>
+<hr />
+<h2 style="font-size: 20px;">What This Group Needs</h2>
+<p>Every need filed for this group on any belief page, each a page of its own. Ranked by Linkage Accuracy, so the top row is the best explanation of the group's behavior, not the most flattering one. One need, one page: every belief that lists it reads the same three scores.</p>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<thead>
+<tr style="background-color: #f0f3f6;"><th style="width: 4%;">#</th><th style="width: 30%;">The need (who needs what)</th><th style="width: 12%;">Rung and opening prior</th><th style="width: 12%;">Prevalence (source)</th><th style="width: 12%;">Linkage Accuracy</th><th style="width: 10%;">Validity</th><th style="width: 8%;">Drive</th><th style="width: 12%;">Value it serves</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>[Group] need [what], as a complete sentence<br /><span style="font-size: .85em; color: #666;">Measured by: [the reading that would show the need met or unmet]</span></td><td>[e.g. Safety, 70 to 85]</td><td>[e.g. 62%, 2024 survey]</td><td>[Score]</td><td>[Score]</td><td>[Score]</td><td>[e.g. security]</td></tr>
+<tr><td>2</td><td>[need]<br /><span style="font-size: .85em; color: #666;">Measured by: [reading]</span></td><td>[rung, band]</td><td>[reading, source]</td><td>[Score]</td><td>[Score]</td><td>[Score]</td><td>[value]</td></tr>
+<tr style="background-color: #fff5f5;"><td>3</td><td>[a need that is real and fails the mirror test, written as plainly as the others]<br /><span style="font-size: .85em; color: #666;">Measured by: [reading]</span></td><td>Below the floor, 0 to 20</td><td>[reading, source]</td><td>[Score]</td><td>[Score]</td><td>[Score]</td><td>[value]</td></tr>
+</tbody>
+</table>
+<p style="font-size: .9em; color: #555;">Prevalence is the share of the group each need actually drives, from surveys, with a source. It is a reading, not a score, and it multiplies into nothing. A row nobody has argued sinks to the bottom and its score cells stay blank rather than showing a guess.</p>
+<hr />
+<h2 style="font-size: 20px;">The Alibi Test: Does the Record Bear Out Each Need?</h2>
+<p>A neighbourhood association opposes a 60-unit apartment building. Its letter says traffic. Check the record. Last year it supported a supermarket that generates more car trips than the apartments would. Two years ago it opposed a townhouse project that came with a parking garage. "Traffic" predicts one of those three positions. "Current homeowners need to protect the value of their homes" predicts all three, and wins, not because anyone read the members' minds but because it explains the behavior with fewer exceptions. Run the same test on the group's opponents. Neither finding is an insult; a prediction that fails is a motive misread. The debate under each need on its own page is about this group's behavior:</p>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<thead>
+<tr style="background-color: #f0f3f6;"><th style="width: 50%;">Raises Linkage Accuracy</th><th style="width: 50%;">Lowers Linkage Accuracy</th></tr>
+</thead>
+<tbody>
+<tr><td>Votes, spending, donations and effort go where this need says they should</td><td>The group acts against what this need would predict</td></tr>
+<tr><td>Members name it themselves, in surveys and on the record</td><td>A rival need predicts the same record with fewer exceptions</td></tr>
+<tr><td>The same group takes the same side in other debates where only this need is at stake</td><td>The behavior has another documented cause, so it is not evidence for this one</td></tr>
+<tr><td>Analysts with no stake in the outcome find the same pattern</td><td>The attribution rests on rhetoric alone, with no behavioral record either way</td></tr>
+</tbody>
+</table>
+<p><strong>This group's record, as the alibi test reads it:</strong></p>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<thead>
+<tr style="background-color: #f0f3f6;"><th style="width: 36%;">What the group did (with source)</th><th style="width: 32%;">Needs that predict it</th><th style="width: 32%;">Needs that predict the opposite</th></tr>
+</thead>
+<tbody>
+<tr><td>[e.g. supported the supermarket on Elm Street, 2025, minutes linked]</td><td>[need]</td><td>[need]</td></tr>
+<tr><td>[e.g. opposed the townhouse project with a garage, 2024]</td><td>[need]</td><td>[need]</td></tr>
+</tbody>
+</table>
+<hr />
+<h2 style="font-size: 20px;">The Mirror Test: Six Criteria</h2>
+<p>"I need the street in front of my house kept free of other people's cars." Real? Certainly. Valid? Hold it up to a mirror. Would you accept the same rule enforced on you by your neighbor? And if everyone claimed the street in front of their house, where would anyone park? The need is real and fails anyway. "I need to get to work in under an hour" passes both tests. Only one of these is a need a resolution should be built around, and it is not the louder one. Each need's validity page argues it against these six, and never against the size or power of the group.</p>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<thead>
+<tr style="background-color: #f0f3f6;"><th style="width: 22%;">Criterion</th><th style="width: 36%;">The question</th><th style="width: 42%;">A need fails it when</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Reciprocity</strong></td><td>Would the group accept this need honored for its opponents?</td><td>It wants a rule for others it would reject for itself</td></tr>
+<tr><td><strong>Universal test</strong></td><td>What happens if everyone pursues it?</td><td>Universal pursuit makes it impossible for anyone, or guarantees perpetual conflict</td></tr>
+<tr><td><strong>Asks no loss from others</strong></td><td>Can it be met without someone else losing?</td><td>It is satisfied only at another party's expense, or it is a claim on other people's property or choices</td></tr>
+<tr><td><strong>Alternative satisfaction</strong></td><td>Can the underlying need be met another way?</td><td>Substitutes exist and the group rejects them, which usually means the stated need is not the real one</td></tr>
+<tr><td><strong>Scope and reversibility</strong></td><td>How many people, how badly, and can it be undone?</td><td>Ignoring it costs little, spreads thin, or is easily reversed</td></tr>
+<tr><td><strong>Unmet and shared</strong></td><td>Is the need actually unmet, and does anyone outside the asking group recognize it?</td><td>The status quo already satisfies it, or it is held by few and recognized nowhere else</td></tr>
+</tbody>
+</table>
+<p style="font-size: .9em; color: #555;">Validity never absorbs feasibility either: how hard a need is to satisfy, and what the group can do without a deal, are read on their own track. Cross either line and the engine rebuilds "might makes right" inside the machine built to replace it.</p>
+<hr />
+<h2 style="font-size: 20px;">Where a Need Starts: the Maslow Rungs</h2>
+<p>Maslow sets the opening price; the arguments do the trading. Every need starts from the band of the rung it serves and the argument tree moves it from there. The same need can appear on several rungs depending on how it is written: "my family needs to eat" is physiological; "my family needs to eat at the restaurant our neighbors cannot afford" is esteem, and the mirror test treats them very differently.</p>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<thead>
+<tr style="background-color: #f0f3f6;"><th style="width: 18%;">Rung</th><th style="width: 14%;">Opening prior</th><th style="width: 68%;">Needs written as needs</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Physiological</strong></td><td>85 to 100</td><td>People need food, water, shelter, sleep and medical care. Workers need wages that cover them. Patients need treatment they can reach.</td></tr>
+<tr><td><strong>Safety</strong></td><td>70 to 85</td><td>Protection from violence, crime and war; an income they can count on, savings that hold their value, a legal order that applies tomorrow the way it did today. Financial needs sit here: "homeowners need to protect the value of their homes", "renters need a lease that cannot be cancelled on a whim".</td></tr>
+<tr><td><strong>Belonging</strong></td><td>50 to 70</td><td>A family, a community, a congregation, a country and a team to belong to. Every form of group solidarity. The need to belong is valid; what the group does to outsiders is a separate need, scored separately, and often below the floor.</td></tr>
+<tr><td><strong>Esteem</strong></td><td>40 to 60</td><td>To be respected, heard and credited. Officials need to be seen as honest; voters need to be answered; workers need their effort recognized. Status needs fail the mirror test: status is scarce by definition.</td></tr>
+<tr><td><strong>Self-actualization</strong></td><td>30 to 50</td><td>To grow, create, learn, worship and choose for themselves. Low prior, not low value: these lose to survival when the two collide and win on their own arguments when they do not.</td></tr>
+<tr><td><strong>Curiosity and play</strong></td><td>30 to 50</td><td>To understand, to be entertained, to feel excitement. Explains motives the political ones miss (conspiracy theories as thrill and belonging; voting for disruption because watching the system break is more interesting). The need is real; the vehicle is scored on the belief page.</td></tr>
+<tr style="background-color: #fff5f5;"><td><strong>Below the floor</strong></td><td>0 to 20</td><td>Not a rung. Needs that fail the criteria outright: domination (our group needs the other group kept down), tribal winning (we need them to lose), pretext (a belonging need worn as a disguise), and manufactured needs that exist only if a false claim is true.</td></tr>
+</tbody>
+</table>
+<p style="font-size: .9em; color: #555;">The bands are priors, not verdicts, and not a lookup table. An esteem need finishes above a safety need when its arguments are stronger.</p>
+<hr />
+<h2 style="font-size: 20px;">Bad Motives Are Scored, Not Deleted</h2>
+<div style="border-left: 5px solid #c62828; padding: 10px 14px; background-color: #fff5f5; margin: 15px 0; font-size: 13px;">The most useful row in any interest table is the one that is real and illegitimate. In the government-ethics beliefs the opponents' list includes "some officeholders want to keep using their position and their families to make money." Its Drive ties for highest on that side; its validity is the lowest on the page. It ranks first as an explanation of behavior and last as something a resolution should honor. That is the information, and it is why this page keeps every need filed for the group, including the ones the group would rather not see written down. The same move must be made against the groups you favour, or the page is propaganda: "our side needs to win the next election" belongs on both lists of any partisan belief, with the same low validity on both.</div>
+<hr />
+<h2 style="font-size: 20px;">Beliefs This Group Has a Stake In</h2>
+<p>Every belief page that lists one of this group's needs, which side lists it, and whether that need is in the belief's Primary Conflict Pair (the highest-Drive need on each side that is not shared, staged head to head). Ranked by the Drive of the need listed.</p>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<thead>
+<tr style="background-color: #f0f3f6;"><th style="width: 36%;">Belief</th><th style="width: 12%;">Listed on</th><th style="width: 28%;">The need listed there</th><th style="width: 10%;">Drive</th><th style="width: 14%;">In the Primary Conflict Pair?</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="/beliefs/[slug]">[Belief, as a complete claim]</a><br /><span style="font-size: .85em; color: #666;">[Topic]</span></td><td>Supporters</td><td>[need]</td><td>[Score]</td><td>[Yes, against [the other side's need] / No]</td></tr>
+<tr><td><a href="/beliefs/[slug]">[Belief]</a><br /><span style="font-size: .85em; color: #666;">[Topic]</span></td><td>Opponents</td><td>[need]</td><td>[Score]</td><td>[Yes / No]</td></tr>
+<tr><td><a href="/beliefs/[slug]">[Belief]</a><br /><span style="font-size: .85em; color: #666;">[Topic]</span></td><td>Both</td><td>[a need the group holds whichever way the belief goes]</td><td>[Score]</td><td>No (shared)</td></tr>
+</tbody>
+</table>
+<hr />
+<h2 style="font-size: 20px;">Where the Scores Go</h2>
+<p>Two sisters want the same orange; the parent cuts it in half; one needed juice, the other peel. Positions collided; needs never did. The scores on this page are what that arithmetic reads, on every belief page that lists one of this group's needs.</p>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<thead>
+<tr style="background-color: #f0f3f6;"><th style="width: 24%;">Output</th><th style="width: 76%;">How the scores set it</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Shared interests</strong></td><td>Needs on opposite sides whose statements say the same thing (paired by similarity, then confirmed or disputed by people), with validity at or above the Resolution Floor of 70 on both sides; the pair's combined validity is the harmonic mean. Compromise is built here first.</td></tr>
+<tr><td><strong>Primary Conflict Pair</strong></td><td>The highest-Drive need on each side that is not shared, staged head to head: the one disagreement actually driving the debate. Drive uses validity on purpose: a pretext cannot be the primary conflict, and neither can a saintly need nobody is moved by.</td></tr>
+<tr><td><strong>Solution scores</strong></td><td>A candidate solution earns, for each need it satisfies, the fraction of the need it meets (0 to 1) times the need's validity, summed per side; the overall score is 2 x S x O / (S + O). Half an orange each: 0.40. Peel to the baker and juice to the drinker: 0.80. The whole orange to one sister: zero, because a solution that satisfies only one side has resolved nothing. Needs below the floor earn a solution nothing even when it satisfies them. No need counts extra because the group behind it is powerful.</td></tr>
+<tr><td><strong>Argument importance</strong></td><td>Every reason on a belief page speaks to one or more needs, and its <a href="/algorithms/importance-score">importance</a> is set by the most valid need it genuinely bears on: validity x how directly the reason bears on it, taking the largest. A true fact that matters to nobody weighs nothing.</td></tr>
+<tr><td><strong>Who gains, who pays</strong></td><td>Every cost and benefit on a belief page names the need that collects it or pays it. A cost always has an address, and this page is where the address resolves to people.</td></tr>
+</tbody>
+</table>
+<hr />
+<h2 style="font-size: 20px;">Related Pages</h2>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<tbody>
+<tr><td style="width: 34%;"><a href="https://myklob.github.io/ideastockexchange/beliefs/interests.html">Who has a stake</a></td><td>Every group on the site with its needs, and <a href="https://myklob.github.io/ideastockexchange/beliefs/lists.html#stake">how the groups are ranked</a></td></tr>
+<tr><td>Each need's own page</td><td>Both scores side by side, the alibi test argued, Prevalence with its source, and every belief page that lists it</td></tr>
+<tr><td>Interest Validity Debate (one per contested need)</td><td>The argument tree under a need's Validity score when the validity itself is the fight</td></tr>
+<tr><td>Interests, Not Positions (on each belief page, and at /beliefs/[slug]/interests)</td><td>Where this group's needs are listed per side, with Validity x Drives, the shared needs and the Primary Conflict Pair</td></tr>
+<tr><td><a href="/algorithms/importance-score">Importance score</a></td><td>How a need's validity sets the weight of every reason that bears on it</td></tr>
+<tr><td><a href="/algorithms/linkage-scores">Linkage scores</a></td><td>How "bears on" is argued, both for reasons and for the Drives column</td></tr>
+<tr><td><a href="https://myklob.github.io/ideastockexchange/beliefs/method.html#formula">The one formula</a></td><td>What a scored row contributes, on the published site</td></tr>
+</tbody>
+</table>
+<hr />
+<div style="border: 1px solid #ccc; padding: 10px 14px; background-color: #f9f9f9;">
+<h3 style="margin-top: 0;">Contribute</h3>
+<p>Propose a need for this group, written as who needs what, with the same suspicion for the groups you favour as for the others. Add a reading or a measure a need can be checked against, or a Prevalence figure with its source. Argue the alibi on a need's own page with behavioral evidence, or with a rival need that predicts the group's record better. Argue a need's validity against one of the six criteria. Add a belief this group has a stake in. Confirm or dispute a pairing of this group's need with one on the other side, and propose a solution that satisfies valid needs on both sides. No step asks you to type a score. New pages and corrections: <a href="/contact">Contact</a>, or open an issue or pull request on <a href="https://github.com/myklob/ideastockexchange">the GitHub repository</a>.</p>
+</div>
+<p style="font-size: .85em; color: #666; text-align: right;">ISE Group Profile template (2026-10-04), GitHub form &middot; <a href="https://myklob.github.io/ideastockexchange/beliefs/interests.html">Who has a stake</a> &middot; ~Myclob</p>
+</div>

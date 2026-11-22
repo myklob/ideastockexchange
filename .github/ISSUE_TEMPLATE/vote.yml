@@ -1,13 +1,19 @@
 name: Vote on a claim
-description: Say whether you agree or disagree with a claim on the site. What happens next, in one sentence, is that your vote is recorded against your GitHub login, latest vote wins, and shown on the page as what people think, next to what the analysis says; it never moves a score.
-title: "Vote agree: "
+description: Thumbs up or thumbs down on a claim on the site. Your vote is recorded under your GitHub login, your latest vote counts, and it is shown on the page next to what the analysis says. It never moves a score.
+title: "Vote: "
 labels: [vote]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        **You are casting one vote.** The title above says which way (👍 agree or 👎 disagree) and on which claim. Everything below is already filled in, so press the green button at the bottom and you are done.
+
+        Your vote is counted under your GitHub login, and a later vote of yours on the same claim replaces this one. The page shows votes as what people think, next to what the analysis says. A vote never changes a score: to change a score, add a reason or evidence on the claim's page.
   - type: input
     id: page
     attributes:
       label: Page
-      description: The key of the page (the last part of its address, before .html).
+      description: Filled in for you. The claim's address on the site (the last part of its link, before .html).
       placeholder: barring-members-congress-president
     validations:
       required: true
@@ -15,13 +21,20 @@ body:
     id: vote
     attributes:
       label: Vote
+      description: Filled in from the thumb you clicked. Agree means you think the claim is true (or, when On page is filled in, that it bears on that page).
       options:
         - agree
         - disagree
     validations:
       required: true
+  # quoted: YAML reads a bare `on` as the boolean true, and GitHub then rejects the whole form and opens a blank issue
+  - type: input
+    id: "on"
+    attributes:
+      label: On page
+      description: Usually empty. Filled in only when you voted on whether a reason bears on the page it is listed under, rather than on whether it is true.
   - type: textarea
     id: why
     attributes:
       label: Why
-      description: Optional. If your reason is a claim of its own, add it to the page instead, where it can carry weight.
+      description: Optional. If your reason is a claim of its own, add it on the page instead, where it can carry weight.

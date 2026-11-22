@@ -1,211 +1,176 @@
+<!--
+  ===== ISE MEDIA INDEX TEMPLATE (best works by yardstick, GitHub form) =====
+  The list of every work cited on a belief page. The published static site
+  builds it as media.html (tools/static-site/render_site.py,
+  render_media_index); this file is the same page as a template, in the
+  same order. The per-work page it links to is
+  templates/media-analysis-template.html.
+
+  The owner's point, which the page is built around: every work is "best"
+  unless known otherwise (best books, best studies, best reports), and the
+  criteria for "best" (most accurate, most important, most entertaining)
+  are themselves debatable. So there is no single ranking. Each kind of work
+  gets a short ranked list under every yardstick that tells its works apart.
+
+  SECTION ORDER:
+    Breadcrumb (Home > Best books, studies and reports)
+    Lede: best until shown otherwise; best by what is argued too
+    What this list means (what it shows, how it is worked out, why tracked)
+    What best can mean: one row per yardstick, linked to its explanation,
+        with what it is worked out from and how far it has got
+    One section per kind of work (Best books, Best studies, Best reports,
+        Best articles, Best films, Best podcasts, Best videos, Other works):
+        a short ranked list under each yardstick that tells the works of
+        that kind apart; one line naming the yardsticks on which every work
+        of the kind reads the same, and the ones nobody can measure yet;
+        then every work of the kind by title, with all its numbers
+    Propose a yardstick or a work (forms that open a prefilled GitHub issue)
+    Contribute line, revision stamp
+
+  RULES:
+    1. Nothing here is typed. Every number is read from a work's page or
+       from the belief pages that cite it.
+    2. A yardstick on which every work of a kind scores the same is named
+       and not numbered; a numbered order among ties would be made up.
+       Works that tie share a rank.
+    3. A yardstick nobody can measure yet is named and left empty, never
+       filled with a guess.
+    4. No work is ever removed. A work moves down only when an argument on
+       its own page moves it.
+    5. No em dashes anywhere on the page.
+-->
 <p style="text-align: right; font-size: 12px; color: #666; margin-bottom: 12px;">
-  <a href="/">Home</a> &rsaquo; <strong>Media Index</strong>
+  <a href="/">Home</a> &rsaquo; <strong>Best books, studies and reports</strong>
 </p>
 
-<p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 22px; font-weight: bold; color: #1a365d;">Media Index: Best Works by Kind</span></p>
+<p><span style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 22px; font-weight: bold; color: #1a365d;">Best Books, Studies and Reports</span></p>
+
+<p style="font-size: 14px; color: #444; margin: 12px 0;">Every work cited on a belief page here counts as one of the best on its question until somebody shows otherwise. A work moves down only when an argument on its own page moves it, and it is never taken off the shelf. Best by what, though, is a question of its own: the most accurate work on a question, the most important one and the most entertaining one are often three different works, and which of those should count for most is argued like everything else here. So each kind of work is ranked under every yardstick the site can work out, and a yardstick nobody can measure yet is named and left empty.</p>
 
 <div style="background-color: #f4f9ff; border: 1px solid #bee3f8; border-left: 4px solid #2b6cb0; padding: 12px 16px; font-size: 13px; margin: 12px 0;">
-  <strong>Why track media per belief?</strong> Every belief is shaped by the media that reaches people, books, movies, songs, scientific papers, images, and more. ISE identifies which media currently carry the most weight for each belief, measures their <em>Epistemic Impact</em> (Media Truth Score &times; Reach), and helps you find the best content for and against any idea. <a href="/media/why-pro-con-media">Read the full rationale &rarr;</a>
+  <strong>What this list means.</strong> Every work cited on a belief page, by kind, each kind ranked under every yardstick for best that can be worked out. A yardstick that every work of a kind scores the same on is named and not ranked. <a href="/media/why-pro-con-media">Why we track the best media for and against each belief &rarr;</a>
 </div>
 
-<p style="font-size: 13px; color: #555; margin: 14px 0;">Browse and sort all media resources tracked by the Idea Stock Exchange. Each entry links to one page per work, which carries the <strong>beliefs the work carries</strong>, its <strong>Quality</strong> and <strong>Influence</strong> arguments, its <strong>Reach</strong>, and the <strong>Media Truth Score</strong> and <strong>Epistemic Impact</strong> computed from them.</p>
-
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d; margin-top: 26px;">&#x1F50D; Sort &amp; Filter</h2>
-
-<div style="background: #f9f9f9; border: 1px solid #ddd; border-left: 4px solid #2b6cb0; padding: 12px 16px; margin-bottom: 14px; font-size: 13px;">
-  <strong>Sort by:</strong>
-  Epistemic Impact |
-  Quality |
-  Influence |
-  Reach |
-  Media Truth Score |
-  Category
-  <br/><br/>
-  <strong>Filter by type:</strong>
-  All |
-  Books |
-  Films |
-  Songs |
-  Poems |
-  Images |
-  Scientific Papers |
-  Articles |
-  Podcasts
-</div>
-
-<hr style="border:none; border-top:1px solid #e2e8f0; margin:26px 0;">
-
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d;">&#x1F4CA; Top Media by Epistemic Impact</h2>
-<p style="font-size: 13px; color: #555;">Epistemic Impact = Media Truth Score &times; Reach, in truth-weighted exposures. This measures how much a work is actually shaping public belief, for better or worse. Each work's page states what its numbers rest on; every number here is read from that page, never typed.</p>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d; margin-top: 26px;">What Best Can Mean</h2>
+<p style="font-size: 13px; color: #555;">Each yardstick is itself a claim: one that cannot tell a great work from a poor one should lose to one that can.</p>
 
 <table style="border-collapse: collapse; width: 100%; margin-bottom: 4px; font-size: 13px;">
   <thead>
-    <tr style="background-color: #f0f0f0;">
-      <th style="text-align: left; width: 3%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">#</th>
-      <th style="text-align: left; width: 22%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Title</th>
-      <th style="text-align: center; width: 8%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Type</th>
-      <th style="text-align: left; width: 26%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Beliefs It Carries</th>
-      <th style="text-align: center; width: 8%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Quality</th>
-      <th style="text-align: center; width: 8%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Media Truth Score</th>
-      <th style="text-align: center; width: 8%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Reach</th>
-      <th style="text-align: center; width: 9%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Epistemic Impact</th>
-      <th style="text-align: center; width: 8%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Influence</th>
+    <tr style="background-color: #1a365d; color: #fff;">
+      <th style="padding: 8px 10px; text-align: left; width: 30%;">Yardstick</th>
+      <th style="padding: 8px 10px; text-align: left; width: 45%;">Worked out from</th>
+      <th style="padding: 8px 10px; text-align: left; width: 25%;">So far</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;">1</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;"><a href="/media/1" style="color: #2b6cb0;">[Film Title]</a><br/><span style="font-size: 11px; color: #777;">by [Director]</span></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center;">Film</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;"><a href="/beliefs/example-belief" style="color: #2b6cb0;">[Belief Statement]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center; color: #2e7d32; font-weight: 600;">[0 to 1]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center; color: #f57c00; font-weight: 600;">[&minus;1 to +1]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center;">[N people]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center; font-weight: 600; color: #c62828;">[&plusmn;N]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center;">[0 to 1]</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><strong>Most accurate</strong><br/><span style="font-size: 11px; color: #777;">Does what it backs hold up?</span></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">The belief pages that cite it: each belief's truth from &minus;1 to +1, turned around where the work argues against the belief, averaged with how strongly the work bears on each (its <a href="/algorithms/media-truth-score" style="color: #2b6cb0;">Media Truth Score</a>)</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">[tells works apart / every work reads the same until someone argues one]</td>
+    </tr>
+    <tr style="background-color: #f9f9f9;">
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><strong>Most important</strong><br/><span style="font-size: 11px; color: #777;">Did it change what people think, say or do?</span></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">The Influence Arguments on the work's own page; starts at 0.50 until argued</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">[status]</td>
     </tr>
     <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;">2</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;"><a href="/media/2" style="color: #2b6cb0;">[Book Title]</a><br/><span style="font-size: 11px; color: #777;">by [Author]</span></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center;">Book</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;"><a href="/beliefs/another-belief" style="color: #2b6cb0;">[Belief Statement]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center; color: #2e7d32; font-weight: 600;">[0 to 1]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center; color: #2e7d32; font-weight: 600;">[&minus;1 to +1]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center;">[N people]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center; font-weight: 600; color: #2e7d32;">[&plusmn;N]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center;">[0 to 1]</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><strong>Best made</strong><br/><span style="font-size: 11px; color: #777;">How well does it make its case?</span></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">The Quality Arguments on the work's own page; starts at 0.50 until argued</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">[status]</td>
+    </tr>
+    <tr style="background-color: #f9f9f9;">
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><strong>Most entertaining</strong><br/><span style="font-size: 11px; color: #777;">Does it hold the people it reaches?</span></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">A measurement typed on a work's page, under <a href="/algorithms/objective-criteria" style="color: #2b6cb0;">Objective Criteria</a>, with its latest reading and source</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">[nobody has proposed a way to measure it yet / read for N works]</td>
     </tr>
     <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;">3</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;"><a href="/media/3" style="color: #2b6cb0;">[Song Title]</a><br/><span style="font-size: 11px; color: #777;">by [Artist]</span></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center;">Song</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top;"><a href="/beliefs/third-belief" style="color: #2b6cb0;">[Belief Statement]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center; color: #2e7d32; font-weight: 600;">[0 to 1]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center; color: #c62828; font-weight: 600;">[&minus;1 to +1]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center;">[N people]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center; font-weight: 600; color: #c62828;">[&plusmn;N]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; text-align: center;">[0 to 1]</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><strong>Most cited here</strong><br/><span style="font-size: 11px; color: #777;">How many beliefs on this site cite it?</span></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">A count of the belief pages that list it under Media Resources</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">[status]</td>
+    </tr>
+    <tr style="background-color: #f9f9f9;">
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><strong>Net push on belief</strong> (software only)<br/><span style="font-size: 11px; color: #777;">How much is it moving what people believe, for better or worse?</span></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">Most accurate &times; Reach, once the work carries a typed Reach with its source</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">[not recorded until a work has a Reach]</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><strong>[A yardstick a reader proposed]</strong><br/><span style="font-size: 11px; color: #777;">Proposed by a reader</span></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">Readings typed on each work's page; ranked only when every reading is a number</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;">[read for N works]</td>
     </tr>
   </tbody>
 </table>
 
 <hr style="border:none; border-top:1px solid #e2e8f0; margin:26px 0;">
 
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d;">&#x1F4DA; Media by Category</h2>
-<p style="font-size: 13px; color: #555;">Works grouped by the belief category they bear on.</p>
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d;">Best Books <span style="font-weight: normal; font-size: 13px;">([N] works)</span></h2>
+<p style="font-size: 13px; color: #555;">One short list per yardstick that tells these books apart, top five shown and the rest collapsed. Repeat this section for Best studies, Best reports, Best articles, Best films, Best podcasts, Best videos and Other works, for each kind that has at least one work.</p>
 
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 4px; font-size: 13px;">
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 12px; font-size: 13px;">
   <thead>
-    <tr style="background-color: #e6f3ff;">
-      <th style="text-align: left; width: 25%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Category</th>
-      <th style="text-align: center; width: 10%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Total Media</th>
-      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Top Scored</th>
-      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Highest Reach</th>
-      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Average Quality</th>
-      <th style="text-align: center; width: 20%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Beliefs Covered</th>
+    <tr style="background-color: #f0f3f6;">
+      <th style="padding: 6px 10px; text-align: left;" colspan="3">Most accurate: does what it backs hold up?</th>
+    </tr>
+    <tr style="background-color: #f0f3f6;">
+      <th style="padding: 6px 10px; width: 8%;">#</th>
+      <th style="padding: 6px 10px; text-align: left;">Work</th>
+      <th style="padding: 6px 10px; width: 18%;">Accuracy</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;"><a href="/media?category=ethics" style="color: #2b6cb0;">Ethics &amp; Morality</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">42</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/1" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/2" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #2e7d32;">[0 to 1]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">18</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">1</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><a href="/media/[id]" style="color: #2b6cb0;">[Title, Author, Year]</a></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[&minus;1 to +1]</td>
+    </tr>
+    <tr style="background-color: #f9f9f9;">
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">2</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><a href="/media/[id]" style="color: #2b6cb0;">[Title, Author, Year]</a></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[&minus;1 to +1]</td>
     </tr>
     <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;"><a href="/media?category=politics" style="color: #2b6cb0;">Politics &amp; Policy</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">67</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/3" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/4" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center; color: #f57c00;">[0 to 1]</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">31</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">2</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><a href="/media/[id]" style="color: #2b6cb0;">[Title, Author, Year] (ties share a rank)</a></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[same value]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size: 13px; color: #555;">Not ranked yet, because every book reads the same: [most important (all 0.50); best made (all 0.50)]. Nobody has argued one of them up or down yet, so a numbered order here would be made up.</p>
+<p style="font-size: 13px; color: #555;">No book has a reading yet for [most entertaining]: nobody has proposed a way to measure it. Propose one with the form at the foot of this page.</p>
+
+<h3 style="font-size: 14px; color: #1a365d;">Every book, by title</h3>
+<table style="border-collapse: collapse; width: 100%; margin-bottom: 4px; font-size: 13px;">
+  <thead>
+    <tr style="background-color: #1a365d; color: #fff;">
+      <th style="padding: 8px 10px; text-align: left; width: 52%;">Work</th>
+      <th style="padding: 8px 10px; width: 12%;">Accuracy</th>
+      <th style="padding: 8px 10px; width: 12%;">Influence</th>
+      <th style="padding: 8px 10px; width: 12%;">Quality</th>
+      <th style="padding: 8px 10px; width: 12%;">Beliefs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 8px 10px; border: 1px solid #ddd;"><a href="/media/[id]" style="color: #2b6cb0;">[Title, Author, Year]</a><br/><span style="font-size: 11px; color: #777;">What it shows: [the bridge sentence typed on the citing belief's row]</span><br/><span style="font-size: 11px; color: #777;">[Supports / Weakens] <a href="/beliefs/[slug]" style="color: #2b6cb0;">[Belief it bears on]</a></span></td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[&minus;1 to +1]</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[0 to 1]</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[0 to 1]</td>
+      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[N]</td>
     </tr>
   </tbody>
 </table>
 
 <hr style="border:none; border-top:1px solid #e2e8f0; margin:26px 0;">
 
-<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d;">&#x1F3AC; Best Works by Kind</h2>
-<p style="font-size: 13px; color: #555;">Each kind ranked on its own, because a book and a study are not best at the same thing. Best, so far, means the works that moved belief pages the most; whether a work deserved to is its Quality, argued on its own page and shown beside it.</p>
-
-<table style="border-collapse: collapse; width: 100%; margin-bottom: 4px; font-size: 13px;">
-  <thead>
-    <tr style="background-color: #f0f0f0;">
-      <th style="text-align: left; width: 18%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Kind</th>
-      <th style="text-align: left; width: 35%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">How It Influences</th>
-      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Typical Reach</th>
-      <th style="text-align: center; width: 15%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Best So Far</th>
-      <th style="text-align: center; width: 17%; font-weight: 600; padding: 8px 10px; border: 1px solid #ccc; font-size: 12px;">Total in ISE</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">&#x1F4D6; Books</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">Extended argument, builds worldview through narrative or direct reasoning</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">10K &ndash; 10M</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/[id]" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[count]</td>
-    </tr>
-    <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">&#x1F3AC; Films</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">Character aspiration, emotional identification, implicit normalization</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">1M &ndash; 500M</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/[id]" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[count]</td>
-    </tr>
-    <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">&#x1F3B5; Songs</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">Rhythm and repetition embed values; bypasses critical reasoning</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">1M &ndash; 1B</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/[id]" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[count]</td>
-    </tr>
-    <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">&#x1F5BC; Images</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">Instant emotional framing; memes and photographs shape perception</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">10K &ndash; 100M</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/[id]" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[count]</td>
-    </tr>
-    <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">&#x1F4F0; Journalism</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">Factual reporting with editorial framing; shapes public agenda</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">100K &ndash; 50M</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/[id]" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[count]</td>
-    </tr>
-    <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">&#x1F52C; Scientific Papers</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">Peer-reviewed evidence; Tier 1 in the Evidence Ledger</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">500 &ndash; 50K</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/[id]" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[count]</td>
-    </tr>
-    <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">&#x1F3A7; Podcasts</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">Long-form conversation; parasocial trust and repeated exposure</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">10K &ndash; 10M</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/[id]" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[count]</td>
-    </tr>
-    <tr>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">&#x1F4DC; Poems</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd;">Compressed emotional truth; memorable phrasing encodes values</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">1K &ndash; 10M</td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;"><a href="/media/[id]" style="color: #2b6cb0;">[Title]</a></td>
-      <td style="padding: 8px 10px; border: 1px solid #ddd; text-align: center;">[count]</td>
-    </tr>
-  </tbody>
-</table>
-
-<hr style="border:none; border-top:1px solid #e2e8f0; margin:26px 0;">
+<h2 style="font-family: 'Segoe UI', 'Lucida Grande', Arial, sans-serif; font-size: 17px; font-weight: bold; color: #1a365d;">Propose a Yardstick or a Work</h2>
+<p style="font-size: 13px;">Two forms. <strong>Propose a yardstick for best:</strong> what makes a work best, as a measurement people who disagree would accept in advance, filed on the page of the work you read it on first, under Objective Criteria. <strong>Propose a book, study or film:</strong> the work, by title, author and year, filed on the page of the belief it bears on, under Media Resources. On the built site each is a form with a list to pick the work or the belief from; as you type, claims already on the site that say the same thing are shown, so a duplicate becomes a vote for the one already here. Submitting opens a prefilled GitHub issue.</p>
 
 <div style="background-color: #f4f9ff; border: 1px solid #bee3f8; border-left: 4px solid #2b6cb0; padding: 12px 16px; font-size: 13px; margin: 12px 0;">
   <strong>Related pages:</strong>
   <ul style="margin: 8px 0 0 20px; padding: 0;">
     <li><a href="/media/why-pro-con-media" style="color: #2b6cb0;">Why We Track Pro/Con Media Per Belief</a></li>
+    <li><a href="/algorithms/media-truth-score" style="color: #2b6cb0;">Media Truth Score</a></li>
     <li><a href="/beliefs" style="color: #2b6cb0;">All Beliefs</a></li>
     <li><a href="/algorithms" style="color: #2b6cb0;">Scoring Algorithms</a></li>
   </ul>

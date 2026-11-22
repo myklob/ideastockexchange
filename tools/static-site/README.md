@@ -27,10 +27,15 @@ every table on every page). Nothing typed in it is a score. Everything else here
                           low and every cost high
     belief score        = POS - NEG, open ended, where POS and NEG are the positive and negative
                           contributions as magnitudes (a row lands on the side its sign puts it on)
+    a repeated claim    = counts once: a claim page read by more than one reason, finding or prediction
+                          row on the same page and side counts at its strongest reading and no more
     importance page     = max over listed interests of Validity x Bears
 
 A multiplier with no page reads a labelled constant (UNARG 0.5, DEFLINK 1, DEFIMP 0.5, DEFUNIQ 1), and the site shows
-those in grey so the reader can see which factors nobody has argued yet.
+those in grey so the reader can see which factors nobody has argued yet. A linkage or uniqueness page that cites
+nothing starts at that same constant rather than at 0.50 (`evidence.FACTOR_START`), so opening the page to question a
+row's relevance moves nothing until somebody argues there. It used to start at 0.50, which halved every row the moment
+its linkage page existed; all 39 such pages on the site had nothing argued on them and were doing exactly that.
 
 **The starting point is load-bearing, not decoration.** A row contributes `(2 x Truth - 1)`, so a page with no rows
 reads 0.50 and contributes nothing, so every page above it also reads 0.50, and by induction every page of any
@@ -38,6 +43,38 @@ unsourced argument graph reads exactly 0.50 forever. Argument about argument nev
 the world is evidence, so a page may declare what it rests on (`etype`, `erq`, `erp`) and that sets where its truth
 starts. A page that declares nothing starts at 0.50 with weight k, which is the rule as it always was.
 `test_engines.py` pins the fixed point, so anything that later lets a score move without evidence has to say why.
+
+## The guarantees, and the test that pins each
+
+Outside reviewers keep asking where the invariants are written down. Here, each with the test that fails if a
+change breaks it. A failure in any of them means a score has moved for a reason that is not an argument or a
+finding, and that needs a reason, not a fix to the test.
+
+    A reason nobody has argued adds exactly 0          test_engines  test_argument_alone_can_never_leave_the_neutral_point
+    Only evidence moves a page off its start           test_engines  (the same test)
+    Truth stays in 0 to 1; a row adds at most 1        test_scoring  test_every_truth_in_range, test_contribution_is_bounded_by_one_in_magnitude
+    No number is NaN or infinite                       test_invariants  TestNoNumberIsUndefined
+    A circular argument is refused, not scored         test_engines  test_a_cycle_is_refused_by_name_rather_than_by_running_out_of_stack
+    The scorer walks a chain of any length             test_engines  test_a_chain_of_any_length_is_scored_without_the_stack
+    The order rows are stored in changes nothing       test_invariants  TestOrderChangesNothing
+    A claim listed twice on a page counts once         test_invariants  TestARepeatedClaimCountsOnce
+    The same tables give the same site, byte for byte  test_invariants  TestTheSameTablesGiveTheSameSite
+    Who added a row moves nothing                      test_invariants  TestWhoAddedARowMovesNothing
+    Opening an empty linkage page moves no score       test_invariants  TestOpeningAFactorPageMovesNothing
+    A row's kind of post (its tag) moves nothing       no scorer reads `tag`; test_vocab pins where each kind files
+    A claim that reads alike but says the opposite     test_intake, test_outline_file: never merged into a vote for it
+      is never counted as a vote for the other
+    A vote moves nothing                               test_render   test_no_vote_moves_any_score
+    A fallacy flag moves nothing                       test_fallacy  test_a_flag_moves_no_score
+    A computed similarity moves nothing                test_similarity  test_it_changes_no_score
+    The second strength rule moves nothing else        test_tally    test_it_moves_no_other_number
+    Every port gives the same numbers                  conformance.py, run in CI
+
+Two things the list does not promise, on purpose. Two different claims that say nearly the same thing still count
+twice until somebody argues the overlap on a uniqueness page: the duplicate detector flags the pair on the page and
+moves nothing, because a lexical match is a guess about meaning. And independent findings that agree are not
+duplicates at all: replication raises a finding's weight through ERQ, which is the opposite of the uniqueness
+discount and is meant to be.
 
 ## Files
 
@@ -47,16 +84,30 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     confidence.py        how much of the work behind a page has been done, and how much its score therefore counts
     sensitivity.py       which single input, moved, would change the answer, and what it would be worth to settle it
     reasonrank.py        the damped walk from the beliefs: how much of the corpus depends on each page
-    changes.py           what moved since the last revision, in claims and in scores
-    similarity.py        which claims say the same thing in different words, so padding can be seen
-    integrity.py         faults the shape of the graph shows: circularity, question-begging, a page counted twice
-    method.py            the reader-facing methodology page: every rule the contract enumerates, and what the tool cannot do
+    similarity.py        which claims say the same thing in different words, so padding can be seen; and which pairs read
+                         alike but say opposite things (a denial, a comparison turned round, one word swapped: 'expand' for
+                         'reduce'), which no path ever merges into a vote for the other
+    integrity.py         faults the shape of the graph shows: circularity, question-begging, a page listed twice
+    method.py            the reader-facing methodology page: every rule the contract enumerates, every number a page
+                         prints (EVS, kind of dispute, costs and benefits, structural checks), the wiki rules the
+                         engine does not run, and what the tool cannot do; every count on it is read from the build
     conformance.py       the cross-implementation contract: conformance/corpus.json and conformance/expected.json
     check_assertions.py  which assertions in the suite never ran; CI fails if any of them does not
     sync_content.py      keeps ISE_Data_Entry.xlsx and content/*.csv in step; --check runs in CI
     contribute.js        the browser side of taking part: the duplicate check as a reader types, and the prefilled issue URLs
     intake.py            the GitHub Action side: parses a submitted issue form, re-checks for duplicates, records a vote or opens a PR
-    content/votes.csv    the fourth table, one row per (page key, GitHub login), latest wins; shown on the page, never scored
+    vocab.py             what a post can be: 197 kinds in 14 families, each with where it files, what it can move once argued,
+                         and its names in AIF, ASPIC+, Walton's schemes (65 critical questions) and schema.org; vocab.html,
+                         data/vocab.json, and the JSON-LD context every claim page's structured data uses
+    outline_names.py     the Reason Outline's closed lists: the labels (each naming a kind from vocab.py or a place), the
+                         sign words, the factor headings and the details; data/outline-spec.json is these lists as data
+    outline_read.py      reads an outline into a tree of lines, every stop and notice at once, with nothing looked up
+    outline_print.py     prints any page or topic as an outline (p/<key>.txt, t/<key>.txt) that reads back to its rows
+    outline_file.py      files a read outline against the tables, all or nothing, and writes the reply that prints it back
+    content/votes.csv    the fourth table, one row per (page key, on, GitHub login), latest wins; shown on the page, never scored
+    content/users.csv    who takes part: one row per GitHub login (name, role, a few sentences, maintainer Y), with
+    content/user_links.csv  where to reach each one, grouped as on their own contact page; every login that adds a
+                         row or votes gets a page at u/<login>.html, listed on contributors.html; never scored
     ise_tables.py        the table format: pages, edges and topics; specs_to_tables / tables_to_specs, and both read surfaces
     export_db.py         SQL schema and data, a loaded SQLite database, JSON and XML, plus the analyst views
     build_pages.py       the Excel belief-page renderer (also supplies the constants and wiki link map to the site)
@@ -68,6 +119,8 @@ starts. A page that declares nothing starts at 0.50 with weight k, which is the 
     test_integrity.py    each structural check, with a case built to trip it and a case built not to
     test_render.py       the rendered HTML: tiles against the engine table, links, and prose that has rotted
     test_content.py      that the workbook and the reviewable CSVs cannot drift apart
+    test_outline_*.py    the outline's names, reader, printer and filer, and the round trip: every page printed and read
+                         back adds nothing
     make_artifact.py     variant of the built site with the stylesheet inlined (for hosted previews)
     requirements.txt     openpyxl
 
@@ -100,13 +153,6 @@ in all four here, and four implementations of a rule is four chances to be wrong
   the structural checks, because a decision cannot be checked against a point estimate: the reader cannot tell
   whether the net survives the estimate being wrong, which is usually the whole question. None of the rows in
   this corpus state a range yet, so every belief page says so.
-- **Say what changed.** A published analysis gets revised, and the first question of a revision is what moved.
-  Because the content is two tables kept as text in git, the previous revision is one `git show` away, and
-  because the engine is a pure function of those tables the old scores can be computed again and subtracted.
-  `changes.html` reports both: the rows a person edited, and which pages moved as a result. The second is the
-  part an ordinary diff cannot give you, since one edit to a linkage page can move dozens of conclusions. CI
-  checks out two commits so the comparison has something to compare against; with no history the page is
-  omitted rather than published wrong.
 - **Publish numbers two people can get the same answer for.** Nothing published carries more precision than
   the engine's own tolerance of 1e-9, and `test_render.py::TestThePublishedNumbersAreReproducible` fails the
   build if anything does. One field did: the confidence inside each page's verdict went out raw while every
@@ -131,8 +177,8 @@ in all four here, and four implementations of a rule is four chances to be wrong
   no longer how the rules are checked. LibreOffice cannot be driven in a build container, so a check that depends on
   it is a check that stops running.
 
-**The conformance suite is what makes any of that safe.** `conformance/corpus.json` is twenty-four pages and
-twenty-five rows built to exercise every rule once, plus the five constants and the eighteen evidence tiers, so a
+**The conformance suite is what makes any of that safe.** `conformance/corpus.json` is a small corpus
+built to exercise every rule once, plus the five constants and the eighteen evidence tiers, so a
 port needs nothing from this repository's source to run it; `conformance/expected.json` is what they score. Any
 implementation in any language loads the first, computes, and compares against the second, and both are published beside the site at
 `data/conformance_corpus.json` and `data/conformance_expected.json`, because a contract somebody has to clone a
@@ -218,23 +264,91 @@ numbers, so nothing renumbers. To ground a claim in evidence, fill its `etype` o
 
 ## How people take part
 
-There is no server, so GitHub is the backend. Every belief and claim page carries a form under each table that
-takes rows (a reason to agree, a reason to disagree, a finding, a prediction, a criterion, a cost or benefit, an
-interest) and a propose-a-belief form under Related Beliefs; the home page and every topic page carry the
-propose-a-belief form too, and a table with nothing in it yet gets a form for its first row. Each form is a plain
-GET to GitHub's new-issue address, prefilled from the fields the issue forms in `.github/ISSUE_TEMPLATE/` declare,
-so it works with no script. With `contribute.js` (copied beside the pages by `render_site.build`), what a reader
-types is scored as they type against every claim in `data/claims_index.json`, which `build()` writes from the FULL
-tables, drafts included; a near-identical claim (`similarity.MERGE`) turns the submit button into an upvote of the
-claim already here, and a close one (`similarity.FLAG`) is shown with an upvote link while the button stays. The
-intake Action (`intake.py`, on issue open) re-checks with the Python engine and either records a vote in
-`content/votes.csv`, converts a duplicate into a vote, or opens a pull request with the new rows.
+There is no server, so GitHub is the backend. Every belief and claim page carries a form under every table it
+has (`render_site.BELIEF_FORMS` lists the twenty-five: reasons by side, findings, what would move it, predictions,
+criteria, costs and benefits, short and long-term effects, components, assumptions, interests, values, shared
+interests, compromises, motives, disputes, obstacles, biases, works, laws, broader and narrower beliefs, similar
+beliefs, definitions, people on the record) and a propose-a-belief form under Related Beliefs; a part of the
+template nobody has filled in gets a form for its first row, under "Not filled in yet". Linkage, importance,
+uniqueness, interest, equivalence and media pages carry forms under their argued tables (an importance page for an
+interest at stake) and a Contribute line. A work's page follows templates/media-analysis-template.html: its Influence
+table, findings and yardsticks for a great work, predictions it made, who gains, assumptions and biases each take a
+first row from a form, and `media.html` takes a proposed yardstick for best (filed on the work picked from a list) and a
+proposed work (filed on the belief picked from a list). Every topic page carries a
+form under each of its cell tables that files a row with the topic as its page, plus the propose-a-belief form.
+Each form is a plain GET to GitHub's new-issue address, prefilled from the fields the issue forms in
+`.github/ISSUE_TEMPLATE/` declare, so it works with no script; a form whose source is a work also takes an address
+and the date it was checked, and the cost or benefit form takes a best estimate, a low and a high end, the units
+and who gains or pays (each optional; intake copies a number onto the row only when it is one, the units into
+`category`, and who pays into `who` when it names an interest page). Every row a submission adds carries named
+fields in its `extra` cell: `url` and `checked` for a source, and `added_by` and `added` for who added the row and
+when. They ride along in every export (an edge's `attrs`), and the page shows them in a line under the row. They
+live in `extra` rather than in columns of their own so that adding them did not change the shape of the tables.
+Above the first form a page says once what happens next, where to get an account, and the git
+path. With `contribute.js` (copied beside the pages by `render_site.build`), what a reader types is scored as
+they type against every claim in `data/claims_index.json`, which `build()` writes from the FULL tables, drafts
+included, beliefs, claims and interests each with its kind (an interest form matches interests only). A
+near-identical claim (`similarity.MERGE`) that is already a row on the page turns the button into "open it and
+vote"; one that is elsewhere on the site turns it into "add it here as well"; a close one (`similarity.FLAG`) is
+shown with an agree and a disagree link while the button stays. "Copy as text" puts the submission on the
+clipboard, in the shape the intake parses, for a reader without an account. The intake Action (`intake.py`, on
+issue open or edit) re-checks with the Python engine and either records a vote in `content/votes.csv`, converts a
+duplicate into a vote (and, when the claim is not yet a row on the page it was filed on, opens a pull request
+adding just that row), or opens a pull request with the new rows. An edited issue brings its pull request up to
+date rather than opening a second; an issue edited into a duplicate closes the one its first version opened.
+`.github/workflows/check.yml` runs the test suite, the templates check, the contract and a full render on every
+pull request that touches the site, so "merge when its checks pass" has a check to mean.
+
+A post can name its kind (`Kind of post`, an id from `vocab.py` such as `link.irrelevant` or `fallacy.straw-man`) and
+the row it is about (`Row`, the row's claim key). The kind decides the section and side, and where it lands: the page,
+the row's own claim page, or the row's linkage, importance, uniqueness or equivalence page, which intake opens when the
+row has none (`intake.aim`). The kind rides on the new row as `tag` in its `extra` cell and nothing scores it. Every
+reason and finding row carries an "argue about this row" link to `vocab.html?page=...&row=...`, which names the row and
+fills both into every "post one" link. `vocab.html` also says that the repository is MIT-licensed for anyone who wants
+to run a copy with a rule of their own over the same tables, and points an AI assistant at the brief on `outline.html`.
 
 A vote never moves a score. `render_site.py` reads `votes.csv` when it is present (it is not in the workbook and
-`sync_content.py` does not check it), shows the counts on the heading line after the score badge with the words
-"votes, not a score", and once anyone has voted adds a home card, "Votes vs the analysis", that
-ranks voted-on claims by how far the share of votes to agree sits from the truth score. No votes: no card, no
-counts. The engine rule stands: a claim nobody has argued is worth exactly nothing, however many people like it.
+`sync_content.py` does not check it) and shows a vote as a thumb up and a thumb down, each with its count, zero
+included. The heading line carries them after the labelled score badge ("Truth score 0.50"), with a "who voted"
+link to the issues that recorded them, and every row that is a page (a reason, a finding, a prediction, a
+criterion, a cost, an interest, a law, a person) carries its own pair. A reason or finding also carries "Bears on
+this:" thumbs, a vote on the argument as an argument rather than on its claim: it is stored as a vote on the claim
+with `on` set to the page the row sits on, counted apart from the votes on whether the claim is true, and the
+linkage page for that row (when there is one) takes the same vote on its heading with the same counts. A row with
+an importance page also carries "Matters here:" thumbs, a vote on that page; a row with either labels its first
+pair "True:". A thumb opens `vote.yml` prefilled, under a title that repeats the thumb and names the claim in words
+(`vote_title`, mirrored in `contribute.js`); the form says at its top that nothing needs filling in. Keep every
+value in the issue forms a word YAML 1.1 reads as a string: a bare `on`, `yes` or `no` is a boolean, GitHub then
+rejects the whole form and opens a blank issue instead, and `test_contribute.py` checks for it. `on` is the last column of `votes.csv`, so a file written before it existed reads as the same table. Once anyone has voted the home page gets a "Recently voted" card
+(newest vote first, counts each way) and, once three people have voted on a claim, "Votes vs the analysis",
+which ranks voted-on claims by how far the share of votes to agree sits from the truth score. The votes ride
+along in the exports as a `vote` table. No votes: no cards, no counts. The engine rule stands: a claim nobody
+has argued is worth exactly nothing, however many people like it.
+
+## Reason Outline
+
+A form takes one row; a Reason Outline takes any number, as plain text a person can write anywhere (or ask an AI to
+write) and send through the outline issue form on GitHub, the one way in. A block starts at the left edge with `Page:` and a page's address or `[key]`, or with
+`Belief:` and a new claim; every line under it is one claim, pushed in two spaces under the line it is about, with `+`
+or `-` for its side, an optional label for its kind (`Does not follow:`, `Matters less:`, `Statistics:`, `Cost:`, or any
+vocab.py id and a colon but `house.vote` and `house.new-belief`, which are written as a `Vote:` line and a `Belief:`
+header) and its details on lines of their own (`Source:`, `Checked:`, `Estimate:`). `Relevance:`, `Importance:` and
+`Uniqueness vs [k]:` under a row argue that row's factor pages, opened empty for the first line filed under them, to
+any depth. It is built on Argdown: `+`, `-`, indentation and `[name]: words` mean what they mean there.
+
+`outline_names.py` holds every name, `outline_read.py` reads the text alone, `outline_file.py` settles what needs the
+tables (which page a line lands on, whether its words are already a page or a stored row, what it may set and what it
+may only compare) and `outline_print.py` writes any page back in the same form. `build()` writes every page as
+`p/<key>.txt` and every topic as `t/<key>.txt`, and every page links its printout next to the take-part paragraph; a
+printout sent back matches every line to the row it came from and adds nothing, a line added to it adds its own rows,
+a line left out deletes nothing, and a line edited in it becomes a correction request. `outline.html` explains the
+language to a reader, with the brief for an AI assistant, and `data/outline-spec.json` carries the closed lists for a
+program. The fourth issue form (`.github/ISSUE_TEMPLATE/outline.yml`, label `outline`) is filed by
+`intake.process_outline`: one stop and nothing is filed, and the reply on the issue lists every stop by its line;
+otherwise the post's votes go to the default branch in one commit (a vote on a page the post itself adds goes in the
+pull request instead, since that page is not on the site until it is merged), its rows to one pull request whose body is the reply,
+and the reply on the issue shows every new key, every match and every near match. Where the four modules make a choice
+the language left open, or part from it to follow the stored data, their docstrings say so under Decisions.
 
 ## What a mutation sweep found that reading did not
 
