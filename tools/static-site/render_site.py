@@ -2875,29 +2875,48 @@ def start_here(c):
 
 WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
 
-def render_index(c, title):
-    """The home page: several ways in, each a card in flowing columns so a short card never leaves a gap, and
-    none of them the whole page. Every card that ranks something links to what the ranking means; a ranking
-    the site cannot compute is left off rather than faked."""
-    o = [root_head(title, [('Home', '')], main_class='index')]
-    ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
-    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
+def so_far(c):
+    """How many beliefs are here and how far along, in a short sentence for the foot of the home page and a full
+    one for the page that explains the site."""
     filed = sorted({c.topics[c.topic_of(b)]['name'] for b in c.beliefs if c.topic_of(b)})
     about = (f', all on {esc(filed[0].lower())}' if len(filed) == 1 else f' across {len(filed)} topics') if filed else ''
     done = [b for b in c.beliefs if c.complete(b)]
     def count(n): return WORDS[n].lower() if n < len(WORDS) else f'{n:,}'
     if done and len(done) < len(c.beliefs):
-        sofar = (f'{count(len(c.beliefs)).capitalize()} beliefs{about}, {count(len(done))} of them worked all the way through: reasons both ways, '
-                 'evidence, yardsticks, predictions, costs and interests. Those come first in every list; the rest are drafts, each marked and '
-                 'saying what it still needs, because an argument somebody started is never thrown away.')
-    else:
-        sofar = f'{count(len(c.beliefs)).capitalize()} belief{"s are" if len(c.beliefs) != 1 else " is"} worked through so far{about}.'
-    o.append(f'<p class="lede">Most political fights repeat the same few points forever, and nobody keeps score. Here each belief gets one page, '
-             f'with every reason for it and against it and the evidence under each reason. A reason nobody has backed up counts for nothing, '
-             f'however many times it is repeated; only a better argument or better evidence moves a score. '
-             f'{sofar} '
-             f'Anyone can add a reason, a finding or a vote on any page. A claim that is already here becomes a vote for it, not a second copy. '
-             f'<a href="lists.html">What each list means</a> · <a href="method.html">how the scores are worked out</a>.</p>')
+        head = f'{count(len(c.beliefs)).capitalize()} beliefs{about}, {count(len(done))} of them worked all the way through'
+        return (head + '; the rest are drafts, each marked.',
+                head + ': reasons both ways, evidence, yardsticks, predictions, costs and interests. Those come first in every list; the rest '
+                'are drafts, each marked and saying what it still needs, because an argument somebody started is never thrown away.')
+    whole = f'{count(len(c.beliefs)).capitalize()} belief{"s are" if len(c.beliefs) != 1 else " is"} worked through so far{about}.'
+    return whole, whole
+
+
+def render_about(c, title):
+    """The site explained in plain words, at the length the home page has no room for. The home page carries two
+    sentences of this at its foot and a link here."""
+    o = [root_head('What this site is', [('Home', 'index.html'), ('What this site is', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>What this site is</h1>')
+    o.append('<p class="lede">Most political fights repeat the same few points forever, and nobody keeps score. Here each belief gets one page, '
+             'with every reason for it and against it and the evidence under each reason. A reason nobody has backed up counts for nothing, '
+             'however many times it is repeated; only a better argument or better evidence moves a score.</p>')
+    o.append(f'<p class="lede">{so_far(c)[1]}</p>')
+    o.append('<p class="lede">Anyone can add a reason, a finding or a vote on any page. A claim that is already here becomes a vote for it, '
+             'not a second copy.</p>')
+    o.append('<ul class="links"><li><a href="lists.html">What each list means</a>: what every ranking shows, how it is worked out and why it is tracked.</li>'
+             '<li><a href="method.html">How the scores are worked out</a>: the exact rules, with their numbers.</li>'
+             '<li><a href="vocab.html">What a post can be</a>, and <a href="contributors.html">who takes part</a>.</li></ul>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+def render_index(c, title):
+    """The home page: several ways in, each a card in flowing columns so a short card never leaves a gap, and
+    none of them the whole page. Every card that ranks something links to what the ranking means; a ranking
+    the site cannot compute is left off rather than faked. The cards come first: what the site is takes two sentences
+    at the foot, with the rest on about.html."""
+    o = [root_head(title, [('Home', '')], main_class='index')]
+    ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
+    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
     TOP = 3
     cards = [start_here(c), card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
     cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
@@ -2981,6 +3000,9 @@ def render_index(c, title):
     o.append(MASONRY)
     # The plumbing stays off the cards: a reader comes for the arguments, and the tables and the method are one
     # line at the foot of the page for the reader who wants to check them.
+    brief, _ = so_far(c)
+    o.append(f'<p class="lede" id="about">Each belief gets one page, with every reason for it and against it and the evidence under each '
+             f'reason. Only a better argument or better evidence moves a score. {brief} <a href="about.html">More &rarr;</a></p>')
     o.append('<p class="under"><a href="contributors.html">Who takes part</a> · <a href="vocab.html">What a post can be</a> · '
              '<a href="outline.html">Reason Outline</a>, many rows in one post · <a href="changes.html">What changed</a> since the last revision · '
              '<a href="method.html#data">The tables behind every page</a>, free to download and check.</p>')
@@ -4595,7 +4617,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
         fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
-    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists)):
+    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 'u'))
     for login in getattr(c, 'people', []):
