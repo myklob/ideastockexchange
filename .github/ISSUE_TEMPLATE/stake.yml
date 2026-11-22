@@ -1,12 +1,12 @@
 name: Put play money on a claim
-description: Buy shares for or against a belief, or bet on whether a dated prediction comes true. What happens next, in one sentence, is that the stake is recorded against your GitHub login and shown on the investing and betting pages; it is play money, and it never moves a score.
+description: Buy shares for or against a belief, sell them back, or bet on whether a dated prediction comes true. What happens next, in one sentence, is that the stake is recorded against your GitHub login and shown on the investing and betting pages; it is play money, and it never moves a score.
 title: "Invest for: "
 labels: [stake]
 body:
   - type: markdown
     attributes:
       value: |
-        **You are putting play money on one claim.** The title above says which way and on which claim. Everything below is already filled in except the amount: type it, press the green button at the bottom, and you are done.
+        **You are putting play money on one claim, or taking it back out.** The title above says which and on which claim. Everything below is already filled in except the amount: type it, press the green button at the bottom, and you are done.
 
         Every account starts with 10,000 play dollars. It is not real money and nothing can be taken out. A stake is recorded under your GitHub login and shown on the investing and betting pages. It never changes a score: to change a score, add a reason or evidence on the claim's page.
   - type: input
@@ -21,9 +21,10 @@ body:
     id: kind
     attributes:
       label: Kind
-      description: Filled in from the link you clicked. Invest buys shares at today's price, the page's truth score, and has no end date. Bet puts money in the pool on a dated prediction, and is paid out when what happened is recorded.
+      description: Filled in from the link you clicked. Invest buys shares at today's price, the page's truth score, and has no end date. Sell sells shares you hold back at today's price. Bet puts money in the pool on a dated prediction, and is paid out when what happened is recorded.
       options:
         - invest
+        - sell
         - bet
     validations:
       required: true
@@ -31,7 +32,7 @@ body:
     id: side
     attributes:
       label: Side
-      description: Filled in from the link you clicked. For means the claim is true, or the prediction happens. Against means it is false, or it does not.
+      description: Filled in from the link you clicked. For means the claim is true, or the prediction happens. Against means it is false, or it does not. For a sale, it is which of your holdings you are selling.
       options:
         - for
         - against
@@ -41,7 +42,7 @@ body:
     id: amount
     attributes:
       label: Amount
-      description: The one thing to type. Play dollars, as a number; the smallest stake is 1.
+      description: The one thing to type. Play dollars, as a number; the smallest stake is 1. For a sale, how many play dollars' worth to sell at today's price, or the word all.
       placeholder: "100"
     validations:
       required: true

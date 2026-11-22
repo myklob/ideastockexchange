@@ -271,10 +271,11 @@ text, which is the thing to fix at the source. Counts always add. Expected value
 **Play money (`market.py`).** A share for a claim costs its truth score and a share against costs the rest of the
 dollar, so money never moves a price and the only way a holding gains is for the score to move, which only a row on
 the page can do. A bet is a pool on a dated prediction, paid to the side that was right when the outcome is recorded.
-Every account starts with 10,000 play dollars. The ledger is `content/stakes.csv`, written by intake from
-`.github/ISSUE_TEMPLATE/stake.yml`; it follows the firewall the app's market layer runs under
-(`docs/MARKET_LAYER_SPEC.md`): scores go to the market and nothing comes back. Not built: selling a share back, and
-the ledger in the SQL, SQLite and XML exports (it is published as `data/stakes.csv`).
+Any part of a holding can be sold back at the day's price; the ledger is read in the order the issues were opened,
+because a sale can only sell what was bought before it. Every account starts with 10,000 play dollars. The ledger is
+`content/stakes.csv`, written by intake from `.github/ISSUE_TEMPLATE/stake.yml`; it follows the firewall the app's
+market layer runs under (`docs/MARKET_LAYER_SPEC.md`): scores go to the market and nothing comes back. Not built: the
+ledger in the SQL, SQLite and XML exports (it is published as `data/stakes.csv`).
 
 **Contributors.** `contributors.html` and each `u/<login>.html` count what a person added by what it is (beliefs
 worked on, reasons, evidence, other additions), not rows. A proposed belief with no reason attached records nobody,
@@ -397,11 +398,12 @@ has argued is worth exactly nothing, however many people like it.
 
 Play money works the same way and is just as inert. The "Buy shares: for · against" links on `invest.html` and on
 every belief and claim page, and the "Bet that it: happens · does not" links on `bets.html`, open the stake form
-(`.github/ISSUE_TEMPLATE/stake.yml`: page, kind, side, amount). `intake.process_stake` checks that the page exists,
-that an investment goes on a belief or a claim and a bet on a dated prediction that has not settled, and that the
-account has the amount left of the 10,000 it started with; it computes the price from the tables as they stand,
-writes one row to `content/stakes.csv`, pushes it to the default branch the way a vote is pushed, and answers with
-the shares bought and what is left. An edited issue replaces its own stake. A stake that cannot be taken is answered
+(`.github/ISSUE_TEMPLATE/stake.yml`: page, kind, side, amount). A side somebody holds also carries a "Sell shares
+back" link. `intake.process_stake` checks that the page exists, that an investment or a sale goes on a belief or a
+claim and a bet on a dated prediction that has not settled, that the account has the amount left of the 10,000 it
+started with, and for a sale that it holds that much on that side (the amount can be the word all); it computes the
+price from the tables as they stand, writes one row to `content/stakes.csv`, pushes it to the default branch the
+way a vote is pushed, and answers with the shares bought or what the sale made, and what is left. An edited issue replaces its own stake. A stake that cannot be taken is answered
 in a comment and closed, not failed. It touches no table a score is computed from, and `test_market.py` checks that.
 
 ## Reason Outline

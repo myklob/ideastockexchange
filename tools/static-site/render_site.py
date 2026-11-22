@@ -818,7 +818,7 @@ def render_belief(c, pid):
                  f'<span id="shares">One share for costs {f2(px)} play dollars and one share against costs {f2(1 - px)}</span>: the truth score, '
                  f'and the rest of the dollar. Invested so far: {play(held["agree"])} for and {play(held["disagree"])} against'
                  + (f', worth {play(held["worth_agree"] + held["worth_disagree"])} at today&rsquo;s price' if held['people'] else '')
-                 + f'. Buy shares: {stake_links(c, pid, "invest", ("for", "against"))}. {PLAY_NOTE} '
+                 + f'. Buy shares: {stake_links(c, pid, "invest", ("for", "against"))}.{sell_links(c, pid, held)} {PLAY_NOTE} '
                  '<a href="../invest.html">Every belief, by what a share costs</a>.'))
     if (sp.get('bottom_line') or '').strip():
         # The one sentence on the page an author typed rather than the engine computed. Kept, never deleted, and
@@ -2775,7 +2775,7 @@ EXPLAIN = [
      'method.html#categories'),
     ('invest', 'Investing',
      'What a share in each belief costs today, and how much play money has been put in for and against it.',
-     'One share for a belief costs its truth score in play dollars, and one share against costs one minus that. Buying writes the amount and the price paid into a ledger. A holding is worth its shares times today\'s price, so it gains when the score moves its way. Money never moves the price: a share for and a share against always cost one play dollar together, so holding both gains nothing. Every account starts with the same amount of play money, and none of it is read by any score.',
+     'One share for a belief costs its truth score in play dollars, and one share against costs one minus that. Buying writes the amount and the price paid into a ledger. A holding is worth its shares times today\'s price, so it gains when the score moves its way, and any part of it can be sold back at the day\'s price. Money never moves the price: a share for and a share against always cost one play dollar together, so holding both gains nothing. Every account starts with the same amount of play money, and none of it is read by any score.',
      'Because the site is named for an exchange, and an exchange where the price is set by argument rewards the one thing the site needs: finding the reason or the evidence a page has not caught up with, and adding it. Money cannot buy a higher price here, only a position on which way the argument will go.',
      'method.html#market'),
     ('bets', 'Betting',
@@ -3492,13 +3492,20 @@ PLAY_NOTE = ('Play money, shown beside the analysis and never read by it: no amo
 def stake_url(key, kind, side, text=None):
     """A prefilled stake issue: play money for or against a page, as an investment or as a bet. `text` is the claim
     in words, for the title, so the GitHub page says what the money is going on; intake reads only the fields."""
-    what = {'invest': 'Invest', 'bet': 'Bet'}[kind] + (' for' if side == 'agree' else ' against')
+    what = {'invest': 'Invest', 'sell': 'Sell shares', 'bet': 'Bet'}[kind] + (' for' if side == 'agree' else ' against')
     return f'{NEW_ISSUE}?' + _q([('template', 'stake.yml'), ('labels', 'stake'), ('title', f'{what}: {clip(text or key, 110)}'), ('page', key), ('kind', kind),
                                  ('side', 'for' if side == 'agree' else 'against')])
 
 def stake_links(c, pid, kind, words):
     key = c.key[pid]
     return ' · '.join(f'<a href="{esc(stake_url(key, kind, s, c.standalone(pid)))}" rel="nofollow">{esc(w)}</a>' for s, w in zip(('agree', 'disagree'), words))
+
+def sell_links(c, pid, held):
+    """The way back out of a holding, offered only for a side somebody holds."""
+    key = c.key[pid]
+    sides = [(s, w) for s, w in (('agree', 'for'), ('disagree', 'against')) if held[s] > 0]
+    if not sides: return ''
+    return ' Sell shares back: ' + ' · '.join(f'<a href="{esc(stake_url(key, "sell", s, c.standalone(pid)))}" rel="nofollow">{w}</a>' for s, w in sides) + '.'
 
 def book_of(c):
     """The ledger against this build's scores, made once. A build with no ledger has an empty book."""
@@ -3514,14 +3521,15 @@ def accounts_table(c, book):
     """Who holds what: every account that has put play money anywhere, by what it is worth today."""
     if not book.accounts: return ''
     o = [H_section_plain('Accounts', f'Every account starts with {play(MARKET.START)} play dollars. Holdings are marked at today&rsquo;s price; a bet is counted at '
-                         'what was put in until it settles. Worth today is cash plus both.', 'accounts')]
+                         'what was put in until it settles. Made on shares sold is what sales brought in over what those shares cost. Worth today is '
+                         'cash plus holdings plus open bets.', 'accounts')]
     o.append('<table class="scored"><thead><tr><th class="rk">#</th><th>Who</th><th>Cash</th><th>In shares, at cost</th><th>Shares, worth today</th>'
-             '<th>In open bets</th><th>Won and lost on bets</th><th>Worth today</th></tr></thead><tbody>')
+             '<th>Made on shares sold</th><th>In open bets</th><th>Won and lost on bets</th><th>Worth today</th></tr></thead><tbody>')
     for i, (login, a) in enumerate(sorted(book.accounts.items(), key=lambda kv: (-kv[1]['net'], kv[0])), 1):
         who = user_slug(login)
         name = f'<a href="u/{who}.html">{esc(person_name(c, who))}</a>' if who in getattr(c, 'people', []) else esc('@' + login)
         o.append(f'<tr><td class="rk">{i}</td><td class="t">{name}</td><td>{play(a["cash"])}</td><td>{play(a["holdings_cost"])}</td>'
-                 f'<td>{play(a["holdings_worth"])}</td><td>{play(a["at_stake"])}</td><td>{smoney(a["won"] - a["lost"])}</td><td class="sc">{play(a["net"])}</td></tr>')
+                 f'<td>{play(a["holdings_worth"])}</td><td>{smoney(a["realized"])}</td><td>{play(a["at_stake"])}</td><td>{smoney(a["won"] - a["lost"])}</td><td class="sc">{play(a["net"])}</td></tr>')
     return ''.join(o) + '</tbody></table></section>'
 
 def render_invest(c, title):
@@ -3537,7 +3545,7 @@ def render_invest(c, title):
              f'belief costs its truth score in play dollars, and one share <em>against</em> costs the rest of the dollar, so a belief scored 0.62 '
              f'sells at 0.62 for and 0.38 against. Money never moves the price. The only thing that makes a holding worth more is the score moving, '
              f'and the only things that move a score are a better reason, a finding, or showing that something already listed is false. So the way '
-             f'to profit is to spot an argument the page has not caught up with, and then add it. Every account starts with '
+             f'to profit is to spot an argument the page has not caught up with, add it, and sell when the score has moved. Every account starts with '
              f'{play(MARKET.START)} play dollars. {PLAY_NOTE} <a href="method.html#market">The rules in full</a>.</p>')
     if tot['invested']:
         o.append(f'<p class="lede">{play(tot["invested"])} play dollars are invested across {tot["pages"]} page{"s" if tot["pages"] != 1 else ""}.</p>')
@@ -3554,7 +3562,7 @@ def render_invest(c, title):
     for i, b in enumerate(bs, 1):
         x = inv(b); t = c.truth(b)
         who = f', by {x["people"]} account{"s" if x["people"] != 1 else ""}' if x['people'] else ''
-        under = f'<div class="src">Buy shares: {stake_links(c, b, "invest", ("for", "against"))}{who}</div>'
+        under = f'<div class="src">Buy shares: {stake_links(c, b, "invest", ("for", "against"))}{who}.{sell_links(c, b, x)}</div>'
         worth = play(x['worth_agree'] + x['worth_disagree']) if x['people'] else ''
         o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(b)}">{esc(c.standalone(b))}</a>{draft_mark(c, b)}{under}</td>'
                  f'<td class="sc">{f2(MARKET.price(t, "agree"))}</td><td>{f2(MARKET.price(t, "disagree"))}</td>'
@@ -3576,10 +3584,10 @@ def render_invest(c, title):
                      f'<td>{play(x["disagree"])}</td><td>{play(x["worth_agree"] + x["worth_disagree"])}</td></tr>')
         o.append('</tbody></table></section>')
     o.append(accounts_table(c, book))
-    o.append(H_section_plain('What this does not do yet', None, 'limits'))
-    o.append('<p class="blurb">It is play money: nothing can be paid in or taken out. A share cannot be sold back yet; a holding is marked at today&rsquo;s '
-             'price instead, so a gain shows but cannot be spent. The price is the truth score and nothing else, so it says what the argument on the '
-             'page is worth, not what people expect. What people expect is on <a href="bets.html">the betting view</a>, where the money sets the odds.</p></section>')
+    o.append(H_section_plain('What this is not', None, 'limits'))
+    o.append('<p class="blurb">It is play money: nothing can be paid in or taken out. A share is bought and sold back at the truth score of the day and '
+             'at nothing else, so the price says what the argument on the page is worth, not what people expect. What people expect is on '
+             '<a href="bets.html">the betting view</a>, where the money sets the odds.</p></section>')
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 

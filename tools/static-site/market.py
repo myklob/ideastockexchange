@@ -14,6 +14,8 @@ INVESTING is buying shares in a claim, with no end date.
     price of a share against   1 - the truth score
     shares bought              amount / price on the day, and the price paid is written in the ledger
     worth today                shares x today's price
+    sold back                  any part of a holding, at the day's price; what was paid for the shares sold is the
+                               same part of what the holding cost, and the difference is the gain or the loss
 
     The price is set by the argument and by nothing else. Money does not move it, so nobody can buy a higher
     price with volume, and the only way to make a holding worth more is for the claim's score to move: by a
@@ -33,23 +35,25 @@ BETTING is putting money on whether a dated prediction comes true. It ends.
     of money. The odds are whatever the money says, and they are printed beside what the analysis says so the
     two can be compared, exactly as votes are.
 
-Every GitHub account starts with START play dollars. It is not real money, nothing can be withdrawn, and a
-share cannot be sold back yet (a holding is marked at today's price instead). The ledger is one table,
-content/stakes.csv, one row per stake, written by intake.py from the stake form:
+Every GitHub account starts with START play dollars. It is not real money and nothing can be withdrawn. The
+ledger is one table, content/stakes.csv, one row per stake, written by intake.py from the stake form and read in
+the order the issues were opened, because a sale can only sell what was bought before it:
 
-    key      the page: a belief or claim for an investment, a prediction's page for a bet
+    key      the page: a belief or claim for an investment or a sale, a prediction's page for a bet
     login    the GitHub account
-    kind     invest or bet
-    side     agree (for) or disagree (against)
-    amount   play dollars put in
-    price    for an investment, what one share cost that day; empty for a bet
+    kind     invest, sell or bet
+    side     agree (for) or disagree (against); for a sale, which holding is being sold
+    amount   play dollars put in; for a sale, play dollars taken out
+    price    for an investment or a sale, what one share cost that day; empty for a bet
     issue    the issue the form opened, so an edited issue replaces its own row and never adds a second
     date     the day it was recorded
 """
 import csv, os
 
 STAKE_COLS = ['key', 'login', 'kind', 'side', 'amount', 'price', 'issue', 'date']
-KINDS = ('invest', 'bet')
+KINDS = ('invest', 'sell', 'bet')
+PRICED = ('invest', 'sell')   # the kinds that happen at a price, which the ledger keeps beside the amount
+DUST = 0.005                  # less than half a cent of a holding left after a sale is sold with it
 SIDES = ('agree', 'disagree')
 START = 10000.0       # play dollars every account begins with, the figure the app's play-money accounts use
 MIN_STAKE = 1.0       # the smallest stake the form takes
@@ -77,8 +81,8 @@ def read(content):
             r = {c: (d.get(c) or '').strip() for c in STAKE_COLS}
             amount, price = _num(r['amount']), _num(r['price'])
             if not (r['key'] and r['login'] and r['kind'] in KINDS and r['side'] in SIDES and amount and amount > 0): continue
-            if r['kind'] == 'invest' and not (price and 0 < price < 1): continue
-            r['amount'] = amount; r['price'] = price if r['kind'] == 'invest' else None
+            if r['kind'] in PRICED and not (price and 0 < price < 1): continue
+            r['amount'] = amount; r['price'] = price if r['kind'] in PRICED else None
             out.append(r)
     return out
 
@@ -108,7 +112,7 @@ def record(rows, key, login, kind, side, amount, price, issue, date):
     typo corrected is not a second purchase. Stakes from different issues all stand, because each is a purchase."""
     kept = [r for r in rows if str(r.get('issue') or '') != str(issue)]
     kept.append({'key': key, 'login': login, 'kind': kind, 'side': side, 'amount': float(amount),
-                 'price': float(price) if kind == 'invest' else None, 'issue': str(issue), 'date': date})
+                 'price': float(price) if kind in PRICED else None, 'issue': str(issue), 'date': date})
     return kept
 
 
@@ -130,21 +134,37 @@ class Book:
     def __init__(self, rows, truth_of, settled_of=None):
         self.rows = list(rows)
         settled_of = settled_of or (lambda key: None)
-        self.holdings = {}      # key -> side -> {'paid', 'shares', 'worth', 'people'}
+        self.holdings = {}      # key -> side -> {'paid', 'shares', 'worth', 'people'}: what is held now, sales taken out
         self.pools = {}         # key -> {'agree', 'disagree', 'people', 'settled', 'paid_out': {login: amount}}
-        self.accounts = {}      # login -> {'paid_in', 'holdings_cost', 'holdings_worth', 'at_stake', 'won', 'lost', 'cash', 'net'}
-        for r in self.rows:
-            a = self.accounts.setdefault(r['login'], dict(holdings_cost=0.0, holdings_worth=0.0, at_stake=0.0, won=0.0, lost=0.0, returned=0.0))
+        self.accounts = {}      # login -> what it bought, sold, holds, has at stake, won and lost, its cash and its worth
+        self.positions = {}     # (login, key, side) -> {'shares', 'cost'}
+        # in the order the issues were opened: a sale sells only what was bought before it
+        ordered = [r for _, r in sorted(enumerate(self.rows), key=lambda ir: (_issue_order(ir[1]), ir[0]))]
+        for r in ordered:
+            a = self.accounts.setdefault(r['login'], dict(bought=0.0, sold=0.0, realized=0.0, holdings_cost=0.0, holdings_worth=0.0,
+                                                          at_stake=0.0, won=0.0, lost=0.0, returned=0.0))
             if r['kind'] == 'invest':
-                t = truth_of(r['key'])
-                shares = r['amount'] / r['price']
-                worth = shares * price(t, r['side']) if t is not None else r['amount']
-                h = self.holdings.setdefault(r['key'], {s: dict(paid=0.0, shares=0.0, worth=0.0, people=set()) for s in SIDES})[r['side']]
-                h['paid'] += r['amount']; h['shares'] += shares; h['worth'] += worth; h['people'].add(r['login'])
-                a['holdings_cost'] += r['amount']; a['holdings_worth'] += worth
+                p = self.positions.setdefault((r['login'], r['key'], r['side']), dict(shares=0.0, cost=0.0))
+                p['shares'] += r['amount'] / r['price']; p['cost'] += r['amount']; a['bought'] += r['amount']
+            elif r['kind'] == 'sell':
+                p = self.positions.get((r['login'], r['key'], r['side']))
+                if not p or p['shares'] <= 0: continue      # nothing held, so nothing was sold whatever the row says
+                proceeds = min(r['amount'], p['shares'] * r['price'])
+                shares = proceeds / r['price']
+                if (p['shares'] - shares) * r['price'] < DUST: shares = p['shares']
+                cost = p['cost'] * shares / p['shares']
+                p['shares'] -= shares; p['cost'] -= cost
+                a['sold'] += proceeds; a['realized'] += proceeds - cost
             else:
                 p = self.pools.setdefault(r['key'], dict(agree=0.0, disagree=0.0, people=set(), settled=None, paid_out={}, stakes=[]))
                 p[r['side']] += r['amount']; p['people'].add(r['login']); p['stakes'].append(r)
+        for (login, key, side), p in self.positions.items():
+            if p['shares'] <= 0: continue
+            t = truth_of(key)
+            worth = p['shares'] * price(t, side) if t is not None else p['cost']
+            h = self.holdings.setdefault(key, {s: dict(paid=0.0, shares=0.0, worth=0.0, people=set()) for s in SIDES})[side]
+            h['paid'] += p['cost']; h['shares'] += p['shares']; h['worth'] += worth; h['people'].add(login)
+            self.accounts[login]['holdings_cost'] += p['cost']; self.accounts[login]['holdings_worth'] += worth
         for key, p in self.pools.items():
             p['settled'] = settled_of(key)
             total = p['agree'] + p['disagree']
@@ -161,11 +181,17 @@ class Book:
                 else:
                     a['lost'] += r['amount']
         for a in self.accounts.values():
-            a['cash'] = START - a['holdings_cost'] - a['at_stake'] - a['lost'] + a['won']
+            a['cash'] = START - a['bought'] + a['sold'] - a['at_stake'] - a['lost'] + a['won']
             a['net'] = a['cash'] + a['holdings_worth'] + a['at_stake']
 
+    def held(self, login, key, side):
+        """What one account holds on one side of one page now: its shares and what they cost."""
+        p = self.positions.get((login, key, side))
+        return dict(shares=p['shares'], cost=p['cost']) if p and p['shares'] > 0 else dict(shares=0.0, cost=0.0)
+
     def invested(self, key):
-        """Money put into a page, for and against, and what those holdings are worth at today's price."""
+        """Money in a page now, for and against (what was sold is out), and what those holdings are worth at
+        today's price."""
         h = self.holdings.get(key)
         if not h: return dict(agree=0.0, disagree=0.0, worth_agree=0.0, worth_disagree=0.0, people=0)
         return dict(agree=h['agree']['paid'], disagree=h['disagree']['paid'], worth_agree=h['agree']['worth'],

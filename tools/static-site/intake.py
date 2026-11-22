@@ -1028,8 +1028,8 @@ def page_link(key, site=SITE): return f'{site}p/{key}.html'
 # ------------------------------------------------------------------------------------------- play money
 def process_stake(sub, tables, git, matcher, content):
     """A stake form in, and a row in content/stakes.csv out: play money put on a page, as shares in a claim or as a
-    bet on a prediction (market.py). The price of a share is the page's truth score in the tables as they stand,
-    so it is computed here and written beside the amount; nothing a scorer reads is touched. A stake that cannot
+    bet on a prediction, or shares sold back (market.py). The price of a share is the page's truth score in the
+    tables as they stand, so it is computed here and written beside the amount; nothing a scorer reads is touched. A stake that cannot
     be taken (no such page, a bet on something that is not a prediction, more than the account has left) is
     answered in a comment and the issue closed, because it is the sender's to correct and not a fault to fail on."""
     import market as MK, predictions as PR
@@ -1045,12 +1045,14 @@ def process_stake(sub, tables, git, matcher, content):
     # what the sender typed is read back short and as code, so a field stuffed with markup says nothing in the reply
     said = lambda v: '`' + re.sub(r'[`\s]+', ' ', v)[:40] + '`'
     if not tables.has(key): return refuse(f'There is no page with the key {said(key)}.', 'unknown page')
-    if kind not in MK.KINDS: return refuse(f'Kind must be invest or bet, not {said(f["kind"])}.', 'unknown kind')
+    if kind not in MK.KINDS: return refuse(f'Kind must be invest, sell or bet, not {said(f["kind"])}.', 'unknown kind')
     if side is None: return refuse(f'Side must be for or against, not {said(f["side"])}.', 'unknown side')
-    amount = MK._num(f['amount'])
-    if amount is None or amount < MK.MIN_STAKE:
-        return refuse(f'The amount must be a number of play dollars, at least {MK.MIN_STAKE:g}; {said(f["amount"])} is not.', 'bad amount')
-    amount = round(amount, 2)
+    everything = kind == 'sell' and f['amount'].strip().lower() in ('all', 'everything')
+    amount = None if everything else MK._num(f['amount'])
+    if not everything and (amount is None or amount < (0.01 if kind == 'sell' else MK.MIN_STAKE)):
+        least = 'or the word all' if kind == 'sell' else f'at least {MK.MIN_STAKE:g}'
+        return refuse(f'The amount must be a number of play dollars, {least}; {said(f["amount"])} is not.', 'bad amount')
+    if amount is not None: amount = round(amount, 2)
     c = (matcher or Matcher(content)).c
     pid = c.tabs[key]
     name = f'[{tables.by_key[key].get("text") or key}]({page_link(key)})'
@@ -1058,7 +1060,7 @@ def process_stake(sub, tables, git, matcher, content):
     tracked = PR.tracker(c)
     for r in tracked['resolved']:
         if r['outcome'] in ('came true', 'did not'): settled[c.key[r['page']]] = 'agree' if r['outcome'] == 'came true' else 'disagree'
-    if kind == 'invest':
+    if kind in MK.PRICED:
         if c.kind(pid) not in ('belief', 'claim'):
             return refuse(f'Shares can be bought in a belief or a claim, and {name} is neither.', 'not a claim')
     else:
@@ -1072,18 +1074,35 @@ def process_stake(sub, tables, git, matcher, content):
     path = MK.path_of(content)
     # what the account can still stake, not counting this issue's own earlier stake when the form was edited and sent again
     def before(): return [r for r in MK.read(content) if str(r.get('issue') or '') != str(n)]
-    cash = MK.Book(before(), truth_of, settled.get).cash(login)
-    if amount > cash + 1e-9:
+    book = MK.Book(before(), truth_of, settled.get)
+    cash = book.cash(login)
+    price = MK.price(c.truth(pid), side) if kind in MK.PRICED else None
+    words = 'for' if side == 'agree' else 'against'
+    if kind == 'sell':
+        held = book.held(login, key, side)
+        worth = held['shares'] * price
+        if worth < 0.01:
+            return refuse(f'This account holds no shares {words} {name}, so there is nothing to sell.', 'nothing held')
+        if everything: amount = round(worth, 2)
+        elif amount > worth + MK.DUST:
+            return refuse(f'That is {amount:,.2f} play dollars and the shares this account holds {words} {name} are worth {worth:,.2f} '
+                          f'at today\'s price. Type all to sell every one of them.', 'more than held')
+        amount = min(amount, round(worth, 2)) or 0.01
+        paid = held['cost'] * min(1.0, amount / worth)
+    elif amount > cash + 1e-9:
         return refuse(f'That is {amount:,.2f} play dollars and this account has {cash:,.2f} left of the {MK.START:,.0f} it started with.', 'not enough left')
-    price = MK.price(c.truth(pid), side) if kind == 'invest' else None
 
     def apply():
         MK.write(content, MK.record(before(), key, login, kind, side, amount, price, n, sub['date']))
     apply()
     git.identity()
-    words = 'for' if side == 'agree' else 'against'
-    left = cash - amount
-    if kind == 'invest':
+    left = cash + amount if kind == 'sell' else cash - amount
+    if kind == 'sell':
+        gain = amount - paid
+        git.push_master([path], f'Record a stake from #{n}: {login} sells {amount:g} of {words} {key}', apply)
+        git.comment(n, f'Sold: {amount:,.2f} play dollars of your shares {words} {name}, at {price:.2f} a share. They cost you {paid:,.2f}, '
+                       f'so you {"made" if gain >= 0 else "lost"} {abs(gain):,.2f}. You have {left:,.2f} play dollars to stake. {PLAY}')
+    elif kind == 'invest':
         git.push_master([path], f'Record a stake from #{n}: {login} invests {amount:g} {words} {key}', apply)
         git.comment(n, f'Recorded: {amount:,.2f} play dollars {words} {name}, at {price:.2f} a share, which buys {amount / price:,.2f} shares. '
                        f'They are worth more when the truth score moves your way, and the only thing that moves it is a better reason or a '

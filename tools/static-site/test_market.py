@@ -60,6 +60,55 @@ class TestThePriceIsTheScore(unittest.TestCase):
         self.assertEqual(M.Book([], lambda k: 0.5).cash('nobody'), M.START)
 
 
+class TestSharesCanBeSoldBack(unittest.TestCase):
+    """100 play dollars buys 200 shares at 0.50. The score moves to 0.62, so they are worth 124."""
+    BUY = row('a', 'u', 'invest', 'agree', 100, 0.5, 1)
+
+    def test_selling_everything_returns_the_days_worth_and_closes_the_holding(self):
+        b = M.Book([self.BUY, row('a', 'u', 'sell', 'agree', 124, 0.62, 2)], lambda k: 0.62)
+        a = b.accounts['u']
+        self.assertAlmostEqual(a['realized'], 24.0); self.assertAlmostEqual(a['cash'], M.START + 24.0); self.assertAlmostEqual(a['net'], M.START + 24.0)
+        self.assertEqual(b.invested('a')['people'], 0, 'a holding sold in full is still counted as held')
+        self.assertEqual(b.held('u', 'a', 'agree'), dict(shares=0.0, cost=0.0))
+
+    def test_selling_part_takes_the_same_part_of_what_the_holding_cost(self):
+        b = M.Book([self.BUY, row('a', 'u', 'sell', 'agree', 62, 0.62, 2)], lambda k: 0.62)
+        a = b.accounts['u']
+        self.assertAlmostEqual(a['realized'], 12.0, msg='half the shares cost 50 and sold for 62')
+        self.assertAlmostEqual(a['cash'], M.START - 100 + 62)
+        x = b.invested('a')
+        self.assertAlmostEqual(x['agree'], 50.0); self.assertAlmostEqual(x['worth_agree'], 62.0)
+        self.assertAlmostEqual(b.held('u', 'a', 'agree')['shares'], 100.0)
+        self.assertAlmostEqual(a['net'], M.START + 24.0, msg='selling at today\'s price changes what an account holds, not what it is worth')
+
+    def test_a_sale_never_pays_for_more_than_is_held(self):
+        b = M.Book([self.BUY, row('a', 'u', 'sell', 'agree', 5000, 0.62, 2)], lambda k: 0.62)
+        self.assertAlmostEqual(b.accounts['u']['sold'], 124.0)
+        nothing = M.Book([row('a', 'u', 'sell', 'agree', 5000, 0.62, 2)], lambda k: 0.62)
+        self.assertAlmostEqual(nothing.cash('u'), M.START, msg='a sale of shares nobody bought paid out')
+
+    def test_a_sale_sells_only_what_was_bought_before_it_whatever_order_the_rows_are_in(self):
+        early_sale = [row('a', 'u', 'sell', 'agree', 124, 0.62, 1), row('a', 'u', 'invest', 'agree', 100, 0.5, 2)]
+        b = M.Book(early_sale, lambda k: 0.62)
+        self.assertAlmostEqual(b.accounts['u']['sold'], 0.0)
+        self.assertAlmostEqual(b.held('u', 'a', 'agree')['shares'], 200.0)
+        shuffled = M.Book([row('a', 'u', 'sell', 'agree', 124, 0.62, 2), self.BUY], lambda k: 0.62)
+        self.assertAlmostEqual(shuffled.accounts['u']['sold'], 124.0, msg='the ledger is read in the order the issues were opened, not the order of its rows')
+
+    def test_a_sale_of_all_leaves_no_fraction_of_a_cent_behind(self):
+        buy = row('a', 'u', 'invest', 'agree', 100, 0.3, 1)                 # 333.33 shares
+        b = M.Book([buy, row('a', 'u', 'sell', 'agree', round(100 / 0.3 * 0.41, 2), 0.41, 2)], lambda k: 0.41)
+        self.assertEqual(b.invested('a')['people'], 0)
+        self.assertEqual(b.accounts['u']['holdings_cost'], 0.0)
+
+    def test_the_two_sides_of_a_page_are_two_holdings(self):
+        rows = [self.BUY, row('a', 'u', 'invest', 'disagree', 50, 0.5, 2), row('a', 'u', 'sell', 'disagree', 38, 0.38, 3)]
+        b = M.Book(rows, lambda k: 0.62)
+        self.assertAlmostEqual(b.held('u', 'a', 'agree')['shares'], 200.0)
+        self.assertEqual(b.held('u', 'a', 'disagree')['shares'], 0.0)
+        self.assertAlmostEqual(b.accounts['u']['realized'], -12.0)
+
+
 class TestABetIsAPool(unittest.TestCase):
     ROWS = [row('p', 'u1', 'bet', 'agree', 30, None, 1), row('p', 'u2', 'bet', 'disagree', 60, None, 2), row('p', 'u3', 'bet', 'agree', 10, None, 3)]
 
@@ -117,6 +166,7 @@ class TestTheLedgerIsOneTable(unittest.TestCase):
                      'a,u1,invest,agree,100,0.5,1,2026-10-01\n'      # good
                      'a,u1,invest,agree,-5,0.5,2,2026-10-01\n'       # a negative amount
                      'a,u1,invest,agree,10,,3,2026-10-01\n'          # an investment with no price
+                     'a,u1,sell,agree,10,,8,2026-10-01\n'            # a sale with no price
                      'a,u1,invest,agree,10,1.5,4,2026-10-01\n'       # a price a truth score cannot be
                      'a,u1,loan,agree,10,0.5,5,2026-10-01\n'         # a kind the ledger does not have
                      'a,,bet,agree,10,,6,2026-10-01\n'               # nobody's
@@ -213,6 +263,9 @@ class TestMoneyNeverReachesAScore(unittest.TestCase):
         self.assertRegex(h, r'<section id="claims">.*Trees cool the streets beneath them\..*</section>')
         self.assertIn('This page is not in this build of the site, so its holdings are counted at what was paid.', h)
         self.assertIn('template=stake.yml', h); self.assertIn('kind=invest', h); self.assertIn('side=against', h)
+        self.assertEqual(row_.group(0).count('kind=sell'), 2, 'both sides of this belief are held, so both can be sold back')
+        other = re.search(r'<a href="p/b\.html">.*?</tr>', h, re.S).group(0)
+        self.assertIn('kind=invest', other); self.assertNotIn('kind=sell', other, 'a belief nobody holds offers shares to sell')
 
     def test_with_no_money_the_page_says_so_and_still_prints_todays_price(self):
         h = self.page(self.out_n, 'invest.html')
@@ -343,6 +396,34 @@ class TestTheStakeForm(unittest.TestCase):
         self.assertEqual((done['did'], done['kind'], done['side'], done['price']), ('stake', 'bet', 'disagree', None))
         self.assertIn('does not happen', self.comment(r))
         self.assertEqual([(x['key'], x['kind'], x['price']) for x in M.read(self.content)], [('p1', 'bet', None)])
+
+    def test_shares_are_sold_back_at_todays_price_and_the_money_can_be_staked_again(self):
+        self.run_(stake(amount='200', number=1))
+        done, r = self.run_(stake(kind='sell', amount='50', number=2, title='Sell shares for: a'))
+        self.assertEqual((done['did'], done['kind'], done['side'], done['amount']), ('stake', 'sell', 'agree', 50.0))
+        said = self.comment(r)
+        self.assertIn('Sold: 50.00 play dollars of your shares for', said); self.assertIn('They cost you 50.00, so you made 0.00', said)
+        self.assertIn('9,850.00 play dollars to stake', said)
+        done, r = self.run_(stake(kind='sell', amount='all', number=3))
+        self.assertEqual(done['amount'], 150.0)
+        self.assertIn('10,000.00 play dollars to stake', self.comment(r))
+        book = M.Book(M.read(self.content), lambda k: 0.5)
+        self.assertEqual(book.invested('a')['people'], 0)
+        self.assertEqual([x['kind'] for x in sorted(M.read(self.content), key=lambda x: int(x['issue']))], ['invest', 'sell', 'sell'])
+        self.assertTrue(all(x['price'] == 0.5 for x in M.read(self.content)))
+
+    def test_nothing_is_sold_that_is_not_held(self):
+        done, r = self.run_(stake(kind='sell', amount='all'))
+        self.assertEqual((done['did'], done['why']), ('nothing', 'nothing held'))
+        self.run_(stake(amount='100', number=1))
+        done, r = self.run_(stake(kind='sell', side='against', amount='all', number=2))
+        self.assertEqual(done['why'], 'nothing held', 'shares for a claim were sold as shares against it')
+        done, r = self.run_(stake(kind='sell', amount='500', number=3))
+        self.assertEqual(done['why'], 'more than held')
+        self.assertIn('are worth 100.00', self.comment(r)); self.assertIn('Type all', self.comment(r))
+        done, r = self.run_(stake(kind='sell', amount='all', number=4, login='bob'))
+        self.assertEqual(done['why'], 'nothing held', 'one account sold another account\'s shares')
+        self.assertEqual([x['kind'] for x in M.read(self.content)], ['invest'])
 
     def test_shares_are_bought_in_a_claim_and_not_in_an_interest(self):
         done, _ = self.run_(stake(page='i1'))

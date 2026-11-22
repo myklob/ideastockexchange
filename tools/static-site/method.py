@@ -247,6 +247,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
     o.append('<p class="form"><span class="lab">A share for</span> costs the page&rsquo;s truth score, in play dollars</p>')
     o.append('<p class="form"><span class="lab">A share against</span> costs 1 − the truth score</p>')
     o.append('<p class="form"><span class="lab">A holding is worth</span> the amount put in ÷ the price paid × today&rsquo;s price</p>')
+    o.append('<p class="form"><span class="lab">A sale pays</span> the shares sold × that day&rsquo;s price; its gain is that minus the same share of what the holding cost</p>')
     o.append('<p class="form"><span class="lab">A bet pays</span> the stake × the whole pool ÷ the money on the side that was right</p>')
     o.append(f'<p class="blurb">Every account starts with {MARKET.START:,.0f} play dollars, and the smallest stake is {MARKET.MIN_STAKE:,.0f}. '
              'An investment buys shares in a claim at that day&rsquo;s price, which is written in the ledger beside the amount. Money never moves '
@@ -256,7 +257,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
              'person put in; if nobody backed that side, every stake is returned. A prediction is settled exactly as the predictions page reads '
              f'it: a finding about what happened is filed, and came true means its truth score has reached {PRED.CAME_TRUE:.2f} or more, did not means '
              f'{1 - PRED.CAME_TRUE:.2f} or less. The pool says is the share of the money saying it will happen, printed only once the pool holds something. '
-             'A share cannot be sold back yet, so a holding is marked at today&rsquo;s price and a gain cannot be spent. The ledger is '
+             'Any part of a holding can be sold back at the day&rsquo;s price, and what it brings in can be staked again. The ledger is '
              f'<code>content/stakes.csv</code>, one row per stake, published as <a href="data/stakes.csv">data/stakes.csv</a>; it holds '
              f'{len(getattr(c, "stakes", []))} today.</p></section>')
 
@@ -348,7 +349,7 @@ def render(c, H, esc, f2, pct, CONST, CONST_MEANING, WIKI, JS):
         ('The bottom line on a page is typed by the author.', 'It is the one sentence on a page that is not computed. Read it as a comment on the tables, not a result of them: it cannot be checked against the numbers beside it, and where every row on the page scores zero the page says so next to it.'),
         ('The sensitivity sweep stops a fixed number of levels down.', 'Each page says how deep it looked and how many pages sit below that. ' + deep_note + ' On a deeper graph a claim below the line can still be the thing the conclusion rests on, and the sweep will not have touched it.'),
         ('The duplicate detector has a work limit.', 'A word is skipped only when it carries no weight in the score, which is when almost every claim has it, so how common a word is cannot on its own hide a duplicate. What remains is a limit on how many candidate pairs are held at once and a bar on how little two claims may share before the expensive half of the score is computed for them. Both are stated, and whatever the limit stopped it from examining is named rather than left out.'),
-        ('The price of a share is the truth score, not a market price.', 'Shares and bets are play money. A share costs what the argument on the page is worth today, so it says nothing about what people expect, and it cannot be sold back yet: a holding is marked at today’s price and a gain cannot be spent. What people expect is the pool on a prediction, which is empty until somebody bets. No score reads either.'),
+        ('The price of a share is the truth score, not a market price.', 'Shares and bets are play money. A share is bought and sold at what the argument on the page is worth that day, so its price says nothing about what people expect and no amount of buying moves it. What people expect is the pool on a prediction, which is empty until somebody bets. No score reads either.'),
         ('Cost and benefit categories are read off the words of a unit.', f'A row is filed under Money, Lives or Time by what its unit says it counts, and under the other categories by a short list of words. A unit the list does not recognise is filed under Other, which today holds {per[VW.OTHER]} of {len(crow)} rows, and a unit can be filed under a category a reader would not have chosen. Nothing is added across units, so a wrong category moves a row between lines of a table and changes no total that mixes units.'),
         ('A truth score is not a probability.', 'It is a share of argued weight around a starting point. It has the shape of a probability and does not have the calibration of one. Nothing here has been checked against outcomes.'),
         ('The corpus is small.', f'{len(c.specs)} pages, {len(c.beliefs)} of them beliefs, filed under {len(filed)} topics and written by very few people. A rule that behaves well here has not been shown to behave well at scale or on a topic where the evidence is worse.'),
