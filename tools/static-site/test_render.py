@@ -2563,6 +2563,15 @@ class TestEveryContributorHasAPage(unittest.TestCase):
         self.assertIn('Votes cast', self.read(out, 'u/u1.html'))
         self.assertEqual(self.v.broken_v, [], 'a contributor link points at a page that was not written')
 
+    def test_the_list_counts_up_and_down_votes_apart(self):
+        people = self.read(self.v.out_v, 'contributors.html')
+        self.assertRegex(people, r'<th\b[^>]*>Up votes</th><th\b[^>]*>Down votes</th>')
+        self.assertNotIn('Votes cast', people)
+        # u1 voted on a twice, agree then disagree; only the later vote stands
+        self.assertRegex(people, r'href="u/u1\.html">[^<]*</a></td><td class="u">[^<]*</td><td>\d+</td><td>2</td><td>1</td>')
+        self.assertRegex(people, r'href="u/u4\.html">[^<]*</a></td><td class="u">[^<]*</td><td>\d+</td><td>0</td><td>1</td>')
+        self.assertRegex(people, r'href="u/u2\.html">[^<]*</a></td><td class="u">[^<]*</td><td>\d+</td><td>1</td><td>1</td>')
+
     def test_added_by_links_to_the_contributors_page_on_this_site(self):
         h = self.read(self.v.out_v, 'p/' + self.v.cv.href(self.v.cv.tabs['a']))
         self.assertIn('added by <a href="../u/ann.html">@ann</a>', h)

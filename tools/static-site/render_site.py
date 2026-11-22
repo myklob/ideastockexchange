@@ -4457,12 +4457,13 @@ def render_contributors(c, title):
     o.append('<p class="kind">Idea Stock Exchange</p><h1>Contributors</h1>')
     o.append('<p class="lede">Everyone who has added a row or cast a vote here, and whoever maintains the site. Each has a page listing '
              'what they added. Who added a row never changes its score.</p>')
-    o.append('<section><table class="plain"><thead><tr><th>Who</th><th>Role</th><th>Rows added</th><th>Votes cast</th></tr></thead><tbody>')
+    o.append('<section><table class="plain"><thead><tr><th>Who</th><th>Role</th><th>Rows added</th><th>Up votes</th><th>Down votes</th></tr></thead><tbody>')
     for k in getattr(c, 'people', []):
+        vs = [v.get('vote') for v in c.voted.get(k, [])]
         role = 'Maintainer' if k == c.maintainer else (c.users.get(k, {}).get('role') or 'Contributor')
         o.append(f'<tr><td class="t"><a href="u/{user_slug(k)}.html">{esc(person_name(c, k))}</a></td><td class="u">{esc(role)}</td>'
-                 f'<td>{len(c.added.get(k, []))}</td><td>{len(c.voted.get(k, []))}</td></tr>')
-    if not getattr(c, 'people', []): o.append('<tr><td colspan="4" class="empty">Nobody yet.</td></tr>')
+                 f'<td>{len(c.added.get(k, []))}</td><td>{vs.count("agree")}</td><td>{vs.count("disagree")}</td></tr>')
+    if not getattr(c, 'people', []): o.append('<tr><td colspan="5" class="empty">Nobody yet.</td></tr>')
     o.append('</tbody></table></section>')
     o.append(stamp(c) + FOOT)
     return ''.join(o)
