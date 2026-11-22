@@ -1067,7 +1067,7 @@ def render_belief(c, pid):
         o.append('<ol class="sibs">' + ''.join(f'<li>{H.a(b, c.standalone(b))} <span class="tn" title="Truth score">{f2(c.truth(b))}</span></li>' for b in sibs) + f'<li class="u">{esc(c.standalone(pid))} (this page)</li></ol>')
         o.append(add_form(H.up, 'belief', topic=tk) + '</section>')
     if todo:
-        o.append(H.section('Not filled in yet', 'Parts of the template nobody has filled in here. They are named rather than shown, because an empty table is not a finding, and each one is a reason the confidence above is not higher. A part that takes rows has a form for its first one.'))
+        o.append(H.section('Not filled in yet', 'Parts of the template nobody has filled in here. They are named rather than shown, because an empty table is not a finding, and each one is a reason the confidence above is not higher. A part that takes rows has an Add link for its first one.'))
         o.append('<table class="plain"><thead><tr><th>Part of the page</th><th>What it is missing</th></tr></thead><tbody>' + ''.join(f'<tr><td class="t">{esc(n)}</td><td class="u">{esc(why)}</td></tr>' for n, why in todo) + '</tbody></table>')
         o.append(forms_grid(H.up, key, [s_ for n, _ in todo for s_ in FORM_SECTIONS.get(n, ())]))
         o.append('</section>')
@@ -1422,7 +1422,7 @@ def render_special(c, pid):
     o.append(used_on(H, c, pid))
     o.append(checks_section(H, c, pid))
     o.append(engine_table(H, c, pid))
-    o.append(H.section('Contribute') + f'<p class="cap">The forms under the tables above take a reason either way; the thumbs up and down on the heading line take a vote. {GIT_NOTE}: this page is <code>{esc(key)}</code> in the pages table and its rows are in the edges table.</p></section>')
+    o.append(H.section('Contribute') + f'<p class="cap">The Add links under the tables above take a reason either way; the thumbs up and down on the heading line take a vote. {GIT_NOTE}: this page is <code>{esc(key)}</code> in the pages table and its rows are in the edges table.</p></section>')
     o.append(contribute_script(H.up))
     o.append(FOOT)
     return ''.join(o)
@@ -1646,7 +1646,7 @@ def render_media(c, pid):
     bl = (sp.get('bottom_line') or '').strip()
     if bl: o.append(H.section('Bottom Line') + f'<p>{esc(bl)}</p><p class="cap">Typed by the author after the tables above, not computed from them.</p></section>')
     o.append(engine_table(H, c, pid))
-    o.append(H.section('Contribute') + f'<p class="cap">The forms under the tables above take a reason either way, a finding, a yardstick, a prediction or who gains; the thumbs up and down on the heading line take a vote. '
+    o.append(H.section('Contribute') + f'<p class="cap">The Add links under the tables above take a reason either way, a finding, a yardstick, a prediction or who gains; the thumbs up and down on the heading line take a vote. '
              f'A belief this work bears on is added from that belief&apos;s page, under Media Resources. {GIT_NOTE}: this page is <code>{esc(key)}</code> in the pages table and its rows are in the edges table.</p></section>')
     o.append(contribute_script(H.up))
     o.append(FOOT)
@@ -1939,6 +1939,13 @@ def add_form(up, section, side='agree', page=None, topic=None, first=False, labe
     GitHub prefills the fields it knows from the query and ignores the rest. A topic page passes its key as
     `page` and one of ise_tables.TOPIC_SECTIONS as `section`; the row then lands in that topic's cell.
 
+    What the page shows is one line, the link that opens the form: a box per table was a quarter of a belief
+    page's height, spent on fields most readers never type in. The form is a popover, so the link opens it with
+    no script, and a browser that does not know the attribute shows the form in place as before. A link to the
+    form's id opens it too (contribute.js), or shows it in place when scripts are off. The link is the only
+    markup this adds, because every byte here is repeated on every form of every page; the close button is the
+    script's, and without it a click outside the form or the Escape key closes it.
+
     A list page that is not itself a page passes `choose`, the (key, label) pages the row could go on, and the
     reader picks one; `override` replaces the wording of the form (label, hint, source, sides) where the same
     section reads differently in a different place, as a prediction does on a work's page."""
@@ -1949,7 +1956,8 @@ def add_form(up, section, side='agree', page=None, topic=None, first=False, labe
     if section == 'argument': label = label % side
     if first: label = re.sub(r'^Add an? ', 'Add the first ', label)
     if choose: page = choose[0][0]
-    o = [f'<form class="add" id="{fid}" method="get" action="{NEW_ISSUE}" target="_blank" rel="noopener" '
+    o = [f'<button type="button" class="addlink" popovertarget="{fid}">{esc(label)}</button>'
+         f'<form class="add" id="{fid}" popover method="get" action="{NEW_ISSUE}" target="_blank" rel="noopener" '
          f'data-index="{up}data/claims_index.json" data-page="{esc(page or "")}" data-section="{section}" data-side="{side}" data-repo="{REPO}">']
     # the title is what a submission with no script arrives under; the script rebuilds it with the first words typed
     hidden = [('template', 'belief.yml' if belief else 'contribute.yml'), ('labels', 'belief' if belief else 'contribution'),
@@ -2006,11 +2014,11 @@ def take_part(up, page_kind='page', key=None):
     """The one paragraph above the first form on a page: what a form does, the account it needs, the way in for
     someone who would rather use git, and what happens after the button; then, for a page with a key, the page as
     a Reason Outline."""
-    return (f'<p class="take" id="take-part"><strong>Add to this {esc(page_kind)}.</strong> Every table below has a form. Submitting opens a prefilled '
+    return (f'<p class="take" id="take-part"><strong>Add to this {esc(page_kind)}.</strong> Every table below ends with an Add link that opens a short form. Submitting it opens a prefilled '
             f'GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). To question one row (whether it bears on '
             f'the claim, how much it matters, whether it repeats another, or a mistake in its reasoning), use the <em>argue about this row</em> '
             f'link beside it; <a href="{up}vocab.html">every kind of post</a> is listed with what it can move. {NEXT_NOTE} '
-            f'{GIT_NOTE}. Without an account, the Copy as text button under any form puts your submission on the clipboard so you can send it another way.</p>'
+            f'{GIT_NOTE}. Without an account, the Copy as text button in any form puts your submission on the clipboard so you can send it another way.</p>'
             '<noscript><p class="fine">With scripts turned off, each form still opens GitHub with this page and its table filled in; '
             'the check for a claim already on the site and the Copy as text button need scripts.</p></noscript>'
             + (outline_link(key, up) if key else ''))
@@ -2517,7 +2525,7 @@ def render_topic(c, tkey, title):
 
     # ---- contribute
     o.append('<h2 class="th">Contribute</h2>')
-    o.append(f'<p class="cap">Every table above has a form under it that files a row in that table. Submitting opens a prefilled GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE}</p>')
+    o.append(f'<p class="cap">Every table above has an Add link under it that opens a form and files a row in that table. Submitting opens a prefilled GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE}</p>')
     o.append(outline_link(tkey, H.up))
     o.append(add_form(H.up, 'belief', topic=tkey))
     o.append(f'<p class="cap">{GIT_NOTE}. A belief is a page row with the topic <code>{esc(tkey)}</code>. A cell on this page is an edges row with page <code>{esc(tkey)}</code> and one of the topic sections.</p>')
@@ -3598,9 +3606,9 @@ def render_media_index(c, title):
     # taking part: a yardstick is filed on a work's page, as one of its Objective Criteria; a work is filed on the
     # page of the belief it bears on, under Media Resources. The two forms pick that page from a list.
     o.append('<section id="propose"><h2><span>Propose a yardstick or a work</span></h2>')
-    o.append(f'<p class="take" id="take-part"><strong>Add to this list.</strong> Pick the work or the belief from the list in the form. Submitting opens a prefilled '
+    o.append(f'<p class="take" id="take-part"><strong>Add to this list.</strong> Each link below opens a form; pick the work or the belief from the list in it. Submitting opens a prefilled '
              f'GitHub issue; you need a free account (<a href="{SIGNUP}" rel="nofollow">sign up</a>). {NEXT_NOTE} Without an account, the Copy as text '
-             'button under each form puts your submission on the clipboard so you can send it another way.</p>')
+             'button in each form puts your submission on the clipboard so you can send it another way.</p>')
     forms = []
     if allw:
         forms.append(add_form('', 'criterion', 'agree', None, choose=[(c.key[mp], c.short(mp, 70)) for mp in sorted(allw, key=lambda m: c.standalone(m).lower())],
@@ -3657,7 +3665,7 @@ table:has(+.xt:not(:checked)) tr.xtra{display:none}
 .invite{border:2px solid var(--navy);background:color-mix(in srgb,var(--navy) 6%,var(--paper));padding:14px 16px;margin:14px 0 10px}
 .invite p{margin:0 0 8px;font-size:14.5px}.invite .hook{font-weight:600;font-family:var(--serif);font-size:16px}.invite .promise{font-size:13px;color:var(--ink2)}
 .invite .ask{margin:0;font-size:13px;padding:8px 10px;background:var(--paper);border-left:3px solid var(--navy)}
-.add{display:block;width:100%;max-width:100%;min-width:0;border:2px solid var(--navy);background:color-mix(in srgb,var(--navy) 6%,var(--paper));padding:12px 14px;margin:12px 0 0;font-size:13.5px}
+.add{display:block;position:static;width:100%;max-width:100%;min-width:0;border:2px solid var(--navy);background:color-mix(in srgb,var(--navy) 6%,var(--paper));color:var(--ink);padding:12px 14px;margin:12px 0 0;font-size:13.5px}
 .add label{display:block;font-weight:600;margin:0 0 4px}.add label.lab{margin-top:4px}
 .add textarea,.add input:not([type=hidden]),.add select{display:block;width:100%;max-width:100%;min-width:0;font:inherit;padding:7px 9px;margin:0 0 6px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
 textarea.share{display:block;width:100%;max-width:100%;box-sizing:border-box;font:inherit;font-size:.92em;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);resize:vertical}
@@ -3667,6 +3675,18 @@ textarea.share{display:block;width:100%;max-width:100%;box-sizing:border-box;fon
 .add .dup{margin:8px 0 0;font-size:13px}.add .dup:empty{display:none}.add .dup ul{margin:4px 0 0;padding-left:18px}.add .dup li{margin:3px 0}
 .add .fine{margin:8px 0 0}.add .est{display:flex;gap:6px}.add .est input{min-width:0;flex:1}.side .add{margin-top:10px}
 .forms{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:12px}.forms .add{margin:0}.forms.wide{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.addlink,.add .x{display:none}
+@supports selector(:popover-open){
+.addlink{display:block;max-width:100%;margin:6px 0 0;padding:5px 0;border:0;background:none;color:var(--navy);font:600 13px/1.3 var(--sans);text-align:left;cursor:pointer}
+.addlink::before{content:"+ "}.addlink:hover{text-decoration:underline}.addlink:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
+.add[popover]:not(:popover-open):not(:target),.add[data-wired]:not(:popover-open){display:none}
+.add[popover]:popover-open{position:fixed;inset:max(12px,10vh) 0 auto;margin:0 auto;width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - max(12px,10vh) - 12px);overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--paper);padding:16px 18px;box-shadow:0 14px 44px rgba(0,0,0,.3)}
+.add[popover]:popover-open::backdrop{background:rgba(12,18,32,.5)}
+.add[popover]:popover-open>label:not(.lab){font-size:15px;margin:0 30px 8px 0}
+.add[popover]:popover-open .x{display:block;position:absolute;top:8px;right:8px;padding:2px 8px;border:0;background:none;color:var(--mute);font:400 22px/1 var(--sans)}
+.add[popover]:popover-open .x:hover{background:none;color:var(--ink)}
+.forms{display:flex;flex-wrap:wrap;gap:0 22px;margin-top:6px}.forms .addlink{margin:0}.forms .add{flex:1 1 100%}
+}
 .yards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px;margin:6px 0 12px}.yard{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 14px;min-width:0}.yard h3{background:var(--head);margin:0 0 4px}.yard h3 a{border:none}.yard .cap{margin:0 0 6px}
 .take{font-size:13.5px;color:var(--ink2);border-left:3px solid var(--navy);padding:6px 10px;margin:10px 0}
 .votes .vl{color:var(--mute);font-weight:400}td .votes+.votes{margin-top:2px}.add button.copy{background:var(--paper);color:var(--navy);margin-left:6px}
@@ -3679,7 +3699,7 @@ textarea.share{display:block;width:100%;max-width:100%;box-sizing:border-box;fon
 .votes .vn{color:var(--mute);font-weight:400;white-space:nowrap}.vnote{color:var(--mute)}
 td .votes{display:block;margin:4px 0 0;font-size:11px}td .votes .vn{white-space:normal}
 td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(--mute)}table.vocab code{font-size:11px;color:var(--mute)}ul.cq{margin:4px 0 0;padding-left:1.2em;font-size:13px}pre.brief{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;background:var(--paper);border:1px solid var(--line);padding:10px}pre.outline{white-space:pre;overflow-x:auto;font-size:13px;line-height:1.45;background:var(--paper);border:1px solid var(--line);padding:10px;margin:10px 0}ol.steps{font-size:13.5px;color:var(--ink2);padding-left:1.4em}ol.steps li{margin:3px 0}.outline-link{margin:4px 0 10px}
-@media print{.add,.votes,a.argue{display:none}}
+@media print{.add,.addlink,.votes,a.argue{display:none}}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35;overflow-wrap:anywhere}td.u{color:var(--ink2);font-size:13px}
