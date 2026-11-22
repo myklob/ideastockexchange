@@ -207,8 +207,7 @@ input would change the answer; `reasonrank.py` how much of the corpus depends on
 a page; `similarity.py` which claims say the same thing; `integrity.py` the
 structural faults the graph can show, and a pre-publish cycle check CI runs first; `fallacy.py` flags a
 possible fallacy by a published phrase list, as a question argued on the flagged claim's page that moves no score;
-`changes.py` what moved
-since the last revision; `method.py` the reader-facing methodology page;
+`method.py` the reader-facing methodology page;
 `sync_content.py` keeps the workbook and the reviewable CSVs in step; `vocab.py` what a post can be (197 kinds, each mapped to
 where intake files it and to AIF, ASPIC+, Walton's schemes and schema.org), behind `vocab.html`, `data/vocab.json`, the JSON-LD
 on every claim page, and intake's `Kind of post` and `Row` fields, which can open a row's linkage, importance or uniqueness
@@ -318,7 +317,11 @@ uniqueness) or a labelled constant when no such page exists yet.
   CI runs it on any change under `templates/`. A template is copied rather than imported, so a stale one
   breaks nothing and quietly teaches the next dozen pages the wrong shape.
 - **Edit before Write.** Use `Edit` for changes to existing files. `Write` only for new files or full rewrites.
-- **Branch convention:** Claude-driven work goes on `claude/<short-slug>-<id>` branches. Push, but do NOT open a PR unless the user asks for one.
+- **Branch convention:** Claude-driven work goes on `claude/<short-slug>-<id>` branches. **Every session that improves a page, fixes a bug
+  or makes any other change worth keeping opens a pull request against `master` as soon as the work is pushed**, without
+  waiting to be asked (the owner's standing instruction, November 2026), so no progress is left on a branch nobody merges.
+  Before opening it, merge `master` into the branch and resolve conflicts, and run the checks this file lists. Later pushes to
+  the same branch update the same PR. Do not merge it yourself; the owner merges.
 - **JSX entities:** the lint rule `react/no-unescaped-entities` will flag bare apostrophes/quotes inside JSX text. Use `&apos;`, `&ldquo;`, `&rdquo;`.
 
 ## Debug Logging

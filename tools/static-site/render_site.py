@@ -24,7 +24,6 @@ from integrity import Integrity
 import fallacy as FALLACY
 import predictions as PRED
 import method
-import changes as CHANGES
 import publish as PUBLISH
 from export_db import export as export_db
 
@@ -586,7 +585,7 @@ def scored_table(H, c, side_rows, specs_rows, headers, key_label, votes=False):
            + ''.join(th(w, short=True) for w in ('Conf', 'Link', 'Imp', 'Uniq')) + '<th>Score</th></tr></thead><tbody>']
     for rank, i in enumerate(order, 1):
         d, r = specs_rows[i], side_rows[i]
-        vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if votes and is_page(d.get('id')) else ''
+        vl = row_votes(c, d['id'], d, H.pid) if votes and is_page(d.get('id')) else ''
         out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{repeat_note(r)}{vl}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{conf_cell(H, c, d)}</td>'
@@ -616,7 +615,7 @@ def evidence_table(H, c, side_rows, specs_rows, bears=None, votes=False):
         # a finding with no source type says so once, in the totals line under the table, and in the title of its
         # Starts at cell; the same sentence under every row was the loudest thing in a draft's ledger
         rests = f'<div class="src">Rests on: {esc(EV.label(sp).split(", starts at")[0])}</div>' if b['grounded'] else ''
-        vl = (vote_links(c, d['id']) + edge_vote_links(c, d, home)) if votes and is_page(d.get('id')) else ''
+        vl = row_votes(c, d['id'], d, home) if votes and is_page(d.get('id')) else ''
         out.append(f'<tr><td class="rk">{rank}</td><td class="t">{H.rowtext(d)}{rests}{repeat_note(r)}{vl}</td><td class="u">{on}</td><td>{p0}</td>'
                    f'<td>{H.num(r["truth"], d.get("id"), const_label="Unargued: no page yet, reads " + str(UNARG) + ", which contributes 0")}</td>'
                    f'<td>{conf_cell(H, c, d)}</td>'
@@ -713,12 +712,12 @@ def simple_rows(H, c, items, extra=None, votes=False, head='Claim', extra_head='
 def render_belief(c, pid):
     H = Html(c); H.pid = pid; sp = c.specs[pid]; s = c.stats(pid); k = c.kind(pid)
     o = [head(c, pid, c.short(pid, 80, full=True), json_ld(c, pid))]
-    o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid)}</h1>')
+    o.append(f'<p class="kind">{esc(KINDNAME[k])}</p><h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid, detail=True)}</h1>')
     tk = c.topic_of(pid)
     meta = [f'Topic: <a href="../t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>'] if tk else []
     if k == 'belief' and not c.complete(pid):
         meta.append('<span class="dm">draft</span> Still needs: ' + esc(', '.join(PUBLISH.missing(sp))) + ' (listed at the end of the page)')
-    meta.append(f'<span class="vnote">{VOTE_NOTE}</span>')
+    meta.append(f'<span class="vnote">{VOTE_HOW} {VOTE_NOTE}</span>')
     # a subject nobody is for or against has no axis, so a position on it means nothing and is not printed
     if sp.get('positivity') is not None and (not tk or c.topic_has_sides(tk)):
         axis = f'<a href="../t/{c.topic_href(tk)}#direction">the topic axis</a>' if tk else 'the topic axis'
@@ -859,7 +858,7 @@ def render_belief(c, pid):
         order = sorted(side_order(side_rows), key=lambda i: (-side_rows[i]['score'] * side_rows[i].get('sign', 1), -side_rows[i]['stake']))
         for d, r in ((specs_rows[i], side_rows[i]) for i in order):
             dl = f'<div class="src">By when, and how it is checked: {esc(d["deadline"])}</div>' if d.get('deadline') else '<div class="src">No deadline or method stated yet.</div>'
-            vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
+            vl = row_votes(c, d['id'], d, H.pid) if is_page(d.get('id')) else ''
             out.append(f'<tr><td class="t">{H.rowtext(d)}{dl}{repeat_note(r)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td><td>{f2(r["stake"])}</td></tr>')
         if not specs_rows: out.append('<tr><td colspan="8" class="empty">Nothing here yet.</td></tr>')
         return ''.join(out) + '</tbody></table>'
@@ -1019,7 +1018,7 @@ def render_belief(c, pid):
             mp = d.get('id') if is_page(d.get('id')) and c.kind(d['id']) == 'media' else None
             typ = c.specs[mp].get('typ') if mp else d.get('type')
             bears = c.pg(d.get('link'), DEFLINK); q = c.truth(mp) if mp else UNARG; im = (c.stats(mp)['impact'] if mp else UNARG) or UNARG; imp = c.pg(d.get('imp'), DEFIMP)
-            vl = (vote_links(c, mp) + edge_vote_links(c, d, H.pid)) if mp else ''
+            vl = row_votes(c, mp, d, H.pid) if mp else ''
             sc = (2 * q - 1) * bears * im * imp
             rows_.append((sc, f'<tr><td class="t">{H.rowtext(d)}{vl}</td><td>{esc(typ or "")}</td><td>{H.num(bears, d.get("link"))}</td><td>{H.num(q, mp)}</td><td>{H.num(im, mp)}</td><td>{H.num(imp, d.get("imp"))}</td><td class="sc">{sf(sc)}</td></tr>'))
         out += [r_ for _, r_ in sorted(rows_, key=lambda x: -x[0])]
@@ -1319,19 +1318,19 @@ def render_special(c, pid):
     if k == 'media': return render_media(c, pid)
     o = [head(c, pid, c.short(pid, 80, full=True))]
     o.append(f'<p class="kind">{esc(KINDNAME[k])}</p>')
-    if k in ('interest', 'media'): o.append(f'<h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid)}</h1>')
+    if k in ('interest', 'media'): o.append(f'<h1>{esc(c.standalone(pid))} {score_badge(s["truth"])} {vote_links(c, pid, detail=True)}</h1>')
     else:
         # a linkage page asks whether a row bears on the page it is filed on, which is the question the yes and no
         # on that row ask; the heading takes the same vote with the same counts rather than a second tally of it
         lx, ly = sp.get('x'), sp.get('y')
         rel = k == 'linkage' and is_page(lx) and is_page(ly) and (sp.get('typ') or '') != 'Interest'
-        vl = relevance_links(c, lx, ly, 'Does it bear on that page?') if rel else vote_links(c, pid)
+        vl = relevance_links(c, lx, ly, 'Does it bear on that page?', detail=True) if rel else vote_links(c, pid, detail=True)
         a, b = c.question(pid); o.append(f'<h1 class="q"><span>{esc(a)} </span><span>{esc(b)} {score_badge(s["truth"])} {vl}</span></h1>')
     fields = []
     for lab, key in (('Type', 'typ'), ('Direction', 'direction'), ('This row is a', 'rowkind'), ('Value', 'value')):
         if sp.get(key): fields.append(f'{lab}: {esc(sp[key])}')
     if is_page(sp.get('supports')): fields.append('Used on: ' + H.a(sp['supports']))
-    fields.append(f'<span class="vnote">{VOTE_NOTE}</span>')
+    fields.append(f'<span class="vnote">{VOTE_HOW} {VOTE_NOTE}</span>')
     o.append('<p class="meta">' + ' · '.join(fields) + '</p>')
     key = c.key[pid]
     # connected pages
@@ -1355,7 +1354,7 @@ def render_special(c, pid):
         for rank, i in enumerate(order, 1):
             d, r = specs_rows[i], side_rows[i]
             pat = f'<span class="patl">{esc(d["pattern"])}</span>' if d.get('pattern') else ''
-            vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
+            vl = row_votes(c, d['id'], d, H.pid) if is_page(d.get('id')) else ''
             out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{repeat_note(r)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
         if not specs_rows: out.append(f'<tr><td colspan="8" class="empty">Nothing here yet. Starter patterns: {esc(", ".join(pats))}.</td></tr>')
         return ''.join(out) + '</tbody></table>'
@@ -1421,7 +1420,7 @@ def render_special(c, pid):
     o.append(used_on(H, c, pid))
     o.append(checks_section(H, c, pid))
     o.append(engine_table(H, c, pid))
-    o.append(H.section('Contribute') + f'<p class="cap">The Add links under the tables above take a reason either way; the Agree and Disagree links on the heading line take a vote. {GIT_NOTE}: this page is <code>{esc(key)}</code> in the pages table and its rows are in the edges table.</p></section>')
+    o.append(H.section('Contribute') + f'<p class="cap">The Add links under the tables above take a reason either way; the thumbs up and down on the heading line take a vote. {GIT_NOTE}: this page is <code>{esc(key)}</code> in the pages table and its rows are in the edges table.</p></section>')
     o.append(contribute_script(H.up))
     o.append(FOOT)
     return ''.join(o)
@@ -1456,7 +1455,7 @@ def media_pat_table(H, c, specs_rows, side_rows, pats):
     for rank, i in enumerate(order, 1):
         d, r = specs_rows[i], side_rows[i]
         pat = f'<span class="patl">{esc(d["pattern"])}</span>' if d.get('pattern') else ''
-        vl = (vote_links(c, d['id']) + edge_vote_links(c, d, H.pid)) if is_page(d.get('id')) else ''
+        vl = row_votes(c, d['id'], d, H.pid) if is_page(d.get('id')) else ''
         out.append(f'<tr><td class="rk">{rank}</td><td class="t">{pat}{H.rowtext(d)}{repeat_note(r)}{vl}</td><td>{H.num(r["truth"], d.get("id"))}</td><td>{conf_cell(H, c, d)}</td><td>{H.num(r["link"], d.get("link"))}</td><td>{H.num(r["imp"], d.get("imp"))}</td><td>{H.num(r["uniq"], d.get("uniq"))}</td><td class="sc">{sf(r["score"])}</td></tr>')
     if not specs_rows: out.append(f'<tr><td colspan="8" class="empty">No reason on this side yet. Starter patterns: {esc(", ".join(pats))}.</td></tr>')
     return ''.join(out) + '</tbody></table>'
@@ -1485,10 +1484,10 @@ def render_media(c, pid):
     H = Html(c); H.pid = pid; sp = c.specs[pid]; s = c.stats(pid); key = c.key[pid]
     typ = sp.get('typ') or 'Work'
     o = [media_head(c, pid, c.short(pid, 80, full=True))]
-    o.append(f'<p class="kind">{esc(typ)}</p><h1>{esc(c.standalone(pid))} {vote_links(c, pid)}</h1>')
+    o.append(f'<p class="kind">{esc(typ)}</p><h1>{esc(c.standalone(pid))} {vote_links(c, pid, detail=True)}</h1>')
     meta = [esc(typ)]
     if sp.get('where'): meta.append('Where to find it: ' + esc(sp['where']))
-    meta.append(f'<span class="vnote">{VOTE_NOTE}</span>')
+    meta.append(f'<span class="vnote">{VOTE_HOW} {VOTE_NOTE}</span>')
     o.append('<p class="meta">' + ' · '.join(meta) + '</p>')
     o.append('<p class="lede">Two questions, kept apart on purpose. Is it well made? That is argued on this page, under Quality Arguments. '
              'Is what it backs true? That is argued on the belief pages that cite it, and this page only reads their scores. '
@@ -1645,7 +1644,7 @@ def render_media(c, pid):
     bl = (sp.get('bottom_line') or '').strip()
     if bl: o.append(H.section('Bottom Line') + f'<p>{esc(bl)}</p><p class="cap">Typed by the author after the tables above, not computed from them.</p></section>')
     o.append(engine_table(H, c, pid))
-    o.append(H.section('Contribute') + f'<p class="cap">The Add links under the tables above take a reason either way, a finding, a yardstick, a prediction or who gains; the Agree and Disagree links on the heading line take a vote. '
+    o.append(H.section('Contribute') + f'<p class="cap">The Add links under the tables above take a reason either way, a finding, a yardstick, a prediction or who gains; the thumbs up and down on the heading line take a vote. '
              f'A belief this work bears on is added from that belief&apos;s page, under Media Resources. {GIT_NOTE}: this page is <code>{esc(key)}</code> in the pages table and its rows are in the edges table.</p></section>')
     o.append(contribute_script(H.up))
     o.append(FOOT)
@@ -1665,10 +1664,15 @@ def root_head(title, crumbs, up='', skip='Skip to the content', main_class=''):
             f'<a class="skip" href="#main">{esc(skip)}</a><main id="main"{cls}>'
             f'<p class="crumb"><em>{" › ".join(parts)}</em></p>')
 
-def score_badge(v):
-    """The truth score, on the same line as the claim it belongs to, so a reader never has to work out which
-    number a heading is talking about."""
-    return f'<span class="hs" aria-label="truth score {f2(v)}" title="Truth score, 0 to 1">{f2(v)}</span>'
+SCORE_TIP = ('How well this claim holds up on the reasons and evidence filed so far, from 0 to 1. 1 means the case filed is all '
+             'for it, 0 that it is all against it, and 0.50 that it is evenly balanced or nothing filed yet moves it. '
+             'Votes do not change it.')
+
+def score_badge(v, up='../'):
+    """The truth score, on the same line as the claim it belongs to and named in words, so a reader never has to
+    work out which number a heading is talking about or what it measures."""
+    return (f'<span class="hs" title="{esc(SCORE_TIP)}"><a class="hl" href="{up}method.html#starts">Truth score</a> '
+            f'<b>{f2(v)}</b></span>')
 
 def rowref(H, c, d):
     """A row named inside a sentence: linked if it has a page, without its final full stop either way."""
@@ -1729,6 +1733,7 @@ REPO = 'https://github.com/myklob/ideastockexchange'
 NEW_ISSUE = REPO + '/issues/new'
 SIGNUP = 'https://github.com/signup'
 VOTE_NOTE = 'Votes are shown as what people think, next to what the analysis says, and never move a score.'
+VOTE_HOW = 'Thumbs up to agree, thumbs down to disagree; each opens a filled-in vote on GitHub.'
 GIT_NOTE = 'If you would rather use git, every cell here is a row in the <a href="%s">repository</a>' % REPO
 NEXT_NOTE = ('What happens next: a check runs for a claim already saying the same thing, then your submission either counts '
              'as your vote for that claim or opens a pull request with your rows for the maintainer to merge.')
@@ -1833,10 +1838,27 @@ TITLES = {'argument': {'agree': 'Reason to agree', 'disagree': 'Reason to disagr
           'topic_values': 'Value', 'engagement': 'Engagement', 'common': 'Common ground', 'criteria': 'Criterion', 'related': 'Related topic'}
 
 
-def vote_url(key, vote, on=None):
+def clip(text, n):
+    """At most `n` characters, cut at a word."""
+    text = ' '.join((text or '').split())
+    return text if len(text) <= n else text[:n].rsplit(' ', 1)[0].rstrip(',;:') + '…'
+
+
+def vote_title(key, vote, on=None, text=None, on_text=None):
+    """The issue title a vote arrives under: the thumb the reader clicked and the claim in words, so the GitHub
+    page says what is being voted on before anything else does. contribute.js writes the same title."""
+    up = vote == 'agree'
+    if on:
+        return (f'{"👍 Relevant" if up else "👎 Not relevant"}: "{clip(text or key, 70)}" '
+                f'{"bears" if up else "does not bear"} on "{clip(on_text or on, 70)}"')
+    return f'{"👍 Agree" if up else "👎 Disagree"}: {clip(text or key, 120)}'
+
+
+def vote_url(key, vote, on=None, text=None, on_text=None):
     """A prefilled vote issue. With `on`, the vote is on whether the claim `key` bears on the page `on`, which is a
-    vote on the argument as an argument; without it, on whether the claim is true."""
-    title = f'Vote {vote}: {key}' + (f' on {on}' if on else '')
+    vote on the argument as an argument; without it, on whether the claim is true. `text` and `on_text` are the
+    two claims in words, for the title; intake reads only the fields."""
+    title = vote_title(key, vote, on, text, on_text)
     return f'{NEW_ISSUE}?' + _q([('template', 'vote.yml'), ('labels', 'vote'), ('title', title), ('page', key), ('vote', vote), ('on', on)])
 
 
@@ -1846,38 +1868,54 @@ def votes_search(key):
     return f'{REPO}/issues?q=' + quote(f'label:vote "{key}"', safe='')
 
 
-def vote_links(c, pid, words=('Agree', 'Disagree'), lead=None, gap=True, up='../'):
-    """The two vote links for a page, with the counts when the votes table has any for it. On a heading line
-    they read Agree and Disagree; on an argument row a second pair asks about the row's linkage and importance
-    pages in plainer words (yes and no), with `lead` saying what the question is."""
-    key = c.key[pid]; n = getattr(c, 'votes', {}).get(key)
+VOTE_GO = 'Opens a filled-in vote on GitHub, which needs a free account.'
+
+
+def thumb(url, vote, word, tip, count):
+    """One thumb: the icon, the count beside it, and the word a screen reader says in place of the icon."""
+    return (f'<a class="vote {"up" if vote == "agree" else "down"}" title="{esc(f"{tip} ({count} so far). {VOTE_GO}")}" '
+            f'href="{esc(url)}" rel="nofollow"><span class="sr">{esc(word)}</span><span class="vc">{count}</span></a>')
+
+
+def vote_links(c, pid, words=('Agree', 'Disagree'), lead=None, detail=False,
+               tips=('I agree: this claim is true', 'I disagree: this claim is not true')):
+    """A thumb up and a thumb down for a page, each with its count, zero included. On an argument row a second pair
+    asks about the row's importance page, with `lead` saying what the question is. `detail` is for a heading line:
+    it adds a link to who voted and, once MIN_VOTERS have, the share that agrees beside the truth score."""
+    key = c.key[pid]; n = getattr(c, 'votes', {}).get(key) or {'agree': 0, 'disagree': 0}
     out = ['<span class="votes">' + (f'<span class="vl">{esc(lead)}</span> ' if lead else '')]
-    for v, w in zip(('agree', 'disagree'), words):
-        out.append(f'<a class="vote" href="{esc(vote_url(key, v))}" rel="nofollow">{esc(w)}</a> ')
-    if n:
-        total = n['agree'] + n['disagree']; share = n['agree'] / total if total else 0.0
-        a, d = words[0].lower(), words[1].lower()
-        out.append(f'<a class="vn" href="{up}lists.html#votes">{n["agree"]} {a}, {n["disagree"]} {d}; votes, not a score</a> '
-                   f'<a class="vn" href="{esc(votes_search(key))}" rel="nofollow">each vote</a> ')
+    for v, w, t in zip(('agree', 'disagree'), words, tips):
+        out.append(thumb(vote_url(key, v, text=c.standalone(pid)), v, w, t, n[v]) + ' ')
+    total = n['agree'] + n['disagree']
+    if detail and total:
+        out.append(f'<a class="vn" href="{esc(votes_search(key))}" rel="nofollow">who voted</a> ')
         # the share and its gap from the analysis wait for MIN_VOTERS, as the ranked list does: one vote is 100%
-        if gap and total >= MIN_VOTERS:
-            out.append(f'<span class="vn">· {pct(share)} agree, the analysis reads {f2(c.truth(pid))}, gap {sf(share - c.truth(pid))}</span>')
+        if total >= MIN_VOTERS:
+            share = n['agree'] / total
+            out.append(f'<span class="vn">· {pct(share)} of voters agree vs a truth score of {f2(c.truth(pid))}, gap {sf(share - c.truth(pid))}</span>')
     out.append('</span>')
     return ''.join(out)
 
 
-def relevance_links(c, x, y, lead='Bears on this:', up='../'):
-    """Yes and no to whether the claim `x` bears on the page `y`: one vote per person on the pair, kept apart
-    from votes on whether `x` is true. The same pair, with the same counts, is on every row that files `x` under
-    `y` and on the heading of the linkage page that argues it."""
-    kx, ky = c.key[x], c.key[y]; n = getattr(c, 'relevance', {}).get((kx, ky))
+def relevance_links(c, x, y, lead='Bears on this:', detail=False):
+    """Thumbs up and down on whether the claim `x` bears on the page `y`: one vote per person on the pair, kept
+    apart from votes on whether `x` is true. The same pair, with the same counts, is on every row that files `x`
+    under `y` and on the heading of the linkage page that argues it."""
+    kx, ky = c.key[x], c.key[y]; n = getattr(c, 'relevance', {}).get((kx, ky)) or {'agree': 0, 'disagree': 0}
     out = ['<span class="votes rel">' + (f'<span class="vl">{esc(lead)}</span> ' if lead else '')]
-    for v, w in (('agree', 'yes'), ('disagree', 'no')):
-        out.append(f'<a class="vote" href="{esc(vote_url(kx, v, ky))}" rel="nofollow">{w}</a> ')
-    if n:
-        out.append(f'<a class="vn" href="{esc(votes_search(kx))}" rel="nofollow">{n["agree"]} yes, {n["disagree"]} no; votes, not a score</a>')
+    for v, w, t in (('agree', 'yes', 'Yes, it bears on this page'), ('disagree', 'no', 'No, it does not bear on this page')):
+        out.append(thumb(vote_url(kx, v, ky, c.standalone(x), c.standalone(y)), v, w, t, n[v]) + ' ')
+    if detail and n['agree'] + n['disagree']:
+        out.append(f'<a class="vn" href="{esc(votes_search(kx))}" rel="nofollow">who voted</a>')
     out.append('</span>')
     return ''.join(out)
+
+
+def row_votes(c, pid, d, on):
+    """A row's thumbs: on whether its claim `pid` is true and, under them, on the row as an argument. The first
+    pair is labelled when the others follow it, so each pair says which question it answers."""
+    edge = edge_vote_links(c, d, on)
+    return vote_links(c, pid, lead='True:' if edge else None) + edge
 
 
 def edge_vote_links(c, d, on=None):
@@ -1886,7 +1924,8 @@ def edge_vote_links(c, d, on=None):
     whether it matters here, which is a vote on that page. No vote moves a score."""
     out = []
     if on is not None and is_page(d.get('id')) and d['id'] != on: out.append(relevance_links(c, d['id'], on))
-    if is_page(d.get('imp')): out.append(vote_links(c, d['imp'], ('yes', 'no'), 'Matters here:', gap=False))
+    if is_page(d.get('imp')): out.append(vote_links(c, d['imp'], ('yes', 'no'), 'Matters here:',
+                                                    tips=('Yes, it matters here', 'No, it does not matter here')))
     if on is not None and is_page(d.get('id')) and d['id'] != on and d['id'] in c.key:
         out.append(f'<a class="argue" href="../vocab.html?page={esc(c.key[on])}&amp;row={esc(c.key[d["id"]])}" rel="nofollow">argue about this row</a>')
     return ''.join(out)
@@ -2633,17 +2672,6 @@ def H_section_plain(title, blurb=None, anchor=None):
     i = f' id="{esc(anchor)}"' if anchor else ''
     return f'<section{i}><h2><span>{esc(title)}</span></h2>' + (f'<p class="blurb">{blurb}</p>' if blurb else '')
 
-def changed_this_revision(c):
-    """Pages whose numbers moved or whose rows were edited against the previous revision, or [] when there is
-    no previous revision to compare with."""
-    d = getattr(c, 'changes', None)
-    if not d: return []
-    keys = {m['key'] for m in d.get('scores', []) if m.get('key')}
-    for r in d['tables']['pages']['changed'] + d['tables']['pages']['added']: keys.add(r['key'])
-    for r in d['tables']['edges']['changed']: keys.add(r['where'][0])
-    for r in d['tables']['edges']['added']: keys.add(r.get('page'))
-    return [c.tabs[k] for k in keys if k in c.tabs]
-
 def best_beliefs(c, limit=None):
     """Beliefs ranked by belief score, then by how much scored work stands under them. Only beliefs: a court
     record at 0.95 is a finding, not a developed position, and a list of the highest truth scores on the site
@@ -2754,11 +2782,6 @@ EXPLAIN = [
      'Any other measure of a great work that a reader has proposed on a work\'s page, with the works that carry a reading for it.',
      'A yardstick is filed on a work\'s own page, under Objective Criteria, as a measurement people who disagree would accept in advance, with how it is measured and the latest reading. The same yardstick proposed on two works is one yardstick, because the duplicate check sends the second to the page the first one made. Readings are put in order only when every one is a number; otherwise the works are listed by title.',
      'Because which yardstick should count is itself open to argument. A yardstick that cannot tell a great work from a poor one should lose to one that can, and the only way to find out is to let people propose them and read them.',
-     None),
-    ('changed', 'Changed in this revision',
-     'Pages edited, or whose numbers moved, since the last published version of the site.',
-     'The tables behind this version are compared with the previous version, row by row; the pages are listed most relied on first.',
-     'So a returning reader can see what is new without rereading everything, and so every change to a number can be traced to the row that caused it.',
      None),
     ('votes', 'Votes vs the analysis',
      'Claims people have voted on, ranked by how far the share of votes to agree sits from the truth score.',
@@ -2971,14 +2994,6 @@ def render_index(c, title):
                  + ''.join(f'<tr><td class="t"><a href="p/{c.href(p)}">{esc(c.standalone(p))}</a><div class="src">{work_note(c, p)}</div></td></tr>' for p in works[:TOP])
                  + '</tbody></table>')
     cards.append(card('Best books, studies and reports', wblurb, wbody, see_all('media.html', len(works), 'works, by kind and by yardstick'), 'works'))
-    recent_all = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))
-    if recent_all:
-        cards.append(card('Changed in this revision', 'Edited or moved since the last published revision.',
-                          mini(c, recent_all[:TOP], 'Relied on', lambda p: times_avg(c, c.rank.of(p)), 'relied'), see_all('changes.html', len(recent_all), 'changes, row by row'), 'changed'))
-    else:
-        cards.append(card('Changed in this revision', 'Nothing has changed since the last published revision'
-                          + (', or no previous revision was available to compare with' if getattr(c, 'changes', None) is None else '')
-                          + '. <a href="changes.html">The revision page</a> says what it compared.', '', '', 'changed'))
     filed = [k for k in c.topics if c.topic_beliefs(k)]
     if len(filed) > 1:
         # second, next to Search: the shelf is the other way in that does not rank, and the tallest card, so
@@ -2990,7 +3005,7 @@ def render_index(c, title):
     # The plumbing stays off the cards: a reader comes for the arguments, and the tables and the method are one
     # line at the foot of the page for the reader who wants to check them.
     o.append('<p class="under"><a href="contributors.html">Who takes part</a> · <a href="vocab.html">What a post can be</a> · '
-             '<a href="outline.html">Reason Outline</a>, many rows in one post · <a href="changes.html">What changed</a> since the last revision · '
+             '<a href="outline.html">Reason Outline</a>, many rows in one post · '
              '<a href="method.html#data">The tables behind every page</a>, free to download and check.</p>')
     o.append(stamp(c))
     o.append(contribute_script(''))
@@ -3555,6 +3570,7 @@ a{color:var(--navy);text-decoration:none;border-bottom:1px solid color-mix(in sr
 h1{font-family:var(--serif);font-weight:600;font-size:clamp(22px,2.6vw,32px);line-height:1.22;margin:4px 0 8px;text-wrap:pretty}
 h1.q span{display:block}h1.q span+span{padding-left:1.2em}
 .hs{display:inline-block;vertical-align:middle;margin-left:.3em;font:600 .6em/1 var(--sans);font-variant-numeric:tabular-nums;color:var(--ink);background:var(--tile);border:1px solid var(--line);border-radius:4px;padding:.3em .45em}
+.hs .hl{font-weight:500;color:var(--mute);border:0;margin-right:.15em}.hs .hl:hover{color:var(--navy)}.hs b{font-weight:600}
 .meta{margin:0 0 18px;color:var(--ink2);font-size:13px}
 section{margin:26px 0 0}section.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
 h2{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--navy);color:#fff;font:600 15px/1.3 var(--sans);padding:7px 12px;margin:0 0 8px;border-radius:3px}
@@ -3608,7 +3624,11 @@ textarea.share{display:block;width:100%;max-width:100%;box-sizing:border-box;fon
 .take{font-size:13.5px;color:var(--ink2);border-left:3px solid var(--navy);padding:6px 10px;margin:10px 0}
 .votes .vl{color:var(--mute);font-weight:400}td .votes+.votes{margin-top:2px}.add button.copy{background:var(--paper);color:var(--navy);margin-left:6px}
 .votes{display:inline-block;vertical-align:middle;margin-left:.3em;font:500 .5em/1 var(--sans);white-space:normal}
-.votes .vote{display:inline-block;padding:.35em .55em;margin-right:.3em;border:1px solid var(--line);border-radius:4px;background:var(--paper)}
+.votes .vote{display:inline-flex;align-items:center;gap:.35em;padding:.3em .6em;margin-right:.2em;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink2);font-variant-numeric:tabular-nums}
+.votes .vote::before{content:"";width:1.2em;height:1.2em;flex:none;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3'/%3E%3C/svg%3E") center/contain no-repeat}
+.votes .vote.down::before{transform:rotate(180deg)}
+.votes .vote.up:hover{color:var(--agree-ink);border-color:var(--agree-ink);background:var(--agree)}.votes .vote.down:hover{color:var(--dis-ink);border-color:var(--dis-ink);background:var(--dis)}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .votes .vn{color:var(--mute);font-weight:400;white-space:nowrap}.vnote{color:var(--mute)}
 td .votes{display:block;margin:4px 0 0;font-size:11px}td .votes .vn{white-space:normal}
 td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(--mute)}table.vocab code{font-size:11px;color:var(--mute)}ul.cq{margin:4px 0 0;padding-left:1.2em;font-size:13px}pre.brief{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;background:var(--paper);border:1px solid var(--line);padding:10px}pre.outline{white-space:pre;overflow-x:auto;font-size:13px;line-height:1.45;background:var(--paper);border:1px solid var(--line);padding:10px;margin:10px 0}ol.steps{font-size:13.5px;color:var(--ink2);padding-left:1.4em}ol.steps li{margin:3px 0}.outline-link{margin:4px 0 10px}
@@ -3723,93 +3743,6 @@ def page_json(c, pid):
                     for r in a['rows'][:8]],
         }
     return out
-
-
-def render_changes(c, H, d, title='Idea Stock Exchange'):
-    """What somebody changed, and what it did to the numbers. Two different questions on one page."""
-    tb = d['tables'] if d else {'pages': {'added': [], 'removed': [], 'changed': []},
-                                'edges': {'added': [], 'removed': [], 'changed': []}}
-    sc = d['scores'] if d else []
-    o = [f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>What changed in this revision</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><a class="skip" href="#changes">Skip to the changes</a><main id="changes">''']
-    o.append('<p class="crumb"><em><a href="index.html">Home</a> \u203a <a href="method.html">Method</a> \u203a <strong>What changed</strong></em></p>')
-    o.append('<p class="kind">Revision</p><h1>What changed in this revision</h1>')
-    pg, ed = tb['pages'], tb['edges']
-    counts = (len(pg['added']), len(pg['removed']), len(pg['changed']),
-              len(ed['added']), len(ed['removed']), len(ed['changed']))
-    o.append('<p class="meta">' + ('No previous revision was available to this build.' if d is None else
-             f'Against the previous published revision. {counts[0]} pages added, {counts[1]} removed, '
-             f'{counts[2]} edited; {counts[3]} rows added, {counts[4]} removed, {counts[5]} edited. '
-             f'{len(sc)} pages moved.') + '</p>')
-    if d is None:
-        o.append('<section class="card"><p class="ro">There is no previous revision to compare this build '
-                 'against: it was built without the history the comparison needs. Nothing below is a claim that '
-                 'nothing changed.</p></section>')
-    elif not any(counts) and not sc:
-        o.append('<section class="card"><p class="ro">Nothing in the two tables changed, so no number moved. '
-                 'A revision that only touches the toolchain leaves the argument exactly where it was.</p></section>')
-    o.append(H.section('What the numbers did',
-                       'Recomputed by building the previous revision from the two tables as they were and '
-                       'subtracting. This is the part an ordinary diff cannot give you: one edit to a linkage '
-                       'page can move dozens of conclusions, and nothing in the text of the change says so.'))
-    if sc:
-        o.append('<table class="scored"><thead><tr><th class="rk">#</th><th>Page</th><th>Truth before</th>'
-                 '<th>Truth now</th><th>Move</th><th>Confidence</th><th>Note</th></tr></thead><tbody>')
-        for i, m in enumerate(sc[:60], 1):
-            o.append(f'<tr><td class="rk">{i}</td><td class="t">{H.a(m["page"], c.brief(m["page"])[0])}</td>'
-                     f'<td>{f2(m["truth_before"])}</td><td>{f2(m["truth_after"])}</td><td class="sc">{sf(m["delta"])}</td>'
-                     f'<td>{pct(m["conf_before"])} to {pct(m["conf_after"])}</td>'
-                     f'<td class="u">{"crossed the line" if m["crossed"] else ""}</td></tr>')
-        o.append('</tbody></table>')
-        crossed = [m for m in sc if m['crossed']]
-        o.append(f'<p class="tot">{len(crossed)} of the {len(sc)} moved pages crossed 0.50, which is where a '
-                 f'conclusion changes sides.' + (f' {len(sc) - 60} further pages moved less than any shown.' if len(sc) > 60 else '') + '</p>')
-    else:
-        o.append('<p class="tot">No page moved.</p>')
-    o.append('</section>')
-    o.append(H.section('What somebody changed', 'The two tables, row by row. Every claim on this site is a row '
-                       'in one of them, so this is the whole of what a person edited.'))
-    def page_rows(label, rows):
-        if not rows: return ''
-        out = [f'<h3 class="sub">{esc(label)}</h3><table class="plain"><tbody>']
-        for r in rows[:40]:
-            out.append(f'<tr><td class="t">{esc(r.get("text") or r.get("key"))}</td><td class="u">{esc(r.get("kind") or "")}</td></tr>')
-        if len(rows) > 40: out.append(f'<tr><td class="u" colspan="2">and {len(rows) - 40} more</td></tr>')
-        return ''.join(out) + '</tbody></table>'
-    o.append(page_rows('Pages added', pg['added']))
-    o.append(page_rows('Pages removed', pg['removed']))
-    if pg['changed']:
-        o.append('<h3 class="sub">Pages edited</h3><table class="plain"><thead><tr><th>Page</th><th>Column</th>'
-                 '<th>Was</th><th>Now</th></tr></thead><tbody>')
-        for ch in pg['changed'][:60]:
-            for col in ch['columns']:
-                o.append(f'<tr><td class="t">{esc(ch["key"])}</td><td class="u">{esc(col)}</td>'
-                         f'<td class="u">{esc(str(ch["old"].get(col, ""))[:240])}</td>'
-                         f'<td class="u">{esc(str(ch["new"].get(col, ""))[:240])}</td></tr>')
-        if len(pg['changed']) > 60:
-            o.append(f'<tr><td class="u" colspan="4">and {len(pg["changed"]) - 60} more edited pages</td></tr>')
-        o.append('</tbody></table>')
-    if ed['added'] or ed['removed'] or ed['changed']:
-        o.append('<h3 class="sub">Rows</h3><table class="plain"><thead><tr><th>Change</th><th>On page</th>'
-                 '<th>Table</th><th>Points at</th></tr></thead><tbody>')
-        for lab, rows in (('added', ed['added']), ('removed', ed['removed'])):
-            for e in rows[:40]:
-                o.append(f'<tr><td class="u">{lab}</td><td class="t">{esc(e.get("page"))}</td>'
-                         f'<td class="u">{esc(SECTION_NAME.get(e.get("section"), e.get("section")))}</td>'
-                         f'<td class="u">{esc((e.get("claim") or e.get("text") or "")[:160])}</td></tr>')
-            if len(rows) > 40:
-                o.append(f'<tr><td class="u" colspan="4">and {len(rows) - 40} more rows {lab}</td></tr>')
-        for ch in ed['changed'][:40]:
-            o.append(f'<tr><td class="u">edited: {esc(", ".join(ch["columns"]))}</td><td class="t">{esc(ch["where"][0])}</td>'
-                     f'<td class="u">{esc(SECTION_NAME.get(ch["where"][1], ch["where"][1]))}</td>'
-                     f'<td class="u">{esc(str(ch["where"][3] or "")[:160])}</td></tr>')
-        if len(ed['changed']) > 40:
-            o.append(f'<tr><td class="u" colspan="4">and {len(ed["changed"]) - 40} more rows edited</td></tr>')
-        o.append('</tbody></table>')
-    o.append('</section>')
-    o.append(stamp(c))
-    o.append('</main>' + JS + '</body></html>')
-    return ''.join(o)
 
 
 def provenance(path=None):
@@ -4083,7 +4016,7 @@ VOCAB_TABLE = {'argument': 'Reasons', 'evidence': 'Evidence', 'prediction': 'Pre
 VOCAB_SIDE = {'agree': ', for', 'disagree': ', against', 'either': ', for or against', '': ''}
 VOCAB_MOVES = {'truth': 'the truth score of the page it is filed on', 'link': 'the row&apos;s linkage', 'imp': 'the row&apos;s importance',
                'uniq': 'the row&apos;s uniqueness', '': 'nothing; it is listed, not scored'}
-VOCAB_NONE = {'house.vote': ('the yes and no beside any claim', None), 'house.new-belief': ('the propose-a-belief form', 'belief.yml'),
+VOCAB_NONE = {'house.vote': ('the thumbs up and down beside any claim', None), 'house.new-belief': ('the propose-a-belief form', 'belief.yml'),
               'meaning.opposite': ('the propose-a-belief form, then a link to it as a reason against', 'belief.yml')}
 
 
@@ -4600,7 +4533,6 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     if os.path.isdir(outdir): shutil.rmtree(outdir)
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
     index = []
-    c.changes = CHANGES.since(content, c) if os.path.isdir(content) else None
     for pid in c.specs:
         h = collapse_tables(blurbs_below(ths(render_belief(c, pid) if c.kind(pid) in ('belief', 'claim') else render_special(c, pid))))
         with open(os.path.join(outdir, 'p', c.href(pid)), 'w') as fh: fh.write(h)
@@ -4612,8 +4544,6 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
                       'truth': j['truth'], 'confidence': j['confidence'],
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
         if c.kind(pid) == 'belief' and not c.complete(pid): index[-1]['draft'] = True
-    with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
-        fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
     for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
