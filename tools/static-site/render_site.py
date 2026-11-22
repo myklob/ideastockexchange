@@ -2701,12 +2701,65 @@ def render_best(c, title):
     o.append(stamp(c) + FOOT)
     return ''.join(o)
 
+def words(c, pid):
+    return len(c.standalone(pid).split())
+
+def short_beliefs(c):
+    """The shortest beliefs among the strong ones: the top quarter of the best-beliefs list, counting only those
+    argued to a belief score above zero, shortest wording first and the better argued first among equals. Short
+    is the order; strong is the bar, so a three-word belief nobody has argued for never makes the list."""
+    bs = best_beliefs(c)
+    strong = [b for b in bs[:max(3, len(bs) // 4)] if c.stats(b)['belief'] > 0]
+    at = {b: i for i, b in enumerate(strong)}
+    return sorted(strong, key=lambda b: (words(c, b), at[b]))
+
+def short_reasons(c):
+    """The shortest reasons among the important ones: claims beneath a belief that at least as much of the site
+    rests on as on the average page, shortest wording first and the most relied on first among equals."""
+    avg = 1 / len(c.specs)
+    rows = [r['page'] for r in c.rank.top(len(c.specs)) if c.kind(r['page']) == 'claim' and c.rank.of(r['page']) >= avg]
+    at = {p: i for i, p in enumerate(rows)}
+    return sorted(rows, key=lambda p: (words(c, p), at[p]))
+
+SHORT_SHOWN = 50
+
+def short_table(c, rows, head, value):
+    o = [f'<table class="scored"><thead><tr><th class="rk">#</th><th>Claim</th><th>Words</th><th>{esc(head)}</th><th>Truth</th></tr></thead><tbody>']
+    for i, p in enumerate(rows, 1):
+        o.append(f'<tr><td class="rk">{i}</td><td class="t"><a href="p/{c.href(p)}">{esc(c.standalone(p))}</a>{draft_mark(c, p)}</td>'
+                 f'<td>{words(c, p)}</td><td class="sc">{value(p)}</td><td>{f2(c.truth(p))}</td></tr>')
+    if not rows: o.append('<tr><td colspan="5" class="empty">Nothing clears the bar yet.</td></tr>')
+    return ''.join(o) + '</tbody></table>'
+
+def render_short(c, title):
+    o = [root_head('Short and strong', [('Home', 'index.html'), ('Short and strong', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>Short and strong</h1>')
+    o.append('<p class="lede">A claim you can read in one breath and that holds up, or that a lot rests on. Each list is ordered by how few '
+             'words the claim takes, but only claims that clear a bar for strength or importance are on it at all.</p>')
+    bs, rs = short_beliefs(c), short_reasons(c)
+    o.append('<section id="beliefs">' + EXPLAIN_BLOCK['short'] + short_table(c, bs[:SHORT_SHOWN], 'Belief score', lambda p: sf(c.stats(p)['belief'])) + '</section>')
+    o.append('<section id="reasons">' + EXPLAIN_BLOCK['shortreasons'] + short_table(c, rs[:SHORT_SHOWN], 'Relied on', lambda p: times_avg(c, c.rank.of(p))) + '</section>')
+    if len(rs) > SHORT_SHOWN:
+        o.append(f'<p class="cap">The shortest {SHORT_SHOWN} of {len(rs)} reasons that clear the bar.</p>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
 EXPLAIN = [
     ('best', 'Highest belief scores',
      'Beliefs ranked by belief score: the weight of the rows for a belief minus the weight of the rows against it.',
      'Every reason, finding and prediction under a belief is a row, and every row gets a signed score. The score starts from the row\'s direction and how far its own page has been argued from 50-50 (two times its truth score minus one). That is multiplied by how much work stands behind the page (confidence), how relevant the row is (linkage), how much it matters (importance) and how little it repeats another row (uniqueness). Each of those numbers is argued on a page of its own. A row argued true adds weight to its side; a row argued false counts against it; a row nobody has argued sits at 50-50 and adds nothing. Ties go to the belief with more scored rows beneath it.',
      'So the best supported positions come first, and so that volume cannot buy a place: listing twenty reasons nobody has argued moves a belief exactly as far as listing none.',
      'method.html#formula'),
+    ('short', 'Short and strong beliefs',
+     'Beliefs you can read in one breath that are also among the best argued on the site.',
+     'Take the top quarter of the best-beliefs list and keep the beliefs argued to a belief score above zero. Order those by how many words the belief takes on its own page, fewest first; among beliefs of the same length, the better argued comes first. Length is the order, strength is the entry bar, so a short belief nobody has argued for never appears.',
+     'Because a claim short enough to remember is the one people repeat, and the most useful short claims to repeat are the ones that hold up. It is also the quickest way in for a reader with five minutes.',
+     None),
+    ('shortreasons', 'Short reasons that carry weight',
+     'Reasons you can read in one breath that a lot of the site rests on.',
+     'Take every reason, finding or assumption beneath a belief whose Relied on share is at least that of the average page. Order those by how many words the claim takes on its own page, fewest first; among claims of the same length, the more relied on comes first. Whether the claim is true is left out of the bar, as it is for Most relied on, so the truth score is printed beside it instead.',
+     'Because a short claim that many beliefs depend on is the one most worth checking: it is easy to state, easy to repeat, and settling it moves everything above it.',
+     'method.html#reasonrank'),
     ('argued', 'Most argued over',
      'Beliefs with the most reasons for and against, counted at every level beneath them.',
      'Every reason under the belief is counted, then every reason under each of those, and so on down, each row once. A reason that appears in two places beneath the same belief is counted once.',
@@ -2875,29 +2928,6 @@ MASONRY = ("<script>(function(){var g=document.querySelector('.cards');if(!g)ret
            "cards.forEach(function(c){var s=cols[0];cols.forEach(function(d){if(d.offsetHeight<s.offsetHeight)s=d});s.appendChild(c)})}"
            "lay();window.addEventListener('resize',lay)})()</script>")
 
-def start_here(c):
-    """One first click for each reason to arrive: to read an argument worked all the way through, to add to one,
-    or to check the arithmetic. Read off the same rankings the cards below print, so it can never point at a
-    page the lists would not."""
-    ranked = best_beliefs(c)
-    doors = []
-    if ranked:
-        b = ranked[0]
-        doors.append(f'<li><strong>Read one argument {"worked all the way through" if c.complete(b) else "from start to finish"}.</strong> '
-                     f'<a href="p/{c.href(b)}">{esc(c.standalone(b))}</a> Every reason for it and against it, the evidence under each, '
-                     'and what would change the answer.</li>')
-    queue = c.rank.work_queue(1)
-    if queue:
-        p = queue[0]['page']
-        gaps = page_gaps(Html(c, 'p/'), c, p) if c.kind(p) in ('belief', 'claim') else []
-        need = (f' What it needs first: {gaps[0][0][0].lower() + gaps[0][0][1:]} (<a href="p/{c.href(p)}#{gaps[0][3]}">the form for it</a>).'
-                if gaps else '')
-        doors.append(f'<li><strong>Add to the claim where an hour of work moves the most.</strong> <a href="p/{c.href(p)}">{esc(c.standalone(p))}</a>{need} '
-                     'You do not have to agree with it to help.</li>')
-    doors.append('<li><strong>Check the arithmetic.</strong> <a href="method.html">How every number is worked out</a>, and '
-                 '<a href="compare.html">where the two rules for how strong a belief is disagree</a>.</li>')
-    return card('Start here', 'Three ways in, depending on what you came for.', '<ol class="doors">' + ''.join(doors) + '</ol>')
-
 WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
 
 def so_far(c):
@@ -2943,7 +2973,19 @@ def render_index(c, title):
     ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
     o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
     TOP = 3
-    cards = [start_here(c), card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
+    shorts = short_beliefs(c)
+    cards = [card('Short and strong beliefs', 'Readable in one breath and among the best argued here. Fewest words first; only beliefs from '
+                  'the top quarter of the best-beliefs list, argued above zero, qualify.',
+                  mini(c, shorts[:TOP], 'Words', lambda p: str(words(c, p)), 'short', what='Belief',
+                       note=lambda p: f'belief score {sf(c.stats(p)["belief"])}, truth score {f2(c.truth(p))}'),
+                  see_all('short.html', len(shorts), 'short and strong beliefs'), 'short')]
+    shortr = short_reasons(c)
+    cards.append(card('Short reasons that carry weight', 'Readable in one breath, and at least as much of the site rests on each as on the average '
+                      'page. Fewest words first.',
+                      mini(c, shortr[:TOP], 'Words', lambda p: str(words(c, p)), 'shortreasons',
+                           note=lambda p: f'relied on {times_avg(c, c.rank.of(p))} the average page, truth score {f2(c.truth(p))}'),
+                      see_all('short.html#reasons', len(shortr), 'short reasons that carry weight'), 'shortreasons'))
+    cards.append(card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>'))
     cards.append(card('Highest belief scores', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
                       'for the belief minus the weight against it, open ended, where 0 means balanced or not yet argued. The truth score under each '
                       'belief is the one its own page shows, 0 to 1, where 0.50 means the evidence so far has not moved it either way.',
@@ -3011,7 +3053,7 @@ def render_index(c, title):
     if len(filed) > 1:
         # second, next to Search: the shelf is the other way in that does not rank, and the tallest card, so
         # placing it early lets the shorter ranked lists settle around it
-        cards.insert(1, card('Topics', 'Beliefs filed by subject, like a library shelf; the busiest shelves first.', popular_topics(c) + directory(c),
+        cards.insert(3, card('Topics', 'Beliefs filed by subject, like a library shelf; the busiest shelves first.', popular_topics(c) + directory(c),
                              '<p class="more"><a href="topics.html">Every topic &rarr;</a></p>', 'topics'))
     o.append('<div class="cards">' + ''.join(cards) + '</div>')
     o.append(MASONRY)
@@ -3665,7 +3707,7 @@ tr.lb td{background:color-mix(in srgb,var(--head) 60%,transparent)}
 @media (max-width:640px){table thead{display:none}table tr{display:flex;flex-wrap:wrap;gap:3px 14px;padding:8px 6px;border-top:1px solid var(--line)}table td{border:0;padding:0;width:auto!important;white-space:normal!important;text-align:left!important}td.t,td.u,td.dl,td.ex,td.lab,.check td.lab,.conn td.lab{flex:1 1 100%;width:auto!important}td.rk{display:none}td[data-l]::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}td.u[data-l]::before,td.dl[data-l]::before,td.ex[data-l]::before{display:inline;margin-right:6px}tr.lb td{background:none}tr.lb{background:color-mix(in srgb,var(--head) 60%,transparent)}}
 main.index h1{font-size:clamp(24px,3vw,36px)}.lede{font-size:15px;color:var(--ink2);max-width:720px}
 .beliefs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
-.pop{font-size:13.5px;margin:0 0 10px;padding:8px 10px;background:color-mix(in srgb,var(--navy) 6%,var(--paper));border-left:3px solid var(--navy)}.under{font-size:13px;color:var(--ink2);margin:6px 0 0}.dm{display:inline-block;font:600 10.5px/1.4 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--line);border-radius:3px;padding:0 5px;vertical-align:middle;margin-left:4px}.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.cards{column-width:320px;column-gap:18px;margin-top:18px}.cards.js{column-width:auto;display:flex;gap:18px;align-items:flex-start}.cards.js>.col{flex:1 1 0;min-width:0}.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:0 0 18px;break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box}.card h2{margin-top:2px}.card .dir{grid-template-columns:1fr;gap:8px}.mini{font-size:13px}.mini td.t{min-width:0}.mini td.sc{white-space:normal;min-width:4em}.find label{display:block;font-size:13px;color:var(--ink2)}.find input{width:100%;box-sizing:border-box;padding:8px;font:inherit;border:1px solid var(--line);border-radius:4px}.hits{padding-left:20px;font-size:14px}.doors{padding-left:20px;font-size:14px;margin:6px 0}.doors li{margin:0 0 8px}.links{padding-left:18px;font-size:14px}.links li{margin:4px 0}
+.pop{font-size:13.5px;margin:0 0 10px;padding:8px 10px;background:color-mix(in srgb,var(--navy) 6%,var(--paper));border-left:3px solid var(--navy)}.under{font-size:13px;color:var(--ink2);margin:6px 0 0}.dm{display:inline-block;font:600 10.5px/1.4 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--line);border-radius:3px;padding:0 5px;vertical-align:middle;margin-left:4px}.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.cards{column-width:320px;column-gap:18px;margin-top:18px}.cards.js{column-width:auto;display:flex;gap:18px;align-items:flex-start}.cards.js>.col{flex:1 1 0;min-width:0}.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:0 0 18px;break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box}.card h2{margin-top:2px}.card .dir{grid-template-columns:1fr;gap:8px}.mini{font-size:13px}.mini td.t{min-width:0}.mini td.sc{white-space:normal;min-width:4em}.find label{display:block;font-size:13px;color:var(--ink2)}.find input{width:100%;box-sizing:border-box;padding:8px;font:inherit;border:1px solid var(--line);border-radius:4px}.hits{padding-left:20px;font-size:14px}.links{padding-left:18px;font-size:14px}.links li{margin:4px 0}
 .bcard{display:block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px;color:var(--ink)}.bcard:hover{border-color:var(--navy)}
 .bcard .bt{font-family:var(--serif);font-size:16px;line-height:1.35;font-weight:600;margin-bottom:8px}.bcard .bn{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}.bcard .bn b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}.bcard .bb{margin-top:8px;font-size:13px;color:var(--ink2)}
 ul.tree,ul.tree ul{list-style:none;margin:0;padding-left:0}ul.tree ul{padding-left:18px;border-left:1px solid var(--line);margin-left:6px}
@@ -4551,7 +4593,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
         if c.kind(pid) == 'belief' and not c.complete(pid): index[-1]['draft'] = True
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
-    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
+    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('short', render_short), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 'u'))
     for login in getattr(c, 'people', []):

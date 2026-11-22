@@ -1099,15 +1099,28 @@ class TestANewcomerKnowsWhereToStart(unittest.TestCase):
     def card(self, name):
         i = self.h.find(f'<span>{name}</span>'); return self.h[i:self.h.find('</section>', i)]
 
-    def test_start_here_is_the_first_card_and_follows_the_rankings(self):
+    def test_the_short_and_strong_cards_come_first_and_clear_their_bars(self):
         import render_site as RS
-        self.assertLess(self.h.find('<span>Start here</span>'), self.h.find('<span>Search</span>'))
-        card = self.card('Start here')
-        self.assertIn(f'href="p/{self.c.href(RS.best_beliefs(self.c)[0])}"', card, 'the first door is not the best belief')
-        top = self.c.rank.work_queue(1)
-        if top: self.assertIn(f'href="p/{self.c.href(top[0]["page"])}', card, 'the second door is not the top of the work queue')
-        self.assertIn('href="method.html"', card)
-        self.assertNotRegex(card, r'<a [^>]*>[^<]*<a ', 'a link is nested inside another link')
+        self.assertLess(self.h.find('<span>Short and strong beliefs</span>'), self.h.find('<span>Search</span>'))
+        self.assertLess(self.h.find('<span>Short reasons that carry weight</span>'), self.h.find('<span>Search</span>'))
+        bs, rs = RS.short_beliefs(self.c), RS.short_reasons(self.c)
+        self.assertTrue(bs and rs, 'a short-and-strong list is empty on the live tables')
+        best = RS.best_beliefs(self.c)[:max(3, len(self.c.beliefs) // 4)]
+        for b in bs:
+            self.assertIn(b, best); self.assertGreater(self.c.stats(b)['belief'], 0)
+        avg = 1 / len(self.c.specs)
+        for p in rs:
+            self.assertEqual(self.c.kind(p), 'claim'); self.assertGreaterEqual(self.c.rank.of(p), avg)
+        for rows in (bs, rs):
+            n = [RS.words(self.c, p) for p in rows]
+            self.assertEqual(n, sorted(n), 'not shortest first')
+        self.assertIn(f'href="p/{self.c.href(bs[0])}"', self.card('Short and strong beliefs'))
+        self.assertIn(f'href="p/{self.c.href(rs[0])}"', self.card('Short reasons that carry weight'))
+        self.assertIn('href="lists.html#short"', self.h)
+        self.assertIn('href="lists.html#shortreasons"', self.h)
+        with open(os.path.join(self.parent.dir, 'short.html')) as fh: page = fh.read()
+        self.assertIn('id="reasons"', page)
+        self.assertIn(f'href="p/{self.c.href(rs[0])}"', page)
 
     def test_the_best_beliefs_card_says_what_each_number_is(self):
         card = self.card('Highest belief scores')
