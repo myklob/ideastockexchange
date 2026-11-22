@@ -9638,41 +9638,41 @@ electing-forward-party-candidates,definition,,,,,,,,,,,,,,,,,,"term: Forward Par
 electing-forward-party-candidates,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about whether Colorado's legislature has enough party-line gridlock for a member outside both parties to fix, given that nearly nine in ten laws already pass with votes from both parties. | move: A count of the major bills each session (budget, taxes, health, energy) that passed on party lines, compared with the overall bipartisan share, would show whether the gridlock is concentrated where it matters most."
 electing-forward-party-candidates,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two sides disagree about what a legislature working better means: supporters count cross-party agreement, while opponents count a majority delivering the program its voters elected it to pass. | move: Agreeing in advance on a small set of readings, such as bipartisan share of laws, party-line votes on major bills and budget signing date, would let both sides judge the same results."
 electing-forward-party-candidates,value,,,,,,,,,,,,,,,,,,"value: Compromise | srank: 2 | orank: 2 | why: Both sides value laws that can win cross-party support, but they disagree about whether a third-party member adds any compromise Colorado's legislature does not already reach."
-voting-third-party-candidate,argument,agree,no-third-party-independent,,,,,,,,,,,,,,,,
-voting-third-party-candidate,argument,agree,colorado-counts-state-federal,,,,,,,,,,,,,,,,
-voting-third-party-candidate,argument,agree,third-party-vote-drawn,,,,,,,,,,,,,,,,
-voting-third-party-candidate,argument,agree,colorado-voters-rejected-ranked,,,,,,,,,,,,,,,,
-voting-third-party-candidate,argument,agree,colorado-s-two-million,,,,,,,,,,,,,,,,
-voting-third-party-candidate,evidence,agree,colorado-s-proposition-131,,"Wikipedia, 2024 Colorado Proposition 131, tally of official results, 2024; Colorado Sun, Colorado Proposition 131 results, 2024",,,,,,,,,,,,,,
-voting-third-party-candidate,prediction,agree,no-forward-libertarian-unity,,,,,,,,,,,,,,,"By December 15, 2026; checked against the Colorado Secretary of State's certified 2026 general election abstract.",
-voting-third-party-candidate,prediction,agree,bob-chew-will-finish-2,,,,,,,,,,,,,,,"By December 15, 2026; checked against the certified U.S. Senator abstract from the Colorado Secretary of State.",
+voting-third-party-candidate,argument,agree,no-third-party-independent,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Kathleen_Curry | checked: 2026-11-21
+voting-third-party-candidate,argument,agree,colorado-counts-state-federal,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Colorado_House_of_Representatives | checked: 2026-11-21
+voting-third-party-candidate,argument,agree,third-party-vote-drawn,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Colorado%27s_8th_congressional_district | checked: 2026-11-21
+voting-third-party-candidate,argument,agree,colorado-voters-rejected-ranked,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2024_Colorado_Proposition_131 | checked: 2026-11-21
+voting-third-party-candidate,argument,agree,colorado-s-two-million,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/06/21/registered-voters-on-the-eve-of-the-2026-primaries-cronin-loevy/ | checked: 2026-11-21
+voting-third-party-candidate,evidence,agree,colorado-s-proposition-131,,"Wikipedia, 2024 Colorado Proposition 131, tally of official results, 2024; Colorado Sun, Colorado Proposition 131 results, 2024",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2024_Colorado_Proposition_131 | checked: 2026-11-21
+voting-third-party-candidate,prediction,agree,no-forward-libertarian-unity,,,,,,,,,,,,,,,"By December 15, 2026; checked against the Colorado Secretary of State's certified 2026 general election abstract.",url: https://en.wikipedia.org/wiki/2026_Colorado_House_of_Representatives_election | checked: 2026-11-21
+voting-third-party-candidate,prediction,agree,bob-chew-will-finish-2,,,,,,,,,,,,,,,"By December 15, 2026; checked against the certified U.S. Senator abstract from the Colorado Secretary of State.",url: https://en.wikipedia.org/wiki/2026_United_States_Senate_election_in_Colorado | checked: 2026-11-21
 voting-third-party-candidate,falsify,agree,certified-2026-results-show,,,,,,,,,,,,,,,,
 voting-third-party-candidate,falsify,agree,post-election-survey-ballot,,,,,,,,,,,,,,,,
 voting-third-party-candidate,assumption,agree,main-purpose-vote-colorado,,,,,,,,,,,,,,,,
 voting-third-party-candidate,assumption,agree,most-people-who-vote,,,,,,,,,,,,,,,,
 voting-third-party-candidate,assumption,agree,colorado-s-major-parties,,,,,,,,,,,,,,,,
-voting-third-party-candidate,person,agree,mark-baisley-republican-nominee-2,,,,,,,,,,,,,,,,
-voting-third-party-candidate,person,agree,jon-caldara-president-independence,,,,,,,,,,,,,,,,
-voting-third-party-candidate,media,agree,making-votes-count-strategic,,,,,,,,,,,,,,,,
-voting-third-party-candidate,media,agree,two-party-system-duverger,,,,,,,,,,,,,,,,
+voting-third-party-candidate,person,agree,mark-baisley-republican-nominee-2,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2026/08/12/ticked-off-third-party-u-s-senate-candidate-in-colorado-launches-1-3-million-tv-ad-campaign/ | checked: 2026-11-21
+voting-third-party-candidate,person,agree,jon-caldara-president-independence,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2022/11/20/spoilers-caldara-804b48a8-67a6-11ed-b17d-af0f14693069/ | checked: 2026-11-21
+voting-third-party-candidate,media,agree,making-votes-count-strategic,,,,,,,,,,,,,,,,url: https://www.cambridge.org/core/product/identifier/9781139174954/type/book | checked: 2026-11-21
+voting-third-party-candidate,media,agree,two-party-system-duverger,,,,,,,,,,,,,,,,url: https://www.cambridge.org/core/product/identifier/S0003055400189580/type/journal_article | checked: 2026-11-21
 voting-third-party-candidate,media,agree,spoilers-caldara-jon-caldara,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2022/11/20/spoilers-caldara-804b48a8-67a6-11ed-b17d-af0f14693069/ | checked: 2026-11-21
 voting-third-party-candidate,argument,disagree,race-every-forecaster-rates,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2026_United_States_Senate_election_in_Colorado | checked: 2026-11-21
 voting-third-party-candidate,argument,disagree,statewide-third-party-vote,,,,,,,,,,,,,,,,url: https://coloradosos.gov/pubs/newsRoom/pressReleases/2024/PR20240125ColoradoForward.html | checked: 2026-11-21
 voting-third-party-candidate,argument,disagree,third-party-vote-shares,,,,,,,,,,,,,,,,url: https://www.coloradopolitics.com/2023/06/18/colorados-libertarian-lets-make-a-deal-caldara-69e0b364-0c92-11ee-809d-6bc8c85264f7/ | checked: 2026-11-21
 voting-third-party-candidate,evidence,disagree,colorado-keeps-minor-party,,"Colorado Secretary of State, press release: Colorado Forward Party recognized as minor party, January 25, 2024",,,,,,,,,,,,,,url: https://coloradosos.gov/pubs/newsRoom/pressReleases/2024/PR20240125ColoradoForward.html | checked: 2026-11-21
 voting-third-party-candidate,prediction,disagree,colorado-major-party-will,,,,,,,,,,,,,,,"By March 31, 2028; checked in Colorado Politics, the Colorado Sun and the state parties' published resolutions and agreements.",url: https://www.coloradopolitics.com/2023/06/18/colorados-libertarian-lets-make-a-deal-caldara-69e0b364-0c92-11ee-809d-6bc8c85264f7/ | checked: 2026-11-21
-voting-third-party-candidate,prediction,disagree,bob-chew-will-receive,,,,,,,,,,,,,,,"By December 15, 2026; checked against the certified abstract and the Colorado Secretary of State's list of recognized minor parties.",
+voting-third-party-candidate,prediction,disagree,bob-chew-will-receive,,,,,,,,,,,,,,,"By December 15, 2026; checked against the certified abstract and the Colorado Secretary of State's list of recognized minor parties.",url: https://colorado.public.law/statutes/crs_1-4-1303 | checked: 2026-11-21
 voting-third-party-candidate,falsify,disagree,forward-party-other-minor,,,,,,,,,,,,,,,,
 voting-third-party-candidate,falsify,disagree,colorado-major-party-documents,,,,,,,,,,,,,,,,
 voting-third-party-candidate,assumption,disagree,vote-put-use-when,,,,,,,,,,,,,,,,
 voting-third-party-candidate,assumption,disagree,third-party-vote-totals,,,,,,,,,,,,,,,,
 voting-third-party-candidate,assumption,disagree,colorado-race-whose-winner,,,,,,,,,,,,,,,,
-voting-third-party-candidate,person,disagree,eric-mulder-libertarian-nominee,,,,,,,,,,,,,,,,
-voting-third-party-candidate,media,disagree,third-parties-america-citizen-2,,,,,,,,,,,,,,,,
+voting-third-party-candidate,person,disagree,eric-mulder-libertarian-nominee,,,,,,,,,,,,,,,,url: https://www.kunc.org/politics/2026-08-27/can-independent-candidates-gain-traction-maybe-not-but-its-not-stopping-them-from-trying | checked: 2026-11-21
+voting-third-party-candidate,media,disagree,third-parties-america-citizen-2,,,,,,,,,,,,,,,,url: https://press.princeton.edu/books/paperback/9780691026138/third-parties-in-america | checked: 2026-11-21
 voting-third-party-candidate,interest,agree,donors-who-give-colorado,,,,,,,,,,,,,,,,
-voting-third-party-candidate,cba,agree,if-colorado-voters-who,,,,,,,,,,,Colorado legislative races per cycle in which the third-party vote exceeded the winner's margin,2.5,,,,
-voting-third-party-candidate,cba,disagree,if-colorado-voters-abandoned,,,,,,,,,,,Colorado House races per cycle that would lose their only third candidate,7,,,,
-voting-third-party-candidate,cba,disagree,if-colorado-libertarians-stopped,,,,,,,,,,,written commitments by Colorado major-party candidates to minor-party voters per cycle,,,,,
+voting-third-party-candidate,cba,agree,if-colorado-voters-who,,,,,,,,,,,Colorado legislative races per cycle in which the third-party vote exceeded the winner's margin,2.5,,,,url: https://en.wikipedia.org/wiki/2022_Colorado_House_of_Representatives_election | checked: 2026-11-21
+voting-third-party-candidate,cba,disagree,if-colorado-voters-abandoned,,,,,,,,,,,Colorado House races per cycle that would lose their only third candidate,7,,,,url: https://en.wikipedia.org/wiki/2024_Colorado_House_of_Representatives_election | checked: 2026-11-21
+voting-third-party-candidate,cba,disagree,if-colorado-libertarians-stopped,,,,,,,,,,,written commitments by Colorado major-party candidates to minor-party voters per cycle,,,,,url: https://ballot-access.org/wp-content/uploads/2023/08/State-Level-GOP-Candidate-pledge-2024.pdf | checked: 2026-11-21
 voting-third-party-candidate,category,,,Colorado House races per cycle that would lose their only third candidate,,,,,,,,,,,,,,,
 voting-third-party-candidate,category,,,Colorado legislative races per cycle in which the third-party vote exceeded the winner's margin,,,,,,,,,,,,,,,
 voting-third-party-candidate,category,,,written commitments by Colorado major-party candidates to minor-party voters per cycle,,,,,,,,,,,,,,,
@@ -9695,9 +9695,9 @@ voting-third-party-candidate,dispute,,,Definitional,,,,,,,,,,,,,,,"what: The two
 voting-third-party-candidate,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether Colorado third-party voters would otherwise vote for the nearer major-party candidate or stay home, which decides whether their votes spoil close races. | move: A ballot-level or exit-poll study asking Colorado third-party voters their second choice, like Herron and Lewis's study of Florida ballots, would settle it for Colorado."
 voting-third-party-candidate,value,,,,,,,,,,,,,,,,,,value: Majority rule | srank: 1 | orank: 3 | why: Those who hold the belief care most that a split vote can elect the candidate most voters in a race like least.
 united-states-keep-sending,argument,agree,tying-us-military-aid,,,,,,,,,,,,,,,,
-united-states-keep-sending,argument,agree,russia-s-ground-advance,,,,,,,,,,,,,,,,
+united-states-keep-sending,argument,agree,russia-s-ground-advance,,,,,,,,,,,,,,,,url: https://www.csis.org/analysis/russias-grinding-war-ukraine | checked: 2026-11-21
 united-states-keep-sending,argument,agree,settlement-lets-russia-keep,,,,,,,,,,,,,,,,
-united-states-keep-sending,evidence,agree,russia-suffered-estimated-1,,"Center for Strategic and International Studies (Seth G. Jones and Riley McCabe), Russia's Grinding War in Ukraine: Massive Losses and Tiny Gains for a Declining Power, January 27, 2026",,,,,,,,,,,,,,
+united-states-keep-sending,evidence,agree,russia-suffered-estimated-1,,"Center for Strategic and International Studies (Seth G. Jones and Riley McCabe), Russia's Grinding War in Ukraine: Massive Losses and Tiny Gains for a Declining Power, January 27, 2026",,,,,,,,,,,,,,url: https://www.csis.org/analysis/russias-grinding-war-ukraine | checked: 2026-11-21
 united-states-keep-sending,prediction,agree,if-continued-us-military,,,,,,,,,,,,,,,"By December 31, 2027; checked against DeepState and ISW control maps.",
 united-states-keep-sending,prediction,agree,if-sustained-western-pressure,,,,,,,,,,,,,,,"By December 31, 2027; checked against official Russian statements and Reuters or AP reporting on negotiations.",
 united-states-keep-sending,falsify,agree,careful-month-month-study,,,,,,,,,,,,,,,,
@@ -9723,8 +9723,8 @@ united-states-keep-sending,falsify,disagree,european-producers-shown-able,,,,,,,
 united-states-keep-sending,assumption,disagree,russia-has-population-industry,,,,,,,,,,,,,,,,
 united-states-keep-sending,assumption,disagree,ceasefire-along-current-front,,,,,,,,,,,,,,,,
 united-states-keep-sending,assumption,disagree,american-military-resources-public,,,,,,,,,,,,,,,,
-united-states-keep-sending,person,disagree,j-d-vance-then,,,,,,,,,,,,,,,,
-united-states-keep-sending,media,disagree,unwinnable-war-washington-needs,,,,,,,,,,,,,,,,
+united-states-keep-sending,person,disagree,j-d-vance-then,,,,,,,,,,,,,,,,url: https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00154.htm | checked: 2026-11-21
+united-states-keep-sending,media,disagree,unwinnable-war-washington-needs,,,,,,,,,,,,,,,,url: https://www.truthdig.com/articles/ukraine-the-case-for-armistice/ | checked: 2026-11-21
 united-states-keep-sending,interest,agree,ukrainians-living-cities-hit,,,,,,,,,,,,,,,,
 united-states-keep-sending,interest,agree,ukrainians-living-under-russian,,,,,,,,,,,,,,,,
 united-states-keep-sending,interest,agree,lithuanians-latvians-estonians-poles,,,,,,,,,,,,,,,,
@@ -9733,8 +9733,8 @@ united-states-keep-sending,interest,disagree,ukrainian-soldiers-front-families,,
 united-states-keep-sending,cba,agree,continued-us-military-aid,,,,,,,,ukrainians-living-cities-hit,,,civilian deaths averted a year,,,,,
 united-states-keep-sending,cba,agree,continued-us-military-aid-2,,,,,,,,lithuanians-latvians-estonians-poles,,,Russian casualties a month,26000,,,,
 united-states-keep-sending,cba,agree,continued-us-military-aid-3,,,,,,,,ukrainians-living-under-russian,,,square kilometers returned to Ukrainian control,,,,,
-united-states-keep-sending,cba,disagree,keeping-us-military-aid,,,,,,,,,,,billions of dollars a year,15.7,,,,
-united-states-keep-sending,cba,disagree,sending-patriot-interceptors-precision,,,,,,,,us-service-members-need,,,Patriot interceptors a year,,,,,
+united-states-keep-sending,cba,disagree,keeping-us-military-aid,,,,,,,,,,,billions of dollars a year,15.7,,,,url: https://www.everycrsreport.com/files/2026-08-31_IF12040_b732b458ee1fe7527c3424284c4b36137ae2ee3f.html | checked: 2026-11-21
+united-states-keep-sending,cba,disagree,sending-patriot-interceptors-precision,,,,,,,,us-service-members-need,,,Patriot interceptors a year,,,,,url: https://www.everycrsreport.com/files/2026-08-31_IF12040_b732b458ee1fe7527c3424284c4b36137ae2ee3f.html | checked: 2026-11-21
 united-states-keep-sending,cba,disagree,holding-out-full-russian,,,,,,,,ukrainian-soldiers-front-families,,,Ukrainian military deaths a year,36500,,,,
 united-states-keep-sending,category,,,Patriot interceptors a year,,,,,,,,,,,,,,,
 united-states-keep-sending,category,,,Russian casualties a month,,,,,,,,,,,,,,,
@@ -9761,13 +9761,13 @@ united-states-keep-sending,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two side
 united-states-keep-sending,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether a ceasefire along the current front would bring a lasting peace or give Russia time to rearm and attack again. | move: Comparing how earlier frozen conflicts involving Russia, such as the 2015 Minsk II ceasefire in eastern Ukraine, held up would show how often such ceasefires last."
 united-states-keep-sending,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree about how to weigh the principle that borders should not be changed by force against the lives and money a longer war would cost. | move: No finding settles this alone, but stating in advance how many years of war and what cost each side would accept for full withdrawal would make the trade-off explicit."
 united-states-keep-sending,value,,,,,,,,,,,,,,,,,,"value: Justice | srank: 1 | orank: 3 | why: Supporters put first the principle that a country should not keep land it seized by force, while opponents accept the principle but rank it below ending the killing."
-supporting-ukraine-serves-united,argument,agree,russia-s-army-main,,,,,,,,,,,,,,,,
+supporting-ukraine-serves-united,argument,agree,russia-s-army-main,,,,,,,,,,,,,,,,url: https://www.csis.org/analysis/russias-grinding-war-ukraine | checked: 2026-11-21
 supporting-ukraine-serves-united,argument,agree,russian-victory-ukraine-likely,,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,argument,agree,leaders-china-iran-north,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,argument,agree,war-ukraine-has-exposed,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,argument,agree,keeping-ukraine-able-export,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,evidence,agree,russia-suffered-about-1,,"Center for Strategic and International Studies, report on Russian and Ukrainian war casualties, January 2026",,,,,,,,,,,,,,
-supporting-ukraine-serves-united,evidence,agree,united-states-supplied-44,,"U.S. Energy Information Administration, Today in Energy, 2024 (as reported by Offshore Technology, US accounted for almost half of Europe's LNG imports in 2023)",,,,,,,,,,,,,,
+supporting-ukraine-serves-united,argument,agree,war-ukraine-has-exposed,,,,,,,,,,,,,,,,url: https://www.csis.org/analysis/empty-bins-wartime-environment-challenge-us-defense-industrial-base | checked: 2026-11-21
+supporting-ukraine-serves-united,argument,agree,keeping-ukraine-able-export,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Black_Sea_Grain_Initiative | checked: 2026-11-21
+supporting-ukraine-serves-united,evidence,agree,russia-suffered-about-1,,"Center for Strategic and International Studies, report on Russian and Ukrainian war casualties, January 2026",,,,,,,,,,,,,,url: https://www.csis.org/analysis/russias-grinding-war-ukraine | checked: 2026-11-21
+supporting-ukraine-serves-united,evidence,agree,united-states-supplied-44,,"U.S. Energy Information Administration, Today in Energy, 2024 (as reported by Offshore Technology, US accounted for almost half of Europe's LNG imports in 2023)",,,,,,,,,,,,,,url: https://www.eia.gov/todayinenergy/detail.php?id=61483 | checked: 2026-11-21
 supporting-ukraine-serves-united,prediction,agree,russia-s-active-inventory,,,,,,,,,,,,,,,By the end of 2027; checked against the International Institute for Strategic Studies' Military Balance 2028 edition.,
 supporting-ukraine-serves-united,prediction,agree,european-other-allies-will,,,,,,,,,,,,,,,"By December 31, 2027; checked against NATO announcements or Ukraine's Defense Ministry figures.",
 supporting-ukraine-serves-united,falsify,agree,official-chinese-documents-statements,,,,,,,,,,,,,,,,
@@ -9775,18 +9775,18 @@ supporting-ukraine-serves-united,falsify,agree,pentagon-government-accountabilit
 supporting-ukraine-serves-united,assumption,agree,russia-s-leaders-keep,,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,assumption,agree,rival-governments-such-china,,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,assumption,agree,weapons-money-sent-ukraine,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,person,agree,mitch-mcconnell-senate-republican,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,person,agree,president-joe-biden-oval,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,person,agree,defense-secretary-lloyd-austin,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,media,agree,most-aid-ukraine-spent,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,media,agree,high-price-losing-ukraine,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,argument,disagree,weapons-sent-ukraine-especially,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,argument,disagree,europe-s-combined-economy,,,,,,,,,,,,,,,,
+supporting-ukraine-serves-united,person,agree,mitch-mcconnell-senate-republican,,,,,,,,,,,,,,,,url: https://www.republicanleader.senate.gov/?p=9707 | checked: 2026-11-21
+supporting-ukraine-serves-united,person,agree,president-joe-biden-oval,,,,,,,,,,,,,,,,url: https://bidenwhitehouse.archives.gov/briefing-room/speeches-remarks/2023/10/20/remarks-by-president-biden-on-the-unites-states-response-to-hamass-terrorist-attacks-against-israel-and-russias-ongoing-brutal-war-against-ukraine/ | checked: 2026-11-21
+supporting-ukraine-serves-united,person,agree,defense-secretary-lloyd-austin,,,,,,,,,,,,,,,,url: https://www.kunc.org/npr-news/2022-04-27/u-s-war-aims-shift-in-ukraine-and-bring-additional-risks | checked: 2026-11-21
+supporting-ukraine-serves-united,media,agree,most-aid-ukraine-spent,,,,,,,,,,,,,,,,url: https://breakingdefense.com/2023/10/most-aid-to-ukraine-is-spent-in-the-us-a-total-shutdown-would-be-irresponsible/ | checked: 2026-11-21
+supporting-ukraine-serves-united,media,agree,high-price-losing-ukraine,,,,,,,,,,,,,,,,url: https://www.criticalthreats.org/analysis/the-high-price-of-losing-ukraine | checked: 2026-11-21
+supporting-ukraine-serves-united,argument,disagree,weapons-sent-ukraine-especially,,,,,,,,,,,,,,,,url: https://www.twz.com/news-features/concerns-over-stockpile-of-patriot-missiles-grow-pentagon-claims-it-has-enough | checked: 2026-11-21
+supporting-ukraine-serves-united,argument,disagree,europe-s-combined-economy,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal) | checked: 2026-11-21
 supporting-ukraine-serves-united,argument,disagree,prolonging-war-ukraine-pushes,,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,argument,disagree,united-states-could-have,,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,argument,disagree,without-realistic-route-ukraine,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,evidence,disagree,march-2026-us-army,,"Department of Defense Office of Inspector General, evaluation of 155-mm artillery production (report 2026-095), July 2026",,,,,,,,,,,,,,
-supporting-ukraine-serves-united,evidence,disagree,trade-between-china-russia,,"General Administration of Customs of the People's Republic of China, annual trade data for 2023 and 2024 (as reported by Asia Financial and Interfax)",,,,,,,,,,,,,,
+supporting-ukraine-serves-united,evidence,disagree,march-2026-us-army,,"Department of Defense Office of Inspector General, evaluation of 155-mm artillery production (report 2026-095), July 2026",,,,,,,,,,,,,,url: https://www.stripes.com/branches/army/2026-07-14/army-artillery-shell-shortfall-22262070.html | checked: 2026-11-21
+supporting-ukraine-serves-united,evidence,disagree,trade-between-china-russia,,"General Administration of Customs of the People's Republic of China, annual trade data for 2023 and 2024 (as reported by Asia Financial and Interfax)",,,,,,,,,,,,,,url: https://www.themoscowtimes.com/2025/01/13/china-russia-trade-hit-record-high-in-2024-a87590 | checked: 2026-11-21
 supporting-ukraine-serves-united,prediction,disagree,pentagon-will-report-patriot,,,,,,,,,,,,,,,"By December 31, 2028; checked against Department of Defense Inspector General or Government Accountability Office reports and Pentagon testimony to Congress.",
 supporting-ukraine-serves-united,prediction,disagree,russia-s-active-army,,,,,,,,,,,,,,,By the end of 2028; checked against the International Institute for Strategic Studies' Military Balance 2029 edition.,
 supporting-ukraine-serves-united,falsify,disagree,pentagon-government-accountability-office-2,,,,,,,,,,,,,,,,
@@ -9794,19 +9794,19 @@ supporting-ukraine-serves-united,falsify,disagree,credible-evidence-shows-china,
 supporting-ukraine-serves-united,assumption,disagree,china-main-long-term,,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,assumption,disagree,european-countries-spend-enough,,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,assumption,disagree,risk-war-ukraine-escalates,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,person,disagree,j-d-vance-then-2,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,person,disagree,elbridge-colby-argued-his,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,media,disagree,avoiding-long-war-u,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,media,disagree,strategy-denial-american-defense,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,media,disagree,math-ukraine-doesn-t,,,,,,,,,,,,,,,,
+supporting-ukraine-serves-united,person,disagree,j-d-vance-then-2,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Political_positions_of_JD_Vance | checked: 2026-11-21
+supporting-ukraine-serves-united,person,disagree,elbridge-colby-argued-his,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Elbridge_Colby | checked: 2026-11-21
+supporting-ukraine-serves-united,media,disagree,avoiding-long-war-u,,,,,,,,,,,,,,,,url: https://www.rand.org/pubs/perspectives/PEA2510-1.html | checked: 2026-11-21
+supporting-ukraine-serves-united,media,disagree,strategy-denial-american-defense,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Elbridge_Colby | checked: 2026-11-21
+supporting-ukraine-serves-united,media,disagree,math-ukraine-doesn-t,,,,,,,,,,,,,,,,url: https://www.thebulwark.com/p/lets-re-do-the-math-on-ukraine-vance-drones-support-war-russia-putin-trump | checked: 2026-11-21
 supporting-ukraine-serves-united,interest,agree,workers-american-munitions-defense,,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,interest,agree,american-service-members-need,,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,interest,agree,poles-lithuanians-latvians-estonians,,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,interest,disagree,american-taxpayers-need-federal,,,,,,,,,,,,,,,,
-supporting-ukraine-serves-united,cba,agree,ukraine-related-spending-puts,,,,,,,,workers-american-munitions-defense,,,billions of dollars,120,,,,
-supporting-ukraine-serves-united,cba,agree,russia-s-army-loses,,,,,,,,american-service-members-need,,,Russian soldiers killed or wounded,1200000,,,,
-supporting-ukraine-serves-united,cba,agree,allies-buy-american-made,,,,,,,,workers-american-munitions-defense,,,billions of dollars,6.7,,,,
-supporting-ukraine-serves-united,cba,disagree,congress-appropriated-about-175,,,,,,,,american-taxpayers-need-federal,,,billions of dollars,175,,,,
+supporting-ukraine-serves-united,cba,agree,ukraine-related-spending-puts,,,,,,,,workers-american-munitions-defense,,,billions of dollars,120,,,,url: https://econofact.org/factbrief/does-most-u-s-aid-to-ukraine-go-to-u-s-companies-and-workers | checked: 2026-11-21
+supporting-ukraine-serves-united,cba,agree,russia-s-army-loses,,,,,,,,american-service-members-need,,,Russian soldiers killed or wounded,1200000,,,,url: https://en.wikipedia.org/wiki/Russian_invasion_of_Ukraine | checked: 2026-11-21
+supporting-ukraine-serves-united,cba,agree,allies-buy-american-made,,,,,,,,workers-american-munitions-defense,,,billions of dollars,6.7,,,,url: https://www.nato.int/en/what-we-do/partnerships-and-cooperation/natos-support-for-ukraine | checked: 2026-11-21
+supporting-ukraine-serves-united,cba,disagree,congress-appropriated-about-175,,,,,,,,american-taxpayers-need-federal,,,billions of dollars,175,,,,url: https://www.ukraineoversight.gov/Funding/ | checked: 2026-11-21
 supporting-ukraine-serves-united,cba,disagree,continued-us-involvement-keeps,,,,,,,,,,,probability of a US-Russia nuclear exchange,,,,,
 supporting-ukraine-serves-united,category,,,Russian soldiers killed or wounded,,,,,,,,,,,,,,,
 supporting-ukraine-serves-united,category,,,billions of dollars,,,,,,,,,,,,,,,
@@ -9830,36 +9830,36 @@ supporting-ukraine-serves-united,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The tw
 supporting-ukraine-serves-united,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether a Russian win in Ukraine would make Russia more likely to attack NATO and China more likely to move on Taiwan. | move: Better evidence on how Russian and Chinese leaders actually read the war, such as declassified intelligence or documented changes in their military planning, would narrow it."
 supporting-ukraine-serves-united,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree about whether money and weapons should go first to Europe's front line or be held for Asia and for needs at home. | move: No finding settles a ranking of priorities, but agreeing on a single measure of US security, such as the expected cost of the wars the United States might have to fight, would make the trade-off explicit."
 supporting-ukraine-serves-united,value,,,,,,,,,,,,,,,,,,value: Security | srank: 1 | orank: 1 | why: Both sides claim to put American safety first; they disagree about whether it is better protected by weakening Russia now or by saving weapons for China.
-ukraine-admitted-nato-once,argument,agree,russia-has-invaded-two,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,argument,agree,paper-promises-have-already,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,argument,agree,ceasefire-ukraine-without-nato,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,argument,agree,ukraine-s-armed-forces,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,evidence,agree,ukraine-inherited-estimated-1,,"Arms Control Association, ""Ukraine, Nuclear Weapons, and Security Assurances at a Glance"", last reviewed March 2022",,,,,,,,,,,,,,
-ukraine-admitted-nato-once,evidence,agree,ukraine-was-legally-non,,"Al Jazeera, ""Ukraine votes to scrap non-aligned status"", December 23, 2014",,,,,,,,,,,,,,
-ukraine-admitted-nato-once,prediction,agree,russia-will-use-military,,,,,,,,,,,,,,,"By December 31, 2030; checked against NATO statements and major news reports of any Article 4 or Article 5 consultation triggered by a Russian attack.",
-ukraine-admitted-nato-once,prediction,agree,if-ceasefire-signed-without,,,,,,,,,,,,,,,"By December 31, 2031; checked against Institute for the Study of War reporting and United Nations casualty counts.",
+ukraine-admitted-nato-once,argument,agree,russia-has-invaded-two,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Russo-Georgian_War | checked: 2026-11-21
+ukraine-admitted-nato-once,argument,agree,paper-promises-have-already,,,,,,,,,,,,,,,,url: https://www.armscontrol.org/factsheets/ukraine-nuclear-weapons-and-security-assurances-glance | checked: 2026-11-21
+ukraine-admitted-nato-once,argument,agree,ceasefire-ukraine-without-nato,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Minsk_agreements | checked: 2026-11-21
+ukraine-admitted-nato-once,argument,agree,ukraine-s-armed-forces,,,,,,,,,,,,,,,,url: https://www.pravda.com.ua/eng/news/2025/12/20/8012803 | checked: 2026-11-21
+ukraine-admitted-nato-once,evidence,agree,ukraine-inherited-estimated-1,,"Arms Control Association, ""Ukraine, Nuclear Weapons, and Security Assurances at a Glance"", last reviewed March 2022",,,,,,,,,,,,,,url: https://www.armscontrol.org/factsheets/ukraine-nuclear-weapons-and-security-assurances-glance | checked: 2026-11-21
+ukraine-admitted-nato-once,evidence,agree,ukraine-was-legally-non,,"Al Jazeera, ""Ukraine votes to scrap non-aligned status"", December 23, 2014",,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2014/12/23/ukraine-votes-to-scrap-non-aligned-status | checked: 2026-11-21
+ukraine-admitted-nato-once,prediction,agree,russia-will-use-military,,,,,,,,,,,,,,,"By December 31, 2030; checked against NATO statements and major news reports of any Article 4 or Article 5 consultation triggered by a Russian attack.",url: https://en.wikipedia.org/wiki/Enlargement_of_NATO | checked: 2026-11-21
+ukraine-admitted-nato-once,prediction,agree,if-ceasefire-signed-without,,,,,,,,,,,,,,,"By December 31, 2031; checked against Institute for the Study of War reporting and United Nations casualty counts.",url: https://en.wikipedia.org/wiki/Minsk_agreements | checked: 2026-11-21
 ukraine-admitted-nato-once,falsify,agree,russian-military-documents-credible,,,,,,,,,,,,,,,,
 ukraine-admitted-nato-once,falsify,agree,russia-agrees-lasting-settlement,,,,,,,,,,,,,,,,
 ukraine-admitted-nato-once,assumption,agree,russia-s-leaders-weigh,,,,,,,,,,,,,,,,
 ukraine-admitted-nato-once,assumption,agree,nato-members-including-united,,,,,,,,,,,,,,,,
 ukraine-admitted-nato-once,assumption,agree,russia-s-goal-control,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,person,agree,ukrainian-president-volodymyr-zelensky,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,media,agree,vilnius-summit-communiqu-north,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,argument,disagree,admitting-ukraine-nato-bind,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,argument,disagree,admitting-ukraine-while-russia,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,argument,disagree,nato-membership-promise-without,,,,,,,,,,,,,,,,
+ukraine-admitted-nato-once,person,agree,ukrainian-president-volodymyr-zelensky,,,,,,,,,,,,,,,,url: https://www.aljazeera.com/news/2024/10/16/zelenskyy-says-victory-plan-to-end-russia-war-includes-nato-membership | checked: 2026-11-21
+ukraine-admitted-nato-once,media,agree,vilnius-summit-communiqu-north,,,,,,,,,,,,,,,,url: https://www.nato.int/cps/en/natohq/official_texts_217320.htm | checked: 2026-11-21
+ukraine-admitted-nato-once,argument,disagree,admitting-ukraine-nato-bind,,,,,,,,,,,,,,,,url: https://www.nato.int/cps/en/natohq/official_texts_17120.htm | checked: 2026-11-21
+ukraine-admitted-nato-once,argument,disagree,admitting-ukraine-while-russia,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Russian_invasion_of_Ukraine | checked: 2026-11-21
+ukraine-admitted-nato-once,argument,disagree,nato-membership-promise-without,,,,,,,,,,,,,,,,url: https://www.nato.int/cps/en/natolive/official_texts_8443.htm | checked: 2026-11-21
 ukraine-admitted-nato-once,argument,disagree,defending-ukraine-nato-member,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,evidence,disagree,nato-s-april-2008,,"NATO, Bucharest Summit Declaration, April 3, 2008",,,,,,,,,,,,,,
-ukraine-admitted-nato-once,evidence,disagree,september-2021-csis-study,,"Mark F. Cancian, CSIS, ""Future NATO Enlargement: Force Requirements and Budget Costs"", September 8, 2021",,,,,,,,,,,,,,
-ukraine-admitted-nato-once,prediction,disagree,ceasefire-backed-only-security,,,,,,,,,,,,,,,"By December 31, 2032; checked against United Nations casualty counts and Institute for the Study of War reporting.",
+ukraine-admitted-nato-once,evidence,disagree,nato-s-april-2008,,"NATO, Bucharest Summit Declaration, April 3, 2008",,,,,,,,,,,,,,url: https://www.nato.int/cps/en/natolive/official_texts_8443.htm | checked: 2026-11-21
+ukraine-admitted-nato-once,evidence,disagree,september-2021-csis-study,,"Mark F. Cancian, CSIS, ""Future NATO Enlargement: Force Requirements and Budget Costs"", September 8, 2021",,,,,,,,,,,,,,url: https://www.csis.org/analysis/future-nato-enlargement-force-requirements-and-budget-costs | checked: 2026-11-21
+ukraine-admitted-nato-once,prediction,disagree,ceasefire-backed-only-security,,,,,,,,,,,,,,,"By December 31, 2032; checked against United Nations casualty counts and Institute for the Study of War reporting.",url: https://www.elysee.fr/en/emmanuel-macron/2026/01/06/robust-security-guarantees-for-a-solid-and-lasting-peace-in-ukraine | checked: 2026-11-21
 ukraine-admitted-nato-once,prediction,disagree,within-year-any-formal,,,,,,,,,,,,,,,"By December 31, 2031, if an invitation has been issued; checked against NATO statements and major news reports.",
 ukraine-admitted-nato-once,falsify,disagree,russia-honors-ceasefire-ten,,,,,,,,,,,,,,,,
 ukraine-admitted-nato-once,falsify,disagree,parliaments-several-nato-countries,,,,,,,,,,,,,,,,
 ukraine-admitted-nato-once,assumption,disagree,russia-s-objection-ukraine,,,,,,,,,,,,,,,,
 ukraine-admitted-nato-once,assumption,disagree,guarantees-short-nato-membership,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,person,disagree,u-s-defense-secretary,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,media,disagree,why-ukraine-crisis-west,,,,,,,,,,,,,,,,
-ukraine-admitted-nato-once,media,disagree,talks-could-have-ended,,,,,,,,,,,,,,,,
+ukraine-admitted-nato-once,person,disagree,u-s-defense-secretary,,,,,,,,,,,,,,,,url: https://www.militarytimes.com/news/pentagon-congress/2025/02/12/hegseth-calls-nato-membership-for-ukraine-unrealistic/ | checked: 2026-11-21
+ukraine-admitted-nato-once,media,disagree,why-ukraine-crisis-west,,,,,,,,,,,,,,,,url: https://www.mearsheimer.com/wp-content/uploads/2019/06/Why-the-Ukraine-Crisis-Is.pdf | checked: 2026-11-21
+ukraine-admitted-nato-once,media,disagree,talks-could-have-ended,,,,,,,,,,,,,,,,url: https://www.wbur.org/onpoint/2024/05/06/2022-secret-ukraine-russia-peace-negotiations | checked: 2026-11-21
 ukraine-admitted-nato-once,interest,agree,ukrainians-living-near-front,,,,,,,,,,,,,,,,
 ukraine-admitted-nato-once,interest,agree,poles-lithuanians-latvians-estonians-2,,,,,,,,,,,,,,,,
 ukraine-admitted-nato-once,interest,agree,ukrainian-business-owners-workers,,,,,,,,,,,,,,,,
@@ -10017,14 +10017,14 @@ european-countries-united-states,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The tw
 european-countries-united-states,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree about whether the duty to pay for Ukraine's defense follows nearness to the threat or follows wealth, military power and past promises such as the Budapest Memorandum. | move: No measurement settles this alone, but both sides could agree in advance on a burden-sharing formula, such as aid as a share of GDP, and compare countries against it."
 european-countries-united-states,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether a smaller US share would weaken deterrence of Russia and China or would free the United States to deter China better. | move: Watching whether Russia escalates or Asian allies change their defense policies after US aid to Ukraine fell would give partial evidence, though many other causes would be at work."
 european-countries-united-states,value,,,,,,,,,,,,,,,,,,value: Fairness | srank: 1 | orank: 3 | why: Supporters see Europe paying most as a fair correction of decades in which the United States carried more of NATO's costs.
-western-sanctions-russia-have,argument,agree,russia-s-territorial-demands,,,,,,,,,,,,,,,,
-western-sanctions-russia-have,argument,agree,russia-s-economy-grew,,,,,,,,,,,,,,,,
-western-sanctions-russia-have,argument,agree,russia-has-raised-its,,,,,,,,,,,,,,,,
+western-sanctions-russia-have,argument,agree,russia-s-territorial-demands,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Peace_negotiations_in_the_Russian_invasion_of_Ukraine | checked: 2026-11-21
+western-sanctions-russia-have,argument,agree,russia-s-economy-grew,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Economy_of_Russia | checked: 2026-11-21
+western-sanctions-russia-have,argument,agree,russia-has-raised-its,,,,,,,,,,,,,,,,url: https://c4ads.org/reports/war-machine/ | checked: 2026-11-21
 western-sanctions-russia-have,argument,agree,authoritarian-governments-generally-do,,,,,,,,,,,,,,,,
-western-sanctions-russia-have,evidence,agree,june-14-2024-vladimir,,"President of Russia (Kremlin), Meeting with senior staff of the Russian Foreign Ministry, transcript, 2024",,,,,,,,,,,,,,
-western-sanctions-russia-have,evidence,agree,talks-abu-dhabi-january,,"Wikipedia, Peace negotiations in the Russian invasion of Ukraine, 2026 (summarizing press reports of the Abu Dhabi talks)",,,,,,,,,,,,,,
-western-sanctions-russia-have,evidence,agree,russia-s-real-gdp,,"International Monetary Fund, World Economic Outlook database (as tabulated in Wikipedia, Economy of Russia), 2025",,,,,,,,,,,,,,
-western-sanctions-russia-have,evidence,agree,russia-s-federal-budget,,"Bank of Finland Institute for Emerging Economies (BOFIT), BOFIT Weekly Review 41/2026, ""Russia's growth slows further, government finances remain in the red,"" 2026",,,,,,,,,,,,,,
+western-sanctions-russia-have,evidence,agree,june-14-2024-vladimir,,"President of Russia (Kremlin), Meeting with senior staff of the Russian Foreign Ministry, transcript, 2024",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/June_2024_Ukraine_peace_summit | checked: 2026-11-21
+western-sanctions-russia-have,evidence,agree,talks-abu-dhabi-january,,"Wikipedia, Peace negotiations in the Russian invasion of Ukraine, 2026 (summarizing press reports of the Abu Dhabi talks)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Peace_negotiations_in_the_Russian_invasion_of_Ukraine | checked: 2026-11-21
+western-sanctions-russia-have,evidence,agree,russia-s-real-gdp,,"International Monetary Fund, World Economic Outlook database (as tabulated in Wikipedia, Economy of Russia), 2025",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Economy_of_Russia | checked: 2026-11-21
+western-sanctions-russia-have,evidence,agree,russia-s-federal-budget,,"Bank of Finland Institute for Emerging Economies (BOFIT), BOFIT Weekly Review 41/2026, ""Russia's growth slows further, government finances remain in the red,"" 2026",,,,,,,,,,,,,,url: https://www.bofit.fi/en/monitoring/weekly/2026/vw202641_1/ | checked: 2026-11-21
 western-sanctions-russia-have,prediction,agree,russia-s-official-negotiating,,,,,,,,,,,,,,,"By December 31, 2027; checked against Kremlin and Russian Foreign Ministry statements and the text of any signed agreement.",
 western-sanctions-russia-have,prediction,agree,russia-s-executed-federal,,,,,,,,,,,,,,,"By March 31, 2028; checked against Russian Finance Ministry budget execution data as summarized by the Bank of Finland's BOFIT.",
 western-sanctions-russia-have,falsify,agree,signed-settlement-gives-russia,,,,,,,,,,,,,,,,
@@ -10032,15 +10032,15 @@ western-sanctions-russia-have,falsify,agree,russian-budget-records-show,,,,,,,,,
 western-sanctions-russia-have,assumption,agree,russia-s-public-demands,,,,,,,,,,,,,,,,
 western-sanctions-russia-have,assumption,agree,changing-russia-s-war,,,,,,,,,,,,,,,,
 western-sanctions-russia-have,assumption,agree,if-western-sanctions-had,,,,,,,,,,,,,,,,
-western-sanctions-russia-have,media,agree,why-economic-sanctions-do,,,,,,,,,,,,,,,,
+western-sanctions-russia-have,media,agree,why-economic-sanctions-do,,,,,,,,,,,,,,,,url: https://cpost.uchicago.edu/publications/why_economic_sanctions_do_not_work/ | checked: 2026-11-21
 western-sanctions-russia-have,argument,disagree,western-sanctions-russia-were,,,,,,,,,,,,,,,,
-western-sanctions-russia-have,argument,disagree,russia-s-oil-gas,,,,,,,,,,,,,,,,
-western-sanctions-russia-have,argument,disagree,russia-has-asked-sanctions,,,,,,,,,,,,,,,,
+western-sanctions-russia-have,argument,disagree,russia-s-oil-gas,,,,,,,,,,,,,,,,url: https://www.bofit.fi/en/monitoring/weekly/2026/vw202607_1/ | checked: 2026-11-21
+western-sanctions-russia-have,argument,disagree,russia-has-asked-sanctions,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Peace_negotiations_in_the_Russo-Ukrainian_war_(2022%E2%80%93present) | checked: 2026-11-21
 western-sanctions-russia-have,argument,disagree,russia-s-practical-aims,,,,,,,,,,,,,,,,
 western-sanctions-russia-have,argument,disagree,saying-western-sanctions-failed,,,,,,,,,,,,,,,,
-western-sanctions-russia-have,evidence,disagree,russia-s-oil-gas-2,,"Bank of Finland Institute for Emerging Economies (BOFIT), BOFIT Weekly Review 7/2026, ""Russian economy lost steam in 2025,"" 2026",,,,,,,,,,,,,,
-western-sanctions-russia-have,evidence,disagree,russia-s-2026-federal,,"Bank of Finland Institute for Emerging Economies (BOFIT), BOFIT Weekly Review 41/2026, ""Russia's growth slows further, government finances remain in the red,"" 2026",,,,,,,,,,,,,,
-western-sanctions-russia-have,evidence,disagree,first-year-eu-oil,,"Centre for Research on Energy and Clean Air (CREA), ""One year of sanctions: Russia's oil export revenues cut by EUR 34 bn,"" 2023",,,,,,,,,,,,,,
+western-sanctions-russia-have,evidence,disagree,russia-s-oil-gas-2,,"Bank of Finland Institute for Emerging Economies (BOFIT), BOFIT Weekly Review 7/2026, ""Russian economy lost steam in 2025,"" 2026",,,,,,,,,,,,,,url: https://www.bofit.fi/en/monitoring/weekly/2026/vw202607_1/ | checked: 2026-11-21
+western-sanctions-russia-have,evidence,disagree,russia-s-2026-federal,,"Bank of Finland Institute for Emerging Economies (BOFIT), BOFIT Weekly Review 41/2026, ""Russia's growth slows further, government finances remain in the red,"" 2026",,,,,,,,,,,,,,url: https://www.bofit.fi/en/monitoring/weekly/2026/vw202641_1/ | checked: 2026-11-21
+western-sanctions-russia-have,evidence,disagree,first-year-eu-oil,,"Centre for Research on Energy and Clean Air (CREA), ""One year of sanctions: Russia's oil export revenues cut by EUR 34 bn,"" 2023",,,,,,,,,,,,,,url: https://energyandcleanair.org/publication/one-year-of-sanctions-russias-oil-export-revenues-cut-by-eur-34-bn/ | checked: 2026-11-21
 western-sanctions-russia-have,prediction,disagree,russia-will-sign-formally,,,,,,,,,,,,,,,"By December 31, 2027; checked against the text of any signed agreement or published Russian proposal.",
 western-sanctions-russia-have,prediction,disagree,russia-will-cut-its,,,,,,,,,,,,,,,"By December 31, 2027; checked against amended Russian budget laws and BOFIT's budget reviews.",
 western-sanctions-russia-have,falsify,disagree,within-months-new-oil,,,,,,,,,,,,,,,,
@@ -10048,8 +10048,8 @@ western-sanctions-russia-have,falsify,disagree,leaked-kremlin-documents-credible
 western-sanctions-russia-have,assumption,disagree,economic-sanctions-large-country,,,,,,,,,,,,,,,,
 western-sanctions-russia-have,assumption,disagree,russia-s-leaders-do,,,,,,,,,,,,,,,,
 western-sanctions-russia-have,assumption,disagree,without-western-sanctions-russia,,,,,,,,,,,,,,,,
-western-sanctions-russia-have,person,disagree,janet-yellen-u-s,,,,,,,,,,,,,,,,
-western-sanctions-russia-have,person,disagree,ursula-von-der-leyen,,,,,,,,,,,,,,,,
+western-sanctions-russia-have,person,disagree,janet-yellen-u-s,,,,,,,,,,,,,,,,url: https://home.treasury.gov/news/press-releases/jy1247 | checked: 2026-11-21
+western-sanctions-russia-have,person,disagree,ursula-von-der-leyen,,,,,,,,,,,,,,,,url: https://ec.europa.eu/commission/presscorner/api/documents?reference=SPEECH/22/5493&language=en | checked: 2026-11-21
 western-sanctions-russia-have,interest,agree,ukrainian-soldiers-civilians-need-2,,,,,,,,,,,,,,,,
 western-sanctions-russia-have,interest,agree,european-households-manufacturers-need,,,,,,,,,,,,,,,,
 western-sanctions-russia-have,interest,disagree,ukrainians-living-near-front-2,,,,,,,,,,,,,,,,
@@ -10405,37 +10405,37 @@ colorado-s-reintroduction-gray,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two 
 colorado-s-reintroduction-gray,dispute,,,Values,,,,,,,,,,,,,,,"what: The two sides disagree about whether a narrow statewide majority may fairly impose a wildlife program whose costs fall mostly on rural counties that voted heavily against it. | move: No measurement settles a values question, but a published, agreed formula for sharing costs with affected counties would show whether the program can be made fair to both."
 colorado-s-reintroduction-gray,value,,,,,,,,,,,,,,,,,,"value: Stewardship | srank: 1 | orank: 3 | why: Supporters put restoring a native species first, while opponents generally value wildlife too but rank it below the costs to working ranches."
 united-states-put-price,argument,agree,price-carbon-emissions-makes,,,,,,,,,,,,,,,,
-united-states-put-price,argument,agree,returning-carbon-revenue-households,,,,,,,,,,,,,,,,
-united-states-put-price,argument,agree,carbon-prices-have-actually,,,,,,,,,,,,,,,,
+united-states-put-price,argument,agree,returning-carbon-revenue-households,,,,,,,,,,,,,,,,url: https://home.treasury.gov/system/files/131/WP-115.pdf | checked: 2026-11-21
+united-states-put-price,argument,agree,carbon-prices-have-actually,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC11099057/ | checked: 2026-11-21
 united-states-put-price,argument,agree,u-s-carbon-price,,,,,,,,,,,,,,,,
 united-states-put-price,argument,agree,revenue-neutral-carbon-dividend,,,,,,,,,,,,,,,,
-united-states-put-price,argument,agree,single-economy-wide-carbon,,,,,,,,,,,,,,,,
-united-states-put-price,evidence,agree,across-80-ex-post,,"Döbbeling-Hildebrandt, Miersch, Khanna et al., ""Systematic review and meta-analysis of ex-post evaluations on the effectiveness of carbon pricing,"" Nature Communications, 2024",,,,,,,,,,,,,,
-united-states-put-price,evidence,agree,empirical-simulation-studies-estimate,,"Brian Murray and Nicholas Rivers, ""British Columbia's revenue-neutral carbon tax: A review of the latest 'grand experiment' in environmental policy,"" Energy Policy, vol. 86, 2015",,,,,,,,,,,,,,
-united-states-put-price,evidence,agree,revenue-neutral-50-per,,"Anders Fremstad and Mark Paul, ""The Impact of a Carbon Tax on Inequality,"" Ecological Economics, vol. 163, 2019",,,,,,,,,,,,,,
-united-states-put-price,prediction,agree,canada-s-emissions-gasoline,,,,,,,,,,,,,,,"By December 31, 2029; checked against Environment and Climate Change Canada's National Inventory Report and published studies of the post-repeal period.",
+united-states-put-price,argument,agree,single-economy-wide-carbon,,,,,,,,,,,,,,,,url: https://www.aeaweb.org/research/greenhouse-gas-reduction-long-run-costs | checked: 2026-11-21
+united-states-put-price,evidence,agree,across-80-ex-post,,"Döbbeling-Hildebrandt, Miersch, Khanna et al., ""Systematic review and meta-analysis of ex-post evaluations on the effectiveness of carbon pricing,"" Nature Communications, 2024",,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC11099057/ | checked: 2026-11-21
+united-states-put-price,evidence,agree,empirical-simulation-studies-estimate,,"Brian Murray and Nicholas Rivers, ""British Columbia's revenue-neutral carbon tax: A review of the latest 'grand experiment' in environmental policy,"" Energy Policy, vol. 86, 2015",,,,,,,,,,,,,,url: https://ideas.repec.org/a/eee/enepol/v86y2015icp674-683.html | checked: 2026-11-21
+united-states-put-price,evidence,agree,revenue-neutral-50-per,,"Anders Fremstad and Mark Paul, ""The Impact of a Carbon Tax on Inequality,"" Ecological Economics, vol. 163, 2019",,,,,,,,,,,,,,url: https://ideas.repec.org/a/eee/ecolec/v163y2019icp88-97.html | checked: 2026-11-21
+united-states-put-price,prediction,agree,canada-s-emissions-gasoline,,,,,,,,,,,,,,,"By December 31, 2029; checked against Environment and Climate Change Canada's National Inventory Report and published studies of the post-repeal period.",url: https://www.canada.ca/en/department-finance/news/2025/03/removing-the-consumer-carbon-price-effective-april-1-2025.html | checked: 2026-11-21
 united-states-put-price,prediction,agree,ex-post-studies-eu,,,,,,,,,,,,,,,"By December 31, 2031; checked against peer-reviewed or European Commission evaluations of CBAM's first definitive years.",
 united-states-put-price,assumption,agree,person-who-supports-u,,,,,,,,,,,,,,,,
 united-states-put-price,assumption,agree,person-who-supports-u-2,,,,,,,,,,,,,,,,
 united-states-put-price,assumption,agree,person-who-supports-u-3,,,,,,,,,,,,,,,,
-united-states-put-price,person,agree,former-secretaries-state-george,,,,,,,,,,,,,,,,
-united-states-put-price,person,agree,climate-scientist-james-hansen,,,,,,,,,,,,,,,,
-united-states-put-price,person,agree,representative-ted-deutch-florida,,,,,,,,,,,,,,,,
-united-states-put-price,media,agree,conservative-case-carbon-dividends,,,,,,,,,,,,,,,,
-united-states-put-price,media,agree,storms-my-grandchildren-james,,,,,,,,,,,,,,,,
-united-states-put-price,argument,disagree,carbon-taxes-consumers-have,,,,,,,,,,,,,,,,
+united-states-put-price,person,agree,former-secretaries-state-george,,,,,,,,,,,,,,,,url: https://clcouncil.org/media/2017/03/The-Conservative-Case-for-Carbon-Dividends.pdf | checked: 2026-11-21
+united-states-put-price,person,agree,climate-scientist-james-hansen,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Storms_of_My_Grandchildren | checked: 2026-11-21
+united-states-put-price,person,agree,representative-ted-deutch-florida,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Energy_Innovation_and_Carbon_Dividend_Act | checked: 2026-11-21
+united-states-put-price,media,agree,conservative-case-carbon-dividends,,,,,,,,,,,,,,,,url: https://www.ourenergypolicy.org/resources/the-conservative-case-for-carbon-dividends/ | checked: 2026-11-21
+united-states-put-price,media,agree,storms-my-grandchildren-james,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Storms_of_My_Grandchildren | checked: 2026-11-21
+united-states-put-price,argument,disagree,carbon-taxes-consumers-have,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Carbon_pricing_in_Canada | checked: 2026-11-21
 united-states-put-price,argument,disagree,returning-carbon-revenue-dividends,,,,,,,,,,,,,,,,
 united-states-put-price,argument,disagree,giving-all-carbon-revenue,,,,,,,,,,,,,,,,
 united-states-put-price,argument,disagree,carbon-price-low-enough,,,,,,,,,,,,,,,,
-united-states-put-price,evidence,disagree,canada-set-its-federal,,"Canada Revenue Agency, ""Fuel charge rates""; Wikipedia, ""Carbon pricing in Canada""",,,,,,,,,,,,,,
+united-states-put-price,evidence,disagree,canada-set-its-federal,,"Canada Revenue Agency, ""Fuel charge rates""; Wikipedia, ""Carbon pricing in Canada""",,,,,,,,,,,,,,url: https://www.canada.ca/en/revenue-agency/services/forms-publications/publications/fcrates/fuel-charge-rates.html | checked: 2026-11-21
 united-states-put-price,prediction,disagree,canada-s-road-fuel,,,,,,,,,,,,,,,"By December 31, 2029; checked against Environment and Climate Change Canada's National Inventory Report and published studies of the post-repeal period.",
 united-states-put-price,prediction,disagree,european-union-will-further,,,,,,,,,,,,,,,"By December 31, 2028; checked against the Official Journal of the European Union and European Commission announcements.",
 united-states-put-price,assumption,disagree,person-who-opposes-u,,,,,,,,,,,,,,,,
 united-states-put-price,assumption,disagree,person-who-opposes-u-2,,,,,,,,,,,,,,,,
 united-states-put-price,assumption,disagree,person-who-opposes-u-3,,,,,,,,,,,,,,,,
-united-states-put-price,person,disagree,house-majority-whip-steve,,,,,,,,,,,,,,,,
-united-states-put-price,media,disagree,limited-impacts-carbon-tax,,,,,,,,,,,,,,,,
-united-states-put-price,media,disagree,does-carbon-pricing-reduce,,,,,,,,,,,,,,,,
+united-states-put-price,person,disagree,house-majority-whip-steve,,,,,,,,,,,,,,,,url: https://www.govinfo.gov/content/pkg/BILLS-115hconres119ih/html/BILLS-115hconres119ih.htm | checked: 2026-11-21
+united-states-put-price,media,disagree,limited-impacts-carbon-tax,,,,,,,,,,,,,,,,url: https://ideas.repec.org/a/nat/natcli/v12y2022i2d10.1038_s41558-021-01268-3.html | checked: 2026-11-21
+united-states-put-price,media,disagree,does-carbon-pricing-reduce,,,,,,,,,,,,,,,,url: https://api.openalex.org/works/doi:10.1088/1748-9326/abdae9 | checked: 2026-11-21
 united-states-put-price,interest,agree,young-americans-need-emissions,,,,,,,,,,,,,,,,
 united-states-put-price,interest,agree,low-income-families-need,,,,,,,,,,,,,,,,
 united-states-put-price,interest,agree,clean-energy-workers-companies,,,,,,,,,,,,,,,,
@@ -10444,9 +10444,9 @@ united-states-put-price,interest,disagree,workers-steel-cement-chemicals,,,,,,,,
 united-states-put-price,cba,agree,returning-u-s-carbon,,,,,,,,low-income-families-need,,,percent of bottom-half-income people with a net gain,84,,,,
 united-states-put-price,cba,agree,u-s-carbon-price-2,,,,,,,,young-americans-need-emissions,,,percent reduction in covered emissions versus no price,9,,,,
 united-states-put-price,cba,agree,rising-predictable-u-s,,,,,,,,clean-energy-workers-companies,,,billions of dollars a year of added private clean-energy investment,,,,,
-united-states-put-price,cba,disagree,50-per-ton-u,,,,,,,,rural-drivers-truckers-need,,,cents per gallon of gasoline at $50 a ton,44,,,,
-united-states-put-price,cba,disagree,u-s-carbon-fee,,,,,,,,rural-drivers-truckers-need,,,percent of all people with a net loss,44,,,,
-united-states-put-price,cba,disagree,without-effective-border-adjustment,,,,,,,,workers-steel-cement-chemicals,,,percent of covered U.S. emissions shifted abroad,,,,,
+united-states-put-price,cba,disagree,50-per-ton-u,,,,,,,,rural-drivers-truckers-need,,,cents per gallon of gasoline at $50 a ton,44,,,,url: https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle | checked: 2026-11-21
+united-states-put-price,cba,disagree,u-s-carbon-fee,,,,,,,,rural-drivers-truckers-need,,,percent of all people with a net loss,44,,,,url: https://home.treasury.gov/system/files/131/WP-115.pdf | checked: 2026-11-21
+united-states-put-price,cba,disagree,without-effective-border-adjustment,,,,,,,,workers-steel-cement-chemicals,,,percent of covered U.S. emissions shifted abroad,,,,,url: https://www.imf.org/-/media/files/publications/wp/2021/english/wpiea2021207-print-pdf.pdf.md | checked: 2026-11-21
 united-states-put-price,category,,,billions of dollars a year of added private clean-energy investment,,,,,,,,,,,,,,,
 united-states-put-price,category,,,cents per gallon of gasoline at $50 a ton,,,,,,,,,,,,,,,
 united-states-put-price,category,,,percent of all people with a net loss,,,,,,,,,,,,,,,
@@ -10780,21 +10780,21 @@ spacex-starship-will-fly,assumption,agree,starship-heat-shield-problem,,,,,,,,,,
 spacex-starship-will-fly,assumption,agree,no-serious-accident-long,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,media,agree,reentry-spacex-elon-musk-2,,,,,,,,,,,,,,,,url: https://www.benbellabooks.com/shop/reentry/ | checked: 2026-11-21
 spacex-starship-will-fly,media,agree,liftoff-elon-musk-desperate,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Liftoff:_Elon_Musk_and_the_Desperate_Early_Days_That_Launched_SpaceX | checked: 2026-11-21
-spacex-starship-will-fly,argument,disagree,spacex-s-own-forecasts,,,,,,,,,,,,,,,,
-spacex-starship-will-fly,argument,disagree,no-super-heavy-booster,,,,,,,,,,,,,,,,
+spacex-starship-will-fly,argument,disagree,spacex-s-own-forecasts,,,,,,,,,,,,,,,,url: https://wccftech.com/spacex-might-attempt-starship-second-stage-tower-catch-in-6-months-says-official | checked: 2026-11-21
+spacex-starship-will-fly,argument,disagree,no-super-heavy-booster,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Starship_launches | checked: 2026-11-21
 spacex-starship-will-fly,argument,disagree,starship-upper-stage-has,,,,,,,,,,,,,,,,
-spacex-starship-will-fly,argument,disagree,starship-has-flown-roughly,,,,,,,,,,,,,,,,
-spacex-starship-will-fly,evidence,disagree,november-2024-starbase-general,,"Wikipedia, ""List of Starship launches"", revision of October 2026",,,,,,,,,,,,,,
-spacex-starship-will-fly,evidence,disagree,first-four-block-2,,"Wikipedia, ""SpaceX Starship"", revision of October 2026",,,,,,,,,,,,,,
-spacex-starship-will-fly,evidence,disagree,each-space-shuttle-orbiter,,"Wikipedia, ""Space Shuttle"", 2026",,,,,,,,,,,,,,
+spacex-starship-will-fly,argument,disagree,starship-has-flown-roughly,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Starship_launches | checked: 2026-11-21
+spacex-starship-will-fly,evidence,disagree,november-2024-starbase-general,,"Wikipedia, ""List of Starship launches"", revision of October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_Starship_launches | checked: 2026-11-21
+spacex-starship-will-fly,evidence,disagree,first-four-block-2,,"Wikipedia, ""SpaceX Starship"", revision of October 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/SpaceX_Starship | checked: 2026-11-21
+spacex-starship-will-fly,evidence,disagree,each-space-shuttle-orbiter,,"Wikipedia, ""Space Shuttle"", 2026",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Space_Shuttle | checked: 2026-11-21
 spacex-starship-will-fly,prediction,disagree,every-starship-launch-2027,,,,,,,,,,,,,,,"By December 31, 2027; checked against the ship numbers and flight histories in the Wikipedia ""SpaceX Starship flight tests"" list.",
 spacex-starship-will-fly,falsify,disagree,first-starship-upper-stage,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,falsify,disagree,inspection-recovered-starship-upper,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,assumption,disagree,dates-spacex-elon-musk,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,assumption,disagree,recovering-reflying-orbital-upper,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,assumption,disagree,spacex-s-flight-schedule,,,,,,,,,,,,,,,,
-spacex-starship-will-fly,person,disagree,sean-duffy-acting-nasa,,,,,,,,,,,,,,,,
-spacex-starship-will-fly,media,disagree,nasa-artemis-programs-crewed-2,,,,,,,,,,,,,,,,
+spacex-starship-will-fly,person,disagree,sean-duffy-acting-nasa,,,,,,,,,,,,,,,,url: https://www.theregister.com/2025/10/21/spacex_is_behind_schedule_so/ | checked: 2026-11-21
+spacex-starship-will-fly,media,disagree,nasa-artemis-programs-crewed-2,,,,,,,,,,,,,,,,url: https://www.gao.gov/products/gao-24-106256 | checked: 2026-11-21
 spacex-starship-will-fly,interest,agree,satellite-companies-research-groups,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,interest,agree,nasa-s-artemis-astronauts,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,interest,agree,space-industry-workers-south,,,,,,,,,,,,,,,,
@@ -10802,9 +10802,9 @@ spacex-starship-will-fly,interest,disagree,astronomers-need-dark-skies,,,,,,,,,,
 spacex-starship-will-fly,interest,disagree,workers-nasa-s-space,,,,,,,,,,,,,,,,
 spacex-starship-will-fly,cba,agree,flying-both-starship-stages,,,,,,,,nasa-s-artemis-astronauts,,,months of schedule for NASA's crewed lunar landing,,,,,
 spacex-starship-will-fly,cba,agree,steady-starship-reflight-schedule,,,,,,,,space-industry-workers-south,,,jobs at Starship sites,,,,,
-spacex-starship-will-fly,cba,disagree,full-starship-reuse-make,,,,,,,,astronomers-need-dark-skies,,,satellites launched per year,,,,,
-spacex-starship-will-fly,cba,disagree,faster-starship-launch-catch,,,,,,,,,,,hours of beach closure per year,,,,,
-spacex-starship-will-fly,cba,disagree,cheap-fully-reusable-starship,,,,,,,,workers-nasa-s-space,,,dollars a year of Space Launch System contract work,,,,,
+spacex-starship-will-fly,cba,disagree,full-starship-reuse-make,,,,,,,,astronomers-need-dark-skies,,,satellites launched per year,,,,,url: https://en.wikipedia.org/wiki/Starlink | checked: 2026-11-21
+spacex-starship-will-fly,cba,disagree,faster-starship-launch-catch,,,,,,,,,,,hours of beach closure per year,,,,,url: https://en.wikipedia.org/wiki/SpaceX_Starbase | checked: 2026-11-21
+spacex-starship-will-fly,cba,disagree,cheap-fully-reusable-starship,,,,,,,,workers-nasa-s-space,,,dollars a year of Space Launch System contract work,,,,,url: https://en.wikipedia.org/wiki/Space_Launch_System | checked: 2026-11-21
 spacex-starship-will-fly,category,,,dollars a year of Space Launch System contract work,,,,,,,,,,,,,,,
 spacex-starship-will-fly,category,,,hours of beach closure per year,,,,,,,,,,,,,,,
 spacex-starship-will-fly,category,,,jobs at Starship sites,,,,,,,,,,,,,,,
@@ -10828,44 +10828,44 @@ spacex-starship-will-fly,definition,,,,,,,,,,,,,,,,,,"term: Fully reusable fligh
 spacex-starship-will-fly,dispute,,,Empirical,,,,,,,,,,,,,,,"what: The two sides disagree about how much repair a Starship upper stage will need after coming back from orbit, and so whether a caught ship can be ready to fly again within months. | move: The time from SpaceX's first successful ship catch to that same ship's next launch, and SpaceX's or the FAA's reports on its heat shield condition, would settle it."
 spacex-starship-will-fly,dispute,,,Causal,,,,,,,,,,,,,,,"what: The two sides disagree about whether SpaceX's NASA lunar lander milestones in 2027 will speed up ship reuse, because cheap tankers need it, or crowd it out, because new vehicles are quicker to fly. | move: SpaceX's 2027 flight manifest, showing whether any refueling or tanker flight uses a reflown ship, would settle it."
 spacex-starship-will-fly,value,,,,,,,,,,,,,,,,,,"value: Prudence | srank: 2 | orank: 2 | why: Both sides agree a reused vehicle must be safe to fly, but they differ on whether caution about the heat shield will slow reflight past 2027."
-world-health-organization-will,argument,agree,world-health-organization-has,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,agree,pace-who-emergency-declarations,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,agree,outbreaks-animal-borne-diseases,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,agree,h5n1-bird-flu-now,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,agree,who-director-general-tedros,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,agree,mpox-has-already-been,,,,,,,,,,,,,,,,
+world-health-organization-will,argument,agree,world-health-organization-has,,,,,,,,,,,,,,,,url: https://www.who.int/news/item/17-05-2026-epidemic-of-ebola-disease-in-the-democratic-republic-of-the-congo-and-uganda-determined-a-public-health-emergency-of-international-concern | checked: 2026-11-21
+world-health-organization-will,argument,agree,pace-who-emergency-declarations,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Public_health_emergency_of_international_concern | checked: 2026-11-21
+world-health-organization-will,argument,agree,outbreaks-animal-borne-diseases,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC10626885/ | checked: 2026-11-21
+world-health-organization-will,argument,agree,h5n1-bird-flu-now,,,,,,,,,,,,,,,,url: https://www.who.int/publications/m/item/case-definitions-for-the-four-diseases-requiring-notification-to-who-in-all-circumstances-under-the-ihr-(2005) | checked: 2026-11-21
+world-health-organization-will,argument,agree,who-director-general-tedros,,,,,,,,,,,,,,,,url: https://www.who.int/news/item/23-07-2022-second-meeting-of-the-international-health-regulations-(2005)-(ihr)-emergency-committee-regarding-the-multi-country-outbreak-of-monkeypox | checked: 2026-11-21
+world-health-organization-will,argument,agree,mpox-has-already-been,,,,,,,,,,,,,,,,url: https://www.who.int/news/item/14-08-2024-who-director-general-declares-mpox-outbreak-a-public-health-emergency-of-international-concern | checked: 2026-11-21
 world-health-organization-will,evidence,agree,who-declared-nine-public,,"World Health Organization, IHR Emergency Committees (2026); Wikipedia, ""Public health emergency of international concern"" (2026); probability is this page's own Poisson calculation on that record",,,,,,,,,,,,,,
-world-health-organization-will,evidence,agree,study-12-102-outbreaks,,"Smith, Goldberg, Rosenthal et al., ""Global rise in human infectious disease outbreaks,"" Journal of the Royal Society Interface, 2014",,,,,,,,,,,,,,
-world-health-organization-will,evidence,agree,statistical-study-epidemics-over,,"Marani, Katul, Pan and Parolari, ""Intensity and frequency of extreme novel epidemics,"" Proceedings of the National Academy of Sciences, 2021 (corrected 2023)",,,,,,,,,,,,,,
-world-health-organization-will,evidence,agree,who-counted-993-confirmed,,"WHO Global Influenza Programme, ""Avian influenza A(H5N1) virus"" and cumulative case report (January 2026), as compiled in Wikipedia, ""Global spread of H5N1"" (2026)",,,,,,,,,,,,,,
+world-health-organization-will,evidence,agree,study-12-102-outbreaks,,"Smith, Goldberg, Rosenthal et al., ""Global rise in human infectious disease outbreaks,"" Journal of the Royal Society Interface, 2014",,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC4223919/ | checked: 2026-11-21
+world-health-organization-will,evidence,agree,statistical-study-epidemics-over,,"Marani, Katul, Pan and Parolari, ""Intensity and frequency of extreme novel epidemics,"" Proceedings of the National Academy of Sciences, 2021 (corrected 2023)",,,,,,,,,,,,,,url: https://research.unipd.it/bitstream/11577/3457653/2/marani-et-al-2021-intensity-and-frequency-of-extreme-novel-epidemics.pdf | checked: 2026-11-21
+world-health-organization-will,evidence,agree,who-counted-993-confirmed,,"WHO Global Influenza Programme, ""Avian influenza A(H5N1) virus"" and cumulative case report (January 2026), as compiled in Wikipedia, ""Global spread of H5N1"" (2026)",,,,,,,,,,,,,,url: https://cdn.who.int/media/docs/default-source/influenza/h5n1-human-case-cumulative-table/2025_table_h5n1_dec.pdf | checked: 2026-11-21
 world-health-organization-will,falsify,agree,who-confirms-cluster-human,,,,,,,,,,,,,,,,
 world-health-organization-will,falsify,agree,new-clade-mpox-another,,,,,,,,,,,,,,,,
 world-health-organization-will,assumption,agree,pace-who-emergency-declarations-2,,,,,,,,,,,,,,,,
 world-health-organization-will,assumption,agree,who-director-general-who,,,,,,,,,,,,,,,,
 world-health-organization-will,assumption,agree,funding-staff-cuts-who,,,,,,,,,,,,,,,,
-world-health-organization-will,person,agree,michael-osterholm-director-center,,,,,,,,,,,,,,,,
-world-health-organization-will,media,agree,global-trends-emerging-infectious,,,,,,,,,,,,,,,,
-world-health-organization-will,media,agree,intensity-frequency-extreme-novel,,,,,,,,,,,,,,,,
-world-health-organization-will,media,agree,spillover-animal-infections-next,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,disagree,public-health-emergency-international,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,disagree,window-october-10-2026,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,disagree,bundibugyo-ebola-outbreak-congo,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,disagree,world-health-organization-lost,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,disagree,political-backlash-after-covid,,,,,,,,,,,,,,,,
-world-health-organization-will,argument,disagree,new-who-director-general,,,,,,,,,,,,,,,,
-world-health-organization-will,evidence,disagree,nine-events-which-who,,"Mullen, Potter, Gostin, Cicero and Nuzzo, ""An analysis of International Health Regulations Emergency Committees and Public Health Emergency of International Concern Designations,"" BMJ Global Health, 2020",,,,,,,,,,,,,,
-world-health-organization-will,evidence,disagree,three-eight-gaps-between,,"World Health Organization, IHR Emergency Committees (2026); Wikipedia, ""Public health emergency of international concern"" (2026); gap lengths are this page's own count",,,,,,,,,,,,,,
-world-health-organization-will,evidence,disagree,across-993-confirmed-human,,"WHO Global Influenza Programme cumulative case report (January 2026), as compiled in Wikipedia, ""Global spread of H5N1"" (2026)",,,,,,,,,,,,,,
-world-health-organization-will,prediction,disagree,who-ihr-emergency-committees,,,,,,,,,,,,,,,"By December 31, 2028; checked on the WHO IHR Emergency Committees page.",
+world-health-organization-will,person,agree,michael-osterholm-director-center,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Deadliest_Enemy:_Our_War_Against_Killer_Germs | checked: 2026-11-21
+world-health-organization-will,media,agree,global-trends-emerging-infectious,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC5960580/ | checked: 2026-11-21
+world-health-organization-will,media,agree,intensity-frequency-extreme-novel,,,,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC8536331/ | checked: 2026-11-21
+world-health-organization-will,media,agree,spillover-animal-infections-next,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Spillover:_Animal_Infections_and_the_Next_Human_Pandemic | checked: 2026-11-21
+world-health-organization-will,argument,disagree,public-health-emergency-international,,,,,,,,,,,,,,,,url: https://www.who.int/news/item/19-05-2016-meeting-of-the-emergency-committee-under-the-international-health-regulations-(2005)-concerning-yellow-fever | checked: 2026-11-21
+world-health-organization-will,argument,disagree,window-october-10-2026,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Public_health_emergency_of_international_concern | checked: 2026-11-21
+world-health-organization-will,argument,disagree,bundibugyo-ebola-outbreak-congo,,,,,,,,,,,,,,,,url: https://www.who.int/news/item/17-05-2026-epidemic-of-ebola-disease-in-the-democratic-republic-of-the-congo-and-uganda-determined-a-public-health-emergency-of-international-concern | checked: 2026-11-21
+world-health-organization-will,argument,disagree,world-health-organization-lost,,,,,,,,,,,,,,,,url: https://www.kff.org/global-health-policy/fact-sheet/the-u-s-government-and-the-world-health-organization/ | checked: 2026-11-21
+world-health-organization-will,argument,disagree,political-backlash-after-covid,,,,,,,,,,,,,,,,url: https://www.hhs.gov/press-room/state-department-hhs-rejects-amendments-to-international-health-regulations.html | checked: 2026-11-21
+world-health-organization-will,argument,disagree,new-who-director-general,,,,,,,,,,,,,,,,url: https://www.who.int/about/governance/election-of-director-general | checked: 2026-11-21
+world-health-organization-will,evidence,disagree,nine-events-which-who,,"Mullen, Potter, Gostin, Cicero and Nuzzo, ""An analysis of International Health Regulations Emergency Committees and Public Health Emergency of International Concern Designations,"" BMJ Global Health, 2020",,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC7299007/ | checked: 2026-11-21
+world-health-organization-will,evidence,disagree,three-eight-gaps-between,,"World Health Organization, IHR Emergency Committees (2026); Wikipedia, ""Public health emergency of international concern"" (2026); gap lengths are this page's own count",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Public_health_emergency_of_international_concern | checked: 2026-11-21
+world-health-organization-will,evidence,disagree,across-993-confirmed-human,,"WHO Global Influenza Programme cumulative case report (January 2026), as compiled in Wikipedia, ""Global spread of H5N1"" (2026)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Global_spread_of_H5N1 | checked: 2026-11-21
+world-health-organization-will,prediction,disagree,who-ihr-emergency-committees,,,,,,,,,,,,,,,"By December 31, 2028; checked on the WHO IHR Emergency Committees page.",url: https://www.who.int/teams/ihr/ihr-emergency-committees | checked: 2026-11-21
 world-health-organization-will,prediction,disagree,any-emergency-committee-convened,,,,,,,,,,,,,,,"By December 31, 2028; checked in the committee statements posted on who.int.",
 world-health-organization-will,falsify,disagree,emergency-committee-serious-new,,,,,,,,,,,,,,,,
 world-health-organization-will,falsify,disagree,who-announces-will-handle,,,,,,,,,,,,,,,,
 world-health-organization-will,assumption,disagree,cluster-who-emergency-declarations,,,,,,,,,,,,,,,,
 world-health-organization-will,assumption,disagree,political-pressure-who-after,,,,,,,,,,,,,,,,
 world-health-organization-will,assumption,disagree,regional-bodies-such-africa,,,,,,,,,,,,,,,,
-world-health-organization-will,media,disagree,analysis-international-health-regulations,,,,,,,,,,,,,,,,
-world-health-organization-will,media,disagree,ebola-north-kivu-dr,,,,,,,,,,,,,,,,
-world-health-organization-will,media,disagree,pheic-phecs-reclaiming-africa,,,,,,,,,,,,,,,,
+world-health-organization-will,media,disagree,analysis-international-health-regulations,,,,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1136/bmjgh-2020-002502 | checked: 2026-11-21
+world-health-organization-will,media,disagree,ebola-north-kivu-dr,,,,,,,,,,,,,,,,url: https://www.who.int/news/item/17-07-2019-ebola-outbreak-in-the-democratic-republic-of-the-congo-declared-a-public-health-emergency-of-international-concern | checked: 2026-11-21
+world-health-organization-will,media,disagree,pheic-phecs-reclaiming-africa,,,,,,,,,,,,,,,,url: https://api.crossref.org/works/10.1186/s12992-025-01177-6 | checked: 2026-11-21
 world-health-organization-will,interest,agree,public-health-workers-low,,,,,,,,,,,,,,,,
 world-health-organization-will,interest,agree,older-adults-people-weak,,,,,,,,,,,,,,,,
 world-health-organization-will,interest,agree,travelers-airline-crews-need,,,,,,,,,,,,,,,,
@@ -10876,8 +10876,8 @@ world-health-organization-will,cba,agree,countries-set-aside-vaccines,,,,,,,,pub
 world-health-organization-will,cba,agree,preparing-another-declared-emergency,,,,,,,,older-adults-people-weak,,,deaths averted per emergency,,,,,
 world-health-organization-will,cba,agree,treating-another-global-health,,,,,,,,travelers-airline-crews-need,,,days from declaration to published travel guidance,,,,,
 world-health-organization-will,cba,disagree,money-held-global-health,,,,,,,,taxpayers-donor-countries-need,,,dollars a year,,,,,
-world-health-organization-will,cba,disagree,emergency-declaration-often-brings,,,,,,,,hotel-tour-airline-workers,,,dollars of lost tourism revenue,,,,,
-world-health-organization-will,cba,disagree,declaration-over-bird-flu,,,,,,,,poultry-farmers-meat-exporters,,,dollars of lost exports,,,,,
+world-health-organization-will,cba,disagree,emergency-declaration-often-brings,,,,,,,,hotel-tour-airline-workers,,,dollars of lost tourism revenue,,,,,url: https://www.who.int/news/item/05-10-2015-statement-on-the-7th-meeting-of-the-ihr-emergency-committee-regarding-the-ebola-outbreak-in-west-africa | checked: 2026-11-21
+world-health-organization-will,cba,disagree,declaration-over-bird-flu,,,,,,,,poultry-farmers-meat-exporters,,,dollars of lost exports,,,,,url: https://www.woah.org/en/disease/avian-influenza/ | checked: 2026-11-21
 world-health-organization-will,category,,,days from declaration to first international funding release,,,,,,,,,,,,,,,
 world-health-organization-will,category,,,days from declaration to published travel guidance,,,,,,,,,,,,,,,
 world-health-organization-will,category,,,deaths averted per emergency,,,,,,,,,,,,,,,
@@ -11876,9 +11876,9 @@ candidate-who-neither-democrat,definition,,,,,,,,,,,,,,,,,,"term: 5 percent of t
 candidate-who-neither-democrat,dispute,,,Empirical,,,,,,,,,,,,,,,"what: Whether the roughly 11 to 15 percent of adults who told Gallup in 2025 they are very likely to vote for an outside candidate will still vote that way in November 2028, when every minor candidate combined drew under 2 percent in 2020 and 2024. | move: National 2028 polls that name an outside candidate, taken after the party conventions, compared with certified results to see how far support fell between September and November."
 candidate-who-neither-democrat,dispute,,,Causal,,,,,,,,,,,,,,,"what: Whether the 2026 split on the right will produce a nationally known candidate who actually runs and gets on enough state ballots to make 5 percent reachable. | move: A Federal Election Commission statement of candidacy from such a figure, followed by state ballot qualifications by the summer 2028 deadlines."
 candidate-who-neither-democrat,value,,,,,,,,,,,,,,,,,,value: Voter choice | srank: 1 | orank: 2 | why: Supporters say voters deserve a real option beyond two parties that most of them view poorly; opponents also value choice but rank it below casting a vote that affects who wins.
-supreme-court-will-have,argument,agree,supreme-court-vacancy-has,,,,,,,,,,,,,,,,
-supreme-court-will-have,argument,agree,republican-controlled-senate-can,,,,,,,,,,,,,,,,
-supreme-court-will-have,argument,agree,conservative-justices-generally-prefer,,,,,,,,,,,,,,,,
+supreme-court-will-have,argument,agree,supreme-court-vacancy-has,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_justices_by_time_in_office | checked: 2026-11-21
+supreme-court-will-have,argument,agree,republican-controlled-senate-can,,,,,,,,,,,,,,,,url: https://www.senate.gov/legislative/nominations/SupremeCourtNominations1789present.htm | checked: 2026-11-21
+supreme-court-will-have,argument,agree,conservative-justices-generally-prefer,,,,,,,,,,,,,,,,url: https://www.abajournal.com/magazine/article/supreme_court_retirements | checked: 2026-11-21
 supreme-court-will-have,evidence,agree,congressional-research-service-found,,"Congressional Research Service, 'The Scalia Vacancy in Historical Context: Frequently Asked Questions' (R44773), March 1, 2017",,,,,,,,,,,,,,url: https://www.everycrsreport.com/reports/R44773.html | checked: 2026-10-24
 supreme-court-will-have,evidence,agree,22-supreme-court-vacancies,,"Congressional Research Service, 'Supreme Court Vacancies During Midterm Election Years (1914-2022)' (IN12702), July 8, 2026",,,,,,,,,,,,,,url: https://www.everycrsreport.com/reports/IN12702.html | checked: 2026-10-24
 supreme-court-will-have,evidence,agree,senate-confirmed-amy-coney,,"Politico (republished by Yahoo News), Jordain Carney and Calen Razor, ''Use your majority': In the unlikely event of a Supreme Court vacancy, Republicans are ready to act,' October 7, 2026",,,,,,,,,,,,,,url: https://www.yahoo.com/news/politics/articles/majority-unlikely-event-supreme-court-084500601.html | checked: 2026-10-24
@@ -11892,9 +11892,9 @@ supreme-court-will-have,person,agree,senate-majority-leader-john-2,,,,,,,,,,,,,,
 supreme-court-will-have,falsify,agree,supreme-court-justice-announces,,,,,,,,,,,,,,,,
 supreme-court-will-have,falsify,agree,senate-records-roll-call,,,,,,,,,,,,,,,,
 supreme-court-will-have,assumption,agree,either-republicans-keep-senate,,,,,,,,,,,,,,,,
-supreme-court-will-have,argument,disagree,senate-controlled-party-opposite,,,,,,,,,,,,,,,,
-supreme-court-will-have,argument,disagree,clarence-thomas-will-pass,,,,,,,,,,,,,,,,
-supreme-court-will-have,argument,disagree,supreme-court-justices-who,,,,,,,,,,,,,,,,
+supreme-court-will-have,argument,disagree,senate-controlled-party-opposite,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/Merrick_Garland_Supreme_Court_nomination | checked: 2026-11-21
+supreme-court-will-have,argument,disagree,clarence-thomas-will-pass,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_justices_by_time_in_office | checked: 2026-11-21
+supreme-court-will-have,argument,disagree,supreme-court-justices-who,,,,,,,,,,,,,,,,url: https://digitalcommons.lib.uconn.edu/srhonors_theses/529 | checked: 2026-11-21
 supreme-court-will-have,argument,disagree,republican-appointed-federal-appeals,,,,,,,,,,,,,,,,url: https://www.brookings.edu/articles/paucity-of-vacancies-slows-trumps-effort-to-reshape-courts/ | checked: 2026-11-21
 supreme-court-will-have,evidence,disagree,traders-kalshi-gave-democrats,,"Kalshi News, 'Who Will Control the Senate in 2026? Midterm Odds and Key Races,' October 16, 2026",,,,,,,,,,,,,,url: https://news.kalshi.com/p/who-will-control-the-senate-2026 | checked: 2026-10-24
 supreme-court-will-have,evidence,disagree,study-every-supreme-court,,"Ross M. Stolzenberg and James Lindgren, 'Retirement and Death in Office of U.S. Supreme Court Justices,' Demography, vol. 47, no. 2, 2010",,,,,,,,,,,,,,url: https://pmc.ncbi.nlm.nih.gov/articles/PMC3000028/ | checked: 2026-10-24
@@ -12285,7 +12285,7 @@ team-outside-europe-south,argument,agree,morocco-now-strong-enough,,,,,,,,,,,,,,
 team-outside-europe-south,argument,agree,playing-2030-world-cup,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2030_FIFA_World_Cup | checked: 2026-11-21
 team-outside-europe-south,argument,agree,morocco-s-2025-under,,,,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/2025_FIFA_U-20_World_Cup | checked: 2026-11-21
 team-outside-europe-south,argument,agree,low-scoring-football-knockout,,,,,,,,,,,,,,,,
-team-outside-europe-south,argument,agree,more-national-teams-outside,,,,,,,,,,,,,,,,
+team-outside-europe-south,argument,agree,more-national-teams-outside,,,,,,,,,,,,,,,,url: https://inside.fifa.com/api/ranking-overview?locale=en&dateId=id12210 | checked: 2026-11-21
 team-outside-europe-south,evidence,agree,fifa-men-s-world,,"Wikipedia, ""FIFA Men's World Ranking"", top-20 table for the ranking released October 7, 2026 (accessed October 2026)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/FIFA_Men%27s_World_Ranking | checked: 2026-10-24
 team-outside-europe-south,evidence,agree,morocco-won-2025-fifa,,"Moroccan National Olympic Committee (CNOM), ""Morocco U20 crowned world champion"", October 21, 2025",,,,,,,,,,,,,,url: https://www.cnom.org.ma/en/morocco-u20-crowned-world-champion | checked: 2026-10-24
 team-outside-europe-south,evidence,agree,six-eight-countries-have,,"Wikipedia, ""FIFA World Cup"", Hosts section (accessed October 2026)",,,,,,,,,,,,,,url: https://en.wikipedia.org/wiki/FIFA_World_Cup | checked: 2026-10-24
@@ -13097,3 +13097,6 @@ associated-press-will-project-2,argument,disagree,associated-press-projected-dem
 113-4-billion-appropriated,argument,disagree,25-9-billion-congress-appropriated,,gao.gov,,,,,,,,,,,,,,url: https://www.gao.gov/assets/gao-24-106289.pdf | checked: 2026-11-21 | tag: challenge.misquoted
 nvidia-was-most-valuable,argument,disagree,nvidia-was-most-valuable-public,,arynews.tv,,,,,,,,,,,,,,url: https://arynews.tv/apple-hits-five-trillion-dollar-valuation-to-overtake-nvidia-in-global-market-cap | checked: 2026-11-21 | tag: truth.premise-false
 nvidia-s-revenue-growing,argument,disagree,nvidia-s-revenue-grew-103,,stockanalysis.com,,,,,,,,,,,,,,url: https://stockanalysis.com/list/biggest-companies/ | checked: 2026-11-21 | tag: truth.premise-false
+elon-musk-said-starship,argument,disagree,elon-musk-said-september-2026,,space.com,,,,,,,,,,,,,,url: https://www.space.com/space-exploration/launches-spacecraft/spacex-will-attempt-1st-ever-double-starship-rocket-catch-on-next-test-launch-a-profound-technology-milestone-elon-musk-says | checked: 2026-11-21 | tag: truth.premise-false
+starship-upper-stage-has,argument,disagree,ship-42-launched-starship-flight,,cbsnews.com,,,,,,,,,,,,,,url: https://www.cbsnews.com/news/spacex-catch-starship-rocket/ | checked: 2026-11-21 | tag: truth.premise-false
+who-declared-nine-public,argument,disagree,who-s-director-general-determined,,who.int,,,,,,,,,,,,,,url: https://www.who.int/groups/h1n1-ihr-emergency-committee | checked: 2026-11-21 | tag: challenge.misquoted

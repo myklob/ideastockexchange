@@ -1,6 +1,6 @@
 # Session handoff
 
-Written 2026-11-14 and updated 2026-11-15 at the end of the session on branch `claude/beautiful-volta-kpxvpw`. Replace this file at the end of
+Written 2026-11-14 and updated 2026-11-22 at the end of the session on branch `claude/beautiful-volta-kpxvpw`. Replace this file at the end of
 each session rather than appending to it.
 
 ## Shipped and verified
@@ -64,12 +64,26 @@ The 2026 election calls are filed as findings on the forecast pages they settle,
   "Democrats and the independents who caucus with them hold at least 51 Senate seats".
 - The AP's own site refuses automated reading, so these are the best sources reachable.
 
+## Added 2026-11-21 and 22
+
+- **Every published row now has a verdict.** The 1,166 rows on the 49 newer beliefs were checked on Fable 5.2 with the
+  `fact-checker` agent type in 216 batches of six: 811 confirmed against a source read, 322 opinion, 17 unverifiable and
+  16 corrections, each filed as a sourced reason to disagree. `factcheck/judged.json` holds 4,322 verdicts; `batches.py`
+  finds no row without one.
+- **The small agent type is measured and adopted.** Its starting context is about 16,600 tokens, not 80,000. On the
+  calibration batches that survived a full disk, Fable 5.2 caught 24 of 26 known corrections and flagged 0 of 155 settled
+  rows; Opus caught 18 of 20 and flagged 2 of 141. The November two-pass method flagged 24 settled rows. Per agent it cost
+  about 2.5 million input tokens on Opus and 5.4 million on Fable, so the saving is in false alarms (second looks not
+  owed), not in the first check itself.
+- **Counting what has happened** (`outcome.py`): a third reading printed beside the truth score once a prediction has a
+  report of its outcome (`test.came-true` or `test.came-false`). Reviewed by three independent agents; their fixes are in.
+  The House belief reads 0.50 by the truth score and 65% by this reading; the Senate belief 0.45 and 32%.
+- **Senate results** reported by the AP, and South Carolina's certification of November 11, are filed as `news` findings.
+  No other state had certified by November 21.
+- **The full assertion audit passes:** all 2,613 assertions run across 830 tests.
+
 ## Partial, mocked or placeholder
 
-- **1,166 rows on 49 newer beliefs have no verdict.** By section: 431 argument, 233 cba, 166 prediction, 148 evidence, 119
-  media and 69 person. `python3 tools/static-site/factcheck/batches.py OUTDIR` cuts them.
-- **The `fact-checker` agent type is unmeasured** (`.claude/agents/fact-checker.md`). A session loads agent types only
-  when it starts, so it was never used. Its expected saving is a starting context near 38,000 tokens instead of 80,000.
 - **Seven topics with beliefs beneath them have no cell rows of their own:** `us-economy`, `crypto`, `ai-progress`,
   `colorado`, `climate-outcomes`, `world-conflicts` and `tech-giants`. Their pages fill from the beliefs beneath, as
   designed, so this is a data gap, not a bug.
@@ -103,7 +117,7 @@ The 2026 election calls are filed as findings on the forecast pages they settle,
   two books printing +0.05 were ranked 6 and 7. The works lists now rank on the printed value, and no score moves.
   Merging this branch is what republishes the site.
 - **The branch is not merged.** `pages.yml` publishes only on a push to `master` that touches `tools/static-site/**`.
-  The branch carries 45 commits since `master` was last merged, on 2026-10-10.
+  The branch carries 56 commits since `master` was last merged, on 2026-10-10.
 - **Three docs named in the wrap-up checklist do not exist:** `REASONRANK_EQUATIONS.md`, `ISE_scores_inventory.md` and
   `CONFLICT_RESOLUTION_SCORING.md`. Scoring is documented in `tools/static-site/README.md`, `CLAUDE.md` and
   `tools/static-site/conformance.py`, and those match the code. The three were not created, because `CLAUDE.md` forbids
@@ -112,20 +126,11 @@ The 2026 election calls are filed as findings on the forecast pages they settle,
 
 ## Next tasks
 
-1. **Measure the small agent type. This is a Workflow run of ten Opus agents, so ask the owner first.**
-   - In a session started after `.claude/agents/fact-checker.md` existed, run `tools/static-site/factcheck/factcheck.js`
-     with `{dir: <absolute path of factcheck/calibration>, today, checks: [12, 25, 26, 48, 53, 66, 70, 88, 110, 145],
-     only: 'check', agentType: 'fact-checker'}` on Opus.
-   - Score it with `python3 tools/static-site/factcheck/calibrate.py <run transcript dir>`.
-   - Adopt it as the default if it catches at least 26 of 28 and its starting context is under 50,000. Record the
-     result in the header of `factcheck.js`.
-2. **File the certified results as states certify them (December 2026).**
-   - Add each chamber's certified result as a finding (etype `record`, the state or Clerk of the House tallies) on the
-     prediction pages that name certification, beside the `news` rows filed on 2026-11-15:
-     - `democrats-independents-who-caucus`;
-     - `republicans-win-least-four`;
-     - `democrats-win-least-two`.
-   - Then run `sync_content.py --to-workbook` and `--check`.
-3. **Re-check the 1,166 unjudged rows. This is the expensive one, so ask the owner first.**
-   - Run the three-stage check in waves of 10 batches.
-   - Harvest with `verdicts.py` after each wave, file with `apply.py`, then sync.
+1. **File certified results as states certify them (December 2026)**, typed `record` and posted as `test.came-true` or
+   `test.came-false` on `democrats-independents-who-caucus`, `republicans-win-least-four` and `democrats-win-least-two`.
+   Then `sync_content.py --to-workbook` and `--check`.
+2. **Decide whether the outcome reading should lead forecast pages**, by comparing it with the truth score on the two
+   election beliefs and any forecast settled after them. A decision for the owner.
+3. **Re-check new rows as they are added**: `batches.py OUTDIR --size 6`, then `factcheck.js` with `agentType:
+   'fact-checker'`, `ration: 2` and `models` set to Fable, in waves of about 50 batches a turn; harvest with `verdicts.py`,
+   file with `apply.py`.

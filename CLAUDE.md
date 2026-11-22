@@ -286,9 +286,10 @@ CI runs the whole suite before it will publish anything.
   starts; agents see the owner's messages, so a prompt must tell them to ignore any deadline or usage limit they read;
   a usage limit kills every agent in flight, so keep waves small and rebuild results from the run journals
   (`factcheck/verdicts.py`).
-- Fact-checking stays on Opus for all three stages. On the calibration set (`factcheck/calibration/`, scored by
-  `factcheck/calibrate.py`) Sonnet caught 14 of 28 known corrections and the November adversarial pass on Opus
-  caught 26, at about half the cost of the two-pass method that caught all 28.
+- Fact-checking runs on Opus or Fable, never Sonnet, with `agentType: 'fact-checker'` (five tools, a 16,600-token start
+  instead of 80,000). On the calibration set (`factcheck/calibration/`, scored by `factcheck/calibrate.py`) Sonnet caught
+  14 of 28 known corrections; with the small agent, Fable caught 24 of 26 and flagged none of 155 settled rows, Opus 18 of
+  20 with 2 of 141 flagged. The November re-check of the newer rows ran on Fable in batches of six with `ration: 2`.
 
 ### The page/edge model (`src/lib/ise-pages/`)
 
