@@ -207,8 +207,7 @@ input would change the answer; `reasonrank.py` how much of the corpus depends on
 a page; `similarity.py` which claims say the same thing; `integrity.py` the
 structural faults the graph can show, and a pre-publish cycle check CI runs first; `fallacy.py` flags a
 possible fallacy by a published phrase list, as a question argued on the flagged claim's page that moves no score;
-`changes.py` what moved
-since the last revision; `method.py` the reader-facing methodology page;
+`method.py` the reader-facing methodology page;
 `sync_content.py` keeps the workbook and the reviewable CSVs in step; `vocab.py` what a post can be (197 kinds, each mapped to
 where intake files it and to AIF, ASPIC+, Walton's schemes and schema.org), behind `vocab.html`, `data/vocab.json`, the JSON-LD
 on every claim page, and intake's `Kind of post` and `Row` fields, which can open a row's linkage, importance or uniqueness
