@@ -334,7 +334,7 @@ Every cost and benefit is itself a debatable claim with its own argument tree, a
 
 | Category | Benefits | Costs | Benefit Expected Value | Cost Expected Value | Net |
 |---|---|---|---|---|---|
-| [Money / Lives / Time / Environment / Health / Freedom / Trust / Innovation / Other] |   |   |   |   |   |
+| [Money / Lives / Time / Environment / Health / Freedom / Trust / Innovation / Security / Education / Government / Culture and sport / Other] |   |   |   |   |   |
 
 Counts always add. Expected values are added only when every priced row in the category shares one unit; a category priced in several units prints no total and says how many units it holds.
 

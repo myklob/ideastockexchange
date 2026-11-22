@@ -259,11 +259,14 @@ belief lists on its own page. Blank until one is listed. It says whether what is
 much is at stake; size is the costs and benefits. A claim has no importance of its own: importance and linkage
 belong to a use, so they print beside each page the claim is used on.
 
-**Categories.** A cost or benefit is filed under Money, Lives, Time, Environment, Health, Freedom, Trust, Innovation
-or Other by the words of the unit it is counted in (`views.RULES`, printed on the method page). The order of the
-rules is the argument: what the number counts (a currency, lives, a stretch of time) outranks what the row is about.
-A unit no rule recognises is Other, never a guess; today that is about four rows in ten, which says the units are
-free text and is the thing to fix at the source. Counts always add. Expected values add only inside one unit.
+**Categories.** A cost or benefit is filed under one of twelve categories, or Other, by the words of the unit it is
+counted in (`views.RULES`, printed on the method page). Eight are the categories of `docs/automated-cba/SKILL.md`:
+Money, Lives, Time, Environment, Health, Freedom, Trust, Innovation. Four more were added because with only the eight,
+four rows in ten sat under Other, nearly all of them counted in the same few things: Security (war, troops,
+territory), Government (votes, seats, laws), Education, and Culture and sport (audiences, works, results). The order
+of the rules is the argument: what the number counts (a currency, lives, a stretch of time) outranks what the row is
+about. A unit no rule recognises is Other, never a guess; today that is about one row in seven. The units are free
+text, which is the thing to fix at the source. Counts always add. Expected values add only inside one unit.
 
 **Play money (`market.py`).** A share for a claim costs its truth score and a share against costs the rest of the
 dollar, so money never moves a price and the only way a holding gains is for the score to move, which only a row on

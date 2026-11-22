@@ -146,15 +146,23 @@ class TestCostsAndBenefitsAreFiledByUnit(unittest.TestCase):
                            ('new type 2 diabetes cases avoided per year', 'Health'),
                            ('satellites launched per year', 'Innovation'),
                            ('percentage points of unemployment', 'Money'),
-                           ('jobs lost', 'Money')):
+                           ('jobs lost', 'Money'),
+                           ('percent reduction in writing cost per book', 'Money'),
+                           ('percentage points of probability of a NATO-Russia war', 'Security'),
+                           ('square kilometers returned to Ukrainian control', 'Security'),
+                           ('percentage-point reduction in votes cast by a member holding stock in the affected industry', 'Government'),
+                           ('judges confirmed per year', 'Government'),
+                           ('percentile points of test score', 'Education'),
+                           ('average national television viewers per WNBA game', 'Culture and sport'),
+                           ('Olympic gold medals won per cycle', 'Culture and sport')):
             self.assertEqual(V.category_of(unit), want, unit)
 
     def test_a_rate_at_the_end_of_a_unit_is_not_time(self):
-        self.assertEqual(V.category_of('viewers per year'), 'Other')
+        self.assertEqual(V.category_of('widgets per year'), 'Other')
         self.assertEqual(V.category_of('years of Senate seniority'), 'Time')
 
     def test_a_unit_the_list_does_not_know_is_other_and_never_guessed(self):
-        for unit in ('', None, 'cracked slabs', 'AFC championships won'):
+        for unit in ('', None, 'cracked slabs', 'screenings', 'diners surprised by a menu category'):
             self.assertEqual(V.category_of(unit), 'Other')
 
     def test_every_rule_names_a_category_that_has_a_meaning(self):
@@ -162,6 +170,13 @@ class TestCostsAndBenefitsAreFiledByUnit(unittest.TestCase):
             self.assertIn(name, V.CATEGORY_MEANING); self.assertIn(where, ('anywhere', 'start'))
             self.assertTrue(when and V.rule_words(words))
         self.assertEqual(V.CATEGORY_NAMES[-1], V.OTHER)
+        self.assertEqual(set(V.CATEGORY_NAMES) - {V.OTHER}, {name for name, *_ in V.RULES}, 'a category is named that no rule can file a row under')
+
+    def test_an_earlier_rule_wins_and_a_word_inside_a_hyphenated_word_is_not_a_match(self):
+        self.assertEqual(V.category_of('mid-budget theatrical releases a year'), 'Culture and sport', 'mid-budget is not a budget')
+        self.assertEqual(V.category_of('consumer protection rules on game monetization blocked or weakened'), 'Trust')
+        self.assertEqual(V.category_of('percentage points of voters reporting they have enough information to judge'), 'Trust')
+        self.assertEqual(V.category_of('dollars a year in WNBA media rights and ticket revenue'), 'Money', 'a currency outranks what the row is about')
 
 
 class TestTotalsAddOnlyWhatShares_A_Unit(Site):

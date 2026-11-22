@@ -104,9 +104,12 @@ def supports(c, pid, index, DEFLINK=1, DEFIMP=0.5):
 # wins, and the order is the argument: what the number counts comes first (a currency, lives, a stretch of time),
 # because a dollar figure about schools still adds only to other dollar figures; what the row is about comes after.
 # Each rule is (category, when it applies, words, where to look). A word ending in a hyphen matches as a prefix
-# ("unemploy-" matches unemployed and unemployment); a phrase after a bar matches whole. The category names follow
-# docs/automated-cba/SKILL.md. The list is printed on the method page, so a reader can see why a row was filed
-# where it was, and a unit it does not recognise is filed under Other rather than guessed at.
+# ("unemploy-" matches unemployed and unemployment); a phrase after a bar matches whole. The first eight category
+# names follow docs/automated-cba/SKILL.md, its four vectors and its four expansions. The last four are further
+# expansions the tables called for: with only the eight, four rows in ten sat under Other, nearly all of them
+# counted in votes and seats, viewers and wins, troops and territory, or students and schools. The list is printed
+# on the method page, so a reader can see why a row was filed where it was, and a unit it does not recognise is
+# filed under Other rather than guessed at.
 RULES = [
     ('Money', 'the unit names a currency', 'dollar dollars euro euros cents', 'anywhere'),
     ('Lives', 'the unit counts people killed, wounded or saved', 'deaths death casualties lives civilians soldiers', 'anywhere'),
@@ -121,13 +124,24 @@ RULES = [
      'without a local council vote|master ownership', 'anywhere'),
     ('Trust', 'the unit names confidence in an institution, fairness or honest dealing',
      'trust approval compliance fair doxxing dispute disputes fraud fraudulent disclosure undisclosed|'
-     'enough information to judge|willing to report|accounted for|polling error', 'anywhere'),
+     'enough information to judge|willing to report|accounted for|polling error|consumer protection', 'anywhere'),
     ('Innovation', 'the unit names research, new products or what gets built',
      'proofs satellites landings missions vulnerabilities driverless countermeasures|fast-charging|'
      'completed tasks|sites studied|samples returned', 'anywhere'),
+    ('Security', 'the unit names war, armed force or territory held',
+     'war wars troops interceptors territory personnel|nuclear-armed|nuclear exchange|military victory|ukrainian control', 'anywhere'),
     ('Money', 'the unit names jobs, prices or the wider economy',
-     'gdp inflation yield unemploy- employment jobs poverty bankruptcy revenue income portfolio|box office|'
-     'interest rates|funds rate|s&p 500|index fund|bond holdings', 'anywhere'),
+     'gdp inflation yield unemploy- employment jobs poverty bankruptcy revenue income portfolio cost costs budget budgets '
+     'spending pension|box office|interest rates|funds rate|s&p 500|index fund|bond holdings|short position', 'anywhere'),
+    ('Education', 'the unit names schools, students or what is taught',
+     'students school schools enrollment enrollments lessons courses|test score', 'anywhere'),
+    ('Government', 'the unit names votes, seats, laws or the bodies that pass and judge them',
+     'votes vote voters seats bills laws judges hearings electoral committee legislative senate knesset reforms races|'
+     'supreme court|statehood commitments', 'anywhere'),
+    ('Culture and sport', 'the unit names audiences, works or results on the field',
+     'viewers fans listeners concertgoers visitors films film dramas drama releases books titles streams songs music '
+     'artworks artists championships medals playoff game games players roster sprinters teams telecast fouls wins|'
+     'best picture|hot 100|top-10|free throw', 'anywhere'),
 ]
 CATEGORY_MEANING = {
     'Money': 'Dollars, prices, pay, jobs and the wider economy.',
@@ -138,6 +152,10 @@ CATEGORY_MEANING = {
     'Freedom': 'Rights, access, and who is shut out or held to account.',
     'Trust': 'Confidence in an institution, fairness and honest dealing.',
     'Innovation': 'Research, new products and what gets built.',
+    'Security': 'War and the risk of it, armed force, and territory held or lost.',
+    'Education': 'Schools, students, and what is taught and learned.',
+    'Government': 'Votes, seats, laws, and the bodies that pass and judge them.',
+    'Culture and sport': 'Audiences, the works made for them, and results on the field.',
     'Other': 'Counted in a unit the word list does not recognise, so it is filed here rather than guessed at.',
 }
 OTHER = 'Other'
