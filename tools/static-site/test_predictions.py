@@ -41,6 +41,40 @@ class TestDeadlines(unittest.TestCase):
                            ('Within a year; the 2028 survey', D(2028, 12, 31))]:
             self.assertEqual(P.due_date(text), want, text)
 
+    def test_an_aside_or_the_start_of_a_window_is_not_the_deadline(self):
+        """Three live deadlines were read a year or eight early, and their predictions listed as overdue: the date
+        was taken from words in parentheses, from the day a window opened, or from the name of a report."""
+        for text, want in [("The 2034 final (dates not yet set by FIFA as of October 2026), settled against FIFA's official 2034 "
+                            'World Cup results.', D(2034, 12, 31)),
+                           ('The first Washington Institute Saudi poll published after October 24, 2026, and no later than '
+                            'December 31, 2027.', D(2027, 12, 31)),
+                           ('By mid-January 2027, when the BLS publishes its December 2026 CPI release; checked against series '
+                            'CUUR0000SA0.', D(2027, 1, 31)),
+                           ('July 2030, settled against FIFA\'s official 2030 World Cup results (final scheduled for July 21, 2030).',
+                            D(2030, 7, 31)),
+                           ('Since January 2025 the count has been published monthly; by June 2027', D(2027, 6, 30))]:
+            self.assertEqual(P.due_date(text), want, text)
+
+    def test_the_only_date_a_clause_names_is_read_wherever_it_sits(self):
+        self.assertEqual(P.due_date('The next election (November 3, 2026); state returns'), D(2026, 11, 3))
+        self.assertEqual(P.due_date('After the 2028 election; the certified count'), D(2028, 12, 31))
+        self.assertEqual(P.due_date('Within a year from March 2027'), D(2027, 3, 31))
+
+    def test_no_live_deadline_is_read_from_an_aside(self):
+        """Every prediction in the tables: the date read from its deadline is never one that sits inside parentheses
+        while the same clause names another date outside them."""
+        import re
+        _, edges = IT.read_csv(os.path.join(HERE, 'content'))[:2]
+        checked = 0
+        for e in edges:
+            if e.get('section') != 'prediction' or not (e.get('deadline') or '').strip(): continue
+            head = e['deadline'].split(';')[0]
+            bare = re.sub(r'\([^()]*\)', ' ', head)
+            if bare == head or P._first(bare, closing=True) is None: continue
+            checked += 1
+            self.assertEqual(P.due_date(e['deadline']), P._first(bare, closing=True), e['deadline'])
+        self.assertGreater(checked, 0, 'no live deadline carries an aside, so this checked nothing')
+
     def test_no_year_is_no_date_and_now_is_today(self):
         self.assertIsNone(P.due_date('Checked by aerial survey'))
         self.assertEqual(P.due_date('Reviewable now; the 2014 Senate report'), P.NOW)

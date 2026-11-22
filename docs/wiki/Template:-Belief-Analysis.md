@@ -98,9 +98,9 @@ Square-bracketed text is a placeholder for the author to fill; a token with unde
 >   5.  Logical Anatomy & Foundational Assumptions (logical form, Component
 >       Claims table with Load Bearing (typed), Assumptions by Side with Scores)
 >   6.  Cost-Benefit Analysis (Benefits table + Costs table: Claim / Category
->       (Units) / Magnitude / Range / Likelihood / Expected Value), then Net by
->       Category and Who Gains, Who Pays (built site), then Short vs. Long-Term
->       Impacts (with Scores)
+>       (Units) / Magnitude / Range / Likelihood / Expected Value), then Totals for
+>       Each Category, Net by Unit and Who Gains, Who Pays (built site), then
+>       Short vs. Long-Term Impacts (with Scores)
 >   7.  Conflict Resolution Framework (in the software it opens with the computed
 >       Pipeline readout, the scored cost-benefit trees read sideways)
 >       a. Shared Values, Different Rankings (Value / Supporters Rank / Opponents
@@ -326,10 +326,19 @@ Every cost and benefit is itself a debatable claim with its own argument tree, a
 
 > **Builder notes**
 >
-> NET BY CATEGORY and WHO GAINS, WHO PAYS: built site. Both are computed from the two
->     tables above and never typed.
+> TOTALS FOR EACH CATEGORY, NET BY UNIT and WHO GAINS, WHO PAYS: built site. All three are
+>     computed from the two tables above and never typed. A row is filed under a category by the
+>     words of the unit it is counted in; a unit the list does not recognise is Other.
 
-## Net by Category
+## Totals for Each Category
+
+| Category | Benefits | Costs | Benefit Expected Value | Cost Expected Value | Net |
+|---|---|---|---|---|---|
+| [Money / Lives / Time / Environment / Health / Freedom / Trust / Innovation / Security / Education / Government / Culture and sport / Other] |   |   |   |   |   |
+
+Counts always add. Expected values are added only when every priced row in the category shares one unit; a category priced in several units prints no total and says how many units it holds.
+
+## Net by Unit
 
 | Units | Benefit Expected Value | Cost Expected Value | Net |
 |---|---|---|---|
