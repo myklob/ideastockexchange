@@ -32,6 +32,9 @@ def _last_day(y, m):
 _NOW = re.compile(r'\b(?:now|already|currently|today)\b', re.I)
 NOW = 'now'
 _END = re.compile(r'\b(?:end|close) of (20\d\d)\b', re.I)
+_PAREN = re.compile(r'\([^()]*\)')
+_CUE = re.compile(r'\b(?:as (?:of|at)|checked|after)\b', re.I)   # the next date says when it was written or when a window opens
+_BREAK = re.compile(r'[,;()]|\.\s')
 
 
 _ASIDE = re.compile(r'\([^()]*\)')
@@ -52,6 +55,20 @@ def due_date(deadline):
     whole = deadline or ''
     head = whole.split(';')[0]
     found = _first(_ASIDE.sub(' ', head), closing=True) or _first(head, closing=True)
+    names none. Within the clause a day, month, quarter or "end of" a year is read before a bare year, and of those
+    the first mentioned wins.
+
+    A date in parentheses, or the date that follows "as of", "as at", "checked" or "after", usually says when the
+    words were written, when a source was looked at or when a window opens, not when the prediction falls due. It is
+    passed over when the rest of the clause names a later year, so "The 2034 final (dates not yet set as of October
+    2026)" falls due in 2034 and "published after October 24, 2026, and no later than December 31, 2027" on the
+    second date. When the rest of the clause names no later year it is read like any other date, so "After the
+    awards in 2030" and "The final (July 21, 2030)" keep the dates they state.
+
+    A clause that says the prediction can be checked now returns NOW, which the tracker reads as the build date.
+    None when the text names no year."""
+    head = (deadline or '').split(';')[0]
+    found = _first(head)
     if found: return found
     if _NOW.search(head): return NOW      # "reviewable now": checkable today, whatever year its source carries
     return _first(whole, closing=True) or _first(head) or _first(whole)
@@ -61,13 +78,15 @@ def _first(t, closing=False):
     """The first date in the text. With `closing`, a date that only opens a window is passed over, and None is
     returned when the text names no other."""
     found = [(m.start(), _dt.date(int(m.group(1)), 12, 31)) for m in _END.finditer(t)]
+def _first(t):
+    exact = [(m.start(), m.end(), _dt.date(int(m.group(1)), 12, 31)) for m in _END.finditer(t)]
     for m in _FULL.finditer(t):
-        try: found.append((m.start(), _dt.date(int(m.group(3)), MONTHS[m.group(1).lower()], int(m.group(2)))))
+        try: exact.append((m.start(), m.end(), _dt.date(int(m.group(3)), MONTHS[m.group(1).lower()], int(m.group(2)))))
         except ValueError: pass
     taken = [m.span() for m in _FULL.finditer(t)]
-    inside = lambda s: any(a <= s < b for a, b in taken)
+    inside = lambda s, spans: any(a <= s < b for a, b in spans)
     for m in _MONTH.finditer(t):
-        if not inside(m.start()): found.append((m.start(), _last_day(int(m.group(2)), MONTHS[m.group(1).lower()])))
+        if not inside(m.start(), taken): exact.append((m.start(), m.end(), _last_day(int(m.group(2)), MONTHS[m.group(1).lower()])))
     for m in _QUARTER.finditer(t):
         q = int(m.group(1)) if m.group(1) else ('first', 'second', 'third', 'fourth').index(m.group(2).lower()) + 1
         found.append((m.start(), _last_day(int(m.group(3)), q * 3)))
@@ -76,6 +95,19 @@ def _first(t, closing=False):
     if not found: return None
     if closing: found = [f for f in found if not _OPENS.search(t[:f[0]])]
     return min(found)[1] if found else None
+        exact.append((m.start(), m.end(), _last_day(int(m.group(3)), q * 3)))
+    spans = [d[:2] for d in exact]
+    years = [(m.start(), m.end(), _dt.date(int(m.group(1)), 12, 31)) for m in _YEAR.finditer(t) if not inside(m.start(), spans)]
+    asides = [m.span() for m in _PAREN.finditer(t)]
+    for m in _CUE.finditer(t):
+        nxt = min((d for d in exact + years if d[0] >= m.end()), default=None)
+        if nxt and not _BREAK.search(t, m.end(), nxt[0]): asides.append((m.start(), nxt[1]))
+    aside = lambda d: inside(d[0], asides)
+    named = [d[2].year for d in exact + years if not aside(d)]
+    for group in (exact, years):
+        left = [(d[0], d[2]) for d in group if not (aside(d) and any(y > d[2].year for y in named))]
+        if left: return min(left)[1]
+    return None
 
 
 def today_of(c):

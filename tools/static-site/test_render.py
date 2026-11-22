@@ -1099,18 +1099,31 @@ class TestANewcomerKnowsWhereToStart(unittest.TestCase):
     def card(self, name):
         i = self.h.find(f'<span>{name}</span>'); return self.h[i:self.h.find('</section>', i)]
 
-    def test_start_here_is_the_first_card_and_follows_the_rankings(self):
+    def test_the_short_and_strong_cards_come_first_and_clear_their_bars(self):
         import render_site as RS
-        self.assertLess(self.h.find('<span>Start here</span>'), self.h.find('<span>Search</span>'))
-        card = self.card('Start here')
-        self.assertIn(f'href="p/{self.c.href(RS.best_beliefs(self.c)[0])}"', card, 'the first door is not the best belief')
-        top = self.c.rank.work_queue(1)
-        if top: self.assertIn(f'href="p/{self.c.href(top[0]["page"])}', card, 'the second door is not the top of the work queue')
-        self.assertIn('href="method.html"', card)
-        self.assertNotRegex(card, r'<a [^>]*>[^<]*<a ', 'a link is nested inside another link')
+        self.assertLess(self.h.find('<span>Short and strong beliefs</span>'), self.h.find('<span>Search</span>'))
+        self.assertLess(self.h.find('<span>Short reasons that carry weight</span>'), self.h.find('<span>Search</span>'))
+        bs, rs = RS.short_beliefs(self.c), RS.short_reasons(self.c)
+        self.assertTrue(bs and rs, 'a short-and-strong list is empty on the live tables')
+        best = RS.best_beliefs(self.c)[:max(3, len(self.c.beliefs) // 4)]
+        for b in bs:
+            self.assertIn(b, best); self.assertGreater(self.c.stats(b)['belief'], 0)
+        avg = 1 / len(self.c.specs)
+        for p in rs:
+            self.assertEqual(self.c.kind(p), 'claim'); self.assertGreaterEqual(self.c.rank.of(p), avg)
+        for rows in (bs, rs):
+            n = [RS.words(self.c, p) for p in rows]
+            self.assertEqual(n, sorted(n), 'not shortest first')
+        self.assertIn(f'href="p/{self.c.href(bs[0])}"', self.card('Short and strong beliefs'))
+        self.assertIn(f'href="p/{self.c.href(rs[0])}"', self.card('Short reasons that carry weight'))
+        self.assertIn('href="lists.html#short"', self.h)
+        self.assertIn('href="lists.html#shortreasons"', self.h)
+        with open(os.path.join(self.parent.dir, 'short.html')) as fh: page = fh.read()
+        self.assertIn('id="reasons"', page)
+        self.assertIn(f'href="p/{self.c.href(rs[0])}"', page)
 
     def test_the_best_beliefs_card_says_what_each_number_is(self):
-        card = self.card('Best beliefs')
+        card = self.card('Highest belief scores')
         self.assertIn('The number is the belief score', card)
         self.assertIn('0 to 1, where 0.50 means', card)
 
@@ -1185,7 +1198,7 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         self.assertEqual(h[:i].count('<section'), 0, 'a section sits above the card grid')
         self.assertGreaterEqual(h.count('<section class="card"'), 6, 'fewer than six ways in')
         self.assertEqual(h.count('<section'), h.count('<section class="card"'), 'a section on the home page is not a card')
-        for way in ('Search', 'Best beliefs', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'What to argue next', 'Who has a stake', 'Best books, studies and reports', 'Topics'):
+        for way in ('Search', 'Highest belief scores', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'What to argue next', 'Who has a stake', 'Best books, studies and reports', 'Topics'):
             self.assertIn(f'<span>{way}</span>', h, f'{way} is not a way in')
 
     def test_every_ranking_on_the_home_page_links_to_what_it_means(self):
@@ -1278,7 +1291,7 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
             self.assertNotIn(gone, self.text, f'"{gone}" is back on the home page')
 
     def test_the_four_lists_are_there_and_ranked(self):
-        for heading in ('Best beliefs', 'Most argued over', 'Most relied on'):
+        for heading in ('Highest belief scores', 'Most argued over', 'Most relied on'):
             i = self.text.find(heading)
             self.assertGreater(i, 0, f'{heading} is missing')
             self.assertRegex(self.text[i:i + 900], r'\b1\b', f'{heading} printed no ranked rows')
@@ -1287,8 +1300,8 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         """The list used to rank every page by truth score, so a court record at 0.95 came first and no belief
         appeared at all. A reader opening a debate site wants the best argued positions, not the best sourced
         footnotes."""
-        i = self.text.find('Best beliefs'); j = self.text.find('Most argued over')
-        block = self.c['index.html'][self.c['index.html'].find('Best beliefs'):self.c['index.html'].find('Most argued over')]
+        i = self.text.find('Highest belief scores'); j = self.text.find('Most argued over')
+        block = self.c['index.html'][self.c['index.html'].find('Highest belief scores'):self.c['index.html'].find('Most argued over')]
         linked = re.findall(r'href="p/([^"#]+)"', block)
         self.assertTrue(linked, 'the best-beliefs list is empty')
         keys = {self.corpus.key[b] + '.html' for b in self.corpus.beliefs}
@@ -1303,7 +1316,7 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         """Three rows a list on the home page; the whole ranking lives on its own page. A home page that
         prints ten of everything is the all-pages list again."""
         h = self.c['index.html']
-        for heading, href in (('Best beliefs', 'best.html'), ('Most argued over', 'contested.html'), ('Most relied on', 'relied.html')):
+        for heading, href in (('Highest belief scores', 'best.html'), ('Most argued over', 'contested.html'), ('Most relied on', 'relied.html')):
             i = h.find(f'<span>{heading}</span>'); j = h.find('</section>', i)
             block = h[i:j]
             self.assertLessEqual(len(re.findall(r'<td class="rk">', block)), 3, f'{heading} prints more than three rows on the home page')
@@ -2161,6 +2174,65 @@ class TestPeopleCanTakePart(unittest.TestCase):
             self.assertIn('name="units"', f); self.assertIn('name="who"', f)
             self.assertNotIn('required', f.split('name="units"')[1].split('<button')[0], 'an estimate is demanded of a reader who has none')
             self.assertNotIn('name="magnitude"', self._forms(self.html[pid])['evidence'], 'a finding asks for an estimate')
+
+    def test_a_form_takes_one_line_of_the_page_until_its_link_is_clicked(self):
+        """A box per table was a quarter of a belief page's height, spent on fields most readers never type in.
+        Each form is a popover behind a one-line link, and the link opens it with no script. The link is all
+        the markup this costs, since a byte here is repeated on every form of every page: the close button is
+        the script's. The styles that hide a closed form sit inside a check that the browser knows popovers,
+        so one that does not shows every form in place as before, and a link to a form's address still shows
+        it when scripts are off."""
+        import render_site as RS
+        checked = 0
+        for pid in self.claims:
+            h, key = self.html[pid], self.c.key[pid]
+            forms = {re.search(r'\bid="([^"]+)"', t).group(1): t for t in re.findall(r'<form\b[^>]*\bclass="add"[^>]*>', h)}
+            links = {}
+            for tag, text in re.findall(r'(<button\b[^>]*\bpopovertarget="[^"]+"[^>]*>)([^<]*)</button>', h):
+                fid = re.search(r'\bpopovertarget="([^"]+)"', tag).group(1)
+                self.assertIn('type="button"', tag, f'{key} {fid}: the button that opens the form would submit it')
+                self.assertIn('class="addlink"', tag, f'{key} {fid}: a second button per form is on every page of the site')
+                links.setdefault(fid, []).append(text)
+            self.assertGreaterEqual(len(forms), len(self.SECTIONS), f'{key} lost a form')
+            self.assertEqual(set(links), set(forms), f'{key}: a form no link opens, or a link that opens nothing')
+            for fid, tag in forms.items():
+                self.assertRegex(tag, r'\spopover[\s>]', f'{key} {fid}: the form is a box on the page again')
+                self.assertEqual(len(links[fid]), 1, f'{key} {fid}: more than one link opens the form')
+                label = re.search(r'<label\b[^>]*\bfor="%s-text"[^>]*>([^<]+)</label>' % re.escape(fid), h)
+                self.assertIsNotNone(label, f'{key} {fid}: the form has no heading')
+                self.assertEqual(links[fid][0], label.group(1), f'{key} {fid}: the link and the form it opens are named differently')
+                checked += 1
+        self.assertGreater(checked, len(self.claims))
+        css = RS.CSS
+        i = css.find('@supports selector(:popover-open){'); j = css.find('\n}\n', i)
+        self.assertGreater(i, 0, 'the popover styles are not behind a check that the browser knows popovers'); self.assertGreater(j, i)
+        inside, outside = css[i:j], css[:i] + css[j:]
+        self.assertNotIn(':popover-open', outside, 'a browser that cannot open a popover is told to hide the forms')
+        self.assertIn('.addlink,.add .x{display:none}', outside, 'a browser that cannot open a popover shows a link that does nothing')
+        self.assertIn('.addlink{display:block', inside)
+        self.assertIn('.add[popover]:not(:popover-open):not(:target),.add[data-wired]:not(:popover-open){display:none}', inside,
+                      'with scripts off, a link to a form\'s address reaches nothing')
+        self.assertIn('.add[popover]:popover-open{position:fixed', inside)
+        self.assertIn('position:static', re.search(r'\n\.add\{([^}]*)\}', css).group(1), 'a form shown in place would be pinned to the window')
+        self.assertIn('@media print{.add,.addlink,', css)
+        with open(os.path.join(self.dir, 'contribute.js')) as fh: js = fh.read()
+        self.assertIn("popovertargetaction: 'hide'", js, 'an open form has no button that closes it')
+        self.assertIn("'aria-label': 'Close'", js)
+
+    def test_a_link_to_a_form_on_the_page_names_a_form_the_script_can_open(self):
+        """The gaps table, the invitation and the comment intake leaves on a vote all link to a form by its id.
+        A closed popover has no place on the page to scroll to, so contribute.js opens the form instead; the
+        link has to start with #add- for it to notice, and name a form that is there."""
+        seen = 0
+        for pid in self.claims:
+            h, key = self.html[pid], self.c.key[pid]
+            ids = {re.search(r'\bid="([^"]+)"', t).group(1) for t in re.findall(r'<form\b[^>]*\bclass="add"[^>]*>', h)}
+            for target in re.findall(r'<a\b[^>]*\bhref="#(add-[^"]+)"', h):
+                self.assertIn(target, ids, f'{key} links to #{target}, which is not a form on the page')
+                seen += 1
+        self.assertGreater(seen, 0)
+        with open(os.path.join(self.dir, 'contribute.js')) as fh: js = fh.read()
+        self.assertIn('a[href^="#add-"]', js)
 
     def test_with_scripts_off_the_page_says_what_still_works(self):
         for pid in self.claims[:10]:

@@ -9,16 +9,17 @@ import render_site as RS
 import predictions as P
 
 D = dt.date
+WORLD_CUP = "The 2034 final (dates not yet set by FIFA as of October 2026), settled against FIFA's official 2034 World Cup results."
 
 
-def corpus(outcome=None):
+def corpus(outcome=None, third='Checked by aerial survey'):
     pages = [dict(key='b', kind='belief', text='The city will plant ten thousand trees.', topic='t'),
              dict(key='p1', kind='claim', text='The city will report ten thousand trees planted.', parent='b'),
              dict(key='p2', kind='claim', text='Tree planting will stall below five thousand.', parent='b'),
              dict(key='p3', kind='claim', text='Shade cover will rise on the east side.', parent='b')]
     edges = [dict(page='b', section='prediction', side='agree', claim='p1', deadline='By December 31, 2026; the city forestry report'),
              dict(page='b', section='prediction', side='disagree', claim='p2', deadline='By June 30, 2026; the same report'),
-             dict(page='b', section='prediction', side='agree', claim='p3', deadline='Checked by aerial survey')]
+             dict(page='b', section='prediction', side='agree', claim='p3', deadline=third)]
     if outcome:
         pages.append(dict(key='o1', kind='claim', text='The forestry report for 2026 counts 10,400 trees planted.', parent='p1',
                           etype='record', erq='3', erp='100'))
@@ -78,6 +79,27 @@ class TestDeadlines(unittest.TestCase):
         self.assertIsNone(P.due_date('Checked by aerial survey'))
         self.assertEqual(P.due_date('Reviewable now; the 2014 Senate report'), P.NOW)
 
+    def test_the_date_the_words_were_written_is_not_the_deadline(self):
+        self.assertEqual(P.due_date(WORLD_CUP), D(2034, 12, 31))
+        for text, want in [('The 2034 final, no date set as at October 2026', D(2034, 12, 31)),
+                           ('By 2034, checked against the October 2026 baseline', D(2034, 12, 31)),
+                           ('(Announced March 2027) the 2029 annual report', D(2029, 12, 31)),
+                           ('As of October 2026 no date is set. Due by March 2030', D(2030, 3, 31)),
+                           ('The first Washington Institute Saudi poll published after October 24, 2026, and no later than '
+                            'December 31, 2027.', D(2027, 12, 31))]:
+            self.assertEqual(P.due_date(text), want, text)
+
+    def test_a_date_in_an_aside_still_counts_when_no_later_year_is_named(self):
+        for text, want in [('The final (July 21, 2030)', D(2030, 7, 21)),
+                           ('The 2030 final (scheduled for July 21, 2030)', D(2030, 7, 21)),
+                           ("After the 102nd Academy Awards in 2030, checked against the Academy's database", D(2030, 12, 31)),
+                           ('Unemployment as of December 2027; the BLS release', D(2027, 12, 31)),
+                           ("July 2030, settled against FIFA's official 2030 World Cup results (final scheduled for July 21, 2030).",
+                            D(2030, 7, 31)),
+                           ('No date set as of writing. Due October 2026, per the 2027 report', D(2026, 10, 31)),
+                           ("Nvidia's third-quarter fiscal 2028 earnings release, expected in November 2027.", D(2027, 11, 30))]:
+            self.assertEqual(P.due_date(text), want, text)
+
 
 class TestTracker(unittest.TestCase):
     def test_predictions_are_sorted_by_when_they_fall_due(self):
@@ -90,6 +112,12 @@ class TestTracker(unittest.TestCase):
         early = P.tracker(c, today=D(2026, 6, 1))
         self.assertEqual([c.key[r['page']] for r in early['soon']], ['p2'])
         self.assertEqual([c.key[r['page']] for r in early['later']], ['p1'])
+
+    def test_a_prediction_due_in_2034_is_not_overdue_in_2026(self):
+        c = corpus(third=WORLD_CUP)
+        tr = P.tracker(c, today=D(2026, 11, 22))
+        self.assertNotIn('p3', [c.key[r['page']] for r in tr['overdue']])
+        self.assertEqual([(c.key[r['page']], r['due']) for r in tr['later']], [('p3', D(2034, 12, 31))])
 
     def test_a_recorded_outcome_settles_the_prediction_through_its_own_page(self):
         happened = P.tracker(corpus('agree'), today=D(2027, 1, 15))

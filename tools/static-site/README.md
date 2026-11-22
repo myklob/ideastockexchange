@@ -347,6 +347,11 @@ table, findings and yardsticks for a great work, predictions it made, who gains,
 first row from a form, and `media.html` takes a proposed yardstick for best (filed on the work picked from a list) and a
 proposed work (filed on the belief picked from a list). Every topic page carries a
 form under each of its cell tables that files a row with the topic as its page, plus the propose-a-belief form.
+A form takes one line of the page until someone wants it: what shows under a table is a link ("Add a reason to
+agree"), and the form is a popover the link opens over the page, with no script. A box per table had been a quarter
+of a belief page's height. A link to a form's id (the gaps table, the invitation, the comment intake leaves on a
+vote) opens it through `contribute.js`, or shows it in place when scripts are off, and a browser that does not know
+popovers shows every form in place, because the styles that hide a closed one sit behind an `@supports` check.
 Each form is a plain GET to GitHub's new-issue address, prefilled from the fields the issue forms in
 `.github/ISSUE_TEMPLATE/` declare, so it works with no script; a form whose source is a work also takes an address
 and the date it was checked, and the cost or benefit form takes a best estimate, a low and a high end, the units

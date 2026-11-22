@@ -270,6 +270,11 @@
     if (!text || !button) return;
     var kinds = INTEREST_SECTIONS.indexOf(section) >= 0 ? ['interest'] : ['belief', 'claim'];
     button.setAttribute('data-label', button.textContent);
+    /* the form is a pop-up its link opens: the cursor goes where the typing does */
+    form.setAttribute('data-wired', '');
+    form.addEventListener('toggle', function (ev) { if (ev.newState === 'open') text.focus(); });
+    if (form.hasAttribute('popover')) form.insertBefore(el('button', '\u00d7', {type: 'button', 'class': 'x', 'aria-label': 'Close',
+      popovertarget: form.id, popovertargetaction: 'hide'}), form.firstChild);
     /* no account needed: the whole submission as text, on the clipboard */
     var status = el('span', '', {'class': 'copied', role: 'status'});
     var copy = el('button', 'Copy as text', {type: 'button', 'class': 'copy', title: 'Put this submission on the clipboard as text, to send without a GitHub account'});
@@ -294,13 +299,31 @@
     });
   }
 
+  /* A link to a form's id opens the form, whether it is followed on the page or arrived at from elsewhere:
+     the page moves to the table the row would join, and the form opens over it. */
+  function openForm(id) {
+    var form = id && document.getElementById(id);
+    if (!form || !form.showPopover || !form.hasAttribute('popover') || !form.hasAttribute('data-wired')) return false;
+    var link = document.querySelector('[popovertarget="' + id + '"]:not(.x)');
+    if (link && link.scrollIntoView) link.scrollIntoView({block: 'center'});
+    try { form.showPopover(); } catch (e) { /* open already */ }
+    return true;
+  }
+
   function wire(scope) {
     var forms = (scope || document).querySelectorAll('form.add');
     for (var i = 0; i < forms.length; i++) wireForm(forms[i]);
+    if (scope) return;
+    openForm(root.location.hash.slice(1));
+    root.addEventListener('hashchange', function () { openForm(root.location.hash.slice(1)); });
+    document.addEventListener('click', function (ev) {
+      var a = ev.target && ev.target.closest ? ev.target.closest('a[href^="#add-"]') : null;
+      if (a && openForm(a.getAttribute('href').slice(1))) ev.preventDefault();
+    });
   }
 
   var api = {FLAG: FLAG, MERGE: MERGE, words: words, grams: grams, idf: idf, score: score, build: build, negated: negated,
-    nearest: nearest, voteUrl: voteUrl, voteTitle: voteTitle, issueUrl: issueUrl, wire: wire, INTEREST_SECTIONS: INTEREST_SECTIONS};
+    nearest: nearest, voteUrl: voteUrl, voteTitle: voteTitle, issueUrl: issueUrl, wire: wire, openForm: openForm, INTEREST_SECTIONS: INTEREST_SECTIONS};
   if (typeof module !== 'undefined') module.exports = api;
   if (root) {
     root.ISEContribute = api;

@@ -246,7 +246,8 @@ listed in `data/drafts.json`. Improve a weak page by adding to it or by ranking 
 rows. `--complete-only` builds the gated site (complete beliefs and the pages beneath them, a row pointing at a draft
 keeping its words but not its link); CI builds everything. The home page's cards flow in columns so a short card leaves no gap; no card spans the page. People take part
 through GitHub, because there is no server: every belief page carries a form under each table that takes rows plus a
-propose-a-belief form (also on the home and topic pages), each a plain GET to a prefilled GitHub issue form, and
+propose-a-belief form (also on the home and topic pages), each a plain GET to a prefilled GitHub issue form and each
+one line on the page (a link that opens the form as a popover, so no table is followed by a box of empty fields), and
 `contribute.js` checks what is typed against `data/claims_index.json` (written by `build()` from the full tables, drafts
 included) so a duplicate becomes a vote for the claim already there; `intake.py` does the same check on the issue and
 records a vote in `content/votes.csv` or opens a pull request. Every login that adds a row (its `added_by`) or votes gets a page at `u/<login>.html`, and `content/users.csv` with `user_links.csv` give a person a profile; the one marked maintainer (the owner, Mike Laub) is credited in every page footer and citation. No scorer reads any of it. A vote never moves a score: the page shows the counts on the
@@ -342,7 +343,11 @@ uniqueness) or a labelled constant when no such page exists yet.
   CI runs it on any change under `templates/`. A template is copied rather than imported, so a stale one
   breaks nothing and quietly teaches the next dozen pages the wrong shape.
 - **Edit before Write.** Use `Edit` for changes to existing files. `Write` only for new files or full rewrites.
-- **Branch convention:** Claude-driven work goes on `claude/<short-slug>-<id>` branches. Push, but do NOT open a PR unless the user asks for one.
+- **Branch convention:** Claude-driven work goes on `claude/<short-slug>-<id>` branches. **Every session that improves a page, fixes a bug
+  or makes any other change worth keeping opens a pull request against `master` as soon as the work is pushed**, without
+  waiting to be asked (the owner's standing instruction, November 2026), so no progress is left on a branch nobody merges.
+  Before opening it, merge `master` into the branch and resolve conflicts, and run the checks this file lists. Later pushes to
+  the same branch update the same PR. Do not merge it yourself; the owner merges.
 - **JSX entities:** the lint rule `react/no-unescaped-entities` will flag bare apostrophes/quotes inside JSX text. Use `&apos;`, `&ldquo;`, `&rdquo;`.
 
 ## Debug Logging
