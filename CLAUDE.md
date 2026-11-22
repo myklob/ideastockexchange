@@ -207,8 +207,7 @@ input would change the answer; `reasonrank.py` how much of the corpus depends on
 a page; `similarity.py` which claims say the same thing; `integrity.py` the
 structural faults the graph can show, and a pre-publish cycle check CI runs first; `fallacy.py` flags a
 possible fallacy by a published phrase list, as a question argued on the flagged claim's page that moves no score;
-`changes.py` what moved
-since the last revision; `method.py` the reader-facing methodology page;
+`method.py` the reader-facing methodology page;
 `sync_content.py` keeps the workbook and the reviewable CSVs in step; `vocab.py` what a post can be (197 kinds, each mapped to
 where intake files it and to AIF, ASPIC+, Walton's schemes and schema.org), behind `vocab.html`, `data/vocab.json`, the JSON-LD
 on every claim page, and intake's `Kind of post` and `Row` fields, which can open a row's linkage, importance or uniqueness
@@ -221,9 +220,13 @@ nothing. `factcheck/` re-checks published rows with a Workflow run (`batches.py`
 verdict from the run journals, `apply.py` files them); `factcheck/judged.json` is the record of every row's verdict, and a
 correction is only ever filed as a sourced reason to disagree, never as an edit. There is no verdict module any more: a
 page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
-page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed), `lists.html`
+page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed; the cards come first, and what the site is takes two sentences at the foot with a More link to `about.html`), `lists.html`
 says for every ranking what it shows, how it is worked out and why it is tracked, and every card and column that ranks
-links there; in tables, columns hold numbers and short labels and any sentence goes on a line under the row's main text. `t/<topic>.html` is
+links there; in tables, columns hold numbers and short labels and any sentence goes on a line under the row's main text. The reasons
+to agree sit on the left and the reasons to disagree on the right (the owner's direction, November 2026): `two_sided()`
+lays its sides beside each other wherever each can have the 540 pixels the reasons table needs and stacks them below
+that, so that number must stay small enough for two to fit the page; `stacked()` is only for a table with two
+free-flowing columns. `t/<topic>.html` is
 one page per row of the third table `content/topics.csv`, laid out section for section like
 `templates/topic-template.html`; a topic's cells are rows in `edges.csv` with `page` set to the topic key and a
 section from `ise_tables.TOPIC_SECTIONS`, and any cell the topic has no row for is filled from the belief pages
