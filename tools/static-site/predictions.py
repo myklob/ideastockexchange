@@ -34,20 +34,32 @@ NOW = 'now'
 _END = re.compile(r'\b(?:end|close) of (20\d\d)\b', re.I)
 
 
+_ASIDE = re.compile(r'\([^()]*\)')
+# a date these words introduce is where the window opens ("published after October 24, 2026, and no later than ...")
+_OPENS = re.compile(r'\b(?:after|since|from|following)\s+(?:the\s+)?$', re.I)
+
+
 def due_date(deadline):
     """The latest date a deadline allows, read from its words: a full date as written, a month or quarter to its last
     day, "the end of" a year or a bare year to 31 December. Deadlines are written "By <when>; checked against <how>",
     so the date is read from the clause before the first semicolon, and only from the whole text when that clause
-    names none; within the clause the first date mentioned wins. A clause that says the prediction can be checked
-    now returns NOW, which the tracker reads as the build date. None when the text names no year."""
-    head = (deadline or '').split(';')[0]
-    found = _first(head)
+    names none; within the clause the first date mentioned wins, with two exceptions that both come from deadlines
+    that were read wrongly. Words in parentheses are an aside ("dates not yet set as of October 2026"), so a date
+    there is read only when the clause names no other. And a date introduced by after, since, from or following is
+    where the window opens, not where it closes, so it is passed over while the text names another, in that clause
+    or after it. A clause that says the prediction can be checked now returns NOW, which the tracker reads as the
+    build date. None when the text names no year."""
+    whole = deadline or ''
+    head = whole.split(';')[0]
+    found = _first(_ASIDE.sub(' ', head), closing=True) or _first(head, closing=True)
     if found: return found
     if _NOW.search(head): return NOW      # "reviewable now": checkable today, whatever year its source carries
-    return _first(deadline or '')
+    return _first(whole, closing=True) or _first(head) or _first(whole)
 
 
-def _first(t):
+def _first(t, closing=False):
+    """The first date in the text. With `closing`, a date that only opens a window is passed over, and None is
+    returned when the text names no other."""
     found = [(m.start(), _dt.date(int(m.group(1)), 12, 31)) for m in _END.finditer(t)]
     for m in _FULL.finditer(t):
         try: found.append((m.start(), _dt.date(int(m.group(3)), MONTHS[m.group(1).lower()], int(m.group(2)))))
@@ -62,7 +74,8 @@ def _first(t):
     if not found:
         for m in _YEAR.finditer(t): found.append((m.start(), _dt.date(int(m.group(1)), 12, 31)))
     if not found: return None
-    return min(found)[1]
+    if closing: found = [f for f in found if not _OPENS.search(t[:f[0]])]
+    return min(found)[1] if found else None
 
 
 def today_of(c):

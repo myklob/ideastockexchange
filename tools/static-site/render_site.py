@@ -2755,7 +2755,7 @@ EXPLAIN = [
      'method.html#confidence'),
     ('predictions', 'Predictions coming due',
      'Every prediction a belief makes, sorted by when it falls due: overdue first, then the next ninety days, then the rest, with those already settled listed apart.',
-     'Each prediction states a deadline in words. The site reads the date out of it (a full date as written, a month or quarter to its last day, a year to 31 December) and compares it with the date of the revision the site was built from. A prediction is settled once a finding about what happened is filed on its own page; it came true if that evidence has raised its truth score to 0.55 or more, and did not if it has lowered it to 0.45 or less.',
+     'Each prediction states a deadline in words. The site reads the date out of it (a full date as written, a month or quarter to its last day, a year to 31 December) and compares it with the date of the revision the site was built from. Words in parentheses, and a date that only says when a window opens (after, since, from), are passed over when the deadline names another date. A prediction is settled once a finding about what happened is filed on its own page; it came true if that evidence has raised its truth score to 0.55 or more, and did not if it has lowered it to 0.45 or less.',
      'Because a claim that predicts something checkable can be caught out, and catching it out is the best test of whether the arguments behind it were any good. A record of predictions that came true and failed is the closest thing this site has to a track record.',
      ''),
     ('compare', 'Where the two rules disagree',
