@@ -227,11 +227,6 @@ class TestTheRenderedSite(unittest.TestCase):
         self.assertEqual(said, listed,
                          f'the front page says {said} limits and the method page lists {listed}')
 
-    def test_the_revision_page_exists_even_with_no_history(self):
-        """Anything may link at it, so it cannot be conditional; with nothing to compare it says so rather
-        than implying nothing changed."""
-        self.assertTrue(os.path.exists(os.path.join(self.dir, 'changes.html')))
-
     def test_finding_a_page_is_an_enhancement_and_not_a_requirement(self):
         """261 pages with no way to look one up is a filing cabinet with no drawer labels. The search box is
         created by script, so a reader without JavaScript sees the whole table and nothing missing, which is
@@ -1264,11 +1259,9 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
             self.assertNotIn(gone, self.text, f'"{gone}" is back on the home page')
 
     def test_the_four_lists_are_there_and_ranked(self):
-        for heading in ('Best beliefs', 'Most argued over', 'Most relied on', 'Changed in this revision'):
-            i = self.text.find(heading)
-            self.assertGreater(i, 0, f'{heading} is missing')
         for heading in ('Best beliefs', 'Most argued over', 'Most relied on'):
             i = self.text.find(heading)
+            self.assertGreater(i, 0, f'{heading} is missing')
             self.assertRegex(self.text[i:i + 900], r'\b1\b', f'{heading} printed no ranked rows')
 
     def test_best_beliefs_ranks_beliefs_and_only_beliefs(self):
@@ -1303,10 +1296,12 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
     def test_popular_is_named_as_a_stand_in(self):
         """There are no votes or views here. The list that stands in for popularity has to say so, in the
         list, not in a footnote."""
-        i = self.text.find('Most relied on'); j = self.text.find('Changed in this revision')
-        self.assertIn('votes', self.text[i:j], 'the most-relied-on list does not say what it is standing in for')
+        h = self.c['index.html']
+        i = h.find('<span>Most relied on</span>'); j = h.find('</section>', i)
+        self.assertIn('votes', h[i:j], 'the most-relied-on list does not say what it is standing in for')
 
     def test_it_does_not_claim_a_ranking_it_has_no_data_for(self):
+        self.assertNotIn('changes.html', self.c['index.html'], 'the home page links a revision page that is no longer built')
         for faked in ('Most popular', 'Trending', 'This week&apos;s top', 'Most viewed'):
             self.assertNotIn(faked, self.c['index.html'], f'the home page prints a "{faked}" list it cannot compute')
 
@@ -1726,7 +1721,7 @@ class TestThePagesSpeakPlainly(unittest.TestCase):
         cls.corpus = cls.parent.c
         cls.pages = dict(cls.parent.html)
         del cls.pages['method.html']
-        for name in ('all', 'next', 'interests', 'media', 'topics', 'changes', 'outline', 'vocab'):
+        for name in ('all', 'next', 'interests', 'media', 'topics', 'outline', 'vocab'):
             with open(os.path.join(cls.parent.dir, name + '.html')) as fh: cls.pages[name + '.html'] = fh.read()
         for k in cls.corpus.topics:
             with open(os.path.join(cls.parent.dir, 't', cls.corpus.topic_href(k))) as fh: cls.pages['t/' + k] = fh.read()
