@@ -395,9 +395,11 @@ def ths(markup):
 
 def collapse_tables(markup, n=5):
     """Rule 8: every ranked table shows its top rows and collapses the rest. Rows past the fifth get a class the
-    stylesheet hides until a checkbox before the table is ticked; the checkbox is a real form control, so a
-    keyboard reaches it and no script is needed. Print shows every row. The all-pages table keeps its own
-    search box instead, and the small check and connection tables never reach five rows."""
+    stylesheet hides until a checkbox under the table is ticked; the checkbox is a real form control, so a
+    keyboard reaches it and no script is needed. It sits under the table, where the hidden rows would be, and
+    not above it: two tables side by side keep their header rows level whichever of them is folded. Print shows
+    every row. The all-pages table keeps its own search box instead, and the small check and connection tables
+    never reach five rows."""
     counter = [0]
     def one(m):
         head, body = m.group(1), m.group(2)
@@ -414,7 +416,7 @@ def collapse_tables(markup, n=5):
         i = f'x{counter[0]}'
         toggle = (f'<input type="checkbox" class="xt" id="{i}" aria-controls="t{i}">'
                   f'<label class="xl" for="{i}">Top {n} of {len(rows)} rows shown. Show all</label>')
-        return toggle + head.replace('<table', f'<table id="t{i}"', 1) + out + '</tbody></table>'
+        return head.replace('<table', f'<table id="t{i}"', 1) + out + '</tbody></table>' + toggle
     return re.sub(r'(<table class="(?:scored|plain)[^"]*"[^>]*>(?:<thead>.*?</thead>)?<tbody>)(.*?)</tbody></table>', one, markup, flags=re.S)
 
 
@@ -3554,7 +3556,7 @@ h2 .wiki{color:#fff;border-bottom-color:rgba(255,255,255,.45);font-weight:400;fo
 h3{font:600 13px/1.3 var(--sans);margin:0 0 6px;padding:5px 10px;border-radius:3px}h3.sub{margin-top:14px;background:var(--head);color:var(--ink2)}
 .side.agree>h3{background:var(--agree);color:var(--agree-ink)}.side.disagree>h3{background:var(--dis);color:var(--dis-ink)}
 .blurb{margin:12px 0 0;color:var(--ink2);font-size:13px}
-.sides{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,720px),1fr));gap:16px}.sides>*,.stack>*{min-width:0}.scored tbody td.empty:not(.t):not(.u):not(.pat):not(.dl),.plain td.empty{white-space:normal}@media (max-width:1000px){table.scored td.t{min-width:9em}table.scored td.u:not(.t):not(.rk),table.scored td.dl:not(.t):not(.rk),table.scored td.pat:not(.t):not(.rk){min-width:6em}table.scored th{white-space:normal}table.plain th,table.plain td,table.scored th,table.scored td{padding-inline:4px}table.plain th,table.scored th{font-size:11px}}@media (max-width:900px){.sides{grid-template-columns:1fr}}
+.sides{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,540px),1fr));gap:16px}.sides>*,.stack>*{min-width:0}.scored tbody td.empty:not(.t):not(.u):not(.pat):not(.dl),.plain td.empty{white-space:normal}@media (max-width:1000px){table.scored td.t{min-width:9em}table.scored td.u:not(.t):not(.rk),table.scored td.dl:not(.t):not(.rk),table.scored td.pat:not(.t):not(.rk){min-width:6em}table.scored th{white-space:normal}table.plain th,table.plain td,table.scored th,table.scored td{padding-inline:4px}table.plain th,table.scored th{font-size:11px}}@media (max-width:900px){.sides{grid-template-columns:1fr}}
 .stack{display:grid;grid-template-columns:1fr;gap:16px}
 main.topic h1{font-size:clamp(24px,3vw,34px)}main.topic h2.th{display:block;background:none;color:var(--ink);font:700 20px/1.3 var(--sans);padding:0;margin:28px 0 6px;border-bottom:2px solid var(--line)}
 .metrics{border:1px solid var(--line);background:var(--tile);padding:10px;text-align:center;font-size:14px}.metrics p{margin:0}.metrics .fine,.fine{font-size:11.5px;color:var(--mute);margin-top:6px}
@@ -3564,9 +3566,10 @@ table.tpl{margin-bottom:2em}table.tpl th{text-transform:none;letter-spacing:0;fo
 table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl .sub{font-size:85%;font-weight:normal;color:var(--mute)}
 .b-n100{background:#ffcccc;color:#3a1010}.b-n50{background:#ffe6e6;color:#3a1010}.b-0{background:#ffffcc;color:#3a3410}.b-p50{background:#e6ffe6;color:#0f3a14}.b-p100{background:#ccffcc;color:#0f3a14}
 .more{margin:6px 0 0;font-size:13px;text-align:right}.more a{border:none;font-weight:600}
-.xt{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}.xl{display:block;font-size:12px;color:var(--navy);cursor:pointer;margin:0 0 4px;font-weight:600}
+.xt{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}.xl{display:block;font-size:12px;color:var(--navy);cursor:pointer;margin:4px 0 0;font-weight:600}
 .xl::before{content:"▸ "}.xt:checked+.xl::before{content:"▾ "}.xt:checked+.xl{color:var(--mute)}.xt:focus-visible+.xl{outline:2px solid var(--navy2);outline-offset:2px}
-.xt:not(:checked)+.xl+table tr.xtra{display:none}
+table:has(+.xt:not(:checked)) tr.xtra{display:none}
+@supports not selector(:has(*)){.xl,.xt{display:none}}
 @media print{tr.xtra{display:table-row!important}.xl,.xt{display:none}}
 .dir{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 28px;margin:14px 0 4px}
 .cat .cn{font:600 16px/1.3 var(--serif);border:none}.cat .sub{font-size:13px;color:var(--ink2);margin-top:2px}.cat .sub a{border:none}.dn{font-size:12px;color:var(--mute)}
@@ -3595,7 +3598,7 @@ td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(
 @media print{.add,.votes,a.argue{display:none}}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
-td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35}td.u{color:var(--ink2);font-size:13px}
+td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35;overflow-wrap:anywhere}td.u{color:var(--ink2);font-size:13px}
 table.scored td.t,table.all td.t{width:100%}table.scored td:not(.t):not(.rk),table.scored th:not(:nth-child(2)){width:1%;white-space:nowrap}.scored td.u:not(.t):not(.rk),.scored td.dl:not(.t):not(.rk),.scored td.pat:not(.t):not(.rk){white-space:normal;width:auto;min-width:11em;max-width:18em}.scored td.t{min-width:14em}
 td.t a{border-bottom-color:transparent}td.t a:hover,td.t a:focus-visible{border-bottom-color:var(--navy)}
 .scored td:not(.t):not(.u):not(.pat):not(.dl){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;width:3.7em;padding-inline:5px}.scored th{padding-inline:5px}.scored th:first-child,.scored td:first-child{padding-left:8px}.scored td.rk,.plain td.rk{width:1.8em;color:var(--mute);text-align:right;font-variant-numeric:tabular-nums}

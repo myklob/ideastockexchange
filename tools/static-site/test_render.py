@@ -1893,6 +1893,52 @@ class TestNoTableIsWiderThanWhatHoldsIt(unittest.TestCase):
                 wide += sum(1 for t in self._tables(block) if self._flexible(t) > 1)
         self.assertGreater(wide, 0, 'nothing on the site stacks a wide table, so the limit above is untested')
 
+    def test_two_sides_fit_beside_each_other_on_a_full_width_page(self):
+        """The reasons to agree go on the left and the reasons to disagree on the right. The stylesheet once asked
+        for 720 pixels a side on a page whose content is 1,140 wide, so two sides needed 1,456 and never got it:
+        every two-sided section on the site stacked on every screen, and nothing failed, because a grid that never
+        forms a second column is still a valid grid.
+
+        The floor is the other half of the same number. Measured in a browser over every page, the eight-column
+        reasons table cannot be laid out narrower than 534 pixels, so a side offered less than that scrolls
+        sideways, which is the fault the 720 was written to stop."""
+        import render_site as RS
+        side = re.search(r'\.sides\{display:grid;grid-template-columns:repeat\(auto-fit,minmax\(min\(100%,(\d+)px\),1fr\)\);gap:(\d+)px\}', RS.CSS)
+        page = re.search(r'\nmain\{max-width:(\d+)px;[^}]*padding-inline:(\d+)px\}', RS.CSS)
+        self.assertTrue(side and page, 'the stylesheet no longer states a side or the page width where this test reads them')
+        each, gap = int(side.group(1)), int(side.group(2))
+        room = int(page.group(1)) - 2 * int(page.group(2))
+        self.assertLessEqual(2 * each + gap, room, f'two sides need {2 * each + gap}px and a page holds {room}px, so they can never sit side by side')
+        self.assertGreaterEqual(each, 534, f'a side may be as narrow as {each}px, and the reasons table needs 534')
+
+    def test_the_reasons_to_agree_come_first_so_they_sit_on_the_left(self):
+        """A grid lays its children out in the order they are written, so the left column is whichever side the
+        page writes first."""
+        checked = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or self.c.kind(pid) not in ('belief', 'claim'): continue
+            mine = [b for b in self._blocks(h, 'sides') if b.startswith('<div class="side agree"><h3>Reasons to agree</h3>')]
+            self.assertEqual(len(mine), 1, f'{self.c.key[pid]} does not open its two-sided reasons with the reasons to agree')
+            self.assertIn('<div class="side disagree"><h3>Reasons to disagree</h3>', mine[0],
+                          f'{self.c.key[pid]} does not put the reasons to disagree beside the reasons to agree')
+            checked += 1
+        self.assertGreater(checked, 0, 'no belief or claim page was found, so nothing here was checked')
+
+    def test_a_folded_table_keeps_its_toggle_under_it(self):
+        """Two tables side by side start level only if nothing sits above one of them that the other lacks. The
+        note that a table is folded used to sit above it, so the side with six rows began a line lower than the
+        side with five."""
+        folded = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str): continue
+            for m in re.finditer(r'<input\b[^>]*class="xt"[^>]*aria-controls="([^"]+)"[^>]*>', h):
+                folded += 1
+                before = h[:m.start()]
+                self.assertTrue(before.endswith('</table>'), f'{self.c.key[pid]}: the toggle for {m.group(1)} does not follow a table')
+                self.assertIn(f'<table id="{m.group(1)}"', before[before.rfind('<table'):],
+                              f'{self.c.key[pid]}: the toggle for {m.group(1)} follows some other table')
+        self.assertGreater(folded, 0, 'no table on the site is folded, so nothing here was checked')
+
     def test_every_table_keeps_its_thead(self):
         """`ths()` added scope= to header cells with a pattern that also matched `<thead>`, rewriting it to
         `<th scope="col"ead>`. Every table on the site shipped with its header row loose in an implicit tbody
@@ -1927,11 +1973,14 @@ class TestTheBeliefPageFollowsTheTemplate(unittest.TestCase):
             if isinstance(pid, str): continue
             for m in re.finditer(r'<input type="checkbox" class="xt" id="(x\d+)"[^>]*><label class="xl" for="\1">Top 5 of (\d+) rows shown', h):
                 n = int(m.group(2)); folded += 1
-                table = h[m.end():h.find('</table>', m.end())]
+                # the toggle sits under the table it folds, so that table is the one that ends where it starts
+                table = h[h.rfind('<table', 0, m.start()):m.start()]
+                opening = table[:table.find('>') + 1]
+                self.assertIn(f'id="t{m.group(1)}"', opening, f'{pid}: the toggle {m.group(1)} is not under its own table')
+                self.assertNotIn('engine', opening, f'{pid} folded its derivation table')
                 rows = re.findall(r'<tr\b[^>]*>', table[table.find('<tbody>'):])
                 self.assertEqual(len(rows), n, f'{pid}: the label says {n} rows and the table has {len(rows)}')
                 self.assertEqual(sum(1 for r in rows if 'xtra' in r), n - 5, f'{pid}: the wrong number of rows is folded')
-            self.assertNotRegex(h, r'class="xt"[^<]*<label[^<]*</label><table\b[^>]*class="plain engine"', f'{pid} folded its derivation table')
         self.assertGreater(folded, 0, 'no table on the site has more than five rows, so folding is untested')
 
     def test_every_belief_page_carries_the_invitation(self):

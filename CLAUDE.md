@@ -223,7 +223,11 @@ correction is only ever filed as a sourced reason to disagree, never as an edit.
 page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
 page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed), `lists.html`
 says for every ranking what it shows, how it is worked out and why it is tracked, and every card and column that ranks
-links there; in tables, columns hold numbers and short labels and any sentence goes on a line under the row's main text. `t/<topic>.html` is
+links there; in tables, columns hold numbers and short labels and any sentence goes on a line under the row's main text. The reasons
+to agree sit on the left and the reasons to disagree on the right (the owner's direction, November 2026): `two_sided()`
+lays its sides beside each other wherever each can have the 540 pixels the reasons table needs and stacks them below
+that, so that number must stay small enough for two to fit the page; `stacked()` is only for a table with two
+free-flowing columns. `t/<topic>.html` is
 one page per row of the third table `content/topics.csv`, laid out section for section like
 `templates/topic-template.html`; a topic's cells are rows in `edges.csv` with `page` set to the topic key and a
 section from `ise_tables.TOPIC_SECTIONS`, and any cell the topic has no row for is filled from the belief pages
