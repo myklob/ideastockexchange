@@ -24,7 +24,6 @@ from integrity import Integrity
 import fallacy as FALLACY
 import predictions as PRED
 import method
-import changes as CHANGES
 import publish as PUBLISH
 import views as VW
 import market as MARKET
@@ -398,9 +397,11 @@ def ths(markup):
 
 def collapse_tables(markup, n=5):
     """Rule 8: every ranked table shows its top rows and collapses the rest. Rows past the fifth get a class the
-    stylesheet hides until a checkbox before the table is ticked; the checkbox is a real form control, so a
-    keyboard reaches it and no script is needed. Print shows every row. The all-pages table keeps its own
-    search box instead, and the small check and connection tables never reach five rows."""
+    stylesheet hides until a checkbox under the table is ticked; the checkbox is a real form control, so a
+    keyboard reaches it and no script is needed. It sits under the table, where the hidden rows would be, and
+    not above it: two tables side by side keep their header rows level whichever of them is folded. Print shows
+    every row. The all-pages table keeps its own search box instead, and the small check and connection tables
+    never reach five rows."""
     counter = [0]
     def one(m):
         head, body = m.group(1), m.group(2)
@@ -417,7 +418,7 @@ def collapse_tables(markup, n=5):
         i = f'x{counter[0]}'
         toggle = (f'<input type="checkbox" class="xt" id="{i}" aria-controls="t{i}">'
                   f'<label class="xl" for="{i}">Top {n} of {len(rows)} rows shown. Show all</label>')
-        return toggle + head.replace('<table', f'<table id="t{i}"', 1) + out + '</tbody></table>'
+        return head.replace('<table', f'<table id="t{i}"', 1) + out + '</tbody></table>' + toggle
     return re.sub(r'(<table class="(?:scored|plain)[^"]*"[^>]*>(?:<thead>.*?</thead>)?<tbody>)(.*?)</tbody></table>', one, markup, flags=re.S)
 
 
@@ -2691,17 +2692,6 @@ def H_section_plain(title, blurb=None, anchor=None):
     i = f' id="{esc(anchor)}"' if anchor else ''
     return f'<section{i}><h2><span>{esc(title)}</span></h2>' + (f'<p class="blurb">{blurb}</p>' if blurb else '')
 
-def changed_this_revision(c):
-    """Pages whose numbers moved or whose rows were edited against the previous revision, or [] when there is
-    no previous revision to compare with."""
-    d = getattr(c, 'changes', None)
-    if not d: return []
-    keys = {m['key'] for m in d.get('scores', []) if m.get('key')}
-    for r in d['tables']['pages']['changed'] + d['tables']['pages']['added']: keys.add(r['key'])
-    for r in d['tables']['edges']['changed']: keys.add(r['where'][0])
-    for r in d['tables']['edges']['added']: keys.add(r.get('page'))
-    return [c.tabs[k] for k in keys if k in c.tabs]
-
 def best_beliefs(c, limit=None):
     """Beliefs ranked by belief score, then by how much scored work stands under them. Only beliefs: a court
     record at 0.95 is a finding, not a developed position, and a list of the highest truth scores on the site
@@ -2853,11 +2843,6 @@ EXPLAIN = [
      'A yardstick is filed on a work\'s own page, under Objective Criteria, as a measurement people who disagree would accept in advance, with how it is measured and the latest reading. The same yardstick proposed on two works is one yardstick, because the duplicate check sends the second to the page the first one made. Readings are put in order only when every one is a number; otherwise the works are listed by title.',
      'Because which yardstick should count is itself open to argument. A yardstick that cannot tell a great work from a poor one should lose to one that can, and the only way to find out is to let people propose them and read them.',
      None),
-    ('changed', 'Changed in this revision',
-     'Pages edited, or whose numbers moved, since the last published version of the site.',
-     'The tables behind this version are compared with the previous version, row by row; the pages are listed most relied on first.',
-     'So a returning reader can see what is new without rereading everything, and so every change to a number can be traced to the row that caused it.',
-     None),
     ('votes', 'Votes vs the analysis',
      'Claims people have voted on, ranked by how far the share of votes to agree sits from the truth score.',
      'A vote is one GitHub account saying agree or disagree with a claim, and only that account\'s latest vote counts. The share of the votes that agree is compared with the claim\'s truth score, and the list is ordered by the size of the gap, widest first. A claim enters the list once three or more people have voted on it; fewer votes are shown on the claim\'s own page but rank nothing.',
@@ -2981,29 +2966,48 @@ def start_here(c):
 
 WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
 
-def render_index(c, title):
-    """The home page: several ways in, each a card in flowing columns so a short card never leaves a gap, and
-    none of them the whole page. Every card that ranks something links to what the ranking means; a ranking
-    the site cannot compute is left off rather than faked."""
-    o = [root_head(title, [('Home', '')], main_class='index')]
-    ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
-    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
+def so_far(c):
+    """How many beliefs are here and how far along, in a short sentence for the foot of the home page and a full
+    one for the page that explains the site."""
     filed = sorted({c.topics[c.topic_of(b)]['name'] for b in c.beliefs if c.topic_of(b)})
     about = (f', all on {esc(filed[0].lower())}' if len(filed) == 1 else f' across {len(filed)} topics') if filed else ''
     done = [b for b in c.beliefs if c.complete(b)]
     def count(n): return WORDS[n].lower() if n < len(WORDS) else f'{n:,}'
     if done and len(done) < len(c.beliefs):
-        sofar = (f'{count(len(c.beliefs)).capitalize()} beliefs{about}, {count(len(done))} of them worked all the way through: reasons both ways, '
-                 'evidence, yardsticks, predictions, costs and interests. Those come first in every list; the rest are drafts, each marked and '
-                 'saying what it still needs, because an argument somebody started is never thrown away.')
-    else:
-        sofar = f'{count(len(c.beliefs)).capitalize()} belief{"s are" if len(c.beliefs) != 1 else " is"} worked through so far{about}.'
-    o.append(f'<p class="lede">Most political fights repeat the same few points forever, and nobody keeps score. Here each belief gets one page, '
-             f'with every reason for it and against it and the evidence under each reason. A reason nobody has backed up counts for nothing, '
-             f'however many times it is repeated; only a better argument or better evidence moves a score. '
-             f'{sofar} '
-             f'Anyone can add a reason, a finding or a vote on any page. A claim that is already here becomes a vote for it, not a second copy. '
-             f'<a href="lists.html">What each list means</a> · <a href="method.html">how the scores are worked out</a>.</p>')
+        head = f'{count(len(c.beliefs)).capitalize()} beliefs{about}, {count(len(done))} of them worked all the way through'
+        return (head + '; the rest are drafts, each marked.',
+                head + ': reasons both ways, evidence, yardsticks, predictions, costs and interests. Those come first in every list; the rest '
+                'are drafts, each marked and saying what it still needs, because an argument somebody started is never thrown away.')
+    whole = f'{count(len(c.beliefs)).capitalize()} belief{"s are" if len(c.beliefs) != 1 else " is"} worked through so far{about}.'
+    return whole, whole
+
+
+def render_about(c, title):
+    """The site explained in plain words, at the length the home page has no room for. The home page carries two
+    sentences of this at its foot and a link here."""
+    o = [root_head('What this site is', [('Home', 'index.html'), ('What this site is', '')], main_class='index')]
+    o.append('<p class="kind">Idea Stock Exchange</p><h1>What this site is</h1>')
+    o.append('<p class="lede">Most political fights repeat the same few points forever, and nobody keeps score. Here each belief gets one page, '
+             'with every reason for it and against it and the evidence under each reason. A reason nobody has backed up counts for nothing, '
+             'however many times it is repeated; only a better argument or better evidence moves a score.</p>')
+    o.append(f'<p class="lede">{so_far(c)[1]}</p>')
+    o.append('<p class="lede">Anyone can add a reason, a finding or a vote on any page. A claim that is already here becomes a vote for it, '
+             'not a second copy.</p>')
+    o.append('<ul class="links"><li><a href="lists.html">What each list means</a>: what every ranking shows, how it is worked out and why it is tracked.</li>'
+             '<li><a href="method.html">How the scores are worked out</a>: the exact rules, with their numbers.</li>'
+             '<li><a href="vocab.html">What a post can be</a>, and <a href="contributors.html">who takes part</a>.</li></ul>')
+    o.append(stamp(c) + FOOT)
+    return ''.join(o)
+
+
+def render_index(c, title):
+    """The home page: several ways in, each a card in flowing columns so a short card never leaves a gap, and
+    none of them the whole page. Every card that ranks something links to what the ranking means; a ranking
+    the site cannot compute is left off rather than faked. The cards come first: what the site is takes two sentences
+    at the foot, with the rest on about.html."""
+    o = [root_head(title, [('Home', '')], main_class='index')]
+    ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
+    o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
     TOP = 3
     cards = [start_here(c), card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
     # one belief is several questions, and each has a list built for it: the same beliefs every time, different columns
@@ -3077,14 +3081,6 @@ def render_index(c, title):
                  + ''.join(f'<tr><td class="t"><a href="p/{c.href(p)}">{esc(c.standalone(p))}</a><div class="src">{work_note(c, p)}</div></td></tr>' for p in works[:TOP])
                  + '</tbody></table>')
     cards.append(card('Best books, studies and reports', wblurb, wbody, see_all('media.html', len(works), 'works, by kind and by yardstick'), 'works'))
-    recent_all = sorted(changed_this_revision(c), key=lambda p: -c.rank.of(p))
-    if recent_all:
-        cards.append(card('Changed in this revision', 'Edited or moved since the last published revision.',
-                          mini(c, recent_all[:TOP], 'Relied on', lambda p: times_avg(c, c.rank.of(p)), 'relied'), see_all('changes.html', len(recent_all), 'changes, row by row'), 'changed'))
-    else:
-        cards.append(card('Changed in this revision', 'Nothing has changed since the last published revision'
-                          + (', or no previous revision was available to compare with' if getattr(c, 'changes', None) is None else '')
-                          + '. <a href="changes.html">The revision page</a> says what it compared.', '', '', 'changed'))
     filed = [k for k in c.topics if c.topic_beliefs(k)]
     if len(filed) > 1:
         # second, next to Search: the shelf is the other way in that does not rank, and the tallest card, so
@@ -3095,8 +3091,11 @@ def render_index(c, title):
     o.append(MASONRY)
     # The plumbing stays off the cards: a reader comes for the arguments, and the tables and the method are one
     # line at the foot of the page for the reader who wants to check them.
+    brief, _ = so_far(c)
+    o.append(f'<p class="lede" id="about">Each belief gets one page, with every reason for it and against it and the evidence under each '
+             f'reason. Only a better argument or better evidence moves a score. {brief} <a href="about.html">More &rarr;</a></p>')
     o.append('<p class="under"><a href="contributors.html">Who takes part</a> · <a href="vocab.html">What a post can be</a> · '
-             '<a href="outline.html">Reason Outline</a>, many rows in one post · <a href="changes.html">What changed</a> since the last revision · '
+             '<a href="outline.html">Reason Outline</a>, many rows in one post · '
              '<a href="method.html#data">The tables behind every page</a>, free to download and check.</p>')
     o.append(stamp(c))
     o.append(contribute_script(''))
@@ -4200,7 +4199,7 @@ h2 .wiki{color:#fff;border-bottom-color:rgba(255,255,255,.45);font-weight:400;fo
 h3{font:600 13px/1.3 var(--sans);margin:0 0 6px;padding:5px 10px;border-radius:3px}h3.sub{margin-top:14px;background:var(--head);color:var(--ink2)}
 .side.agree>h3{background:var(--agree);color:var(--agree-ink)}.side.disagree>h3{background:var(--dis);color:var(--dis-ink)}
 .blurb{margin:12px 0 0;color:var(--ink2);font-size:13px}
-.sides{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,720px),1fr));gap:16px}.sides>*,.stack>*{min-width:0}.scored tbody td.empty:not(.t):not(.u):not(.pat):not(.dl),.plain td.empty{white-space:normal}@media (max-width:1000px){table.scored td.t{min-width:9em}table.scored td.u:not(.t):not(.rk),table.scored td.dl:not(.t):not(.rk),table.scored td.pat:not(.t):not(.rk){min-width:6em}table.scored th{white-space:normal}table.plain th,table.plain td,table.scored th,table.scored td{padding-inline:4px}table.plain th,table.scored th{font-size:11px}}@media (max-width:900px){.sides{grid-template-columns:1fr}}
+.sides{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,540px),1fr));gap:16px}.sides>*,.stack>*{min-width:0}.scored tbody td.empty:not(.t):not(.u):not(.pat):not(.dl),.plain td.empty{white-space:normal}@media (max-width:1000px){table.scored td.t{min-width:9em}table.scored td.u:not(.t):not(.rk),table.scored td.dl:not(.t):not(.rk),table.scored td.pat:not(.t):not(.rk){min-width:6em}table.scored th{white-space:normal}table.plain th,table.plain td,table.scored th,table.scored td{padding-inline:4px}table.plain th,table.scored th{font-size:11px}}@media (max-width:900px){.sides{grid-template-columns:1fr}}
 .stack{display:grid;grid-template-columns:1fr;gap:16px}
 main.topic h1{font-size:clamp(24px,3vw,34px)}main.topic h2.th{display:block;background:none;color:var(--ink);font:700 20px/1.3 var(--sans);padding:0;margin:28px 0 6px;border-bottom:2px solid var(--line)}
 .metrics{border:1px solid var(--line);background:var(--tile);padding:10px;text-align:center;font-size:14px}.metrics p{margin:0}.metrics .fine,.fine{font-size:11.5px;color:var(--mute);margin-top:6px}
@@ -4210,9 +4209,10 @@ table.tpl{margin-bottom:2em}table.tpl th{text-transform:none;letter-spacing:0;fo
 table.tpl td.branch{text-align:center;font-size:12px;color:var(--mute)}table.tpl .sub{font-size:85%;font-weight:normal;color:var(--mute)}
 .b-n100{background:#ffcccc;color:#3a1010}.b-n50{background:#ffe6e6;color:#3a1010}.b-0{background:#ffffcc;color:#3a3410}.b-p50{background:#e6ffe6;color:#0f3a14}.b-p100{background:#ccffcc;color:#0f3a14}
 .more{margin:6px 0 0;font-size:13px;text-align:right}.more a{border:none;font-weight:600}
-.xt{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}.xl{display:block;font-size:12px;color:var(--navy);cursor:pointer;margin:0 0 4px;font-weight:600}
+.xt{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}.xl{display:block;font-size:12px;color:var(--navy);cursor:pointer;margin:4px 0 0;font-weight:600}
 .xl::before{content:"▸ "}.xt:checked+.xl::before{content:"▾ "}.xt:checked+.xl{color:var(--mute)}.xt:focus-visible+.xl{outline:2px solid var(--navy2);outline-offset:2px}
-.xt:not(:checked)+.xl+table tr.xtra{display:none}
+table:has(+.xt:not(:checked)) tr.xtra{display:none}
+@supports not selector(:has(*)){.xl,.xt{display:none}}
 @media print{tr.xtra{display:table-row!important}.xl,.xt{display:none}}
 .dir{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 28px;margin:14px 0 4px}
 .cat .cn{font:600 16px/1.3 var(--serif);border:none}.cat .sub{font-size:13px;color:var(--ink2);margin-top:2px}.cat .sub a{border:none}.dn{font-size:12px;color:var(--mute)}
@@ -4245,7 +4245,7 @@ td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(
 @media print{.add,.votes,a.argue{display:none}}
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
-td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35}td.u{color:var(--ink2);font-size:13px}
+td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35;overflow-wrap:anywhere}td.u{color:var(--ink2);font-size:13px}
 table.scored td.t,table.all td.t{width:100%}table.scored td:not(.t):not(.rk),table.scored th:not(:nth-child(2)){width:1%;white-space:nowrap}.scored td.u:not(.t):not(.rk),.scored td.dl:not(.t):not(.rk),.scored td.pat:not(.t):not(.rk){white-space:normal;width:auto;min-width:11em;max-width:18em}.scored td.t{min-width:14em}
 td.t a{border-bottom-color:transparent}td.t a:hover,td.t a:focus-visible{border-bottom-color:var(--navy)}
 .scored td:not(.t):not(.u):not(.pat):not(.dl){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;width:3.7em;padding-inline:5px}.scored th{padding-inline:5px}.scored th:first-child,.scored td:first-child{padding-left:8px}.scored td.rk,.plain td.rk{width:1.8em;color:var(--mute);text-align:right;font-variant-numeric:tabular-nums}
@@ -4363,93 +4363,6 @@ def page_json(c, pid):
                     for r in a['rows'][:8]],
         }
     return out
-
-
-def render_changes(c, H, d, title='Idea Stock Exchange'):
-    """What somebody changed, and what it did to the numbers. Two different questions on one page."""
-    tb = d['tables'] if d else {'pages': {'added': [], 'removed': [], 'changed': []},
-                                'edges': {'added': [], 'removed': [], 'changed': []}}
-    sc = d['scores'] if d else []
-    o = [f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>What changed in this revision</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"><link rel="stylesheet" href="ise.css"></head><body><a class="skip" href="#changes">Skip to the changes</a><main id="changes">''']
-    o.append('<p class="crumb"><em><a href="index.html">Home</a> \u203a <a href="method.html">Method</a> \u203a <strong>What changed</strong></em></p>')
-    o.append('<p class="kind">Revision</p><h1>What changed in this revision</h1>')
-    pg, ed = tb['pages'], tb['edges']
-    counts = (len(pg['added']), len(pg['removed']), len(pg['changed']),
-              len(ed['added']), len(ed['removed']), len(ed['changed']))
-    o.append('<p class="meta">' + ('No previous revision was available to this build.' if d is None else
-             f'Against the previous published revision. {counts[0]} pages added, {counts[1]} removed, '
-             f'{counts[2]} edited; {counts[3]} rows added, {counts[4]} removed, {counts[5]} edited. '
-             f'{len(sc)} pages moved.') + '</p>')
-    if d is None:
-        o.append('<section class="card"><p class="ro">There is no previous revision to compare this build '
-                 'against: it was built without the history the comparison needs. Nothing below is a claim that '
-                 'nothing changed.</p></section>')
-    elif not any(counts) and not sc:
-        o.append('<section class="card"><p class="ro">Nothing in the two tables changed, so no number moved. '
-                 'A revision that only touches the toolchain leaves the argument exactly where it was.</p></section>')
-    o.append(H.section('What the numbers did',
-                       'Recomputed by building the previous revision from the two tables as they were and '
-                       'subtracting. This is the part an ordinary diff cannot give you: one edit to a linkage '
-                       'page can move dozens of conclusions, and nothing in the text of the change says so.'))
-    if sc:
-        o.append('<table class="scored"><thead><tr><th class="rk">#</th><th>Page</th><th>Truth before</th>'
-                 '<th>Truth now</th><th>Move</th><th>Confidence</th><th>Note</th></tr></thead><tbody>')
-        for i, m in enumerate(sc[:60], 1):
-            o.append(f'<tr><td class="rk">{i}</td><td class="t">{H.a(m["page"], c.brief(m["page"])[0])}</td>'
-                     f'<td>{f2(m["truth_before"])}</td><td>{f2(m["truth_after"])}</td><td class="sc">{sf(m["delta"])}</td>'
-                     f'<td>{pct(m["conf_before"])} to {pct(m["conf_after"])}</td>'
-                     f'<td class="u">{"crossed the line" if m["crossed"] else ""}</td></tr>')
-        o.append('</tbody></table>')
-        crossed = [m for m in sc if m['crossed']]
-        o.append(f'<p class="tot">{len(crossed)} of the {len(sc)} moved pages crossed 0.50, which is where a '
-                 f'conclusion changes sides.' + (f' {len(sc) - 60} further pages moved less than any shown.' if len(sc) > 60 else '') + '</p>')
-    else:
-        o.append('<p class="tot">No page moved.</p>')
-    o.append('</section>')
-    o.append(H.section('What somebody changed', 'The two tables, row by row. Every claim on this site is a row '
-                       'in one of them, so this is the whole of what a person edited.'))
-    def page_rows(label, rows):
-        if not rows: return ''
-        out = [f'<h3 class="sub">{esc(label)}</h3><table class="plain"><tbody>']
-        for r in rows[:40]:
-            out.append(f'<tr><td class="t">{esc(r.get("text") or r.get("key"))}</td><td class="u">{esc(r.get("kind") or "")}</td></tr>')
-        if len(rows) > 40: out.append(f'<tr><td class="u" colspan="2">and {len(rows) - 40} more</td></tr>')
-        return ''.join(out) + '</tbody></table>'
-    o.append(page_rows('Pages added', pg['added']))
-    o.append(page_rows('Pages removed', pg['removed']))
-    if pg['changed']:
-        o.append('<h3 class="sub">Pages edited</h3><table class="plain"><thead><tr><th>Page</th><th>Column</th>'
-                 '<th>Was</th><th>Now</th></tr></thead><tbody>')
-        for ch in pg['changed'][:60]:
-            for col in ch['columns']:
-                o.append(f'<tr><td class="t">{esc(ch["key"])}</td><td class="u">{esc(col)}</td>'
-                         f'<td class="u">{esc(str(ch["old"].get(col, ""))[:240])}</td>'
-                         f'<td class="u">{esc(str(ch["new"].get(col, ""))[:240])}</td></tr>')
-        if len(pg['changed']) > 60:
-            o.append(f'<tr><td class="u" colspan="4">and {len(pg["changed"]) - 60} more edited pages</td></tr>')
-        o.append('</tbody></table>')
-    if ed['added'] or ed['removed'] or ed['changed']:
-        o.append('<h3 class="sub">Rows</h3><table class="plain"><thead><tr><th>Change</th><th>On page</th>'
-                 '<th>Table</th><th>Points at</th></tr></thead><tbody>')
-        for lab, rows in (('added', ed['added']), ('removed', ed['removed'])):
-            for e in rows[:40]:
-                o.append(f'<tr><td class="u">{lab}</td><td class="t">{esc(e.get("page"))}</td>'
-                         f'<td class="u">{esc(SECTION_NAME.get(e.get("section"), e.get("section")))}</td>'
-                         f'<td class="u">{esc((e.get("claim") or e.get("text") or "")[:160])}</td></tr>')
-            if len(rows) > 40:
-                o.append(f'<tr><td class="u" colspan="4">and {len(rows) - 40} more rows {lab}</td></tr>')
-        for ch in ed['changed'][:40]:
-            o.append(f'<tr><td class="u">edited: {esc(", ".join(ch["columns"]))}</td><td class="t">{esc(ch["where"][0])}</td>'
-                     f'<td class="u">{esc(SECTION_NAME.get(ch["where"][1], ch["where"][1]))}</td>'
-                     f'<td class="u">{esc(str(ch["where"][3] or "")[:160])}</td></tr>')
-        if len(ed['changed']) > 40:
-            o.append(f'<tr><td class="u" colspan="4">and {len(ed["changed"]) - 40} more rows edited</td></tr>')
-        o.append('</tbody></table>')
-    o.append('</section>')
-    o.append(stamp(c))
-    o.append('</main>' + JS + '</body></html>')
-    return ''.join(o)
 
 
 def provenance(path=None):
@@ -5241,13 +5154,14 @@ def render_contributors(c, title):
              'else a page takes, such as predictions, costs and benefits, interests and definitions. Each person has a page listing what they added. '
              'Who added something never changes its score.</p>')
     o.append('<section><table class="plain"><thead><tr><th>Who</th><th>Role</th><th>Beliefs</th><th>Reasons</th><th>Evidence</th>'
-             '<th>Other additions</th><th>Votes</th></tr></thead><tbody>')
+             '<th>Other additions</th><th>Up votes</th><th>Down votes</th></tr></thead><tbody>')
     for k in getattr(c, 'people', []):
+        vs = [v.get('vote') for v in c.voted.get(k, [])]
         role = 'Maintainer' if k == c.maintainer else (c.users.get(k, {}).get('role') or 'Contributor')
         n = added_counts(c, k)
         o.append(f'<tr><td class="t"><a href="u/{user_slug(k)}.html">{esc(person_name(c, k))}</a></td><td class="u">{esc(role)}</td>'
-                 f'<td>{n["Beliefs"]:,}</td><td>{n["Reasons"]:,}</td><td>{n["Evidence"]:,}</td><td>{n["Other"]:,}</td><td>{len(c.voted.get(k, [])):,}</td></tr>')
-    if not getattr(c, 'people', []): o.append('<tr><td colspan="7" class="empty">Nobody yet.</td></tr>')
+                 f'<td>{n["Beliefs"]:,}</td><td>{n["Reasons"]:,}</td><td>{n["Evidence"]:,}</td><td>{n["Other"]:,}</td><td>{vs.count("agree"):,}</td><td>{vs.count("disagree"):,}</td></tr>')
+    if not getattr(c, 'people', []): o.append('<tr><td colspan="8" class="empty">Nobody yet.</td></tr>')
     o.append('</tbody></table>')
     if getattr(c, 'maintainer', None):
         o.append('<p class="tot">Anything that carries no other contributor&rsquo;s name was entered by the maintainer, so it is counted on their line.</p>')
@@ -5303,7 +5217,6 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
     if os.path.isdir(outdir): shutil.rmtree(outdir)
     os.makedirs(os.path.join(outdir, 'p')); os.makedirs(os.path.join(outdir, 'data'))
     index = []
-    c.changes = CHANGES.since(content, c) if os.path.isdir(content) else None
     for pid in c.specs:
         h = collapse_tables(blurbs_below(ths(render_belief(c, pid) if c.kind(pid) in ('belief', 'claim') else render_special(c, pid))))
         with open(os.path.join(outdir, 'p', c.href(pid)), 'w') as fh: fh.write(h)
@@ -5315,11 +5228,9 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
                       'truth': j['truth'], 'confidence': j['confidence'],
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
         if c.kind(pid) == 'belief' and not c.complete(pid): index[-1]['draft'] = True
-    with open(os.path.join(outdir, 'changes.html'), 'w') as fh:
-        fh.write(blurbs_below(ths(render_changes(c, Html(c, 'p/'), c.changes, title))))
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
     for name, fn in (('all', render_all), ('costs', render_costs), ('invest', render_invest), ('bets', render_bets), ('resolve', render_resolve),
-                     ('motives', render_motives), ('gain', render_gain), ('factors', render_factors), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists)):
+                     ('motives', render_motives), ('gain', render_gain), ('factors', render_factors), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 'u'))
     for login in getattr(c, 'people', []):

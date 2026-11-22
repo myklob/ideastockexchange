@@ -376,10 +376,10 @@ class TestContributorsAreCountedInWordsAReaderUses(unittest.TestCase):
     def test_the_list_counts_beliefs_reasons_and_evidence_not_rows(self):
         h = self.page('contributors.html')
         heads = re.findall(r'<th\b[^>]*>([^<]+)</th>', h)
-        self.assertEqual(heads, ['Who', 'Role', 'Beliefs', 'Reasons', 'Evidence', 'Other additions', 'Votes'])
+        self.assertEqual(heads, ['Who', 'Role', 'Beliefs', 'Reasons', 'Evidence', 'Other additions', 'Up votes', 'Down votes'])
         self.assertNotRegex(text(h).lower(), r'\brows?\b', 'the contributors page still talks about rows')
         ann = re.search(r'<tr><td class="t"><a href="u/ann.html">.*?</tr>', h).group(0)
-        self.assertEqual(re.findall(r'<td>([\d,]+)</td>', ann), ['1', '1', '1', '1', '0'], 'ann added a reason, a finding and a benefit, all to one belief')
+        self.assertEqual(re.findall(r'<td>([\d,]+)</td>', ann), ['1', '1', '1', '1', '0', '0'], 'ann added a reason, a finding and a benefit, all to one belief, and cast no vote')
 
     def test_the_maintainer_is_credited_with_what_carries_no_other_name(self):
         n, ann = self.RS.added_counts(self.c, 'zed'), self.RS.added_counts(self.c, 'ann')
