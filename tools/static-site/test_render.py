@@ -12,6 +12,11 @@ import json, os, re, shutil, sys, tempfile, unittest
 
 
 def f2(v): return f'{v:.2f}'
+
+def thumbs(h, cls='votes'):
+    """The (up, down) counts of every pair of thumbs in `h` whose span has exactly the class `cls`."""
+    return [(int(a), int(b)) for a, b in re.findall(
+        rf'<span class="{cls}">(?:(?!<span class="votes).)*?<span class="vc">(\d+)</span>(?:(?!<span class="votes).)*?<span class="vc">(\d+)</span>', h, re.S)]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -2141,11 +2146,11 @@ class TestPeopleCanTakePart(unittest.TestCase):
                 if not is_page(d.get('id')) or d['id'] == pid: continue
                 k = self.c.key[d['id']]
                 for v, w in (('agree', 'yes'), ('disagree', 'no')):
-                    self.assertIn(f'page={k}&amp;vote={v}&amp;on={here}" rel="nofollow">{w}</a>', h, f'{here}: no {w} on whether {k} bears here')
+                    self.assertIn(f'page={k}&amp;vote={v}&amp;on={here}" rel="nofollow"><span class="sr">{w}</span>', h, f'{here}: no {w} on whether {k} bears here')
                 rows += 1
                 if is_page(d.get('imp')):
                     ik = self.c.key[d['imp']]
-                    self.assertIn(f'page={ik}&amp;vote=agree" rel="nofollow">yes</a>', h, f'{here}: no vote on whether {k} matters here')
+                    self.assertIn(f'page={ik}&amp;vote=agree" rel="nofollow"><span class="sr">yes</span>', h, f'{here}: no vote on whether {k} matters here')
                     imps += 1
             if rows > before: self.assertIn('<span class="vl">Bears on this:</span>', h)
         self.assertGreater(rows, 0)
@@ -2163,21 +2168,21 @@ class TestPeopleCanTakePart(unittest.TestCase):
             for d in rows:
                 if not is_page(d.get('id')): continue
                 k = self.c.key[d['id']]
-                self.assertIn(f'page={k}&amp;vote=agree" rel="nofollow">Agree</a>', h, f'{self.c.key[pid]}: the row for {k} has no vote link')
+                self.assertIn(f'page={k}&amp;vote=agree" rel="nofollow"><span class="sr">Agree</span>', h, f'{self.c.key[pid]}: the row for {k} has no vote link')
             for name, lst in (('evid', sp['evid']['for']), ('pred_true', sp.get('pred_true', [])), ('criteria', sp.get('criteria', [])), ('benefits', sp.get('benefits', [])),
                               ('int_sup', sp.get('int_sup', [])), ('law_for', sp.get('law_for', [])), ('falsify_for', sp.get('falsify_for', [])), ('people_for', sp.get('people_for', []))):
                 found[name] += sum(1 for d in lst if is_page(d.get('id')))
         for name, n in found.items(): self.assertGreater(n, 0, f'no {name} row is a page, so that table was not checked')
 
     def test_the_vote_count_links_to_the_votes_themselves(self):
-        """A count of people links to the list that explains it and to the issues that recorded each vote."""
+        """A page that has votes links, on its heading line, to the issues that recorded each of them."""
         import render_site as RS
         voted = [k for k in self.c.votes if k in self.c.tabs]
         self.assertTrue(voted, 'nothing is voted on, so the count line is untested')
         for key in voted:
             h = self.html[self.c.tabs[key]]
-            self.assertIn(f'href="{RS.votes_search(key).replace("&", "&amp;")}" rel="nofollow">each vote</a>', h, f'{key}: the count does not link to its votes')
-            self.assertIn('votes, not a score</a>', h)
+            h1 = re.search(r'<h1[^>]*>(.*?)</h1>', h, re.S).group(1)
+            self.assertIn(f'href="{RS.votes_search(key).replace("&", "&amp;")}" rel="nofollow">who voted</a>', h1, f'{key}: the count does not link to its votes')
 
     def test_linkage_importance_uniqueness_interest_media_and_equivalence_pages_take_part_too(self):
         """These pages carry arguments and are read by the belief pages; they take a vote on the heading line, a
@@ -2194,10 +2199,10 @@ class TestPeopleCanTakePart(unittest.TestCase):
                 # a linkage page asks whether its row bears on its page: the heading takes that vote, the one the row takes
                 x, y = self.c.key[sp['x']], self.c.key[sp['y']]
                 for v, w in (('agree', 'yes'), ('disagree', 'no')):
-                    self.assertIn(f'page={x}&amp;vote={v}&amp;on={y}" rel="nofollow">{w}</a>', h1, f'{key} has no {w} vote on whether {x} bears on {y}')
+                    self.assertIn(f'page={x}&amp;vote={v}&amp;on={y}" rel="nofollow"><span class="sr">{w}</span>', h1, f'{key} has no {w} vote on whether {x} bears on {y}')
             else:
                 for v in ('agree', 'disagree'):
-                    self.assertIn(f'page={key}&amp;vote={v}" rel="nofollow">{v.capitalize()}</a>', h1, f'{key} ({k}) has no {v} vote on its heading line')
+                    self.assertIn(f'page={key}&amp;vote={v}" rel="nofollow"><span class="sr">{v.capitalize()}</span>', h1, f'{key} ({k}) has no {v} vote on its heading line')
             forms = self._forms(h)
             if k == 'importance': self.assertIn('interest_listing', forms, f'{key} has no form for an interest at stake')
             else:
@@ -2209,7 +2214,7 @@ class TestPeopleCanTakePart(unittest.TestCase):
             self.assertIn('id="take-part"', h); self.assertIn('<script src="../contribute.js" defer></script>', h, f'{key} carries forms and not the script')
             for d in self.c.specs[pid]['args']['agree'] + self.c.specs[pid]['args']['disagree']:
                 if d.get('id') in self.c.specs:
-                    self.assertIn(f'page={self.c.key[d["id"]]}&amp;vote=agree" rel="nofollow">Agree</a>', h, f'{key}: a reason row has no vote link')
+                    self.assertIn(f'page={self.c.key[d["id"]]}&amp;vote=agree" rel="nofollow"><span class="sr">Agree</span>', h, f'{key}: a reason row has no vote link')
             checked[k] = checked.get(k, 0) + 1
         for k in ('linkage', 'importance', 'uniqueness', 'interest', 'media', 'equivalence'):
             self.assertGreater(checked.get(k, 0), 0, f'no {k} page in the build, so that kind was not checked')
@@ -2258,12 +2263,14 @@ class TestPeopleCanTakePart(unittest.TestCase):
             h1 = re.search(r'<h1>(.*?)</h1>', h, re.S).group(1)
             self.assertLess(h1.find('class="hs"'), h1.find('class="votes"'), f'{key}: the votes come before the score badge')
             for v in ('agree', 'disagree'):
-                self.assertIn(f'template=vote.yml&amp;labels=vote&amp;title=Vote%20{v}%3A%20{key}&amp;page={key}&amp;vote={v}" rel="nofollow">{v.capitalize()}</a>', h1,
+                url = RS.vote_url(key, v, text=self.c.standalone(pid)).replace('&', '&amp;')
+                self.assertIn(f'href="{url}" rel="nofollow"><span class="sr">{v.capitalize()}</span>', h1,
                               f'{key} has no {v} vote link on its heading line')
+                self.assertIn(f'class="vote {"up" if v == "agree" else "down"}"', h1, f'{key}: the {v} link is not a thumb')
             self.assertIn(RS.VOTE_NOTE, h, f'{key} does not say what a vote is')
             n = self.c.votes.get(key)
-            if n: self.assertIn(f'{n["agree"]} agree, {n["disagree"]} disagree; votes, not a score', h1)
-            else: self.assertNotIn('votes, not a score', h1, f'{key} shows vote counts with no votes')
+            self.assertEqual(thumbs(h1)[0], (n['agree'], n['disagree']) if n else (0, 0), f'{key}: the thumbs show the wrong counts')
+            if not n: self.assertNotIn('who voted', h1, f'{key} links to votes it does not have')
 
     def test_every_argument_row_that_is_a_page_carries_its_own_two_vote_links(self):
         """The brief asks for a small agree/disagree on each argument row, not only on the heading line."""
@@ -2277,7 +2284,7 @@ class TestPeopleCanTakePart(unittest.TestCase):
                 k = self.c.key[d['id']]
                 self.assertIsNotNone(trees, f'{self.c.key[pid]} has argument rows but no scored table')
                 for v in ('agree', 'disagree'):
-                    self.assertIn(f'page={k}&amp;vote={v}" rel="nofollow">{v.capitalize()}</a>', trees.group(0),
+                    self.assertIn(f'page={k}&amp;vote={v}" rel="nofollow"><span class="sr">{v.capitalize()}</span>', trees.group(0),
                                   f'{self.c.key[pid]}: the row for {k} has no {v} vote link')
                 checked += 1
         self.assertGreater(checked, 0)
@@ -2401,10 +2408,10 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
         self.assertEqual(self.cv.relevance, {('r1', 'a'): {'agree': 0, 'disagree': 1}})
         h = self._page(self.out_v, 'p/a.html')
         i = h.find('<span class="vl">Bears on this:</span>'); self.assertGreater(i, 0)
-        self.assertIn('page=r1&amp;vote=agree&amp;on=a" rel="nofollow">yes</a>', h)
-        self.assertIn('0 yes, 1 no; votes, not a score', h)
-        self.assertNotIn('yes, 1 no; votes', self._page(self.out_v, 'p/r1.html'), 'the count of a vote about page a is shown on r1 itself')
-        self.assertNotIn('votes, not a score', self._page(self.out_n, 'p/a.html'))
+        self.assertIn('page=r1&amp;vote=agree&amp;on=a" rel="nofollow"><span class="sr">yes</span>', h)
+        self.assertIn((0, 1), thumbs(h, 'votes rel'))
+        self.assertNotIn((0, 1), thumbs(self._page(self.out_v, 'p/r1.html'), 'votes rel'), 'the count of a vote about page a is shown on r1 itself')
+        self.assertEqual(set(thumbs(self._page(self.out_n, 'p/a.html'))), {(0, 0)})
 
     def test_a_finding_filed_under_a_reason_takes_its_bears_vote_about_that_reason(self):
         """The Evidence Ledger on a also lists e2, which is filed under the reason r2. It is a row on r2's page,
@@ -2429,20 +2436,23 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
 
     def test_the_counts_sit_on_the_heading_line_and_are_called_votes_not_a_score(self):
         h1 = re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/a.html'), re.S).group(1)
-        self.assertIn('2 agree, 1 disagree; votes, not a score', h1)
+        self.assertEqual(thumbs(h1), [(2, 1)])
         self.assertIn('class="hs"', h1)
-        self.assertNotIn('votes, not a score', re.search(r'<h1>(.*?)</h1>', self._page(self.out_n, 'p/a.html'), re.S).group(1))
-        self.assertNotIn('votes, not a score', re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/r2.html'), re.S).group(1))
+        self.assertIn('who voted</a>', h1)
+        for out, page in ((self.out_n, 'p/a.html'), (self.out_v, 'p/r2.html')):
+            h1 = re.search(r'<h1>(.*?)</h1>', self._page(out, page), re.S).group(1)
+            self.assertEqual(thumbs(h1), [(0, 0)], f'{page}: a page nobody voted on shows a count')
+            self.assertNotIn('who voted', h1)
 
     def test_one_vote_is_a_count_and_the_share_waits_for_enough_voters(self):
         """One vote is always 100% or 0%, and a gap from the analysis built on it says nothing. The counts are
         shown from the first vote; the share and the gap appear on the heading line only once MIN_VOTERS people
         have voted, which is the same threshold the ranked list uses."""
         a = re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/a.html'), re.S).group(1)
-        self.assertIn('67% agree, the analysis reads', a)
+        self.assertIn('67% of voters agree vs a truth score of', a)
         r1 = re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/r1.html'), re.S).group(1)
-        self.assertIn('0 agree, 1 disagree; votes, not a score', r1)
-        self.assertNotIn('the analysis reads', r1, 'one vote is shown as a share with a gap')
+        self.assertEqual(thumbs(r1), [(0, 1)])
+        self.assertNotIn('of voters agree', r1, 'one vote is shown as a share with a gap')
 
     def test_no_vote_moves_any_score(self):
         for pid in self.cv.specs:
