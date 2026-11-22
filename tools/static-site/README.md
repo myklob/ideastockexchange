@@ -68,6 +68,9 @@ finding, and that needs a reason, not a fix to the test.
     A fallacy flag moves nothing                       test_fallacy  test_a_flag_moves_no_score
     A computed similarity moves nothing                test_similarity  test_it_changes_no_score
     The second strength rule moves nothing else        test_tally    test_it_moves_no_other_number
+    Play money moves nothing                           test_market   test_no_stake_moves_any_score, test_no_scorer_reads_the_ledger
+    A view prints only what the belief page prints     test_views    test_the_parts_never_reach_the_scorer and the page tests
+    Costs in different units are never added           test_views    test_two_units_in_one_category_print_no_total
     Every port gives the same numbers                  conformance.py, run in CI
 
 Two things the list does not promise, on purpose. Two different claims that say nearly the same thing still count
@@ -89,6 +92,12 @@ discount and is meant to be.
                          alike but say opposite things (a denial, a comparison turned round, one word swapped: 'expand' for
                          'reduce'), which no path ever merges into a vote for the other
     integrity.py         faults the shape of the graph shows: circularity, question-begging, a page listed twice
+    views.py             what each view of the beliefs reads off the tables: the two parts of a truth score (logical
+                         validity and verification, each the truth rule run on part of a page's rows), a belief's
+                         importance, linkage per use, the category a cost or benefit is filed under by its unit, the
+                         totals that are allowed to add, and the interests, mutual gain and other factors of a conflict
+    market.py            play money: shares in a claim priced at its truth score, and a pool on a dated prediction;
+                         the ledger is content/stakes.csv, and nothing that scores reads it
     method.py            the reader-facing methodology page: every rule the contract enumerates, every number a page
                          prints (EVS, kind of dispute, costs and benefits, structural checks), the wiki rules the
                          engine does not run, and what the tool cannot do; every count on it is read from the build
@@ -106,6 +115,9 @@ discount and is meant to be.
     outline_print.py     prints any page or topic as an outline (p/<key>.txt, t/<key>.txt) that reads back to its rows
     outline_file.py      files a read outline against the tables, all or nothing, and writes the reply that prints it back
     content/votes.csv    the fourth table, one row per (page key, on, GitHub login), latest wins; shown on the page, never scored
+    content/stakes.csv   the play-money ledger, one row per stake (page key, login, invest or bet, side, amount, the
+                         price paid, issue, date); written by intake from the stake form, absent until the first
+                         stake, published as data/stakes.csv; shown on invest.html and bets.html, never scored
     content/users.csv    who takes part: one row per GitHub login (name, role, a few sentences, maintainer Y), with
     content/user_links.csv  where to reach each one, grouped as on their own contact page; every login that adds a
                          row or votes gets a page at u/<login>.html, listed on contributors.html; never scored
@@ -120,6 +132,10 @@ discount and is meant to be.
     test_integrity.py    each structural check, with a case built to trip it and a case built not to
     test_render.py       the rendered HTML: tiles against the engine table, links, and prose that has rotted
     test_content.py      that the workbook and the reviewable CSVs cannot drift apart
+    test_views.py        the views: both parts of a truth score, importance, linkage per use, categories and what may
+                         be added, the conflict view, and the list pages that print them
+    test_market.py       the ledger's arithmetic worked by hand, the firewall (a build with money in it publishes the
+                         same numbers as one without), and the stake form through intake
     test_outline_*.py    the outline's names, reader, printer and filer, and the round trip: every page printed and read
                          back adds nothing
     make_artifact.py     variant of the built site with the stylesheet inlined (for hosted previews)
@@ -217,6 +233,57 @@ and all pinned by `test_render.py::TestItCanBeRead`, which checks the rendered o
 - Links whose entire text was `0.50`. They carry an `aria-label` naming the page the number was argued on.
 - The grey that marks an unargued factor was the least readable thing on the page, at 2.5:1 against white. It
   carries information, so it now clears 4.5:1 against every background it sits on, in both themes.
+
+## The views: one set of beliefs, read five ways
+
+A belief page answers several questions one after another: is it true, what would acting on it cost, who wants it
+and why, what does it predict. A reader who has one of those questions about every belief had nowhere to go, and
+the list of every page printed one number, Truth. There are now five lists, each the same beliefs with the columns
+for one question, joined by one line at the top of each (`render_site.view_nav`) and by the same line on every
+belief page. `views.py` is the arithmetic they share. None of it is a new score: every function regroups factors
+the scorer already computed, and `test_views.py` holds each list to what the belief page prints.
+
+    all.html       Scores               truth, with its two parts beside it; importance; and for a claim used as a
+                                        reason, its linkage and importance on each page it supports
+    costs.html     Costs and benefits   each belief's most likely benefit and cost, the category and predicted value
+                                        of each, and the totals for each category
+    invest.html    Investing            what a share in each belief costs today, and the play money for and against it
+    bets.html      Betting              every dated prediction, the pool on each side, and what the analysis says
+    resolve.html   Conflict resolution  how far each belief is worked through as a conflict, and its three parts:
+      motives.html   Interests          likely supporters, likely opponents, and the primary interest behind each side
+      gain.html      Mutual gain        shared interests and the compromises proposed
+      factors.html   Other factors      kind of dispute, value gap, yardsticks, obstacles, biases
+
+**The two parts of a truth score.** Logical validity is the truth rule run on a page's reasons alone, from an even
+split. Verification is the same rule run on what was checked against the world alone: the page's own starting
+point (its source), its findings and its predictions. The truth score runs it over all of those rows together, so
+it holds both, and is then held to the weakest load-bearing part. A part with no weight behind it is its starting
+point and prints in grey. This is the wiki's original framing (a truth score combining logical validity with
+evidence verification) read off the engine as it runs, not a two-part average like the app's
+`calculateTruthScoreBreakdown`.
+
+**Importance of a belief.** The importance-page rule (the most valid interest at stake) applied to the interests a
+belief lists on its own page. Blank until one is listed. It says whether what is at stake deserves weight, not how
+much is at stake; size is the costs and benefits. A claim has no importance of its own: importance and linkage
+belong to a use, so they print beside each page the claim is used on.
+
+**Categories.** A cost or benefit is filed under Money, Lives, Time, Environment, Health, Freedom, Trust, Innovation
+or Other by the words of the unit it is counted in (`views.RULES`, printed on the method page). The order of the
+rules is the argument: what the number counts (a currency, lives, a stretch of time) outranks what the row is about.
+A unit no rule recognises is Other, never a guess; today that is about four rows in ten, which says the units are
+free text and is the thing to fix at the source. Counts always add. Expected values add only inside one unit.
+
+**Play money (`market.py`).** A share for a claim costs its truth score and a share against costs the rest of the
+dollar, so money never moves a price and the only way a holding gains is for the score to move, which only a row on
+the page can do. A bet is a pool on a dated prediction, paid to the side that was right when the outcome is recorded.
+Every account starts with 10,000 play dollars. The ledger is `content/stakes.csv`, written by intake from
+`.github/ISSUE_TEMPLATE/stake.yml`; it follows the firewall the app's market layer runs under
+(`docs/MARKET_LAYER_SPEC.md`): scores go to the market and nothing comes back. Not built: selling a share back, and
+the ledger in the SQL, SQLite and XML exports (it is published as `data/stakes.csv`).
+
+**Contributors.** `contributors.html` and each `u/<login>.html` count what a person added by what it is (beliefs
+worked on, reasons, evidence, other additions), not rows. A proposed belief with no reason attached records nobody,
+because the `pages` table carries no `added_by`; such a belief is counted on the maintainer's line.
 
 ## Scale
 
@@ -332,6 +399,15 @@ rejects the whole form and opens a blank issue instead, and `test_contribute.py`
 which ranks voted-on claims by how far the share of votes to agree sits from the truth score. The votes ride
 along in the exports as a `vote` table. No votes: no cards, no counts. The engine rule stands: a claim nobody
 has argued is worth exactly nothing, however many people like it.
+
+Play money works the same way and is just as inert. The "Buy shares: for · against" links on `invest.html` and on
+every belief and claim page, and the "Bet that it: happens · does not" links on `bets.html`, open the stake form
+(`.github/ISSUE_TEMPLATE/stake.yml`: page, kind, side, amount). `intake.process_stake` checks that the page exists,
+that an investment goes on a belief or a claim and a bet on a dated prediction that has not settled, and that the
+account has the amount left of the 10,000 it started with; it computes the price from the tables as they stand,
+writes one row to `content/stakes.csv`, pushes it to the default branch the way a vote is pushed, and answers with
+the shares bought and what is left. An edited issue replaces its own stake. A stake that cannot be taken is answered
+in a comment and closed, not failed. It touches no table a score is computed from, and `test_market.py` checks that.
 
 ## Reason Outline
 

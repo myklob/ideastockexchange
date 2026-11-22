@@ -259,6 +259,28 @@ that same rule passed conformance while returning a truth starting point of 1.40
 deliberate rule change means `python3 conformance.py --write` and a reviewed diff.
 CI runs the whole suite before it will publish anything.
 
+### The views (`views.py`, `market.py`)
+
+The same beliefs are published five ways, each a list page for one question, joined by one line at the top of each
+and on every belief page: `all.html` (scores), `costs.html`, `invest.html`, `bets.html`, and `resolve.html` with its
+three parts `motives.html` (interests), `gain.html` (mutual gain) and `factors.html`. **A view prints only what the
+belief page prints.** `views.py` regroups factors the scorer already computed and adds no rule: logical validity and
+verification are the truth rule run on a page's reasons alone and on its checked rows alone; a belief's importance
+is the importance-page rule on the interests it lists; linkage and importance belong to a use of a claim, not to the
+claim. A number with nothing behind it prints grey; a number that does not exist prints blank, never a constant.
+
+A cost or benefit is filed under a category by the words of its unit (`views.RULES`, printed on the method page), and
+a unit the list does not know is Other. Expected values are added only inside one unit. Do not "fix" a column of
+mixed units by converting; the conversion rate is a claim somebody has to argue.
+
+`market.py` is play money and sits behind the same firewall as the app's market layer: scores go to it and nothing
+comes back. A share costs the truth score, so money never moves a price; a bet is a pool on a dated prediction. The
+ledger is `content/stakes.csv`, written by intake from the stake form and absent until the first stake.
+`test_market.py::test_no_scorer_reads_the_ledger` scans the scoring modules for it. If a market-set price is ever
+wanted (the app uses LMSR), print it beside the truth score as a second number; do not replace the price.
+
+Contributor pages count what a person added by what it is (beliefs, reasons, evidence), never "rows".
+
 ### Running agent work on the static site (learned in the November 2026 re-check)
 
 - `sync_content.py` takes `--check` or `--to-workbook` and nothing else: with no flag, or an unknown one such as
