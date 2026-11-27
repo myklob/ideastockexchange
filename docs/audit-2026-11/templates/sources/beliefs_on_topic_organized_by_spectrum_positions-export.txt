@@ -1,0 +1,125 @@
+# Source: Google Drive file 13hCzS1WkcqjGIKEArXrv1Oeh9soAXe_J "Beliefs_on_topic_organized_by_Spectrum_Positions.html" (PBWorks export, page 162490623)
+# Export header: page=Beliefs_on_topic_organized_by_Spectrum_Positions, time=1772934351 (2026-03-08 UTC), content-type=text/html, name=Mike
+# Markdown escaping from the Drive reader removed. The export as read ENDS MID-TABLE (inside "Similar Beliefs"), with no
+# closing tags and no pbraw blob: it is truncated, either in the export or by the reader.
+# The live page (crawled; "last edited by Mike 3 months ago", see pb/b3-redundancy-equivalence-sorting/18-...txt) is a
+# different, later document: a filled topic page ("Protecting the Constitution") with three continua, an assumption stack,
+# values, engagement, common ground, evidence ledger, objective criteria, media, related topics and contribute.
+
+<div style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
+<h1>Belief: Home › Topics › [Category] > [Topic Name]</h1>
+<div style="background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
+<p style="text-align: right; margin: 0;"><a href="/One%20Page%20Per%20Topic">Topic</a>: Evidence Depth &gt; Controversy Rating</p>
+<p style="text-align: right; margin: 0;">Topic IDs: Dewey: [Number]</p>
+<p style="text-align: right; margin: 0;">Belief <a href="/beliefs%20grouped%20and%20eventually%20sorted%20along%20the%20the%20positivity%20continuum">Positivity</a> Towards Topic: <strong>[Scale -100% to +100%]</strong></p>
+<p style="text-align: right; font-size: .9em; margin-top: 5px;">Each section builds a complete analysis from multiple angles. <a href="https://github.com/myklob/ideastockexchange">View the full technical documentation on GitHub</a>.</p>
+</div>
+<h1>🔍 <a href="/Reasons">Argument Trees</a></h1>
+<p>Each reason is a belief with its own page. Scoring is recursive based on <a href="/truth">truth</a>, <a href="/Linkage%20Scores">linkage</a>, and <a href="/Importance%20Score">importance</a>.</p>
+<table ...><thead><tr style="background-color: #e6ffe6;">
+<th width="60%"><h3>✅ Top <a href="/Scoring">Scoring</a> Reasons to Agree</h3></th>
+<th width="15%"><h3>Argument Score</h3></th>
+<th width="13%"><h3><span>🔗</span><a href="/w/page/159338766/Linkage%20Scores">Linkage Score</a></h3></th>
+<th width="12%"><h3><span>💥</span>Impact</h3></th>
+</tr></thead><tbody>
+<tr><td>Weak (20%) Modest Assertion</td><td align="center">"[Topic] has some advantages, though it has real flaws that need addressing."</td><td align="center">"[Topic] has some structural inefficiencies that make it less effective than alternatives in certain contexts."</td><td>Narrow scope. Leaves room for exceptions and context-dependence.</td></tr>
+<tr><td>Moderate (50%) Standard Assertion</td><td align="center">"[Topic], when functioning well, produces significantly better outcomes than the available alternatives."</td><td align="center">"[Topic] is significantly compromised by [specific flaw], producing reliably suboptimal outcomes."</td><td>Clear claim without overstating. The level at which most serious academic arguments operate.</td></tr>
+<tr><td>Strong (80%) Broad Assertion</td><td align="center">"[Topic] is the only approach that provides [key benefit], and any alternative is fundamentally unjust or ineffective."</td><td align="center">"[Topic] is fundamentally broken and cannot produce good outcomes without changes so drastic it would cease to be recognizable."</td><td>Wide scope, absolute framing. Leaves little room for alternatives or incremental improvement.</td></tr>
+<tr><td>Extreme (100%) Maximal Assertion</td><td align="center">"[Topic] is the pinnacle of human achievement in this domain and any deviation from it, however small, must be resisted by any means necessary."</td><td align="center">"[Topic] is a total fraud, a permanent mechanism of [harm], that has never served [intended beneficiaries] and never will."</td><td>Catastrophic framing with no limiting conditions. The hardest to defend and the easiest to dismiss without engaging the moderate arguments that deserve serious responses.</td></tr>
+<tr style="background-color: #f0f0f0;"><td colspan="3" align="right"><strong>Total Pro:</strong></td><td>&nbsp;</td></tr>
+</tbody></table>
+<br />
+<table ...><thead><tr style="background-color: #ffe6e6;">
+<th width="60%"><h3>❌ Top <a href="/Scoring">Scoring</a> Reasons to Disagree</h3></th>
+<th width="15%"><h3>Argument Score</h3></th>
+<th width="13%"><h3>🔗<a href="/w/page/159338766/Linkage%20Scores">Linkage Score</a></h3></th>
+<th width="12%"><h3>💥Impact</h3></th>
+</tr></thead><tbody>
+<tr><td>[Study/Data Title] Source: [Institution/Author] (Year) Finding: [Brief summary]</td><td align="center">[95%] (Peer Reviewed)</td><td align="center">[Study/Data Title] Source: [Institution/Author] (Year) Finding: [Brief summary]</td><td>[80%] (Meta-analysis)</td></tr>
+<tr><td>[Historical Precedent/Statistic] Source: [Institution/Author] (Year) Finding: [Brief summary]</td><td align="center">[XX%]</td><td align="center">[Logical Paradox/Counter-Statistic] Source: [Institution/Author] (Year) Finding: [Brief summary]</td><td>[XX%]</td></tr>
+<tr style="background-color: #f0f0f0;"><td colspan="3" align="right"><strong>Total Con:</strong></td><td>&nbsp;</td></tr>
+</tbody></table>
+<br />
+<h1>🔬 <a href="/Evidence">Evidence</a></h1>
+<p>All claims need <a href="/Evidence%20Scores">evidence</a> to support them, and all evidence is evaluated for its truth, quality and relevance.</p>
+<table ...><thead><tr style="background-color: #e6ffe6;">
+<th width="45%">✅ Top Supporting Evidence (ID)</th><th width="15%">Evidence Score</th><th width="15%">Linkage Score</th><th width="10%">Type</th><th width="15%">Contributing Amount</th>
+</tr></thead><tbody>
+<tr><td>[Study/Data Title] Source: [Institution/Author] (Year) Finding: [Brief summary]</td><td align="center">[95%] (Peer Reviewed)</td><td align="center">[Study/Data Title] Source: [Institution/Author] (Year) Finding: [Brief summary]</td><td align="center">[80%] (Meta-analysis)</td><td></td></tr>
+<tr><td>[Historical Precedent/Statistic] Source: [Institution/Author] (Year) Finding: [Brief summary]</td><td align="center">[XX%]</td><td align="center">[Logical Paradox/Counter-Statistic] Source: [Institution/Author] (Year) Finding: [Brief summary]</td><td align="center">[XX%]</td><td></td></tr>
+</tbody></table>
+<br />
+<table ...><thead><tr style="background-color: #ffe6e6;">
+<th width="45%">❌ Top Weakening Evidence (ID)</th><th width="15%">Evidence Score</th><th width="15%">Linkage Score</th><th width="10%">Type</th><th width="15%">Contributing Amount</th>
+</tr></thead><tbody>
+<tr><td>[Study/Data Title] Source: [Institution/Author] (Year) Finding: [Brief summary]</td><td align="center">[80%] (Meta-analysis)</td><td align="center"></td><td align="center">T1</td><td></td></tr>
+<tr><td>[Logical Paradox/Counter-Statistic] Source: [Institution/Author] (Year) Finding: [Brief summary]</td><td align="center">[XX%]</td><td align="center"></td><td align="center">T1</td><td></td></tr>
+</tbody></table>
+<br />
+<h1>🎯 <a href="/Objective%20Criteria">Objective Criteria</a></h1>
+<table ...><thead><tr style="background-color: #e6f0ff;">
+<th width="50%">If <strong>True</strong> — Value Supporters</th>
+<th width="50%">If <strong>False</strong> — Value Opponents</th>
+</tr></thead><tbody>
+<tr><td>[Criterion 1]<br/><span style="font-size:85%;color:#666;">[One-line description of what it measures and how]</span></td><td><strong><span style="color:#2e7d32;">[92%]</span></strong></td></tr>
+</tbody></table>
+<br />
+<h1>🧠 <a href="/Core%20Values">Core Values</a> Conflict</h1>
+<table ...><thead><tr style="background-color: #e6ffe6;">
+<th width="25%"><a href="/Supporters">Supporters</a> &amp; Their Interests</th>
+<th width="25%"><a href="/Opponents">Opponents</a> &amp; Their Interests</th>
+<th width="25%">Shared Interests</th>
+<th width="25%">Conflicting Interests</th>
+</tr></thead><tbody>
+<tr><td>1.<br />2.<br />3.</td><td>1.<br />2.<br />3.</td><td>1.<br />2.</td><td>1.<br />2.</td></tr>
+</tbody></table>
+<br />
+<h1>⚖️ <a href="/Conflict%20Resolution%20Framework">Conflict Resolution Framework</a></h1>
+<table ...><thead><tr style="background-color: #fff3e6;">
+<th width="25%">Required to Accept</th><th width="25%">Required to Reject</th><th width="25%">Potential Benefits</th><th width="25%">Potential Costs</th>
+</tr></thead><tbody>
+<tr><td><strong>-100% to -50%</strong><br/>(Strongly Oppose)</td>
+<td><strong>1. [Most general worldview assumption]:</strong> [Description]<br/><strong>2. [Political/philosophical assumption]:</strong> [Description]<br/><strong>3. [Causal assumption about this domain]:</strong> [Description]<br/><strong>4. [Specific assumption about this topic]:</strong> [Description]<br/><strong>5. [Most specific claim]:</strong> [Description]</td>
+<td>1. Improvements created:<br />2. Who gains:<br />3. Positive externalities:</td>
+<td>1. Problems created:<br />2. Who loses:<br />3. Negative externalities:</td></tr>
+</tbody></table>
+<br />
+<table ...><thead><tr style="background-color: #fff3e6;">
+<th width="34%">Best Compromise or Solution</th><th width="33%">Obstacles for Supporters</th><th width="33%">Obstacles for Opponents</th>
+</tr></thead><tbody>
+<tr><td>1. How could we address both sides' core interests?<br />2. What creative solutions haven't been tried?<br />3. What partial implementations could test ideas?</td>
+<td>1. What prevents acknowledging costs?<br />2. Incentives for extreme positions?</td>
+<td>1. What prevents acknowledging benefits?<br />2. Incentives for extreme positions?</td></tr>
+</tbody></table>
+<br />
+<table ...><thead><tr style="background-color: #fff3e6;">
+<th width="50%">Biases for Supporters</th><th width="50%">Biases for Opponents</th>
+</tr></thead><tbody>
+<tr><td>1. Confirmation bias?<br />2. Motivated reasoning?<br />3. Availability heuristic?</td><td>1. Confirmation bias?<br />2. Motivated reasoning?<br />3. Availability heuristic?</td></tr>
+</tbody></table>
+<br />
+<h1>📰 <a href="/Media">Media</a> Resources</h1>
+<table ...><thead><tr style="background-color: #e6ffe6;"><th width="50%">Supporting</th><th width="50%">Opposing</th></tr></thead><tbody>
+<tr><td>[Title]</td><td>[Book/Doc/Article]</td></tr>
+</tbody></table>
+<br />
+<h1>🌎 <a href="/General%20to%20Specific">General to Specific</a> / Upstream Support &amp; Downstream Dependencies</h1>
+<p>To understand any belief well, we must see where it fits in the larger map of ideas. Most beliefs are part of a chain — from abstract values to specific claims. Organizing them this way helps us avoid repeating debates, trace disagreements to their root, and build more efficient systems for evaluating ideas.</p>
+<table ...><thead><tr style="background-color: #e6f0ff;">
+<th width="50%">Most General (Upstream) Beliefs That Support This</th><th width="50%">Most General (Upstream) Beliefs That Oppose This</th>
+</tr></thead><tbody>
+<tr><td><strong>Most General</strong><br/>(Worldview)</td><td>"[Fundamental belief about human nature, society, or reality that supports this topic]"</td></tr>
+</tbody></table>
+<br />
+<table ...><thead><tr style="background-color: #e6f0ff;">
+<th width="50%">More Specific (Downstream) Beliefs That Support This</th><th width="50%">More Specific (Downstream) Beliefs That Oppose This</th>
+</tr></thead><tbody>
+<tr><td>1. More specific claims that depend on this belief being true</td><td>1. More specific claims that depend on this belief being false</td></tr>
+</tbody></table>
+<br />
+<h1>💡 Similar Beliefs (Extreme &amp; Moderate Versions)</h1>
+<table ...><thead><tr style="background-color: #f0e6ff;">
+<th width="50%">More Extreme Versions</th><th width="50%">More Moderate Versions</th>
+</tr></thead><tbody>
+<tr><td>1.<br />2.</td><td>1.<br />2.</td></tr>
+[export ends here]

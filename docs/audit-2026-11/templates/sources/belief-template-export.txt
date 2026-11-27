@@ -1,0 +1,157 @@
+SOURCE: Google Drive file 1vU2ieshQFiiruBAMIokYqsRGVXwvygCi "Template.html" (inside the PBWorks zip export, Drive modified 2026-03-12)
+PBWorks header: page=Template, time=1770010872 (2026-02-02 UTC), name=Mike
+Text below is the export's HTML reduced to its visible text, in order, with table structure kept. Wording is verbatim; HTML markup, inline styles and mojibake emoji bytes are dropped. [cols] lists header cells; [row] lists body cells; "&nbsp;" cells shown as (blank).
+
+H1  Belief: [Insert Belief Statement Here]
+BOX (grey, right-aligned):
+  Topic (link /One Page Per Topic): [Category] > [Subcategory]
+  Topic IDs: Dewey: [Number]
+  Belief Positivity (link /beliefs grouped and eventually sorted along the the positivity continuum) Towards Topic: [Scale -100% to +100%]
+  Each section builds a complete analysis from multiple angles. View the full technical documentation on GitHub (https://github.com/myklob/ideastockexchange).
+
+H1  Argument Trees (link /Reasons)
+  P: Each reason is a belief with its own page. Scoring is recursive based on truth (/truth), linkage (/Linkage Scores), and importance (/Importance Score).
+  TABLE (green header):
+    [cols] Top Scoring (link /Scoring) Reasons to Agree (60%) | Argument Score (15%) | Linkage Score (13%, link /w/page/159338766/Linkage Scores) | Impact (12%)
+    [row] (blank) x4   [row] (blank) x4
+    [totals row, grey] colspan3 "Total Pro:" | (blank)
+  TABLE (red header):
+    [cols] Top Scoring Reasons to Disagree (60%) | Argument Score | Linkage Score | Impact
+    [row] (blank) x4   [row] (blank) x4
+    [totals row] "Total Con:" | (blank)
+HR
+
+H2  Best Evidence (link /Evidence)
+  P (em): Key: T1=Peer-reviewed/Official, T2=Expert/Institutional, T3=Journalism/Surveys, T4=Opinion/Anecdote
+  TABLE (green):
+    [cols] Top Supporting Evidence (50%) | Evidence Score (15%) | Linkage Score (13%) | Type (10%) | Impact (12%)
+    [row] (blank) | (blank) | (blank) | T1 | (blank)   [row] (blank) x5
+    [totals row] colspan4 "Total Contributing:" | (blank)
+  TABLE (red):
+    [cols] Top Weakening Evidence | Evidence Score | Linkage Score | Type | Impact
+    [row] (blank) x5   [row] (blank) x5
+    [totals row] "Total Weakening:" | (blank)
+HR
+
+H2  Best Scoring Objective Criteria (link /Objective criteria scores)
+  P (em): For Measuring the Strength of this Belief
+  TABLE:
+    [cols] Top Objective Criteria (45%) | Independence Score (15%) | Linkage Score (15%) | Criteria Type (13%) | Total Score (12%)
+    [row] (blank) x5   [row] (blank) x5
+
+H2  Core Values Conflict (link /American values)
+  TABLE:
+    [cols] Supporting Values | Opposing Values
+    [row] "Advertised:" 1.  "Actual:" 1.  |  "Advertised:" 1.  "Actual:" 1.
+  P (italic): (What supporters claim vs. what actually motivates them)
+
+H1  Conflict Resolution (link /automate conflict resolution) Framework
+H2  Interest & Motivations (link /Interests)
+  TABLE: [cols] Supporters | Opponents   [row] 1. 2. 3. | 1. 2. 3.
+H2  Shared and Conflicting Interests (link /Interests)
+  TABLE: [cols] Shared Interests | Conflicting Interests   [row] 1. 2. | 1. 2.
+H2  Foundational Assumptions (link /Assumptions)
+  TABLE: [cols] Required to Accept This Belief | Required to Reject This Belief   [row] 1. 2. | 1. 2.
+H2  Cost-Benefit Analysis (link /cost-benefit analysis)
+  TABLE: [cols] Potential Benefits (40%, green) | Likelihood (10%, link /Likelihood) | Potential Costs (40%, red) | Likelihood (10%)
+    [row] "1. Improvements created: 2. Who gains: 3. Positive externalities:" | (blank) | "1. Problems created: 2. Who loses: 3. Negative externalities:" | (blank)
+H2  Short vs. Long-Term Impacts
+  TABLE: [cols] Short-Term (0-2 Years) | Long-Term (5+ Years)
+    [row] "1. Immediate effects: 2. Transition costs:" | "1. Sustained effects: 2. Structural changes:"
+H2  Best Compromise Solutions (link /Compromise)
+  TABLE: [cols] Solutions Addressing Core Concerns
+    [row] "1. How could we address both sides' core interests? 2. What creative solutions haven't been tried? 3. What partial implementations could test ideas?"
+H2  Primary Obstacles to Resolution (link /Obstacles to Resolution)
+  TABLE: [cols] Barriers to Supporter Honesty | Barriers to Opposition Honesty
+    [row] "1. What prevents acknowledging costs? 2. Incentives for extreme positions?" | "1. What prevents acknowledging benefits? 2. Incentives for extreme positions?"
+H2  Biases (link /bias)
+  TABLE: [cols] Affecting Supporters | Affecting Opponents
+    [row] "1. Confirmation bias? 2. Motivated reasoning? 3. Availability heuristic?" (both sides)
+H2  Media Resources (link /media)
+  TABLE: [cols] Supporting | Opposing
+    [row] each side: Books (link /Books) 1. / Articles 1. / Podcasts (link /Podcasts) 1. / Movies (link /Movies) 1. / Songs (link /Songs that agree) 1.
+H2  Legal Framework (link /Local, federal, and international laws that agree)
+  TABLE: [cols] Supporting Laws | Contradicting Laws
+    [row] "1. Local, state, federal laws that support this 2. International treaties" | "1. Local, state, federal laws that contradict this 2. International treaties"
+HR
+H2  General to Specific Belief Mapping (link /Belief Sorting)
+  H3 Most General (Upstream)
+    TABLE: [cols] Support | Oppose   [row] "1. Broader principles that, if true, would support this belief" | "1. Broader principles that, if true, would oppose this belief"
+  H3 More Specific (Downstream)
+    TABLE: [cols] Support | Oppose   [row] "1. More specific claims that depend on this belief being true" | "1. More specific claims that depend on this belief being false"
+H2  Similar Beliefs (link /combine similar beliefs)
+  TABLE: [cols] More Extreme Versions | More Moderate Versions   [row] 1. 2. | 1. 2.
+HR
+H1  Contribute
+  P: Contact me (link /Contact Me) to contribute to the Idea Stock Exchange.
+  P: View the full codebase and technical documentation on GitHub (https://github.com/myklob/ideastockexchange) to understand the scoring algorithms, contribute to development, or adapt this system for your own use.
+  P: Start by exploring how we:
+  UL: Calculate argument scores from sub-arguments (link) / Measure truth and evidence quality / Apply linkage scores to weight relevance / Implement ReasonRank for quality-based sorting
+  P: This template provides the structure. Your contributions provide the content. Together, we build humanity's knowledge infrastructure for better decisions.
+  P (right, bold, 1.2em): Score: [To be calculated based on argument scores (link /Argument scores from sub-argument scores)]
+(trailing pbraw= compressed blob omitted)
+
+=====================================================================
+LATER REVISION: Google Drive file 1UVQN1H4G08zUhfYPntJfdia7SE7IGMBs "Template.html" (Drive modified 2026-03-30). No uid/time header. Content truncated by the reader inside the Contribute section.
+
+div max-width:960px
+H1  [Belief Statement Goes Here]
+P:  Score: [+XX pro / -XX con | computed from sub-argument scores (link)]
+    Topic: [Category] (link One Page Per Topic) > [Subcategory]
+    Sections: Arguments | Evidence | Values | Interests | Assumptions | Criteria | Cost-Benefit | Resolution | Definitions
+<!-- ARGUMENT TREES: logical claims only. No data citations here. -->
+H1  Argument Trees (link /Reasons)
+  P: Each label is a logical claim. Click to see full reasoning, sub-arguments, linkage score, and supporting evidence on its own belief page. No data citations live here; those belong in the Evidence Ledger below.
+  TABLE (two columns side by side): [cols] Reasons to Agree [+XX total] | Reasons to Disagree [-XX total]
+    [rows] 1. [argument label, e.g. "efficiency"] [+XX] | 1. [argument label, e.g. "upfront cost"] [-XX]; 2.; 3.
+  P (em): Arguments are logical claims scored by logical validity x linkage x evidence quality. Strong reasoning rises naturally; fallacious arguments fade.
+<!-- EVIDENCE LEDGER: empirical data only. This includes all media formats. -->
+H1  Evidence Ledger (link Evidence)
+  P: Evidence is empirical data: studies, statistics, records, observations, and media. Each item is tiered by source quality and linked to the specific argument it bears on. Tier reflects the underlying source, not the format; a meme visualizing a T1 study is T1; a pundit asserting a claim is T4 at best, and is an argument, not evidence.
+  H3 Text and Data Sources
+    TABLE: [cols] Tier | Source | Stance | Argument It Bears On | Linkage
+      rows: T1 Peer-reviewed study or official data / Supports; T1 / Weakens; T2 Expert analysis / institutional report / Supports; T3 Investigative journalism / survey / Weakens; T4 Opinion / anecdotal claim / Supports / [+XX] low confidence
+  H3 Visual and Video Evidence
+    TABLE: [cols] Type | Description | Stance | Source | Tier | Argument It Bears On | Linkage
+      rows: Chart; Photo; Meme / Cartoon (T4); YouTube / Documentary (T2-4); Book (link Books)
+H1  Core Values Conflict (link American values)
+  TABLE: [cols] Supporting Values | Opposing Values
+    [row] Advertised: 1. 2. | Advertised: 1. 2.
+    [row] Actual (evidence-based): 1. 2. | Actual (evidence-based): 1. 2.
+H1  Interests and Motivations (link Interests)
+  TABLE: [cols] Supporters | Opponents  rows 1., 2.
+  H3 Shared vs. Conflicting Interests: [cols] Shared | Conflicting
+H1  Foundational Assumptions (link Assumptions)
+  TABLE: [cols] Required to Accept This Belief | Required to Reject This Belief  rows 1., 2.
+H1  Objective Criteria (link Objective criteria scores)
+  P: How would we know if this belief is true? Measurable tests both sides should agree on before the debate starts.
+  TABLE: [cols] Criterion | Current Status | Threshold for Agreement  rows 1-3
+H1  Cost-Benefit Analysis (link cost-benefit analysis)
+  TABLE: [cols] Potential Benefits | Potential Costs
+    rows: What improvements would this create? / What problems would this create?; Who gains and by how much? / Who loses and by how much?; Positive externalities? / Negative externalities?
+  H3 Short vs. Long-Term: [cols] Short-Term (0-2 years) | Long-Term (5+ years)
+H1  Resolution (link Compromise)
+  TABLE: [cols] Best Compromise Solutions | Primary Obstacles (link Obstacles to Resolution)
+  H3 Biases (link bias): [cols] Affecting Supporters | Affecting Opponents  rows Confirmation bias; Motivated reasoning
+H1  Belief Mapping (link Belief Sorting)
+  H3 Upstream (More General): Support | Oppose
+  H3 Downstream (More Specific): Support | Oppose
+  H3 Similar Beliefs (link combine similar beliefs): More Extreme | More Moderate
+H1  Legal Framework (link laws that agree)
+  TABLE: Supporting Laws | Contradicting Laws
+<!-- DEFINITIONS LAST -->
+H1  Definitions and Scoring Concepts
+  P: Arguments vs. Evidence: Arguments are logical claims, scored by logical validity and linkage strength. Evidence is empirical data, scored by source tier and conclusion relevance. The scoring formula: Argument Score = Evidence Quality x Logical Validity x Linkage Strength. An argument with great evidence but a logical fallacy still scores low. Evidence attached to the wrong argument contributes almost nothing even if the data is impeccable. Both layers are required.
+  P: Evidence Tiers: T1 = peer-reviewed / official data. T2 = expert analysis / institutional reports. T3 = investigative journalism / surveys. T4 = opinion / anecdotal. Tier is set by the underlying source...
+  P: Argument Scores are computed recursively, never manually assigned. Truth Scores integrate validity, evidence, and linkage. Importance Scores weight arguments by how much they move the needle. ReasonRank sorts by quality, not volume or recency.
+H1  Contribute
+  P: Contact me (link Contact Me) to add arguments, evidence, images, or video. | GitHub (https://github.com/IdeaStockExchange/ideastockexchange) f...   [reader output truncated here]
+
+Changes in the 2026-03-30 revision against the export:
+- Dropped the Dewey and Positivity header fields; added a Score line and a Sections jump list.
+- Argument Trees: pro and con moved from two stacked tables to one side-by-side table; the Argument Score / Linkage Score / Impact columns collapsed to an inline [+XX]; totals moved to the column header.
+- "Best Evidence" became "Evidence Ledger" with Tier | Source | Stance | Argument It Bears On | Linkage (no Evidence Score, no Impact, no totals), plus a new Visual and Video Evidence table that absorbs Media Resources.
+- Media Resources section and its Books/Articles/Podcasts/Movies/Songs prompts were removed (folded into evidence).
+- Objective Criteria moved from 3rd to after Assumptions and changed columns to Criterion | Current Status | Threshold for Agreement.
+- Compromise, Obstacles and Biases merged into one "Resolution" section; Belief Mapping and Similar Beliefs merged into "Belief Mapping"; Legal Framework moved after Belief Mapping.
+- New final "Definitions and Scoring Concepts" section; Contribute footer cut to one line.
