@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateBuy, calculateSell } from "@/lib/market-maker";
 
+import { guardMarketWrite } from '@/lib/public-guard';
 // POST /api/market: Execute a trade (buy or sell shares).
 export async function POST(request: NextRequest) {
+  const closed = guardMarketWrite(request, 'legacy-market')
+  if (closed) return closed
+
   const body = await request.json();
   const { userId, claimId, shareType, direction, amount } = body;
 

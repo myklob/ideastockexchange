@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { marketJson, marketErrorResponse } from '@/lib/markets/api'
 import { borrowMargin, repayMargin, portfolioEquity, resolveUser } from '@/lib/markets/service'
 
+import { guardMarketWrite } from '@/lib/public-guard'
 /** GET ?username= — margin book and portfolio equity for a user. */
 export async function GET(request: Request) {
   const username = new URL(request.url).searchParams.get('username')
@@ -24,6 +25,9 @@ export async function GET(request: Request) {
  * power). No interest, no hidden absorption of defaults.
  */
 export async function POST(request: Request) {
+  const closed = guardMarketWrite(request, 'market-margin')
+  if (closed) return closed
+
   let body: { username?: string; action?: 'borrow' | 'repay'; amount?: number }
   try {
     body = await request.json()

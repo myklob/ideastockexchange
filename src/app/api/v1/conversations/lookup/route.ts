@@ -1,8 +1,10 @@
 import { agentJson } from '@/lib/agent-api'
 import { lookupStatement } from '@/lib/conversations/lookup'
 import { CONVERSATION_FIREWALL_LINE } from '@/lib/conversations/contract'
+import { clientKey, rateLimit } from '@/lib/public-guard'
 
 const MAX_STATEMENT_LENGTH = 500
+const LOOKUPS_PER_MINUTE = 30
 
 /**
  * GET /api/v1/conversations/lookup?statement=... — the plug-in moment.
@@ -14,6 +16,9 @@ const MAX_STATEMENT_LENGTH = 500
  * lookup writes nothing and moves no score.
  */
 export async function GET(request: Request) {
+  if (!rateLimit(`lookup:${clientKey(request)}`, LOOKUPS_PER_MINUTE)) {
+    return agentJson({ error: `Lookups are limited to ${LOOKUPS_PER_MINUTE} per minute per client.` }, { status: 429 })
+  }
   const sp = new URL(request.url).searchParams
   const statement = (sp.get('statement') ?? sp.get('q') ?? '').trim()
   if (!statement) {

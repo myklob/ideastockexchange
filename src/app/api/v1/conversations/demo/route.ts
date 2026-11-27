@@ -17,6 +17,7 @@ import {
   demoClientKey,
   demoDailyCapReached,
   demoReviewToken,
+  demoReviewSecretMissing,
   demoWritesDisabled,
   ensureDemoAgent,
 } from '@/lib/conversations/demo-agent'
@@ -35,6 +36,9 @@ const MAX_TITLE_CHARS = 200
  * response carries a review token that gates the follow-up review move.
  */
 export async function POST(request: Request) {
+  if (demoReviewSecretMissing()) {
+    return agentJson({ error: 'The demo playground is unavailable: DEMO_REVIEW_SECRET is not configured on this deployment.' }, { status: 503 })
+  }
   if (demoWritesDisabled()) {
     return agentJson({ error: 'The demo playground is paused. Agents can still import via POST /api/v1/conversations.' }, { status: 503 })
   }

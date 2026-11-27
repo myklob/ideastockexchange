@@ -12,6 +12,7 @@ import {
   type IngestPayload,
   type ValidationIssue,
 } from './contract'
+import { parseHttpUrl } from '@/lib/http-url'
 
 // ─── Score-field rejection (the audit lock, applied to robots) ────────────
 
@@ -163,6 +164,13 @@ export function validateEvidenceInput(evidence: unknown, path: string): Validati
 
   if (typeof e.title !== 'string' || !e.title.trim()) {
     issues.push({ mode: FAILURE_MODES.INVALID_EVIDENCE, path: `${path}.title`, message: 'Evidence requires a title.' })
+  }
+  if (typeof e.sourceUrl === 'string' && e.sourceUrl.trim() && !parseHttpUrl(e.sourceUrl)) {
+    issues.push({
+      mode: FAILURE_MODES.INVALID_EVIDENCE,
+      path: `${path}.sourceUrl`,
+      message: 'sourceUrl must be an absolute http(s) URL.',
+    })
   }
   const locators = [e.sourceUrl, e.doi, e.pmid, e.isbn]
   if (!locators.some(v => typeof v === 'string' && v.trim())) {

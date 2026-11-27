@@ -349,7 +349,7 @@ export async function runEpoch(epoch: string, now = new Date()): Promise<EpochRu
         },
       })
       return result
-    })
+    }, { timeout: 60_000, maxWait: 10_000 })
 
     contractsSettled++
     payoutsTotal += paid

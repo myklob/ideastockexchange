@@ -84,7 +84,7 @@ Open **http://localhost:3000**. The key pages once seeded:
 SQLite does not work on serverless, so production uses Postgres (Neon/Supabase/etc.):
 
 1. Create a Postgres database and copy its connection string.
-2. Set `DATABASE_URL` to the Postgres URL in your host's environment variables (do
+2. Set `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED` (direct) in your host's environment variables (do
    **not** commit it). Builds run `scripts/set-prisma-provider.mjs`, which flips the
    schema's datasource provider to `postgresql` automatically when `DATABASE_URL`
    is a Postgres URL — no manual schema edit needed.

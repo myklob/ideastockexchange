@@ -25,6 +25,19 @@ export interface LookupMatch {
 
 export const LOOKUP_MATCH_LIMIT = 5
 
+const INDEX_TTL_MS = 30_000
+let indexCache: { at: number; rows: LookupBeliefRow[] } | null = null
+
+/** The {id, slug, statement} index every lookup scans, cached briefly so a
+ *  burst of lookups is not a full-table read per request. */
+async function beliefIndex(): Promise<LookupBeliefRow[]> {
+  const now = Date.now()
+  if (indexCache && now - indexCache.at < INDEX_TTL_MS) return indexCache.rows
+  const rows = await prisma.belief.findMany({ select: { id: true, slug: true, statement: true } })
+  indexCache = { at: now, rows }
+  return rows
+}
+
 /**
  * Pure ranker: which permanent pages could this statement be about?
  * Below FOCAL_MATCH_THRESHOLD a belief is not a plausible home, so it never
@@ -79,8 +92,7 @@ export async function lookupStatement(statement: string): Promise<StatementLooku
   const trimmed = statement.trim()
   const claimNotes = validateStandaloneClaim(trimmed).map(i => i.message)
 
-  const beliefs = await prisma.belief.findMany({ select: { id: true, slug: true, statement: true } })
-  const ranked = rankBeliefMatches(trimmed, beliefs)
+  const ranked = rankBeliefMatches(trimmed, await beliefIndex())
   const matches = ranked.map(m => ({ ...m, url: `/beliefs/${m.belief.slug}` }))
 
   if (ranked.length === 0) {

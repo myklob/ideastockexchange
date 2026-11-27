@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { calculateBeliefEquivalencyScore } from '@/core/scoring/all-scores'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 /**
  * POST /api/beliefs/equivalency
  *
@@ -27,6 +28,9 @@ import { calculateBeliefEquivalencyScore } from '@/core/scoring/all-scores'
  *   thresholds          {object}  Reference table of all score bands
  */
 export async function POST(req: NextRequest) {
+  const blocked = guardPublicWrite(req, 'equivalency', 20)
+  if (blocked) return blocked
+
   let body: unknown
   try {
     body = await req.json()

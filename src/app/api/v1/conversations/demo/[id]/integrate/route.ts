@@ -7,6 +7,7 @@ import {
   checkDemoRateLimit,
   demoClientKey,
   demoWritesDisabled,
+  demoReviewSecretMissing,
   ensureDemoAgent,
   verifyDemoReviewToken,
 } from '@/lib/conversations/demo-agent'
@@ -21,6 +22,9 @@ import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
  * handed back, and capped per request.
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (demoReviewSecretMissing()) {
+    return agentJson({ error: 'The demo playground is unavailable: DEMO_REVIEW_SECRET is not configured on this deployment.' }, { status: 503 })
+  }
   if (demoWritesDisabled()) {
     return agentJson({ error: 'The demo playground is paused.' }, { status: 503 })
   }

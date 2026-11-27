@@ -28,6 +28,7 @@ import {
 } from '@/core/scoring/scoring-engine'
 import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 const VALID_TIERS = ['T0', 'T1', 'T2', 'T3', 'T4'] as const
 
 interface PatchBody {
@@ -81,10 +82,11 @@ export async function GET(
   })
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(request: Request,
+  { params }: { params: Promise<{ id: string }> },) {
+  const blocked = guardPublicWrite(request, 'evidence-edit', 20)
+  if (blocked) return blocked
+
   const { id } = await params
   const evidenceId = Number(id)
   if (!Number.isInteger(evidenceId)) {

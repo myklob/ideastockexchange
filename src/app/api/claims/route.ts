@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+import { guardPublicWrite } from '@/lib/public-guard';
 // GET /api/claims: List all active claims with their market data.
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -48,6 +49,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/claims: Create a new claim with initial liquidity pool.
 export async function POST(request: NextRequest) {
+  const blocked = guardPublicWrite(request, 'claims', 10)
+  if (blocked) return blocked
+
   const body = await request.json();
   const { title, description, category, initialLiquidity } = body;
 
