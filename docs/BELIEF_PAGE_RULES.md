@@ -245,8 +245,8 @@ as **What the numbers are made of**, after What This Page Needs Right Now, so th
 heading line's single truth score is the only number above the arguments. The October
 2026 update brings the template and these rules to the shapes the published static site
 builds: Objective Criteria with four typed labels, predictions split by which way they
-follow, a Range column and Net by Category and Who Gains, Who Pays under the
-cost-benefit tables, a Gap column on shared values, interest tables of Validity x Drives,
+follow, a Range column and Net by Category (since November 2026 Totals for Each
+Category and Net by Unit) and Who Gains, Who Pays under the cost-benefit tables, a Gap column on shared values, interest tables of Validity x Drives,
 a computed Primary Conflict Pair line, Dispute Types with a Linkage row and the computed
 kind marked, media rows that are shown and not counted, and the built-site sections
 (Ways of Saying the Same Thing, Structural Checks, Scoring Engine, Cite This Page). The

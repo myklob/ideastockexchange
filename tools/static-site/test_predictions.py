@@ -9,16 +9,17 @@ import render_site as RS
 import predictions as P
 
 D = dt.date
+WORLD_CUP = "The 2034 final (dates not yet set by FIFA as of October 2026), settled against FIFA's official 2034 World Cup results."
 
 
-def corpus(outcome=None):
+def corpus(outcome=None, third='Checked by aerial survey'):
     pages = [dict(key='b', kind='belief', text='The city will plant ten thousand trees.', topic='t'),
              dict(key='p1', kind='claim', text='The city will report ten thousand trees planted.', parent='b'),
              dict(key='p2', kind='claim', text='Tree planting will stall below five thousand.', parent='b'),
              dict(key='p3', kind='claim', text='Shade cover will rise on the east side.', parent='b')]
     edges = [dict(page='b', section='prediction', side='agree', claim='p1', deadline='By December 31, 2026; the city forestry report'),
              dict(page='b', section='prediction', side='disagree', claim='p2', deadline='By June 30, 2026; the same report'),
-             dict(page='b', section='prediction', side='agree', claim='p3', deadline='Checked by aerial survey')]
+             dict(page='b', section='prediction', side='agree', claim='p3', deadline=third)]
     if outcome:
         pages.append(dict(key='o1', kind='claim', text='The forestry report for 2026 counts 10,400 trees planted.', parent='p1',
                           etype='record', erq='3', erp='100'))
@@ -40,9 +41,64 @@ class TestDeadlines(unittest.TestCase):
                            ('Within a year; the 2028 survey', D(2028, 12, 31))]:
             self.assertEqual(P.due_date(text), want, text)
 
+    def test_an_aside_or_the_start_of_a_window_is_not_the_deadline(self):
+        """Three live deadlines were read a year or eight early, and their predictions listed as overdue: the date
+        was taken from words in parentheses, from the day a window opened, or from the name of a report."""
+        for text, want in [("The 2034 final (dates not yet set by FIFA as of October 2026), settled against FIFA's official 2034 "
+                            'World Cup results.', D(2034, 12, 31)),
+                           ('The first Washington Institute Saudi poll published after October 24, 2026, and no later than '
+                            'December 31, 2027.', D(2027, 12, 31)),
+                           ('By mid-January 2027, when the BLS publishes its December 2026 CPI release; checked against series '
+                            'CUUR0000SA0.', D(2027, 1, 31)),
+                           ('July 2030, settled against FIFA\'s official 2030 World Cup results (final scheduled for July 21, 2030).',
+                            D(2030, 7, 31)),
+                           ('Since January 2025 the count has been published monthly; by June 2027', D(2027, 6, 30))]:
+            self.assertEqual(P.due_date(text), want, text)
+
+    def test_the_only_date_a_clause_names_is_read_wherever_it_sits(self):
+        self.assertEqual(P.due_date('The next election (November 3, 2026); state returns'), D(2026, 11, 3))
+        self.assertEqual(P.due_date('After the 2028 election; the certified count'), D(2028, 12, 31))
+        self.assertEqual(P.due_date('Within a year from March 2027'), D(2027, 3, 31))
+
+    def test_no_live_deadline_is_read_from_an_aside(self):
+        """Every prediction in the tables: the date read from its deadline is never one that sits inside parentheses
+        while the same clause names another date outside them."""
+        import re
+        _, edges = IT.read_csv(os.path.join(HERE, 'content'))[:2]
+        checked = 0
+        for e in edges:
+            if e.get('section') != 'prediction' or not (e.get('deadline') or '').strip(): continue
+            head = e['deadline'].split(';')[0]
+            bare = re.sub(r'\([^()]*\)', ' ', head)
+            if bare == head or P._first(bare, closing=True) is None: continue
+            checked += 1
+            self.assertEqual(P.due_date(e['deadline']), P._first(bare, closing=True), e['deadline'])
+        self.assertGreater(checked, 0, 'no live deadline carries an aside, so this checked nothing')
+
     def test_no_year_is_no_date_and_now_is_today(self):
         self.assertIsNone(P.due_date('Checked by aerial survey'))
         self.assertEqual(P.due_date('Reviewable now; the 2014 Senate report'), P.NOW)
+
+    def test_the_date_the_words_were_written_is_not_the_deadline(self):
+        self.assertEqual(P.due_date(WORLD_CUP), D(2034, 12, 31))
+        for text, want in [('The 2034 final, no date set as at October 2026', D(2034, 12, 31)),
+                           ('By 2034, checked against the October 2026 baseline', D(2034, 12, 31)),
+                           ('(Announced March 2027) the 2029 annual report', D(2029, 12, 31)),
+                           ('As of October 2026 no date is set. Due by March 2030', D(2030, 3, 31)),
+                           ('The first Washington Institute Saudi poll published after October 24, 2026, and no later than '
+                            'December 31, 2027.', D(2027, 12, 31))]:
+            self.assertEqual(P.due_date(text), want, text)
+
+    def test_a_date_in_an_aside_still_counts_when_no_later_year_is_named(self):
+        for text, want in [('The final (July 21, 2030)', D(2030, 7, 21)),
+                           ('The 2030 final (scheduled for July 21, 2030)', D(2030, 7, 21)),
+                           ("After the 102nd Academy Awards in 2030, checked against the Academy's database", D(2030, 12, 31)),
+                           ('Unemployment as of December 2027; the BLS release', D(2027, 12, 31)),
+                           ("July 2030, settled against FIFA's official 2030 World Cup results (final scheduled for July 21, 2030).",
+                            D(2030, 7, 31)),
+                           ('No date set as of writing. Due October 2026, per the 2027 report', D(2026, 10, 31)),
+                           ("Nvidia's third-quarter fiscal 2028 earnings release, expected in November 2027.", D(2027, 11, 30))]:
+            self.assertEqual(P.due_date(text), want, text)
 
 
 class TestTracker(unittest.TestCase):
@@ -56,6 +112,12 @@ class TestTracker(unittest.TestCase):
         early = P.tracker(c, today=D(2026, 6, 1))
         self.assertEqual([c.key[r['page']] for r in early['soon']], ['p2'])
         self.assertEqual([c.key[r['page']] for r in early['later']], ['p1'])
+
+    def test_a_prediction_due_in_2034_is_not_overdue_in_2026(self):
+        c = corpus(third=WORLD_CUP)
+        tr = P.tracker(c, today=D(2026, 11, 22))
+        self.assertNotIn('p3', [c.key[r['page']] for r in tr['overdue']])
+        self.assertEqual([(c.key[r['page']], r['due']) for r in tr['later']], [('p3', D(2034, 12, 31))])
 
     def test_a_recorded_outcome_settles_the_prediction_through_its_own_page(self):
         happened = P.tracker(corpus('agree'), today=D(2027, 1, 15))

@@ -85,9 +85,9 @@
     5.  Logical Anatomy & Foundational Assumptions (logical form, Component
         Claims table with Load Bearing (typed), Assumptions by Side with Scores)
     6.  Cost-Benefit Analysis (Benefits table + Costs table: Claim / Category
-        (Units) / Magnitude / Range / Likelihood / Expected Value), then Net by
-        Category and Who Gains, Who Pays (built site), then Short vs. Long-Term
-        Impacts (with Scores)
+        (Units) / Magnitude / Range / Likelihood / Expected Value), then Totals for
+        Each Category, Net by Unit and Who Gains, Who Pays (built site), then
+        Short vs. Long-Term Impacts (with Scores)
     7.  Conflict Resolution Framework (in the software it opens with the computed
         Pipeline readout, the scored cost-benefit trees read sideways)
         a. Shared Values, Different Rankings (Value / Supporters Rank / Opponents
@@ -462,9 +462,21 @@
 </tbody>
 </table>
 <p>&nbsp;</p>
-<!-- NET BY CATEGORY and WHO GAINS, WHO PAYS: built site. Both are computed from the two
-     tables above and never typed. -->
-<h2>Net by Category</h2>
+<!-- TOTALS FOR EACH CATEGORY, NET BY UNIT and WHO GAINS, WHO PAYS: built site. All three are
+     computed from the two tables above and never typed. A row is filed under a category by the
+     words of the unit it is counted in; a unit the list does not recognise is Other. -->
+<h2>Totals for Each Category</h2>
+<table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
+<thead>
+<tr style="background-color: #f0f3f6;"><th width="30%">Category</th> <th width="10%">Benefits</th> <th width="10%">Costs</th> <th width="18%">Benefit Expected Value</th> <th width="18%">Cost Expected Value</th> <th width="14%">Net</th></tr>
+</thead>
+<tbody>
+<tr><td>[Money / Lives / Time / Environment / Health / Freedom / Trust / Innovation / Security / Education / Government / Culture and sport / Other]</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td><td align="center">&nbsp;</td></tr>
+</tbody>
+</table>
+<p style="font-size: 13px;">Counts always add. Expected values are added only when every priced row in the category shares one unit; a category priced in several units prints no total and says how many units it holds.</p>
+<p>&nbsp;</p>
+<h2>Net by Unit</h2>
 <table style="border-collapse: collapse; border-color: #ccc;" border="1" cellspacing="0" cellpadding="8" width="100%">
 <thead>
 <tr style="background-color: #f0f3f6;"><th width="40%">Units</th> <th width="20%">Benefit Expected Value</th> <th width="20%">Cost Expected Value</th> <th width="20%">Net</th></tr>

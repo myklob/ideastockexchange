@@ -121,6 +121,7 @@ FIELDS = {
                'A reason to disagree': 'disagree', 'Source': 'source'},
     'vote': {'Page': 'page', 'Vote': 'vote', 'On page': 'on', 'Why': 'why'},
     'outline': {'The outline': 'text', 'Note': 'note'},
+    'stake': {'Page': 'page', 'Kind': 'kind', 'Side': 'side', 'Amount': 'amount'},
 }
 FORMS = tuple(FIELDS)
 LABELS = {label for form in FIELDS.values() for label in form}
@@ -133,7 +134,7 @@ OPTIONAL = {'Source', 'URL', 'Date checked', 'Category', 'Why it bears on the pa
 # the estimate a cost or benefit form takes, field id -> edges column; each is copied only when it is a number
 ESTIMATE = (('magnitude', 'magnitude'), ('mag_low', 'mag_low'), ('mag_high', 'mag_high'))
 # one heading that only that form carries, for an issue whose label did not stick
-SIGNATURE = {'contribution': 'The claim', 'belief': 'The belief', 'vote': 'Vote', 'outline': 'The outline'}
+SIGNATURE = {'contribution': 'The claim', 'belief': 'The belief', 'vote': 'Vote', 'outline': 'The outline', 'stake': 'Amount'}
 THING = {'argument': 'reason', 'evidence': 'finding', 'prediction': 'prediction', 'criterion': 'criterion',
          'cba': 'cost or benefit', 'interest': 'interest', 'falsify': 'evidence that would move it', 'assumption': 'assumption',
          'component': 'component', 'short_term': 'short-term effect', 'long_term': 'long-term effect', 'value': 'value',
@@ -145,6 +146,9 @@ THING = {'argument': 'reason', 'evidence': 'finding', 'prediction': 'prediction'
          'common': 'common ground', 'criteria': 'criterion', 'related': 'related topic'}
 PR_SETTING = ('Allow GitHub Actions to create and approve pull requests')
 NO_MOVE = 'A vote never moves a score; the page shows it next to what the analysis says, as what people think.'
+PLAY = 'It is play money and no score reads it: the price of a share is the truth score, and money does not move it.'
+# what the stake form's two dropdowns say, and what the ledger calls it
+STAKE_SIDE = {'for': 'agree', 'against': 'disagree', 'agree': 'agree', 'disagree': 'disagree'}
 
 
 class IntakeError(Exception):
@@ -1039,6 +1043,98 @@ def process_outline(sub, tables, git, matcher, content, workbook):
 def page_link(key, site=SITE): return f'{site}p/{key}.html'
 
 
+# ------------------------------------------------------------------------------------------- play money
+def process_stake(sub, tables, git, matcher, content):
+    """A stake form in, and a row in content/stakes.csv out: play money put on a page, as shares in a claim or as a
+    bet on a prediction, or shares sold back (market.py). The price of a share is the page's truth score in the
+    tables as they stand, so it is computed here and written beside the amount; nothing a scorer reads is touched. A stake that cannot
+    be taken (no such page, a bet on something that is not a prediction, more than the account has left) is
+    answered in a comment and the issue closed, because it is the sender's to correct and not a fault to fail on."""
+    import market as MK, predictions as PR
+    f, n, login = sub['fields'], sub['number'], sub['login']
+    key, kind = f['page'], f['kind'].strip().lower()
+    side = STAKE_SIDE.get(f['side'].strip().lower())
+
+    def refuse(why, code):
+        git.comment(n, f'{why} Nothing was recorded. Correct the form and submit it again.')
+        git.close(n, 'not planned')
+        return {'did': 'nothing', 'why': code}
+
+    # what the sender typed is read back short and as code, so a field stuffed with markup says nothing in the reply
+    said = lambda v: '`' + re.sub(r'[`\s]+', ' ', v)[:40] + '`'
+    if not tables.has(key): return refuse(f'There is no page with the key {said(key)}.', 'unknown page')
+    if kind not in MK.KINDS: return refuse(f'Kind must be invest, sell or bet, not {said(f["kind"])}.', 'unknown kind')
+    if side is None: return refuse(f'Side must be for or against, not {said(f["side"])}.', 'unknown side')
+    everything = kind == 'sell' and f['amount'].strip().lower() in ('all', 'everything')
+    amount = None if everything else MK._num(f['amount'])
+    if not everything and (amount is None or amount < (0.01 if kind == 'sell' else MK.MIN_STAKE)):
+        least = 'or the word all' if kind == 'sell' else f'at least {MK.MIN_STAKE:g}'
+        return refuse(f'The amount must be a number of play dollars, {least}; {said(f["amount"])} is not.', 'bad amount')
+    if amount is not None: amount = round(amount, 2)
+    c = (matcher or Matcher(content)).c
+    pid = c.tabs[key]
+    name = f'[{tables.by_key[key].get("text") or key}]({page_link(key)})'
+    settled = {}
+    tracked = PR.tracker(c)
+    for r in tracked['resolved']:
+        if r['outcome'] in ('came true', 'did not'): settled[c.key[r['page']]] = 'agree' if r['outcome'] == 'came true' else 'disagree'
+    if kind in MK.PRICED:
+        if c.kind(pid) not in ('belief', 'claim'):
+            return refuse(f'Shares can be bought in a belief or a claim, and {name} is neither.', 'not a claim')
+    else:
+        predictions = {c.key[r['page']] for rows in tracked.values() for r in rows}
+        if key not in predictions:
+            return refuse(f'A bet goes on a dated prediction, and {name} is not listed as one on any belief. To take a position on it '
+                          f'with no end date, invest in it instead.', 'not a prediction')
+        if key in settled:
+            return refuse(f'{name} has already been settled, so its pool is closed.', 'already settled')
+    truth_of = lambda k: c.truth(c.tabs[k]) if k in c.tabs else None
+    path = MK.path_of(content)
+    # what the account can still stake, not counting this issue's own earlier stake when the form was edited and sent again
+    def before(): return [r for r in MK.read(content) if str(r.get('issue') or '') != str(n)]
+    book = MK.Book(before(), truth_of, settled.get)
+    cash = book.cash(login)
+    price = MK.price(c.truth(pid), side) if kind in MK.PRICED else None
+    words = 'for' if side == 'agree' else 'against'
+    if kind == 'sell':
+        held = book.held(login, key, side)
+        worth = held['shares'] * price
+        if worth < 0.01:
+            return refuse(f'This account holds no shares {words} {name}, so there is nothing to sell.', 'nothing held')
+        if everything: amount = round(worth, 2)
+        elif amount > worth + MK.DUST:
+            return refuse(f'That is {amount:,.2f} play dollars and the shares this account holds {words} {name} are worth {worth:,.2f} '
+                          f'at today\'s price. Type all to sell every one of them.', 'more than held')
+        amount = min(amount, round(worth, 2)) or 0.01
+        paid = held['cost'] * min(1.0, amount / worth)
+    elif amount > cash + 1e-9:
+        return refuse(f'That is {amount:,.2f} play dollars and this account has {cash:,.2f} left of the {MK.START:,.0f} it started with.', 'not enough left')
+
+    def apply():
+        MK.write(content, MK.record(before(), key, login, kind, side, amount, price, n, sub['date']))
+    apply()
+    git.identity()
+    left = cash + amount if kind == 'sell' else cash - amount
+    if kind == 'sell':
+        gain = amount - paid
+        git.push_master([path], f'Record a stake from #{n}: {login} sells {amount:g} of {words} {key}', apply)
+        git.comment(n, f'Sold: {amount:,.2f} play dollars of your shares {words} {name}, at {price:.2f} a share. They cost you {paid:,.2f}, '
+                       f'so you {"made" if gain >= 0 else "lost"} {abs(gain):,.2f}. You have {left:,.2f} play dollars to stake. {PLAY}')
+    elif kind == 'invest':
+        git.push_master([path], f'Record a stake from #{n}: {login} invests {amount:g} {words} {key}', apply)
+        git.comment(n, f'Recorded: {amount:,.2f} play dollars {words} {name}, at {price:.2f} a share, which buys {amount / price:,.2f} shares. '
+                       f'They are worth more when the truth score moves your way, and the only thing that moves it is a better reason or a '
+                       f'finding on the page: {page_link(key)}#take-part. You have {left:,.2f} play dollars left. {PLAY}')
+    else:
+        outcome = 'happens' if side == 'agree' else 'does not happen'
+        git.push_master([path], f'Record a stake from #{n}: {login} bets {amount:g} that {key} {outcome}', apply)
+        git.comment(n, f'Recorded: {amount:,.2f} play dollars that {name} {outcome}. It settles when what happened is recorded on the '
+                       f'prediction\'s page, and the whole pool then goes to the side that was right, in proportion to what each person put '
+                       f'in. You have {left:,.2f} play dollars left. {PLAY}')
+    git.close(n)
+    return {'did': 'stake', 'key': key, 'kind': kind, 'side': side, 'amount': amount, 'price': price}
+
+
 def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=ROOT, workbook=WORKBOOK):
     """One issue in, and out: a vote recorded, a duplicate turned into a vote, rows added and a pull request
     opened, or an outline filed (process_outline). Returns what was done, for the log and for the tests."""
@@ -1091,6 +1187,7 @@ def process(event, content=CONTENT, run=subprocess_runner, matcher=None, root=RO
         return {'did': 'vote', 'key': key, 'vote': vote, 'on': on}
 
     if sub['form'] == 'outline': return process_outline(sub, tables, git, matcher, content, workbook)
+    if sub['form'] == 'stake': return process_stake(sub, tables, git, matcher, content)
     text = sub['fields']['text']
     if not text: raise IntakeError('the submitted text is empty')
     if sub['form'] == 'contribution' and not (tables.has(sub['fields']['page']) or tables.is_topic(sub['fields']['page'])):

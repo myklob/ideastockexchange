@@ -33,6 +33,7 @@ out.interestSections = C.INTEREST_SECTIONS;
 out.urls = job.urls.map(function (u) { return C.issueUrl(REPO, u.section, u.side, u.page, u.fields); });
 out.vote = C.voteUrl(REPO, 'some-key', 'disagree');
 out.voteOn = C.voteUrl(REPO, 'some-key', 'agree', 'some-page');
+out.titles = job.titles.map(function (t) { return C.voteTitle(t[0], t[1], t[2], t[3], t[4]); });
 process.stdout.write(JSON.stringify(out));
 """.replace('REPO', json.dumps(REPO))
 
@@ -92,7 +93,12 @@ class TestTheScoringPort(unittest.TestCase):
              'fields': {'title': 'Cost or benefit: ', 'text': 'Officials pay to sell their holdings.', 'magnitude': '20000', 'mag_low': '5000',
                         'mag_high': '60000', 'units': 'dollars per official per term', 'who': 'Officials need rules they can follow'}},
         ]
-        cls.out = run_node({'claims': cls.claims, 'pairs': cls.pairs, 'queries': cls.queries, 'kinds': cls.kinds, 'urls': cls.urls})
+        long_claim = 'Members regularly trade in the industries their own committees oversee, which puts a private financial stake on both sides of decisions they control.'
+        cls.titles = [['some-key', 'agree', None, None, None], ['some-key', 'disagree', None, long_claim, None],
+                      ['r1', 'agree', 'a', 'A short reason.', long_claim], ['r1', 'disagree', 'a', long_claim, 'A short page.'],
+                      ['k', 'agree', None, '  spaced   out\nclaim  ', None]]
+        cls.out = run_node({'claims': cls.claims, 'pairs': cls.pairs, 'queries': cls.queries, 'kinds': cls.kinds, 'urls': cls.urls,
+                            'titles': cls.titles})
 
     def python_score(self, i, j):
         """Similarity.between() over the Matcher's weights: the same rule, the weights the page has."""
@@ -181,10 +187,20 @@ class TestTheScoringPort(unittest.TestCase):
         self.assertTrue(parse_qs(long.query)['text'][0].startswith('xxx'))
         v = urlsplit(self.out['vote'])
         self.assertEqual(parse_qs(v.query), {'template': ['vote.yml'], 'labels': ['vote'], 'page': ['some-key'],
-                                             'vote': ['disagree'], 'title': ['Vote disagree: some-key']})
+                                             'vote': ['disagree'], 'title': ['👎 Disagree: some-key']})
         v = urlsplit(self.out['voteOn'])
         self.assertEqual(parse_qs(v.query)['on'], ['some-page'], 'a vote on whether a row bears on its page lost the page')
-        self.assertEqual(parse_qs(v.query)['title'], ['Vote agree: some-key on some-page'])
+        self.assertEqual(parse_qs(v.query)['title'], ['👍 Relevant: "some-key" bears on "some-page"'])
+
+    def test_a_vote_arrives_under_the_same_title_from_the_script_and_from_the_page(self):
+        """The issue title is the first thing the GitHub page shows, so it names the thumb clicked and the claim in
+        words; the page's links and the script's write it the same way, a long claim cut at a word."""
+        import render_site as RS
+        self.assertGreater(len(self.titles), 3)
+        for t, js in zip(self.titles, self.out['titles']):
+            self.assertEqual(js, RS.vote_title(*t), f'the script and the page title {t} differently')
+        self.assertTrue(self.out['titles'][1].endswith('…'), 'a long claim was not cut')
+        self.assertLessEqual(len(self.out['titles'][1]), 130)
 
     def test_every_field_the_script_sends_is_one_the_issue_form_has_and_intake_reads(self):
         """A query parameter GitHub has no field for is dropped without a word, and a heading intake does not
@@ -193,7 +209,7 @@ class TestTheScoringPort(unittest.TestCase):
         root = os.path.dirname(os.path.dirname(HERE))
         for form, yml_name in (('contribution', 'contribute.yml'), ('vote', 'vote.yml')):
             with open(os.path.join(root, '.github', 'ISSUE_TEMPLATE', yml_name)) as fh: yml = fh.read()
-            ids = set(re.findall(r'^\s+id: ([a-z_]+)$', yml, re.M))
+            ids = set(re.findall(r'^\s+id: "?([a-z_]+)"?$', yml, re.M))
             labels = set(re.findall(r'^\s+label: (.+)$', yml, re.M))
             for label, fid in intake.FIELDS[form].items():
                 self.assertIn(fid, ids, f'{yml_name} has no field {fid}')
@@ -207,6 +223,85 @@ class TestTheScoringPort(unittest.TestCase):
         for label in intake.FIELDS['contribution']: self.assertIn(f"'{label}'", src, f'Copy as text does not write the heading {label!r}')
 
 
+OPENER = r"""
+var shown = [], scrolled = [];
+function form(id, attrs) {
+  return {id: id, showPopover: function () { shown.push(id); }, hasAttribute: function (a) { return attrs.indexOf(a) >= 0; }};
+}
+var forms = {'add-argument-agree': form('add-argument-agree', ['popover', 'data-wired']),
+             'add-evidence': form('add-evidence', ['popover']), 'add-old': form('add-old', ['data-wired'])};
+global.document = {
+  getElementById: function (id) { return forms[id] || null; },
+  querySelector: function (sel) { return {scrollIntoView: function () { scrolled.push(sel); }}; }
+};
+var C = require(process.argv[2]), out = {};
+out.wired = C.openForm('add-argument-agree');
+out.unwired = C.openForm('add-evidence');
+out.notPopover = C.openForm('add-old');
+out.missing = C.openForm('add-nothing');
+out.empty = C.openForm('');
+out.shown = shown; out.scrolled = scrolled;
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+class TestALinkToAFormOpensIt(unittest.TestCase):
+    """A form is a popover behind a one-line link, so a link to its id has nowhere on the page to scroll to.
+    The script opens the form instead, with the table the row would join behind it. It leaves alone a form it
+    has not wired (which the styles then show in place) and anything that is not a popover."""
+
+    @classmethod
+    def setUpClass(cls):
+        if not shutil.which('node'): raise unittest.SkipTest('node is not on PATH')
+        d = tempfile.mkdtemp(prefix='ise-open-')
+        try:
+            runner = os.path.join(d, 'run.js')
+            with open(runner, 'w', encoding='utf-8') as fh: fh.write(OPENER)
+            r = subprocess.run(['node', runner, JS], capture_output=True, text=True, timeout=60)
+            if r.returncode: raise AssertionError('node failed: ' + r.stderr)
+            cls.out = json.loads(r.stdout)
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+
+    def test_a_wired_popover_opens_over_its_table(self):
+        self.assertTrue(self.out['wired'])
+        self.assertEqual(self.out['shown'], ['add-argument-agree'], 'only the wired popover is opened, and once')
+        self.assertEqual(self.out['scrolled'], ['[popovertarget="add-argument-agree"]:not(.x)'],
+                         'the page does not move to the link that opens the form, or moves to its close button')
+
+    def test_anything_else_is_left_to_the_browser(self):
+        for case in ('unwired', 'notPopover', 'missing', 'empty'):
+            self.assertFalse(self.out[case], f'{case}: the script claims a link it cannot serve, so the click goes nowhere')
+
+
+class TestTheIssueFormsLoad(unittest.TestCase):
+
+    # what YAML 1.1, which GitHub reads issue forms with, takes for a boolean or for nothing rather than a word
+    NOT_WORDS = {'y', 'n', 'yes', 'no', 'on', 'off', 'true', 'false', 'null', '~'}
+    BOOLEAN_KEYS = {'required', 'multiple', 'blank_issues_enabled'}
+
+    def test_no_issue_form_has_a_bare_word_yaml_reads_as_a_boolean(self):
+        """An id, a label or an option YAML reads as true, false or null makes the whole form invalid, and GitHub
+        then opens a blank issue in its place without saying why. A bare `id: on` on the vote form did that to
+        every vote link on the site until it was quoted."""
+        import re, glob
+        root = os.path.dirname(os.path.dirname(HERE))
+        forms = sorted(glob.glob(os.path.join(root, '.github', 'ISSUE_TEMPLATE', '*.yml')))
+        self.assertGreaterEqual(len(forms), 4)
+        checked = 0
+        for path in forms:
+            with open(path, encoding='utf-8') as fh: lines = fh.read().splitlines()
+            for i, line in enumerate(lines, 1):
+                m = re.match(r'^\s*(?:-\s+)?(?:([A-Za-z_]+):\s*)?(\S.*?)\s*$', line)
+                if not m or line.lstrip().startswith('#') or m.group(1) in self.BOOLEAN_KEYS: continue
+                if m.group(1) is None and not line.lstrip().startswith('-'): continue
+                value = m.group(2).split(' #')[0].strip()
+                self.assertNotIn(value.lower(), self.NOT_WORDS,
+                                 f'{os.path.basename(path)} line {i}: {value!r} is read as a boolean or null; quote it')
+                checked += 1
+        self.assertGreater(checked, 50, 'the forms were not read')
+
+
 class TestItIsPlainScript(unittest.TestCase):
 
     def test_no_em_dashes_and_no_es6_syntax(self):
@@ -214,10 +309,10 @@ class TestItIsPlainScript(unittest.TestCase):
         self.assertNotIn('\u2014', src)
         for token in ('=>', 'const ', 'let ', '`', 'class '):
             self.assertNotIn(token, src, f'{token!r} is not ES5')
-        self.assertLessEqual(src.count('\n'), 320)
+        self.assertLessEqual(src.count('\n'), 340)
         for word in ('Copy as text', 'add it here as well', 'open it and vote'):
             self.assertIn(word, src, f'the script lost {word!r}')
-        self.assertIn("voteUrl(repo, c.key, 'disagree')", src, 'a match offers no disagree link')
+        self.assertIn("voteUrl(repo, c.key, 'disagree', null, c.text)", src, 'a match offers no disagree link')
 
 
 if __name__ == '__main__':

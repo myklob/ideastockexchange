@@ -12,6 +12,11 @@ import json, os, re, shutil, sys, tempfile, unittest
 
 
 def f2(v): return f'{v:.2f}'
+
+def thumbs(h, cls='votes'):
+    """The (up, down) counts of every pair of thumbs in `h` whose span has exactly the class `cls`."""
+    return [(int(a), int(b)) for a, b in re.findall(
+        rf'<span class="{cls}">(?:(?!<span class="votes).)*?<span class="vc">(\d+)</span>(?:(?!<span class="votes).)*?<span class="vc">(\d+)</span>', h, re.S)]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -226,11 +231,6 @@ class TestTheRenderedSite(unittest.TestCase):
         listed = len(re.findall(r'<strong>', sec))
         self.assertEqual(said, listed,
                          f'the front page says {said} limits and the method page lists {listed}')
-
-    def test_the_revision_page_exists_even_with_no_history(self):
-        """Anything may link at it, so it cannot be conditional; with nothing to compare it says so rather
-        than implying nothing changed."""
-        self.assertTrue(os.path.exists(os.path.join(self.dir, 'changes.html')))
 
     def test_finding_a_page_is_an_enhancement_and_not_a_requirement(self):
         """261 pages with no way to look one up is a filing cabinet with no drawer labels. The search box is
@@ -1066,9 +1066,13 @@ class TestEveryBeliefIsPublishedAndTheCompleteOnesComeFirst(unittest.TestCase):
         self.assertNotIn('Still needs', self.f['a'][self.f['a'].find('<p class="meta">'):self.f['a'].find('</p>', self.f['a'].find('<p class="meta">'))])
 
     def test_the_home_page_counts_both_and_says_the_finished_ones_come_first(self):
-        lede = self.f['index.html'][self.f['index.html'].find('<p class="lede">'):]; lede = lede[:lede.find('</p>')]
+        lede = self.f['index.html'][self.f['index.html'].find('<p class="lede"'):]; lede = lede[:lede.find('</p>')]
         self.assertIn('Two beliefs', lede); self.assertIn('one of them worked all the way through', lede)
-        self.assertIn('never thrown away', lede)
+        self.assertIn('href="about.html"', lede)
+        self.assertGreater(self.f['index.html'].find('<p class="lede"'), self.f['index.html'].find('<div class="cards">'),
+                           'the explanation is above the cards again')
+        with open(os.path.join(self.out, 'about.html')) as fh: about = fh.read()
+        self.assertIn('Two beliefs', about); self.assertIn('never thrown away', about)
         with open(os.path.join(self.out, 'data', 'drafts.json')) as fh: d = json.load(fh)
         self.assertEqual([x['key'] for x in d['drafts']], ['b'])
 
@@ -1095,18 +1099,31 @@ class TestANewcomerKnowsWhereToStart(unittest.TestCase):
     def card(self, name):
         i = self.h.find(f'<span>{name}</span>'); return self.h[i:self.h.find('</section>', i)]
 
-    def test_start_here_is_the_first_card_and_follows_the_rankings(self):
+    def test_the_short_and_strong_cards_come_first_and_clear_their_bars(self):
         import render_site as RS
-        self.assertLess(self.h.find('<span>Start here</span>'), self.h.find('<span>Search</span>'))
-        card = self.card('Start here')
-        self.assertIn(f'href="p/{self.c.href(RS.best_beliefs(self.c)[0])}"', card, 'the first door is not the best belief')
-        top = self.c.rank.work_queue(1)
-        if top: self.assertIn(f'href="p/{self.c.href(top[0]["page"])}', card, 'the second door is not the top of the work queue')
-        self.assertIn('href="method.html"', card)
-        self.assertNotRegex(card, r'<a [^>]*>[^<]*<a ', 'a link is nested inside another link')
+        self.assertLess(self.h.find('<span>Short and strong beliefs</span>'), self.h.find('<span>Search</span>'))
+        self.assertLess(self.h.find('<span>Short reasons that carry weight</span>'), self.h.find('<span>Search</span>'))
+        bs, rs = RS.short_beliefs(self.c), RS.short_reasons(self.c)
+        self.assertTrue(bs and rs, 'a short-and-strong list is empty on the live tables')
+        best = RS.best_beliefs(self.c)[:max(3, len(self.c.beliefs) // 4)]
+        for b in bs:
+            self.assertIn(b, best); self.assertGreater(self.c.stats(b)['belief'], 0)
+        avg = 1 / len(self.c.specs)
+        for p in rs:
+            self.assertEqual(self.c.kind(p), 'claim'); self.assertGreaterEqual(self.c.rank.of(p), avg)
+        for rows in (bs, rs):
+            n = [RS.words(self.c, p) for p in rows]
+            self.assertEqual(n, sorted(n), 'not shortest first')
+        self.assertIn(f'href="p/{self.c.href(bs[0])}"', self.card('Short and strong beliefs'))
+        self.assertIn(f'href="p/{self.c.href(rs[0])}"', self.card('Short reasons that carry weight'))
+        self.assertIn('href="lists.html#short"', self.h)
+        self.assertIn('href="lists.html#shortreasons"', self.h)
+        with open(os.path.join(self.parent.dir, 'short.html')) as fh: page = fh.read()
+        self.assertIn('id="reasons"', page)
+        self.assertIn(f'href="p/{self.c.href(rs[0])}"', page)
 
     def test_the_best_beliefs_card_says_what_each_number_is(self):
-        card = self.card('Best beliefs')
+        card = self.card('Highest belief scores')
         self.assertIn('The number is the belief score', card)
         self.assertIn('0 to 1, where 0.50 means', card)
 
@@ -1181,7 +1198,7 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         self.assertEqual(h[:i].count('<section'), 0, 'a section sits above the card grid')
         self.assertGreaterEqual(h.count('<section class="card"'), 6, 'fewer than six ways in')
         self.assertEqual(h.count('<section'), h.count('<section class="card"'), 'a section on the home page is not a card')
-        for way in ('Search', 'Best beliefs', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'What to argue next', 'Who has a stake', 'Best books, studies and reports', 'Topics'):
+        for way in ('Search', 'Highest belief scores', 'Most argued over', 'Hardest to resolve', 'Most relied on', 'What to argue next', 'Who has a stake', 'Best books, studies and reports', 'Topics'):
             self.assertIn(f'<span>{way}</span>', h, f'{way} is not a way in')
 
     def test_every_ranking_on_the_home_page_links_to_what_it_means(self):
@@ -1274,19 +1291,17 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
             self.assertNotIn(gone, self.text, f'"{gone}" is back on the home page')
 
     def test_the_four_lists_are_there_and_ranked(self):
-        for heading in ('Best beliefs', 'Most argued over', 'Most relied on', 'Changed in this revision'):
+        for heading in ('Highest belief scores', 'Most argued over', 'Most relied on'):
             i = self.text.find(heading)
             self.assertGreater(i, 0, f'{heading} is missing')
-        for heading in ('Best beliefs', 'Most argued over', 'Most relied on'):
-            i = self.text.find(heading)
             self.assertRegex(self.text[i:i + 900], r'\b1\b', f'{heading} printed no ranked rows')
 
     def test_best_beliefs_ranks_beliefs_and_only_beliefs(self):
         """The list used to rank every page by truth score, so a court record at 0.95 came first and no belief
         appeared at all. A reader opening a debate site wants the best argued positions, not the best sourced
         footnotes."""
-        i = self.text.find('Best beliefs'); j = self.text.find('Most argued over')
-        block = self.c['index.html'][self.c['index.html'].find('Best beliefs'):self.c['index.html'].find('Most argued over')]
+        i = self.text.find('Highest belief scores'); j = self.text.find('Most argued over')
+        block = self.c['index.html'][self.c['index.html'].find('Highest belief scores'):self.c['index.html'].find('Most argued over')]
         linked = re.findall(r'href="p/([^"#]+)"', block)
         self.assertTrue(linked, 'the best-beliefs list is empty')
         keys = {self.corpus.key[b] + '.html' for b in self.corpus.beliefs}
@@ -1301,7 +1316,7 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
         """Three rows a list on the home page; the whole ranking lives on its own page. A home page that
         prints ten of everything is the all-pages list again."""
         h = self.c['index.html']
-        for heading, href in (('Best beliefs', 'best.html'), ('Most argued over', 'contested.html'), ('Most relied on', 'relied.html')):
+        for heading, href in (('Highest belief scores', 'best.html'), ('Most argued over', 'contested.html'), ('Most relied on', 'relied.html')):
             i = h.find(f'<span>{heading}</span>'); j = h.find('</section>', i)
             block = h[i:j]
             self.assertLessEqual(len(re.findall(r'<td class="rk">', block)), 3, f'{heading} prints more than three rows on the home page')
@@ -1313,10 +1328,12 @@ class TestTheHomePageIsAWayInAndNotADump(unittest.TestCase):
     def test_popular_is_named_as_a_stand_in(self):
         """There are no votes or views here. The list that stands in for popularity has to say so, in the
         list, not in a footnote."""
-        i = self.text.find('Most relied on'); j = self.text.find('Changed in this revision')
-        self.assertIn('votes', self.text[i:j], 'the most-relied-on list does not say what it is standing in for')
+        h = self.c['index.html']
+        i = h.find('<span>Most relied on</span>'); j = h.find('</section>', i)
+        self.assertIn('votes', h[i:j], 'the most-relied-on list does not say what it is standing in for')
 
     def test_it_does_not_claim_a_ranking_it_has_no_data_for(self):
+        self.assertNotIn('changes.html', self.c['index.html'], 'the home page links a revision page that is no longer built')
         for faked in ('Most popular', 'Trending', 'This week&apos;s top', 'Most viewed'):
             self.assertNotIn(faked, self.c['index.html'], f'the home page prints a "{faked}" list it cannot compute')
 
@@ -1736,7 +1753,8 @@ class TestThePagesSpeakPlainly(unittest.TestCase):
         cls.corpus = cls.parent.c
         cls.pages = dict(cls.parent.html)
         del cls.pages['method.html']
-        for name in ('all', 'next', 'interests', 'media', 'topics', 'changes', 'outline', 'vocab'):
+        for name in ('all', 'next', 'interests', 'media', 'topics', 'outline', 'vocab', 'costs', 'invest', 'bets', 'resolve',
+                     'motives', 'gain', 'factors', 'contributors'):
             with open(os.path.join(cls.parent.dir, name + '.html')) as fh: cls.pages[name + '.html'] = fh.read()
         for k in cls.corpus.topics:
             with open(os.path.join(cls.parent.dir, 't', cls.corpus.topic_href(k))) as fh: cls.pages['t/' + k] = fh.read()
@@ -1903,6 +1921,52 @@ class TestNoTableIsWiderThanWhatHoldsIt(unittest.TestCase):
                 wide += sum(1 for t in self._tables(block) if self._flexible(t) > 1)
         self.assertGreater(wide, 0, 'nothing on the site stacks a wide table, so the limit above is untested')
 
+    def test_two_sides_fit_beside_each_other_on_a_full_width_page(self):
+        """The reasons to agree go on the left and the reasons to disagree on the right. The stylesheet once asked
+        for 720 pixels a side on a page whose content is 1,140 wide, so two sides needed 1,456 and never got it:
+        every two-sided section on the site stacked on every screen, and nothing failed, because a grid that never
+        forms a second column is still a valid grid.
+
+        The floor is the other half of the same number. Measured in a browser over every page, the eight-column
+        reasons table cannot be laid out narrower than 534 pixels, so a side offered less than that scrolls
+        sideways, which is the fault the 720 was written to stop."""
+        import render_site as RS
+        side = re.search(r'\.sides\{display:grid;grid-template-columns:repeat\(auto-fit,minmax\(min\(100%,(\d+)px\),1fr\)\);gap:(\d+)px\}', RS.CSS)
+        page = re.search(r'\nmain\{max-width:(\d+)px;[^}]*padding-inline:(\d+)px\}', RS.CSS)
+        self.assertTrue(side and page, 'the stylesheet no longer states a side or the page width where this test reads them')
+        each, gap = int(side.group(1)), int(side.group(2))
+        room = int(page.group(1)) - 2 * int(page.group(2))
+        self.assertLessEqual(2 * each + gap, room, f'two sides need {2 * each + gap}px and a page holds {room}px, so they can never sit side by side')
+        self.assertGreaterEqual(each, 534, f'a side may be as narrow as {each}px, and the reasons table needs 534')
+
+    def test_the_reasons_to_agree_come_first_so_they_sit_on_the_left(self):
+        """A grid lays its children out in the order they are written, so the left column is whichever side the
+        page writes first."""
+        checked = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str) or self.c.kind(pid) not in ('belief', 'claim'): continue
+            mine = [b for b in self._blocks(h, 'sides') if b.startswith('<div class="side agree"><h3>Reasons to agree</h3>')]
+            self.assertEqual(len(mine), 1, f'{self.c.key[pid]} does not open its two-sided reasons with the reasons to agree')
+            self.assertIn('<div class="side disagree"><h3>Reasons to disagree</h3>', mine[0],
+                          f'{self.c.key[pid]} does not put the reasons to disagree beside the reasons to agree')
+            checked += 1
+        self.assertGreater(checked, 0, 'no belief or claim page was found, so nothing here was checked')
+
+    def test_a_folded_table_keeps_its_toggle_under_it(self):
+        """Two tables side by side start level only if nothing sits above one of them that the other lacks. The
+        note that a table is folded used to sit above it, so the side with six rows began a line lower than the
+        side with five."""
+        folded = 0
+        for pid, h in self.html.items():
+            if isinstance(pid, str): continue
+            for m in re.finditer(r'<input\b[^>]*class="xt"[^>]*aria-controls="([^"]+)"[^>]*>', h):
+                folded += 1
+                before = h[:m.start()]
+                self.assertTrue(before.endswith('</table>'), f'{self.c.key[pid]}: the toggle for {m.group(1)} does not follow a table')
+                self.assertIn(f'<table id="{m.group(1)}"', before[before.rfind('<table'):],
+                              f'{self.c.key[pid]}: the toggle for {m.group(1)} follows some other table')
+        self.assertGreater(folded, 0, 'no table on the site is folded, so nothing here was checked')
+
     def test_every_table_keeps_its_thead(self):
         """`ths()` added scope= to header cells with a pattern that also matched `<thead>`, rewriting it to
         `<th scope="col"ead>`. Every table on the site shipped with its header row loose in an implicit tbody
@@ -1937,11 +2001,14 @@ class TestTheBeliefPageFollowsTheTemplate(unittest.TestCase):
             if isinstance(pid, str): continue
             for m in re.finditer(r'<input type="checkbox" class="xt" id="(x\d+)"[^>]*><label class="xl" for="\1">Top 5 of (\d+) rows shown', h):
                 n = int(m.group(2)); folded += 1
-                table = h[m.end():h.find('</table>', m.end())]
+                # the toggle sits under the table it folds, so that table is the one that ends where it starts
+                table = h[h.rfind('<table', 0, m.start()):m.start()]
+                opening = table[:table.find('>') + 1]
+                self.assertIn(f'id="t{m.group(1)}"', opening, f'{pid}: the toggle {m.group(1)} is not under its own table')
+                self.assertNotIn('engine', opening, f'{pid} folded its derivation table')
                 rows = re.findall(r'<tr\b[^>]*>', table[table.find('<tbody>'):])
                 self.assertEqual(len(rows), n, f'{pid}: the label says {n} rows and the table has {len(rows)}')
                 self.assertEqual(sum(1 for r in rows if 'xtra' in r), n - 5, f'{pid}: the wrong number of rows is folded')
-            self.assertNotRegex(h, r'class="xt"[^<]*<label[^<]*</label><table\b[^>]*class="plain engine"', f'{pid} folded its derivation table')
         self.assertGreater(folded, 0, 'no table on the site has more than five rows, so folding is untested')
 
     def test_every_belief_page_carries_the_invitation(self):
@@ -2108,6 +2175,65 @@ class TestPeopleCanTakePart(unittest.TestCase):
             self.assertNotIn('required', f.split('name="units"')[1].split('<button')[0], 'an estimate is demanded of a reader who has none')
             self.assertNotIn('name="magnitude"', self._forms(self.html[pid])['evidence'], 'a finding asks for an estimate')
 
+    def test_a_form_takes_one_line_of_the_page_until_its_link_is_clicked(self):
+        """A box per table was a quarter of a belief page's height, spent on fields most readers never type in.
+        Each form is a popover behind a one-line link, and the link opens it with no script. The link is all
+        the markup this costs, since a byte here is repeated on every form of every page: the close button is
+        the script's. The styles that hide a closed form sit inside a check that the browser knows popovers,
+        so one that does not shows every form in place as before, and a link to a form's address still shows
+        it when scripts are off."""
+        import render_site as RS
+        checked = 0
+        for pid in self.claims:
+            h, key = self.html[pid], self.c.key[pid]
+            forms = {re.search(r'\bid="([^"]+)"', t).group(1): t for t in re.findall(r'<form\b[^>]*\bclass="add"[^>]*>', h)}
+            links = {}
+            for tag, text in re.findall(r'(<button\b[^>]*\bpopovertarget="[^"]+"[^>]*>)([^<]*)</button>', h):
+                fid = re.search(r'\bpopovertarget="([^"]+)"', tag).group(1)
+                self.assertIn('type="button"', tag, f'{key} {fid}: the button that opens the form would submit it')
+                self.assertIn('class="addlink"', tag, f'{key} {fid}: a second button per form is on every page of the site')
+                links.setdefault(fid, []).append(text)
+            self.assertGreaterEqual(len(forms), len(self.SECTIONS), f'{key} lost a form')
+            self.assertEqual(set(links), set(forms), f'{key}: a form no link opens, or a link that opens nothing')
+            for fid, tag in forms.items():
+                self.assertRegex(tag, r'\spopover[\s>]', f'{key} {fid}: the form is a box on the page again')
+                self.assertEqual(len(links[fid]), 1, f'{key} {fid}: more than one link opens the form')
+                label = re.search(r'<label\b[^>]*\bfor="%s-text"[^>]*>([^<]+)</label>' % re.escape(fid), h)
+                self.assertIsNotNone(label, f'{key} {fid}: the form has no heading')
+                self.assertEqual(links[fid][0], label.group(1), f'{key} {fid}: the link and the form it opens are named differently')
+                checked += 1
+        self.assertGreater(checked, len(self.claims))
+        css = RS.CSS
+        i = css.find('@supports selector(:popover-open){'); j = css.find('\n}\n', i)
+        self.assertGreater(i, 0, 'the popover styles are not behind a check that the browser knows popovers'); self.assertGreater(j, i)
+        inside, outside = css[i:j], css[:i] + css[j:]
+        self.assertNotIn(':popover-open', outside, 'a browser that cannot open a popover is told to hide the forms')
+        self.assertIn('.addlink,.add .x{display:none}', outside, 'a browser that cannot open a popover shows a link that does nothing')
+        self.assertIn('.addlink{display:block', inside)
+        self.assertIn('.add[popover]:not(:popover-open):not(:target),.add[data-wired]:not(:popover-open){display:none}', inside,
+                      'with scripts off, a link to a form\'s address reaches nothing')
+        self.assertIn('.add[popover]:popover-open{position:fixed', inside)
+        self.assertIn('position:static', re.search(r'\n\.add\{([^}]*)\}', css).group(1), 'a form shown in place would be pinned to the window')
+        self.assertIn('@media print{.add,.addlink,', css)
+        with open(os.path.join(self.dir, 'contribute.js')) as fh: js = fh.read()
+        self.assertIn("popovertargetaction: 'hide'", js, 'an open form has no button that closes it')
+        self.assertIn("'aria-label': 'Close'", js)
+
+    def test_a_link_to_a_form_on_the_page_names_a_form_the_script_can_open(self):
+        """The gaps table, the invitation and the comment intake leaves on a vote all link to a form by its id.
+        A closed popover has no place on the page to scroll to, so contribute.js opens the form instead; the
+        link has to start with #add- for it to notice, and name a form that is there."""
+        seen = 0
+        for pid in self.claims:
+            h, key = self.html[pid], self.c.key[pid]
+            ids = {re.search(r'\bid="([^"]+)"', t).group(1) for t in re.findall(r'<form\b[^>]*\bclass="add"[^>]*>', h)}
+            for target in re.findall(r'<a\b[^>]*\bhref="#(add-[^"]+)"', h):
+                self.assertIn(target, ids, f'{key} links to #{target}, which is not a form on the page')
+                seen += 1
+        self.assertGreater(seen, 0)
+        with open(os.path.join(self.dir, 'contribute.js')) as fh: js = fh.read()
+        self.assertIn('a[href^="#add-"]', js)
+
     def test_with_scripts_off_the_page_says_what_still_works(self):
         for pid in self.claims[:10]:
             h = self.html[pid]
@@ -2141,11 +2267,11 @@ class TestPeopleCanTakePart(unittest.TestCase):
                 if not is_page(d.get('id')) or d['id'] == pid: continue
                 k = self.c.key[d['id']]
                 for v, w in (('agree', 'yes'), ('disagree', 'no')):
-                    self.assertIn(f'page={k}&amp;vote={v}&amp;on={here}" rel="nofollow">{w}</a>', h, f'{here}: no {w} on whether {k} bears here')
+                    self.assertIn(f'page={k}&amp;vote={v}&amp;on={here}" rel="nofollow"><span class="sr">{w}</span>', h, f'{here}: no {w} on whether {k} bears here')
                 rows += 1
                 if is_page(d.get('imp')):
                     ik = self.c.key[d['imp']]
-                    self.assertIn(f'page={ik}&amp;vote=agree" rel="nofollow">yes</a>', h, f'{here}: no vote on whether {k} matters here')
+                    self.assertIn(f'page={ik}&amp;vote=agree" rel="nofollow"><span class="sr">yes</span>', h, f'{here}: no vote on whether {k} matters here')
                     imps += 1
             if rows > before: self.assertIn('<span class="vl">Bears on this:</span>', h)
         self.assertGreater(rows, 0)
@@ -2163,21 +2289,21 @@ class TestPeopleCanTakePart(unittest.TestCase):
             for d in rows:
                 if not is_page(d.get('id')): continue
                 k = self.c.key[d['id']]
-                self.assertIn(f'page={k}&amp;vote=agree" rel="nofollow">Agree</a>', h, f'{self.c.key[pid]}: the row for {k} has no vote link')
+                self.assertIn(f'page={k}&amp;vote=agree" rel="nofollow"><span class="sr">Agree</span>', h, f'{self.c.key[pid]}: the row for {k} has no vote link')
             for name, lst in (('evid', sp['evid']['for']), ('pred_true', sp.get('pred_true', [])), ('criteria', sp.get('criteria', [])), ('benefits', sp.get('benefits', [])),
                               ('int_sup', sp.get('int_sup', [])), ('law_for', sp.get('law_for', [])), ('falsify_for', sp.get('falsify_for', [])), ('people_for', sp.get('people_for', []))):
                 found[name] += sum(1 for d in lst if is_page(d.get('id')))
         for name, n in found.items(): self.assertGreater(n, 0, f'no {name} row is a page, so that table was not checked')
 
     def test_the_vote_count_links_to_the_votes_themselves(self):
-        """A count of people links to the list that explains it and to the issues that recorded each vote."""
+        """A page that has votes links, on its heading line, to the issues that recorded each of them."""
         import render_site as RS
         voted = [k for k in self.c.votes if k in self.c.tabs]
         self.assertTrue(voted, 'nothing is voted on, so the count line is untested')
         for key in voted:
             h = self.html[self.c.tabs[key]]
-            self.assertIn(f'href="{RS.votes_search(key).replace("&", "&amp;")}" rel="nofollow">each vote</a>', h, f'{key}: the count does not link to its votes')
-            self.assertIn('votes, not a score</a>', h)
+            h1 = re.search(r'<h1[^>]*>(.*?)</h1>', h, re.S).group(1)
+            self.assertIn(f'href="{RS.votes_search(key).replace("&", "&amp;")}" rel="nofollow">who voted</a>', h1, f'{key}: the count does not link to its votes')
 
     def test_linkage_importance_uniqueness_interest_media_and_equivalence_pages_take_part_too(self):
         """These pages carry arguments and are read by the belief pages; they take a vote on the heading line, a
@@ -2194,10 +2320,10 @@ class TestPeopleCanTakePart(unittest.TestCase):
                 # a linkage page asks whether its row bears on its page: the heading takes that vote, the one the row takes
                 x, y = self.c.key[sp['x']], self.c.key[sp['y']]
                 for v, w in (('agree', 'yes'), ('disagree', 'no')):
-                    self.assertIn(f'page={x}&amp;vote={v}&amp;on={y}" rel="nofollow">{w}</a>', h1, f'{key} has no {w} vote on whether {x} bears on {y}')
+                    self.assertIn(f'page={x}&amp;vote={v}&amp;on={y}" rel="nofollow"><span class="sr">{w}</span>', h1, f'{key} has no {w} vote on whether {x} bears on {y}')
             else:
                 for v in ('agree', 'disagree'):
-                    self.assertIn(f'page={key}&amp;vote={v}" rel="nofollow">{v.capitalize()}</a>', h1, f'{key} ({k}) has no {v} vote on its heading line')
+                    self.assertIn(f'page={key}&amp;vote={v}" rel="nofollow"><span class="sr">{v.capitalize()}</span>', h1, f'{key} ({k}) has no {v} vote on its heading line')
             forms = self._forms(h)
             if k == 'importance': self.assertIn('interest_listing', forms, f'{key} has no form for an interest at stake')
             else:
@@ -2209,7 +2335,7 @@ class TestPeopleCanTakePart(unittest.TestCase):
             self.assertIn('id="take-part"', h); self.assertIn('<script src="../contribute.js" defer></script>', h, f'{key} carries forms and not the script')
             for d in self.c.specs[pid]['args']['agree'] + self.c.specs[pid]['args']['disagree']:
                 if d.get('id') in self.c.specs:
-                    self.assertIn(f'page={self.c.key[d["id"]]}&amp;vote=agree" rel="nofollow">Agree</a>', h, f'{key}: a reason row has no vote link')
+                    self.assertIn(f'page={self.c.key[d["id"]]}&amp;vote=agree" rel="nofollow"><span class="sr">Agree</span>', h, f'{key}: a reason row has no vote link')
             checked[k] = checked.get(k, 0) + 1
         for k in ('linkage', 'importance', 'uniqueness', 'interest', 'media', 'equivalence'):
             self.assertGreater(checked.get(k, 0), 0, f'no {k} page in the build, so that kind was not checked')
@@ -2258,12 +2384,14 @@ class TestPeopleCanTakePart(unittest.TestCase):
             h1 = re.search(r'<h1>(.*?)</h1>', h, re.S).group(1)
             self.assertLess(h1.find('class="hs"'), h1.find('class="votes"'), f'{key}: the votes come before the score badge')
             for v in ('agree', 'disagree'):
-                self.assertIn(f'template=vote.yml&amp;labels=vote&amp;title=Vote%20{v}%3A%20{key}&amp;page={key}&amp;vote={v}" rel="nofollow">{v.capitalize()}</a>', h1,
+                url = RS.vote_url(key, v, text=self.c.standalone(pid)).replace('&', '&amp;')
+                self.assertIn(f'href="{url}" rel="nofollow"><span class="sr">{v.capitalize()}</span>', h1,
                               f'{key} has no {v} vote link on its heading line')
+                self.assertIn(f'class="vote {"up" if v == "agree" else "down"}"', h1, f'{key}: the {v} link is not a thumb')
             self.assertIn(RS.VOTE_NOTE, h, f'{key} does not say what a vote is')
             n = self.c.votes.get(key)
-            if n: self.assertIn(f'{n["agree"]} agree, {n["disagree"]} disagree; votes, not a score', h1)
-            else: self.assertNotIn('votes, not a score', h1, f'{key} shows vote counts with no votes')
+            self.assertEqual(thumbs(h1)[0], (n['agree'], n['disagree']) if n else (0, 0), f'{key}: the thumbs show the wrong counts')
+            if not n: self.assertNotIn('who voted', h1, f'{key} links to votes it does not have')
 
     def test_every_argument_row_that_is_a_page_carries_its_own_two_vote_links(self):
         """The brief asks for a small agree/disagree on each argument row, not only on the heading line."""
@@ -2277,7 +2405,7 @@ class TestPeopleCanTakePart(unittest.TestCase):
                 k = self.c.key[d['id']]
                 self.assertIsNotNone(trees, f'{self.c.key[pid]} has argument rows but no scored table')
                 for v in ('agree', 'disagree'):
-                    self.assertIn(f'page={k}&amp;vote={v}" rel="nofollow">{v.capitalize()}</a>', trees.group(0),
+                    self.assertIn(f'page={k}&amp;vote={v}" rel="nofollow"><span class="sr">{v.capitalize()}</span>', trees.group(0),
                                   f'{self.c.key[pid]}: the row for {k} has no {v} vote link')
                 checked += 1
         self.assertGreater(checked, 0)
@@ -2401,10 +2529,10 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
         self.assertEqual(self.cv.relevance, {('r1', 'a'): {'agree': 0, 'disagree': 1}})
         h = self._page(self.out_v, 'p/a.html')
         i = h.find('<span class="vl">Bears on this:</span>'); self.assertGreater(i, 0)
-        self.assertIn('page=r1&amp;vote=agree&amp;on=a" rel="nofollow">yes</a>', h)
-        self.assertIn('0 yes, 1 no; votes, not a score', h)
-        self.assertNotIn('yes, 1 no; votes', self._page(self.out_v, 'p/r1.html'), 'the count of a vote about page a is shown on r1 itself')
-        self.assertNotIn('votes, not a score', self._page(self.out_n, 'p/a.html'))
+        self.assertIn('page=r1&amp;vote=agree&amp;on=a" rel="nofollow"><span class="sr">yes</span>', h)
+        self.assertIn((0, 1), thumbs(h, 'votes rel'))
+        self.assertNotIn((0, 1), thumbs(self._page(self.out_v, 'p/r1.html'), 'votes rel'), 'the count of a vote about page a is shown on r1 itself')
+        self.assertEqual(set(thumbs(self._page(self.out_n, 'p/a.html'))), {(0, 0)})
 
     def test_a_finding_filed_under_a_reason_takes_its_bears_vote_about_that_reason(self):
         """The Evidence Ledger on a also lists e2, which is filed under the reason r2. It is a row on r2's page,
@@ -2429,20 +2557,23 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
 
     def test_the_counts_sit_on_the_heading_line_and_are_called_votes_not_a_score(self):
         h1 = re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/a.html'), re.S).group(1)
-        self.assertIn('2 agree, 1 disagree; votes, not a score', h1)
+        self.assertEqual(thumbs(h1), [(2, 1)])
         self.assertIn('class="hs"', h1)
-        self.assertNotIn('votes, not a score', re.search(r'<h1>(.*?)</h1>', self._page(self.out_n, 'p/a.html'), re.S).group(1))
-        self.assertNotIn('votes, not a score', re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/r2.html'), re.S).group(1))
+        self.assertIn('who voted</a>', h1)
+        for out, page in ((self.out_n, 'p/a.html'), (self.out_v, 'p/r2.html')):
+            h1 = re.search(r'<h1>(.*?)</h1>', self._page(out, page), re.S).group(1)
+            self.assertEqual(thumbs(h1), [(0, 0)], f'{page}: a page nobody voted on shows a count')
+            self.assertNotIn('who voted', h1)
 
     def test_one_vote_is_a_count_and_the_share_waits_for_enough_voters(self):
         """One vote is always 100% or 0%, and a gap from the analysis built on it says nothing. The counts are
         shown from the first vote; the share and the gap appear on the heading line only once MIN_VOTERS people
         have voted, which is the same threshold the ranked list uses."""
         a = re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/a.html'), re.S).group(1)
-        self.assertIn('67% agree, the analysis reads', a)
+        self.assertIn('67% of voters agree vs a truth score of', a)
         r1 = re.search(r'<h1>(.*?)</h1>', self._page(self.out_v, 'p/r1.html'), re.S).group(1)
-        self.assertIn('0 agree, 1 disagree; votes, not a score', r1)
-        self.assertNotIn('the analysis reads', r1, 'one vote is shown as a share with a gap')
+        self.assertEqual(thumbs(r1), [(0, 1)])
+        self.assertNotIn('of voters agree', r1, 'one vote is shown as a share with a gap')
 
     def test_no_vote_moves_any_score(self):
         for pid in self.cv.specs:
@@ -2554,9 +2685,19 @@ class TestEveryContributorHasAPage(unittest.TestCase):
         for login in ('u1', 'u2', 'u3', 'u4', 'ann'):
             self.assertTrue(os.path.exists(os.path.join(out, 'u', login + '.html')), f'{login} has no page')
             self.assertIn(f'href="u/{login}.html"', people)
-        self.assertIn('Rows added', self.read(out, 'u/ann.html'))
+        self.assertIn('What @ann added', self.read(out, 'u/ann.html'))
+        self.assertNotIn('Rows added', self.read(out, 'u/ann.html') + people, 'a reader adds a reason or a finding, not a row')
         self.assertIn('Votes cast', self.read(out, 'u/u1.html'))
         self.assertEqual(self.v.broken_v, [], 'a contributor link points at a page that was not written')
+
+    def test_the_list_counts_up_and_down_votes_apart(self):
+        people = self.read(self.v.out_v, 'contributors.html')
+        self.assertRegex(people, r'<th\b[^>]*>Up votes</th><th\b[^>]*>Down votes</th>')
+        self.assertNotIn('Votes cast', people)
+        # u1 voted on a twice, agree then disagree; only the later vote stands
+        self.assertRegex(people, r'href="u/u1\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>){4}<td>2</td><td>1</td>')
+        self.assertRegex(people, r'href="u/u4\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>){4}<td>0</td><td>1</td>')
+        self.assertRegex(people, r'href="u/u2\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>){4}<td>1</td><td>1</td>')
 
     def test_added_by_links_to_the_contributors_page_on_this_site(self):
         h = self.read(self.v.out_v, 'p/' + self.v.cv.href(self.v.cv.tabs['a']))
@@ -2598,86 +2739,6 @@ class TestEveryContributorHasAPage(unittest.TestCase):
             self.assertEqual(idx[0], idx[1], 'naming a maintainer moved a published number')
         finally:
             for d in [src] + outs: shutil.rmtree(d, ignore_errors=True)
-
-    def people_table(self, out):
-        """contributors.html as {login: {column heading: cell}}, read by heading so a column added or moved does
-        not change what a test below is looking at."""
-        page = self.read(out, 'contributors.html')
-        heads = [strip(h).strip() for h in re.findall(r'<th\b[^>]*>(.*?)</th>', page, re.S)]
-        rows = {}
-        for tr in re.findall(r'<tr\b[^>]*>(.*?)</tr>', page, re.S):
-            who = re.search(r'href="u/([^"]+)\.html"', tr)
-            if who: rows[who.group(1)] = dict(zip(heads, [strip(x).strip() for x in re.findall(r'<td\b[^>]*>(.*?)</td>', tr, re.S)]))
-        return rows
-
-    def built_with(self, proposals, gate=False):
-        """The votes fixture's tables with zed named maintainer and the given proposals.csv rows (None for no
-        file), every belief published unless gate: (corpus, broken links, output folder, {page key: published numbers})."""
-        import ise_tables as IT, render_site as RS
-        src, out = tempfile.mkdtemp(), tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, src, True); self.addCleanup(shutil.rmtree, out, True)
-        for f in os.listdir(self.v.without): shutil.copy(os.path.join(self.v.without, f), src)
-        with open(os.path.join(src, 'users.csv'), 'w') as fh:
-            fh.write('login,name,maintainer,role,about\nzed,Zed Example,Y,Maintainer,Builds things.\n')
-        if proposals is not None:
-            IT.write_proposals([dict(zip(IT.PROPOSAL_COLS, r)) for r in proposals], src)
-        c, broken = RS.build(src, out, gate=gate)
-        with open(os.path.join(out, 'data', 'pages_index.json')) as fh:
-            numbers = {r['key']: (r['truth'], r['confidence']) for r in json.load(fh)['pages']}
-        return c, broken, out, numbers
-
-    def test_a_belief_counts_for_whoever_proposed_it_and_not_for_the_maintainer(self):
-        """A belief proposed with no reason attached has no row to carry its author, so it used to be nobody's and
-        the maintainer's by default. proposals.csv names the proposer, and the count follows it."""
-        _, broken, before, _ = self.built_with(None)
-        self.assertEqual(broken, [])
-        t = self.people_table(before)
-        self.assertEqual((t['zed']['Beliefs started'], t['ann']['Beliefs started']), ('2', '0'),
-                         'with nobody named, both beliefs are the maintainer\'s and a row adder has started none')
-        self.assertNotIn('bea', t)
-        # r1 is a claim and `gone` is no page at all: neither is a belief anybody started
-        c, broken, after, _ = self.built_with([('b', 'bea', '2026-10-02', '31'), ('r1', 'mallory', '2026-10-03', '32'), ('gone', 'mallory', '2026-10-03', '33')])
-        self.assertEqual(broken, [], 'a link on a contributor page points at a page that was not written')
-        t = self.people_table(after)
-        self.assertEqual(t['bea']['Beliefs started'], '1', 'the proposer is not credited with the belief they proposed')
-        self.assertEqual(t['zed']['Beliefs started'], '1', 'a belief somebody else proposed is still counted on the maintainer\'s line')
-        self.assertEqual((t['bea']['Rows added'], t['ann']['Beliefs started'], t['ann']['Rows added']), ('0', '0', '1'))
-        self.assertNotIn('mallory', t, 'a proposal for a page that is not a belief made a contributor')
-        self.assertFalse(os.path.exists(os.path.join(after, 'u', 'mallory.html')))
-        page = self.read(after, 'u/bea.html')
-        self.assertRegex(page, r'<h2\b[^>]*><span>Beliefs started</span></h2>')
-        self.assertIn(f'<a href="../p/{c.href(c.tabs["b"])}">Cities should pave their parks.</a>', page)
-        self.assertIn('2026-10-02', page)
-        self.assertNotIn('Nothing added or voted on yet', page)
-        self.assertNotIn('Beliefs started', self.read(after, 'u/ann.html'), 'a page lists beliefs for somebody who started none')
-        zed = readable(self.read(after, 'u/zed.html'))
-        self.assertIn('Every belief and every row that carries no other contributor\'s name was entered by the maintainer', zed)
-        self.assertIn('other contributors started 1 of the beliefs', zed)
-        self.assertNotIn('other contributors started', readable(self.read(before, 'u/zed.html')))
-
-    def test_the_complete_only_build_credits_the_same_people_and_links_no_draft(self):
-        """The gated site leaves a draft belief out. Whoever proposed it is still credited, with its words and no
-        link, as a row pointing at a draft keeps its words there."""
-        c, broken, out, _ = self.built_with([('b', 'bea', '2026-10-02', '31')], gate=True)
-        self.assertNotIn('b', c.tabs, 'the second belief of the fixture is meant to be a draft this build leaves out')
-        self.assertEqual(broken, [], 'a contributor page links a belief the complete-only build did not write')
-        t = self.people_table(out)
-        self.assertEqual((t['bea']['Beliefs started'], t['zed']['Beliefs started']), ('1', '1'))
-        self.assertRegex(self.read(out, 'u/bea.html'), r'<td\b[^>]*>Cities should pave their parks\.</td>')
-
-    def test_a_belief_proposed_by_nobody_named_is_credited_to_nobody(self):
-        """An issue with no account behind it is recorded as anonymous. That belief was not entered by the
-        maintainer, so it is not counted as theirs, and nobody gets a page for it."""
-        _, broken, out, _ = self.built_with([('a', 'anonymous', '2026-10-02', '31'), ('b', 'bea', '2026-10-02', '32')])
-        self.assertEqual(broken, [])
-        t = self.people_table(out)
-        self.assertEqual((t['zed']['Beliefs started'], t['bea']['Beliefs started']), ('0', '1'))
-        self.assertNotIn('anonymous', t)
-
-    def test_who_proposed_a_belief_moves_no_published_number(self):
-        plain, named = self.built_with(None)[3], self.built_with([('a', 'bea', '2026-10-02', '31'), ('b', 'a-famous-expert', '2026-10-02', '32')])[3]
-        self.assertGreater(len(plain), 5)
-        self.assertEqual(plain, named, 'naming who proposed a belief moved a published number')
 
 
 class TestTheGroupingMethodIsPublished(unittest.TestCase):

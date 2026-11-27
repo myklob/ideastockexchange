@@ -120,10 +120,27 @@
     return parts.join('&');
   }
 
-  /* on: the page the claim is a row on, for a vote on whether it bears there rather than on whether it is true */
-  function voteUrl(repo, key, vote, on) {
+  /* at most n characters, cut at a word, as render_site.clip does */
+  function clip(text, n) {
+    text = String(text || '').replace(/\s+/g, ' ').replace(/^ | $/g, '');
+    if (text.length <= n) return text;
+    var cut = text.slice(0, n), sp = cut.lastIndexOf(' ');
+    return (sp > 0 ? cut.slice(0, sp) : cut).replace(/[,;:]+$/, '') + '\u2026';
+  }
+
+  /* the title render_site.vote_title writes: the thumb clicked and the claim in words */
+  function voteTitle(key, vote, on, text, onText) {
+    var up = vote === 'agree';
+    if (on) return (up ? '\uD83D\uDC4D Relevant' : '\uD83D\uDC4E Not relevant') + ': "' + clip(text || key, 70) + '" ' +
+      (up ? 'bears' : 'does not bear') + ' on "' + clip(onText || on, 70) + '"';
+    return (up ? '\uD83D\uDC4D Agree' : '\uD83D\uDC4E Disagree') + ': ' + clip(text || key, 120);
+  }
+
+  /* on: the page the claim is a row on, for a vote on whether it bears there rather than on whether it is true;
+     text and onText are the two claims in words, for the title */
+  function voteUrl(repo, key, vote, on, text, onText) {
     return repo + '/issues/new?' + query([['template', 'vote.yml'], ['labels', 'vote'],
-      ['title', 'Vote ' + vote + ': ' + key + (on ? ' on ' + on : '')], ['page', key], ['vote', vote], ['on', on]]);
+      ['title', voteTitle(key, vote, on, text, onText)], ['page', key], ['vote', vote], ['on', on]]);
   }
 
   /* fields: {text, source, why, topic, agree, disagree}. The free text is cut until the query fits GitHub's
@@ -226,7 +243,7 @@
     var merged = matches[0].score >= MERGE && !matches[0].opposite && form.getAttribute('data-section') !== 'similar';
     var top = matches[0].claim, here = merged && onThisPage(top.key);
     if (here) {
-      /* already a row here: the button opens the claim's own page, where Agree and Disagree are both on the heading line */
+      /* already a row here: the button opens the claim's own page, where the thumbs up and down are on the heading line */
       form.openPage = top.page ? site + top.page : null;
       button.textContent = 'This is already here: open it and vote';
     } else if (merged) {
@@ -239,9 +256,9 @@
       var c = matches[i].claim, li = el('li');
       li.appendChild(c.page ? el('a', c.text, {href: site + c.page}) : el('span', c.text + (c.draft ? ' (a draft)' : '')));
       li.appendChild(document.createTextNode(' It is this one: '));
-      li.appendChild(el('a', 'agree', {href: voteUrl(repo, c.key, 'agree'), rel: 'nofollow', target: '_blank'}));
+      li.appendChild(el('a', 'agree', {href: voteUrl(repo, c.key, 'agree', null, c.text), rel: 'nofollow', target: '_blank'}));
       li.appendChild(document.createTextNode(' / '));
-      li.appendChild(el('a', 'disagree', {href: voteUrl(repo, c.key, 'disagree'), rel: 'nofollow', target: '_blank'}));
+      li.appendChild(el('a', 'disagree', {href: voteUrl(repo, c.key, 'disagree', null, c.text), rel: 'nofollow', target: '_blank'}));
       list.appendChild(li);
     }
     dup.appendChild(list);
@@ -253,6 +270,11 @@
     if (!text || !button) return;
     var kinds = INTEREST_SECTIONS.indexOf(section) >= 0 ? ['interest'] : ['belief', 'claim'];
     button.setAttribute('data-label', button.textContent);
+    /* the form is a pop-up its link opens: the cursor goes where the typing does */
+    form.setAttribute('data-wired', '');
+    form.addEventListener('toggle', function (ev) { if (ev.newState === 'open') text.focus(); });
+    if (form.hasAttribute('popover')) form.insertBefore(el('button', '\u00d7', {type: 'button', 'class': 'x', 'aria-label': 'Close',
+      popovertarget: form.id, popovertargetaction: 'hide'}), form.firstChild);
     /* no account needed: the whole submission as text, on the clipboard */
     var status = el('span', '', {'class': 'copied', role: 'status'});
     var copy = el('button', 'Copy as text', {type: 'button', 'class': 'copy', title: 'Put this submission on the clipboard as text, to send without a GitHub account'});
@@ -277,13 +299,31 @@
     });
   }
 
+  /* A link to a form's id opens the form, whether it is followed on the page or arrived at from elsewhere:
+     the page moves to the table the row would join, and the form opens over it. */
+  function openForm(id) {
+    var form = id && document.getElementById(id);
+    if (!form || !form.showPopover || !form.hasAttribute('popover') || !form.hasAttribute('data-wired')) return false;
+    var link = document.querySelector('[popovertarget="' + id + '"]:not(.x)');
+    if (link && link.scrollIntoView) link.scrollIntoView({block: 'center'});
+    try { form.showPopover(); } catch (e) { /* open already */ }
+    return true;
+  }
+
   function wire(scope) {
     var forms = (scope || document).querySelectorAll('form.add');
     for (var i = 0; i < forms.length; i++) wireForm(forms[i]);
+    if (scope) return;
+    openForm(root.location.hash.slice(1));
+    root.addEventListener('hashchange', function () { openForm(root.location.hash.slice(1)); });
+    document.addEventListener('click', function (ev) {
+      var a = ev.target && ev.target.closest ? ev.target.closest('a[href^="#add-"]') : null;
+      if (a && openForm(a.getAttribute('href').slice(1))) ev.preventDefault();
+    });
   }
 
   var api = {FLAG: FLAG, MERGE: MERGE, words: words, grams: grams, idf: idf, score: score, build: build, negated: negated,
-    nearest: nearest, voteUrl: voteUrl, issueUrl: issueUrl, wire: wire, INTEREST_SECTIONS: INTEREST_SECTIONS};
+    nearest: nearest, voteUrl: voteUrl, voteTitle: voteTitle, issueUrl: issueUrl, wire: wire, openForm: openForm, INTEREST_SECTIONS: INTEREST_SECTIONS};
   if (typeof module !== 'undefined') module.exports = api;
   if (root) {
     root.ISEContribute = api;

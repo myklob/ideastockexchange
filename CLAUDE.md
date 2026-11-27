@@ -207,8 +207,7 @@ input would change the answer; `reasonrank.py` how much of the corpus depends on
 a page; `similarity.py` which claims say the same thing; `integrity.py` the
 structural faults the graph can show, and a pre-publish cycle check CI runs first; `fallacy.py` flags a
 possible fallacy by a published phrase list, as a question argued on the flagged claim's page that moves no score;
-`changes.py` what moved
-since the last revision; `method.py` the reader-facing methodology page;
+`method.py` the reader-facing methodology page;
 `sync_content.py` keeps the workbook and the reviewable CSVs in step; `vocab.py` what a post can be (197 kinds, each mapped to
 where intake files it and to AIF, ASPIC+, Walton's schemes and schema.org), behind `vocab.html`, `data/vocab.json`, the JSON-LD
 on every claim page, and intake's `Kind of post` and `Row` fields, which can open a row's linkage, importance or uniqueness
@@ -221,9 +220,13 @@ nothing. `factcheck/` re-checks published rows with a Workflow run (`batches.py`
 verdict from the run journals, `apply.py` files them); `factcheck/judged.json` is the record of every row's verdict, and a
 correction is only ever filed as a sourced reason to disagree, never as an edit. There is no verdict module any more: a
 page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
-page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed), `lists.html`
+page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed; the cards come first, and what the site is takes two sentences at the foot with a More link to `about.html`), `lists.html`
 says for every ranking what it shows, how it is worked out and why it is tracked, and every card and column that ranks
-links there; in tables, columns hold numbers and short labels and any sentence goes on a line under the row's main text. `t/<topic>.html` is
+links there; in tables, columns hold numbers and short labels and any sentence goes on a line under the row's main text. The reasons
+to agree sit on the left and the reasons to disagree on the right (the owner's direction, November 2026): `two_sided()`
+lays its sides beside each other wherever each can have the 540 pixels the reasons table needs and stacks them below
+that, so that number must stay small enough for two to fit the page; `stacked()` is only for a table with two
+free-flowing columns. `t/<topic>.html` is
 one page per row of the third table `content/topics.csv`, laid out section for section like
 `templates/topic-template.html`; a topic's cells are rows in `edges.csv` with `page` set to the topic key and a
 section from `ise_tables.TOPIC_SECTIONS`, and any cell the topic has no row for is filled from the belief pages
@@ -243,7 +246,8 @@ listed in `data/drafts.json`. Improve a weak page by adding to it or by ranking 
 rows. `--complete-only` builds the gated site (complete beliefs and the pages beneath them, a row pointing at a draft
 keeping its words but not its link); CI builds everything. The home page's cards flow in columns so a short card leaves no gap; no card spans the page. People take part
 through GitHub, because there is no server: every belief page carries a form under each table that takes rows plus a
-propose-a-belief form (also on the home and topic pages), each a plain GET to a prefilled GitHub issue form, and
+propose-a-belief form (also on the home and topic pages), each a plain GET to a prefilled GitHub issue form and each
+one line on the page (a link that opens the form as a popover, so no table is followed by a box of empty fields), and
 `contribute.js` checks what is typed against `data/claims_index.json` (written by `build()` from the full tables, drafts
 included) so a duplicate becomes a vote for the claim already there; `intake.py` does the same check on the issue and
 records a vote in `content/votes.csv` or opens a pull request. A proposed belief has no row pointing at it to carry an `added_by`, so intake records who proposed it in `content/proposals.csv` (beside `votes.csv`, never in `pages`, which names no author on purpose), and `contributors.html` counts Beliefs started from it, the maintainer's line taking every belief the table names nobody for. Every login that proposes a belief, adds a row (its `added_by`) or votes gets a page at `u/<login>.html`, and `content/users.csv` with `user_links.csv` give a person a profile; the one marked maintainer (the owner, Mike Laub) is credited in every page footer and citation. No scorer reads any of it. A vote never moves a score: the page shows the counts on the
@@ -258,6 +262,28 @@ because the contract stated a rule the corpus did not exercise, and the SQL port
 that same rule passed conformance while returning a truth starting point of 1.40. A
 deliberate rule change means `python3 conformance.py --write` and a reviewed diff.
 CI runs the whole suite before it will publish anything.
+
+### The views (`views.py`, `market.py`)
+
+The same beliefs are published five ways, each a list page for one question, joined by one line at the top of each
+and on every belief page: `all.html` (scores), `costs.html`, `invest.html`, `bets.html`, and `resolve.html` with its
+three parts `motives.html` (interests), `gain.html` (mutual gain) and `factors.html`. **A view prints only what the
+belief page prints.** `views.py` regroups factors the scorer already computed and adds no rule: logical validity and
+verification are the truth rule run on a page's reasons alone and on its checked rows alone; a belief's importance
+is the importance-page rule on the interests it lists; linkage and importance belong to a use of a claim, not to the
+claim. A number with nothing behind it prints grey; a number that does not exist prints blank, never a constant.
+
+A cost or benefit is filed under a category by the words of its unit (`views.RULES`, printed on the method page), and
+a unit the list does not know is Other. Expected values are added only inside one unit. Do not "fix" a column of
+mixed units by converting; the conversion rate is a claim somebody has to argue.
+
+`market.py` is play money and sits behind the same firewall as the app's market layer: scores go to it and nothing
+comes back. A share costs the truth score, so money never moves a price; a bet is a pool on a dated prediction. The
+ledger is `content/stakes.csv`, written by intake from the stake form and absent until the first stake.
+`test_market.py::test_no_scorer_reads_the_ledger` scans the scoring modules for it. If a market-set price is ever
+wanted (the app uses LMSR), print it beside the truth score as a second number; do not replace the price.
+
+Contributor pages count what a person added by what it is (beliefs, reasons, evidence), never "rows".
 
 ### Running agent work on the static site (learned in the November 2026 re-check)
 
@@ -317,7 +343,11 @@ uniqueness) or a labelled constant when no such page exists yet.
   CI runs it on any change under `templates/`. A template is copied rather than imported, so a stale one
   breaks nothing and quietly teaches the next dozen pages the wrong shape.
 - **Edit before Write.** Use `Edit` for changes to existing files. `Write` only for new files or full rewrites.
-- **Branch convention:** Claude-driven work goes on `claude/<short-slug>-<id>` branches. Push, but do NOT open a PR unless the user asks for one.
+- **Branch convention:** Claude-driven work goes on `claude/<short-slug>-<id>` branches. **Every session that improves a page, fixes a bug
+  or makes any other change worth keeping opens a pull request against `master` as soon as the work is pushed**, without
+  waiting to be asked (the owner's standing instruction, November 2026), so no progress is left on a branch nobody merges.
+  Before opening it, merge `master` into the branch and resolve conflicts, and run the checks this file lists. Later pushes to
+  the same branch update the same PR. Do not merge it yourself; the owner merges.
 - **JSX entities:** the lint rule `react/no-unescaped-entities` will flag bare apostrophes/quotes inside JSX text. Use `&apos;`, `&ldquo;`, `&rdquo;`.
 
 ## Debug Logging
