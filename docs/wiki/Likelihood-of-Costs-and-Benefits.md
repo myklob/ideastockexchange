@@ -228,7 +228,8 @@ The owner's page stops at the expected value of one row. The published site does
 | **Net expected value** | benefit expected values minus cost expected values, added up **within each unit of measure, never across units** |
 | **Net band** | bottom: every benefit at its low end and every cost at its high end; top: the reverse. A row with no range adds its single figure at both ends, and the page counts how many rows did |
 | **Benefit to cost** | benefit EV / cost EV, printed only when everything is in one unit and costs are not zero |
-| **Net by category** | one line per unit: benefits EV, costs EV, net |
+| **Totals for each category** | each row is filed under one of twelve categories (Money, Lives, Time, Environment, Health, Freedom, Trust, Innovation, Security, Education, Government, Culture and sport) or Other by the words of the unit it is counted in ([views.py](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/views.py), listed on the [method page](https://myklob.github.io/ideastockexchange/beliefs/method.html#categories)); one line per category with its count of benefits and costs, and their expected values added only when the rows share a unit |
+| **Net by unit** | one line per unit: benefits EV, costs EV, net (this table was headed "Net by category" until November 2026, when a category stopped meaning a unit) |
 | **Who gains, who pays** | the same expected values, added up by the interest page each row names as the one that collects or pays |
 | **Structural check** | "Costs and benefits given as single figures": "A decision cannot be checked against a point estimate: the reader cannot tell whether the net survives the estimate being wrong, which is usually the whole question" ([integrity.py](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/integrity.py)) |
 

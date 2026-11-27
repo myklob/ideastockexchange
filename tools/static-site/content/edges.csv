@@ -9073,7 +9073,7 @@ u-s-inflation-measured,evidence,agree,august-2026-u-s,,"U.S. Bureau of Labor Sta
 u-s-inflation-measured,evidence,agree,oil-prices-collapsed-2008,,"U.S. Bureau of Labor Statistics, CPI for All Urban Consumers, U.S. city average, all items (series CUUR0000SA0), 2008 to 2015",,,,,,,,,,,,,,url: https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0 | checked: 2026-11-08
 u-s-inflation-measured,evidence,agree,median-forecast-philadelphia-fed,,"Federal Reserve Bank of Philadelphia, Third Quarter 2026 Survey of Professional Forecasters, 2026",,,,,,,,,,,,,,url: https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/spf-q3-2026 | checked: 2026-11-08
 u-s-inflation-measured,prediction,agree,brent-crude-oil-will,,,,,,,,,,,,,,,"By January 15, 2027; checked against the EIA daily Europe Brent spot price series for December 2026.",
-u-s-inflation-measured,prediction,agree,unadjusted-u-s-cpi,,,,,,,,,,,,,,,By the BLS December 2026 CPI release in mid-January 2027; checked against series CUUR0000SA0.,url: https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0 | checked: 2026-11-08
+u-s-inflation-measured,prediction,agree,unadjusted-u-s-cpi,,,,,,,,,,,,,,,By mid-January 2027, when the BLS publishes its December 2026 CPI release; checked against series CUUR0000SA0.,url: https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0 | checked: 2026-11-08
 u-s-inflation-measured,falsify,agree,durable-u-s-iran,,,,,,,,,,,,,,,,
 u-s-inflation-measured,assumption,agree,strait-hormuz-reopens-world,,,,,,,,,,,,,,,,
 u-s-inflation-measured,assumption,agree,higher-u-s-energy,,,,,,,,,,,,,,,,

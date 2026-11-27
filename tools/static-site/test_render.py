@@ -1099,15 +1099,28 @@ class TestANewcomerKnowsWhereToStart(unittest.TestCase):
     def card(self, name):
         i = self.h.find(f'<span>{name}</span>'); return self.h[i:self.h.find('</section>', i)]
 
-    def test_start_here_is_the_first_card_and_follows_the_rankings(self):
+    def test_the_short_and_strong_cards_come_first_and_clear_their_bars(self):
         import render_site as RS
-        self.assertLess(self.h.find('<span>Start here</span>'), self.h.find('<span>Search</span>'))
-        card = self.card('Start here')
-        self.assertIn(f'href="p/{self.c.href(RS.best_beliefs(self.c)[0])}"', card, 'the first door is not the best belief')
-        top = self.c.rank.work_queue(1)
-        if top: self.assertIn(f'href="p/{self.c.href(top[0]["page"])}', card, 'the second door is not the top of the work queue')
-        self.assertIn('href="method.html"', card)
-        self.assertNotRegex(card, r'<a [^>]*>[^<]*<a ', 'a link is nested inside another link')
+        self.assertLess(self.h.find('<span>Short and strong beliefs</span>'), self.h.find('<span>Search</span>'))
+        self.assertLess(self.h.find('<span>Short reasons that carry weight</span>'), self.h.find('<span>Search</span>'))
+        bs, rs = RS.short_beliefs(self.c), RS.short_reasons(self.c)
+        self.assertTrue(bs and rs, 'a short-and-strong list is empty on the live tables')
+        best = RS.best_beliefs(self.c)[:max(3, len(self.c.beliefs) // 4)]
+        for b in bs:
+            self.assertIn(b, best); self.assertGreater(self.c.stats(b)['belief'], 0)
+        avg = 1 / len(self.c.specs)
+        for p in rs:
+            self.assertEqual(self.c.kind(p), 'claim'); self.assertGreaterEqual(self.c.rank.of(p), avg)
+        for rows in (bs, rs):
+            n = [RS.words(self.c, p) for p in rows]
+            self.assertEqual(n, sorted(n), 'not shortest first')
+        self.assertIn(f'href="p/{self.c.href(bs[0])}"', self.card('Short and strong beliefs'))
+        self.assertIn(f'href="p/{self.c.href(rs[0])}"', self.card('Short reasons that carry weight'))
+        self.assertIn('href="lists.html#short"', self.h)
+        self.assertIn('href="lists.html#shortreasons"', self.h)
+        with open(os.path.join(self.parent.dir, 'short.html')) as fh: page = fh.read()
+        self.assertIn('id="reasons"', page)
+        self.assertIn(f'href="p/{self.c.href(rs[0])}"', page)
 
     def test_the_best_beliefs_card_says_what_each_number_is(self):
         card = self.card('Highest belief scores')
@@ -1740,7 +1753,8 @@ class TestThePagesSpeakPlainly(unittest.TestCase):
         cls.corpus = cls.parent.c
         cls.pages = dict(cls.parent.html)
         del cls.pages['method.html']
-        for name in ('all', 'next', 'interests', 'media', 'topics', 'outline', 'vocab'):
+        for name in ('all', 'next', 'interests', 'media', 'topics', 'outline', 'vocab', 'costs', 'invest', 'bets', 'resolve',
+                     'motives', 'gain', 'factors', 'contributors'):
             with open(os.path.join(cls.parent.dir, name + '.html')) as fh: cls.pages[name + '.html'] = fh.read()
         for k in cls.corpus.topics:
             with open(os.path.join(cls.parent.dir, 't', cls.corpus.topic_href(k))) as fh: cls.pages['t/' + k] = fh.read()
@@ -2160,6 +2174,65 @@ class TestPeopleCanTakePart(unittest.TestCase):
             self.assertIn('name="units"', f); self.assertIn('name="who"', f)
             self.assertNotIn('required', f.split('name="units"')[1].split('<button')[0], 'an estimate is demanded of a reader who has none')
             self.assertNotIn('name="magnitude"', self._forms(self.html[pid])['evidence'], 'a finding asks for an estimate')
+
+    def test_a_form_takes_one_line_of_the_page_until_its_link_is_clicked(self):
+        """A box per table was a quarter of a belief page's height, spent on fields most readers never type in.
+        Each form is a popover behind a one-line link, and the link opens it with no script. The link is all
+        the markup this costs, since a byte here is repeated on every form of every page: the close button is
+        the script's. The styles that hide a closed form sit inside a check that the browser knows popovers,
+        so one that does not shows every form in place as before, and a link to a form's address still shows
+        it when scripts are off."""
+        import render_site as RS
+        checked = 0
+        for pid in self.claims:
+            h, key = self.html[pid], self.c.key[pid]
+            forms = {re.search(r'\bid="([^"]+)"', t).group(1): t for t in re.findall(r'<form\b[^>]*\bclass="add"[^>]*>', h)}
+            links = {}
+            for tag, text in re.findall(r'(<button\b[^>]*\bpopovertarget="[^"]+"[^>]*>)([^<]*)</button>', h):
+                fid = re.search(r'\bpopovertarget="([^"]+)"', tag).group(1)
+                self.assertIn('type="button"', tag, f'{key} {fid}: the button that opens the form would submit it')
+                self.assertIn('class="addlink"', tag, f'{key} {fid}: a second button per form is on every page of the site')
+                links.setdefault(fid, []).append(text)
+            self.assertGreaterEqual(len(forms), len(self.SECTIONS), f'{key} lost a form')
+            self.assertEqual(set(links), set(forms), f'{key}: a form no link opens, or a link that opens nothing')
+            for fid, tag in forms.items():
+                self.assertRegex(tag, r'\spopover[\s>]', f'{key} {fid}: the form is a box on the page again')
+                self.assertEqual(len(links[fid]), 1, f'{key} {fid}: more than one link opens the form')
+                label = re.search(r'<label\b[^>]*\bfor="%s-text"[^>]*>([^<]+)</label>' % re.escape(fid), h)
+                self.assertIsNotNone(label, f'{key} {fid}: the form has no heading')
+                self.assertEqual(links[fid][0], label.group(1), f'{key} {fid}: the link and the form it opens are named differently')
+                checked += 1
+        self.assertGreater(checked, len(self.claims))
+        css = RS.CSS
+        i = css.find('@supports selector(:popover-open){'); j = css.find('\n}\n', i)
+        self.assertGreater(i, 0, 'the popover styles are not behind a check that the browser knows popovers'); self.assertGreater(j, i)
+        inside, outside = css[i:j], css[:i] + css[j:]
+        self.assertNotIn(':popover-open', outside, 'a browser that cannot open a popover is told to hide the forms')
+        self.assertIn('.addlink,.add .x{display:none}', outside, 'a browser that cannot open a popover shows a link that does nothing')
+        self.assertIn('.addlink{display:block', inside)
+        self.assertIn('.add[popover]:not(:popover-open):not(:target),.add[data-wired]:not(:popover-open){display:none}', inside,
+                      'with scripts off, a link to a form\'s address reaches nothing')
+        self.assertIn('.add[popover]:popover-open{position:fixed', inside)
+        self.assertIn('position:static', re.search(r'\n\.add\{([^}]*)\}', css).group(1), 'a form shown in place would be pinned to the window')
+        self.assertIn('@media print{.add,.addlink,', css)
+        with open(os.path.join(self.dir, 'contribute.js')) as fh: js = fh.read()
+        self.assertIn("popovertargetaction: 'hide'", js, 'an open form has no button that closes it')
+        self.assertIn("'aria-label': 'Close'", js)
+
+    def test_a_link_to_a_form_on_the_page_names_a_form_the_script_can_open(self):
+        """The gaps table, the invitation and the comment intake leaves on a vote all link to a form by its id.
+        A closed popover has no place on the page to scroll to, so contribute.js opens the form instead; the
+        link has to start with #add- for it to notice, and name a form that is there."""
+        seen = 0
+        for pid in self.claims:
+            h, key = self.html[pid], self.c.key[pid]
+            ids = {re.search(r'\bid="([^"]+)"', t).group(1) for t in re.findall(r'<form\b[^>]*\bclass="add"[^>]*>', h)}
+            for target in re.findall(r'<a\b[^>]*\bhref="#(add-[^"]+)"', h):
+                self.assertIn(target, ids, f'{key} links to #{target}, which is not a form on the page')
+                seen += 1
+        self.assertGreater(seen, 0)
+        with open(os.path.join(self.dir, 'contribute.js')) as fh: js = fh.read()
+        self.assertIn('a[href^="#add-"]', js)
 
     def test_with_scripts_off_the_page_says_what_still_works(self):
         for pid in self.claims[:10]:
@@ -2612,7 +2685,8 @@ class TestEveryContributorHasAPage(unittest.TestCase):
         for login in ('u1', 'u2', 'u3', 'u4', 'ann'):
             self.assertTrue(os.path.exists(os.path.join(out, 'u', login + '.html')), f'{login} has no page')
             self.assertIn(f'href="u/{login}.html"', people)
-        self.assertIn('Rows added', self.read(out, 'u/ann.html'))
+        self.assertIn('What @ann added', self.read(out, 'u/ann.html'))
+        self.assertNotIn('Rows added', self.read(out, 'u/ann.html') + people, 'a reader adds a reason or a finding, not a row')
         self.assertIn('Votes cast', self.read(out, 'u/u1.html'))
         self.assertEqual(self.v.broken_v, [], 'a contributor link points at a page that was not written')
 
@@ -2621,9 +2695,9 @@ class TestEveryContributorHasAPage(unittest.TestCase):
         self.assertRegex(people, r'<th\b[^>]*>Up votes</th><th\b[^>]*>Down votes</th>')
         self.assertNotIn('Votes cast', people)
         # u1 voted on a twice, agree then disagree; only the later vote stands
-        self.assertRegex(people, r'href="u/u1\.html">[^<]*</a></td><td class="u">[^<]*</td><td>\d+</td><td>2</td><td>1</td>')
-        self.assertRegex(people, r'href="u/u4\.html">[^<]*</a></td><td class="u">[^<]*</td><td>\d+</td><td>0</td><td>1</td>')
-        self.assertRegex(people, r'href="u/u2\.html">[^<]*</a></td><td class="u">[^<]*</td><td>\d+</td><td>1</td><td>1</td>')
+        self.assertRegex(people, r'href="u/u1\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>){4}<td>2</td><td>1</td>')
+        self.assertRegex(people, r'href="u/u4\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>){4}<td>0</td><td>1</td>')
+        self.assertRegex(people, r'href="u/u2\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>){4}<td>1</td><td>1</td>')
 
     def test_added_by_links_to_the_contributors_page_on_this_site(self):
         h = self.read(self.v.out_v, 'p/' + self.v.cv.href(self.v.cv.tabs['a']))
