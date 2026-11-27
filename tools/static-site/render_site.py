@@ -3047,16 +3047,6 @@ def render_index(c, title):
     ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
     o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
     TOP = 3
-    cards = [start_here(c), card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
-    # one belief is several questions, and each has a list built for it: the same beliefs every time, different columns
-    ways = (('all.html', 'Scores', 'Is it true, and is that from reasoning or from checking?'),
-            ('costs.html', 'Costs and benefits', 'What would acting on it most likely gain and cost?'),
-            ('invest.html', 'Investing', 'What does a share in it cost today, and who has bought?'),
-            ('bets.html', 'Betting', 'Which of its predictions come due, and what is riding on them?'),
-            ('resolve.html', 'Conflict resolution', 'Who wants what, and where could both sides gain?'))
-    cards.append(card('Five ways to read a belief', 'The same beliefs every time, each list built for a different question.',
-                      '<ul class="doors">' + ''.join(f'<li><a href="{h}"><strong>{esc(t)}</strong></a> {esc(q)}</li>' for h, t, q in ways) + '</ul>'))
-    cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
     shorts = short_beliefs(c)
     cards = [card('Short and strong beliefs', 'Readable in one breath and among the best argued here. Fewest words first; only beliefs from '
                   'the top quarter of the best-beliefs list, argued above zero, qualify.',
@@ -3070,6 +3060,14 @@ def render_index(c, title):
                            note=lambda p: f'relied on {times_avg(c, c.rank.of(p))} the average page, truth score {f2(c.truth(p))}'),
                       see_all('short.html#reasons', len(shortr), 'short reasons that carry weight'), 'shortreasons'))
     cards.append(card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>'))
+    # one belief is several questions, and each has a list built for it: the same beliefs every time, different columns
+    ways = (('all.html', 'Scores', 'Is it true, and is that from reasoning or from checking?'),
+            ('costs.html', 'Costs and benefits', 'What would acting on it most likely gain and cost?'),
+            ('invest.html', 'Investing', 'What does a share in it cost today, and who has bought?'),
+            ('bets.html', 'Betting', 'Which of its predictions come due, and what is riding on them?'),
+            ('resolve.html', 'Conflict resolution', 'Who wants what, and where could both sides gain?'))
+    cards.append(card('Five ways to read a belief', 'The same beliefs every time, each list built for a different question.',
+                      '<ul class="doors">' + ''.join(f'<li><a href="{h}"><strong>{esc(t)}</strong></a> {esc(q)}</li>' for h, t, q in ways) + '</ul>'))
     cards.append(card('Highest belief scores', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
                       'for the belief minus the weight against it, open ended, where 0 means balanced or not yet argued. The truth score under each '
                       'belief is the one its own page shows, 0 to 1, where 0.50 means the evidence so far has not moved it either way.',
@@ -5301,9 +5299,8 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
         if c.kind(pid) == 'belief' and not c.complete(pid): index[-1]['draft'] = True
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
-    for name, fn in (('all', render_all), ('costs', render_costs), ('invest', render_invest), ('bets', render_bets), ('resolve', render_resolve),
-                     ('motives', render_motives), ('gain', render_gain), ('factors', render_factors), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
-    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('short', render_short), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
+    for name, fn in (('all', render_all), ('costs', render_costs), ('invest', render_invest), ('bets', render_bets), ('resolve', render_resolve), ('motives', render_motives), ('gain', render_gain), ('factors', render_factors),
+                     ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('short', render_short), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 'u'))
     for login in getattr(c, 'people', []):

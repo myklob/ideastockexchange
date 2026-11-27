@@ -251,6 +251,21 @@ class TestTheListPages(Site):
             self.assertIsNone(re.search(r'<th(?=[\s>])(?![^>]*scope=)[^>]*>', h), f'{name}.html has a header without scope')
             self.assertNotIn('\u2014', h, f'{name}.html uses an em dash')
 
+    def test_the_home_page_and_the_build_carry_what_both_merged_changes_added(self):
+        """Two changes to the home page's cards and to the list of pages a build writes were once merged by keeping
+        both in full, which left the generator unreadable and the site unpublished. Each added something the other
+        did not have: the card that leads to the five views, and the short rankings with the page about the site."""
+        h = self.page('index.html')
+        doors = re.search(r'<ul\b[^>]*class="doors"[^>]*>.*?</ul>', h, re.S)
+        self.assertIsNotNone(doors, 'the home page has lost the card that leads to the five views')
+        for name in ('all', 'costs', 'invest', 'bets', 'resolve'): self.assertIn(f'href="{name}.html"', doors.group(0))
+        at = [h.find(f'<span>{card}</span>') for card in ('Search', 'Five ways to read a belief', 'Highest belief scores')]
+        self.assertTrue(all(i > 0 for i in at), 'a card is missing from the home page')
+        self.assertEqual(at, sorted(at), 'the five views sit after Search and before the best-argued beliefs')
+        self.assertNotIn('<span>Best beliefs</span>', h, 'the list was renamed Highest belief scores')
+        for name in ('short', 'about') + self.VIEWS:
+            self.assertTrue(os.path.exists(os.path.join(self.out, name + '.html')), f'{name}.html was not written')
+
     def test_the_conflict_view_names_its_three_parts_on_each_of_them(self):
         for name in ('resolve', 'motives', 'gain', 'factors'):
             h = self.page(name + '.html')
