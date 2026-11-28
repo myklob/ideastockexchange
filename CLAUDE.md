@@ -347,7 +347,9 @@ uniqueness) or a labelled constant when no such page exists yet.
   or makes any other change worth keeping opens a pull request against `master` as soon as the work is pushed**, without
   waiting to be asked (the owner's standing instruction, November 2026), so no progress is left on a branch nobody merges.
   Before opening it, merge `master` into the branch and resolve conflicts, and run the checks this file lists. Later pushes to
-  the same branch update the same PR. Do not merge it yourself; the owner merges.
+  the same branch update the same PR. **Merge it yourself once the checks pass** (the owner's instruction, November 2026):
+  merge `master` in first, re-run the checks on the merged tree, and merge with a merge commit. An open PR left for the
+  owner is the outcome to avoid; a PR whose checks fail stays open with a comment saying what failed.
 - **JSX entities:** the lint rule `react/no-unescaped-entities` will flag bare apostrophes/quotes inside JSX text. Use `&apos;`, `&ldquo;`, `&rdquo;`.
 - **Public write routes:** the site has no user accounts, so every keyless `POST`/`PUT`/`PATCH`/`DELETE` under `src/app/api` must start with a guard from `src/lib/public-guard.ts` — `guardPublicWrite` (per-client limiter + `PUBLIC_WRITES_DISABLED`), `requireOperatorSecret` (`CRON_SECRET` bearer; fails closed in production) for recompute/destructive/cron routes, or `guardMarketWrite` for play-money markets. Agent routes under `/api/v1` use `authenticateAgentKey` instead. Never return raw `error.message` to the client.
 - **Scores are never seeded.** Seed scripts write structure only (statements, labels, evidence, relationships); `prisma/seed-propagate.ts` runs last and computes every score. `npm run db:bootstrap` = `prisma db push` + the full seed chain, idempotent.
