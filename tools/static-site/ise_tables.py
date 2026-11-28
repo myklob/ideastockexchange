@@ -15,6 +15,9 @@ short key rather than a tab number, so nothing has to be renumbered and nothing 
 under. A belief names its topic in the `topic` column; every page beneath the belief inherits it. The table is
 optional on both surfaces, so a workbook or a content folder without it still reads.
 
+`proposals` (key login date issue) is not one of them: it records who proposed a belief, lives only in the content
+folder, and scores nothing (see PROPOSAL_COLS).
+
 `extra` carries the long tail as "name: value | name: value" so the sheet stays narrow: the component flags,
 a motive's actual driver, a compromise's premise, a value ranking, a definition.
 
@@ -495,6 +498,36 @@ def read_users(path):
         with open(fn, newline='', encoding='utf-8') as fh:
             out.append([{k: (v or '').strip() for k, v in d.items() if k} for d in csv.DictReader(fh) if any((v or '').strip() for v in d.values())])
     return tuple(out)
+
+
+# Who proposed a belief and when. Every other page a submission adds is pointed at by a row, and the row's extra
+# cell says who added it (PROVENANCE); a proposed belief is pointed at by nothing, so it has this table instead.
+# It sits beside votes.csv, outside the two scored tables and outside the workbook, so no scorer can read it.
+PROPOSAL_COLS = ['key', 'login', 'date', 'issue']
+
+
+def read_proposals(path):
+    """content/proposals.csv as a list of dicts, one per belief somebody proposed through the site; [] when the
+    folder has none. A row with no key or no login says nothing and is left out."""
+    import csv, os
+    fn = os.path.join(path, 'proposals.csv') if os.path.isdir(path) else ''
+    if not fn or not os.path.exists(fn): return []
+    with open(fn, newline='', encoding='utf-8') as fh:
+        rows = [{c: (d.get(c) or '').strip() for c in PROPOSAL_COLS} for d in csv.DictReader(fh)]
+    return [r for r in rows if r['key'] and r['login']]
+
+
+def write_proposals(rows, outdir):
+    """One row per belief, sorted by key, so two pull requests that each propose a belief rarely touch the same
+    line. Returns the file written."""
+    import csv, os
+    fn = os.path.join(outdir, 'proposals.csv')
+    with open(fn, 'w', newline='', encoding='utf-8') as fh:
+        w = csv.DictWriter(fh, fieldnames=PROPOSAL_COLS, lineterminator='\n')
+        w.writeheader()
+        for r in sorted({r['key']: r for r in rows}.values(), key=lambda r: r['key']):
+            w.writerow({c: r.get(c, '') for c in PROPOSAL_COLS})
+    return fn
 
 
 def read_entry(path):
