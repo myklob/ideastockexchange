@@ -7,5 +7,33 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout>
+	<nav class="ise-nav" aria-label="Idea Stock Exchange">
+		<a href="/belief">Belief template</a>
+		<a href="/battlefield">Battlefield of Ideas</a>
+		<a href="/arena">Idea Arena</a>
+	</nav>
 	<Welcome />
 </Layout>
+
+<style>
+	.ise-nav {
+		position: absolute;
+		top: 16px;
+		right: 16px;
+		z-index: 1;
+		display: flex;
+		gap: 16px;
+		font: 14px/1 Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
+	}
+	.ise-nav a {
+		color: #111827;
+		text-decoration: none;
+		padding: 8px 12px;
+		border-radius: 10px;
+		background: rgba(255, 255, 255, 0.7);
+		border: 1px solid white;
+	}
+	.ise-nav a:hover {
+		background: white;
+	}
+</style>
