@@ -7,13 +7,15 @@ interface Props {
 export default function CommonGround({ commonGround }: Props) {
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-bold mb-3">
-        🤝 Common Ground &amp; Compromise
-      </h2>
+      <h2 className="text-xl font-bold mb-1">8. Common Ground and Compromise</h2>
+      <p className="text-sm text-gray-600 mb-3">
+        Solutions that address both sides&apos; core concerns are more durable than victories. Compromise
+        positions belong here.
+      </p>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
-            <tr className="bg-gray-100">
+            <tr className="bg-[#f0f3f6]">
               <th className="border border-gray-300 px-3 py-2 w-1/2">What Both Sides Might Agree On</th>
               <th className="border border-gray-300 px-3 py-2 w-1/2">Possible Compromise Positions</th>
             </tr>

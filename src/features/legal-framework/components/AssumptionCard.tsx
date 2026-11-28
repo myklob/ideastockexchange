@@ -31,7 +31,7 @@ export function AssumptionCard({ assumption }: { assumption: Assumption }) {
       </div>
 
       <p className="text-lg font-semibold mb-4 leading-relaxed">
-        "{assumption.statement}"
+        &ldquo;{assumption.statement}&rdquo;
       </p>
 
       {assumption.evidence.length > 0 && (

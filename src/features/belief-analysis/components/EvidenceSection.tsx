@@ -1,250 +1,285 @@
 import Link from 'next/link'
-import type { EvidenceItem, MediaItem } from '../types'
-import SectionHeading from './SectionHeading'
+import type { EvidenceItem } from '../types'
+import { TABLE_TOP_LIMIT } from '../lib/ranking'
+import ExpandableRows from './ExpandableRows'
+import {
+  computeBeliefEvidenceExposure,
+  readStanding,
+  summarizeExposure,
+  STANDINGS,
+  HIGH_EXPOSURE_SHARE,
+  NEGLIGIBLE_EXPOSURE,
+  type StandingKey,
+} from '@/core/scoring/evidence-exposure'
 
 interface EvidenceSectionProps {
   evidence: EvidenceItem[]
-  totalSupporting: number
-  totalWeakening: number
-  /**
-   * Media items render in the Visual and Video Evidence sub-table per the new
-   * canonical template — they are evidence, tiered by underlying source. The
-   * separate Media Resources section is gone.
-   */
-  media?: MediaItem[]
 }
 
-function tierBadge(type: string): React.ReactNode {
-  const styles: Record<string, string> = {
-    T1: 'bg-green-100 text-green-800',
-    T2: 'bg-blue-100 text-blue-800',
-    T3: 'bg-yellow-100 text-yellow-800',
-    T4: 'bg-red-100 text-red-800',
-  }
-  const label = ['T1', 'T2', 'T3', 'T4'].includes(type) ? type : 'T?'
-  const color = styles[label] ?? 'bg-gray-100 text-gray-800'
-  return (
-    <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded ${color}`}>
-      {label}
-    </span>
-  )
+/**
+ * The engine's eighteen source types (tools/static-site/evidence.py, ESIW),
+ * strongest first. The type sets where a finding's truth starts before anyone
+ * argues it; the labels here are the spelled-out cell text.
+ */
+const SOURCE_TYPE_LABELS: Record<string, string> = {
+  statistics: 'Statistics and data',
+  record: 'Primary official record',
+  rct: 'Randomized controlled trial',
+  meta: 'Meta-analysis',
+  observational: 'Observational study',
+  historical: 'Historical trend',
+  expert_data: 'Expert testimony with data',
+  expert_claim: 'Expert or social media claim',
+  anecdote: 'Personal anecdote',
+  logic: 'Common sense or logic',
+  analogy: 'Analogy',
+  norm: 'Cultural norm',
+  intuition: 'Intuition',
+  news: 'News report',
+  survey: 'Survey or poll',
+  eyewitness: 'Eyewitness testimony',
+  visual: 'Visual evidence',
+  artifact: 'Historical artifact',
 }
 
-function stanceLabel(side: string): string {
-  if (side === 'supporting') return 'Supports'
-  if (side === 'weakening') return 'Weakens'
-  return side
+/**
+ * Source type cell. A row still carrying one of the retired four tiers renders
+ * it as plain "Tier N" text until it is reclassified; an unknown value renders
+ * as typed.
+ */
+function sourceTypeLabel(type: string): string {
+  const label = SOURCE_TYPE_LABELS[type]
+  if (label) return label
+  const m = /^T([0-4])$/.exec(type)
+  return m ? `Tier ${m[1]}` : type
 }
 
-function linkagePct(score: number | null | undefined): string {
+/** Confidence and Uniqueness columns: blank until the engine computes them (Rule 6). */
+function ratioCell(value: number | null | undefined): string {
+  if (value == null) return ''
+  return value.toFixed(2)
+}
+
+function linkPct(score: number | null | undefined): string {
   if (score == null) return ''
   return `${Math.round(score * 100)}%`
 }
 
-const MEDIA_TYPE_GLYPHS: Record<string, string> = {
-  image: '📊 Chart',
-  scientific_paper: '📊 Chart',
-  article: '📷 Photo',
-  song: '🎭 Meme / Cartoon',
-  poem: '🎭 Meme / Cartoon',
-  movie: '🎥 Video / Documentary',
-  podcast: '🎥 Video / Documentary',
-  book: '📚 Book',
+function impactCell(item: EvidenceItem): string {
+  if (!item.impactScore) return ''
+  const sign = item.side === 'supporting' ? '+' : '-'
+  return `${sign}${Math.abs(item.impactScore).toFixed(1)}`
 }
 
-function mediaTypeGlyph(mediaType: string): string {
-  return MEDIA_TYPE_GLYPHS[mediaType] ?? `📄 ${mediaType.replace(/_/g, ' ')}`
+const STANDING_STYLES: Record<StandingKey, string> = {
+  verified: 'text-green-700',
+  unverified: 'text-yellow-700',
+  disputed: 'text-orange-700',
+  falsified: 'text-red-700 line-through',
+  unrecorded: 'text-gray-500',
 }
 
-function mediaToTier(m: MediaItem): string {
-  // Underlying source determines tier per Rule 4 / Evidence Tiers.
-  if (m.reliabilityTier && /^T[1-4]$/.test(m.reliabilityTier)) return m.reliabilityTier
-  // Fallback by genre
-  switch (m.genreType) {
-    case 'peer_reviewed': return 'T1'
-    case 'expert_analysis':
-    case 'institutional_report': return 'T2'
-    case 'news_report':
-    case 'survey': return 'T3'
-    default: return 'T4'
+/** Standing cell: what the lifecycle says about this row, and so how much of
+ *  its impact the engine counts. Hover gives the consequence. */
+function StandingCell({ item }: { item: EvidenceItem }) {
+  const meta = STANDINGS[readStanding(item.verificationStatus)]
+  return (
+    <td
+      className={`border border-gray-300 px-2 py-2 text-center align-top text-xs ${STANDING_STYLES[meta.key]}`}
+      title={meta.descriptor}
+    >
+      {meta.label}
+    </td>
+  )
+}
+
+/** The first few words of an argument's label, used to name it in "Bears On". */
+function openingWords(text: string, count = 8): string {
+  const words = text.trim().split(/\s+/)
+  if (words.length <= count) return text.trim()
+  return `${words.slice(0, count).join(' ')}…`
+}
+
+/** "Finding (Producer, Year)": producer and year fold into the description cell. */
+function findingLabel(item: EvidenceItem): string {
+  const meta = [item.producer, item.year != null ? String(item.year) : null]
+    .filter(Boolean)
+    .join(', ')
+  return meta ? `${item.description} (${meta})` : item.description
+}
+
+/**
+ * The "Bears On" cell: the specific argument this evidence bears on, named by
+ * its opening words and linking into that argument's own sub-debate, or
+ * "this belief" (plain text) when the evidence bears on the belief directly.
+ */
+function BearsOnCell({ item }: { item: EvidenceItem }) {
+  const arg = item.bearsOnArgument
+  if (!arg) return <span className="text-[var(--muted-foreground)]">this belief</span>
+  return (
+    <Link
+      href={`/beliefs/${arg.belief.slug}`}
+      className="text-[var(--accent)] hover:underline"
+      title="The argument this evidence bears on"
+    >
+      {openingWords(arg.claim ?? arg.belief.statement)}
+    </Link>
+  )
+}
+
+function EvidenceHalf({ item }: { item: EvidenceItem | undefined }) {
+  if (!item) {
+    return (
+      <>
+        <td className="border border-gray-300 px-3 py-2">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+      </>
+    )
   }
+  return (
+    <>
+      <td className="border border-gray-300 px-3 py-2 align-top">
+        {item.sourceUrl ? (
+          <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">
+            {findingLabel(item)}
+          </a>
+        ) : (
+          findingLabel(item)
+        )}
+      </td>
+      <td className="border border-gray-300 px-2 py-2 align-top text-xs">
+        <BearsOnCell item={item} />
+      </td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top text-xs font-semibold">
+        {sourceTypeLabel(item.evidenceType)}
+      </td>
+      <StandingCell item={item} />
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{ratioCell(item.confidenceScore)}</td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{linkPct(item.linkageScore)}</td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{ratioCell(item.uniquenessScore)}</td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">{impactCell(item)}</td>
+    </>
+  )
 }
 
-export default function EvidenceSection({
-  evidence,
-  totalSupporting,
-  totalWeakening,
-  media = [],
-}: EvidenceSectionProps) {
-  const sortedEvidence = [...evidence].sort((a, b) => {
-    // T1 first, then T2 ... within tier sort by side (supporting first)
-    const tierOrder: Record<string, number> = { T1: 1, T2: 2, T3: 3, T4: 4 }
-    const at = tierOrder[a.evidenceType] ?? 5
-    const bt = tierOrder[b.evidenceType] ?? 5
-    if (at !== bt) return at - bt
-    if (a.side !== b.side) return a.side === 'supporting' ? -1 : 1
-    return Math.abs(b.impactScore) - Math.abs(a.impactScore)
-  })
+export default function EvidenceSection({ evidence }: EvidenceSectionProps) {
+  const supporting = evidence.filter(e => e.side === 'supporting')
+  const weakening = evidence.filter(e => e.side === 'weakening')
+  const rowCount = Math.max(supporting.length, weakening.length, 1)
+  const rows = Array.from({ length: rowCount }, (_, i) => i)
+  const topRows = rows.slice(0, TABLE_TOP_LIMIT)
+  const restRows = rows.slice(TABLE_TOP_LIMIT)
+
+  // Retraction exposure: how much of the score drawn from evidence rests on
+  // standing nobody has established. Reported only when there is evidence and
+  // something actually at risk.
+  const exposure = computeBeliefEvidenceExposure(evidence)
+  const showExposure = evidence.length > 0 && exposure.exposedPoints >= NEGLIGIBLE_EXPOSURE
+  const exposureStyle =
+    exposure.exposedShare >= HIGH_EXPOSURE_SHARE
+      ? 'bg-yellow-50 border-yellow-300'
+      : 'bg-gray-50 border-gray-300'
 
   return (
     <section>
-      <SectionHeading
-        emoji="&#x1F52C;"
-        title="Evidence Ledger"
-        href="/Evidence"
-        subtitle="Evidence is empirical data: studies, statistics, records, observations, and media. Each item is tiered by source quality and linked to the specific argument it bears on."
-      />
-      <p className="text-xs text-[var(--muted-foreground)] mb-4">
-        Tier reflects the underlying source, not the format — a meme visualizing a T1
-        study is T1; a pundit asserting a claim is T4 at best, and is an argument, not
-        evidence.{' '}
-        <span className="italic">
-          T1 = Peer-reviewed / Official, T2 = Expert / Institutional,
-          T3 = Journalism / Surveys, T4 = Opinion / Anecdote.
-        </span>
+      <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
+        <span>&#128202;</span>
+        <Link href="/algorithms/evidence-scores" className="text-[var(--accent)] hover:underline">Evidence Ledger</Link>
+      </h2>
+      <p className="text-sm text-[var(--muted-foreground)] mb-4 italic">
+        <strong>Source type</strong> is what kind of thing the finding is, one of the eighteen the
+        engine knows, and it sets where the finding&apos;s truth starts before anyone argues it:
+        statistics and data with the source cited, primary official record, randomized controlled
+        trial, meta-analysis, observational study, historical trend, expert testimony with data,
+        expert or social media claim, personal anecdote, common sense or logic, analogy, cultural
+        norm, intuition, news report, survey or poll, eyewitness testimony, visual evidence,
+        historical artifact (strongest first). Classify what the claim says, not the instrument
+        that produced it. A finding with no source type named starts at 0.50 and pulls nothing
+        either way; a row still carrying one of the retired four tiers shows it as plain text until
+        it is reclassified. A row counts as sign × (2 × Truth − 1) × Confidence × Linkage ×
+        Importance × Uniqueness, the same rule as the arguments above, so a finding nobody has
+        argued or sourced reads exactly 0; Confidence and Uniqueness stay blank until the engine
+        computes them. <strong>Standing</strong> is the verification
+        lifecycle: verified rows count in full, unverified and disputed at half, falsified at
+        nothing. Format each item as: Finding (Producer, Year). Evidence is data that can fail
+        empirically; a reason that can only fail logically is an argument and belongs in the tree
+        above, not here. Every item must also name what it <strong>bears on</strong>: a specific
+        argument above, identified by its opening words, or this belief directly. Evidence that
+        bears on nothing contributes nothing, no matter how true it is.
       </p>
 
-      {/* 4a. Text and Data Sources */}
-      <div className="mb-8">
-        <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
-          <span>📄</span> Text and Data Sources
-        </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300 text-sm">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="px-3 py-2 text-center w-[8%] font-semibold">Tier</th>
-                <th className="px-3 py-2 text-left w-[40%] font-semibold">Source</th>
-                <th className="px-3 py-2 text-center w-[10%] font-semibold">Stance</th>
-                <th className="px-3 py-2 text-left w-[30%] font-semibold">Argument It Bears On</th>
-                <th className="px-3 py-2 text-center w-[12%] font-semibold">
-                  <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">
-                    Linkage
-                  </Link>
-                </th>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr>
+              <th className="border border-gray-300 bg-green-100 text-center font-semibold px-3 py-2" colSpan={8}>
+                ✅ Supporting Evidence
+              </th>
+              <th className="border border-gray-300 bg-red-100 text-center font-semibold px-3 py-2" colSpan={8}>
+                ❌ Weakening Evidence
+              </th>
+            </tr>
+            <tr className="bg-gray-100 text-xs">
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[14%]">Evidence (Producer, Year)</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[8%]">Bears On</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Source type</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Standing</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[4%]">Confidence</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[4%]">
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[4%]">
+                <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[4%]">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[14%]">Evidence (Producer, Year)</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[8%]">Bears On</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[7%]">Source type</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Standing</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[4%]">Confidence</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[4%]">
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[4%]">
+                <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[4%]">Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topRows.map(i => (
+              <tr key={i}>
+                <EvidenceHalf item={supporting[i]} />
+                <EvidenceHalf item={weakening[i]} />
               </tr>
-            </thead>
-            <tbody>
-              {sortedEvidence.length > 0 ? (
-                sortedEvidence.map(item => (
-                  <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                    <td className="px-3 py-3 text-center align-top">{tierBadge(item.evidenceType)}</td>
-                    <td className="px-3 py-3 align-top">
-                      {item.sourceUrl ? (
-                        <a
-                          href={item.sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[var(--accent)] hover:underline"
-                        >
-                          {item.description}
-                        </a>
-                      ) : (
-                        item.description
-                      )}
-                    </td>
-                    <td className="px-3 py-3 text-center align-top text-xs">{stanceLabel(item.side)}</td>
-                    <td className="px-3 py-3 align-top text-xs text-[var(--muted-foreground)]">
-                      {/* Argument linkage is encoded in linkageScore; the actual argument
-                          this bears on lives on the argument page. */}
-                      &mdash;
-                    </td>
-                    <td className="px-3 py-3 text-center align-top font-mono text-xs">
-                      {linkagePct(item.linkageScore)}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="px-3 py-3 text-sm text-[var(--muted-foreground)] italic">
-                    No evidence submitted yet.
-                  </td>
+            ))}
+            <ExpandableRows moreCount={restRows.length} colSpan={16}>
+              {restRows.map(i => (
+                <tr key={i}>
+                  <EvidenceHalf item={supporting[i]} />
+                  <EvidenceHalf item={weakening[i]} />
                 </tr>
-              )}
-              <tr className="bg-gray-100 font-semibold">
-                <td colSpan={4} className="px-3 py-2 text-right text-sm">
-                  Net Evidence Impact:
-                </td>
-                <td className="px-3 py-2 text-center text-sm font-mono">
-                  <span className="text-green-700">+{totalSupporting.toFixed(1)}</span>
-                  {' / '}
-                  <span className="text-red-700">-{totalWeakening.toFixed(1)}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+              ))}
+            </ExpandableRows>
+          </tbody>
+        </table>
       </div>
 
-      {/* 4b. Visual and Video Evidence (formerly the Media Resources section) */}
-      <div>
-        <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
-          <span>📸</span> Visual and Video Evidence
-        </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300 text-sm">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="px-3 py-2 text-left w-[15%] font-semibold">Type</th>
-                <th className="px-3 py-2 text-left w-[25%] font-semibold">Description</th>
-                <th className="px-3 py-2 text-center w-[10%] font-semibold">Stance</th>
-                <th className="px-3 py-2 text-left w-[18%] font-semibold">Source</th>
-                <th className="px-3 py-2 text-center w-[8%] font-semibold">Tier</th>
-                <th className="px-3 py-2 text-left w-[14%] font-semibold">Argument It Bears On</th>
-                <th className="px-3 py-2 text-center w-[10%] font-semibold">
-                  <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">
-                    Linkage
-                  </Link>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {media.length > 0 ? (
-                media.map(m => (
-                  <tr key={m.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                    <td className="px-3 py-3 align-top text-xs">{mediaTypeGlyph(m.mediaType)}</td>
-                    <td className="px-3 py-3 align-top">
-                      {m.url ? (
-                        <a
-                          href={m.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[var(--accent)] hover:underline"
-                        >
-                          {m.title}
-                        </a>
-                      ) : (
-                        m.title
-                      )}
-                      {m.author && (
-                        <span className="text-xs text-[var(--muted-foreground)]"> — {m.author}</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-3 text-center align-top text-xs capitalize">
-                      {m.side === 'agree' ? 'Supports' : m.side === 'disagree' ? 'Weakens' : m.side}
-                    </td>
-                    <td className="px-3 py-3 align-top text-xs text-[var(--muted-foreground)]">
-                      {m.author ?? ''}
-                    </td>
-                    <td className="px-3 py-3 text-center align-top">{tierBadge(mediaToTier(m))}</td>
-                    <td className="px-3 py-3 align-top text-xs text-[var(--muted-foreground)]">&mdash;</td>
-                    <td className="px-3 py-3 text-center align-top font-mono text-xs">
-                      {linkagePct(m.linkageScore)}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={7} className="px-3 py-3 text-sm text-[var(--muted-foreground)] italic">
-                    No visual or video evidence submitted yet. Charts, photos, memes, video,
-                    and book imagery all belong here, tiered by underlying source.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {showExposure && (
+        <p className={`text-sm mt-3 px-3 py-2 border rounded ${exposureStyle}`}>
+          <strong>Retraction exposure.</strong> {summarizeExposure(exposure)}{' '}
+          <Link href="/algorithms/evidence-scores" className="text-[var(--accent)] hover:underline">
+            How evidence is weighted
+          </Link>
+          .
+        </p>
+      )}
     </section>
   )
 }

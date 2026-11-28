@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function NewDebateTopicPage() {
+function NewDebateTopicForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isGenerate = searchParams.get('generate') === '1';
@@ -149,7 +149,7 @@ export default function NewDebateTopicPage() {
             </form>
 
             <div className="mt-6 p-4 bg-gray-50 rounded text-xs text-gray-600">
-              <strong>What gets generated:</strong> Definition & scope, 5-point position spectrum, escalation levels (1–6), foundational assumptions by position range, abstraction ladder, core values conflict, common ground & compromise, evidence ledger, objective criteria table, media resources, and related topics.
+              <strong>What gets generated:</strong> Definition & scope, 5-point position spectrum with evidence links, evidence ledger (tier, quality, linkage, standing), claim magnitude examples, civic escalation levels (1–6), foundational assumptions by position range, abstraction ladder, core values conflict, common ground & compromise, media resources, and related topics.
             </div>
           </div>
         )}
@@ -179,7 +179,6 @@ export default function NewDebateTopicPage() {
               <div className="ml-4">&quot;coreValues&quot;: &#123;...&#125;,</div>
               <div className="ml-4">&quot;commonGround&quot;: &#123;...&#125;,</div>
               <div className="ml-4">&quot;evidenceItems&quot;: [...],</div>
-              <div className="ml-4">&quot;objectiveCriteria&quot;: [...],</div>
               <div className="ml-4">&quot;mediaResources&quot;: [...],</div>
               <div className="ml-4">&quot;relatedTopics&quot;: [...]</div>
               <div className="ml-2">&#125;&apos;</div>
@@ -203,5 +202,13 @@ export default function NewDebateTopicPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function NewDebateTopicPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewDebateTopicForm />
+    </Suspense>
   );
 }

@@ -1,10 +1,4 @@
-import { PrismaClient } from '../src/generated/prisma/client'
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
-
-const adapter = new PrismaBetterSqlite3({
-  url: 'file:./prisma/dev.db',
-})
-const prisma = new PrismaClient({ adapter })
+import { prisma } from '../src/lib/prisma'
 
 async function main() {
   console.log('Seeding belief analysis data...')
@@ -12,7 +6,7 @@ async function main() {
   // Create main belief
   const mainBelief = await prisma.belief.upsert({
     where: { slug: 'universal-basic-income-should-be-implemented' },
-    update: {},
+    update: { highStakes: true },
     create: {
       slug: 'universal-basic-income-should-be-implemented',
       statement: 'Universal Basic Income should be implemented in developed nations',
@@ -22,6 +16,22 @@ async function main() {
       positivity: 25,
       specificity: 0.55,
       claimStrength: 0.6,
+      // Posting here goes through the speed-bump flow (steelman + principle).
+      highStakes: true,
+    },
+  })
+
+  // Header metadata, Net Belief Score interpretation, and the two-sided
+  // Falsifiability Test text (new template). Applied explicitly because the
+  // upsert above uses `update: {}` and would otherwise skip existing rows.
+  await prisma.belief.update({
+    where: { id: mainBelief.id },
+    data: {
+      netInterpretation: 'Pro arguments modestly outweigh con arguments; the debate turns on the size and funding of the transfer, not the principle.',
+      relatedBeliefs: 'Negative income tax is the better instrument | Job guarantee beats cash transfers',
+      supportsBeliefs: 'A humane economy guarantees a material floor | Automation gains should be broadly shared',
+      falsifiabilityConfirm: 'Large randomized pilots show sustained well-being gains with no material drop in labor-force participation.',
+      falsifiabilityFalsify: 'Large pilots show significant, lasting withdrawal from work or net welfare losses once funded at scale.',
     },
   })
 
@@ -212,7 +222,17 @@ async function main() {
     },
   })
 
-  // Create arguments (reasons linking beliefs to the main belief)
+  // Create arguments (reasons linking beliefs to the main belief).
+  // Skip when edges already exist so re-running never double-counts a side
+  // (duplicated rows would silently inflate every net and OCV verdict).
+  // A delete-first guard would trip the FK constraints of linkage sub-debate
+  // rows seeded later in the chain.
+  const existingEdges = await prisma.argument.count({
+    where: { parentBeliefId: { in: [mainBelief.id, moderateBelief.id, extremeBelief.id] } },
+  })
+  if (existingEdges > 0) {
+    console.log('Argument edges already seeded; skipping edge creation.')
+  } else {
   await prisma.argument.createMany({
     data: [
       {
@@ -266,6 +286,29 @@ async function main() {
     ],
   })
 
+  // Argument trees for the RIVAL options in the income-floor contrast class.
+  // The denominator framework (docs/THE_DENOMINATOR.md) prices UBI against its
+  // rivals, so each rival needs its own scored tree for OCV to be real and
+  // traceable rather than a fabricated constant. Negative income tax reuses the
+  // shared pro-beliefs (poverty reduction, lower bureaucracy) and is weakened by
+  // the same fiscal worry; automated luxury communism shares the automation
+  // premise but is dragged down by the fiscal-sustainability and work-incentive cons.
+  await prisma.argument.createMany({
+    data: [
+      // Negative income tax (moderateBelief) — a strong, well-supported rival.
+      { parentBeliefId: moderateBelief.id, beliefId: povertyBelief.id, side: 'agree', linkageScore: 0.8, impactScore: 21.0, linkageType: 'STRONG_CAUSAL' },
+      { parentBeliefId: moderateBelief.id, beliefId: bureaucracyBelief.id, side: 'agree', linkageScore: 0.6, impactScore: 14.0, linkageType: 'CONTEXTUAL' },
+      { parentBeliefId: moderateBelief.id, beliefId: marketFreedomBelief.id, side: 'agree', linkageScore: 0.55, impactScore: 11.0, linkageType: 'CONTEXTUAL' },
+      { parentBeliefId: moderateBelief.id, beliefId: fiscalBelief.id, side: 'disagree', linkageScore: 0.5, impactScore: 9.0, linkageType: 'STRONG_CAUSAL' },
+      // Fully automated luxury communism (extremeBelief) — a weak rival: shares
+      // the automation premise but loses badly on fiscal and work-incentive cons.
+      { parentBeliefId: extremeBelief.id, beliefId: automationBelief.id, side: 'agree', linkageScore: 0.7, impactScore: 16.0, linkageType: 'STRONG_CAUSAL' },
+      { parentBeliefId: extremeBelief.id, beliefId: fiscalBelief.id, side: 'disagree', linkageScore: 0.8, impactScore: 24.0, linkageType: 'STRONG_CAUSAL' },
+      { parentBeliefId: extremeBelief.id, beliefId: workIncentiveBelief.id, side: 'disagree', linkageScore: 0.65, impactScore: 18.0, linkageType: 'STRONG_CAUSAL' },
+    ],
+  })
+  }
+
   // Create evidence
   await prisma.evidence.createMany({
     data: [
@@ -274,6 +317,8 @@ async function main() {
         side: 'supporting',
         description: 'Finland UBI pilot (2017-2018): Recipients showed improved well-being and modest employment effects',
         sourceUrl: 'https://julkaisut.valtioneuvosto.fi/handle/10024/161361',
+        producer: 'Kela',
+        year: 2019,
         evidenceType: 'T1',
         sourceIndependenceWeight: 1.0,
         replicationQuantity: 3,
@@ -287,6 +332,8 @@ async function main() {
         side: 'supporting',
         description: 'GiveDirectly long-term study in Kenya: Cash transfers led to sustained economic gains',
         sourceUrl: 'https://www.givedirectly.org/research-on-cash-transfers/',
+        producer: 'GiveDirectly',
+        year: 2022,
         evidenceType: 'T1',
         sourceIndependenceWeight: 1.0,
         replicationQuantity: 5,
@@ -299,6 +346,8 @@ async function main() {
         beliefId: mainBelief.id,
         side: 'supporting',
         description: 'Stockton SEED program: Recipients found full-time employment at twice the rate of control group',
+        producer: 'Stockton SEED',
+        year: 2021,
         evidenceType: 'T2',
         sourceIndependenceWeight: 0.75,
         replicationQuantity: 1,
@@ -311,6 +360,8 @@ async function main() {
         beliefId: mainBelief.id,
         side: 'weakening',
         description: 'Alaska Permanent Fund Dividend: No measurable reduction in poverty rates despite 40+ years of payments',
+        producer: 'University of Alaska ISER',
+        year: 2016,
         evidenceType: 'T2',
         sourceIndependenceWeight: 0.75,
         replicationQuantity: 2,
@@ -333,6 +384,92 @@ async function main() {
       },
     ],
   })
+
+  // Name what each evidence item bears on (the ledger's Bears On column): a
+  // specific argument edge on this belief, identified in the UI by its opening
+  // words. Rows left null bear on the belief directly.
+  const mainEdges = await prisma.argument.findMany({
+    where: { parentBeliefId: mainBelief.id },
+    select: { id: true, beliefId: true },
+  })
+  const edgeByChild = new Map(mainEdges.map(e => [e.beliefId, e.id]))
+  const bearsOnByPrefix: Array<[string, number | undefined]> = [
+    ['Finland UBI pilot', edgeByChild.get(workIncentiveBelief.id)],
+    ['GiveDirectly long-term study', edgeByChild.get(povertyBelief.id)],
+    ['Stockton SEED program', edgeByChild.get(workIncentiveBelief.id)],
+    ['Alaska Permanent Fund Dividend', edgeByChild.get(povertyBelief.id)],
+  ]
+  for (const [prefix, argumentId] of bearsOnByPrefix) {
+    if (argumentId == null) continue
+    await prisma.evidence.updateMany({
+      where: { beliefId: mainBelief.id, description: { startsWith: prefix } },
+      data: { bearsOnArgumentId: argumentId },
+    })
+  }
+
+  // People on the Record: history, never weight. One contested listing shows
+  // the annotation path; unlinked names render as plain text (Rule 5).
+  const peopleCount = await prisma.personOnRecord.count({ where: { beliefId: mainBelief.id } })
+  if (peopleCount === 0) {
+    await prisma.personOnRecord.createMany({
+      data: [
+        {
+          beliefId: mainBelief.id,
+          side: 'agree',
+          name: 'Andrew Yang',
+          sourceUrl: 'https://en.wikipedia.org/wiki/Freedom_Dividend',
+          sortOrder: 0,
+        },
+        {
+          beliefId: mainBelief.id,
+          side: 'agree',
+          name: 'Milton Friedman',
+          contested: true,
+          contestedNote: 'advocated a negative income tax, not a universal payment',
+          sortOrder: 1,
+        },
+        {
+          beliefId: mainBelief.id,
+          side: 'disagree',
+          name: 'Oren Cass',
+          sortOrder: 0,
+        },
+      ],
+    })
+  }
+
+  // One community-confirmed fallacy claim, so the inline argument-cell note
+  // renders: the work-incentive argument cherry-picks by ignoring the
+  // higher-tier employment findings already in this ledger.
+  const workIncentiveEdgeId = edgeByChild.get(workIncentiveBelief.id)
+  if (workIncentiveEdgeId != null) {
+    const fallacyCount = await prisma.fallacyClaim.count({
+      where: { argumentId: workIncentiveEdgeId, status: 'confirmed' },
+    })
+    if (fallacyCount === 0) {
+      await prisma.fallacyClaim.create({
+        data: {
+          argumentId: workIncentiveEdgeId,
+          fallacyType: 'cherry-picking',
+          targetFactor: 'evidence-quality',
+          severity: 'major',
+          quotedText: 'UBI could reduce work incentives across the labor market',
+          explanation:
+            'States the labor-supply worry while ignoring the Tier 1/Tier 2 employment findings (Finland pilot, Stockton SEED) already on this page.',
+          missingElements: 'The contradicting employment results from the pilot programs.',
+          evidenceLinks: JSON.stringify([
+            { label: 'Finland UBI pilot final report (Kela, 2019)' },
+            { label: 'Stockton SEED first-year findings (2021)' },
+          ]),
+          consequences:
+            'If confirmed, the argument keeps its logical form but its Evidence Quality factor is damaged until it engages the contrary results.',
+          status: 'confirmed',
+          consensus: 0.82,
+          resolvedAt: new Date(),
+        },
+      })
+    }
+  }
 
   // Create objective criteria
   await prisma.objectiveCriteria.createMany({
@@ -415,6 +552,23 @@ async function main() {
     },
   })
 
+  // Row-based cost/benefit items feeding the conflict-resolution pipeline.
+  // Categories keep unlike units apart; the dollars category is deliberately
+  // close (net +$20B) so the compromise-candidate detector has a real, small,
+  // achievable likelihood shift to surface, while hours is deliberately far
+  // apart (a symbolic disagreement no small shift can flip).
+  await prisma.costBenefitItem.deleteMany({ where: { beliefId: mainBelief.id } })
+  await prisma.costBenefitItem.createMany({
+    data: [
+      { beliefId: mainBelief.id, side: 'benefit', claim: 'Cuts welfare administration overhead', category: 'dollars ($B/yr)', magnitude: 150, likelihood: 0.8, expectedValue: 120 },
+      { beliefId: mainBelief.id, side: 'benefit', claim: 'Consumption boost to local economies', category: 'dollars ($B/yr)', magnitude: 300, likelihood: 0.6, expectedValue: 180 },
+      { beliefId: mainBelief.id, side: 'cost', claim: 'Net fiscal outlay after replaced programs', category: 'dollars ($B/yr)', magnitude: 400, likelihood: 0.7, expectedValue: 280 },
+      { beliefId: mainBelief.id, side: 'benefit', claim: 'Time returned to caregivers and students', category: 'hours (B/yr)', magnitude: 120, likelihood: 0.75, expectedValue: 90 },
+      { beliefId: mainBelief.id, side: 'cost', claim: 'Reduced labor-force participation hours', category: 'hours (B/yr)', magnitude: 500, likelihood: 0.4, expectedValue: 200 },
+      { beliefId: mainBelief.id, side: 'benefit', claim: 'Ends means-test surveillance and paperwork', category: 'freedom (index)', magnitude: 80, likelihood: 0.7, expectedValue: 56, claimBeliefId: bureaucracyBelief.id },
+    ],
+  })
+
   // Create impact analysis
   await prisma.impactAnalysis.upsert({
     where: { beliefId: mainBelief.id },
@@ -470,6 +624,58 @@ async function main() {
     ],
   })
 
+  // Genre priors and reach per work (updateMany keyed on title so re-runs are
+  // idempotent). The genre prior is where each work's Media Truth Score
+  // starts; the claim ledgers below are how two of them earn a computed,
+  // signed score instead. The podcasts stay claim-less on purpose, so the
+  // genre-prior fallback is visible in the live readout.
+  const mediaMeta: Array<[string, string, number]> = [
+    ['Utopia for Realists', 'investigative', 1_200_000],
+    ['Give People Money', 'investigative', 250_000],
+    ['The Case for Universal Basic Income', 'institutional', 300_000],
+    ['The Ezra Klein Show: Andrew Yang on UBI', 'opinion', 500_000],
+    ['The War on Normal People (critique sections)', 'investigative', 400_000],
+    ['Why Universal Basic Income Is a Bad Idea', 'editorial', 2_000_000],
+    ['EconTalk: The Costs of Universal Basic Income', 'opinion', 350_000],
+  ]
+  for (const [title, genreType, reach] of mediaMeta) {
+    await prisma.mediaResource.updateMany({
+      where: { beliefId: mainBelief.id, title },
+      data: { genreType, reach },
+    })
+  }
+
+  // Claim ledgers: each claim links to the belief page where it is evaluated
+  // across all sources; its signed truth is that belief's engine net.
+  const claimLedgers: Array<[string, Array<{ claimText: string; beliefId: number; linkageScore: number }>]> = [
+    [
+      'Utopia for Realists',
+      [
+        { claimText: 'A universal basic income should be implemented', beliefId: mainBelief.id, linkageScore: 0.95 },
+        { claimText: 'Direct cash transfers reduce poverty and improve outcomes', beliefId: povertyBelief.id, linkageScore: 0.85 },
+        { claimText: 'Automation will displace a large share of existing jobs', beliefId: automationBelief.id, linkageScore: 0.55 },
+      ],
+    ],
+    [
+      'Why Universal Basic Income Is a Bad Idea',
+      [
+        { claimText: 'A universal basic income is fiscally unsustainable at scale', beliefId: fiscalBelief.id, linkageScore: 0.9 },
+        { claimText: 'Unconditional payments weaken the incentive to work', beliefId: workIncentiveBelief.id, linkageScore: 0.7 },
+      ],
+    ],
+  ]
+  for (const [title, claims] of claimLedgers) {
+    const work = await prisma.mediaResource.findFirst({
+      where: { beliefId: mainBelief.id, title },
+    })
+    if (!work) continue
+    const existing = await prisma.mediaClaim.count({ where: { mediaResourceId: work.id } })
+    if (existing > 0) continue
+    await prisma.mediaClaim.createMany({
+      data: claims.map((c, i) => ({ ...c, mediaResourceId: work.id, sortOrder: i })),
+    })
+  }
+
   // Create legal entries
   await prisma.legalEntry.createMany({
     data: [
@@ -499,6 +705,132 @@ async function main() {
     data: [
       { fromBeliefId: mainBelief.id, toBeliefId: extremeBelief.id, variant: 'extreme' },
       { fromBeliefId: mainBelief.id, toBeliefId: moderateBelief.id, variant: 'moderate' },
+    ],
+  })
+
+  // ── New-template enrichment for the flagship belief ──────────────────────
+  // Argument cells: claim label, famous quote inline, submitter, and the
+  // argument's own displayed Score (distinct from computed Impact).
+  await prisma.argument.updateMany({
+    where: { parentBeliefId: mainBelief.id, beliefId: automationBelief.id },
+    data: {
+      claim: 'Automation will displace workers at scale',
+      famousQuote: 'The future is already here — it is just not evenly distributed.',
+      quoteAuthor: 'Myclob',
+      quoteAuthorUrl: '/Myclob',
+      argumentScore: 62,
+    },
+  })
+  await prisma.argument.updateMany({
+    where: { parentBeliefId: mainBelief.id, beliefId: povertyBelief.id },
+    data: { claim: 'Cash directly reduces poverty', argumentScore: 71 },
+  })
+  await prisma.argument.updateMany({
+    where: { parentBeliefId: mainBelief.id, beliefId: bureaucracyBelief.id },
+    data: { claim: 'Cuts welfare bureaucracy', argumentScore: 40 },
+  })
+  await prisma.argument.updateMany({
+    where: { parentBeliefId: mainBelief.id, beliefId: inflationBelief.id },
+    data: { claim: 'Risks demand-pull inflation', argumentScore: -48 },
+  })
+  await prisma.argument.updateMany({
+    where: { parentBeliefId: mainBelief.id, beliefId: workIncentiveBelief.id },
+    data: { claim: 'Weakens work incentives', argumentScore: -36 },
+  })
+  await prisma.argument.updateMany({
+    where: { parentBeliefId: mainBelief.id, beliefId: fiscalBelief.id },
+    data: { claim: 'Fiscally unsustainable at scale', argumentScore: -55 },
+  })
+
+  // Advertised-vs-actual divergence + "what would shift rankings".
+  await prisma.valuesAnalysis.update({
+    where: { beliefId: mainBelief.id },
+    data: {
+      supportingDivergenceEvidence: 'Support tracks expected personal benefit more than stated concern for displacement.',
+      opposingDivergenceEvidence: 'Opposition softens sharply when the transfer is framed as a tax cut / dividend.',
+      whatWouldShift: 'Large-scale RCTs showing durable labor-force participation would move opponents; clear evidence of work withdrawal would move supporters.',
+    },
+  })
+
+  // Primary Conflict Pair.
+  await prisma.interestsAnalysis.update({
+    where: { beliefId: mainBelief.id },
+    data: {
+      primaryPairSupporter: 'Security against displacement',
+      primaryPairSupporterValidity: 78,
+      primaryPairSupporterClaim: 'Strong',
+      primaryPairSupporterDrives: 'Accelerating automation raises the perceived likelihood and scale of involuntary job loss.',
+      primaryPairOpponent: 'Protecting the tax base / work norm',
+      primaryPairOpponentValidity: 64,
+      primaryPairOpponentClaim: 'Moderate',
+      primaryPairOpponentDrives: 'Fear that an unconditional floor erodes both the funding base and the cultural expectation of work.',
+    },
+  })
+
+  // Objective Criteria: How to Measure / Current Status / Target.
+  const criteriaUpdates: Array<[string, { howToMeasure: string; currentStatus: string; target: string }]> = [
+    ['Labor-force participation', { howToMeasure: 'BLS labor-force participation rate among working-age recipients', currentStatus: 'Pilots: flat to slightly positive', target: 'No sustained drop > 1pp at national scale' }],
+    ['Poverty rate', { howToMeasure: 'Supplemental Poverty Measure pre/post transfer', currentStatus: 'Falls in every cash-transfer study', target: 'Sustained reduction ≥ 3pp' }],
+    ['Well-being', { howToMeasure: 'Validated subjective well-being and mental-health indices', currentStatus: 'Consistent improvement in pilots', target: 'Replicated gains at population scale' }],
+  ]
+  const existingCriteria = await prisma.objectiveCriteria.findMany({ where: { beliefId: mainBelief.id } })
+  for (const c of existingCriteria) {
+    const match = criteriaUpdates.find(([k]) => c.description.toLowerCase().includes(k.toLowerCase().split(' ')[0]))
+    if (match) await prisma.objectiveCriteria.update({ where: { id: c.id }, data: match[1] })
+  }
+
+  // Best Compromise Solutions: 3-column form.
+  const compromiseRows = await prisma.compromise.findMany({ where: { beliefId: mainBelief.id }, orderBy: { id: 'asc' } })
+  const compromiseData = [
+    { sharedPremise: 'A material floor is worth guaranteeing', synthesis: 'Start with a $500/mo supplement on top of existing programs', whyDifficult: 'Both sides dislike a partial measure — too small for advocates, still costly for critics' },
+    { sharedPremise: 'The most vulnerable should be reached first', synthesis: 'Phase in by need over 10 years, expanding as evidence accrues', whyDifficult: 'Phase-in reintroduces means-testing the universality is meant to remove' },
+    { sharedPremise: 'Funding should not fall on wages alone', synthesis: 'Blend carbon tax, VAT, and an automation levy', whyDifficult: 'Each funding source has its own organized opposition' },
+  ]
+  for (let i = 0; i < compromiseRows.length && i < compromiseData.length; i++) {
+    await prisma.compromise.update({ where: { id: compromiseRows[i].id }, data: compromiseData[i] })
+  }
+
+  // New relational models (idempotent: clear then recreate).
+  await prisma.valueRanking.deleteMany({ where: { beliefId: mainBelief.id } })
+  await prisma.valueRanking.createMany({
+    data: [
+      { beliefId: mainBelief.id, value: 'Security', supporterRank: 1, opponentRank: 3, whyDiffer: 'Supporters foreground protection against displacement; opponents see security as already provided by markets and existing safety nets.', sortOrder: 0 },
+      { beliefId: mainBelief.id, value: 'Liberty', supporterRank: 2, opponentRank: 1, whyDiffer: 'Opponents prize freedom from coercive taxation; supporters frame liberty as freedom from economic precarity.', sortOrder: 1 },
+      { beliefId: mainBelief.id, value: 'Fairness', supporterRank: 3, opponentRank: 2, whyDiffer: 'Supporters read fairness as a shared floor; opponents read it as reward proportional to contribution.', sortOrder: 2 },
+    ],
+  })
+
+  // Clear dependent satisfaction rows first (seeded later in the chain by
+  // seed-interests-example.ts) so re-running the chain never FK-fails here.
+  await prisma.interestSatisfaction.deleteMany({
+    where: { interest: { beliefId: mainBelief.id } },
+  })
+  await prisma.interestEntry.deleteMany({ where: { beliefId: mainBelief.id } })
+  await prisma.interestEntry.createMany({
+    data: [
+      { beliefId: mainBelief.id, side: 'supporter', interest: 'Security against automation', prevalence: 'High', linkageConfidence: 'High', validity: '75', evidenceBasis: 'Displacement forecasts', connectedValue: 'Security', sortOrder: 0 },
+      { beliefId: mainBelief.id, side: 'supporter', interest: 'Reduced poverty', prevalence: 'High', linkageConfidence: 'High', validity: '80', evidenceBasis: 'Cash-transfer RCTs', connectedValue: 'Fairness', sortOrder: 1 },
+      { beliefId: mainBelief.id, side: 'supporter', interest: 'Expecting net personal gain', prevalence: 'Med', linkageConfidence: 'Med', validity: '15', evidenceBasis: 'Self-interest', connectedValue: '—', pretextual: true, sortOrder: 2 },
+      { beliefId: mainBelief.id, side: 'opponent', interest: 'Protecting the tax base', prevalence: 'High', linkageConfidence: 'High', validity: '70', evidenceBasis: 'Fiscal modeling', connectedValue: 'Liberty', sortOrder: 0 },
+      { beliefId: mainBelief.id, side: 'opponent', interest: 'Preserving the work norm', prevalence: 'High', linkageConfidence: 'Med', validity: '55', evidenceBasis: 'Labor-supply theory', connectedValue: 'Fairness', sortOrder: 1 },
+      { beliefId: mainBelief.id, side: 'opponent', interest: 'Defending incumbent programs', prevalence: 'Low', linkageConfidence: 'Med', validity: '18', evidenceBasis: 'Institutional interest', connectedValue: '—', pretextual: true, sortOrder: 2 },
+    ],
+  })
+
+  await prisma.sharedInterest.deleteMany({ where: { beliefId: mainBelief.id } })
+  await prisma.sharedInterest.createMany({
+    data: [
+      { beliefId: mainBelief.id, interest: 'Nobody should fall into destitution', validity: '85', compromiseDirection: 'Agree on a guaranteed floor; negotiate its size and funding', sortOrder: 0 },
+      { beliefId: mainBelief.id, interest: 'Spending should be efficient', validity: '80', compromiseDirection: 'Pair cash with administrative-cost transparency and sunset reviews', sortOrder: 1 },
+    ],
+  })
+
+  await prisma.disputeType.deleteMany({ where: { beliefId: mainBelief.id } })
+  await prisma.disputeType.createMany({
+    data: [
+      { beliefId: mainBelief.id, disputeType: 'Empirical', disagreement: 'Whether a national UBI reduces labor-force participation', evidenceThatMoves: 'Large randomized trials at scale measuring participation over 5+ years', sortOrder: 0 },
+      { beliefId: mainBelief.id, disputeType: 'Definitional', disagreement: 'Whether "universal" must mean unconditional and untapered', evidenceThatMoves: 'Agreement on whether a tapered negative income tax counts as UBI', sortOrder: 1 },
+      { beliefId: mainBelief.id, disputeType: 'Values', disagreement: 'Whether a floor should be unconditional or tied to contribution', evidenceThatMoves: 'No evidence resolves this — it is a values ranking, surfaced for honesty', sortOrder: 2 },
     ],
   })
 

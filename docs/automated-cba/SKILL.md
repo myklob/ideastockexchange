@@ -23,7 +23,7 @@ This skill turns any policy, proposal, or decision into a structured, scored cos
 
 The core insight: a cost-benefit analysis is only as good as the likelihood estimates feeding it. And likelihood estimates are only as good as the reasoning behind them. So we make the reasoning explicit, score it, and let the math do the rest.
 
-This is the Idea Stock Exchange's [Cost-Benefit Analysis](https://myclob.pbworks.com/w/page/156187122/cost-benefit%20analysis) framework, operationalized.
+This is the Idea Stock Exchange's [Cost-Benefit Analysis](/cba/about) framework, operationalized.
 
 ## The Four-Step Engine
 
@@ -77,11 +77,11 @@ Each argument in the tree gets three scores, following the ISE's established sco
 
 **Linkage Score (0.0-1.0)**: How strongly does proving this argument affect the parent impact's likelihood?
 - This is the critical ISE innovation. A true argument with 0 linkage contributes nothing.
-- See [Linkage Scores](https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores) for the full framework.
+- See [Linkage Scores](/algorithms/linkage-scores) for the full framework.
 - Ask: "If this argument is true, how much does it *necessarily* change the probability of the parent impact occurring?"
 
 **Importance Score (0.0-1.0)**: How much does this argument matter relative to other arguments in the same tree?
-- See [Importance Score](https://myclob.pbworks.com/importance%20score) for the full framework.
+- See [Importance Score](/algorithms/importance-score) for the full framework.
 - Prevents minor points from diluting major ones.
 
 **Argument Score Calculation:**
@@ -209,9 +209,9 @@ Use when: interactive exploration, presentation to stakeholders, embedding in we
 Features: expandable argument trees, live score recalculation, category breakdown charts, sensitivity visualization.
 
 ### HTML Report (.html)
-Use when: sharing on PBworks, email distribution, static web embedding.
-Features: score tables, category summary, argument tree tables, fully PBworks-paste-compatible.
-**Critical**: All styles MUST be inline (no `<style>` blocks, no `class` attributes, no external CSS). PBworks strips everything except inline `style=""` attributes. Read `references/output-templates.md` for the exact PBworks-safe patterns and example markup. Use `<table>` for layout, not CSS Grid or Flexbox.
+Use when: email distribution, static web embedding, pasting into any editor that keeps inline styles.
+Features: score tables, category summary, argument tree tables, portable: survives any editor that keeps inline styles.
+**Critical**: All styles MUST be inline (no `<style>` blocks, no `class` attributes, no external CSS). Many editors strip everything except inline `style=""` attributes. Read `references/output-templates.md` for the exact patterns and example markup. Use `<table>` for layout, not CSS Grid or Flexbox.
 
 ### Markdown Document (.md)
 Use when: GitHub documentation, blog post drafts, quick summaries.
@@ -219,7 +219,7 @@ Features: clean tables, argument tree indentation, category totals.
 
 ### Selection Logic
 - If user asks for "dashboard" or "interactive" or "app" -> React
-- If user asks for "report" or "document" or mentions PBworks -> HTML
+- If user asks for "report" or "document" or a pasteable page -> HTML
 - If user asks for "summary" or "quick analysis" or mentions GitHub/blog -> Markdown
 - If user doesn't specify -> React (most versatile)
 - If user says "all of them" -> generate all three
@@ -254,19 +254,19 @@ Features: clean tables, argument tree indentation, category totals.
 
 This skill is built on the Idea Stock Exchange's core infrastructure. When generating output, link to these canonical pages where relevant:
 
-- [One Page Per Topic](https://myclob.pbworks.com/w/page/159323433/One%20Page%20Per%20Topic): Each impact = one debatable claim
-- [Reasons](https://myclob.pbworks.com/Reasons): Argument tree structure
-- [Evidence](https://myclob.pbworks.com/w/page/159353568/Evidence): Evidence backing arguments
-- [Linkage Scores](https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores): Relevance filtering
-- [Importance Score](https://myclob.pbworks.com/importance%20score): Priority weighting
-- [Truth](https://myclob.pbworks.com/w/page/21960078/truth): Composite truth measurement
-- [Cost-Benefit Analysis](https://myclob.pbworks.com/w/page/156187122/cost-benefit%20analysis): The parent framework
+- [One Page Per Topic](/algorithms/combine-similar-beliefs): Each impact = one debatable claim
+- [Reasons](/algorithms/reason-rank): Argument tree structure
+- [Evidence](/algorithms/evidence-scores): Evidence backing arguments
+- [Linkage Scores](/algorithms/linkage-scores): Relevance filtering
+- [Importance Score](/algorithms/importance-score): Priority weighting
+- [Truth](/algorithms/truth-scores): Composite truth measurement
+- [Cost-Benefit Analysis](/cba/about): The parent framework
 
 ## Principles
 
 1. **Scores are computed, never manually assigned.** Every number traces back to scored arguments. No hand-waving.
 2. **Symmetry is mandatory.** Costs and benefits get equal analytical rigor. No thumb on the scale.
-3. **Arguments are not evidence.** An argument is a reason. Evidence is data. Don't conflate them. See [Evidence](https://myclob.pbworks.com/w/page/159353568/Evidence).
+3. **Arguments are not evidence.** An argument is a reason. Evidence is data. Don't conflate them. See [Evidence](/algorithms/evidence-scores).
 4. **Redundancy is the enemy of accuracy.** De-duplication isn't optional. Two versions of the same argument count once.
 5. **Linkage prevents hijacking.** A true fact with zero relevance contributes zero. Period.
 6. **Transparency over elegance.** Show the work. Every score should be auditable.

@@ -1,0 +1,360 @@
+/**
+ * Human posting endpoint: add a reason to agree or disagree to a belief.
+ *
+ * The two moves the belief page supports are "add a row" and "challenge a
+ * number" — this is the add-a-row move. The new reason becomes a full belief
+ * page of its own (the recursive tree has no hardcoded floor), joined to the
+ * parent by an Argument edge, and the scoring engine immediately propagates
+ * so every dependent conclusion updates.
+ *
+ * Audit lock: no score field is accepted. Scores are the engine's job.
+ *
+ * SPEED BUMPS (high-stakes beliefs only): before the API accepts a post it
+ * requires (1) acknowledging the strongest current argument on the OTHER
+ * side — verified server-side against the live ranking, not the client's
+ * word — and (2) a moral-principle consistency statement: name the principle
+ * the post rests on and affirm the proposal is consistent with it. GET this
+ * route to fetch what the speed bumps currently require.
+ *
+ * DRIFT GUARD (every belief): restating stops counting as contributing. The
+ * new statement is scanned against the arguments already on this belief;
+ * moderate overlap is stored as EquivalenceCandidate rows for the uniqueness
+ * discount to price, and a near-identical match trips a speed bump that
+ * requires acknowledging the existing row (restatementAcknowledgedId) before
+ * the post is accepted. Drift is scored away, not moderated away.
+ */
+
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
+import { slugify } from '@/lib/agent-ingest/slug'
+import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
+import { scanForRestatements } from '@/lib/posting/drift-guard'
+
+interface PostBody {
+  side?: string
+  statement?: string
+  claim?: string
+  rationale?: string
+  /** Speed bump 1: the id of the strongest opposing argument, as acknowledgment. */
+  steelmanArgumentId?: number
+  /** Speed bump 2: the moral principle claimed, plus explicit consistency. */
+  principle?: string
+  principleConsistent?: boolean
+  /** Drift guard: the id of the near-identical existing argument, as
+   *  acknowledgment that this post genuinely adds something beyond it. */
+  restatementAcknowledgedId?: number
+}
+
+/**
+ * True when `parentBeliefId` is already reachable downward from
+ * `childBeliefId` through reason edges — meaning the new edge would close a
+ * citation loop (A cites B, B cites A). Circular citations have no external
+ * foundation, so they are rejected at posting rather than silently scored;
+ * the propagation engine's visited-set is a safety net, not a verdict.
+ */
+async function wouldCreateCircularCitation(
+  parentBeliefId: number,
+  childBeliefId: number,
+): Promise<boolean> {
+  if (parentBeliefId === childBeliefId) return true
+
+  let frontier = [childBeliefId]
+  const seen = new Set<number>(frontier)
+  while (frontier.length > 0) {
+    const edges = await prisma.argument.findMany({
+      where: { parentBeliefId: { in: frontier } },
+      select: { beliefId: true },
+    })
+    frontier = []
+    for (const edge of edges) {
+      if (edge.beliefId === parentBeliefId) return true
+      if (!seen.has(edge.beliefId)) {
+        seen.add(edge.beliefId)
+        frontier.push(edge.beliefId)
+      }
+    }
+  }
+  return false
+}
+
+/** The strongest published argument on a side, by current impact magnitude. */
+async function strongestOnSide(beliefId: number, side: 'agree' | 'disagree') {
+  const args = await prisma.argument.findMany({
+    where: { parentBeliefId: beliefId, side, status: 'published' },
+    include: { belief: { select: { slug: true, statement: true } } },
+  })
+  if (args.length === 0) return null
+  return args.reduce((a, b) => (Math.abs(b.impactScore) > Math.abs(a.impactScore) ? b : a))
+}
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params
+  const beliefId = Number(id)
+  if (!Number.isInteger(beliefId)) {
+    return NextResponse.json({ error: 'Invalid belief id.' }, { status: 400 })
+  }
+  const belief = await prisma.belief.findUnique({
+    where: { id: beliefId },
+    select: { id: true, slug: true, statement: true, highStakes: true },
+  })
+  if (!belief) return NextResponse.json({ error: 'Belief not found.' }, { status: 404 })
+
+  const [strongestAgree, strongestDisagree] = await Promise.all([
+    strongestOnSide(beliefId, 'agree'),
+    strongestOnSide(beliefId, 'disagree'),
+  ])
+
+  return NextResponse.json({
+    belief: { id: belief.id, slug: belief.slug, statement: belief.statement },
+    highStakes: belief.highStakes,
+    speedBumps: belief.highStakes
+      ? {
+          steelman:
+            'Acknowledge the strongest point on the other side: pass its id as steelmanArgumentId.',
+          principle:
+            'Name the moral principle your post rests on (principle) and affirm the proposal is consistent with it (principleConsistent: true).',
+          strongestAgree: strongestAgree && {
+            id: strongestAgree.id,
+            claim: strongestAgree.claim ?? strongestAgree.belief.statement,
+            impactScore: strongestAgree.impactScore,
+          },
+          strongestDisagree: strongestDisagree && {
+            id: strongestDisagree.id,
+            claim: strongestDisagree.claim ?? strongestDisagree.belief.statement,
+            impactScore: strongestDisagree.impactScore,
+          },
+        }
+      : null,
+    driftGuard:
+      'Every post is scanned against the arguments already here. Near-identical restatements ' +
+      'require acknowledging the existing row (restatementAcknowledgedId); lesser overlap is ' +
+      'stored for the uniqueness discount to price.',
+    auditLock: 'No score field is accepted. Scores are computed by the engine, never submitted.',
+  })
+}
+
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params
+  const beliefId = Number(id)
+  if (!Number.isInteger(beliefId)) {
+    return NextResponse.json({ error: 'Invalid belief id.' }, { status: 400 })
+  }
+
+  if (isGraphFrozen(new Date())) {
+    return NextResponse.json({ error: GRAPH_FREEZE_MESSAGE }, { status: 423 })
+  }
+
+  let body: PostBody
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Body must be valid JSON.' }, { status: 400 })
+  }
+
+  // Audit lock, enforced not just documented.
+  const forbidden = ['impactScore', 'linkageScore', 'importanceScore', 'argumentScore', 'uniquenessScore']
+  const submitted = Object.keys(body as Record<string, unknown>).filter((k) => forbidden.includes(k))
+  if (submitted.length > 0) {
+    return NextResponse.json(
+      { error: `Score fields are never accepted (${submitted.join(', ')}). The engine computes scores.` },
+      { status: 422 },
+    )
+  }
+
+  const side = body.side === 'agree' || body.side === 'disagree' ? body.side : null
+  if (!side) {
+    return NextResponse.json({ error: "side must be 'agree' or 'disagree'." }, { status: 422 })
+  }
+  const statement = body.statement?.trim()
+  if (!statement || statement.length < 10) {
+    return NextResponse.json(
+      { error: 'statement must be a standalone claim with a truth value (min 10 chars).' },
+      { status: 422 },
+    )
+  }
+
+  const belief = await prisma.belief.findUnique({
+    where: { id: beliefId },
+    select: { id: true, slug: true, highStakes: true },
+  })
+  if (!belief) return NextResponse.json({ error: 'Belief not found.' }, { status: 404 })
+
+  // ── Drift guard: restating stops counting as contributing ──────────────
+  const siblings = await prisma.argument.findMany({
+    where: { parentBeliefId: belief.id },
+    include: { belief: { select: { statement: true } } },
+  })
+  const driftScan = scanForRestatements(
+    statement,
+    siblings.map((s) => ({ id: s.id, text: s.claim ?? s.belief.statement })),
+  )
+  if (
+    driftScan.nearDuplicate &&
+    body.restatementAcknowledgedId !== driftScan.nearDuplicate.existingArgumentId
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          'Drift guard: this reads as a restatement of an argument already on this page. The ' +
+          'conversation moves only when someone adds something new. If your point genuinely ' +
+          'differs, acknowledge the existing row by passing its id as restatementAcknowledgedId ' +
+          'and post again — the uniqueness discount will price whatever overlap remains.',
+        nearDuplicate: {
+          id: driftScan.nearDuplicate.existingArgumentId,
+          claim: driftScan.nearDuplicate.text,
+          similarity: Number(driftScan.nearDuplicate.similarity.toFixed(2)),
+        },
+      },
+      { status: 422 },
+    )
+  }
+
+  // ── Speed bumps for high-stakes beliefs ─────────────────────────────────
+  if (belief.highStakes) {
+    const opposingSide = side === 'agree' ? 'disagree' : 'agree'
+    const strongest = await strongestOnSide(beliefId, opposingSide)
+
+    if (strongest && body.steelmanArgumentId !== strongest.id) {
+      return NextResponse.json(
+        {
+          error:
+            'Speed bump: acknowledge the strongest point on the other side before posting. ' +
+            'Pass its id as steelmanArgumentId.',
+          strongestOpposing: {
+            id: strongest.id,
+            claim: strongest.claim ?? strongest.belief.statement,
+            impactScore: strongest.impactScore,
+          },
+        },
+        { status: 422 },
+      )
+    }
+
+    if (!body.principle?.trim() || body.principleConsistent !== true) {
+      return NextResponse.json(
+        {
+          error:
+            'Speed bump: name the moral principle your post rests on (principle) and confirm ' +
+            'your proposal is consistent with it (principleConsistent: true).',
+        },
+        { status: 422 },
+      )
+    }
+  }
+
+  // ── Circular-citation guard ─────────────────────────────────────────────
+  // Only an existing belief can close a loop; a brand-new statement has no
+  // descendants yet. If the reason (or anything beneath it) already cites
+  // this belief as its own reason, the graph would have no external
+  // foundation — reject with the loop named.
+  const slug = slugify(statement)
+  const existingChild = await prisma.belief.findUnique({
+    where: { slug },
+    select: { id: true, statement: true },
+  })
+  if (existingChild && (await wouldCreateCircularCitation(belief.id, existingChild.id))) {
+    return NextResponse.json(
+      {
+        error:
+          'Circular citation detected: this claim (or a claim beneath it) already rests on the ' +
+          'belief you are posting to. Arguments must bottom out in independent evidence, not in ' +
+          'each other. Add evidence to the existing claim instead.',
+        circularWith: { id: existingChild.id, statement: existingChild.statement },
+      },
+      { status: 422 },
+    )
+  }
+
+  // ── Create the child belief + edge (no scores), then let the engine run ─
+  const rationale = [
+    body.rationale?.trim() || null,
+    belief.highStakes && body.principle
+      ? `Speed bumps passed — acknowledged strongest opposing argument #${body.steelmanArgumentId ?? 'none'}; claimed principle: "${body.principle.trim()}"`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' | ')
+
+  const created = await prisma.$transaction(async (tx) => {
+    const childBelief =
+      (await tx.belief.findUnique({ where: { slug } })) ??
+      (await tx.belief.create({ data: { slug, statement } }))
+
+    const argument = await tx.argument.create({
+      data: {
+        parentBeliefId: belief.id,
+        beliefId: childBelief.id,
+        side,
+        claim: body.claim?.trim() || null,
+        rationale: rationale || null,
+      },
+    })
+
+    await tx.auditLog.create({
+      data: {
+        action: 'post_argument',
+        targetType: 'Argument',
+        targetId: String(argument.id),
+        rationale: rationale || 'Human submission via belief page.',
+        payload: JSON.stringify({ beliefId: belief.id, side, statement }),
+      },
+    })
+
+    // Redundancy stored, not scored — same rule as agent ingestion. The
+    // uniqueness discount prices these clusters at scoring time.
+    for (const match of driftScan.candidates) {
+      await tx.equivalenceCandidate.create({
+        data: {
+          argumentId: argument.id,
+          existingArgumentId: match.existingArgumentId,
+          similarity: match.similarity,
+        },
+      })
+      await tx.auditLog.create({
+        data: {
+          action: 'equivalence_candidate',
+          targetType: 'Argument',
+          targetId: String(argument.id),
+          rationale:
+            `Drift guard: new argument resembles existing argument #${match.existingArgumentId} ` +
+            `(similarity ${match.similarity.toFixed(2)}). Stored for the engine; not scored at posting.`,
+        },
+      })
+    }
+
+    return { argument, childBelief }
+  })
+
+  // The engine's turn: the new edge changes the graph, so recompute the new
+  // claim's impact and everything upstream of it.
+  await propagateBeliefScores(
+    created.childBelief.id,
+    new Set(),
+    0,
+    `argument #${created.argument.id} posted`,
+  )
+
+  return NextResponse.json(
+    {
+      argumentId: created.argument.id,
+      childBeliefSlug: created.childBelief.slug,
+      equivalenceCandidates: driftScan.candidates.map((m) => ({
+        existingArgumentId: m.existingArgumentId,
+        similarity: Number(m.similarity.toFixed(2)),
+      })),
+      note:
+        driftScan.candidates.length > 0
+          ? 'Scores are computed by the engine and will appear once propagation lands. Your ' +
+            'point overlaps existing arguments; the uniqueness discount prices that overlap.'
+          : 'Scores are computed by the engine and will appear once propagation lands.',
+    },
+    { status: 201 },
+  )
+}

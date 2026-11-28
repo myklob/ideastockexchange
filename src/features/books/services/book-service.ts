@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 // Book models depend on a schema that is not active in the current SQLite setup.
 // This file is retained for future migration to the full schema.
@@ -8,8 +9,8 @@ import {
   calculateAverageValidity,
   getValidityDistribution,
   calculateTruthEquity,
-} from '@/core/scoring/book-scoring'
-import { BookAnalysisReport } from '@/core/types/book'
+} from './book-scoring'
+import { BookAnalysisReport } from '../types'
 
 /**
  * Get comprehensive book analysis report

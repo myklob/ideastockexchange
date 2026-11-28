@@ -3,17 +3,17 @@ import Link from 'next/link';
 import { getDebateTopic } from '@/features/debate-topics/db';
 import ExternalReferences from '@/components/debate-topic/ExternalReferences';
 import TopicMetrics from '@/components/debate-topic/TopicMetrics';
-import Spectrum1Positions from '@/components/debate-topic/Spectrum1Positions';
-import Spectrum2Magnitude from '@/components/debate-topic/Spectrum2Magnitude';
-import Spectrum3Escalation from '@/components/debate-topic/Spectrum3Escalation';
+import PositionSpectrum from '@/components/debate-topic/PositionSpectrum';
+import EvidenceLedger from '@/components/debate-topic/EvidenceLedger';
+import ClaimStrength from '@/components/debate-topic/ClaimStrength';
+import CivicEscalation from '@/components/debate-topic/CivicEscalation';
 import FoundationalAssumptions from '@/components/debate-topic/FoundationalAssumptions';
-import Spectrum4AbstractionLadder from '@/components/debate-topic/Spectrum4AbstractionLadder';
+import AbstractionLadder from '@/components/debate-topic/AbstractionLadder';
 import CoreValuesConflict from '@/components/debate-topic/CoreValuesConflict';
 import CommonGround from '@/components/debate-topic/CommonGround';
-import EvidenceLedger from '@/components/debate-topic/EvidenceLedger';
-import ObjectiveCriteriaTable from '@/components/debate-topic/ObjectiveCriteriaTable';
 import MediaResources from '@/components/debate-topic/MediaResources';
 import RelatedTopics from '@/components/debate-topic/RelatedTopics';
+import NeighborhoodNav from '@/components/debate-topic/NeighborhoodNav';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,15 +37,15 @@ export default async function DebateTopicPage({ params }: Props) {
         <ExternalReferences external={topic.external} />
 
         {/* Breadcrumb + Title */}
-        <div className="text-right text-sm mb-4 text-gray-600">
+        <div className="text-right text-sm mb-4 text-gray-600 italic">
           <Link href="/debate-topics" className="text-blue-600 hover:underline">Topics</Link>
           {categoryPath.map((cat, i) => (
             <span key={i}>
-              <span className="mx-1">›</span>
+              <span className="mx-1">&gt;</span>
               <span className="text-gray-700">{cat}</span>
             </span>
           ))}
-          <span className="mx-1">›</span>
+          <span className="mx-1">&gt;</span>
           <strong>{topic.title}</strong>
         </div>
 
@@ -67,32 +67,74 @@ export default async function DebateTopicPage({ params }: Props) {
           controversyRating={topic.controversyRating}
         />
 
+        {/* Audit lock */}
+        <div className="bg-[#fffbe6] border-l-4 border-[#b58900] px-3 py-2 my-3 text-xs">
+          <strong>Audit lock.</strong> Every numeric score on this page is computed from linked argument
+          and evidence nodes. Nothing here is hand-entered. If a score looks wrong, fix the underlying
+          node, not the display. See{' '}
+          <Link href="/algorithms/truth-scores" className="text-blue-600 hover:underline">Truth</Link>{' '}
+          and{' '}
+          <Link href="/algorithms/reason-rank" className="text-blue-600 hover:underline">ReasonRank</Link>.
+        </div>
+
+        {/* What This Page Is For */}
+        <h2 className="text-xl font-bold mt-6 mb-2">What This Page Is For</h2>
+        <p className="text-sm mb-4">
+          One canonical home for everything anyone has argued about this topic. Arguments are scored by
+          evidence quality, linked to the claims they support or undermine, and updated automatically when
+          new data arrives. The rebuttal to any bad argument on this page is always one click away. A
+          permanent home the debate returns to is the structural answer to{' '}
+          <Link href="/problems/topic-drift" className="text-blue-600 hover:underline">topic drift</Link>.
+          See <Link href="/beliefs" className="text-blue-600 hover:underline">One Page Per Belief</Link>{' '}
+          for the single-claim version of this design.
+        </p>
+
+        {/* Neighborhood navigation: explicit moves along the page's dimensions */}
+        <NeighborhoodNav relatedTopics={topic.relatedTopics} />
+
         <hr className="my-6" />
 
-        {/* Spectrum 1: Debate Landscape */}
+        {/* 1. The Position Spectrum */}
         {topic.positions.length > 0 && (
           <>
-            <Spectrum1Positions positions={topic.positions} />
+            <PositionSpectrum
+              positions={topic.positions}
+              falsifiedEvidenceIds={
+                new Set(
+                  topic.evidenceItems
+                    .filter((e) => e.standing === 'FALSIFIED' && e.id !== undefined)
+                    .map((e) => e.id as number),
+                )
+              }
+            />
             <hr className="my-6" />
           </>
         )}
 
-        {/* Spectrum 2: Claim Magnitude */}
-        <Spectrum2Magnitude
+        {/* 2. The Evidence Ledger */}
+        {topic.evidenceItems.length > 0 && (
+          <>
+            <EvidenceLedger evidenceItems={topic.evidenceItems} />
+            <hr className="my-6" />
+          </>
+        )}
+
+        {/* 3. Claim Strength */}
+        <ClaimStrength
           topicTitle={topic.title}
-          claimMagnitudeLevels={topic.claimMagnitudeLevels}
+          claimStrengthLevels={topic.claimStrengthLevels}
         />
         <hr className="my-6" />
 
-        {/* Spectrum 3: Civic Engagement Level */}
+        {/* 4. The Engagement Landscape: Civic Escalation */}
         {topic.escalationLevels.length > 0 && (
           <>
-            <Spectrum3Escalation escalationLevels={topic.escalationLevels} topicTitle={topic.title} />
+            <CivicEscalation escalationLevels={topic.escalationLevels} />
             <hr className="my-6" />
           </>
         )}
 
-        {/* Foundational Assumptions */}
+        {/* 5. Foundational Assumptions at Each Position */}
         {topic.assumptions.length > 0 && (
           <>
             <FoundationalAssumptions
@@ -103,15 +145,15 @@ export default async function DebateTopicPage({ params }: Props) {
           </>
         )}
 
-        {/* Spectrum 4: Abstraction Ladder */}
+        {/* 6. The Abstraction Ladder */}
         {topic.abstractionRungs.length > 0 && (
           <>
-            <Spectrum4AbstractionLadder rungs={topic.abstractionRungs} topicTitle={topic.title} />
+            <AbstractionLadder rungs={topic.abstractionRungs} topicTitle={topic.title} />
             <hr className="my-6" />
           </>
         )}
 
-        {/* Core Values Conflict */}
+        {/* 7. Core Values Conflict */}
         {topic.coreValues && (
           <>
             <CoreValuesConflict coreValues={topic.coreValues} topicTitle={topic.title} />
@@ -119,7 +161,7 @@ export default async function DebateTopicPage({ params }: Props) {
           </>
         )}
 
-        {/* Common Ground */}
+        {/* 8. Common Ground and Compromise */}
         {topic.commonGround && (
           <>
             <CommonGround commonGround={topic.commonGround} />
@@ -127,23 +169,7 @@ export default async function DebateTopicPage({ params }: Props) {
           </>
         )}
 
-        {/* Evidence Ledger */}
-        {topic.evidenceItems.length > 0 && (
-          <>
-            <EvidenceLedger evidenceItems={topic.evidenceItems} />
-            <hr className="my-6" />
-          </>
-        )}
-
-        {/* Objective Criteria */}
-        {topic.objectiveCriteria.length > 0 && (
-          <>
-            <ObjectiveCriteriaTable criteria={topic.objectiveCriteria} topicTitle={topic.title} />
-            <hr className="my-6" />
-          </>
-        )}
-
-        {/* Media Resources */}
+        {/* 9. Best Media and Resources */}
         {topic.mediaResources.length > 0 && (
           <>
             <MediaResources mediaResources={topic.mediaResources} />
@@ -151,7 +177,7 @@ export default async function DebateTopicPage({ params }: Props) {
           </>
         )}
 
-        {/* Related Topics */}
+        {/* 10. Related Topics */}
         {topic.relatedTopics.length > 0 && (
           <>
             <RelatedTopics relatedTopics={topic.relatedTopics} />
@@ -161,11 +187,10 @@ export default async function DebateTopicPage({ params }: Props) {
 
         {/* Contribute */}
         <div>
-          <h2 className="text-xl font-bold mb-2">📬 Contribute</h2>
-          <p>
+          <h2 className="text-xl font-bold mb-2">Contribute</h2>
+          <p className="mb-3">
             <Link href="/contact" className="text-blue-600 hover:underline">Contact us</Link>{' '}
-            to add beliefs, strengthen arguments, link new evidence, or propose objective criteria.
-            <br />
+            to add beliefs, strengthen arguments, or link new evidence.{' '}
             <a
               href="https://github.com/myklob/ideastockexchange"
               className="text-blue-600 hover:underline"
@@ -175,6 +200,13 @@ export default async function DebateTopicPage({ params }: Props) {
               GitHub
             </a>{' '}
             for technical implementation and scoring algorithms.
+          </p>
+          <p className="text-xs text-gray-600">
+            <strong>Related design pages:</strong>{' '}
+            <Link href="/beliefs" className="text-blue-600 hover:underline">One Page Per Belief</Link>,{' '}
+            <Link href="/algorithms/unique-scores" className="text-blue-600 hover:underline">Duplication Scores</Link>,{' '}
+            <Link href="/algorithms/combine-similar-beliefs" className="text-blue-600 hover:underline">Grouping Similar Phrasings</Link>,{' '}
+            <Link href="/algorithms/topic-overlap" className="text-blue-600 hover:underline">Grouping by Sub-Topic</Link>.
           </p>
         </div>
 

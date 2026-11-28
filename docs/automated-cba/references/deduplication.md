@@ -2,7 +2,7 @@
 
 ## Why This Matters
 
-De-duplication is the immune system of the CBA engine. Without it, the analysis is trivially gameable: just rephrase the same argument five times and you've quintupled its influence. This is exactly the problem the ISE was built to solve, as described in [Grouping Similar Arguments](https://myclob.pbworks.com/w/page/159323433/One%20Page%20Per%20Topic).
+De-duplication is the immune system of the CBA engine. Without it, the analysis is trivially gameable: just rephrase the same argument five times and you've quintupled its influence. This is exactly the problem the ISE was built to solve, as described in [Grouping Similar Arguments](/algorithms/combine-similar-beliefs).
 
 ## Two Levels of De-Duplication
 

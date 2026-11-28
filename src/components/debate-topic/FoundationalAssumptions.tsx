@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { DebateAssumption } from '@/core/types/debate-topic';
 
 interface Props {
@@ -17,19 +18,27 @@ export default function FoundationalAssumptions({ assumptions, keyInsight }: Pro
   return (
     <div className="mb-8">
       <h2 className="text-xl font-bold mb-1">
-        📜 Foundational Assumptions: What You Must Believe at Each Position
+        5.{' '}
+        <Link href="/algorithms/assumptions" className="text-blue-600 hover:underline">
+          Foundational Assumptions
+        </Link>{' '}
+        at Each Position
       </h2>
+      <p className="text-sm text-gray-600 mb-2">
+        Your position on the spectrum in section 1 depends on deeper assumptions about reality, values,
+        and causation. This table maps those dependencies from worldview down to topic-specific claim.
+      </p>
       {keyInsight && (
-        <p className="mb-3 text-sm">
+        <p className="text-sm mb-3">
           <strong>Key Insight:</strong> {keyInsight}
         </p>
       )}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-3 py-2 w-[18%]">To Hold Position</th>
-              <th className="border border-gray-300 px-3 py-2">You Must Believe These Assumptions (Ordered General → Specific)</th>
+            <tr className="bg-[#f0f3f6]">
+              <th className="border border-gray-300 px-3 py-2 w-[15%]">To Hold Position</th>
+              <th className="border border-gray-300 px-3 py-2">You Must Believe These Assumptions (General → Specific)</th>
             </tr>
           </thead>
           <tbody>
@@ -40,7 +49,7 @@ export default function FoundationalAssumptions({ assumptions, keyInsight }: Pro
                   <br />
                   <span className="text-xs font-normal">({a.positionLabel})</span>
                 </td>
-                <td className={`border border-gray-300 px-3 py-2 ${RANGE_BG[a.positionRange] ?? ''}`}>
+                <td className="border border-gray-300 px-3 py-2">
                   {a.assumptions.map((text, i) => (
                     <div key={i} className={i > 0 ? 'mt-1' : ''}>
                       {text}

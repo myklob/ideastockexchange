@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import {
   buildTopicGroups,
-  simulateBout,
+  topicKey,
+  UNCATEGORISED,
   type BattlefieldUnit,
 } from '../../../src/lib/battlefield-pairings'
 
-const stats = (over: Partial<BattlefieldUnit['stats']> = {}): BattlefieldUnit['stats'] => ({
+const stats = (): BattlefieldUnit['stats'] => ({
   hp: 50,
   attack: 50,
   defense: 30,
@@ -15,7 +16,6 @@ const stats = (over: Partial<BattlefieldUnit['stats']> = {}): BattlefieldUnit['s
   level: 1,
   unitClass: 'Bulwark',
   breakdown: { contentVolume: 0, withstoodAttacks: false, defenseMultiplier: 1 },
-  ...over,
 })
 
 const unit = (
@@ -23,63 +23,52 @@ const unit = (
   name: string,
   category: string | null,
   positivity: number,
-  statOver: Partial<BattlefieldUnit['stats']> = {},
+  subcategory: string | null = null,
 ): BattlefieldUnit => ({
   id,
   slug: `b-${id}`,
   name,
   category,
-  subcategory: null,
+  subcategory,
   positivity,
-  stats: stats(statOver),
+  stats: stats(),
+})
+
+describe('topicKey', () => {
+  it('prefers subcategory, then category, then the orphan bucket', () => {
+    expect(topicKey({ category: 'Trump', subcategory: 'Trump: competence' })).toBe('Trump: competence')
+    expect(topicKey({ category: 'Trump', subcategory: '  ' })).toBe('Trump')
+    expect(topicKey({ category: null, subcategory: null })).toBe(UNCATEGORISED)
+  })
 })
 
 describe('buildTopicGroups', () => {
-  it('pairs the most-pro and most-anti within a topic', () => {
+  it('groups same-topic beliefs and orders them most-supported first', () => {
     const groups = buildTopicGroups([
-      unit(1, 'Trump is a genius', 'Trump', 80),
-      unit(2, 'Trump is a moron', 'Trump', -70),
+      unit(1, 'Trump is a moron', 'Trump', -70),
+      unit(2, 'Trump is a genius', 'Trump', 80),
       unit(3, 'Trump is mediocre', 'Trump', 5),
     ])
     expect(groups).toHaveLength(1)
-    const g = groups[0]
-    expect(g.topic).toBe('Trump')
-    expect(g.matchups).toHaveLength(1)
-    expect(g.matchups[0].pair[0].id).toBe(1)
-    expect(g.matchups[0].pair[1]?.id).toBe(2)
-    expect(g.ronin?.id).toBe(3)
+    expect(groups[0].topic).toBe('Trump')
+    expect(groups[0].units.map(u => u.id)).toEqual([2, 3, 1])
   })
 
-  it('puts a single-belief topic in matchups with length-1 pair', () => {
+  it('keeps a lone belief in its own group', () => {
     const groups = buildTopicGroups([unit(1, 'Solo idea', 'Loner', 0)])
-    expect(groups[0].matchups).toHaveLength(0)
+    expect(groups).toHaveLength(1)
     expect(groups[0].units).toHaveLength(1)
   })
 
-  it('falls back to "Uncategorised" and sorts it last', () => {
+  it('sorts larger topics first and the orphan bucket last', () => {
     const groups = buildTopicGroups([
       unit(1, 'Orphan A', null, 10),
       unit(2, 'Orphan B', null, -10),
-      unit(3, 'Topical', 'Real Topic', 0),
+      unit(3, 'Orphan C', null, 0),
+      unit(4, 'Small topic', 'Small', 0),
+      unit(5, 'Big topic A', 'Big', 1),
+      unit(6, 'Big topic B', 'Big', 2),
     ])
-    const topics = groups.map(g => g.topic)
-    expect(topics[topics.length - 1]).toBe('Uncategorised')
-  })
-})
-
-describe('simulateBout', () => {
-  it('the heavier hitter wins', () => {
-    const a = unit(1, 'Strong', 'X', 0, { attack: 90, defense: 50, hp: 60 })
-    const b = unit(2, 'Weak', 'X', 0, { attack: 20, defense: 10, hp: 60 })
-    const result = simulateBout(a, b)
-    expect(result.winner?.id).toBe(1)
-  })
-
-  it('returns the unit pre-killed if its hp is already zero', () => {
-    const a = unit(1, 'Dead', 'X', 0, { hp: 0 })
-    const b = unit(2, 'Alive', 'X', 0, { hp: 50 })
-    const result = simulateBout(a, b)
-    expect(result.winner?.id).toBe(2)
-    expect(result.ticks).toBe(0)
+    expect(groups.map(g => g.topic)).toEqual(['Big', 'Small', UNCATEGORISED])
   })
 })

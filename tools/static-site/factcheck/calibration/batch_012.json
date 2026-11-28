@@ -1,0 +1,189 @@
+[
+ {
+  "id": 847,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "equiv-barring-members-congress-members-congress",
+  "section": "argument",
+  "side": "disagree",
+  "text": "One bars individual stocks; the other bars family businesses, farms and rental property, which is a far larger policy with different costs."
+ },
+ {
+  "id": 848,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "equiv-barring-members-congress-members-congress",
+  "section": "argument",
+  "side": "disagree",
+  "text": "The candidate-pool objection is weak against the first and strong against the second."
+ },
+ {
+  "id": 849,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "equiv-barring-members-congress-members-congress-2",
+  "section": "argument",
+  "side": "agree",
+  "text": "Both remove the official's ability to act on a holding while in office."
+ },
+ {
+  "id": 850,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "equiv-barring-members-congress-members-congress-2",
+  "section": "argument",
+  "side": "agree",
+  "text": "Evidence about whether conflicts persist would bear on both identically."
+ },
+ {
+  "id": 851,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "equiv-barring-members-congress-members-congress-2",
+  "section": "argument",
+  "side": "disagree",
+  "text": "A blind trust leaves the asset in place and removes control; a ban removes the asset. The Congressional Research Service notes a trust is not blind at inception, which is a difference in effect rather than in wording."
+ },
+ {
+  "id": 855,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "ziobrowski-cheng-boyd-ziobrowski",
+  "on_text": "Ziobrowski, Cheng, Boyd and Ziobrowski, Abnormal Returns from the Common Stock Investments of the U.S. Senate (2004)",
+  "section": "argument",
+  "side": "agree",
+  "text": "Built from the Senate's own disclosure filings rather than from secondary summaries."
+ },
+ {
+  "id": 856,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "ziobrowski-cheng-boyd-ziobrowski",
+  "on_text": "Ziobrowski, Cheng, Boyd and Ziobrowski, Abnormal Returns from the Common Stock Investments of the U.S. Senate (2004)",
+  "section": "argument",
+  "side": "agree",
+  "text": "Calendar-time portfolio analysis against matched benchmarks is the standard method for the question."
+ },
+ {
+  "id": 857,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "ziobrowski-cheng-boyd-ziobrowski",
+  "on_text": "Ziobrowski, Cheng, Boyd and Ziobrowski, Abnormal Returns from the Common Stock Investments of the U.S. Senate (2004)",
+  "section": "argument",
+  "side": "disagree",
+  "text": "It reports the buy portfolio's abnormal returns and says much less about the sell side."
+ },
+ {
+  "id": 858,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "ziobrowski-cheng-boyd-ziobrowski",
+  "on_text": "Ziobrowski, Cheng, Boyd and Ziobrowski, Abnormal Returns from the Common Stock Investments of the U.S. Senate (2004)",
+  "section": "argument",
+  "side": "disagree",
+  "text": "Disclosure ranges rather than exact amounts force assumptions about position size that the paper cannot verify."
+ },
+ {
+  "id": 862,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "insider-conflicted-congress-2021",
+  "on_text": "Insider, Conflicted Congress (2021 to 2023)",
+  "section": "argument",
+  "side": "agree",
+  "text": "Compiled from the periodic transaction reports themselves, which the series published."
+ },
+ {
+  "id": 863,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "insider-conflicted-congress-2021",
+  "on_text": "Insider, Conflicted Congress (2021 to 2023)",
+  "section": "argument",
+  "side": "agree",
+  "text": "The database was searchable and the methodology was stated, which is why other outlets could check it."
+ },
+ {
+  "id": 864,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "insider-conflicted-congress-2021",
+  "on_text": "Insider, Conflicted Congress (2021 to 2023)",
+  "section": "argument",
+  "side": "disagree",
+  "text": "It counts filing failures without distinguishing a clerical late filing from a concealed trade, and the headline number is used for both."
+ },
+ {
+  "id": 865,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "insider-conflicted-congress-2021",
+  "on_text": "Insider, Conflicted Congress (2021 to 2023)",
+  "section": "argument",
+  "side": "disagree",
+  "text": "The framing invites the inference that 78 members traded improperly, which the data do not support."
+ },
+ {
+  "id": 869,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "eggers-hainmueller-capitol-losses",
+  "on_text": "Eggers and Hainmueller, Capitol Losses: The Mediocre Performance of Congressional Stock Portfolios (2013)",
+  "section": "argument",
+  "side": "agree",
+  "text": "Better matched benchmarks and a larger sample than the study it responds to, and it reexamines the earlier period as well."
+ },
+ {
+  "id": 870,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "eggers-hainmueller-capitol-losses",
+  "on_text": "Eggers and Hainmueller, Capitol Losses: The Mediocre Performance of Congressional Stock Portfolios (2013)",
+  "section": "argument",
+  "side": "agree",
+  "text": "Same filings, independently coded."
+ },
+ {
+  "id": 871,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "eggers-hainmueller-capitol-losses",
+  "on_text": "Eggers and Hainmueller, Capitol Losses: The Mediocre Performance of Congressional Stock Portfolios (2013)",
+  "section": "argument",
+  "side": "disagree",
+  "text": "Portfolio averages cannot detect the small number of well-timed trades that the conflict claim is actually about, and the paper does not engage that objection at length."
+ },
+ {
+  "id": 874,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "medi-ziobrowski-cheng-boyd-barring-members",
+  "section": "argument",
+  "side": "agree",
+  "text": "The work is about the same officials, the same holdings and the same question the belief asks."
+ },
+ {
+  "id": 875,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "medi-ziobrowski-cheng-boyd-barring-members",
+  "section": "argument",
+  "side": "disagree",
+  "text": "It measures trading returns, and the belief also rests on whether holdings bias votes."
+ },
+ {
+  "id": 876,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "medi-insider-conflicted-congress-barring-members",
+  "section": "argument",
+  "side": "agree",
+  "text": "The work is about the same officials, the same holdings and the same question the belief asks."
+ },
+ {
+  "id": 877,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "medi-insider-conflicted-congress-barring-members",
+  "section": "argument",
+  "side": "disagree",
+  "text": "It measures trading returns, and the belief also rests on whether holdings bias votes."
+ },
+ {
+  "id": 878,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "medi-eggers-hainmueller-capitol-barring-members",
+  "section": "argument",
+  "side": "agree",
+  "text": "The work is about the same officials, the same holdings and the same question the belief asks."
+ },
+ {
+  "id": 879,
+  "belief_text": "Barring members of Congress and the president from owning or trading individual stocks would reduce the use of public office for private gain.",
+  "on": "medi-eggers-hainmueller-capitol-barring-members",
+  "section": "argument",
+  "side": "disagree",
+  "text": "It measures trading returns, and the belief also rests on whether holdings bias votes."
+ }
+]

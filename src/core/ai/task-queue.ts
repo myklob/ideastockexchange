@@ -282,7 +282,7 @@ export class DistributedTaskQueue extends EventEmitter {
   /**
    * Queue argument expansion tasks for a completed analysis
    */
-  private queueArgumentExpansions(analysis: IssueAnalysis, parentTaskId: string): void {
+  private queueArgumentExpansions(analysis: IssueAnalysis, _parentTaskId: string): void {
     const depth = 1; // Arguments from main analysis are at depth 1
 
     // Queue pro arguments

@@ -2,22 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   Idea Stock Exchange Design System — foundational tokens.
+   Mirrors design-system/colors_and_type.css. Existing
+   --accent/--border/--muted-foreground vars are preserved so
+   pre-existing components keep rendering.
+   ============================================================ */
+
 :root {
-  --profit: #22c55e;
-  --loss: #ef4444;
+  /* Brand / accent */
+  --ise-accent:           #2563eb;
+  --ise-accent-hover:     #1d4ed8;
+  --ise-accent-soft:      #eff6ff;
+
+  /* Document surface */
+  --bg:                   #ffffff;
+  --fg:                   #0a0a0a;
+  --card-bg-alt:          #fafafa;
+  --border-strong:        #d4d4d4;
+
+  /* Trader / dark surface */
+  --bg-dark:              #0a0a0a;
+  --fg-dark:              #ededed;
+  --card-bg-dark:         #141414;
+  --border-dark:          #262626;
+
+  /* Valence */
+  --pro:                  #22c55e;
+  --pro-700:              #15803d;
+  --pro-50:               #f0fdf4;
+  --pro-100:              #dcfce7;
+  --pro-200:              #bbf7d0;
+  --con:                  #ef4444;
+  --con-600:              #dc2626;
+  --con-700:              #b91c1c;
+  --con-50:               #fef2f2;
+  --con-100:              #fee2e2;
+  --con-200:              #fecaca;
+
+  /* Strength bands — Strong-to-Weak Spectrum */
+  --strength-weak:        #d4edda;
+  --strength-moderate:    #fff3cd;
+  --strength-strong:      #ffd8a8;
+  --strength-extreme:     #f8d7da;
+  --strength-weak-text:   #166534;
+  --strength-moderate-text:#854d0e;
+  --strength-strong-text: #9a3412;
+  --strength-extreme-text:#991b1b;
+  --strength-gradient: linear-gradient(
+    to right,
+    var(--strength-weak) 0%,
+    var(--strength-moderate) 40%,
+    var(--strength-strong) 75%,
+    var(--strength-extreme) 100%
+  );
+  --valence-gradient: linear-gradient(
+    to right,
+    #f8d7da 0%, #fff3cd 50%, #d4edda 100%
+  );
+
+  /* Score-quality ramp */
+  --score-excellent:      #15803d;
+  --score-good:           #1d4ed8;
+  --score-moderate:       #c2410c;
+  --score-weak:           #b91c1c;
+
+  /* Evidence tiers T1–T4 */
+  --tier-t1:              #15803d;
+  --tier-t2:              #1d4ed8;
+  --tier-t3:              #c2410c;
+  --tier-t4:              #6b7280;
+
+  /* Type */
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "Cascadia Mono", "Courier New", Courier,
+    monospace;
+
+  /* Radius */
+  --radius-sm:            3px;
+  --radius:               6px;
+  --radius-md:            8px;
+  --radius-lg:            12px;
+  --radius-full:          9999px;
+
+  /* Elevation */
+  --shadow-sm:            0 1px 2px rgba(10, 10, 10, 0.04);
+  --shadow-md:            0 4px 6px -1px rgba(10, 10, 10, 0.06),
+                          0 2px 4px -2px rgba(10, 10, 10, 0.04);
+  --shadow-lg:            0 10px 15px -3px rgba(10, 10, 10, 0.08),
+                          0 4px 6px -4px rgba(10, 10, 10, 0.04);
+
+  /* Motion */
+  --duration-fast:        150ms;
+  --duration:             200ms;
+
+  /* Layout */
+  --container-max:        1280px;
+  --belief-max:           960px;
+
+  /* Legacy (pre-design-system) aliases — keep for compatibility */
+  --profit: var(--pro);
+  --loss: var(--con);
   --neutral: #6b7280;
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --card-bg: #141414;
-  --border: #262626;
   --background: #ffffff;
   --foreground: #0a0a0a;
+  --card-bg: #141414;
   --muted: #f5f5f5;
   --muted-foreground: #737373;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
+  --accent: var(--ise-accent);
+  --accent-hover: var(--ise-accent-hover);
   --border: #e5e5e5;
-  --destructive: #dc2626;
+  --destructive: var(--con-600);
   --success: #16a34a;
   --warning: #ea580c;
 }
@@ -114,3 +212,105 @@ pre code {
 .argument-card-animate {
   animation: cardSlideIn 0.4s ease;
 }
+
+/* ============================================================
+   ISE semantic shorthand classes.
+   ============================================================ */
+
+.ise-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.ise-mono { font-family: var(--font-mono); }
+
+.ise-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+.ise-card-hover {
+  transition: border-color var(--duration) ease;
+}
+.ise-card-hover:hover { border-color: var(--ise-accent); }
+
+.ise-callout {
+  border-left: 4px solid var(--ise-accent);
+  background: var(--ise-accent-soft);
+  padding: 12px 14px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ise-callout--warn {
+  border-left-color: var(--con-600);
+  background: var(--con-50);
+}
+.ise-callout--ok {
+  border-left-color: var(--success);
+  background: #f0fdf4;
+}
+
+.ise-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 22px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--duration) ease,
+              border-color var(--duration) ease;
+  line-height: 1;
+}
+.ise-btn--primary {
+  background: var(--ise-accent);
+  color: #fff;
+}
+.ise-btn--primary:hover { background: var(--ise-accent-hover); }
+.ise-btn--ghost {
+  background: transparent;
+  color: var(--fg);
+  border-color: var(--border);
+}
+.ise-btn--ghost:hover { border-color: var(--ise-accent); }
+
+.ise-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.ise-table th,
+.ise-table td {
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.ise-table thead th { background: var(--muted); font-weight: 600; }
+.ise-table thead.pro th { background: var(--pro-50); }
+.ise-table thead.con th { background: var(--con-50); }
+.ise-table tbody tr:hover { background: #fafafa; }
+
+.ise-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+}
+.ise-badge--pro     { background: var(--pro-100); color: var(--pro-700);   border-color: #86efac; }
+.ise-badge--con     { background: var(--con-100); color: var(--con-700);   border-color: #fecaca; }
+.ise-badge--info    { background: #dbeafe;        color: #1e40af;          border-color: #93c5fd; }
+.ise-badge--warn    { background: #fed7aa;        color: #7c2d12;          border-color: #fdba74; }
+.ise-badge--neutral { background: var(--muted);   color: #525252;          border-color: var(--border); }
+.ise-badge--t1 { background: #dcfce7; color: var(--tier-t1); border-color: #86efac; }
+.ise-badge--t2 { background: #dbeafe; color: var(--tier-t2); border-color: #93c5fd; }
+.ise-badge--t3 { background: #fed7aa; color: var(--tier-t3); border-color: #fdba74; }
+.ise-badge--t4 { background: var(--muted); color: var(--tier-t4); border-color: var(--border); }

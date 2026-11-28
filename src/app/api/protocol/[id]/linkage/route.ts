@@ -26,10 +26,6 @@ const linkageVoteSchema = z.object({
   weight: z.number().min(0).max(10).optional().default(1.0),
 })
 
-const linkageQuerySchema = z.object({
-  argument_id: z.string().min(1, 'Argument ID is required'),
-})
-
 // ─── POST: Submit a linkage vote via diagnostic wizard ──────────
 
 export async function POST(

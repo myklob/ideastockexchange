@@ -5,16 +5,26 @@ import {
   type BeliefUnitInput,
   type BeliefUnitStats,
 } from '@/lib/battlefield'
-import {
-  buildTopicGroups,
-  simulateBout,
-  type BattlefieldUnit,
-  type Matchup,
-} from '@/lib/battlefield-pairings'
 
 export const dynamic = 'force-dynamic'
 
-async function fetchUnits(): Promise<BattlefieldUnit[]> {
+interface UnitRow {
+  id: number
+  slug: string
+  name: string
+  category: string | null
+  subcategory: string | null
+  positivity: number
+  stats: BeliefUnitStats
+}
+
+interface Battle {
+  topic: string
+  agree: UnitRow
+  oppose: UnitRow
+}
+
+async function fetchUnits(): Promise<UnitRow[]> {
   const beliefs = await prisma.belief.findMany({
     select: {
       id: true,
@@ -66,62 +76,128 @@ async function fetchUnits(): Promise<BattlefieldUnit[]> {
   })
 }
 
-const classColor: Record<BeliefUnitStats['unitClass'], string> = {
-  Fortress: 'bg-blue-100 text-blue-900 border-blue-300',
-  Striker: 'bg-red-100 text-red-900 border-red-300',
-  Scout: 'bg-amber-100 text-amber-900 border-amber-300',
-  Beacon: 'bg-purple-100 text-purple-900 border-purple-300',
-  Bulwark: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-  Recruit: 'bg-neutral-100 text-neutral-700 border-neutral-300',
+/**
+ * Group beliefs by topic (subcategory ?? category), then pit each group's
+ * most-positive belief against its most-negative belief. Within a topic, we
+ * also keep any extras in a list so the user can see the full roster, but
+ * the headline match is positive vs negative.
+ */
+function buildBattles(units: UnitRow[]): {
+  battles: (Battle & { extras: UnitRow[] })[]
+  unmatched: UnitRow[]
+} {
+  const byTopic = new Map<string, UnitRow[]>()
+  const unmatched: UnitRow[] = []
+
+  for (const u of units) {
+    const topic = u.subcategory ?? u.category ?? null
+    if (!topic) {
+      unmatched.push(u)
+      continue
+    }
+    const list = byTopic.get(topic) ?? []
+    list.push(u)
+    byTopic.set(topic, list)
+  }
+
+  const battles: (Battle & { extras: UnitRow[] })[] = []
+  for (const [topic, list] of byTopic) {
+    if (list.length < 2) {
+      unmatched.push(...list)
+      continue
+    }
+    const sorted = [...list].sort((a, b) => b.positivity - a.positivity)
+    const agree = sorted[0]
+    const oppose = sorted[sorted.length - 1]
+    if (agree.id === oppose.id) {
+      unmatched.push(...list)
+      continue
+    }
+    const extras = sorted.slice(1, -1)
+    battles.push({ topic, agree, oppose, extras })
+  }
+
+  battles.sort(
+    (a, b) =>
+      b.agree.stats.overall + b.oppose.stats.overall -
+      (a.agree.stats.overall + a.oppose.stats.overall),
+  )
+
+  return { battles, unmatched }
 }
 
-function StatBar({ label, value, side }: { label: string; value: number; side: 'left' | 'right' }) {
-  const fillSide = side === 'left' ? 'right-0' : 'left-0'
-  const align = side === 'left' ? 'flex-row-reverse text-right' : ''
+const classColor: Record<BeliefUnitStats['unitClass'], string> = {
+  Fortress: 'bg-blue-100 text-blue-900',
+  Striker: 'bg-red-100 text-red-900',
+  Scout: 'bg-amber-100 text-amber-900',
+  Beacon: 'bg-purple-100 text-purple-900',
+  Bulwark: 'bg-emerald-100 text-emerald-900',
+  Recruit: 'bg-neutral-100 text-neutral-700',
+}
+
+function StatBar({
+  label,
+  value,
+  side,
+}: {
+  label: string
+  value: number
+  side: 'left' | 'right'
+}) {
+  const barColor = side === 'left' ? 'bg-emerald-600' : 'bg-rose-600'
   return (
-    <div className={`flex items-center gap-2 text-[11px] ${align}`}>
+    <div className="flex items-center gap-2 text-xs">
       <span className="w-10 shrink-0 text-neutral-500">{label}</span>
-      <div className="relative h-1.5 flex-1 rounded bg-neutral-200">
+      <div className="relative h-2 flex-1 rounded bg-neutral-200">
         <div
-          className={`absolute inset-y-0 ${fillSide} rounded bg-neutral-700`}
+          className={`absolute inset-y-0 left-0 rounded ${barColor}`}
           style={{ width: `${value}%` }}
         />
       </div>
-      <span className="w-7 text-right tabular-nums text-neutral-700">{value}</span>
+      <span className="w-8 text-right tabular-nums">{value}</span>
     </div>
   )
 }
 
-function SideCard({
+function FighterCard({
   unit,
   side,
-  isPredictedWinner,
+  isWinner,
 }: {
-  unit: BattlefieldUnit
+  unit: UnitRow
   side: 'left' | 'right'
-  isPredictedWinner: boolean
+  isWinner: boolean
 }) {
-  const align = side === 'left' ? 'text-right' : 'text-left'
+  const stanceLabel = side === 'left' ? 'AGREE' : 'OPPOSE'
+  const stanceColor =
+    side === 'left'
+      ? 'bg-emerald-50 border-emerald-200'
+      : 'bg-rose-50 border-rose-200'
   return (
     <Link
       href={`/beliefs/${unit.slug}`}
-      className={`flex-1 min-w-0 block rounded border p-3 hover:border-neutral-500 transition-colors ${
-        isPredictedWinner ? 'border-emerald-400 bg-emerald-50/40' : 'border-neutral-200'
+      className={`flex-1 rounded-lg border p-4 transition-colors hover:border-neutral-500 ${stanceColor} ${
+        isWinner ? 'ring-2 ring-yellow-400' : ''
       }`}
     >
-      <div className={`flex items-start gap-2 mb-2 ${side === 'left' ? 'flex-row-reverse' : ''}`}>
+      <div className="mb-2 flex items-center justify-between gap-2">
         <span
-          className={`shrink-0 rounded border px-2 py-0.5 text-[10px] font-medium ${classColor[unit.stats.unitClass]}`}
+          className={`rounded px-2 py-0.5 text-[10px] font-bold tracking-wide ${
+            side === 'left'
+              ? 'bg-emerald-600 text-white'
+              : 'bg-rose-600 text-white'
+          }`}
+        >
+          {stanceLabel}
+        </span>
+        <span
+          className={`rounded px-2 py-0.5 text-xs font-medium ${classColor[unit.stats.unitClass]}`}
         >
           {unit.stats.unitClass} L{unit.stats.level}
         </span>
-        <div className={`min-w-0 ${align}`}>
-          <div className="font-semibold text-sm leading-snug line-clamp-3">{unit.name}</div>
-          <div className="text-[11px] text-neutral-500 tabular-nums mt-0.5">
-            positivity {unit.positivity > 0 ? '+' : ''}
-            {Math.round(unit.positivity)}
-          </div>
-        </div>
+      </div>
+      <div className="mb-3 text-sm font-semibold leading-tight">
+        {unit.name}
       </div>
       <div className="space-y-1">
         <StatBar label="HP" value={unit.stats.hp} side={side} />
@@ -130,109 +206,124 @@ function SideCard({
         <StatBar label="SPD" value={unit.stats.speed} side={side} />
         <StatBar label="AOE" value={unit.stats.aoe} side={side} />
       </div>
+      <div className="mt-3 flex items-center justify-between text-xs text-neutral-500">
+        <span>Power</span>
+        <span className="text-base font-bold tabular-nums text-neutral-900">
+          {unit.stats.overall}
+          {isWinner && <span className="ml-1 text-yellow-600">&#9819;</span>}
+        </span>
+      </div>
     </Link>
   )
 }
 
-function MatchupRow({ matchup }: { matchup: Matchup }) {
-  if (matchup.pair.length === 1) {
-    const lone = matchup.pair[0]
-    return (
-      <div className="flex items-stretch gap-3">
-        <SideCard unit={lone} side="left" isPredictedWinner={false} />
-        <div className="flex flex-col items-center justify-center w-14 shrink-0 text-neutral-400 text-xs">
-          <span className="font-bold">VS</span>
-          <span className="mt-1 text-center leading-tight">awaiting<br />challenger</span>
-        </div>
-        <div className="flex-1 min-w-0 rounded border border-dashed border-neutral-300 p-3 text-center text-xs text-neutral-400 flex items-center justify-center">
-          No opposing belief in this topic yet.
-        </div>
-      </div>
-    )
-  }
-
-  const [left, right] = matchup.pair
-  const bout = simulateBout(left, right)
+function BattleCard({ battle }: { battle: Battle & { extras: UnitRow[] } }) {
+  const agreeWins = battle.agree.stats.overall >= battle.oppose.stats.overall
   return (
-    <div className="flex items-stretch gap-3">
-      <SideCard unit={left} side="left" isPredictedWinner={bout.winner?.id === left.id} />
-      <div className="flex flex-col items-center justify-center w-14 shrink-0 text-neutral-500">
-        <span className="text-xs font-bold tracking-wider">VS</span>
-        <span className="mt-1 text-[10px] text-neutral-400 text-center leading-tight">
-          {bout.winner ? `${bout.ticks}t` : 'draw'}
+    <article className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+      <header className="mb-4 flex items-center justify-between">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-500">
+          Topic: {battle.topic}
+        </h3>
+        <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400">
+          Same arena &middot; opposing stances
         </span>
+      </header>
+      <div className="flex items-stretch gap-3">
+        <FighterCard unit={battle.agree} side="left" isWinner={agreeWins} />
+        <div className="flex w-10 flex-col items-center justify-center text-center">
+          <div className="text-2xl font-black text-neutral-300">VS</div>
+          <div className="mt-1 text-[10px] uppercase tracking-wider text-neutral-400">
+            Battle
+          </div>
+        </div>
+        <FighterCard unit={battle.oppose} side="right" isWinner={!agreeWins} />
       </div>
-      <SideCard unit={right} side="right" isPredictedWinner={bout.winner?.id === right.id} />
-    </div>
+      {battle.extras.length > 0 && (
+        <details className="mt-3 text-xs text-neutral-500">
+          <summary className="cursor-pointer hover:text-neutral-800">
+            {battle.extras.length} other contender
+            {battle.extras.length === 1 ? '' : 's'} in this arena
+          </summary>
+          <ul className="mt-2 space-y-1">
+            {battle.extras.map(e => (
+              <li key={e.id}>
+                <Link
+                  href={`/beliefs/${e.slug}`}
+                  className="hover:underline"
+                >
+                  &middot; {e.name}{' '}
+                  <span className="text-neutral-400">
+                    (power {e.stats.overall}, positivity{' '}
+                    {Math.round(e.positivity)})
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </article>
   )
 }
 
 export default async function BattlefieldPage() {
   const units = await fetchUnits()
-  const groups = buildTopicGroups(units)
-  const totalMatchups = groups.reduce((sum, g) => sum + g.matchups.length, 0)
+  const { battles, unmatched } = buildBattles(units)
 
   return (
-    <div className="max-w-[960px] mx-auto p-6">
+    <div className="mx-auto max-w-[960px] p-6">
       <header className="mb-6">
-        <h1 className="text-3xl font-bold mb-1">The Battlefield of Ideas</h1>
+        <h1 className="mb-1 text-3xl font-bold">The Battlefield of Ideas</h1>
         <p className="text-sm text-neutral-600">
-          Beliefs from the same topic line up against each other. The most-supported idea
-          faces the most-opposed; stats come from the argument ledger (HP from stability,
-          ATK from claim strength &times; argument volume, DEF from supporting structure,
-          SPD from content velocity, AoE from downstream dependents). The green-bordered
-          card is the predicted winner of a head-to-head bout.
-        </p>
-        <p className="text-sm text-neutral-600 mt-2">
-          Want to see them actually fight?{' '}
-          <Link href="/arena" className="underline font-medium">
-            Open the live arena &rarr;
+          Each topic is an arena. Beliefs from the same topic with opposite
+          stances fight head-to-head &mdash; e.g. &ldquo;Trump is a genius&rdquo;
+          vs &ldquo;Trump is a moron.&rdquo; Stats come from the argument
+          ledger; the higher overall power wins the round. Want to play it as
+          a real game?{' '}
+          <Link href="/arena" className="font-medium underline">
+            Enter the Arena &rarr;
           </Link>{' '}
-          (diep.io-style top-down brawl). The full game-engine feed is at{' '}
-          <Link href="/api/battlefield/units" className="underline">
-            /api/battlefield/units
+          Or just{' '}
+          <Link href="/arena/spectate" className="font-medium underline">
+            watch the beliefs fight each other &rarr;
           </Link>
-          .
         </p>
       </header>
 
-      {units.length === 0 ? (
-        <p className="text-neutral-500">No beliefs to deploy yet.</p>
-      ) : totalMatchups === 0 ? (
+      {battles.length === 0 ? (
         <p className="text-neutral-500">
-          Beliefs found, but none share a topic — add a category to two beliefs to start a fight.
+          No topic has at least two opposing beliefs yet. Add a counter-belief
+          to any topic and a battle will appear here.
         </p>
       ) : (
-        <div className="space-y-8">
-          {groups.map(g => (
-            <section key={g.topic}>
-              <div className="flex items-baseline justify-between mb-3">
-                <h2 className="text-xl font-semibold">{g.topic}</h2>
-                <span className="text-xs text-neutral-500">
-                  {g.units.length} {g.units.length === 1 ? 'idea' : 'ideas'}
-                  {g.matchups.length > 0 &&
-                    ` · ${g.matchups.length} matchup${g.matchups.length === 1 ? '' : 's'}`}
-                </span>
-              </div>
-              {g.matchups.length === 0 ? (
-                <p className="text-xs text-neutral-400 italic">
-                  Only one belief on this topic so far.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {g.matchups.map((m, i) => (
-                    <MatchupRow key={i} matchup={m} />
-                  ))}
-                </div>
-              )}
-              {g.ronin && g.matchups.length > 0 && (
-                <p className="mt-2 text-[11px] text-neutral-400 italic">
-                  Sitting out this round: <Link href={`/beliefs/${g.ronin.slug}`} className="underline">{g.ronin.name}</Link>
-                </p>
-              )}
-            </section>
+        <div className="grid grid-cols-1 gap-5">
+          {battles.map(b => (
+            <BattleCard key={b.topic} battle={b} />
           ))}
         </div>
+      )}
+
+      {unmatched.length > 0 && (
+        <section className="mt-10">
+          <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-neutral-500">
+            Awaiting an opponent
+          </h2>
+          <ul className="space-y-1 text-sm text-neutral-600">
+            {unmatched.map(u => (
+              <li key={u.id}>
+                <Link href={`/beliefs/${u.slug}`} className="hover:underline">
+                  &middot; {u.name}{' '}
+                  <span className="text-neutral-400">
+                    (
+                    {u.subcategory ?? u.category ?? 'no topic'}, power{' '}
+                    {u.stats.overall})
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </div>
   )

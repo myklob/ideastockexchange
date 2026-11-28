@@ -69,7 +69,6 @@ describe('Stress Test 1: The Jenga Test (Foundation Collapse)', () => {
     // ─── Verify the tree is high-scoring ─────────────────────
     const claimBefore = pipeline.getScoreValue('claim')
     const arg1Before = pipeline.getScoreValue('arg1')
-    const sub1aBefore = pipeline.getScoreValue('sub1a')
     expect(claimBefore).toBeGreaterThan(0.5)
 
     // ─── Action: Falsify the RCT evidence (the foundation) ───

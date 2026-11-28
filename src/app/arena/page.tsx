@@ -1,17 +1,14 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
-import { computeBeliefUnitStats, type BeliefUnitInput } from '@/lib/battlefield'
-import { buildTopicGroups, type BattlefieldUnit } from '@/lib/battlefield-pairings'
-import ArenaCanvas from './ArenaCanvas'
+import {
+  computeBeliefUnitStats,
+  type BeliefUnitInput,
+} from '@/lib/battlefield'
+import ArenaGame, { type ArenaEnemy } from './ArenaGame'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata = {
-  title: 'Arena · Battlefield of Ideas',
-  description: 'A diep.io-style top-down arena where beliefs from the same topic fight live.',
-}
-
-async function fetchUnits(): Promise<BattlefieldUnit[]> {
+async function fetchEnemies(): Promise<ArenaEnemy[]> {
   const beliefs = await prisma.belief.findMany({
     select: {
       id: true,
@@ -30,6 +27,7 @@ async function fetchUnits(): Promise<BattlefieldUnit[]> {
       downstreamMappings: { select: { id: true } },
       upstreamMappings: { select: { side: true } },
     },
+    take: 60,
   })
 
   return beliefs.map(b => {
@@ -51,51 +49,104 @@ async function fetchUnits(): Promise<BattlefieldUnit[]> {
       mediaCount: b.mediaResources.length,
       criteriaCount: b.objectiveCriteria.length,
     }
+    const stats = computeBeliefUnitStats(input)
     return {
       id: b.id,
       slug: b.slug,
       name: b.statement,
-      category: b.category,
-      subcategory: b.subcategory,
+      topic: b.subcategory ?? b.category ?? 'unsorted',
       positivity: b.positivity,
-      stats: computeBeliefUnitStats(input),
+      hp: stats.hp,
+      attack: stats.attack,
+      defense: stats.defense,
+      speed: stats.speed,
+      level: stats.level,
+      unitClass: stats.unitClass,
+      tankInput: input,
     }
   })
 }
 
 export default async function ArenaPage() {
-  const units = await fetchUnits()
-  const groups = buildTopicGroups(units).filter(g => g.units.length >= 2)
-  const fightable = groups.flatMap(g => g.units)
+  const enemies = await fetchEnemies()
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <div className="max-w-[1100px] mx-auto p-4 md:p-6">
-        <header className="mb-4 flex items-start justify-between gap-4 flex-wrap">
+    <div className="min-h-screen bg-[#0b0d12] text-neutral-100">
+      <header className="border-b border-neutral-800 bg-[#10131a]">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Idea Arena</h1>
-            <p className="text-sm text-neutral-400 mt-1 max-w-2xl">
-              Beliefs from the same topic spawn as tanks. They wander, target an opponent
-              from their topic, and fire. HP, ATK, DEF, SPD &amp; AoE come from the
-              argument-ledger stats. Last idea standing wins the round.
+            <h1 className="text-xl font-black tracking-tight">
+              Idea Arena
+            </h1>
+            <p className="text-xs text-neutral-400">
+              A diep.io-style arena where every enemy is a real belief.
+              Knock the ones you disagree with off the board.
             </p>
           </div>
-          <Link
-            href="/battlefield"
-            className="text-xs text-neutral-300 underline whitespace-nowrap"
-          >
-            &larr; Back to Battlefield
-          </Link>
-        </header>
+          <nav className="flex items-center gap-4 text-xs text-neutral-300">
+            <Link href="/arena/spectate" className="hover:text-white">
+              Spectate
+            </Link>
+            <Link href="/battlefield" className="hover:text-white">
+              Battlefield
+            </Link>
+            <Link href="/beliefs" className="hover:text-white">
+              Beliefs
+            </Link>
+            <Link href="/" className="hover:text-white">
+              Home
+            </Link>
+          </nav>
+        </div>
+      </header>
 
-        {fightable.length < 2 ? (
-          <div className="rounded border border-neutral-800 bg-neutral-900 p-6 text-center text-sm text-neutral-400">
-            Need at least two beliefs sharing a category before the arena can spawn a fight.
+      <main className="mx-auto max-w-7xl px-4 py-4">
+        <ArenaGame enemies={enemies} />
+
+        <section className="mt-6 grid gap-4 text-sm text-neutral-300 md:grid-cols-3">
+          <div>
+            <h2 className="mb-1 font-semibold text-white">Controls</h2>
+            <ul className="space-y-1 text-neutral-400">
+              <li>
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">W A S D</kbd>{' '}
+                or arrow keys to move
+              </li>
+              <li>
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">Mouse</kbd>{' '}
+                to aim,{' '}
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">Click</kbd>{' '}
+                to fire
+              </li>
+              <li>
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">1</kbd>&ndash;
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">8</kbd> spend
+                upgrade points;{' '}
+                <kbd className="rounded bg-neutral-800 px-1.5 py-0.5">P</kbd> pauses
+              </li>
+            </ul>
           </div>
-        ) : (
-          <ArenaCanvas units={fightable} groups={groups.map(g => ({ topic: g.topic, slugs: g.units.map(u => u.slug) }))} />
-        )}
-      </div>
+          <div>
+            <h2 className="mb-1 font-semibold text-white">How It Works</h2>
+            <p className="text-neutral-400">
+              Pick a belief as your champion &mdash; its stability, evidence,
+              claim strength and supports drive your tank&apos;s eight stats.
+              Settled beliefs tank hits; bold claims hit hard but maneuver
+              less; specific, well-evidenced beliefs fire crisper bullets.
+            </p>
+          </div>
+          <div>
+            <h2 className="mb-1 font-semibold text-white">Score Tiers</h2>
+            <p className="text-neutral-400">
+              <span className="text-white">Run</span> resets on death.{' '}
+              <span className="text-amber-300">Best</span> is your single-run
+              high water mark.{' '}
+              <span className="text-emerald-300">Career</span> only ever grows.
+              Both persist locally across champions, so picking unlucky still
+              builds your lifetime total.
+            </p>
+          </div>
+        </section>
+      </main>
     </div>
   )
 }

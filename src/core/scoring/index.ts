@@ -14,7 +14,6 @@
 export * from './scoring-engine';
 
 // Domain-specific scoring
-export * from './book-scoring';
 
 // CBA scoring - exclude calculateArgumentImpact which is already in scoring-engine
 export {
@@ -28,6 +27,28 @@ export {
 
 // Duplication scoring — solves the Redundancy Problem (Topic Overlap Scores)
 export * from './duplication-scoring';
+
+// Evidence Grounding — does the argument tree bottom out in evidence?
+// The evidence-based ranking input (engagement is never a ranking input).
+export * from './grounding';
+
+// Retraction Exposure — how much of a belief's score rests on evidence whose
+// standing nobody has established? The evidence-side complement to leverage.
+export * from './evidence-exposure';
+
+// Decision Leverage — which argument edge is worth arguing about next?
+// Ranks edges by points of conclusion score still at stake (transmission
+// weight × unresolved range), so attention lands on the cruxes.
+export * from './decision-leverage';
+
+// The Denominator — score a belief against its counterclaims (contrast class).
+// Layer 1 (justification, internal) + Layer 2 (opportunity cost, external).
+export * from './contrast-class';
+
+// Conflict Resolution Pipeline — read the scored trees sideways: shared
+// interests, the primary conflict pair, genuine value conflicts, and
+// compromise candidates (a small likelihood shift flips a category's net).
+export * from './conflict-resolution';
 
 // All-scores module — remaining ReasonRank score dimensions:
 //   Objective Criteria, Confidence Stability, Media Truth, Media Genre,

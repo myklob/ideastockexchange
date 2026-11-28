@@ -1,0 +1,246 @@
+# Template: Interest Validity Debate
+
+> Generated from [`templates/interest-validity-debate-template.html`](https://github.com/myklob/ideastockexchange/blob/master/templates/interest-validity-debate-template.html) by `tools/wiki_templates.py`. The HTML file is the template; edit it, not this page. CI regenerates this page and refuses a copy that has drifted.
+
+**Kind:** Page template  
+**Purpose:** One interest, as a need with a subject: whether it is valid at all, more or less valid than other interests, and valid within a given conflict; the alibi test, the mirror test, the Maslow rungs where a score starts, and the rule that bad motives are scored, not deleted.  
+**Rendered by:** tools/static-site/render_site.py (an interest page); the interests page of the built site  
+
+**Currency rules.** `tools/check_templates.py` refuses a template that uses the retired column names Argument Score or Evidence Score (the current names are Truth, Importance and Linkage), an em dash, an empty anchor, or an address that looks like an email; a topic template must carry the four magnitude bands Modest, Moderate, Strong and Total and treat engagement as a section, not a continuum. CI runs it on every change under `templates/`, and `tools/wiki_templates.py --check` refuses a wiki copy that differs from the HTML.
+
+Square-bracketed text is a placeholder for the author to fill; a token with underscores, such as [Truth_Score], is a slot the software fills. A score cell is blank until a real page stands behind it. Each table on the built site carries a form that files a row in it; a form cannot be submitted from a wiki page, so the forms are left out here.
+
+---
+> **Builder notes**
+>
+> ===== ISE INTEREST VALIDITY DEBATE TEMPLATE (2026-10-04, GitHub form) =====
+> The page an interest's Validity score gets when the Validity itself is the
+> fight. An interest is one sentence, a need with a subject ("renters need
+> housing they can afford"), and that sentence is argued two ways on two
+> tracks that never borrow from each other: is this really why the side holds
+> its position (Linkage Accuracy, settled by behavior, argued on the interest's
+> own page), and should it be honored (Interest Validity, settled by the
+> mirror test, argued here). Drive = Linkage Accuracy x Validity / 100 is
+> computed from the two and never typed anywhere.
+>
+> Brought to the Interest Scoring Methodology (owner's page, 2026-10-03).
+> Retired by that methodology, and gone from this template: the rule that an
+> interest starts valid until challenged (it starts at its Maslow rung's
+> opening prior and the arguments move it); the loose seven-item criteria list
+> (the six mirror-test criteria replace it, and "rests on a false premise" now
+> puts a need below the floor rather than scoring it); the Conflict Resolution
+> Pipeline steps this page used to feed (the outputs table says where the
+> score goes); and the line that the scoring engine was still on the roadmap.
+>
+> The authoring rules readers never see are in the hidden paragraph at the top
+> of the markup. Links point at this site's own routes; a page that has no
+> route yet is named in plain text.
+>
+> SECTION ORDER:
+>   Breadcrumb
+>   The interest and the ground rules
+>   The three scores, and which one this page argues
+>   What belongs on the other track: the alibi test
+>   The mirror test: six criteria
+>   Where the score starts: the Maslow rungs
+>   Scope 1: is this interest valid at all?
+>   Scope 2: more or less valid than other interests, in general?
+>   Scope 3: validity inside a specific conflict
+>   Bad motives are scored, not deleted
+>   Where the validity score goes
+>   Objective criteria for this interest's validity
+>   Related pages
+>   Contribute
+>   Version line
+
+AUTHORING RULES (hidden text; leave in place, readers never see this). This page is the argument tree behind one interest's Validity score. 1. Write the interest as a need with a subject: who needs what. "I need the street in front of my house kept free of other people's cars" is an interest; "parking" is not. The same need written at a different rung is a different interest ("my family needs to eat" is physiological; "my family needs to eat at the restaurant our neighbors cannot afford" is esteem) and gets its own page. 2. Validity and Linkage Accuracy never borrow from each other. Evidence that the side really holds this motive belongs on the interest's own page under the alibi test, not here; an argument that the motive should not be honored belongs here, not there. 3. Every reason is a complete proposition whose direction is evident from the cell alone, named by its opening words, and tagged with the mirror-test criterion it leans on. 4. Validity is never set by who holds the interest, how many of them there are, how much power they have, or how loudly they assert it, and it never absorbs feasibility: how hard a need is to satisfy, and what each side can do without a deal, are read on their own track and multiply into nothing here. 5. Scores stay [bracketed] until the engine reads them from the tables. Never fill a score cell for an empty row, never freeze a live score into prose, and no step on this page asks anyone to type a score. 6. A need that is real and fails the mirror test stays on the page with its low validity. It is scored, not deleted, and the same move is made against your own side or the page is propaganda. 7. No em dashes. No empty anchors and no links to pages that do not exist: link this site's own routes and use plain text until a target exists. 8. Inline styles only, no scripts, so the markup survives any renderer it is pasted into. Table header rows are #f0f3f6.
+
+*Home (`/`) › [Who has a stake](https://myklob.github.io/ideastockexchange/beliefs/interests.html) › [Group] › Validity of: [the interest, as a need with a subject]***
+
+# Interest Validity Debate: [the interest, as a need with a subject]
+
+A validity question is a claim. "This interest should be honored," "this interest matters more than that one," and "in this standoff, safety outranks privacy" are beliefs with reasons to agree and disagree, scored the way every other belief on this site is scored. This page is that pro and con skeleton applied to one interest's validity at three scopes. It is to the Validity score what a belief page is to a single argument: the place it gets its own tree.
+
+When to use it: when the Validity score is itself the fight. The interest's own page carries both scores side by side and is enough while nobody disputes them; expand to this page when validity is contested, or when the same interest is listed by several beliefs and they all need to read one number.
+
+---
+
+## The Interest and the Ground Rules
+
+The interest: [who needs what, e.g. "current homeowners need to protect the value of their homes"]  
+Listed by: [the belief pages that list it, each a link, and the side each lists it on]  
+Measured by: [what reading would show the need is met or unmet]  
+Opening prior: [the Maslow rung and its band, e.g. Safety, 70 to 85]
+
+- Maslow sets the opening price; the arguments do the trading. The interest starts at its rung's band and the reasons below move it up or down. The band is a prior, not a verdict and not a lookup table: an esteem need finishes above a safety need when its arguments are stronger.
+
+- Both sides are rational. People on each side hold their interest for reasons tied to a real need, not because they are stupid or evil. Whether the need is really theirs is the other track's question; here it is taken as real and asked whether it should be honored.
+
+- Arguments set the score, nothing else. Validity traces entirely to the scored reasons below. It is never set by who holds the interest, how many of them there are, how much power they have, or how loudly they assert it. Cross that line and the engine rebuilds "might makes right" inside the machine built to replace it.
+
+- Feasibility is a different track. How hard the need is to satisfy, and what each side can do without a deal, are read elsewhere and multiply into nothing here.
+
+---
+
+## The Three Scores, and Which One This Page Argues
+
+One sentence, two questions with different evidence, and a third number computed from the two. This page argues the middle row.
+
+| Score | The question | What settles it |
+|---|---|---|
+| Linkage Accuracy (0 to 100)<br>The Drives column on belief pages | Is this really why they hold the position, or a cover story? | Behavior. The candidate motive that best predicts what the side actually does wins, argued pro and con like any claim. Argued on the interest's own page, never here. |
+| Interest Validity (0 to 100)<br>This page | Even if it is real, should it be honored, and how far? | Objective criteria, the six below, argued pro and con. Never the holder's power. |
+| Drive (0 to 100) | What is actually powering this side? | Linkage Accuracy x Validity / 100. Computed, never typed. The engine uses it to name the one conflict that matters. |
+
+---
+
+## What Belongs on the Other Track: the Alibi Test
+
+Kept here so a contributor knows what does not go on this page. Whether the side really holds this motive is settled by its record, on the interest's own page: the candidate interest that predicts the side's votes, spending and past positions with the fewest exceptions wins. A neighborhood letter says traffic; the same association backed a supermarket with more car trips and fought a townhouse project that came with a garage; "homeowners need to protect the value of their homes" predicts all three and "traffic" predicts one. Run the same test on your own side. Neither finding is an insult; a prediction that fails is a motive misread.
+
+| Raises Linkage Accuracy | Lowers Linkage Accuracy |
+|---|---|
+| Votes, spending, donations and effort go where this interest says they should | The side acts against what this interest would predict |
+| Members name it themselves, in surveys and on the record | A rival interest predicts the same record with fewer exceptions |
+| The same group takes the same side in other debates where only this interest is at stake | The behavior has another documented cause, so it is not evidence for this one |
+| Analysts with no stake in the outcome find the same pattern | The attribution rests on rhetoric alone, with no behavioral record either way |
+
+Prevalence, the share of the side that each interest actually drives, is recorded beside the interest from surveys, with a source. It is a reading, not a score, and it multiplies into nothing.
+
+---
+
+## The Mirror Test: Six Criteria
+
+"I need the street in front of my house kept free of other people's cars." Real? Certainly. Valid? Hold it up to a mirror. Would you accept the same rule enforced on you by your neighbor? And if everyone claimed the street in front of their house, where would anyone park? The interest is real and fails anyway. "I need to get to work in under an hour" passes both tests. Only one of these is a need a resolution should be built around, and it is not the louder one. Every reason in the three scopes below names the criterion it leans on.
+
+| Criterion | The question | An interest fails it when |
+|---|---|---|
+| Reciprocity | Would the side accept this interest honored for its opponents? | It wants a rule for others it would reject for itself |
+| Universal test | What happens if everyone pursues it? | Universal pursuit makes it impossible for anyone, or guarantees perpetual conflict |
+| Asks no loss from others | Can it be met without someone else losing? | It is satisfied only at another party's expense, or it is a claim on other people's property or choices |
+| Alternative satisfaction | Can the underlying need be met another way? | Substitutes exist and the side rejects them, which usually means the stated need is not the real one |
+| Scope and reversibility | How many people, how badly, and can it be undone? | Ignoring it costs little, spreads thin, or is easily reversed |
+| Unmet and shared | Is the need actually unmet, and does anyone outside the asking group recognize it? | The status quo already satisfies it, or it is held by few and recognized nowhere else |
+
+---
+
+## Where the Score Starts: the Maslow Rungs
+
+Every interest starts from the band of the need it serves, and the argument tree moves it from there. The same need can appear on several rungs depending on how it is written, and the mirror test treats the versions very differently.
+
+| Rung | Opening prior | Interests written as needs |
+|---|---|---|
+| Physiological | 85 to 100 | People need food, water, shelter, sleep and medical care. Workers need wages that cover them. Patients need treatment they can reach. |
+| Safety | 70 to 85 | Protection from violence, crime and war; an income they can count on, savings that hold their value, a legal order that applies tomorrow the way it did today. Financial interests sit here: "homeowners need to protect the value of their homes", "renters need a lease that cannot be cancelled on a whim". |
+| Belonging | 50 to 70 | A family, a community, a congregation, a country and a team to belong to. Every form of group solidarity. The need to belong is valid; what the group does to outsiders is a separate interest, scored separately, and often below the floor. |
+| Esteem | 40 to 60 | To be respected, heard and credited. Officials need to be seen as honest; voters need to be answered; workers need their effort recognized. Status needs fail the mirror test: status is scarce by definition. |
+| Self-actualization | 30 to 50 | To grow, create, learn, worship and choose for themselves. Low prior, not low value: these lose to survival when the two collide and win on their own arguments when they do not. |
+| Curiosity and play | 30 to 50 | To understand, to be entertained, to feel excitement. Explains motives the political ones miss (conspiracy theories as thrill and belonging; voting for disruption because watching the system break is more interesting). The need is real; the vehicle is scored on the belief page. |
+| Below the floor | 0 to 20 | Not a rung. Interests that fail the criteria outright: domination (our group needs the other group kept down), tribal winning (we need them to lose), pretext (a belonging interest worn as a disguise), and manufactured needs that exist only if a false claim is true. |
+
+---
+
+## Scope 1: Is This Interest Valid At All?
+
+The absolute question. Each reason is a complete proposition named by its opening words, with the criterion it leans on in brackets after it.
+
+| Reasons it should be honored | Reasons it should not |
+|---|---|
+| [Score] [reason as a complete proposition] (criterion: universal test) | [Score] [reason as a complete proposition] (criterion: asks no loss from others) |
+| [Score] [reason] (criterion: alternative satisfaction: no substitute meets the need) | [Score] [reason] (criterion: reciprocity) |
+
+Resulting Interest Validity: [Score] out of 100, starting from the [rung] band and traceable to the reasons above. Every belief page that lists this interest reads this one number.
+
+---
+
+## Scope 2: Is It More or Less Valid Than Other Interests, In General?
+
+The comparative question, independent of any scenario. Start from the opening prior for each interest, then let the reasons adjust the ranking.
+
+| Interest (a need with a subject) | Opening prior (rung and band) | Current validity |
+|---|---|---|
+| This interest | [e.g. Safety, 70 to 85] | [Score] |
+| [Competing interest, as a need with a subject] | [rung and band] | [Score] |
+
+The comparative claim, "this interest is more valid than [competing interest] in general," then gets its own two columns:
+
+| Reasons this interest ranks higher | Reasons the other interest ranks higher |
+|---|---|
+| [Score] [reason] (criterion: scope and reversibility: more people, harder to undo) | [Score] [reason] (criterion: unmet and shared: the status quo already meets this one) |
+| [Score] [reason] | [Score] [reason] |
+
+General ranking: [this interest above / below / tied with the comparison], by [Score] points.
+
+---
+
+## Scope 3: Validity Within a Specific Conflict or Scenario
+
+The contextual question, and the one a resolution is built on. An interest that is generally valid can rank differently once a concrete scenario sets the facts. A scenario fact (imminence, scale, reversibility, who else is affected) is what flips a general ranking. Copy this block once per scenario.
+
+| Scenario | Competing interest | Scenario fact that moves the ranking |
+|---|---|---|
+| [the specific conflict, usually a belief page] | [the interest it collides with here, as a need with a subject] | [e.g. the harm is imminent and irreversible] |
+
+The scenario claim, "in this conflict, this interest should outrank [competing interest]," gets its two columns:
+
+| Reasons it should win here | Reasons it should yield here |
+|---|---|
+| [Score] [reason tied to a scenario fact] | [Score] [reason tied to a scenario fact] |
+| [Score] [reason] | [Score] [reason] |
+
+In-scenario ranking: [this interest wins / yields here], which may differ from the general ranking in Scope 2. Note the difference and the scenario facts that caused it. A near-tie here often marks a compromise candidate: a place where a small, achievable change to the scenario facts would flip which interest wins.
+
+---
+
+## Bad Motives Are Scored, Not Deleted
+
+The most useful row in any interest table is the one that is real and illegitimate. In the government-ethics beliefs the opponents' list includes "some officeholders want to keep using their position and their families to make money." Its Drive ties for highest on that side; its validity is the lowest on the page. It ranks first as an explanation of behavior and last as something a resolution should honor. That is the information, and this page is where the low validity gets argued rather than assumed. The same move must be made against your own side, or it is propaganda: "our side needs to win the next election" belongs on both lists of any partisan belief, with the same low validity on both.
+
+---
+
+## Where the Validity Score Goes
+
+Two sisters want the same orange; the parent cuts it in half; one needed juice, the other peel. Positions collided; interests never did. The validity argued on this page is what the orange arithmetic reads.
+
+| Output | How the scores set it |
+|---|---|
+| Shared interests | Interests on opposite sides whose statements say the same thing (paired by similarity, then confirmed or disputed by people), with validity at or above the Resolution Floor of 70 on both sides; the pair's combined validity is the harmonic mean. Compromise is built here first. |
+| Primary Conflict Pair | The highest-Drive interest on each side that is not shared, staged head to head: the one disagreement actually driving the debate. Drive uses validity on purpose: a pretext cannot be the primary conflict, and neither can a saintly interest nobody is moved by. |
+| Solution scores | A candidate solution earns, for each interest it satisfies, the fraction of the interest it meets (0 to 1) times the interest's validity, summed per side; the overall score is 2 x S x O / (S + O). Half an orange each: 0.40. Peel to the baker and juice to the drinker: 0.80. The whole orange to one sister: zero, because a solution that satisfies only one side has resolved nothing. Interests below the floor earn a solution nothing even when it satisfies them. No interest counts extra because its holders are powerful. |
+| Argument importance | Every reason on a belief page speaks to one or more interests, and its importance (`/algorithms/importance-score`) is set by the most valid interest it genuinely bears on: validity x how directly the reason bears on it, taking the largest. A true fact that matters to nobody weighs nothing. |
+| Who gains, who pays | Every cost and benefit on a belief page names the interest that collects it or pays it. A cost always has an address. |
+
+---
+
+## Objective Criteria for This Interest's Validity
+
+The testable yardsticks a neutral party would use to judge this interest's validity, so the debate stays anchored to standards instead of sympathy. Each is itself a claim with its own page, and a good one is one where the two sides predict different readings. These feed the reasons in all three scopes above.
+
+- [criterion, e.g. "the number of people whose basic security depends on it", with the reading each side predicts]
+
+- [criterion, e.g. "whether the same interest, pursued by everyone, is sustainable"]
+
+*See: Objective Criteria Scores (`/algorithms/objective-criteria`)*
+
+---
+
+## Related Pages
+
+| The interest's own page | Both scores side by side, the alibi test argued, Prevalence with its source, and every belief page that lists it; this page is the tree under its Validity cell |
+|---|---|
+| [Who has a stake](https://myklob.github.io/ideastockexchange/beliefs/interests.html) | Every group with something at stake on the site, with its needs and their validity, and [how the groups are ranked](https://myklob.github.io/ideastockexchange/beliefs/lists.html#stake); each group has a profile page collecting every need filed for it |
+| Interests, Not Positions (on each belief page, and at /beliefs/[slug]/interests) | Where this interest is listed, with Validity x Drives per side, the shared interests and the Primary Conflict Pair |
+| Importance score (`/algorithms/importance-score`) | How this validity sets the weight of every reason that bears on the interest |
+| Linkage scores (`/algorithms/linkage-scores`) | How "bears on" is argued, both for reasons and for the Drives column |
+| ReasonRank (`/algorithms/reason-rank`) | How the pro and con reasons on this page are scored |
+| [The one formula](https://myklob.github.io/ideastockexchange/beliefs/method.html#formula) | What a scored row contributes, on the published site |
+
+*The belief's own pro and con trees, its costs and benefits, and the who-has-a-stake lists for each side live on the parent belief page, not here.*
+
+---
+
+### Contribute
+
+Argue the validity against one of the six criteria, on either side of any table above. Propose a competing interest for Scope 2, written as a need with a subject, with the same suspicion for your own side as for the other. Add a scenario to Scope 3 with the fact that moves the ranking. Add a reading or a measure the need can be checked against. Evidence that the side really holds this motive, or a rival interest that predicts its record better, goes to the alibi test on the interest's own page. Confirm or dispute a cross-side pairing, and propose a solution that satisfies valid interests on both sides. No step asks you to type a score. New pages and corrections: Contact (`/contact`), or open an issue or pull request on [the GitHub repository](https://github.com/myklob/ideastockexchange).
+
+ISE Interest Validity Debate template (2026-10-04), GitHub form · [Who has a stake](https://myklob.github.io/ideastockexchange/beliefs/interests.html) · ~Myclob

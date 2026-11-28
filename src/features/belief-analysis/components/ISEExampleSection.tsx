@@ -19,37 +19,37 @@ export default function ISEExampleSection() {
       {/* Setup */}
       <p className="mb-4">
         A user creates a belief page:{' '}
-        <em>"Jane Smith is the most qualified candidate for U.S. Senate in Colorado."</em>{' '}
+        <em>&ldquo;Jane Smith is the most qualified candidate for U.S. Senate in Colorado.&rdquo;</em>{' '}
         It is filed at{' '}
         <code className="bg-white/70 px-1 py-0.5 rounded text-sm font-mono">
           Elections → United States → Colorado → Senate
         </code>{' '}
         and instantly inherits the same structural template every belief on the platform
         uses:{' '}
-        <Link href="/Argument%20Trees" className="text-[var(--accent)] hover:underline">
+        <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">
           Argument Trees
         </Link>
         ,{' '}
-        <Link href="/Evidence%20Scoring" className="text-[var(--accent)] hover:underline">
+        <Link href="/algorithms/evidence-scores" className="text-[var(--accent)] hover:underline">
           Evidence Scoring
         </Link>
         ,{' '}
         <Link
-          href="/w/page/159351732/Objective%20criteria%20scores"
+          href="/algorithms/objective-criteria"
           className="text-[var(--accent)] hover:underline"
         >
           Objective Criteria weighting
         </Link>
         ,{' '}
         <Link
-          href="/w/page/156187122/cost-benefit%20analysis"
+          href="/cba/about"
           className="text-[var(--accent)] hover:underline"
         >
           Cost-Benefit Analysis
         </Link>
         , and{' '}
         <Link
-          href="/w/page/156186840/automate%20conflict%20resolution"
+          href="/how-it-works"
           className="text-[var(--accent)] hover:underline"
         >
           Conflict Resolution mapping
@@ -68,7 +68,7 @@ export default function ISEExampleSection() {
         Before Jane Smith&apos;s page existed, the Colorado Senate node already contained
         a scored, community-built set of{' '}
         <Link
-          href="/w/page/159351732/Objective%20criteria%20scores"
+          href="/algorithms/objective-criteria"
           className="text-[var(--accent)] hover:underline"
         >
           Objective Criteria
@@ -76,7 +76,7 @@ export default function ISEExampleSection() {
         : which qualifications matter most for this office, which policy domains carry
         the highest{' '}
         <a
-          href="https://myclob.pbworks.com/importance%20score"
+          href="/algorithms/importance-score"
           className="text-[var(--accent)] hover:underline"
         >
           Importance Scores
@@ -102,7 +102,7 @@ export default function ISEExampleSection() {
         <li>
           <strong>
             <a
-              href="https://myclob.pbworks.com/w/page/21960078/truth"
+              href="/algorithms/truth-scores"
               className="text-[var(--accent)] hover:underline"
             >
               Truth Score
@@ -114,7 +114,7 @@ export default function ISEExampleSection() {
         <li>
           <strong>
             <a
-              href="https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores"
+              href="/algorithms/linkage-scores"
               className="text-[var(--accent)] hover:underline"
             >
               Linkage Score
@@ -126,7 +126,7 @@ export default function ISEExampleSection() {
         <li>
           <strong>
             <a
-              href="https://myclob.pbworks.com/importance%20score"
+              href="/algorithms/importance-score"
               className="text-[var(--accent)] hover:underline"
             >
               Importance Score
@@ -148,7 +148,7 @@ export default function ISEExampleSection() {
       <p className="font-bold mb-3">No Agenda. No Moderator Bias. No Exceptions.</p>
       <p>
         <a
-          href="https://myclob.pbworks.com/ReasonRank"
+          href="/algorithms/reason-rank"
           className="text-[var(--accent)] hover:underline"
         >
           ReasonRank

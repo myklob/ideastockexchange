@@ -26,16 +26,19 @@ export default async function EquivalencePage({ params }: EquivalencePageProps) 
     include: {
       synonymClaims:        true,
       semanticMapEntries:   { orderBy: { sortOrder: 'asc' } },
-      normalizationReasons: true,
-      structuralReasons:    true,
-      triggerReasons:       true,
-      verdictReasons:       true,
+      reasons:              true,
       argumentBattleItems:  true,
       networkPositions:     true,
     },
   })
 
   if (!analysis) notFound()
+
+  const reasonsForStep = (prefix: string) =>
+    analysis.reasons.filter(r => r.reasonType.startsWith(prefix))
+  const normalizationReasons = reasonsForStep('normalization')
+  const structuralReasons = reasonsForStep('structural')
+  const verdictReasons = reasonsForStep('verdict')
 
   const scoreClass = scoreColor(analysis.finalEquivalenceScore)
 
@@ -57,7 +60,7 @@ export default async function EquivalencePage({ params }: EquivalencePageProps) 
           <h1 className="text-2xl font-bold mb-1">Belief Equivalence Scorecard</h1>
           <p className="text-sm text-[var(--muted-foreground)]">
             This scorecard determines whether two beliefs should be merged, linked, or kept separate
-            using the 17-step <Link href="/Belief%20Equivalence%20Engine" className="text-[var(--accent)] hover:underline">Belief Equivalence Engine</Link> pipeline.
+            using the 17-step <Link href="/algorithms/belief-equivalency" className="text-[var(--accent)] hover:underline">Belief Equivalence Engine</Link> pipeline.
           </p>
         </div>
 
@@ -135,17 +138,17 @@ export default async function EquivalencePage({ params }: EquivalencePageProps) 
                 </tr>
               </tbody>
             </table>
-            {analysis.normalizationReasons.length > 0 && (
+            {normalizationReasons.length > 0 && (
               <div className="mt-3 grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-semibold text-sm text-green-700 mb-1">Reasons Normalization Is Correct</h3>
-                  {analysis.normalizationReasons.filter(r => r.side === 'agree').map(r => (
+                  {normalizationReasons.filter(r => r.side === 'agree').map(r => (
                     <p key={r.id} className="text-sm border-l-2 border-green-300 pl-2 mb-1">{r.statement}</p>
                   ))}
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm text-red-700 mb-1">Reasons Normalization Is Wrong</h3>
-                  {analysis.normalizationReasons.filter(r => r.side === 'disagree').map(r => (
+                  {normalizationReasons.filter(r => r.side === 'disagree').map(r => (
                     <p key={r.id} className="text-sm border-l-2 border-red-300 pl-2 mb-1">{r.statement}</p>
                   ))}
                 </div>
@@ -200,7 +203,7 @@ export default async function EquivalencePage({ params }: EquivalencePageProps) 
               <tbody>
                 {analysis.synonymClaims.map(sc => (
                   <tr key={sc.id}>
-                    <td className="border border-gray-300 px-3 py-2">"{sc.xTerm}" = "{sc.yTerm}"</td>
+                    <td className="border border-gray-300 px-3 py-2">&ldquo;{sc.xTerm}&rdquo; = &ldquo;{sc.yTerm}&rdquo;</td>
                     {[sc.merriamWebster, sc.oxford, sc.wordNet, sc.embeddingModel].map((v, i) => (
                       <td key={i} className="border border-gray-300 px-3 py-2 text-center">
                         {v === null ? '—' : v ? '✅' : '❌'}
@@ -228,17 +231,17 @@ export default async function EquivalencePage({ params }: EquivalencePageProps) 
           <p className="text-sm font-semibold capitalize">
             {analysis.structuralRelationship.replace(/_/g, ' ')}
           </p>
-          {analysis.structuralReasons.length > 0 && (
+          {structuralReasons.length > 0 && (
             <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
                 <h3 className="font-semibold text-sm text-green-700 mb-1">Reasons This Classification Is Correct</h3>
-                {analysis.structuralReasons.filter(r => r.side === 'agree').map(r => (
+                {structuralReasons.filter(r => r.side === 'agree').map(r => (
                   <p key={r.id} className="text-sm border-l-2 border-green-300 pl-2 mb-1">{r.statement}</p>
                 ))}
               </div>
               <div>
                 <h3 className="font-semibold text-sm text-red-700 mb-1">Reasons This Classification Is Wrong</h3>
-                {analysis.structuralReasons.filter(r => r.side === 'disagree').map(r => (
+                {structuralReasons.filter(r => r.side === 'disagree').map(r => (
                   <p key={r.id} className="text-sm border-l-2 border-red-300 pl-2 mb-1">{r.statement}</p>
                 ))}
               </div>
@@ -390,17 +393,17 @@ export default async function EquivalencePage({ params }: EquivalencePageProps) 
               ))}
             </tbody>
           </table>
-          {analysis.verdictReasons.length > 0 && (
+          {verdictReasons.length > 0 && (
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div>
                 <h3 className="font-semibold text-sm text-green-700 mb-1">Reasons This Verdict Is Correct</h3>
-                {analysis.verdictReasons.filter(r => r.side === 'agree').map(r => (
+                {verdictReasons.filter(r => r.side === 'agree').map(r => (
                   <p key={r.id} className="text-sm border-l-2 border-green-300 pl-2 mb-1">{r.statement}</p>
                 ))}
               </div>
               <div>
                 <h3 className="font-semibold text-sm text-red-700 mb-1">Reasons This Verdict Is Wrong</h3>
-                {analysis.verdictReasons.filter(r => r.side === 'disagree').map(r => (
+                {verdictReasons.filter(r => r.side === 'disagree').map(r => (
                   <p key={r.id} className="text-sm border-l-2 border-red-300 pl-2 mb-1">{r.statement}</p>
                 ))}
               </div>

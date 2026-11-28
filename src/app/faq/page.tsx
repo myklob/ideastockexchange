@@ -41,7 +41,7 @@ const faqs = [
         <p><strong>The first working version was built in a simple spreadsheet in 2005.</strong> No advanced programming. No complex algorithms. Just counting and multiplication.</p>
         <p>For those who want more sophistication, we can implement ReasonRank (based on Google&apos;s PageRank, whose patent has expired). Remember: PageRank itself started with two graduate students and computers in a broom closet more than 20 years ago. If they could revolutionize how we find information with basic tools, we can revolutionize how we evaluate it.</p>
         <p>We start simple. A template that puts reasons to agree and disagree on the same page and links arguments to evidence is easy to use and immediately beneficial. Once the code works well at this basic level, we add more sophisticated features.</p>
-        <p className="text-sm text-gray-600">Learn more: <Link href="/protocol" className="text-blue-600 hover:underline">ReasonRank</Link>, <Link href="/cba" className="text-blue-600 hover:underline">Linkage Scores</Link></p>
+        <p className="text-sm text-gray-600">Learn more: <Link href="/algorithms/reason-rank" className="text-blue-600 hover:underline">ReasonRank</Link>, <Link href="/algorithms/linkage-scores" className="text-blue-600 hover:underline">Linkage Scores</Link></p>
       </div>
     ),
   },
@@ -88,7 +88,7 @@ const faqs = [
           <li><strong>Quality beats volume</strong> — Logic trumps emotion</li>
         </ul>
         <p><strong>Structured reasoning is harder to game than chaotic platforms.</strong></p>
-        <p className="text-sm text-gray-600">Learn more: <Link href="/cba" className="text-blue-600 hover:underline">Evidence Scores</Link></p>
+        <p className="text-sm text-gray-600">Learn more: <Link href="/algorithms/evidence-scores" className="text-blue-600 hover:underline">Evidence Scores</Link></p>
       </div>
     ),
   },
@@ -371,15 +371,15 @@ export default function FAQPage() {
               <p className="font-medium text-gray-700 mb-2">Core Framework</p>
               <ul className="space-y-1">
                 <li><Link href="/debate-topics" className="text-blue-600 hover:underline">One Page Per Topic</Link></li>
-                <li><Link href="/protocol" className="text-blue-600 hover:underline">ReasonRank</Link></li>
-                <li><Link href="/cba" className="text-blue-600 hover:underline">Evidence &amp; Linkage Scores</Link></li>
+                <li><Link href="/algorithms/reason-rank" className="text-blue-600 hover:underline">ReasonRank</Link></li>
+                <li><Link href="/algorithms/evidence-scores" className="text-blue-600 hover:underline">Evidence &amp; Linkage Scores</Link></li>
               </ul>
             </div>
             <div>
               <p className="font-medium text-gray-700 mb-2">Related</p>
               <ul className="space-y-1">
                 <li><Link href="/beliefs" className="text-blue-600 hover:underline">Beliefs</Link></li>
-                <li><Link href="/arguments" className="text-blue-600 hover:underline">Arguments</Link></li>
+                <li><Link href="/algorithms/reason-rank" className="text-blue-600 hover:underline">Argument scoring</Link></li>
                 <li><a href="https://github.com/myklob/ideastockexchange" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">View the Vision on GitHub</a></li>
               </ul>
             </div>
