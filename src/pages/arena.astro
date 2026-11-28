@@ -1,0 +1,202 @@
+---
+import GameLayout from '../layouts/GameLayout.astro';
+import { beliefs } from '../data/beliefs';
+import { computeBeliefUnitStats, computeChampionStats, STAT_NAMES } from '../lib/battlefield';
+import type { ArenaBelief } from '../scripts/arena-game';
+
+const roster: ArenaBelief[] = beliefs.map((b) => {
+  const unit = computeBeliefUnitStats(b.input);
+  return {
+    slug: b.slug,
+    name: b.statement,
+    topic: b.topic,
+    positivity: b.input.positivity,
+    hp: unit.hp,
+    attack: unit.attack,
+    defense: unit.defense,
+    speed: unit.speed,
+    level: unit.level,
+    unitClass: unit.unitClass,
+    champion: computeChampionStats(b.input),
+  };
+});
+
+const statLabels: Record<(typeof STAT_NAMES)[number], string> = {
+  healthRegen: 'Health Regen',
+  maxHealth: 'Max Health',
+  bodyDamage: 'Body Damage',
+  bulletSpeed: 'Bullet Speed',
+  bulletPenetration: 'Bullet Penetration',
+  bulletDamage: 'Bullet Damage',
+  reload: 'Reload',
+  movementSpeed: 'Movement Speed',
+};
+---
+
+<GameLayout
+  title="Idea Arena"
+  description="A diep.io-style arena where every tank is a real belief. Pick a champion, fight opposing beliefs, upgrade your stats."
+>
+  <header class="intro">
+    <h1>Idea Arena</h1>
+    <p class="muted">
+      A diep.io-style arena where every tank is a belief. Pick a champion &mdash; its eight stats start
+      from that belief&apos;s argument-ledger characteristics &mdash; then knock the beliefs you disagree
+      with off the board, level up, and spend points on any stat. Your best run and career score persist.
+    </p>
+  </header>
+
+  <section id="picker" class="card pad">
+    <div class="picker-head">
+      <div>
+        <h2>Pick a Champion</h2>
+        <p class="muted small">
+          Max Health &larr; stability; Regen &larr; upstream support &amp; laws; Body Damage &larr; claim
+          strength; Bullet Damage &larr; claim strength &times; evidence; Penetration &larr; laws &amp; media;
+          Bullet Speed &larr; specificity; Reload &larr; content volume; Movement &larr; modesty of the claim.
+        </p>
+      </div>
+      <div class="small muted scores">
+        <div>Best run: <span id="pick-best" class="mono pro">0</span></div>
+        <div>Career: <span id="pick-career" class="mono pro">0</span></div>
+      </div>
+    </div>
+    <input id="picker-search" type="search" placeholder="Filter beliefs by statement or topic…" autocomplete="off" />
+    <ul id="picker-list" class="picker-list">
+      {roster.map((r) => (
+        <li data-name={r.name.toLowerCase()} data-topic={r.topic.toLowerCase()}>
+          <button type="button" class="pick" data-slug={r.slug}>
+            <div class="pick-name">{r.name}</div>
+            <div class="pick-meta">{r.topic} &middot; {r.unitClass} &middot; positivity {Math.round(r.positivity)}</div>
+            <div class="pick-stats">
+              <span>HP {r.champion.maxHealth}</span>
+              <span>Regen {r.champion.healthRegen}/s</span>
+              <span>Body {r.champion.bodyDamage}</span>
+              <span>Bullet {r.champion.bulletDamage}</span>
+              <span>Pen {r.champion.bulletPenetration}</span>
+              <span>BSpeed {r.champion.bulletSpeed}</span>
+              <span>Reload {r.champion.reload}s</span>
+              <span>Move {r.champion.movementSpeed}</span>
+            </div>
+          </button>
+        </li>
+      ))}
+    </ul>
+    <p id="picker-empty" class="muted small" hidden>No belief matches that filter.</p>
+  </section>
+
+  <section id="game" class="game" hidden>
+    <div class="stage">
+      <canvas id="arena" width="960" height="600" aria-label="Idea Arena game"></canvas>
+      <div class="hud hud-left">
+        <div id="hud-champion" class="pro ellipsis"></div>
+        <div class="row"><b>HP</b><div class="bar"><div id="hud-hp-bar" class="fill hp"></div></div><span id="hud-hp" class="mono"></span></div>
+        <div class="row"><b id="hud-level">L1</b><div class="bar"><div id="hud-xp-bar" class="fill xp"></div></div><span id="hud-xp" class="mono"></span></div>
+        <div id="hud-points" class="warn" hidden></div>
+      </div>
+      <div class="hud hud-right">
+        <div>Score: <b id="hud-score" class="mono">0</b></div>
+        <div class="muted">Best: <span id="hud-best" class="mono">0</span> &middot; Career: <span id="hud-career" class="mono">0</span></div>
+        <div class="muted">Beliefs left: <span id="hud-left" class="mono"></span></div>
+        <div id="hud-kill" class="pro ellipsis"></div>
+      </div>
+    </div>
+    <aside class="card pad panel">
+      <div class="btns">
+        <button id="btn-pause" type="button">Pause</button>
+        <button id="btn-new" type="button">New Champion</button>
+      </div>
+      <div class="panel-head">
+        <span class="label">Stats &amp; Upgrades</span>
+        <span id="panel-points" class="mono muted">0 pts</span>
+      </div>
+      <ul class="upgrades">
+        {STAT_NAMES.map((name, i) => (
+          <li>
+            <button type="button" class="upgrade" data-stat={name} disabled>
+              <span class="key mono">{i + 1}</span>
+              <span class="name">{statLabels[name]}</span>
+              <span class="value mono" data-value></span>
+              <span class="pips mono" data-pips></span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p class="muted small">Press <kbd>1</kbd>&ndash;<kbd>8</kbd> or click a row to spend a point. Max 7 ranks per stat.</p>
+    </aside>
+  </section>
+
+  <section class="help">
+    <div>
+      <h3>Controls</h3>
+      <ul class="muted">
+        <li><kbd>W A S D</kbd> or arrow keys to move</li>
+        <li><kbd>Mouse</kbd> to aim, <kbd>Click</kbd> or hold to fire</li>
+        <li><kbd>1</kbd>&ndash;<kbd>8</kbd> to spend upgrade points</li>
+      </ul>
+    </div>
+    <div>
+      <h3>How it works</h3>
+      <p class="muted">
+        Enemy tanks are the other beliefs: size scales with HP, colour with stance (red negative, green
+        positive), damage with attack. Each level grants one upgrade point. Best run and career score live
+        in your browser so you keep improving no matter which belief you champion.
+      </p>
+    </div>
+    <div>
+      <h3>Prefer the card view?</h3>
+      <p class="muted">See the same beliefs matched topic-by-topic on <a href="/battlefield">/battlefield</a>.</p>
+    </div>
+  </section>
+
+  <script type="application/json" id="arena-data" set:html={JSON.stringify(roster)} />
+  <script>
+    import { startArena } from '../scripts/arena-game';
+    startArena();
+  </script>
+</GameLayout>
+
+<style>
+  .intro { margin-bottom: 20px; }
+  .small { font-size: 13px; }
+  .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .warn { color: var(--warn); font-weight: 600; }
+  .ellipsis { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .picker-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 12px; }
+  .scores { text-align: right; }
+  #picker-search { width: 100%; box-sizing: border-box; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font: inherit; margin-bottom: 12px; }
+  #picker-search:focus { outline: none; border-color: var(--pro); }
+  .picker-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); max-height: 460px; overflow-y: auto; }
+  .pick { width: 100%; text-align: left; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 12px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .pick:hover { border-color: var(--pro); background: var(--panel-2); }
+  .pick-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .pick-meta { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
+  .pick-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; font-size: 11px; color: var(--muted); }
+
+  .game { display: grid; grid-template-columns: 1fr 300px; gap: 12px; }
+  .stage { position: relative; }
+  #arena { display: block; width: 100%; aspect-ratio: 960 / 600; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); box-shadow: var(--shadow); cursor: crosshair; }
+  .hud { position: absolute; top: 12px; background: rgba(0, 0, 0, 0.7); border-radius: 8px; padding: 8px; font-size: 12px; color: #fff; display: grid; gap: 4px; }
+  .hud-left { left: 12px; } .hud-right { right: 12px; text-align: right; }
+  .row { display: flex; align-items: center; gap: 8px; }
+  .bar { width: 128px; height: 8px; background: #262c38; border-radius: 4px; overflow: hidden; }
+  .fill { height: 100%; width: 100%; } .fill.hp { background: var(--pro); } .fill.xp { background: var(--warn); }
+  .panel { display: grid; gap: 12px; align-content: start; }
+  .btns { display: flex; gap: 8px; }
+  .btns button { flex: 1; background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+  .btns button:hover { border-color: var(--accent); }
+  .panel-head { display: flex; justify-content: space-between; font-size: 12px; }
+  .label { text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+  .upgrades { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .upgrade { width: 100%; display: grid; grid-template-columns: 16px 1fr auto auto; gap: 8px; align-items: center; text-align: left; font-size: 12px; padding: 6px 8px; border-radius: 6px; border: 1px solid transparent; background: var(--panel-2); color: var(--muted); cursor: default; }
+  .upgrade:not(:disabled) { background: rgba(24, 181, 122, 0.15); color: var(--ink); cursor: pointer; border-color: rgba(24, 181, 122, 0.4); }
+  .upgrade:not(:disabled):hover { background: rgba(24, 181, 122, 0.3); }
+  .upgrade .key { color: var(--muted); }
+  .upgrade .value { color: var(--ink); }
+  .help { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; font-size: 14px; }
+  .help ul { padding-left: 18px; margin: 0; }
+  @media (max-width: 900px) {
+    .game { grid-template-columns: 1fr; }
+    .help { grid-template-columns: 1fr; }
+  }
+</style>

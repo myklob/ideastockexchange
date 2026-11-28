@@ -1,0 +1,187 @@
+---
+import GameLayout from '../layouts/GameLayout.astro';
+import { beliefs, type BeliefRecord } from '../data/beliefs';
+import { computeBeliefUnitStats, type BeliefUnitStats } from '../lib/battlefield';
+
+interface Unit extends BeliefRecord {
+  stats: BeliefUnitStats;
+}
+interface Battle {
+  topic: string;
+  agree: Unit;
+  oppose: Unit;
+  extras: Unit[];
+}
+
+const units: Unit[] = beliefs.map((b) => ({ ...b, stats: computeBeliefUnitStats(b.input) }));
+
+const byTopic = new Map<string, Unit[]>();
+for (const u of units) byTopic.set(u.topic, [...(byTopic.get(u.topic) ?? []), u]);
+
+const battles: Battle[] = [];
+const unmatched: Unit[] = [];
+for (const [topic, list] of byTopic) {
+  if (list.length < 2) {
+    unmatched.push(...list);
+    continue;
+  }
+  const sorted = [...list].sort((a, b) => b.input.positivity - a.input.positivity);
+  battles.push({
+    topic,
+    agree: sorted[0],
+    oppose: sorted[sorted.length - 1],
+    extras: sorted.slice(1, -1),
+  });
+}
+battles.sort(
+  (a, b) =>
+    b.agree.stats.overall + b.oppose.stats.overall - (a.agree.stats.overall + a.oppose.stats.overall),
+);
+
+const statRows: { key: keyof Pick<BeliefUnitStats, 'hp' | 'attack' | 'defense' | 'speed' | 'aoe'>; label: string }[] = [
+  { key: 'hp', label: 'HP' },
+  { key: 'attack', label: 'ATK' },
+  { key: 'defense', label: 'DEF' },
+  { key: 'speed', label: 'SPD' },
+  { key: 'aoe', label: 'AOE' },
+];
+---
+
+<GameLayout
+  title="Battlefield of Ideas"
+  description="Beliefs from the same topic fight head-to-head using stats derived from the argument ledger."
+>
+  <header class="intro">
+    <h1>The Battlefield of Ideas</h1>
+    <p class="muted">
+      Each topic is an arena. Beliefs from the same topic with opposite stances fight head-to-head
+      &mdash; e.g. &ldquo;Trump is a genius&rdquo; vs &ldquo;Trump is a moron.&rdquo; Stats come from the
+      argument ledger (HP from stability, Attack from claim strength &times; argument volume, Defense from
+      supporting laws and structural backing, Speed from content velocity, AoE from downstream dependents).
+      The higher overall power wins the round. Want to play it? <a href="/arena">Enter the Arena &rarr;</a>
+    </p>
+  </header>
+
+  {battles.length === 0 && (
+    <p class="muted">No topic has at least two beliefs yet. Add a counter-belief and a battle appears here.</p>
+  )}
+
+  <div class="battles">
+    {battles.map((battle) => {
+      const agreeWins = battle.agree.stats.overall >= battle.oppose.stats.overall;
+      const fighters = [
+        { unit: battle.agree, side: 'agree', wins: agreeWins },
+        { unit: battle.oppose, side: 'oppose', wins: !agreeWins },
+      ];
+      return (
+        <article class="card pad battle">
+          <div class="battle-head">
+            <h2>Topic: {battle.topic}</h2>
+            <span class="tag">Same arena &middot; opposing stances</span>
+          </div>
+          <div class="matchup">
+            {fighters.map(({ unit, side, wins }, i) => (
+              <>
+                {i === 1 && (
+                  <div class="vs" aria-hidden="true">
+                    <div>VS</div>
+                  </div>
+                )}
+                <a href={`/belief?slug=${unit.slug}`} class:list={['fighter', side, { winner: wins }]}>
+                  <div class="fighter-head">
+                    <span class:list={['stance', side]}>{side === 'agree' ? 'AGREE' : 'OPPOSE'}</span>
+                    <span class="tag">{unit.stats.unitClass} L{unit.stats.level}</span>
+                  </div>
+                  <div class="statement">{unit.statement}</div>
+                  <dl class="stats">
+                    {statRows.map((r) => (
+                      <div class="stat">
+                        <dt>{r.label}</dt>
+                        <dd>
+                          <meter min="0" max="100" value={unit.stats[r.key]} aria-label={r.label}></meter>
+                          <span class="num">{unit.stats[r.key]}</span>
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div class="power">
+                    <span class="muted">Power</span>
+                    <strong>
+                      {unit.stats.overall}
+                      {wins && <span class="crown" title="Wins the round"> &#9819;</span>}
+                    </strong>
+                  </div>
+                </a>
+              </>
+            ))}
+          </div>
+          {battle.extras.length > 0 && (
+            <details>
+              <summary>
+                {battle.extras.length} other contender{battle.extras.length === 1 ? '' : 's'} in this arena
+              </summary>
+              <ul>
+                {battle.extras.map((e) => (
+                  <li>
+                    <a href={`/belief?slug=${e.slug}`}>{e.statement}</a>
+                    <span class="muted"> (power {e.stats.overall}, positivity {Math.round(e.input.positivity)})</span>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </article>
+      );
+    })}
+  </div>
+
+  {unmatched.length > 0 && (
+    <section class="awaiting">
+      <h2>Awaiting an opponent</h2>
+      <ul>
+        {unmatched.map((u) => (
+          <li>
+            <a href={`/belief?slug=${u.slug}`}>{u.statement}</a>
+            <span class="muted"> ({u.topic}, power {u.stats.overall})</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</GameLayout>
+
+<style>
+  .intro { margin-bottom: 20px; }
+  .battles { display: grid; gap: 16px; }
+  .battle-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .battle-head h2 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .matchup { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; }
+  .vs { display: flex; align-items: center; justify-content: center; width: 40px; font-weight: 900; font-size: 22px; color: var(--line); }
+  .fighter { display: block; border: 1px solid var(--line); border-radius: 12px; padding: 14px; color: var(--ink); background: var(--panel-2); transition: border-color 0.15s; }
+  .fighter:hover { text-decoration: none; border-color: var(--accent); }
+  .fighter.agree { border-color: rgba(24, 181, 122, 0.4); }
+  .fighter.oppose { border-color: rgba(226, 85, 85, 0.4); }
+  .fighter.winner { box-shadow: 0 0 0 2px var(--warn); }
+  .fighter-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .stance { font-size: 10px; font-weight: 800; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 6px; color: #fff; }
+  .stance.agree { background: var(--pro); } .stance.oppose { background: var(--con); }
+  .statement { font-weight: 600; font-size: 15px; line-height: 1.3; margin-bottom: 12px; min-height: 2.6em; }
+  .stats { margin: 0; display: grid; gap: 4px; }
+  .stat { display: grid; grid-template-columns: 40px 1fr; gap: 8px; align-items: center; font-size: 12px; }
+  .stat dt { color: var(--muted); margin: 0; }
+  .stat dd { margin: 0; display: flex; align-items: center; gap: 8px; }
+  .stat meter { flex: 1; height: 8px; }
+  .num { width: 32px; text-align: right; font-variant-numeric: tabular-nums; }
+  .power { display: flex; justify-content: space-between; align-items: baseline; margin-top: 12px; font-size: 12px; }
+  .power strong { font-size: 18px; }
+  .crown { color: var(--warn); }
+  details { margin-top: 12px; font-size: 13px; color: var(--muted); }
+  summary { cursor: pointer; }
+  details ul, .awaiting ul { margin: 8px 0 0; padding-left: 18px; }
+  .awaiting { margin-top: 32px; }
+  .awaiting h2 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  @media (max-width: 760px) {
+    .matchup { grid-template-columns: 1fr; }
+    .vs { width: auto; padding: 4px 0; }
+  }
+</style>
