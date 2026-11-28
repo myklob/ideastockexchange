@@ -8,13 +8,14 @@ Google's **PageRank** measures the number and quality of links to a website to d
 
 That is the pitch. Here is the honest state of things, because a page about scoring that misdescribes the score is worse than no page.
 
-**The name now sits on three different mechanisms in the code, and they answer three different questions.** The static site's own source says so in its first paragraph: "Two different things live under that name in the wiki, and only one of them was missing here" ([`reasonrank.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/reasonrank.py), lines 3 to 4). The Next.js app adds a third.
+**On the published site, ReasonRank measures reliance, not strength.** The pitch asks two questions, and the site answers them with two numbers. *How strong is this belief?* is the **truth score** (and the belief score beside it), from the scoring rule. *How much rests on this claim?* is **ReasonRank**, a PageRank walk that reads no truth score, no confidence and no votes, and changes no score. The static site's own source says the name had been covering both: "Two different things live under that name in the wiki, and only one of them was missing here" ([`reasonrank.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/reasonrank.py), lines 3 to 4), and "Nothing in this file changes a truth score" (line 8). The site's method page uses the name for the walk only, and this wiki follows it. The unpublished Next.js app uses the name for a third thing, a strength score.
 
 | Mechanism | The question it answers | Where it runs | Status |
 |---|---|---|---|
-| **The scoring rule** | Is this claim true, given its reasons and evidence? | [`tools/static-site/score_reference.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/score_reference.py), the published site | Running, on every page of [the live site](https://myklob.github.io/ideastockexchange/beliefs/index.html) |
-| **The walk** (the part that is actually PageRank) | How much of the whole site depends on this claim? | [`tools/static-site/reasonrank.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/reasonrank.py) | Running; printed as "Relied on (ReasonRank)" on every page |
-| **The damped tree blend** | How strong is this argument, blending its own truth with its sub-arguments? | [`src/core/scoring/scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts), the Next.js app | Running in the app's protocol dashboard and cost-benefit likelihoods; the app's main belief page uses a simpler per-edge formula (below) |
+| **ReasonRank, the walk** (the part that is actually PageRank) | How much of the whole site depends on this claim, true or not? | [`tools/static-site/reasonrank.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/reasonrank.py) | Published: "Relied on (ReasonRank)" and "Work value" on every page, and the Most relied on and What to argue next lists |
+| **The scoring rule** (what earlier versions of this page called ReasonRank; the site calls it the truth score) | Is this claim true, given its reasons and evidence? | [`tools/static-site/score_reference.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/score_reference.py) | Published, on every page of [the live site](https://myklob.github.io/ideastockexchange/beliefs/index.html) |
+| **The damped tree blend** | How strong is this argument, blending its own truth with its sub-arguments? | [`src/core/scoring/scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts), the Next.js app | Not published. Runs in the app's protocol dashboard and cost-benefit likelihoods; the app's main belief page uses a simpler per-edge formula (below) |
+| The founding workbook, the page/edge model, `pipeline/`, `src/core/reasonrank/` | Earlier or proposed forms of the scoring rule | See "Other code that carries the name" | Unwired references |
 
 The rest of this page explains each one with its real formula, then walks through every promise the earlier versions of this page made and says what became of it: built, built differently, proposed, or refused on purpose.
 
@@ -42,7 +43,7 @@ ReasonRank imagines all human knowledge as a directed graph:
 
 > Just as PageRank scores pages higher when they are linked to by high-quality pages, ReasonRank scores arguments higher when they are supported by high-quality reasoning.
 
-That sentence is true of the scoring rule. It is deliberately **not** true of the walk, which ranks a claim by how much rests on it, whether or not the claim is any good. Both halves are explained below, and the difference turns out to be the most useful idea on this page.
+That sentence is true of the scoring rule, the truth score. It is deliberately **not** true of ReasonRank as the site runs it, which ranks a claim by how much rests on it, whether or not the claim is any good. Both halves are explained below, and the difference turns out to be the most useful idea on this page.
 
 ---
 
@@ -52,16 +53,16 @@ The 2025 version of this page said ReasonRank modifies PageRank to do four thing
 
 | Promise | Status | What actually runs |
 |---|---|---|
-| Evaluate both **pro** and **con** arguments | **Running in both engines** | Static site: every row is signed, and a row lands on the side its sign puts it on, so a reason to agree that has been argued false counts *against* the belief ([`score_reference.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/score_reference.py), lines 161 to 179). Next.js: pro and con sub-arguments are summed separately and subtracted ([`scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts), `scoreArgument`). The walk itself carries no sign: a con row transmits dependence exactly like a pro row, because a claim that could sink a belief matters as much as one that could float it. |
+| Evaluate both **pro** and **con** arguments | **Running in both engines** | Static site: every row is signed, and a row lands on the side its sign puts it on, so a reason to agree that has been argued false counts *against* the belief ([`score_reference.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/score_reference.py), `_contrib` at lines 160 to 174 and `_split` at 191 to 196). Next.js: pro and con sub-arguments are summed separately and subtracted ([`scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts), `scoreArgument`). The walk itself carries no sign: a con row transmits dependence exactly like a pro row, because a claim that could sink a belief matters as much as one that could float it. |
 | Weigh arguments by **quantity** and **quality** of their supporting or opposing reasons | **Quality: running. Quantity: the two engines disagree, on purpose, pending a comparison** | See "Does volume count?" below. The static site's argued rule makes an unargued reason worth exactly zero; the owner's count-every-reason rule is printed beside it; the Next.js engine counts every listed reason. |
 | Consider *linkage strength*, *uniqueness*, *verification*, and *logical soundness* | **Linkage, uniqueness, verification: running. Logical soundness: built differently from the promise** | Linkage and uniqueness are multipliers on every row; verification sets where a claim's truth starts; logical soundness enters as argued fallacy claims, never as a pattern-match deduction. Each has a section below. |
-| Incorporate **user feedback** (votes, credibility scores) to refine rankings over time | **Refused by the published site; partly built in the Next.js app** | On the static site a vote never moves a score. In the Next.js app, credibility-weighted votes can settle a fallacy claim and set an edge's linkage. Details in "Votes, credibility and feedback" below. |
+| Incorporate **user feedback** (votes, credibility scores) to refine rankings over time | **Refused by the published site; partly built in the unpublished Next.js app** | On the static site a vote never moves a score, neither the truth score nor ReasonRank. In the Next.js app, credibility-weighted votes can settle a fallacy claim and set an edge's linkage. Details in "Votes, credibility and feedback" below. |
 
 ---
 
-## Part one: the scoring rule (is it true?)
+## Part one: strength, the scoring rule (is it true?)
 
-This is what most people mean when they say ReasonRank, and it is the rule every truth score on [the live site](https://myklob.github.io/ideastockexchange/beliefs/index.html) comes from. The methodology page prints it with every constant at [method.html#formula](https://myklob.github.io/ideastockexchange/beliefs/method.html#formula).
+This is what earlier versions of this page meant by ReasonRank. The published site calls it the truth score, and it is the rule every truth score on [the live site](https://myklob.github.io/ideastockexchange/beliefs/index.html) comes from. ReasonRank, in part two, does not read it. The methodology page prints it with every constant at [method.html#formula](https://myklob.github.io/ideastockexchange/beliefs/method.html#formula).
 
 ### What one row contributes
 
@@ -89,7 +90,7 @@ Two features of that formula do most of the work:
 
 ### From rows to a page's truth
 
-The rows on a page are split by the sign they land on, into POS (weight for) and NEG (weight against), and the page's truth is (code: `_share`, lines 152 to 159):
+The rows on a page are split by the sign they land on, into POS (weight for) and NEG (weight against), and the page's truth is (code: `_share`, lines 152 to 155, and the cap at lines 269 to 270):
 
 ```
 page truth (argued) = (POS + w x p0) / (POS + NEG + w)
@@ -97,7 +98,7 @@ page truth          = min(argued, weakest load-bearing component that has its ow
 belief score        = POS - NEG   (open-ended)
 ```
 
-`p0` and `w` are the page's **starting point** and how heavily it counts, set by the evidence the page itself declares (next section). A page that cites nothing starts at `p0 = 0.5` with `w = K = 1`, which works exactly like one neutral vote already in the box. The second line is the **load-bearing cap**: a conclusion cannot be more settled than a premise it needs. If a belief has three components flagged load-bearing and one of them reads 0.50, the belief reads at most 0.50, however strong everything else is (code: lines 208 to 209).
+`p0` and `w` are the page's **starting point** and how heavily it counts, set by the evidence the page itself declares (next section). A page that cites nothing starts at `p0 = 0.5` with `w = K = 1`, which works exactly like one neutral vote already in the box. The second line is the **load-bearing cap**: a conclusion cannot be more settled than a premise it needs. If a belief has three components flagged load-bearing and one of them reads 0.50, the belief reads at most 0.50, however strong everything else is (code: lines 269 to 270).
 
 The owner's 2026 draft wrote the formula as **Belief Score = Base + Σ(Pro Scores) - Σ(Con Scores)**, with each argument scored **Argument Score = V x L x I x U**, on a scale of 0 to 100. The code is recognisably that idea, with three differences: the "Base" became the evidence prior `w x p0`, inside a ratio rather than added on; the truth score runs 0 to 1 rather than 0 to 100 (the open-ended `POS - NEG` is printed separately as the belief score); and a fifth factor, Confidence, gates every row.
 
@@ -105,14 +106,14 @@ The owner's 2026 draft wrote the formula as **Belief Score = Base + Σ(Pro Score
 
 Follow that arithmetic to its end and something alarming happens. A page with no rows reads 0.50. A row pointing at a 0.50 page contributes zero. So its parent reads 0.50. By induction, **every page of an argument graph in which nothing is cited reads exactly 0.50, forever**, however much arguing goes on. Reasoning about reasoning never touches the world. The test suite pins this as a law: `test_argument_alone_can_never_leave_the_neutral_point` builds unsourced chains of 2, 5 and 40 claims and checks every one reads 0.5 ([`test_engines.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/test_engines.py), line 43). If that test ever fails, something has been added that lets a score move without evidence, and it needs a reason, not a fix to the test.
 
-The way out is evidence. A page may declare what it rests on, in three typed fields, and that sets where its truth starts (code: [`evidence.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/evidence.py), `prior`, line 140):
+The way out is evidence. A page may declare what it rests on, in three typed fields, and that sets where its truth starts (code: [`evidence.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/evidence.py), `prior`, line 144):
 
 ```
 p0 = 0.5 + 0.5 x ESIW x (2 x ERP/100 - 1)
 w  = K x replication(ERQ),   replication(n) = 2 x n / (n + 1)
 ```
 
-* **ESIW** is the kind of source: sixteen tiers from the [[Evidence Verification Score (EVS)]] page plus one addition, from statistics with the source cited (0.90) and a primary official record (0.90, the addition) through randomised trials (0.85), meta-analyses (0.80), anecdote (0.55) and common sense (0.50) down to a historical artifact (0.10). It decides **how far** a claim can be pushed.
+* **ESIW** is the kind of source: eighteen tiers (evidence.py, lines 79 to 98), from the sixteen ranks on the [[Evidence Verification Score (EVS)]] page with rank 2 split into trials and meta-analyses, plus one addition, from statistics with the source cited (0.90) and a primary official record (0.90, the addition) through randomised trials (0.85), meta-analyses (0.80), anecdote (0.55) and common sense (0.50) down to a historical artifact (0.10). It decides **how far** a claim can be pushed.
 * **ERP** is the share of independent replications that agreed. It decides **which way**. At 50% a claim starts at 0.50 whatever its tier, because a contested literature has established nothing.
 * **ERQ** is the number of replications. It decides **how hard the start is to shift**, and it is bounded: 1 replication gives weight 1.00, 2 give 1.33, 3 give 1.50, 10 give 1.82, and no number ever gives more than 2.00.
 
@@ -145,9 +146,9 @@ Same input, three answers. That spread is the unresolved volume question in one 
 
 ---
 
-## Part two: the walk (how much depends on it?)
+## Part two: reliance, ReasonRank proper (how much depends on it?)
 
-This is the part the name was actually borrowed for, and it took the project a while to notice that it is not a truth score at all. PageRank never asks whether a page is correct. It asks how much of the web's attention arrives there. The argument analogue asks **how much of the site's conclusion-weight flows through a claim**: not "is this true?" but "how much depends on it?" In the code's own words, "a claim can be perfectly true and matter to nothing, and a claim can be undecided and hold up four separate policy conclusions at once. Nothing else on this site could tell those two apart" ([`reasonrank.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/reasonrank.py), lines 13 to 14).
+This is the part the name was actually borrowed for, and on the published site it is the only thing called ReasonRank. It took the project a while to notice that it is not a truth score at all. PageRank never asks whether a page is correct. It asks how much of the web's attention arrives there. The argument analogue asks **how much of the site's conclusion-weight flows through a claim**: not "is this true?" but "how much depends on it?" In the code's own words, "a claim can be perfectly true and matter to nothing, and a claim can be undecided and hold up four separate policy conclusions at once. Nothing else on this site could tell those two apart" ([`reasonrank.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/reasonrank.py), lines 13 to 14).
 
 ### The algorithm
 
@@ -176,7 +177,9 @@ Two things are absent from `capacity`, and their absence is the whole point (cod
 
 The multipliers are not left out, and they are themselves truth scores. A linkage page argued down to 0.2 really does carry less, whatever happens to the claim. So moving the truth of a page used as a multiplier moves the ranking, and moving the truth of a page used only as a claim does not. `test_rank_does_follow_a_multiplier_that_is_argued_down` is the mirror test.
 
-Other pinned properties: the ranks are a probability distribution (they sum to 1 and none is negative), the walk converged (residual below 1e-6), no page outranks a belief the walk starts from, and the damping is PageRank's 0.85 restarting at the beliefs ([`test_engines.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/test_engines.py), lines 234 to 301).
+Other pinned properties: the ranks are a probability distribution (they sum to 1 and none is negative), the walk converged (residual below 1e-6), no page outranks a belief the walk starts from, the damping is PageRank's 0.85 restarting at the beliefs, and work value is rank times unfinished work ([`test_engines.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/test_engines.py), lines 234 to 316, eight tests in all).
+
+Votes are not an input either. The walk is built from the corpus and the damping constant and nothing else (`ReasonRank(corpus, damping)`, line 75).
 
 ### What it is for: the work queue
 
@@ -190,13 +193,13 @@ High rank and finished work is a settled foundation. High rank and unfinished wo
 
 ### Live numbers
 
-On the current tables (calculation: the site's own `ReasonRank` class run over `tools/static-site/content/`, October 2026), the walk covers **4,263 pages**, starts from **196 beliefs**, and converges to a residual of about **9.6e-13**. The most relied-on claim that is not itself a belief is the interest [Voters need enough information to judge whether an official is compromised](https://myklob.github.io/ideastockexchange/beliefs/p/voters-need-enough-information.html): rank 197 of 4,263 (right behind the 196 beliefs), sitting under **five** separate beliefs, with a truth score of exactly **0.50** and confidence 0.30. It is undecided and five conclusions lean on it. That is precisely the kind of claim a truth score alone cannot flag and the walk exists to find.
+On a build of revision fa47ebf (27 November 2026; calculation: the site's own `ReasonRank` class run over `tools/static-site/content/`, and the built pages), the walk covers **7,123 pages**, starts from **245 beliefs**, and converges to a residual of about **8.9e-13**. The most relied-on claim that is not itself a belief is the interest [Voters need enough information to judge whether an official is compromised](https://myklob.github.io/ideastockexchange/beliefs/p/voters-need-enough-information.html): place 246 of 7,123 (right behind the 245 beliefs), 0.059% of the site, which the home page prints as 4.2 times an average page, sitting under **five** separate beliefs, with a truth score of **0.49** and confidence 39%. It is undecided and five conclusions lean on it. That is precisely the kind of claim a truth score alone cannot flag and the walk exists to find. At the top of What to argue next is a claim with confidence 0%, "Liberty, personal responsibility and civic engagement each become distorted when pursued on their own", and 28 claims sit beneath more than one belief. These numbers move as the tables grow.
 
 ### Where you see it
 
-* On every claim page, the meta table prints **"Relied on (ReasonRank)"** (the rank and its place out of all pages) and **"Work value"** (code: [`render_site.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/render_site.py), lines 1176 to 1177).
-* The [home page](https://myklob.github.io/ideastockexchange/beliefs/index.html) carries a **Most relied on** card and a **What to argue next** card; [lists.html](https://myklob.github.io/ideastockexchange/beliefs/lists.html) says for each what it shows, how it is worked out and why it is tracked. Its entry for Most relied on says outright that the list "is also the honest stand-in for 'popular'. Nobody's votes or views are counted here". The What to argue next page also prints, for each claim, how many beliefs sit above it (`beliefs_reached`).
-* Each page's JSON export carries `reasonrank` and `reasonrank_place`.
+* On every page, the Scoring Engine table prints **"Relied on (ReasonRank)"** (the rank and its place out of all pages) and **"Work value"** (code: [`render_site.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/render_site.py), lines 1352 to 1353), and the heading area says what share of the site the page carries and how many beliefs it sits beneath (`rank_note`, line 1240).
+* The [home page](https://myklob.github.io/ideastockexchange/beliefs/index.html) carries a **Most relied on** card and a **What to argue next** card, each value printed as a multiple of the average page. Their full lists are [relied.html](https://myklob.github.io/ideastockexchange/beliefs/relied.html) (the share of the site) and [next.html](https://myklob.github.io/ideastockexchange/beliefs/next.html) (the top 40, with truth, confidence and how many beliefs sit above each claim). [lists.html](https://myklob.github.io/ideastockexchange/beliefs/lists.html#relied) says for each what it shows, how it is worked out and why it is tracked. Its entry for Most relied on says outright that the list "is also the honest stand-in for 'popular'. Nobody's votes or views are counted here".
+* Each page's JSON export carries `reasonrank`, `reasonrank_place` and `work_value`.
 * The methodology is at [method.html#reasonrank](https://myklob.github.io/ideastockexchange/beliefs/method.html#reasonrank).
 
 ### The matrix PageRank that is written down and not run
@@ -205,9 +208,9 @@ On the current tables (calculation: the site's own `ReasonRank` class run over `
 
 ---
 
-## Part three: the Next.js engine (the damped tree blend)
+## Part three: the Next.js engine (the damped tree blend, not published)
 
-The Next.js app in `src/core/scoring/` carries a third reading of the name, and it is the one that most resembles the formula on the 2025 page. Its header states the analogy directly (code: [`scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts), lines 11 to 13):
+The Next.js app in `src/core/scoring/` is not deployed, so nothing in this part appears on the published site. It carries a third reading of the name, and it is the one that most resembles the formula on the 2025 page. Like part one and unlike part two, it is a strength score: it answers "how strong is this argument?", not "how much rests on it?". Its header states the analogy directly (code: [`scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts), lines 11 to 13):
 
 ```
 PageRank:   PR(A) = (1-d)/N + d x Σ PR(Ti)/C(Ti)
@@ -247,13 +250,18 @@ Evidence tier weights: `T0 = 0.05` (retracted or fraudulent), `T1 = 1.0` (peer-r
 
 **Where it does not.** The app's canonical belief page (`/beliefs/[slug]`) scores each edge with a flatter rule, `computeArgumentImpactScore = sign x childTruth x |linkage| x importance x uniqueness x 100` (line 774), and propagates it upward through every parent belief whenever anything changes ([`propagate-belief-scores.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/propagate-belief-scores.ts)). Its truth breakdown (`calculateTruthScoreBreakdown` in [`all-scores.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/all-scores.ts)) takes the pro share of argued weight.
 
-### A fourth kernel, mostly unwired
+### Other code that carries the name, none of it wired
 
-[`src/core/reasonrank/engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/reasonrank/engine.ts) implements five invariants: propagation continuity (a child's change recomputes every parent until the change is below epsilon), the "death match" (a node with more opposition than support contributes 0 and never propagates a negative), diminishing returns for semantically identical arguments, falsified evidence forcing a branch to 0, and relevance as a property of the edge rather than the node. Its `DEFAULT_CONFIG` is `epsilon 0.001, maxDepth 100, baseScore 1.0` ([`types.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/reasonrank/types.ts)). Only one piece of it reaches a page: `VERIFICATION_SCORES = VERIFIED 1.0, DISPUTED 0.5, UNVERIFIED 0.5, FALSIFIED 0.0`, which the belief page's Evidence Ledger turns into its Standing column.
+These are labelled references. None produces a number a reader sees.
+
+* **The founding workbook's Conclusion Score** ([`src/lib/conclusion-score.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/conclusion-score.ts), with SQL and PHP twins): `score = nAgree - nDisagree + m x (Σ agree child score x linkage - Σ disagree child score x linkage)`, linkage `(agree - disagree) / (agree + disagree)` from the edge's sub-debate and 1 when undebated (lines 9 to 15), with `m = 0.7` (`DEFAULT_SUB_ARGUMENT_MULTIPLIER`, line 74; 1.0 in the workbook's older per-sheet formulas, line 77). It counts listed reasons, one point each, not votes, and its 0.7 multiplies sub-arguments rather than damping a walk. It is the original "quantity and quality of reasons".
+* **The page/edge model** ([`src/lib/ise-pages/score.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/ise-pages/score.ts), worked example in `examples/ise-zoning/`): one claim per page, no stored scores, every multiplier an argued page, row `Truth x Link x Imp x Uniq` (line 11), an earlier form of part one without its `2 x Truth - 1`. Only a script and its test import it.
+* **`pipeline/`**, a standalone tool whose scorer is also called ReasonRank: `(Impact - CounterImpact) x Relevance x Evidence x Uniqueness` over typed scores, floored at 0.001, "debunked" below 0.05 ([`pipeline/scoring/reason_rank.py`](https://github.com/myklob/ideastockexchange/blob/master/pipeline/scoring/reason_rank.py), line 9; `pipeline/config.py`, lines 54 to 55). Nothing runs it in CI or on a page.
+* **A recursive kernel**: [`src/core/reasonrank/engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/reasonrank/engine.ts) implements five invariants: propagation continuity (a child's change recomputes every parent until the change is below epsilon), the "death match" (a node with more opposition than support contributes 0 and never propagates a negative), diminishing returns for semantically identical arguments, falsified evidence forcing a branch to 0, and relevance as a property of the edge rather than the node. Its `DEFAULT_CONFIG` is `epsilon 0.001, maxDepth 100, baseScore 1.0` ([`types.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/reasonrank/types.ts), lines 171 to 175). Only one piece of it reaches a page, and only in the app: `VERIFICATION_SCORES = VERIFIED 1.0, DISPUTED 0.5, UNVERIFIED 0.5, FALSIFIED 0.0`, which the app's belief page's Evidence Ledger turns into its Standing column.
 
 ### The app's work queue
 
-The Next.js app answers "what should be argued next?" with its own engine rather than the walk: [`decision-leverage.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/decision-leverage.ts) ranks every argument edge by the conclusion score still at stake on it, from four gaps (evidence 0.40, linkage 0.25, scoring 0.15, examination 0.20). Same purpose as the walk's work value, different arithmetic, and unlike the walk it does read the number of linkage votes (`1/sqrt(1 + votes)`).
+The unpublished Next.js app answers "what should be argued next?" with its own engine rather than the walk: [`decision-leverage.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/decision-leverage.ts) ranks every argument edge by the conclusion score still at stake on it, from four gaps (evidence 0.40, linkage 0.25, scoring 0.15, examination 0.20). Same purpose as the walk's work value, different arithmetic, and unlike the walk it does read the number of linkage votes (`1/sqrt(1 + votes)`).
 
 ### The product explainer is behind
 
@@ -298,13 +306,13 @@ The owner's draft started a claim at a value set by its kind of evidence:
 * **Tier 4 evidence (anecdote):** V = 0.1
 * **Refuted evidence:** V = 0.0
 
-**Replaced.** The static site's methodology lists these four figures among the rules it does not run ([method.html#notrun](https://myklob.github.io/ideastockexchange/beliefs/method.html#notrun)). What runs instead is the sixteen-tier evidence prior above, where a meta-analysis that every replication confirms starts at 0.90 (not 1.0), a confirmed anecdote starts at 0.775 and a contradicted one at 0.225, and refuted evidence never reaches 0.0, because the floor is 0.05 (calculation from `p0 = 0.5 + 0.5 x ESIW x (2 x ERP/100 - 1)`). The principle survives intact: a cited finding does not start at a coin flip. The Next.js app keeps a five-tier table closer to the draft's (T1 = 1.0 down to T0 = 0.05 for retracted).
+**Replaced.** The static site's methodology lists these four figures among the rules it does not run ([method.html#notrun](https://myklob.github.io/ideastockexchange/beliefs/method.html#notrun)). What runs instead is the eighteen-tier evidence prior above, where a meta-analysis that every replication confirms starts at 0.90 (not 1.0), a confirmed anecdote starts at 0.775 and a contradicted one at 0.225, and refuted evidence never reaches 0.0, because the floor is 0.05 (calculation from `p0 = 0.5 + 0.5 x ESIW x (2 x ERP/100 - 1)`). The principle survives intact: a cited finding does not start at a coin flip. The Next.js app keeps a five-tier table closer to the draft's (T1 = 1.0 down to T0 = 0.05 for retracted).
 
 ### B. Linkage Score (L)
 
 This prevents the "red herring" fallacy. A user might post a fact that is 100% true ("The sun is hot") and use it to support an unrelated conclusion ("Therefore, we should lower taxes"). The draft has ReasonRank assign this a **Linkage Score of 0.1**, neutralising the argument despite its high truth score.
 
-**What runs.** Nothing assigns 0.1 automatically. On the static site, linkage is the truth score of a linkage page, argued with its own reasons to agree and disagree (see [[Linkage Scores]], [[Evidence to Conclusion Relevance Score]] and [[Template: Linkage Evaluation]]). The sun-and-taxes row gets its low linkage when someone argues it down on that page, and from then on it carries almost nothing. This matches the owner's direction on linkage: **start trusting, fall when argued down, rise when argued well.** One wrinkle worth knowing (calculation from the code): with no linkage page the row reads `DEFLINK = 1`, but a linkage page that has been opened and not yet argued reads its neutral start, 0.50, so opening the page halves the row until someone argues it back up. In the Next.js app linkage runs from -1 to +1 and resolves in priority order: a full linkage debate scored by its own tree, then a reputation-weighted mean of linkage votes, then a static field (`resolveLinkageScore`, lines 214 to 230).
+**What runs.** Nothing assigns 0.1 automatically. On the static site, linkage is the truth score of a linkage page, argued with its own reasons to agree and disagree (see [[Linkage Scores]], [[Evidence to Conclusion Relevance Score]] and [[Template: Linkage Evaluation]]). The sun-and-taxes row gets its low linkage when someone argues it down on that page, and from then on it carries almost nothing. This matches the owner's direction on linkage: **start trusting, fall when argued down, rise when argued well.** With no linkage page the row reads `DEFLINK = 1`, and a linkage page that has been opened and not yet argued also starts at 1 (`FACTOR_START`, [`evidence.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/evidence.py), line 106), so opening the page to argue relevance moves nothing until somebody argues on it. (It used to start at 0.50, which halved a row the moment its page existed; the file records the change.) In the unpublished Next.js app linkage runs from -1 to +1 and resolves in priority order: a full linkage debate scored by its own tree, then a reputation-weighted mean of linkage votes, then a static field (`resolveLinkageScore`, line 215).
 
 ### C. Uniqueness Score (U)
 
@@ -358,7 +366,7 @@ Two differences from the draft. First, the static site has no "retracted" flag; 
 **Two things the cascade needs that the draft did not mention**, both running on the static site:
 
 * **Loops are refused.** A claim that supports itself (directly or through a chain) can hold any value and stay consistent, so there is no number to publish. The scorer raises `CircularSupport` by name, and [`integrity.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/integrity.py) checks the tables for it before CI will publish anything.
-* **What would flip the answer.** [`sensitivity.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/sensitivity.py) holds each claim beneath a page at false and then at true, one at a time, recomputes the whole graph, and reports where the conclusion crosses 0.50, both as things stand and with that claim's work finished ([method.html#sensitivity](https://myklob.github.io/ideastockexchange/beliefs/method.html#sensitivity)). It is the cascade run deliberately, as a what-if, before the retraction happens. [`changes.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/changes.py) reports what actually moved since the last revision.
+* **What would flip the answer.** [`sensitivity.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/sensitivity.py) holds each claim beneath a page at false and then at true, one at a time, recomputes the whole graph, and reports where the conclusion crosses 0.50, both as things stand and with that claim's work finished ([method.html#sensitivity](https://myklob.github.io/ideastockexchange/beliefs/method.html#sensitivity)). It is the cascade run deliberately, as a what-if, before the retraction happens.
 
 ---
 
@@ -368,9 +376,9 @@ The 2025 page promised that ReasonRank would "incorporate user feedback (votes, 
 
 **The owner's direction (October 2026):** there are many scores. Track what is popular separately from what stands up to analysis. Votes may decide what is promoted and given attention, **never what is valid**, and the gap between the two is worth showing because it says where people need more time with the argument.
 
-**The static site follows that exactly.** A vote is a GitHub issue filed from a form on the page; [`intake.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/intake.py) records it in [`content/votes.csv`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/content/votes.csv), one row per person per claim, latest vote wins. A vote can be on whether a claim is true, or on whether a row bears on the page it is filed on, which is a vote on the argument as an argument. The counts show on the claim's heading line after the score badge, and the [home page](https://myklob.github.io/ideastockexchange/beliefs/index.html) has a Recently voted card ([lists.html#votes](https://myklob.github.io/ideastockexchange/beliefs/lists.html#votes)). And then: `NO_MOVE = 'A vote never moves a score; the page shows it next to what the analysis says, as what people think.'` (intake.py, line 90). The walk takes no feedback input at all (`ReasonRank(corpus, damping)`), and the confidence score lists "up and down votes" among behavioural signals at weight 0. The file holds two votes today.
+**The static site follows that exactly.** A vote is a GitHub issue filed from a form on the page; [`intake.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/intake.py) records it in [`content/votes.csv`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/content/votes.csv), one row per person per claim, latest vote wins. A vote can be on whether a claim is true, or on whether a row bears on the page it is filed on, which is a vote on the argument as an argument. The counts show on the claim's heading line after the score badge, and the [home page](https://myklob.github.io/ideastockexchange/beliefs/index.html) has a Votes vs the analysis card, which ranks the gap between the vote share and the truth score once three people have voted ([lists.html#votes](https://myklob.github.io/ideastockexchange/beliefs/lists.html#votes)), and a Recently voted card ([lists.html#voted](https://myklob.github.io/ideastockexchange/beliefs/lists.html#voted)). And then: `NO_MOVE = 'A vote never moves a score; the page shows it next to what the analysis says, as what people think.'` (intake.py, line 146; pinned by `test_no_vote_moves_any_score` in `test_render.py`). The walk takes no feedback input at all (`ReasonRank(corpus, damping)`), and the confidence score lists "up and down votes" among behavioural signals at weight 0. The file holds two votes today.
 
-**The Next.js app does let votes in, in three narrow places:**
+**The unpublished Next.js app does let votes in, in three narrow places:**
 
 * **Fallacy claims.** Votes on a filed fallacy accusation are weighted by the voter's credibility, a track record of accuracy and of flagging both sides, clamped between `CREDIBILITY_FLOOR = 0.3` and `CREDIBILITY_CEILING = 1.4` ([`calibration.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/fallacy/calibration.ts)). At 60% weighted agreement (`CONSENSUS_THRESHOLD = 0.6`) the claim's counter-argument is published into the edge's linkage debate and the scores propagate upward ([`votes/route.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/app/api/fallacy-claims/%5Bid%5D/votes/route.ts)). Filing volume never raises credibility; only being right and even-handed do.
 * **Protocol linkage.** In the protocol engine, when no linkage debate exists, a reputation-weighted mean of linkage votes sets the edge's linkage, clamped to [-1, 1] (`aggregateLinkageVotes`), and that multiplies into the belief's truth score.
@@ -388,7 +396,7 @@ The 2025 page listed "logical soundness" as a ReasonRank input.
 
 **The owner's direction:** nothing is final. Software may flag a possible fallacy, and the flag is a claim people argue for and against like any other. **A flag alone moves no score.**
 
-* **Static site: no pattern matching at all.** "Fallacy detection is not done." On a site whose subject is often officials acting on their own interests, a matcher looking for "attacking the person rather than the argument" would fire on the central legitimate argument page after page, "and a score moved by a pattern match has no page anyone can argue with. A fallacy is argued instead, as a reason to disagree on the linkage page of the row it infects" ([method.html#checks](https://myklob.github.io/ideastockexchange/beliefs/method.html#checks)). What it does compute is structural: circular support, a conclusion listed among its own premises, padding, each named on the page and none moving a score.
+* **Static site: a phrase flag that deducts nothing.** The method page still says "Fallacy detection is not done" in the wiki's sense: the wiki specifies pattern-matching the prose for named fallacies, each deducting from a score, and on a site whose subject is often officials acting on their own interests, a matcher looking for "attacking the person rather than the argument" would fire on the central legitimate argument page after page, "and a score moved by a pattern match has no page anyone can argue with" ([method.html#checks](https://myklob.github.io/ideastockexchange/beliefs/method.html#checks)). What it does instead is flag. [`fallacy.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/fallacy.py) matches a published phrase list (`PATTERNS`, line 22) and marks a reason as a possible fallacy, with the words that set it off and two prefilled forms on the flagged claim's own page: a reason to disagree saying it is the fallacy, and a reason to agree saying it is not. The flag decides nothing and moves no score; whatever that argument concludes reaches the score through the ordinary rules. Beside it run the structural checks: circular support, a conclusion listed among its own premises, the same page counted twice, each named on the page and none moving a score.
 * **Next.js app: software flags, people decide.** [`fallacy-detector.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/agent-ingest/fallacy-detector.ts) matches prose against patterns (ad hominem, appeal to popularity, false cause, overgeneralisation and others) and drafts a counter-argument aimed at the factor the fallacy damages. Its own header: "A fallacy detection is an argument, not a penalty", and "no score is ever docked because a detector fired"; it returns no numeric fields by design. A draft counts only once a fallacy claim is confirmed by credibility-weighted vote, at which point it enters the linkage debate with strength 0.8 for a major fallacy or 0.5 for a minor one. This is the owner's direction, built.
 * **One older path still deducts.** The protocol engine's `scoreArgument` docks `baseTruth = truthScore x (1 - Σ |impact| / 100)` for any fallacies recorded on an argument. A ladder in [`claims.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/fallacy/claims.ts) (0.95 no confirmed fallacy, 0.75 one minor, 0.45 one major, 0.25 two or more) exists and nothing calls it.
 
@@ -430,9 +438,9 @@ None of the names exists in the repository. What does:
 
 ## Sample code (2025 page)
 
-<details><summary>Original sketch (2023), not what runs</summary>
+<details><summary>The 2025 page's sketch, not what runs</summary>
 
-What runs instead is the walk in [`tools/static-site/reasonrank.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/reasonrank.py) for dependence and the row rule in [`score_reference.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/score_reference.py) for truth, both pure Python with no dependencies beyond the standard library (the site's `requirements.txt` is `openpyxl` only, for reading the workbook).
+None of its inputs (the pro and con matrices, the 100 iterations, TF-IDF uniqueness, vote and credibility feedback, the sentiment multiplier) is a live input anywhere in the repository. What runs instead is the walk in [`tools/static-site/reasonrank.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/reasonrank.py) for dependence and the row rule in [`score_reference.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/score_reference.py) for truth, both pure Python with no dependencies beyond the standard library (the site's `requirements.txt` is `openpyxl` only, for reading the workbook).
 
 ```python
 import numpy as np
@@ -511,7 +519,7 @@ Why it would not work as written, for anyone tempted to resurrect it (calculatio
 
 ### The owner's simplified sketch (2026 draft)
 
-<details><summary>Original sketch (2023), not what runs</summary>
+<details><summary>The owner's 2026 sketch, not what runs</summary>
 
 What runs instead is the convergent walk with a restart term in [`reasonrank.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/reasonrank.py), and the signed row rule in [`score_reference.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/score_reference.py), where pro adds and con subtracts exactly as this sketch intends.
 
@@ -558,7 +566,7 @@ The owner's draft table, with a column for what the code actually does:
 | Feature | Google PageRank | ISE ReasonRank (draft) | What runs |
 |---|---|---|---|
 | **Input** | Webpages and hyperlinks | Beliefs and arguments | Two tables, `pages` and `edges`; every multiplier is itself a page |
-| **Primary metric** | Popularity / authority | Validity / evidence | Two metrics, kept apart: truth (the row rule) and dependence (the walk) |
+| **Primary metric** | Popularity / authority | Validity / evidence | Two metrics, kept apart: strength is the truth score (the row rule) and ReasonRank is reliance (the walk) |
 | **Direction** | Positive only (links help) | Positive and negative (refutations hurt) | Truth: signed, and a refuted reason flips sides. Walk: unsigned, because dependence has no direction |
 | **Spam protection** | Link farm detection | [Semantic clustering](https://myklob.github.io/ideastockexchange/beliefs/method.html#equivalency) | Duplicate submissions become votes at the door (similarity 0.70 or more); unargued claims count 0; computed similarity flags, argued uniqueness discounts |
 | **Goal** | Find the most _important_ page | Find the most _truthful_ idea | Both: the truth score finds the best-supported idea, and the walk finds the most important unsettled claim |
@@ -571,7 +579,7 @@ The draft's table framed ReasonRank as PageRank with importance swapped for trut
 
 * **Objective ranking** of arguments instead of relying on loudness or popularity. **Running.** On the static site no vote enters any score, and an unargued claim contributes exactly 0, so repetition cannot pad. The Next.js how-it-works page makes the same point: not by counting upvotes, "because a vote measures how many people showed up, not whether they are right."
 * **Transparent scoring**: every factor in the score is visible and open to challenge. **Running.** Every multiplier is a page with its own reasons; every unargued factor shows its labelled constant in grey; every page prints its weight for and against, its starting point, its ReasonRank and its work value; the methodology page is generated from the same modules the pages run, "so it cannot describe a rule the site is not using." In the app, each edge has a factor-by-factor provenance page and a linkage sub-debate.
-* **Dynamic updates**: scores shift as evidence, feedback, and arguments change. **Running for evidence and arguments; feedback only in the app.** The static site recomputes everything on every build and reports what moved; the app propagates upward from any changed belief. Votes shift nothing on the static site; in the app, a confirmed fallacy claim re-scores the edge and everything above it.
+* **Dynamic updates**: scores shift as evidence, feedback, and arguments change. **Running for evidence and arguments; feedback only in the app.** The static site recomputes everything from the two tables on every build; the app propagates upward from any changed belief. Votes shift nothing on the static site; in the app, a confirmed fallacy claim re-scores the edge and everything above it.
 
 ---
 
@@ -581,7 +589,7 @@ These are recorded as open in the project's `CLAUDE.md`, and the owner's directi
 
 1. **Does volume count?** The argued rule says no, the Next.js engine says yes, and the owner's count-every-reason rule (`tally.py`) is now printed beside the argued truth score so the two can be compared. Until then the pinned test stands.
 2. **The load-bearing cap treats "unargued" as 0.50 and lets it cap.** Conservative and correct as probability, and with the unargued-row rule it is what holds most beliefs at 0.50. Changing it is a rule change with a conformance diff to review ([`conformance.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/conformance.py) holds the cross-implementation contract).
-3. **Which mechanism should carry the name.** This page describes all three. The static site's methodology already uses "ReasonRank" for the walk and "truth score" for the rule, which is the least confusing split.
+3. **Which mechanism carries the name.** Settled on the published site: its methodology uses "ReasonRank" for the walk (reliance) and "truth score" for the rule (strength), and this wiki follows it. The unpublished app still calls its strength blend ReasonRank; renaming it there is a code change nobody has made.
 
 ---
 
