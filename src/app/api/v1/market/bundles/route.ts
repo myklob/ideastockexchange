@@ -1,6 +1,7 @@
 import { marketJson, marketErrorResponse } from '@/lib/markets/api'
 import { executeBundle, type BundleLegParams } from '@/lib/markets/service'
 
+import { guardMarketWrite } from '@/lib/public-guard'
 /**
  * POST — execute a structured product: several binary legs bought
  * atomically (spreads, combinations). Example spread "score lands in
@@ -8,6 +9,9 @@ import { executeBundle, type BundleLegParams } from '@/lib/markets/service'
  * Body: { username, label, legs: [{ contractId, outcome, shares }] }.
  */
 export async function POST(request: Request) {
+  const closed = guardMarketWrite(request, 'market-bundles')
+  if (closed) return closed
+
   let body: { username?: string; label?: string; legs?: BundleLegParams[] }
   try {
     body = await request.json()

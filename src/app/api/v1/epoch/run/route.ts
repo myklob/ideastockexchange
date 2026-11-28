@@ -7,36 +7,51 @@
  * settlement, and PLATFORM_FAILURE contracts resolve YES on the missed grace
  * window — which is exactly the failure they exist to price.
  *
- * Auth: when CRON_SECRET is set (Vercel injects it on cron requests), the
- * Authorization header must be `Bearer ${CRON_SECRET}`. Unset (local dev),
- * the route is open.
+ * Auth: the Authorization header must be `Bearer ${CRON_SECRET}`. Vercel
+ * forwards that header on cron invocations only when the project defines
+ * CRON_SECRET, so it is a required production variable; with it unset the
+ * route is open in development and disabled (503) in production.
+ *
+ * Only the most recently completed epoch can be run: snapshots are written
+ * once and referenced forever, so backfilling history with today's scores
+ * requires the explicit ALLOW_EPOCH_BACKFILL=1 opt-in.
  */
 
 import { NextResponse } from 'next/server'
 import { runEpoch } from '@/lib/markets/settle'
 import { epochLabelFor, previousEpoch, isValidEpochLabel } from '@/lib/markets/epoch'
+import { requireOperatorSecret } from '@/lib/public-guard'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET
-  if (secret && request.headers.get('authorization') !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 })
-  }
+  const denied = requireOperatorSecret(request)
+  if (denied) return denied
 
   const { searchParams } = new URL(request.url)
-  const requested = searchParams.get('epoch')
-  const epoch = requested ?? previousEpoch(epochLabelFor(new Date()))
+  const latestCompleted = previousEpoch(epochLabelFor(new Date()))
+  const epoch = searchParams.get('epoch') ?? latestCompleted
   if (!isValidEpochLabel(epoch)) {
     return NextResponse.json({ error: `Invalid epoch label: ${epoch}` }, { status: 400 })
+  }
+  if (epoch !== latestCompleted && process.env.ALLOW_EPOCH_BACKFILL !== '1') {
+    return NextResponse.json(
+      { error: `Only the most recently completed epoch (${latestCompleted}) can be run. Set ALLOW_EPOCH_BACKFILL=1 to backfill history deliberately.` },
+      { status: 400 },
+    )
   }
 
   try {
     const summary = await runEpoch(epoch)
     return NextResponse.json({ ...summary, epoch })
   } catch (e) {
-    const message = e instanceof Error ? e.message : 'Epoch run failed.'
-    const status = (e as { status?: number }).status ?? 500
-    return NextResponse.json({ epoch, error: message }, { status })
+    const status = (e as { status?: number }).status
+    if (status && status < 500) {
+      const message = e instanceof Error ? e.message : 'Epoch run rejected.'
+      return NextResponse.json({ epoch, error: message }, { status })
+    }
+    console.error('[GET /api/v1/epoch/run]', e)
+    return NextResponse.json({ epoch, error: 'Epoch run failed.' }, { status: 500 })
   }
 }

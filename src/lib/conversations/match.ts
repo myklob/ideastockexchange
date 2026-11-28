@@ -4,7 +4,12 @@
 // review sees "extends the outline" vs "restates row #N" at a glance. The
 // similarity bands route; nothing here merges, writes, or scores.
 
-import { textSimilarity, similarityBand, type SimilarityBand } from '@/lib/agent-ingest/similarity'
+import {
+  textSimilarity,
+  similarityBand,
+  RESTATEMENT_SPEEDBUMP_THRESHOLD,
+  type SimilarityBand,
+} from '@/lib/agent-ingest/similarity'
 import type { ExtractedCandidate } from './extract'
 
 export interface BeliefRow {
@@ -84,4 +89,34 @@ export function scanNearestArgument(
     }
   }
   return best
+}
+
+export interface StanceCorrection {
+  direction: 'pro' | 'con'
+  nearest: NearestArgument
+}
+
+/**
+ * Cross-side restatement check: a near-restatement of an argument on the
+ * OTHER side corrects the heuristic stance read — someone repeating the
+ * page's strongest con point is making a con point, whatever their message
+ * opener suggested. Returns null when no opposite-side sibling clears the
+ * restatement threshold.
+ */
+export function correctStanceByRestatement(
+  statement: string,
+  direction: 'pro' | 'con',
+  siblings: SiblingArgumentRow[],
+): StanceCorrection | null {
+  const oppositeSide = direction === 'pro' ? 'disagree' : 'agree'
+  let best: NearestArgument | null = null
+  for (const sibling of siblings) {
+    if (sibling.side !== oppositeSide) continue
+    const similarity = textSimilarity(statement, sibling.statement)
+    if (similarity >= RESTATEMENT_SPEEDBUMP_THRESHOLD && (best === null || similarity > best.similarity)) {
+      best = { argumentId: sibling.id, similarity, band: similarityBand(similarity) }
+    }
+  }
+  if (!best) return null
+  return { direction: direction === 'pro' ? 'con' : 'pro', nearest: best }
 }

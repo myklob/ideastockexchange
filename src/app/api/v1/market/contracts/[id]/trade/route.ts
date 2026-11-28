@@ -1,12 +1,14 @@
 import { marketJson, marketErrorResponse } from '@/lib/markets/api'
 import { tradeLmsr } from '@/lib/markets/service'
 
+import { guardMarketWrite } from '@/lib/public-guard'
 /** POST — trade against the LMSR maker (young markets). Body:
  *  { username, outcome: "YES"|"NO", side: "BUY"|"SELL", shares }. */
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string }> },) {
+  const closed = guardMarketWrite(request, 'market-trade')
+  if (closed) return closed
+
   const { id } = await params
   let body: { username?: string; outcome?: 'YES' | 'NO'; side?: 'BUY' | 'SELL'; shares?: number }
   try {

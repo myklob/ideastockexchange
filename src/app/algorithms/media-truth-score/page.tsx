@@ -11,6 +11,8 @@ import {
 } from '@/features/media/fetch-media'
 import { genrePrior, resolveGenreType } from '@/core/scoring/media-truth'
 
+
+export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Media Truth Score — Idea Stock Exchange',
   description:

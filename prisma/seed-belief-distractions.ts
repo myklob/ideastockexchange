@@ -185,64 +185,70 @@ async function main() {
   })
 
   // ── Arguments (reasons for/against main belief) ──────────────────────────
-  await prisma.argument.createMany({
-    data: [
-      {
-        parentBeliefId: mainBelief.id,
-        beliefId: attentionCaptureBelief.id,
-        side: 'agree',
-        linkageScore: 0.82,
-        impactScore: 21.4,
-        importanceScore: 0.9,
-        linkageType: 'STRONG_CAUSAL',
-      },
-      {
-        parentBeliefId: mainBelief.id,
-        beliefId: scandalDisplacesBelief.id,
-        side: 'agree',
-        linkageScore: 0.75,
-        impactScore: 18.6,
-        importanceScore: 0.85,
-        linkageType: 'STRONG_CAUSAL',
-      },
-      {
-        parentBeliefId: mainBelief.id,
-        beliefId: reasonrankImmuneBelief.id,
-        side: 'agree',
-        linkageScore: 0.88,
-        impactScore: 15.9,
-        importanceScore: 0.7,
-        linkageType: 'DEDUCTIVE_PROOF',
-      },
-      {
-        parentBeliefId: mainBelief.id,
-        beliefId: distractionPreventsConsensusBelief.id,
-        side: 'agree',
-        linkageScore: 0.72,
-        impactScore: 19.2,
-        importanceScore: 0.95,
-        linkageType: 'STRONG_CAUSAL',
-      },
-      {
-        parentBeliefId: mainBelief.id,
-        beliefId: scandalsRevealCharacterBelief.id,
-        side: 'disagree',
-        linkageScore: 0.55,
-        impactScore: 11.3,
-        importanceScore: 0.6,
-        linkageType: 'CONTEXTUAL',
-      },
-      {
-        parentBeliefId: mainBelief.id,
-        beliefId: emotionNeededBelief.id,
-        side: 'disagree',
-        linkageScore: 0.48,
-        impactScore: 9.7,
-        importanceScore: 0.55,
-        linkageType: 'CONTEXTUAL',
-      },
-    ],
-  })
+  // Re-running must not double every reason (Argument has no unique edge key).
+  const existingEdges = await prisma.argument.count({ where: { parentBeliefId: mainBelief.id } })
+  if (existingEdges > 0) {
+    console.log('Distraction argument edges already seeded; skipping edge creation.')
+  } else {
+    await prisma.argument.createMany({
+      data: [
+        {
+          parentBeliefId: mainBelief.id,
+          beliefId: attentionCaptureBelief.id,
+          side: 'agree',
+          linkageScore: 0.82,
+          impactScore: 21.4,
+          importanceScore: 0.9,
+          linkageType: 'STRONG_CAUSAL',
+        },
+        {
+          parentBeliefId: mainBelief.id,
+          beliefId: scandalDisplacesBelief.id,
+          side: 'agree',
+          linkageScore: 0.75,
+          impactScore: 18.6,
+          importanceScore: 0.85,
+          linkageType: 'STRONG_CAUSAL',
+        },
+        {
+          parentBeliefId: mainBelief.id,
+          beliefId: reasonrankImmuneBelief.id,
+          side: 'agree',
+          linkageScore: 0.88,
+          impactScore: 15.9,
+          importanceScore: 0.7,
+          linkageType: 'DEDUCTIVE_PROOF',
+        },
+        {
+          parentBeliefId: mainBelief.id,
+          beliefId: distractionPreventsConsensusBelief.id,
+          side: 'agree',
+          linkageScore: 0.72,
+          impactScore: 19.2,
+          importanceScore: 0.95,
+          linkageType: 'STRONG_CAUSAL',
+        },
+        {
+          parentBeliefId: mainBelief.id,
+          beliefId: scandalsRevealCharacterBelief.id,
+          side: 'disagree',
+          linkageScore: 0.55,
+          impactScore: 11.3,
+          importanceScore: 0.6,
+          linkageType: 'CONTEXTUAL',
+        },
+        {
+          parentBeliefId: mainBelief.id,
+          beliefId: emotionNeededBelief.id,
+          side: 'disagree',
+          linkageScore: 0.48,
+          impactScore: 9.7,
+          importanceScore: 0.55,
+          linkageType: 'CONTEXTUAL',
+        },
+      ],
+    })
+  }
 
   // ── Evidence ─────────────────────────────────────────────────────────────
   await prisma.evidence.createMany({

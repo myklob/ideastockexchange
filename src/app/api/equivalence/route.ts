@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 /**
  * GET /api/equivalence
  * List all equivalence analyses, ordered by score descending.
@@ -44,6 +45,9 @@ export async function GET(request: NextRequest) {
  * Create a new equivalence analysis.
  */
 export async function POST(request: NextRequest) {
+  const blocked = guardPublicWrite(request, 'equivalence', 10)
+  if (blocked) return blocked
+
   try {
     const body = await request.json()
 

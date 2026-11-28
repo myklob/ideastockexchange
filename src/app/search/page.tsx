@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/prisma'
+import { prisma, ciContains } from '@/lib/prisma'
 
 export const metadata: Metadata = {
   title: 'Search — Idea Stock Exchange',
@@ -17,18 +17,16 @@ interface SearchPageProps {
 }
 
 async function runSearch(q: string) {
-  // SQLite LIKE is case-insensitive for ASCII, which is what Prisma's
-  // `contains` compiles to here — good enough for a findability pass.
   const [beliefs, args, topics] = await Promise.all([
     prisma.belief.findMany({
-      where: { statement: { contains: q } },
+      where: { statement: ciContains(q) },
       select: { id: true, slug: true, statement: true, positivity: true },
       take: 25,
     }),
     prisma.argument.findMany({
       where: {
         status: 'published',
-        OR: [{ claim: { contains: q } }, { belief: { statement: { contains: q } } }],
+        OR: [{ claim: ciContains(q) }, { belief: { statement: ciContains(q) } }],
       },
       select: {
         id: true,
@@ -40,7 +38,7 @@ async function runSearch(q: string) {
       take: 25,
     }),
     prisma.debateTopic.findMany({
-      where: { OR: [{ title: { contains: q } }, { definition: { contains: q } }] },
+      where: { OR: [{ title: ciContains(q) }, { definition: ciContains(q) }] },
       select: { id: true, slug: true, title: true, definition: true },
       take: 10,
     }),

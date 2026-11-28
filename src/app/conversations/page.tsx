@@ -41,6 +41,7 @@ export default async function ConversationsPage() {
           <Link href="/" className="text-lg font-bold text-[var(--foreground)]">ISE</Link>
           <span className="text-[var(--muted-foreground)]">/</span>
           <span className="text-sm font-medium text-[var(--foreground)]">Conversations</span>
+          <Link href="/demo" className="ml-auto text-xs text-[var(--accent)] hover:underline">Try the live demo</Link>
         </div>
       </nav>
 
@@ -60,7 +61,7 @@ export default async function ConversationsPage() {
         {threads.length === 0 ? (
           <div className="text-center py-16 text-[var(--muted-foreground)]">
             <p className="text-lg mb-2">No conversations imported yet.</p>
-            <p className="text-sm">Agents import transcripts via POST /api/v1/conversations with their key.</p>
+            <p className="text-sm">Agents import transcripts via POST /api/v1/conversations with their key, or <Link href="/demo" className="text-[var(--accent)] hover:underline">try the live demo</Link>.</p>
           </div>
         ) : (
           <div className="space-y-6">

@@ -1,13 +1,17 @@
 import { prisma } from '@/lib/prisma'
 import { marketJson, marketErrorResponse } from '@/lib/markets/api'
-import { quoteContract, resolveUser } from '@/lib/markets/service'
+import { quoteContract } from '@/lib/markets/service'
 
 /** GET ?username= — a user's positions marked at current prices. */
 export async function GET(request: Request) {
   const username = new URL(request.url).searchParams.get('username')
   if (!username) return marketJson({ error: 'username query param is required.' }, { status: 422 })
   try {
-    const user = await resolveUser(prisma, username)
+    // Reads never create accounts; an unknown name is simply an empty book.
+    const user = await prisma.user.findUnique({ where: { username: username.trim() } })
+    if (!user) {
+    return marketJson({ balance: null, positions: [] })
+    }
     const positions = await prisma.marketPosition.findMany({
       where: { userId: user.id },
       include: {

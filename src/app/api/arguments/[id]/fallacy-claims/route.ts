@@ -26,6 +26,7 @@ import {
 } from '@/lib/fallacy/claims'
 import { resolveConsensus, CONSENSUS_THRESHOLD, CONSENSUS_QUORUM } from '@/lib/consensus'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 interface PostBody extends Partial<FallacyClaimInput> {
   submittedById?: string
 }
@@ -107,10 +108,11 @@ export async function GET(
   })
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string }> },) {
+  const blocked = guardPublicWrite(request, 'fallacy-claims', 20)
+  if (blocked) return blocked
+
   const { id } = await params
   const argumentId = Number(id)
   if (!Number.isInteger(argumentId)) {

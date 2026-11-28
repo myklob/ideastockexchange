@@ -16,6 +16,7 @@
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { parseHttpUrl } from '@/lib/http-url'
 import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
 import {
   calculateEVS,
@@ -24,6 +25,7 @@ import {
 } from '@/core/scoring/scoring-engine'
 import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 const VALID_TIERS = ['T0', 'T1', 'T2', 'T3', 'T4'] as const
 
 interface PostBody {
@@ -78,10 +80,11 @@ export async function GET(
   })
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string }> },) {
+  const blocked = guardPublicWrite(request, 'evidence', 20)
+  if (blocked) return blocked
+
   const { id } = await params
   const beliefId = Number(id)
   if (!Number.isInteger(beliefId)) {
@@ -97,6 +100,14 @@ export async function POST(
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Body must be valid JSON.' }, { status: 400 })
+  }
+
+  if (typeof body.description === 'string' && body.description.length > 2000) {
+    return NextResponse.json({ error: 'description is capped at 2000 characters.' }, { status: 422 })
+  }
+  const sourceUrl = body.sourceUrl?.trim() ? parseHttpUrl(body.sourceUrl) : null
+  if (body.sourceUrl?.trim() && !sourceUrl) {
+    return NextResponse.json({ error: 'sourceUrl must be an absolute http(s) URL.' }, { status: 422 })
   }
 
   const forbidden = ['evsScore', 'impactScore', 'sourceIndependenceWeight']
@@ -172,7 +183,7 @@ export async function POST(
         beliefId: belief.id,
         side,
         description,
-        sourceUrl: body.sourceUrl?.trim() || null,
+        sourceUrl,
         evidenceType,
         sourceIndependenceWeight,
         replicationQuantity,
