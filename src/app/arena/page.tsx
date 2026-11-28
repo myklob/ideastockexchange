@@ -81,6 +81,9 @@ export default async function ArenaPage() {
             </p>
           </div>
           <nav className="flex items-center gap-4 text-xs text-neutral-300">
+            <Link href="/arena/spectate" className="hover:text-white">
+              Spectate
+            </Link>
             <Link href="/battlefield" className="hover:text-white">
               Battlefield
             </Link>
