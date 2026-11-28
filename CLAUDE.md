@@ -26,7 +26,9 @@ The global typecheck is currently clean (0 errors) — keep it that way. If `@/g
 
 The single most important thing to get right in this codebase is the belief page (`/beliefs/[slug]`). It is the product. Everything else supports it.
 
-- **Canonical rules:** `docs/BELIEF_PAGE_RULES.md`. Read this before generating, restructuring, or refactoring any belief content. The eight hard rules (no top-of-page summary, definitions go last, arguments are 2-6 word labels, arguments != evidence, no broken links, blank scores until real, symmetric Supporters/Opponents, every table score-ranked with top rows shown and the rest collapsed) are non-negotiable.
+- **Canonical rules:** `docs/BELIEF_PAGE_RULES.md`. Read this before generating, restructuring, or refactoring any belief content. The eight hard rules (no top-of-page summary, definitions go last, arguments are atomic propositions, arguments != evidence, no broken links, blank scores until real, symmetric Supporters/Opponents, every table score-ranked with top rows shown and the rest collapsed) are non-negotiable.
+
+Rule 3 changed in the second July 2026 layout update: an argument cell is a complete, atomic proposition ("Postal infrastructure already reaches every zip code"), not a 2-6 word topic fragment ("long-term cost"). Every argument is a belief with its own page, so a cell that cannot headline a page as a claim cannot carry a truth score. The rules doc is authoritative on the current wording.
 - **Canonical template:** `templates/belief-analysis-template.html`. This is the source of truth for the canonical section order. The live page is built around it.
 - **Live implementation:** `src/app/beliefs/[slug]/page.tsx` plus the section components in `src/features/belief-analysis/components/*`.
 - **Types:** `src/features/belief-analysis/types.ts`. New fields on Values/Interests analysis are optional so existing Prisma data still flows; populate via seed scripts as data lands.
@@ -42,14 +44,310 @@ renders as a sub-table inside Cost-Benefit Analysis. Every per-row table carries
 nullable relationship `score`, sorts by it descending (nulls last), and shows its top
 rows with the rest collapsed — see Rule 8 and `src/features/belief-analysis/lib/ranking.ts`.
 
+Retraction exposure rides in the Evidence Ledger: `src/core/scoring/evidence-exposure.ts`
+turns the verification lifecycle (`VERIFICATION_SCORES`, the single source of those weights)
+into a Standing column plus a readout of how many points rest on unestablished standing.
+Rows with no status are counted in full by the engine, so they carry the largest exposure —
+that is deliberate, not a bug to "fix" by defaulting them to verified.
+
+Decision Leverage (`DecisionLeverageSection`, section 1c, right after the argument trees)
+ranks the belief's argument edges by the conclusion score still at stake on each one:
+`src/core/scoring/decision-leverage.ts` is the pure engine,
+`src/features/belief-analysis/lib/leverage.ts` the DB adapter, `/api/beliefs/[id]/leverage`
+the JSON readout, `/algorithms/decision-leverage` the explainer. It reuses existing scores
+(linkage, importance, uniqueness, grounding) and adds no schema — if you change the impact
+formula in `scoring-engine.ts`, the transmission weight and its test pin must follow.
+
 The legacy `FalsifiabilitySection`, `TestablePredictionsSection`, `MediaSection`, and `ImpactSection` components remain on disk because `/product-reviews/[slug]` and `/beliefs/set-aside-distractions-for-real-solutions` still import them. Don't delete them without migrating those routes.
+
+## Scoring: which engine is which
+
+The repo carries more than one scoring implementation. Know which one you are
+touching before you change a formula.
+
+- **`src/core/scoring/` is what the product runs.** ReasonRank propagation,
+  linkage, importance, evidence (EVS), media truth, decision leverage,
+  retraction exposure. The belief page, `/algorithms/*`, `/leverage` and
+  `/media` all read this. **Default here for any change that affects a page.**
+
+  `calculateTruthScoreBreakdown` in `all-scores.ts` used to average every
+  argument's weight regardless of the side it was filed on, so a well-argued
+  objection raised a belief's logical validity by as much as an equally
+  well-argued reason for it: one strong con took a belief from 0.600 to 0.775.
+  It now takes the pro share of argued weight, which is what the evidence half
+  of the same function and `scoring-engine.ts` both already did. Belief-page
+  truth scores move as a result, in the direction of meaning what they say.
+
+  Not all of it scores the same way. `cba-scoring.ts` implements a different
+  rule, from `docs/automated-cba/SKILL.md`: three factors rather than five, a
+  depth attenuation of `0.5^(d-1)` that nothing else has, an unargued
+  importance of 1.0 where the static site reads 0.5, and no uniqueness
+  multiplier at all. `applyArgumentDeduplication`, the defence it has instead
+  of that multiplier, is exported and called by nothing: 57 lines, one
+  reference in the whole repository, its own definition. Wiring it in would
+  move published numbers, so it is a decision rather than a fix.
+  `tests/unit/core/scoring/cba-scoring.test.ts` pins each of those differences
+  so that reconciling the two engines has to be deliberate.
+- **`src/lib/ise-pages/` is a proposed successor, not yet wired.** No route or
+  component imports it. It is a complete, tested reference implementation of
+  the page/edge model plus its worked example; treat it as a design under
+  evaluation, not as the engine to build against.
+- **`src/lib/conclusion-score.ts`** (with its SQL and PHP twins) preserves the
+  founding workbook's original process for reference. Also unwired.
+
+- **`tools/static-site/` is the published site and the most developed engine.**
+  It builds `myklob.github.io/ideastockexchange/beliefs/` from two flat sheets. It
+  is the page/edge model in production, plus four things none of the others have:
+  an evidence prior, a sensitivity sweep, ReasonRank as a network walk, and a
+  computed duplicate detector. Read its README before changing any of it, and see
+  the note below on the one rule that matters most.
+
+- **`src/core/ai/` is a fifth, and it is not in the same business.** A Python and
+  TypeScript framework for generating analysis pages with an LLM. It matters here
+  because three of its modules produce numbers: `scorer.py` asks a model for an
+  importance score out of 100, and `overlap_engine.py` and `similarity.py` compute
+  claim overlap from sentence-transformer embeddings, which is the same question
+  `tools/static-site/similarity.py` answers lexically and transparently. A number a
+  model asserted is the one thing the published engine refuses to carry, so if any
+  of this is ever wired to a page, it needs a page arguing it like every other
+  factor. Nothing imports the scoring half today.
+
+  Two of its files do not parse: `main.py` (line 137, a `FastAPI(...)` call cut off
+  mid-argument and followed by imports) and `services.py` (line 785, a `return`
+  followed by orphaned keyword arguments). Both look like a botched merge rather
+  than unfinished work, both have been in this state since the directory landed,
+  and nothing imports either, which is why nothing noticed. The missing lines are
+  gone, so this is a restore-or-delete decision and not a fix.
+
+Adding a sixth is the wrong move. If the page/edge model wins, migrate
+`src/core/scoring/` onto it and delete the loser; if it doesn't, delete
+`src/lib/ise-pages/`. Leaving both indefinitely is the outcome that costs.
+
+### The rule that keeps being rediscovered (`tools/static-site/`)
+
+A row contributes `sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq`. That is
+deliberate: listing a claim nobody has argued is worth exactly zero, so a score
+cannot be padded. It also means a page with no rows reads 0.50 and contributes
+nothing, so its parent reads 0.50, and **by induction every page of an argument
+graph in which nothing is cited reads exactly 0.50 forever.** Argument about
+argument never touches the world.
+
+The way out is evidence: a page declares `etype`, `erq` and `erp` on the `pages`
+sheet and that sets where its truth starts (`evidence.py`). A page that declares
+nothing starts at 0.50 with weight k, exactly as before.
+`test_engines.py::test_argument_alone_can_never_leave_the_neutral_point` pins
+this. If it ever fails, something has been added that lets a score move without
+evidence, and that needs a reason, not a fix to the test.
+
+Note that `src/core/scoring/scoring-engine.ts` does **not** share this rule. It
+scores `A / (A + D)` over argument strengths, so listing an unargued reason there
+does raise the score. The two engines disagree about whether volume counts, and
+the disagreement is unresolved, not accidental.
+
+### The owner's direction on scoring (October 2026)
+
+The owner answered the scoring questions the wiki audit (`docs/WIKI_AUDIT.md`) raised, and asked not to be
+asked again at this level of detail: know the goals and build toward them. The goal is a score that promotes good
+ideas and demotes bad ones in the real world; whatever rule does that best wins, so prefer publishing a rule beside
+the current one and comparing them on real pages over replacing a rule unseen.
+
+- **Volume.** For belief strength, start from the quantity of truly independent reasons to agree and disagree,
+  rank how valid they are against each other, and let the weight of pro against con decide. Contributions count
+  from the moment they are posted and are argued down from there; a rule under which work counts for nothing until
+  someone proves it tells contributors their effort is wasted. For choices of action the question is different:
+  costs and benefits across every stakeholder with a legitimate interest, the quantity and the quality of
+  interests met, under different assumptions about which interests are valid. `tools/static-site/tally.py` is the
+  starting rule, printed on every belief page beside the argued truth score ("Counting every reason until it is
+  argued down") and read by no other number; the argued rule and its pinned test are unchanged until the two have
+  been compared.
+- **Votes.** There are many scores. Track what is popular separately from what stands up to analysis: votes may
+  decide what is promoted and given attention, never what is valid, and the gap between the two is worth showing
+  because it says where people need more time with the argument. The static site already does this.
+- **Fallacies.** Nothing is final. Software may flag a possible fallacy, and the flag is a claim people argue
+  for and against like any other; a flag alone moves no score.
+- **Linkage with no argument.** Start trusting (the static site's 1) and lower it as people show a reason is
+  unrelated or invalid, so contributors stay engaged; a link that is argued well must be able to rise. Any
+  sensible starting guess (the contributor's record, topic relatedness, an AI estimate, or 0.5 where tokens are
+  short) is acceptable.
+- **Evidence weight.** The owner prefers an evidence weight with no ceiling, so a body of replicated work can
+  outweigh opinion by 15 or 200 times; `tally.py` uses ESIW x ERQ x ERP/100 uncapped for that reason.
+
+### Open decisions, for the owner rather than for a session
+
+Six things are unresolved. Most are calls somebody has to make rather than bugs; the one about files that do
+not parse is a defect whose fix requires knowing what the code was meant to say.
+
+1. **The two engines still disagree about volume.** `src/core/scoring/scoring-engine.ts` scores `A / (A + D)`
+   over argument strengths; `tools/static-site/` scores rows signed and now prints the owner's starting rule
+   beside them. Which one leads the page is to be settled by comparing them on real pages (see above).
+2. **Evidence is filed above the premise it bears on.** Beliefs 1 and 4 cite seven and five findings, argue to
+   0.61 and 0.59, and read 0.50, because their load-bearing premises cite nothing and a conclusion cannot be
+   more settled than a premise it needs. The structural checks say so on the page. Re-filing a finding under
+   the premise it supports changes what the argument says, so it is an editorial act, not a refactor.
+3. **Every cost and benefit is a point estimate.** `mag_low` and `mag_high` exist and are empty, and every
+   belief page says so. Filling them is the owner's estimate to make, not a session's.
+4. **`applyArgumentDeduplication` in `cba-scoring.ts` is exported and called by nothing.** The CBA engine
+   applies impact-level de-duplication in `recalculateCBA` and never the argument-level kind, so a point made
+   three ways in one argument tree counts three times. Wire it in, or delete it and say the defence is
+   impact-level only. Either changes what `/cba` publishes, which is why it is here rather than done.
+5. **`src/core/ai/main.py` and `services.py` do not parse.** Nothing imports either, so nothing fails; the
+   missing lines are gone, so restoring them means writing them. Delete the two files, restore them from
+   whatever they were pasted out of, or leave them and accept that `src/core/ai/` cannot be run as a whole.
+   Any of the three is fine; the current state is the one that reads as working code and is not.
+6. **The load-bearing cap treats "unargued" as 0.50 and lets it cap.** That is conservative and correct as
+   probability, and with the unargued-row rule it is what holds most beliefs at 0.50. The owner's direction on
+   volume points toward counting contributions from the start; changing the argued rule is still a rule change,
+   with a conformance diff to review, and waits on the comparison above.
+
+### The static site's modules
+
+`score_reference.py` is the scorer; `tally.py` the owner's count-every-reason rule printed beside it; `evidence.py` sets where a page starts;
+`confidence.py` how much a page's score counts; `sensitivity.py` which single
+input would change the answer; `reasonrank.py` how much of the corpus depends on
+a page; `similarity.py` which claims say the same thing; `integrity.py` the
+structural faults the graph can show, and a pre-publish cycle check CI runs first; `fallacy.py` flags a
+possible fallacy by a published phrase list, as a question argued on the flagged claim's page that moves no score;
+`method.py` the reader-facing methodology page;
+`sync_content.py` keeps the workbook and the reviewable CSVs in step; `vocab.py` what a post can be (197 kinds, each mapped to
+where intake files it and to AIF, ASPIC+, Walton's schemes and schema.org), behind `vocab.html`, `data/vocab.json`, the JSON-LD
+on every claim page, and intake's `Kind of post` and `Row` fields, which can open a row's linkage, importance or uniqueness
+page. An empty linkage or uniqueness page starts at DEFLINK or DEFUNIQ (`evidence.FACTOR_START`), so opening one moves nothing.
+`outline_names.py`, `outline_read.py`, `outline_print.py` and `outline_file.py` are the Reason Outline, a plain-text post of any
+number of rows (its names, its reader, the printer behind every page's `p/<key>.txt`, and the filer intake's `outline` form
+uses, explained on `outline.html`); a printout reads back to exactly the rows it was printed from, so sending one back adds
+nothing. `factcheck/` re-checks published rows with a Workflow run (`batches.py` cuts the rows not yet judged,
+`factcheck.js` runs one adversarial check, a primary-source second look and a refute check, `verdicts.py` rebuilds every
+verdict from the run journals, `apply.py` files them); `factcheck/judged.json` is the record of every row's verdict, and a
+correction is only ever filed as a sourced reason to disagree, never as an edit. There is no verdict module any more: a
+page prints its numbers and does not tell the reader what to conclude from them. The site is one idea per
+page: `index.html` is a way in (flowing columns of cards: search, the ranked lists, topics once more than one is filed; the cards come first, and what the site is takes two sentences at the foot with a More link to `about.html`), `lists.html`
+says for every ranking what it shows, how it is worked out and why it is tracked, and every card and column that ranks
+links there; in tables, columns hold numbers and short labels and any sentence goes on a line under the row's main text. The reasons
+to agree sit on the left and the reasons to disagree on the right (the owner's direction, November 2026): `two_sided()`
+lays its sides beside each other wherever each can have the 540 pixels the reasons table needs and stacks them below
+that, so that number must stay small enough for two to fit the page; `stacked()` is only for a table with two
+free-flowing columns. `t/<topic>.html` is
+one page per row of the third table `content/topics.csv`, laid out section for section like
+`templates/topic-template.html`; a topic's cells are rows in `edges.csv` with `page` set to the topic key and a
+section from `ise_tables.TOPIC_SECTIONS`, and any cell the topic has no row for is filled from the belief pages
+beneath it or left empty, never invented. A topic's `axis` column says what a positive position
+means, and is typed only for a topic people take a side on as a whole (Taxes, Immigration, a person); a subject
+nobody is for or against (History, Music) leaves it empty, and its page is a directory of sub-topics and the beliefs
+beneath, with no continuum and no position printed on its beliefs; a belief's `hook`, `question` and `ask` columns feed the invitation block; the `criterion` and
+`falsify` edge sections feed Objective Criteria and the Falsifiability Test. All of it rides along
+in the JSON, XML, SQL and SQLite exports (`topic` and `topic_row` tables), but a score still rests
+on `page` and `edge` alone. The full list, the interests, the works cited
+and the what-to-argue-next queue each have a page of their own. **Every belief in the tables is published, however far along it is, and no drafted argument, reason, or
+analysis is ever deleted.** That is the owner's standing rule (quality is ranked, not gated): a belief that meets
+`publish.CORE_BAR` (reasons both ways, evidence, objective criteria, predictions or a falsifiability test, costs and
+benefits, interests) is complete and comes first in every ranking (`Corpus.complete`, `best_beliefs`); every other
+belief is a draft, published with a `draft` mark in lists and on its own meta line, saying what it still needs, and
+listed in `data/drafts.json`. Improve a weak page by adding to it or by ranking it lower, never by removing it or its
+rows. `--complete-only` builds the gated site (complete beliefs and the pages beneath them, a row pointing at a draft
+keeping its words but not its link); CI builds everything. The home page's cards flow in columns so a short card leaves no gap; no card spans the page. People take part
+through GitHub, because there is no server: every belief page carries a form under each table that takes rows plus a
+propose-a-belief form (also on the home and topic pages), each a plain GET to a prefilled GitHub issue form and each
+one line on the page (a link that opens the form as a popover, so no table is followed by a box of empty fields), and
+`contribute.js` checks what is typed against `data/claims_index.json` (written by `build()` from the full tables, drafts
+included) so a duplicate becomes a vote for the claim already there; `intake.py` does the same check on the issue and
+records a vote in `content/votes.csv` or opens a pull request. Every login that adds a row (its `added_by`) or votes gets a page at `u/<login>.html`, and `content/users.csv` with `user_links.csv` give a person a profile; the one marked maintainer (the owner, Mike Laub) is credited in every page footer and citation. No scorer reads any of it. A vote never moves a score: the page shows the counts on the
+heading line after the score badge, and a home card ranks the gap between the vote share and the truth score only once
+anyone has voted. Reader-facing pages use plain words;
+`test_render.py::TestThePagesSpeakPlainly` fails the build on engine words like "corpus" anywhere but the
+method page. `conformance.py` holds the cross-implementation
+contract: a small corpus with its expected numbers, the five constants and
+the eighteen evidence tiers checked in, so a port in any language can be held to
+the same rules without reading this repository's source. Several of its pages exist
+because the contract stated a rule the corpus did not exercise, and the SQL port of
+that same rule passed conformance while returning a truth starting point of 1.40. A
+deliberate rule change means `python3 conformance.py --write` and a reviewed diff.
+CI runs the whole suite before it will publish anything.
+
+### The views (`views.py`, `market.py`)
+
+The same beliefs are published five ways, each a list page for one question, joined by one line at the top of each
+and on every belief page: `all.html` (scores), `costs.html`, `invest.html`, `bets.html`, and `resolve.html` with its
+three parts `motives.html` (interests), `gain.html` (mutual gain) and `factors.html`. **A view prints only what the
+belief page prints.** `views.py` regroups factors the scorer already computed and adds no rule: logical validity and
+verification are the truth rule run on a page's reasons alone and on its checked rows alone; a belief's importance
+is the importance-page rule on the interests it lists; linkage and importance belong to a use of a claim, not to the
+claim. A number with nothing behind it prints grey; a number that does not exist prints blank, never a constant.
+
+A cost or benefit is filed under a category by the words of its unit (`views.RULES`, printed on the method page), and
+a unit the list does not know is Other. Expected values are added only inside one unit. Do not "fix" a column of
+mixed units by converting; the conversion rate is a claim somebody has to argue.
+
+`market.py` is play money and sits behind the same firewall as the app's market layer: scores go to it and nothing
+comes back. A share costs the truth score, so money never moves a price; a bet is a pool on a dated prediction. The
+ledger is `content/stakes.csv`, written by intake from the stake form and absent until the first stake.
+`test_market.py::test_no_scorer_reads_the_ledger` scans the scoring modules for it. If a market-set price is ever
+wanted (the app uses LMSR), print it beside the truth score as a second number; do not replace the price.
+
+Contributor pages count what a person added by what it is (beliefs, reasons, evidence), never "rows".
+
+### Running agent work on the static site (learned in the November 2026 re-check)
+
+- `sync_content.py` takes `--check` or `--to-workbook` and nothing else: with no flag, or an unknown one such as
+  `--help`, it overwrites `content/*.csv` from the workbook and silently undoes CSV edits. After editing the CSVs,
+  run `--to-workbook`, then `--check`.
+- Tests read the live tables, which only grow. Never pin their page count or a similarity score to two decimals;
+  assert a floor or a band. Three such pins broke on content alone.
+- Match rendered HTML by tag and attribute (`<th\b[^>]*>`, `<table\b[^>]*class="scored mini"`), never by a literal
+  opening tag. `ths()` adds `scope="col"` and folding adds an `id` before the class, so tests looking for `<th>` or
+  `<table class="...">` stopped checking anything without failing, and `Publish site` failed from 2026-10-04 until
+  they were fixed. `check_assertions.py` catches an assertion that never runs, not one that runs and cannot fail
+  (an `assertNotIn` of a tag that no longer exists), so a loop that checks rows should end by asserting it found some.
+- The full suite takes about 20 minutes run serially (`test_similarity` and `test_render` are most of it); run the
+  modules in parallel. `check_assertions.py` traces the whole suite and takes over 30 minutes: run it in the
+  background with a long timeout.
+- Workflow runs: WebSearch is capped at 200 calls per turn, shared by every agent launched in that turn; agents
+  inherit the session's model unless the script names one; agent types in `.claude/agents/` load when a session
+  starts; agents see the owner's messages, so a prompt must tell them to ignore any deadline or usage limit they read;
+  a usage limit kills every agent in flight, so keep waves small and rebuild results from the run journals
+  (`factcheck/verdicts.py`).
+- Fact-checking stays on Opus for all three stages. On the calibration set (`factcheck/calibration/`, scored by
+  `factcheck/calibrate.py`) Sonnet caught 14 of 28 known corrections and the November adversarial pass on Opus
+  caught 26, at about half the cost of the two-pass method that caught all 28.
+
+### The page/edge model (`src/lib/ise-pages/`)
+
+One claim per page, one row per edge, and **no stored scores** — every number
+is computed on read from `page` and `edge`. A row scores Truth x Link x Imp x
+Uniq, where each multiplier is itself an argued page (linkage, importance,
+uniqueness) or a labelled constant when no such page exists yet.
+
+- **Worked example:** `examples/ise-zoning/` — the zoning belief argued all the
+  way down (131 pages, 612 edges), plus the SQL schema and a Python reference
+  scorer. `npm run ise:score -- --card 1` prints every page and the belief
+  page's scorecard.
+- **Cross-implementation contract:** `tests/unit/lib/ise-pages.test.ts` pins all
+  131 page scores to values transcribed from the Python reference's output. It
+  catches TypeScript drift, but it does not execute the Python, so it cannot
+  catch reference drift — re-run `score_reference.py` by hand and re-transcribe
+  whenever a rule changes. Changing a rule means changing the engine, the
+  reference and those numbers together.
+- **The older process:** `src/lib/conclusion-score.ts`,
+  `sql/conclusion_score_process.sql` and `examples/php-score-retrieval/` keep
+  the founding workbook's process runnable (one point per listed reason,
+  linkage as a ratio of counts). All three share the zoning argument tree as
+  their example set; they must produce identical numbers on it.
 
 ## Conventions
 
 - **Comments:** default to none. Only write a comment when the *why* is non-obvious. Don't restate what the code does. Don't reference task IDs or PR numbers — those rot.
 - **No new top-level docs (*.md, README, etc.) unless explicitly asked.**
+- **Templates are always brought to the current form, never left stale.** `templates/` holds the page
+  templates and `tools/check_templates.py` decides whether each is current, by the ISE page skill's
+  fingerprints: no retired `Argument Score` or `Evidence Score` columns, canonical Magnitude bands of Modest,
+  Moderate, Strong and Total, engagement as a section rather than a continuum, no em dashes, no empty anchors.
+  CI runs it on any change under `templates/`. A template is copied rather than imported, so a stale one
+  breaks nothing and quietly teaches the next dozen pages the wrong shape.
 - **Edit before Write.** Use `Edit` for changes to existing files. `Write` only for new files or full rewrites.
-- **Branch convention:** Claude-driven work goes on `claude/<short-slug>-<id>` branches. Push, but do NOT open a PR unless the user asks for one.
+- **Branch convention:** Claude-driven work goes on `claude/<short-slug>-<id>` branches. **Every session that improves a page, fixes a bug
+  or makes any other change worth keeping opens a pull request against `master` as soon as the work is pushed**, without
+  waiting to be asked (the owner's standing instruction, November 2026), so no progress is left on a branch nobody merges.
+  Before opening it, merge `master` into the branch and resolve conflicts, and run the checks this file lists. Later pushes to
+  the same branch update the same PR. Do not merge it yourself; the owner merges.
 - **JSX entities:** the lint rule `react/no-unescaped-entities` will flag bare apostrophes/quotes inside JSX text. Use `&apos;`, `&ldquo;`, `&rdquo;`.
 - **Public write routes:** the site has no user accounts, so every keyless `POST`/`PUT`/`PATCH`/`DELETE` under `src/app/api` must start with a guard from `src/lib/public-guard.ts` — `guardPublicWrite` (per-client limiter + `PUBLIC_WRITES_DISABLED`), `requireOperatorSecret` (`CRON_SECRET` bearer; fails closed in production) for recompute/destructive/cron routes, or `guardMarketWrite` for play-money markets. Agent routes under `/api/v1` use `authenticateAgentKey` instead. Never return raw `error.message` to the client.
 - **Scores are never seeded.** Seed scripts write structure only (statements, labels, evidence, relationships); `prisma/seed-propagate.ts` runs last and computes every score. `npm run db:bootstrap` = `prisma db push` + the full seed chain, idempotent.
@@ -87,7 +385,9 @@ Or set `CLAUDE_DEBUG_FILE` before launching. File logging cannot be enabled mid-
 - `/beliefs/[slug]` — the canonical belief page (this is the one that matters).
 - `/beliefs/set-aside-distractions-for-real-solutions` — bespoke route, predates the canonical structure. Don't use as a template.
 - `/product-reviews/[slug]` — separate concept that reuses some belief components. Edits to belief sections may affect it; check before refactoring.
-- `/algorithms` — index of every score explainer; subpages include `reason-rank`, `linkage-scores`, `importance-score`, `truth-scores`, `evidence-scores`, `unique-scores`, `assumptions`, `topic-overlap`, `objective-criteria`, `strong-to-weak`, `belief-equivalency`, `combine-similar-beliefs`, `fallacy-detection`. Belief-page components link these — if you add a link, verify the target exists or use plain text (Rule 5). Wiki-style space-URL routes (`/Linkage Scores` etc.) do NOT exist; never link them.
+- `/algorithms` — index of every score explainer; subpages include `reason-rank`, `linkage-scores`, `importance-score`, `truth-scores`, `evidence-scores`, `unique-scores`, `assumptions`, `topic-overlap`, `objective-criteria`, `strong-to-weak`, `belief-equivalency`, `combine-similar-beliefs`, `fallacy-detection`, `decision-leverage`, `media-truth-score`. Belief-page components link these — if you add a link, verify the target exists or use plain text (Rule 5). Wiki-style space-URL routes (`/Linkage Scores` etc.) do NOT exist; never link them.
+- `/leverage` — the work queue: every unsettled argument edge in the corpus ranked by Decision Leverage, the per-belief roll-up, the beliefs resting on one crux, and the evidence rows counted in published scores without being checked (retraction exposure). JSON twin at `/api/leverage`.
+- `/media` — index of tracked media works ranked by signed epistemic impact; `/media/[id]` — a work's claim ledger and computed Media Truth Score (engine: `src/core/scoring/media-truth.ts`, canonical over prose).
 - `/how-it-works` — the Engine of Reason explainer, with a live engine readout.
 - `/arguments/[id]/linkage` — an edge's linkage sub-debate; `/arguments/[id]/score` — the edge's impact-provenance page (factor-by-factor derivation).
 - `/contact` — contact/contribution pointers (target for all former Contact Me links).

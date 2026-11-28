@@ -1,11 +1,14 @@
 import Link from 'next/link'
 import type { ArgumentWithBelief } from '../types'
 import AddArgumentForm from './AddArgumentForm'
+import SuggestEvidenceForm from './SuggestEvidenceForm'
 
 interface ContributeSectionProps {
   /** When set, the section renders the live add-a-reason form. Optional so
    *  reuse sites (legacy routes) keep the static footer. */
   beliefId?: number
+  /** When set, the section renders the suggest-evidence form. */
+  beliefSlug?: string
   highStakes?: boolean
   arguments?: ArgumentWithBelief[]
 }
@@ -25,6 +28,7 @@ function strongest(args: ArgumentWithBelief[], side: string) {
 
 export default function ContributeSection({
   beliefId,
+  beliefSlug,
   highStakes = false,
   arguments: args = [],
 }: ContributeSectionProps) {
@@ -35,10 +39,11 @@ export default function ContributeSection({
       </h1>
 
       <p className="text-sm mb-3">
-        Two moves are supported: <strong>add a row</strong> — a new reason to agree or
-        disagree, below — or <strong>challenge a number</strong>: every score on this page is a
+        Three moves are supported: <strong>add a row</strong> — a new reason to agree or
+        disagree, below — <strong>challenge a number</strong>: every score on this page is a
         doorway into the sub-debate that produced it, so click the score you disagree with and
-        argue there.
+        argue there — or <strong>suggest evidence</strong>: attach a source to this claim, the
+        smallest contribution there is.
       </p>
 
       {beliefId != null && (
@@ -49,6 +54,12 @@ export default function ContributeSection({
             strongestAgree={strongest(args, 'agree')}
             strongestDisagree={strongest(args, 'disagree')}
           />
+        </div>
+      )}
+
+      {beliefSlug != null && (
+        <div className="mb-4">
+          <SuggestEvidenceForm beliefSlug={beliefSlug} />
         </div>
       )}
 

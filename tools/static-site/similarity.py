@@ -1,0 +1,437 @@
+"""Computed equivalency: which claims in the corpus are saying the same thing in different words.
+
+From docs/wiki/Equivalency-Score.md and docs/wiki/Redundancy-Problem.md. The wiki splits the equivalency score
+in two and then blends them:
+
+    ES(A,B) = w_ces x CES(A,B) + w_ues x UES(A,B),   w_ces + w_ues = 1
+
+    CES   computer-generated: semantic similarity, the wiki's example being spaCy document vectors
+    UES   user-generated: the pro and con reasons people give for the two claims being the same
+    VCA   a validity comparison argument, which decides how much weight each of the two gets
+
+UES already exists here. It is the equivalence page, argued like any other page, and its truth score is what
+the site reads. What was missing is CES, and with it the thing CES is actually for.
+
+WHAT THIS IS FOR, AND IT IS NOT MERGING PAGES. A score is padded by saying the same thing three times. The
+engine's defence against that is the uniqueness multiplier, and the uniqueness multiplier defaults to 1: a
+reason is presumed distinct until someone opens a page to argue the overlap. Nobody opens that page, because
+nobody notices. So the padding defence is off by default across a whole corpus, and the only way to notice is
+to read all 261 pages side by side, which nobody does either. A computed similarity reads them side by side in
+a tenth of a second and hands over a short list.
+
+WHAT IT MEASURES, HONESTLY. Not meaning. The wiki's CES wants a language model; this has no model and no
+network, so it computes two lexical signals over the claim text and averages them:
+
+    Jaccard overlap of content words     catches the same words in a different order
+    Cosine over character 4-grams        catches the same word in a different form, without a stemmer guessing
+
+Both are weighted by inverse document frequency over this corpus, which matters more than it sounds. Every
+belief here contains "the president and members of Congress"; unweighted, that boilerplate alone put three
+plainly different policy proposals above the flag and a list of false alarms is a list nobody reads. Weighted,
+a word carries what it tells you apart from the rest of the corpus, and the shared subject of every page in a
+corpus about one subject carries almost nothing.
+
+That is a proxy, and a weak one. It will flag "officials must not trade stocks" against "officials must not
+trade bonds", which share nearly every word and say different things. It will miss "the ban is unenforceable"
+against "no agency could police it", which share none and say the same thing. So it is a reading queue, not a
+verdict, and a flagged pair is a prompt to open a uniqueness or equivalence page and argue it.
+
+WHY IT CHANGES NO SCORE. w_ces is read from a VCA page when one exists and is 0 when none does, which is the
+same rule as everything else here: an input nobody has argued counts nothing. Until somebody argues that this
+lexical proxy tracks meaning well enough to act on, it does not act. It only points.
+"""
+import math, os, re, sys, unicodedata
+from collections import Counter
+from difflib import SequenceMatcher
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+FLAG = 0.45      # worth a human reading the pair; tuned so the list stays short enough to actually be read
+IDF_FLOOR = 0.05   # a word this common carries no weight in the score, so pairing on it cannot find anything
+JMIN = 0.05        # weighted word overlap below which the character half cannot carry a pair on its own
+PAIRCAP = 1_500_000  # candidate pairs held at once, rarest word first, with what it could not reach reported
+MERGE = 0.70     # near-identical wording: the two pages are probably one page
+NGRAM = 4
+STOP = {'the', 'a', 'an', 'of', 'to', 'in', 'on', 'and', 'or', 'that', 'is', 'are', 'be', 'been', 'being',
+        'would', 'should', 'could', 'for', 'from', 'it', 'its', 'they', 'their', 'them', 'not', 'no', 'by',
+        'with', 'as', 'at', 'this', 'these', 'those', 'was', 'were', 'has', 'have', 'had', 'but', 'than',
+        'then', 'so', 'if', 'when', 'what', 'which', 'who', 'whom', 'whose', 'there', 'here', 'about',
+        'into', 'over', 'under', 'more', 'most', 'less', 'least', 'any', 'all', 'each', 'other', 'such',
+        'can', 'may', 'might', 'must', 'will', 'shall', 'do', 'does', 'did', 'one', 'two', 'up', 'down'}
+
+
+def _is(v): return isinstance(v, int) and not isinstance(v, bool) and v >= 1
+
+
+NEGATION = re.compile(r"\b(?:not|no|never|none|nobody|nothing|neither|nor|cannot)\b|n['\u2019]t\b")
+
+
+def negated(text):
+    """Whether a claim is worded as a denial: an odd number of negating words. Those words are stop words to the
+    measure, so "A hot dog is not a sandwich" reads 0.96 alike to "A hot dog is a sandwich"; this tells them apart.
+    A claim and its denial are never one claim, however alike they read."""
+    return len(NEGATION.findall((text or '').lower())) % 2 == 1
+
+
+def opposite(a, b): return negated(a) != negated(b)
+
+
+# Two texts that read alike can still say opposite things. opposite() counts negating words; reverses() and
+# substitutes() catch the rest the measure cannot see: a comparison turned round, an antonym, a different word put in
+# one place. Every path that turns a typed claim into a vote for a stored one asks all three (intake, outline_file).
+# words that deny what follows them ('failed to earn', 'rarely trade', 'it is false that'), beyond those
+# similarity.NEGATION counts
+_FAILS = re.compile(r"\b(?:fail(?:s|ed|ing)?|unable|refus(?:e|es|ed|ing)|lack(?:s|ed|ing)?|rarely|seldom|hardly|scarcely)\b|"
+                    r"\b(?:false|untrue|a myth) that\b")
+# words that turn a comparison around when one text has one and the other text the other
+_ANTONYMS = {frozenset(p) for p in (
+    ('good', 'bad'), ('good', 'harm'), ('better', 'worse'), ('best', 'worst'), ('easier', 'harder'), ('easy', 'hard'),
+    ('more', 'less'), ('more', 'fewer'), ('increase', 'decrease'), ('increases', 'decreases'), ('increased', 'decreased'),
+    ('increase', 'reduce'), ('increases', 'reduces'), ('raise', 'lower'), ('raises', 'lowers'), ('rise', 'fall'), ('rises', 'falls'),
+    ('help', 'hurt'), ('helps', 'hurts'), ('help', 'harm'), ('helps', 'harms'), ('benefit', 'harm'), ('benefits', 'harms'),
+    ('gain', 'loss'), ('gains', 'losses'), ('win', 'lose'), ('wins', 'loses'), ('success', 'failure'), ('legal', 'illegal'),
+    ('allowed', 'banned'), ('allowed', 'against'), ('lawful', 'unlawful'), ('true', 'false'), ('strong', 'weak'),
+    ('stronger', 'weaker'), ('higher', 'lower'), ('above', 'below'), ('support', 'oppose'), ('supports', 'opposes'),
+    ('inform', 'mislead'), ('safe', 'dangerous'), ('safer', 'riskier'), ('likely', 'unlikely'), ('possible', 'impossible'),
+    ('positive', 'negative'), ('always', 'never'), ('cheaper', 'costlier'), ('earned', 'failed'), ('worth', 'worthless'),
+    ('many', 'few'), ('more', 'same'), ('less', 'same'), ('mistake', 'right'), ('wrong', 'right'), ('most', 'least'))}
+_TOKEN = re.compile(r"[a-z0-9']+")
+_ANCHORS = ('than', 'not', 'instead', 'rather')
+
+
+def _tokens(text): return _TOKEN.findall(unicodedata.normalize('NFC', str(text or '')).lower().replace('\u2019', "'"))
+
+
+def _denials(ts):
+    """How many times a text denies what follows: similarity.NEGATION's words, 'neither ... nor' counted once, and
+    'failed to', 'unable to' and the like."""
+    t = ' '.join(ts)
+    return len(NEGATION.findall(t)) - min(ts.count('neither'), ts.count('nor')) + len(_FAILS.findall(t))
+
+
+def _frames(ts):
+    """Each comparison in a text ('X than Y', 'X, not Y', 'X rather than Y'), as (its word, the words before it in
+    its clause, the words after it, the nearest word before, the nearest after), stop words left out."""
+    cs = [w for w in ts if w not in STOP or w in _ANCHORS]
+    out, start = [], 0
+    for i, w in enumerate(cs):
+        if w not in _ANCHORS: continue
+        before = [x for x in cs[start:i] if x not in _ANCHORS]
+        after = [x for x in cs[i + 1:i + 7] if x not in _ANCHORS]
+        if before and after: out.append((w, set(before), set(after), before[-1], after[0]))
+        start = i + 1
+    return out
+
+
+def _crossed(ba, aa, bb, ab):
+    """Words before a point in one text that come after it in the other, and words after it that come before it."""
+    return bool((ba & ab) - aa - bb and (aa & bb) - ba - ab)
+
+
+def _swapped(ta, tb):
+    """Whether two texts that use one word once each have words moved across it both ways ('A will outsell B' and 'B
+    will outsell A'): a subject and an object swapped round their verb. An edit keeps the order of the words it leaves,
+    so it never moves one across a word both texts share."""
+    ca, cb = [w for w in ta if w not in STOP], [w for w in tb if w not in STOP]
+    for v in set(ca) & set(cb):
+        if ca.count(v) != 1 or cb.count(v) != 1: continue
+        i, j = ca.index(v), cb.index(v)
+        ba, aa, bb, ab = set(ca[:i]), set(ca[i + 1:]), set(cb[:j]), set(cb[j + 1:])
+        if ba and aa and bb and ab and _crossed(ba, aa, bb, ab): return True
+    return False
+
+
+def reverses(a, b):
+    """Whether one claim says the opposite of the other although the two read alike: one denies what the other says
+    (similarity.opposite, or 'failed to', 'rarely', 'it is false that' and the like), the two sides of a comparison are
+    swapped ('more good than harm' and 'more harm than good', 'easier, not harder' and 'harder, not easier'), one
+    says the side the other puts second comes first ('more harm than good' against 'good for'), a subject and an
+    object are swapped round their verb ('A will outsell B' and 'B will outsell A'), or one uses a word and the other
+    its opposite ('allowed by law' against 'against the law', 'many worlds' against 'very few'). The measure counts
+    words, not their order, so it reads each of these pairs as near copies. The comparisons of two texts are paired
+    in order by their word, so one word edited in a text with several comparisons is not read as a swap."""
+    if opposite(a, b): return True
+    ta, tb = _tokens(a), _tokens(b)
+    if _denials(ta) % 2 != _denials(tb) % 2: return True
+    fa, fb = _frames(ta), _frames(tb)
+    for w in {f[0] for f in fa} & {f[0] for f in fb}:
+        for (_, ba, aa, _, _), (_, bb, ab, _, _) in zip([f for f in fa if f[0] == w], [f for f in fb if f[0] == w]):
+            if _crossed(ba, aa, bb, ab): return True
+    if _swapped(ta, tb): return True
+    sa, sb = set(ta), set(tb)
+    for frames, other, others in ((fa, sb, fb), (fb, sa, fa)):
+        if frames and not others:
+            for _, _, _, first, second in frames:
+                if first not in other and second in other: return True
+    only_a, only_b = set(Counter(ta) - Counter(tb)), set(Counter(tb) - Counter(ta))
+    flips = {p for p in _ANTONYMS if len(p & only_a) == 1 and len(p & only_b) == 1 and p & only_a != p & only_b}
+    return len(flips) % 2 == 1
+
+
+def _inflected(x, y):
+    """Whether two words are one word inflected or spelled another way ('trade', 'traded'; 'color', 'colour'): they
+    share all but the last three letters of the shorter, and at least three. A prefix that turns a word round
+    ('underperform', 'excludes', 'illegal') shares no first letter with the word, so it never reads as one."""
+    k = 0
+    for p, q in zip(x, y):
+        if p != q: break
+        k += 1
+    return k >= max(3, min(len(x), len(y)) - 3)
+
+
+def substitutes(a, b):
+    """(a word of a, the word of b that takes its place) when the two texts put a different word in one place
+    ('would expand the use' and 'would reduce the use', 'outperformed' and 'underperformed', 'rose' and 'fell'),
+    once words moved from one place to another and words that are one word inflected are set aside; None otherwise.
+    The measure counts the words the two share, so a text with one word swapped for its opposite reads as a near copy,
+    and no list of opposites is ever complete. Words added on either side are not a swap ('Members of Congress ...
+    a private stake' and 'Members ... a private financial stake')."""
+    ca, cb = [w for w in _tokens(a) if w not in STOP], [w for w in _tokens(b) if w not in STOP]
+    na, nb = Counter(ca), Counter(cb)
+    for op, i1, i2, j1, j2 in SequenceMatcher(None, ca, cb, autojunk=False).get_opcodes():
+        if op != 'replace': continue
+        # a word the other text has as often is one moved, not swapped
+        left, right = [w for w in ca[i1:i2] if nb[w] < na[w]], [w for w in cb[j1:j2] if na[w] < nb[w]]
+        for x in list(left):
+            y = next((y for y in right if _inflected(x, y)), None)
+            if y is not None: left.remove(x); right.remove(y)
+        if left and right: return left[0], right[0]
+    return None
+
+
+def words(text):
+    return [w for w in re.sub(r'[^a-z0-9 ]+', ' ', (text or '').lower()).split() if w and w not in STOP]
+
+
+def grams(text, n=NGRAM):
+    t = re.sub(r'\s+', ' ', re.sub(r'[^a-z0-9 ]+', '', (text or '').lower())).strip()
+    if len(t) < n: return {t: 1} if t else {}
+    out = {}
+    for i in range(len(t) - n + 1): out[t[i:i + n]] = out.get(t[i:i + n], 0) + 1
+    return out
+
+
+def jaccard(a, b):
+    sa, sb = set(a), set(b)
+    if not sa or not sb: return 0.0
+    return len(sa & sb) / len(sa | sb)
+
+
+def cosine(a, b):
+    if not a or not b: return 0.0
+    dot = sum(v * b.get(k, 0) for k, v in a.items())
+    na = math.sqrt(sum(v * v for v in a.values())); nb = math.sqrt(sum(v * v for v in b.values()))
+    return dot / (na * nb) if na and nb else 0.0
+
+
+def ces(text_a, text_b):
+    """Computer-generated equivalency in [0,1]. Lexical, transparent, and no substitute for reading them."""
+    return 0.5 * jaccard(words(text_a), words(text_b)) + 0.5 * cosine(grams(text_a), grams(text_b))
+
+
+def idf(docs):
+    """log((N + 1) / (df + 1)) over the corpus, floored at 0. A term on every page tells you nothing."""
+    n = len(docs)
+    df = {}
+    for d in docs:
+        for t in set(d): df[t] = df.get(t, 0) + 1
+    return {t: max(0.0, math.log((n + 1.0) / (c + 1.0))) for t, c in df.items()}
+
+
+def wjaccard(a, b, w):
+    sa, sb = set(a), set(b)
+    if not sa or not sb: return 0.0
+    union = sum(w.get(t, 0.0) for t in sa | sb)
+    return (sum(w.get(t, 0.0) for t in sa & sb) / union) if union > 0 else 0.0
+
+
+def wcosine(a, b, w):
+    if not a or not b: return 0.0
+    va = {k: v * w.get(k, 0.0) for k, v in a.items()}
+    vb = {k: v * w.get(k, 0.0) for k, v in b.items()}
+    dot = sum(v * vb.get(k, 0.0) for k, v in va.items())
+    na = math.sqrt(sum(v * v for v in va.values())); nb = math.sqrt(sum(v * v for v in vb.values()))
+    return dot / (na * nb) if na and nb else 0.0
+
+
+class Similarity:
+    """Built over a render_site.Corpus. One pass over the pages that carry a claim in words."""
+
+    def __init__(self, corpus, flag=FLAG):
+        self.c = corpus
+        self.flag = flag
+        self.texts = {p: corpus.text(p) for p in corpus.specs
+                      if corpus.kind(p) in ('belief', 'claim', 'interest') and (corpus.text(p) or '').strip()}
+        self._w = {p: words(t) for p, t in self.texts.items()}
+        self._g = {p: grams(t) for p, t in self.texts.items()}
+        self.widf = idf(list(self._w.values()))
+        self.gidf = idf([list(g) for g in self._g.values()])
+        # Each page's weighted gram vector, normalised once. Building it inside every comparison made the
+        # character half cost a hundred times the word half; as a dot product over the shorter of two sparse
+        # vectors it costs a few times as much, which is what lets the word half stop being a gate.
+        self._gv = {}
+        for p, g in self._g.items():
+            v = {k: n * self.gidf.get(k, 0.0) for k, n in g.items()}
+            norm = math.sqrt(sum(x * x for x in v.values()))
+            self._gv[p] = {k: x / norm for k, x in v.items() if x} if norm else {}
+        self._pairs = None
+        self._uniq = None
+        self._byparent = None
+        self._scored = None
+        self._unreached = None
+        self.paircap = PAIRCAP
+
+    def between(self, a, b):
+        if a not in self._w or b not in self._w: return 0.0
+        return 0.5 * wjaccard(self._w[a], self._w[b], self.widf) + 0.5 * self._gcos(a, b)
+
+    def _gcos(self, a, b):
+        x, y = self._gv[a], self._gv[b]
+        if len(x) > len(y): x, y = y, x
+        return sum(v * y.get(k, 0.0) for k, v in x.items())
+
+    def pairs(self):
+        """Every pair above the flag, most alike first, with whatever the corpus already says about them.
+
+        Two passes, because the two halves of the score cost very different amounts. The word half is a
+        weighted overlap, and an inverted index gives it exactly, for every pair that shares any informative
+        word, by adding one weight per shared word. The character half needs both pages' 4-gram vectors and
+        costs a hundred times as much, so it is only paid for pairs the word half says are worth it.
+
+        What a word is skipped FOR is the part that had to change. It used to be skipped for being carried by
+        more than sixty pages, which silently made two pages with identical text incomparable as soon as the
+        words they shared sat on sixty-one: the detector reported nothing and nothing said it had not looked.
+        A cheap check that quietly stops checking is worse than no check. The rule is now the one the score
+        already implies: a word is skipped only when it carries no weight, which is when almost every page has
+        it. Informative words are never skipped for being common, because that is exactly the case a missed
+        duplicate hides in.
+
+        Two limits remain and both are stated rather than silent. A pair whose weighted word overlap is under
+        JMIN is not scored in full, because the character half catches different forms of the same words and
+        cannot carry a pair that shares none. And candidate pairs are opened rarest word first up to PAIRCAP;
+        a word too common to open more still adds its weight to every candidate already held, so the overlap
+        of a candidate is always exact and only a pair sharing nothing rarer than such a word goes unexamined.
+        `report()` names the claims that happened to, rather than presenting a short list as a clean bill of
+        health. (Before the weight was added, "s" from "U.S." hit the cap once the prediction pages landed, and
+        eight pairs just over the flag dropped out by exactly its weight.)"""
+        if self._pairs is not None: return self._pairs
+        mass = {p: sum(self.widf.get(w, 0.0) for w in set(ws)) for p, ws in self._w.items()}
+        index = {}
+        for p, ws in self._w.items():
+            for w in set(ws):
+                if self.widf.get(w, 0.0) > IDF_FLOOR: index.setdefault(w, []).append(p)
+        shared, unreached, full = {}, set(), 0
+        for w in sorted(index, key=lambda x: (len(index[x]), x)):
+            ps, wt = index[w], self.widf[w]
+            if len(shared) + len(ps) * (len(ps) - 1) // 2 > self.paircap:
+                # whichever is cheaper: the word's own pairs, or one pass over the candidates held
+                if len(ps) * (len(ps) - 1) // 2 < len(shared):
+                    for i, a in enumerate(ps):
+                        for b in ps[i + 1:]:
+                            k = (a, b) if a < b else (b, a)
+                            if k in shared: shared[k] += wt
+                else:
+                    sps = set(ps)
+                    for k in shared:
+                        if k[0] in sps and k[1] in sps: shared[k] += wt
+                unreached.update(ps); continue
+            for i, a in enumerate(ps):
+                for b in ps[i + 1:]:
+                    k = (a, b) if a < b else (b, a)
+                    shared[k] = shared.get(k, 0.0) + wt
+        out = []
+        for (a, b), sh in shared.items():
+            union = mass[a] + mass[b] - sh
+            wj = (sh / union) if union > 0 else 0.0
+            if wj < JMIN: continue
+            full += 1
+            sc = 0.5 * wj + 0.5 * self._gcos(a, b)
+            if sc < self.flag: continue
+            out.append({'a': a, 'b': b, 'ces': sc,
+                        'equiv': self.equivalence(a, b), 'uniq': self.uniqueness(a, b),
+                        'shared_parent': self.shared_parent(a, b), 'scored_parent': self.scored_parent(a, b),
+                        'opposite': opposite(self.texts[a], self.texts[b]),
+                        'verdict': ('may be the opposite claim' if opposite(self.texts[a], self.texts[b])
+                                    else 'probably one page' if sc >= MERGE else 'worth arguing the overlap')})
+        out.sort(key=lambda r: (-r['ces'], r['a'], r['b']))
+        self._pairs = out
+        self._unreached = unreached - {p for pair in shared for p in pair}
+        self._candidates, self._scored = len(shared), full
+        return out
+
+    def equivalence(self, a, b):
+        """The equivalence page connecting these two, if anyone has opened one."""
+        for other, t, q in self.c.equivalents.get(a, []):
+            if other == b: return q
+        return None
+
+    def uniqueness(self, a, b):
+        """A uniqueness page arguing that one of these makes a different point from the other."""
+        return self._uniq_index().get(frozenset((a, b)))
+
+    def _uniq_index(self):
+        """Built once. Scanning every page for every flagged pair is fine at 261 pages and is not a habit to
+        keep in a tool meant for corpora that are much larger."""
+        if self._uniq is None:
+            self._uniq = {}
+            for pid, sp in self.c.specs.items():
+                if self.c.kind(pid) != 'uniqueness': continue
+                x, z = sp.get('x'), sp.get('z') or sp.get('y')
+                if _is(x) and _is(z): self._uniq.setdefault(frozenset((x, z)), pid)
+        return self._uniq
+
+    def shared_parent(self, a, b):
+        """Whether the two sit on the same page. Two near-identical rows under one conclusion are the padding
+        the uniqueness multiplier exists to stop, and they are the ones worth flagging first."""
+        pa = {u[0] for u in self.c.uses.get(a, [])}
+        pb = {u[0] for u in self.c.uses.get(b, [])}
+        return sorted(pa & pb)
+
+    def scored_parent(self, a, b):
+        """The pages on which both are read as a reason, a finding or a prediction on the same side: the only place
+        a repeat can pad a score. Two outcomes of a falsifiability test, the prediction if true beside the
+        prediction if false, or a belief and its own variant under Similar Beliefs read alike on purpose and pad
+        nothing."""
+        if self._scored is None:
+            self._scored = {}
+            for e in getattr(self.c, 'norm_edges', ()):
+                if e.get('section') in ('argument', 'evidence', 'prediction') and e.get('claim_id'):
+                    self._scored.setdefault(e['claim_id'], set()).add((e['page_id'], e.get('side')))
+        both = self._scored.get(a, set()) & self._scored.get(b, set())
+        return sorted({page for page, _side in both})
+
+    def by_parent(self):
+        """Flagged pairs indexed by the page on which both carry weight, leaving out a claim and its denial. Every
+        page asks this, so scanning the whole flag list once per page is a scan of the corpus squared."""
+        if self._byparent is None:
+            self._byparent = {}
+            for r in self.pairs():
+                if r['opposite']: continue
+                for q in r['scored_parent']: self._byparent.setdefault(q, []).append(r)
+        return self._byparent
+
+    def report(self, limit=12):
+        """The pairs worth showing, and how many are not shown. A list of seventeen thousand is a list nobody
+        opens, and truncating it without saying so reads as coverage."""
+        ps = self.pairs()
+        return {'shown': ps[:limit], 'total': len(ps), 'hidden': max(0, len(ps) - limit),
+                'unguarded': len(self.unguarded()), 'claims': len(self.texts),
+                'candidates': self._candidates, 'compared': self._scored, 'paircap': self.paircap,
+                'unreached': sorted(self._unreached or ())}
+
+    def unguarded(self):
+        """Flagged pairs that sit on the same page with no uniqueness page between them: the live padding risk."""
+        return [r for r in self.pairs() if r['scored_parent'] and not r['uniq'] and not r['opposite']]
+
+    def merge_candidates(self):
+        return [r for r in self.pairs() if r['ces'] >= MERGE and not r['equiv'] and not r['opposite']]
+
+    # ---------------------------------------------------------------- the wiki's blend
+    def blend(self, equivalence_page, w_ces=0.0):
+        """ES = w_ces x CES + w_ues x UES. w_ces is 0 until a validity comparison argument says otherwise, so
+        by default the argued page decides and the computed number only reports."""
+        sp = self.c.specs[equivalence_page]
+        x, y = sp.get('x'), sp.get('y')
+        ues = self.c.truth(equivalence_page)
+        comp = self.between(x, y) if (x in self.texts and y in self.texts) else None
+        es = ues if (comp is None or w_ces <= 0) else w_ces * comp + (1 - w_ces) * ues
+        return {'ces': comp, 'ues': ues, 'w_ces': w_ces, 'es': es}

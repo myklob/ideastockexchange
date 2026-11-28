@@ -43,7 +43,7 @@ export default async function TopicPage({ params, searchParams }: TopicPageProps
   const masterDir = parseSortDir(sp.dir)
 
   const byDirection = sortTopicBeliefs(topic.beliefs, 'direction')
-  const byMagnitude = sortTopicBeliefs(topic.beliefs, 'magnitude')
+  const byStrength = sortTopicBeliefs(topic.beliefs, 'strength')
   const byAbstraction = sortTopicBeliefs(topic.beliefs, 'abstraction')
   const masterRows = sortTopicBeliefs(topic.beliefs, masterSort, masterDir)
 
@@ -172,14 +172,14 @@ export default async function TopicPage({ params, searchParams }: TopicPageProps
               </div>
             </section>
 
-            {/* Dimension 2: Claim Magnitude */}
+            {/* Dimension 2: Claim Strength */}
             <section className="mb-10">
               <h2 className="text-xl font-bold text-[var(--foreground)] mb-1">
-                Claim Magnitude: Weak → Extreme
+                Claim Strength: Modest → Total
               </h2>
               <p className="text-sm text-[var(--muted-foreground)] mb-3">
-                The same topic, sorted by how bold the phrasing is — from hedged to maximal.
-                Magnitude measures a claim&apos;s structural reach, not how well-supported it is;
+                The same topic, sorted by how bold the phrasing is, from hedged to maximal.
+                Claim Strength measures a claim&apos;s structural reach, not how well-supported it is;
                 bolder claims need stronger evidence to earn the same score (see{' '}
                 <Link href="/algorithms/strong-to-weak" className="text-[var(--accent)] hover:underline">
                   the strong-to-weak spectrum
@@ -191,12 +191,12 @@ export default async function TopicPage({ params, searchParams }: TopicPageProps
                   <thead className="bg-gray-100">
                     <tr>
                       <th className="px-4 py-2 border-b text-left font-semibold">Belief</th>
-                      <th className="px-4 py-2 border-b text-left font-semibold">Magnitude</th>
+                      <th className="px-4 py-2 border-b text-left font-semibold">Claim Strength</th>
                       <th className="px-4 py-2 border-b text-center font-semibold">Score</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {byMagnitude.map(belief => {
+                    {byStrength.map(belief => {
                       const band = getStrengthBand(belief.claimStrength)
                       return (
                         <tr key={belief.id} className="hover:bg-gray-50">
@@ -303,7 +303,7 @@ export default async function TopicPage({ params, searchParams }: TopicPageProps
                   <thead className="bg-gray-100">
                     <tr>
                       <th className="px-4 py-2 border-b text-left font-semibold">Abstraction</th>
-                      <th className="px-4 py-2 border-b text-left font-semibold">Magnitude</th>
+                      <th className="px-4 py-2 border-b text-left font-semibold">Claim Strength</th>
                       <th className="px-4 py-2 border-b text-left font-semibold">Direction</th>
                       <th className="px-4 py-2 border-b text-left font-semibold">Statement</th>
                       <th className="px-4 py-2 border-b text-center font-semibold">Score</th>

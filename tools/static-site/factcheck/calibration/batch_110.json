@@ -1,0 +1,185 @@
+[
+ {
+  "id": 6988,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "serena-williams-won-10",
+  "text": "Serena Williams won 10 Grand Slam singles titles after turning 30, while no other woman has won more than three after that age, and she won her last major at 35 years and 124 days, the oldest woman ever to do so."
+ },
+ {
+  "id": 6989,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "serena-williams-won-14",
+  "text": "Serena Williams won 14 Grand Slam doubles titles without losing a doubles final, two mixed doubles majors and four Olympic gold medals, a breadth of success that Novak Djokovic, Steffi Graf and Rod Laver do not match."
+ },
+ {
+  "id": 6990,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "serena-williams-won-367",
+  "text": "Serena Williams won 367 Grand Slam singles matches, more than any other woman, and finished her career 858-156 in singles, so her dominance shows up in the everyday matches and not only in trophy counts."
+ },
+ {
+  "id": 6991,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "margaret-court-won-13",
+  "text": "Margaret Court won 13 of her 24 major singles titles before the Open Era began in 1968, and 11 of the 24 came at the Australian Championships when many of the best players skipped the long trip, so Serena Williams's 23 titles were won against stronger fields than Court's 24."
+ },
+ {
+  "id": 6992,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "serena-williams-changed-how",
+  "text": "Serena Williams changed how women's tennis is played and watched, with a serve that produced 18 aces in the 2015 Australian Open final and a farewell match that drew 4.8 million viewers, the most for any tennis match on ESPN in its history."
+ },
+ {
+  "id": 6993,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "evidence",
+  "side": "agree",
+  "claim": "serena-williams-was-35",
+  "text": "Serena Williams was 35 years and 124 days old when she won the 2017 Australian Open, her 23rd major, making her the oldest woman ever to win a Grand Slam singles title.",
+  "source": "Guinness World Records, Oldest tennis Grand Slam singles winner (female), 2017"
+ },
+ {
+  "id": 6994,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "evidence",
+  "side": "agree",
+  "claim": "serena-williams-won-10-2",
+  "text": "Serena Williams won 10 Grand Slam singles titles after her 30th birthday, from Wimbledon 2012 through the 2017 Australian Open, while no other woman has won more than three majors after turning 30.",
+  "source": "Tennis.com, Serena Williams records that may never be broken: Winning 10 majors after turning 30, 2022"
+ },
+ {
+  "id": 6995,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "prediction",
+  "side": "agree",
+  "claim": "next-cross-sex-all",
+  "text": "The next cross-sex all-time ranking from a major outlet with a named expert panel will place Serena Williams first, ahead of Novak Djokovic, Steffi Graf and Rod Laver."
+ },
+ {
+  "id": 7001,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "person",
+  "side": "agree",
+  "claim": "roger-federer-told-wsj",
+  "text": "Roger Federer told WSJ. Magazine in May 2018 that Serena Williams became one of the greatest, if not the greatest tennis player of all time, and when asked whether he meant among women only, he answered \"Overall.\""
+ },
+ {
+  "id": 7002,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "person",
+  "side": "agree",
+  "claim": "patrick-mouratoglou-who-coached",
+  "text": "Patrick Mouratoglou, who coached Serena Williams to 10 of her 23 major singles titles, describes her on his academy's website as the greatest player in the history of tennis, both for her record and for her status as a world star."
+ },
+ {
+  "id": 7003,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "media",
+  "side": "agree",
+  "claim": "being-serena-hbo-2018",
+  "text": "Being Serena (HBO, 2018)",
+  "source": "HBO",
+  "bridge": "The five-part documentary series follows Serena Williams through the birth of her daughter, the medical complications that followed, and her return to the tour in 2018, the period when she reached further major finals in her late thirties."
+ },
+ {
+  "id": 7004,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "novak-djokovic-has-24",
+  "text": "Novak Djokovic has 24 Grand Slam singles titles, a record 428 weeks at No. 1, a record eight year-end No. 1 finishes, a record 40 Masters 1000 titles and an Olympic gold medal, so on every counting measure of the men's game he stands above Serena Williams's totals."
+ },
+ {
+  "id": 7005,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "steffi-graf-spent-377",
+  "text": "Steffi Graf spent 377 weeks at No. 1 to Serena Williams's 319, finished eight seasons at No. 1 to Serena's five, won all four majors plus Olympic gold in the single year 1988, and won 89 percent of her career matches to Serena's 85 percent."
+ },
+ {
+  "id": 7006,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "men-s-women-s",
+  "text": "Men's and women's tennis are separate competitions with different opponents, and in a 1998 exhibition a 16-year-old Serena Williams lost a set 6-1 to Karsten Braasch, a man ranked 203rd, so there is no shared yardstick on which a woman can be shown to be the greatest player of either sex."
+ },
+ {
+  "id": 7007,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "when-analysts-put-all",
+  "text": "When analysts put all players on one rating scale, Serena Williams usually ranks below several others: Jeff Sackmann's Elo-based Greatness Quotient placed Steffi Graf ahead of her in 2020, his Tennis 128 ranked her sixth of all time in 2022, and a Tennis Channel expert panel ranked her 14th in 2012."
+ },
+ {
+  "id": 7008,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "rod-laver-won-calendar",
+  "text": "Rod Laver won the calendar-year Grand Slam twice, in 1962 and 1969, and was barred from the majors from 1963 through 1967 at the height of his powers because he had turned professional, so his record understates his dominance in a way Serena Williams's does not."
+ },
+ {
+  "id": 7009,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "novak-djokovic-has-won",
+  "text": "Novak Djokovic has won 24 Grand Slam singles titles, spent a record 428 weeks at No. 1, finished a record eight seasons at No. 1, won a record 40 Masters 1000 titles and seven ATP Finals, and took Olympic gold in Paris in 2024.",
+  "source": "Wikipedia, Novak Djokovic, 2026"
+ },
+ {
+  "id": 7010,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "steffi-graf-held-no",
+  "text": "Steffi Graf held the No. 1 ranking for 377 weeks, finished eight seasons at No. 1, won 22 majors from 31 finals with at least four titles at each of the four majors, won 885 of 991 career matches, and completed the calendar-year Golden Slam in 1988.",
+  "source": "Wikipedia, Steffi Graf career statistics, 2026"
+ },
+ {
+  "id": 7011,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "jeff-sackmann-s-elo",
+  "text": "Jeff Sackmann's Elo-based Greatness Quotient, summing each season's year-end rating above 2000, put Steffi Graf first among women at 4784 with a peak Elo of 2505 and Serena Williams second at 4569 with a peak of 2448.",
+  "source": "Tennis Abstract, Who's the GOAT? Balancing Career and Peak Greatness With Elo Ratings, 2020"
+ },
+ {
+  "id": 7012,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "prediction",
+  "side": "disagree",
+  "claim": "tennis-abstract-style-elo",
+  "text": "A Tennis Abstract style Elo comparison published after Serena Williams's retirement will still place Steffi Graf's peak rating and career total above Serena Williams's."
+ },
+ {
+  "id": 7013,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "prediction",
+  "side": "disagree",
+  "claim": "majority-cross-sex-all",
+  "text": "A majority of cross-sex all-time rankings published by major outlets will name Novak Djokovic, Rod Laver or Steffi Graf, and not Serena Williams, as the single greatest player."
+ },
+ {
+  "id": 7019,
+  "belief_text": "Serena Williams is the greatest tennis player of all time, of either sex.",
+  "section": "person",
+  "side": "disagree",
+  "claim": "john-mcenroe-told-npr",
+  "text": "John McEnroe told NPR's Lulu Garcia-Navarro in June 2017 that Serena Williams is the best female tennis player ever but that if she played the men's circuit she would be like 700 in the world."
+ }
+]

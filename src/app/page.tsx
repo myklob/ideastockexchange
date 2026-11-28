@@ -38,7 +38,7 @@ export default function Home() {
           </p>
           <div className="flex gap-3 mt-8 flex-wrap">
             <Link href="/beliefs" className="ise-btn ise-btn--primary">Browse Beliefs</Link>
-            <Link href="/arbitrage" className="ise-btn ise-btn--ghost">View Arbitrage</Link>
+            <Link href="/markets" className="ise-btn ise-btn--ghost">Browse Markets</Link>
           </div>
         </div>
       </header>
@@ -716,6 +716,7 @@ export default function Home() {
                 <li><Link href="/problems" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">The Problem</Link></li>
                 <li><Link href="/solutions" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Solutions</Link></li>
                 <li><Link href="/contribute" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Contribute</Link></li>
+                <li><Link href="/leverage" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Work Queue</Link></li>
                 <li><Link href="/search" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Search</Link></li>
                 <li><Link href="/how-it-works" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">How It Works</Link></li>
                 <li><Link href="/demo" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Live Demo: Chat to Belief Page</Link></li>

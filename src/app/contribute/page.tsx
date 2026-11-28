@@ -60,6 +60,20 @@ export default function ContributePage() {
         accumulated state of the debate rather than its latest fragment.
       </p>
 
+      <h2 className="text-xl font-bold mt-8 mb-2">Pick the piece that matters</h2>
+      <p className="mb-4">
+        Before climbing a rung, you can see where the work actually changes an answer. The{' '}
+        <Link href="/leverage" className="text-blue-700 hover:underline">work queue</Link>{' '}
+        ranks every unsettled argument in the corpus by how much conclusion score is riding on it,
+        and names the one gap that would settle each: a missing source, an undebated linkage, a
+        claim nobody has contested, an unscored sub-debate. The top row is the cheapest way to move
+        a published score. How the ranking is computed is explained in{' '}
+        <Link href="/algorithms/decision-leverage" className="text-blue-700 hover:underline">
+          Decision Leverage
+        </Link>
+        .
+      </p>
+
       <h2 className="text-xl font-bold mt-8 mb-2">Challenge one number</h2>
       <p className="mb-4">
         Every argument row in a belief page&apos;s Reasons-to-Agree and Reasons-to-Disagree tables
@@ -179,8 +193,18 @@ export default function ContributePage() {
         >
           github.com/myklob/ideastockexchange
         </a>
-        . One honest caveat: evidence suggestion is currently API-only &mdash; a human evidence
-        form is on the roadmap.
+        .
+      </p>
+
+      <h2 className="text-xl font-bold mt-8 mb-2">Suggest evidence</h2>
+      <p className="mb-4">
+        The smallest contribution of all: attach a source to a claim. Every belief page&apos;s
+        Contribute section has a suggest-evidence form &mdash; a title, a source, a URL or DOI,
+        and one sentence on why it bears on the belief. Suggestions are queue-only: nothing
+        becomes evidence until acceptance, which runs through the same validation as agent
+        ingestion, and every suggestion lands in the{' '}
+        <Link href="/audit" className="text-blue-700 hover:underline">audit log</Link> with its
+        rationale.
       </p>
 
       <h2 className="text-xl font-bold mt-8 mb-2">Where this fits</h2>

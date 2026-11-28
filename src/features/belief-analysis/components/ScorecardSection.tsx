@@ -46,10 +46,13 @@ function ArgumentLink({ arg }: { arg: ArgumentWithBelief | null }) {
 }
 
 /**
- * The Scorecard readout at the top of the page: the computed Net Belief Score
- * and the single highest-scoring row from each side of the argument tree.
- * Everything here is derived from scored content below — it is a readout of
- * the tables, not a prose summary (Rule 2 still applies to prose).
+ * What the numbers are made of (formerly the Scorecard): the computed Net
+ * Belief Score and the single highest-scoring row from each side of the
+ * argument tree. It renders after What This Page Needs Right Now, because no
+ * score or verdict is announced before the arguments; the single truth score
+ * on the heading line is the only number above them. Everything here is
+ * derived from scored content above; it is a readout of the tables, not a
+ * prose summary (Rule 2 still applies to prose).
  */
 export default function ScorecardSection({
   arguments: args,
@@ -68,7 +71,11 @@ export default function ScorecardSection({
   const net = totalPro - totalCon
   const netLabel = hasArgs ? `${net >= 0 ? '+' : ''}${net.toFixed(1)}` : '[pending]'
 
-  const topMover = scoreMover ?? falsifiabilityItems[0]?.description ?? null
+  // Auto-derived, never hand-picked: the top-scoring Falsifiability Test row
+  // wins whenever one exists; the hand-authored scoreMover is only a fallback
+  // for beliefs with no falsifiability rows yet.
+  const topFalsifiability = [...falsifiabilityItems].sort(byScoreDesc(f => f.score))[0] ?? null
+  const topMover = topFalsifiability?.description ?? scoreMover ?? null
 
   // The twelve score dimensions, straight from the engine (computeBeliefScores).
   // Null values render blank (Rule 6); dimensions with an explainer route link
@@ -83,7 +90,7 @@ export default function ScorecardSection({
         { name: 'CBA likelihood', value: scores.cbaLikelihoodScore, format: 'ratio', href: '/cba/about', note: 'benefit-vs-cost likelihood balance' },
         { name: 'Objective criteria', value: scores.objectiveCriteriaScore, format: 'ratio', href: '/algorithms/objective-criteria', note: 'pre-committed measurements, scored' },
         { name: 'Confidence stability', value: hasArgs ? scores.stabilityScore : null, format: 'ratio', href: null, note: `how settled the score is under scrutiny (${scores.stabilityStatus})` },
-        { name: 'Media truth', value: scores.mediaTruthScore, format: 'ratio', href: null, note: 'average truth score of linked media' },
+        { name: 'Media truth', value: scores.mediaTruthScore, format: 'ratio', href: '/algorithms/media-truth-score', note: 'average truth score of linked media' },
         { name: 'Media genre', value: scores.mediaGenreScore, format: 'ratio', href: null, note: 'reporting-vs-opinion mix of linked media' },
         { name: 'Uniqueness (avg)', value: hasArgs ? scores.topicOverlapScore : null, format: 'ratio', href: '/algorithms/unique-scores', note: 'how little the arguments restate each other' },
         { name: 'Strength-adjusted', value: hasArgs ? scores.strengthAdjustedScore : null, format: 'ratio', href: '/algorithms/strong-to-weak', note: `truth after the claim-strength penalty (claims ${scores.claimStrength.toFixed(1)})` },
@@ -93,7 +100,7 @@ export default function ScorecardSection({
   return (
     <section>
       <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-3">
-        <span>&#128203;</span> Scorecard
+        <span>&#128203;</span> What the numbers are made of
       </h2>
       <table className="w-full border-collapse border border-gray-300 text-sm">
         <tbody>
@@ -116,7 +123,7 @@ export default function ScorecardSection({
             <td className={TD}>
               {bottomLine ?? (
                 <span className="text-[var(--muted-foreground)] italic">
-                  One-sentence verdict, scoped to what the argument tree below actually supports.
+                  One-sentence verdict, scoped to what the argument tree above actually supports.
                 </span>
               )}
             </td>
@@ -124,7 +131,10 @@ export default function ScorecardSection({
           <tr>
             <td className={LABEL}>Strongest pro / con</td>
             <td className={TD}>
-              <ArgumentLink arg={bestPro} /> · <ArgumentLink arg={bestCon} />
+              <ArgumentLink arg={bestPro} /> · <ArgumentLink arg={bestCon} />{' '}
+              <span className="text-[11px] text-[#999]">
+                (auto-derived: the top-ranked row from each side of the Argument Trees)
+              </span>
             </td>
           </tr>
           <tr className="bg-gray-50">
@@ -132,9 +142,25 @@ export default function ScorecardSection({
             <td className={TD}>
               {topMover ?? (
                 <span className="text-[var(--muted-foreground)] italic">
-                  The single piece of evidence that would most change the verdict; see the Falsifiability Test below.
+                  The single piece of evidence that would most change the verdict; see the Falsifiability Test above.
                 </span>
-              )}
+              )}{' '}
+              <span className="text-[11px] text-[#999]">
+                (auto-derived: the top-scoring row of the Falsifiability Test above)
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td className={LABEL}>How a row counts</td>
+            <td className={TD}>
+              sign × (2 × Truth − 1) × Confidence ×{' '}
+              <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
+              <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link> ×{' '}
+              <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>.
+              A claim nobody has argued sits at Truth 0.50 and reads exactly 0, so no score here can be
+              padded by listing more. Confidence is how much of the work behind the row&apos;s page has
+              been done; Linkage, Importance and Uniqueness each read a labelled constant until a page
+              argues them.
             </td>
           </tr>
         </tbody>
@@ -166,12 +192,17 @@ export default function ScorecardSection({
         </details>
       )}
       <p className="text-sm mt-3 p-2 bg-[#f0f3f6] border border-gray-300">
-        <strong>How to read this page:</strong> nothing here is placed by editorial choice. Every row
+        <strong>How to read this page:</strong> nothing here is placed by editorial choice. The heading
+        line&apos;s truth score is the only number announced before the arguments; this readout comes last
+        so that nothing tells you what to conclude before you have seen what it rests on. Every row
         in every table is itself a claim, and its Score is the{' '}
         <Link href="/algorithms/reason-rank" className="text-[var(--accent)] hover:underline">ReasonRank</Link>{' '}
         performance of the pro/con sub-debate about that claim, computed recursively down to the
-        evidence. Every table sorts by Score, best content first; each table shows its top rows and
-        collapses the rest until expanded. Score cells stay blank until real content exists to score.
+        evidence. Every table sorts by its rank key, best content first; the rank key is the
+        rightmost score column: Impact for arguments and evidence, Expected Value for costs and
+        benefits, Claim Strength for the Primary Conflict Pair, and Score everywhere else. Each
+        table shows its top five rows and collapses the rest until expanded. Score cells stay blank
+        until real content exists to score.
       </p>
     </section>
   )

@@ -284,18 +284,33 @@ export function calculateTruthScoreBreakdown(
   // ── Logical Validity ───────────────────────────────────────────────────
   // Average truth score across all arguments, penalized by detected fallacies.
   // Arguments with detected fallacies drag validity down.
+  //
+  // Each argument is weighed on the side it was filed on. This used to average every argument's weight
+  // regardless of side, which meant a well-argued objection raised the belief's logical validity by exactly
+  // as much as an equally well-argued reason for it: a strong con took a belief from 0.600 to 0.775. The
+  // harder a belief was argued against, the truer this said it was, which inverts the thing the score is for.
+  // `side` and `impactScore` were both declared on the parameter and neither was read.
+  //
+  // The share below is the rule the evidence half of this same function already uses fifteen lines down, and
+  // the one scoring-engine.ts uses beside it, so nothing new is being invented here.
   let totalFallacyPenalty = 0
-  let logicalValiditySum = 0
+  let proWeight = 0
+  let conWeight = 0
 
   for (const arg of args) {
     const penalty = arg.fallacyPenalty ?? 0
     totalFallacyPenalty += penalty
-    logicalValiditySum += Math.max(0, arg.truthScore * (1 - penalty))
+    const weight = Math.max(0, arg.truthScore * (1 - penalty))
+    if (arg.side === 'con' || arg.side === 'against' || arg.side === 'disagree') conWeight += weight
+    else proWeight += weight
   }
 
-  const logicalValidityScore = argumentCount > 0
-    ? Math.max(0, Math.min(1, logicalValiditySum / argumentCount))
-    : 0.5  // No arguments = maximum uncertainty
+  // Bounded away from 0 and 1 exactly as the evidence half below is: arguing on one side only is not the
+  // same as certainty, and both halves of this score should say so the same way.
+  const argumentWeight = proWeight + conWeight
+  const logicalValidityScore = argumentWeight > 0
+    ? Math.max(0.01, Math.min(0.99, proWeight / argumentWeight))
+    : 0.5   // nothing argued, or nothing argued that carries weight: maximum uncertainty
 
   // ── Verification Truth Score ───────────────────────────────────────────
   // Weighted average of evidence quality. Supporting evidence increases it,

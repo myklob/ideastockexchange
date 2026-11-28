@@ -7,8 +7,6 @@ export const metadata: Metadata = {
     'ReasonRank applies PageRank-style logic to arguments. Each idea earns its score from the quality of reasons supporting it — Truth, Linkage, Importance, Evidence, Objective Criteria, and Confidence Stability — minus the reasons against.',
 }
 
-const WIKI = 'https://myclob.pbworks.com'
-
 // ─── Sub-components ─────────────────────────────────────────────────────────
 
 function Breadcrumb() {
@@ -23,37 +21,22 @@ function Breadcrumb() {
   )
 }
 
-function ExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-blue-700 hover:underline"
-    >
-      {children}
-    </a>
-  )
-}
-
 function ScoreItem({
   name,
   href,
-  external,
   children,
 }: {
   name: string
-  href: string
-  external?: boolean
+  href?: string
   children: React.ReactNode
 }) {
   return (
     <li className="mb-3">
       <strong>
-        {external ? (
-          <ExternalLink href={href}>{name}</ExternalLink>
-        ) : (
+        {href ? (
           <Link href={href} className="text-blue-700 hover:underline">{name}</Link>
+        ) : (
+          name
         )}
       </strong>{' '}
       {children}
@@ -103,9 +86,9 @@ export default function ReasonRankPage() {
         automatically. This is the same recursive trick PageRank uses, except where PageRank
         only counts positive links, ReasonRank counts both supporting and opposing evidence and
         subtracts one from the other. See{' '}
-        <ExternalLink href={`${WIKI}/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores`}>
-          Argument Scores from Sub-Argument Scores
-        </ExternalLink>{' '}
+        <Link href="/how-it-works" className="text-blue-700 hover:underline">
+          the Engine of Reason
+        </Link>{' '}
         for the recursion in detail.
       </p>
 
@@ -125,18 +108,17 @@ export default function ReasonRankPage() {
       <ul className="list-disc list-outside ml-6 mb-6">
         <ScoreItem
           name="Truth Scores"
-          href={`${WIKI}/w/page/159300627/Truth%20Scores`}
-          external
+          href="/algorithms/truth-scores"
         >
           are the foundation. They combine two independent checks: whether the logic holds
           (
-          <ExternalLink href={`${WIKI}/w/page/159235779/Logical%20Validity`}>
+          <Link href="/algorithms/fallacy-detection" className="text-blue-700 hover:underline">
             Logical Validity
-          </ExternalLink>
+          </Link>
           ) and whether the facts check out (
-          <ExternalLink href={`${WIKI}/w/page/159301425/Verification%20Truth%20Score`}>
+          <Link href="/algorithms/evidence-scores" className="text-blue-700 hover:underline">
             Verification
-          </ExternalLink>
+          </Link>
           ). An argument can fail on either count, and the system catches both.
         </ScoreItem>
 
@@ -149,8 +131,7 @@ export default function ReasonRankPage() {
 
         <ScoreItem
           name="Importance Scores"
-          href={`${WIKI}/importance%20score`}
-          external
+          href="/algorithms/importance-score"
         >
           separate truth from relevance. Not every true statement matters equally to a given
           conclusion. Without this filter, a mountain of minor correct points can bury one
@@ -159,8 +140,7 @@ export default function ReasonRankPage() {
 
         <ScoreItem
           name="Evidence Scores"
-          href={`${WIKI}/w/page/159353568/Evidence%20Scores`}
-          external
+          href="/algorithms/evidence-scores"
         >
           evaluate the source material itself. A peer-reviewed meta-analysis and a confident
           tweet are not equally reliable, and the system treats them accordingly using a tiered
@@ -174,8 +154,6 @@ export default function ReasonRankPage() {
 
         <ScoreItem
           name="Confidence Stability Scores"
-          href={`${WIKI}/w/page/163357458/Confidence%20Stability%20Scores`}
-          external
         >
           track how settled a score is as new arguments arrive. A high score that has been
           stable under sustained scrutiny means something different from one that bounces
@@ -195,15 +173,9 @@ export default function ReasonRankPage() {
       <ul className="list-disc list-outside ml-6 mb-6">
         <ScoreItem
           name="Media Truth Scores"
-          href={`${WIKI}/w/page/162409713/Media%20Truth%20Score`}
-          external
+          href="/algorithms/media-truth-score"
         >
-          and{' '}
-          <strong>
-            <ExternalLink href={`${WIKI}/w/page/162410988/Media%20Genre%20and%20Style%20Scores%3A`}>
-              Media Genre and Style Scores
-            </ExternalLink>
-          </strong>{' '}
+          and <strong>Media Genre and Style Scores</strong>{' '}
           flag when a source is editorializing, sensationalizing, or misleading, even when the
           underlying facts are technically accurate. Genre carries information about
           reliability that raw fact-checking misses.
@@ -211,8 +183,7 @@ export default function ReasonRankPage() {
 
         <ScoreItem
           name="Topic Overlap Scores"
-          href={`${WIKI}/w/page/162854901/topic_overlap_scores`}
-          external
+          href="/algorithms/topic-overlap"
         >
           prevent the same basic point from inflating a score just because ten people said it
           slightly differently. Repetition is not confirmation. This filter also powers the
@@ -233,8 +204,7 @@ export default function ReasonRankPage() {
       <ul className="list-disc list-outside ml-6 mb-6">
         <ScoreItem
           name="Cost or Benefit Likelihood Scores"
-          href={`${WIKI}/Cost%20or%20Benefit%20Likelihood%20Scores`}
-          external
+          href="/cba/about"
         >
           apply to the{' '}
           <Link href="/cba/about" className="text-blue-700 hover:underline">
@@ -263,17 +233,17 @@ export default function ReasonRankPage() {
         on the merits, in public, where everyone can see exactly which arguments failed and
         why. A claim built on a debunked study, irrelevant evidence, and a logical fallacy
         accumulates three separate score penalties and sinks accordingly: one against its{' '}
-        <ExternalLink href={`${WIKI}/w/page/159353568/Evidence%20Scores`}>
+        <Link href="/algorithms/evidence-scores" className="text-blue-700 hover:underline">
           Evidence Score
-        </ExternalLink>
+        </Link>
         , one against its{' '}
         <Link href="/algorithms/linkage-scores" className="text-blue-700 hover:underline">
           Linkage Score
         </Link>
         , and one against its{' '}
-        <ExternalLink href={`${WIKI}/w/page/159235779/Logical%20Validity`}>
+        <Link href="/algorithms/fallacy-detection" className="text-blue-700 hover:underline">
           Logical Validity
-        </ExternalLink>
+        </Link>
         . The reasoning is visible. Anyone can challenge the scoring. No black box.
       </p>
 
@@ -290,16 +260,9 @@ export default function ReasonRankPage() {
         <p className="font-bold mb-2">Explore further:</p>
         <ul className="list-disc list-inside space-y-1 text-sm">
           <li>
-            <ExternalLink href={`${WIKI}/Reason%20Rank%20vs%20PageRank`}>
-              ReasonRank vs. PageRank: A Direct Comparison
-            </ExternalLink>
-          </li>
-          <li>
-            <ExternalLink
-              href={`${WIKI}/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores`}
-            >
-              How Sub-Argument Scores feed upward
-            </ExternalLink>
+            <Link href="/how-it-works" className="text-blue-700 hover:underline">
+              How sub-argument scores feed upward, with a live engine readout
+            </Link>
           </li>
           <li>
             <Link href="/algorithms" className="text-blue-700 hover:underline">

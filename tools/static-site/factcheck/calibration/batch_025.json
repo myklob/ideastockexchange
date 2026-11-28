@@ -1,0 +1,180 @@
+[
+ {
+  "id": 139,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "return-shows-what-financial",
+  "text": "A return shows what the financial disclosure form does not: exact income and its character, foreign income and foreign tax credits, business losses carried forward, charitable giving, and the rate actually paid."
+ },
+ {
+  "id": 140,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "internal-check-failed-one",
+  "text": "The internal check failed in the one case that tested it: the mandatory presidential audit was dormant, and the audit of the first two years opened the day Congress asked for the returns."
+ },
+ {
+  "id": 141,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "every-president-carter-through",
+  "text": "Every president from Carter through Obama released returns voluntarily, so a requirement restores a forty-year norm rather than inventing an obligation."
+ },
+ {
+  "id": 142,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "published-return-can-checked",
+  "text": "A published return can be checked by anyone, which is the only enforcement that does not depend on an agency the official appoints."
+ },
+ {
+  "id": 143,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "return-shows-tax-positions",
+  "text": "A return shows tax positions, not conflicts, and the disclosure form already lists assets, income sources, liabilities and positions in categories built for conflict screening."
+ },
+ {
+  "id": 144,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "publication-exposes-spouses-children",
+  "text": "Publication exposes spouses, children and business partners who never ran for office."
+ },
+ {
+  "id": 145,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "route-constitutionally-narrow-disclosure",
+  "text": "The route is constitutionally narrow: a disclosure condition on ballot access was already struck down once, and a badly drafted rule would be litigated rather than obeyed."
+ },
+ {
+  "id": 146,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "sophisticated-wealth-sits-pass",
+  "text": "Sophisticated wealth sits in pass-through entities and trusts that file their own returns, so a personal return can be published and show very little."
+ },
+ {
+  "id": 147,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "evidence",
+  "side": "agree",
+  "claim": "mandatory-irs-audit-presidential",
+  "text": "The mandatory IRS audit of presidential returns was \"dormant, at best,\" and the audit of the 2015 and 2016 returns opened on April 3, 2019, the day the committee requested them; only 2016 was completed in office.",
+  "source": "House Ways and Means Committee report and release of tax years 2015 to 2020, December 2022"
+ },
+ {
+  "id": 148,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "evidence",
+  "side": "agree",
+  "claim": "nixon-released-his-returns",
+  "text": "Nixon released his returns in December 1973 and asked the Joint Committee on Taxation to review them; the review found roughly $465,000 in back taxes owed.",
+  "source": "Joint Committee on Taxation review, April 1974"
+ },
+ {
+  "id": 149,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "public-financial-disclosure-form",
+  "text": "The public financial disclosure form already requires assets, income sources, liabilities, positions, agreements and gifts, reported in value ranges.",
+  "source": "Office of Government Ethics, Public Financial Disclosure Guide (2024)"
+ },
+ {
+  "id": 150,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "state-law-requiring-five",
+  "text": "A state law requiring five years of returns from presidential primary candidates was struck down unanimously on state constitutional grounds.",
+  "source": "Patterson v. Padilla, California Supreme Court, November 21, 2019"
+ },
+ {
+  "id": 151,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "prediction",
+  "side": "agree",
+  "claim": "within-two-election-cycles",
+  "text": "Within two election cycles of a publication requirement, at least one significant undisclosed foreign income source or lender relationship is found in a published return."
+ },
+ {
+  "id": 152,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "prediction",
+  "side": "disagree",
+  "claim": "published-returns-add-nothing",
+  "text": "Published returns add nothing to what the disclosure form already showed, and no conflict is identified from a return that the form had not already flagged."
+ },
+ {
+  "id": 153,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "cba",
+  "side": "agree",
+  "claim": "foreign-income-lender-relationships",
+  "text": "Foreign income and lender relationships become visible without a subpoena."
+ },
+ {
+  "id": 154,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "cba",
+  "side": "agree",
+  "claim": "voters-can-judge-official",
+  "text": "Voters can judge an official's financial entanglements before voting rather than after an investigation."
+ },
+ {
+  "id": 155,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "cba",
+  "side": "agree",
+  "claim": "audit-president-stops-depending",
+  "text": "The audit of the president stops depending on an agency the president appoints."
+ },
+ {
+  "id": 156,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "cba",
+  "side": "disagree",
+  "claim": "spouses-children-business-partners",
+  "text": "Spouses, children and business partners have their finances published without holding office."
+ },
+ {
+  "id": 157,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "cba",
+  "side": "disagree",
+  "claim": "officials-structure-finances-look",
+  "text": "Officials structure their finances to look unremarkable rather than to be efficient."
+ },
+ {
+  "id": 158,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "cba",
+  "side": "disagree",
+  "claim": "returns-read-scandal-rather",
+  "text": "Returns are read as scandal rather than as data, and complex but lawful items are litigated in public."
+ },
+ {
+  "id": 172,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "law",
+  "side": "agree",
+  "text": "26 U.S.C. 6103(f) lets the tax-writing committees obtain and, by vote, publish any return."
+ },
+ {
+  "id": 173,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "section": "law",
+  "side": "disagree",
+  "text": "26 U.S.C. 6103 makes tax returns confidential as a general rule, with criminal penalties for unauthorized disclosure."
+ }
+]

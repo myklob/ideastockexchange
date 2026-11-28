@@ -117,11 +117,11 @@ Return a single valid JSON object matching this exact structure (all fields requ
       "evidenceIndex": 0
     }
   ],
-  "claimMagnitudeLevels": [
+  "claimStrengthLevels": [
     {
       "sortOrder": 0,
-      "magnitudeLevel": "Weak (20%)",
-      "magnitudePercent": 20,
+      "strengthLevel": "Modest (20%)",
+      "strengthPercent": 20,
       "sublabel": "Hedged",
       "proExample": "A hedged pro-${topicName} claim that acknowledges real flaws and leaves room for exceptions.",
       "antiExample": "A hedged anti-${topicName} claim that acknowledges some advantages while noting specific inefficiencies.",
@@ -129,8 +129,8 @@ Return a single valid JSON object matching this exact structure (all fields requ
     },
     {
       "sortOrder": 1,
-      "magnitudeLevel": "Moderate (50%)",
-      "magnitudePercent": 50,
+      "strengthLevel": "Moderate (50%)",
+      "strengthPercent": 50,
       "sublabel": "Standard",
       "proExample": "${topicName}, when functioning well, produces significantly better outcomes than the available alternatives.",
       "antiExample": "${topicName} is significantly compromised by [specific flaw], producing reliably suboptimal outcomes.",
@@ -138,8 +138,8 @@ Return a single valid JSON object matching this exact structure (all fields requ
     },
     {
       "sortOrder": 2,
-      "magnitudeLevel": "Strong (80%)",
-      "magnitudePercent": 80,
+      "strengthLevel": "Strong (80%)",
+      "strengthPercent": 80,
       "sublabel": "Categorical",
       "proExample": "${topicName} is fundamentally the right approach, and the alternatives reliably fail.",
       "antiExample": "${topicName} is fundamentally the wrong approach and fails wherever it is tried.",
@@ -147,8 +147,8 @@ Return a single valid JSON object matching this exact structure (all fields requ
     },
     {
       "sortOrder": 3,
-      "magnitudeLevel": "Extreme (100%)",
-      "magnitudePercent": 100,
+      "strengthLevel": "Total (100%)",
+      "strengthPercent": 100,
       "sublabel": "Maximal",
       "proExample": "${topicName} is the only acceptable option, everywhere, always, and any deviation must be resisted.",
       "antiExample": "${topicName} is a total fraud that has never served its intended beneficiaries and never will.",
@@ -325,7 +325,7 @@ Fill in all "..." placeholders with substantive, accurate content for "${topicNa
     evidenceDepth: parsed.evidenceDepth ?? 'Med',
     controversyRating: parsed.controversyRating ?? 0,
     positions: parsed.positions ?? [],
-    claimMagnitudeLevels: parsed.claimMagnitudeLevels ?? [],
+    claimStrengthLevels: parsed.claimStrengthLevels ?? [],
     escalationLevels: parsed.escalationLevels ?? [],
     assumptions: parsed.assumptions ?? [],
     abstractionRungs: parsed.abstractionRungs ?? [],

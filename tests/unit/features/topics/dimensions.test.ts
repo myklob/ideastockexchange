@@ -73,7 +73,7 @@ describe('sortTopicBeliefs', () => {
   })
 
   it('magnitude reads weak → extreme', () => {
-    expect(sortTopicBeliefs(rows, 'magnitude').map(b => b.id)).toEqual([1, 2, 3])
+    expect(sortTopicBeliefs(rows, 'strength').map(b => b.id)).toEqual([1, 2, 3])
   })
 
   it('abstraction reads general → specific', () => {
@@ -121,7 +121,9 @@ describe('sortTopicBeliefs', () => {
 describe('parseTopicSortKey', () => {
   it('accepts every valid key and falls back to score otherwise', () => {
     expect(parseTopicSortKey('direction')).toBe('direction')
-    expect(parseTopicSortKey('magnitude')).toBe('magnitude')
+    expect(parseTopicSortKey('strength')).toBe('strength')
+    // published links still say magnitude; the alias keeps them working
+    expect(parseTopicSortKey('magnitude')).toBe('strength')
     expect(parseTopicSortKey('abstraction')).toBe('abstraction')
     expect(parseTopicSortKey('grounding')).toBe('grounding')
     expect(parseTopicSortKey('bogus')).toBe('score')

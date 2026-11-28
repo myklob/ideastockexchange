@@ -1,0 +1,188 @@
+[
+ {
+  "id": 2917,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "caitlin-clark-produces-points",
+  "text": "Caitlin Clark produces points and assists at a combined rate no WNBA player has matched, which is the raw material every greatest-ever case is built from."
+ },
+ {
+  "id": 2918,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "caitlin-clark-reached-all",
+  "text": "Caitlin Clark reached the All-WNBA First Team in her first season and again in her third, so she has already cleared the bar most all-time greats took years to reach."
+ },
+ {
+  "id": 2919,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "caitlin-clark-24-years",
+  "text": "Caitlin Clark is 24 years old in 2026 and has roughly 12 to 15 playing seasons ahead of her, which is time enough to pass the career scoring and assist records that anchor the greatest-ever debate."
+ },
+ {
+  "id": 2920,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "caitlin-clark-s-passing",
+  "text": "Caitlin Clark's passing and shooting range changed how WNBA defenses are built, and historians generally rank players who changed the game above players who only out-produced it."
+ },
+ {
+  "id": 2921,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "caitlin-clark-draws-largest",
+  "text": "Caitlin Clark draws the largest audiences the WNBA has ever had, and the greatest player in a league's history is partly a title about who made the league matter."
+ },
+ {
+  "id": 2922,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "evidence",
+  "side": "agree",
+  "claim": "caitlin-clark-scored-891",
+  "text": "Caitlin Clark scored 891 points and recorded 333 assists in the 2026 regular season, the first time any WNBA player has reached 800 points and 300 assists in one season.",
+  "source": "Yardbarker, 'Caitlin Clark Sets Unwanted Record During 2026 Regular Season Despite Historic Run For Fever', 2026"
+ },
+ {
+  "id": 2923,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "evidence",
+  "side": "agree",
+  "claim": "caitlin-clark-set-wnba",
+  "text": "Caitlin Clark set the WNBA single-season assist record with 337 assists as a rookie in 2024 and the single-game record with 19 assists on July 17, 2024.",
+  "source": "ESPN, 'Fever's Caitlin Clark breaks WNBA rookie record for assists', 2024"
+ },
+ {
+  "id": 2924,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "evidence",
+  "side": "agree",
+  "claim": "espn-s-may-2026",
+  "text": "ESPN's May 2026 ranking of the ten greatest playmakers in WNBA history placed Caitlin Clark fourth and Diana Taurasi seventh after Clark had played 55 career games.",
+  "source": "ESPN, Michael Voepel, 'The 10 greatest playmakers in WNBA history', 2026"
+ },
+ {
+  "id": 2925,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "prediction",
+  "side": "agree",
+  "claim": "caitlin-clark-will-win",
+  "text": "Caitlin Clark will win at least one WNBA MVP award before the end of the 2029 season."
+ },
+ {
+  "id": 2926,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "prediction",
+  "side": "agree",
+  "claim": "indiana-fever-will-win",
+  "text": "The Indiana Fever will win at least one playoff series with Caitlin Clark on the roster by the end of the 2028 season."
+ },
+ {
+  "id": 2932,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "media",
+  "side": "agree",
+  "claim": "her-game-caitlin-clark",
+  "text": "On Her Game: Caitlin Clark and the Revolution in Women's Sports, Christine Brennan, 2025",
+  "source": "Scribner (Simon & Schuster)",
+  "bridge": "Brennan, a veteran USA Today sports columnist, reports the 2024 season from the inside and argues that Clark's arrival, more than any other single event, turned the WNBA into a mainstream television product."
+ },
+ {
+  "id": 2933,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "media",
+  "side": "agree",
+  "claim": "full-court-press-kristen",
+  "text": "Full Court Press, Kristen Lappas (director), Omaha Productions, 2024",
+  "source": "ESPN+ and ABC",
+  "bridge": "The series follows Caitlin Clark through her final Iowa season and shows the work habits, shooting range and record crowds she carried into the WNBA before she had played a professional game."
+ },
+ {
+  "id": 2934,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "ja-wilson-already-holds",
+  "text": "A'ja Wilson already holds four MVP awards, three championships and three Defensive Player of the Year awards, and she is still in her prime, so the bar Caitlin Clark must clear keeps rising while she chases it."
+ },
+ {
+  "id": 2935,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "caitlin-clark-has-won",
+  "text": "Caitlin Clark has not won a playoff series in three WNBA seasons, and greatest-ever cases in basketball are generally decided by championships rather than regular-season numbers."
+ },
+ {
+  "id": 2936,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "caitlin-clark-missed-31",
+  "text": "Caitlin Clark missed 31 of 44 games in 2025 with quad, groin and ankle injuries, and a greatest-ever career requires the kind of durability her body has not yet shown."
+ },
+ {
+  "id": 2937,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "diana-taurasi-s-10",
+  "text": "Diana Taurasi's 10,646 career points and three titles over 20 seasons set a standard of longevity that Caitlin Clark cannot match before the late 2030s, and no one knows what her game will look like at 38."
+ },
+ {
+  "id": 2938,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "guards-who-rely-deep",
+  "text": "Guards who rely on deep shooting and high usage generally decline earlier than big players who score near the basket, so Caitlin Clark's style works against the long peak the belief requires."
+ },
+ {
+  "id": 2939,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "ja-wilson-won-associated",
+  "text": "A'ja Wilson won the Associated Press WNBA Player of the Year for 2026 with 15 of 17 first-place votes, ahead of Olivia Miles, Caitlin Clark and Kelsey Mitchell.",
+  "source": "Associated Press, 'A'ja Wilson wins AP WNBA Player of the Year for 3rd straight year; Angel Reese top defensive player', 2026"
+ },
+ {
+  "id": 2940,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "ja-wilson-has-four",
+  "text": "A'ja Wilson has four WNBA MVP awards, three championships, two Finals MVPs, three Defensive Player of the Year awards and the single-season scoring record of 1,021 points, and she is still active.",
+  "source": "Wikipedia, 'A'ja Wilson', 2026"
+ },
+ {
+  "id": 2941,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "evidence",
+  "side": "disagree",
+  "claim": "las-vegas-aces-eliminated",
+  "text": "The Las Vegas Aces eliminated the Indiana Fever 2-1 in the first round of the 2026 playoffs, with Caitlin Clark shooting 6 of 18 and committing six turnovers in the deciding Game 3.",
+  "source": "Bleacher Report, 'Caitlin Clark, Sophie Cunningham, A'ja Wilson's Box Score Stats, Highlights as Aces Eliminate Fever', 2026"
+ },
+ {
+  "id": 2942,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "prediction",
+  "side": "disagree",
+  "claim": "ja-wilson-will-still",
+  "text": "A'ja Wilson will still be ranked above Caitlin Clark on every major all-time WNBA player list published in 2030."
+ },
+ {
+  "id": 2943,
+  "belief_text": "Caitlin Clark will be the greatest player in WNBA history by the end of her career.",
+  "section": "prediction",
+  "side": "disagree",
+  "claim": "caitlin-clark-will-miss",
+  "text": "Caitlin Clark will miss at least 25 percent of the Fever's regular-season games across the 2027 through 2029 seasons combined."
+ }
+]

@@ -1114,12 +1114,12 @@ interface InfluenceRecord {
 
 ## Appendix A: Reference Links
 
-- Reasons structure: https://myclob.pbworks.com/Reasons
-- Assumptions framework: https://myclob.pbworks.com/Assumptions
-- Truth scoring: https://myclob.pbworks.com/w/page/21960078/truth
-- Linkage scores: https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores
-- Values framework: https://myclob.pbworks.com/w/page/21956745/American%20values
-- Stakeholder interests: https://myclob.pbworks.com/w/page/159301140/Interests
+- Reasons structure: /algorithms/reason-rank
+- Assumptions framework: /algorithms/assumptions
+- Truth scoring: /algorithms/truth-scores
+- Linkage scores: /algorithms/linkage-scores
+- Values framework: /algorithms/objective-criteria
+- Stakeholder interests: /algorithms/objective-criteria
 
 ---
 

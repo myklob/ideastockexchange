@@ -23,15 +23,15 @@ export interface DebatePosition {
   evidenceIndex?: number;
 }
 
-/// One row in section 3 (Claim Magnitude) — topic-specific pro and anti examples.
-export interface DebateClaimMagnitude {
+/// One row in section 3 (Claim Strength) — topic-specific pro and anti examples.
+export interface DebateClaimStrength {
   id?: number;
   sortOrder: number;
-  magnitudeLevel: string;  // "Weak (20%)", "Moderate (50%)", "Strong (80%)", "Extreme (100%)"
-  magnitudePercent: number; // 20, 50, 80, 100
+  strengthLevel: string;   // "Modest (20%)", "Moderate (50%)", "Strong (80%)", "Total (100%)"
+  strengthPercent: number; // 20, 50, 80, 100
   sublabel: string;         // "Hedged", "Standard", "Categorical", "Maximal"
-  proExample: string;       // topic-specific pro-topic claim at this magnitude
-  antiExample: string;      // topic-specific anti-topic claim at this magnitude
+  proExample: string;       // topic-specific pro-topic claim at this strength
+  antiExample: string;      // topic-specific anti-topic claim at this strength
   scopeDescription: string; // scope and telltale words at this strength
 }
 
@@ -110,6 +110,13 @@ export interface DebateEvidence {
   /// "DISPUTED" (half while the challenge is open) | "FALSIFIED" (zero).
   /// Rows are born UNVERIFIED and earn standing.
   standing?: string;
+  /// The bridge: engine Evidence node this ledger row mirrors. When set,
+  /// qualityScore/linkage/standing above are DERIVED from the engine at
+  /// read time (see mapTopicFromDb); when absent the row is a seed
+  /// illustration with hand-entered example values.
+  engineEvidenceId?: number;
+  /// True when the values on this row were derived from the engine node.
+  derivedFromEngine?: boolean;
 }
 
 export interface DebateObjectiveCriteria {
@@ -161,7 +168,7 @@ export interface DebateTopic {
   controversyRating: number;  // 0–100
   // Spectra
   positions: DebatePosition[];
-  claimMagnitudeLevels: DebateClaimMagnitude[];
+  claimStrengthLevels: DebateClaimStrength[];
   escalationLevels: DebateEscalation[];
   assumptions: DebateAssumption[];
   abstractionRungs: DebateAbstractionRung[];

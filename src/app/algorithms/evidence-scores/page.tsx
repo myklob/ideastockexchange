@@ -87,6 +87,89 @@ export default function EvidenceScoresPage() {
         that depended on the branch.
       </p>
 
+      <h2 className="text-xl font-bold mt-8 mb-2">Standing: what is counted, and at what weight</h2>
+      <p className="mb-4">
+        Filing a source is not the same as establishing it, so every evidence row carries a
+        standing, and the standing decides how much of the row&apos;s impact the engine counts:
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm my-4">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border border-gray-300 px-3 py-2 text-left w-[18%]">Standing</th>
+              <th className="border border-gray-300 px-3 py-2 text-left w-[14%]">Counts at</th>
+              <th className="border border-gray-300 px-3 py-2 text-left">Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-gray-300 px-3 py-2">Verified</td>
+              <td className="border border-gray-300 px-3 py-2">100%</td>
+              <td className="border border-gray-300 px-3 py-2">Checked and standing.</td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 px-3 py-2">Unverified</td>
+              <td className="border border-gray-300 px-3 py-2">50%</td>
+              <td className="border border-gray-300 px-3 py-2">
+                Filed but unchecked. New rows are born here and earn the rest.
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 px-3 py-2">Disputed</td>
+              <td className="border border-gray-300 px-3 py-2">50%</td>
+              <td className="border border-gray-300 px-3 py-2">
+                Contested on the record while the dispute is open.
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 px-3 py-2">Falsified</td>
+              <td className="border border-gray-300 px-3 py-2">0%</td>
+              <td className="border border-gray-300 px-3 py-2">
+                Retracted or refuted, and the collapse above has already propagated.
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 px-3 py-2">Unrecorded</td>
+              <td className="border border-gray-300 px-3 py-2">100%</td>
+              <td className="border border-gray-300 px-3 py-2">
+                No standing on the row at all — rows that predate the lifecycle. Counted in full,
+                which is why they carry the largest exposure below.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 className="text-xl font-bold mt-8 mb-2">Retraction exposure</h2>
+      <p className="mb-4">
+        Standing per row answers &ldquo;is this one checked?&rdquo; Exposure answers the question a
+        reader actually has: <em>how much of this belief&apos;s score is not yet earned?</em> Each
+        belief page reports it under the Evidence Ledger — the points drawn from evidence that
+        rest on standing nobody has established, measured as the distance from where a row counts
+        today to the furthest it could move on standing alone.
+      </p>
+      <div className="bg-gray-100 border border-gray-300 px-4 py-3 font-mono my-4 rounded">
+        exposure(row) = |impact| &times; (how far its weight could still move)
+      </div>
+      <p className="mb-4">
+        An unverified row counted at half its impact can fall to zero or rise to full, so half of
+        it is exposed either way. A row with no standing on record is counted in full and could
+        fall to nothing, so all of it is exposed — the largest kind. Verified and falsified rows
+        are settled and expose nothing. Exposure is a magnitude, not a direction: verifying an
+        unverified supporting study <em>raises</em> the score it sits under. Above half the
+        evidence-derived score, the page says plainly that the verdict should be read as
+        provisional.
+      </p>
+      <p className="mb-4">
+        It is the evidence-side complement to{' '}
+        <Link href="/algorithms/decision-leverage" className="text-blue-700 hover:underline">
+          Decision Leverage
+        </Link>
+        : leverage ranks the arguments worth settling, exposure measures the evidence worth
+        verifying. Neither is a judgment about whether the evidence is any good — that is what
+        tier, replication and relevance above are for.
+      </p>
+
       <h2 className="text-xl font-bold mt-8 mb-2">Provenance is mandatory</h2>
       <p className="mb-4">
         Evidence enters with a source URL, DOI, PMID, or ISBN — no orphan claims. Agent-submitted
@@ -95,8 +178,16 @@ export default function EvidenceScoresPage() {
         and audit only; it never feeds a score directly.
       </p>
 
+      <p className="mb-4">
+        One gap the arithmetic deliberately leaves open: an agent-submitted row whose claimed tier
+        has not been confirmed by the provenance job is being weighted by a tier nobody checked.
+        How much its weight would change is unknown until someone checks, so the page reports the
+        gap and invents no number for it.
+      </p>
+
       <p className="mt-8 text-sm text-gray-600">
-        Related: <Link href="/algorithms/truth-scores" className="text-blue-700 hover:underline">Truth Scores</Link> ·{' '}
+        Related: <Link href="/algorithms/decision-leverage" className="text-blue-700 hover:underline">Decision Leverage</Link> ·{' '}
+        <Link href="/algorithms/truth-scores" className="text-blue-700 hover:underline">Truth Scores</Link> ·{' '}
         <Link href="/algorithms/linkage-scores" className="text-blue-700 hover:underline">Linkage Scores</Link> ·{' '}
         <Link href="/algorithms/reason-rank" className="text-blue-700 hover:underline">ReasonRank</Link>
       </p>
