@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interest Validity Template • Idea Stock Exchange</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121922; --ink:#e7eef7; --muted:#a9b4c2; --line:#223044;
+      --pro:#18b57a; --con:#e25555; --accent:#5ba3ff; --warn:#ffc857; --info:#7dd3fc;
+      --radius:16px; --gap:16px; --sm:12px; --md:14px; --lg:18px; --xl:24px; --xxl:32px;
+      --shadow:0 6px 24px rgba(0,0,0,.25);
+    }
+    html,body{background:var(--bg);color:var(--ink);font:400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif;margin:0}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1100px;margin:auto;padding:24px}
+    header{display:grid;gap:8px;margin-bottom:20px}
+    .crumbs{color:var(--muted);font-size:var(--sm)}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card + .card{margin-top:var(--gap)}
+    .pad{padding:16px}
+    h1,h2,h3{line-height:1.2;margin:0 0 8px}
+    h1{font-size:var(--xxl)} h2{font-size:var(--xl)} h3{font-size:var(--lg)}
+    .muted{color:var(--muted)}
+    .small{font-size:var(--sm)}
+    .grid{display:grid;gap:var(--gap)}
+    .two{grid-template-columns:1fr 1fr}
+    .stack> * + *{margin-top:8px}
+    .table{width:100%;border-collapse:separate;border-spacing:0}
+    .table th,.table td{border-bottom:1px solid var(--line);text-align:left;padding:10px;vertical-align:top}
+    .table thead th{font-size:12px;color:var(--muted);font-weight:600}
+    .table th.half{width:50%}
+    .score{font-weight:600;font-variant-numeric:tabular-nums}
+    .pro{color:var(--pro)} .con{color:var(--con)}
+    .callout{border-left:4px solid var(--accent);padding:10px 12px;background:rgba(91,163,255,.06);border-radius:6px}
+    .interest{border-left:4px solid var(--info);padding:12px 14px;background:rgba(125,211,252,.08);border-radius:6px;font-size:var(--lg)}
+    .scorecard{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap)}
+    .scope{border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-align:center}
+    .scope .label{font-size:12px;color:var(--muted);font-weight:600}
+    .scope .verdict{font-size:var(--xl);font-weight:700;margin:6px 0}
+    .scope .why{font-size:12px;color:var(--muted)}
+    .scope.s1{background:rgba(24,181,122,.08)} .scope.s2{background:rgba(255,200,87,.08)} .scope.s3{background:rgba(226,85,85,.08)}
+    .rule{color:var(--muted);font-size:var(--md);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px}
+    .rule p{margin:0} .rule p + p{margin-top:6px}
+    .foot{color:var(--muted);font-size:12px;margin-top:24px}
+    @media (max-width:900px){.two,.scorecard{grid-template-columns:1fr}}
+    @media print{
+      :root{--bg:#fff;--panel:#fff;--ink:#000;--muted:#333;--line:#ccc}
+      a{color:inherit;text-decoration:underline}
+      .wrap{padding:0}
+      .card{box-shadow:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="crumbs" aria-label="Breadcrumb">
+        <a href="/w/page/159323433/One%20Page%20Per%20Topic">Topic</a> ▸ <a href="/w/page/21957511/Explanation">ISE Framework</a> ▸ <a href="/w/page/159301140/Interests">Interests</a> ▸ <span>[Interest Name]</span>
+      </div>
+      <h1>[Interest Name]: Is the Interest Valid?</h1>
+      <p class="muted">“This interest is valid” is a claim like any other, so here are the scored reasons on both sides, at three scopes: valid at all, more or less valid than the competing interest in general, and which interest wins inside a specific scenario. The question is about the underlying <em>interest</em>, the need behind the position, not about any single policy. A valid interest can still be served by a bad policy, and a contested interest can still deserve protection.</p>
+      <div class="interest"><strong>The interest:</strong> “[state it as a need, fear, or desire, in the holder's own voice]”</div>
+      <div class="scorecard" aria-label="Three-scope summary">
+        <div class="scope s1">
+          <div class="label">Valid at all? (Scope 1)</div>
+          <div class="verdict score">[XX]/100</div>
+          <div class="why">[one line: where it is strong, where it is weak]</div>
+        </div>
+        <div class="scope s2">
+          <div class="label">Vs [rival interest], in general (Scope 2)</div>
+          <div class="verdict">[higher / tied / lower]</div>
+          <div class="why">[why, e.g. both sit in the Safety band]</div>
+        </div>
+        <div class="scope s3">
+          <div class="label">In [specific scenario] (Scope 3)</div>
+          <div class="verdict">[wins / yields]</div>
+          <div class="why">[the deciding scenario fact]</div>
+        </div>
+      </div>
+      <p class="muted small"><strong>How to read this:</strong> treat the interest as valid until the reasons below lower it. The score traces only to those reasons, never to who holds the interest, how powerful they are, or how loudly they assert it.</p>
+    </header>
+
+    <!-- SCOPE 1 -->
+    <section class="card pad stack" id="scope-1" aria-labelledby="s1-h">
+      <h2 id="s1-h">Scope 1: Is This Interest Valid At All?</h2>
+      <p class="muted">The absolute question. Each reason is a scored argument, named by its opening words, attached to the criterion it leans on (universal test, reciprocity, rests on a true premise, harm to others, impact scope, reversibility, alternative satisfaction).</p>
+      <table class="table" aria-label="Scope 1 reasons">
+        <thead><tr><th class="half">Reasons it IS valid</th><th class="half">Reasons it is NOT valid</th></tr></thead>
+        <tbody>
+          <tr><td><span class="score pro">[+XX]</span> [reason, named by opening words] <span class="muted small">(criterion: e.g. passes the universal test)</span></td><td><span class="score con">[-XX]</span> [reason] <span class="muted small">(criterion: e.g. rests on a false premise)</span></td></tr>
+          <tr><td><span class="score pro">[+XX]</span> [reason] <span class="muted small">(criterion: e.g. meets a need with no alternative)</span></td><td><span class="score con">[-XX]</span> [reason] <span class="muted small">(criterion: e.g. can only be met at another's expense)</span></td></tr>
+        </tbody>
+      </table>
+      <p><strong>Resulting Interest Validity:</strong> [XX]/100, traceable to the reasons above. [One line naming which part scores high and which part is the contested drag on the composite.]</p>
+      <div class="rule">
+        <p><strong>How this page works.</strong> Default: the interest is valid until an argument lowers it, so the burden is on the challenge. Both sides are assumed rational, holding their interest for a real need rather than from stupidity or malice. Arguments set the score and nothing else does. Maslow is a prior, a starting band, not a verdict; the reasons can move it.</p>
+        <p><em>Scores are illustrative placeholders; the live scoring engine is on the roadmap, not running yet.</em> For the definition and two-score model see <a href="/w/page/159301140/Interests">Interest</a>; for the criteria and Maslow priors see the <a href="/w/page/159323067/Brainstorming%20Interests%20for%20Policy%20Debates">Interest Scoring Methodology</a>; for how the reasons are scored see <a href="/w/page/159300543/ReasonRank">ReasonRank</a>. This page applies that model, it does not restate it.</p>
+      </div>
+    </section>
+
+    <!-- SCOPE 2 -->
+    <section class="card pad stack" id="scope-2" aria-labelledby="s2-h">
+      <h2 id="s2-h">Scope 2: Is It More or Less Valid Than Other Interests, In General?</h2>
+      <p class="muted">The comparative question, scenario-independent. Name the natural rival interest. Start from the Maslow prior for each, then let the reasons adjust the ranking. If both start in the same band, that is exactly why the general ranking is close and the real fight moves to specific scenarios.</p>
+      <table class="table" aria-label="Interest comparison">
+        <thead><tr><th>Interest</th><th>Maslow prior (starting band)</th><th>Current validity</th></tr></thead>
+        <tbody>
+          <tr><td><strong>This interest</strong></td><td>[level, e.g. Safety 70-85]</td><td class="score">[XX]</td></tr>
+          <tr><td>[Competing interest]</td><td>[level]</td><td class="score">[XX]</td></tr>
+        </tbody>
+      </table>
+      <p>The comparative claim, “this interest is more valid than [competing interest] in general,” then gets its own two columns:</p>
+      <table class="table" aria-label="Scope 2 reasons">
+        <thead><tr><th class="half">Reasons this interest ranks higher</th><th class="half">Reasons the other interest ranks higher</th></tr></thead>
+        <tbody>
+          <tr><td><span class="score pro">[+XX]</span> [reason] <span class="muted small">(criterion: e.g. larger impact scope, harder to meet another way)</span></td><td><span class="score con">[-XX]</span> [reason] <span class="muted small">(criterion: e.g. its harm is irreversible)</span></td></tr>
+          <tr><td><span class="score pro">[+XX]</span> [reason]</td><td><span class="score con">[-XX]</span> [reason]</td></tr>
+        </tbody>
+      </table>
+      <p><strong>General ranking:</strong> [higher / lower / roughly tied]. [If tied, say so plainly: neither dominates in the abstract, which tells you the disagreement is not general, it lives in the scenarios below.]</p>
+    </section>
+
+    <!-- SCOPE 3 -->
+    <section class="card pad stack" id="scope-3" aria-labelledby="s3-h">
+      <h2 id="s3-h">Scope 3: Validity Within a Specific Conflict or Scenario</h2>
+      <p class="muted">The contextual question, and the one that drives real conflict resolution. The same interest that is generally tied can clearly win in one scenario and clearly yield in another, because the scenario facts (imminence, scale, who else is present, reversibility) move the ranking. Use two contrasting blocks to make the point, and copy the block for any further scenarios.</p>
+
+      <h3>Scenario A: [the case where this interest wins]</h3>
+      <table class="table" aria-label="Scenario A">
+        <thead><tr><th style="width:30%">Scenario</th><th style="width:35%">Competing interest</th><th style="width:35%">Scenario fact that moves the ranking</th></tr></thead>
+        <tbody><tr><td>[describe the specific conflict]</td><td>[the interest it collides with here]</td><td>[e.g. the harm is imminent and contained]</td></tr></tbody>
+      </table>
+      <table class="table" aria-label="Scenario A reasons">
+        <thead><tr><th class="half">Reasons it should win here</th><th class="half">Reasons it should yield here</th></tr></thead>
+        <tbody>
+          <tr><td><span class="score pro">[+XX]</span> [reason tied to a scenario fact] <span class="muted small">(criterion: e.g. imminence)</span></td><td><span class="score con">[-XX]</span> [reason tied to a scenario fact] <span class="muted small">(criterion: e.g. proportionality)</span></td></tr>
+          <tr><td><span class="score pro">[+XX]</span> [reason]</td><td></td></tr>
+        </tbody>
+      </table>
+      <p><strong>In-scenario ranking:</strong> [this interest wins here], well above the general ranking, because [the deciding facts].</p>
+
+      <h3>Scenario B: [the case where this interest yields]</h3>
+      <table class="table" aria-label="Scenario B">
+        <thead><tr><th style="width:30%">Scenario</th><th style="width:35%">Competing interest</th><th style="width:35%">Scenario fact that moves the ranking</th></tr></thead>
+        <tbody><tr><td>[describe the contrasting conflict]</td><td>[the interest it collides with here]</td><td>[e.g. many uninvolved people present, low individual threat]</td></tr></tbody>
+      </table>
+      <table class="table" aria-label="Scenario B reasons">
+        <thead><tr><th class="half">Reasons it should win here</th><th class="half">Reasons it should yield here</th></tr></thead>
+        <tbody>
+          <tr><td><span class="score pro">[+XX]</span> [reason] <span class="muted small">(criterion: e.g. continuity of the need)</span></td><td><span class="score con">[-XX]</span> [reason] <span class="muted small">(criterion: e.g. harm to others, large scope)</span></td></tr>
+          <tr><td></td><td><span class="score con">[-XX]</span> [reason] <span class="muted small">(criterion: e.g. proportionality)</span></td></tr>
+        </tbody>
+      </table>
+      <p><strong>In-scenario ranking:</strong> [this interest yields here], the reverse of Scenario A. Same interest, same person, different scenario facts.</p>
+      <div class="callout">A near-reversal like this is a textbook <a href="/w/page/162560439/Compromise">compromise candidate</a>: a small, achievable change to the facts could flip which interest wins without denying the underlying need. This is the input the <a href="/w/page/159387558/Conflict%20Resolution%20Framework%20in%20the%20Idea%20Stock%20Exchange%2C%20Understanding%20Interests%20not%20just%20positions">Conflict Resolution Pipeline</a> reads at steps 5 and 6.</div>
+    </section>
+
+    <!-- OBJECTIVE CRITERIA -->
+    <section class="card pad stack" id="criteria" aria-labelledby="oc-h">
+      <h2 id="oc-h">Objective Criteria for This Interest's Validity</h2>
+      <p class="muted">The clear, testable criteria a neutral party would use to judge this interest's validity, so the debate stays anchored to standards instead of sympathy. These feed the reasons in all three scopes above.</p>
+      <ul>
+        <li>[criterion, e.g. whether the same interest, exercised universally, remains sustainable]</li>
+        <li>[criterion, e.g. the number of people whose basic security genuinely depends on it]</li>
+        <li>[criterion, e.g. whether an effective alternative to the need exists]</li>
+        <li>[criterion, e.g. the reversibility of harm from wrongly denying vs wrongly granting it]</li>
+      </ul>
+      <p class="muted small"><em>See: <a href="/w/page/159351732/Objective%20criteria%20scores">Objective Criteria Scores</a>, <a href="/Insisting%20on%20Objective%20Criteria">Insisting on Objective Criteria</a></em></p>
+    </section>
+
+    <!-- RELATED PAGES -->
+    <section class="card pad stack" id="related" aria-labelledby="rel-h">
+      <h2 id="rel-h">Related Pages</h2>
+      <table class="table" aria-label="Related pages">
+        <tbody>
+          <tr><td><a href="/w/page/159301140/Interests">Interest</a></td><td class="muted">Definition and the two-score model</td></tr>
+          <tr><td><a href="/w/page/159387582/InterestsMotivation%20Template">Interest Evaluation Template</a></td><td class="muted">The quick two-score read this page expands from</td></tr>
+          <tr><td><a href="/w/page/159323067/Brainstorming%20Interests%20for%20Policy%20Debates">Interest Scoring Methodology</a></td><td class="muted">The validity criteria and Maslow priors</td></tr>
+          <tr><td><a href="/w/page/159387558/Conflict%20Resolution%20Framework%20in%20the%20Idea%20Stock%20Exchange%2C%20Understanding%20Interests%20not%20just%20positions">Conflict Resolution Pipeline</a></td><td class="muted">Where scenario rankings drive resolution</td></tr>
+          <tr><td><a href="/w/page/162560439/Compromise">Compromise</a></td><td class="muted">Building solutions from near-ties and shared interests</td></tr>
+          <tr><td><a href="/w/page/159300543/ReasonRank">ReasonRank</a></td><td class="muted">How the pro/con reasons above are scored</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="foot">
+      <p><em>Full belief-level pro/con, ethical ends/means, and stakeholder lists live on the parent <a href="/belief">belief page</a>, not here.</em></p>
+    </footer>
+  </div>
+</body>
+</html>
