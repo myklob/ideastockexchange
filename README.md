@@ -39,6 +39,19 @@ These belief pages show the ISE template in action — each one has pro/con argu
 
 ---
 
+## Page Templates
+
+Two templates in `src/pages/` define the canonical page structures. Each renders as a static page.
+
+| Template | Route | What it evaluates |
+|----------|-------|-------------------|
+| `belief.astro` | `/belief` | A claim: arguments, evidence, values, interests, costs, benefits |
+| `linkage.astro` | `/linkage` | A single edge: does argument X actually bear on claim Y? |
+
+The linkage template carries a JSON-LD block and `data-ise-*` attributes so pages are machine-readable before a database exists. The backing SQL schema and the three-layer architecture notes live in [`sql/`](sql/README.md).
+
+---
+
 ## The Scoring System
 
 Each argument in a belief tree gets three scores:

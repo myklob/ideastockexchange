@@ -1,0 +1,586 @@
+<!--
+  =================================================================
+  ISE LINKAGE EVALUATION PAGE TEMPLATE
+  =================================================================
+
+  WHAT THIS PAGE IS
+  -----------------
+  A linkage page evaluates a single CONNECTION between an argument (or
+  evidence) X and a claim Y. The proposition under debate is not whether
+  X is true and not whether Y is true. The proposition is whether X
+  actually bears on Y the way the placement implies.
+
+  Every linkage in the ISE argument graph deserves its own page when the
+  linkage is contested or important. The linkage score is computed from
+  this page's own argument tree, recursively, the same way belief scores
+  are computed from sub-arguments. Audit-lock applies: no manual scoring.
+
+  CANONICAL SOURCES (read these before editing this template)
+  -----------------------------------------------------------
+  Methodology page (the WHAT and WHY of linkage scores):
+    https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores
+  Companion belief page template: src/pages/belief.astro
+  Backing SQL schema:             sql/linkage_pages_schema.sql
+  Architecture notes:             sql/README.md
+  Argument scoring rules:
+    https://myclob.pbworks.com/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores
+  Evidence tiers:
+    https://myclob.pbworks.com/w/page/159353568/Evidence
+  Belief Equivalency Engine (powers the rephrasings table):
+    https://myclob.pbworks.com/w/page/21956921/Beliefs
+
+  If the methodology page and the code disagree, the methodology page
+  is canonical. File an issue rather than amending the methodology
+  silently.
+
+  HOW THIS RELATES TO THE BELIEF TEMPLATE
+  ---------------------------------------
+  belief.astro describes a CLAIM's place in the world: arguments,
+  evidence, values, interests, costs, benefits, laws, compromises.
+  This page describes a SINGLE EDGE in the argument graph: the bridge
+  between one X and one Y. It deliberately drops the world-context
+  sections because they describe what a belief means, not whether a
+  logical connection holds.
+
+  KEEPS from the belief template: argument trees (two columns, recursive
+  scoring), hidden assumptions, bias risks, belief mapping.
+  ADDS: proposition box, equivalent rephrasings with drift columns,
+  five-step linkage check as a worked record, failure-mode worked
+  examples (the Schiltz case is the canonical entry).
+
+  WHY THIS PAGE EXISTS: THE SCHILTZ CASE
+  --------------------------------------
+  The evidence (96 court orders violated by ICE in January 2026) is
+  high-tier T1. The parent claim (MAGA broke the norms that constrain
+  the powerful) reads adjacent. The fluent restructuring looks fine on
+  the page. It only fails the linkage check. Court order defiance is a
+  separation-of-powers argument, not a wealthy-elites-evading-rules
+  argument. Different mechanism, different parent. Fluent prose is not
+  a linkage check.
+
+  HARD RULES (every linkage page must follow)
+  -------------------------------------------
+    1. The proposition is "If X were true, would it necessarily
+       [support / weaken] Y?" Not "is X true." Not "is Y true."
+    2. Reasons to agree are about the BRIDGE: mechanism, entailment,
+       scope fit, temporal fit, monotonicity.
+    3. Reasons to disagree test known failure modes: True But
+       Irrelevant, missing step, scope / scale / temporal mismatch,
+       parent-mechanism mismatch.
+    4. Equivalent rephrasings of both X and Y are mandatory. Holds
+       under one phrasing = rhetorical. Holds under five = robust.
+    5. Score cells stay blank until real sub-argument scoring exists.
+       Audit-lock: no hand-assigned scores.
+    6. Default sort is argument score. Vote ratio is SECONDARY.
+    7. Contribution to parent = Argument Score (X) x Linkage Score.
+    8. No broken links. No href="#". Plain text if the target page
+       does not exist yet.
+    9. Methodology changes go to the canonical Linkage Scores page
+       FIRST, then this template, then individual pages.
+
+  STRUCTURED DATA ARCHITECTURE (three layers)
+  -------------------------------------------
+  Layer 1: this HTML scaffolding.
+  Layer 2: data-* attributes on every slot that varies between pages:
+             data-ise-field="json.path"          canonical JSON path
+             data-ise-section="name"             container tag
+             data-ise-source="database|computed|generated"
+             data-ise-audit-locked="true"        never hand-edit
+             data-ise-link="json.path"           URL the renderer links to
+             data-ise-pattern="mechanism|..."    argument row pattern
+             data-ise-rephrasing-type="..."      rephrasing row type
+  Layer 3: the JSON-LD <script> block below. Canonical machine-readable
+           copy of every tagged field. If HTML and JSON disagree, the
+           JSON wins. Field names match sql/linkage_pages_schema.sql.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Linkage Template • Idea Stock Exchange</title>
+  <script is:inline type="application/ld+json" id="ise-linkage-data">
+{
+  "@context": "https://ideastockexchange.org/schemas/v1",
+  "@type": "LinkagePage",
+  "schema_version": "1.0.0",
+  "linkage_id": "[uuid-or-slug-for-this-linkage]",
+  "linkage_type": "[ECLS-or-ACLS]",
+  "direction": "[supports-or-weakens]",
+  "x_node": {
+    "node_id": "[uuid-or-slug]",
+    "node_type": "[argument-or-evidence]",
+    "canonical_statement": "[X full statement, verbatim]",
+    "canonical_url": "[URL of X's own page]"
+  },
+  "y_node": {
+    "node_id": "[uuid-or-slug]",
+    "node_type": "[claim-or-belief]",
+    "canonical_statement": "[Y full statement, verbatim]",
+    "canonical_url": "[URL of Y's own page]"
+  },
+  "scores": {
+    "linkage_score": null,
+    "linkage_score_computed_at": null,
+    "linkage_score_source": "argument-tree-aggregate",
+    "audit_lock": true,
+    "contribution_to_y": null,
+    "x_argument_score": null
+  },
+  "linkage_arguments": {
+    "agree": [
+      {
+        "arg_id": "[uuid]",
+        "claim": "[short claim, 4-12 words]",
+        "description": "[1-3 sentences]",
+        "argument_score": null,
+        "linkage_score_to_this_page": null,
+        "pattern": "mechanism|necessity|scope-fit|monotonicity|other"
+      }
+    ],
+    "disagree": [
+      {
+        "arg_id": "[uuid]",
+        "claim": "[short claim, 4-12 words]",
+        "description": "[1-3 sentences]",
+        "argument_score": null,
+        "linkage_score_to_this_page": null,
+        "pattern": "missing-step|true-but-irrelevant|scope-mismatch|parent-mechanism-mismatch|reversal-at-scale|other"
+      }
+    ]
+  },
+  "rephrasings": {
+    "x_variants": [
+      {
+        "variant_id": "[uuid]",
+        "rephrasing_type": "filler-stripped|active-voice|mechanism-explicit|quantified|scope-narrowed",
+        "text": "[rephrased X]",
+        "equivalency_to_canonical": null,
+        "linkage_under_this_phrasing": null,
+        "drift": null
+      }
+    ],
+    "y_variants": [
+      {
+        "variant_id": "[uuid]",
+        "rephrasing_type": "filler-stripped|active-voice|mechanism-explicit|quantified|scope-narrowed",
+        "text": "[rephrased Y]",
+        "equivalency_to_canonical": null,
+        "linkage_under_this_phrasing": null,
+        "drift": null
+      }
+    ]
+  },
+  "five_step_check": {
+    "step_1_parent_claim_verbatim": "[Y verbatim]",
+    "step_2_evidence_or_argument_verbatim": "[X verbatim]",
+    "step_3_mechanism_one_sentence": "[mechanism]",
+    "step_4_self_assessed_score": null,
+    "step_4_dominant_factor": "relevance|network-strength|contextual-fit|uniqueness",
+    "step_5_flagged_below_threshold": null,
+    "step_5_action_taken": "[if flagged, what was done]",
+    "performed_by": "[user_id or ai_assistant_session_id]",
+    "performed_at": null
+  },
+  "failure_mode_examples": [
+    {
+      "failure_mode": "parent-mechanism-mismatch",
+      "name": "Schiltz case",
+      "is_canonical_origin": true,
+      "x_text": "Chief Judge Schiltz, January 2026: ICE violated 96 court orders in 74 cases.",
+      "y_text": "MAGA broke the norms that constrain the powerful (insider trading, nepotism, financial disclosure).",
+      "why_it_fails": "X is about executive defiance of judicial orders, a separation-of-powers argument. Y is about wealthy and connected people evading rules that bind ordinary citizens. Different mechanism, different parent."
+    }
+  ],
+  "graph_position": {
+    "other_y_nodes_x_supports": [],
+    "other_x_nodes_supporting_y": []
+  },
+  "hidden_assumptions": {
+    "required_for_linkage_to_hold": [],
+    "required_for_linkage_to_fail": []
+  },
+  "bias_risks": {
+    "biases_inflating_score": [],
+    "biases_deflating_score": []
+  },
+  "provenance": {
+    "created_at": null,
+    "created_by": null,
+    "last_edited_at": null,
+    "last_edited_by": null,
+    "template_version": "1.0.0",
+    "canonical_methodology_url": "https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores",
+    "engine_repo": "https://github.com/myklob/ideastockexchange",
+    "source_document": "ise_kialo_conversation.md"
+  }
+}
+  </script>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121922; --ink:#e7eef7; --muted:#a9b4c2; --line:#223044;
+      --pro:#18b57a; --con:#e25555; --accent:#5ba3ff; --warn:#ffc857; --info:#7dd3fc;
+      --radius:16px; --gap:16px; --sm:12px; --md:14px; --lg:18px; --xl:24px; --xxl:32px;
+      --shadow:0 6px 24px rgba(0,0,0,.25);
+    }
+    html,body{background:var(--bg);color:var(--ink);font:400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif;margin:0}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1100px;margin:auto;padding:24px}
+    header{display:grid;gap:8px;margin-bottom:20px}
+    .crumbs{color:var(--muted);font-size:var(--sm)}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .pad{padding:16px}
+    h1,h2,h3{line-height:1.2;margin:0 0 8px}
+    h1{font-size:var(--xxl)} h2{font-size:var(--xl)} h3{font-size:var(--lg)}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:var(--gap)}
+    .two{grid-template-columns:1fr 1fr}
+    .stack> * + *{margin-top:8px}
+    .tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-size:12px;color:var(--muted)}
+    .badge{font-weight:600;padding:2px 8px;border-radius:8px}
+    .pro{color:var(--pro)} .con{color:var(--con)}
+    .table{width:100%;border-collapse:separate;border-spacing:0}
+    .table th,.table td{border-bottom:1px solid var(--line);text-align:left;padding:10px;vertical-align:top}
+    .table thead th{font-size:12px;color:var(--muted);font-weight:600}
+    details{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+    summary{cursor:pointer;font-weight:600}
+    .callout{border-left:4px solid var(--accent);padding:10px 12px;background:rgba(91,163,255,.06);border-radius:6px}
+    .prop{font-size:var(--lg);line-height:1.5}
+    .prop-label{font-size:var(--sm);color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+    .flex{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .score{display:inline-block;padding:2px 10px;border:1px solid var(--line);border-radius:12px;background:rgba(125,211,252,.08);font-weight:600}
+    .arg-claim{font-weight:600;display:block;margin-bottom:4px}
+    .arg-desc{display:block;color:var(--muted);font-size:var(--md);line-height:1.45}
+    .foot{color:var(--muted);font-size:12px;margin-top:24px}
+    @media (max-width:900px){.two{grid-template-columns:1fr}}
+
+    /* print */
+    @media print{
+      :root{--bg:#fff;--panel:#fff;--ink:#000;--muted:#333;--line:#ccc}
+      a{color:inherit;text-decoration:underline}
+      .wrap{padding:0}
+      .card{box-shadow:none}
+      details{border:none;padding:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="crumbs" aria-label="Breadcrumb">
+        <a href="/belief">Belief</a> ▸ <span>Linkage</span>
+      </div>
+      <h1 data-ise-field="page_title" data-ise-source="generated">Linkage: <span data-ise-field="x_node.canonical_statement">[X]</span> → <span data-ise-field="y_node.canonical_statement">[Y]</span></h1>
+
+      <!--
+        PROPOSITION BOX: the single sentence that organizes the page.
+        Every argument, rephrasing and score below answers THIS question,
+        not "is X true" or "is Y true." If you can't write it cleanly the
+        linkage probably doesn't deserve its own page: either obvious
+        (~1.0, leave inline on the belief page) or so weak the placement
+        should be removed. Contested linkages in the 0.3 to 0.85 range are
+        the ones that earn a page.
+      -->
+      <section class="card pad callout" data-ise-section="proposition" aria-labelledby="prop-h">
+        <div class="prop-label" id="prop-h">Linkage proposition</div>
+        <div class="prop">
+          If <strong data-ise-field="x_node.canonical_statement">[X: short-form argument or evidence statement]</strong> were true, would it necessarily <strong data-ise-field="direction">[support / weaken]</strong> <strong data-ise-field="y_node.canonical_statement">[Y: short-form claim statement]</strong>?
+        </div>
+      </section>
+
+      <div class="grid two">
+        <section class="card pad stack" aria-labelledby="score-h" data-ise-section="header_metadata">
+          <h2 id="score-h">Linkage Score</h2>
+          <div class="flex">
+            <span class="score" data-ise-field="scores.linkage_score" data-ise-source="database" data-ise-audit-locked="true">[0.00–1.00]</span>
+            <span class="tag">Type: <a href="https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores" data-ise-field="linkage_type">[ECLS / ACLS]</a></span>
+            <span class="tag">Direction: <span data-ise-field="direction">[Supports / Weakens]</span></span>
+          </div>
+          <div class="muted">
+            <strong>Contribution to Y:</strong>
+            <span data-ise-field="scores.x_argument_score">[X arg score]</span> ×
+            <span data-ise-field="scores.linkage_score">[linkage]</span> =
+            <span data-ise-field="scores.contribution_to_y" data-ise-source="computed">[computed from <a href="https://myclob.pbworks.com/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">sub‑argument scores</a>]</span>
+          </div>
+        </section>
+        <section class="card pad stack" aria-labelledby="nodes-h">
+          <h2 id="nodes-h">Endpoints</h2>
+          <!-- Rule 8: no placeholder hrefs. The renderer wraps the statement in a link once canonical_url is set. -->
+          <div><strong>X (argument or evidence):</strong> <span data-ise-field="x_node.canonical_statement" data-ise-link="x_node.canonical_url">[X full statement]</span></div>
+          <div><strong>Y (claim):</strong> <span data-ise-field="y_node.canonical_statement" data-ise-link="y_node.canonical_url">[Y full statement]</span></div>
+          <p class="muted"><strong>Scope note (optional):</strong> use only when this linkage is easily confused with a different one between similar X and Y. State what bridge this page is and is not evaluating.</p>
+        </section>
+      </div>
+    </header>
+
+    <!--
+      LINKAGE ARGUMENTS: the core of the page. Each row is its own
+      argument with its own score; the linkage score is the net
+      aggregate, computed recursively. Arguments are about the BRIDGE,
+      not the endpoints.
+        Wrong: "X is well-evidenced" (that's an X-page argument)
+        Wrong: "Y is morally correct" (that's a Y-page argument)
+        Right: "X's mechanism doesn't bear on Y because the populations differ"
+      Pre-seeded rows map to the four agree-side patterns (mechanism,
+      necessity, scope fit, monotonicity) and four disagree-side failure
+      modes (missing step, True But Irrelevant, scope mismatch,
+      parent-mechanism mismatch).
+    -->
+    <section class="card pad" id="linkage-arguments" aria-labelledby="args-h">
+      <h2 id="args-h">🔗 <a href="https://myclob.pbworks.com/Reasons">Linkage Arguments</a></h2>
+      <p class="muted">Each argument tests the bridge between X and Y, not the truth of X or Y. Reasons to agree explain why the connection is direct, necessary, or unavoidable. Reasons to disagree explain why it breaks: missing steps, mismatched scope, alternative explanations, or the True But Irrelevant pattern.</p>
+      <table class="table" role="table" aria-label="Linkage arguments" data-ise-section="linkage_arguments">
+        <thead><tr><th>✅ Reasons the linkage is strong</th><th>❌ Reasons the linkage is weak</th></tr></thead>
+        <tbody>
+          <tr>
+            <td data-ise-field="linkage_arguments.agree[0]" data-ise-pattern="mechanism">
+              <span class="arg-claim" data-ise-field="linkage_arguments.agree[0].claim">1. [Mechanism: X causes Y through a named pathway]</span>
+              <span class="arg-desc" data-ise-field="linkage_arguments.agree[0].description">[1–3 sentences naming the causal or logical mechanism. The bridge from X to Y is direct, with few intermediate steps.]</span>
+            </td>
+            <td data-ise-field="linkage_arguments.disagree[0]" data-ise-pattern="missing-step">
+              <span class="arg-claim" data-ise-field="linkage_arguments.disagree[0].claim">1. [Missing intermediate step]</span>
+              <span class="arg-desc" data-ise-field="linkage_arguments.disagree[0].description">[What hidden assumption must be true for X to support Y? Link to <a href="https://myclob.pbworks.com/Assumptions">Assumptions</a> if the gap reveals a foundational premise.]</span>
+            </td>
+          </tr>
+          <tr>
+            <td data-ise-field="linkage_arguments.agree[1]" data-ise-pattern="necessity">
+              <span class="arg-claim" data-ise-field="linkage_arguments.agree[1].claim">2. [Necessity: if X is true, Y must be strengthened]</span>
+              <span class="arg-desc" data-ise-field="linkage_arguments.agree[1].description">[Why no plausible scenario allows X to be true while Y stays unchanged.]</span>
+            </td>
+            <td data-ise-field="linkage_arguments.disagree[1]" data-ise-pattern="true-but-irrelevant">
+              <span class="arg-claim" data-ise-field="linkage_arguments.disagree[1].claim">2. [True But Irrelevant: X is true but does not bear on Y]</span>
+              <span class="arg-desc" data-ise-field="linkage_arguments.disagree[1].description">[Why X, even granted as fact, does not move the needle on Y. The most common linkage failure mode.]</span>
+            </td>
+          </tr>
+          <tr>
+            <td data-ise-field="linkage_arguments.agree[2]" data-ise-pattern="scope-fit">
+              <span class="arg-claim" data-ise-field="linkage_arguments.agree[2].claim">3. [Scope fit: X’s domain matches Y’s domain]</span>
+              <span class="arg-desc" data-ise-field="linkage_arguments.agree[2].description">[Population, timeframe, and context align between X and Y.]</span>
+            </td>
+            <td data-ise-field="linkage_arguments.disagree[2]" data-ise-pattern="scope-mismatch">
+              <span class="arg-claim" data-ise-field="linkage_arguments.disagree[2].claim">3. [Scope or scale mismatch]</span>
+              <span class="arg-desc" data-ise-field="linkage_arguments.disagree[2].description">[X is from a different population, scale, or time period than Y. Extrapolation fails.]</span>
+            </td>
+          </tr>
+          <tr>
+            <td data-ise-field="linkage_arguments.agree[3]" data-ise-pattern="monotonicity">
+              <span class="arg-claim" data-ise-field="linkage_arguments.agree[3].claim">4. [Monotonicity: more X means more Y, consistently]</span>
+              <span class="arg-desc" data-ise-field="linkage_arguments.agree[3].description">[The relationship doesn’t reverse direction at any plausible value of X.]</span>
+            </td>
+            <td data-ise-field="linkage_arguments.disagree[3]" data-ise-pattern="parent-mechanism-mismatch">
+              <span class="arg-claim" data-ise-field="linkage_arguments.disagree[3].claim">4. [Parent-mechanism mismatch]</span>
+              <span class="arg-desc" data-ise-field="linkage_arguments.disagree[3].description">[X belongs under a different parent claim than Y. The fluent reading is misleading. See the Schiltz case below.]</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>How the linkage score rolls up</summary>
+        <div class="callout">Linkage arguments are scored by the same recursive engine as belief arguments. Each row has its own argument score; this page’s linkage score is the net aggregate. See <a href="https://myclob.pbworks.com/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">Argument Scores from Sub‑Argument Scores</a>.</div>
+      </details>
+    </section>
+
+    <!--
+      EQUIVALENT REPHRASINGS: the robustness check. The five rephrasing
+      types map to the Pinker-style writing rules the ISE uses elsewhere:
+        1. Filler-stripped: cut zombie nouns, hedges, throat-clearing
+        2. Active voice: name the actor, name the date
+        3. Mechanism-explicit: state the causal pathway in the sentence
+        4. Quantified: replace adjectives with numbers where possible
+        5. Scope-narrowed: pin down the population, time, and context
+      If the linkage falls apart under "active voice," the original was
+      hiding behind passive construction. If it falls apart under
+      "scope-narrowed," the original was overgeneralizing.
+    -->
+    <section class="card pad" id="rephrasings" aria-labelledby="reph-h">
+      <h2 id="reph-h">📝 Equivalent Rephrasings</h2>
+      <p class="muted">If the same linkage holds across multiple phrasings of X and Y, it’s logically robust. If it only holds under one phrasing, it’s rhetorical. Equivalency scores come from the <a href="https://myclob.pbworks.com/w/page/21956921/Beliefs">Belief Equivalency Engine</a>; a rephrasing that produces a substantially different linkage score reveals fragility, and that fragility is itself informative.</p>
+
+      <h3>Rephrasings of X (the argument or evidence)</h3>
+      <table class="table" role="table" aria-label="Rephrasings of X" data-ise-section="rephrasings.x_variants">
+        <thead><tr><th>#</th><th>Rephrased X</th><th>Equivalency to canonical X</th><th>Linkage to Y under this phrasing</th><th>Drift</th></tr></thead>
+        <tbody>
+          <tr data-ise-rephrasing-type="canonical"><td>0</td><td><strong data-ise-field="x_node.canonical_statement">[Canonical X]</strong></td><td>1.00</td><td data-ise-field="rephrasings.x_variants[0].linkage_under_this_phrasing">[L0]</td><td>—</td></tr>
+          <tr data-ise-rephrasing-type="filler-stripped"><td>1</td><td data-ise-field="rephrasings.x_variants[1].text">[Filler-stripped, plain language]</td><td data-ise-field="rephrasings.x_variants[1].equivalency_to_canonical"></td><td data-ise-field="rephrasings.x_variants[1].linkage_under_this_phrasing"></td><td data-ise-field="rephrasings.x_variants[1].drift"></td></tr>
+          <tr data-ise-rephrasing-type="active-voice"><td>2</td><td data-ise-field="rephrasings.x_variants[2].text">[Active voice, named actor and date]</td><td data-ise-field="rephrasings.x_variants[2].equivalency_to_canonical"></td><td data-ise-field="rephrasings.x_variants[2].linkage_under_this_phrasing"></td><td data-ise-field="rephrasings.x_variants[2].drift"></td></tr>
+          <tr data-ise-rephrasing-type="mechanism-explicit"><td>3</td><td data-ise-field="rephrasings.x_variants[3].text">[Mechanism-explicit form]</td><td data-ise-field="rephrasings.x_variants[3].equivalency_to_canonical"></td><td data-ise-field="rephrasings.x_variants[3].linkage_under_this_phrasing"></td><td data-ise-field="rephrasings.x_variants[3].drift"></td></tr>
+          <tr data-ise-rephrasing-type="quantified"><td>4</td><td data-ise-field="rephrasings.x_variants[4].text">[Quantified form, where possible]</td><td data-ise-field="rephrasings.x_variants[4].equivalency_to_canonical"></td><td data-ise-field="rephrasings.x_variants[4].linkage_under_this_phrasing"></td><td data-ise-field="rephrasings.x_variants[4].drift"></td></tr>
+          <tr data-ise-rephrasing-type="scope-narrowed"><td>5</td><td data-ise-field="rephrasings.x_variants[5].text">[Scope-narrowed form]</td><td data-ise-field="rephrasings.x_variants[5].equivalency_to_canonical"></td><td data-ise-field="rephrasings.x_variants[5].linkage_under_this_phrasing"></td><td data-ise-field="rephrasings.x_variants[5].drift"></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Rephrasings of Y (the claim being supported or weakened)</h3>
+      <table class="table" role="table" aria-label="Rephrasings of Y" data-ise-section="rephrasings.y_variants">
+        <thead><tr><th>#</th><th>Rephrased Y</th><th>Equivalency to canonical Y</th><th>Linkage from X under this phrasing</th><th>Drift</th></tr></thead>
+        <tbody>
+          <tr data-ise-rephrasing-type="canonical"><td>0</td><td><strong data-ise-field="y_node.canonical_statement">[Canonical Y]</strong></td><td>1.00</td><td data-ise-field="rephrasings.y_variants[0].linkage_under_this_phrasing">[L0]</td><td>—</td></tr>
+          <tr data-ise-rephrasing-type="filler-stripped"><td>1</td><td data-ise-field="rephrasings.y_variants[1].text">[Filler-stripped, plain language]</td><td data-ise-field="rephrasings.y_variants[1].equivalency_to_canonical"></td><td data-ise-field="rephrasings.y_variants[1].linkage_under_this_phrasing"></td><td data-ise-field="rephrasings.y_variants[1].drift"></td></tr>
+          <tr data-ise-rephrasing-type="active-voice"><td>2</td><td data-ise-field="rephrasings.y_variants[2].text">[Active voice, named outcome]</td><td data-ise-field="rephrasings.y_variants[2].equivalency_to_canonical"></td><td data-ise-field="rephrasings.y_variants[2].linkage_under_this_phrasing"></td><td data-ise-field="rephrasings.y_variants[2].drift"></td></tr>
+          <tr data-ise-rephrasing-type="mechanism-explicit"><td>3</td><td data-ise-field="rephrasings.y_variants[3].text">[Mechanism-explicit form]</td><td data-ise-field="rephrasings.y_variants[3].equivalency_to_canonical"></td><td data-ise-field="rephrasings.y_variants[3].linkage_under_this_phrasing"></td><td data-ise-field="rephrasings.y_variants[3].drift"></td></tr>
+          <tr data-ise-rephrasing-type="quantified"><td>4</td><td data-ise-field="rephrasings.y_variants[4].text">[Quantified form, where possible]</td><td data-ise-field="rephrasings.y_variants[4].equivalency_to_canonical"></td><td data-ise-field="rephrasings.y_variants[4].linkage_under_this_phrasing"></td><td data-ise-field="rephrasings.y_variants[4].drift"></td></tr>
+          <tr data-ise-rephrasing-type="scope-narrowed"><td>5</td><td data-ise-field="rephrasings.y_variants[5].text">[Scope-narrowed form]</td><td data-ise-field="rephrasings.y_variants[5].equivalency_to_canonical"></td><td data-ise-field="rephrasings.y_variants[5].linkage_under_this_phrasing"></td><td data-ise-field="rephrasings.y_variants[5].drift"></td></tr>
+        </tbody>
+      </table>
+      <p class="muted"><strong>Drift</strong> is the difference between the linkage score under the rephrased version and the canonical version. High drift means the linkage depends on specific wording. Low drift means the linkage survives translation, which is what we want.</p>
+    </section>
+
+    <!--
+      FIVE-STEP LINKAGE CHECK: the forcing function. Fluent prose is not
+      a linkage check; the five steps interrupt fluent generation and
+      demand an explicit walk-through. This section is the WORKED RECORD
+      for THIS X-Y placement, not generic instructions. The user-facing
+      prompt "linkage check before placing" should trigger these steps
+      before any placement is locked in.
+    -->
+    <section class="card pad" id="five-step-check" aria-labelledby="check-h">
+      <h2 id="check-h">✅ Five‑Step Linkage Check (Worked Record)</h2>
+      <p class="muted">Every placement of evidence under a claim, or argument under a parent argument, passes through these five steps. A linkage score is only as defensible as the check that produced it. The prompt “linkage check before placing” interrupts fluent restructuring and demands an explicit walk‑through.</p>
+      <table class="table" role="table" aria-label="Five-step linkage check" data-ise-section="five_step_check">
+        <thead><tr><th>Step</th><th>Question</th><th>Answer for THIS placement</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Exact wording of the parent claim Y</td><td data-ise-field="five_step_check.step_1_parent_claim_verbatim">[Verbatim. No paraphrase.]</td></tr>
+          <tr><td><strong>2</strong></td><td>Exact wording of the evidence or argument X</td><td data-ise-field="five_step_check.step_2_evidence_or_argument_verbatim">[Verbatim. No paraphrase.]</td></tr>
+          <tr><td><strong>3</strong></td><td>Mechanism by which X supports Y, in one sentence</td><td data-ise-field="five_step_check.step_3_mechanism_one_sentence">[If you can’t write this sentence cleanly, the linkage is probably weak.]</td></tr>
+          <tr><td><strong>4</strong></td><td>Self‑assessed linkage score (0–1)</td><td><span data-ise-field="five_step_check.step_4_self_assessed_score">[Score]</span>, dominant factor: <span data-ise-field="five_step_check.step_4_dominant_factor">[relevance / network strength / contextual fit / uniqueness]</span></td></tr>
+          <tr><td><strong>5</strong></td><td>Flag if score &lt; 0.7</td><td data-ise-field="five_step_check.step_5_action_taken">[If flagged, action: find better evidence rather than reach with what’s at hand.]</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!--
+      FAILURE MODE WORKED EXAMPLES: the teaching content. The Schiltz row
+      is the canonical origin of this template; do not delete it. Add new
+      failure modes in the same format: X verbatim, Y verbatim, and WHY
+      the linkage fails in one sentence. If you can't say it in one
+      sentence you haven't identified the failure mode yet.
+    -->
+    <section class="card pad" id="failure-modes" aria-labelledby="fail-h">
+      <h2 id="fail-h">🔎 Failure Mode Worked Examples</h2>
+      <p class="muted">Linkage failures fall into recognizable patterns. Naming them creates muscle memory: once you’ve seen the Schiltz case, you start spotting parent‑mechanism mismatches everywhere. Add new failure modes as they’re caught in the wild.</p>
+      <table class="table" role="table" aria-label="Failure mode worked examples" data-ise-section="failure_mode_examples">
+        <thead><tr><th>Failure Mode</th><th>X (evidence or argument)</th><th>Y (claim it was placed under)</th><th>Why the linkage fails</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Parent‑mechanism mismatch</strong> <em class="muted">(the Schiltz case)</em></td>
+            <td>Chief Judge Schiltz, January 2026: ICE violated 96 court orders in 74 cases.</td>
+            <td>MAGA broke the norms that constrain the powerful (insider trading, nepotism, financial disclosure).</td>
+            <td>X is about executive defiance of judicial orders, a separation‑of‑powers argument. Y is about wealthy and connected people evading rules that bind ordinary citizens. Different mechanism, different parent. Correct parent for X is “MAGA defies judicial constraint,” not Y.</td>
+          </tr>
+          <tr><td><strong>True But Irrelevant</strong></td><td>[X that is well‑evidenced and true]</td><td>[Y that X is supposed to support]</td><td>[Why the connection requires assumptions not in evidence.]</td></tr>
+          <tr><td><strong>Scope mismatch</strong></td><td>[X applies to a specific population, time, or context]</td><td>[Y is a broader or different‑scope claim]</td><td>[Extrapolation requires an unstated similarity assumption.]</td></tr>
+          <tr><td><strong>Missing intermediate step</strong></td><td>[X]</td><td>[Y, where the chain X → A → B → Y has uncertain middle links]</td><td>[Each missing step compounds uncertainty. Name the steps.]</td></tr>
+          <tr><td><strong>Reversal at scale</strong></td><td>[X is true at small scale]</td><td>[Y is the same claim at large scale]</td><td>[The relationship reverses or collapses outside the tested range.]</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!--
+      GRAPH POSITION: a linkage is a single edge. The graph matters
+      because it surfaces patterns: is X applied consistently, or
+      stretched to support whatever the author wanted? Default sort is
+      argument score (Hard Rule 6); vote ratio is never the default.
+    -->
+    <section class="card pad" id="graph" aria-labelledby="graph-h">
+      <h2 id="graph-h">🧭 Beliefs This Linkage Participates In</h2>
+      <p class="muted">Default sort is by <a href="https://myclob.pbworks.com/w/page/159300543/ReasonRank">argument score</a>, which counts evidence quality and logical validity. Vote ratio is a secondary view, never the default.</p>
+      <div class="grid two">
+        <div data-ise-section="graph_position.other_y_nodes_x_supports">
+          <h3>Other claims X is placed under</h3>
+          <p class="muted">Same X, different Y. Spots whether X is applied consistently or stretched into places it doesn’t belong.</p>
+          <table class="table" role="table" aria-label="Other claims X is placed under">
+            <thead><tr><th>Other Y</th><th>Linkage</th><th>Argument score</th></tr></thead>
+            <tbody>
+              <tr><td>1. [Other Y]</td><td></td><td></td></tr>
+              <tr><td>2. [Other Y]</td><td></td><td></td></tr>
+              <tr><td>3. [Other Y]</td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div data-ise-section="graph_position.other_x_nodes_supporting_y">
+          <h3>Other arguments and evidence placed under Y</h3>
+          <p class="muted">Same Y, different X. Shows how this linkage compares to the other support Y is built on.</p>
+          <table class="table" role="table" aria-label="Other arguments placed under Y">
+            <thead><tr><th>Other X</th><th>Linkage</th><th>Argument score</th></tr></thead>
+            <tbody>
+              <tr><td>1. [Other X]</td><td></td><td></td></tr>
+              <tr><td>2. [Other X]</td><td></td><td></td></tr>
+              <tr><td>3. [Other X]</td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!--
+      HIDDEN ASSUMPTIONS + BIAS RISKS. If the linkage scores below 1.0,
+      something besides X must be true for Y to follow; naming it lets
+      opponents attack the assumption directly and often reveals the
+      same assumption doing the real work across many linkages. Bias
+      risks are specific to THIS linkage. Symmetry matters: three
+      inflation entries and zero deflation entries is itself a signal.
+    -->
+    <section class="grid two" id="assumptions-biases">
+      <div class="card pad">
+        <h2>📜 <a href="https://myclob.pbworks.com/Assumptions">Hidden Assumptions Required</a></h2>
+        <p class="muted">If the linkage from X to Y is below 1.0, something must be true in addition to X for Y to follow. Naming those assumptions is half the work of evaluating any linkage.</p>
+        <table class="table" role="table" aria-label="Hidden assumptions" data-ise-section="hidden_assumptions">
+          <thead><tr><th>Required for the linkage to hold</th><th>Required for the linkage to fail</th></tr></thead>
+          <tbody>
+            <tr><td>1.…</td><td>1.…</td></tr>
+            <tr><td>2.…</td><td>2.…</td></tr>
+            <tr><td>3.…</td><td>3.…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card pad">
+        <h2>🧠 <a href="https://myclob.pbworks.com/w/page/21956934/bias">Bias Risks Specific to This Linkage</a></h2>
+        <p class="muted">Motivated reasoning shows up in placement more than in claims. People rarely invent evidence; they place real evidence under conclusions it doesn’t support.</p>
+        <table class="table" role="table" aria-label="Bias risks" data-ise-section="bias_risks">
+          <thead><tr><th>Inflate this linkage score</th><th>Deflate this linkage score</th></tr></thead>
+          <tbody>
+            <tr><td>1. [e.g., motivated reasoning toward Y]</td><td>1. [e.g., contrarian bias against Y]</td></tr>
+            <tr><td>2. [e.g., availability bias if X is recent and salient]</td><td>2. [e.g., scope insensitivity dismissing X’s relevance]</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- DEFINITIONS GO LAST. Same rule as the belief template. -->
+    <section class="card pad" id="definitions" aria-labelledby="def-h">
+      <h2 id="def-h">📖 Definitions and Scoring Concepts</h2>
+      <p><strong>Linkage Score:</strong> How directly X strengthens or weakens Y. Computed as Relevance × Network Strength × Contextual Fit × Uniqueness. See <a href="https://myclob.pbworks.com/w/page/159338766/Linkage%20Scores">Linkage Scores</a>.</p>
+      <p><strong>ECLS vs ACLS:</strong> ECLS is Evidence‑to‑Conclusion Linkage (a study supports a conclusion). ACLS is Argument‑to‑Conclusion Linkage (a logical claim supports a conclusion). The five‑step check applies to both.</p>
+      <p><strong>Contribution to parent:</strong> An argument’s effect on its parent claim equals Argument Score × Linkage Score. A perfect argument with a 0.3 linkage contributes less than a moderate argument with a 0.9 linkage. See <a href="https://myclob.pbworks.com/w/page/159333015/Argument%20scores%20from%20sub-argument%20scores">Argument scores from sub‑argument scores</a>.</p>
+      <p><strong>Equivalency Score:</strong> How similar two phrasings of the same statement are. Used in the rephrasings table to test linkage robustness. See the <a href="https://myclob.pbworks.com/w/page/21956921/Beliefs">Belief Equivalency Engine</a>.</p>
+      <p><strong>Audit‑lock:</strong> Linkage scores are computed from sub‑arguments, never assigned by hand. If the score on this page changes, the change traces to a specific edit in the linkage argument tree above.</p>
+    </section>
+
+    <footer class="foot">
+      <p><a href="https://myclob.pbworks.com/w/page/160433328/Contact%20Me">📬 Contact me</a> to add linkage arguments, equivalent rephrasings, or new failure mode examples. <a href="https://github.com/myklob/ideastockexchange">GitHub</a> for the scoring algorithm and the backing SQL schema (<code>sql/linkage_pages_schema.sql</code>).</p>
+      <p class="muted">The JSON‑LD block in this page’s head is the canonical machine‑readable copy of every bracketed slot. Edit the JSON first, then mirror it into the HTML; if they disagree, the JSON wins.</p>
+    </footer>
+  </div>
+</body>
+</html>
+
+<!--
+  MAINTENANCE NOTES
+  -----------------
+  PROPAGATION RULE: methodology changes go to the canonical Linkage
+  Scores page on PBworks first, then this template, then existing
+  linkage pages, then (if scoring is affected) a GitHub issue so code
+  matches methodology. Don't fork the methodology.
+
+  AI ASSISTANT INSTRUCTIONS: read the canonical Linkage Scores page
+  first. Apply the five-step check explicitly before placing any X
+  under any Y, even when the placement "looks obvious." Never assign
+  linkage scores by hand. Preserve existing comments; add rather than
+  replace. If you find yourself rephrasing a placement to make it sound
+  better, stop and run the check. Fluency is not linkage.
+
+  PROVENANCE: created in collaboration with Mike Laub and Claude,
+  drawing on the ISE/Kialo working session (ise_kialo_conversation.md)
+  that identified the Schiltz misplacement and produced the five-step
+  linkage check.
+-->
