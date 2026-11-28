@@ -465,7 +465,7 @@ export default async function LinkagePage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-white">
       {/* ── Nav ─────────────────────────────────────────────────── */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <nav className="bg-white border-b border-gray-200">
         <div className="max-w-[960px] mx-auto px-4 py-3 flex items-center gap-2 text-sm">
           <Link href="/" className="font-bold text-[var(--foreground)]">ISE</Link>
           <span className="text-gray-400">/</span>
