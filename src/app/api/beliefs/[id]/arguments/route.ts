@@ -28,9 +28,12 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
 import { slugify } from '@/lib/agent-ingest/slug'
+
+const MAX_STATEMENT_CHARS = 1000
 import { isGraphFrozen, GRAPH_FREEZE_MESSAGE } from '@/lib/markets/epoch'
 import { scanForRestatements } from '@/lib/posting/drift-guard'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 interface PostBody {
   side?: string
   statement?: string
@@ -137,10 +140,11 @@ export async function GET(
   })
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string }> },) {
+  const blocked = guardPublicWrite(request, 'arguments', 20)
+  if (blocked) return blocked
+
   const { id } = await params
   const beliefId = Number(id)
   if (!Number.isInteger(beliefId)) {
@@ -173,7 +177,7 @@ export async function POST(
     return NextResponse.json({ error: "side must be 'agree' or 'disagree'." }, { status: 422 })
   }
   const statement = body.statement?.trim()
-  if (!statement || statement.length < 10) {
+  if (!statement || statement.length < 10 || statement.length > MAX_STATEMENT_CHARS) {
     return NextResponse.json(
       { error: 'statement must be a standalone claim with a truth value (min 10 chars).' },
       { status: 422 },

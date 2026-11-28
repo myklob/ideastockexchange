@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { marketJson, marketErrorResponse } from '@/lib/markets/api'
 import { placeOrder } from '@/lib/markets/service'
 
+import { guardMarketWrite } from '@/lib/public-guard'
 /** GET — the order book (open orders, both sides). */
 export async function GET(
   _request: Request,
@@ -21,10 +22,11 @@ export async function GET(
 
 /** POST — place a limit order on a graduated market. Body:
  *  { username, side: "BUY"|"SELL", outcome: "YES"|"NO", limitPrice, quantity }. */
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string }> },) {
+  const closed = guardMarketWrite(request, 'market-orders')
+  if (closed) return closed
+
   const { id } = await params
   let body: {
     username?: string

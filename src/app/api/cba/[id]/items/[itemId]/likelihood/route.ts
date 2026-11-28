@@ -5,6 +5,7 @@ import { SchilchtArgument } from '@/core/types/schlicht'
 import { LikelihoodEstimate } from '@/core/types/cba'
 import { calculateArgumentImpact } from '@/core/scoring/scoring-engine'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 const argumentSchema = z.object({
   estimate_id: z
     .string()
@@ -50,10 +51,11 @@ const newEstimateSchema = z.object({
   }),
 })
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string; itemId: string }> }
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string; itemId: string }> }) {
+  const blocked = guardPublicWrite(request, 'cba-likelihood', 20)
+  if (blocked) return blocked
+
   const { id, itemId } = await params
 
   const cba = getCBA(id)

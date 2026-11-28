@@ -20,6 +20,8 @@ import ContributeSection from '@/features/belief-analysis/components/ContributeS
 import ISEExampleSection from '@/features/belief-analysis/components/ISEExampleSection'
 import StrengthSpectrumBar, { TwoAxisCoordinate } from '@/components/StrengthSpectrumBar'
 
+
+export const dynamic = 'force-dynamic'
 const SLUG = 'set-aside-distractions-for-real-solutions'
 
 export default async function DistractionsBeliefPage() {
@@ -34,7 +36,7 @@ export default async function DistractionsBeliefPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="bg-white border-b border-[var(--border)] sticky top-0 z-50">
+      <nav className="bg-white border-b border-[var(--border)]">
         <div className="max-w-[960px] mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-lg font-bold text-[var(--foreground)]">ISE</Link>

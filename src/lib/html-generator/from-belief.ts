@@ -51,6 +51,16 @@ export function beliefToHtmlInput(
     argumentLabel: p.argumentLabel,
   }))
 
+  // Free-text section fields store one item per line; split into list rows.
+  const lines = (text: string | null | undefined): string[] =>
+    (text ?? '')
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean)
+
+  const va = belief.valuesAnalysis
+  const ia = belief.interestsAnalysis
+
   return {
     slug: belief.slug,
     statement: belief.statement,
@@ -65,11 +75,93 @@ export function beliefToHtmlInput(
       bearsOn: '',
       linkage: null,
     })),
+    values: va
+      ? {
+          motivation: {
+            supportersAdvertised: lines(va.supportingAdvertised),
+            supportersActual: lines(va.supportingActual),
+            opponentsAdvertised: lines(va.opposingAdvertised),
+            opponentsActual: lines(va.opposingActual),
+          },
+        }
+      : undefined,
+    interests:
+      ia && (ia.sharedInterests || ia.conflictingInterests)
+        ? {
+            sharedVsConflicting: [
+              {
+                shared: ia.sharedInterests,
+                conflicting: ia.conflictingInterests,
+                why: null,
+              },
+            ],
+          }
+        : undefined,
+    assumptions: belief.assumptions.length
+      ? {
+          accept: belief.assumptions.filter((a) => a.side === 'accept').map((a) => a.statement),
+          reject: belief.assumptions.filter((a) => a.side === 'reject').map((a) => a.statement),
+        }
+      : undefined,
     objectiveCriteria: belief.objectiveCriteria.map((c) => ({
       criterion: c.description,
       currentStatus: c.currentStatus ?? null,
       threshold: c.thresholdForAgreement ?? null,
     })),
+    costBenefit: belief.costBenefitAnalysis
+      ? {
+          benefits: lines(belief.costBenefitAnalysis.benefits),
+          costs: lines(belief.costBenefitAnalysis.costs),
+          shortTerm: lines(belief.impactAnalysis?.shortTermEffects),
+          longTerm: lines(belief.impactAnalysis?.longTermEffects),
+        }
+      : undefined,
+    resolution:
+      belief.compromises.length || belief.obstacles.length || belief.biases.length
+        ? {
+            compromises: belief.compromises.map((c) => c.description),
+            obstacles: belief.obstacles.map((o) => o.description),
+            supporterBiases: belief.biases
+              .filter((b) => b.side.includes('support'))
+              .map((b) => b.biasType),
+            opponentBiases: belief.biases
+              .filter((b) => !b.side.includes('support'))
+              .map((b) => b.biasType),
+          }
+        : undefined,
+    mapping:
+      belief.upstreamMappings.length || belief.downstreamMappings.length || belief.similarTo.length
+        ? {
+            upstreamSupport: belief.upstreamMappings
+              .filter((m) => m.side === 'support')
+              .map((m) => m.parentBelief.statement),
+            upstreamOppose: belief.upstreamMappings
+              .filter((m) => m.side !== 'support')
+              .map((m) => m.parentBelief.statement),
+            downstreamSupport: belief.downstreamMappings
+              .filter((m) => m.side === 'support')
+              .map((m) => m.childBelief.statement),
+            downstreamOppose: belief.downstreamMappings
+              .filter((m) => m.side !== 'support')
+              .map((m) => m.childBelief.statement),
+            moreExtreme: belief.similarTo
+              .filter((s) => s.variant === 'extreme')
+              .map((s) => s.toBelief.statement),
+            moreModerate: belief.similarTo
+              .filter((s) => s.variant === 'moderate')
+              .map((s) => s.toBelief.statement),
+          }
+        : undefined,
+    legal: belief.legalEntries.length
+      ? {
+          supporting: belief.legalEntries
+            .filter((l) => l.side === 'supporting')
+            .map((l) => l.description),
+          contradicting: belief.legalEntries
+            .filter((l) => l.side !== 'supporting')
+            .map((l) => l.description),
+        }
+      : undefined,
     definitions: belief.definitions.map((d) => ({ term: d.term, definition: d.definition })),
     supports,
     linkMode: opts.linkMode,

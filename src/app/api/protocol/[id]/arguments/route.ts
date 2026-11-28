@@ -4,6 +4,7 @@ import { getSchilchtBelief, addArgumentToBelief } from '@/features/epistemology/
 import { SchilchtArgument, LinkageClassification } from '@/core/types/schlicht'
 import { calculateArgumentImpact, calculateLinkageFromDiagnostic, classifyLinkageScore } from '@/core/scoring/scoring-engine'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 const argumentSchema = z.object({
   claim: z
     .string()
@@ -51,10 +52,11 @@ const argumentSchema = z.object({
   }).optional(),
 })
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string }> }) {
+  const blocked = guardPublicWrite(request, 'protocol-arguments', 20)
+  if (blocked) return blocked
+
   const { id } = await params
 
   // Verify belief exists

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+import { requireOperatorSecret } from '@/lib/public-guard'
 const FULL_INCLUDE = {
   synonymClaims: true,
   semanticMapEntries: { orderBy: { sortOrder: 'asc' as const } },
@@ -49,10 +50,11 @@ export async function GET(
  * PUT /api/equivalence/[slug]
  * Update an existing equivalence analysis.
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function PUT(request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }) {
+  const denied = requireOperatorSecret(request)
+  if (denied) return denied
+
   const { slug } = await params
 
   try {
@@ -81,10 +83,11 @@ export async function PUT(
  * DELETE /api/equivalence/[slug]
  * Delete an equivalence analysis and all related records.
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function DELETE(_request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }) {
+  const denied = requireOperatorSecret(_request)
+  if (denied) return denied
+
   const { slug } = await params
 
   try {

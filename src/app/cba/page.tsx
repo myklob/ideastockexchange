@@ -8,7 +8,7 @@ export default function CBAListPage() {
   return (
     <div className="min-h-screen bg-[var(--muted)]">
       {/* Navigation */}
-      <nav className="bg-white border-b border-[var(--border)] sticky top-0 z-50">
+      <nav className="bg-white border-b border-[var(--border)]">
         <div className="max-w-[1400px] mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-lg font-bold text-[var(--foreground)]">

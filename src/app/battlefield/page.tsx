@@ -283,6 +283,10 @@ export default async function BattlefieldPage() {
           a real game?{' '}
           <Link href="/arena" className="font-medium underline">
             Enter the Arena &rarr;
+          </Link>{' '}
+          Or just{' '}
+          <Link href="/arena/spectate" className="font-medium underline">
+            watch the beliefs fight each other &rarr;
           </Link>
         </p>
       </header>

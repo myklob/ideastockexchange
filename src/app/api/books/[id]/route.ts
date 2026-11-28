@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+import { requireOperatorSecret } from '@/lib/public-guard'
 // Note: These routes depend on the Book model which requires PostgreSQL schema.
 // Using 'any' cast for now until schema is fully migrated.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,10 +38,11 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: Request,
+  { params }: { params: Promise<{ id: string }> }) {
+  const denied = requireOperatorSecret(request)
+  if (denied) return denied
+
   try {
     const { id } = await params
     const body = await request.json()
@@ -69,10 +71,11 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: Request,
+  { params }: { params: Promise<{ id: string }> }) {
+  const denied = requireOperatorSecret(request)
+  if (denied) return denied
+
   try {
     const { id } = await params
     await db.book.delete({

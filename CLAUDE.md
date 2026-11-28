@@ -6,7 +6,7 @@ Project-level guidance for Claude Code working in this repo. Keep this short and
 
 - **TypeScript + Next.js 16** (App Router, RSC by default). React 19. Path alias `@/*` -> `./src/*`.
 - **Prisma 7** with SQLite via `@prisma/adapter-better-sqlite3`. Schema lives in `prisma/schema.prisma`. Generated client lives at `src/generated/prisma/client` (run `npm run db:generate` if `@/generated/prisma/client` errors appear).
-- **Tailwind v4** with PostCSS. Belief pages are constrained to `max-w-[960px]`.
+- **Tailwind v4** with PostCSS. `src/app/globals.css` starts with `@import "tailwindcss"` and an `@theme` block; the v3 `@tailwind` directives silently emit no theme under v4, so never reintroduce them. Belief pages are constrained to `max-w-[960px]`. Site chrome (sticky header, footer) lives in `src/components/site/` and is mounted once in `src/app/layout.tsx`; per-page breadcrumb bars are not sticky.
 - **Vitest** for unit tests under `tests/`. ESLint via `eslint-config-next` flat config.
 - TypeScript is in `strict` mode. Don't introduce `any` to silence errors — fix the type or narrow with a guard.
 
@@ -250,7 +250,7 @@ propose-a-belief form (also on the home and topic pages), each a plain GET to a 
 one line on the page (a link that opens the form as a popover, so no table is followed by a box of empty fields), and
 `contribute.js` checks what is typed against `data/claims_index.json` (written by `build()` from the full tables, drafts
 included) so a duplicate becomes a vote for the claim already there; `intake.py` does the same check on the issue and
-records a vote in `content/votes.csv` or opens a pull request. Every login that adds a row (its `added_by`) or votes gets a page at `u/<login>.html`, and `content/users.csv` with `user_links.csv` give a person a profile; the one marked maintainer (the owner, Mike Laub) is credited in every page footer and citation. No scorer reads any of it. A vote never moves a score: the page shows the counts on the
+records a vote in `content/votes.csv` or opens a pull request. A proposed belief has no row pointing at it to carry an `added_by`, so intake records who proposed it in `content/proposals.csv` (beside `votes.csv`, never in `pages`, which names no author on purpose), and `contributors.html` counts Beliefs started from it, the maintainer's line taking every belief the table names nobody for. Every login that proposes a belief, adds a row (its `added_by`) or votes gets a page at `u/<login>.html`, and `content/users.csv` with `user_links.csv` give a person a profile; the one marked maintainer (the owner, Mike Laub) is credited in every page footer and citation. No scorer reads any of it. A vote never moves a score: the page shows the counts on the
 heading line after the score badge, and a home card ranks the gap between the vote share and the truth score only once
 anyone has voted. Reader-facing pages use plain words;
 `test_render.py::TestThePagesSpeakPlainly` fails the build on engine words like "corpus" anywhere but the
@@ -349,6 +349,9 @@ uniqueness) or a labelled constant when no such page exists yet.
   Before opening it, merge `master` into the branch and resolve conflicts, and run the checks this file lists. Later pushes to
   the same branch update the same PR. Do not merge it yourself; the owner merges.
 - **JSX entities:** the lint rule `react/no-unescaped-entities` will flag bare apostrophes/quotes inside JSX text. Use `&apos;`, `&ldquo;`, `&rdquo;`.
+- **Public write routes:** the site has no user accounts, so every keyless `POST`/`PUT`/`PATCH`/`DELETE` under `src/app/api` must start with a guard from `src/lib/public-guard.ts` — `guardPublicWrite` (per-client limiter + `PUBLIC_WRITES_DISABLED`), `requireOperatorSecret` (`CRON_SECRET` bearer; fails closed in production) for recompute/destructive/cron routes, or `guardMarketWrite` for play-money markets. Agent routes under `/api/v1` use `authenticateAgentKey` instead. Never return raw `error.message` to the client.
+- **Scores are never seeded.** Seed scripts write structure only (statements, labels, evidence, relationships); `prisma/seed-propagate.ts` runs last and computes every score. `npm run db:bootstrap` = `prisma db push` + the full seed chain, idempotent.
+- **Deploying:** `docs/DEPLOYMENT.md` is the runbook (Vercel + Postgres; pooled `DATABASE_URL` for the app, `DATABASE_URL_UNPOOLED` for schema ops; `CRON_SECRET` and `DEMO_REVIEW_SECRET` required in production). `/api/health` reports whether the database is reachable and seeded.
 
 ## Debug Logging
 
@@ -388,3 +391,7 @@ Or set `CLAUDE_DEBUG_FILE` before launching. File logging cannot be enabled mid-
 - `/how-it-works` — the Engine of Reason explainer, with a live engine readout.
 - `/arguments/[id]/linkage` — an edge's linkage sub-debate; `/arguments/[id]/score` — the edge's impact-provenance page (factor-by-factor derivation).
 - `/contact` — contact/contribution pointers (target for all former Contact Me links).
+- `/topics` and `/topics/[slug]` — topic hubs: every belief on a topic at its direction/magnitude/specificity address.
+- `/demo` — the public playground: a chat statement resolves to its belief page (`GET /api/v1/conversations/lookup`), a pasted thread is mined into candidate arguments and reviewed into the page through the ingestion firewall (`/api/v1/conversations/demo/*`, keyless but capped).
+- `/conversations` — imported chatroom/forum threads and the candidates mined from them; `src/lib/conversations/*` is the pipeline (extract, match, import, integrate, outline, lookup). The firewall test in `tests/unit/lib/conversations/` forbids score identifiers in those files.
+- `/api/health`, `/robots.txt`, `/sitemap.xml` — public-site plumbing.

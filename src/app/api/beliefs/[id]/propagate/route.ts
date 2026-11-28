@@ -26,6 +26,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { fetchBeliefById, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
 import { propagateBeliefScores, previewArgumentImpacts } from '@/lib/propagate-belief-scores'
+import { requireOperatorSecret } from '@/lib/public-guard'
+
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 // ─── GET (dry-run preview) ──────────────────────────────────────────────────
 
@@ -84,10 +88,11 @@ export async function GET(
 
 // ─── POST (apply propagation) ───────────────────────────────────────────────
 
-export async function POST(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(_req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },) {
+  const denied = requireOperatorSecret(_req)
+  if (denied) return denied
+
   const { id } = await params
   const beliefId = Number(id)
 

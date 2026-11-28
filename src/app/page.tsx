@@ -7,20 +7,6 @@ export default function Home() {
       {/* Hero Section */}
       <header className="border-b border-[var(--border)] bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 mb-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/ise-logo-mark.svg"
-              alt=""
-              aria-hidden="true"
-              width={56}
-              height={56}
-              className="rounded-xl"
-            />
-            <span className="text-sm font-medium text-[var(--muted-foreground)] tracking-wide uppercase">
-              Idea Stock Exchange
-            </span>
-          </div>
           <h1 className="text-5xl font-bold mb-4 tracking-tight">
             The architecture of reason.
           </h1>
@@ -439,7 +425,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
             <Link
               href="/debate-topics"
               className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
@@ -719,6 +705,7 @@ export default function Home() {
                 <li><Link href="/leverage" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Work Queue</Link></li>
                 <li><Link href="/search" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Search</Link></li>
                 <li><Link href="/how-it-works" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">How It Works</Link></li>
+                <li><Link href="/demo" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Live Demo: Chat to Belief Page</Link></li>
                 <li><Link href="/protocol" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Schlicht Protocol</Link></li>
                 <li><Link href="/product-reviews" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Product Reviews</Link></li>
                 <li><Link href="/cba" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Cost-Benefit Analysis</Link></li>

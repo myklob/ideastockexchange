@@ -15,7 +15,15 @@ const schemaPath = path.join(
 );
 
 const url = process.env.DATABASE_URL ?? "";
-const wanted = /^postgres(ql)?:\/\//.test(url) ? "postgresql" : "sqlite";
+const isPostgres = /^postgres(ql)?:\/\//.test(url);
+if (process.env.VERCEL && !isPostgres) {
+  console.error(
+    "set-prisma-provider: DATABASE_URL must be a postgres:// URL on Vercel. " +
+      "Set it for Production and Preview (see docs/DEPLOYMENT.md)."
+  );
+  process.exit(1);
+}
+const wanted = isPostgres ? "postgresql" : "sqlite";
 
 const schema = readFileSync(schemaPath, "utf8");
 const providerRe = /(datasource\s+db\s*\{[^}]*?provider\s*=\s*")(sqlite|postgresql)(")/;

@@ -35,6 +35,7 @@ _END = re.compile(r'\b(?:end|close) of (20\d\d)\b', re.I)
 _PAREN = re.compile(r'\([^()]*\)')
 _CUE = re.compile(r'\b(?:as (?:of|at)|checked|after)\b', re.I)   # the next date says when it was written or when a window opens
 _BREAK = re.compile(r'[,;()]|\.\s')
+# a date these words lead straight into is where a window opens ("since January 2025", "from the 2030 season")
 _OPENS = re.compile(r'\b(?:after|since|from|following)\s+(?:the\s+)?$', re.I)
 
 
@@ -52,8 +53,9 @@ def due_date(deadline):
     second date. When the rest of the clause names no later year it is read like any other date, so "After the
     awards in 2030" and "The final (July 21, 2030)" keep the dates they state.
 
-    A date introduced by after, since, from or following opens a window, and is passed over while the text names any
-    other date, in that clause or after it.
+    A date that "after", "since", "from" or "following" leads straight into is where a window opens. When the first
+    clause names no other, the deadline is looked for past the semicolon before that date is settled for, so "Since
+    January 2025 the count has been published monthly; by June 2027" falls due in June 2027.
 
     A clause that says the prediction can be checked now returns NOW, which the tracker reads as the build date.
     None when the text names no year."""
@@ -66,8 +68,8 @@ def due_date(deadline):
 
 
 def _first(t, closing=False):
-    """The date a text falls due on. With `closing`, a date that only opens a window is dropped first, and None is
-    returned when the text names no other."""
+    """The date a text falls due on, by the rules due_date states. With `closing`, a date that only opens a window
+    is not a candidate, and None is returned when the text names no other."""
     exact = [(m.start(), m.end(), _dt.date(int(m.group(1)), 12, 31)) for m in _END.finditer(t)]
     for m in _FULL.finditer(t):
         try: exact.append((m.start(), m.end(), _dt.date(int(m.group(3)), MONTHS[m.group(1).lower()], int(m.group(2)))))
@@ -82,8 +84,8 @@ def _first(t, closing=False):
     spans = [d[:2] for d in exact]
     years = [(m.start(), m.end(), _dt.date(int(m.group(1)), 12, 31)) for m in _YEAR.finditer(t) if not inside(m.start(), spans)]
     if closing:
-        exact = [d for d in exact if not _OPENS.search(t[:d[0]])]
-        years = [d for d in years if not _OPENS.search(t[:d[0]])]
+        opens = lambda d: bool(_OPENS.search(t[:d[0]]))
+        exact, years = [d for d in exact if not opens(d)], [d for d in years if not opens(d)]
     asides = [m.span() for m in _PAREN.finditer(t)]
     for m in _CUE.finditer(t):
         nxt = min((d for d in exact + years if d[0] >= m.end()), default=None)

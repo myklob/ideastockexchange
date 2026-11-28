@@ -12,6 +12,7 @@ import {
 } from '@/core/scoring/scoring-engine'
 import { LinkageDiagnostic, LinkageVote } from '@/core/types/schlicht'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 // ─── Schemas ──────────────────────────────────────────────────────
 
 const linkageVoteSchema = z.object({
@@ -28,10 +29,11 @@ const linkageVoteSchema = z.object({
 
 // ─── POST: Submit a linkage vote via diagnostic wizard ──────────
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string }> }) {
+  const blocked = guardPublicWrite(request, 'protocol-linkage', 20)
+  if (blocked) return blocked
+
   const { id } = await params
 
   const belief = getSchilchtBelief(id)

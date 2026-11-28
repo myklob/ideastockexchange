@@ -10,6 +10,8 @@ import {
   getMediaTypeEmoji,
 } from '@/features/media/fetch-media'
 
+
+export const dynamic = 'force-dynamic'
 function scoreColor(score: number): string {
   if (score >= 0.7) return 'text-green-700'
   if (score >= 0.4) return 'text-orange-600'
@@ -52,7 +54,7 @@ export default async function MediaIndexPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="bg-white border-b border-[var(--border)] sticky top-0 z-50">
+      <nav className="bg-white border-b border-[var(--border)]">
         <div className="max-w-[960px] mx-auto px-4 py-3 flex items-center gap-3">
           <Link href="/" className="text-lg font-bold text-[var(--foreground)]">ISE</Link>
           <span className="text-[var(--muted-foreground)]">/</span>

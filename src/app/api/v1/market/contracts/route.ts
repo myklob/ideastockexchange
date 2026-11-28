@@ -7,6 +7,7 @@ import {
   type CreateContractParams,
 } from '@/lib/markets/service'
 
+import { guardMarketWrite } from '@/lib/public-guard'
 /**
  * GET /api/v1/market/contracts — open contracts with quotes and the
  * divergence between market price and the engine-based forecast (the most
@@ -46,6 +47,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const closed = guardMarketWrite(request, 'market-contracts')
+  if (closed) return closed
+
   let body: CreateContractParams
   try {
     body = await request.json()
