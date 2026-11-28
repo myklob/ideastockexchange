@@ -18,7 +18,7 @@ export default async function BatchesPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <nav className="bg-white border-b border-[var(--border)] sticky top-0 z-50">
+      <nav className="bg-white border-b border-[var(--border)]">
         <div className="max-w-[960px] mx-auto px-4 py-3 flex items-center gap-3">
           <Link href="/" className="text-lg font-bold text-[var(--foreground)]">ISE</Link>
           <span className="text-[var(--muted-foreground)]">/</span>

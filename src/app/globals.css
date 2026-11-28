@@ -1,6 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme inline {
+  --color-profit: #22c55e;
+  --color-loss: #ef4444;
+  --color-neutral: #6b7280;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
 
 /* ============================================================
    Idea Stock Exchange Design System — foundational tokens.

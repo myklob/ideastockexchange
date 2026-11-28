@@ -6,7 +6,7 @@ Project-level guidance for Claude Code working in this repo. Keep this short and
 
 - **TypeScript + Next.js 16** (App Router, RSC by default). React 19. Path alias `@/*` -> `./src/*`.
 - **Prisma 7** with SQLite via `@prisma/adapter-better-sqlite3`. Schema lives in `prisma/schema.prisma`. Generated client lives at `src/generated/prisma/client` (run `npm run db:generate` if `@/generated/prisma/client` errors appear).
-- **Tailwind v4** with PostCSS. Belief pages are constrained to `max-w-[960px]`.
+- **Tailwind v4** with PostCSS. `src/app/globals.css` starts with `@import "tailwindcss"` and an `@theme` block; the v3 `@tailwind` directives silently emit no theme under v4, so never reintroduce them. Belief pages are constrained to `max-w-[960px]`. Site chrome (sticky header, footer) lives in `src/components/site/` and is mounted once in `src/app/layout.tsx`; per-page breadcrumb bars are not sticky.
 - **Vitest** for unit tests under `tests/`. ESLint via `eslint-config-next` flat config.
 - TypeScript is in `strict` mode. Don't introduce `any` to silence errors — fix the type or narrow with a guard.
 
