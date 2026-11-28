@@ -6,7 +6,6 @@
  */
 
 // Book types
-export * from './book';
 
 // Cost-Benefit Analysis types
 export * from './cba';

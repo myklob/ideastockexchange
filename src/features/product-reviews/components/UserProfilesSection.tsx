@@ -1,44 +1,93 @@
-import type { UserProfileItem } from '../types'
-import SectionHeading from '@/features/belief-analysis/components/SectionHeading'
+import type { UserProfileItem, DecisionRuleItem } from '../types'
+import { formatScore, pairBySide, rankByScore, TABLE_TOP_LIMIT } from '../../belief-analysis/lib/ranking'
+import ExpandableRows from '../../belief-analysis/components/ExpandableRows'
 
 interface UserProfilesSectionProps {
   profiles: UserProfileItem[]
+  decisionRules?: DecisionRuleItem[]
 }
 
-export default function UserProfilesSection({ profiles }: UserProfilesSectionProps) {
-  const ideal = profiles.filter(p => p.side === 'ideal')
-  const notIdeal = profiles.filter(p => p.side === 'not_ideal')
+const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold bg-gray-100'
+const TD = 'border border-gray-300 px-3 py-2 align-top'
+const TDC = 'border border-gray-300 px-3 py-2 align-top text-center'
+
+export default function UserProfilesSection({ profiles, decisionRules = [] }: UserProfilesSectionProps) {
+  const ideal = rankByScore(profiles.filter(p => p.side === 'ideal'), p => p.score, Infinity).top
+  const notIdeal = rankByScore(profiles.filter(p => p.side === 'not_ideal'), p => p.score, Infinity).top
+  const pairs = pairBySide(ideal, notIdeal)
+  const topPairs = pairs.length > 0 ? pairs.slice(0, TABLE_TOP_LIMIT) : [[null, null] as [UserProfileItem | null, UserProfileItem | null]]
+  const restPairs = pairs.slice(TABLE_TOP_LIMIT)
+
+  const rules = rankByScore(decisionRules, r => r.score)
+
+  const pairRow = ([a, b]: [UserProfileItem | null, UserProfileItem | null], key: React.Key) => (
+    <tr key={key}>
+      <td className={TD}>{a?.description ?? <span>&nbsp;</span>}</td>
+      <td className={`${TDC} font-mono`}>{formatScore(a?.score) ?? <span>&nbsp;</span>}</td>
+      <td className={TD}>{b?.description ?? <span>&nbsp;</span>}</td>
+      <td className={`${TDC} font-mono`}>{formatScore(b?.score) ?? <span>&nbsp;</span>}</td>
+    </tr>
+  )
 
   return (
-    <div>
-      <SectionHeading
-        emoji="👥"
-        title="Best Fit User Profiles"
-        subtitle="No product is best for everyone. Understanding fit helps users self-select rather than arguing about &quot;best&quot; in the abstract."
-      />
+    <section className="space-y-5">
+      <div>
+        <h2 className="text-xl font-bold mb-2">👥 Who Should Buy This</h2>
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr>
+              <th className={`${TH} w-[42%]`}>Ideal for</th>
+              <th className={`${TH} w-[8%] text-center`}>Score</th>
+              <th className={`${TH} w-[42%]`}>Not ideal for</th>
+              <th className={`${TH} w-[8%] text-center`}>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topPairs.map((pair, i) => pairRow(pair, pair[0]?.id ?? pair[1]?.id ?? i))}
+            <ExpandableRows moreCount={restPairs.length} colSpan={4}>
+              {restPairs.map((pair, i) => pairRow(pair, pair[0]?.id ?? pair[1]?.id ?? i))}
+            </ExpandableRows>
+          </tbody>
+        </table>
+      </div>
 
-      {profiles.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left px-4 py-3 font-semibold">This Product Is Ideal For:</th>
-                <th className="text-left px-4 py-3 font-semibold">This Product Is NOT Ideal For:</th>
+      <div>
+        <h3 className="text-base font-semibold mb-2">Decision rules</h3>
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr>
+              <th className={`${TH} w-[88%]`}>
+                If you prioritize [criterion], buy [this product / named alternative], because [evidence]
+              </th>
+              <th className={`${TH} w-[12%] text-center`}>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(rules.top.length > 0 ? rules.top : [null]).map((r, i) => (
+              <tr key={r?.id ?? i}>
+                <td className={TD}>
+                  {r ? (
+                    <>
+                      <strong>{r.condition}:</strong> {r.advice}
+                    </>
+                  ) : (
+                    <span>&nbsp;</span>
+                  )}
+                </td>
+                <td className={`${TDC} font-mono`}>{formatScore(r?.score) ?? <span>&nbsp;</span>}</td>
               </tr>
-            </thead>
-            <tbody>
-              {Array.from({ length: Math.max(ideal.length, notIdeal.length, 1) }).map((_, i) => (
-                <tr key={i} className="border-t border-gray-200">
-                  <td className="px-4 py-3 text-green-700">{ideal[i]?.description ?? ''}</td>
-                  <td className="px-4 py-3 text-red-700">{notIdeal[i]?.description ?? ''}</td>
+            ))}
+            <ExpandableRows moreCount={rules.rest.length} colSpan={2}>
+              {rules.rest.map(r => (
+                <tr key={r.id}>
+                  <td className={TD}><strong>{r.condition}:</strong> {r.advice}</td>
+                  <td className={`${TDC} font-mono`}>{formatScore(r.score) ?? <span>&nbsp;</span>}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-sm text-gray-500 italic">No user profile analysis has been recorded yet.</p>
-      )}
-    </div>
+            </ExpandableRows>
+          </tbody>
+        </table>
+      </div>
+    </section>
   )
 }

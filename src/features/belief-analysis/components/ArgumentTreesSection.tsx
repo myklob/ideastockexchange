@@ -1,247 +1,417 @@
 import Link from 'next/link'
-import type { ArgumentWithBelief } from '../types'
-import SectionHeading from './SectionHeading'
+import type { ArgumentWithBelief, ConfirmedFallacyNote } from '../types'
+import { TABLE_TOP_LIMIT, byScoreDesc } from '../lib/ranking'
+import ExpandableRows from './ExpandableRows'
+import { justificationScore, truthShare, argumentMass } from '@/core/scoring/contrast-class'
 
 interface ArgumentTreesSectionProps {
   arguments: ArgumentWithBelief[]
   totalPro: number
   totalCon: number
+  netInterpretation: string | null
 }
 
-function linkageLabel(type: string): string {
-  switch (type) {
-    case 'DEDUCTIVE_PROOF': return 'Proof'
-    case 'STRONG_CAUSAL': return 'Strong'
-    case 'CONTEXTUAL': return 'Context'
-    case 'ANECDOTAL': return 'Anecdotal'
-    case 'IRRELEVANT': return 'Irrelevant'
-    case 'NON_SEQUITUR': return 'Non Seq.'
-    case 'CONTRADICTION': return 'Contradiction'
-    default: return type
-  }
+/** Signed argument score for the "Score" column. Blank until real scoring exists (Rule 6). */
+function scoreCell(arg: ArgumentWithBelief): string {
+  if (arg.argumentScore == null) return ''
+  const v = arg.argumentScore
+  return `${v >= 0 ? '+' : ''}${v.toFixed(0)}`
 }
 
-function LinkageBadge({ arg }: { arg: ArgumentWithBelief }) {
-  const linkage = (arg.linkageScore * 100).toFixed(0)
-  const abs = Math.abs(arg.linkageScore)
+function linkCell(arg: ArgumentWithBelief): string {
+  if (!arg.linkageScore) return ''
+  return `${Math.round(arg.linkageScore * 100)}%`
+}
 
-  let colorClass = 'bg-gray-100 text-gray-700 border-gray-300'
-  if (arg.linkageScore <= -0.5) colorClass = 'bg-red-100 text-red-800 border-red-400'
-  else if (abs < 0.05) colorClass = 'bg-red-50 text-red-500 border-red-200'
-  else if (abs < 0.35) colorClass = 'bg-orange-50 text-orange-700 border-orange-300'
-  else if (abs < 0.65) colorClass = 'bg-gray-50 text-gray-600 border-gray-300'
-  else if (abs < 0.95) colorClass = 'bg-blue-50 text-blue-800 border-blue-400'
-  else colorClass = 'bg-green-50 text-green-800 border-green-500'
+function impactCell(arg: ArgumentWithBelief): string {
+  if (!arg.impactScore) return ''
+  const sign = arg.side === 'agree' ? '+' : '-'
+  return `${sign}${Math.abs(arg.impactScore).toFixed(1)}`
+}
 
-  return (
-    <Link
-      href={`/arguments/${arg.id}/linkage`}
-      title="Click to debate this linkage score"
-      className={`inline-flex items-center gap-1 text-xs font-mono px-2 py-0.5 rounded border ${colorClass} hover:opacity-80 transition-opacity`}
-    >
-      <span>{linkage}%</span>
-      <span className="text-[10px] text-[var(--muted-foreground)]">
-        ({linkageLabel(arg.linkageType)})
-      </span>
-      <span className="text-[10px] opacity-60" title="Click to debate this linkage">⚖</span>
-    </Link>
-  )
+/** Importance column: blank until the argument itself is scored (Rule 6). */
+function impCell(arg: ArgumentWithBelief): string {
+  if (arg.argumentScore == null && !arg.impactScore) return ''
+  return arg.importanceScore.toFixed(1)
+}
+
+/** Confidence and Uniqueness columns: blank until the engine computes them (Rule 6). */
+function ratioCell(value: number | null | undefined): string {
+  if (value == null) return ''
+  return value.toFixed(2)
 }
 
 /**
- * Contribution Score = Linkage Score × Truth Score (per /One Page Per Belief).
- * Since impactScore = sign × childTruth × |linkage| × importance × 100, the
- * linkage×truth product is recovered as |impactScore| / (importance × 100).
- * Returns a 0–1 value, blank when the argument has no impact yet (Rule 6).
+ * "Show the work" trace for agent-submitted arguments: the submitting agent,
+ * its rationale, the five-step check answers, and the evidence provenance.
+ * Provenance display only; none of this feeds any score.
  */
-function contributionFraction(arg: ArgumentWithBelief): number | null {
-  if (!arg.impactScore || arg.importanceScore <= 0) return null
-  return Math.min(1, Math.abs(arg.impactScore) / (arg.importanceScore * 100))
+function AgentWorkTrace({ arg }: { arg: ArgumentWithBelief }) {
+  const agent = arg.submittedByAgent
+  if (!agent) return null
+  const check = arg.linkageFiveStepCheck
+  const evidence = (arg.belief.evidence ?? []).filter(e => e.retrievedByAgentId)
+  return (
+    <details className="mt-1 text-xs not-italic">
+      <summary className="cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--accent)]">
+        &#129302; Show the work
+      </summary>
+      <div className="mt-1 space-y-1 border-l-2 border-gray-200 pl-2 text-[#555]">
+        <p>
+          <strong>Agent:</strong> {agent.name}
+          {agent.operator && <> (operator: {agent.operator})</>}
+        </p>
+        {arg.rationale && <p><strong>Rationale:</strong> {arg.rationale}</p>}
+        {check && (
+          <div>
+            <p className="font-semibold">Five-Step Linkage Check</p>
+            {check.parentWording && <p>1. Parent wording: &ldquo;{check.parentWording}&rdquo;</p>}
+            {check.sourceWording && <p>2. Claim wording: &ldquo;{check.sourceWording}&rdquo;</p>}
+            {check.mechanismSentence && <p>3. Mechanism: {check.mechanismSentence}</p>}
+            {check.provisionalEstimate != null && (
+              <p>4. Author bracket: [{check.provisionalEstimate}], superseded by the engine</p>
+            )}
+            {check.flagNote && <p>5. Flag: {check.flagNote}</p>}
+          </div>
+        )}
+        {evidence.length > 0 && (
+          <div>
+            <p className="font-semibold">Evidence provenance</p>
+            <ul className="list-disc ml-4">
+              {evidence.map(e => (
+                <li key={e.id}>
+                  {e.sourceUrl ? (
+                    <a href={e.sourceUrl} className="text-[var(--accent)] hover:underline">{e.description}</a>
+                  ) : (
+                    e.description
+                  )}
+                  {e.doi && <span className="font-mono"> doi:{e.doi}</span>}
+                  {e.tierClaim && (
+                    <span>
+                      {' '}, claimed {e.tierClaim}
+                      {e.tierVerified ? `, verified ${e.tierVerified}` : ', unverified'}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </details>
+  )
 }
 
-function ContributionBadge({ arg }: { arg: ArgumentWithBelief }) {
-  const fraction = contributionFraction(arg)
-  if (fraction === null) {
-    return <span className="text-xs italic text-[var(--muted-foreground)]">[pending]</span>
+/** Which factor a confirmed fallacy of this kind damages, for the inline note. */
+function fallacyTargetLabel(targetFactor: string): string {
+  switch (targetFactor) {
+    case 'relevance': return 'Linkage'
+    case 'logical-validity': return 'Argument Score (validity)'
+    case 'evidence-quality': return 'Evidence Quality'
+    default: return targetFactor
   }
-  const pct = (fraction * 100).toFixed(0)
-  let colorClass = 'bg-gray-50 text-gray-600 border-gray-300'
-  if (fraction >= 0.65) colorClass = 'bg-green-50 text-green-800 border-green-500'
-  else if (fraction >= 0.35) colorClass = 'bg-blue-50 text-blue-800 border-blue-300'
-  else if (fraction >= 0.10) colorClass = 'bg-orange-50 text-orange-700 border-orange-300'
-  else colorClass = 'bg-red-50 text-red-600 border-red-200'
+}
 
+function fallacyTypeLabel(slug: string): string {
+  return slug.replace(/-/g, ' ')
+}
+
+/**
+ * Inline note for community-confirmed fallacy claims. A confirmed fallacy
+ * damages exactly the factor its type targets; the damage itself flows
+ * through the linkage sub-debate's published counter-argument; this note just
+ * makes it visible in the cell. Unconfirmed accusations are never rendered.
+ */
+function ConfirmedFallacyNotes({ notes }: { notes: ConfirmedFallacyNote[] | undefined }) {
+  if (!notes || notes.length === 0) return null
   return (
-    <span
-      title="Contribution = Linkage Score × Truth Score"
-      className={`inline-flex items-center text-xs font-mono px-2 py-0.5 rounded border ${colorClass}`}
-    >
-      {pct}%
+    <span className="block text-xs text-[#c0392b] not-italic">
+      {notes.map(n => (
+        <span key={n.id} className="mr-2">
+          ⚠{' '}
+          <Link href="/algorithms/fallacy-detection" className="text-[#c0392b] underline decoration-dotted hover:decoration-solid">
+            {fallacyTypeLabel(n.fallacyType)}
+          </Link>{' '}
+          confirmed, dents {fallacyTargetLabel(n.targetFactor)}
+        </span>
+      ))}
     </span>
   )
 }
 
-/**
- * Importance Score cell. When the argument sources its importance from a
- * dedicated sub-belief, the score links to that belief's page (where the
- * "does this matter?" debate lives). Otherwise it renders as plain text —
- * never a broken link (Rule 5).
- */
-function ImportanceCell({ arg }: { arg: ArgumentWithBelief }) {
-  const pct = `${(arg.importanceScore * 100).toFixed(0)}%`
-
-  if (arg.importanceBelief) {
-    return (
-      <Link
-        href={`/beliefs/${arg.importanceBelief.slug}`}
-        title="Importance is sourced from this belief — click to debate whether it matters"
-        className="text-[var(--accent)] hover:underline text-sm font-mono"
-      >
-        {pct}
+/** The argument cell: claim label, inline famous quote (italic), then ~Author link. */
+function ArgumentCell({ arg }: { arg: ArgumentWithBelief }) {
+  const label = arg.claim ?? arg.belief.statement
+  return (
+    <>
+      <Link href={`/beliefs/${arg.belief.slug}`} className="text-[var(--accent)] hover:underline">
+        {label}
       </Link>
+      {arg.famousQuote && (
+        <span className="text-xs text-[#555]">
+          {' '}<em>&ldquo;{arg.famousQuote}&rdquo;</em>
+        </span>
+      )}
+      {arg.quoteAuthor && (
+        <span className="text-xs text-[var(--muted-foreground)]">
+          {' '}~
+          {arg.quoteAuthorUrl ? (
+            <a href={arg.quoteAuthorUrl} className="text-[var(--accent)] hover:underline">{arg.quoteAuthor}</a>
+          ) : (
+            arg.quoteAuthor
+          )}
+        </span>
+      )}
+      <ConfirmedFallacyNotes notes={arg.fallacyClaims} />
+      <AgentWorkTrace arg={arg} />
+    </>
+  )
+}
+
+function HalfRow({ arg }: { arg: ArgumentWithBelief | undefined }) {
+  if (!arg) {
+    return (
+      <>
+        <td className="border border-gray-300 px-3 py-2">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+        <td className="border border-gray-300 px-2 py-2 text-center">&nbsp;</td>
+      </>
     )
   }
-
-  return <span className="text-sm font-mono text-[var(--muted-foreground)]">{pct}</span>
-}
-
-function ArgumentRow({ arg }: { arg: ArgumentWithBelief }) {
-  const argScore = (arg.belief.positivity).toFixed(1)
-  const impact = arg.impactScore.toFixed(1)
-
   return (
-    <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-      <td className="px-3 py-3">
-        <Link
-          href={`/beliefs/${arg.belief.slug}`}
-          className="text-[var(--accent)] hover:underline text-sm"
-        >
-          {arg.belief.statement}
-        </Link>
+    <>
+      <td className="border border-gray-300 px-3 py-2 align-top"><ArgumentCell arg={arg} /></td>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
+        {/* Every score is a doorway (Rule 6 keeps unscored cells blank, so a
+            blank is never a link). The Score is the child belief's own tree
+            score; clicking it drops into the sub-debate that produced it. */}
+        {scoreCell(arg) ? (
+          <Link
+            href={`/beliefs/${arg.belief.slug}`}
+            className="text-[var(--accent)] hover:underline"
+            title="The sub-debate that produced this score"
+          >
+            {scoreCell(arg)}
+          </Link>
+        ) : (
+          ''
+        )}
       </td>
-      <td className="px-3 py-3 text-center text-sm font-mono">
-        <Link
-          href={`/beliefs/${arg.belief.slug}`}
-          title="Truth — click to see the child belief's full score breakdown"
-          className="text-[var(--accent)] hover:underline"
-        >
-          {Number(argScore) >= 0 ? '+' : ''}{argScore}
-        </Link>
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
+        {/* Confidence: how much of the work behind the argument's page has been
+            done. Blank until the engine computes it. */}
+        {ratioCell(arg.confidenceScore)}
       </td>
-      <td className="px-3 py-3 text-center">
-        <ImportanceCell arg={arg} />
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
+        {/* The linkage value links to the edge's own page: the debate about
+            whether this argument actually bears on this belief. */}
+        {linkCell(arg) ? (
+          <Link
+            href={`/arguments/${arg.id}/linkage`}
+            className="text-[var(--accent)] hover:underline"
+            title="Debate this linkage"
+          >
+            {linkCell(arg)}
+          </Link>
+        ) : (
+          ''
+        )}
       </td>
-      <td className="px-3 py-3 text-center">
-        <LinkageBadge arg={arg} />
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
+        {/* Importance links to the sub-belief that sources it, when one exists. */}
+        {impCell(arg) && arg.importanceBelief ? (
+          <Link
+            href={`/beliefs/${arg.importanceBelief.slug}`}
+            className="text-[var(--accent)] hover:underline"
+            title="The sub-debate about whether this argument matters"
+          >
+            {impCell(arg)}
+          </Link>
+        ) : (
+          impCell(arg)
+        )}
       </td>
-      <td className="px-3 py-3 text-center">
-        <ContributionBadge arg={arg} />
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs">
+        {/* Uniqueness: whether this row makes a point no other row has made.
+            Blank until the engine computes it. */}
+        {ratioCell(arg.uniquenessScore)}
       </td>
-      <td className="px-3 py-3 text-center text-sm font-bold font-mono">
-        {arg.side === 'agree' ? '+' : '-'}{Math.abs(Number(impact))}
+      <td className="border border-gray-300 px-2 py-2 text-center align-top font-mono text-xs font-semibold">
+        {/* Impact links to the score-provenance page: the full derivation of
+            this edge's contribution, factor by factor. */}
+        {impactCell(arg) ? (
+          <Link
+            href={`/arguments/${arg.id}/score`}
+            className="text-[var(--accent)] hover:underline"
+            title="How this impact was computed"
+          >
+            {impactCell(arg)}
+          </Link>
+        ) : (
+          ''
+        )}
       </td>
-    </tr>
+    </>
   )
 }
 
-function EmptyRow() {
-  return (
-    <tr className="border-b border-gray-200">
-      <td className="px-3 py-3 text-sm text-[var(--muted-foreground)] italic" colSpan={5}>
-        No arguments yet. Be the first to contribute.
-      </td>
-    </tr>
+export default function ArgumentTreesSection({
+  arguments: args,
+  totalPro,
+  totalCon,
+  netInterpretation,
+}: ArgumentTreesSectionProps) {
+  // impactScore is stored SIGNED (negative for 'disagree'), so the DB's
+  // `impactScore desc` ordering lists con arguments weakest-first. Rank each
+  // side by magnitude: the strongest argument of either side comes first.
+  const byImpactMagnitude = byScoreDesc<ArgumentWithBelief>(a =>
+    a.impactScore == null ? null : Math.abs(a.impactScore),
   )
-}
+  const proArgs = args.filter(a => a.side === 'agree').sort(byImpactMagnitude)
+  const conArgs = args.filter(a => a.side === 'disagree').sort(byImpactMagnitude)
+  const rowCount = Math.max(proArgs.length, conArgs.length, 1)
+  const rows = Array.from({ length: rowCount }, (_, i) => i)
+  const topRows = rows.slice(0, TABLE_TOP_LIMIT)
+  const restRows = rows.slice(TABLE_TOP_LIMIT)
 
-export default function ArgumentTreesSection({ arguments: args, totalPro, totalCon }: ArgumentTreesSectionProps) {
-  const proArgs = args.filter(a => a.side === 'agree')
-  const conArgs = args.filter(a => a.side === 'disagree')
+  const net = totalPro - totalCon
+  const netLabel = `${net >= 0 ? '+' : ''}${net.toFixed(1)}`
+
+  // §4 of THE_DENOMINATOR: a bare net "+9.2" floats free. Divide it by the
+  // belief's own total argument weight to get the justification score: the
+  // share (implied probability) and margin a reader can actually act on.
+  const hasArgs = totalPro > 0 || totalCon > 0
+  const share = truthShare(totalPro, totalCon)
+  const margin = justificationScore(totalPro, totalCon)
+  const mass = argumentMass(totalPro, totalCon)
 
   return (
     <section>
-      <SectionHeading
-        emoji="&#x1F50D;"
-        title="Argument Trees"
-        href="/Reasons"
-        subtitle="Each reason is a belief with its own page. Scoring is recursive based on truth, linkage, and importance."
-      />
+      <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
+        <span>&#128269;</span>
+        Argument Trees
+      </h2>
+      <p className="text-sm text-[var(--muted-foreground)] mb-4">
+        Each argument is a belief with its own page, and its Score is that page&apos;s truth score.
+        A row contributes{' '}
+        <strong>
+          sign × (2 × Truth − 1) × Confidence ×{' '}
+          <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link> ×{' '}
+          <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link> ×{' '}
+          <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>
+        </strong>
+        , and that is the Impact column. A reason nobody has argued sits at Truth 0.50, so it
+        reads exactly 0: listing a claim is worth nothing until it is argued. Confidence is how
+        much of the work behind the argument&apos;s page has been done; Uniqueness is whether this
+        row makes a point no other row has made. Both stay blank until the engine computes them.
+        Every score is a doorway: click it to enter the sub-debate that
+        produced it. Pro and con impacts sum to the Net Belief Score. A true-but-irrelevant
+        argument scores high on truth and near zero on linkage, so it contributes nothing.{' '}
+        <Link href="/algorithms/fallacy-detection" className="text-[var(--accent)] hover:underline">
+          Confirmed fallacy claims
+        </Link>{' '}
+        feed these factors too: a community-confirmed fallacy damages exactly the factor its type
+        targets (relevance fallacies hit Linkage, formal fallacies hit the validity component of
+        the Argument Score, evidence fallacies hit Evidence Quality) and is noted inline in the
+        argument cell. A fallacy accusation that has not been confirmed changes nothing.
+      </p>
 
-      {/* Pro Arguments Table */}
-      <div className="mb-6 overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-300 text-sm">
-          <thead>
-            <tr className="bg-green-50">
-              <th className="px-3 py-2 text-left w-[44%] font-semibold">
-                Top <Link href="/Scoring" className="text-[var(--accent)] hover:underline">Scoring</Link> Reasons to Agree
-              </th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Truth — the child belief's net score">Truth</th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Importance — how much this argument moves the needle">Importance</th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
-              </th>
-              <th
-                className="px-3 py-2 text-center w-[11%] font-semibold"
-                title="Linkage Score × Truth Score"
-              >
-                Contribution
-              </th>
-              <th className="px-3 py-2 text-center w-[12%] font-semibold">Impact</th>
-            </tr>
-          </thead>
-          <tbody>
-            {proArgs.length > 0 ? (
-              proArgs.map(arg => <ArgumentRow key={arg.id} arg={arg} />)
-            ) : (
-              <EmptyRow />
-            )}
-            <tr className="bg-gray-100 font-semibold">
-              <td colSpan={5} className="px-3 py-2 text-right text-sm">Total Pro:</td>
-              <td className="px-3 py-2 text-center text-sm font-mono text-green-700">
-                +{totalPro.toFixed(1)}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Con Arguments Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 text-sm">
           <thead>
-            <tr className="bg-red-50">
-              <th className="px-3 py-2 text-left w-[44%] font-semibold">
-                Top <Link href="/Scoring" className="text-[var(--accent)] hover:underline">Scoring</Link> Reasons to Disagree
+            <tr>
+              <th className="border border-gray-300 bg-green-100 text-center font-semibold px-3 py-2" colSpan={7}>
+                ✅ Reasons to Agree
               </th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Truth — the child belief's net score">Truth</th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold" title="Importance — how much this argument moves the needle">Importance</th>
-              <th className="px-3 py-2 text-center w-[11%] font-semibold">
-                <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">Linkage Score</Link>
+              <th className="border border-gray-300 bg-red-100 text-center font-semibold px-3 py-2" colSpan={7}>
+                ❌ Reasons to Disagree
               </th>
-              <th
-                className="px-3 py-2 text-center w-[11%] font-semibold"
-                title="Linkage Score × Truth Score"
-              >
-                Contribution
+            </tr>
+            {/* Spelled-out headers: no abbreviated column names. */}
+            <tr className="bg-gray-100 text-xs">
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[20%]">Argument</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Score</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Confidence</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link>
               </th>
-              <th className="px-3 py-2 text-center w-[12%] font-semibold">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
+                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
+                <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Impact</th>
+              <th className="border border-gray-300 px-2 py-1.5 text-left w-[20%]">Argument</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Score</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Confidence</th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
+                <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">Linkage</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
+                <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">Importance</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">
+                <Link href="/algorithms/unique-scores" className="text-[var(--accent)] hover:underline">Uniqueness</Link>
+              </th>
+              <th className="border border-gray-300 px-2 py-1.5 w-[5%]">Impact</th>
             </tr>
           </thead>
           <tbody>
-            {conArgs.length > 0 ? (
-              conArgs.map(arg => <ArgumentRow key={arg.id} arg={arg} />)
-            ) : (
-              <EmptyRow />
-            )}
-            <tr className="bg-gray-100 font-semibold">
-              <td colSpan={5} className="px-3 py-2 text-right text-sm">Total Con:</td>
-              <td className="px-3 py-2 text-center text-sm font-mono text-red-700">
-                -{totalCon.toFixed(1)}
+            {topRows.map(i => (
+              <tr key={i}>
+                <HalfRow arg={proArgs[i]} />
+                <HalfRow arg={conArgs[i]} />
+              </tr>
+            ))}
+            <ExpandableRows moreCount={restRows.length} colSpan={14}>
+              {restRows.map(i => (
+                <tr key={i}>
+                  <HalfRow arg={proArgs[i]} />
+                  <HalfRow arg={conArgs[i]} />
+                </tr>
+              ))}
+            </ExpandableRows>
+            <tr className="bg-gray-100 italic text-[#666]">
+              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={6}>Pro Total:</td>
+              <td className="border border-gray-300 px-2 py-2 text-center font-mono text-green-700">
+                {totalPro > 0 ? `+${totalPro.toFixed(1)}` : ''}
+              </td>
+              <td className="border border-gray-300 px-3 py-2 text-right font-semibold" colSpan={6}>Con Total:</td>
+              <td className="border border-gray-300 px-2 py-2 text-center font-mono text-red-700">
+                {totalCon > 0 ? `-${totalCon.toFixed(1)}` : ''}
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <p className="text-sm mt-4 p-2 bg-gray-100 border border-gray-300">
+        <strong>Net Belief Score: {hasArgs ? netLabel : '[pending]'}.</strong>{' '}
+        {hasArgs && share != null && (
+          <span>
+            The agree-case holds{' '}
+            <strong>{Math.round(share * 100)}%</strong> of the argument weight, a{' '}
+            <strong>{margin >= 0 ? '+' : ''}{Math.round(margin * 100)}-point</strong>{' '}
+            margin{' '}
+            <span className="text-[var(--muted-foreground)]">
+              (mass {mass.toFixed(1)})
+            </span>
+            .{' '}
+          </span>
+        )}
+        {netInterpretation ?? (
+          <span className="text-[var(--muted-foreground)] italic">
+            {hasArgs
+              ? 'This is the internal denominator only: how lopsided the belief is versus its own rebuttals, not whether it beats its rivals.'
+              : 'Interpretation appears once arguments are scored.'}
+          </span>
+        )}
+      </p>
     </section>
   )
 }

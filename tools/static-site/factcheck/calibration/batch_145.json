@@ -1,0 +1,146 @@
+[
+ {
+  "id": 1109,
+  "belief_text": "Employers should generally be free to fire workers without having to show a reason, as long as the firing is not discriminatory.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "employer-who-knows-firing",
+  "text": "An employer who knows firing will be hard is slower to hire in the first place, so strict rules protect people who have jobs at the expense of people who want them."
+ },
+ {
+  "id": 1110,
+  "belief_text": "Employers should generally be free to fire workers without having to show a reason, as long as the firing is not discriminatory.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "small-businesses-cannot-afford",
+  "text": "Small businesses cannot afford the lawyers and paperwork needed to build a case for every dismissal."
+ },
+ {
+  "id": 1111,
+  "belief_text": "Employers should generally be free to fire workers without having to show a reason, as long as the firing is not discriminatory.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "workers-can-quit-job",
+  "text": "Workers can quit a job without giving a reason, so fairness requires that employers be able to end the same working relationship without giving one."
+ },
+ {
+  "id": 1112,
+  "belief_text": "Employers should generally be free to fire workers without having to show a reason, as long as the firing is not discriminatory.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "losing-job-can-mean",
+  "text": "Losing a job can mean losing a home, health coverage and a family's stability, and something that serious should require a reason."
+ },
+ {
+  "id": 1113,
+  "belief_text": "Employers should generally be free to fire workers without having to show a reason, as long as the firing is not discriminatory.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "workers-who-can-fired",
+  "text": "Workers who can be fired at any moment are afraid to report safety problems, harassment or fraud."
+ },
+ {
+  "id": 1114,
+  "belief_text": "Employers should generally be free to fire workers without having to show a reason, as long as the firing is not discriminatory.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "rules-against-unfair-dismissal",
+  "text": "Rules against unfair dismissal push employers to hire more carefully and manage better, which improves the workplace for everyone."
+ },
+ {
+  "id": 1115,
+  "belief_text": "Internet providers should generally be barred by law from speeding up, slowing down or charging extra for particular websites and services.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "provider-can-slow-down",
+  "text": "A provider that can slow down or charge extra for certain traffic gains a veto over which websites and services succeed, and that power belongs with users, not with the company selling the connection."
+ },
+ {
+  "id": 1116,
+  "belief_text": "Internet providers should generally be barred by law from speeding up, slowing down or charging extra for particular websites and services.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "many-households-have-little",
+  "text": "Many households have little real choice of home internet provider, so competition alone cannot punish one that plays favorites."
+ },
+ {
+  "id": 1117,
+  "belief_text": "Internet providers should generally be barred by law from speeding up, slowing down or charging extra for particular websites and services.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "new-services-start-small",
+  "text": "New services start small and cannot pay for fast lanes, so a rule of equal treatment keeps the door open for the next useful idea."
+ },
+ {
+  "id": 1118,
+  "belief_text": "Internet providers should generally be barred by law from speeding up, slowing down or charging extra for particular websites and services.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "all-traffic-alike-live",
+  "text": "Not all traffic is alike; a live video call suffers far more from delay than a file download does, and a legal ban on favoring traffic turns sensible prioritizing into a legal risk."
+ },
+ {
+  "id": 1119,
+  "belief_text": "Internet providers should generally be barred by law from speeding up, slowing down or charging extra for particular websites and services.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "building-faster-networks-costs",
+  "text": "Building faster networks costs a great deal, and letting providers charge the services that send the most traffic for faster delivery helps pay for upgrades that all users share."
+ },
+ {
+  "id": 1120,
+  "belief_text": "Internet providers should generally be barred by law from speeding up, slowing down or charging extra for particular websites and services.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "providers-rarely-block-throttle",
+  "text": "Providers rarely block or throttle in practice because customers and the press notice quickly, so the rule solves a problem that mostly does not occur."
+ },
+ {
+  "id": 1121,
+  "belief_text": "Laws that require people to prove their age before using social media do more harm than good.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "proving-age-means-handing",
+  "text": "Proving age means handing an ID or a face scan to a company or a middleman, which creates a new store of sensitive data that can leak or be misused."
+ },
+ {
+  "id": 1122,
+  "belief_text": "Laws that require people to prove their age before using social media do more harm than good.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "teenagers-who-blocked-mainstream",
+  "text": "Teenagers who are blocked from mainstream sites do not stop going online; they move to smaller, less moderated places where the risks are greater."
+ },
+ {
+  "id": 1123,
+  "belief_text": "Laws that require people to prove their age before using social media do more harm than good.",
+  "section": "argument",
+  "side": "agree",
+  "claim": "age-rules-set-law",
+  "text": "Age rules set by law sweep in adults too, since everyone has to pass the same check, so a protection for minors becomes a barrier for all."
+ },
+ {
+  "id": 1124,
+  "belief_text": "Laws that require people to prove their age before using social media do more harm than good.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "society-already-requires-proof",
+  "text": "Society already requires proof of age for alcohol, gambling and driving, and there is no principled reason that products children use heavily and that are built to hold their attention should be exempt."
+ },
+ {
+  "id": 1125,
+  "belief_text": "Laws that require people to prove their age before using social media do more harm than good.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "leaving-choice-parents-has",
+  "text": "Leaving the choice to parents has not worked, because a child needs only one friend with an account to feel left out, and parents cannot supervise every hour."
+ },
+ {
+  "id": 1126,
+  "belief_text": "Laws that require people to prove their age before using social media do more harm than good.",
+  "section": "argument",
+  "side": "disagree",
+  "claim": "companies-can-verify-age",
+  "text": "Companies can verify age without keeping the underlying documents, but voluntary adoption has been patchy and inconsistent, which is why a uniform legal requirement is needed."
+ }
+]

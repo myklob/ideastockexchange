@@ -25,8 +25,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { fetchBeliefById, computeBeliefScores } from '@/features/belief-analysis/data/fetch-belief'
-import { propagateBeliefScores } from '@/lib/propagate-belief-scores'
-import { computeArgumentImpactScore } from '@/core/scoring/scoring-engine'
+import { propagateBeliefScores, previewArgumentImpacts } from '@/lib/propagate-belief-scores'
 
 // ─── GET (dry-run preview) ──────────────────────────────────────────────────
 
@@ -48,33 +47,27 @@ export async function GET(
 
   const scores = computeBeliefScores(belief)
 
-  // Find all arguments where this belief is the child (used as a reason for a parent)
-  const argumentsAsChild = await prisma.argument.findMany({
-    where: { beliefId },
-    include: {
-      parentBelief: { select: { id: true, slug: true, statement: true } },
-    },
-  })
+  // The same per-argument recompute the POST applies (truth, effective
+  // importance, sibling uniqueness), run without writes.
+  const impacts = await previewArgumentImpacts(beliefId)
 
-  const preview = argumentsAsChild.map(arg => {
-    const currentImpactScore = arg.impactScore
-    const projectedImpactScore = computeArgumentImpactScore(
-      arg.side,
-      scores.importanceWeightedScore,
-      arg.linkageScore,
-      arg.importanceScore,
-    )
-    return {
-      argumentId: arg.id,
-      side: arg.side,
-      linkageScore: arg.linkageScore,
-      importanceScore: arg.importanceScore,
-      currentImpactScore,
-      projectedImpactScore,
-      delta: Math.round((projectedImpactScore - currentImpactScore) * 10) / 10,
-      parentBelief: arg.parentBelief,
-    }
+  const parentBeliefs = await prisma.belief.findMany({
+    where: { id: { in: impacts.map(p => p.parentBeliefId) } },
+    select: { id: true, slug: true, statement: true },
   })
+  const parentById = new Map(parentBeliefs.map(b => [b.id, b]))
+
+  const preview = impacts.map(p => ({
+    argumentId: p.argumentId,
+    side: p.side,
+    linkageScore: p.linkageScore,
+    importanceScore: p.effectiveImportance,
+    uniquenessScore: p.uniqueness,
+    currentImpactScore: p.currentImpactScore,
+    projectedImpactScore: p.projectedImpactScore,
+    delta: Math.round((p.projectedImpactScore - p.currentImpactScore) * 10) / 10,
+    parentBelief: parentById.get(p.parentBeliefId) ?? null,
+  }))
 
   return NextResponse.json({
     beliefId,

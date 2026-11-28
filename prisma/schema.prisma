@@ -118,6 +118,14 @@ model User {
 
   shares         Share[]
   trades         Trade[]
+
+  marketContracts MarketContract[]
+  marketPositions MarketPosition[]
+  marketOrders    MarketOrder[]
+  marketBuys      MarketTrade[]    @relation("MarketTradeBuyer")
+  marketSells     MarketTrade[]    @relation("MarketTradeSeller")
+  marginLoans     MarginLoan[]
+  marketBundles   MarketBundle[]
 }
 
 model SubArgument {
@@ -194,6 +202,17 @@ model Belief {
   /// An extreme claim must earn its score through extraordinary evidence — or it scores near zero.
   claimStrength Float @default(0.5)
 
+  /// Evidence Grounding Score (0-1): how much of this belief's support
+  /// bottoms out in tiered evidence records rather than free-floating claims.
+  /// Engine-computed during propagation (src/lib/grounding.ts):
+  ///   raw = Σ tierWeight × |linkage| over own evidence
+  ///       + Σ |linkage| × childGrounding over published argument edges
+  ///   groundingScore = raw / (raw + 1)
+  /// Exactly 0 means no evidence anywhere in the tree ("Unfounded"); a
+  /// citation ring contributes nothing. This is the evidence-based ranking
+  /// input — engagement is never a ranking input.
+  groundingScore Float @default(0)
+
   /// Specificity (0-1): position on the abstraction ladder.
   ///   0.0 = Highly general principle (e.g. "Corruption undermines government")
   ///   0.33 = Moderately general       (e.g. "U.S. Presidents are often corrupt")
@@ -209,6 +228,9 @@ model Belief {
 
   // Arguments where this belief IS the reason (child)
   asArgument Argument[] @relation("ArgumentBelief")
+
+  // Recorded movements of this belief's engine-computed scores (accumulation ledger)
+  scoreEvents BeliefScoreEvent[]
 
   // Arguments whose Importance Score is sourced from this belief's net score
   asImportanceArgument Argument[] @relation("ArgumentImportanceBelief")
@@ -237,10 +259,109 @@ model Belief {
 
   // New sections from belief-analysis template v2
   definitions         Definition[]
-  falsifiability      String?           // Falsifiability Test text
+  falsifiability      String?           // Legacy single-field Falsifiability Test text
   testablePredictions TestablePrediction[]
 
+  /// Falsifiability Test, two-sided (new template). Evidence that would confirm /
+  /// falsify this belief. Free text; renders the Falsifiability Test table.
+  falsifiabilityConfirm String?
+  falsifiabilityFalsify String?
+
+  /// One-line interpretation of the Net Belief Score, shown beneath the argument
+  /// trees (e.g. "Pro arguments outweigh con arguments roughly 2:1").
+  netInterpretation String?
+
+  /// Scorecard "Bottom line": one-sentence verdict scoped to what the argument
+  /// tree actually supports — no bigger claim than the leaves can carry.
+  bottomLine String?
+
+  /// Scorecard "What would move this score most": the single piece of evidence
+  /// that would most change the verdict (mirrors the Falsifiability Test).
+  scoreMover String?
+
+  /// Logical Anatomy "Logical form" line, e.g.
+  /// "[This belief] = [Part 1] AND [Part 2] AND ([Part 3] OR [Part 4])".
+  logicalForm String?
+
+  /// Header metadata (new template). Newline- or pipe-separated lists of related
+  /// belief labels and the higher-level beliefs this one supports. Plain text so
+  /// they never render as broken links (Rule 5).
+  relatedBeliefs   String?
+  supportsBeliefs  String?
+
+  valueRankings  ValueRanking[]
+  interestEntries InterestEntry[]
+  sharedInterests SharedInterest[]
+  disputeTypes   DisputeType[]
+
+  falsifiabilityItems FalsifiabilityItem[]
+  componentClaims     ComponentClaim[]
+  costBenefitItems    CostBenefitItem[]  @relation("BeliefCostBenefitItems")
+  impactEntries       ImpactEntry[]
+
+  unstatedInterestCandidates UnstatedInterestCandidate[]
+  interestSolutions          InterestSolution[]
+
+  /// Cost/benefit rows on OTHER beliefs whose claim links to this belief's page.
+  costBenefitClaimOf  CostBenefitItem[]  @relation("CostBenefitClaimBelief")
+
   productReview  ProductReview?
+
+  /// Set by the knowledge-connector layer when an external source's assessment
+  /// diverges hard from the local structure. A to-do for humans, never a
+  /// scoring input.
+  reviewFlag     Boolean @default(false)
+  reviewFlagNote String?
+
+  /// High-stakes flag: posting to this belief goes through the speed-bump flow
+  /// (acknowledge the strongest opposing point + moral-principle consistency
+  /// check) before the API accepts the submission. Editorial, set per topic.
+  highStakes Boolean @default(false)
+
+  suggestedEvidence SuggestedEvidence[]
+  forumPosts        ForumPost[]
+
+  /// External conversations (chatrooms, web forums) plugged into this
+  /// belief's permanent page, and the candidate arguments mined from them.
+  conversationThreads ConversationThread[]
+  argumentCandidates  ArgumentCandidate[]
+
+  epochSnapshots  EpochSnapshot[]
+  marketContracts MarketContract[]
+  externalMarkets ExternalMarketLink[]
+
+  peopleOnRecord PersonOnRecord[]
+
+  /// Media claims evaluated at this belief page (the claim's truth source).
+  mediaClaims MediaClaim[]
+
+  /// Topic hub pages this belief appears on (One Page Per Topic).
+  topics TopicBelief[]
+}
+
+/// One recorded public position on a belief, preserved for tracing the debate.
+/// Who holds a belief never changes its score — author identity is orthogonal
+/// to the final score, so these rows carry history, not weight, and nothing
+/// here is a scoring input. Each listing is itself a debatable claim that the
+/// person actually holds the position; `contested` annotates listings whose
+/// accuracy is disputed. The section renders only when rows exist.
+model PersonOnRecord {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side String // "agree" or "disagree"
+  name String
+  /// Link to the statement or source; the name renders as plain text when null (Rule 5).
+  sourceUrl String?
+  /// Set when the accuracy of this listing is contested, with the note saying why.
+  contested     Boolean @default(false)
+  contestedNote String?
+  sortOrder     Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
 }
 
 enum LinkageClassification {
@@ -281,6 +402,27 @@ model Argument {
   linkageScore Float  @default(0.1)
   impactScore  Float  @default(0)
 
+  /// Short 2-6 word argument label shown in the Argument Trees cell (new template).
+  /// When null, the linked belief's statement is used as the label.
+  claim        String?
+  /// The single most famous supporting quote, shown inline (italic) in the cell.
+  famousQuote  String?
+  /// Display name of the person who made the argument (rendered as ~Name).
+  quoteAuthor    String?
+  /// Optional link to that person's page; plain text when null (Rule 5).
+  quoteAuthorUrl String?
+  /// The argument's own displayed score (the "Score" column), distinct from the
+  /// computed Impact. Null renders blank until real sub-argument scoring exists (Rule 6).
+  /// Populated by score propagation as the child belief's own tree score (0-100).
+  argumentScore  Float?
+
+  /// Uniqueness factor (0-1): how much new signal this argument adds versus its
+  /// earlier same-side siblings (1 − max mechanical similarity, oldest keeps
+  /// credit). Null until the engine computes it at scoring time (Rule 6) — the
+  /// uniqueness discount promised by the redundancy scan. Multiplies into
+  /// impactScore so restatements never double-count.
+  uniquenessScore Float?
+
   /// Importance Score (0-1): how much this argument moves the probability needle.
   /// 1.0 = decisive, 0.5 = moderate, 0.1 = minor. Weights the argument's contribution
   /// to the parent belief's ReasonRank. Analogous to PageRank's link weight.
@@ -294,13 +436,43 @@ model Argument {
   /// Used for depth attenuation: effective weight = base_weight × 0.5^depth
   depth            Int                   @default(0)
 
+  /// Linkage page header note, used only when this edge is easily confused with
+  /// a different linkage between similar X and Y.
+  scopeNote String?
+
+  /// Agent-ingestion provenance. The reasoning trace the submitting agent gave
+  /// for this placement. Display and audit only — never a scoring input.
+  rationale String?
+  /// "published" | "draft". Drafted rows (e.g. detector output) await review.
+  status    String  @default("published")
+  submittedByAgentId String?
+  submittedByAgent   Agent? @relation("ArgumentSubmittedBy", fields: [submittedByAgentId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   linkageArguments LinkageArgument[]
   linkageVotes     LinkageVote[]
+  fallacyClaims    FallacyClaim[]
+
+  /// Evidence Ledger rows (on the parent belief) that name this argument as
+  /// the thing they bear on.
+  evidenceBearingOn Evidence[] @relation("EvidenceBearsOn")
+
+  equivalenceCandidatesAsNew      EquivalenceCandidate[] @relation("EquivalenceCandidateNew")
+  equivalenceCandidatesAsExisting EquivalenceCandidate[] @relation("EquivalenceCandidateExisting")
+
+  candidatesNearest    ArgumentCandidate[] @relation("CandidateNearestArgument")
+  candidatesIntegrated ArgumentCandidate[] @relation("CandidateIntegratedArgument")
+
+  linkageRephrasings     LinkageRephrasing[]
+  linkageFiveStepCheck   LinkageFiveStepCheck?
+  linkageAssumptions     LinkageAssumption[]
+  linkageBiasRisks       LinkageBiasRisk[]
+  linkageFailureExamples LinkageFailureExample[]
 
   @@index([importanceBeliefId])
+  @@index([submittedByAgentId])
 }
 
 model LinkageArgument {
@@ -310,7 +482,140 @@ model LinkageArgument {
   side       String
   statement  String
   strength   Float    @default(0.5)
+
+  /// Named pattern this row instantiates (e.g. "Mechanism", "Necessity",
+  /// "True But Irrelevant", "Parent-mechanism mismatch"). Starter scaffolding —
+  /// rows enter and rank by their own scores, never by pattern order.
+  pattern   String?
+  /// Row score: computed from this row's own sub-debate. Null renders blank
+  /// (Rule 6) and the table ranks by this, descending. `strength` remains the
+  /// legacy manual weight feeding the (A − D)/(A + D) aggregate until every
+  /// row carries a computed score.
+  score     Float?
+  sortOrder Int @default(0)
+
+  /// "published" | "draft". Detector-drafted counter-arguments stay draft
+  /// until reviewed. A detection is an argument, never a penalty: no score
+  /// changes when a detector fires.
+  status String @default("published")
+  /// Which factor the drafted counter-argument targets:
+  /// "relevance" | "logical-validity" | "evidence-quality".
+  targetFactor String?
+  /// Named fallacy the detector flagged (e.g. "ad-hominem", "cherry-picking").
+  fallacyType  String?
+  rationale    String?
+  submittedByAgentId String?
+  submittedByAgent   Agent? @relation("LinkageArgumentSubmittedBy", fields: [submittedByAgentId], references: [id])
+
   createdAt  DateTime @default(now())
+
+  @@index([argumentId])
+  @@index([status])
+}
+
+/// One row in the linkage page's Equivalent Rephrasings tables. If the same
+/// linkage holds across phrasings of X and Y it is logically robust; if it only
+/// holds under one phrasing it is rhetoric. Drift = linkage under this phrasing
+/// minus the canonical linkage, computed at render time — never stored.
+model LinkageRephrasing {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  target String // "x" (the argument or evidence) or "y" (the claim)
+  /// Variant label, e.g. "Filler-stripped, plain language", "Quantified form".
+  label  String?
+  text   String
+  /// Equivalency to the canonical phrasing (0-1), from the Belief Equivalency Engine.
+  equivalencyScore Float?
+  /// Linkage score under this phrasing. Null renders blank (Rule 6).
+  linkageScore Float?
+  sortOrder    Int   @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([argumentId])
+}
+
+/// The Five-Step Linkage Check for one placement. Step 4 is the author's
+/// provisional, bracketed estimate at placement time — the score computed from
+/// the linkage argument tree supersedes it (audit lock: linkage scores are
+/// never hand-assigned as final).
+model LinkageFiveStepCheck {
+  id         Int      @id @default(autoincrement())
+  argumentId Int      @unique
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  /// Step 1: exact wording of the parent claim Y. Verbatim, no paraphrase.
+  parentWording String?
+  /// Step 2: exact wording of the evidence or argument X. Verbatim, no paraphrase.
+  sourceWording String?
+  /// Step 3: the mechanism by which X supports Y, in one sentence.
+  mechanismSentence String?
+  /// Step 4: provisional linkage estimate (0-1). A placement-time bracket only.
+  provisionalEstimate Float?
+  /// Step 4: dominant factor — "relevance" | "network strength" |
+  /// "contextual fit" | "uniqueness".
+  dominantFactor String?
+  /// Step 5: the action if flagged (find better evidence rather than reach).
+  flagNote String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// One row in the linkage page's Hidden Assumptions table: what must also be
+/// true for the linkage to hold (or fail). Each assumption is itself a claim,
+/// scored by its own sub-debate.
+model LinkageAssumption {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  side      String // "hold" or "fail"
+  statement String
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([argumentId])
+}
+
+/// One row in the linkage page's Bias Risks table: a bias plausibly inflating
+/// or deflating THIS linkage score, scored like any other claim.
+model LinkageBiasRisk {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  side        String // "inflate" or "deflate"
+  description String
+  score       Float?
+  sortOrder   Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([argumentId])
+}
+
+/// One row in the Failure Mode Worked Examples table, filled with examples from
+/// this linkage's own domain. Fully worked examples with real names live once,
+/// on the canonical Linkage Scores page — never inside the template.
+model LinkageFailureExample {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  failureMode String // e.g. "Parent-mechanism mismatch", "True But Irrelevant"
+  xText       String?
+  yText       String?
+  whyFails    String?
+  sortOrder   Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([argumentId])
 }
 
 model LinkageVote {
@@ -333,6 +638,89 @@ model LinkageVote {
   @@index([argumentId])
 }
 
+/// A structured fallacy accusation against an argument edge. You can't just
+/// yell "FALLACY!": every template field below is required before the claim
+/// exists, and the claim is itself an argument — it enters the linkage
+/// sub-debate as a draft counter-argument and changes nothing until the
+/// community confirms it (weighted consensus ≥ 60%, see src/lib/consensus.ts).
+/// Confirmation publishes the counter-argument; rejection retires it. No
+/// score is ever docked by the act of accusing.
+model FallacyClaim {
+  id         Int      @id @default(autoincrement())
+  argumentId Int
+  argument   Argument @relation(fields: [argumentId], references: [id])
+
+  /// Canonical type slug from FALLACY_CATALOG (e.g. "false-dilemma").
+  fallacyType String
+  /// Factor a confirmed claim damages: "relevance" | "logical-validity" | "evidence-quality".
+  /// Denormalized from the catalog at filing time so history survives catalog edits.
+  targetFactor String
+  /// "minor" | "major" — from the catalog at filing time; drives the
+  /// logical-validity ladder once confirmed.
+  severity String
+
+  // ── The accusation template (all required; validateFallacyClaimInput) ──
+  /// Exact text of the target that commits the fallacy.
+  quotedText      String
+  /// Why the quote qualifies as this fallacy type.
+  explanation     String
+  /// What is being excluded, misrepresented, or left unsupported.
+  missingElements String
+  /// JSON array of {label, url?, beliefSlug?} — the evidence the accusation
+  /// rests on (excluded alternatives, the opponent's actual position, the
+  /// contradicting studies). Types that need evidence reject an empty array.
+  evidenceLinks   String
+  /// How the fallacy affects the argument's validity if confirmed.
+  consequences    String
+
+  /// "open" | "confirmed" | "rejected" — moved only by community consensus,
+  /// never by filing.
+  status String @default("open")
+  /// Weighted agreement share (0-1) at last resolution check. Null until quorum.
+  consensus  Float?
+  resolvedAt DateTime?
+
+  /// The draft counter-argument this claim placed in the linkage sub-debate.
+  /// Published on confirmation, retired ("rejected") on rejection.
+  counterLinkageArgumentId Int? @unique
+
+  submittedById      String?
+  submittedByAgentId String?
+  submittedByAgent   Agent?  @relation("FallacyClaimSubmittedBy", fields: [submittedByAgentId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  votes FallacyClaimVote[]
+
+  @@index([argumentId])
+  @@index([status])
+  @@index([submittedById])
+  @@index([submittedByAgentId])
+}
+
+/// One community evaluation of a fallacy claim. `weight` is the voter's
+/// caller-credibility multiplier (src/lib/fallacy/calibration.ts) frozen at
+/// vote time: accurate, cross-partisan callers count more; tribal or
+/// inaccurate callers count less.
+model FallacyClaimVote {
+  id             Int          @id @default(autoincrement())
+  fallacyClaimId Int
+  fallacyClaim   FallacyClaim @relation(fields: [fallacyClaimId], references: [id])
+
+  userId    String
+  /// true = the fallacy claim is correct; false = the accusation fails.
+  agree     Boolean
+  reasoning String?
+  weight    Float   @default(1.0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([fallacyClaimId, userId])
+  @@index([fallacyClaimId])
+  @@index([userId])
+}
+
 model Evidence {
   id       Int    @id @default(autoincrement())
   beliefId Int
@@ -342,6 +730,18 @@ model Evidence {
   description String
   sourceUrl   String?
   evidenceType String @default("T3")
+
+  /// Ledger display: "Finding (Producer, Year)". Producer is the org or author
+  /// that produced the finding; both stay null when unknown.
+  producer String?
+  year     Int?
+
+  /// What this evidence bears on: a specific argument on the same belief,
+  /// identified in the ledger by that argument's opening words. Null means it
+  /// bears on the belief directly. Evidence that bears on nothing contributes
+  /// nothing, no matter how true it is.
+  bearsOnArgumentId Int?
+  bearsOnArgument   Argument? @relation("EvidenceBearsOn", fields: [bearsOnArgumentId], references: [id])
 
   sourceIndependenceWeight Float @default(0.5)
   replicationQuantity      Int   @default(1)
@@ -358,8 +758,35 @@ model Evidence {
   linkageScore     Float            @default(0.5)
   impactScore      Float            @default(0)
 
+  /// Verification lifecycle, matching the engine's VerificationStatus
+  /// (src/core/reasonrank/types.ts): "UNVERIFIED" | "VERIFIED" | "DISPUTED" |
+  /// "FALSIFIED". Nullable: legacy rows predate the lifecycle and count at
+  /// full weight; new rows should be born "UNVERIFIED" and earn standing.
+  /// FALSIFIED zeroes this evidence's contribution and the retraction
+  /// propagates to every score built on it.
+  verificationStatus String?
+
+  /// Agent-ingestion provenance. Identifiers are metadata; tier weighting math
+  /// belongs to the engine. `tierClaim` is the submitting agent's assertion;
+  /// `tierVerified` stays null until the provenance job or a human confirms it.
+  doi         String?
+  pmid        String?
+  isbn        String?
+  author      String?
+  publicationDate String?
+  tierClaim   String?
+  tierVerified String?
+  retrievedByAgentId String?
+  retrievedByAgent   Agent? @relation("EvidenceRetrievedBy", fields: [retrievedByAgentId], references: [id])
+
+  /// Topic-page ledger rows that mirror this engine node (the bridge: linked
+  /// rows derive quality/linkage/standing from here at render time)
+  ledgerRows DebateEvidence[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([retrievedByAgentId])
 }
 
 model ObjectiveCriteria {
@@ -379,6 +806,18 @@ model ObjectiveCriteria {
   criteriaType     String?
   totalScore       Float  @default(0)
 
+  /// New template columns: how the criterion is measured, where the metric
+  /// currently sits, and the target/threshold that would settle the debate.
+  howToMeasure  String?
+  currentStatus String?
+  target        String?
+
+  /// The readings each side predicts: a good criterion is one where supporters
+  /// and opponents predict DIFFERENT readings. strengthenReading falls back to
+  /// `target` and latest reading to `currentStatus` when unset.
+  strengthenReading String?
+  weakenReading     String?
+
   createdAt DateTime @default(now())
 }
 
@@ -391,6 +830,19 @@ model ValuesAnalysis {
   supportingActual     String?
   opposingAdvertised   String?
   opposingActual       String?
+
+  /// Advertised vs. Actual Motivations (new template): the evidence that the
+  /// advertised reason and the actual driver diverge, per side.
+  supportingDivergenceEvidence String?
+  opposingDivergenceEvidence   String?
+
+  /// Divergence Score per side: performance of the sub-debate that
+  /// advertised ≠ actual. Null renders blank (Rule 6).
+  supportingDivergenceScore Float?
+  opposingDivergenceScore   Float?
+
+  /// "What would shift these rankings?" prompt answer beneath the Shared Values table.
+  whatWouldShift String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -406,8 +858,187 @@ model InterestsAnalysis {
   sharedInterests      String?
   conflictingInterests String?
 
+  /// Primary Conflict Pair (new template): the single ranking difference that
+  /// drives the debate. Two interests, each with a standalone validity score
+  /// (0-100), its claim strength on THIS issue, and what drives that claim here.
+  primaryPairSupporter         String?
+  primaryPairSupporterValidity Int?
+  primaryPairSupporterClaim    String?
+  primaryPairSupporterDrives   String?
+  primaryPairOpponent          String?
+  primaryPairOpponentValidity  Int?
+  primaryPairOpponentClaim     String?
+  primaryPairOpponentDrives    String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// One row in the Shared Values, Different Rankings table (new template).
+model ValueRanking {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  value         String
+  supporterRank Int?
+  opponentRank  Int?
+  whyDiffer     String?
+  /// Row score: ReasonRank performance of this row's own pro/con sub-debate.
+  /// Null renders blank (Rule 6). The table sorts by this, descending.
+  score         Float?
+  sortOrder     Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// One row in the Likely Interests of Supporters / Opponents tables (new template).
+model InterestEntry {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side             String  // "supporter" or "opponent"
+  interest         String
+  prevalence       String?
+  linkageConfidence String?
+  validity         String?
+  evidenceBasis    String?
+  connectedValue   String?
+  /// Pretextual / low-validity interest (renders in the italic low-validity row).
+  pretextual       Boolean @default(false)
+  /// Row score used for ranking (estimated prevalence weighted by linkage
+  /// confidence). Null renders blank (Rule 6); the table sorts by this, descending.
+  score            Float?
+  sortOrder        Int     @default(0)
+
+  /// Interests-and-motivation dashboard: each interest is a competing
+  /// hypothesis about what actually drives its side. Numeric twins of the
+  /// legacy string columns; the dashboard ranks by linkageAccuracy.
+  /// Estimated share of this side actually driven by this interest (0-100).
+  prevalenceScore Float?
+  /// How well this interest explains the side's actual behavior — votes,
+  /// spending, sacrifices, what it tolerates (0-100). Talk is cheap evidence
+  /// of motive; costly action is strong evidence.
+  linkageAccuracy Float?
+  /// How legitimate the interest is, judged by objective criteria, never by
+  /// who holds it or how much power they have (0-100). The Resolution Floor
+  /// admits interests scoring >= 70.
+  validityScore   Float?
+
+  satisfactions InterestSatisfaction[]
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// One hidden-motive hypothesis on the interests dashboard. "Your real reason
+/// is X" is only sayable when X out-predicts the stated interests: each row
+/// must name the specific behavior the stated interests fail to predict,
+/// bring evidence, and take a score — applied with equal suspicion to both
+/// sides. A candidate that earns its score gets promoted into the ranked
+/// interest list.
+model UnstatedInterestCandidate {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side     String // "supporter" or "opponent"
+  interest String
+  /// The specific behavior (votes, spending, sacrifices) the side's stated
+  /// interests fail to predict — the gap this hypothesis exists to explain.
+  behaviorExplained String
+  evidence          String?
+  /// Performance of the hypothesis's own pro/con sub-debate. Sorts descending.
+  score     Float?
+  /// True once the hypothesis out-predicts the alternatives and joins the
+  /// ranked interest list (rendered italic there as an unstated interest).
+  promoted  Boolean @default(false)
+  sortOrder Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// A candidate solution on the interests dashboard, ranked by how well it
+/// satisfies the VALID interests of both sides. Two hard rules: a solution
+/// earns nothing for satisfying an interest that failed validity, and no
+/// interest counts extra because its holders are powerful.
+model InterestSolution {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  solution    String
+  description String?
+  /// Overall rank: computed from the valid interests satisfied on both sides.
+  score     Float?
+  sortOrder Int    @default(0)
+
+  satisfactions InterestSatisfaction[]
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// Maps a solution to one interest it satisfies, per side (the side lives on
+/// the InterestEntry). Satisfaction is the fraction of the interest the
+/// solution actually meets (0-1).
+model InterestSatisfaction {
+  id         Int              @id @default(autoincrement())
+  solutionId Int
+  solution   InterestSolution @relation(fields: [solutionId], references: [id])
+  interestId Int
+  interest   InterestEntry    @relation(fields: [interestId], references: [id])
+
+  satisfaction Float @default(1)
+
+  @@unique([solutionId, interestId])
+  @@index([interestId])
+}
+
+/// One row in the Shared Interests table (foundation for compromise, new template).
+model SharedInterest {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  interest           String
+  validity           String?
+  compromiseDirection String?
+  /// Row score: performance of this row's pro/con sub-debate. Sorts descending.
+  score              Float?
+  /// Numeric validity (0-100). The Resolution Floor builds solutions on shared
+  /// interests scoring >= 70 on both sides.
+  validityScore      Float?
+  sortOrder          Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// One row in the Dispute Types table (new template): Empirical / Definitional / Values.
+model DisputeType {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  disputeType       String // "Empirical" | "Definitional" | "Values"
+  disagreement      String?
+  evidenceThatMoves String?
+  /// Row score: performance of this row's pro/con sub-debate. Sorts descending.
+  score             Float?
+  sortOrder         Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
 }
 
 model Assumption {
@@ -418,8 +1049,54 @@ model Assumption {
   side       String // "accept" or "reject"
   statement  String
   strength   String @default("MODERATE")
+  /// Row score: performance of this assumption's pro/con sub-debate. Sorts descending.
+  score      Float?
 
   createdAt DateTime @default(now())
+}
+
+/// One row in the Logical Anatomy table: a component claim the belief statement
+/// contains (stated or implied), typed and marked load-bearing or not. A belief
+/// that is a chain of ANDs is exactly as strong as its weakest load-bearing part.
+model ComponentClaim {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  claim     String
+  /// "Empirical" | "Causal" | "Definitional" | "Normative"
+  claimType String?
+  /// True when the component is stated outright, false when only implied.
+  stated    Boolean @default(true)
+  /// If this part is false, does the belief survive? false = load-bearing.
+  survivesWithout     Boolean?
+  unstatedAssumptions String?
+  /// Row score: performance of this component's pro/con sub-debate. Sorts descending.
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+}
+
+/// One row in the Falsifiability Test table: a realistic score-mover in either
+/// direction, as specific as a bet (what result, from what source, by when).
+model FalsifiabilityItem {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  side        String // "strengthen" or "weaken"
+  description String
+  /// Row score: performance of the sub-debate "if this evidence appeared, would
+  /// it actually move this belief?". Sorts descending.
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
 }
 
 model CostBenefitAnalysis {
@@ -434,6 +1111,57 @@ model CostBenefitAnalysis {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// One row in the Benefits / Costs and Risks tables. Every cost and benefit is
+/// itself a debatable claim (optionally linked to its own belief page). Keep
+/// unlike categories (dollars, life-years, hours, freedom) in separate rows and
+/// subtotal only within a category.
+model CostBenefitItem {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation("BeliefCostBenefitItems", fields: [beliefId], references: [id])
+
+  side  String // "benefit" or "cost"
+  claim String
+
+  /// The claim's own belief page, when one exists. Likelihood is computed from
+  /// how THAT belief's pro/con arguments score — never assigned by gut.
+  claimBeliefId Int?
+  claimBelief   Belief? @relation("CostBenefitClaimBelief", fields: [claimBeliefId], references: [id])
+
+  /// Category (units): "dollars" | "life-years" | "hours" | "freedom".
+  category   String?
+  /// Magnitude: an estimate in explicit category units.
+  magnitude  Float?
+  /// Likelihood (0-1), computed from the claim's pro/con argument scores.
+  likelihood Float?
+  /// Expected Value = Magnitude × Likelihood. Null renders blank (Rule 6).
+  /// The table sorts by this, descending.
+  expectedValue Float?
+  sortOrder     Int  @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
+  @@index([claimBeliefId])
+}
+
+/// One row in the Short vs. Long-Term Impacts sub-table (inside Cost-Benefit).
+model ImpactEntry {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  term        String // "short" (0-2 years) or "long" (5+ years)
+  description String
+  /// Row score: performance of this impact's pro/con sub-debate. Sorts descending.
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId])
 }
 
 // ─── Automated CBA Skill Models ──────────────────────────────────────────────
@@ -593,6 +1321,17 @@ model Compromise {
   belief   Belief @relation(fields: [beliefId], references: [id])
 
   description String
+
+  /// Best Compromise Solutions, three-column form (new template): the premise both
+  /// sides accept, the proposed synthesis, and why the compromise is difficult.
+  sharedPremise String?
+  synthesis     String?
+  whyDifficult  String?
+
+  /// Row score: share of both sides' interests this compromise satisfies,
+  /// per its own pro/con sub-debate. Sorts descending.
+  score Float?
+
   createdAt   DateTime @default(now())
 }
 
@@ -603,6 +1342,8 @@ model Obstacle {
 
   side        String // "supporter" or "opposition"
   description String
+  /// Row score: performance of this obstacle's pro/con sub-debate. Sorts descending.
+  score       Float?
   createdAt   DateTime @default(now())
 }
 
@@ -614,6 +1355,9 @@ model BiasEntry {
   side     String
   biasType String
   description String?
+  /// Row score: how strongly this bias plausibly operates on this side here,
+  /// per its own pro/con sub-debate. Sorts descending.
+  score    Float?
 
   createdAt DateTime @default(now())
 }
@@ -672,12 +1416,53 @@ model MediaResource {
 
   qualityArguments MediaQualityArgument[]
 
+  /// The claims this work makes, extracted from its content. The work's signed
+  /// Media Truth Score is the centrality-weighted average of these claims'
+  /// signed truths (src/core/scoring/media-truth.ts); until claims exist the
+  /// score sits at the genre prior.
+  claims MediaClaim[]
+
   createdAt DateTime @default(now())
 
   @@index([beliefId])
   @@index([mediaType])
   @@index([qualityScore])
   @@index([reach])
+}
+
+/// One claim a media work makes — extracted from dialogue, narration, or
+/// visual argument and linked to the belief page where that claim is
+/// evaluated. The claim's signed truth (-1..+1) comes from that belief's own
+/// engine-computed net (positivity / 100), evaluated across ALL sources that
+/// make the claim, never just this work. linkageScore is centrality: how
+/// central the claim is to THIS work's message, itself debatable. The work's
+/// Media Truth Score aggregates Σ(signed truth × linkage) / Σ(linkage) —
+/// see src/core/scoring/media-truth.ts, which is canonical when prose and
+/// code disagree.
+model MediaClaim {
+  id              Int           @id @default(autoincrement())
+  mediaResourceId Int
+  mediaResource   MediaResource @relation(fields: [mediaResourceId], references: [id], onDelete: Cascade)
+
+  /// The claim as this work asserts it.
+  claimText String
+
+  /// The belief page where the claim is evaluated. Null while the claim awaits
+  /// linking — an unlinked claim has no truth source and contributes nothing
+  /// to the score (Rule 6), no matter how central it is.
+  beliefId Int?
+  belief   Belief? @relation(fields: [beliefId], references: [id])
+
+  /// Centrality (0-1): 0.95 = the work's entire thesis, 0.15 = peripheral
+  /// detail. Central-and-false drags the score down hard; peripheral-and-true
+  /// barely lifts it.
+  linkageScore Float @default(0.5)
+
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([mediaResourceId])
+  @@index([beliefId])
 }
 
 /// Arguments about the quality of a media resource itself (separate from the beliefs it spreads).
@@ -707,6 +1492,9 @@ model LegalEntry {
   side        String // "supporting" or "contradicting"
   description String
   jurisdiction String?
+  /// Row score: how strongly this law bears on the belief, per its own
+  /// pro/con sub-debate. Sorts descending.
+  score       Float?
 
   createdAt DateTime @default(now())
 }
@@ -722,6 +1510,10 @@ model BeliefMapping {
 
   direction String // "upstream" or "downstream"
   side      String // "support" or "oppose"
+
+  /// Row score: strength of the general↔specific relationship, per its own
+  /// pro/con sub-debate. Sorts descending.
+  score Float?
 
   createdAt DateTime @default(now())
 }
@@ -752,6 +1544,9 @@ model Definition {
   belief     Belief @relation(fields: [beliefId], references: [id])
   term       String
   definition String
+  /// Row score: how well this operational definition serves the analysis,
+  /// per its own pro/con sub-debate. Sorts descending.
+  score      Float?
   sortOrder  Int    @default(0)
   createdAt  DateTime @default(now())
 
@@ -765,6 +1560,14 @@ model TestablePrediction {
   prediction         String
   timeframe          String?
   verificationMethod String?
+  /// "true" when the prediction follows if the belief is true, "false" when it
+  /// follows if the belief is false (the template's "Follows If…" column).
+  followsIf          String  @default("true")
+  /// What has actually been observed so far, if anything.
+  resultSoFar        String?
+  /// Row score: how discriminating this prediction is, per its own pro/con
+  /// sub-debate. Sorts descending.
+  score              Float?
   sortOrder          Int    @default(0)
   createdAt          DateTime @default(now())
 
@@ -853,10 +1656,7 @@ model EquivalenceAnalysis {
 
   synonymClaims        SynonymClaim[]
   semanticMapEntries   SemanticMapEntry[]
-  normalizationReasons EquivalenceReason[] @relation("NormalizationReasons")
-  structuralReasons    EquivalenceReason[] @relation("StructuralReasons")
-  triggerReasons       EquivalenceReason[] @relation("TriggerReasons")
-  verdictReasons       EquivalenceReason[] @relation("VerdictReasons")
+  reasons EquivalenceReason[]
   argumentBattleItems  ArgumentBattleItem[]
   networkPositions     NetworkPosition[]
   previousVersions     EquivalenceAnalysis[] @relation("Revisions")
@@ -923,10 +1723,7 @@ model EquivalenceReason {
 
   createdAt DateTime @default(now())
 
-  normalizationAnalysis EquivalenceAnalysis? @relation("NormalizationReasons", fields: [analysisId], references: [id], onDelete: Cascade)
-  structuralAnalysis    EquivalenceAnalysis? @relation("StructuralReasons", fields: [analysisId], references: [id], onDelete: Cascade)
-  triggerAnalysis       EquivalenceAnalysis? @relation("TriggerReasons", fields: [analysisId], references: [id], onDelete: Cascade)
-  verdictAnalysis       EquivalenceAnalysis? @relation("VerdictReasons", fields: [analysisId], references: [id], onDelete: Cascade)
+  analysis EquivalenceAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
 
   @@index([analysisId])
   @@index([reasonType])
@@ -964,6 +1761,65 @@ model NetworkPosition {
   createdAt DateTime @default(now())
 
   @@index([analysisId])
+}
+
+// ─── Topic Hub Models (One Page Per Topic) ──────────────────────
+
+/// A topic hub: the "one page per topic" surface. Groups every belief that
+/// takes a position on the same underlying question so they can be sorted
+/// across the three dimensions each Belief already carries — direction
+/// (positivity, -100..+100), claim magnitude (claimStrength, 0-1), and
+/// abstraction (specificity, 0-1) — plus the engine-computed score.
+model Topic {
+  id    Int    @id @default(autoincrement())
+  slug  String @unique
+  title String
+
+  /// The neutral question this page answers, e.g. "What is the overall
+  /// impact of social media?" Phrased so no position is baked into the hub.
+  question    String?
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  beliefs TopicBelief[]
+
+  /// Edges where this topic is the child (its parents) / the parent (its children).
+  parentLinks TopicRelation[] @relation("RelationChild")
+  childLinks  TopicRelation[] @relation("RelationParent")
+}
+
+/// Membership of a belief on a topic page. A belief can appear on many topic
+/// pages (e.g. "Trump isn't very smart" belongs to both "Trump's Intelligence"
+/// and "Politicians' Intelligence"). Dimension coordinates live on Belief —
+/// this row records membership only, so a belief's coordinates are identical
+/// on every page it appears on.
+model TopicBelief {
+  id       Int    @id @default(autoincrement())
+  topicId  Int
+  topic    Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([topicId, beliefId])
+  @@index([beliefId])
+}
+
+/// Parent/child edge between topics — the topic-level abstraction ladder
+/// ("Debate Reform" is a parent of "One Page Per Topic"). Distinct from the
+/// belief-level ladder inside a single topic, which sorts by specificity.
+model TopicRelation {
+  id       Int   @id @default(autoincrement())
+  parentId Int
+  parent   Topic @relation("RelationParent", fields: [parentId], references: [id], onDelete: Cascade)
+  childId  Int
+  child    Topic @relation("RelationChild", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
+  @@index([childId])
 }
 
 // ─── Debate Topic Models ─────────────────────────────────────────
@@ -1004,7 +1860,7 @@ model DebateTopic {
   updatedAt DateTime @updatedAt
 
   positions           DebatePosition[]
-  claimMagnitudeLevels DebateClaimMagnitude[]
+  claimStrengthLevels DebateClaimStrength[]
   escalationLevels    DebateEscalation[]
   assumptions         DebateAssumption[]
   abstractionRungs    DebateAbstractionRung[]
@@ -1018,67 +1874,75 @@ model DebateTopic {
   @@index([slug])
 }
 
-/// One row in Spectrum 2 (Claim Magnitude — topic-specific pro and anti examples).
+/// One row in section 3 (Claim Strength — topic-specific pro and anti examples).
 /// Replaces the generic static component with per-topic AI-generated content.
-model DebateClaimMagnitude {
+/// The table and its columns keep their original names, so the rename to Claim
+/// Strength is a code-level rename with no data migration behind it.
+model DebateClaimStrength {
   id      Int         @id @default(autoincrement())
   topicId Int
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   sortOrder       Int    @default(0)
-  /// "Weak (20%)", "Moderate (50%)", "Strong (80%)", "Extreme (100%)"
-  magnitudeLevel  String
-  magnitudePercent Int   @default(50)
-  sublabel        String /// "Modest Assertion", "Standard Assertion", "Broad Assertion", "Maximal Assertion"
-  /// Topic-specific example of a pro-topic claim at this magnitude
+  /// "Modest (20%)", "Moderate (50%)", "Strong (80%)", "Total (100%)"
+  strengthLevel   String @map("magnitudeLevel")
+  strengthPercent Int    @default(50) @map("magnitudePercent")
+  sublabel        String /// "Hedged", "Standard", "Categorical", "Maximal"
+  /// Topic-specific example of a pro-topic claim at this strength
   proExample      String
-  /// Topic-specific example of an anti-topic claim at this magnitude
+  /// Topic-specific example of an anti-topic claim at this strength
   antiExample     String
   /// Scope description: what this level of assertion implies
   scopeDescription String
 
   @@index([topicId])
+  @@map("DebateClaimMagnitude")
 }
 
-/// One row in Spectrum 1 (The Debate Landscape, -100 to +100).
+/// One row in section 1 (The Position Spectrum, -100 to +100).
 model DebatePosition {
   id      Int         @id @default(autoincrement())
   topicId Int
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   positionScore Int    /// -100, -50, 0, 50, 100
-  positionLabel String /// "Strongly Oppose", "Skeptical", "Neutral", "Supportive", "Strongly Support"
+  positionLabel String /// "Strongly Oppose", "Skeptical", "Mixed / Conditional", "Supportive", "Strongly Support"
   coreBelief    String
   topArgument   String
   beliefScore   String @default("[0]")
   mediaUrl      String?
 
+  /// Evidence Ledger row backing the top sub-argument (renders as the
+  /// Evidence column link in the Position Spectrum table)
+  evidenceId Int?
+  evidence   DebateEvidence? @relation(fields: [evidenceId], references: [id])
+
   @@index([topicId])
 }
 
-/// One row in Spectrum 3 (Civic Engagement Level, 4 core levels + optional extended).
-/// The template distinguishes pro-topic and anti-topic behaviour at each level.
+/// One row in section 4 (Civic Escalation, six levels from Preference to Any
+/// Means Necessary). Single-perspective: what acting at this level looks like,
+/// a historical example, and which principles are still honored. Describes
+/// believers, not beliefs — never a belief-matching coordinate.
 model DebateEscalation {
   id      Int         @id @default(autoincrement())
   topicId Int
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-  level       Int    /// 1–4 (core civic engagement) or up to 6 (extended escalation)
-  levelLabel  String /// "Preference", "Active Advocacy", "Principled Non-Compliance", "Civil Disobedience", …
-  /// Generic description of what this level means (used as fallback)
+  level       Int    /// 1–6
+  levelLabel  String /// "Preference", "Active Advocacy", "Principled Non-Compliance", "Civil Disobedience", "Resistance", "Any Means Necessary"
+  /// What acting at this level looks like
   description String
-  /// Generic example (used when pro/anti split is not populated)
+  /// Historical example
   example     String
   /// Which principles are still honored at this level
   principles  String
 
-  /// Pro-topic: what engagement at this level looks like for supporters
+  /// Legacy fields from the retired pro/anti-split design; kept so older rows
+  /// still round-trip. The current template renders the single-column form.
   proDescription String @default("")
-  /// Anti-topic: what engagement at this level looks like for opponents
   antiDescription String @default("")
-  /// Concrete pro-topic example (real historical parallel or hypothetical)
   proExample  String @default("")
-  /// Concrete anti-topic example
   antiExample String @default("")
 
   @@index([topicId])
@@ -1098,16 +1962,25 @@ model DebateAssumption {
   @@index([topicId])
 }
 
-/// One rung of Spectrum 4 (Abstraction Ladder).
+/// One rung of section 6 (The Abstraction Ladder, General ↔ Specific).
+/// Canonical chain: Worldview → Political principle → Position on this topic
+/// → Specific policy. A belief only merges with another on the same rung, so
+/// a worldview never gets double-counted with the policy it implies.
 model DebateAbstractionRung {
   id      Int         @id @default(autoincrement())
   topicId Int
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   sortOrder  Int    @default(0)
-  rungLabel  String /// "Most General (Worldview)", "Political/Ethical Philosophy", "This Topic", "Most Specific (Policy/Action)"
+  rungLabel  String /// "Worldview", "Political principle", "Position on this topic", "Specific policy"
   proChain   String
   conChain   String
+
+  /// Legacy fields from the retired branching-tree design ("general" /
+  /// "subcategory" / "specific" plus a branch name); the flat ladder ignores
+  /// them apart from branchName as a rungLabel fallback.
+  rungType   String @default("rung")
+  branchName String?
 
   @@index([topicId])
 }
@@ -1132,8 +2005,32 @@ model DebateCommonGround {
   topic   DebateTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   /// JSON arrays
-  agreements   String @default("[]")
-  compromises  String @default("[]")
+  agreements     String @default("[]")
+  valueConflicts String @default("[]")
+  compromises    String @default("[]")
+}
+
+/// One recorded movement of a belief's engine-computed scores — the
+/// accumulation ledger behind the belief page's Score History section
+/// ("the debate accumulates instead of restarting"). Written only by score
+/// propagation when a persisted value actually changes; never hand-entered.
+model BeliefScoreEvent {
+  id       Int    @id @default(autoincrement())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id], onDelete: Cascade)
+
+  /// Engine-computed overall score (persisted as Belief.positivity, -100..+100)
+  scoreBefore Float
+  scoreAfter  Float
+  /// Confidence stability (0-1), when the pass recomputed it
+  stabilityBefore Float?
+  stabilityAfter  Float?
+  /// What caused the recomputation, e.g. "argument #12 posted", "full recompute"
+  trigger String @default("propagation")
+
+  createdAt DateTime @default(now())
+
+  @@index([beliefId, createdAt])
 }
 
 /// One row in the Evidence Ledger (supporting or weakening).
@@ -1149,6 +2046,30 @@ model DebateEvidence {
   qualityScore Int    @default(75)
   qualityLabel String @default("Peer Reviewed")
   url          String?
+
+  /// Evidence tier: "T1" peer-reviewed, "T2" reputable institution,
+  /// "T3" secondary, "T4" anecdotal
+  tier         String @default("T2")
+  /// The specific argument this evidence bears on, as a standalone claim.
+  /// Empty rows fall back to `finding` at render time.
+  argument     String @default("")
+  /// How directly the evidence bears on its argument, 0.0–1.0
+  linkage      Float?
+  /// Verification lifecycle, matching the engine's VerificationStatus
+  /// (src/core/reasonrank/types.ts): "UNVERIFIED" (half weight until the
+  /// provenance check confirms it), "VERIFIED" (full), "DISPUTED" (half while
+  /// the challenge is open), "FALSIFIED" (zero). Rows are born UNVERIFIED and
+  /// earn standing.
+  standing     String @default("UNVERIFIED")
+
+  /// The bridge to the scoring engine: when set, quality/linkage/standing are
+  /// DERIVED from the engine Evidence node at render time and the stored
+  /// copies above are ignored. Rows without a link are seed illustrations —
+  /// hand-entered examples, not computed values.
+  engineEvidenceId Int?
+  engineEvidence   Evidence? @relation(fields: [engineEvidenceId], references: [id], onDelete: SetNull)
+
+  positions DebatePosition[]
 
   @@index([topicId])
 }
@@ -1215,6 +2136,25 @@ model ProductReview {
   brand       String   // e.g., "Ford"
   claim       String   // e.g., "Ford makes the best trucks"
 
+  /// THE TITLE MUST CARRY A SCOPE: bare "best" fails the costability test
+  /// (compared to what, measured in what, for whom). The page headline is
+  /// "[Product] is the best [Product Type] for [useCase]".
+  useCase      String?
+  /// "Budget" | "Mid-range" | "Premium"
+  priceSegment String?
+
+  /// Scorecard fields. Bottom line is the one-sentence verdict scoped to the
+  /// use case in the title; verdictChanger is the measurement or price change
+  /// that would flip the net score. The other scorecard cells are auto-derived
+  /// from the tables, never hand-picked.
+  bottomLine     String?
+  verdictChanger String?
+
+  /// Design Trade-offs: how far the advertised optimization differs from the
+  /// actual one, scored by its own sub-debate.
+  divergenceNote  String?
+  divergenceScore Float?
+
   // Category hierarchy: Product Type > Subcategory > Brand/Model
   categoryType    String   // e.g., "Trucks"
   categorySubtype String?  // e.g., "Full-size Pickup"
@@ -1238,9 +2178,38 @@ model ProductReview {
   awards           ProductAward[]
   ecosystemItems   ProductEcosystem[]
 
+  recommenderInterests ProductRecommenderInterest[]
+  ownershipCosts       ProductOwnershipCost[]
+  valueItems           ProductValueItem[]
+  decisionRules        ProductDecisionRule[]
+  decisionObstacles    ProductDecisionObstacle[]
+
   @@index([categoryType])
   @@index([overallScore])
   @@index([brand])
+}
+
+/// CRITERIA BEFORE BRANDS: the criteria that make a good [Product Type],
+/// keyed by category so they apply to every product in it and are filled
+/// before any brand is discussed. The yardstick the rest of a product page
+/// measures against.
+model CategoryCriterion {
+  id Int @id @default(autoincrement())
+
+  /// Matches ProductReview.categoryType (e.g. "Trucks").
+  categoryType String
+  criterion    String
+  howToMeasure String?
+  /// How much this criterion matters for the category (0-100).
+  importance Float?
+  /// Row score: performance of the sub-debate that this criterion belongs
+  /// on the list. Sorts descending.
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([categoryType])
 }
 
 // Per-criterion performance data with evidence quality tiers
@@ -1254,6 +2223,13 @@ model ProductPerformance {
   evidenceTier    Int      @default(3) // 1-4 (T1=lab tested, T4=anecdotal)
   comparisonToAvg String   @default("Same") // "Better", "Worse", "Same"
   sourceUrl       String?
+
+  /// Category average or best rival, with units — "compared to what".
+  benchmark String?
+  /// Named evidence source (the tier badge's owner).
+  source    String?
+  /// Row impact on the verdict. Sorts descending.
+  impact    Float?
 
   createdAt DateTime @default(now())
 
@@ -1269,6 +2245,104 @@ model ProductTradeoff {
   side            String  // "optimizes" or "sacrifices"
   category        String  // "advertised" or "actual"
   description     String
+  /// Row score: performance of this claim's own sub-debate. Sorts descending.
+  score           Float?
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+/// Interests Behind the Recommendations: who recommends this product (or its
+/// alternatives), what they gain, what they optimize for. Hidden-interest
+/// attributions (affiliate money, ecosystem lock-in) are scored claims
+/// requiring evidence, applied with equal suspicion to both sides.
+model ProductRecommenderInterest {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  side        String  // "product" (recommends this product) or "alternatives"
+  description String
+  /// Candidate hidden interest (renders as the italic row). Requires evidence.
+  hidden   Boolean @default(false)
+  evidence String?
+  score    Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+/// Total cost of ownership row: costs keep their units and never collapse
+/// across categories unless the conversion is stated.
+model ProductOwnershipCost {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  item     String
+  estimate String? // with units
+  costType String  @default("initial") // "initial" | "ongoing" | "hidden" | "opportunity"
+  source   String?
+  evidenceTier Int?
+  score    Float?
+  sortOrder Int   @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+/// Total value delivered row.
+model ProductValueItem {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  item      String
+  measure   String? // with units
+  timeframe String  @default("short") // "short" (0-2 years) | "long" (3+ years) | "both"
+  source    String?
+  evidenceTier Int?
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+/// Decision rule: "If you prioritize [criterion], buy [option], because [evidence]".
+model ProductDecisionRule {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  /// The bold lead-in, e.g. "If you prioritize towing capacity".
+  condition String
+  /// The recommendation with its evidence, e.g. "buy the F-150 because …".
+  advice    String
+  score     Float?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([productReviewId])
+}
+
+/// Decision Obstacles: category-specific patterns for why buyers overpay or
+/// underinvest.
+model ProductDecisionObstacle {
+  id              Int    @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+
+  side        String // "overpay" or "underinvest"
+  description String
+  score       Float?
+  sortOrder   Int    @default(0)
 
   createdAt DateTime @default(now())
 
@@ -1285,6 +2359,8 @@ model ProductAlternative {
   tier            String  // "premium", "budget", or "lateral"
   keyAdvantage    String
   linkSlug        String? // Optional link to that product's review
+  /// Row score: strength of this alternative's case. Sorts descending.
+  score           Float?
 
   createdAt DateTime @default(now())
 
@@ -1299,6 +2375,9 @@ model ProductUserProfile {
 
   side            String  // "ideal" or "not_ideal"
   description     String
+  /// Row score: how well this profile fits (or misfits). Sorts descending;
+  /// the Scorecard's Best for / Not for derive from the top rows.
+  score           Float?
 
   createdAt DateTime @default(now())
 
@@ -1314,6 +2393,7 @@ model ProductAward {
   side            String  // "independent" or "manufacturer"
   title           String
   details         String?
+  score           Float?
 
   createdAt DateTime @default(now())
 
@@ -1328,8 +2408,584 @@ model ProductEcosystem {
 
   category        String  // "upstream", "downstream", or "lockin"
   description     String
+  /// Cost or commitment, with units (dollars, hours, switching cost).
+  cost            String?
+  score           Float?
 
   createdAt DateTime @default(now())
 
   @@index([productReviewId])
+}
+
+// ─── AI Agent Integration Models ─────────────────────────────────
+// Autonomous agents file structured moves (claims, arguments, evidence,
+// linkage checks) through /api/v1. Agent identity is provenance metadata
+// only — it never enters any scoring path. No ingestion path writes a
+// score: score columns stay null (bracketed in the UI) until the
+// ReasonRank engine computes them.
+
+model Agent {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  /// Human or org responsible; display only.
+  operator    String?
+  description String?
+  /// True for internal detector agents (e.g. the fallacy detector).
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  keys              AgentApiKey[]
+  auditLogs         AuditLog[]
+  batches           IngestBatch[]
+  arguments         Argument[]          @relation("ArgumentSubmittedBy")
+  evidence          Evidence[]          @relation("EvidenceRetrievedBy")
+  linkageArguments  LinkageArgument[]   @relation("LinkageArgumentSubmittedBy")
+  fallacyClaims     FallacyClaim[]      @relation("FallacyClaimSubmittedBy")
+  suggestedEvidence SuggestedEvidence[]
+  forumPosts        ForumPost[]
+  forumComments     ForumComment[]
+  conversationThreads ConversationThread[]
+}
+
+model AgentApiKey {
+  id        String    @id @default(cuid())
+  agentId   String
+  agent     Agent     @relation(fields: [agentId], references: [id])
+  /// SHA-256 hex of the bearer key. The key itself is never stored.
+  hashedKey String    @unique
+  createdAt DateTime  @default(now())
+  lastUsed  DateTime?
+  revoked   Boolean   @default(false)
+
+  /// Fixed-window rate-limit state, kept in the database on purpose —
+  /// no Redis until someone actually hits the limit.
+  windowStart DateTime?
+  windowCount Int       @default(0)
+
+  @@index([agentId])
+}
+
+/// One row per mutation an agent makes, carrying the mandatory "why".
+/// `payload` stores the submitted body (JSON string) so any move can be
+/// replayed against a clean database — provenance is only real if it replays.
+model AuditLog {
+  id      String       @id @default(cuid())
+  agentId String?
+  agent   Agent?       @relation(fields: [agentId], references: [id])
+  batchId String?
+  batch   IngestBatch? @relation(fields: [batchId], references: [id])
+
+  /// ingest_batch | ingest_claim | add_evidence | linkage_check |
+  /// equivalence_candidate | draft_counter_argument | suggest_evidence |
+  /// accept_suggestion | dismiss_suggestion | forum_post | forum_comment
+  action     String
+  targetType String // Belief | Argument | Evidence | LinkageArgument | ...
+  targetId   String
+  rationale  String
+  payload    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([agentId])
+  @@index([batchId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+/// One ingestion batch (one Grokipedia article, one Moltbook thread
+/// synthesis). Gets its own page listing every claim it decomposed into:
+/// a synthesized document becomes navigable structure.
+model IngestBatch {
+  id                String   @id @default(cuid())
+  agentId           String
+  agent             Agent    @relation(fields: [agentId], references: [id])
+  title             String
+  sourceDocumentUrl String?
+  createdAt         DateTime @default(now())
+
+  auditLogs AuditLog[]
+
+  @@index([agentId])
+  @@index([createdAt])
+}
+
+/// Redundancy scan output: stored, not scored. The uniqueness discount is
+/// the engine's job at scoring time; ingestion only persists the cluster so
+/// the engine and human reviewers can see it.
+model EquivalenceCandidate {
+  id                 Int      @id @default(autoincrement())
+  argumentId         Int
+  argument           Argument @relation("EquivalenceCandidateNew", fields: [argumentId], references: [id])
+  existingArgumentId Int
+  existingArgument   Argument @relation("EquivalenceCandidateExisting", fields: [existingArgumentId], references: [id])
+  similarity         Float
+  detectedAt         DateTime @default(now())
+
+  /// "open" | "grouped" | "kept-separate" — moved only by community consensus
+  /// (weighted ≥ 60%, src/lib/consensus.ts), mirroring how Wikipedia settles
+  /// merge proposals. Grouping is a community verdict, not an algorithm's.
+  status     String    @default("open")
+  /// Weighted agreement share (0-1) at last resolution check. Null until quorum.
+  consensus  Float?
+  resolvedAt DateTime?
+
+  votes GroupingVote[]
+
+  @@index([argumentId])
+  @@index([existingArgumentId])
+  @@index([status])
+}
+
+/// One community vote on whether an EquivalenceCandidate pair really is the
+/// same claim said differently. "This is the same as [existing claim]" plus
+/// reasoning; 60% weighted agreement groups the pair.
+model GroupingVote {
+  id          Int                  @id @default(autoincrement())
+  candidateId Int
+  candidate   EquivalenceCandidate @relation(fields: [candidateId], references: [id])
+
+  userId    String
+  /// true = same claim, group them; false = genuinely different, keep separate.
+  agree     Boolean
+  reasoning String?
+  weight    Float   @default(1.0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([candidateId, userId])
+  @@index([candidateId])
+}
+
+/// Knowledge-connector queue (suggestion-only). A proposal becomes an
+/// Evidence row only when an agent or human explicitly accepts it, and
+/// acceptance runs through the same ingestion validation.
+model SuggestedEvidence {
+  id       String @id @default(cuid())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  /// "wikipedia" | "crossref" | "semantic-scholar" | ...
+  source    String
+  title     String
+  sourceUrl String?
+  doi       String?
+  snippet   String?
+  /// The proposer's tier assertion, subject to the same review as tierClaim.
+  tierClaim String?
+  /// True when the external source's assessment diverges hard from the local
+  /// structure; accepting a divergent suggestion sets Belief.reviewFlag.
+  divergent Boolean @default(false)
+
+  /// "pending" | "accepted" | "dismissed"
+  status             String    @default("pending")
+  proposedByAgentId  String?
+  proposedBy         Agent?    @relation(fields: [proposedByAgentId], references: [id])
+  acceptedEvidenceId Int?
+  createdAt          DateTime  @default(now())
+  resolvedAt         DateTime?
+
+  @@index([beliefId])
+  @@index([status])
+}
+
+/// The agent forum is a lobby: talk is cheap, moves are structured. Nothing
+/// in the forum affects any score, ranking, or (future) market price — the
+/// only way to move the ledger is a structured, audited move via /api/v1.
+model ForumPost {
+  id       String  @id @default(cuid())
+  agentId  String
+  agent    Agent   @relation(fields: [agentId], references: [id])
+  beliefId Int?
+  belief   Belief? @relation(fields: [beliefId], references: [id])
+
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+
+  comments ForumComment[]
+
+  @@index([beliefId])
+  @@index([createdAt])
+}
+
+model ForumComment {
+  id      String    @id @default(cuid())
+  postId  String
+  post    ForumPost @relation(fields: [postId], references: [id])
+  agentId String
+  agent   Agent     @relation(fields: [agentId], references: [id])
+
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+}
+
+// ─── Conversation Integration (chatrooms & web forums) ───────────
+// Every conversation plugs into a permanent belief page. A thread transcript
+// is imported verbatim, candidate pro/con claims are mined from it and
+// matched to the belief graph, and a human or agent review turns accepted
+// candidates into Arguments — through the same ingestion firewall as any
+// other move. The transcript itself never affects a score.
+
+/// One imported external conversation (a Discord/Reddit/X thread, a chat-room
+/// log, a web-forum topic). Raw source material: extraction mines it, the
+/// firewall integrates it, and the belief page is where the result lives.
+model ConversationThread {
+  id        String  @id @default(cuid())
+  /// "discord" | "reddit" | "twitter" | "forum" | "chat" | "other"
+  platform  String
+  title     String
+  sourceUrl String?
+
+  /// The permanent page this conversation plugs into. Named at import or
+  /// resolved by matching; null only when no belief matched at all.
+  beliefId Int?
+  belief   Belief? @relation(fields: [beliefId], references: [id])
+
+  submittedByAgentId String
+  submittedByAgent   Agent  @relation(fields: [submittedByAgentId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  messages   ConversationMessage[]
+  candidates ArgumentCandidate[]
+
+  @@index([beliefId])
+  @@index([createdAt])
+}
+
+/// One verbatim message from the transcript. Immutable after import so every
+/// candidate can point back at exactly what was said.
+model ConversationMessage {
+  id       String             @id @default(cuid())
+  threadId String
+  thread   ConversationThread @relation(fields: [threadId], references: [id])
+
+  /// Zero-based position in the thread.
+  index        Int
+  authorHandle String
+  body         String
+  postedAt     DateTime?
+
+  candidates ArgumentCandidate[]
+
+  @@unique([threadId, index])
+  @@index([threadId])
+}
+
+/// One candidate pro/con claim mined from a conversation message. Stored, not
+/// scored: a candidate becomes an Argument only when integration runs it
+/// through the ingestion firewall (five-step check, audit log, no scores).
+model ArgumentCandidate {
+  id        String              @id @default(cuid())
+  threadId  String
+  thread    ConversationThread  @relation(fields: [threadId], references: [id])
+  messageId String
+  message   ConversationMessage @relation(fields: [messageId], references: [id])
+
+  /// Normalized standalone claim extracted from the message.
+  statement String
+  /// "pro" | "con" relative to the matched belief. A heuristic stance read,
+  /// correctable at review — candidates are pending until integrated.
+  direction String
+  /// The sentence in its surrounding message text, kept for the five-step
+  /// mechanism draft and for reviewers to check the stance read.
+  contextQuote String?
+  /// Newline-separated URLs shared alongside the claim, offered as evidence
+  /// provenance at integration time.
+  evidenceUrls String?
+
+  beliefId Int?
+  belief   Belief? @relation(fields: [beliefId], references: [id])
+
+  /// Closest existing same-side argument under the belief, from the
+  /// redundancy scan. Bands route (combine vs extend); nothing auto-merges.
+  nearestArgumentId Int?
+  nearestArgument   Argument? @relation("CandidateNearestArgument", fields: [nearestArgumentId], references: [id])
+  similarity        Float?
+  /// "same-claim" | "probable-group" | "related-link" | "distinct"
+  band              String?
+
+  /// "pending" | "integrated" | "duplicate" | "dismissed"
+  status               String    @default("pending")
+  integratedArgumentId Int?
+  integratedArgument   Argument? @relation("CandidateIntegratedArgument", fields: [integratedArgumentId], references: [id])
+  integratedBatchId    String?
+
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  @@index([threadId])
+  @@index([beliefId])
+  @@index([status])
+}
+
+// ─── Prediction Market Layer (belief-score contracts) ────────────
+// See docs/MARKET_LAYER_SPEC.md. The one absolute rule: market prices and
+// volume NEVER feed back into the scoring engine. Data flows one way — the
+// engine publishes EpochSnapshots, the market settles against them.
+
+/// Immutable per-epoch scoring record. Settlement is pure arithmetic against
+/// this row: no judgment calls, no administrator discretion. `graphArchive`
+/// stores the exact scoring inputs so any third party can rerun the versioned
+/// algorithm and reproduce `truthScore` to the decimal.
+model EpochSnapshot {
+  id       String @id @default(cuid())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  /// Epoch label, "YYYY-MM". The snapshot captures the graph at that month's
+  /// final boundary (23:59:59 on the last day, UTC).
+  epoch String
+
+  truthScore Float
+  /// Scoring-algorithm version that produced this score. Algorithm changes
+  /// never invalidate old snapshots — each references its own version.
+  algorithmVersion String
+  /// JSON of the exact inputs the algorithm read (arguments, evidence,
+  /// claim strength), archived so historical settlements re-verify.
+  graphArchive String
+
+  createdAt DateTime @default(now())
+
+  @@unique([beliefId, epoch])
+  @@index([epoch])
+}
+
+/// A binary claim about a belief's score at a future epoch. `contractType`
+/// SCORE is the standard case. ALGORITHM_DELTA is a meta-market on algorithm
+/// governance ("will next month's algorithm raise the score of X?") — built
+/// against the explicit design warning, so its governance risk is stated in
+/// the spec. PLATFORM_FAILURE settles YES if the snapshot job for the epoch
+/// never ran (or ran past the 72h grace window) — shorting the platform.
+model MarketContract {
+  id       String  @id @default(cuid())
+  beliefId Int?
+  belief   Belief? @relation(fields: [beliefId], references: [id])
+
+  /// "SCORE" | "ALGORITHM_DELTA" | "PLATFORM_FAILURE"
+  contractType String @default("SCORE")
+
+  /// Score threshold in [0,1]. Unused (0) for ALGORITHM_DELTA / PLATFORM_FAILURE.
+  thresholdValue Float
+  /// "ABOVE" | "BELOW". Strict inequality: score == threshold resolves NO.
+  direction String
+  /// "YYYY-MM": settles against that epoch's snapshot.
+  resolutionEpoch String
+
+  creatorId String?
+  creator   User?   @relation(fields: [creatorId], references: [id])
+
+  /// LMSR state. b = liquidity parameter; max maker loss = b × ln(2).
+  qYes       Float @default(0)
+  qNo        Float @default(0)
+  bParameter Float @default(100)
+  /// Funds backing the LMSR subsidy (play money), topped up by fees.
+  liquidityPool Float @default(0)
+  /// Transaction fee in basis points, charged on trade value.
+  feeRate       Float @default(100)
+  feesCollected Float @default(0)
+
+  /// "LMSR" | "ORDER_BOOK". Graduates to the order book once total traded
+  /// volume clears GRADUATION_VOLUME shares (the hybrid approach).
+  pricingMode String @default("LMSR")
+  /// Total shares traded across both sides, for graduation.
+  volume Float @default(0)
+
+  /// "OPEN" | "FROZEN" | "SETTLED" | "CANCELLED"
+  status       String  @default("OPEN")
+  finalScore   Float?
+  finalOutcome String? // "YES" | "NO"
+  settledAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  positions  MarketPosition[]
+  orders     MarketOrder[]
+  marketTrades MarketTrade[]
+  priceTicks PriceTick[]
+  bundleLegs MarketBundleLeg[]
+  flags      ManipulationFlag[]
+
+  @@index([beliefId])
+  @@index([resolutionEpoch])
+  @@index([status])
+}
+
+/// A user's holding in one contract. Prices are probability units; at
+/// settlement winning shares pay $1.00 and losing shares pay $0.00.
+model MarketPosition {
+  id         String         @id @default(cuid())
+  userId     String
+  user       User           @relation(fields: [userId], references: [id])
+  contractId String
+  contract   MarketContract @relation(fields: [contractId], references: [id])
+
+  sharesYes   Float @default(0)
+  sharesNo    Float @default(0)
+  avgCostYes  Float @default(0)
+  avgCostNo   Float @default(0)
+  realizedPnl Float @default(0)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([userId, contractId])
+  @@index([contractId])
+}
+
+/// Order-book limit order (mature markets only). Price-time priority;
+/// self-crossing is rejected outright as the first wash-trading defense.
+model MarketOrder {
+  id         String         @id @default(cuid())
+  contractId String
+  contract   MarketContract @relation(fields: [contractId], references: [id])
+  userId     String
+  user       User           @relation(fields: [userId], references: [id])
+
+  /// "BUY" | "SELL"
+  side String
+  /// "YES" | "NO"
+  outcome String
+  /// Limit price in (0,1), probability units.
+  limitPrice Float
+  quantity       Float
+  filledQuantity Float @default(0)
+  /// "OPEN" | "PARTIAL" | "FILLED" | "CANCELLED"
+  status String @default("OPEN")
+
+  createdAt DateTime @default(now())
+
+  @@index([contractId, status])
+  @@index([userId])
+}
+
+/// One execution: against the LMSR maker (buyer or seller null) or between
+/// two order-book users. The raw material for wash-trade pattern analysis.
+model MarketTrade {
+  id         String         @id @default(cuid())
+  contractId String
+  contract   MarketContract @relation(fields: [contractId], references: [id])
+
+  buyerId  String?
+  buyer    User?   @relation("MarketTradeBuyer", fields: [buyerId], references: [id])
+  sellerId String?
+  seller   User?   @relation("MarketTradeSeller", fields: [sellerId], references: [id])
+
+  /// "LMSR" | "BOOK" | "SETTLEMENT"
+  source  String
+  outcome String // "YES" | "NO"
+  quantity Float
+  price    Float
+  fee      Float @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([contractId])
+  @@index([buyerId])
+  @@index([sellerId])
+}
+
+/// Continuous price feed: one tick per price-changing event, plus the
+/// model-based forecast probability at that moment (score vs threshold with
+/// time decay). Serves GET /api/v1/market/contracts/[id]/feed.
+model PriceTick {
+  id         String         @id @default(cuid())
+  contractId String
+  contract   MarketContract @relation(fields: [contractId], references: [id])
+
+  priceYes Float
+  /// Probabilistic forecast from the current provisional score, for the
+  /// divergence display. Never feeds scoring; display and feed only.
+  forecastYes Float?
+
+  createdAt DateTime @default(now())
+
+  @@index([contractId, createdAt])
+}
+
+/// A structured product: multiple binary legs executed atomically (spreads,
+/// combinations). E.g. "score lands in (0.55, 0.65]" = YES on >0.55 + NO on >0.65.
+model MarketBundle {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  label     String
+  createdAt DateTime @default(now())
+
+  legs MarketBundleLeg[]
+}
+
+model MarketBundleLeg {
+  id       String       @id @default(cuid())
+  bundleId String
+  bundle   MarketBundle @relation(fields: [bundleId], references: [id])
+
+  contractId String
+  contract   MarketContract @relation(fields: [contractId], references: [id])
+  outcome    String // "YES" | "NO"
+  shares     Float
+  cost       Float
+
+  @@index([bundleId])
+  @@index([contractId])
+}
+
+/// Play-money leverage: borrowed IdeaCredits against portfolio equity
+/// (max total outstanding = equity, i.e. 2x buying power). Repaid first out
+/// of settlement payouts; shortfalls default and are logged, never hidden.
+model MarginLoan {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  amount      Float
+  outstanding Float
+  /// "OPEN" | "REPAID" | "DEFAULTED"
+  status String @default("OPEN")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+}
+
+/// Monitoring output. A flag is a to-do for humans — never a settlement
+/// input, never a scoring input.
+model ManipulationFlag {
+  id         String          @id @default(cuid())
+  contractId String?
+  contract   MarketContract? @relation(fields: [contractId], references: [id])
+
+  /// "NEAR_THRESHOLD_EDITOR_POSITION" | "WASH_TRADING_PATTERN"
+  reason  String
+  details String
+
+  createdAt DateTime @default(now())
+
+  @@index([contractId])
+  @@index([reason])
+}
+
+/// Mapping from a belief to a related external market (Kalshi ticker,
+/// Polymarket condition id). One-way data plumbing: we export signed
+/// snapshots and import external settlement facts only through the
+/// suggestion queue. External prices never touch scores.
+model ExternalMarketLink {
+  id       String @id @default(cuid())
+  beliefId Int
+  belief   Belief @relation(fields: [beliefId], references: [id])
+
+  /// "KALSHI" | "POLYMARKET" | "OTHER"
+  venue      String
+  externalId String
+  url        String?
+  notes      String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([venue, externalId])
+  @@index([beliefId])
 }

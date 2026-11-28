@@ -10,63 +10,150 @@ import {
 } from '@/core/scoring/all-scores'
 import { calculateEVS, getEvidenceTypeWeight } from '@/core/scoring/scoring-engine'
 import { applyStrengthPenalty } from '@/core/scoring/claim-strength'
+import { resolveContrastClass } from './contrast-classes'
+import { VERIFICATION_SCORES } from '@/core/reasonrank/types'
+
+/**
+ * Standard ordering for score-ranked table rows: highest relationship score
+ * first, unscored rows last (their score cells render blank per Rule 6),
+ * then editorial sortOrder as the tiebreak. Mutable arrays (not `as const`)
+ * because Prisma's orderBy input types reject readonly tuples.
+ */
+const SCORE_RANKED = [
+  { score: { sort: 'desc' as const, nulls: 'last' as const } },
+  { sortOrder: 'asc' as const },
+]
+
+/** Same ranking for row models without a sortOrder column (id as tiebreak). */
+const SCORE_RANKED_BY_ID = [
+  { score: { sort: 'desc' as const, nulls: 'last' as const } },
+  { id: 'asc' as const },
+]
+
+/** Cost/benefit rows rank by Expected Value = Magnitude × Likelihood. */
+const EXPECTED_VALUE_RANKED = [
+  { expectedValue: { sort: 'desc' as const, nulls: 'last' as const } },
+  { sortOrder: 'asc' as const },
+]
 
 /** Shared include clause for all belief queries — includes all score-related fields. */
 const BELIEF_INCLUDE = {
-  definitions: { orderBy: { sortOrder: 'asc' as const } },
-  testablePredictions: { orderBy: { sortOrder: 'asc' as const } },
+  definitions: { orderBy: SCORE_RANKED },
+  testablePredictions: { orderBy: SCORE_RANKED },
+  valueRankings: { orderBy: SCORE_RANKED },
+  interestEntries: { orderBy: SCORE_RANKED },
+  sharedInterests: { orderBy: SCORE_RANKED },
+  disputeTypes: { orderBy: SCORE_RANKED },
+  falsifiabilityItems: { orderBy: SCORE_RANKED },
+  componentClaims: { orderBy: SCORE_RANKED },
+  impactEntries: { orderBy: SCORE_RANKED },
+  costBenefitItems: {
+    include: {
+      claimBelief: { select: { id: true, slug: true, statement: true, positivity: true } },
+    },
+    orderBy: EXPECTED_VALUE_RANKED,
+  },
   arguments: {
     include: {
       belief: {
-        select: { id: true, slug: true, statement: true, positivity: true },
+        select: {
+          id: true,
+          slug: true,
+          statement: true,
+          positivity: true,
+          // Provenance for the "show the work" trace on agent-submitted rows.
+          evidence: {
+            select: {
+              id: true,
+              description: true,
+              sourceUrl: true,
+              doi: true,
+              pmid: true,
+              isbn: true,
+              tierClaim: true,
+              tierVerified: true,
+              retrievedByAgentId: true,
+            },
+          },
+        },
       },
       importanceBelief: {
         select: { id: true, slug: true, statement: true, positivity: true },
       },
+      submittedByAgent: {
+        select: { id: true, name: true, operator: true },
+      },
+      linkageFiveStepCheck: true,
+      // Confirmed claims only: an unconfirmed accusation changes nothing and
+      // is not rendered. Confirmed ones are noted inline in the argument cell.
+      fallacyClaims: {
+        where: { status: 'confirmed' },
+        select: { id: true, fallacyType: true, targetFactor: true, severity: true },
+      },
     },
     orderBy: { impactScore: 'desc' as const },
   },
-  evidence: { orderBy: { impactScore: 'desc' as const } },
+  evidence: {
+    include: {
+      // The "Bears On" cell: the argument this evidence bears on, named by its
+      // opening words. Null renders as "this belief".
+      bearsOnArgument: {
+        select: {
+          id: true,
+          claim: true,
+          side: true,
+          belief: { select: { slug: true, statement: true } },
+        },
+      },
+    },
+    orderBy: { impactScore: 'desc' as const },
+  },
+  peopleOnRecord: { orderBy: { sortOrder: 'asc' as const } },
   objectiveCriteria: { orderBy: { totalScore: 'desc' as const } },
   valuesAnalysis: true,
   interestsAnalysis: true,
-  assumptions: true,
+  assumptions: { orderBy: SCORE_RANKED_BY_ID },
   costBenefitAnalysis: true,
   impactAnalysis: true,
-  compromises: true,
-  obstacles: true,
-  biases: true,
+  compromises: { orderBy: SCORE_RANKED_BY_ID },
+  obstacles: { orderBy: SCORE_RANKED_BY_ID },
+  biases: { orderBy: SCORE_RANKED_BY_ID },
   mediaResources: {
     include: {
       qualityArguments: {
         orderBy: { impactScore: 'desc' as const },
       },
     },
+    orderBy: { impactScore: 'desc' as const },
   },
-  legalEntries: true,
+  legalEntries: { orderBy: SCORE_RANKED_BY_ID },
   upstreamMappings: {
     include: {
       parentBelief: { select: { id: true, slug: true, statement: true } },
       childBelief: { select: { id: true, slug: true, statement: true } },
     },
+    orderBy: SCORE_RANKED_BY_ID,
   },
   downstreamMappings: {
     include: {
       parentBelief: { select: { id: true, slug: true, statement: true } },
       childBelief: { select: { id: true, slug: true, statement: true } },
     },
+    orderBy: SCORE_RANKED_BY_ID,
   },
   similarTo: {
     include: {
       fromBelief: { select: { id: true, slug: true, statement: true } },
       toBelief: { select: { id: true, slug: true, statement: true } },
     },
+    orderBy: { equivalencyScore: 'desc' as const },
   },
   similarFrom: {
     include: {
       fromBelief: { select: { id: true, slug: true, statement: true } },
       toBelief: { select: { id: true, slug: true, statement: true } },
     },
+    orderBy: { equivalencyScore: 'desc' as const },
   },
 } as const
 
@@ -77,7 +164,52 @@ export async function fetchBeliefBySlug(slug: string): Promise<BeliefWithRelatio
     include: BELIEF_INCLUDE,
   })
 
-  return belief as BeliefWithRelations | null
+  if (!belief) return null
+
+  // Resolve the contrast class (the denominator): each rival option's score is
+  // computed from its own argument tree, so OCV stays traceable. Null when no
+  // contrast class is defined for this belief.
+  const contrastClass = await resolveContrastClass(slug)
+
+  // Page-only extras, fetched here rather than in BELIEF_INCLUDE so score
+  // propagation (which reuses the include) stays lean:
+  //   scoreEvents    — the accumulation ledger behind Score History.
+  //   usedIn         — every parent debate using this belief as a reason.
+  //   siblingBeliefs — the category cluster behind the Related Topics footer
+  //                    (includes this belief, rendered as plain text).
+  const [scoreEvents, usedIn, siblingBeliefs] = await Promise.all([
+    prisma.beliefScoreEvent.findMany({
+      where: { beliefId: belief.id },
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+    }),
+    prisma.argument.findMany({
+      where: { beliefId: belief.id, status: 'published' },
+      select: {
+        id: true,
+        side: true,
+        impactScore: true,
+        claim: true,
+        parentBelief: { select: { id: true, slug: true, statement: true } },
+      },
+    }),
+    belief.category
+      ? prisma.belief.findMany({
+          where: { category: belief.category },
+          select: { id: true, slug: true, statement: true },
+          orderBy: { statement: 'asc' },
+          take: 12,
+        })
+      : Promise.resolve([]),
+  ])
+
+  return {
+    ...belief,
+    contrastClass,
+    scoreEvents,
+    usedIn,
+    siblingBeliefs,
+  } as BeliefWithRelations | null
 }
 
 /** Fetch a belief by numeric ID */
@@ -122,8 +254,10 @@ export interface BeliefFilterParams {
   claimStrengthMin?: number
   claimStrengthMax?: number
   category?: string
-  /** Field to sort on. Defaults to positivity (the "valence spectrum" surface). */
-  sortBy?: 'positivity' | 'specificity' | 'claimStrength' | 'statement' | 'updatedAt'
+  /** Field to sort on. Defaults to positivity (the "valence spectrum" surface).
+   *  'groundingScore' is the evidence-based ranking: engine-computed contact
+   *  with tiered evidence, never engagement. */
+  sortBy?: 'positivity' | 'specificity' | 'claimStrength' | 'statement' | 'updatedAt' | 'groundingScore'
   /** Sort direction. Defaults to 'asc' so the page reads negative → positive. */
   sortDir?: 'asc' | 'desc'
   limit?: number
@@ -171,6 +305,7 @@ export async function fetchFilteredBeliefs(params: BeliefFilterParams = {}) {
       positivity: true,
       specificity: true,
       claimStrength: true,
+      groundingScore: true,
     },
     orderBy: { [sortBy]: sortDir },
     ...(params.limit !== undefined ? { take: params.limit } : {}),
@@ -189,6 +324,22 @@ export async function fetchBeliefCategories(): Promise<string[]> {
 }
 
 /** Compute all 12 ReasonRank scores for a belief */
+/**
+ * Verification lifecycle weight, taken from the engine's own
+ * VERIFICATION_SCORES: FALSIFIED evidence contributes nothing (the retraction
+ * propagates to every score built on it), UNVERIFIED and DISPUTED count at
+ * half weight, VERIFIED at full. Legacy rows (null status) predate the
+ * lifecycle and keep full weight, so existing seeded scores are unchanged
+ * until a row's status is actually set — which is exactly the exposure
+ * reported by src/core/scoring/evidence-exposure.ts.
+ */
+function verificationWeight(status: string | null | undefined): number {
+  if (status != null && status in VERIFICATION_SCORES) {
+    return VERIFICATION_SCORES[status as keyof typeof VERIFICATION_SCORES]
+  }
+  return 1
+}
+
 export function computeBeliefScores(belief: BeliefWithRelations): BeliefScores {
   const proArgs = belief.arguments.filter(a => a.side === 'agree')
   const conArgs = belief.arguments.filter(a => a.side === 'disagree')
@@ -200,8 +351,10 @@ export function computeBeliefScores(belief: BeliefWithRelations): BeliefScores {
   const supportingEvidence = belief.evidence.filter(e => e.side === 'supporting')
   const weakeningEvidence = belief.evidence.filter(e => e.side === 'weakening')
 
-  const totalSupportingEvidence = supportingEvidence.reduce((sum, e) => sum + Math.abs(e.impactScore), 0)
-  const totalWeakeningEvidence = weakeningEvidence.reduce((sum, e) => sum + Math.abs(e.impactScore), 0)
+  const totalSupportingEvidence = supportingEvidence.reduce(
+    (sum, e) => sum + Math.abs(e.impactScore) * verificationWeight(e.verificationStatus), 0)
+  const totalWeakeningEvidence = weakeningEvidence.reduce(
+    (sum, e) => sum + Math.abs(e.impactScore) * verificationWeight(e.verificationStatus), 0)
 
   const totalPositive = totalPro + totalSupportingEvidence
   const totalNegative = totalCon + totalWeakeningEvidence
@@ -218,7 +371,11 @@ export function computeBeliefScores(belief: BeliefWithRelations): BeliefScores {
       conclusionRelevance: ev.conclusionRelevance,
       replicationPercentage: ev.replicationPercentage,
     })
-    return { side: ev.side, evsScore: computedEVS, linkageScore: ev.linkageScore }
+    return {
+      side: ev.side,
+      evsScore: computedEVS * verificationWeight(ev.verificationStatus),
+      linkageScore: ev.linkageScore,
+    }
   })
 
   const truthBreakdown = calculateTruthScoreBreakdown(

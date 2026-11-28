@@ -38,7 +38,7 @@ export default function Home() {
           </p>
           <div className="flex gap-3 mt-8 flex-wrap">
             <Link href="/beliefs" className="ise-btn ise-btn--primary">Browse Beliefs</Link>
-            <Link href="/arbitrage" className="ise-btn ise-btn--ghost">View Arbitrage</Link>
+            <Link href="/markets" className="ise-btn ise-btn--ghost">Browse Markets</Link>
           </div>
         </div>
       </header>
@@ -229,7 +229,7 @@ export default function Home() {
           </ul>
 
           <Link
-            href="/proposal/new"
+            href="/beliefs"
             className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
             Create a Proposal
@@ -348,6 +348,58 @@ export default function Home() {
               className="inline-block border border-[var(--border)] hover:border-[var(--accent)] px-6 py-3 rounded-lg font-medium transition-colors"
             >
               View Category Rankings
+            </Link>
+          </div>
+        </section>
+
+        {/* Topic Hubs (One Page Per Topic) */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6">
+            One Page Per Topic: Multi-Dimensional Belief Mapping
+          </h2>
+          <p className="text-lg text-[var(--muted-foreground)] mb-8">
+            Every topic gets one hub page where all beliefs about it converge, organized across three
+            dimensions — direction (negative ↔ positive), claim magnitude (weak ↔ extreme), and
+            abstraction (general ↔ specific) — and sorted by engine-computed scores, so the
+            best-supported version of any claim rises to the top instead of the loudest.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">The Position Spectrum</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                See every stance from −100 to +100 in one sorted view — nuance instead of a
+                binary pro/con shouting match.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">Bolder Claims, Higher Burden</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Sort the same topic by how much each phrasing asserts. The boldest claim
+                doesn&apos;t win by default — it has to earn its score with stronger evidence.
+              </p>
+            </div>
+            <div className="p-4 border border-[var(--border)] rounded-lg">
+              <h3 className="font-semibold mb-2">The Abstraction Ladder</h3>
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Zoom out to the general principle or down to the concrete proposal, with parent
+                and child topics one click away — and duplicates merged, not repeated.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <Link
+              href="/topics"
+              className="inline-block bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Browse Topics
+            </Link>
+            <Link
+              href="/topics/trump-capability"
+              className="inline-block border border-[var(--border)] hover:border-[var(--accent)] px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Example: Trump&apos;s Intelligence
             </Link>
           </div>
         </section>
@@ -621,10 +673,10 @@ export default function Home() {
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link
-              href="/laws"
+              href="/beliefs"
               className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-8 py-3 rounded-lg font-medium transition-colors"
             >
-              Browse Laws
+              Browse Beliefs
             </Link>
             <Link
               href="/product-reviews"
@@ -661,11 +713,16 @@ export default function Home() {
             <div>
               <h3 className="font-bold mb-4">Resources</h3>
               <ul className="space-y-2 text-sm">
+                <li><Link href="/problems" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">The Problem</Link></li>
+                <li><Link href="/solutions" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Solutions</Link></li>
+                <li><Link href="/contribute" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Contribute</Link></li>
+                <li><Link href="/leverage" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Work Queue</Link></li>
+                <li><Link href="/search" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Search</Link></li>
+                <li><Link href="/how-it-works" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">How It Works</Link></li>
                 <li><Link href="/protocol" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Schlicht Protocol</Link></li>
                 <li><Link href="/product-reviews" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Product Reviews</Link></li>
                 <li><Link href="/cba" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Cost-Benefit Analysis</Link></li>
-                <li><Link href="/laws" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Browse Laws</Link></li>
-                <li><Link href="/markets" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Prediction Markets</Link></li>
+                                <li><Link href="/markets" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Prediction Markets</Link></li>
                 <li><Link href="/prediction-markets-comparison" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Idea Stock Exchange vs Polymarket</Link></li>
                 <li><Link href="/faq" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">FAQ &amp; Criticisms</Link></li>
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Framework Wiki</a></li>
@@ -674,11 +731,12 @@ export default function Home() {
             <div>
               <h3 className="font-bold mb-4">Framework</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="https://github.com/myklob/ideastockexchange/wiki/Truth-Score" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Truth</a></li>
+                <li><Link href="/algorithms/truth-scores" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Truth</Link></li>
                 <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Interests</a></li>
-                <li><a href="https://github.com/myklob/ideastockexchange/wiki/Evidence-Verification-Score-(EVS)" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Evidence</a></li>
-                <li><a href="https://github.com/myklob/ideastockexchange/wiki" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]" target="_blank" rel="noopener noreferrer">Assumptions</a></li>
+                <li><Link href="/algorithms/evidence-scores" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Evidence</Link></li>
+                <li><Link href="/algorithms/assumptions" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Assumptions</Link></li>
                 <li><Link href="/algorithms/strong-to-weak" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">Strong-to-Weak Spectrum</Link></li>
+                <li><Link href="/algorithms" className="text-[var(--muted-foreground)] hover:text-[var(--accent)]">All Scoring Algorithms</Link></li>
               </ul>
             </div>
           </div>

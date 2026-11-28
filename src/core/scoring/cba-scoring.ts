@@ -11,7 +11,6 @@
 import {
   CBALineItem,
   CostBenefitAnalysis,
-  LikelihoodEstimate,
   LikelihoodBelief,
   SensitivityItem,
   ScenarioResult,

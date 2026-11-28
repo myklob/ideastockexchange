@@ -1,0 +1,200 @@
+[
+ {
+  "id": 479,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "return-shows-what-financial",
+  "on_text": "A return shows what the financial disclosure form does not: exact income and its character, foreign income and foreign tax credits, business losses carried forward, charitable giving, and the rate actually paid.",
+  "section": "argument",
+  "side": "agree",
+  "text": "The disclosure form reports assets and income in broad ranges, with a top band of \"over $50,000,000.\""
+ },
+ {
+  "id": 480,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "return-shows-what-financial",
+  "on_text": "A return shows what the financial disclosure form does not: exact income and its character, foreign income and foreign tax credits, business losses carried forward, charitable giving, and the rate actually paid.",
+  "section": "argument",
+  "side": "agree",
+  "text": "Character of income is what revealed how one presidential candidate's wealth was structured in 2012, and the disclosure form does not carry it."
+ },
+ {
+  "id": 481,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "return-shows-what-financial",
+  "on_text": "A return shows what the financial disclosure form does not: exact income and its character, foreign income and foreign tax credits, business losses carried forward, charitable giving, and the rate actually paid.",
+  "section": "argument",
+  "side": "disagree",
+  "text": "Conflict screening needs to know what an official owns, which the disclosure form does carry, more than it needs to know what rate they paid."
+ },
+ {
+  "id": 482,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "internal-check-failed-one",
+  "on_text": "The internal check failed in the one case that tested it: the mandatory presidential audit was dormant, and the audit of the first two years opened the day Congress asked for the returns.",
+  "section": "argument",
+  "side": "agree",
+  "text": "The Ways and Means Committee reported in December 2022 that the program, required by the Internal Revenue Manual since 1977, was \"dormant, at best,\" and that the 2015 and 2016 audit opened on April 3, 2019, the day the chairman sent his request."
+ },
+ {
+  "id": 483,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "internal-check-failed-one",
+  "on_text": "The internal check failed in the one case that tested it: the mandatory presidential audit was dormant, and the audit of the first two years opened the day Congress asked for the returns.",
+  "section": "argument",
+  "side": "agree",
+  "text": "Only one of the six years was completed while the president was in office."
+ },
+ {
+  "id": 484,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "internal-check-failed-one",
+  "on_text": "The internal check failed in the one case that tested it: the mandatory presidential audit was dormant, and the audit of the first two years opened the day Congress asked for the returns.",
+  "section": "argument",
+  "side": "disagree",
+  "text": "One administration is one data point, and the audit program has no statutory backing to fail against."
+ },
+ {
+  "id": 485,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "every-president-carter-through",
+  "on_text": "Every president from Carter through Obama released returns voluntarily, so a requirement restores a forty-year norm rather than inventing an obligation.",
+  "section": "argument",
+  "side": "agree",
+  "text": "The practice began after Nixon released his returns in December 1973 and the Joint Committee on Taxation found roughly $465,000 in back taxes owed."
+ },
+ {
+  "id": 486,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "every-president-carter-through",
+  "on_text": "Every president from Carter through Obama released returns voluntarily, so a requirement restores a forty-year norm rather than inventing an obligation.",
+  "section": "argument",
+  "side": "agree",
+  "text": "A norm that survived nine presidencies and then failed is the standard case for codifying it."
+ },
+ {
+  "id": 487,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "every-president-carter-through",
+  "on_text": "Every president from Carter through Obama released returns voluntarily, so a requirement restores a forty-year norm rather than inventing an obligation.",
+  "section": "argument",
+  "side": "disagree",
+  "text": "A voluntary norm that a president may decline is different in kind from a legal command, and the case for the first is not automatically a case for the second."
+ },
+ {
+  "id": 488,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "published-return-can-checked",
+  "on_text": "A published return can be checked by anyone, which is the only enforcement that does not depend on an agency the official appoints.",
+  "section": "argument",
+  "side": "agree",
+  "text": "The IRS commissioner is a presidential appointee, which is the structural problem the audit episode illustrates."
+ },
+ {
+  "id": 489,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "published-return-can-checked",
+  "on_text": "A published return can be checked by anyone, which is the only enforcement that does not depend on an agency the official appoints.",
+  "section": "argument",
+  "side": "agree",
+  "text": "Journalists and accountants found the significant items in the 2022 release within days."
+ },
+ {
+  "id": 490,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "published-return-can-checked",
+  "on_text": "A published return can be checked by anyone, which is the only enforcement that does not depend on an agency the official appoints.",
+  "section": "argument",
+  "side": "disagree",
+  "text": "Public review is not adjudication; it produces contested interpretations rather than findings."
+ },
+ {
+  "id": 491,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "return-shows-tax-positions",
+  "on_text": "A return shows tax positions, not conflicts, and the disclosure form already lists assets, income sources, liabilities and positions in categories built for conflict screening.",
+  "section": "argument",
+  "side": "agree",
+  "text": "The Ethics in Government Act form was designed for this purpose and is filed annually by every senior official."
+ },
+ {
+  "id": 492,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "return-shows-tax-positions",
+  "on_text": "A return shows tax positions, not conflicts, and the disclosure form already lists assets, income sources, liabilities and positions in categories built for conflict screening.",
+  "section": "argument",
+  "side": "agree",
+  "text": "Nothing on a return identifies which decisions an official participates in."
+ },
+ {
+  "id": 493,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "return-shows-tax-positions",
+  "on_text": "A return shows tax positions, not conflicts, and the disclosure form already lists assets, income sources, liabilities and positions in categories built for conflict screening.",
+  "section": "argument",
+  "side": "disagree",
+  "text": "Ranges hide magnitude, and magnitude is what distinguishes a nominal interest from a controlling one."
+ },
+ {
+  "id": 494,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "return-shows-tax-positions",
+  "on_text": "A return shows tax positions, not conflicts, and the disclosure form already lists assets, income sources, liabilities and positions in categories built for conflict screening.",
+  "section": "argument",
+  "side": "disagree",
+  "text": "The form does not show foreign income or the identity of lenders, which are the two conflicts people most want to see."
+ },
+ {
+  "id": 495,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "publication-exposes-spouses-children",
+  "on_text": "Publication exposes spouses, children and business partners who never ran for office.",
+  "section": "argument",
+  "side": "agree",
+  "text": "A joint return contains the spouse's complete finances."
+ },
+ {
+  "id": 496,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "publication-exposes-spouses-children",
+  "on_text": "Publication exposes spouses, children and business partners who never ran for office.",
+  "section": "argument",
+  "side": "agree",
+  "text": "Pass-through entities name partners who hold no office."
+ },
+ {
+  "id": 497,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "publication-exposes-spouses-children",
+  "on_text": "Publication exposes spouses, children and business partners who never ran for office.",
+  "section": "argument",
+  "side": "disagree",
+  "text": "Filing separately, or redacting identified third parties, answers most of this without giving up the disclosure."
+ },
+ {
+  "id": 498,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "route-constitutionally-narrow-disclosure",
+  "on_text": "The route is constitutionally narrow: a disclosure condition on ballot access was already struck down once, and a badly drafted rule would be litigated rather than obeyed.",
+  "section": "argument",
+  "side": "agree",
+  "text": "The California Supreme Court struck the state's five-year return requirement for presidential primary candidates in November 2019."
+ },
+ {
+  "id": 499,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "route-constitutionally-narrow-disclosure",
+  "on_text": "The route is constitutionally narrow: a disclosure condition on ballot access was already struck down once, and a badly drafted rule would be litigated rather than obeyed.",
+  "section": "argument",
+  "side": "disagree",
+  "text": "That decision rested on the California constitution's ballot-access provision and expressly did not reach federal questions, so it says little about a federal statute imposing a duty on officeholders rather than a condition on candidates."
+ },
+ {
+  "id": 500,
+  "belief_text": "Requiring the president and members of Congress to publish their tax returns would reduce the use of public office for private gain.",
+  "on": "sophisticated-wealth-sits-pass",
+  "on_text": "Sophisticated wealth sits in pass-through entities and trusts that file their own returns, so a personal return can be published and show very little.",
+  "section": "argument",
+  "side": "agree",
+  "text": "A personal return reports a distributive share, not the entity's transactions or counterparties."
+ }
+]

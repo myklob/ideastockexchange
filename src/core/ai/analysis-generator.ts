@@ -7,7 +7,6 @@ import { AIClient } from './ai-client';
 import {
   IssueAnalysis,
   Argument,
-  SubArgument,
   EvidenceItem,
   ObjectiveCriteria,
   ValueConflict,

@@ -14,7 +14,7 @@ export default function ObstaclesSection({ obstacles }: ObstaclesSectionProps) {
       <SectionHeading
         emoji="&#x1F6A7;"
         title="Primary Obstacles to Resolution"
-        href="/Obstacles%20to%20Resolution"
+        href="/how-it-works"
       />
 
       <div className="overflow-x-auto">

@@ -1,10 +1,4 @@
-import { PrismaClient } from '../src/generated/prisma/client'
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
-
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || 'file:./prisma/dev.db',
-})
-const prisma = new PrismaClient({ adapter })
+import { prisma } from '../src/lib/prisma'
 
 async function main() {
   console.log('Seeding product reviews...')
@@ -292,7 +286,7 @@ async function main() {
 
   // ─── Create Product Reviews linked to beliefs ──────────────────
 
-  const fordReview = await prisma.productReview.upsert({
+  await prisma.productReview.upsert({
     where: { slug: 'ford-f-150' },
     update: {},
     create: {
@@ -371,7 +365,7 @@ async function main() {
     },
   })
 
-  const appleReview = await prisma.productReview.upsert({
+  await prisma.productReview.upsert({
     where: { slug: 'apple-iphone-15-pro' },
     update: {},
     create: {
@@ -452,7 +446,7 @@ async function main() {
 
   // ─── Now compute and update scores ──────────────────────────────
   // Import the scoring engine dynamically
-  const { scoreProductReview, rankProductsInCategory } = await import('../src/core/scoring/product-review-scoring')
+  const { rankProductsInCategory } = await import('../src/core/scoring/product-review-scoring')
   const { fetchAllProductReviewsFull } = await import('../src/features/product-reviews/data/fetch-product-reviews')
 
   // Fetch all reviews with full relations to compute scores

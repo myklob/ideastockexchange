@@ -75,3 +75,31 @@ export function avgPricePerShare(state: LmsrState, side: Side, shares: number): 
   if (shares <= 0) return priceFor(state, side);
   return costToBuy(state, side, shares) / shares;
 }
+
+/** Returns a NEW state after selling `shares` of the given side back to the maker. */
+export function applySell(state: LmsrState, side: Side, shares: number): LmsrState {
+  if (side === 'YES') {
+    return { ...state, qYes: state.qYes - shares };
+  }
+  return { ...state, qNo: state.qNo - shares };
+}
+
+/**
+ * Play-money dollars the maker pays out when a holder sells `shares` back:
+ * C(q) - C(q - dq). Positive number (what you receive). Selling moves the
+ * price against the seller, mirroring the buy-side slippage.
+ */
+export function proceedsFromSell(state: LmsrState, side: Side, shares: number): number {
+  if (shares <= 0) return 0;
+  const before = cost(state);
+  const after = cost(applySell(state, side, shares));
+  return before - after;
+}
+
+/**
+ * LMSR's worst-case maker loss is b × ln(2) — the bound that a liquidity
+ * pool (or accumulated fees) must cover.
+ */
+export function maxMakerLoss(b: number): number {
+  return b * Math.LN2;
+}

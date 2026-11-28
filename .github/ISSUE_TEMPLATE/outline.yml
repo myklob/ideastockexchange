@@ -1,0 +1,26 @@
+name: Post a Reason Outline
+description: Add many rows at once, written as a Reason Outline (one claim per line, each pushed in under the line it is about). What happens next, in one sentence, is that the outline is read and checked against every claim already on the site, and the reply either lists each line that stops it, so you can fix them by editing this issue, or opens a pull request with your rows for the maintainer to merge, showing every new page, every match and every near match.
+title: "Reason Outline: "
+labels: [outline]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        How to write one: https://myklob.github.io/ideastockexchange/beliefs/outline.html. Start with Page: and the address of the page you are adding to, or Belief: and a new claim in one sentence. Push each reason in two spaces under the line it is about, and start it with + for a reason to agree or - for a reason to disagree. Every page on the site has a "This page as a Reason Outline" link: copy it, add your lines and paste it here. Nothing you leave out is deleted, and a vote or a label never moves a score.
+  - type: textarea
+    id: outline
+    attributes:
+      label: The outline
+      description: The outline itself. Spaces at the start of a line matter, so paste it as it is.
+      placeholder: |
+        Page: https://myklob.github.io/ideastockexchange/beliefs/p/barring-members-congress-president.html
+          + A reason to agree, as one complete sentence.
+          - A reason to disagree, as one complete sentence.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: note
+    attributes:
+      label: Note
+      description: Optional. Anything for the maintainer that is not part of the outline. It is copied into the pull request and never stored.

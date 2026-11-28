@@ -1,61 +1,53 @@
 import type { EcosystemItem } from '../types'
-import SectionHeading from '@/features/belief-analysis/components/SectionHeading'
+import { formatScore, rankByScore } from '../../belief-analysis/lib/ranking'
+import ExpandableRows from '../../belief-analysis/components/ExpandableRows'
 
 interface EcosystemSectionProps {
   items: EcosystemItem[]
 }
 
+const TH = 'border border-gray-300 px-3 py-2 text-left font-semibold bg-gray-100'
+const TD = 'border border-gray-300 px-3 py-2 align-top'
+const TDC = 'border border-gray-300 px-3 py-2 align-top text-center'
+
+const TYPE_LABELS: Record<string, string> = {
+  upstream: 'Upstream: needed first',
+  downstream: 'Downstream: wanted after',
+  lockin: 'Lock-in',
+}
+
 export default function EcosystemSection({ items }: EcosystemSectionProps) {
-  const upstream = items.filter(i => i.category === 'upstream')
-  const downstream = items.filter(i => i.category === 'downstream')
-  const lockin = items.filter(i => i.category === 'lockin')
+  const { top, rest } = rankByScore(items, i => i.score)
+  const rows: Array<EcosystemItem | null> = top.length > 0 ? top : [null]
+
+  const row = (item: EcosystemItem | null, key: React.Key) => (
+    <tr key={key}>
+      <td className={TD}>{item?.description ?? <span>&nbsp;</span>}</td>
+      <td className={TDC}>{item ? (TYPE_LABELS[item.category] ?? item.category) : <span>&nbsp;</span>}</td>
+      <td className={TD}>{item?.cost ?? <span>&nbsp;</span>}</td>
+      <td className={`${TDC} font-mono`}>{formatScore(item?.score) ?? <span>&nbsp;</span>}</td>
+    </tr>
+  )
 
   return (
-    <div>
-      <SectionHeading
-        emoji="🧭"
-        title="Product Ecosystem: Related Purchases"
-        subtitle="Understanding the full ecosystem helps calculate true long-term cost and commitment level."
-      />
-
-      {items.length > 0 ? (
-        <div className="space-y-4">
-          {upstream.length > 0 && (
-            <div>
-              <p className="text-sm font-semibold mb-2">Upstream Dependencies (You Need These First):</p>
-              <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
-                {upstream.map(item => (
-                  <li key={item.id}>{item.description}</li>
-                ))}
-              </ol>
-            </div>
-          )}
-
-          {downstream.length > 0 && (
-            <div>
-              <p className="text-sm font-semibold mb-2">Downstream Additions (You Might Want These After):</p>
-              <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
-                {downstream.map(item => (
-                  <li key={item.id}>{item.description}</li>
-                ))}
-              </ol>
-            </div>
-          )}
-
-          {lockin.length > 0 && (
-            <div>
-              <p className="text-sm font-semibold mb-2">Lock-in Considerations:</p>
-              <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
-                {lockin.map(item => (
-                  <li key={item.id}>{item.description}</li>
-                ))}
-              </ol>
-            </div>
-          )}
-        </div>
-      ) : (
-        <p className="text-sm text-gray-500 italic">No ecosystem analysis has been recorded yet.</p>
-      )}
-    </div>
+    <section>
+      <h2 className="text-xl font-bold mb-2">🧭 Ecosystem and Lock-in</h2>
+      <table className="w-full border-collapse border border-gray-300 text-sm">
+        <thead>
+          <tr>
+            <th className={`${TH} w-[30%]`}>Item</th>
+            <th className={`${TH} w-[24%] text-center`}>Type</th>
+            <th className={`${TH} w-[34%]`}>Cost or commitment</th>
+            <th className={`${TH} w-[12%] text-center`}>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((item, i) => row(item, item?.id ?? i))}
+          <ExpandableRows moreCount={rest.length} colSpan={4}>
+            {rest.map(item => row(item, item.id))}
+          </ExpandableRows>
+        </tbody>
+      </table>
+    </section>
   )
 }

@@ -4,7 +4,6 @@ import Link from 'next/link'
 import {
   STRENGTH_BANDS,
   getStrengthBand,
-  getStrengthLabel,
   applyStrengthPenalty,
   formatStrength,
 } from '@/core/scoring/claim-strength'

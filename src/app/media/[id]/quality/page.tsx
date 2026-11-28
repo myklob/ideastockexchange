@@ -81,9 +81,9 @@ export default async function MediaQualityPage({ params }: MediaQualityPageProps
             </h2>
             <p className="text-sm text-[var(--muted-foreground)] mb-4">
               Each reason is itself a belief with its own ISE page. Scoring is recursive based on{' '}
-              <Link href="/truth" className="text-[var(--accent)] hover:underline">truth</Link>,{' '}
-              <Link href="/Linkage%20Scores" className="text-[var(--accent)] hover:underline">linkage</Link>, and{' '}
-              <Link href="/Importance%20Score" className="text-[var(--accent)] hover:underline">importance</Link>.
+              <Link href="/algorithms/truth-scores" className="text-[var(--accent)] hover:underline">truth</Link>,{' '}
+              <Link href="/algorithms/linkage-scores" className="text-[var(--accent)] hover:underline">linkage</Link>, and{' '}
+              <Link href="/algorithms/importance-score" className="text-[var(--accent)] hover:underline">importance</Link>.
             </p>
 
             {/* Pro quality */}

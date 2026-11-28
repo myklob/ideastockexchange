@@ -139,6 +139,40 @@ describe('computeArgumentImpactScore', () => {
     })
   })
 
+  // ── Uniqueness discount ─────────────────────────────────────────
+
+  describe('uniqueness multiplies into the conclusion-score term', () => {
+    it('defaults to 1 (no discount) when omitted', () => {
+      const withoutUniqueness = computeArgumentImpactScore('agree', 0.8, 0.7, 1.0)
+      const explicitFull = computeArgumentImpactScore('agree', 0.8, 0.7, 1.0, 1.0)
+      expect(withoutUniqueness).toBe(explicitFull)
+    })
+
+    it('scales the impact proportionally: a 90% restatement contributes ~10%', () => {
+      const original = computeArgumentImpactScore('agree', 0.8, 0.7, 1.0, 1.0)
+      const restatement = computeArgumentImpactScore('agree', 0.8, 0.7, 1.0, 0.1)
+      expect(restatement).toBeCloseTo(original * 0.1, 1)
+    })
+
+    it('a fully duplicated argument contributes nothing', () => {
+      const score = computeArgumentImpactScore('agree', 0.8, 0.7, 1.0, 0)
+      expect(score).toBe(0)
+    })
+
+    it('discounts disagree arguments symmetrically', () => {
+      const full = computeArgumentImpactScore('disagree', 0.8, 0.7, 1.0, 1.0)
+      const half = computeArgumentImpactScore('disagree', 0.8, 0.7, 1.0, 0.5)
+      expect(half).toBeCloseTo(full / 2, 1)
+      expect(half).toBeLessThan(0)
+    })
+
+    it('computes the full five-factor formula', () => {
+      // 1.0 × 0.8 × 0.5 × 0.9 × 0.75 × 100 = 27.0
+      const score = computeArgumentImpactScore('agree', 0.8, 0.5, 0.9, 0.75)
+      expect(score).toBe(27.0)
+    })
+  })
+
   // ── Propagation semantics ───────────────────────────────────────
 
   describe('propagation semantics', () => {

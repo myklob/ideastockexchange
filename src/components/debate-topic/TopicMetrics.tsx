@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 interface Props {
   importanceScore: number;   // 0–100
   evidenceDepth: string;     // "Low" | "Med" | "High"
@@ -18,24 +20,24 @@ function depthColor(depth: string): string {
 
 export default function TopicMetrics({ importanceScore, evidenceDepth, controversyRating }: Props) {
   return (
-    <div className="border border-gray-300 p-3 bg-gray-50 mb-6 text-center text-sm">
+    <div className="border border-gray-300 p-3 bg-[#f0f3f6] mb-3 text-center text-sm">
       <strong>Topic Metrics</strong>
-      <br />
-      <a href="/w/page/162731388/Importance%20Score" className="text-blue-600 hover:underline">
+      {' | '}
+      <Link href="/algorithms/importance-score" className="text-blue-600 hover:underline">
         Importance
-      </a>
+      </Link>
       :{' '}
       <strong className={scoreColor(importanceScore)}>{importanceScore}</strong>
       {' | '}
-      <a href="/w/page/159353568/Evidence%20Scores" className="text-blue-600 hover:underline">
+      <Link href="/algorithms/evidence-scores" className="text-blue-600 hover:underline">
         Evidence Depth
-      </a>
+      </Link>
       :{' '}
       <strong className={depthColor(evidenceDepth)}>{evidenceDepth}</strong>
       {' | '}
-      <a href="/w/page/159300543/ReasonRank" className="text-blue-600 hover:underline">
-        Controversy Rating
-      </a>
+      <Link href="/algorithms/reason-rank" className="text-blue-600 hover:underline">
+        Controversy
+      </Link>
       :{' '}
       <strong className={scoreColor(controversyRating)}>{controversyRating}</strong>
     </div>

@@ -7,7 +7,13 @@
 -- RENDER of the data in these tables. The JSON-LD block embedded in
 -- each page is the on-the-wire serialization of these rows.
 --
--- Schema version: 1.0.0
+-- Schema version: 1.3.0 (adds the grounding score column, the direct-
+--   grounding and front-page ranking views, and the contributor track-record
+--   view — evidence-based ranking made queryable: there is no engagement
+--   column anywhere in this schema, so there is nothing else to rank by)
+-- Previous: 1.2.0 (evidence records, tier-event ledger, recompute queue,
+--   evidence-asymmetry view)
+-- Previous: 1.1.0 (fallacy claims, claim votes, grouping votes)
 -- Engine: MariaDB 10.4+ / MySQL 8.0+ (uses CHECK constraints, JSON type)
 -- Companion: src/core/scoring/scoring-engine.ts in the GitHub repo
 --   https://github.com/myklob/ideastockexchange
@@ -32,6 +38,20 @@
 --
 -- 5. Provenance columns track who created / last edited each row,
 --    including AI assistant sessions. Required for the audit trail.
+--
+-- 6. Zombie-argument kill switch: evidence is LINKED to the conclusions
+--    that rest on it (via linkages), so a retraction or reclassification
+--    is one UPDATE on evidence_records.tier. The trigger writes the tier
+--    event and enqueues the recompute; the engine drains the queue and
+--    every dependent conclusion recalculates. Arguments citing dead
+--    evidence never quietly keep their scores.
+--
+-- 7. Evidence-based ranking, by construction: this schema stores NO
+--    engagement signals — no view counts, click-through rates, share
+--    counts, or dwell times. Ranking queries (v_front_page) can only
+--    order by engine-computed columns, so the only way up the ranking
+--    is better evidence, not better outrage. If you are tempted to add
+--    a clicks column, add an evidence table instead.
 -- =================================================================
 
 
@@ -50,6 +70,15 @@ CREATE TABLE IF NOT EXISTS `nodes` (
   -- Cached scores. Source of truth is the recursive engine, not these.
   `argument_score`      DECIMAL(5,4)  DEFAULT NULL,
   `truth_score`         DECIMAL(5,4)  DEFAULT NULL,
+  -- Evidence Grounding Score: how much of this node's support bottoms out
+  -- in tiered evidence (0 = unfounded — no evidence anywhere below it).
+  --   raw = Σ tier_weight × |linkage| over its evidence
+  --       + Σ |linkage| × child grounding over its argument edges
+  --   grounding_score = raw / (raw + 1)
+  -- Recursive, so the engine writes it (a citation ring grounds nothing);
+  -- v_direct_grounding below computes the one-hop term for inspection.
+  -- This is the ranking column — see v_front_page.
+  `grounding_score`     DECIMAL(5,4)  DEFAULT NULL,
   `score_computed_at`   TIMESTAMP     NULL DEFAULT NULL,
 
   -- Lifecycle
@@ -61,7 +90,8 @@ CREATE TABLE IF NOT EXISTS `nodes` (
 
   PRIMARY KEY (`node_id`),
   INDEX `idx_node_type` (`node_type`),
-  INDEX `idx_node_score` (`argument_score` DESC)
+  INDEX `idx_node_score` (`argument_score` DESC),
+  INDEX `idx_node_grounding` (`grounding_score` DESC)
 );
 
 
@@ -348,6 +378,419 @@ CREATE TABLE IF NOT EXISTS `linkage_bias_risks` (
 );
 
 
+-- -- Structured fallacy claims ----------------------------------
+-- An accusation is an argument. Filing requires every template field
+-- (the application rejects anything less) and changes NO score: the
+-- claim's counter-argument enters linkage_arguments as a draft. Only
+-- weighted community consensus (>= 60%, quorum 3) confirms the claim,
+-- publishes the counter-argument, and triggers the engine recompute.
+-- Mirrors the Prisma models FallacyClaim / FallacyClaimVote.
+
+CREATE TABLE IF NOT EXISTS `fallacy_claims` (
+  `claim_id`            VARCHAR(64)   NOT NULL,
+  `linkage_id`          VARCHAR(64)   NOT NULL,  -- the accused edge
+
+  -- Catalog classification (denormalized at filing time)
+  `fallacy_type`        VARCHAR(64)   NOT NULL,  -- e.g., 'false-dilemma'
+  `target_factor`       ENUM('relevance', 'logical-validity', 'evidence-quality') NOT NULL,
+  `severity`            ENUM('minor', 'major') NOT NULL,
+
+  -- The six-field accusation template (all NOT NULL: no bare "FALLACY!")
+  `quoted_text`         TEXT          NOT NULL,
+  `explanation`         TEXT          NOT NULL,
+  `missing_elements`    TEXT          NOT NULL,
+  `evidence_links`      JSON          NOT NULL,  -- [{label, url?, belief_slug?}]
+  `consequences`        TEXT          NOT NULL,
+
+  -- Resolution state. AUDIT-LOCKED: moved only by the consensus query
+  -- below, never by the accuser.
+  `status`              ENUM('open', 'confirmed', 'rejected') NOT NULL DEFAULT 'open',
+  `consensus`           DECIMAL(5,4)  DEFAULT NULL,  -- weighted agree share
+  `resolved_at`         TIMESTAMP     NULL DEFAULT NULL,
+
+  -- The draft counter-argument this claim placed in the sub-debate.
+  -- Published on confirmation; retired on rejection.
+  `counter_arg_id`      VARCHAR(64)   DEFAULT NULL,
+
+  -- Provenance
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+  `created_by`          VARCHAR(128)  DEFAULT NULL,
+
+  PRIMARY KEY (`claim_id`),
+  INDEX `idx_claim_linkage` (`linkage_id`),
+  INDEX `idx_claim_status` (`status`),
+  INDEX `idx_claim_creator` (`created_by`),
+
+  CONSTRAINT `fk_claim_linkage` FOREIGN KEY (`linkage_id`) REFERENCES `linkages`(`linkage_id`),
+  CONSTRAINT `fk_claim_counter` FOREIGN KEY (`counter_arg_id`) REFERENCES `linkage_arguments`(`arg_id`),
+  CONSTRAINT `chk_claim_consensus` CHECK (`consensus` IS NULL OR (`consensus` >= 0 AND `consensus` <= 1))
+);
+
+
+-- -- Fallacy claim votes ----------------------------------------
+-- One row per user per claim. `weight` is the voter's caller-credibility
+-- multiplier (accuracy x cross-partisan balance, clamped to [0.3, 1.4]),
+-- computed by the application from fallacy_claims history at vote time —
+-- NEVER submitted by the voter.
+
+CREATE TABLE IF NOT EXISTS `fallacy_claim_votes` (
+  `vote_id`             VARCHAR(64)   NOT NULL,
+  `claim_id`            VARCHAR(64)   NOT NULL,
+  `user_id`             VARCHAR(128)  NOT NULL,
+  `agree`               BOOLEAN       NOT NULL,
+  `reasoning`           TEXT          DEFAULT NULL,
+  `weight`              DECIMAL(5,4)  NOT NULL DEFAULT 1.0,
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`vote_id`),
+  UNIQUE KEY `unique_vote_per_user` (`claim_id`, `user_id`),
+  INDEX `idx_vote_claim` (`claim_id`),
+  INDEX `idx_vote_user` (`user_id`),
+
+  CONSTRAINT `fk_vote_claim` FOREIGN KEY (`claim_id`) REFERENCES `fallacy_claims`(`claim_id`),
+  CONSTRAINT `chk_vote_weight` CHECK (`weight` >= 0.3 AND `weight` <= 1.4)
+);
+
+
+-- -- Grouping votes (same claim, different words) ----------------
+-- The redundancy scan proposes candidate pairs; the community settles
+-- them at the same 60% weighted bar. Mirrors EquivalenceCandidate /
+-- GroupingVote in the Prisma schema. Candidate pairs reference nodes
+-- because the pair is about the claims, not one particular edge.
+
+CREATE TABLE IF NOT EXISTS `grouping_candidates` (
+  `candidate_id`        VARCHAR(64)   NOT NULL,
+  `new_node_id`         VARCHAR(64)   NOT NULL,
+  `existing_node_id`    VARCHAR(64)   NOT NULL,
+  `similarity`          DECIMAL(5,4)  NOT NULL,
+  -- same-claim (>= 0.95) | probable-group (>= 0.8) | related-link (>= 0.5)
+  `band`                VARCHAR(32)   DEFAULT NULL,
+  `status`              ENUM('open', 'grouped', 'kept-separate') NOT NULL DEFAULT 'open',
+  `consensus`           DECIMAL(5,4)  DEFAULT NULL,
+  `resolved_at`         TIMESTAMP     NULL DEFAULT NULL,
+  `detected_at`         TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`candidate_id`),
+  INDEX `idx_candidate_new` (`new_node_id`),
+  INDEX `idx_candidate_existing` (`existing_node_id`),
+  INDEX `idx_candidate_status` (`status`),
+
+  CONSTRAINT `fk_candidate_new` FOREIGN KEY (`new_node_id`) REFERENCES `nodes`(`node_id`),
+  CONSTRAINT `fk_candidate_existing` FOREIGN KEY (`existing_node_id`) REFERENCES `nodes`(`node_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `grouping_votes` (
+  `vote_id`             VARCHAR(64)   NOT NULL,
+  `candidate_id`        VARCHAR(64)   NOT NULL,
+  `user_id`             VARCHAR(128)  NOT NULL,
+  `agree`               BOOLEAN       NOT NULL,  -- true = same claim, group
+  `reasoning`           TEXT          DEFAULT NULL,
+  `weight`              DECIMAL(5,4)  NOT NULL DEFAULT 1.0,
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`vote_id`),
+  UNIQUE KEY `unique_grouping_vote_per_user` (`candidate_id`, `user_id`),
+  INDEX `idx_grouping_vote_candidate` (`candidate_id`),
+
+  CONSTRAINT `fk_grouping_vote_candidate` FOREIGN KEY (`candidate_id`) REFERENCES `grouping_candidates`(`candidate_id`)
+);
+
+
+-- =================================================================
+-- EVIDENCE RECORDS & THE AUTOMATIC-UPDATE CASCADE
+-- =================================================================
+-- The structural fix for zombie arguments. An evidence node (nodes row
+-- with node_type = 'evidence') gets one evidence_records row carrying its
+-- tier classification and verification inputs. The evidence reaches its
+-- conclusions through ordinary `linkages` rows (x_node = the evidence,
+-- y_node = the conclusion, linkage_type = 'ECLS'), so the dependency
+-- graph is explicit and walkable.
+--
+-- Tier scale (matches EVIDENCE_TYPE_WEIGHTS in scoring-engine.ts):
+--   T1 = peer-reviewed / official   (weight 1.00)
+--   T2 = expert / institutional     (weight 0.75)
+--   T3 = journalism / surveys       (weight 0.50)
+--   T4 = opinion / anecdote         (weight 0.25)
+--   T0 = RETRACTED / FRAUDULENT     (weight 0.05) — the Wakefield rung
+--
+-- The engine computes (audit-locked):
+--   EVS    = tier_weight × log2(replication_quantity + 1)
+--            × conclusion_relevance × replication_percentage
+--   impact = EVS × linkage_score × 10
+
+CREATE TABLE IF NOT EXISTS `evidence_records` (
+  `evidence_id`         VARCHAR(64)   NOT NULL,
+  `node_id`             VARCHAR(64)   NOT NULL,  -- the evidence node
+
+  -- Classification (community-correctable — a retraction is an UPDATE
+  -- here, never a hand-edit of a score column)
+  `tier`                ENUM('T0','T1','T2','T3','T4') NOT NULL DEFAULT 'T3',
+  `tier_verified_at`    TIMESTAMP     NULL DEFAULT NULL,
+
+  -- Identifiers / provenance of the source itself
+  `doi`                 VARCHAR(128)  DEFAULT NULL,
+  `pmid`                VARCHAR(64)   DEFAULT NULL,
+  `source_url`          VARCHAR(500)  DEFAULT NULL,
+  `author`              VARCHAR(256)  DEFAULT NULL,
+  `publication_date`    VARCHAR(32)   DEFAULT NULL,
+
+  -- Verification inputs (the EVS formula's ERQ / ECRS / ERP terms)
+  `replication_quantity`   INT          NOT NULL DEFAULT 1,
+  `replication_percentage` DECIMAL(5,4) NOT NULL DEFAULT 1.0,
+  `conclusion_relevance`   DECIMAL(5,4) NOT NULL DEFAULT 0.5,
+
+  -- Retraction state (set alongside tier = 'T0')
+  `retracted_at`        TIMESTAMP     NULL DEFAULT NULL,
+  `retraction_reason`   TEXT          DEFAULT NULL,
+  `last_verified_at`    TIMESTAMP     NULL DEFAULT NULL,
+
+  -- Cached engine output. AUDIT-LOCKED: recomputed, never hand-set.
+  `evs_score`           DECIMAL(8,4)  DEFAULT NULL,
+  `score_computed_at`   TIMESTAMP     NULL DEFAULT NULL,
+
+  -- Provenance
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+  `created_by`          VARCHAR(128)  DEFAULT NULL,
+  `last_edited_at`      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_edited_by`      VARCHAR(128)  DEFAULT NULL,
+  `deleted_at`          TIMESTAMP     NULL DEFAULT NULL,
+
+  PRIMARY KEY (`evidence_id`),
+  UNIQUE KEY `unique_evidence_node` (`node_id`),
+  INDEX `idx_evidence_tier` (`tier`),
+  INDEX `idx_evidence_doi` (`doi`),
+
+  CONSTRAINT `fk_evidence_node` FOREIGN KEY (`node_id`) REFERENCES `nodes`(`node_id`),
+  CONSTRAINT `chk_replication_pct` CHECK (`replication_percentage` >= 0 AND `replication_percentage` <= 1),
+  CONSTRAINT `chk_conclusion_rel` CHECK (`conclusion_relevance` >= 0 AND `conclusion_relevance` <= 1)
+);
+
+
+-- -- Evidence tier events (the retraction ledger) -----------------
+-- One row per tier movement, with the reason. This is what readers see
+-- when they ask WHY a conclusion's score fell: "the study it rested on
+-- moved T1 → T0 on 2010-02-02 (Lancet retraction)". Reasons are
+-- mandatory: reclassifying evidence without saying why is how zombie
+-- arguments get made in the other direction.
+
+CREATE TABLE IF NOT EXISTS `evidence_tier_events` (
+  `event_id`            BIGINT        NOT NULL AUTO_INCREMENT,
+  `evidence_id`         VARCHAR(64)   NOT NULL,
+  `old_tier`            ENUM('T0','T1','T2','T3','T4') NOT NULL,
+  `new_tier`            ENUM('T0','T1','T2','T3','T4') NOT NULL,
+  `reason`              TEXT          NOT NULL,  -- retraction notice, critique, correction
+  `source_url`          VARCHAR(500)  DEFAULT NULL,  -- link to the retraction / critique
+  `triggered_by`        VARCHAR(128)  DEFAULT NULL,
+  `created_at`          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`event_id`),
+  INDEX `idx_tier_event_evidence` (`evidence_id`, `created_at` DESC),
+
+  CONSTRAINT `fk_tier_event_evidence` FOREIGN KEY (`evidence_id`) REFERENCES `evidence_records`(`evidence_id`)
+);
+
+
+-- -- Score recompute queue ----------------------------------------
+-- The propagation work list. Any change that invalidates cached scores
+-- (tier movement, new linkage, confirmed fallacy claim) enqueues the
+-- affected node here; the engine worker drains the queue by recomputing
+-- the node and walking UP the linkage graph (x_node → y_node) until no
+-- dependent score moves. Rows are kept after processing: the queue
+-- doubles as the cascade's history.
+
+CREATE TABLE IF NOT EXISTS `score_recompute_queue` (
+  `queue_id`            BIGINT        NOT NULL AUTO_INCREMENT,
+  `node_id`             VARCHAR(64)   NOT NULL,
+  `reason`              VARCHAR(500)  NOT NULL,  -- e.g. 'evidence ev-wakefield-1998 tier T1 → T0'
+  `enqueued_at`         TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+  `processed_at`        TIMESTAMP     NULL DEFAULT NULL,
+
+  PRIMARY KEY (`queue_id`),
+  INDEX `idx_queue_pending` (`processed_at`, `enqueued_at`),
+  INDEX `idx_queue_node` (`node_id`),
+
+  CONSTRAINT `fk_queue_node` FOREIGN KEY (`node_id`) REFERENCES `nodes`(`node_id`)
+);
+
+
+-- -- The cascade trigger ------------------------------------------
+-- A tier change is the ONLY hand-touchable input on evidence_records
+-- that moves scores, and it cannot move them silently: the trigger
+-- writes the ledger row and enqueues the recompute in the same
+-- statement. The engine takes it from there — this is the "when the
+-- foundation crumbles, the building falls" mechanism.
+
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS `trg_evidence_tier_change`
+AFTER UPDATE ON `evidence_records`
+FOR EACH ROW
+BEGIN
+  IF NEW.tier <> OLD.tier THEN
+    INSERT INTO `evidence_tier_events`
+      (`evidence_id`, `old_tier`, `new_tier`, `reason`, `triggered_by`)
+    VALUES
+      (NEW.evidence_id, OLD.tier, NEW.tier,
+       COALESCE(NEW.retraction_reason, 'tier reclassification'),
+       NEW.last_edited_by);
+
+    INSERT INTO `score_recompute_queue` (`node_id`, `reason`)
+    VALUES (NEW.node_id,
+            CONCAT('evidence ', NEW.evidence_id, ' tier ', OLD.tier, ' → ', NEW.tier));
+  END IF;
+END//
+DELIMITER ;
+
+
+-- -- Evidence asymmetry view (cherry-picking detector) -------------
+-- For every conclusion, how the evidence splits by direction and tier.
+-- An argument citing 2 weak supporting sources while 50 strong
+-- contradicting sources sit unaddressed shows up here as a row like
+-- supporting_strong=0, supporting_weak=2, contradicting_strong=50 —
+-- the asymmetry the page renders as a cherry-picking flag.
+
+CREATE OR REPLACE VIEW `v_evidence_asymmetry` AS
+SELECT
+  l.y_node_id                                            AS conclusion_node_id,
+  SUM(CASE WHEN l.direction = 'supports'
+            AND e.tier IN ('T1','T2') THEN 1 ELSE 0 END) AS supporting_strong,
+  SUM(CASE WHEN l.direction = 'supports'
+            AND e.tier IN ('T3','T4') THEN 1 ELSE 0 END) AS supporting_weak,
+  SUM(CASE WHEN l.direction = 'supports'
+            AND e.tier = 'T0' THEN 1 ELSE 0 END)         AS supporting_retracted,
+  SUM(CASE WHEN l.direction IN ('weakens','refutes')
+            AND e.tier IN ('T1','T2') THEN 1 ELSE 0 END) AS contradicting_strong,
+  SUM(CASE WHEN l.direction IN ('weakens','refutes')
+            AND e.tier IN ('T3','T4') THEN 1 ELSE 0 END) AS contradicting_weak,
+  -- Cherry-picking flag: no strong support, but strong contradiction exists.
+  (SUM(CASE WHEN l.direction = 'supports'
+             AND e.tier IN ('T1','T2') THEN 1 ELSE 0 END) = 0
+   AND SUM(CASE WHEN l.direction IN ('weakens','refutes')
+                 AND e.tier IN ('T1','T2') THEN 1 ELSE 0 END) >= 3) AS cherry_picking_risk
+FROM linkages l
+JOIN evidence_records e ON e.node_id = l.x_node_id
+WHERE l.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+GROUP BY l.y_node_id;
+
+
+-- -- Direct grounding view (the one-hop term) ---------------------
+-- For each conclusion, the evidence mass linked DIRECTLY to it:
+-- Σ tier_weight × |linkage|. The engine adds the recursive term
+-- (Σ |linkage| × child grounding over argument edges, a citation ring
+-- contributing zero — the query twin of the circular-citation guard in
+-- note 9) and caches the saturated result raw/(raw+1) on
+-- nodes.grounding_score. This view exists so anyone can audit the
+-- engine's direct term with one SELECT.
+
+CREATE OR REPLACE VIEW `v_direct_grounding` AS
+SELECT
+  l.y_node_id AS conclusion_node_id,
+  SUM(
+    CASE e.tier
+      WHEN 'T1' THEN 1.00
+      WHEN 'T2' THEN 0.75
+      WHEN 'T3' THEN 0.50
+      WHEN 'T4' THEN 0.25
+      WHEN 'T0' THEN 0.05
+    END * ABS(l.linkage_score)
+  )                        AS direct_grounding_raw,
+  COUNT(*)                 AS evidence_edge_count,
+  SUM(e.tier = 'T0')       AS retracted_edge_count
+FROM linkages l
+JOIN evidence_records e ON e.node_id = l.x_node_id
+WHERE l.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+  AND l.linkage_score IS NOT NULL
+GROUP BY l.y_node_id;
+
+
+-- -- The front page (evidence-based ranking) ----------------------
+-- The query engagement platforms cannot run. Google orders by clicks,
+-- Facebook by outrage, Twitter by retweets; this table has none of
+-- those columns. Beliefs rank by engine-computed grounding, then truth.
+-- A claim with no evidence anywhere below it is labeled 'unfounded' and
+-- sits at the bottom no matter how viral its phrasing would be.
+
+CREATE OR REPLACE VIEW `v_front_page` AS
+SELECT
+  n.node_id,
+  n.canonical_statement,
+  n.canonical_url,
+  n.grounding_score,
+  CASE
+    WHEN n.grounding_score IS NULL OR n.grounding_score = 0 THEN 'unfounded'
+    WHEN n.grounding_score < 0.35 THEN 'thin'
+    WHEN n.grounding_score < 0.70 THEN 'grounded'
+    ELSE 'well-grounded'
+  END                   AS grounding_band,
+  n.truth_score,
+  n.score_computed_at
+FROM nodes n
+WHERE n.node_type = 'belief'
+  AND n.deleted_at IS NULL
+ORDER BY
+  COALESCE(n.grounding_score, 0) DESC,
+  COALESCE(n.truth_score, 0) DESC;
+
+
+-- -- Contributor track record (behavioral accountability) ---------
+-- The SQL twin of callerRecordFor() + callerCredibility(): accuracy
+-- (did the community uphold your fallacy claims?) and side balance
+-- (do you flag supporting AND weakening edges, or only the side you
+-- dislike?). The application computes the clamped vote weight
+-- (2 × accuracy) × (0.4 + 0.9 × balance), clamped to [0.3, 1.4], from
+-- these counts at vote time. Filing volume appears nowhere: only being
+-- right and being even-handed move the multiplier. Anyone can run this
+-- view on themselves — the weight math is public, unlike a feed
+-- algorithm.
+
+CREATE OR REPLACE VIEW `v_contributor_track_record` AS
+SELECT
+  c.created_by                                          AS user_id,
+  SUM(c.status = 'confirmed')                           AS upheld,
+  SUM(c.status = 'rejected')                            AS rejected,
+  SUM(l.direction = 'supports')                         AS flagged_supporting_side,
+  SUM(l.direction IN ('weakens','refutes'))             AS flagged_weakening_side,
+  SUM(c.status = 'confirmed')
+    / NULLIF(SUM(c.status IN ('confirmed','rejected')), 0) AS accuracy,
+  (LEAST(SUM(l.direction = 'supports'),
+         SUM(l.direction IN ('weakens','refutes'))) + 1)
+    / (GREATEST(SUM(l.direction = 'supports'),
+                SUM(l.direction IN ('weakens','refutes'))) + 1) AS side_balance
+FROM fallacy_claims c
+JOIN linkages l ON l.linkage_id = c.linkage_id
+WHERE c.created_by IS NOT NULL
+GROUP BY c.created_by;
+
+
+-- -- Consensus tally view ---------------------------------------
+-- How the application resolves a claim: weighted agree share across the
+-- votes, settled at >= 0.6 either way once at least 3 votes exist. The
+-- same query shape runs for grouping_votes. This is the SQL twin of
+-- resolveConsensus() in src/lib/consensus.ts.
+
+CREATE OR REPLACE VIEW `v_fallacy_claim_tally` AS
+SELECT
+  c.claim_id,
+  c.fallacy_type,
+  c.status,
+  COUNT(v.vote_id)                                    AS vote_count,
+  COALESCE(SUM(v.weight), 0)                          AS total_weight,
+  COALESCE(SUM(CASE WHEN v.agree THEN v.weight END), 0)
+    / NULLIF(SUM(v.weight), 0)                        AS agree_share,
+  CASE
+    WHEN COUNT(v.vote_id) < 3 THEN 'open'
+    WHEN COALESCE(SUM(CASE WHEN v.agree THEN v.weight END), 0)
+      / NULLIF(SUM(v.weight), 0) >= 0.6 THEN 'confirmed'
+    WHEN COALESCE(SUM(CASE WHEN NOT v.agree THEN v.weight END), 0)
+      / NULLIF(SUM(v.weight), 0) >= 0.6 THEN 'rejected'
+    ELSE 'open'
+  END                                                 AS computed_outcome
+FROM fallacy_claims c
+LEFT JOIN fallacy_claim_votes v ON v.claim_id = c.claim_id
+GROUP BY c.claim_id, c.fallacy_type, c.status;
+
+
 -- =================================================================
 -- READ VIEW: full linkage page in a single query
 -- =================================================================
@@ -453,5 +896,55 @@ CREATE TABLE IF NOT EXISTS `score_audit_log` (
 -- 6. Note for SQLite parity: this schema uses MariaDB/MySQL ENUMs
 --    and CHECK constraints. The companion Prisma schema in
 --    prisma/schema.prisma already models the same domain on SQLite
---    (LinkageArgument, LinkageVote, LinkageScoreType). When
---    promoting from SQLite to MariaDB, this file is the target.
+--    (LinkageArgument, LinkageVote, FallacyClaim, FallacyClaimVote,
+--    EquivalenceCandidate, GroupingVote). When promoting from SQLite
+--    to MariaDB, this file is the target.
+--
+-- 7. Fallacy claims never dock a score at filing. The counter-argument
+--    row referenced by counter_arg_id stays in DRAFT until
+--    v_fallacy_claim_tally computes 'confirmed'; only then does the
+--    application publish it and rerun the linkage recompute. Draft and
+--    rejected linkage_arguments rows are excluded from every score
+--    aggregate.
+--
+-- 8. The retraction cascade, end to end (the Wakefield sequence):
+--      UPDATE evidence_records
+--         SET tier = 'T0',
+--             retracted_at = NOW(),
+--             retraction_reason = 'Lancet full retraction: data manipulation',
+--             last_edited_by = 'editor:...'
+--       WHERE evidence_id = 'ev-wakefield-1998';
+--    The trigger writes the evidence_tier_events row and enqueues the
+--    node in score_recompute_queue. The engine worker recomputes the
+--    evidence node's EVS (weight 1.00 → 0.05), then walks every linkage
+--    where it is x_node, recomputes each y_node, and re-enqueues those
+--    nodes' own dependents until the frontier is quiet. Every score
+--    column it touches logs to score_audit_log with the queue reason,
+--    so the answer to "why did this conclusion drop?" is one JOIN away.
+--    The SQLite twin of this flow is PATCH /api/evidence/[id] →
+--    propagateBeliefScores() in src/lib/propagate-belief-scores.ts.
+--
+-- 9. Circular-citation guard: before inserting a linkage where both
+--    endpoints are argument/belief nodes, walk x_node's dependency
+--    chain (linkages where it is the y_node, recursively). If the new
+--    edge's y_node appears, the pair has no independent foundation —
+--    reject the INSERT. The application twin is
+--    wouldCreateCircularCitation() in the arguments POST route.
+--
+-- 10. Grounding recomputation: whenever the engine worker recomputes a
+--    node (draining score_recompute_queue), it also recomputes
+--    grounding_score bottom-up: the direct term from v_direct_grounding,
+--    plus Σ |linkage| × child grounding over argument edges, saturated
+--    as raw / (raw + 1). A node re-entered while still on the walk
+--    stack contributes zero (a ring of claims propping each other up
+--    has no foundation — the scoring twin of note 9). The application
+--    twin is groundingForBelief() in src/lib/grounding.ts, called from
+--    propagateBeliefScores(), so a retraction (note 8) collapses
+--    grounding in the same cascade that collapses EVS: the Wakefield
+--    row falls out of v_front_page's top ranks in the same pass that
+--    zeroes its evidence weight.
+--
+-- 11. Ranking surfaces read v_front_page (or ORDER BY grounding_score
+--    on nodes). Never add engagement columns to make a ranking "work";
+--    principle 7 is load-bearing. The application twin is
+--    GET /api/beliefs?sortBy=grounding.

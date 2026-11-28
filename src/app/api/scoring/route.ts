@@ -5,12 +5,7 @@ import { scoreLikelihoodEstimate } from '@/core/scoring/scoring-engine'
 import {
   calculateConfidenceStabilityScore,
   calculateTruthScoreBreakdown,
-  calculateMediaScores,
-  calculateBeliefEquivalencyScore,
   calculateTopicOverlapScore,
-  aggregateObjectiveCriteriaScores,
-  calculateObjectiveCriteriaScore,
-  inferGenreFromMediaType,
 } from '@/core/scoring/all-scores'
 
 /**

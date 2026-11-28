@@ -20,8 +20,11 @@ import {
  *   specificityMin, specificityMax   — integers in 1..10
  *   intensityMin, intensityMax       — integers in 1..5
  *   category                         — exact-match category string
- *   sortBy                           — 'valence' | 'specificity' | 'intensity' | 'statement' | 'updated' (default 'valence')
- *   sortDir                          — 'asc' | 'desc' (default 'asc' so the default sort goes negative → positive)
+ *   sortBy                           — 'valence' | 'specificity' | 'intensity' | 'statement' | 'updated' | 'grounding' (default 'valence')
+ *                                      'grounding' is the evidence-based ranking: engine-computed
+ *                                      contact with tiered evidence. Engagement is never a ranking input.
+ *   sortDir                          — 'asc' | 'desc' (default 'asc' so the default sort goes negative → positive;
+ *                                      'grounding' defaults to 'desc' so evidence-based ranking reads best-first)
  *   limit                            — max rows to return
  *
  * Response: { beliefs: [&lt;spec shape&gt;] } where each entry follows &sect;1 of the spec
@@ -63,10 +66,14 @@ export async function GET(request: Request) {
     intensity: 'claimStrength',
     statement: 'statement',
     updated: 'updatedAt',
+    grounding: 'groundingScore',
   }
   const sortByKey = sp.get('sortBy') ?? 'valence'
   filters.sortBy = sortByMap[sortByKey] ?? 'positivity'
-  filters.sortDir = sp.get('sortDir') === 'desc' ? 'desc' : 'asc'
+  const sortDirRaw = sp.get('sortDir')
+  const defaultSortDir = sortByKey === 'grounding' ? 'desc' : 'asc'
+  filters.sortDir =
+    sortDirRaw === 'desc' ? 'desc' : sortDirRaw === 'asc' ? 'asc' : defaultSortDir
 
   const limitRaw = parseInt10('limit')
   if (limitRaw !== undefined && limitRaw > 0) {
@@ -86,6 +93,9 @@ export async function GET(request: Request) {
       }),
       parent_topic_id: b.category ?? null,
       slug: b.slug,
+      // Engine-computed: how much of this belief's support bottoms out in
+      // tiered evidence (0 = unfounded). The evidence-based ranking input.
+      grounding_score: b.groundingScore,
     })),
     count: beliefs.length,
   })

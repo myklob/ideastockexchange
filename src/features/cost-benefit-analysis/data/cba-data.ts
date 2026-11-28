@@ -1,5 +1,5 @@
 import { CostBenefitAnalysis, CBALineItem, LikelihoodBelief, LikelihoodEstimate } from '@/core/types/cba'
-import { SchilchtArgument, ProtocolLogEntry } from '@/core/types/schlicht'
+import { SchilchtArgument } from '@/core/types/schlicht'
 import { recalculateCBA } from '@/core/scoring/cba-scoring'
 
 // In-memory store for CBA analyses

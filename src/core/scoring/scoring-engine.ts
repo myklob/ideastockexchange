@@ -41,10 +41,9 @@
  */
 
 import {
-  SchilchtArgument, SchilchtEvidence, SchilchtBelief,
+  SchilchtArgument, SchilchtBelief,
   LinkageDebate, LinkageType,
   LinkageClassification, LinkageDiagnostic, LinkageVote,
-  LINKAGE_CLASSIFICATION_SCORES,
 } from '../types/schlicht'
 import { LikelihoodEstimate, LikelihoodBelief, LikelihoodStatus } from '../types/cba'
 
@@ -107,6 +106,7 @@ export interface ArgumentScoreBreakdown {
 // ─── Evidence Verification Score ────────────────────────────────
 
 const EVIDENCE_TYPE_WEIGHTS: Record<string, number> = {
+  T0: 0.05,  // Retracted / Fraudulent — the foundation is gone, so is the weight
   T1: 1.0,   // Peer-reviewed / Official
   T2: 0.75,  // Expert / Institutional
   T3: 0.5,   // Journalism / Surveys
@@ -133,6 +133,19 @@ export function calculateEVS(input: {
     input.conclusionRelevance *
     input.replicationPercentage
   )
+}
+
+/**
+ * An evidence row's contribution to its belief, on the same 0–100 magnitude
+ * scale as Argument.impactScore: EVS × linkage × 10, clamped to [0, 100].
+ *
+ * A single well-replicated T1 study (EVS ≈ 1–2, linkage ≈ 0.7–0.9) lands in
+ * the 7–18 range, comparable to a solid argument edge; a retracted T0 source
+ * collapses to ≈ 0. Sign is applied by the evidence `side` at aggregation
+ * time, so this stays unsigned.
+ */
+export function computeEvidenceImpactScore(evsScore: number, linkageScore: number): number {
+  return Math.max(0, Math.min(100, evsScore * linkageScore * 10))
 }
 
 // ─── Linkage Score ──────────────────────────────────────────────
@@ -526,14 +539,19 @@ export function scoreProtocolBelief(belief: SchilchtBelief): ScoreBreakdown {
   const proRank = proBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
   const conRank = conBreakdowns.reduce((sum, b) => sum + b.rawImpact, 0)
 
-  // Score evidence
+  // Score evidence. Evidence can weaken as well as support (side defaults to
+  // supporting for legacy items that predate the field).
   let supportingEvidenceScore = 0
   let weakeningEvidenceScore = 0
 
   for (const ev of belief.evidence) {
     const tierWeight = getEvidenceTypeWeight(ev.tier)
     const evidenceImpact = tierWeight * ev.linkageScore
-    supportingEvidenceScore += evidenceImpact
+    if (ev.side === 'weakening') {
+      weakeningEvidenceScore += evidenceImpact
+    } else {
+      supportingEvidenceScore += evidenceImpact
+    }
   }
 
   // PageRank-style belief score: ProRank / (ProRank + ConRank)
@@ -737,12 +755,19 @@ export function calculateArgumentImpact(
  * Used by the recursive propagation system when a child belief's truth score
  * changes and its contribution to parent beliefs must be updated.
  *
- * Formula: sign × childTruthScore × |linkageScore| × importanceScore × 100
+ * Formula: sign × childTruthScore × |linkageScore| × importanceScore × uniqueness × 100
+ *
+ * This is the conclusion-score core: Σ(agree × linkage × uniqueness) −
+ * Σ(disagree × linkage × uniqueness), one term at a time.
  *
  * - sign is +1 for 'agree' arguments, -1 for 'disagree' arguments.
  * - childTruthScore (0–1): how well-supported the child belief is by its own arguments.
  * - |linkageScore| (0–1): abs value used so the side alone controls direction.
  * - importanceScore (0–1): how much this argument moves the probability needle.
+ * - uniquenessScore (0–1): how much new signal the argument adds versus its
+ *   earlier same-side siblings. A 90% restatement contributes ~10% of its
+ *   weight — nobody wins by making one point five different ways. Defaults to
+ *   1 so callers without sibling context (and pre-uniqueness data) are unchanged.
  * - Multiplied by 100 to match the stored scale (e.g. 18.5, 22.1, 12.4).
  * - Rounded to one decimal place to limit floating-point noise.
  */
@@ -751,9 +776,11 @@ export function computeArgumentImpactScore(
   childTruthScore: number,
   linkageScore: number,
   importanceScore: number,
+  uniquenessScore: number = 1,
 ): number {
   const sign = side === 'agree' ? 1 : -1
-  const raw = sign * childTruthScore * Math.abs(linkageScore) * importanceScore * 100
+  const raw =
+    sign * childTruthScore * Math.abs(linkageScore) * importanceScore * uniquenessScore * 100
   return Math.round(raw * 10) / 10
 }
 

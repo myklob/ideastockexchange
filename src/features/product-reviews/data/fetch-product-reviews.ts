@@ -50,12 +50,32 @@ const productReviewInclude = {
       },
     },
   },
-  performanceData: true,
+  performanceData: { orderBy: [{ impact: { sort: 'desc' as const, nulls: 'last' as const } }, { id: 'asc' as const }] },
   tradeoffs: true,
-  alternatives: true,
-  userProfiles: true,
-  awards: true,
-  ecosystemItems: true,
+  alternatives: { orderBy: [{ score: { sort: 'desc' as const, nulls: 'last' as const } }, { id: 'asc' as const }] },
+  userProfiles: { orderBy: [{ score: { sort: 'desc' as const, nulls: 'last' as const } }, { id: 'asc' as const }] },
+  awards: { orderBy: [{ score: { sort: 'desc' as const, nulls: 'last' as const } }, { id: 'asc' as const }] },
+  ecosystemItems: { orderBy: [{ score: { sort: 'desc' as const, nulls: 'last' as const } }, { id: 'asc' as const }] },
+  recommenderInterests: { orderBy: [{ score: { sort: 'desc' as const, nulls: 'last' as const } }, { sortOrder: 'asc' as const }] },
+  ownershipCosts: { orderBy: [{ score: { sort: 'desc' as const, nulls: 'last' as const } }, { sortOrder: 'asc' as const }] },
+  valueItems: { orderBy: [{ score: { sort: 'desc' as const, nulls: 'last' as const } }, { sortOrder: 'asc' as const }] },
+  decisionRules: { orderBy: [{ score: { sort: 'desc' as const, nulls: 'last' as const } }, { sortOrder: 'asc' as const }] },
+  decisionObstacles: { orderBy: [{ score: { sort: 'desc' as const, nulls: 'last' as const } }, { sortOrder: 'asc' as const }] },
+}
+
+/**
+ * CRITERIA BEFORE BRANDS: the criteria for a category apply to every product
+ * in it. Ranked by score, then by importance.
+ */
+export async function fetchCategoryCriteria(categoryType: string) {
+  return prisma.categoryCriterion.findMany({
+    where: { categoryType },
+    orderBy: [
+      { score: { sort: 'desc', nulls: 'last' } },
+      { importance: { sort: 'desc', nulls: 'last' } },
+      { sortOrder: 'asc' },
+    ],
+  })
 }
 
 /** Fetch a product review by slug with all relations */

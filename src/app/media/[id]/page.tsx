@@ -1,11 +1,28 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { fetchMediaById, computeEpistemicImpact, formatReach, getMediaTypeLabel, getMediaTypeEmoji } from '@/features/media/fetch-media'
-import { fetchAllMedia } from '@/features/media/fetch-media'
+import {
+  fetchMediaById,
+  fetchAllMedia,
+  computeEpistemicImpact,
+  resolveMediaTruth,
+  claimSignedTruth,
+  formatReach,
+  formatEpistemicImpact,
+  formatSignedScore,
+  getMediaTypeLabel,
+  getMediaTypeEmoji,
+} from '@/features/media/fetch-media'
 
 function scoreColor(score: number): string {
   if (score >= 0.7) return 'text-green-700'
   if (score >= 0.4) return 'text-orange-600'
+  return 'text-red-700'
+}
+
+/** Signed -1..+1 scale: positive green, balanced orange, negative red. */
+function signedScoreColor(score: number): string {
+  if (score >= 0.2) return 'text-green-700'
+  if (score > -0.2) return 'text-orange-600'
   return 'text-red-700'
 }
 
@@ -25,6 +42,7 @@ export default async function MediaDetailPage({ params }: MediaDetailPageProps) 
   const allMedia = await fetchAllMedia()
   const siblingMedia = allMedia.filter(m => m.belief.id === media.belief.id && m.id !== media.id)
 
+  const mediaTruth = resolveMediaTruth(media)
   const epistemicImpact = computeEpistemicImpact(media)
   const proQuality = (media.qualityArguments || []).filter(a => a.side === 'agree')
   const conQuality = (media.qualityArguments || []).filter(a => a.side === 'disagree')
@@ -115,8 +133,9 @@ export default async function MediaDetailPage({ params }: MediaDetailPageProps) 
                   <td className={`px-3 py-3 border border-gray-300 text-center text-lg font-bold ${scoreColor(media.qualityScore)}`}>
                     {media.qualityScore.toFixed(2)}
                   </td>
-                  <td className={`px-3 py-3 border border-gray-300 text-center text-lg font-bold ${scoreColor(media.truthScore)}`}>
-                    {media.truthScore.toFixed(2)}
+                  <td className={`px-3 py-3 border border-gray-300 text-center text-lg font-bold ${signedScoreColor(mediaTruth.score)}`}>
+                    {formatSignedScore(mediaTruth.score)}
+                    {mediaTruth.basis === 'genre-prior' && '*'}
                   </td>
                   <td className={`px-3 py-3 border border-gray-300 text-center text-lg font-bold ${scoreColor(media.linkageScore)}`}>
                     {media.linkageScore.toFixed(2)}
@@ -124,8 +143,8 @@ export default async function MediaDetailPage({ params }: MediaDetailPageProps) 
                   <td className="px-3 py-3 border border-gray-300 text-center text-lg font-bold">
                     {formatReach(media.reach)}
                   </td>
-                  <td className={`px-3 py-3 border border-gray-300 text-center text-lg font-bold ${scoreColor(media.truthScore)}`}>
-                    {formatReach(epistemicImpact)}
+                  <td className={`px-3 py-3 border border-gray-300 text-center text-lg font-bold ${signedScoreColor(mediaTruth.score)}`}>
+                    {formatEpistemicImpact(epistemicImpact)}
                   </td>
                   <td className="px-3 py-3 border border-gray-300 text-center text-lg font-bold">
                     {media.directnessOfAdvocacy}%
@@ -134,6 +153,91 @@ export default async function MediaDetailPage({ params }: MediaDetailPageProps) 
               </tbody>
             </table>
           </div>
+          <p className="text-xs text-[var(--muted-foreground)] mt-2">
+            <Link href="/algorithms/media-truth-score" className="text-[var(--accent)] hover:underline">
+              Truth Score
+            </Link>{' '}
+            is signed (-1.0 to +1.0):{' '}
+            {mediaTruth.basis === 'claims' ? (
+              <>
+                the centrality-weighted average of the {mediaTruth.scoredClaimCount} scored claim
+                {mediaTruth.scoredClaimCount === 1 ? '' : 's'} in the ledger below.
+              </>
+            ) : (
+              <>
+                * currently the genre prior for &ldquo;{media.genreType === 'unknown' ? media.mediaType : media.genreType}&rdquo; —
+                no claims extracted and linked yet. Epistemic Impact = Truth &times; Reach.
+              </>
+            )}
+          </p>
+        </section>
+
+        <hr className="border-gray-200 mb-8" />
+
+        {/* Claim ledger — the source of the signed Truth Score */}
+        <section className="mb-8">
+          <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2 mb-2">
+            <span>&#x1F9FE;</span> Claim Ledger
+          </h2>
+          <p className="text-sm text-[var(--muted-foreground)] mb-3">
+            The claims this work makes, each linked to the belief page where it is evaluated across{' '}
+            <em>all</em> sources that make it. Signed Truth is that belief&apos;s engine-computed net;
+            Centrality is how central the claim is to this work&apos;s message. The work&apos;s{' '}
+            <Link href="/algorithms/media-truth-score" className="text-[var(--accent)] hover:underline">
+              Media Truth Score
+            </Link>{' '}
+            = &Sigma;(Signed Truth &times; Centrality) / &Sigma;(Centrality).
+          </p>
+          {media.claims.length === 0 ? (
+            <p className="text-sm italic text-[var(--muted-foreground)] border border-gray-300 bg-gray-50 p-3">
+              No claims extracted yet — the score above sits at the genre prior until someone
+              extracts this work&apos;s claims and links them to belief pages.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300 text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="px-3 py-2 text-left font-semibold border border-gray-300 w-[34%]">Claim</th>
+                    <th className="px-3 py-2 text-left font-semibold border border-gray-300 w-[34%]">Evaluated At</th>
+                    <th className="px-3 py-2 text-center font-semibold border border-gray-300">Signed Truth</th>
+                    <th className="px-3 py-2 text-center font-semibold border border-gray-300">Centrality</th>
+                    <th className="px-3 py-2 text-center font-semibold border border-gray-300">Weighted</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {media.claims.map((claim, i) => {
+                    const signed = claimSignedTruth(claim)
+                    return (
+                      <tr key={claim.id} className={i % 2 === 1 ? 'bg-gray-50' : ''}>
+                        <td className="px-3 py-2 border border-gray-300">{claim.claimText}</td>
+                        <td className="px-3 py-2 border border-gray-300">
+                          {claim.belief ? (
+                            <Link href={`/beliefs/${claim.belief.slug}`} className="text-[var(--accent)] hover:underline text-xs">
+                              {claim.belief.statement}
+                            </Link>
+                          ) : (
+                            <span className="text-xs italic text-[var(--muted-foreground)]">
+                              not yet linked — contributes nothing until it is
+                            </span>
+                          )}
+                        </td>
+                        <td className={`px-3 py-2 border border-gray-300 text-center font-mono ${signed != null ? signedScoreColor(signed) : ''}`}>
+                          {signed != null ? formatSignedScore(signed) : ''}
+                        </td>
+                        <td className="px-3 py-2 border border-gray-300 text-center font-mono">
+                          {claim.linkageScore.toFixed(2)}
+                        </td>
+                        <td className={`px-3 py-2 border border-gray-300 text-center font-mono font-semibold ${signed != null ? signedScoreColor(signed) : ''}`}>
+                          {signed != null ? formatSignedScore(signed * claim.linkageScore) : ''}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
 
         <hr className="border-gray-200 mb-8" />
@@ -225,8 +329,9 @@ export default async function MediaDetailPage({ params }: MediaDetailPageProps) 
                           <span className="text-red-700">&#x274C;</span>
                         )}
                       </td>
-                      <td className={`px-3 py-2 border border-gray-300 text-center font-semibold ${scoreColor(s.truthScore)}`}>
-                        {s.truthScore.toFixed(2)}
+                      <td className={`px-3 py-2 border border-gray-300 text-center font-semibold ${signedScoreColor(resolveMediaTruth(s).score)}`}>
+                        {formatSignedScore(resolveMediaTruth(s).score)}
+                        {resolveMediaTruth(s).basis === 'genre-prior' && '*'}
                       </td>
                       <td className="px-3 py-2 border border-gray-300 text-center">
                         {formatReach(s.reach)}

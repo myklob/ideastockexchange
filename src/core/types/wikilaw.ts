@@ -8,8 +8,7 @@ import {
   Assumption,
   Interest,
   CostBenefitItem,
-  TruthAssessment,
-  LinkageScore
+  TruthAssessment
 } from './ise-core';
 
 /**
@@ -365,8 +364,8 @@ export interface LawComparison {
 
   differences: {
     field: string;
-    current: any;
-    proposed: any;
+    current: unknown;
+    proposed: unknown;
     impact: string;
   }[];
 
