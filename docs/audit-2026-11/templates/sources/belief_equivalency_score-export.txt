@@ -1,0 +1,354 @@
+# Template: PBWorks "Belief_equivalency_Score" (page 163582959), the Belief Equivalence Scorecard.
+#
+# NO DRIVE EXPORT OF THIS PAGE EXISTS. Searched Google Drive on 2026-11-22 for: title contains 'quivalen',
+# 'Belief_equivalency', 'Belief_Equivalency', 'belief_equivalency', 'Equivalence_Scorecard', 'equivalence';
+# fullText contains 'Belief Equivalence Scorecard', 'Fast Path Collapse', 'Synonym Convergence',
+# 'Network Position Adjustment', 'Non-Equivalence Triggers'; and listed the PBWorks export folder
+# 1Qr1PlWGHJIo2MaLjS1QT7O5iDnAGRzTH (which holds Topic_Template.html, Belief_Template.html, Template.html, exported
+# 2026-03-12) and the two folders holding "Belief Equivalency Scores.html". Full-text hits were belief_*.html
+# pages and code, not this page. Page id 163582959 is newer than the 2026-03-12 export, which is the likely reason.
+# So the authority used for the compliance matrix is source (2), the live crawl, copied below in full.
+#
+# The one Drive file whose title matches, "Belief Equivalency Scores.html" (1DtWGUjI_kzjTay1HR1CozbjF3y8BWurR,
+# duplicate 1f_I3AXoWZY6p5WQbxNIrNbZZnST0XLZU, modified 2026-03-12, export header page=Belief Equivalency Scores,
+# time=1772325372 = 2026-03-01 UTC), is a DIFFERENT PAGE (163411203, "Belief Equivalency Scores"), and at export time
+# it was not about equivalency scoring at all: it was a copy of the old belief template filled with the heading
+# "Belief: Identifying redundant arguments is required to address the problems of scattered and redundant
+# arguments, and problems that never get solved." Its text, de-escaped, is summarised section by section at the end.
+# The live page at 163411203 is now a third document, the 12-step "Belief Equivalence Engine" explainer
+# (pb/b3-redundancy-equivalence-sorting/05-belief-equivalency-scores.txt).
+
+===================== LIVE CRAWL OF 163582959 (authority for this audit) =====================
+TITLE: Belief_equivalency_Score
+URL: http://myclob.pbworks.com/w/page/163582959/Belief_equivalency_Score
+LAST EDITED: last edited by Mike 8 months ago
+
+===== PAGE TEXT =====
+Belief Equivalence Scorecard
+
+Comparing two beliefs to determine if they should be merged, linked, or kept separate.
+
+Index
+
+⚖️ Step 1: Raw Beliefs Under Comparison
+⚡ Step 2: Fast Path Collapse Test
+📝 Step 3: Normalized Core Claims
+🗺️ Step 4: Semantic Transformation Map
+🔤 Step 5: Synonym Convergence Score
+💪 Step 6: Strength Delta
+🏗️ Step 7: Structural Relationship Classification
+📊 Step 8: Overlap Score
+🚫 Step 9: Non-Equivalence Triggers
+⚔️ Step 10: Argument Battle: Is This Equivalence Real?
+📋 Step 11: Shared vs. Distinct Evidence and Arguments
+🧮 Step 12: Final Equivalence Score
+🏁 Step 13: Verdict and Action
+🕸️ Step 14: Network Position Adjustment
+📜 Step 15: Audit Trail
+🔗 Step 16: Related Pages
+💻 Step 17: Machine-Readable Output
+
+
+
+ 
+
+⚖️ Step 1: Raw Beliefs Under Comparison
+Label	Raw Belief Statement	Source Page
+Belief X	 	 
+Belief Y	 	 
+
+ 
+
+⚡ Step 2: Fast Path Collapse Test
+
+If both beliefs are word-for-word identical after lowercasing and punctuation stripping, skip to Verdict = MERGE.
+
+Check	Result	Auto-Merge?
+Exact match after normalization (lowercase, strip punctuation)	 	 
+Fast path passed?	 	 
+
+ 
+
+📝 Step 3: Normalized Core Claims
+
+Strip hedging, filler, and scope qualifiers. Extract the minimal logical core.
+
+Label	Normalized Statement	Normalization Notes
+Belief X	 	 
+Belief Y	 	 
+
+ 
+
+Normalization Argument Battle:
+
+✅ Normalization is correct because…	❌ Normalization is wrong because…	Score
+ 	 	 
+
+ 
+
+🗺️ Step 4: Semantic Transformation Map
+
+Map each element of Belief X to the corresponding element of Belief Y.
+
+Belief X Element	Belief Y Element	Relationship	Notes
+ 	 	identical / synonym / antonym / different	 
+ 	 	 	 
+ 	 	 	 
+
+ 
+
+🔤 Step 5: Synonym Convergence Score
+
+Formula: average agreement rate across all synonym claims.
+
+Term X	Term Y	Merriam-Webster	Oxford	WordNet	Embedding Model	Agreement Rate
+ 	 	✓ / ✗	✓ / ✗	✓ / ✗	✓ / ✗	 / 4
+ 	 	 	 	 	 	 / 4
+
+ 
+
+Synonym Convergence Score	 %
+
+ 
+
+💪 Step 6: Strength Delta
+
+Measures how much the two beliefs differ in certainty, scope, and causal force.
+
+Dimension	Belief X	Belief Y	Delta (0–1)
+Certainty (absolute vs. probable)	 	 	 
+Scope (universal vs. local)	 	 	 
+Causal Force (necessary vs. contributing)	 	 	 
+Overall Strength Delta:	 
+
+ 
+
+🏗️ Step 7: Structural Relationship Classification
+Classification	Description
+☐ Same claim	Identical or synonym-level semantic content
+☐ Same topic, different claim	Same subject domain but distinct logical assertions
+☐ Subset / superset	One belief is a narrower or broader version of the other
+☐ Different topic	No meaningful semantic overlap
+
+ 
+
+Selected Classification:    
+
+Structural Argument Battle:
+
+✅ Classification is correct because…	❌ Classification is wrong because…	Score
+ 	 	 
+
+ 
+
+📊 Step 8: Overlap Score
+
+Formula: (Subject × 0.25) + (Predicate × 0.35) + (Context × 0.20) + (Mechanism × 0.20)
+
+Dimension	Belief X	Belief Y	Overlap (0–1)
+Subject (who or what) × 0.25	 	 	 
+Predicate (what is claimed) × 0.35	 	 	 
+Context (conditions) × 0.20	 	 	 
+Mechanism (causal path) × 0.20	 	 	 
+Weighted Overlap Score:	 %
+
+ 
+
+🚫 Step 9: Non-Equivalence Triggers
+
+Any checked trigger applies a penalty to the final score.
+
+Trigger	Present? (✓/✗)	Penalty Applied
+Different causal chains (same conclusion, opposite mechanisms)	 	 
+Different supporting evidence (no shared citations)	 	 
+Different foundational assumptions	 	 
+Different policy implications	 	 
+Total Penalty:	 
+
+ 
+
+Trigger Argument Battle:
+
+✅ Triggers correctly identified because…	❌ Triggers incorrectly flagged because…	Score
+ 	 	 
+
+ 
+
+⚔️ Step 10: Argument Battle: Is This Equivalence Real?
+✅ Pro-Equivalence Arguments	Truth	Linkage	Importance	Contribution
+ 	 	 	 	 
+ 	 	 	 	 
+Pro-Equivalence Score:	 
+
+ 
+
+❌ Anti-Equivalence Arguments	Truth	Linkage	Importance	Contribution
+ 	 	 	 	 
+ 	 	 	 	 
+Anti-Equivalence Score:	 
+
+ 
+
+Argument Balance (Pro / (Pro + Anti)):	 %
+
+ 
+
+📋 Step 11: Shared vs. Distinct Evidence and Arguments
+Shared Evidence / Arguments	Unique to Belief X	Unique to Belief Y
+1.
+2.
+3.	1.
+2.	1.
+2.
+
+ 
+
+Evidence / Argument Overlap Rate:	 %
+
+ 
+
+🧮 Step 12: Final Equivalence Score
+
+Equivalence = (0.40 × Synonym Score) + (0.40 × Overlap Score) + (0.20 × Argument Balance) − Penalties
+
+Component	Weight	Score (0–1)	Weighted
+Synonym Convergence Score (Step 5)	0.40	 	 
+Overlap Score (Step 8)	0.40	 	 
+Argument Balance (Step 10)	0.20	 	 
+Network Position Adjustment (Step 14)	±	 	 
+Non-Equivalence Penalties (Step 9)	−	 	 
+Final Equivalence Score:	 %
+
+ 
+
+🏁 Step 13: Verdict and Action
+Score Range	Verdict	Action
+90–100%	🔴 MERGE	Redirect one page to the other; combine all arguments
+75–89%	🟠 MERGE with note	Merge with a footnote explaining the phrasing difference
+50–74%	🟡 LINK only	Add a "similar belief" link; keep both pages separate
+< 50%	🟢 SEPARATE	No action needed; beliefs are distinct
+
+ 
+
+Final Verdict:	 	Canonical Page (if merge):	 	Linkage Score:
+
+ 
+
+Verdict Argument Battle:
+
+✅ Verdict is correct because…	❌ Verdict is wrong because…	Score
+ 	 	 
+
+ 
+
+🕸️ Step 14: Network Position Adjustment
+
+Beliefs that share the same upstream beliefs, downstream beliefs, or evidence cluster are more likely equivalent.
+
+Network Layer	Belief X Items	Belief Y Items	Overlap %	Same Cluster?
+Upstream (parent beliefs)	 	 	 	 
+Downstream (child beliefs)	 	 	 	 
+Evidence (shared citations)	 	 	 	 
+Network Position Adjustment:	 %
+
+ 
+
+📜 Step 15: Audit Trail
+Analyst Type:	human / ai / hybrid	Analyst ID:	 
+Confidence:	high / medium / low	Review Date:	 
+Reviewed By:	 	Trigger Reason:	 
+Revised From:	 	Revision Notes:	 
+
+ 
+
+🔗 Step 16: Related Pages
+Page Type	Link / Title
+Belief X Source Page	 
+Belief Y Source Page	 
+Canonical Page (if merged)	 
+Related Equivalence Analyses	 
+
+ 
+
+💻 Step 17: Machine-Readable Output
+
+JSON schema for programmatic import/export of this equivalence analysis.
+
+{
+  "schema_version": "1.0",
+  "analysis_type": "belief_equivalence",
+  "slug": "",
+  "beliefs": {
+    "x": { "raw": "", "normalized": "", "source": "" },
+    "y": { "raw": "", "normalized": "", "source": "" }
+  },
+  "fast_path": { "passed": false, "auto_merge": false },
+  "synonym_convergence_score": 0,
+  "strength_delta": {
+    "certainty": { "x": "", "y": "", "delta": 0 },
+    "scope":     { "x": "", "y": "", "delta": 0 },
+    "force":     { "x": "", "y": "", "delta": 0 },
+    "overall": 0
+  },
+  "structural_relationship": "same_topic_different_claim",
+  "overlap_score": {
+    "subject": 0, "predicate": 0, "context": 0, "mechanism": 0,
+    "weighted": 0
+  },
+  "non_equivalence_penalties": {
+    "different_causal": 0, "different_evidence": 0,
+    "different_assumptions": 0, "different_policy": 0,
+    "total": 0
+  },
+  "argument_battle": {
+    "pro_score": 0, "anti_score": 0, "balance": 0
+  },
+  "evidence_argument_overlap_rate": 0,
+  "network_adjustment": 0,
+  "final_equivalence_score": 0,
+  "verdict": "separate",
+  "canonical_page": null,
+  "linkage_score": 0,
+  "audit": {
+    "analyst_type": "human",
+    "analyst_id": null,
+    "confidence": "medium",
+    "reviewed_by": null,
+    "review_date": null,
+    "trigger_reason": null
+  }
+}
+
+
+ 
+
+View the full codebase and technical documentation on GitHub.
+
+ 
+
+===== LINKS TO OTHER PBWORKS PAGES =====
+
+
+===================== DRIVE FILE 1DtWGUjI_kzjTay1HR1CozbjF3y8BWurR "Belief Equivalency Scores.html" (page 163411203, 2026-03-01) =====================
+<!-- page=Belief Equivalency Scores --> <!-- time=1772325372 --> <!-- content-type=text/html --> <!-- name=Mike -->
+H1: Belief: Identifying redundant arguments is required to address the problems of scattered and redundant arguments , and problems that never get solved.
+Header box (right-aligned): "Topic: strong-to-weak > spectrums" | "Topic IDs: Dewey: [Number]" | "Belief Positivity Towards Topic: [Scale -100% to +100%]" | "Each section builds a complete analysis from multiple angles. View the full technical documentation on GitHub."
+H1: Argument Trees. "Each reason is a belief with its own page. Scoring is recursive based on truth, linkage, and importance."
+  Table: Top Scoring Reasons to Agree | Argument Score | Linkage Score | Impact ; two blank rows ; "Total Pro:" row
+  Table: Top Scoring Reasons to Disagree | Argument Score | Linkage Score | Impact ; two blank rows ; "Total Con:" row
+H1: Evidence. "All claims need evidence to support them, and all evidence is evaluated for its truth, quality and relevance."
+  Table: Top Supporting Evidence (ID) | Evidence Score | Linkage Score | Type | Contributing Amount ; rows (Type T1)
+  Table: Top Weakening Evidence (ID) | Evidence Score | Linkage Score | Type | Contributing Amount
+H1: Objective Criteria. Table: If True - Value Supporters (Advertised: 1. / Actual: 1.) | If False - Value Opponents (same)
+H1: Core Values Conflict. Table: Supporters & Their Interests | Opponents & Their Interests | Shared Interests | Conflicting Interests
+H1: Conflict Resolution Framework.
+  Table: Required to Accept | Required to Reject | Potential Benefits (Improvements created / Who gains / Positive externalities) | Potential Costs (Problems created / Who loses / Negative externalities)
+  Table: Best Compromise or Solution | Obstacles for Supporters | Obstacles for Opponents
+  Table: Biases for Supporters | Biases for Opponents (Confirmation bias? Motivated reasoning? Availability heuristic?)
+H1: Media Resources. Table: Supporting | Opposing, each Books / Articles / Podcasts / Movies / Songs
+H1: General to Specific / Upstream Support & Downstream Dependencies. (paragraph on chains from abstract values to specific claims)
+  Table: Most General (Upstream) Beliefs That Support This | ... That Oppose This
+  Table: More Specific (Downstream) Beliefs That Support This | ... That Oppose This
+H1: Similar Beliefs (Extreme & Moderate Versions). Table: More Extreme Versions | More Moderate Versions ; row "1. 2." | "1. 2."
+[The reader's text ends here, inside the Similar Beliefs table; the 10,485-byte file is cut off or the reader truncated it.
+ No equivalency score, formula, weight, threshold or scorecard step appears anywhere in it.]

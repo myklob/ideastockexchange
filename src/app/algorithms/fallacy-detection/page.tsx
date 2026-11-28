@@ -136,9 +136,10 @@ export default function FallacyDetectionPage() {
         <Link href="/algorithms/belief-equivalency" className="text-blue-700 hover:underline">belief equivalency</Link>{' '}
         and{' '}
         <Link href="/algorithms/combine-similar-beliefs" className="text-blue-700 hover:underline">merging</Link>{' '}
-        keep one page per claim, a fallacy confirmed once stays confirmed for the whole cluster —
-        nobody resets the debate by opening a fresh thread. Restatements of an argument face the
-        same consolidation: the redundancy scan proposes pairs, the community votes
+        keep one page per claim, an argument merged into its page keeps the fallacy accusations
+        already argued there, so nobody resets the debate by opening a fresh thread. An accusation
+        is attached to one argument and does not yet carry over to a restatement that has not been
+        merged. Restatements reach that page through consolidation: the redundancy scan proposes pairs, the community votes
         (<code className="bg-gray-100 px-1 rounded">POST /api/equivalence-candidates/[id]/votes</code>),
         and 60% agreement groups them while the{' '}
         <Link href="/algorithms/unique-scores" className="text-blue-700 hover:underline">uniqueness discount</Link>{' '}

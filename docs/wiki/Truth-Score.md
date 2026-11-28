@@ -1,45 +1,23 @@
 # Truth Score
 
-A truth score is the number on a belief page that says how far the argument, so far, has moved the claim away from a coin flip. On the published site it runs from 0 to 1, starts at 0.50, and is computed from two flat tables every time the site is built. Nobody types it. Nobody votes it up. It moves only when somebody argues a reason, cites a finding, or shows that a reason already listed is false, beside the point, or a repeat.
+A truth score is the number on a belief page that says how far the argument, so far, has moved the claim away from a coin flip. On the published site it runs from 0 to 1, starts at 0.50 unless the page declares what kind of source backs it, and is computed from two flat tables every time the site is built. Nobody types it. Nobody votes it up. It moves only when somebody argues a reason, cites a finding, or shows that a reason already listed is false, beside the point, or a repeat.
 
-This page began life in 2025 as "Truth Score: Integrating Logical Fallacy and Evidence Verification Scores". That page said the Truth Score combines two measures, a Logical Fallacy Score and an Evidence Verification Score, and sketched a machine-learning fallacy detector. Everything it said is still here. What has changed is that the code now exists, in two engines that do not agree with each other, and the page says for every mechanism what runs, where, with which constants, and what was proposed and never built.
+**The rule that runs, in one minute.** Every row on a page (a reason, a cited finding, a prediction) is worth `sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq`, where `Truth` is the score of the claim the row points at. The page then reads `(POS + w x p0) / (POS + NEG + w)`: the weight for, the weight against, and a starting vote `w` at a starting point `p0` that only evidence can move off 0.50. Four consequences follow, and they are the whole character of the score:
 
-**How to read the labels on this page.** Each mechanism carries one of five statuses: *runs on the published site* (the static site at myklob.github.io, built from `tools/static-site/`), *runs in the Next.js app* (the product in `src/`, which the belief page `/beliefs/[slug]` reads), *proposed, not built*, *replaced* (by a named mechanism), or *refused by design* (the code does the opposite and says why). Every formula is quoted from the file that runs it, with a link. Where a number comes from arithmetic done for this page rather than from the code, it says "calculation". Where it comes from the owner's stated direction rather than from code, it says so.
+1. **A reason nobody has argued is worth exactly nothing.** It sits at 0.50, and `2 x 0.50 - 1 = 0`. Typing in twenty reasons does not move a page.
+2. **A claim listed twice counts once.** The same claim page on the same side of one page counts at its strongest reading, wherever it was filed.
+3. **A conclusion cannot be more settled than a premise it needs.** The score is held to the weakest load-bearing premise that has a page.
+4. **Argument alone never leaves 0.50.** If nothing anywhere in a chain of reasons cites a source, every page in it reads exactly 0.50. A cited finding is what lets a score move at all.
+
+A concrete case, worked in full below: one reason to agree, argued to 0.80 on its own page, moves a belief that cites nothing from 0.50 to 0.615. The same reason argued down to 0.20 moves it to 0.385. Left unargued, it leaves the belief at 0.50.
+
+Where this lives: [`tools/static-site/score_reference.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/score_reference.py) lines 160-174 (the row), 176-196 (counted once, and the split by sign), 237-275 (the page), and [`evidence.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/evidence.py) lines 144-157 (the starting point).
+
+This page began life in 2025 as "Truth Score: Integrating Logical Fallacy and Evidence Verification Scores". That page said the Truth Score combines two measures, a Logical Fallacy Score and an Evidence Verification Score, and sketched a machine-learning fallacy detector. Everything it said is still here, in its own section further down. What has changed is that the code now exists, the published site runs a rule with no fallacy term in it, the unpublished Next.js app runs several other rules, and this page says for every mechanism what runs, where, with which constants, and what was proposed and never built.
+
+**How to read the labels on this page.** Each mechanism carries one of six statuses: *runs on the published site* (the static site at myklob.github.io, built from `tools/static-site/`; this is what readers see), *runs in the Next.js app, not published* (the code in `src/`, whose belief page is `/beliefs/[slug]`; it is not deployed anywhere a reader can reach), *unwired* (code that exists and nothing calls), *proposed, not built*, *replaced* (by a named mechanism), or *refused by design* (the code does the opposite and says why). Every formula is quoted from the file that runs it, with a link and line numbers as of the November 2026 master branch. Where a number comes from arithmetic done for this page rather than from the code, it says "calculation". Where it comes from the owner's stated direction rather than from code, it says so.
 
 Related pages: [[Evidence Verification Score (EVS)]] for the evidence half in full, [[Linkage Scores]] and [[Evidence to Conclusion Relevance Score]] for relevance, [[Confidence Stability Scores]] for how much a score is allowed to count, [[ReasonRank]] and [[ReasonRank: Google's PageRank for Arguments]] for how scores flow through the graph, and [[Quantifying Reason: The Power of Truth Scores]], which is a second draft of this same page with a six-step algorithm and an "alternate explanation"; read it after this one.
-
-## The original framing: two measures
-
-The 2025 page opened like this, and the owner's framing stands:
-
-> The **Truth Score** quantifies the strength of an argument by combining two key measures:
->
-> 1. **Logical Fallacy Score**: evaluates the extent to which an argument relies on logical fallacies.
-> 2. **Evidence Verification Score**: measures how strongly a claim is supported by independent, replicable evidence (e.g., blind studies, scenario comparisons).
->
-> By integrating these scores, we can more accurately assess the rationality and validity of an argument.
-
-And it gave three reasons the pairing matters:
-
-- **Logical integrity**: detect and weigh the use of common fallacies.
-- **Empirical validation**: reward arguments supported by verified data.
-- **Better group decision-making**: stronger foundations for policy, public opinion, and collaboration.
-
-Three things about that framing have moved, and the rest of this page is the detail.
-
-**First, the object.** In both engines the Truth Score is a score of a *page* (a belief or a claim), not of an argument. An argument's strength is a different number: on the published site it is the row's contribution, `sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq` (code: [`score_reference.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/score_reference.py)); in the app it is `impactScore` (code: [`scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts)). "Quantifies the strength of an argument" was the wrong noun.
-
-**Second, the fallacy half.** No module in either engine computes anything called a Logical Fallacy Score; the name appears nowhere in `src/` or `tools/`. The 2025 page linked it to a private Google Sites draft, and no wiki page of that name exists, so the words "Logical Fallacy Score" on this page are plain text. What replaced it: on the published site, a flag that is a question people argue, plus structural checks that move no score (refused by design, with the reason quoted below); in the app, structured fallacy *claims* that are arguments, confirmed by a weighted vote, with a validity ladder that is written and tested but not yet wired to anything.
-
-**Third, the evidence half.** It survived with its name and its table. See [[Evidence Verification Score (EVS)]]. But on the published site evidence is not a multiplier combined with anything; it sets where a page's truth *starts*, and that turns out to be the one thing that lets any score leave 0.50 at all.
-
-**The two halves, printed apart (November 2026).** The published site now shows the original framing as two numbers beside every truth score, on [the list of every page](https://myklob.github.io/ideastockexchange/beliefs/all.html) and at the foot of each belief page. *Logical validity* is the truth rule run on the page's reasons alone, from an even split. *Verification* is the same rule run on what was checked against the world alone: the page's starting point, its findings and its predictions. Neither is a second rule and nothing is averaged: the truth score is the one rule run over all of those rows together, then held to the weakest load-bearing part (code: [`views.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/views.py), `truth_parts`; prose: [method page](https://myklob.github.io/ideastockexchange/beliefs/method.html#parts)). A part with no weight behind it prints in grey, as its starting point. The same list prints a belief's importance (the most valid interest listed on its page) and, for a claim used as a reason, its linkage and importance on each page it supports.
-
-**"Logical integrity: detect and weigh."** Status: partial in the app, refused on the published site. Detection exists in the app as six regular expressions run only on agent-submitted claims, and weighing exists through a community vote; the two are deliberately decoupled, so nothing is weighed until people confirm it (code: [`fallacy-detector.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/agent-ingest/fallacy-detector.ts), [`propagate-belief-scores.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/propagate-belief-scores.ts), which reads only `status: 'published'` rows). The published site detects by phrase list and weighs nothing.
-
-**"Empirical validation: reward arguments supported by verified data."** Status: runs in both engines, differently. Published site: a page that declares its evidence type, replication count and replication agreement starts above or below 0.50 by the prior formula below; a page that declares nothing stays at 0.50 however often it is cited (code: [`evidence.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/evidence.py)). App: each evidence row's EVS is multiplied by a lifecycle weight, `VERIFIED 1.0`, `UNVERIFIED 0.5`, `DISPUTED 0.5`, `FALSIFIED 0.0` (code: `VERIFICATION_SCORES` in [`src/core/reasonrank/types.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/reasonrank/types.ts)), and the Evidence Ledger prints a Standing column plus how many points rest on standing nobody has established (code: [`evidence-exposure.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/evidence-exposure.ts)).
-
-**"Better group decision-making."** The owner's judgment, not a mechanism. The nearest thing in code is the published site's rule that every number is a link to the page that argues it, so a disagreement about a score becomes a disagreement about a specific row that anyone can go and argue.
 
 ## The published site's truth score
 
@@ -47,7 +25,7 @@ This is what myklob.github.io serves. Everything here is from [`score_reference.
 
 ### One formula for every row
 
-Every scored row on every page, whether it is a reason, a cited finding or a prediction, contributes exactly this to the page above it (code: `Model._contrib`):
+Every scored row on every page, whether it is a reason, a cited finding or a prediction, contributes exactly this to the page above it (code: `Model._contrib`, `score_reference.py:160-174`; the renderer's copy, `Corpus.row` in `render_site.py:176-187`, is checked against it on every render):
 
 ```
 row contribution = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq
@@ -55,10 +33,10 @@ row contribution = sign x (2 x Truth - 1) x Confidence x Link x Imp x Uniq
 
 - `sign` is +1 for a row filed on the agree side and -1 for the disagree side.
 - `Truth` is the truth score of the row's own page (the claim it cites).
-- `Confidence` is how much that page has earned the right to count, in [0, 1], from [`confidence.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/confidence.py). A row whose claim has no page of its own gets confidence 0.0 and contributes nothing.
+- `Confidence` is how much that page has earned the right to count, in [0, 1], from [`confidence.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/confidence.py). A row whose claim has no page of its own gets confidence 0.0 and contributes nothing (`score_reference.py:172`).
 - `Link`, `Imp`, `Uniq` are the truth scores of the row's linkage, importance and uniqueness pages, each of which is itself an argued page with reasons for and against.
 
-A multiplier with no page reads a labelled constant (code: the `CONSTS` line):
+A multiplier with no page reads a labelled constant (code: `CONSTS`, `score_reference.py:34`):
 
 | Constant | Value | What it presumes |
 |---|---|---|
@@ -72,11 +50,13 @@ Each constant is shown in grey on the page, so a reader can see which factors ar
 
 `DEFLINK = 1` is the owner's direction on linkage built as a default: start trusting, and lower a link as people show a reason is unrelated or invalid. The owner's stated view is that any sensible starting guess is acceptable (the contributor's record, topic relatedness, an AI estimate, or 0.5 where tokens are short); the site uses 1.
 
+Opening a linkage or uniqueness page moves nothing by itself. A linkage or uniqueness page that cites nothing starts at 1.0, the same value a row with no such page reads, so the row keeps its full weight until somebody argues on that page (`FACTOR_START`, `evidence.py:103-106`, applied at `evidence.py:155-156`). It used to start at 0.5, which halved a row the moment anyone opened its relevance question. An importance page is the exception to the page rule: it reads the largest `Validity x Bears` among the interests it lists, and 0.50 when it lists none (`score_reference.py:246-249`).
+
 ### Why the (2 x Truth - 1) is there
 
-Truth enters on the -1 to +1 scale, which does two things at once (code: the `_contrib` docstring).
+Truth enters on the -1 to +1 scale, which does two things at once (code: the `_contrib` docstring, `score_reference.py:161-169`).
 
-A claim argued *false* counts **against** the side it was filed on. Ten refuted reasons to agree weaken the belief instead of padding it. The site's `_split` function puts each row on the side its sign lands on, not the side it was filed on, so a refuted objection counts as support and a refuted reason counts against.
+A claim argued *false* counts **against** the side it was filed on. Ten refuted reasons to agree weaken the belief instead of padding it. The site's `_split` function (`score_reference.py:190-196`) puts each row on the side its sign lands on, not the side it was filed on, so a refuted objection counts as support and a refuted reason counts against.
 
 A claim nobody has argued sits at `UNARG = 0.5`, and `2 x 0.5 - 1 = 0`. **Listing a claim is worth exactly nothing until it is argued.** That is the anti-padding rule, and it is why a page cannot be gamed by typing in twenty reasons.
 
@@ -91,19 +71,21 @@ truth (published)   = min(argued, weakest load-bearing component that has its ow
 belief score        = POS - NEG            (open-ended)
 ```
 
-`p0` and `w` are where the page starts and how heavily, from what the page says it rests on (next section). A page that cites nothing has `p0 = 0.5` and `w = K = 1`, the neutral vote the rule always had.
+`p0` and `w` are where the page starts and how heavily, from what the page says it rests on (next section). A page that cites nothing has `p0 = 0.5` and `w = K = 1`, the neutral vote the rule always had. Where this lives: `_share` at `score_reference.py:152-155`, the page at `score_reference.py:259-273`.
+
+**A claim listed twice counts once.** If the same claim page appears more than once on one page and one side, as two reasons, or as a reason and again as evidence, only its strongest reading counts (`Model._once`, `score_reference.py:176-188`, used at `:261`). Listing one claim five times weighs exactly what listing it once does, and the result does not depend on row order. The repeats still print on the page, at +0.00, so the table adds up, and the Structural Checks panel names them ("The same page listed more than once", `integrity.py:42`). The count-every-reason rule below does the same (`tally.py:48-57`).
 
 Continuing the calculation: with `POS = 0.30`, `NEG = 0`, `p0 = 0.5`, `w = 1`, the belief reads `(0.30 + 0.5) / (0.30 + 0 + 1) = 0.615`. With the reason refuted, `(0 + 0.5) / (0 + 0.30 + 1) = 0.385`. With the reason unargued, `0.5 / 1 = 0.50`. One reason moves a page part of the way, never to certainty, because the starting vote is always in the denominator.
 
-**The load-bearing cap.** A page may list components it needs to be true and mark some of them load-bearing (the `lb` flag on the Logical Anatomy table, typed by the author). A conclusion cannot be more settled than a premise it cannot survive without, so the published truth is the smaller of what the rows argue and the weakest such premise that has a page. It is a minimum, not a replacement: a premise better established than the conclusion leaves it alone, and a premise with no page caps nothing (code: `Model.evaluate`; prose: [method page](https://myklob.github.io/ideastockexchange/beliefs/method.html#formula)). The wiki's Necessity Score under [[Assumptions]], an argued number for how much a conclusion needs each premise, is not computed; this one typed flag does that job.
+**The load-bearing cap.** A page may list components it needs to be true and mark some of them load-bearing (the `lb` flag on the Logical Anatomy table, typed by the author). A conclusion cannot be more settled than a premise it cannot survive without, so the published truth is the smaller of what the rows argue and the weakest such premise that has a page. It is a minimum, not a replacement: a premise better established than the conclusion leaves it alone, and a premise with no page caps nothing (code: `score_reference.py:269-270`; prose: [method page](https://myklob.github.io/ideastockexchange/beliefs/method.html#formula)). The wiki's Necessity Score under [[Assumptions]], an argued number for how much a conclusion needs each premise, is not computed; this one typed flag does that job.
 
-**What is deliberately not in the formula.** No fallacy term. No vote. No source-quality multiplier on the row (source quality belongs to the claim, so it sets where the claim's own page starts, and putting it on the edge as well would count it twice). Arguments, evidence and predictions all go through the one formula into one share: `pos, neg = _split(args + evid + preds)`.
+**What is deliberately not in the formula.** No fallacy term. No vote. No source-quality multiplier on the row (source quality belongs to the claim, so it sets where the claim's own page starts, and putting it on the edge as well would count it twice). Arguments, evidence and predictions all go through the one formula into one share: `pos, neg = _split(args + evid + preds)` (`score_reference.py:267`).
 
 ### Where a page starts, and why it has to start somewhere
 
 This is the part that is easy to skip and is load-bearing. The docstring of [`evidence.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/evidence.py) works it out: a row contributes `(2 x Truth - 1)`, so a claim at 0.50 contributes nothing; a page with no rows reads 0.50; so every page whose rows all point at such pages also reads 0.50; and by induction **every page of any finite argument graph in which nothing is cited reads exactly 0.50 forever.** Run the scorer on a chain of a thousand claims with confidence forced to 1 and every one of them is 0.50. Argument about argument never touches the world.
 
-[`test_engines.py::test_argument_alone_can_never_leave_the_neutral_point`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/test_engines.py) pins this for unsourced chains of 2, 5 and 40 pages. If it ever fails, something has been added that lets a score move without evidence, and that needs a reason, not a fix to the test.
+[`test_engines.py::test_argument_alone_can_never_leave_the_neutral_point`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/test_engines.py) (line 43) pins this for unsourced chains of 2, 5 and 40 pages. If it ever fails, something has been added that lets a score move without evidence, and that needs a reason, not a fix to the test.
 
 The way out is evidence. A page may declare three typed fields, `etype`, `erq` and `erp`, and they set where its truth starts:
 
@@ -117,13 +99,13 @@ weight  w  = k x replication(ERQ),   replication(n) = 2n / (n + 1),   REP_CAP = 
 truth      = (POS + w x p0) / (POS + NEG + w)
 ```
 
-Defaults when a field is absent: `erq 1`, `erp 100`, and `ESIW = NOSOURCE = 0.0` when no type is named, so a page that declares nothing returns exactly `(0.5, k)`.
+Defaults when a field is absent: `erq 1` (also when it is below 1), `erp 100` (and any `erp` is held to 0..100), and `ESIW = NOSOURCE = 0.0` when no type is named, so a page that declares nothing returns exactly `(0.5, k)`. Where this lives: `classify` at `evidence.py:124-141`, `prior` at `evidence.py:144-157`, `replication` at `evidence.py:109-113`, `NOSOURCE` and `REP_CAP` at `evidence.py:99-101`.
 
 Read it at its corners (calculation, matching the file's own examples). A published statistic (ESIW 0.90) that every replication confirms starts at `0.5 + 0.5 x 0.90 x 1 = 0.95`; the same statistic contradicted by every replication starts at 0.05. The strongest source in the table weighs 0.90, so `p0` is confined to [0.05, 0.95] and evidence alone never drives a claim to certainty; the last twentieth takes an argument on a page. An eyewitness account (0.20) confirmed starts at 0.60 and contradicted at 0.40. Anything at half agreement starts at 0.50 whatever its tier, because a contested literature has established nothing.
 
 The weight line: `replication(1) = 1.00`, `replication(2) = 1.33`, `replication(3) = 1.50`, `replication(10) = 1.82`, limit 2.00. A prior backed by four replications takes more arguing to shift than one backed by a single paper, but it is bounded at twice `k`, so no pile of replications puts a claim beyond argument. At `k = 1` even the strongest prior is within reach of a single well-argued objection. Evidence opens the question; it does not close it.
 
-**The tiers.** The sixteen rows are the wiki's table from [[Evidence Verification Score (EVS)]], in its order, with its weights, plus one marked addition (code: the `ESIW` dict):
+**The tiers.** The sixteen rows are the wiki's table from [[Evidence Verification Score (EVS)]], in its order, with its weights, plus one marked addition (code: the `ESIW` dict, `evidence.py:79-98`):
 
 | Key | ESIW | Wiki rank | What it covers |
 |---|---|---|---|
@@ -150,13 +132,13 @@ Two notes an auditor should have, from the file: the wiki gives rank 2 as one ba
 
 "Blind studies" and "scenario comparisons", the examples the 2025 page gave, are not tiers in either engine. A blind study would be filed as `rct`; the nearest thing to a scenario comparison is a testable prediction, which scores through the same row formula (see Falsifiability below).
 
-**The wiki's own EVS is still printed.** `evs(row, ecrs) = ESIW x ECRS x ERQ x (ERP/100)`, with the row's linkage score standing in for ECRS, is computed for every finding and summed under every Evidence Ledger, and no score reads it ([method page, EVS](https://myklob.github.io/ideastockexchange/beliefs/method.html#evs)). It is unbounded on purpose and good at the one thing a bounded score cannot show: a page whose Overall EVS is 30 rests on a body of replicated work, and a page whose Overall EVS is 0.4 rests on one uncorroborated claim. It is also why it is not used for scoring: a sum that grows with every finding listed is the padding the site exists to stop.
+**The wiki's own EVS is still printed.** `evs(row, ecrs) = ESIW x ECRS x ERQ x (ERP/100)` (`evidence.py:160-164`), with the row's linkage score standing in for ECRS, is computed for every finding and summed under every Evidence Ledger, and no score reads it ([method page, EVS](https://myklob.github.io/ideastockexchange/beliefs/method.html#evs)). It is unbounded on purpose and good at the one thing a bounded score cannot show: a page whose Overall EVS is 30 rests on a body of replicated work, and a page whose Overall EVS is 0.4 rests on one uncorroborated claim. It is also why it is not used for scoring: a sum that grows with every finding listed is the padding the site exists to stop.
 
 **Where this meets the owner's direction.** The owner prefers an evidence weight with no ceiling, so a body of replicated work can outweigh opinion by 15 or 200 times. The scoring prior above is bounded (weight at most `2k`, `p0` within [0.05, 0.95]). The uncapped rule is built next door, in the tally below, which is printed beside the truth score precisely so the two can be compared on real pages before either one leads.
 
 ### Counting every reason until it is argued down
 
-Status: runs on the published site, printed beside the truth score, read by no other number. Code: [`tally.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/tally.py); prose: [method page, tally](https://myklob.github.io/ideastockexchange/beliefs/method.html#tally).
+Status: runs on the published site, printed beside the truth score, read by no other number. Code: [`tally.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/tally.py) lines 30-66; prose: [method page, tally](https://myklob.github.io/ideastockexchange/beliefs/method.html#tally); the beliefs where the two rules differ most: [Where the two rules disagree](https://myklob.github.io/ideastockexchange/beliefs/compare.html).
 
 The owner's direction (October 2026) is that for belief strength you start from the quantity of truly independent reasons to agree and disagree, rank how valid they are against each other, and let the weight of pro against con decide; that a contribution counts from the moment it is posted and is argued down from there, because a rule under which work counts for nothing until someone proves it tells contributors their effort is wasted; and that evidence may weigh more than any argument, without a ceiling. The owner also said to change the inputs and see whether volume counts. So this is published next to the argued score rather than instead of it:
 
@@ -167,7 +149,9 @@ independent reasons on a side      the sum of Uniqueness over its reasons
 share for                          (weight for + w x p0) / (weight for + weight against + w)
 ```
 
-What it keeps from the argued rule: every factor is read from a page or a labelled constant, so a reason argued false (Truth near 0) weighs nearly nothing and a duplicate argued redundant (Uniqueness near 0) adds nearly nothing. What it drops: the `(2 x Truth - 1)` that makes an unargued reason worth exactly zero, and the confidence gate that zeroes a row with no work behind it. Those two are why most argued truth scores in the corpus read 0.50. A vote enters neither rule. On a belief page it appears in "What the numbers are made of" as "Counting every reason until it is argued down: N% for, starting from the same even split as the truth score: X independent reasons for and Y against, findings weighing A for and B against" (on a page that declares what it rests on, the line names that starting point instead, for example "starting where the truth score starts, at 0.95 because of what the page rests on") (code: [`render_site.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/render_site.py)).
+What it keeps from the argued rule: every factor is read from a page or a labelled constant, so a reason argued false (Truth near 0) weighs nearly nothing and a duplicate argued redundant (Uniqueness near 0) adds nearly nothing. What it drops: the `(2 x Truth - 1)` that makes an unargued reason worth exactly zero, and the confidence gate that zeroes a row with no work behind it. Those two are why most argued truth scores in the corpus read 0.50. A vote enters neither rule. On a belief page it appears in "What the numbers are made of" as "Counting every reason until it is argued down: N% for, starting from the same even split as the truth score: X independent reasons for and Y against, findings weighing A for and B against" (on a page that declares what it rests on, the line names that starting point instead, for example "starting where the truth score starts, at 0.95 because of what the page rests on") (code: [`render_site.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/render_site.py) lines 758-768). A page with nothing listed on either side prints no share at all (`tally.py:63-64`).
+
+What the two rules say today (calculation, from a build of `content/` on 27 November 2026, 245 beliefs): under the argued truth score 183 beliefs read exactly 0.50, 12 read above and 50 below, and 52 beliefs that argue above 0.50 on their own rows are held at or below it by a load-bearing premise. Under the count-every-reason rule 87 read above 0.50, 43 below, 114 at 0.50, and 1 lists nothing. The gap between those two columns is the volume question, made visible.
 
 Choices of action are a different question in the owner's direction, answered by cost and benefit across every stakeholder with a legitimate interest, counting the quantity and the quality of interests met, under different assumptions about which interests are valid. That is the cost-benefit section of each page ([method page, costs and benefits](https://myklob.github.io/ideastockexchange/beliefs/method.html#cba)), not this score.
 
@@ -175,7 +159,7 @@ Choices of action are a different question in the owner's direction, answered by
 
 Status: runs on the published site. Code: [`confidence.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/confidence.py); prose: [method page, confidence](https://myklob.github.io/ideastockexchange/beliefs/method.html#confidence); wiki page: [[Confidence Stability Scores]].
 
-Confidence multiplies what a page passes to the page above it. At 0 a claim moves its parent not at all, however true it looks. It is deliberately **not** a cap on the page's own truth: truth is what the arguments say; confidence is how much to bet on it. Seven structural components, weighted, renormalised over whichever apply to the page's shape:
+Confidence multiplies what a page passes to the page above it. At 0 a claim moves its parent not at all, however true it looks. It is deliberately **not** a cap on the page's own truth: truth is what the arguments say; confidence is how much to bet on it. Seven structural components, weighted, renormalised over whichever apply to the page's shape (`STRUCTURAL`, `confidence.py:30-38`; computed at `confidence.py:93-128`):
 
 | Component | Weight | What it measures |
 |---|---|---|
@@ -187,30 +171,66 @@ Confidence multiplies what a page passes to the page above it. At 0 a claim move
 | sourcing | 0.05 | Half for citing a source at all, half for saying what kind |
 | testability | 0.05 | Predictions that are dated and have a linkage page |
 
-The wiki also lists seven behavioural signals (up and down votes, weekly visitors, dwell time, edit frequency, duplicate submission attempts, evaluation responses, score variance over time). A published corpus has one snapshot and no users, so all seven carry weight 0 and are reported as "no data" rather than scored as 0. Bands: `established 0.75`, `developing 0.45`, `early 0.15`.
+The wiki also lists seven behavioural signals (up and down votes, weekly visitors, dwell time, edit frequency, duplicate submission attempts, evaluation responses, score variance over time). A published corpus has one snapshot and no users, so all seven carry weight 0 and are reported as "no data" rather than scored as 0 (`BEHAVIOURAL`, `confidence.py:39-40`). Bands: `established 0.75`, `developing 0.45`, `early 0.15` (`confidence.py:48`).
 
 ### Votes are shown and never scored
 
-Status: runs on the published site; the owner's direction, built. A vote recorded through the GitHub issue forms lands in `content/votes.csv` and is shown on the heading line after the score badge with the words "votes, not a score" (code: [`intake.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/intake.py), [`render_site.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/render_site.py)). Once three people have voted on a claim, the home page ranks "Votes vs the analysis" by how far the vote share sits from the truth score ([lists page, votes](https://myklob.github.io/ideastockexchange/beliefs/lists.html#votes)). The owner's direction: votes may decide what is promoted and given attention, never what is valid, and the gap between the two is worth showing because it says where people need more time with the argument.
+Status: runs on the published site; the owner's direction, built. A vote recorded through the GitHub issue forms lands in `content/votes.csv`. Every page's heading line carries a thumb up and a thumb down with their counts; once anyone has voted it adds a "who voted" link, and once `MIN_VOTERS = 3` people have voted it adds the line "N% of voters agree vs a truth score of T, gap G" (code: `vote_links`, [`render_site.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/render_site.py) lines 1908-1925; `MIN_VOTERS` at `render_site.py:2111`). A second pair of thumbs, "Bears on this", asks whether a row's claim bears on the page it is filed under, and is kept apart from votes on whether the claim is true. The intake script answers every vote with `NO_MOVE`: "A vote never moves a score; the page shows it next to what the analysis says, as what people think." (`intake.py:146`). Once three people have voted on a claim, the home page ranks "Votes vs the analysis" by how far the vote share sits from the truth score ([lists page, votes](https://myklob.github.io/ideastockexchange/beliefs/lists.html#votes)). The owner's direction: votes may decide what is promoted and given attention, never what is valid, and the gap between the two is worth showing because it says where people need more time with the argument.
 
 ### What else a belief page prints beside its truth score
 
 None of these moves the score; each tells the reader what the number is made of.
 
-- **What would change the answer.** Every claim beneath a page is held at false and then at true, one at a time, and the whole graph recomputed, to `DEPTH = 6` levels; the flip point where a page crosses `FLIP = 0.5` is found by bisection to `STEPS = 16` places; an input that moves a page by less than `INERT = 0.005` is reported as inert (code: [`sensitivity.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/sensitivity.py); [method page](https://myklob.github.io/ideastockexchange/beliefs/method.html#sensitivity)).
+- **What would change the answer.** Every claim beneath a page is held at false and then at true, one at a time, and the whole graph recomputed, to `DEPTH = 6` levels; the flip point where a page crosses `FLIP = 0.5` is found by bisection to `STEPS = 16` places; an input that moves a page by less than `INERT = 0.005` is reported as inert (code: [`sensitivity.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/sensitivity.py), constants at lines 37-41; [method page](https://myklob.github.io/ideastockexchange/beliefs/method.html#sensitivity)).
 - **Relied on.** The ReasonRank walk, which asks how much of the corpus depends on a page and deliberately ignores its truth ([method page](https://myklob.github.io/ideastockexchange/beliefs/method.html#reasonrank); see [[ReasonRank]]).
 - **Structural Checks** and **possible fallacies**, in the fallacy section below.
-- **Scoring Engine** table: every quantity, its value, and how, with a line "Truth score: argued truth, capped by the weakest load-bearing component that has its own page", plus the page's numbers as a downloadable JSON.
+- **Scoring Engine** table: every quantity, its value, and how. Its "Truth score, argued" row reads "(positive + weight x starting point) / (positive + negative + weight)" and its "Truth score" row reads "argued truth, capped by the weakest load-bearing component that has its own page". The page's numbers are also a downloadable JSON beside it.
+- **The two parts of the truth score.** Logical validity is the truth rule run on the page's reasons alone, from an even split; verification is the same rule run on the page's starting point, findings and predictions alone (`truth_parts`, [`views.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/views.py) lines 28-48). Neither is averaged into the score. They are there so a reader can see whether the argument or the evidence is carrying the page.
 
-A page to see all of this on: [Barring members of Congress and the president from owning or trading individual stocks](https://myklob.github.io/ideastockexchange/beliefs/p/barring-members-congress-president.html), under the topic [Government ethics](https://myklob.github.io/ideastockexchange/beliefs/t/government-ethics.html).
+A page to see all of this on: [Barring members of Congress and the president from owning or trading individual stocks](https://myklob.github.io/ideastockexchange/beliefs/p/barring-members-congress-president.html), under the topics [Government ethics](https://myklob.github.io/ideastockexchange/beliefs/t/government-ethics.html) and [Public office and private gain](https://myklob.github.io/ideastockexchange/beliefs/t/public-office-private-gain.html). In the 27 November 2026 build its rows argue it to 0.68 (positive total 0.97, negative total 0.20, belief score +0.78), and it reads 0.50, because two of its three load-bearing premises have not been argued off 0.50. Its count-every-reason line reads 62% for. Its two parts read logical validity 0.51 and verification 0.68: the findings are doing nearly all the work. One of its objections, "A qualified blind trust already removes an official's knowledge of and control over individual holdings", has been argued down to 0.44, so it now counts a little in the belief's favour, which is the sign rule at work on a real page.
 
-## The Next.js app's truth score
+## The Next.js app's truth scores (not published)
 
-The app in `src/` has two truth numbers, which is one more than it should have. Both are from `src/core/scoring/`.
+The app in `src/` is not deployed anywhere a reader can reach; everything in this section runs only when someone runs the app locally. It has more than one truth number, and they are not the same rule. Its belief page `/beliefs/[slug]` shows two of them and computes a third that it never shows. A fourth runs on the app's `/protocol` demo, and a fifth is unwired.
 
-### The two-channel average on the belief page
+### The headline on the belief page: the pro share of argument impact
 
-Status: runs in the Next.js app. Code: `calculateTruthScoreBreakdown` in [`all-scores.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/all-scores.ts), called from [`fetch-belief.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/features/belief-analysis/data/fetch-belief.ts).
+Status: runs in the Next.js app, not published. Code: `headlineTruth = truthShare(scores.totalPro, scores.totalCon)` in [`src/app/beliefs/[slug]/page.tsx`](https://github.com/myklob/ideastockexchange/blob/master/src/app/beliefs/%5Bslug%5D/page.tsx) line 84; `truthShare` in [`src/core/scoring/contrast-class.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/contrast-class.ts) lines 52-56; the totals in [`fetch-belief.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/features/belief-analysis/data/fetch-belief.ts) lines 348-349.
+
+```
+totalPro, totalCon  = sums of |impactScore| over the arguments filed agree, and filed disagree
+headline truth      = totalPro / (totalPro + totalCon)          blank when both are 0
+```
+
+This is the only number above the arguments, and it is blank until something is scored, as the belief page rules require. Two things about it differ from the published site. Evidence does not enter it at all. And each argument counts on the side it was filed on, by the size of its impact, so a reason to agree that has been argued nearly false still adds to the agree side, only less.
+
+Each argument's `impactScore` is written by the propagation step whenever a belief changes (`computeArgumentImpactScore`, [`scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts) lines 774-785, called from [`propagate-belief-scores.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/propagate-belief-scores.ts) line 376):
+
+```
+impactScore = sign x childTruth x |Link| x Imp x Uniq x 100,   rounded to one decimal
+childTruth  = the child belief's importance-weighted pro share, 0.5 when it has no arguments
+```
+
+`childTruth` is never negative, so `sign` alone decides the side, and a child nobody has argued enters at 0.5 (`fetch-belief.ts:396-404`, read at `propagate-belief-scores.ts:307`). That is why listing an unargued reason raises this score.
+
+### The scorecard: "Truth (net)" and "Logical validity"
+
+Status: runs in the Next.js app, not published. Code: `computeBeliefScores` in [`fetch-belief.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/features/belief-analysis/data/fetch-belief.ts) lines 343-496, rows printed by [`ScorecardSection.tsx`](https://github.com/myklob/ideastockexchange/blob/master/src/features/belief-analysis/components/ScorecardSection.tsx) lines 85-86.
+
+"What the numbers are made of", at the back of the page, prints twelve figures. Two are truth figures:
+
+```
+Truth (net)         = (totalPositive - totalNegative) / (totalPositive + totalNegative) x 100,   0 with nothing
+                      totalPositive = totalPro + supporting evidence |impactScore| x verificationWeight
+                      totalNegative = totalCon + weakening evidence |impactScore| x verificationWeight
+Logical validity    = LV from calculateTruthScoreBreakdown, below
+```
+
+`verificationWeight` is `VERIFIED 1.0`, `UNVERIFIED 0.5`, `DISPUTED 0.5`, `FALSIFIED 0.0`, and 1 for a row with no status on record (`fetch-belief.ts:336-341`; the weights are `VERIFICATION_SCORES` in [`src/core/reasonrank/types.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/reasonrank/types.ts)).
+
+### The two-channel average, computed and not shown
+
+Status: runs in the Next.js app, not published; its overall figure is discarded. Code: `calculateTruthScoreBreakdown` in [`all-scores.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/all-scores.ts) lines 268-355, called at `fetch-belief.ts:382-389`.
 
 This is the one that kept the 2025 page's shape: a logical half and a verification half, averaged.
 
@@ -229,15 +249,15 @@ Overall
   clamped to [0.01, 0.99]
 ```
 
-Two things the belief page passes in matter. Each argument's `truthScore` is `|impactScore| / 100`, clamped to [0, 1]. And **no `fallacyPenalty` is passed**, so on every live belief page the logical half is the pro share of argued weight, full stop; the only caller that passes a penalty is `/api/scoring`, from in-memory demo data (code: [`src/app/api/scoring/route.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/app/api/scoring/route.ts)).
+`computeBeliefScores` keeps `logicalValidityScore` and `verificationTruthScore` and drops `overallTruthScore` (`fetch-belief.ts:480-481`), so the average this section describes is not printed anywhere on the belief page; only LV reaches the scorecard. The belief page passes each argument's `truthScore` as `|impactScore| / 100`, clamped to [0, 1], and passes **no `fallacyPenalty`** (`fetch-belief.ts:382-389`), so on every belief page the logical half is the pro share of argued weight, full stop. The only caller that passes a penalty is `/api/scoring`, from in-memory demo data ([`src/app/api/scoring/route.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/app/api/scoring/route.ts) line 31).
 
-The code's own comment records the bug it replaced: LV used to average every argument's weight regardless of side, so a well-argued objection raised a belief's logical validity by as much as an equally well-argued reason for it; one strong con took a belief from 0.600 to 0.775. It now takes the pro share, which is what the evidence half of the same function and `scoring-engine.ts` already did.
+The code's own comment (`all-scores.ts:285-293`) records the bug it replaced: LV used to average every argument's weight regardless of side, so a well-argued objection raised a belief's logical validity by as much as an equally well-argued reason for it; one strong con took a belief from 0.600 to 0.775. It now takes the pro share, which is what the evidence half of the same function and `scoring-engine.ts` already did.
 
 Calculation. Two pro arguments at 0.7 and 0.5 and one con at 0.8 give `LV = 1.2 / 2.0 = 0.60`. One supporting finding with EVS 0.9 and linkage 0.8 (0.72) against one weakening finding with EVS 0.3 and linkage 0.5 (0.15) gives `V = 0.72 / 0.87 = 0.828`. Overall `(0.60 + 0.828) / 2 = 0.714`.
 
-### The engine's belief score
+### The protocol demo's belief score
 
-Status: runs in the Next.js app. Code: `scoreBelief` in [`scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts).
+Status: runs in the Next.js app, not published, on the `/protocol` demo (`src/features/epistemology/data/schlicht-data.ts:431`, `:454`) and `/api/protocol/[id]/linkage` (line 132). Code: `scoreProtocolBelief` in [`scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts) lines 532-600, with `scoreArgument` at lines 430-512.
 
 ```
 rawImpact(arg)      = ReasonRank x linkage x importance x uniqueness
@@ -248,15 +268,19 @@ evidenceNet         = supporting - weakening
 truthScore          = clamp(0.01, 0.99, baseTruth + (evidenceNet / evidenceCount) x 0.2)
 ```
 
-Evidence here can move the score by at most 0.2 either way. And this engine does **not** share the published site's zero rule: it scores `A / (A + D)` over argument strengths, so listing an unargued reason there does raise the score. CLAUDE.md records this as open decision 1: the two engines disagree about whether volume counts, the disagreement is unresolved rather than accidental, and the owner's direction is to settle it by comparing them on real pages.
+Evidence here can move the score by at most 0.2 either way (`scoring-engine.ts:569-574`). And this engine does **not** share the published site's zero rule: it scores `A / (A + D)` over argument strengths, so listing an unargued reason there does raise the score. CLAUDE.md records this as open decision 1: the two engines disagree about whether volume counts, the disagreement is unresolved rather than accidental, and the owner's direction is to settle it by comparing them on real pages. How `scoreArgument` folds sub-arguments into `ReasonRank` (a 0.15 / 0.85 damped blend) is on [[Argument Scores from Sub-Argument Scores]].
 
-The same function also returns a confidence interval: `baseCI = 0.15`, `argFactor = max(0.3, 1 - totalArgs x 0.03)`, `balanceFactor = 1 - argBalance x 0.5` where `argBalance = |proRank - conRank| / (proRank + conRank)`, product clamped to [0.02, 0.2]. That is the only "confidence interval" in the product, and it is a belief metric; it has nothing to do with fallacies, despite the 2025 page's step 7 (below).
+The same function also returns a confidence interval (`scoring-engine.ts:583-587`): `baseCI = 0.15`, `argFactor = max(0.3, 1 - totalArgs x 0.03)`, `balanceFactor = 1 - argBalance x 0.5` where `argBalance = |proRank - conRank| / (proRank + conRank)`, product clamped to [0.02, 0.2]. That is an interval on a belief's truth, and it has nothing to do with fallacies, despite the 2025 page's step 7 (below).
 
-`scoreArgument` in the same file applies a fallacy penalty to an argument's base truth: `fallacyPenalty = sum(|impact| / 100)` over `fallaciesDetected`, and `baseTruth = max(0, truthScore x (1 - fallacyPenalty))`. In the running product `fallaciesDetected` is populated only by demo data (`schlicht-data.ts`); the bridge from confirmed community claims into that array exists and is not called (see the ladder below).
+`scoreArgument` in the same file applies a fallacy penalty to an argument's base truth: `fallacyPenalty = sum(|impact| / 100)` over `fallaciesDetected`, and `baseTruth = max(0, truthScore x (1 - fallacyPenalty))` (`scoring-engine.ts:432-436`). In the running app `fallaciesDetected` is filled only by demo data (`src/features/epistemology/data/schlicht-data.ts`) and is an empty list everywhere else; the bridge from confirmed community claims into that list exists and is not called (see the ladder below).
+
+### An unwired fifth: LogicalValidity x EvidenceQuality
+
+Status: unwired. [`src/lib/truth-score.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/truth-score.ts) computes `TruthScore = LogicalValidity x EvidenceQuality`, each clamped to [0, 1], with letter grades at 0.8, 0.6, 0.4 and 0.2 (lines 32-55). No route or component imports it; only the market, escalation and engagement firewall tests read it, to prove that a market price can never feed a truth score.
 
 ### The app's evidence score
 
-Status: runs in the Next.js app. Code: `calculateEVS` and `EVIDENCE_TYPE_WEIGHTS` in [`scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts), `verificationWeight` in [`evidence-exposure.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/evidence-exposure.ts).
+Status: runs in the Next.js app, not published. Code: `calculateEVS` and `EVIDENCE_TYPE_WEIGHTS` in [`scoring-engine.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/scoring-engine.ts) lines 108-135, `verificationWeight` in `fetch-belief.ts:336-341`, applied at `fetch-belief.ts:366-380`.
 
 ```
 EVS = ESIW x log2(ERQ + 1) x ECRS x ERP          ERP as a fraction 0..1
@@ -268,19 +292,26 @@ on the belief page:  evsScore = EVS x verificationWeight(status)
 
 The three differences between the two engines and the wiki's EVS page, item by item: replication enters as `log2(ERQ + 1)` in the app, linear `ERQ` in the wiki, and bounded `2n / (n + 1)` on the published site; the app has 5 tiers, the wiki 16, the published site 18 (16 plus `record` plus none); and in the app evidence is a multiplier on a row while on the published site it is a prior on the claim's page.
 
-**Retraction exposure** is the app's readout of how much of a belief's evidence case is not yet earned. A row with no status on record counts in full and so carries the largest exposure (`1.0 x |impact|`); UNVERIFIED and DISPUTED rows count at half and could move `0.5 x |impact|` either way; VERIFIED and FALSIFIED rows are settled. `NEGLIGIBLE_EXPOSURE = 0.5` points, `HIGH_EXPOSURE_SHARE = 0.5`. The counting-in-full of unrecorded rows is deliberate, not a bug to fix by defaulting them to verified (code and CLAUDE.md).
+**Retraction exposure** is the app's readout of how much of a belief's evidence case is not yet earned. A row with no status on record counts in full and so carries the largest exposure (`1.0 x |impact|`); UNVERIFIED and DISPUTED rows count at half and could move `0.5 x |impact|` either way; VERIFIED and FALSIFIED rows are settled. `NEGLIGIBLE_EXPOSURE = 0.5` points, `HIGH_EXPOSURE_SHARE = 0.5` ([`evidence-exposure.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/evidence-exposure.ts) lines 99-102; `countedWeight` and `exposedWeight` at lines 132-160). The counting-in-full of unrecorded rows is deliberate, not a bug to fix by defaulting them to verified (code and CLAUDE.md).
 
-## Three formulas, one name
+## Every truth formula in the repository, side by side
 
-| | Published site (`score_reference.py`) | Next.js belief page (`all-scores.ts`) | Next.js engine (`scoring-engine.ts`) | `docs/ALGORITHMS.md` section 5 |
-|---|---|---|---|---|
-| Status | Runs; what myklob.github.io serves | Runs; the Truth Score row on `/beliefs/[slug]` | Runs; `/api/protocol`, `/api/scoring`, CBA | Proposed; implemented by nothing |
-| Scale | 0 to 1 | 0 to 1, clamped [0.01, 0.99] | 0 to 1, clamped [0.01, 0.99] | -1 to +1 |
-| Rule | `(POS + w x p0) / (POS + NEG + w)`, then `min(., weakest load-bearing premise)` | `(LV + V) / 2` | `proRank / (proRank + conRank) + 0.2 x evidence net` | `TS = (LV x EQ x VL) +/- CW` |
-| Unargued reason | Worth exactly 0 | Counts at `\|impactScore\| / 100` | Raises the score | Unspecified |
-| Evidence | Sets where the page starts (prior) | Half of the average | Up to +/- 0.2 | `EQ` 0-10 normalised, `VL` 0-1 |
-| Fallacies | No term, by design | `fallacyPenalty`, never passed on the belief page | `fallaciesDetected`, demo data only | `LV`, "absence of fallacies" |
-| Votes | Shown, never scored | Not read | Not read here (the fallacy vote is upstream) | Not mentioned |
+Six truth formulas are written down in the repository, five in code and one on paper. Only the first is what a reader of the site sees.
+
+| | Published site | App headline | App scorecard "Truth (net)" | App two-channel average | App `/protocol` | `docs/ALGORITHMS.md` section 5 |
+|---|---|---|---|---|---|---|
+| Where | `score_reference.py:259-273` | `page.tsx:84`, `contrast-class.ts:52` | `fetch-belief.ts:359-362` | `all-scores.ts:268-355` | `scoring-engine.ts:532-587` | `docs/ALGORITHMS.md:316-345` |
+| Status | Runs; what myklob.github.io serves | Not published; the one number above the arguments on `/beliefs/[slug]` | Not published; a scorecard row at the back of the page | Not published; computed, only its LV half is shown | Not published; demo | Proposed; implemented by nothing |
+| Scale | 0 to 1 | 0 to 1, blank with no scored argument | -100 to +100 | 0 to 1, clamped [0.01, 0.99] | 0 to 1, clamped [0.01, 0.99] | -1 to +1 |
+| Rule | `(POS + w x p0) / (POS + NEG + w)`, then `min(., weakest load-bearing premise)` | `totalPro / (totalPro + totalCon)` over `\|impactScore\|` | `(pos - neg) / (pos + neg) x 100`, arguments and evidence | `(LV + V) / 2` | `proRank / (proRank + conRank) + 0.2 x evidence net / count` | `TS = (LV x EQ x VL) +/- CW` |
+| Unargued reason | Worth exactly 0 | Counts, at a child truth of 0.5 | Counts | Counts at `\|impactScore\| / 100` | Raises the score | Unspecified |
+| A reason argued false | Counts against its own side | Still counts for its own side, less | Still counts for its own side, less | Still counts for its own side, less | Still counts for its own side, less | Unspecified |
+| Same claim listed twice | Counts once, at its strongest reading | The later copy is discounted by its computed text similarity to earlier rows on its side, so a word-for-word repeat adds nearly nothing (`propagate-belief-scores.ts:149-179`) | The same, for arguments | The same, for arguments | Counts twice unless its stored uniqueness is set lower | Unspecified |
+| Evidence | Sets where the page starts (prior) | Not read | Added to each side, by verification standing | Half of the average | Up to +/- 0.2 | `EQ` 0-10 normalised, `VL` 0-1 |
+| Fallacies | No term, by design | Only through a published counter-argument lowering linkage | The same | `fallacyPenalty`, never passed on the belief page | `fallaciesDetected`, demo data only | `LV`, "absence of fallacies" |
+| Votes | Shown, never scored | Not read | Not read | Not read | Not read here (the fallacy vote is upstream) | Not mentioned |
+
+A seventh, `src/lib/truth-score.ts` (`LogicalValidity x EvidenceQuality`), is unwired and described above.
 
 The `docs/ALGORITHMS.md` formula, kept in full because it is the owner's draft and nothing has replaced it on paper (file: [`docs/ALGORITHMS.md`](https://github.com/myklob/ideastockexchange/blob/master/docs/ALGORITHMS.md)):
 
@@ -299,7 +330,40 @@ Output range: +1.0 definitively true (rare); +0.5 to +0.9 strong evidence for tr
 
 Status: superseded. The published site's method page lists "Truth score on a scale from -1 to +1, built from logical validity, evidence quality and verification" under [Rules in the wiki this site does not run](https://myklob.github.io/ideastockexchange/beliefs/method.html#notrun), with what runs instead: truth runs 0 to 1 by the argued-truth rule, and the -1 to +1 scale appears only inside a row, as `2 x Truth - 1`.
 
-Which of the three is canonical is an open decision for the owner (listed at the end). This page's position, which is the code's position: the published site's rule is what readers see, and the app's two rules are the product's interim arithmetic.
+Which rule is canonical is an open decision for the owner (listed at the end). This page's position, which is the code's position: the published site's rule is what readers see, and the app's rules are interim arithmetic in code that is not published.
+
+## The original framing: two measures
+
+The 2025 page opened like this, and the owner's framing stands:
+
+> The **Truth Score** quantifies the strength of an argument by combining two key measures:
+>
+> 1. **Logical Fallacy Score**: evaluates the extent to which an argument relies on logical fallacies.
+> 2. **Evidence Verification Score**: measures how strongly a claim is supported by independent, replicable evidence (e.g., blind studies, scenario comparisons).
+>
+> By integrating these scores, we can more accurately assess the rationality and validity of an argument.
+
+And it gave three reasons the pairing matters:
+
+- **Logical integrity**: detect and weigh the use of common fallacies.
+- **Empirical validation**: reward arguments supported by verified data.
+- **Better group decision-making**: stronger foundations for policy, public opinion, and collaboration.
+
+Three things about that framing have moved, and the rest of this page is the detail.
+
+**First, the object.** In both engines the Truth Score is a score of a *page* (a belief or a claim), not of an argument. An argument's strength is a different number: on the published site it is the row's contribution, `sign x (2 x Truth - 1) x Conf x Link x Imp x Uniq` (`score_reference.py:160-174`); in the app it is `impactScore` (`scoring-engine.ts:774-785`). "Quantifies the strength of an argument" was the wrong noun.
+
+**Second, the fallacy half.** No module in either engine computes anything called a Logical Fallacy Score; the name appears nowhere in `src/` or `tools/`. The 2025 page linked it to a private Google Sites draft, and no wiki page of that name exists, so the words "Logical Fallacy Score" on this page are plain text. What replaced it: on the published site, a flag that is a question people argue, plus structural checks that move no score (refused by design, with the reason quoted below); in the app, structured fallacy *claims* that are arguments, confirmed by a weighted vote, with a validity ladder that is written and tested but not yet wired to anything.
+
+**Third, the evidence half.** It survived with its name and its table. See [[Evidence Verification Score (EVS)]]. But on the published site evidence is not a multiplier combined with anything; it sets where a page's truth *starts*, and that turns out to be the one thing that lets any score leave 0.50 at all.
+
+**The two halves, printed apart (November 2026).** The published site now shows the original framing as two numbers beside every truth score, on [the list of every page](https://myklob.github.io/ideastockexchange/beliefs/all.html) and at the foot of each belief page. *Logical validity* is the truth rule run on the page's reasons alone, from an even split. *Verification* is the same rule run on what was checked against the world alone: the page's starting point, its findings and its predictions. Neither is a second rule and nothing is averaged: the truth score is the one rule run over all of those rows together, then held to the weakest load-bearing part (code: [`views.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/views.py), `truth_parts`, lines 28-48; prose: [method page](https://myklob.github.io/ideastockexchange/beliefs/method.html#parts)). A part with no weight behind it prints in grey, as its starting point. The same list prints a belief's importance (the most valid interest listed on its page) and, for a claim used as a reason, its linkage and importance on each page it supports.
+
+**"Logical integrity: detect and weigh."** Status: partial in the app, refused on the published site. Detection exists in the app as six regular expressions run only on agent-submitted claims, and weighing exists through a community vote; the two are deliberately decoupled, so nothing is weighed until people confirm it (code: [`fallacy-detector.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/agent-ingest/fallacy-detector.ts), [`propagate-belief-scores.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/propagate-belief-scores.ts), which reads only `status: 'published'` rows). The published site detects by phrase list and weighs nothing.
+
+**"Empirical validation: reward arguments supported by verified data."** Status: runs in both engines, differently. Published site: a page that declares its evidence type, replication count and replication agreement starts above or below 0.50 by the prior formula below; a page that declares nothing stays at 0.50 however often it is cited (code: [`evidence.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/evidence.py)). App: each evidence row's EVS is multiplied by a lifecycle weight, `VERIFIED 1.0`, `UNVERIFIED 0.5`, `DISPUTED 0.5`, `FALSIFIED 0.0` (code: `VERIFICATION_SCORES` in [`src/core/reasonrank/types.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/reasonrank/types.ts)), and the Evidence Ledger prints a Standing column plus how many points rest on standing nobody has established (code: [`evidence-exposure.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/core/scoring/evidence-exposure.ts)). None of this is published.
+
+**"Better group decision-making."** The owner's judgment, not a mechanism. The nearest thing in code is the published site's rule that every number is a link to the page that argues it, so a disagreement about a score becomes a disagreement about a specific row that anyone can go and argue.
 
 ## The fallacy half
 
@@ -318,17 +382,17 @@ The page listed four. Here they are with where each one lives now (code: [`catal
 
 The 2025 page gave seven steps. Each is kept with its status.
 
-1. **Maintain a comprehensive list of recognized logical fallacies.** *Runs in the app:* `FALLACY_CATALOG`, a `ReadonlyMap` of 14 entries, is the single source for the detector, the accusation template, the ladder and the explainer page, and `GET /api/arguments/[id]/fallacy-claims` returns it as `template.fallacyTypes`. Comprehensive in the sense of one list, not of coverage. Severity is copied onto each claim at filing so history survives catalog edits (schema: [`prisma/schema.prisma`](https://github.com/myklob/ideastockexchange/blob/master/prisma/schema.prisma), `FallacyClaim`). *Runs on the published site:* the nine-pattern phrase list in `fallacy.py`.
-2. **Allow users to flag arguments for potential fallacies.** *Runs in the app:* `POST /api/arguments/[id]/fallacy-claims`, and flagging is deliberately not a button (below). *Runs on the published site:* each flag links two prefilled GitHub issue forms on the flagged claim's own page.
-3. **Enable discussion for and against each fallacy accusation.** *Partial in the app:* the for/against mechanism is a weighted vote with an optional `reasoning` string, not a pro/con tree; `LinkageArgument` has no children, so there is nowhere to argue about the accusation except the vote. *Runs on the published site, closer to the wording:* the accusation is a reason to disagree on the claim's page, and that reason has its own page with its own reasons, scored like anything else; there is no accusation object and no vote.
+1. **Maintain a comprehensive list of recognized logical fallacies.** *Runs in the unpublished app:* `FALLACY_CATALOG`, a `ReadonlyMap` of 14 entries, is the single source for the detector, the accusation template, the ladder and the explainer page, and `GET /api/arguments/[id]/fallacy-claims` returns it as `template.fallacyTypes`. Comprehensive in the sense of one list, not of coverage. Severity is copied onto each claim at filing so history survives catalog edits (schema: [`prisma/schema.prisma`](https://github.com/myklob/ideastockexchange/blob/master/prisma/schema.prisma), `FallacyClaim`). *Runs on the published site:* the nine-pattern phrase list in `fallacy.py`.
+2. **Allow users to flag arguments for potential fallacies.** *Runs in the unpublished app:* `POST /api/arguments/[id]/fallacy-claims`, and flagging is deliberately not a button (below). *Runs on the published site:* each flag links two prefilled GitHub issue forms on the flagged claim's own page.
+3. **Enable discussion for and against each fallacy accusation.** *Partial in the unpublished app:* the for/against mechanism is a weighted vote with an optional `reasoning` string, not a pro/con tree; `LinkageArgument` has no children, so there is nowhere to argue about the accusation except the vote. *Runs on the published site, closer to the wording:* the accusation is a reason to disagree on the claim's page, and that reason has its own page with its own reasons, scored like anything else; there is no accusation object and no vote.
 4. **Auto-flag similar arguments using semantic equivalency.** *Proposed, not built.* A `FallacyClaim` is keyed to exactly one `argumentId` and no code copies a claim, a detection or a confirmation to an equivalent argument. Equivalence detection exists separately: the app's agent ingest computes `textSimilarity` against `EQUIVALENCE_CANDIDATE_THRESHOLD` and resolves candidates by the same 60% vote (`/api/equivalence-candidates/[id]/votes`); the published site's [`similarity.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/similarity.py) is lexical (IDF-weighted overlap of content words averaged with cosine over character 4-grams, `FLAG 0.45`, `MERGE 0.70`) and by its own docstring changes no score. Note that the app's `/algorithms/fallacy-detection` explainer says "a fallacy confirmed once stays confirmed for the whole cluster"; nothing in the code does that, so the explainer over-claims pending the owner's answer. See [[Equivalency Score:]] and [[The Redundancy Problem]].
 5. **Use ML to detect linguistic patterns associated with fallacies.** *Replaced.* No machine learning anywhere in the product. What runs is six regular expressions in the app (below) and nine phrase patterns on the published site; neither has training data, a model, or a measured accuracy. Sentence-transformer code exists in `src/core/ai/similarity.py` and `overlap_engine.py` for claim overlap, not fallacies, and nothing imports it.
-6. **Score flagged arguments based on supporting/opposing sub-arguments.** *Replaced in the app* by a weighted vote with a credibility multiplier (below); *runs on the published site* in the literal sense, since the accusation is a claim with sub-arguments and its truth score is what it earns.
+6. **Score flagged arguments based on supporting/opposing sub-arguments.** *Replaced in the unpublished app* by a weighted vote with a credibility multiplier (below); *runs on the published site* in the literal sense, since the accusation is a claim with sub-arguments and its truth score is what it earns.
 7. **Aggregate results into a Logical Fallacy Score (confidence interval).** *Proposed, not built.* Per claim the app stores `consensus` (the weighted agree share at last resolution, null until quorum) and a three-state status; per argument the only aggregate is the validity ladder, which is not wired. The 2025 sketch's five bands (score below -2 "Very likely fallacious", below 0 "Possibly fallacious", 0 "No indication of fallacy", below 2 "Possibly sound", otherwise "Very likely sound") appear nowhere in `src/`, `tools/` or `tests/`.
 
 ### What runs on the published site: a flag is a question
 
-Status: runs on the published site; the owner's direction (October 2026) built. Code: [`fallacy.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/fallacy.py); prose: [method page, structural checks](https://myklob.github.io/ideastockexchange/beliefs/method.html#checks).
+Status: runs on the published site; the owner's direction (October 2026) built. Code: [`fallacy.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/fallacy.py) (the patterns at lines 21-44, `page_flags` at lines 59-69, which reads only the rows' text, never a score); prose: [method page, structural checks](https://myklob.github.io/ideastockexchange/beliefs/method.html#checks).
 
 The owner's direction: nothing is final. Software may flag a possible fallacy, and the flag is a claim people argue for and against like any other; a flag alone moves no score. The flagger is deliberately a short, readable list of phrases and not a model, because a flag that cannot say why it fired cannot be answered. It reads reasons and objections only (a finding is an observation, and its weakness is argued on its own page), never reads a score, and phrases each hit as a question with the words that set it off and two prefilled forms on the flagged claim's own page: a reason to disagree saying "This is <fallacy>: it <what it is>, because" and a reason to agree saying "This is not <fallacy>, because". What the argument there concludes moves the claim's truth through the ordinary rules; the flag never does.
 
@@ -342,7 +406,7 @@ The nine patterns, with the kind of wording each one watches for (the full regul
 | Slippery slope | claims a first step will lead to an extreme outcome without showing each step | "slippery slope", "will inevitably lead to", "opens the floodgates", "where does it end / stop", "next thing you know" |
 | False choice | presents two options as the only ones when others exist | "the only alternative / other option / choice is", "either we ... or we", "there are only two options / choices", "if we don't ..., we will" |
 | Sweeping generalization | states a rule with no exceptions where exceptions are likely | "all politicians / immigrants / corporations / liberals / conservatives / experts / scientists are", "no one ever", "every single one" |
-| Appeal to tradition | treats a practice as right because it is old | "we've always done it this way", "for centuries,", "the way things have always been" |
+| Appeal to tradition | treats a practice as right because it is old | "it's always been done", "it has always been this way", "for centuries,", "for generations,", "the way things have always been" |
 | Pointing at the other side | answers a criticism by saying the critic does the same thing | "what about the", "they do it too", "the other side does the same" |
 | After, therefore because of | concludes that one thing caused another because it came first | "ever since ...,", "right after ..., crime / prices / test scores / unemployment", "and then crime / prices / scores rose / fell" |
 
@@ -350,9 +414,9 @@ On a belief page the flags appear under Structural Checks as a table: the reason
 
 ### What runs on the published site: structural checks, and why no deductions
 
-Status: runs on the published site; the deduction is refused by design. Code: [`integrity.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/integrity.py).
+Status: runs on the published site; the deduction is refused by design. Code: [`integrity.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/integrity.py) (the reason in its docstring, lines 1-31; the nine checks in `CHECKS`, lines 39-49; the pre-publish loop check `cycles_in_tables`, line 266).
 
-The file's docstring says why the 2025 page's pattern-matched deduction is not done, and it is worth quoting in substance: on this corpus, whose whole subject is officials acting on financial interests, a pattern matcher looking for "attacking the person instead of the argument" would fire on the central legitimate argument on every page. A check that deducts points from the strongest claim in the corpus, silently, with no page to appeal to, is worse than no check. And a score moved by a regular expression breaks the one rule the site keeps everywhere else: every number is a link to the page that argues it. The method page says in bold "Fallacy detection is not done", and [`test_render.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/test_render.py) fails the build if that sentence disappears. The method page's not-run table has the row: "Logical validity from weighted fallacy deductions | ALGORITHMS.md 8; wiki: Truth Score | Not computed. The structural checks name faults, and possible fallacies are flagged by wording and argued on the flagged claim's page; neither moves a score."
+The file's docstring says why the 2025 page's pattern-matched deduction is not done, and it is worth quoting in substance: on this corpus, whose whole subject is officials acting on financial interests, a pattern matcher looking for "attacking the person instead of the argument" would fire on the central legitimate argument on every page. A check that deducts points from the strongest claim in the corpus, silently, with no page to appeal to, is worse than no check. And a score moved by a regular expression breaks the one rule the site keeps everywhere else: every number is a link to the page that argues it. The method page says in bold "Fallacy detection is not done" (`method.py:299`), and [`test_render.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/test_render.py) (line 662) fails the build if that sentence disappears. The method page's not-run table has the row: "Logical validity from weighted fallacy deductions | ALGORITHMS.md 8; wiki: Truth Score | Not computed. The structural checks name faults, and possible fallacies are flagged by wording and argued on the flagged claim's page; neither moves a score."
 
 What the two tables *can* show is structural, and a structural fault is not a matter of interpretation. Nine checks, none of which changes a score:
 
@@ -370,13 +434,13 @@ What the two tables *can* show is structural, and a structural fault is not a ma
 
 The two serious ones are also refused outright before anything is published: `cycles_in_tables` runs Tarjan's strongly connected components over the claim graph and names one loop per component, because a loop can hold any value at all and stay consistent, so there is no number to publish. Circular reasoning is therefore a build failure here, not a fallacy type.
 
-### What runs in the app: an accusation is an argument
+### What runs in the app (not published): an accusation is an argument
 
-Status: runs in the Next.js app. Code: [`src/lib/fallacy/claims.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/fallacy/claims.ts), [`catalog.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/fallacy/catalog.ts), [`src/lib/consensus.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/consensus.ts), [`calibration.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/fallacy/calibration.ts), [`caller-record.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/fallacy/caller-record.ts), the routes [`api/arguments/[id]/fallacy-claims`](https://github.com/myklob/ideastockexchange/blob/master/src/app/api/arguments/%5Bid%5D/fallacy-claims/route.ts) and [`api/fallacy-claims/[id]/votes`](https://github.com/myklob/ideastockexchange/blob/master/src/app/api/fallacy-claims/%5Bid%5D/votes/route.ts), and the explainer at `/algorithms/fallacy-detection` ([source](https://github.com/myklob/ideastockexchange/blob/master/src/app/algorithms/fallacy-detection/page.tsx)).
+Status: runs in the Next.js app, not published. Code: [`src/lib/fallacy/claims.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/fallacy/claims.ts), [`catalog.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/fallacy/catalog.ts), [`src/lib/consensus.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/consensus.ts), [`calibration.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/fallacy/calibration.ts), [`caller-record.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/fallacy/caller-record.ts), the routes [`api/arguments/[id]/fallacy-claims`](https://github.com/myklob/ideastockexchange/blob/master/src/app/api/arguments/%5Bid%5D/fallacy-claims/route.ts) and [`api/fallacy-claims/[id]/votes`](https://github.com/myklob/ideastockexchange/blob/master/src/app/api/fallacy-claims/%5Bid%5D/votes/route.ts), and the explainer at `/algorithms/fallacy-detection` ([source](https://github.com/myklob/ideastockexchange/blob/master/src/app/algorithms/fallacy-detection/page.tsx)).
 
 The rule the module enforces is the one tribal fallacy-calling breaks: an accusation is an argument, so it carries the same burdens as one. Filing requires every template field; a filed claim changes nothing; only a claim confirmed by weighted community consensus touches the target, and then only through the catalog's target factor for that type.
 
-**The catalog.** Fourteen entries. Each names which factor a confirmed claim damages (`relevance` hits the linkage, `logical-validity` hits the validity ladder, `evidence-quality` hits evidence quality), a severity (`minor` or `major`), a definition, detection criteria, what the `evidenceLinks` field must contain, and, where honest, when the pattern is *not* a fallacy:
+**The catalog.** Fourteen entries (`FALLACY_CATALOG`, `catalog.ts:33-204`). Each names which factor a confirmed claim damages (`relevance` hits the linkage, `logical-validity` hits the validity ladder, `evidence-quality` hits evidence quality), a severity (`minor` or `major`), a definition, detection criteria, what the `evidenceLinks` field must contain, and, where honest, when the pattern is *not* a fallacy:
 
 | Slug | Label | Target factor | Severity | Exhibits required | Not a fallacy when |
 |---|---|---|---|---|---|
@@ -395,11 +459,11 @@ The rule the module enforces is the one tribal fallacy-calling breaks: an accusa
 | `overgeneralization` | Overgeneralization | logical-validity | minor | | |
 | `anecdotal-evidence` | Anecdotal Evidence | evidence-quality | minor | | |
 
-**Filing.** "Can't just click a fallacy button." `validateFallacyClaimInput` requires six fields: `fallacyType` (a catalog slug), `quotedText` (the exact text that commits the fallacy), `explanation` (at least `MIN_EXPLANATION_LENGTH = 40` characters), `missingElements` (what is excluded, misrepresented or left unsupported), `consequences` (how the fallacy affects the argument's validity if confirmed), and `evidenceLinks`, each with a label, and non-empty for the five types with an exhibit requirement. The body may not carry `severity`, `weight`, `consensus`, `status` or `score`; the route answers 422 with "severity comes from the catalog, weight from the track record, status from community consensus." Filing creates a `LinkageArgument` on the target's linkage sub-debate, side `disagree`, status `draft`, with the counter-statement `"<Label> claimed: "<quote>" <explanation> Missing: <missingElements>"`, plus the `FallacyClaim` row and an audit log row, and returns "Filed. No score changed". It is refused with 423 while the market graph is frozen.
+**Filing.** "Can't just click a fallacy button." `validateFallacyClaimInput` (`claims.ts:42`) requires six fields: `fallacyType` (a catalog slug), `quotedText` (the exact text that commits the fallacy), `explanation` (at least `MIN_EXPLANATION_LENGTH = 40` characters), `missingElements` (what is excluded, misrepresented or left unsupported), `consequences` (how the fallacy affects the argument's validity if confirmed), and `evidenceLinks`, each with a label, and non-empty for the five types with an exhibit requirement. The body may not carry `severity`, `weight`, `consensus`, `status` or `score` (`route.ts:132`); the route answers 422 with "severity comes from the catalog, weight from the track record, status from community consensus." Filing creates a `LinkageArgument` on the target's linkage sub-debate, side `disagree`, status `draft`, with the counter-statement `"<Label> claimed: "<quote>" <explanation> Missing: <missingElements>"`, plus the `FallacyClaim` row and an audit log row, and returns "Filed. No score changed". It is refused with 423 while the market graph is frozen.
 
-**Confirmation.** `resolveConsensus` over the claim's votes: `upheld` if the weighted agree share is at least `CONSENSUS_THRESHOLD = 0.6`, `rejected` if the weighted disagree share is, `open` otherwise, and nothing settles below `CONSENSUS_QUORUM = 3` votes. One vote per (claim, user); re-voting updates. The counter-argument's status follows the outcome, `open` to `draft`, `upheld` to `published`, `rejected` to `rejected`, and on publication it takes `counterArgumentStrength`: **0.8 for a major, 0.5 for a minor** fallacy. Then `propagateFromLinkageChange` reruns the linkage aggregate over published rows only and ripples upward. On rejection "the accusation failed its own debate. The target is untouched", and only the accuser's accuracy record falls. Consensus can move back as votes accumulate. Every filing, vote and resolution writes an audit log row.
+**Confirmation.** `resolveConsensus` over the claim's votes (`consensus.ts:31-40`): `upheld` if the weighted agree share is at least `CONSENSUS_THRESHOLD = 0.6`, `rejected` if the weighted disagree share is, `open` otherwise, and nothing settles below `CONSENSUS_QUORUM = 3` votes. One vote per (claim, user); re-voting updates. The counter-argument's status follows the outcome, `open` to `draft`, `upheld` to `published`, `rejected` to `rejected`, and on publication it takes `counterArgumentStrength`: **0.8 for a major, 0.5 for a minor** fallacy (`claims.ts:142-143`, used at `votes/route.ts:200`). Then `propagateFromLinkageChange` reruns the linkage aggregate over published rows only and ripples upward. On rejection "the accusation failed its own debate. The target is untouched", and only the accuser's accuracy record falls. Consensus can move back as votes accumulate. Every filing, vote and resolution writes an audit log row.
 
-**Vote weight.** Each vote carries the voter's credibility multiplier, computed *before* the vote is stored so voting on your own pending accusation never lifts your own weight (code: `calibration.ts`, `caller-record.ts`):
+**Vote weight.** Each vote carries the voter's credibility multiplier, computed *before* the vote is stored so voting on your own pending accusation never lifts your own weight (code: `calibration.ts:22-78`, `caller-record.ts`):
 
 ```
 accuracyFactor = 2 x upheld / (upheld + rejected)        once at least MIN_RESOLVED_FOR_ACCURACY = 3 resolved, else 1
@@ -410,11 +474,11 @@ credibility    = clamp(accuracyFactor x balanceFactor, CREDIBILITY_FLOOR 0.3, CR
 
 Side is read from the accused argument's side in its parent debate, an observable proxy for flagging only the other team. A new user is exactly 1.0. Filing volume never raises it; only being right and being even-handed do. Calculation: a caller with 82% accuracy who has flagged five arguments on each side gets `1.64 x 1.3 = 2.13`, clamped to 1.4. A caller with 40% accuracy who has flagged ten arguments all on one side gets `0.8 x (0.4 + 0.9 x 1/11) = 0.39`; the code's comment says such a caller "lands at the floor", and the arithmetic puts them a little above it, with the 0.3 floor binding at about 31% accuracy on the same record.
 
-**The validity ladder.** Defined and tested, wired to nothing. `logicalValidityMultiplier` over an argument's confirmed claims: no confirmed fallacy `VALIDITY_NO_FALLACY = 0.95`; one minor `VALIDITY_MINOR = 0.75`; one major `VALIDITY_MAJOR = 0.45`; two or more `VALIDITY_MULTIPLE = 0.25`. The same evidence argued without the fallacy scores higher, so removing the fallacy is the profitable move, which is the point. `confirmedClaimsToDetectedFallacies` turns the set into `DetectedFallacy` impacts summing to `(1 - multiplier) x 100`, split evenly per claim, sized so that `scoreArgument`'s `truth x (1 - sum|impact| / 100)` lands exactly on the ladder. Calculation: two confirmed claims give multiplier 0.25, a total penalty of 75 split 37.5 each, and base truth of a quarter of what it was. Both functions are exported, pinned by [`tests/unit/lib/fallacy/claims.test.ts`](https://github.com/myklob/ideastockexchange/blob/master/tests/unit/lib/fallacy/claims.test.ts), and called by nothing in `src/` outside their own file. The only wired effect of a confirmed claim on a score is the published counter-argument at 0.8 or 0.5 in the linkage aggregate.
+**The validity ladder.** Defined and tested, wired to nothing (`claims.ts:100-131`; no file in `src/` outside `claims.ts` calls either function). `logicalValidityMultiplier` over an argument's confirmed claims: no confirmed fallacy `VALIDITY_NO_FALLACY = 0.95`; one minor `VALIDITY_MINOR = 0.75`; one major `VALIDITY_MAJOR = 0.45`; two or more `VALIDITY_MULTIPLE = 0.25`. The same evidence argued without the fallacy scores higher, so removing the fallacy is the profitable move, which is the point. `confirmedClaimsToDetectedFallacies` turns the set into `DetectedFallacy` impacts summing to `(1 - multiplier) x 100`, split evenly per claim, sized so that `scoreArgument`'s `truth x (1 - sum|impact| / 100)` lands exactly on the ladder. Calculation: two confirmed claims give multiplier 0.25, a total penalty of 75 split 37.5 each, and base truth of a quarter of what it was. Both functions are exported, pinned by [`tests/unit/lib/fallacy/claims.test.ts`](https://github.com/myklob/ideastockexchange/blob/master/tests/unit/lib/fallacy/claims.test.ts), and called by nothing in `src/` outside their own file. The only wired effect of a confirmed claim on a score is the published counter-argument at 0.8 or 0.5 in the linkage aggregate.
 
 **On the belief page.** Only claims with `status: 'confirmed'` are fetched at all. A confirmed one renders as an inline red note in the argument cell, "<type> confirmed, dents Linkage | Argument Score (validity) | Evidence Quality" by target factor, linking the explainer (code: `ConfirmedFallacyNotes` in [`ArgumentTreesSection.tsx`](https://github.com/myklob/ideastockexchange/blob/master/src/features/belief-analysis/components/ArgumentTreesSection.tsx)). An unconfirmed accusation changes nothing and is not rendered. On the linkage page `/arguments/[id]/linkage`, draft rows are displayed and excluded from the aggregate.
 
-**The automated detector.** Six regular expressions, run only on agent-ingested claims (statement plus rationale; code: [`ingest.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/agent-ingest/ingest.ts)), never on human submissions:
+**The automated detector.** Six regular expressions (`fallacy-detector.ts:37-77`), run only on agent-ingested claims (statement plus rationale; code: [`ingest.ts`](https://github.com/myklob/ideastockexchange/blob/master/src/lib/agent-ingest/ingest.ts)), never on human submissions:
 
 | Catalog type | What the pattern matches |
 |---|---|
@@ -460,9 +524,9 @@ The full treatment is on [[Evidence Verification Score (EVS)]]; the formulas and
 
 Neither the 2025 page nor its sources mention this, and it is the other way the world gets into a score.
 
-*Published site.* A belief page carries `falsify_for` and `falsify_against` rows, rendered as "Evidence that would strengthen / weaken" with a Result column and vote counts, and prediction rows (`pred_true`, `pred_false`), which score through the same row formula as reasons and findings (code: [`ise_tables.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/ise_tables.py), `render_site.py`). The line under the Testable Predictions table counts predictions that are dated and whose linkage reads 0.50 or more. The structural check "Nothing stated would show it false" fires on any belief with no prediction, and "testable predictions or a falsifiability test" is one of the seven requirements of `publish.CORE_BAR` for a belief to count as complete rather than a draft (code: [`publish.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/publish.py); the others are reasons to agree, reasons to disagree, evidence, objective criteria, costs and benefits, and interests on either side). Every belief is published however far along it is; a draft is marked, never hidden.
+*Published site.* A belief page carries `falsify_for` and `falsify_against` rows, rendered as "Evidence that would strengthen / weaken" with a Result column and vote counts (`render_site.py:883`), and prediction rows (`pred_true`, `pred_false`), which score through the same row formula as reasons and findings (code: [`ise_tables.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/ise_tables.py), `render_site.py`). The line under the Testable Predictions table counts predictions that are dated and whose linkage reads 0.50 or more (`render_site.py:890`). The structural check "Nothing stated would show it false" fires on any belief with no prediction, and "testable predictions or a falsifiability test" is one of the seven requirements of `publish.CORE_BAR` for a belief to count as complete rather than a draft (code: [`publish.py`](https://github.com/myklob/ideastockexchange/blob/master/tools/static-site/publish.py) lines 13-21; the others are reasons to agree, reasons to disagree, evidence, objective criteria, costs and benefits, and interests on either side). Every belief is published however far along it is; a draft is marked, never hidden.
 
-*App.* `FalsifiabilityTestSection` shows strengthen/weaken rows ranked by each row's own sub-debate score, plus predictions with what follows if the belief is true, a timeframe, a verification method, the result so far and a score (code: [`FalsifiabilityTestSection.tsx`](https://github.com/myklob/ideastockexchange/blob/master/src/features/belief-analysis/components/FalsifiabilityTestSection.tsx)). The canonical belief page layout is [[Template: Belief Analysis]].
+*App, not published.* `FalsifiabilityTestSection` shows strengthen/weaken rows ranked by each row's own sub-debate score, plus predictions with what follows if the belief is true, a timeframe, a verification method, the result so far and a score (code: [`FalsifiabilityTestSection.tsx`](https://github.com/myklob/ideastockexchange/blob/master/src/features/belief-analysis/components/FalsifiabilityTestSection.tsx)). The canonical belief page layout is [[Template: Belief Analysis]].
 
 ## The 2025 sketches
 
@@ -564,14 +628,14 @@ for text in examples:
 
 1. **Large, diverse dataset: train ML models on fallacy examples from multiple domains/media types.** Proposed, not built. No dataset, no training code, no model artefacts. The only accuracy data the system accumulates is per caller: `FallacyClaim.status` by `submittedById`, read by `callerRecordFor`. The detector agent's own hits are never scored for accuracy.
 2. **Domain-specific tuning: adjust algorithms for political, scientific, or commercial contexts.** Proposed, not built. No per-domain configuration. The catalog's `notFallacyWhen` fields are the only domain guard (ad hominem is not a fallacy when a conflict of interest is documented; appeal to authority is not when the expert is in-domain and consistent with the evidence), and they are text shown to voters, not code. The published site's refusal is itself a domain argument: on a corpus about officials acting on financial interests, an ad hominem matcher fires on the legitimate central claim.
-3. **Human feedback loop: let users flag, verify, or reject fallacy identifications.** Runs in the app. Users file, and vote agree or disagree on both human-filed and detector-drafted claims; outcome maps to draft, published or rejected; consensus moves in both directions; every step is audit-logged. Runs on the published site in the form of the two "It is / It is not" forms.
+3. **Human feedback loop: let users flag, verify, or reject fallacy identifications.** Runs in the unpublished app. Users file, and vote agree or disagree on both human-filed and detector-drafted claims; outcome maps to draft, published or rejected; consensus moves in both directions; every step is audit-logged. Runs on the published site in the form of the two "It is / It is not" forms.
 4. **Continuous refinement: iteratively improve detection accuracy and scoring fairness.** Partial. Scoring fairness has a mechanism, the cross-partisan credibility multiplier, which penalises one-sided callers and rewards upheld claims. Detection accuracy has none: the six regex rules are constants, the detector agent has no track record, and nothing measures how often its drafts are confirmed or rejected.
 
 ## Open decisions for the owner
 
 These are design disagreements between this page's sources and the code that only the owner can settle. The owner has asked not to be asked at the level of individual numbers; these are listed so that whoever next touches the code knows which choices are still open.
 
-1. **Which Truth Score formula is canonical?** Three exist and none is the 2025 page's: the published site's `(POS + w x p0) / (POS + NEG + w)` with a load-bearing cap, the app's `(LV + V) / 2`, and `docs/ALGORITHMS.md`'s `(LV x EQ x VL) +/- CW`. Options: declare the published site's rule canonical and list the app's as interim; declare the app's canonical and reconcile the site; or keep both as the open comparison and delete the ALGORITHMS.md formula. The owner's direction is to compare on real pages, which the tally beside the truth score is the first step of.
+1. **Which Truth Score formula is canonical?** Six are written down and none is the 2025 page's: the published site's `(POS + w x p0) / (POS + NEG + w)` with a load-bearing cap; in the unpublished app, the headline pro share of impact, the scorecard's signed net, the `(LV + V) / 2` average it computes and does not show, and the protocol demo's `proRank / (proRank + conRank)` plus evidence; and `docs/ALGORITHMS.md`'s `(LV x EQ x VL) +/- CW`, plus the unwired `src/lib/truth-score.ts`. Options: declare the published site's rule canonical and list the app's as interim; declare one of the app's canonical and reconcile the site; or keep both engines as the open comparison and delete the formulas nothing runs. CLAUDE.md's standing view is that a sixth engine is the wrong move and that one of the two engines should eventually be deleted. The owner's direction is to compare on real pages, which the tally beside the truth score is the first step of.
 2. **Should automated fallacy detection ever move a score, or only draft a question for people to argue?** The 2025 page says detect and aggregate into a score; the published site refuses and has a build test for the refusal; the app's detector is barred from scoring by its own type shape and runs only on agent submissions. The owner's direction (nothing is final; a flag is argued like any claim and moves no score) matches what both engines do today, and the rewrite above adopts it; the ML version stays labelled proposed.
 3. **Does a vote move a score?** In the app a 60% weighted vote publishes a counter-argument at 0.8 or 0.5; on the published site a vote never does. Options: keep the vote as the confirmation gate and name it the exception; replace it with a sub-argument tree on the accusation, whose own truth score decides whether the counter-argument publishes; or make the published site adopt the gate. The owner's direction (attention, never validity) favours the second.
 4. **Should a confirmed fallacy propagate to equivalent arguments?** The 2025 page's step 4 and the app's explainer say yes; the schema keys every claim to one argument and nothing propagates. Options: implement propagation; correct the explainer and say claims are per-argument; or auto-file draft claims on equivalents that still need their own vote.

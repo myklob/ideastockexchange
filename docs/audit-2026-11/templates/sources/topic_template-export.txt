@@ -1,0 +1,126 @@
+# Source: Google Drive file 15QgAif9nfO1o-qH-TRqS-QOJXPkVRyMQ "Topic_Template.html" (PBWorks export, page 163299003)
+# Export header: page=Topic_Template, time=1771175399 (2026-02-15 UTC), content-type=text/html, name=Mike
+# Markdown escaping from the Drive reader removed. The trailing <!-- pbraw=... --> compressed blob is omitted.
+# Live crawl (pb_pages.jsonl, title Topic_Template, "last edited by Mike 9 months, 1 week ago") matches this export section for section.
+
+<p style="text-align:left;">Templates:</p>
+<ol><li><a href="/w/page/163299000/Belief_Template">Belief Analysis</a>: Pro/Con evidence, arguments, interests, costs, benefits, risks, etc</li>
+<li><a href="/w/page/163299003/Topic_Template">Topic</a>: Beliefs organized along positive vs negative, strong vs weak, and specific vs more general sub or parent group topics.&nbsp; &nbsp;</li>
+</ol><p style="text-align:right;">&nbsp;</p>
+<p style="text-align:right;"><a href="/w/page/21957696/Colorado%20Should">Home</a> › <a href="/w/page/159323433/One%20Page%20Per%20Topic">Topics</a> › <strong style="font-family:inherit;font-style:inherit;">[Category] &gt; [Topic Name]</strong></p>
+<h1>Topic: [Topic Name]</h1>
+<p><span style="font-size:13px;"> <strong>Definition:</strong> [Neutral, objective definition of the topic].<br /><strong>Scope:</strong> [What is included in this topic vs. what belongs in related topics]. </span></p>
+<div style="border:1px solid #ccc;padding:10px;background-color:#f9f9f9;">
+<p style="text-align:center;margin:0;"><strong>Topic Metrics</strong><br /><a href="/w/page/162731388/Importance%20Score">Importance</a>: <strong>[0-100]</strong> | <a href="/w/page/159353568/Evidence">Evidence Depth</a>: <strong>[Low/Med/High]</strong> | <a href="/w/page/159300543/ReasonRank">Controversy Rating</a>: <strong>[0-100]</strong></p>
+</div>
+<hr /><h2>📊 Spectrum 1: The Debate Landscape (Negative ↔ Positive)</h2>
+<p><span style="font-size:13px;">Mapping beliefs based on their sentiment towards the topic, from total opposition (-100%) to total support (+100%).</span></p>
+<table style="border-collapse:collapse;" border="1" cellpadding="8" width="100%"><thead><tr style="background-color:#eee;"><th width="10%">Position</th> <th width="40%">Core Belief / Claim</th> <th width="30%">Top Underlying Argument</th> <th width="10%">Truth Score</th> <th width="10%">Media</th>
+</tr></thead><tbody><tr><td style="background-color:#ffcccc;" align="center"><strong>-100%</strong><br />(Strongly Oppose)</td>
+<td>[Belief that the topic is fundamentally harmful/false]</td>
+<td>[Primary reason: e.g., "Violates human rights"]</td>
+<td align="center"><span style="color:#ff0000;">[−XX]</span></td>
+<td align="center">[Link]</td>
+</tr><tr><td style="background-color:#ffe6e6;" align="center"><strong>-50%</strong><br />(Skeptical)</td>
+<td>[Belief that the topic has significant flaws or costs]</td>
+<td>[Primary reason: e.g., "Too expensive"]</td>
+<td align="center"><span style="color:#ff0000;">[−XX]</span></td>
+<td align="center">[Link]</td>
+</tr><tr><td style="background-color:#ffffcc;" align="center"><strong>0%</strong><br />(Neutral/Nuanced)</td>
+<td>[Belief that the topic is complex/context-dependent]</td>
+<td>[Primary reason: e.g., "Depends on implementation"]</td>
+<td align="center"><span>[0]</span></td>
+<td align="center">[Link]</td>
+</tr><tr><td style="background-color:#e6ffe6;" align="center"><strong>+50%</strong><br />(Supportive)</td>
+<td>[Belief that the topic is generally beneficial]</td>
+<td>[Primary reason: e.g., "Solves specific problem"]</td>
+<td align="center"><span style="color:#008000;">[+XX]</span></td>
+<td align="center">[Link]</td>
+</tr><tr><td style="background-color:#ccffcc;" align="center"><strong>+100%</strong><br />(Strongly Support)</td>
+<td>[Belief that the topic is essential/moral imperative]</td>
+<td>[Primary reason: e.g., "Saves lives"]</td>
+<td align="center"><span style="color:#008000;">[+XX]</span></td>
+<td align="center">[Link]</td>
+</tr></tbody></table><p style="text-align:right;">See: <a href="/w/page/162417909/beliefs%20grouped">Full Positivity Framework</a></p>
+<p>&nbsp;</p>
+<p style="text-align:left;"><span style="...font-size:17px;font-weight:bold;">📜&nbsp;</span><a style="...font-size:17px;font-weight:bold;" href="Assumptions">Foundational Assumptions</a><span style="...font-size:17px;font-weight:bold;">: What You Must Believe at Each Position</span></p>
+<p>Your position on this spectrum depends on deeper assumptions about reality, values, and causation. This section maps those dependencies from most general (worldview) to most specific (this topic).</p>
+<p><strong>Key Insight:</strong>&nbsp;[State the core assumption that divides the two sides. E.g., "Most disagreements about X are really disagreements about Y."]</p>
+<table border="1" cellpadding="8" width="100%"><thead><tr><th width="15%">To Hold Position</th><th width="85%">You Must Believe These Assumptions (Ordered General → Specific)</th>
+</tr></thead><tbody><tr><td style="background-color:#ffcccc;" align="center"><strong>-100% to -50%</strong><br />(Strongly Oppose)</td>
+<td><strong>1. [Most general worldview assumption]:</strong>&nbsp;[Description]<br /><strong>2. [Political/philosophical assumption]:</strong>&nbsp;[Description]<br /><strong>3. [Causal assumption about this domain]:</strong>&nbsp;[Description]<br /><strong>4. [Specific assumption about this topic]:</strong>&nbsp;[Description]<br /><strong>5. [Most specific claim]:</strong>&nbsp;[Description]</td>
+</tr><tr><td style="background-color:#ffe6e6;" align="center"><strong>-50% to -20%</strong><br />(Skeptical)</td>
+<td><strong>1. [Worldview]:</strong>&nbsp;[Description]<br /><strong>2. [Values]:</strong>&nbsp;[Description]<br /><strong>3. [Causal beliefs]:</strong>&nbsp;[Description]<br /><strong>4. [Topic-specific]:</strong>&nbsp;[Description]</td>
+</tr><tr><td style="background-color:#ffffcc;" align="center"><strong>-20% to +20%</strong><br />(Nuanced/Mixed)</td>
+<td><strong>1. [Acknowledges complexity]:</strong>&nbsp;[Description]<br /><strong>2. [Both sides have valid points]:</strong>&nbsp;[Description]<br /><strong>3. [Context matters]:</strong>&nbsp;[Description]<br /><strong>4. [Implementation determines outcome]:</strong>&nbsp;[Description]</td>
+</tr><tr><td style="background-color:#e6ffe6;" align="center"><strong>+20% to +50%</strong><br />(Supportive)</td>
+<td><strong>1. [Worldview]:</strong>&nbsp;[Description]<br /><strong>2. [Values]:</strong>&nbsp;[Description]<br /><strong>3. [Causal beliefs]:</strong>&nbsp;[Description]<br /><strong>4. [Topic-specific]:</strong>&nbsp;[Description]</td>
+</tr><tr><td style="background-color:#ccffcc;" align="center"><strong>+50% to +100%</strong><br />(Strongly Support)</td>
+<td><strong>1. [Most general worldview assumption]:</strong>&nbsp;[Description]<br /><strong>2. [Political/philosophical assumption]:</strong>&nbsp;[Description]<br /><strong>3. [Causal assumption about this domain]:</strong>&nbsp;[Description]<br /><strong>4. [Specific assumption about this topic]:</strong>&nbsp;[Description]<br /><strong>5. [Most specific claim]:</strong>&nbsp;[Description]</td>
+</tr></tbody></table><hr /><p>&nbsp;</p>
+<h2>🪜 Spectrum 2: The Abstraction Ladder (General ↔ Specific)</h2>
+<p>Organizing the assumption chains by level of abstraction. Shows how general worldviews lead to specific positions on this topic.</p>
+<table border="1" cellpadding="8" width="100%"><thead><tr><th width="15%">Level</th><th width="42%">Pro-Topic Assumption Chain</th><th width="43%">Anti-Topic Assumption Chain</th>
+</tr></thead><tbody><tr><td align="center"><strong>Most General</strong><br />(Worldview)</td>
+<td>"[Fundamental belief about human nature, society, or reality that supports this topic]"</td>
+<td>"[Fundamental belief about human nature, society, or reality that opposes this topic]"</td>
+</tr><tr><td align="center">↓</td><td align="center">↓</td><td align="center">↓</td>
+</tr><tr><td align="center"><strong>Political/Ethical Philosophy</strong></td>
+<td>"[Political principle that follows from the worldview]"</td>
+<td>"[Political principle that follows from the worldview]"</td>
+</tr><tr><td align="center">↓</td><td align="center">↓</td><td align="center">↓</td>
+</tr><tr><td align="center"><strong>This Topic</strong></td>
+<td>"[Position on this specific topic: +50% to +100%]"</td>
+<td>"[Position on this specific topic: -50% to -100%]"</td>
+</tr><tr><td align="center">↓</td><td align="center">↓</td><td align="center">↓</td>
+</tr><tr><td align="center"><strong>Most Specific</strong><br />(Policy/Action)</td>
+<td>"[Specific policy or action that follows from supporting this topic]"</td>
+<td>"[Specific policy or action that follows from opposing this topic]"</td>
+</tr></tbody></table><p style="text-align:right;">See:&nbsp;<a href="/w/page/21957696/General%20to%20Specific">General to Specific Framework</a></p>
+<h2>⚖️&nbsp;<a href="/Core%20Values%20Conflict" target="_blank">Core Values Conflict</a></h2>
+<table border="1" cellpadding="8" width="100%"><thead><tr><th width="50%">Values Supporting This Topic</th><th width="50%">Values Opposing This Topic</th>
+</tr></thead><tbody><tr><td valign="top"><strong>Advertised:</strong><br />1. [Value supporters claim to uphold]<br />2. [Value supporters claim to uphold]<br /><br /><strong>Actual (critics say):</strong><br />1. [Hidden motivation critics attribute]<br />2. [Hidden motivation critics attribute]</td>
+<td valign="top"><strong>Advertised:</strong><br />1. [Value opponents claim to uphold]<br />2. [Value opponents claim to uphold]<br /><br /><strong>Actual (critics say):</strong><br />1. [Hidden motivation critics attribute]<br />2. [Hidden motivation critics attribute]</td>
+</tr></tbody></table><hr /><h2>🤝&nbsp;<a href="w/page/162560439/Compromise">Common Ground &amp; Compromise</a></h2>
+<table border="1" cellpadding="8" width="100%"><thead><tr><th width="50%">What Both Sides Might Agree On</th><th width="50%">Possible Compromise Positions</th>
+</tr></thead><tbody><tr><td valign="top">1. [Shared value or goal]<br />2. [Shared concern]<br />3. [Common enemy or problem]</td>
+<td valign="top">1. [Solution addressing both sides' concerns]<br />2. [Incremental approach]<br />3. [Pilot program or experiment]</td>
+</tr></tbody></table><hr /><h2>&nbsp;</h2>
+<h2>⚖️ The Evidence Ledger</h2>
+<p><span style="font-size:13px;">Weighing the raw data. Quality scores are based on methodology, sample size, and reproducibility.</span></p>
+<table style="border-collapse:collapse;" border="1" cellpadding="8" width="100%"><thead><tr style="background-color:#eee;"><th width="40%">Supporting Evidence (Pro)</th> <th width="10%">Quality</th> <th width="40%">Weakening Evidence (Con)</th> <th width="10%">Quality</th>
+</tr></thead><tbody><tr><td><a href="/w/page/%5BLink%5D">[Study/Data Title]</a><br /><span style="font-size:11px;">Source: [Institution/Author] (Year)</span><br /><span style="font-size:11px;">Finding: [Brief summary of finding]</span></td>
+<td align="center"><strong>[95%]</strong><br /><span style="font-size:10px;">(Peer Reviewed)</span></td>
+<td><a href="/w/page/%5BLink%5D">[Study/Data Title]</a><br /><span style="font-size:11px;">Source: [Institution/Author] (Year)</span><br /><span style="font-size:11px;">Finding: [Brief summary of contradiction]</span></td>
+<td align="center"><strong>[80%]</strong><br /><span style="font-size:10px;">(Meta-analysis)</span></td>
+</tr><tr><td>[Historical Precedent/Statistic]</td>
+<td align="center"><strong>[XX%]</strong></td>
+<td>[Logical Paradox/Counter-Statistic]</td>
+<td align="center"><strong>[XX%]</strong></td>
+</tr></tbody></table><p style="text-align:right;">See: <a href="/w/page/159353568/Evidence">Evidence Scoring Methodology</a></p>
+<hr /><h2>&nbsp;</h2>
+<h2>📚 Best Media &amp; Resources</h2>
+<p><span style="font-size:13px;">Curated resources sorted by their bias (positivity) and informational value.</span></p>
+<table style="border-collapse:collapse;" border="1" cellpadding="8" width="100%"><thead><tr style="background-color:#eee;"><th width="30%">Title</th> <th width="15%">Medium</th> <th width="15%">Bias/Tone</th> <th width="10%">Positivity</th> <th width="30%">Key Insight</th>
+</tr></thead><tbody><tr><td><a href="%5BLink%5D">[Title]</a></td>
+<td>[Book/Doc/Article]</td>
+<td>[e.g., Academic/Polemic]</td>
+<td align="center">[+XX%]</td>
+<td>[One sentence summary of the main argument]</td>
+</tr><tr><td><a href="%5BLink%5D">[Title]</a></td>
+<td>[Book/Doc/Article]</td>
+<td>[e.g., Critical/Satire]</td>
+<td align="center">[-XX%]</td>
+<td>[One sentence summary of the main argument]</td>
+</tr></tbody></table><p style="text-align:right;">See: <a href="/w/page/21958666/media">Media Framework</a></p>
+<hr /><h2>&nbsp;</h2>
+<h2>🔗 Related Topics</h2>
+<table border="1" cellpadding="10" width="100%"><thead><tr style="background-color:#eee;"><th>Broader Categories (Parents)</th> <th>Specific Sub-Issues (Children)</th> <th>Related Concepts (Siblings)</th>
+</tr></thead><tbody><tr><td>[Link to Parent 1], [Link to Parent 2]</td>
+<td>[Link to Child 1], [Link to Child 2]</td>
+<td>[Link to Sibling 1], [Link to Sibling 2]</td>
+</tr></tbody></table><hr /><h1>&nbsp;</h1>
+<h1><span style="...font-size:20px;font-weight:bold;">📬 Contribute</span></h1>
+<p><a href="/w/page/160433328/Contact%20Me">Contact me</a> to add beliefs, strengthen arguments, or link new evidence.<br /><a href="https://github.com/myklob/ideastockexchange">GitHub</a> for technical implementation and scoring algorithms.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

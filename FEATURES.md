@@ -357,42 +357,31 @@ Low score on any → Low overall weight
 - Readable on small screens
 - Fast load times
 
-## Future Enhancements (Not Yet Implemented)
+## Future Enhancements
 
-### User Accounts & Authentication
-- Personal profiles
-- Argument attribution
-- Reputation systems
+This list was titled "Not Yet Implemented"; several items have since been built. Status re-checked against the code on 2026-11-22 (the published static site under `tools/static-site/` first, the Next.js app second).
 
-### Advanced Filtering
-- Filter by dimension scores
-- Custom weight configurations
-- Save personal views
-
-### Argument Threading
-- Reply to specific arguments
-- Counter-arguments
-- Nested reasoning trees
-
-### Social Features
-- Follow topics
-- Notifications
-- Discussion forums
-
-### Analytics
-- Topic activity tracking
-- Score change history
-- Argument effectiveness metrics
-
-### Export/Import
-- Export data as JSON
-- Import from other systems
-- Data portability
-
-### Integration
-- Link to external evidence sources
-- Automatic fact-checking
-- Research paper integration
+| Item | Status | Where |
+|---|---|---|
+| Personal profiles | Done | Static `u/<login>.html` per contributor from `content/users.csv` (`render_site.py:3803`); |
+| Argument attribution | Partly done | The mechanism exists: intake writes `added_by` (`intake.py:304`) and the renderer prints "added by @login" (`render_site.py:368-370`). |
+| Reputation systems | Partly done | App only: vote weight from a fallacy caller's track record (`src/app/api/contributors/[userId]/track-record/route.ts:1-25`, `src/lib/fallacy/calibration.ts`). |
+| Filter by dimension scores | Partly done | App `/beliefs` filters by positivity, specificity, claim strength buckets (`src/app/beliefs/page.tsx:45-65`, `fetch-belief.ts:275-288`). |
+| Custom weight configurations | Not done | `grep -ri "custom weight\ |
+| Save personal views | Not done | No saved-view code in either; |
+| Reply to specific arguments / counter-arguments / nested trees | Done | Every reason is its own page with reasons for and against (static `p/<key>.html`, Argument Trees section); |
+| Follow topics | Not done | No follow/subscribe code in `src/app` or the static build |
+| Notifications | Not done | None in either. |
+| Discussion forums | Obsolete | People take part through prefilled GitHub issues (`.github/ISSUE_TEMPLATE/contribute.yml`, `intake.py:191`); |
+| Topic activity tracking | Partly done | Static `next.html` (what to argue next) and app `/leverage` rank where work is needed; |
+| Score change history | Partly done | App only: `BeliefScoreEvent` written in `src/lib/propagate-belief-scores.ts:81`, shown by `ScoreHistorySection` (`src/app/beliefs/[slug]/page.tsx:312`). |
+| Argument effectiveness metrics | Done | Static `sensitivity.py` ("What Would Change the Answer"), `reasonrank.py` (SITE `relied.html`); |
+| Export data as JSON | Done | SITE `data/ise.json`, `ise.xml`, `ise_data.sql`, `ise.sqlite` written by `export_db.py:313` |
+| Import from other systems | Partly done | GitHub issue intake (`intake.py`), Reason Outline filer (`outline_file.py`); |
+| Data portability | Done | Same exports plus `conformance.py` contract and `data/schema.sql` |
+| Link to external evidence sources | Done | Evidence Ledger shows each finding's source (`render_site.py:845`). |
+| Automatic fact-checking | Partly done | `tools/static-site/factcheck/` re-checks published rows via Workflow runs (`factcheck.js`, verdicts in `judged.json`), run by hand, not on every change; |
+| Research paper integration | Partly done | App only, offline: a CrossRef DOI lookup exists (`src/lib/agent-ingest/connectors/crossref.ts:49` `lookupDoi`), run by `scripts/verify-provenance.ts:11-29` over `Evidence.doi` (`prisma/schema.prisma:772`) to set `tierVerified`; |
 
 ## Summary
 

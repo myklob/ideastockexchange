@@ -555,7 +555,7 @@ The forms a built page carries, one per table: a reason to agree and a reason to
 
 | Finding | How serious | What it means |
 |---|---|---|
-| [Circular support / Assumes its own conclusion / The same page listed more than once / Rows that may be the same point twice / Rests only on authority or experience / Evidence filed above the premise it bears on / Costs and benefits given as single figures / Nothing stated would show it false / Nobody has argued the other side] | [serious / worth checking / a note] |   |
+| [Circular support / Assumes its own conclusion / The same page listed more than once / Rows that may be the same point twice / Rests only on authority or experience / Evidence filed above the premise it bears on / Costs and benefits given as single figures / Nothing stated would show it false / No criterion that fails / Nobody has argued the other side] | [serious / worth checking / a note] |   |
 
 Fallacy detection by pattern-matching the prose is not done: a score moved by a pattern match has no page to appeal to. A fallacy is argued as a reason to disagree on the linkage page of the row it infects.
 
@@ -573,6 +573,11 @@ Fallacy detection by pattern-matching the prose is not done: a score moved by a 
 Every value here is computed from the tables above at build time. What it reads but does not compute, because an author typed it: a position on the topic axis; the source type, replications and share agreeing on each finding; the four labels on each objective criterion; the supporters’ and opponents’ value rankings; the load-bearing flag on each component; the cost and benefit estimates and their ranges; the bottom line.
 
 Cite this page: [Belief]. Idea Stock Exchange, belief page [Page_Key], truth [Truth_Score], confidence [Confidence]%, revision [Revision] of [Date].
+
+> **Builder notes**
+>
+> CONTRIBUTE: on the built site, the maintainer linked to their contributor page, a link to open an
+>     issue for anything no Add link takes, and the repository link.
 
 # 📬 Contribute
 

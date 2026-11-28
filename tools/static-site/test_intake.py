@@ -1317,6 +1317,33 @@ class TestTheCommandLine(unittest.TestCase):
         finally:
             shutil.rmtree(d, ignore_errors=True)
 
+    def test_a_post_it_cannot_read_is_answered_on_the_issue(self):
+        """Issue 252 came in labelled `contribution` with the claim and none of the form's fields. The run
+        failed and nobody told the sender. Now the reason goes back on the issue, and the run still fails."""
+        try:
+            import render_site  # noqa: F401
+        except ImportError as e:
+            raise unittest.SkipTest(f'openpyxl missing: {e}')
+        d = small_corpus()
+        try:
+            ev = event('This is a great way of lining up incentives.', 'contribution')
+            path = os.path.join(d, 'event.json')
+            with open(path, 'w') as fh: json.dump(ev, fh)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out): code = K.main(['--event', path, '--dry-run', '--content', d])
+            text = out.getvalue()
+            self.assertEqual(code, 1, 'a post that files nothing must still fail the run, so the maintainer sees it')
+            self.assertIn('::error::', text)
+            self.assertIn('would run: gh issue comment 7', text)
+            self.assertIn('Nothing from this issue was filed', text)
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+
+    def test_an_issue_from_no_form_gets_no_reply(self):
+        ev = {'issue': {'number': 9, 'body': 'hello', 'labels': []}}
+        self.assertFalse(K.tell_the_sender(ev, K.IntakeError("this issue did not come from one of the site's forms; nothing to do"),
+                                           lambda args, cwd=None: self.fail('nothing may run')))
+
     def test_the_votes_header_is_the_contract(self):
         """`on` came last so that a votes.csv written before it existed is the same table with one column
         fewer: the checked-in file has either header, and the next vote written rewrites it with all six."""
