@@ -20,10 +20,7 @@ export interface ArenaEnemy {
   name: string
   topic: string
   positivity: number
-  hp: number
-  attack: number
   defense: number
-  speed: number
   level: number
   unitClass: string
   tankInput: BeliefUnitInput
@@ -40,6 +37,7 @@ interface Vec {
 
 interface EnemyEntity {
   source: ArenaEnemy
+  stats: TankStats
   pos: Vec
   hp: number
   maxHp: number
@@ -79,6 +77,12 @@ const VIEW_H = 600
 const BULLET_TTL = 1.4
 const BEST_SCORE_KEY = 'arena:bestScore'
 const CAREER_SCORE_KEY = 'arena:careerScore'
+// Enemies use the same belief-derived tank stats as the champion, scaled
+// down so a 59-strong swarm doesn't out-DPS a single player tank.
+const ENEMY_SPEED_SCALE = 0.4
+const ENEMY_BULLET_SPEED_SCALE = 0.85
+const ENEMY_DAMAGE_SCALE = 0.6
+const ENEMY_RELOAD_PADDING = 0.6
 
 function clamp(v: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, v))
@@ -93,10 +97,12 @@ function colorForBelief(e: ArenaEnemy): string {
 }
 
 function spawnEnemy(source: ArenaEnemy): EnemyEntity {
-  const radius = 18 + (source.hp / 100) * 22
-  const maxHp = 30 + source.hp * 1.6
+  const stats = computeTankBaseStats(source.tankInput)
+  const maxHp = stats.maxHealth
+  const radius = 18 + (clamp(maxHp, 60, 240) - 60) / 180 * 22
   return {
     source,
+    stats,
     pos: {
       x: Math.random() * WORLD_SIZE,
       y: Math.random() * WORLD_SIZE,
@@ -377,7 +383,7 @@ export default function ArenaGame({ enemies }: Props) {
         const dx = player.pos.x - en.pos.x
         const dy = player.pos.y - en.pos.y
         const dist = Math.hypot(dx, dy) || 1
-        const speed = 30 + en.source.speed * 0.6
+        const speed = en.stats.movementSpeed * ENEMY_SPEED_SCALE
         const ex = dx / dist
         const ey = dy / dist
         const approach = dist > 280 ? 1 : -0.3
@@ -394,18 +400,18 @@ export default function ArenaGame({ enemies }: Props) {
 
         en.cooldown -= dt
         if (dist < 480 && en.cooldown <= 0) {
-          const enemyBulletSpeed = 380
+          const enemyBulletSpeed = en.stats.bulletSpeed * ENEMY_BULLET_SPEED_SCALE
           bullets.push({
             pos: { x: en.pos.x, y: en.pos.y },
             vel: { x: ex * enemyBulletSpeed, y: ey * enemyBulletSpeed },
             ttl: BULLET_TTL,
-            damage: 4 + en.source.attack * 0.18,
+            damage: en.stats.bulletDamage * ENEMY_DAMAGE_SCALE,
             fromPlayer: false,
             radius: 4,
             pierceLeft: 1,
             hitIds: new Set(),
           })
-          en.cooldown = 1.4 - clamp(en.source.speed / 100, 0, 1) * 0.9
+          en.cooldown = en.stats.reload + ENEMY_RELOAD_PADDING
         }
 
         // Contact: ramming. Player body damage hits enemy, enemy body
@@ -414,7 +420,7 @@ export default function ArenaGame({ enemies }: Props) {
         en.contactCooldown = Math.max(0, en.contactCooldown - dt)
         if (dist < player.radius + en.radius && en.contactCooldown === 0) {
           en.hp -= player.stats.bodyDamage
-          player.hp -= 6 + en.source.attack * 0.12
+          player.hp -= en.stats.bodyDamage * ENEMY_DAMAGE_SCALE
           en.contactCooldown = 0.4
           if (en.hp <= 0) {
             en.alive = false
