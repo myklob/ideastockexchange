@@ -44,7 +44,7 @@ const parent: BeliefHtmlInput = {
   netScore: 41,
   args: [
     {
-      label: 'eliminates spoiler effect',
+      label: 'RCV eliminates the spoiler effect',
       side: 'agree',
       childSlug: 'rcv-eliminates-spoiler-effect',
       truthScore: TRUTH_NET,
@@ -55,7 +55,7 @@ const parent: BeliefHtmlInput = {
       impactScore: impact('agree', TRUTH_NET, IMPORTANCE_NET, LINKAGE),
     },
     {
-      label: 'reflects majority support',
+      label: 'RCV winners reflect majority support',
       side: 'agree',
       childSlug: null,
       truthScore: null,
@@ -65,7 +65,7 @@ const parent: BeliefHtmlInput = {
       impactScore: null,
     },
     {
-      label: 'ballot exhaustion',
+      label: 'Exhausted ballots stop counting before the final round',
       side: 'disagree',
       childSlug: null,
       truthScore: null,
@@ -75,7 +75,7 @@ const parent: BeliefHtmlInput = {
       impactScore: null,
     },
     {
-      label: 'voter confusion',
+      label: 'Ranking confuses a meaningful share of voters',
       side: 'disagree',
       childSlug: null,
       truthScore: null,
@@ -86,9 +86,9 @@ const parent: BeliefHtmlInput = {
     },
   ],
   evidence: [
-    { tier: 'T1', source: 'Maine 2018 federal election results', stance: 'Supports', bearsOn: 'eliminates spoiler effect', linkage: 'strong' },
-    { tier: 'T3', source: 'FairVote turnout analysis', stance: 'Supports', bearsOn: 'reflects majority support', linkage: 'medium' },
-    { tier: 'T3', source: 'San Francisco exit survey on ranking', stance: 'Weakens', bearsOn: 'voter confusion', linkage: 'low confidence' },
+    { tier: 'T1', source: 'Maine 2018 federal election results', stance: 'Supports', bearsOn: 'RCV eliminates the spoiler effect', linkage: 'strong' },
+    { tier: 'T3', source: 'FairVote turnout analysis', stance: 'Supports', bearsOn: 'RCV winners reflect majority support', linkage: 'medium' },
+    { tier: 'T3', source: 'San Francisco exit survey on ranking', stance: 'Weakens', bearsOn: 'Ranking confuses a meaningful share of voters', linkage: 'low confidence' },
   ],
   objectiveCriteria: [
     {
@@ -166,12 +166,12 @@ const truthChild: BeliefHtmlInput = {
   subcategory: 'Electoral Reform',
   netScore: TRUTH_NET,
   supports: [
-    { parentStatement: 'Adopt ranked-choice voting', parentSlug: 'ranked-choice-voting', argumentLabel: 'eliminates spoiler effect' },
+    { parentStatement: 'Adopt ranked-choice voting', parentSlug: 'ranked-choice-voting', argumentLabel: 'RCV eliminates the spoiler effect' },
   ],
   args: [
-    { label: 'later choices count', side: 'agree', importanceScore: 0.9, linkageScore: 0.95, argumentId: null, impactScore: null },
-    { label: 'no wasted-vote incentive', side: 'agree', importanceScore: 0.8, linkageScore: 0.85, argumentId: null, impactScore: null },
-    { label: 'center squeeze remains', side: 'disagree', importanceScore: 0.5, linkageScore: 0.6, argumentId: null, impactScore: null },
+    { label: 'A later choice still counts once a first choice is eliminated', side: 'agree', importanceScore: 0.9, linkageScore: 0.95, argumentId: null, impactScore: null },
+    { label: 'Voters have no incentive to abandon a sincere first choice', side: 'agree', importanceScore: 0.8, linkageScore: 0.85, argumentId: null, impactScore: null },
+    { label: 'A broadly preferred centrist can still be eliminated early', side: 'disagree', importanceScore: 0.5, linkageScore: 0.6, argumentId: null, impactScore: null },
   ],
   definitions: [
     { term: 'Center squeeze', definition: 'a centrist preferred by most voters can be eliminated early for lacking first-choice votes.' },
@@ -186,18 +186,18 @@ const importanceChild: BeliefHtmlInput = {
   subcategory: 'Electoral Reform',
   netScore: IMPORTANCE_NET,
   supports: [
-    { parentStatement: 'Adopt ranked-choice voting', parentSlug: 'ranked-choice-voting', argumentLabel: 'importance of "eliminates spoiler effect"' },
+    { parentStatement: 'Adopt ranked-choice voting', parentSlug: 'ranked-choice-voting', argumentLabel: 'importance of "RCV eliminates the spoiler effect"' },
   ],
   args: [
-    { label: 'changed presidential outcomes', side: 'agree', importanceScore: 0.9, linkageScore: 0.8, argumentId: null, impactScore: null },
-    { label: 'distorts third parties', side: 'agree', importanceScore: 0.7, linkageScore: 0.75, argumentId: null, impactScore: null },
-    { label: 'rare in practice', side: 'disagree', importanceScore: 0.5, linkageScore: 0.5, argumentId: null, impactScore: null },
+    { label: 'Spoilers have changed presidential outcomes', side: 'agree', importanceScore: 0.9, linkageScore: 0.8, argumentId: null, impactScore: null },
+    { label: 'The spoiler threat suppresses third-party support', side: 'agree', importanceScore: 0.7, linkageScore: 0.75, argumentId: null, impactScore: null },
+    { label: 'Decisive spoilers are rare in practice', side: 'disagree', importanceScore: 0.5, linkageScore: 0.5, argumentId: null, impactScore: null },
   ],
 }
 
 const linkagePage = renderLinkageHtml({
   argumentId: 1,
-  argumentLabel: 'eliminates spoiler effect',
+  argumentLabel: 'RCV eliminates the spoiler effect',
   parentStatement: 'Adopt ranked-choice voting',
   parentSlug: 'ranked-choice-voting',
   childStatement: 'RCV eliminates the spoiler effect',
@@ -242,7 +242,7 @@ function main() {
       { href: 'belief_ranked-choice-voting.html', label: 'Adopt ranked-choice voting (parent)' },
       { href: 'belief_rcv-eliminates-spoiler-effect.html', label: 'RCV eliminates the spoiler effect (Truth child)' },
       { href: 'belief_spoiler-effect-major-problem.html', label: 'The spoiler effect is a major, solvable problem (Importance child)' },
-      { href: 'linkage_1.html', label: 'Linkage Score Analysis: eliminates spoiler effect' },
+      { href: 'linkage_1.html', label: 'Linkage Score Analysis: RCV eliminates the spoiler effect' },
     ]),
     'utf8',
   )

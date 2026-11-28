@@ -11,7 +11,9 @@
  *   - inline styles only, no class=, no id=, no href="#" or internal anchors
  *   - no em dashes (use " - " or " to ")
  *   - definitions render LAST, never first (Rule 1)
- *   - argument cells are atomic labels; data lives in the Evidence Ledger (Rules 3, 4)
+ *   - argument cells are complete atomic propositions, never topic fragments;
+ *     data lives in the Evidence Ledger (Rules 3, 4)
+ *   - argument rows are score-ranked, strongest impact first, unscored last (Rule 8)
  *   - Truth / Importance / Linkage score cells are LINKS to their source pages
  *     when those pages exist, plain text otherwise (Rules 5, 6)
  *
@@ -24,7 +26,12 @@
 export type Side = 'agree' | 'disagree'
 
 export interface ArgRow {
-  /** Atomic 2-6 word label (Rule 3). */
+  /**
+   * A complete, atomic proposition whose pro/con direction is evident on its
+   * own (Rule 3). Every argument is a belief with its own page, so this must be
+   * able to headline that page as a claim ("RCV eliminates the spoiler effect"),
+   * not a topic fragment ("spoiler effect").
+   */
   label: string
   side: Side
   /** Truth source: the child belief slug. Score cell links here when set. */
@@ -61,7 +68,7 @@ export interface SupportsBacklink {
   /** Parent belief this page is a reason for. */
   parentStatement: string
   parentSlug?: string | null
-  /** The atomic label this belief carries inside the parent's argument tree. */
+  /** The atomic proposition this belief carries inside the parent's argument tree. */
   argumentLabel?: string | null
 }
 
@@ -250,11 +257,18 @@ function renderSupports(supports: SupportsBacklink[] | undefined, mode: 'file' |
 </div>`
 }
 
+/** Rule 8: strongest impact first; unscored rows sink to the bottom. */
+function rankArguments(rows: ArgRow[]): ArgRow[] {
+  const impact = (a: ArgRow) =>
+    a.impactScore === null || a.impactScore === undefined ? -Infinity : Math.abs(a.impactScore)
+  return [...rows].sort((x, y) => impact(y) - impact(x))
+}
+
 function renderArgumentTable(rows: ArgRow[], heading: string, headerColor: string, mode: 'file' | 'route'): string {
   const body =
     rows.length === 0
       ? `<tr><td style="${TD}" colspan="5"><em style="color:#888;">No arguments yet.</em></td></tr>`
-      : rows
+      : rankArguments(rows)
           .map((a, i) => {
             const labelCell = a.childSlug
               ? `<a href="${beliefHref(a.childSlug, mode)}" style="color:#1a5fb4; text-decoration:none;">${esc(a.label)}</a>`

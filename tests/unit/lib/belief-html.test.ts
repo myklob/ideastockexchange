@@ -23,7 +23,7 @@ const base: BeliefHtmlInput = {
   netScore: 41,
   args: [
     {
-      label: 'eliminates spoiler effect',
+      label: 'RCV eliminates the spoiler effect',
       side: 'agree',
       childSlug: 'rcv-eliminates-spoiler-effect',
       truthScore: 72,
@@ -34,7 +34,7 @@ const base: BeliefHtmlInput = {
       impactScore: 48.6,
     },
     {
-      label: 'voter confusion',
+      label: 'Ranking confuses a meaningful share of voters',
       side: 'disagree',
       childSlug: null,
       truthScore: null,
@@ -82,7 +82,7 @@ describe('renderBeliefHtml', () => {
   })
 
   it('renders plain text (not a link) when a score page is absent (Rule 5)', () => {
-    // "voter confusion" has importance 0.4 but no importance page -> plain 40%.
+    // The confusion row has importance 0.4 but no importance page -> plain 40%.
     expect(html).toContain('>40%</td>')
     expect(html).not.toContain('linkage_2.html')
   })
@@ -113,7 +113,7 @@ describe('renderBeliefHtml', () => {
       slug: 'rcv-eliminates-spoiler-effect',
       statement: 'RCV eliminates the spoiler effect',
       supports: [
-        { parentStatement: 'Adopt ranked-choice voting', parentSlug: 'ranked-choice-voting', argumentLabel: 'eliminates spoiler effect' },
+        { parentStatement: 'Adopt ranked-choice voting', parentSlug: 'ranked-choice-voting', argumentLabel: 'RCV eliminates the spoiler effect' },
       ],
     })
     expect(child).toContain('Supports:')
@@ -124,6 +124,23 @@ describe('renderBeliefHtml', () => {
     const routed = renderBeliefHtml({ ...base, linkMode: 'route' })
     expect(routed).toContain('href="/beliefs/rcv-eliminates-spoiler-effect"')
     expect(routed).toContain('href="/arguments/1/linkage"')
+  })
+
+  it('ranks argument rows by impact, strongest first, unscored last (Rule 8)', () => {
+    const ranked = renderBeliefHtml({
+      ...base,
+      args: [
+        { label: 'Unscored claim', side: 'agree', impactScore: null },
+        { label: 'Weak claim', side: 'agree', impactScore: 10 },
+        { label: 'Strong claim', side: 'agree', impactScore: 80 },
+      ],
+    })
+    const strong = ranked.indexOf('Strong claim')
+    const weak = ranked.indexOf('Weak claim')
+    const unscored = ranked.indexOf('Unscored claim')
+    expect(strong).toBeGreaterThan(-1)
+    expect(strong).toBeLessThan(weak)
+    expect(weak).toBeLessThan(unscored)
   })
 
   it('renders the full canonical section set in order, definitions last', () => {
@@ -177,7 +194,7 @@ describe('renderBeliefHtml', () => {
 describe('renderLinkageHtml', () => {
   const html = renderLinkageHtml({
     argumentId: 1,
-    argumentLabel: 'eliminates spoiler effect',
+    argumentLabel: 'RCV eliminates the spoiler effect',
     parentStatement: 'Adopt ranked-choice voting',
     parentSlug: 'ranked-choice-voting',
     childStatement: 'RCV eliminates the spoiler effect',
