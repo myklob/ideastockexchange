@@ -375,7 +375,9 @@ feed it. Renders nothing when no open contract exists.
    and the Reading That Would Weaken must differ from each other: a criterion both sides expect to come
    out the same way tests nothing. Every page includes at least one **deliberately failing criterion**,
    scored low with its reasons, because a rubric with no failing example does not show readers where the
-   line is. The Latest Reading column is the open invitation; it stays blank until somebody fills it with
+   line is. A criterion fails when its Validity or Linkage is typed Low or its own page argues below 0.50
+   (a Low Reliability does not count); a page whose criteria include none is asked for one in What This
+   Page Needs Right Now and noted in Structural Checks, and neither moves a score. The Latest Reading column is the open invitation; it stays blank until somebody fills it with
    a sourced number.
 4. **Falsifiability Test** (`Evidence That Would Strengthen / Score / Evidence That
    Would Weaken / Score`, each row a realistic, bet-specific score-mover) +
@@ -504,11 +506,11 @@ feed it. Renders nothing when no open contract exists.
     a vote for the claim already here. A vote is shown as what people think,
     next to what the analysis says, and never moves a score.
 14c. **Structural Checks** *(built site; renders only when one fires)*: `Finding / How
-    serious / What it means`, the nine faults the shape of the argument can show (circular
+    serious / What it means`, the ten faults the shape of the argument can show (circular
     support, assumes its own conclusion, the same page listed twice, rows that may be the
     same point, rests only on authority, evidence filed above its premise, single-figure
-    costs, nothing that would show it false, one side argued). None moves a score;
-    fallacy pattern-matching is not done.
+    costs, nothing that would show it false, criteria none of which fails, one side argued).
+    None moves a score; fallacy pattern-matching is not done.
 14d. **Scoring Engine and Cite This Page** *(built site)*: `Quantity / Value / How`, every
     value computed at build time, followed by the list of what an author typed on this
     kind of page and a citation naming the revision the numbers came from.
@@ -521,7 +523,9 @@ feed it. Renders nothing when no open contract exists.
     propagation), and the reminder that every score above is a clickable doorway.
     On high-stakes beliefs the form and API walk the speed bumps: acknowledge the
     strongest current opposing argument (verified server-side) and affirm the moral
-    principle the post rests on.
+    principle the post rests on. On the built site it is the contact line: the maintainer,
+    linked to their contributor page, a link to open an issue for anything no Add link
+    takes, and the repository, since the Add links under each table are the forms.
 16. **Related Topics** *(renders only when the belief has category siblings)*:
     the category cluster: a link to the topic hub (the category-filtered belief
     index) and the sibling beliefs in this cluster, each linked, with the current

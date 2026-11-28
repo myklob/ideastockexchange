@@ -88,10 +88,10 @@ REFS = [('claim', 'id'), ('link', 'link'), ('imp', 'imp'), ('uniq', 'uniq'), ('d
 PLAIN = [('text', 'text'), ('source', 'source'), ('pattern', 'pattern'), ('category', 'category'),
          ('magnitude', 'magnitude'), ('mag_low', 'mag_low'), ('mag_high', 'mag_high'), ('deadline', 'deadline')]
 # everything else a row can carry, by section, written into and read out of the `extra` column
-EXTRA = {'component': ['type', 'stated', 'lb', 'assumes'], 'motive': ['advertised', 'actual'],
+EXTRA = {'component': ['type', 'stated', 'lb', 'assumes'], 'motive': ['advertised', 'actual', 'evidence'],
          'compromise': ['premise', 'difficult'], 'shared_interest': ['direction'],
-         'value': ['value', 'srank', 'orank', 'why'], 'definition': ['term', 'definition'],
-         'dispute': ['what', 'move'], 'interest': ['value', 'measured'], 'media': ['type'],
+         'value': ['value', 'srank', 'orank', 'why', 'shift'], 'definition': ['term', 'definition'],
+         'dispute': ['what', 'move'], 'interest': ['value', 'measured', 'prevalence', 'prevalence_source'], 'media': ['type'],
          'criterion': ['method', 'validity', 'reliability', 'linkage', 'importance', 'strengthen', 'weaken', 'latest']}
 # what any row can carry about where it came from, in the same cell: the address its source can be read at, the
 # day that was checked, the login that added the row and the day it was added (intake writes all four)
@@ -184,7 +184,7 @@ def specs_to_tables(specs, beliefs=None):
                             continue
                         e[col] = v
                     ex = {f: d[f] for f in EXTRA.get(section, []) if d.get(f) not in (None, '')}
-                    if section == 'interest': ex = {f: v for f, v in ex.items() if not is_page(d.get('id'))}
+                    if section == 'interest' and is_page(d.get('id')): ex = {f: v for f, v in ex.items() if f not in ('value', 'measured')}
                     ex.update({f: d[f] for f in PROVENANCE + TAGS if d.get(f) not in (None, '')})
                     if ex: e['extra'] = fmt_extra(ex)
                     if any(e.get(c) not in (None, '') for c in EDGE_COLS[3:]): edges.append(e)

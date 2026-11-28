@@ -21,6 +21,7 @@ from sensitivity import Sensitivity, INERT
 from reasonrank import ReasonRank, DAMPING as RR_DAMPING
 from similarity import Similarity
 from integrity import Integrity
+import integrity as INTEGRITY
 import fallacy as FALLACY
 import predictions as PRED
 import method
@@ -401,11 +402,12 @@ def collapse_tables(markup, n=5):
     keyboard reaches it and no script is needed. It sits under the table, where the hidden rows would be, and
     not above it: two tables side by side keep their header rows level whichever of them is folded. Print shows
     every row. The all-pages table keeps its own search box instead, and the small check and connection tables
-    never reach five rows."""
+    never reach five rows. The list of what a draft has not filled in is not ranked, so it is never folded: a
+    draft that hid its sixth missing part would be hiding work it needs."""
     counter = [0]
     def one(m):
         head, body = m.group(1), m.group(2)
-        if 'id="all"' in head or 'check' in head or 'conn' in head or 'engine' in head or 'whole' in head: return m.group(0)
+        if 'id="all"' in head or any(w in head for w in ('check', 'conn', 'engine', 'whole', 'todo')): return m.group(0)
         rows = re.findall(r'<tr\b[^>]*>.*?</tr>', body, re.S)
         if len(rows) <= n: return m.group(0)
         counter[0] += 1
@@ -469,12 +471,18 @@ def times_avg(c, v):
 # squeeze its text column, the short form is printed with the full word as its expansion.
 WORDS_FOR = {'Conf': 'Confidence', 'Link': 'Linkage', 'Imp': 'Importance', 'Uniq': 'Uniqueness',
              'EVS': 'Evidence Verification Score: how strong the evidence is, the wiki measure, read by nothing'}
-def th(word, short=False):
+# Where a factor word may break across two lines of its header. A side of a two-sided table has 540 pixels, and the
+# four words each kept on one line would not fit beside the claim; broken, none is wider than the numbers under it.
+FOLDS = {'Confidence': 'Confi&shy;dence', 'Linkage': 'Link&shy;age', 'Importance': 'Impor&shy;tance', 'Uniqueness': 'Unique&shy;ness'}
+def th(word, short=False, fold=False):
     """A header cell for a factor column: the word in full, or in a narrow table its short form with the full word
-    as an abbreviation a reader can hover or a screen reader can expand."""
+    as an abbreviation a reader can hover or a screen reader can expand. With `fold`, the full word, allowed to
+    break at a hyphen where the column is narrower than the word."""
     full = WORDS_FOR.get(word, word)
     if short or word == 'EVS':
         return f'<th><abbr title="{esc(full)}">{esc(word)}</abbr></th>'
+    if fold and full in FOLDS:
+        return f'<th class="fold">{FOLDS[full]}</th>'
     return f'<th>{esc(full)}</th>'
 
 class Html:
@@ -571,11 +579,12 @@ def conf_cell(H, c, d):
 
 
 def scored_table(H, c, side_rows, specs_rows, headers, key_label, votes=False):
-    """One side of a two-sided scored table: rank, text, Truth, Link, Imp, Uniq, Score. Sorted by score. With
-    `votes`, a row that is a page carries its two vote links under its text, the way the heading line does."""
+    """One side of a two-sided scored table: rank, text, Truth, Confidence, Linkage, Importance, Uniqueness, Score.
+    Sorted by score. With `votes`, a row that is a page carries its two vote links under its text, the way the
+    heading line does."""
     order = side_order(side_rows)
     out = [f'<table class="scored"><thead><tr><th class="rk">#</th><th>{esc(key_label)}</th><th>Truth</th>'
-           + ''.join(th(w, short=True) for w in ('Conf', 'Link', 'Imp', 'Uniq')) + '<th>Score</th></tr></thead><tbody>']
+           + ''.join(th(w, fold=True) for w in ('Conf', 'Link', 'Imp', 'Uniq')) + '<th>Score</th></tr></thead><tbody>']
     for rank, i in enumerate(order, 1):
         d, r = specs_rows[i], side_rows[i]
         vl = row_votes(c, d['id'], d, H.pid) if votes and is_page(d.get('id')) else ''
@@ -866,10 +875,26 @@ def render_belief(c, pid):
                f'k x 2 x ERQ / (ERQ + 1), k = {K}; hover a Starts at figure for its own numbers (<a href="../method.html#starts">how</a>).</p>'
                + add_form(H.up, 'evidence', 'agree', key) + '</section>')
     else: todo.append(('Evidence Ledger', 'no findings cited yet'))
+    # ---- objective criteria: the yardstick named before the reading
+    crit = [d for d in sp.get('criteria', []) if has(d)]
+    if crit:
+      o.append(H.section('Objective Criteria', 'Pick the yardstick before you look at the reading. Each criterion is itself a claim with its own page, and a good one is one where supporters and opponents predict different readings; a criterion both sides expect to come out the same way tests nothing. Validity: does it measure what is claimed? Reliability: would two observers get the same reading? Linkage: how directly does the reading bear on this belief? Importance: how much does the conclusion move once the reading is in? These four labels are typed by the author, not computed, and nothing reads them; Score is the criterion page\'s own truth. The Latest Reading column is the open invitation: it stays blank until somebody fills it with a sourced number.', ('Objective criteria', WIKI['criteria'])))
+      o.append('<table class="plain"><thead><tr><th>Proposed criterion, and the reading each side predicts</th><th>Score</th><th>Validity</th><th>Reliability</th><th>Linkage</th><th>Importance</th><th>Latest reading</th></tr></thead><tbody>')
+      for d in crit:
+        score = H.num(c.truth(d['id']), d['id']) if is_page(d.get('id')) else ''
+        low = (d.get('validity') or '').lower() == 'low' or (d.get('linkage') or '').lower() == 'low'
+        o.append(f'<tr{" class=lowc" if low else ""}><td class="t">{H.rowtext(d)}' + (f'<div class="src">How it is measured: {esc(d["method"])}</div>' if d.get('method') else '')
+                 + (vote_links(c, d['id']) if is_page(d.get('id')) else '')
+                 + (f'<div class="src side-agree">A reading that would strengthen the belief: {esc(d["strengthen"])}</div>' if d.get('strengthen') else '')
+                 + (f'<div class="src side-disagree">A reading that would weaken it: {esc(d["weaken"])}</div>' if d.get('weaken') else '') + f'</td><td>{score}</td>'
+                 + ''.join(f'<td>{esc(d.get(k) or "")}</td>' for k in ('validity', 'reliability', 'linkage', 'importance'))
+                 + f'<td class="u">{esc(d.get("latest") or "") or "<span class=c>not yet read</span>"}</td></tr>')
+      o.append('</tbody></table>' + add_form(H.up, 'criterion', 'agree', key) + '</section>')
+    else: todo.append(('Objective Criteria', 'no yardstick both sides would accept in advance has been proposed'))
     # ---- predictions
     def pred_table(specs_rows, side_rows):
-        out = ['<table class="scored"><thead><tr><th>Prediction</th><th>Truth</th>' + ''.join(th(w, short=True) for w in ('Conf', 'Link', 'Imp', 'Uniq'))
-               + '<th><abbr title="Contribution: what the prediction adds to the page now">Contrib.</abbr></th><th>At stake</th></tr></thead><tbody>']
+        out = ['<table class="scored pred"><thead><tr><th>Prediction</th><th>Truth</th>' + ''.join(th(w, fold=True) for w in ('Conf', 'Link', 'Imp', 'Uniq'))
+               + '<th class="fold" title="What the prediction adds to the page now">Contri&shy;bution</th><th class="fold">At stake</th></tr></thead><tbody>']
         order = sorted(side_order(side_rows), key=lambda i: (-side_rows[i]['score'] * side_rows[i].get('sign', 1), -side_rows[i]['stake']))
         for d, r in ((specs_rows[i], side_rows[i]) for i in order):
             dl = f'<div class="src">By when, and how it is checked: {esc(d["deadline"])}</div>' if d.get('deadline') else '<div class="src">No deadline or method stated yet.</div>'
@@ -891,22 +916,22 @@ def render_belief(c, pid):
                + '. At stake for a row = Conf x Link x Imp x Uniq x (1 - |2 x Truth - 1|): what it would add once settled, '
                'largest while it is pending at 0.50.</p>' + add_form(H.up, 'prediction', 'agree', key) + '</section>')
     else: todo.append(('Testable Predictions', 'nothing stated that we should observe if this ' + ('belief' if k == 'belief' else 'claim') + ' is true or false'))
-    # ---- objective criteria: the yardstick named before the reading
-    crit = [d for d in sp.get('criteria', []) if has(d)]
-    if crit:
-      o.append(H.section('Objective Criteria', 'Pick the yardstick before you look at the reading. Each criterion is itself a claim with its own page, and a good one is one where supporters and opponents predict different readings; a criterion both sides expect to come out the same way tests nothing. Validity: does it measure what is claimed? Reliability: would two observers get the same reading? Linkage: how directly does the reading bear on this belief? Importance: how much does the conclusion move once the reading is in? These four labels are typed by the author, not computed, and nothing reads them; Score is the criterion page\'s own truth. The Latest Reading column is the open invitation: it stays blank until somebody fills it with a sourced number.'))
-      o.append('<table class="plain"><thead><tr><th>Proposed criterion, and the reading each side predicts</th><th>Score</th><th>Validity</th><th>Reliability</th><th>Linkage</th><th>Importance</th><th>Latest reading</th></tr></thead><tbody>')
-      for d in crit:
-        score = H.num(c.truth(d['id']), d['id']) if is_page(d.get('id')) else ''
-        low = (d.get('validity') or '').lower() == 'low' or (d.get('linkage') or '').lower() == 'low'
-        o.append(f'<tr{" class=lowc" if low else ""}><td class="t">{H.rowtext(d)}' + (f'<div class="src">How it is measured: {esc(d["method"])}</div>' if d.get('method') else '')
-                 + (vote_links(c, d['id']) if is_page(d.get('id')) else '')
-                 + (f'<div class="src side-agree">A reading that would strengthen the belief: {esc(d["strengthen"])}</div>' if d.get('strengthen') else '')
-                 + (f'<div class="src side-disagree">A reading that would weaken it: {esc(d["weaken"])}</div>' if d.get('weaken') else '') + f'</td><td>{score}</td>'
-                 + ''.join(f'<td>{esc(d.get(k) or "")}</td>' for k in ('validity', 'reliability', 'linkage', 'importance'))
-                 + f'<td class="u">{esc(d.get("latest") or "") or "<span class=c>not yet read</span>"}</td></tr>')
-      o.append('</tbody></table>' + add_form(H.up, 'criterion', 'agree', key) + '</section>')
-    else: todo.append(('Objective Criteria', 'no yardstick both sides would accept in advance has been proposed'))
+    # ---- anatomy
+    if [d for d in sp.get('components', []) if has(d)]:
+      o.append(H.section('Logical Anatomy', 'One sentence is usually several claims. The truth score other pages read cannot exceed the weakest load-bearing component that has its own page.', ('Assumptions', WIKI['assumptions'])))
+      if sp.get('form'): o.append(f'<p class="form"><span class="lab">Logical form</span> {esc(sp["form"])}</p>')
+      o.append('<table class="plain"><thead><tr><th>Component claim</th><th>Type</th><th>Stated?</th><th>Load bearing (typed)</th><th>Truth</th><th>What it silently assumes</th></tr></thead><tbody>')
+      for d in sp.get('components', []):
+        if not has(d): continue
+        lb = str(d.get('lb', '')).upper() == 'Y'
+        o.append(f'<tr{" class=lb" if lb else ""}><td class="t">{H.rowtext(d)}</td><td>{esc(d.get("type") or "")}</td><td>{esc(d.get("stated") or "")}</td><td>{"Yes" if lb else "No"}</td><td>{H.num(c.pg(d.get("id"), UNARG), d.get("id"))}</td><td class="u">{esc(d.get("assumes") or "")}</td></tr>')
+      o.append('</tbody></table>')
+      o.append(f'<p class="tot">Weakest load-bearing component {f2(s["weakest"]) if s["weakest"] is not None else "(none with a page)"} · argued truth {f2(s["raw"])} · truth score {f2(s["truth"])} · product of load-bearing truths {f2(s["conj"]) if s["conj"] is not None else "(none)"}, shown for comparison and read by nothing. '
+               'Which components are load-bearing is typed by the author, not argued; the wiki\'s Necessity Score is not computed.</p>')
+      if sp.get('assume_accept') or sp.get('assume_reject'):
+        o.append(two_sided(H, c, 'Required to accept the belief', 'Required to reject the belief', simple_rows(H, c, sp.get('assume_accept', []), votes=True), simple_rows(H, c, sp.get('assume_reject', []), votes=True)))
+      o.append(forms_grid(H.up, key, ('component', 'assumption'), first=False) + '</section>')
+    else: todo.append(('Logical Anatomy', 'the claim has not been split into its component parts'))
     # ---- cost-benefit
     def cba_table(items, who_label):
         out = [f'<table class="scored"><thead><tr><th>Claim</th><th>Estimate</th><th>Range</th><th>Likelihood</th><th>Expected value</th></tr></thead><tbody>']
@@ -954,22 +979,6 @@ def render_belief(c, pid):
         o.append('<h3 class="sub">Short-term against long-term</h3>' + two_sided(H, c, 'Short-term (0 to 2 years)', 'Long-term (5 years and beyond)', simple_rows(H, c, sp.get('short', []), votes=True), simple_rows(H, c, sp.get('long', []), votes=True)))
       o.append(add_form(H.up, 'cba', 'agree', key) + forms_grid(H.up, key, ('short_term', 'long_term'), first=not (sp.get('short') or sp.get('long'))) + '</section>')
     else: todo.append(('What Acting On This Would Cost and Gain', 'no costs or benefits priced yet'))
-    # ---- anatomy
-    if [d for d in sp.get('components', []) if has(d)]:
-      o.append(H.section('Logical Anatomy', 'One sentence is usually several claims. The truth score other pages read cannot exceed the weakest load-bearing component that has its own page.', ('Assumptions', WIKI['assumptions'])))
-      if sp.get('form'): o.append(f'<p class="form"><span class="lab">Logical form</span> {esc(sp["form"])}</p>')
-      o.append('<table class="plain"><thead><tr><th>Component claim</th><th>Type</th><th>Stated?</th><th>Load bearing (typed)</th><th>Truth</th><th>What it silently assumes</th></tr></thead><tbody>')
-      for d in sp.get('components', []):
-        if not has(d): continue
-        lb = str(d.get('lb', '')).upper() == 'Y'
-        o.append(f'<tr{" class=lb" if lb else ""}><td class="t">{H.rowtext(d)}</td><td>{esc(d.get("type") or "")}</td><td>{esc(d.get("stated") or "")}</td><td>{"Yes" if lb else "No"}</td><td>{H.num(c.pg(d.get("id"), UNARG), d.get("id"))}</td><td class="u">{esc(d.get("assumes") or "")}</td></tr>')
-      o.append('</tbody></table>')
-      o.append(f'<p class="tot">Weakest load-bearing component {f2(s["weakest"]) if s["weakest"] is not None else "(none with a page)"} · argued truth {f2(s["raw"])} · truth score {f2(s["truth"])} · product of load-bearing truths {f2(s["conj"]) if s["conj"] is not None else "(none)"}, shown for comparison and read by nothing. '
-               'Which components are load-bearing is typed by the author, not argued; the wiki\'s Necessity Score is not computed.</p>')
-      if sp.get('assume_accept') or sp.get('assume_reject'):
-        o.append(two_sided(H, c, 'Required to accept the belief', 'Required to reject the belief', simple_rows(H, c, sp.get('assume_accept', []), votes=True), simple_rows(H, c, sp.get('assume_reject', []), votes=True)))
-      o.append(forms_grid(H.up, key, ('component', 'assumption'), first=False) + '</section>')
-    else: todo.append(('Logical Anatomy', 'the claim has not been split into its component parts'))
     # ---- interests and conflict
     mark = len(o)
     o.append(H.section('Interests, Not Positions', 'Positions are what people say they want; interests are why. Each interest is a need with a subject (who needs what), and that one sentence is argued two ways that never borrow from each other. Validity asks whether the need should be honored, and is settled on the interest\'s own page by the mirror test: would the side accept the same need honored for its opponents, and what happens if everyone pursues it? Who holds the need, how many of them there are and how much power they have never count. Drives asks whether this need is really why the side holds its position, and is settled by the side\'s record, not its rhetoric (the scoring methodology calls it Linkage Accuracy). Score = Validity x Drives. A motive that is real and illegitimate stays in the table with its low validity: it is scored, not deleted, and the same suspicion applies to both sides.', ('Conflict resolution framework', WIKI['conflict']), anchor='interests'))
@@ -980,7 +989,9 @@ def render_belief(c, pid):
         for v in sp['values']:
             g = abs(v['srank'] - v['orank']) if isinstance(v.get('srank'), int) and isinstance(v.get('orank'), int) else ''
             o.append(f'<tr><td class="t">{esc(v.get("value"))}</td><td>{esc(v.get("srank"))}</td><td>{esc(v.get("orank"))}</td><td>{g}</td><td class="u">{esc(v.get("why"))}</td></tr>')
-        o.append('</tbody></table><p class="tot">The two rank columns are typed by the author. The gap between them is the only typed input to the '
+        shifts = [v for v in sp['values'] if (v.get('shift') or '').strip()]
+        o.append('</tbody></table><p class="tot"><strong>What would shift these rankings?</strong> '
+                 + ('; '.join(f'{esc(v.get("value"))}: {esc(v["shift"])}' for v in shifts) if shifts else 'Nobody has said yet.') + '</p><p class="tot">The two rank columns are typed by the author. The gap between them is the only typed input to the '
                  '<a href="../method.html#dispute">kind of dispute</a> named after the tables.</p>' + add_form(H.up, 'value', 'agree', key))
     def int_table(items):
         out = ['<table class="scored"><thead><tr><th>Interest (a need; its page argues validity)</th><th>Validity</th><th>Drives</th><th>Score</th><th>Value</th></tr></thead><tbody>']
@@ -989,10 +1000,18 @@ def render_belief(c, pid):
             if not is_page(d.get('id')): continue
             v, dr = c.truth(d['id']), c.pg(d.get('drives'), UNARG); isp = c.specs[d['id']]
             mb = f'<div class="src">Measured by: {esc(isp["measured"])}</div>' if isp.get('measured') else ''
+            # typed by a person, so it is printed only with its source (Rule 6)
+            if (d.get('prevalence') or '').strip() and (d.get('prevalence_source') or '').strip():
+                mb += f'<div class="src">Prevalence (typed): {esc(d["prevalence"])} ({esc(d["prevalence_source"])})</div>'
             out.append(f'<tr><td class="t">{H.a(d["id"])}{mb}{vote_links(c, d["id"])}</td><td>{H.num(v, d["id"])}</td><td>{H.num(dr, d.get("drives"), const_label="No driver page yet, reads 0.5")}</td><td class="sc">{f2(v * dr)}</td><td class="u">{esc(isp.get("value") or "")}</td></tr>')
             if best is None or v * dr > best[1]: best = (d, v * dr, v, dr)
-        if len(out) == 1: out.append('<tr><td colspan="5" class="empty">Nothing here yet.</td></tr>')
-        return ''.join(out) + '</tbody></table>', best
+        if len(out) == 1:
+            out.append('<tr><td colspan="5" class="empty">Nothing here yet.</td></tr>')
+            return ''.join(out) + '</tbody></table>', best
+        low = [d for d in items if is_page(d.get('id')) and c.truth(d['id']) < 0.5]
+        out.append('</tbody></table><p class="tot"><strong>Pretextual or low validity</strong> (argued below 0.50, kept and scored rather than deleted): '
+                   + (', '.join(H.a(d['id']) for d in low) if low else 'none yet') + '.</p>')
+        return ''.join(out), best
     lt, lb = int_table(sp.get('int_sup', [])); rt, rb = int_table(sp.get('int_opp', []))
     o.append('<h3 class="sub">Interests of each side</h3>' + stacked(H, c, 'Interests of supporters', 'Interests of opponents', lt, rt) + add_form(H.up, 'interest', 'agree', key))
     if lb and rb:
@@ -1006,7 +1025,10 @@ def render_belief(c, pid):
         o.append('<h3 class="sub">Best compromise</h3>' + simple_rows(H, c, sp['compromise'], extra=lambda d: f'<span class="lab">Rests on</span> {esc(d.get("premise") or "")} <span class="lab">Why difficult</span> {esc(d.get("difficult") or "")}', votes=True, head='Compromise', extra_head='What it rests on') + add_form(H.up, 'compromise', 'agree', key))
     if sp.get('motives_sup') or sp.get('motives_opp'):
         present.add('motive')
-        o.append('<h3 class="sub">Advertised versus actual motivations</h3>' + two_sided(H, c, 'Supporters', 'Opponents', simple_rows(H, c, sp.get('motives_sup', []), extra=lambda d: esc(d.get('actual') or ''), votes=True, head='Advertised', extra_head='Actual'), simple_rows(H, c, sp.get('motives_opp', []), extra=lambda d: esc(d.get('actual') or ''), votes=True, head='Advertised', extra_head='Actual')) + add_form(H.up, 'motive', 'agree', key))
+        def actual(d):
+            ev = (d.get('evidence') or '').strip()
+            return esc(d.get('actual') or '') + (f'<div class="src">Evidence for divergence: {esc(ev) if ev else "none cited yet"}</div>' if d.get('actual') else '')
+        o.append('<h3 class="sub">Advertised versus actual motivations</h3>' + two_sided(H, c, 'Supporters', 'Opponents', simple_rows(H, c, sp.get('motives_sup', []), extra=actual, votes=True, head='Advertised', extra_head='Actual'), simple_rows(H, c, sp.get('motives_opp', []), extra=actual, votes=True, head='Advertised', extra_head='Actual')) + add_form(H.up, 'motive', 'agree', key))
     if sp.get('disputes'):
         present.add('dispute')
         o.append('<h3 class="sub">Dispute types</h3><table class="plain"><thead><tr><th>Type</th><th>What exactly is disputed</th><th>What would move it</th></tr></thead><tbody>')
@@ -1071,21 +1093,17 @@ def render_belief(c, pid):
     o.append(used_on(H, c, pid))
     if sp.get('definitions'):
         o.append(H.section('Definitions', 'Terms the debate turns on, defined operationally.'))
-        o.append('<table class="plain"><thead><tr><th>Term</th><th>What it means here</th></tr></thead><tbody>' + ''.join(f'<tr><td class="t"><strong>{esc(d.get("term"))}</strong></td><td class="u">{esc(d.get("definition"))}</td></tr>' for d in sp['definitions']) + '</tbody></table>' + add_form(H.up, 'definition', 'agree', key) + '</section>')
+        # blank, not 0.50, for a definition no page argues (Rule 6)
+        dscore = lambda d: H.num(c.truth(d['id']), d['id']) if is_page(d.get('id')) else ''
+        o.append('<table class="plain"><thead><tr><th>Term</th><th>What it means here</th><th>Score</th></tr></thead><tbody>' + ''.join(f'<tr><td class="t"><strong>{esc(d.get("term"))}</strong></td><td class="u">{esc(d.get("definition"))}</td><td class="n1">{dscore(d)}</td></tr>' for d in sp['definitions']) + '</tbody></table>' + add_form(H.up, 'definition', 'agree', key) + '</section>')
     else: todo.append(('Definitions', 'no term the debate turns on defined yet'))
     if sp.get('people_for') or sp.get('people_against'):
         o.append(H.section('People on the Record', 'Who holds a belief never changes its score. These names carry history, not weight.'))
         o.append(two_sided(H, c, 'On record agreeing', 'On record disagreeing', simple_rows(H, c, sp.get('people_for', []), votes=True, head='Who, and what they said'), simple_rows(H, c, sp.get('people_against', []), votes=True, head='Who, and what they said')) + add_form(H.up, 'person', 'agree', key) + '</section>')
     else: todo.append(('People on the Record', 'nobody on record either way'))
-    tk = c.topic_of(pid)
-    if k == 'belief' and tk:
-        sibs = [b for b in c.topic_beliefs(tk) if b != pid]
-        o.append(H.section('Related Beliefs', f'The other beliefs filed under <a href="../t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>; this one is listed unlinked.', raw=True))
-        o.append('<ol class="sibs">' + ''.join(f'<li>{H.a(b, c.standalone(b))} <span class="tn" title="Truth score">{f2(c.truth(b))}</span></li>' for b in sibs) + f'<li class="u">{esc(c.standalone(pid))} (this page)</li></ol>')
-        o.append(add_form(H.up, 'belief', topic=tk) + '</section>')
     if todo:
         o.append(H.section('Not filled in yet', 'Parts of the template nobody has filled in here. They are named rather than shown, because an empty table is not a finding, and each one is a reason the confidence above is not higher. A part that takes rows has an Add link for its first one.'))
-        o.append('<table class="plain"><thead><tr><th>Part of the page</th><th>What it is missing</th></tr></thead><tbody>' + ''.join(f'<tr><td class="t">{esc(n)}</td><td class="u">{esc(why)}</td></tr>' for n, why in todo) + '</tbody></table>')
+        o.append('<table class="plain todo"><thead><tr><th>Part of the page</th><th>What it is missing</th></tr></thead><tbody>' + ''.join(f'<tr><td class="t">{esc(n)}</td><td class="u">{esc(why)}</td></tr>' for n, why in todo) + '</tbody></table>')
         o.append(forms_grid(H.up, key, [s_ for n, _ in todo for s_ in FORM_SECTIONS.get(n, ())]))
         o.append('</section>')
     gaps = page_gaps(H, c, pid)
@@ -1094,7 +1112,7 @@ def render_belief(c, pid):
         o.append('<table class="plain"><thead><tr><th class="rk">#</th><th>The gap</th><th>Where it goes</th><th>Who is best placed to fill it</th></tr></thead><tbody>'
                  + ''.join(f'<tr><td class="rk">{i}</td><td class="t">{g}</td><td class="u"><a href="#{anchor}">{esc(w)}</a></td><td class="u">{esc(who)}</td></tr>' for i, (g, w, who, anchor) in enumerate(gaps, 1)) + '</tbody></table></section>')
     o.append(H.section('What the numbers are made of'))
-    o.append(readout)
+    o.append(readout + HOW_TO_READ)
     o.append('</section>')
     if k == 'belief':
         # a view whose section is still empty goes to the form that takes its first row, so no link is dead
@@ -1108,6 +1126,12 @@ def render_belief(c, pid):
     if k == 'belief': o.append(share_section(c, pid))
     o.append(checks_section(H, c, pid))
     o.append(engine_table(H, c, pid))
+    o.append(contribute_footer(H, c))
+    if k == 'belief' and tk:
+        sibs = [b for b in c.topic_beliefs(tk) if b != pid]
+        o.append(H.section('Related Beliefs', f'The other beliefs filed under <a href="../t/{c.topic_href(tk)}">{esc(c.topics[tk]["name"])}</a>; this one is listed unlinked.', raw=True))
+        o.append('<ol class="sibs">' + ''.join(f'<li>{H.a(b, c.standalone(b))} <span class="tn" title="Truth score">{f2(c.truth(b))}</span></li>' for b in sibs) + f'<li class="u">{esc(c.standalone(pid))} (this page)</li></ol>')
+        o.append(add_form(H.up, 'belief', topic=tk) + '</section>')
     o.append(contribute_script(H.up))
     o.append(FOOT)
     return ''.join(o)
@@ -1127,6 +1151,28 @@ def share_text(c, pid):
             lines += ['', head + ':'] + [f'- {strip_period(c.rowtext(d))}.' for d, _ in pairs]
     lines += ['', 'Every reason, the evidence under each one, and a form to add your own: ' + PUBLIC + 'p/' + c.href(pid)]
     return '\n'.join(lines)
+
+
+# Rules doc item 14. Only the tables that are ranked are said to be: the short ones still list their rows as added.
+HOW_TO_READ = ('<p class="callout"><strong>How to read this page.</strong> No row is placed by hand where a number can place it. '
+               'The tables of reasons, findings, predictions and books and studies put the strongest row first by its Score, and '
+               'costs and benefits rank by Expected value; the shorter tables list their rows in the order they were added, each with '
+               'its truth beside it. A table longer than five rows shows its top five and folds the rest under a Show all box. A '
+               'factor nobody has argued reads the labelled starting value it is scored at, and a cell nobody has typed stays '
+               'blank.</p>')
+
+
+def contribute_footer(H, c):
+    """The template's closing Contribute block: a person to reach and the code behind the numbers. The Add links
+    under each table are the way to add a row; this is the way to reach the person who merges them."""
+    m = getattr(c, 'maintainer', None)
+    who = (f'<a href="{H.up}u/{user_slug(m)}.html">{esc(c.users[m].get("name") or "@" + m)}</a>, the maintainer, '
+           if m else 'the maintainer ')
+    return (H.section('Contribute', anchor='contribute')
+            + f'<p>Contact {who}to contribute to the Idea Stock Exchange, or <a href="{NEW_ISSUE}" rel="nofollow">open an issue</a> '
+            'on GitHub for anything that does not fit an Add link above.</p>'
+            f'<p><a href="{REPO}">The full code and its documentation are on GitHub</a>, for anyone who wants to check how a number '
+            'is worked out, help build the site, or adapt it for their own use.</p></section>')
 
 
 def share_section(c, pid):
@@ -1733,6 +1779,9 @@ def page_gaps(H, c, pid):
         out.append(('A measurement both sides would accept in advance, with the reading each side predicts', 'Objective Criteria', 'anyone who can name a yardstick the other side would sign', 'add-criterion'))
     elif unread:
         out.append((f'The first sourced reading of “{rowref(H, c, unread[0])}”', 'Objective Criteria, Latest Reading', 'anyone with the number', 'add-criterion'))
+    # last, so it never displaces the three above
+    if INTEGRITY.criteria_none_fail(c, sp):
+        out.append(('A criterion that looks relevant and fails, scored low with its reason', 'Objective Criteria', 'anyone who can name a yardstick the belief does not meet', 'add-criterion'))
     return out[:3]
 
 def invitation(H, c, pid):
@@ -1779,7 +1828,7 @@ FORMS = {
     'prediction': _f('Add a prediction', 'What the world should show, as one sentence',
                      'By when, and how it gets settled (optional)', ('follows if the claim is true', 'follows if the claim is false')),
     'criterion': _f('Add a criterion', 'A measurement both sides would accept in advance', 'How it is measured (optional)'),
-    'cba': _f('Add a cost or benefit', 'Who gains or pays what, as one sentence', 'How the estimate is known: title, producer, year (optional)',
+    'cba': _f('Add a cost or benefit', 'Who gains or pays what, as one sentence, including effects on people outside the deal (externalities)', 'How the estimate is known: title, producer, year (optional)',
               ('a benefit', 'a cost'), est=True),
     'interest': _f('Add an interest', 'A need somebody has, as one sentence', 'Where it is on record (optional)',
                    ('of supporters', 'of opponents')),
@@ -1788,21 +1837,21 @@ FORMS = {
     'assumption': _f('Add an assumption', 'What must be true for a side to be right, as one sentence', None,
                      ('to accept the claim', 'to reject the claim')),
     'component': _f('Add a component claim', 'One part of the claim above, as a claim of its own'),
-    'short_term': _f('Add a short-term effect', 'What happens in the first two years, as one sentence'),
-    'long_term': _f('Add a long-term effect', 'What happens five years on, as one sentence'),
+    'short_term': _f('Add a short-term effect', 'What happens in the first two years, as one sentence: an immediate effect or a transition cost'),
+    'long_term': _f('Add a long-term effect', 'What happens five years on, as one sentence: a sustained effect or a structural change'),
     'value': _f('Add a value', 'A value both sides hold but rank differently, in a few words', 'Why the two sides rank it differently (optional)'),
     'shared_interest': _f('Add a shared interest', 'A need both sides have, as one sentence', 'A direction both sides could take (optional)'),
     'compromise': _f('Add a compromise', 'A deal both sides could live with, as one sentence', 'What it rests on (optional)'),
     'motive': _f('Add a motive', 'The advertised reason, as one sentence', 'What the record suggests the actual reason is (optional)',
                  ('of supporters', 'of opponents')),
     'dispute': _f('Add a point of dispute', 'What exactly is disputed, as one sentence', 'What would move it (optional)'),
-    'obstacle': _f('Add an obstacle', 'What stands in the way of this side changing its mind, as one sentence', None,
+    'obstacle': _f('Add an obstacle', 'What stands in the way of this side changing its mind, as one sentence, such as what stops it acknowledging the other side\'s costs or benefits', None,
                    ('for supporters', 'for opponents')),
-    'bias': _f('Add a bias', 'A habit of thought that could be shaping a side, as one sentence', None,
+    'bias': _f('Add a bias', 'A habit of thought that could be shaping a side, as one sentence, for example confirmation bias, motivated reasoning or availability', None,
                ('affecting supporters', 'affecting opponents')),
     'media': _f('Add a book, study or film', 'The work, by title, author and year', 'Where to find it (optional)',
                 ('supports the claim', 'weakens the claim'), url=True),
-    'law': _f('Add a law or ruling', 'The law or ruling, and what it assumes, as one sentence', 'Where it is on record (optional)',
+    'law': _f('Add a law or ruling', 'The law or ruling, local, state, federal or international, and what it assumes, as one sentence', 'Where it is on record (optional)',
               ('assumes the claim', 'complicates the claim'), url=True),
     'upstream': _f('Add a broader belief', 'A broader principle this inherits from, as one sentence', None,
                    ('supports the claim', 'opposes the claim')),
@@ -1844,8 +1893,8 @@ FORM_SECTIONS = {'Evidence Ledger': ('evidence',), 'Falsifiability Test': ('fals
                  'Similar Beliefs': ('similar',), 'Definitions': ('definition',), 'People on the Record': ('person',)}
 # the sections whose form takes a reader to a GitHub issue: everything but a vote, and these are the tables a
 # belief page carries, in the page's own order
-BELIEF_FORMS = ('argument', 'evidence', 'falsify', 'prediction', 'criterion', 'cba', 'short_term', 'long_term', 'component', 'assumption',
-                'interest', 'value', 'shared_interest', 'compromise', 'motive', 'dispute', 'obstacle', 'bias', 'media', 'law', 'upstream',
+BELIEF_FORMS = ('argument', 'evidence', 'criterion', 'falsify', 'prediction', 'component', 'assumption', 'cba', 'short_term', 'long_term',
+                'value', 'interest', 'shared_interest', 'compromise', 'motive', 'dispute', 'obstacle', 'bias', 'media', 'law', 'upstream',
                 'downstream', 'similar', 'definition', 'person')
 
 
@@ -3047,16 +3096,6 @@ def render_index(c, title):
     ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
     o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
     TOP = 3
-    cards = [start_here(c), card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
-    # one belief is several questions, and each has a list built for it: the same beliefs every time, different columns
-    ways = (('all.html', 'Scores', 'Is it true, and is that from reasoning or from checking?'),
-            ('costs.html', 'Costs and benefits', 'What would acting on it most likely gain and cost?'),
-            ('invest.html', 'Investing', 'What does a share in it cost today, and who has bought?'),
-            ('bets.html', 'Betting', 'Which of its predictions come due, and what is riding on them?'),
-            ('resolve.html', 'Conflict resolution', 'Who wants what, and where could both sides gain?'))
-    cards.append(card('Five ways to read a belief', 'The same beliefs every time, each list built for a different question.',
-                      '<ul class="doors">' + ''.join(f'<li><a href="{h}"><strong>{esc(t)}</strong></a> {esc(q)}</li>' for h, t, q in ways) + '</ul>'))
-    cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
     shorts = short_beliefs(c)
     cards = [card('Short and strong beliefs', 'Readable in one breath and among the best argued here. Fewest words first; only beliefs from '
                   'the top quarter of the best-beliefs list, argued above zero, qualify.',
@@ -3070,6 +3109,14 @@ def render_index(c, title):
                            note=lambda p: f'relied on {times_avg(c, c.rank.of(p))} the average page, truth score {f2(c.truth(p))}'),
                       see_all('short.html#reasons', len(shortr), 'short reasons that carry weight'), 'shortreasons'))
     cards.append(card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>'))
+    # one belief is several questions, and each has a list built for it: the same beliefs every time, different columns
+    ways = (('all.html', 'Scores', 'Is it true, and is that from reasoning or from checking?'),
+            ('costs.html', 'Costs and benefits', 'What would acting on it most likely gain and cost?'),
+            ('invest.html', 'Investing', 'What does a share in it cost today, and who has bought?'),
+            ('bets.html', 'Betting', 'Which of its predictions come due, and what is riding on them?'),
+            ('resolve.html', 'Conflict resolution', 'Who wants what, and where could both sides gain?'))
+    cards.append(card('Five ways to read a belief', 'The same beliefs every time, each list built for a different question.',
+                      '<ul class="doors">' + ''.join(f'<li><a href="{h}"><strong>{esc(t)}</strong></a> {esc(q)}</li>' for h, t, q in ways) + '</ul>'))
     cards.append(card('Highest belief scores', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
                       'for the belief minus the weight against it, open ended, where 0 means balanced or not yet argued. The truth score under each '
                       'belief is the one its own page shows, 0 to 1, where 0.50 means the evidence so far has not moved it either way.',
@@ -4318,7 +4365,7 @@ td a.argue{display:block;margin:2px 0 0;font:500 11px/1.3 var(--sans);color:var(
 .b-gen{background:#eef3f8;color:#1b2130}.b-sub{background:#f4f9ff;color:#1b2130}.e-1{background:#e8f5e9;color:#0f3a14}.e-2{background:#c8e6c9;color:#0f3a14}.e-3{background:#fff9c4;color:#3a3410}.e-4{background:#ffe082;color:#3a2a10}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper)}th{background:var(--head);color:var(--ink2);font-weight:600;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}td.t{font-family:var(--serif);font-size:14.5px;line-height:1.35;overflow-wrap:anywhere}td.u{color:var(--ink2);font-size:13px}
-table.scored td.t,table.all td.t{width:100%}table.scored td:not(.t):not(.rk),table.scored th:not(:nth-child(2)){width:1%;white-space:nowrap}.scored td.u:not(.t):not(.rk),.scored td.dl:not(.t):not(.rk),.scored td.pat:not(.t):not(.rk){white-space:normal;width:auto;min-width:11em;max-width:18em}.scored td.t{min-width:14em}
+table.scored td.t,table.all td.t{width:100%}table.scored td:not(.t):not(.rk),table.scored th:not(:nth-child(2)){width:1%;white-space:nowrap}table.scored th.fold{white-space:normal}@media (min-width:1001px){table.scored.pred td.t{min-width:12em}}.scored td.u:not(.t):not(.rk),.scored td.dl:not(.t):not(.rk),.scored td.pat:not(.t):not(.rk){white-space:normal;width:auto;min-width:11em;max-width:18em}.scored td.t{min-width:14em}
 td.t a{border-bottom-color:transparent}td.t a:hover,td.t a:focus-visible{border-bottom-color:var(--navy)}
 .scored td:not(.t):not(.u):not(.pat):not(.dl){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;width:3.7em;padding-inline:5px}.scored th{padding-inline:5px}.scored th:first-child,.scored td:first-child{padding-left:8px}.scored td.rk,.plain td.rk{width:1.8em;color:var(--mute);text-align:right;font-variant-numeric:tabular-nums}
 td.sc{font-weight:600}.patl{display:block;font:600 10.5px/1.3 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--navy);margin-bottom:2px}td.pat{font-size:11.5px;font-weight:600;color:var(--navy);width:8em}td.dl{font-size:12px;color:var(--ink2)}td.n1{text-align:right;width:4.6em}td.ex{color:var(--ink2);font-size:13px}
@@ -5302,8 +5349,7 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
         if c.kind(pid) == 'belief' and not c.complete(pid): index[-1]['draft'] = True
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
     for name, fn in (('all', render_all), ('costs', render_costs), ('invest', render_invest), ('bets', render_bets), ('resolve', render_resolve),
-                     ('motives', render_motives), ('gain', render_gain), ('factors', render_factors), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
-    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('short', render_short), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
+                     ('motives', render_motives), ('gain', render_gain), ('factors', render_factors), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('short', render_short), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 'u'))
     for login in getattr(c, 'people', []):

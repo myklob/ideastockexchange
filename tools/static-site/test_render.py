@@ -2028,7 +2028,7 @@ class TestTheBeliefPageFollowsTheTemplate(unittest.TestCase):
             t = self._text(self.html[b])
             i = t.find('If you disagree, this page has a column for you.')
             ask = t[i:i + 260]
-            self.assertTrue(any(w in ask for w in ('A reason to', 'A first reason to', 'A study, record or dataset', 'A measurement', 'The first sourced reading', 'Any reason')),
+            self.assertTrue(any(w in ask for w in ('A reason to', 'A first reason to', 'A study, record or dataset', 'A measurement', 'The first sourced reading', 'A criterion that', 'Any reason')),
                             f'{self.c.key[b]}: the ask is not a named gap: {ask!r}')
 
     def test_the_breadcrumb_runs_through_the_topic(self):
@@ -2077,6 +2077,155 @@ class TestTheBeliefPageFollowsTheTemplate(unittest.TestCase):
             for anchor, where in wheres:
                 self.assertTrue(where.strip(), 'a gap has no place to go')
                 self.assertIn(f'id="{anchor}"', h, f'{self.c.key[b]}: the gap points at #{anchor}, which is not on the page')
+
+
+class TestTheBeliefPageKeepsTheTemplatesOrderAndRows(unittest.TestCase):
+    """A small corpus with one of every row the Belief Template asks for, built once. Belief a has every section;
+    belief b has reasons both ways, each with a finding, a direct finding and a criterion already read, so the only
+    gap left on it is the failing criterion the rules doc asks every page to name."""
+
+    @classmethod
+    def setUpClass(cls):
+        import tempfile
+        import ise_tables as IT, render_site as RS
+        pages = [dict(key='a', kind='belief', text='Cities should plant more trees.', topic='t'),
+                 dict(key='b', kind='belief', text='Cities should pave their parks.', topic='t'),
+                 dict(key='r1', kind='claim', text='Trees cool the streets beneath them.', parent='a'),
+                 dict(key='r2', kind='claim', text='Trees cost money to water and prune.', parent='a'),
+                 dict(key='e1', kind='claim', text='Shaded streets measure cooler than bare ones.', parent='a'),
+                 dict(key='c1', kind='claim', text='Summer street temperature is a fair yardstick for tree planting.', parent='a'),
+                 dict(key='p1', kind='claim', text='Planted blocks will read cooler within five years.', parent='a'),
+                 dict(key='f1', kind='claim', text='A city that planted and saw no cooling would weaken this.', parent='a'),
+                 dict(key='m1', kind='claim', text='Trees planted are trees that live.', parent='a'),
+                 dict(key='k1', kind='claim', text='Cooler streets reduce heat illness.', parent='a'),
+                 dict(key='i1', kind='interest', text='Residents need cool streets in summer.', parent='a'),
+                 dict(key='i2', kind='interest', text='Taxpayers need low upkeep costs.', parent='a'),
+                 dict(key='s1', kind='claim', text='Parks cost more to keep than pavement.', parent='b'),
+                 dict(key='s2', kind='claim', text='Paved lots flood the streets around them.', parent='b'),
+                 dict(key='e3', kind='claim', text='Park upkeep runs to a third of the parks budget.', parent='s1'),
+                 dict(key='e4', kind='claim', text='Runoff from paved lots doubled in the 2019 storm survey.', parent='s2'),
+                 dict(key='e5', kind='claim', text='Three cities paved parks and kept the budget flat.', parent='b'),
+                 dict(key='c2', kind='claim', text='Upkeep spending per acre is a fair yardstick.', parent='b')]
+        edges = [dict(page='a', section='argument', side='agree', claim='r1'), dict(page='a', section='argument', side='disagree', claim='r2'),
+                 dict(page='a', section='evidence', side='agree', claim='e1'),
+                 dict(page='a', section='criterion', claim='c1', extra='validity: High | reliability: Low'),
+                 dict(page='a', section='falsify', side='disagree', claim='f1'),
+                 dict(page='a', section='prediction', side='agree', claim='p1'),
+                 dict(page='a', section='component', claim='m1', extra='type: Empirical | lb: Y'),
+                 dict(page='a', section='cba', side='agree', claim='k1', category='cases', magnitude='10'),
+                 dict(page='a', section='interest', side='agree', claim='i1', extra='prevalence: 62% | prevalence_source: City survey, 2024'),
+                 dict(page='a', section='interest', side='disagree', claim='i2', extra='prevalence: 40%'),
+                 dict(page='a', section='value', extra='value: Health | srank: 1 | orank: 3 | why: Opponents weigh cost first. | shift: A costed heat illness study'),
+                 dict(page='a', section='motive', side='agree', extra='advertised: Cooler streets | actual: Higher house prices | evidence: Realtor ads that list tree cover'),
+                 dict(page='a', section='motive', side='disagree', extra='advertised: Lower taxes | actual: Less street work'),
+                 dict(page='a', section='definition', extra='term: Street tree | definition: A tree in the public strip between curb and walk.'),
+                 dict(page='b', section='argument', side='agree', claim='s1'), dict(page='b', section='argument', side='disagree', claim='s2'),
+                 dict(page='s1', section='evidence', side='agree', claim='e3'), dict(page='s2', section='evidence', side='agree', claim='e4'),
+                 dict(page='b', section='evidence', side='agree', claim='e5'),
+                 dict(page='b', section='criterion', claim='c2', extra='latest: 120 dollars an acre in 2025')]
+        topics = [dict(key='t', name='Cities', parent='', definition='', scope='', axis='')]
+        cls.pages, cls.edges = pages, edges
+        cls.src = tempfile.mkdtemp(); IT.write_csv(pages, edges, cls.src, topics=topics)
+        with open(os.path.join(cls.src, 'users.csv'), 'w') as fh:
+            fh.write('login,name,maintainer,role,about,method,closing\nann,Ann Example,Y,Maintainer,,,\n')
+        cls.out = tempfile.mkdtemp()
+        cls.c, cls.broken = RS.build(cls.src, cls.out)
+        with open(os.path.join(cls.out, 'p', 'a.html')) as fh: cls.a = fh.read()
+        with open(os.path.join(cls.out, 'p', 'b.html')) as fh: cls.b = fh.read()
+
+    @classmethod
+    def tearDownClass(cls):
+        for d in ('src', 'out'): shutil.rmtree(getattr(cls, d, ''), ignore_errors=True)
+
+    @staticmethod
+    def _section(h, title):
+        i = h.find(f'<span>{title}</span>')
+        return h[i:h.find('</section>', i)] if i >= 0 else ''
+
+    def test_no_link_is_broken(self):
+        self.assertEqual(self.broken, [])
+
+    def test_the_sections_run_in_the_rules_doc_order(self):
+        """Rules doc items 2 to 6, then 14 to 16: the yardstick before the tests, the anatomy before the costs,
+        and the related beliefs last, after the contact line."""
+        order = ('Evidence Ledger', 'Objective Criteria', 'Falsifiability Test', 'Testable Predictions', 'Logical Anatomy',
+                 'What Acting On This Would Cost and Gain', 'Interests, Not Positions', 'Definitions',
+                 'What the numbers are made of', 'Scoring Engine', 'Contribute', 'Related Beliefs')
+        at = [self.a.find(f'<span>{t}</span>') for t in order]
+        for t, i in zip(order, at): self.assertGreater(i, 0, f'page a has no {t}')
+        self.assertEqual(at, sorted(at), 'the sections are out of the rules doc order: ' + ', '.join(t for _, t in sorted(zip(at, order))))
+        import render_site as RS
+        # the forms of the sections page a fills; an empty section's form waits under Not filled in yet
+        filled = ('evidence', 'criterion', 'falsify', 'prediction', 'component', 'assumption', 'cba', 'short_term', 'long_term',
+                  'value', 'interest', 'motive', 'definition')
+        forms = [f for f in RS.BELIEF_FORMS if f in filled]
+        self.assertEqual(forms, sorted(forms, key=lambda f: self.a.find(f'id="add-{f}"')), 'BELIEF_FORMS is not in the page order')
+
+    def test_the_factor_headers_are_spelled_out(self):
+        """Rule 8 corollary: never Link or Imp. The reasons and the predictions both carry the four words."""
+        for title in ('Argument Trees', 'Testable Predictions'):
+            block = self._section(self.a, title)
+            heads = [htmlmod.unescape(re.sub(r'<[^>]+>', '', h)).replace('\xad', '') for h in re.findall(r'<th\b[^>]*class="fold"[^>]*>.*?</th>', block)]
+            self.assertEqual(heads[:4], ['Confidence', 'Linkage', 'Importance', 'Uniqueness'], f'{title}: {heads}')
+            self.assertNotRegex(block, r'<abbr\b[^>]*>(Conf|Link|Imp|Uniq)</abbr>', f'{title} still abbreviates a factor')
+
+    def test_the_how_to_read_box_follows_the_numbers(self):
+        block = self._section(self.a, 'What the numbers are made of')
+        self.assertRegex(block, r'<p\b[^>]*class="callout"[^>]*><strong>How to read this page\.</strong>')
+        for key in ('Score', 'Expected value', 'top five', 'blank'): self.assertIn(key, block)
+
+    def test_the_contribute_footer_names_a_person_to_contact(self):
+        block = self._section(self.a, 'Contribute')
+        self.assertIn('Contact <a href="../u/ann.html">Ann Example</a>', block)
+        self.assertTrue(os.path.exists(os.path.join(self.out, 'u', 'ann.html')))
+        self.assertIn('href="https://github.com/myklob/ideastockexchange/issues/new"', block)
+        self.assertIn('href="https://github.com/myklob/ideastockexchange"', block)
+
+    def test_a_page_whose_criteria_all_pass_is_asked_for_one_that_fails(self):
+        """A Low Reliability does not make a criterion fail, so page a is asked too. Page b has nothing else
+        missing, so the gap reaches its What this page needs table."""
+        for h in (self.a, self.b):
+            self.assertIn('No criterion that fails', self._section(h, 'Structural Checks'))
+        self.assertIn('A criterion that looks relevant and fails', self._section(self.b, 'What this page needs right now'))
+        self.assertIn('id="criteria"', open(os.path.join(self.out, 'method.html')).read())
+        self.assertIn('href="../method.html#criteria"', self._section(self.a, 'Objective Criteria'))
+
+    def test_the_not_filled_in_list_is_never_folded(self):
+        block = self._section(self.b, 'Not filled in yet')
+        rows = re.findall(r'<tr\b[^>]*>', block[block.find('<tbody>'):])
+        self.assertGreater(len(rows), 5, 'page b names five parts or fewer, so folding is untested')
+        self.assertFalse([r for r in rows if 'xtra' in r], 'a draft hides part of what it still needs')
+        self.assertNotRegex(block, r'<input\b[^>]*class="xt"')
+
+    def test_definitions_carry_a_score_column_left_blank_without_a_page(self):
+        block = self._section(self.a, 'Definitions')
+        self.assertRegex(block, r'<th\b[^>]*>Score</th>')
+        self.assertRegex(block, r'<td class="n1"></td>', 'a definition no page argues shows a number')
+
+    def test_the_interest_rows_the_rules_doc_names(self):
+        """Rules doc 7a, 7b, 7c and 7f. A typed prevalence is printed only with its source (Rule 6)."""
+        block = self._section(self.a, 'Interests, Not Positions')
+        self.assertIn('What would shift these rankings?</strong> Health: A costed heat illness study', block)
+        self.assertIn('Prevalence (typed): 62% (City survey, 2024)', block)
+        self.assertNotIn('40%', block, 'a prevalence with no source is printed')
+        self.assertEqual(block.count('Pretextual or low validity</strong>'), 2, 'the pretextual line is not on both sides')
+        self.assertIn('Evidence for divergence: Realtor ads that list tree cover', block)
+        self.assertIn('Evidence for divergence: none cited yet', block)
+
+    def test_the_new_fields_survive_the_round_trip(self):
+        import ise_tables as IT
+        specs, beliefs = IT.tables_to_specs(self.pages, self.edges)
+        _, edges = IT.specs_to_tables(specs, beliefs)
+        extras = {IT.parse_extra(e.get('extra')).get(k) for e in edges for k in ('prevalence', 'prevalence_source', 'shift', 'evidence')}
+        for v in ('62%', 'City survey, 2024', '40%', 'A costed heat illness study', 'Realtor ads that list tree cover'):
+            self.assertIn(v, extras, f'{v} was lost between the tables and the specs')
+
+    def test_the_form_hints_carry_the_templates_prompts(self):
+        import render_site as RS
+        for sec, words in (('cba', 'externalities'), ('short_term', 'transition cost'), ('long_term', 'structural change'),
+                           ('obstacle', 'acknowledging'), ('bias', 'confirmation bias'), ('law', 'federal')):
+            self.assertIn(words, RS.FORMS[sec]['hint'], sec)
+            self.assertIn(htmlmod.escape(RS.FORMS[sec]['hint'], quote=True)[:30], self.a, f'the {sec} form does not show its hint')
 
 
 class TestPeopleCanTakePart(unittest.TestCase):
@@ -2791,10 +2940,10 @@ class TestTheBeliefPageReadsInPlainOrder(unittest.TestCase):
         i = h.find(f'<span>{section}</span>')
         if i < 0: return []
         block = h[i:h.find('</section>', i)]
-        return re.findall(r'<table\b[^>]*class="scored"[^>]*>.*?</table>', block, re.S)
+        return re.findall(r'<table\b[^>]*class="scored(?: pred)?"[^>]*>.*?</table>', block, re.S)
 
     def _column(self, table, name):
-        heads = [htmlmod.unescape(re.sub(r'<[^>]+>', '', x)).strip() for x in re.findall(r'<th[^>]*>(.*?)</th>', table, re.S)]
+        heads = [htmlmod.unescape(re.sub(r'<[^>]+>', '', x)).replace('\xad', '').strip() for x in re.findall(r'<th[^>]*>(.*?)</th>', table, re.S)]
         if name not in heads: return None
         j = heads.index(name)
         out = []
@@ -2841,7 +2990,8 @@ class TestTheBeliefPageReadsInPlainOrder(unittest.TestCase):
             for t in self._side_tables(self.html[b], 'Evidence Ledger'):
                 self.assertIn('<th scope="col">Uniqueness</th>', t, f'{self.c.key[b]}: the ledger has no Uniqueness column'); ev += 1
             for t in self._side_tables(self.html[b], 'Testable Predictions'):
-                self.assertIn('title="Uniqueness"', t, f'{self.c.key[b]}: predictions have no Uniqueness column'); pr += 1
+                heads = [htmlmod.unescape(re.sub(r'<[^>]+>', '', x)).replace('\xad', '') for x in re.findall(r'<th\b[^>]*>(.*?)</th>', t, re.S)]
+                self.assertIn('Uniqueness', heads, f'{self.c.key[b]}: predictions have no Uniqueness column'); pr += 1
         self.assertGreater(ev, 0); self.assertGreater(pr, 0)
 
     def test_a_page_carries_one_meaning_of_complete(self):
