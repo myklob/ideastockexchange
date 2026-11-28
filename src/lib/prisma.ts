@@ -15,9 +15,10 @@ export const isPostgres = /^postgres(ql)?:\/\//.test(DATABASE_URL)
 function poolMax(): number {
   const configured = parseInt(process.env.DATABASE_POOL_MAX ?? '', 10)
   if (Number.isFinite(configured) && configured > 0) return configured
-  // Every serverless instance holds its own pool; a small pool per instance
-  // keeps a traffic spike under the database's connection limit.
-  return process.env.VERCEL ? 2 : 10
+  // DATABASE_URL is the pooled (PgBouncer) string in production, so this cap
+  // only bounds concurrent queries per instance; keep it roomy enough that
+  // a burst queues briefly instead of timing out.
+  return process.env.VERCEL ? 5 : 10
 }
 
 function createPrismaClient() {
@@ -26,7 +27,7 @@ function createPrismaClient() {
       connectionString: DATABASE_URL,
       max: poolMax(),
       idleTimeoutMillis: 10_000,
-      connectionTimeoutMillis: 5_000,
+      connectionTimeoutMillis: 15_000,
     })
     return new PrismaClient({ adapter })
   }

@@ -16,7 +16,8 @@ const LOOKUPS_PER_MINUTE = 30
  * lookup writes nothing and moves no score.
  */
 export async function GET(request: Request) {
-  if (!rateLimit(`lookup:${clientKey(request)}`, LOOKUPS_PER_MINUTE)) {
+  const key = clientKey(request)
+  if (key && !rateLimit(`lookup:${key}`, LOOKUPS_PER_MINUTE)) {
     return agentJson({ error: `Lookups are limited to ${LOOKUPS_PER_MINUTE} per minute per client.` }, { status: 429 })
   }
   const sp = new URL(request.url).searchParams

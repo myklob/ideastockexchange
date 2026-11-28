@@ -41,11 +41,19 @@ export function rateLimit(bucket: string, limit: number, now = Date.now()): bool
   return true
 }
 
-/** First hop of x-forwarded-for, else a shared anonymous bucket. */
-export function clientKey(request: Request): string {
+/**
+ * Client identity for the limiters. Vercel rewrites x-forwarded-for, so its
+ * first hop is trustworthy there; behind another proxy prefer the IP header
+ * that proxy sets (x-real-ip). With no client identity at all (plain
+ * `next start`, no proxy) every visitor would share one bucket, so the
+ * limiter is skipped rather than throttling everyone for one client.
+ */
+export function clientKey(request: Request): string | null {
+  const real = request.headers.get('x-real-ip')?.trim()
+  if (real) return real.slice(0, 64)
   const forwarded = request.headers.get('x-forwarded-for')
   const first = forwarded?.split(',')[0]?.trim()
-  return first && first.length > 0 ? first.slice(0, 64) : 'anon'
+  return first && first.length > 0 ? first.slice(0, 64) : null
 }
 
 export function inProduction(): boolean {
@@ -67,7 +75,8 @@ export function guardPublicWrite(
       { status: 503 },
     )
   }
-  if (!rateLimit(`${route}:${clientKey(request)}`, limit)) {
+  const key = clientKey(request)
+  if (key && !rateLimit(`${route}:${key}`, limit)) {
     return NextResponse.json(
       { error: `Too many requests: this route accepts ${limit} writes per minute per client. Try again shortly.` },
       { status: 429 },

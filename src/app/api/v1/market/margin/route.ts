@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { marketJson, marketErrorResponse } from '@/lib/markets/api'
-import { borrowMargin, repayMargin, portfolioEquity, resolveUser } from '@/lib/markets/service'
+import { borrowMargin, repayMargin, portfolioEquity } from '@/lib/markets/service'
 
 import { guardMarketWrite } from '@/lib/public-guard'
 /** GET ?username= — margin book and portfolio equity for a user. */
@@ -8,7 +8,11 @@ export async function GET(request: Request) {
   const username = new URL(request.url).searchParams.get('username')
   if (!username) return marketJson({ error: 'username query param is required.' }, { status: 422 })
   try {
-    const user = await resolveUser(prisma, username)
+    // Reads never create accounts; an unknown name is simply an empty book.
+    const user = await prisma.user.findUnique({ where: { username: username.trim() } })
+    if (!user) {
+    return marketJson({ balance: null, equity: null, loans: [] })
+    }
     const [loans, equity] = await Promise.all([
       prisma.marginLoan.findMany({ where: { userId: user.id }, orderBy: { createdAt: 'desc' } }),
       portfolioEquity(prisma, user.id),

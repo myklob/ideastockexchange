@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { calculateBeliefEquivalencyScore } from '@/core/scoring/all-scores'
 
-import { guardPublicWrite } from '@/lib/public-guard'
+import { clientKey, rateLimit } from '@/lib/public-guard'
 /**
  * POST /api/beliefs/equivalency
  *
@@ -28,8 +28,10 @@ import { guardPublicWrite } from '@/lib/public-guard'
  *   thresholds          {object}  Reference table of all score bands
  */
 export async function POST(req: NextRequest) {
-  const blocked = guardPublicWrite(req, 'equivalency', 20)
-  if (blocked) return blocked
+  const key = clientKey(req)
+  if (key && !rateLimit(`equivalency:${key}`, 30)) {
+    return NextResponse.json({ error: 'Too many requests; try again in a minute.' }, { status: 429 })
+  }
 
   let body: unknown
   try {

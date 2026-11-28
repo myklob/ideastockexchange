@@ -36,7 +36,7 @@ export function demoWritesDisabled(): boolean {
 }
 
 export function demoClientKey(request: Request): string {
-  return clientKey(request)
+  return clientKey(request) ?? 'anon'
 }
 
 export function checkDemoRateLimit(bucket: string, limit: number, now = Date.now()): boolean {
