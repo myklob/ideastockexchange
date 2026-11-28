@@ -2810,8 +2810,8 @@ class TestVotesAreShownAndNeverCounted(unittest.TestCase):
 
 
 class TestEveryContributorHasAPage(unittest.TestCase):
-    """Every login that adds a row or casts a vote gets a page listing what they did; the maintainer's page carries
-    their profile and every page credits them. None of it reaches a score."""
+    """Every login that proposes a belief, adds a row or casts a vote gets a page listing what they did; the
+    maintainer's page carries their profile and every page credits them. None of it reaches a score."""
 
     @classmethod
     def setUpClass(cls):
@@ -2843,10 +2843,11 @@ class TestEveryContributorHasAPage(unittest.TestCase):
         people = self.read(self.v.out_v, 'contributors.html')
         self.assertRegex(people, r'<th\b[^>]*>Up votes</th><th\b[^>]*>Down votes</th>')
         self.assertNotIn('Votes cast', people)
-        # u1 voted on a twice, agree then disagree; only the later vote stands
-        self.assertRegex(people, r'href="u/u1\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>){4}<td>2</td><td>1</td>')
-        self.assertRegex(people, r'href="u/u4\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>){4}<td>0</td><td>1</td>')
-        self.assertRegex(people, r'href="u/u2\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>){4}<td>1</td><td>1</td>')
+        # u1 voted on a twice, agree then disagree; only the later vote stands. The votes are the last two cells of a
+        # person's line, however many counts come before them
+        self.assertRegex(people, r'href="u/u1\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>)+<td>2</td><td>1</td></tr>')
+        self.assertRegex(people, r'href="u/u4\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>)+<td>0</td><td>1</td></tr>')
+        self.assertRegex(people, r'href="u/u2\.html">[^<]*</a></td><td class="u">[^<]*</td>(?:<td>[\d,]+</td>)+<td>1</td><td>1</td></tr>')
 
     def test_added_by_links_to_the_contributors_page_on_this_site(self):
         h = self.read(self.v.out_v, 'p/' + self.v.cv.href(self.v.cv.tabs['a']))

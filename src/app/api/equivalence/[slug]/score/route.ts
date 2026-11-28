@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+import { requireOperatorSecret } from '@/lib/public-guard'
 /**
  * Compute the final equivalence score from stored component scores.
  *
@@ -62,10 +63,11 @@ function computeEquivalenceScore(analysis: {
  * POST /api/equivalence/[slug]/score
  * Recalculate and persist the final equivalence score for an analysis.
  */
-export async function POST(
-  _request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function POST(_request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }) {
+  const denied = requireOperatorSecret(_request)
+  if (denied) return denied
+
   const { slug } = await params
 
   const analysis = await prisma.equivalenceAnalysis.findUnique({

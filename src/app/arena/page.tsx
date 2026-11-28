@@ -56,10 +56,7 @@ async function fetchEnemies(): Promise<ArenaEnemy[]> {
       name: b.statement,
       topic: b.subcategory ?? b.category ?? 'unsorted',
       positivity: b.positivity,
-      hp: stats.hp,
-      attack: stats.attack,
       defense: stats.defense,
-      speed: stats.speed,
       level: stats.level,
       unitClass: stats.unitClass,
       tankInput: input,
@@ -84,6 +81,9 @@ export default async function ArenaPage() {
             </p>
           </div>
           <nav className="flex items-center gap-4 text-xs text-neutral-300">
+            <Link href="/arena/spectate" className="hover:text-white">
+              Spectate
+            </Link>
             <Link href="/battlefield" className="hover:text-white">
               Battlefield
             </Link>

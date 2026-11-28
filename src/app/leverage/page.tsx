@@ -9,6 +9,8 @@ import {
 } from '@/core/scoring/decision-leverage'
 import { STANDINGS, NEGLIGIBLE_EXPOSURE } from '@/core/scoring/evidence-exposure'
 
+
+export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'The Work Queue — Idea Stock Exchange',
   description:

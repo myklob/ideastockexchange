@@ -23,7 +23,7 @@ const base: BeliefHtmlInput = {
   netScore: 41,
   args: [
     {
-      label: 'eliminates spoiler effect',
+      label: 'RCV eliminates the spoiler effect',
       side: 'agree',
       childSlug: 'rcv-eliminates-spoiler-effect',
       truthScore: 72,
@@ -34,7 +34,7 @@ const base: BeliefHtmlInput = {
       impactScore: 48.6,
     },
     {
-      label: 'voter confusion',
+      label: 'Ranking confuses a meaningful share of voters',
       side: 'disagree',
       childSlug: null,
       truthScore: null,
@@ -82,7 +82,7 @@ describe('renderBeliefHtml', () => {
   })
 
   it('renders plain text (not a link) when a score page is absent (Rule 5)', () => {
-    // "voter confusion" has importance 0.4 but no importance page -> plain 40%.
+    // The confusion row has importance 0.4 but no importance page -> plain 40%.
     expect(html).toContain('>40%</td>')
     expect(html).not.toContain('linkage_2.html')
   })
@@ -113,7 +113,7 @@ describe('renderBeliefHtml', () => {
       slug: 'rcv-eliminates-spoiler-effect',
       statement: 'RCV eliminates the spoiler effect',
       supports: [
-        { parentStatement: 'Adopt ranked-choice voting', parentSlug: 'ranked-choice-voting', argumentLabel: 'eliminates spoiler effect' },
+        { parentStatement: 'Adopt ranked-choice voting', parentSlug: 'ranked-choice-voting', argumentLabel: 'RCV eliminates the spoiler effect' },
       ],
     })
     expect(child).toContain('Supports:')
@@ -125,12 +125,76 @@ describe('renderBeliefHtml', () => {
     expect(routed).toContain('href="/beliefs/rcv-eliminates-spoiler-effect"')
     expect(routed).toContain('href="/arguments/1/linkage"')
   })
+
+  it('ranks argument rows by impact, strongest first, unscored last (Rule 8)', () => {
+    const ranked = renderBeliefHtml({
+      ...base,
+      args: [
+        { label: 'Unscored claim', side: 'agree', impactScore: null },
+        { label: 'Weak claim', side: 'agree', impactScore: 10 },
+        { label: 'Strong claim', side: 'agree', impactScore: 80 },
+      ],
+    })
+    const strong = ranked.indexOf('Strong claim')
+    const weak = ranked.indexOf('Weak claim')
+    const unscored = ranked.indexOf('Unscored claim')
+    expect(strong).toBeGreaterThan(-1)
+    expect(strong).toBeLessThan(weak)
+    expect(weak).toBeLessThan(unscored)
+  })
+
+  it('renders the full canonical section set in order, definitions last', () => {
+    const full = renderBeliefHtml({
+      ...base,
+      objectiveCriteria: [{ criterion: 'majority winner rate', currentStatus: 'plurality common', threshold: '95%+' }],
+      values: {
+        priorityRankings: [{ value: 'Fairness', supportersRank: '#1', opponentsRank: '#3', gap: '2' }],
+        motivation: { supportersAdvertised: ['fairer outcomes'], opponentsAdvertised: ['simplicity'] },
+      },
+      interests: { sharedVsConflicting: [{ shared: 'trust', conflicting: 'who benefits', why: 'marginal seats' }] },
+      assumptions: { accept: ['voters can rank'], reject: ['plurality is fine'] },
+      costBenefit: { benefits: ['fewer spoilers'], costs: ['new equipment'], shortTerm: ['rollout cost'], longTerm: ['competitive races'] },
+      resolution: { compromises: ['pilot locally'], obstacles: ['incumbents'], supporterBiases: ['optimism'], opponentBiases: ['status quo'] },
+      mapping: { upstreamSupport: ['systems matter'], downstreamSupport: ['RCV for primaries'], moreExtreme: ['abolish plurality'] },
+      legal: { supporting: ['Maine 2016'], contradicting: ['state bans'] },
+    })
+
+    const order = [
+      'Argument Trees',
+      'Evidence Ledger',
+      'Values Conflict Analysis',
+      'Interests and Motivations',
+      'Foundational Assumptions',
+      'Objective Criteria',
+      'Cost-Benefit Analysis',
+      'Resolution',
+      'Belief Mapping',
+      'Legal Framework',
+      'Definitions and Scoring Concepts',
+    ]
+    const positions = order.map((s) => full.indexOf(s))
+    positions.forEach((p) => expect(p).toBeGreaterThan(-1))
+    const sorted = [...positions].sort((a, b) => a - b)
+    expect(positions).toEqual(sorted)
+  })
+
+  it('mirrors Supporters and Opponents structure in symmetric sections (Rule 7)', () => {
+    const full = renderBeliefHtml({
+      ...base,
+      assumptions: { accept: ['a1', 'a2'], reject: ['r1', 'r2'] },
+      legal: { supporting: ['s1'], contradicting: ['c1'] },
+    })
+    expect(full).toContain('Required to Accept This Belief')
+    expect(full).toContain('Required to Reject This Belief')
+    expect(full).toContain('Supporting Laws')
+    expect(full).toContain('Contradicting Laws')
+  })
 })
 
 describe('renderLinkageHtml', () => {
   const html = renderLinkageHtml({
     argumentId: 1,
-    argumentLabel: 'eliminates spoiler effect',
+    argumentLabel: 'RCV eliminates the spoiler effect',
     parentStatement: 'Adopt ranked-choice voting',
     parentSlug: 'ranked-choice-voting',
     childStatement: 'RCV eliminates the spoiler effect',
