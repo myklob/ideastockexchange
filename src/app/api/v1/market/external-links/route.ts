@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { marketJson, marketErrorResponse } from '@/lib/markets/api'
 import { MarketError } from '@/lib/markets/service'
 
+import { guardMarketWrite } from '@/lib/public-guard'
 const VENUES = ['KALSHI', 'POLYMARKET', 'OTHER']
 
 /**
@@ -21,6 +22,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const closed = guardMarketWrite(request, 'market-external-links')
+  if (closed) return closed
+
   let body: { beliefSlug?: string; venue?: string; externalId?: string; url?: string; notes?: string }
   try {
     body = await request.json()

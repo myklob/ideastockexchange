@@ -17,6 +17,7 @@ import { prisma } from '@/lib/prisma'
 import { resolveConsensus, CONSENSUS_THRESHOLD, CONSENSUS_QUORUM } from '@/lib/consensus'
 import { similarityBand } from '@/lib/agent-ingest/similarity'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 const OUTCOME_TO_STATUS = {
   upheld: 'grouped',
   rejected: 'kept-separate',
@@ -74,10 +75,11 @@ export async function GET(
   })
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string }> },) {
+  const blocked = guardPublicWrite(request, 'grouping-votes', 30)
+  if (blocked) return blocked
+
   const { id } = await params
   const candidateId = Number(id)
   if (!Number.isInteger(candidateId)) {

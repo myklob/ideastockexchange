@@ -23,6 +23,10 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { propagateAllBeliefScores } from '@/lib/propagate-belief-scores'
+import { requireOperatorSecret } from '@/lib/public-guard'
+
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 // ─── GET (status check) ─────────────────────────────────────────────────────
 
@@ -40,7 +44,11 @@ export async function GET() {
 
 // ─── POST (run full propagation) ────────────────────────────────────────────
 
-export async function POST() {
+export async function POST(request: Request) {
+  // Operator tool, not a visitor feature: a full-graph rewrite per request.
+  const denied = requireOperatorSecret(request)
+  if (denied) return denied
+
   const result = await propagateAllBeliefScores()
 
   return NextResponse.json({

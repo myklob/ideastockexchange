@@ -1,12 +1,14 @@
 import { marketJson, marketErrorResponse } from '@/lib/markets/api'
 import { cancelOrder } from '@/lib/markets/service'
 
+import { guardMarketWrite } from '@/lib/public-guard'
 /** DELETE — cancel an open order; unfilled buy escrow is refunded.
  *  Body: { username }. */
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function DELETE(request: Request,
+  { params }: { params: Promise<{ id: string }> },) {
+  const closed = guardMarketWrite(request, 'market-cancel')
+  if (closed) return closed
+
   const { id } = await params
   let body: { username?: string }
   try {

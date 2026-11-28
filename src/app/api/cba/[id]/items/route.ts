@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getCBA, addLineItem } from '@/features/cost-benefit-analysis/data/cba-data'
 import { CBALineItem, LikelihoodBelief, LikelihoodEstimate } from '@/core/types/cba'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 const lineItemSchema = z.object({
   type: z.enum(['benefit', 'cost'], {
     errorMap: () => ({ message: 'Type must be "benefit" or "cost"' }),
@@ -43,10 +44,11 @@ const lineItemSchema = z.object({
   }),
 })
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string }> }) {
+  const blocked = guardPublicWrite(request, 'cba-items', 20)
+  if (blocked) return blocked
+
   const { id } = await params
 
   const cba = getCBA(id)

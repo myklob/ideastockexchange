@@ -27,6 +27,7 @@ import { counterArgumentStrength } from '@/lib/fallacy/claims'
 import { callerCredibilityFor } from '@/lib/fallacy/caller-record'
 import type { FallacySeverity } from '@/lib/fallacy/catalog'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 const OUTCOME_TO_CLAIM_STATUS = {
   upheld: 'confirmed',
   rejected: 'rejected',
@@ -75,10 +76,11 @@ export async function GET(
   })
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: Request,
+  { params }: { params: Promise<{ id: string }> },) {
+  const blocked = guardPublicWrite(request, 'fallacy-votes', 30)
+  if (blocked) return blocked
+
   const { id } = await params
   const claimId = Number(id)
   if (!Number.isInteger(claimId)) {

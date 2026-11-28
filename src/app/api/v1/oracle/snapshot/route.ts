@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { marketJson } from '@/lib/markets/api'
 import { signAttestation } from '@/lib/markets/oracle'
 import { isValidEpochLabel } from '@/lib/markets/epoch'
+import { inProduction } from '@/lib/public-guard'
 
 /**
  * GET /api/v1/oracle/snapshot?belief_id={id}&epoch={YYYY-MM}
@@ -16,6 +17,12 @@ import { isValidEpochLabel } from '@/lib/markets/epoch'
  * and the signature must not be treated as a stable oracle identity.
  */
 export async function GET(request: Request) {
+  if (inProduction() && !process.env.ORACLE_PRIVATE_KEY_PEM) {
+    return marketJson(
+      { error: 'Oracle attestations are unavailable: ORACLE_PRIVATE_KEY_PEM is not configured on this deployment, and ephemeral keys would not be a stable oracle identity.' },
+      { status: 503 },
+    )
+  }
   const sp = new URL(request.url).searchParams
   const beliefIdRaw = sp.get('belief_id')
   const epoch = sp.get('epoch')

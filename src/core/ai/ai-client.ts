@@ -263,7 +263,7 @@ export class AIClient {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
+        const errorText = (await response.text()).slice(0, 200);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
@@ -367,6 +367,14 @@ export function createAIClient(configPath?: string): AIClient {
   return new AIClient(defaultConfig);
 }
 
+/** AI_TIMEOUT is milliseconds; values under 1000 are read as seconds. Floor 5 s. */
+function parseTimeoutMs(raw: string | undefined): number {
+  const parsed = parseInt(raw || '120000', 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 120000;
+  const ms = parsed < 1000 ? parsed * 1000 : parsed;
+  return Math.max(ms, 5000);
+}
+
 /**
  * Create AI client from environment variables
  */
@@ -380,6 +388,6 @@ export function createAIClientFromEnv(): AIClient {
     apiKey: process.env.AI_API_KEY,
     temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
     maxTokens: parseInt(process.env.AI_MAX_TOKENS || '4000'),
-    timeout: parseInt(process.env.AI_TIMEOUT || '120000'),
+    timeout: parseTimeoutMs(process.env.AI_TIMEOUT),
   });
 }

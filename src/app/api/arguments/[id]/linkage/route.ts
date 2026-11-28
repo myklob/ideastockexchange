@@ -27,6 +27,7 @@ import { prisma } from '@/lib/prisma'
 import { calculateLinkageFromArguments, applyDepthAttenuation } from '@/core/scoring/scoring-engine'
 import { propagateFromLinkageChange } from '@/lib/propagate-belief-scores'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 // ─── GET ───────────────────────────────────────────────────────────────────
 
 export async function GET(
@@ -90,10 +91,11 @@ export async function GET(
 
 // ─── POST ──────────────────────────────────────────────────────────────────
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }) {
+  const blocked = guardPublicWrite(req, 'linkage', 20)
+  if (blocked) return blocked
+
   const { id } = await params
   const argumentId = Number(id)
 
@@ -166,10 +168,11 @@ export async function POST(
 
 // ─── PATCH ─────────────────────────────────────────────────────────────────
 
-export async function PATCH(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(_req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }) {
+  const blocked = guardPublicWrite(_req, 'linkage', 20)
+  if (blocked) return blocked
+
   const { id } = await params
   const argumentId = Number(id)
 

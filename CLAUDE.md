@@ -349,6 +349,9 @@ uniqueness) or a labelled constant when no such page exists yet.
   Before opening it, merge `master` into the branch and resolve conflicts, and run the checks this file lists. Later pushes to
   the same branch update the same PR. Do not merge it yourself; the owner merges.
 - **JSX entities:** the lint rule `react/no-unescaped-entities` will flag bare apostrophes/quotes inside JSX text. Use `&apos;`, `&ldquo;`, `&rdquo;`.
+- **Public write routes:** the site has no user accounts, so every keyless `POST`/`PUT`/`PATCH`/`DELETE` under `src/app/api` must start with a guard from `src/lib/public-guard.ts` — `guardPublicWrite` (per-client limiter + `PUBLIC_WRITES_DISABLED`), `requireOperatorSecret` (`CRON_SECRET` bearer; fails closed in production) for recompute/destructive/cron routes, or `guardMarketWrite` for play-money markets. Agent routes under `/api/v1` use `authenticateAgentKey` instead. Never return raw `error.message` to the client.
+- **Scores are never seeded.** Seed scripts write structure only (statements, labels, evidence, relationships); `prisma/seed-propagate.ts` runs last and computes every score. `npm run db:bootstrap` = `prisma db push` + the full seed chain, idempotent.
+- **Deploying:** `docs/DEPLOYMENT.md` is the runbook (Vercel + Postgres; pooled `DATABASE_URL` for the app, `DATABASE_URL_UNPOOLED` for schema ops; `CRON_SECRET` and `DEMO_REVIEW_SECRET` required in production). `/api/health` reports whether the database is reachable and seeded.
 
 ## Debug Logging
 
@@ -388,3 +391,7 @@ Or set `CLAUDE_DEBUG_FILE` before launching. File logging cannot be enabled mid-
 - `/how-it-works` — the Engine of Reason explainer, with a live engine readout.
 - `/arguments/[id]/linkage` — an edge's linkage sub-debate; `/arguments/[id]/score` — the edge's impact-provenance page (factor-by-factor derivation).
 - `/contact` — contact/contribution pointers (target for all former Contact Me links).
+- `/topics` and `/topics/[slug]` — topic hubs: every belief on a topic at its direction/magnitude/specificity address.
+- `/demo` — the public playground: a chat statement resolves to its belief page (`GET /api/v1/conversations/lookup`), a pasted thread is mined into candidate arguments and reviewed into the page through the ingestion firewall (`/api/v1/conversations/demo/*`, keyless but capped).
+- `/conversations` — imported chatroom/forum threads and the candidates mined from them; `src/lib/conversations/*` is the pipeline (extract, match, import, integrate, outline, lookup). The firewall test in `tests/unit/lib/conversations/` forbids score identifiers in those files.
+- `/api/health`, `/robots.txt`, `/sitemap.xml` — public-site plumbing.

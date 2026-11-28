@@ -1,0 +1,43 @@
+name: Bootstrap production database
+
+# One-shot schema push + content seed against the production Postgres.
+# Trigger manually from the Actions tab after adding the DATABASE_URL_UNPOOLED
+# (direct, non-pooled) repository secret. The seed chain is idempotent, so
+# re-running is safe.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "bootstrap" to push the schema and seed the public content'
+        required: true
+        default: ''
+
+jobs:
+  bootstrap:
+    if: ${{ github.event.inputs.confirm == 'bootstrap' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Schema operations need the DIRECT (non-pooled) connection string.
+      DATABASE_URL: ${{ secrets.DATABASE_URL_UNPOOLED || secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Refuse to run without a Postgres DATABASE_URL
+        run: |
+          case "$DATABASE_URL" in
+            postgres://*|postgresql://*) echo "Postgres URL present" ;;
+            *) echo "DATABASE_URL secret is missing or not a Postgres URL"; exit 1 ;;
+          esac
+      - run: npm ci
+      - name: Sync Prisma provider and generate client
+        run: node scripts/set-prisma-provider.mjs && npx prisma generate
+      - name: Push schema
+        run: npx prisma db push --accept-data-loss
+      - name: Seed public content
+        run: npm run db:seed
+      - name: Report
+        run: echo "Database bootstrapped. Verify at <site>/api/health"

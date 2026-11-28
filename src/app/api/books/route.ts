@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAllBooksWithScores } from '@/features/books/services/book-service'
 
+import { guardPublicWrite } from '@/lib/public-guard'
 export async function GET() {
   try {
     const books = await getAllBooksWithScores()
@@ -13,6 +14,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const blocked = guardPublicWrite(request, 'books', 10)
+  if (blocked) return blocked
+
   try {
     const body = await request.json()
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { listDebateTopics, createDebateTopic } from '@/features/debate-topics/db';
 import type { DebateTopic } from '@/core/types/debate-topic';
 
+import { guardPublicWrite } from '@/lib/public-guard';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
@@ -15,6 +16,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const blocked = guardPublicWrite(request, 'debate-topics', 5)
+  if (blocked) return blocked
+
   try {
     const body: DebateTopic = await request.json();
 
