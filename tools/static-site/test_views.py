@@ -251,6 +251,21 @@ class TestTheListPages(Site):
             self.assertIsNone(re.search(r'<th(?=[\s>])(?![^>]*scope=)[^>]*>', h), f'{name}.html has a header without scope')
             self.assertNotIn('\u2014', h, f'{name}.html uses an em dash')
 
+    def test_the_home_page_and_the_build_carry_what_both_merged_changes_added(self):
+        """Two changes to the home page's cards and to the list of pages a build writes were once merged by keeping
+        both in full, which left the generator unreadable and the site unpublished. Each added something the other
+        did not have: the card that leads to the five views, and the short rankings with the page about the site."""
+        h = self.page('index.html')
+        doors = re.search(r'<ul\b[^>]*class="doors"[^>]*>.*?</ul>', h, re.S)
+        self.assertIsNotNone(doors, 'the home page has lost the card that leads to the five views')
+        for name in ('all', 'costs', 'invest', 'bets', 'resolve'): self.assertIn(f'href="{name}.html"', doors.group(0))
+        at = [h.find(f'<span>{card}</span>') for card in ('Search', 'Five ways to read a belief', 'Highest belief scores')]
+        self.assertTrue(all(i > 0 for i in at), 'a card is missing from the home page')
+        self.assertEqual(at, sorted(at), 'the five views sit after Search and before the best-argued beliefs')
+        self.assertNotIn('<span>Best beliefs</span>', h, 'the list was renamed Highest belief scores')
+        for name in ('short', 'about') + self.VIEWS:
+            self.assertTrue(os.path.exists(os.path.join(self.out, name + '.html')), f'{name}.html was not written')
+
     def test_the_conflict_view_names_its_three_parts_on_each_of_them(self):
         for name in ('resolve', 'motives', 'gain', 'factors'):
             h = self.page(name + '.html')
@@ -391,10 +406,11 @@ class TestContributorsAreCountedInWordsAReaderUses(unittest.TestCase):
     def test_the_list_counts_beliefs_reasons_and_evidence_not_rows(self):
         h = self.page('contributors.html')
         heads = re.findall(r'<th\b[^>]*>([^<]+)</th>', h)
-        self.assertEqual(heads, ['Who', 'Role', 'Beliefs', 'Reasons', 'Evidence', 'Other additions', 'Up votes', 'Down votes'])
+        self.assertEqual(heads, ['Who', 'Role', 'Beliefs', 'Beliefs started', 'Reasons', 'Evidence', 'Other additions', 'Up votes', 'Down votes'])
         self.assertNotRegex(text(h).lower(), r'\brows?\b', 'the contributors page still talks about rows')
         ann = re.search(r'<tr><td class="t"><a href="u/ann.html">.*?</tr>', h).group(0)
-        self.assertEqual(re.findall(r'<td>([\d,]+)</td>', ann), ['1', '1', '1', '1', '0', '0'], 'ann added a reason, a finding and a benefit, all to one belief, and cast no vote')
+        self.assertEqual(re.findall(r'<td>([\d,]+)</td>', ann), ['1', '0', '1', '1', '1', '0', '0'],
+                         'ann added a reason, a finding and a benefit, all to one belief, started none and cast no vote')
 
     def test_the_maintainer_is_credited_with_what_carries_no_other_name(self):
         n, ann = self.RS.added_counts(self.c, 'zed'), self.RS.added_counts(self.c, 'ann')
@@ -411,6 +427,98 @@ class TestContributorsAreCountedInWordsAReaderUses(unittest.TestCase):
         self.assertIn('Trees cost money to water and prune.', t, 'the thing added should lead, not the page it went on')
         self.assertNotRegex(t.lower(), r'\brows?\b')
         self.assertEqual(self.broken, [])
+
+    # ---------------------------------------------------------------- who started a belief
+    def people(self, out):
+        """contributors.html as {login: {column heading: cell}}, read by heading so a column added or moved does
+        not change what a test below is looking at."""
+        with open(os.path.join(out, 'contributors.html'), encoding='utf-8') as fh: h = fh.read()
+        heads = [text(x).strip() for x in re.findall(r'<th\b[^>]*>(.*?)</th>', h, re.S)]
+        rows = {}
+        for tr in re.findall(r'<tr\b[^>]*>(.*?)</tr>', h, re.S):
+            who = re.search(r'href="u/([^"]+)\.html"', tr)
+            if who: rows[who.group(1)] = dict(zip(heads, [text(x).strip() for x in re.findall(r'<td\b[^>]*>(.*?)</td>', tr, re.S)]))
+        return rows
+
+    def built(self, proposals, gate=False):
+        """The class's tables plus a third belief, `c`, with nothing under it (what the belief form files when no
+        reason is attached), and the given proposals.csv rows (None for no file): (corpus, broken links, output
+        folder, {page key: its published numbers}). `a` is given a yardstick, the one part it lacked, so the
+        complete-only build has a belief to publish."""
+        import json
+        src, out = tempfile.mkdtemp(prefix='views-started-'), tempfile.mkdtemp(prefix='views-started-out-')
+        self.addCleanup(shutil.rmtree, src, True); self.addCleanup(shutil.rmtree, out, True)
+        for f in os.listdir(self.src): shutil.copy(os.path.join(self.src, f), src)
+        pages, edges = IT.read_csv(src)[:2]
+        pages.append(dict(key='c', kind='belief', text='Cities should ban gas leaf blowers.', topic='t'))
+        pages.append(dict(key='y1', kind='claim', text='Summer street temperature is a fair yardstick for tree planting.', parent='a'))
+        edges.append(dict(page='a', section='criterion', claim='y1'))
+        IT.write_csv(pages, edges, src, topics=IT.read_topics(src))
+        if proposals is not None: IT.write_proposals([dict(zip(IT.PROPOSAL_COLS, r)) for r in proposals], src)
+        c, broken = self.RS.build(src, out, gate=gate)
+        with open(os.path.join(out, 'data', 'pages_index.json'), encoding='utf-8') as fh:
+            numbers = {r['key']: (r['truth'], r['confidence']) for r in json.load(fh)['pages']}
+        return c, broken, out, numbers
+
+    def test_a_belief_proposed_with_no_reason_attached_counts_for_its_proposer_and_not_for_the_maintainer(self):
+        """Nothing points at a new belief, so nothing on it could say who proposed it, and it was counted on the
+        maintainer's line with every other belief nobody had added to. proposals.csv names the proposer."""
+        c, broken, before, _ = self.built(None)
+        self.assertEqual(broken, [])
+        t = self.people(before)
+        self.assertEqual((t['zed']['Beliefs'], t['zed']['Beliefs started']), ('3', '3'), 'with nobody named, every belief is the maintainer\'s')
+        self.assertEqual((t['ann']['Beliefs'], t['ann']['Beliefs started']), ('1', '0'), 'adding to a belief is not starting it')
+        self.assertNotIn('bea', t)
+        # r1 is a claim and `gone` is no page at all: neither is a belief anybody started
+        c, broken, after, _ = self.built([('c', 'bea', '2026-10-02', '31'), ('r1', 'mallory', '2026-10-03', '32'), ('gone', 'mallory', '2026-10-03', '33')])
+        self.assertEqual(broken, [], 'a link on a contributor page points at a page that was not written')
+        t = self.people(after)
+        self.assertEqual((t['bea']['Beliefs'], t['bea']['Beliefs started']), ('1', '1'), 'the proposer is not credited with the belief they proposed')
+        self.assertEqual((t['bea']['Reasons'], t['bea']['Evidence'], t['bea']['Other additions']), ('0', '0', '0'))
+        self.assertEqual((t['zed']['Beliefs'], t['zed']['Beliefs started']), ('2', '2'), 'a belief somebody else proposed is still counted on the maintainer\'s line')
+        self.assertEqual(self.RS.added_counts(c, 'bea'), {'Reasons': 0, 'Evidence': 0, 'Other': 0, 'Beliefs': 1, 'Added to': 0, 'Started': 1})
+        self.assertNotIn('mallory', t, 'a proposal for a page that is not a belief made a contributor')
+        self.assertFalse(os.path.exists(os.path.join(after, 'u', 'mallory.html')))
+        with open(os.path.join(after, 'u', 'bea.html'), encoding='utf-8') as fh: page = fh.read()
+        self.assertRegex(page, r'<h2\b[^>]*><span>Beliefs started</span></h2>')
+        self.assertIn(f'<a href="../p/{c.href(c.tabs["c"])}">Cities should ban gas leaf blowers.</a>', page)
+        self.assertIn('2026-10-02', page)
+        self.assertNotIn('Nothing added or voted on yet', page)
+        self.assertNotRegex(text(page).lower(), r'\brows?\b')
+        with open(os.path.join(after, 'u', 'ann.html'), encoding='utf-8') as fh: self.assertNotIn('Beliefs started', fh.read(), 'a page lists beliefs for somebody who started none')
+        with open(os.path.join(after, 'u', 'zed.html'), encoding='utf-8') as fh: self.assertIn('other contributors started 1 of the beliefs', text(fh.read()))
+        with open(os.path.join(before, 'u', 'zed.html'), encoding='utf-8') as fh: self.assertNotIn('other contributors started', text(fh.read()))
+
+    def test_starting_a_belief_the_maintainer_then_adds_to_is_still_the_proposers_start(self):
+        """`b` has reasons nobody signed, so the maintainer worked on it; bea proposed it, so she started it."""
+        t = self.people(self.built([('b', 'bea', '2026-10-02', '31')])[2])
+        self.assertEqual((t['bea']['Beliefs'], t['bea']['Beliefs started']), ('1', '1'))
+        self.assertEqual((t['zed']['Beliefs'], t['zed']['Beliefs started']), ('3', '2'), 'the maintainer added to all three and started two')
+
+    def test_a_belief_proposed_by_nobody_named_is_credited_to_nobody(self):
+        """An issue with no account behind it is recorded as anonymous. The maintainer did not enter that belief,
+        so it is not counted as theirs, and nobody gets a page for it."""
+        _, broken, out, _ = self.built([('c', 'anonymous', '2026-10-02', '31')])
+        self.assertEqual(broken, [])
+        t = self.people(out)
+        self.assertEqual((t['zed']['Beliefs'], t['zed']['Beliefs started']), ('2', '2'))
+        self.assertNotIn('anonymous', t)
+
+    def test_the_complete_only_build_credits_the_same_proposer_and_links_no_draft(self):
+        """The gated site leaves a draft belief out. Whoever proposed it is still credited with starting it, and
+        their page gives its words and no link, as a row pointing at a draft does there."""
+        c, broken, out, _ = self.built([('c', 'bea', '2026-10-02', '31')], gate=True)
+        self.assertNotIn('c', c.tabs, 'a belief with nothing under it is meant to be a draft this build leaves out')
+        self.assertEqual(broken, [], 'a contributor page links a belief the complete-only build did not write')
+        self.assertEqual(self.people(out)['bea']['Beliefs started'], '1')
+        with open(os.path.join(out, 'u', 'bea.html'), encoding='utf-8') as fh:
+            self.assertRegex(fh.read(), r'<td\b[^>]*>Cities should ban gas leaf blowers\.</td>')
+
+    def test_who_proposed_a_belief_moves_no_published_number(self):
+        plain = self.built(None)[3]
+        named = self.built([('a', 'bea', '2026-10-02', '31'), ('b', 'a-famous-expert', '2026-10-02', '32'), ('c', 'anonymous', '2026-10-02', '33')])[3]
+        self.assertGreater(len(plain), 5)
+        self.assertEqual(plain, named, 'naming who proposed a belief moved a published number')
 
 
 if __name__ == '__main__':

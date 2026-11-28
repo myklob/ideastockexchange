@@ -3047,16 +3047,6 @@ def render_index(c, title):
     ground = [p for p in c.specs if EV.prior(c.specs[p])['grounded']]
     o.append(f'<p class="kind">Idea Stock Exchange</p><h1>Ideas should win on their arguments, not their volume.</h1>')
     TOP = 3
-    cards = [start_here(c), card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>')]
-    # one belief is several questions, and each has a list built for it: the same beliefs every time, different columns
-    ways = (('all.html', 'Scores', 'Is it true, and is that from reasoning or from checking?'),
-            ('costs.html', 'Costs and benefits', 'What would acting on it most likely gain and cost?'),
-            ('invest.html', 'Investing', 'What does a share in it cost today, and who has bought?'),
-            ('bets.html', 'Betting', 'Which of its predictions come due, and what is riding on them?'),
-            ('resolve.html', 'Conflict resolution', 'Who wants what, and where could both sides gain?'))
-    cards.append(card('Five ways to read a belief', 'The same beliefs every time, each list built for a different question.',
-                      '<ul class="doors">' + ''.join(f'<li><a href="{h}"><strong>{esc(t)}</strong></a> {esc(q)}</li>' for h, t, q in ways) + '</ul>'))
-    cards.append(card('Best beliefs', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
     shorts = short_beliefs(c)
     cards = [card('Short and strong beliefs', 'Readable in one breath and among the best argued here. Fewest words first; only beliefs from '
                   'the top quarter of the best-beliefs list, argued above zero, qualify.',
@@ -3070,6 +3060,14 @@ def render_index(c, title):
                            note=lambda p: f'relied on {times_avg(c, c.rank.of(p))} the average page, truth score {f2(c.truth(p))}'),
                       see_all('short.html#reasons', len(shortr), 'short reasons that carry weight'), 'shortreasons'))
     cards.append(card('Search', 'Every page on the site, by the words in it.', SEARCH, '<p class="more"><a href="all.html">Every page, listed &rarr;</a></p>'))
+    # one belief is several questions, and each has a list built for it: the same beliefs every time, different columns
+    ways = (('all.html', 'Scores', 'Is it true, and is that from reasoning or from checking?'),
+            ('costs.html', 'Costs and benefits', 'What would acting on it most likely gain and cost?'),
+            ('invest.html', 'Investing', 'What does a share in it cost today, and who has bought?'),
+            ('bets.html', 'Betting', 'Which of its predictions come due, and what is riding on them?'),
+            ('resolve.html', 'Conflict resolution', 'Who wants what, and where could both sides gain?'))
+    cards.append(card('Five ways to read a belief', 'The same beliefs every time, each list built for a different question.',
+                      '<ul class="doors">' + ''.join(f'<li><a href="{h}"><strong>{esc(t)}</strong></a> {esc(q)}</li>' for h, t, q in ways) + '</ul>'))
     cards.append(card('Highest belief scores', 'The best argued first, and fully worked pages before drafts. The number is the belief score: the argued weight '
                       'for the belief minus the weight against it, open ended, where 0 means balanced or not yet argued. The truth score under each '
                       'belief is the one its own page shows, 0 to 1, where 0.50 means the evidence so far has not moved it either way.',
@@ -4464,25 +4462,38 @@ def take_part_foot(what):
 
 def load_people(c, content):
     """Who takes part, read from the tables and nothing else: the profiles in users.csv and user_links.csv, every
-    row a contributor added (its added_by), and every vote cast. Nothing here reaches a scorer."""
+    belief somebody proposed (proposals.csv), every row a contributor added (its added_by), and every vote cast.
+    Nothing here reaches a scorer."""
     users, links = IT.read_users(content) if content and os.path.isdir(content) else ([], [])
     c.users = {user_slug(u['login']): u for u in users if user_slug(u.get('login'))}
     c.user_links = {}
     for l in links: c.user_links.setdefault(user_slug(l.get('login')), []).append(l)
     c.maintainer = next((k for k, u in c.users.items() if u.get('maintainer', '').upper() == 'Y'), None)
-    c.added = {}
+    # started: login -> [(belief key, day, the belief's words)], from proposals.csv. proposed: every belief it names
+    # anybody for. unclaimed: how many beliefs it names nobody for. All three are counted over the full tables, as
+    # the additions are, so the complete-only build credits the same people the full one does; the words are kept
+    # because that build shows a draft's words and not its link
+    c.added, c.started, c.proposed, c.unclaimed = {}, {}, set(), 0
     c.unsigned = []      # rows that carry no contributor's name: the maintainer entered them
     if content and os.path.isdir(content):
-        for e in IT.read_csv(content)[1]:
+        pages, edges = IT.read_csv(content)
+        for e in edges:
             x = IT.parse_extra(e.get('extra'))
             who = user_slug(x.get('added_by'))
             if who and who != 'anonymous': c.added.setdefault(who, []).append((e, x.get('added', '')))
             else: c.unsigned.append(e)
+        beliefs = {p['key']: p.get('standalone') or p.get('text') or p['key'] for p in pages if p.get('kind') == 'belief'}
+        named = {r['key']: r for r in IT.read_proposals(content) if r['key'] in beliefs}
+        for key, r in named.items():
+            who = user_slug(r['login'])
+            if who and who != 'anonymous': c.started.setdefault(who, []).append((key, r['date'], beliefs[key]))
+        c.proposed, c.unclaimed = set(named), len(beliefs) - len(named)
     c.voted = {}
     for v in getattr(c, 'vote_rows', []):
         who = user_slug(v.get('login'))
         if who and who != 'anonymous': c.voted.setdefault(who, []).append(v)
-    c.people = sorted(set(c.users) | set(c.added) | set(c.voted), key=lambda k: (k != c.maintainer, (c.users.get(k, {}).get('name') or k).lower()))
+    c.people = sorted(set(c.users) | set(c.added) | set(c.started) | set(c.voted),
+                      key=lambda k: (k != c.maintainer, (c.users.get(k, {}).get('name') or k).lower()))
 
 
 def person_name(c, login):
@@ -4516,18 +4527,24 @@ def belief_above(c, key):
     return None
 
 def added_counts(c, login):
-    """What one person added, counted by what it is: the beliefs they worked on, their reasons, their findings and
-    everything else. The maintainer entered every row that carries no other contributor's name, and every belief
-    nobody else has added to, so those are counted as theirs, which is what their own page already says."""
+    """What one person added, counted by what it is: the beliefs they worked on, the beliefs they started, their
+    reasons, their findings and everything else. A belief counts as started by whoever proposals.csv names for it.
+    The maintainer entered every row that carries no other contributor's name and every belief that table names
+    nobody for, so those are counted as theirs, which is what their own page already says; a belief somebody else
+    proposed therefore has to be named in the table, or it is counted here as the maintainer's.
+
+    Beliefs is the ones worked on: started, or added to. Added to is only the second, for a sentence about what a
+    person added. Started is counted over the full tables, as the additions are."""
+    mine = login == getattr(c, 'maintainer', None)
     rows = [e for e, _ in c.added.get(login, [])]
-    if login == getattr(c, 'maintainer', None): rows = rows + list(getattr(c, 'unsigned', []))
+    if mine: rows = rows + list(getattr(c, 'unsigned', []))
     out = {name: sum(1 for e in rows if e.get('section') in secs) for name, secs in ADDED_GROUPS}
     out['Other'] = len(rows) - sum(out.values())
-    beliefs = {b for b in (belief_above(c, e.get('page')) for e in rows) if b is not None}
-    if login == getattr(c, 'maintainer', None):
-        others = {b for k in c.added if k != login for b in (belief_above(c, e.get('page')) for e, _ in c.added[k]) if b is not None}
-        beliefs |= {b for b in c.beliefs if b not in others}
-    out['Beliefs'] = len(beliefs)
+    added_to = {b for b in (belief_above(c, e.get('page')) for e in rows) if b is not None}
+    began = {c.tabs[k] for k, _, _ in c.started.get(login, []) if k in c.tabs}
+    if mine: began |= {b for b in c.beliefs if c.key[b] not in c.proposed}
+    out['Beliefs'], out['Added to'] = len(added_to | began), len(added_to)
+    out['Started'] = len(c.started.get(login, [])) + (c.unclaimed if mine else 0)
     return out
 
 
@@ -4546,11 +4563,13 @@ def render_user(c, login, title):
     if login == c.maintainer:
         done = [b for b in c.beliefs if c.complete(b)]
         filed = {c.topic_of(b) for b in c.beliefs if c.topic_of(b)}
+        others = sum(len(v) for k, v in c.started.items() if k != login)
         o.append(f'<section><h2><span>What {esc(name)} built</span></h2><p>This site and everything on it: '
                  f'<a href="../best.html">{len(c.beliefs):,} beliefs</a> across <a href="../topics.html">{len(filed)} topics</a>, '
                  f'{len(done):,} of them worked all the way through, and {len(c.specs):,} pages in all, with the rules that score them '
-                 f'and <a href="../method.html">the method page</a> that explains every number. Every row that carries no other '
-                 f'contributor&apos;s name was entered by the maintainer.</p>'
+                 f'and <a href="../method.html">the method page</a> that explains every number. Every belief and every row that '
+                 f'carries no other contributor&apos;s name was entered by the maintainer'
+                 + (f'; <a href="../contributors.html">other contributors</a> started {others:,} of the beliefs' if others else '') + '.</p>'
                  + (f'<p>{esc(u["method"])}</p>' if u.get('method') else '') + '</section>')
     groups = []
     for l in c.user_links.get(login, []):
@@ -4564,13 +4583,24 @@ def render_user(c, login, title):
             link = f'<a href="{esc(url)}" rel="me noopener">{esc(l.get("label") or url)}</a>' if re.match(r'^https?://', url) else esc(l.get('label', ''))
             o.append(f'<tr><td class="t"><strong>{esc(l.get("platform", ""))}</strong></td><td class="u">{esc(l.get("best_for", ""))}</td><td>{link}</td></tr>')
         o.append('</tbody></table></section>')
+    began = c.started.get(login, [])
+    if began:
+        o.append('<section><h2><span>Beliefs started</span></h2><table class="plain"><thead><tr><th>Belief</th><th>Proposed</th></tr></thead><tbody>')
+        for key, when, words in sorted(began, key=lambda r: (r[1], r[0]), reverse=True):
+            belief = (f'<a href="../p/{c.href(c.tabs[key])}">{esc(c.standalone(c.tabs[key]))}</a>' if key in getattr(c, 'tabs', {}) else esc(words))
+            o.append(f'<tr><td class="t">{belief}</td><td class="u">{esc(when)}</td></tr>')
+        o.append('</tbody></table>')
+        if login == c.maintainer and c.unclaimed:
+            o.append(f'<p class="tot">These are the beliefs proposed through a form. The {c.unclaimed:,} that name no proposer were '
+                     f'entered by the maintainer as well.</p>')
+        o.append('</section>')
     rows = c.added.get(login, [])
     if rows:
         n = added_counts(c, login) if login != c.maintainer else None
         said = ''
         if n:
             parts = [f'{n[k]} {w if n[k] != 1 else w1}' for k, w, w1 in (('Reasons', 'reasons', 'reason'), ('Evidence', 'findings', 'finding'), ('Other', 'other additions', 'other addition')) if n[k]]
-            said = (f'<p class="blurb">{", ".join(parts)}, across {n["Beliefs"]} belief{"s" if n["Beliefs"] != 1 else ""}. Newest first.</p>')
+            said = (f'<p class="blurb">{", ".join(parts)}, across {n["Added to"]} belief{"s" if n["Added to"] != 1 else ""}. Newest first.</p>')
         o.append(f'<section><h2><span>What {esc(name)} added</span></h2>{said}<table class="plain"><thead><tr><th>What was added</th><th>What it is</th><th>Added</th></tr></thead><tbody>')
         for e, when in sorted(rows, key=lambda r: r[1], reverse=True):
             pg = e.get('page'); claim = e.get('claim')
@@ -4590,7 +4620,7 @@ def render_user(c, login, title):
             what = esc(v.get('vote', '')) + (' that it bears on the page above' if v.get('on') else '')
             o.append(f'<tr><td class="t">{claim}</td><td class="u">{what}</td><td class="u">{esc(v.get("date", ""))}</td></tr>')
         o.append('</tbody></table></section>')
-    if not (rows or votes or login == c.maintainer):
+    if not (began or rows or votes or login == c.maintainer):
         o.append('<p class="empty">Nothing added or voted on yet.</p>')
     o.append('<p class="tot">Who added something never changes its score, and a vote never moves one: the site checks both on every build.</p>')
     if u.get('closing'): o.append(f'<p class="consts">{esc(u["closing"])}</p>')
@@ -5221,19 +5251,20 @@ def render_contributors(c, title):
     what it is: beliefs worked on, reasons, findings, everything else, and votes."""
     o = [root_head('Contributors', [('Home', 'index.html'), ('Contributors', '')], main_class='index')]
     o.append('<p class="kind">Idea Stock Exchange</p><h1>Contributors</h1>')
-    o.append('<p class="lede">Everyone who has added to a belief or cast a vote here, and whoever maintains the site. Beliefs is how many beliefs a '
-             'person has worked on; reasons are arguments for or against a claim; evidence is findings with a source; other additions are everything '
-             'else a page takes, such as predictions, costs and benefits, interests and definitions. Each person has a page listing what they added. '
-             'Who added something never changes its score.</p>')
-    o.append('<section><table class="plain"><thead><tr><th>Who</th><th>Role</th><th>Beliefs</th><th>Reasons</th><th>Evidence</th>'
+    o.append('<p class="lede">Everyone who has started a belief, added to one or cast a vote here, and whoever maintains the site. Beliefs is how '
+             'many beliefs a person has worked on, and beliefs started is how many they proposed; reasons are arguments for or against '
+             'a claim; evidence is findings with a source; other additions are everything else a page takes, such as predictions, costs and '
+             'benefits, interests and definitions. Each person has a page listing what they added. Who added something never changes its score.</p>')
+    o.append('<section><table class="plain"><thead><tr><th>Who</th><th>Role</th><th>Beliefs</th><th>Beliefs started</th><th>Reasons</th><th>Evidence</th>'
              '<th>Other additions</th><th>Up votes</th><th>Down votes</th></tr></thead><tbody>')
     for k in getattr(c, 'people', []):
         vs = [v.get('vote') for v in c.voted.get(k, [])]
         role = 'Maintainer' if k == c.maintainer else (c.users.get(k, {}).get('role') or 'Contributor')
         n = added_counts(c, k)
         o.append(f'<tr><td class="t"><a href="u/{user_slug(k)}.html">{esc(person_name(c, k))}</a></td><td class="u">{esc(role)}</td>'
-                 f'<td>{n["Beliefs"]:,}</td><td>{n["Reasons"]:,}</td><td>{n["Evidence"]:,}</td><td>{n["Other"]:,}</td><td>{vs.count("agree"):,}</td><td>{vs.count("disagree"):,}</td></tr>')
-    if not getattr(c, 'people', []): o.append('<tr><td colspan="8" class="empty">Nobody yet.</td></tr>')
+                 f'<td>{n["Beliefs"]:,}</td><td>{n["Started"]:,}</td><td>{n["Reasons"]:,}</td><td>{n["Evidence"]:,}</td><td>{n["Other"]:,}</td>'
+                 f'<td>{vs.count("agree"):,}</td><td>{vs.count("disagree"):,}</td></tr>')
+    if not getattr(c, 'people', []): o.append('<tr><td colspan="9" class="empty">Nobody yet.</td></tr>')
     o.append('</tbody></table>')
     if getattr(c, 'maintainer', None):
         o.append('<p class="tot">Anything that carries no other contributor&rsquo;s name was entered by the maintainer, so it is counted on their line.</p>')
@@ -5301,9 +5332,8 @@ def build(entry, outdir, name='Government ethics', title='Idea Stock Exchange', 
                       'page': 'p/' + c.href(pid), 'json': 'p/' + c.key[pid] + '.json'})
         if c.kind(pid) == 'belief' and not c.complete(pid): index[-1]['draft'] = True
     with open(os.path.join(outdir, 'index.html'), 'w') as fh: fh.write(blurbs_below(ths(render_index(c, title))))
-    for name, fn in (('all', render_all), ('costs', render_costs), ('invest', render_invest), ('bets', render_bets), ('resolve', render_resolve),
-                     ('motives', render_motives), ('gain', render_gain), ('factors', render_factors), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
-    for name, fn in (('all', render_all), ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('short', render_short), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
+    for name, fn in (('all', render_all), ('costs', render_costs), ('invest', render_invest), ('bets', render_bets), ('resolve', render_resolve), ('motives', render_motives), ('gain', render_gain), ('factors', render_factors),
+                     ('best', render_best), ('contested', render_contested), ('relied', render_relied), ('short', render_short), ('hardest', render_hardest), ('next', render_next), ('predictions', render_predictions), ('compare', render_compare), ('interests', render_interests), ('media', render_media_index), ('topics', render_topics_index), ('lists', render_lists), ('about', render_about)):
         with open(os.path.join(outdir, name + '.html'), 'w') as fh: fh.write(blurbs_below(ths(fn(c, title))))
     os.makedirs(os.path.join(outdir, 'u'))
     for login in getattr(c, 'people', []):

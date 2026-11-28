@@ -643,6 +643,52 @@ class TestTheFlow(unittest.TestCase):
         back = IT.specs_to_tables(*IT.tables_to_specs(pages, edges2))[1]
         self.assertEqual(sum(prov(e) == stamp for e in back), 4, 'the round trip dropped who added a row')
 
+    # ---------------------------------------------------------------- who proposed a belief
+    def proposals(self):
+        return IT.read_proposals(self.d)
+
+    def test_a_belief_proposed_with_no_reason_attached_still_says_who_proposed_it(self):
+        """No row points at a new belief, so no row's extra cell can carry who added it: the proposals table does."""
+        body = BELIEF.format(text='Cities should ban gas leaf blowers.', topic='cities', agree=NONE, disagree=NONE, source=NONE)
+        done = self.go(event(body, 'belief', number=11, login='bea'))
+        self.assertEqual(done['did'], 'pr')
+        b = 'cities-ban-gas-leaf-blowers'
+        self.assertEqual(self.proposals(), [{'key': b, 'login': 'bea', 'date': '2026-09-29', 'issue': '11'}])
+        pages, edges = self.tables()
+        self.assertEqual(len(edges), 8, 'a belief with no reason attached added a row')
+        self.assertEqual(pages[b], {'key': b, 'kind': 'belief', 'text': 'Cities should ban gas leaf blowers.', 'topic': 't'},
+                         'who proposed a belief is written on the page row, where a scorer could read it')
+        self.assertIn(os.path.join(self.d, 'proposals.csv'), self.run.ran('git', 'add')[-1], 'the record is not in the pull request with the belief')
+        pr = self.run.ran('gh', 'pr', 'create')[0]
+        self.assertIn('content/proposals.csv', pr[pr.index('--body') + 1])
+        self.assertIn('Rows added:\n- none', pr[pr.index('--body') + 1], 'a pull request that adds no row leaves the list blank')
+
+    def test_a_belief_proposed_with_reasons_is_recorded_once_and_its_rows_are_stamped_as_before(self):
+        body = BELIEF.format(text='Cities should ban gas leaf blowers.', topic='cities', agree='Gas blowers are as loud as a chainsaw at the curb.',
+                             disagree='Electric blowers cannot clear wet leaves.', source=NONE)
+        self.go(event(body, 'belief'))
+        self.assertEqual([(r['key'], r['login']) for r in self.proposals()], [('cities-ban-gas-leaf-blowers', 'ann')],
+                         'a reason proposed with the belief was recorded as a belief of its own')
+        _, edges = self.tables()
+        self.assertEqual([IT.parse_extra(e['extra'])['added_by'] for e in edges[8:]], ['ann', 'ann'])
+
+    def test_only_a_proposed_belief_is_recorded(self):
+        self.go(contribute(text='Street trees drop limbs on parked cars every storm.'))
+        self.go(contribute(section='upstream', text='Cities should spend more on what cools them.', number=8))
+        dup = BELIEF.format(text='Cities should plant more trees.', topic=NONE, agree=NONE, disagree=NONE, source=NONE)
+        self.assertEqual(self.go(event(dup, 'belief', number=9))['did'], 'duplicate')
+        self.assertEqual(self.proposals(), [], 'a row, a broader belief filed as a claim, or a vote was recorded as a proposed belief')
+        self.assertFalse(os.path.exists(os.path.join(self.d, 'proposals.csv')), 'a submission that proposes nothing wrote the table')
+        for add in self.run.ran('git', 'add'): self.assertNotIn(os.path.join(self.d, 'proposals.csv'), add)
+
+    def test_a_second_proposal_keeps_the_first_and_the_table_stays_sorted_by_key(self):
+        IT.write_proposals([{'key': 'b', 'login': 'bob', 'date': '2026-01-05', 'issue': '3'}], self.d)
+        for n, text in ((11, 'Cities should ban gas leaf blowers.'), (12, 'Aldermen should publish their calendars every week.')):
+            self.go(event(BELIEF.format(text=text, topic=NONE, agree=NONE, disagree=NONE, source=NONE), 'belief', number=n, login=f'u{n}'))
+        self.assertEqual([(r['key'], r['login'], r['issue']) for r in self.proposals()],
+                         [('aldermen-publish-calendars-every-week', 'u12', '12'), ('b', 'bob', '3'), ('cities-ban-gas-leaf-blowers', 'u11', '11')])
+        with open(os.path.join(self.d, 'proposals.csv')) as fh: self.assertEqual(fh.readline().strip(), ','.join(IT.PROPOSAL_COLS))
+
     # ---------------------------------------------------------------- votes
     def test_a_vote_on_whether_a_row_bears_on_its_page_is_kept_apart_from_a_vote_on_its_truth(self):
         """A reader can vote on an argument as an argument: yes or no to whether r1 bears on a, which is not the
@@ -1033,6 +1079,18 @@ class TestTheOutlineForm(unittest.TestCase):
         self.assertIn('on pages this pull request adds', self.pr_body())
         self.assertIn('counts once it is merged', self.comment())
 
+    def test_a_belief_an_outline_proposes_says_who_proposed_it_and_a_post_that_proposes_none_writes_nothing(self):
+        done = self.go(outline('Belief: Officials should publish their calendars every week.', login='bea', number=14))
+        self.assertEqual(done['did'], 'pr')
+        self.assertEqual(done['edges'], [], 'the post was meant to propose a belief with nothing under it')
+        self.assertEqual(IT.read_proposals(self.d), [{'key': 'officials-publish-calendars-every-week', 'login': 'bea', 'date': '2026-09-29', 'issue': '14'}])
+        self.assertIn(os.path.join(self.d, 'proposals.csv'), self.run.ran('git', 'add')[-1])
+        self.assertIn('content/proposals.csv', self.pr_body())
+        self.run.log.clear()
+        self.go(outline('Page: [a]\n  + Street trees drop limbs on parked cars every storm.', number=15))
+        self.assertEqual(len(IT.read_proposals(self.d)), 1, 'a post that adds a row to a page was recorded as proposing a belief')
+        self.assertNotIn(os.path.join(self.d, 'proposals.csv'), self.run.ran('git', 'add')[-1])
+
     def test_a_heading_inside_the_senders_own_fence_stays_in_the_outline(self):
         text = ('```reasons\nPage: [a]\n### Reasons to agree\n  + Street trees drop limbs on parked cars every storm.\n'
                 '  + Shade lowers summer power bills for nearby homes.\n```')
@@ -1266,6 +1324,15 @@ class TestTheCommandLine(unittest.TestCase):
         with open(os.path.join(K.CONTENT, 'votes.csv')) as fh:
             self.assertIn(fh.readline().strip(), (','.join(K.VOTE_COLS), ','.join(K.VOTE_COLS[:-1])))
         self.assertTrue(all('on' in v for v in K.read_votes(os.path.join(K.CONTENT, 'votes.csv'))), 'an older file reads without its on column')
+
+    def test_the_proposals_header_is_the_contract_and_names_no_scored_table(self):
+        """Who proposed a belief is kept beside the votes, outside pages and edges: a column of either that named a
+        person is a column a scorer could read (test_invariants pins that no such column exists)."""
+        self.assertEqual(IT.PROPOSAL_COLS, ['key', 'login', 'date', 'issue'])
+        with open(os.path.join(K.CONTENT, 'proposals.csv')) as fh:
+            self.assertEqual(fh.readline().strip(), ','.join(IT.PROPOSAL_COLS))
+        beliefs = {p['key'] for p in IT.read_csv(K.CONTENT)[0] if p.get('kind') == 'belief'}
+        self.assertLessEqual({r['key'] for r in IT.read_proposals(K.CONTENT)}, beliefs, 'a proposal names a key that is not a belief in the tables')
 
     def test_the_thresholds_are_the_measures_own(self):
         import similarity
